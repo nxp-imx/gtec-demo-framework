@@ -38,8 +38,8 @@ from typing import Dict
 import argparse
 import json
 from FslBuildGen import IOUtil
-from FslBuildGen import Main as MainFlow
-from FslBuildGen.Log import Log
+#from FslBuildGen import Main as MainFlow
+#from FslBuildGen.Log import Log
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
@@ -63,8 +63,8 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
     return LocalToolConfig()
 
 class ToolFlowDumpEnv(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -100,8 +100,8 @@ class ToolFlowDumpEnv(AToolAppFlow):
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
     def GetTitle(self) -> str:
         return 'FslBuildSave'

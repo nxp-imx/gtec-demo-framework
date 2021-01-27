@@ -70,7 +70,7 @@ namespace Fsl
         }
       }
 
-      bool checkSphere(glm::vec3 pos, float radius)
+      bool checkSphere(const glm::vec3& pos, float radius)
       {
         for (std::size_t i = 0; i < Planes.size(); ++i)
         {

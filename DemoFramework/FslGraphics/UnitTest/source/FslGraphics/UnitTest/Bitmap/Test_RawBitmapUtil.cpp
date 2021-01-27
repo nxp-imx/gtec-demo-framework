@@ -722,3 +722,416 @@ TEST(TestBitmap_RawBitmapUtil, Expand1ByteToNBytes_SrcToDst)
 
   EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
 }
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest_Scale_16x1)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, 16 * 4> src{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, 8 * 4> expected{
+    0x00, 0x01, 0x02, 0x03, 0x08, 0x09, 0x0a, 0x0b, 0x10, 0x11, 0x12, 0x13, 0x18, 0x19, 0x1a, 0x1b,
+    0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b, 0x30, 0x31, 0x32, 0x33, 0x38, 0x39, 0x3a, 0x3b,
+  };
+
+  const RawBitmap srcRawBitmap(src.data(), 16, 1, PixelFormat::R8G8B8A8_UNORM, 16 * 4, BitmapOrigin::UpperLeft);
+
+  std::array<uint8_t, 8 * 4> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 8, 1, PixelFormat::R8G8B8A8_UNORM, 8 * 4, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_NoScale_1x2)
+{
+  // 1X2 with four bytes skipped in stride
+  //-----------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X,  X,  X,  X
+  const std::array<uint8_t, 2 * (4 + 4)> src{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, 2 * (4 + 4)> expected{1, 2, 3, 4, 0, 0, 0, 0, 9, 10, 11, 12, 0, 0, 0, 0};
+  const RawBitmap srcRawBitmap(src.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 8u, BitmapOrigin::UpperLeft);
+
+  std::array<uint8_t, 2 * (4 + 4)> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 8u, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_NoScale_4x4)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, 16 * 4> src{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, 16 * 4> expected{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 16u, BitmapOrigin::UpperLeft);
+
+  std::array<uint8_t, 16 * 4> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 16u, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_16x1)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, 16 * 4> src{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, 8 * 4> expected{
+    0x00, 0x01, 0x02, 0x03, 0x08, 0x09, 0x0a, 0x0b, 0x10, 0x11, 0x12, 0x13, 0x18, 0x19, 0x1a, 0x1b,
+    0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b, 0x30, 0x31, 0x32, 0x33, 0x38, 0x39, 0x3a, 0x3b,
+  };
+
+  const RawBitmap srcRawBitmap(src.data(), 16, 1, PixelFormat::R8G8B8A8_UNORM, 16 * 4, BitmapOrigin::UpperLeft);
+
+  std::array<uint8_t, 8 * 4> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 8, 1, PixelFormat::R8G8B8A8_UNORM, 8 * 4, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_1x16)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, 16 * 4> src{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, 8 * 4> expected{
+    0x00, 0x01, 0x02, 0x03, 0x08, 0x09, 0x0a, 0x0b, 0x10, 0x11, 0x12, 0x13, 0x18, 0x19, 0x1a, 0x1b,
+    0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b, 0x30, 0x31, 0x32, 0x33, 0x38, 0x39, 0x3a, 0x3b,
+  };
+
+  const RawBitmap srcRawBitmap(src.data(), 1, 16, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+
+  std::array<uint8_t, 8 * 4> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 1, 8, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_4x4)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, 16 * 4> src{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, (2 * 2) * 4> expected{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x08, 0x09, 0x0a, 0x0b, 0x20, 0x21, 0x22, 0x23, 0x28, 0x29, 0x2a, 0x2b,
+  };
+
+  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+
+  std::array<uint8_t, (2 * 2) * 4> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Scale_4x4ToZero)
+{
+  const std::array<uint8_t, 16 * 4> src{
+    // A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15,
+    0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b,
+    0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+  };
+
+  //----------------------------------------------A, A, A, A, X, X, X, X, B, B,  B,  B,  X, X, X, X
+  const std::array<uint8_t, 1> expected{};
+
+  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, 1> dst{};
+  RawBitmapEx dstRawBitmap(dst.data(), 0, 0, PixelFormat::R8G8B8A8_UNORM, 0, BitmapOrigin::UpperLeft);
+
+  RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap);
+
+  EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_Unsupported)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, 1 * 4> src{};
+
+  const RawBitmap srcRawBitmap(src.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (4 * 4) * 4> dst{};
+
+  {    // Upscale X
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 1, PixelFormat::R8G8B8A8_UNORM, 8, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Upscale Y
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Mismatched origin
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::LowerLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Mismatched pixel format
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8_UNORM, 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // invalid src
+    RawBitmap srcRawBitmapInvalid;
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 8, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmapInvalid), std::invalid_argument);
+  }
+  {    // invalid dst
+    RawBitmapEx dstRawBitmap;
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // invalid dst stride
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 5, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), NotSupportedException);
+  }
+  {    // invalid src stride
+    RawBitmapEx srcRawBitmapInvalid(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 5, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmapInvalid), NotSupportedException);
+  }
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_WidthExceeded)
+{
+  const std::vector<uint8_t> src(0x10000 * 4);
+
+  const RawBitmap srcRawBitmap(src.data(), 0x10000, 1, PixelFormat::R8G8B8A8_UNORM, 0x10000 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::vector<uint8_t> dst(0x10000 * 4);
+
+  RawBitmapEx dstRawBitmap(dst.data(), 0x10000, 1, PixelFormat::R8G8B8A8_UNORM, 0x10000 * 4, BitmapOrigin::UpperLeft);
+  EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), NotSupportedException);
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleNearest32_HeightExceeded)
+{
+  const std::vector<uint8_t> src(0x10000 * 4);
+
+  const RawBitmap srcRawBitmap(src.data(), 1, 0x10000, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::vector<uint8_t> dst(0x10000 * 4);
+
+  RawBitmapEx dstRawBitmap(dst.data(), 1, 0x10000, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+  EXPECT_THROW(RawBitmapUtil::DownscaleNearest32(dstRawBitmap, srcRawBitmap), NotSupportedException);
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_Unsupported)
+{
+  // 1X2 with four bytes skipped in stride
+  const std::array<uint8_t, (4 * 4) * 4> src{};
+
+  const RawBitmap srcRawBitmap(src.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (2 * 2) * 4> dst{};
+
+  {    // Invalid src width
+    const RawBitmap srcRawBitmap2(src.data(), 5, 4, PixelFormat::R8G8B8A8_UNORM, 5 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap2), std::invalid_argument);
+  }
+
+  {    // Invalid width
+    RawBitmapEx dstRawBitmap(dst.data(), 3, 2, PixelFormat::R8G8B8A8_UNORM, 3 * 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Invalid Height
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 3, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Mismatched origin
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::LowerLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Mismatched pixel format
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // Mismatched pixel channels
+    const RawBitmap srcRawBitmap2(src.data(), 4, 4, PixelFormat::R16G16_SFLOAT, 4 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R16G16_SFLOAT, 2 * 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap2), std::invalid_argument);
+  }
+  {    // invalid src
+    RawBitmap srcRawBitmapInvalid;
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmapInvalid), std::invalid_argument);
+  }
+  {    // invalid dst
+    RawBitmapEx dstRawBitmap;
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), std::invalid_argument);
+  }
+  {    // invalid dst stride
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, (2 * 4) + 1, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap), NotSupportedException);
+  }
+  {    // invalid src stride
+    RawBitmapEx srcRawBitmapInvalid(dst.data(), 4, 4, PixelFormat::R8G8B8A8_UNORM, (4 * 4) + 1, BitmapOrigin::UpperLeft);
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    EXPECT_THROW(RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmapInvalid), NotSupportedException);
+  }
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From1x1)
+{
+  const std::array<uint8_t, (1 * 1) * 4> src{0x80, 0x60, 0x40, 0x20};
+
+  const RawBitmap srcRawBitmap(src.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (1 * 1) * 4> dst{};
+
+  {
+    RawBitmapEx dstRawBitmap(dst.data(), 0, 0, PixelFormat::R8G8B8A8_UNORM, 0 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
+  }
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From2x2A)
+{
+  //                                            A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+  const std::array<uint8_t, (2 * 2) * 4> src{0xFF, 0x00, 0x00, 0x00, 0x00, 0xEF, 0x00, 0x00, 0x00, 0x00, 0xDF, 0x00, 0x00, 0x00, 0x00, 0xCF};
+
+  const RawBitmap srcRawBitmap(src.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (1 * 1) * 4> dst{};
+
+  {
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
+
+    //                                                 A,    A,    A,    A
+    const std::array<uint8_t, (1 * 1) * 4> expected{0x3F, 0x3B, 0x37, 0x33};
+
+    EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+  }
+}
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From2x2B)
+{
+  //                                            A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D
+  const std::array<uint8_t, (2 * 2) * 4> src{0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0};
+
+  const RawBitmap srcRawBitmap(src.data(), 2, 2, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (1 * 1) * 4> dst{};
+
+  {
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 1, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
+
+    const std::array<uint8_t, (1 * 1) * 4> expected{(0x00 + 0x40 + 0x80 + 0xC0) / 4, (0x10 + 0x50 + 0x90 + 0xD0) / 4, (0x20 + 0x60 + 0xA0 + 0xE0) / 4,
+                                                    (0x30 + 0x70 + 0xB0 + 0xF0) / 4};
+
+    EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+  }
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From4x2)
+{
+  //                                            A,    A,    A,    A,    B,    B,    B,    B,    C,    C,    C,    C,    D,    D,    D,    D,
+  const std::array<uint8_t, (4 * 2) * 4> src{0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0,
+                                             0xE8, 0xD8, 0xC8, 0xB8, 0xA8, 0x98, 0x88, 0x78, 0x68, 0x58, 0x48, 0x38, 0x28, 0x18, 0x08, 0x03};
+
+  const RawBitmap srcRawBitmap(src.data(), 4, 2, PixelFormat::R8G8B8A8_UNORM, 4 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (2 * 1) * 4> dst{};
+
+  {
+    RawBitmapEx dstRawBitmap(dst.data(), 2, 1, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
+
+    const std::array<uint8_t, (2 * 1) * 4> expected{(0x00 + 0x40 + 0xE8 + 0xA8) / 4, (0x10 + 0x50 + 0xD8 + 0x98) / 4, (0x20 + 0x60 + 0xC8 + 0x88) / 4,
+                                                    (0x30 + 0x70 + 0xB8 + 0x78) / 4, (0x80 + 0xC0 + 0x68 + 0x28) / 4, (0x90 + 0xD0 + 0x58 + 0x18) / 4,
+                                                    (0xA0 + 0xE0 + 0x48 + 0x08) / 4, (0xB0 + 0xF0 + 0x38 + 0x03) / 4};
+
+    EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+  }
+}
+
+
+TEST(TestBitmap_RawBitmapUtil, DownscaleBoxFilter32_From2x4)
+{
+  //                                            A,    A,    A,    A,    B,    B,    B,    B,
+  const std::array<uint8_t, (2 * 4) * 4> src{0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0, 0xB0, 0xC0, 0xD0, 0xE0, 0xF0,
+                                             0xE8, 0xD8, 0xC8, 0xB8, 0xA8, 0x98, 0x88, 0x78, 0x68, 0x58, 0x48, 0x38, 0x28, 0x18, 0x08, 0x03};
+
+  const RawBitmap srcRawBitmap(src.data(), 2, 4, PixelFormat::R8G8B8A8_UNORM, 2 * 4, BitmapOrigin::UpperLeft);
+
+  // We use size 1 arrays here to ensure that we dont get a null ptr from data()
+  std::array<uint8_t, (1 * 2) * 4> dst{};
+
+  {
+    RawBitmapEx dstRawBitmap(dst.data(), 1, 2, PixelFormat::R8G8B8A8_UNORM, 1 * 4, BitmapOrigin::UpperLeft);
+    RawBitmapUtil::DownscaleBoxFilter32(dstRawBitmap, srcRawBitmap);
+
+    const std::array<uint8_t, (1 * 2) * 4> expected{(0x00 + 0x40 + 0x80 + 0xC0) / 4, (0x10 + 0x50 + 0x90 + 0xD0) / 4, (0x20 + 0x60 + 0xA0 + 0xE0) / 4,
+                                                    (0x30 + 0x70 + 0xB0 + 0xF0) / 4, (0xE8 + 0xA8 + 0x68 + 0x28) / 4, (0xD8 + 0x98 + 0x58 + 0x18) / 4,
+                                                    (0xC8 + 0x88 + 0x48 + 0x08) / 4, (0xB8 + 0x78 + 0x38 + 0x03) / 4};
+
+    EXPECT_TRUE(Fsl::Test::IsArrayContentEqual(expected, dst));
+  }
+}

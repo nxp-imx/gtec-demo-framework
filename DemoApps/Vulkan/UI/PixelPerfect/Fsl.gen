@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.UI.PixelPerfect" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.UI.PixelPerfect"/>
-    <Platform Name="Windows" ProjectId="46F77D25-917C-4886-9309-5FD8BC2D72C6"/>
   </Executable>
 </FslBuildGen>

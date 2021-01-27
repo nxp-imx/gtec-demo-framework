@@ -30,12 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
@@ -116,7 +117,7 @@ namespace Fsl
       const auto* const pFont = m_font.get();
       assert(pFont != nullptr);
       batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
-      batch->DrawString(*pFont, m_content, context.TargetRect.TopLeft(), color);
+      batch->DrawString(*pFont, m_content, TypeConverter::To<Vector2>(context.TargetRect.TopLeft()), color);
     }
 
 

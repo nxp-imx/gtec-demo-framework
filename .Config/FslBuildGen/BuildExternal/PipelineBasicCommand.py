@@ -33,23 +33,23 @@
 
 from typing import Optional
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PipelineInfo import PipelineInfo
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineBasicCommand
 
 class PipelineBasicCommand(object):
-    def __init__(self, basicConfig: BasicConfig,
+    def __init__(self, log: Log,
                  sourceCommand: Optional[XmlRecipePipelineBasicCommand],
                  pipelineInfo: PipelineInfo, finalDstPath: Optional[str] = None) -> None:
         super().__init__()
-        self.BasicConfig = basicConfig
+        self.Log = log
         self.SourceCommand = sourceCommand
         self.Info = pipelineInfo
         self.FinalDstPath = finalDstPath if not finalDstPath is None else self.Info.CombinedDstRootPath
 
 
     def LogPrint(self, message: str) -> None:
-        self.BasicConfig.LogPrint(message)
+        self.Log.LogPrint(message)
 
 
     def _CreateDirectory(self, path: str) -> None:

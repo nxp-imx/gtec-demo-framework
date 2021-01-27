@@ -33,14 +33,14 @@
 
 from typing import List
 from typing import Optional
-from FslBuildGen.BasicConfig import BasicConfig
+#from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.RequirementTreeNode import RequirementTreeNode
 from FslBuildGen.Build import RequirementTreeUtil
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
-from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
+#from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
 
 
 # TODO: much of the requirement code can be made simpler by using the 'supported' flag on the nodes instead

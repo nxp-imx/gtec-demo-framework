@@ -58,4 +58,3 @@ class ClangFormatConfiguration(ClangConfiguration):
                 raise Exception("ClangFormatConfiguration: File extension can not start with '..'")
             if not fileExt.startswith("."):
                 raise Exception("ClangFormatConfiguration: File extension '{0}' does not start with '.'")
-

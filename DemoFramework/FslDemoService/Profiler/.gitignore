@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /FslDemoService.Profiler.VC.VC.opendb
 /FslDemoService.Profiler.VC.db
 /FslDemoService.Profiler.manifest

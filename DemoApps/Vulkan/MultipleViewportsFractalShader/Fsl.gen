@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.MultipleViewportsFractalShader" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.FractalShader"/>
-    <Platform Name="Windows" ProjectId="51B8BD78-8C6C-42FA-9214-86A16E4990AD"/>
   </Executable>
 </FslBuildGen>

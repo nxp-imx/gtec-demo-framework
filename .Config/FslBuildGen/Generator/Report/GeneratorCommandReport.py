@@ -33,6 +33,7 @@
 
 from typing import List
 from typing import Optional
+from FslBuildGen import IOUtil
 
 class GeneratorCommandReport(object):
     def __init__(self, useAsRelative: bool, commandFormatString: str,
@@ -55,8 +56,10 @@ class GeneratorCommandReport(object):
             raise Exception("commandFormatString can not be None")
         if commandFormatString.startswith('/') or ':' in commandFormatString:
             raise Exception("commandFormatString can not be absolute")
-        if currentWorkingDirectoryFormatString is not None and (currentWorkingDirectoryFormatString.startswith('/') or ':' in currentWorkingDirectoryFormatString):
-            raise Exception("currentWorkingDirectoryFormatString can not be absolute")
+        #if currentWorkingDirectoryFormatString is not None and (currentWorkingDirectoryFormatString.startswith('/') or ':' in currentWorkingDirectoryFormatString):
+        #    raise Exception("currentWorkingDirectoryFormatString can not be absolute: '{0}'".format(currentWorkingDirectoryFormatString))
+        if currentWorkingDirectoryFormatString is not None and IOUtil.IsDriveRootPath(currentWorkingDirectoryFormatString):
+            raise Exception("currentWorkingDirectoryFormatString can not point to a drive root: '{0}'".format(currentWorkingDirectoryFormatString))
         if runInEnvScript is not None and (runInEnvScript.startswith('/') or ':' in runInEnvScript):
             raise Exception("runInEnvScript can not be absolute")
         if len(nativeArguments) != 0 and nativeArgumentSeparator is None:
@@ -73,7 +76,7 @@ class GeneratorCommandReport(object):
         self.Arguments = arguments
 
         # The argument that indicates that the rest of the arguments are native arguments
-        self.NativeArgumentSeparator = nativeArgumentSeparator;
+        self.NativeArgumentSeparator = nativeArgumentSeparator
         # Arguments that should be send to the native command
         self.NativeArguments = nativeArguments
 

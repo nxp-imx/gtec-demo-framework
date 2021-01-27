@@ -101,7 +101,7 @@ FslBuild.py --ForAllExe "(EXE) --Window [0,0,1920,1080] --ExitAfterFrame 5 --For
 Run the WinScreenshot bat script (only works on windows)
 
 ```bash
-FslBuild.py --ForAllExe "WinScreenshot (EXE)"
+FslBuild.py --ForAllExe "WinScreenshot.bat (EXE) (PACKAGE_PATH)"
 ```
 
 Run the all unit tests

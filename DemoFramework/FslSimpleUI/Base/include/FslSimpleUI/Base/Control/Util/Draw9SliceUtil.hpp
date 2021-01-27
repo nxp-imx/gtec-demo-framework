@@ -107,8 +107,8 @@ namespace Fsl
         float bgSizeX = bgLeft + bgRight + rect4Width;
         float bgSizeY = bgTop + bgBottom + rect4Height;
         {
-          Vector2 bgScale;
-          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), Vector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+          PxVector2 bgScale;
+          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
           {
             return;
           }
@@ -228,8 +228,8 @@ namespace Fsl
         float bgSizeX = bgLeft + bgRight + rect4Width;
         float bgSizeY = bgTop + bgBottom + rect4Height;
         {
-          Vector2 bgScale;
-          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), Vector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+          PxVector2 bgScale;
+          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
           {
             return;
           }
@@ -350,8 +350,8 @@ namespace Fsl
         float bgSizeX = bgLeft + bgRight + rect4Width;
         float bgSizeY = bgTop + bgBottom + rect4Height;
         {
-          Vector2 bgScale;
-          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), Vector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+          PxVector2 bgScale;
+          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
           {
             return;
           }
@@ -474,8 +474,8 @@ namespace Fsl
         float bgSizeX = bgLeft + bgRight + rect4Width;
         float bgSizeY = bgTop + bgBottom + rect4Height;
         {
-          Vector2 bgScale;
-          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), Vector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+          PxVector2 bgScale;
+          if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
           {
             return;
           }

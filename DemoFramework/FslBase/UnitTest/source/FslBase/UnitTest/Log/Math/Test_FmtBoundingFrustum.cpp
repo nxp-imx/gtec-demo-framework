@@ -46,8 +46,8 @@ namespace
 
 TEST(TestLog_Math_FmtBoundingFrustum, Log)
 {
-  BoundingFrustum value(Matrix(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f));
+  BoundingFrustum value(Matrix(1.1f, 2.1f, 3.1f, 4.1f, 5.1f, 6.1f, 7.1f, 8.1f, 9.1f, 10.1f, 11.1f, 12.1f, 13.1f, 14.1f, 15.1f, 16.1f));
 
-  EXPECT_EQ(std::string("{Matrix={1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0}}"),
+  EXPECT_EQ(std::string("{Matrix={1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1, 11.1, 12.1, 13.1, 14.1, 15.1, 16.1}}"),
             fmt::format("{}", value));
 }

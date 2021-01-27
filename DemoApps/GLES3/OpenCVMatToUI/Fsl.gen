@@ -5,6 +5,5 @@
     <Dependency Name="OpenCV4"/>
     <Dependency Name="Shared.OpenCVExperimental"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Platform Name="Windows" ProjectId="FFC39E30-FDDA-4519-B060-95D71447DD15"/>
   </Executable>
 </FslBuildGen>

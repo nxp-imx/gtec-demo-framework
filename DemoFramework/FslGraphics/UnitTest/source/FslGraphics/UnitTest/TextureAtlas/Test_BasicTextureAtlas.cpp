@@ -88,38 +88,3 @@ TEST(TestTexture_BasicTextureAtlas, Reset)
     EXPECT_EQ(TEST_DP, entry0.TextureInfo.Dpi);
   }
 }
-
-
-TEST(TestTextureAtlas_BasicTextureAtlas, Construct_Default_Deprecated)
-{
-  BasicTextureAtlas atlas;
-  EXPECT_EQ(0, atlas.Count());
-  EXPECT_THROW(atlas.GetEntry(0), std::invalid_argument);
-  EXPECT_THROW(atlas.SetEntry(0, Rectangle(0, 0, 10, 10), Rectangle(2, 2, 3, 3), UTF8String("hello")), std::invalid_argument);
-}
-
-TEST(TestTexture_BasicTextureAtlas, Reset_Deprecated)
-{
-  BasicTextureAtlas atlas;
-  atlas.Reset(1);
-  EXPECT_EQ(1, atlas.Count());
-  {
-    const auto& entry0 = atlas.GetEntry(0);
-    EXPECT_EQ(IO::Path(), entry0.Name);
-    EXPECT_EQ(PxPoint2(), entry0.TextureInfo.OffsetPx);
-    EXPECT_EQ(PxExtent2D(), entry0.TextureInfo.ExtentPx);
-    EXPECT_EQ(PxThicknessU(), entry0.TextureInfo.TrimMarginPx);
-    EXPECT_EQ(PxRectangleU(), entry0.TextureInfo.TrimmedRectPx);
-  }
-
-  atlas.SetEntry(0, Rectangle(1, 2, 20, 30), Rectangle(4, 6, 8, 12), UTF8String("hello"));
-  {
-    const auto& entry0 = atlas.GetEntry(0);
-    EXPECT_EQ(IO::Path("hello"), entry0.Name);
-    EXPECT_EQ(PxPoint2(1, 2), entry0.TextureInfo.OffsetPx);
-    EXPECT_EQ(PxExtent2D(20, 30), entry0.TextureInfo.ExtentPx);
-    EXPECT_EQ(PxThicknessU(3, 4, 9, 14), entry0.TextureInfo.TrimMarginPx);
-    EXPECT_EQ(PxRectangleU(4, 6, 8, 12), entry0.TextureInfo.TrimmedRectPx);
-    EXPECT_EQ(DEFAULT_DP, entry0.TextureInfo.Dpi);
-  }
-}

@@ -85,8 +85,8 @@ namespace Fsl
 
     Willems::VulkanDevice* m_pVulkanDevice;
 
-    glm::vec3 m_color;
-    glm::vec3 m_pos;
+    glm::vec3 m_color{};
+    glm::vec3 m_pos{};
     float m_rotSpeed = 0.0f;
     float m_rotOffset = 0.0f;
 
@@ -94,7 +94,7 @@ namespace Fsl
     Willems::VulkanBuffer m_indexBuffer;
     uint32_t m_indexCount = 0;
 
-    UBO m_ubo;
+    UBO m_ubo{};
     Willems::VulkanUniformData m_uniformData;
 
   public:

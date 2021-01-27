@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslGraphics3D.Procedural"/>
     <Dependency Name="Shared.FurShellRendering"/>
-    <Platform Name="Windows" ProjectId="0CAB1148-2D36-4026-8464-66C9185C17EF"/>
   </Executable>
 </FslBuildGen>

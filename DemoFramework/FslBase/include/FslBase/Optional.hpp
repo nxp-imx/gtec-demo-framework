@@ -52,7 +52,7 @@ namespace Fsl
   public:
     using value_type = T;
 
-    constexpr Optional() noexcept = default;
+    constexpr Optional() /*noexcept*/ = default;
 
     Optional(const Optional& src) = default;
     Optional(Optional&& src) noexcept = default;
@@ -63,7 +63,8 @@ namespace Fsl
     {
     }
 
-    explicit Optional(T&& src) noexcept
+    // NOLINTNEXTLINE(google-explicit-constructor)
+    Optional(T&& src) noexcept
       : m_hasValue(true)
       , m_value(std::move(src))
     {

@@ -32,13 +32,12 @@
 #****************************************************************************************************************************************************
 
 from typing import List
-from FslBuildGen import IOUtil
+#from FslBuildGen import IOUtil
 
 class ClangTidyPlatformCompiler(object):
     def __init__(self, flags: List[str]) -> None:
         super().__init__()
         self.Flags = flags
-
 
     def Merge(self, compiler: 'ClangTidyPlatformCompiler') -> None:
         self.Flags += compiler.Flags

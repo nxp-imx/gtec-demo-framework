@@ -52,9 +52,9 @@ namespace Fsl
     int m_rrErrorBase;
 
   public:
-    PlatformNativeWindowSystemX11(const NativeWindowSystemSetup& setup,
-                                  const PlatformNativeWindowAllocationFunction& allocateWindowFunction = nullptr,
-                                  const PlatformNativeWindowSystemParams& systemParams = PlatformNativeWindowSystemParams());
+    explicit PlatformNativeWindowSystemX11(const NativeWindowSystemSetup& setup,
+                                           const PlatformNativeWindowAllocationFunction& allocateWindowFunction = nullptr,
+                                           const PlatformNativeWindowSystemParams& systemParams = PlatformNativeWindowSystemParams());
     ~PlatformNativeWindowSystemX11() override;
 
     std::shared_ptr<INativeWindow>

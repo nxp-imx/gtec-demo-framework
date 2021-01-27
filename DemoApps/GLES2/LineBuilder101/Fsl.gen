@@ -3,6 +3,5 @@
   <Executable Name="GLES2.LineBuilder101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.LineBuilder101"/>
-    <Platform Name="Windows" ProjectId="8D99FD56-5B17-4BF4-9458-37A804704A18"/>
   </Executable>
 </FslBuildGen>

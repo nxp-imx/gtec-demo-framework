@@ -231,7 +231,7 @@ namespace Fsl
     float Length() const;
 
     //! @brief Calculates the length of the vector squared.
-    float LengthSquared() const
+    constexpr float LengthSquared() const
     {
       return (X * X) + (Y * Y);
     }

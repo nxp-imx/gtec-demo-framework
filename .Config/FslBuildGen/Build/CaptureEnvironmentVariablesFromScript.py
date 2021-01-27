@@ -54,8 +54,9 @@ class LocalUtil(object):
                 cmdList[0] = cmdList[0][:-3] + ".bat"
 
             with subprocess.Popen(cmdList, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True) as proc:
-                output = proc.stdout.read().strip()
-                proc.stdout.close()
+                output = proc.stdout.read().strip() if proc.stdout is not None else ""
+                if proc.stdout is not None:
+                    proc.stdout.close()
                 result = proc.wait()
                 if result != 0:
                     LocalUtil.DumpCapture(log, 4, output)
@@ -65,8 +66,8 @@ class LocalUtil(object):
                     return output
                 return None
         except FileNotFoundError:
-                log.DoPrintWarning("The command '{0}' failed with 'file not found'.".format(" ".join(cmdList)))
-                return None
+            log.DoPrintWarning("The command '{0}' failed with 'file not found'.".format(" ".join(cmdList)))
+            return None
 
     @staticmethod
     def ExtractJson(content: str) -> str:
@@ -88,7 +89,7 @@ class LocalUtil(object):
 class CaptureEnvironmentVariablesFromScript(object):
 
     @staticmethod
-    def Capture(log: Log, runCommand: List[str], pythonScriptRoot: str, envNameList: List[str]) -> Dict[str,str]:
+    def Capture(log: Log, runCommand: List[str], pythonScriptRoot: str, envNameList: List[str]) -> Dict[str, str]:
         """
         param: runCommand: the command we should run.
         param: pythonScriptRoot: The root location of the FslBuild.py tools (this must be a absolute path)
@@ -113,7 +114,7 @@ class CaptureEnvironmentVariablesFromScript(object):
 
         # Call generator run script (captured)
         # 'use the "FslBuildDumpEnv --Env [ENV1,ENV2]" script to generate a json dump for the env variables
-        strEnv =  "[{0}]".format(",".join(entryDict.values()))
+        strEnv = "[{0}]".format(",".join(entryDict.values()))
         commandName = 'FslBuildDumpEnv.py'
         absCommandName = IOUtil.Join(pythonScriptRoot, commandName)
         cmdList = [absCommandName, '--AllowNotFound', '--Enclose', '--Env', strEnv]
@@ -141,7 +142,7 @@ class CaptureEnvironmentVariablesFromScript(object):
         # Ensure that all the requested entries are present
         if len(finalDict) != len(entryDict):
             missingKeys = []
-            for key in entryDict.keys():
+            for key in entryDict:
                 if not key in finalDict:
                     missingKeys.append(key)
             LocalUtil.DumpCapture(log, 4, content)

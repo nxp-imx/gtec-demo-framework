@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="Shared.TextureCompression" CreationYear="2019">
     <Dependency Name="FslSimpleUI.Base"/>
-    <Platform Name="Windows" ProjectId="49AC4D24-34CF-4F35-846C-6CDD57D75B1F"/>
   </Library>
 </FslBuildGen>

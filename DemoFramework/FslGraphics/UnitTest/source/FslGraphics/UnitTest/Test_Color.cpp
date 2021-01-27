@@ -433,3 +433,20 @@ TEST(Test_Color, NotEquals)
   EXPECT_NE(Color::DarkBlue(), Color::Red());
   EXPECT_NE(Color::Red(), Color::DarkBlue());
 }
+
+
+TEST(Test_Color, Bilinear_Edges)
+{
+  EXPECT_EQ(Color(0x10203040), Color::Bilinear(Color(0x10203040), Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFFFFFFFF), 0.0f, 0.0f));
+  EXPECT_EQ(Color(0x10203040), Color::Bilinear(Color(0xFFFFFFFF), Color(0x10203040), Color(0xFFFFFFFF), Color(0xFFFFFFFF), 1.0f, 0.0f));
+  EXPECT_EQ(Color(0x10203040), Color::Bilinear(Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0x10203040), Color(0xFFFFFFFF), 0.0f, 1.0f));
+  EXPECT_EQ(Color(0x10203040), Color::Bilinear(Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0x10203040), 1.0f, 1.0f));
+}
+
+TEST(Test_Color, Bilinear_Edges2)
+{
+  EXPECT_EQ(Color(0x18304860), Color::Bilinear(Color(0x10203040), Color(0x20406080), Color(0xFFFFFFFF), Color(0xFFFFFFFF), 0.5f, 0.0f));
+  EXPECT_EQ(Color(0x18304860), Color::Bilinear(Color(0xFFFFFFFF), Color(0xFFFFFFFF), Color(0x10203040), Color(0x20406080), 0.5f, 1.0f));
+  EXPECT_EQ(Color(0x18304860), Color::Bilinear(Color(0x10203040), Color(0xFFFFFFFF), Color(0x20406080), Color(0xFFFFFFFF), 0.0f, 0.5f));
+  EXPECT_EQ(Color(0x18304860), Color::Bilinear(Color(0xFFFFFFFF), Color(0x10203040), Color(0xFFFFFFFF), Color(0x20406080), 1.0f, 0.5f));
+}

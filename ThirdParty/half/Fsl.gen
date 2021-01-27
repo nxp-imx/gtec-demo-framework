@@ -3,7 +3,7 @@
   <ExternalLibrary Name="half" CreationYear="2020">
     <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_FEATURE_HALF" Access="Public"/>
-    <Platform Name="Android;Windows" Supported="true">
+    <Platform Name="Android;QNX;Ubuntu;Windows" Supported="true">
       <Dependency Name="Recipe.half_2_1"/>
     </Platform>    
   </ExternalLibrary>

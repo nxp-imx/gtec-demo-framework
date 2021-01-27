@@ -35,7 +35,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from FslBuildGen import IOUtil
-from FslBuildGen.DataTypes import PackageType
+#from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
@@ -64,9 +64,9 @@ class AppInfoPackage(object):
         self.__ResolvedPackageDict = self.__BuildPackageDict(appInfo)
         self.Name = self.__GuessDiscoverFilename(self.__ResolvedPackageDict, sourceFilename)
         self.ResolvedPackage = self.__ResolvedPackageDict[self.Name]
-        self.ResolvedAllRequirements = self.__ResolvedAllRequirements(self.ResolvedPackage)            # type: List[RequirementInfo]
-        self.ResolvedAllUsedFeatures = self.__ResolvedAllUsedFeatures(self.ResolvedPackage)            # type: List[RequirementInfo]
-        self.ResolvedPlatformNotSupported = self.__ResolvedPlatformNotSupported(self.ResolvedPackage)  # type: bool
+        self.ResolvedAllRequirements = self.__ResolvedAllRequirements(self.ResolvedPackage)         # type: List[RequirementInfo]
+        self.ResolvedAllUsedFeatures = self.__ResolvedAllUsedFeatures(self.ResolvedPackage)         # type: List[RequirementInfo]
+        self.ResolvedPlatformSupported = self.__ResolvedPlatformSupported(self.ResolvedPackage)     # type: bool
         self.Type = self.ResolvedPackage.Type
 
         self.GeneratorReport = self.__ResolveGeneratorReport(self.ResolvedPackage)
@@ -82,8 +82,8 @@ class AppInfoPackage(object):
         return [requirement for requirement in packageInfo.AllRequirements if requirement.Type == RequirementType.Feature]
 
 
-    def __ResolvedPlatformNotSupported(self, packageInfo: PackageInfo) -> bool:
-        return not packageInfo.Supported
+    def __ResolvedPlatformSupported(self, packageInfo: PackageInfo) -> bool:
+        return packageInfo.Supported
 
 
     def __BuildPackageDict(self, appInfo: AppInfo) -> Dict[str, PackageInfo]:
@@ -99,7 +99,7 @@ class AppInfoPackage(object):
 
         executableReport = None if executableReportInfo is None else self.__ResolveGeneratorExecutableReport(executableReportInfo)
         variableReport = self.__ResolveGeneratorVariableReport(variableReportInfo)
-        return PackageGeneratorReport(None, executableReport, variableReport)
+        return PackageGeneratorReport(None, executableReport, variableReport, None)
 
 
     def __ResolveGeneratorExecutableReport(self, report: PackageGeneratorExecutableReportInfo) -> GeneratorExecutableReport:
@@ -137,8 +137,3 @@ class AppInfoPackage(object):
         for index in range(1, len(subNameList)):
             name = "{0}.{1}".format(name, subNameList[index])
         return name
-
-
-
-
-

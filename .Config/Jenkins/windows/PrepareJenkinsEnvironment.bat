@@ -37,6 +37,11 @@ echo - FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR as %FSL_GRAPHICS_SDK
 
 echo CWD: %cd%
 
+call .Config\ConfigureOpenGLESEmu.bat
+if %errorlevel% neq 0 (
+  exit /b %errorlevel%
+)
+
 call prepare.bat
 if %errorlevel% neq 0 (
   exit /b %errorlevel%
@@ -57,3 +62,4 @@ if not defined FSL_CI_TEST_REPORTS (
 if not defined FSL_CI_FEATURES (
 set FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1,Vulkan]
 )
+

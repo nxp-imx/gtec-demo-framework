@@ -44,6 +44,17 @@ namespace Fsl
 {
   namespace TypeConverter
   {
+    // --- Vector2
+
+    template <>
+    constexpr inline Vector2 To<Vector2, PxVector2>(const PxVector2& value)
+    {
+      return {value.X, value.Y};
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+
     // --- Extend2D
 
     template <>
@@ -202,6 +213,12 @@ namespace Fsl
     constexpr inline Vector2 UncheckedTo<Vector2, PxExtent2D>(const PxExtent2D& value) noexcept
     {
       return {static_cast<float>(value.Width), static_cast<float>(value.Height)};
+    }
+
+    template <>
+    constexpr inline Vector2 UncheckedTo<Vector2, PxVector2>(const PxVector2& value) noexcept
+    {
+      return {value.X, value.Y};
     }
 
   }

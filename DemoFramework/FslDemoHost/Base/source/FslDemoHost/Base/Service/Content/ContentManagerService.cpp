@@ -35,9 +35,11 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
+#include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
 #include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
 #include <FslGraphics/Font/BitmapFontDecoder.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
 #include <fmt/format.h>
@@ -73,7 +75,8 @@ namespace Fsl
   ContentManagerService::ContentManagerService(const ServiceProvider& serviceProvider, const IO::Path& contentPath)
     : ThreadLocalService(serviceProvider)
     , m_contentPath(contentPath)
-    , m_imageService(serviceProvider.TryGet<IImageService>())    // Try to acquire the image service so we can use it if its available.
+    , m_imageService(serviceProvider.TryGet<IImageService>())        // Try to acquire the image service so we can use it if its available.
+    , m_textureService(serviceProvider.TryGet<ITextureService>())    // Try to acquire the texture service so we can use it if its available.
   {
     if (!IO::Path::IsPathRooted(m_contentPath))
     {
@@ -176,10 +179,30 @@ namespace Fsl
 
 
   void ContentManagerService::Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat,
-                                   const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+                                   const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder,
+                                   const bool generateMipMapsHint) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
     m_imageService->Read(rTexture, absPath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
+    if (generateMipMapsHint)
+    {
+      if (m_textureService)
+      {
+        Optional<Texture> res = m_textureService->TryGenerateMipMaps(rTexture, TextureMipMapFilter::Box);
+        if (res.HasValue())
+        {
+          rTexture = std::move(*res);
+        }
+        else
+        {
+          FSLLOG3_VERBOSE5("ITextureService could not generate mipmaps");
+        }
+      }
+      else
+      {
+        FSLLOG3_VERBOSE5("Can not generate mipmaps as the ITextureService is not available");
+      }
+    }
   }
 
 
@@ -242,10 +265,10 @@ namespace Fsl
 
 
   Texture ContentManagerService::ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
-                                             const PixelChannelOrder preferredChannelOrder) const
+                                             const PixelChannelOrder preferredChannelOrder, const bool generateMipMapsHint) const
   {
     Texture texture;
-    Read(texture, relativePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
+    Read(texture, relativePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder, generateMipMapsHint);
     return texture;
   }
 }

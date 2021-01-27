@@ -51,6 +51,7 @@ namespace Fsl
       return ::sprintf_s(s, n, pszFormat, std::forward<Args>(args)...);
 #else
       // emulate sprintf_s behavior
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
       const auto res = ::snprintf(s, n, pszFormat, std::forward<Args>(args)...);
       return (res >= 0 && static_cast<std::size_t>(res) < n) ? res : -1;
 #endif

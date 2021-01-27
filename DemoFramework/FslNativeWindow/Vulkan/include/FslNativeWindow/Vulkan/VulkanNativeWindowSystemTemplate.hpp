@@ -36,6 +36,8 @@
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
+#include <utility>
+
 
 namespace Fsl
 {
@@ -48,10 +50,10 @@ namespace Fsl
     std::string m_khrRSurfaceExtensionName;
 
   public:
-    VulkanNativeWindowSystemTemplate(const NativeWindowSystemSetup& setup, const std::string& khrRSurfaceExtensionName,
+    VulkanNativeWindowSystemTemplate(const NativeWindowSystemSetup& setup, std::string khrRSurfaceExtensionName,
                                      const PlatformNativeWindowAllocationFunction& allocateWindowFunction)
       : m_system(setup, allocateWindowFunction)
-      , m_khrRSurfaceExtensionName(khrRSurfaceExtensionName)
+      , m_khrRSurfaceExtensionName(std::move(khrRSurfaceExtensionName))
     {
     }
 

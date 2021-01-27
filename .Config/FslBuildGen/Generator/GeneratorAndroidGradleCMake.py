@@ -116,10 +116,12 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         templateFileRecordManager = TemplateFileRecordManager(templateFilePath)
         templateFileProcessor = TemplateFileProcessor(config, platformName)
 
+        sdkConfigTemplatePath = config.SDKConfigTemplatePath
+
         strTemplatePath = IOUtil.Join(strAppTemplatePath, "CMake")
-        extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Ext", False, None)
-        libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Lib", False, None)
-        exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Exe", False, None)
+        extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Ext", False, None)
+        libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Lib", False, None)
+        exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Exe", False, None)
 
         templatePath = IOUtil.Join(config.SDKConfigTemplatePath, strAppTemplatePath)
         exeFileList = self.__ParseExeFileList(IOUtil.Join(templatePath, "ExeFiles.txt"))
@@ -134,10 +136,10 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                 totalExeCount = totalExeCount + 1
                 appPackageTemplateInfo = AndroidGeneratorUtil.AppPackageTemplateInfo(mainPackage)
                 androidProjectDir = IOUtil.Join(config.SDKPathAndroidProjectDir, appPackageTemplateInfo.ProjectPathName)
-                androidProjectCMakeDir = IOUtil.Join(androidProjectDir, ".FslCMake")
+                androidProjectCMakeDir = IOUtil.Join(androidProjectDir, ".fsl")
 
                 for package in mainPackage.ResolvedBuildOrder:
-                    if not package.ResolvedPlatformNotSupported:
+                    if package.ResolvedPlatformSupported:
                         if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
                             self.__GenerateCMakeFile(config, package, platformName, extTemplate, androidProjectDir, androidProjectCMakeDir)
                         elif package.Type == PackageType.Library:
@@ -183,6 +185,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                             androidProjectDir: str,
                             androidProjectCMakeDir: str) -> None:
 
+        toolConfig = config.ToolConfig
+
         pathType = CMakeGeneratorUtil.CMakePathType.Relative
 
         packageName = CMakeGeneratorUtil.GetPackageName(package)
@@ -191,14 +195,14 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         ignoreLibs = ["android_native_app_glue"]
 
         aliasPackageName = CMakeGeneratorUtil.GetAliasName(packageName, package.ProjectContext.ProjectName)
-        targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(config, package, template.PackageTargetIncludeDirectories,
+        targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(toolConfig, package, template.PackageTargetIncludeDirectories,
                                                                                     template.PackageTargetIncludeDirEntry, template.PackageTargetIncludeDirVirtualEntry, pathType)
         targetIncludeDirectories = targetIncludeDirectories.replace(Variable.RecipeVariant, "${ANDROID_ABI}")
 
-        publicIncludeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildPublicIncludeFiles)
-        privateIncludeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildPrivateIncludeFiles)
-        includeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildAllIncludeFiles)
-        sourceFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildSourceFiles)
+        publicIncludeFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildPublicIncludeFiles)
+        privateIncludeFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildPrivateIncludeFiles)
+        includeFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildAllIncludeFiles)
+        sourceFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildSourceFiles)
         linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(config, package,
                                                                                                            template.PackageDependencyTargetLinkLibraries,
                                                                                                            template.PackageDependencyFindPackage,
@@ -221,8 +225,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         if package.Type == PackageType.Executable:
             if package.ContentPath is None or package.AbsolutePath is None:
                 raise Exception("Invalid package")
-            packagePath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, package.AbsolutePath)
-            packageContentPath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, package.ContentPath.AbsoluteDirPath)
+            packagePath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(toolConfig, package.AbsolutePath)
+            packageContentPath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(toolConfig, package.ContentPath.AbsoluteDirPath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PATH##", packagePath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_CONTENT_PATH##", packageContentPath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_ANDROID_PROJECT_PATH##", androidProjectDir)
@@ -379,14 +383,6 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
     def __ToPropPath(self, path: str) -> str:
         return path
 
-
-    def __ExpandPathAndJoin(self, config: Config, package: Package, srcList: Optional[List[str]]) -> str:
-        if srcList is None or len(srcList) <= 0:
-            return ''
-        if package.AbsolutePath is None:
-            raise Exception("Invalid package")
-        expandedList = [CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, IOUtil.Join(package.AbsolutePath, entry)) for entry in srcList]
-        return "\n  " + "\n  ".join(expandedList)
 
     def __ParseExeFileList(self, path: str) -> List[str]:
         lines = IOUtil.ReadFile(path).split('\n')
@@ -557,5 +553,5 @@ class GeneratorAndroidGradleCMakeUtil(object):
         buildReport = GeneratorAndroidGradleCMakeUtil.TryGenerateBuildReport(log, generatorName, package)
         executableReport = None  # We dont currently support running android apps
         variableReport = GeneratorAndroidGradleCMakeUtil.GenerateVariableReport(log, generatorName, package)
-        return PackageGeneratorReport(buildReport, executableReport, variableReport)
+        return PackageGeneratorReport(buildReport, executableReport, variableReport, None)
 

@@ -33,7 +33,7 @@
 
 from typing import List
 from typing import Optional
-from FslBuildGen.Log import Log
+#from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 from FslBuildGen import Util
@@ -76,4 +76,3 @@ class ToolConfigPackageRootUtil(object):
             elif path == rootDir.ResolvedPath:
                 return rootDir.Name + "/"
         return None
-

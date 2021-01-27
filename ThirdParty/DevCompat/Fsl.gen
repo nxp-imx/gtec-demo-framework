@@ -4,6 +4,6 @@
   <Library Name="DevCompat" PackageNameBasedIncludePath="false" AllowCheck="false" CreationYear="2016">
     <Default.Platform.Supported Value="false"/>
 
-    <Platform Name="Windows" ProjectId="AC20AA64-226E-405E-AE78-ECE2E03BBA61" Supported="true"/>
+    <Platform Name="Windows" Supported="true"/>
   </Library>
 </FslBuildGen>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.gli_0_8_3" CreationYear="2020">
+    <Dependency Name="glm"/>
+    <!--Define Name="FSL_FEATURE_GLI" Access="Public"/-->
+	<!--
+    <Platform Name="Android">
+      <ExperimentalRecipe Name="gli-0.8.2.0">
+        <Pipeline>
+          <Download URL="https://github.com/g-truc/gli/archive/0.8.2.0.tar.gz" To="gli-0.8.2.0.tar.gz" Hash="9e7024c2df77c011eff4f66667c1834620c70b7902cd50f32ab48edd49fe0139"/>
+          <Unpack File="gli-0.8.2.0.tar.gz" OutputPath="gli-0.8.2.0">
+            <Delete Path="cmake"/>
+            <Delete Path="data"/>
+            <Delete Path="doc"/>
+            <Delete Path="external"/>
+            <Delete Path="test"/>
+            <Delete Path="util"/>
+          </Unpack>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name=""/>
+          <Path Name="gli/gli.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform> -->
+    <Platform Name="*">
+      <!-- Find was disabled since the find_package call fails under linux -->
+      <ExperimentalRecipe Name="gli" Version="0.8.3.0" Find="false" FindTargetName="gli" FindVersion="0.8.3">
+        <Pipeline>
+          <GitClone URL="https://github.com/g-truc/gli.git" Hash="0c171ee87fcfe35a7e0e0445adef06f92e0b6a91"/>
+          <CMakeBuild Project="gli" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <Path Name="include/gli/gli.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

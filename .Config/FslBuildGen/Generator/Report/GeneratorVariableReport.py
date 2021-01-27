@@ -32,11 +32,11 @@
 #****************************************************************************************************************************************************
 
 from typing import Dict
-from typing import Iterable
+#from typing import Iterable
 from typing import List
 from typing import Optional
-from typing import Set
-from FslBuildGen.DataTypes import BuildVariantConfig
+#from typing import Set
+#from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.SharedGeneration import ToolAddedVariant
 from FslBuildGen.SharedGeneration import ToolAddedVariantOptions
@@ -97,10 +97,10 @@ class InvalidVariableOptionIndexException(InvalidVariableOptionException):
 
 
 class GeneratorVariableReport(VariableDict):
-    def __init__(self, log: Optional[Log] = None, allowAutoVariablesOverride: bool = False, configVariantOptions: Optional[List[str]]=None) -> None:
+    def __init__(self, log: Optional[Log] = None, allowAutoVariablesOverride: bool = False, configVariantOptions: Optional[List[str]] = None) -> None:
         """
              allowAutoVariablesOverride if true then the automatic defined variables can be overridden with a add call,
-             however if the options are different a warning is logged. However it is stil not possible to change the 'LinkedTargetName'
+             however if the options are different a warning is logged. However it is still not possible to change the 'LinkedTargetName'
         """
         super().__init__()
         self.__Log = log
@@ -134,28 +134,28 @@ class GeneratorVariableReport(VariableDict):
         if len(variableOptionList) <= 0:
             raise VariableOptionListCanNotBeEmptyException(variableName)
 
-        dict = self._GetDict()
-        if variableName in dict:
+        theDict = self._GetDict()
+        if variableName in theDict:
             if self.__AllowAutoVariablesOverride and variableName == ToolAddedVariant.CONFIG:
-                currentDef = dict[variableName]
+                currentDef = theDict[variableName]
                 if not self.__HasSameOptions(variableOptionList, currentDef.Options):
-                   if self.__Log is not None:
-                       self.__Log.LogPrintWarning("Overriding the auto variable '{0}' and the option list is different. New: {1}, old: {2}".format(variableName, variableOptionList, currentDef.Options))
-                   dict[variableName] = VariableReport(variableName, variableOptionList, currentDef.LinkTargetName)
+                    if self.__Log is not None:
+                        self.__Log.LogPrintWarning("Overriding the auto variable '{0}' and the option list is different. New: {1}, old: {2}".format(variableName, variableOptionList, currentDef.Options))
+                    theDict[variableName] = VariableReport(variableName, variableOptionList, currentDef.LinkTargetName)
                 return
             raise VariableAlreadyDefinedException("The variable '{0}' has already been added".format(variableName))
 
         if linkedVariableName is not None:
             if linkedVariableName == variableName:
                 raise LinkToSelfNotAllowedException(variableName)
-            if linkedVariableName not in dict:
+            if linkedVariableName not in theDict:
                 raise LinkedVariableNotFoundException(linkedVariableName)
-            linkedOptionList = dict[linkedVariableName].Options
+            linkedOptionList = theDict[linkedVariableName].Options
             if len(linkedOptionList) != len(variableOptionList):
                 raise VariableDoesNotContainTheSameAmountOfOptionsAsTheLinkedTargetException(variableName, str(variableOptionList), linkedVariableName, str(linkedOptionList))
 
         self.__Order.append(variableName)
-        dict[variableName] = VariableReport(variableName, variableOptionList, linkedVariableName)
+        theDict[variableName] = VariableReport(variableName, variableOptionList, linkedVariableName)
 
 
     def TryGetDefaultOptionIndex(self, variableName: str) -> Optional[int]:
@@ -163,11 +163,11 @@ class GeneratorVariableReport(VariableDict):
 
 
     def SetDefaultOption(self, variableName: str, variableOption: str) -> None:
-        dict = self._GetDict()
-        if variableName not in dict:
+        theDict = self._GetDict()
+        if variableName not in theDict:
             raise VariableNotFoundException(variableName)
 
-        variableReport = dict[variableName]
+        variableReport = theDict[variableName]
         if variableReport.LinkTargetName is not None:
             raise LinkedVariableCanNotHaveDefaultValueException(variableName, variableReport.LinkTargetName)
 
@@ -178,11 +178,11 @@ class GeneratorVariableReport(VariableDict):
 
 
     def SetDefaultOptionIndex(self, variableName: str, variableOptionIndex: int) -> None:
-        dict = self._GetDict()
-        if variableName not in dict:
+        theDict = self._GetDict()
+        if variableName not in theDict:
             raise VariableNotFoundException(variableName)
 
-        variableReport = dict[variableName]
+        variableReport = theDict[variableName]
         if variableReport.LinkTargetName is not None:
             raise LinkedVariableCanNotHaveDefaultValueException(variableName, variableReport.LinkTargetName)
 
@@ -190,8 +190,3 @@ class GeneratorVariableReport(VariableDict):
             raise InvalidVariableOptionIndexException(variableName, variableOptionIndex, str(variableReport.Options), len(variableReport.Options))
 
         self.__DefaultOption[variableName] = variableOptionIndex
-
-
-
-
-

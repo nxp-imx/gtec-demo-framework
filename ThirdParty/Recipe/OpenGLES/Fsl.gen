@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.OpenGLES" CreationYear="2020">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="OpenGLES_SDK" Version="1.0" ExternalInstallDirectory="$(FSL_GLES_EMULATOR_PATH)">
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="libEGL.lib" Help="The main OpenGL ES EGL static library."/>
+          <AddLib Name="libGLESv2.lib" Help="The main OpenGL ES static library."/>
+          <Path Name="include/EGL/egl.h" Method="IsFile" Help="The main EGL header file."/>
+          <Path Name="include/GLES2/gl2.h" Method="IsFile" Help="The main OpenGL ES 2 header file."/>
+          <Path Name="include/GLES2/gl2ext.h" Method="IsFile" Help="The main EGL header file."/>
+          <Path Name="include/GLES3/gl3.h" Method="IsFile" Help="The main OpenGL ES 3 header file."/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

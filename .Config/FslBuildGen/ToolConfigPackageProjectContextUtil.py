@@ -33,7 +33,7 @@
 
 from typing import List
 from typing import Optional
-from FslBuildGen.Log import Log
+#from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 
@@ -62,4 +62,3 @@ class ToolConfigPackageProjectContextUtil(object):
         if context is None:
             raise UsageErrorException("Could not locate a context for path '{0}'".format(path))
         return context
-

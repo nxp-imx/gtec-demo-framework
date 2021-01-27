@@ -35,7 +35,7 @@ from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
-from FslBuildGen.Exceptions import UsageErrorException
+#from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig

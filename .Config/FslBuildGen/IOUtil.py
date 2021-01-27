@@ -66,15 +66,19 @@ def WriteFile(filename: str, content: str, newline: Optional[str] = None) -> Non
         theFile.write(content)
 
 
-def WriteFileIfChanged(filename: str, content: str, newline: Optional[str] = None) -> None:
+def WriteFileIfChanged(filename: str, content: str, newline: Optional[str] = None) -> bool:
     existingContent = None
     if os.path.exists(filename):
         if os.path.isfile(filename):
             existingContent = ReadFile(filename)
         else:
             raise IOError("'{0}' exist but it's not a file".format(filename))
-    if content != existingContent:
-        WriteFile(filename, content, newline=newline)
+
+    if content == existingContent:
+        return False
+    WriteFile(filename, content, newline=newline)
+    return True
+
 
 
 def ReadBinaryFile(filename: str) -> bytes:
@@ -434,3 +438,17 @@ def HashFile(filename: str, blocksize: int = 65536) -> str:
             hasher.update(buf)
             buf = theFile.read(blocksize)
         return hasher.hexdigest()
+
+
+def IsDriveRootPath(path: str) -> bool:
+    """
+    Do some basic checks to prevent a path that points to the drive root
+    - This also detects some valid names like "test../" or "/..test"
+    """
+    normPath = NormalizePath(path)
+    drive, tail = os.path.splitdrive(normPath)
+    driveId = NormalizePath(drive).lower()
+    normPathId = normPath.lower()
+    # some basic checks to detect root paths
+    return ('../' in normPath or '/..' in normPath or normPath == '/' or normPath == '..' or normPath == "/." or
+            len(normPath) <= 0 or normPathId == driveId or normPath.endswith('/'))

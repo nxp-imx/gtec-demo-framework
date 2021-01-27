@@ -34,6 +34,7 @@
 from typing import Any
 from typing import List
 from typing import Optional
+from typing import Tuple
 #from FslBuildGen.DataTypes import ExternalDependencyType
 
 # TODO: add a proper type to entries. It is a type that contains the Name attribute of type str
@@ -146,12 +147,42 @@ def IsValidName(name: str) -> bool:
             return False
     return True
 
-def IsValidComamndName(name: str) -> bool:
+def IsValidCompanyName(name: str) -> bool:
     if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
         return False
 
     for ch in name:
-        if not IsValidNameCharacter(ch) and ch != '-':
+        if ch != ' ' and not IsValidNameCharacter(ch):
+            return False
+    if name[-1] == ' ':
+        return False
+    return True
+
+def IsValidFlavorName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+
+    for ch in name:
+        if not IsValidNameCharacter(ch):
+            return False
+    return True
+
+def IsValidFlavorOptionName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+
+    for ch in name:
+        if not IsValidNameCharacter(ch):
+            return False
+    return True
+
+
+def IsValidCommandName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+
+    for ch in name:
+        if not IsValidNameCharacter(ch) and ch != '-' and ch != '+':
             return False
     return True
 
@@ -170,17 +201,9 @@ def IsValidVirtualVariantName(name: str) -> bool:
         return False
     return IsValidUppercaseName(name[2:-1])
 
-
-def IsValidPackageName(name: str, allowSubPackages: bool) -> bool:
-    if not allowSubPackages:
-        return IsValidName(name)
-
-    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
-        return False
-    if not IsValidNameEndCharacter(name[-1]):
-        return False
-
+def __IsValidPackageName(name: str) -> bool:
     isFirstCharInName = True
+    previousChar = ' '
     for ch in name:
         if ch != '.':
             if not isFirstCharInName:
@@ -190,14 +213,78 @@ def IsValidPackageName(name: str, allowSubPackages: bool) -> bool:
                 if not IsValidNameStartCharacter(ch):
                     return False
                 isFirstCharInName = False
+        elif previousChar == '.':
+            return False
         else:
             isFirstCharInName = True
+        previousChar = ch
+    return True
 
-    return name.find('..') < 0
+def __IsValidUnresolvedPackageName(name: str) -> bool:
+    isFirstCharInName = True
+    previousChar = ' '
+    for ch in name:
+        if ch != '.':
+            if not isFirstCharInName:
+                # Double underscores are reserved for internal use
+                if ch == '_' and previousChar == '_':
+                    return False
+                if not IsValidNameCharacter(ch):
+                    return False
+            else:
+                if not IsValidNameStartCharacter(ch):
+                    return False
+                isFirstCharInName = False
+        elif previousChar == '.':
+            return False
+        else:
+            isFirstCharInName = True
+        previousChar = ch
+    return True
+
+
+def IsValidPackageName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+    if not IsValidNameEndCharacter(name[-1]):
+        return False
+    return __IsValidPackageName(name)
+
+def IsValidPackageInstanceName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+    if not IsValidNameEndCharacter(name[-1]):
+        return False
+    return __IsValidPackageName(name)
+
+def IsValidPackageShortName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+
+    for ch in name:
+        if not IsValidNameCharacter(ch):
+            return False
+    return True
+
+def IsValidPackageNamespaceName(name: str) -> bool:
+    if len(name) <= 0:
+        return True
+    if not IsValidNameStartCharacter(name[0]) or not IsValidNameEndCharacter(name[-1]):
+        return False
+    return __IsValidPackageName(name)
+
+
+def IsValidUnresolvedPackageName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+    if not IsValidNameEndCharacter(name[-1]):
+        return False
+
+    return __IsValidUnresolvedPackageName(name)
 
 
 def IsValidRecipeName(name: str) -> bool:
-    return IsValidPackageName(name, True)
+    return IsValidUnresolvedPackageName(name)
 
 
 def IsValidCStyleName(name: str) -> bool:
@@ -283,11 +370,26 @@ def ChangeToDosEnvironmentVariables(path: str) -> str:
     path = "%s%%%s%%%s" % (start, envName, end)
     return ChangeToDosEnvironmentVariables(path)
 
-def ParseVersionString(version: str, splitChar: str='.', maxValues: int = 4) -> List[int]:
+def ParseVersionString(version: str, splitChar: str = '.', maxValues: int = 4) -> List[int]:
     valueStrings = version.split(splitChar)
     if len(valueStrings) > maxValues:
         raise Exception("Version string contained more values than allowed '{0}'".format(version))
     return [int(value) for value in valueStrings]
 
+def GetPackageNames(name: str) -> Tuple[str, str]:
+    """
+    extract the namespace and pure name
+    """
+    index = name.rfind('.')
+    if index < 0:
+        return name, ''
+    return name[index+1:], name[:index]
 
-
+def GetPackageSourceAndFlavorNames(name: str) -> Tuple[str, str]:
+    """
+    extract the namespace and pure name
+    """
+    index = name.rfind('__')
+    if index < 0:
+        return name, ''
+    return name[:index], name[index+2:]

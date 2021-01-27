@@ -45,7 +45,7 @@ namespace Fsl
   public:
     BasicFileReader() = default;
 
-    BasicFileReader(const char* const pszFilename)
+    explicit BasicFileReader(const char* const pszFilename)
       : m_file(ValidateFilename(pszFilename), std::ios::in | std::ios::binary)
     {
     }

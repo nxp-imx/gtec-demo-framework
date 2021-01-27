@@ -34,9 +34,9 @@
 from typing import Dict
 from typing import List
 from typing import Optional
-from FslBuildGen.DataTypes import PackageType
+#from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
-from FslBuildGen.Info.RequirementInfo import RequirementInfo
+#from FslBuildGen.Info.RequirementInfo import RequirementInfo
 
 class PackageGeneratorExecutableReportInfo(object):
     def __init__(self, useAsRelative: bool, exeFormatString: str,

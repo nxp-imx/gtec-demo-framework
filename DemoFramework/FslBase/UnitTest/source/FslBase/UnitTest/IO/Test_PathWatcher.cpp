@@ -33,7 +33,6 @@
 #include <FslBase/IO/PathWatcher.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBaseContent.hpp>
 #include <array>
 #include <limits>

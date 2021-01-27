@@ -31,9 +31,6 @@
 #
 #****************************************************************************************************************************************************
 
-import xml.etree.ElementTree as ET
-
 class PackageElement(object):
-    def __init__(self, name: str, xmlElement: ET.Element) -> None:
+    def __init__(self, name: str) -> None:
         self.Name = name
-        self.XMLElement = xmlElement

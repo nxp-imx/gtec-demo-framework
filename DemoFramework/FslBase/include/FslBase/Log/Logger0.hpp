@@ -79,12 +79,6 @@ namespace Fsl
 
     //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
     extern void WriteLine(const LogLocation& location, const LogType logType, const char* const psz) noexcept;
-
-    //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-    [[deprecated("Use FSLLOG3 instead")]] inline void WriteLine(const LogType logType, const char* const psz, const LogLocation& location) noexcept
-    {
-      WriteLine(location, logType, psz);
-    }
   }
 }
 

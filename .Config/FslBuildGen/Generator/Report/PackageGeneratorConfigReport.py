@@ -31,8 +31,8 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Dict
-from typing import List
+#from typing import Dict
+#from typing import List
 from typing import Optional
 from typing import Set
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
@@ -46,13 +46,12 @@ class PackageGeneratorConfigReport(object):
                  masterBuildReport: Optional[GeneratorBuildReport],
                  masterBuildVariableReport: Optional[GeneratorVariableReport]) -> None:
         super().__init__()
-        self.ConfigReport  = configReport                   # type: GeneratorConfigReport
+        self.ConfigReport = configReport                   # type: GeneratorConfigReport
         self.VariableReport = variableReport                # type: GeneratorVariableReport
         self.GeneratedFileSet = generatedFileSet            # type: Set[str]
         # Set to true when the generated build files will build the Content files.
         self.CanBuildContent = canBuildContent
         self.MasterBuildReport = masterBuildReport
         self.MasterBuildVariableReport = masterBuildVariableReport
-        if ((masterBuildReport is None and masterBuildVariableReport is not None) or
-            (masterBuildReport is not None and masterBuildVariableReport is None)):
+        if ((masterBuildReport is None and masterBuildVariableReport is not None) or (masterBuildReport is not None and masterBuildVariableReport is None)):
             raise Exception("MasterBuildReport and MasterBuildVariableReport must both be valid or both be invalid")

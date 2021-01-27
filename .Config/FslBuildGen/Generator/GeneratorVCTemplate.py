@@ -173,7 +173,6 @@ class CodeTemplateVC(object):
 class CodeTemplateProjectBatFiles(object):
     def __init__(self, log: Log, sdkConfigTemplatePath: str) -> None:
         super().__init__()
-        self.TemplateStartBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinStartProject.txt"))
         self.TemplateBuildBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinBuildProject.txt"))
         self.TemplateRunBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinRunProject.txt"))
         templateSnippetErrorCheck = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "TemplateSnippet_WinBatErrorCheck.txt"))

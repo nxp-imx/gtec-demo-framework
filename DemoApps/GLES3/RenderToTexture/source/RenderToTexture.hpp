@@ -98,17 +98,17 @@ namespace Fsl
     GLuint m_fboDepth{};
     std::array<GLenum, 1> m_fboOutputBuffers{GL_COLOR_ATTACHMENT0};
 
-    glm::mat4 m_model;
-    glm::mat4 m_view;
-    glm::mat4 m_proj;
-    glm::mat4 m_MVP;
+    glm::mat4 m_model{};
+    glm::mat4 m_view{};
+    glm::mat4 m_proj{};
+    glm::mat4 m_MVP{};
     GLint m_MVPLoc{};
     GLint m_samplerLoc{};
 
-    glm::mat4 m_rpModel;
-    glm::mat4 m_rpView;
-    glm::mat4 m_rpProj;
-    glm::mat4 m_rpMVP;
+    glm::mat4 m_rpModel{};
+    glm::mat4 m_rpView{};
+    glm::mat4 m_rpProj{};
+    glm::mat4 m_rpMVP{};
     GLint m_rpMVPLoc{};
 
     float m_angle;

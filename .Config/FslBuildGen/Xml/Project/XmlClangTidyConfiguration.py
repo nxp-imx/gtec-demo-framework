@@ -52,4 +52,3 @@ class XmlClangTidyConfiguration(XmlBase):
         for element in foundElements:
             res.append(XmlClangTidyPlatform(log, element))
         return res
-

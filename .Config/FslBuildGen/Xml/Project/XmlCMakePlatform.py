@@ -31,11 +31,11 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
-from typing import Optional
+#from typing import List
+#from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.Log import Log
-from FslBuildGen.Xml.Exceptions import XmlException2
+#from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlCMakePlatform(XmlBase):
@@ -45,4 +45,3 @@ class XmlCMakePlatform(XmlBase):
         self.DefaultGeneratorName = self._TryReadAttrib(xmlElement, "DefaultGeneratorName")
         self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, "DefaultInstallPrefix")
         self.AllowFindPackage = self._TryReadBoolAttrib(xmlElement, "AllowFindPackage", None)
-

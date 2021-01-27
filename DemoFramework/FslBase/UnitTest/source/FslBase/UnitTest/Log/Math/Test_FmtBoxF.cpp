@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtBoxF, Log)
 {
-  BoxF value(1.0f, 2.0f, 3.0f, 4.0f);
+  BoxF value(1.1f, 2.1f, 3.1f, 4.1f);
 
-  EXPECT_EQ(std::string("{X1=1.0 Y1=2.0 X2=3.0 Y2=4.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{X1=1.1 Y1=2.1 X2=3.1 Y2=4.1}"), fmt::format("{}", value));
 }

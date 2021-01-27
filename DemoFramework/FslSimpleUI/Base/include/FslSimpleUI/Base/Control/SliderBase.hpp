@@ -162,12 +162,22 @@ namespace Fsl
 
       bool AddValue(const value_type& value)
       {
-        return SetValue(m_logic.GetValue() + value);
+        const auto range = m_logic.Max() - m_logic.Min();
+        if (value <= range && m_logic.GetValue() <= (m_logic.Max() - value))
+        {
+          return SetValue(m_logic.GetValue() + value);
+        }
+        return SetValue(m_logic.Max());
       }
 
       bool SubValue(const value_type& value)
       {
-        return SetValue(m_logic.GetValue() - value);
+        const auto range = m_logic.Max() - m_logic.Min();
+        if (value <= range && m_logic.GetValue() >= (m_logic.Min() + value))
+        {
+          return SetValue(m_logic.GetValue() - value);
+        }
+        return SetValue(m_logic.Min());
       }
 
       bool SetRange(const value_type& min, const value_type& max)

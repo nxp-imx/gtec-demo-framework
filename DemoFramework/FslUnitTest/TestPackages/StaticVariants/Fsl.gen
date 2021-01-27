@@ -13,42 +13,42 @@
         </Option>
       </Variant>
     -->
-  </Platform>
+    </Platform>
     <Platform Name="Ubuntu">
       <Variant Name="FSL_TEST_STATIC_VARIANT1">
         <Option Name="Option1">
           <Define Name="FSL_TEST_STATIC_VARIANT1_TEST_DEFINE_O1" Access="Public"/>
-        <ExternalDependency Name="O1" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/A" Access="Public" Type="Headers"/>
+          <ExternalDependency Name="O1" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/A" Access="Public" Type="Headers"/>
         </Option>
         <Option Name="Option2">
           <Define Name="FSL_TEST_STATIC_VARIANT1_TEST_DEFINE_O2" Access="Public"/>
-        <ExternalDependency Name="O2" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/B" Access="Public" Type="Headers"/>
+          <ExternalDependency Name="O2" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/B" Access="Public" Type="Headers"/>
         </Option>
       </Variant>
-  </Platform>
+    </Platform>
     <Platform Name="Windows" ProjectId="A2AF9F73-AEF9-4ECF-9EFE-32CD8DA81243">
       <Variant Name="FSL_TEST_STATIC_VARIANT1">
         <Option Name="Option1">
           <Define Name="FSL_TEST_STATIC_VARIANT1_TEST_DEFINE_O1" Access="Public"/>
-        <ExternalDependency Name="O1" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/A" Access="Public" Type="Headers"/>
+          <ExternalDependency Name="O1" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/A" Access="Public" Type="Headers"/>
         </Option>
         <Option Name="Option2">
           <Define Name="FSL_TEST_STATIC_VARIANT1_TEST_DEFINE_O2" Access="Public"/>
-        <ExternalDependency Name="O2" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/B" Access="Public" Type="Headers"/>
+          <ExternalDependency Name="O2" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/B" Access="Public" Type="Headers"/>
         </Option>
       </Variant>
-  </Platform>
+    </Platform>
     <Platform Name="Yocto">
       <Variant Name="FSL_TEST_STATIC_VARIANT1">
         <Option Name="Option1">
           <Define Name="FSL_TEST_STATIC_VARIANT1_TEST_DEFINE_O1" Access="Public"/>
-        <ExternalDependency Name="O1" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/A" Access="Public" Type="Headers"/>
+          <ExternalDependency Name="O1" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/A" Access="Public" Type="Headers"/>
         </Option>
         <Option Name="Option2">
           <Define Name="FSL_TEST_STATIC_VARIANT1_TEST_DEFINE_O2" Access="Public"/>
-        <ExternalDependency Name="O2" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/B" Access="Public" Type="Headers"/>
+          <ExternalDependency Name="O2" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUnitTest/TestPackages/StaticVariants/ext_headers/B" Access="Public" Type="Headers"/>
         </Option>
       </Variant>
-  </Platform>
+    </Platform>
   </Library>
 </FslBuildGen>

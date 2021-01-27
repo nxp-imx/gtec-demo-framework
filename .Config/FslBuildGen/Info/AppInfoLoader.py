@@ -42,7 +42,7 @@ from FslBuildGen.Log import Log
 
 
 class AppInfoLoader(object):
-    def __init__(self, log: Log, appInfoFilename: str, requestedFiles: Union[List[str],Set[str]],
+    def __init__(self, log: Log, appInfoFilename: str, requestedFiles: Union[List[str], Set[str]],
                  scanSubdirectories: bool, currentPath: str, activePlatformNameId: str) -> None:
         self.Log = log
 

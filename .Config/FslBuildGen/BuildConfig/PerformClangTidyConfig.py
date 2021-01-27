@@ -54,5 +54,3 @@ class PerformClangTidyConfig(object):
         self.Profile = profile
         self.AllowDynamicVariantCache = allowDynamicVariantCache
         self.Repair = repair
-
-

@@ -36,6 +36,7 @@
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
 #include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
@@ -47,12 +48,8 @@
 
 namespace Fsl
 {
-  using namespace Graphics3D;
-  using namespace SceneFormat;
-
-
-  using BasicMesh = GenericMesh<VertexPositionNormalTangentTexture, uint16_t>;
-  using BasicScene = GenericScene<BasicMesh>;
+  using BasicMesh = Graphics3D::GenericMesh<VertexPositionNormalTangentTexture, uint16_t>;
+  using BasicScene = Graphics3D::GenericScene<BasicMesh>;
 
   namespace
   {
@@ -60,9 +57,49 @@ namespace Fsl
 
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
 
-    Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Bitmap& bitmap,
+    Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Texture& texture,
                                     const VkFilter filter, const VkSamplerAddressMode addressMode)
     {
+      Vulkan::VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
+
+      VkSamplerCreateInfo samplerCreateInfo{};
+      samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+      samplerCreateInfo.magFilter = filter;
+      samplerCreateInfo.minFilter = filter;
+      samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+      samplerCreateInfo.addressModeU = addressMode;
+      samplerCreateInfo.addressModeV = addressMode;
+      samplerCreateInfo.addressModeW = addressMode;
+      samplerCreateInfo.mipLodBias = 0.0f;
+      samplerCreateInfo.anisotropyEnable = VK_FALSE;
+      samplerCreateInfo.maxAnisotropy = 1.0f;
+      samplerCreateInfo.compareEnable = VK_FALSE;
+      samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
+      samplerCreateInfo.minLod = 0.0f;
+      samplerCreateInfo.maxLod = static_cast<float>(texture.GetLevels());
+      samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+
+      return imageCreator.CreateTexture(texture, samplerCreateInfo);
+    }
+
+    Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Bitmap& bitmap,
+                                    const VkFilter filter, const VkSamplerAddressMode addressMode, const bool generateMipMaps,
+                                    ITextureService* pTextureService)
+    {
+      if (generateMipMaps && pTextureService != nullptr)
+      {
+        FSLLOG3_INFO("- Generating mipmaps");
+        Optional<Texture> result = pTextureService->TryGenerateMipMaps(bitmap, TextureMipMapFilter::Box);
+        if (result.HasValue())
+        {
+          FSLLOG3_INFO("- Creating texture");
+          return CreateTexture(device, deviceQueue, *result, filter, addressMode);
+        }
+
+        FSLLOG3_WARNING("- Failed to generate mipmaps");
+      }
+
+      FSLLOG3_INFO("- Creating texture");
       Vulkan::VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
 
       VkSamplerCreateInfo samplerCreateInfo{};
@@ -84,6 +121,7 @@ namespace Fsl
 
       return imageCreator.CreateTexture(bitmap, samplerCreateInfo);
     }
+
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
@@ -231,6 +269,7 @@ namespace Fsl
     m_lightDirection.Normalize();
 
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
+    auto textureService = config.DemoServiceProvider.TryGet<ITextureService>();
 
     IO::Path strFileName;
     IO::Path strTextureFileName;
@@ -262,7 +301,7 @@ namespace Fsl
     const auto fullModelPath = IO::Path::Combine(contentPath, strFileName);
 
     FSLLOG3_INFO("Loading scene '{}'", fullModelPath);
-    BasicSceneFormat sceneFormat;
+    SceneFormat::BasicSceneFormat sceneFormat;
     auto scene = sceneFormat.Load<BasicScene>(fullModelPath);
 
 
@@ -301,8 +340,7 @@ namespace Fsl
 
       // GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       // m_texture.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
-      FSLLOG3_INFO("TODO: generate mipmaps");
-      m_resources.Texture = CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+      m_resources.Texture = CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true, textureService.get());
 
       if (!strTextureSpecular.IsEmpty())
       {
@@ -310,8 +348,8 @@ namespace Fsl
         FSLLOG3_INFO("- Specular '{}'", specTexturePath);
         contentManager->Read(bitmap, specTexturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
         // m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
-        FSLLOG3_INFO("TODO: generate mipmaps");
-        m_resources.TextureSpecular = CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+        m_resources.TextureSpecular =
+          CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true, textureService.get());
       }
 
       if (!strTextureNormal.IsEmpty())
@@ -319,8 +357,8 @@ namespace Fsl
         auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
         FSLLOG3_INFO("- Normal '{}'", normTexturePath);
         contentManager->Read(bitmap, normTexturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
-        FSLLOG3_INFO("TODO: generate mipmaps");
-        m_resources.TextureNormal = CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+        m_resources.TextureNormal =
+          CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, true, textureService.get());
       }
     }
 

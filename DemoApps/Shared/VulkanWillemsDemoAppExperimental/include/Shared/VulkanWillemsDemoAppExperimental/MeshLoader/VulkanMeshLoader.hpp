@@ -44,12 +44,12 @@ namespace Fsl
     protected:
       struct Vertex
       {
-        glm::vec3 m_pos;
-        glm::vec2 m_tex;
-        glm::vec3 m_normal;
-        glm::vec3 m_color;
-        glm::vec3 m_tangent;
-        glm::vec3 m_binormal;
+        glm::vec3 m_pos{};
+        glm::vec2 m_tex{};
+        glm::vec3 m_normal{};
+        glm::vec3 m_color{};
+        glm::vec3 m_tangent{};
+        glm::vec3 m_binormal{};
 
         Vertex() = default;
 

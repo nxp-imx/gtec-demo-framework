@@ -75,8 +75,8 @@ class VariantHelper(object):
         return "".join(variantVariableNameList)
 
 
-    def __FilterVariants(self, variants: List[PackagePlatformVariant]) -> Dict[int, List[PackagePlatformVariant]]:
-        resDict = {}  # type: Dict[int, List[PackagePlatformVariant]]
+    def __FilterVariants(self, variants: List[PackagePlatformVariant]) -> Dict[VariantType, List[PackagePlatformVariant]]:
+        resDict = {}  # type: Dict[VariantType, List[PackagePlatformVariant]]
         for entry in variants:
             if not entry.Type in resDict:
                 resDict[entry.Type] = []

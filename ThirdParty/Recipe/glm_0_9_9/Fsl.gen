@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.glm_0_9_9" AllowCheck="false" CreationYear="2020">
+    <!--
+    <Define Name="GLM_FORCE_DEPTH_ZERO_TO_ONE" Access="Public"/>
+    <Define Name="GLM_FORCE_RADIANS" Access="Public"/>-->
+  
+    <Define Name="GLM_FORCE_CXX14" Access="Public"/>
+    <!--ExperimentalRecipe Name="glm" Version="0.9.9.8" FindVersion="0.9.9" FindTargetName="glm::glm" CMakeDefine="glm_DIR={PACKAGE_PATH}/cmake/glm/"-->
+    <ExperimentalRecipe Name="glm" Version="0.9.9.8" FindVersion="0.9.9" FindTargetName="glm::glm" Find="false">
+      <Pipeline>
+        <Download URL="https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.zip" Hash="37e2a3d62ea3322e43593c34bae29f57e3e251ea89f4067506c94043769ade4c"/>
+        <Unpack File="glm-0.9.9.8.zip" OutputPath="glm">
+          <Copy From="{OUTPUT_PATH}/glm" To="{OUTPUT_PATH}/include/glm"/>
+          <Delete Path="cmake"/>
+          <Delete Path="doc"/>
+          <Delete Path="test"/>
+          <Delete Path="glm"/>
+        </Unpack>
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/glm/glm.hpp" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+   
+    <!--Platform Name="QNX" Supported="false"/-->
+  </ExternalLibrary>
+</FslBuildGen>

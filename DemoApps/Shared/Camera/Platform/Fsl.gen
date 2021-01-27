@@ -6,13 +6,13 @@
     <Dependency Name="Shared.Camera.System"/>
 
     <Platform Name="Ubuntu" Supported="true">
-	  <Dependency Name="Shared.Camera.Adapter.OpenCV" Access="Private"/>
+      <Dependency Name="Shared.Camera.Adapter.OpenCV" Access="Private"/>
     </Platform>
-    <Platform Name="Windows" ProjectId="582FFFDB-9503-4A66-BABA-A4F6DEBCF42E" Supported="true">
-	  <Dependency Name="Shared.Camera.Adapter.OpenCV" Access="Private"/>
-	</Platform>
+    <Platform Name="Windows" Supported="true">
+      <Dependency Name="Shared.Camera.Adapter.OpenCV" Access="Private"/>
+    </Platform>
     <Platform Name="Yocto" Supported="true">
-	  <Dependency Name="Shared.Camera.Adapter.Mipi8X" Access="Private"/>
+      <Dependency Name="Shared.Camera.Adapter.Mipi8X" Access="Private"/>
     </Platform>    
   </Library>
 </FslBuildGen>

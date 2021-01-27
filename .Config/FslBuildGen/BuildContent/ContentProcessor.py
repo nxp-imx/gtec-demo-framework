@@ -34,9 +34,9 @@
 from typing import Iterable
 from typing import List
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
 from FslBuildGen.BuildContent.ConditionInterpreter import ConditionInterpreter
 from FslBuildGen.BuildContent.PathRecord import PathRecord
+from FslBuildGen.Log import Log
 
 
 class ContentProcessor(object):
@@ -56,7 +56,7 @@ class ContentProcessor(object):
         return tempFileName
 
 
-    def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
+    def GetOutputFileName(self, log: Log, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
         relativePathToContentFile = contentFileRecord.RelativePath
         if removeExtension:
             extension = IOUtil.GetFileNameExtension(relativePathToContentFile)
@@ -65,9 +65,9 @@ class ContentProcessor(object):
 
 
 
-    def EnsureDirectoryExist(self, config: Config, outputFileName: str) -> None:
+    def EnsureDirectoryExist(self, configDisableWrite: bool, outputFileName: str) -> None:
         outputDirectory = IOUtil.GetDirectoryName(outputFileName)
-        if not config.DisableWrite:
+        if not configDisableWrite:
             IOUtil.SafeMakeDirs(outputDirectory)
 
 

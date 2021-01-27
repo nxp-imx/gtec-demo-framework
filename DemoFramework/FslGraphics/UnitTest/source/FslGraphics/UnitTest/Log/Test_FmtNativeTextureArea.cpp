@@ -43,7 +43,7 @@ namespace
 
 TEST(TestLog_FmtNativeTextureArea, Format)
 {
-  NativeTextureArea value(1.0f, 2.0f, 3.0f, 4.0f);
+  NativeTextureArea value(1.1f, 2.1f, 3.1f, 4.1f);
 
-  EXPECT_EQ(std::string("{X0=1.0 Y0=2.0 X1=3.0 Y1=4.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{X0=1.1 Y0=2.1 X1=3.1 Y1=4.1}"), fmt::format("{}", value));
 }

@@ -128,7 +128,7 @@ namespace Fsl
       {
         static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
 
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         if (clGetPlatformInfo(platformId, platformInfo, 0, nullptr, &contentSize) != CL_SUCCESS)
         {
           rContainer.resize(0);
@@ -221,7 +221,7 @@ namespace Fsl
       {
         static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
 
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         if (clGetDeviceInfo(deviceId, deviceInfo, 0, nullptr, &contentSize) != CL_SUCCESS)
         {
           rContainer.resize(0);

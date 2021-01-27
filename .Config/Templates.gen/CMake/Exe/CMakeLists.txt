@@ -51,6 +51,9 @@ add_executable(##ALIAS_PACKAGE_NAME## ALIAS ##PACKAGE_NAME##)
 # Ensure that debug exes are postfixed with a _d
 set_property(TARGET ##PACKAGE_NAME## PROPERTY DEBUG_POSTFIX _d)
 
+# Make the executable a default target to build & run in Visual Studio
+set_property(DIRECTORY ${PROJECT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ##PACKAGE_NAME##)
+
 file(GENERATE 
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/.fsl-build/config_$<CONFIG>.json
   CONTENT {"EXE_PATH":"$<TARGET_FILE:##PACKAGE_NAME##>"}
@@ -58,6 +61,12 @@ file(GENERATE
 
 ##PACKAGES_FIND_DIRECT_EXTERNAL_DEPENDENCIES##
 ##TARGET_INCLUDE_DIRECTORIES##
+
+#########################
+# SOURCE GROUPS FOR IDE #
+#########################
+  
+##PACKAGE_SOURCE_GROUP##
 
 #######################
 # Target Dependencies #
@@ -86,7 +95,7 @@ endif()
 ##PACKAGE_VARIANT_SETTINGS##
 # Sets the visual studio working directory to point to the in source package directory
 # This is not needed anymore.
-#set_property(TARGET ##PACKAGE_NAME## PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+#set_property(TARGET ##PACKAGE_NAME## PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "##PACKAGE_PATH##")
 ##PACKAGE_TARGET_SPECIAL_FILES##
 
 if(INSTALL_EXE)

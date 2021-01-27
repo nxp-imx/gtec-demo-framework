@@ -32,6 +32,7 @@
 #include <FslSimpleUI/Base/Control/ToggleButton.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Dp/TypeConverter_Math.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -343,7 +344,7 @@ namespace Fsl
 
       const auto batch = m_windowContext->Batch2D;
 
-      const Vector2 positionPxf = context.TargetRect.TopLeft();
+      const PxVector2 positionPxf = context.TargetRect.TopLeft();
       const PxSize2D renderSizePx = RenderSizePx();
 
       // Draw the text if it has been set
@@ -385,23 +386,26 @@ namespace Fsl
           {
             centeredYPx = (renderSizePx.Height() - backgroundSpriteInfo.RenderInfo.ScaledSizePx.Height()) / 2;
           }
-          ImageImpl::Draw(*batch, pBackgroundSprite, Vector2(positionPxf.X + float(offsetXPx), positionPxf.Y + float(centeredYPx)),
+          ImageImpl::Draw(*batch, pBackgroundSprite, PxVector2(positionPxf.X + float(offsetXPx), positionPxf.Y + float(centeredYPx)),
                           m_background.CurrentColor.GetValue());
         }
 
         if (pCursorSprite != nullptr)
         {
-          const PxPoint2 cursorPositionPx =
-            m_windowContext->UnitConverter.ToPxPoint2(TypeConverter::To<DpPointF>(m_hoverOverlay.CurrentPositionDp.GetValue()));
+          const PxVector2 cursorPositionPxf =
+            m_windowContext->UnitConverter.ToPxVector2(TypeConverter::To<DpPointF>(m_hoverOverlay.CurrentPositionDp.GetValue()));
 
           int32_t centeredYPx = 0;
           const auto& cursorSpriteInfo = pCursorSprite->GetInfo();
-          const PxPoint2 cursorOriginPx(TypeConverter::To<PxPoint2>(cursorSpriteInfo.RenderInfo.ScaledSizePx) / 2);
-          const PxPoint2 adjustedCursorPositionPx = PxPoint2(offsetXPx, 0) + cursorPositionPx - cursorOriginPx;
+          {
+            const PxSize2DF cursorOriginPxf(TypeConverter::To<PxSize2DF>(cursorSpriteInfo.RenderInfo.ScaledSizePx) / 2);
+            const PxPoint2 adjustedCursorPositionPx =
+              PxPoint2(offsetXPx, 0) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - cursorOriginPxf);
 
-          ImageImpl::Draw(*batch, pCursorSprite,
-                          Vector2(positionPxf.X + float(adjustedCursorPositionPx.X), positionPxf.Y + float(adjustedCursorPositionPx.Y)),
-                          m_cursor.CurrentColor.GetValue());
+            ImageImpl::Draw(*batch, pCursorSprite,
+                            PxVector2(positionPxf.X + float(adjustedCursorPositionPx.X), positionPxf.Y + float(adjustedCursorPositionPx.Y)),
+                            m_cursor.CurrentColor.GetValue());
+          }
 
           // Draw the overlay (if enabled)
           const ImageSprite* const pHoverSprite = m_hoverOverlay.Sprite.get();
@@ -410,16 +414,19 @@ namespace Fsl
             bool showOverlay = true;
             if (m_hoverOverlay.IsConstrainToGraphics)
             {
-              PxPoint2 positionPx(int32_t(std::round(positionPxf.X)), int32_t(std::round(positionPxf.Y)));
+              PxPoint2 positionPx(TypeConverter::UncheckedChangeTo<PxPoint2>(positionPxf));
               PxRectangle cursorRect(PxPoint2(positionPx.X + offsetXPx, positionPx.Y + centeredYPx), cursorSpriteInfo.RenderInfo.ScaledSizePx);
               showOverlay = cursorRect.Contains(m_hoverOverlay.LastScreenPositionPx);
             }
             if (showOverlay)
             {
-              const PxPoint2 originPx(TypeConverter::To<PxPoint2>(pHoverSprite->GetRenderInfo().ScaledSizePx) / 2);
+              const PxSize2DF overlayOriginPxf(TypeConverter::To<PxSize2DF>(pHoverSprite->GetInfo().RenderInfo.ScaledSizePx) / 2);
+              const PxPoint2 adjustedOverlayPositionPx =
+                PxPoint2(offsetXPx, 0) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - overlayOriginPxf);
 
-              Vector2 dstPositionPxf(positionPxf + TypeConverter::UncheckedTo<Vector2>(PxPoint2(offsetXPx, 0) + cursorPositionPx));
-              ImageImpl::Draw(*batch, pHoverSprite, dstPositionPxf, m_hoverOverlay.CurrentColor.GetValue(), originPx);
+              ImageImpl::Draw(*batch, pHoverSprite,
+                              PxVector2(positionPxf.X + float(adjustedOverlayPositionPx.X), positionPxf.Y + float(adjustedOverlayPositionPx.Y)),
+                              m_hoverOverlay.CurrentColor.GetValue());
             }
           }
         }

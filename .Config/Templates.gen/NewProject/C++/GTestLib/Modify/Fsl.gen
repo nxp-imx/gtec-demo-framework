@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="##PACKAGE_NAME##" CreationYear="##PACKAGE_CREATION_YEAR##">
     <Dependency Name="FslUnitTest"/>
-    <Platform Name="Windows" ProjectId="##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"/>
   </Library>
 </FslBuildGen>

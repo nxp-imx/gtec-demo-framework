@@ -35,33 +35,36 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
-import os
+#from typing import Tuple
+#import os
 from FslBuildGen import IOUtil
 from FslBuildGen import PluginSharedValues
-from FslBuildGen.BasicConfig import BasicConfig
+#from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
-from FslBuildGen.DataTypes import ScanMethod
+#from FslBuildGen.DataTypes import ScanMethod
+from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import BasePackageNotFoundException
-from FslBuildGen.Exceptions import DependencyNotFoundException
+#from FslBuildGen.Exceptions import DependencyNotFoundException
 from FslBuildGen.Exceptions import ToolDependencyNotFoundException
 from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Exceptions import PackageHasMultipleDefinitions2Exception
-from FslBuildGen.PackageCachedLocation import PackageCachedLocation
+#from FslBuildGen.PackageCachedLocation import PackageCachedLocation
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackageFinder import PackageFinder
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
+from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigPackageConfiguration
-from FslBuildGen.ToolConfig import ToolConfigPackageLocation
+#from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 from FslBuildGen.Xml.Exceptions import XmlInvalidPackageNameException
 from FslBuildGen.Xml.Exceptions import XmlInvalidSubPackageNameException
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
+from FslBuildGen.Xml.XmlGenFileDependency import XmlGenFileDependency
 
-def _CreateXmlGenFile(config: Config, defaultPackageLanguage: int) -> XmlGenFile:
-    return XmlGenFile(config, defaultPackageLanguage)
+def _CreateXmlGenFile(log: Log, toolConfig: ToolConfig, defaultPackageLanguage: PackageLanguage) -> XmlGenFile:
+    return XmlGenFile(log, toolConfig, defaultPackageLanguage)
 
 def _ThrowToolDependencyNotFoundException(packageName: str) -> None:
     raise ToolDependencyNotFoundException(packageName)
@@ -71,13 +74,14 @@ def _ThrowBasePackageNotFoundException(packageName: str) -> None:
 
 
 class PackageLoader(object):
-    def __init__(self, config: Config, files: List[str], generator: GeneratorPluginBase, forceImportPackageNames: Optional[List[str]] = None) -> None:
+    def __init__(self, config: Config, files: List[str], generator: GeneratorPluginBase,
+                 forceImportPackageNames: Optional[List[str]] = None) -> None:
         super().__init__()
         self.BasicConfig = config
 
         genFilename = config.GenFileName  # type: str
         packageConfigDict = config.ToolConfig.PackageConfiguration  # type: Dict[str, ToolConfigPackageConfiguration]
-        packageLocations = [] if not config.Type in packageConfigDict else packageConfigDict[config.Type].Locations  # type: List[ToolConfigPackageLocation]
+        #packageLocations = [] if not config.Type in packageConfigDict else packageConfigDict[config.Type].Locations  # type: List[ToolConfigPackageLocation]
         factoryFunction = _CreateXmlGenFile
 
         templateLocationCache = self.__CacheTemplateLocations(config)
@@ -94,7 +98,7 @@ class PackageLoader(object):
             if config.Type in packageConfigDict and packageConfigDict[config.Type].Preload:
                 inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
-            if (generator.PlatformName == PlatformNameString.ANDROID or generator.PlatformId == PlatformNameString.ALL.lower()):
+            if (generator.PlatformName == PlatformNameString.ANDROID):
                 internalNinjaToolPackageName = config.ToolConfig.CMakeConfiguration.NinjaRecipePackageName
                 config.LogPrintVerbose(4, "Adding package {0}".format(internalNinjaToolPackageName))
                 self.__AddPackageToList(inputFiles, internalNinjaToolPackageName, _ThrowToolDependencyNotFoundException)
@@ -149,7 +153,7 @@ class PackageLoader(object):
         return newInputFiles
 
 
-    def __AddPackageToList(self, rInputFiles: List[PackageFile], packageName: str, throwFunc: Callable[[str],None]) -> None:
+    def __AddPackageToList(self, rInputFiles: List[PackageFile], packageName: str, throwFunc: Callable[[str], None]) -> None:
         packageFile = self.PackageFinder.TryLocateMissingPackagesByName(packageName)
         if packageFile is None:
             throwFunc(packageName)
@@ -182,39 +186,50 @@ class PackageLoader(object):
         return resDict
 
 
-    def __DiscoverMissingPackages(self, config: Config, activePlatform: GeneratorPluginBase,
+    def __DiscoverMissingPackages(self, log: Log, activePlatform: GeneratorPluginBase,
                                   packageDict: Dict[str, List[XmlGenFile]], genFiles: List[XmlGenFile]) -> Dict[str, XmlGenFile]:
         """ Create a dict where the key is the name of the missing package and the value is the xmlGenFile that first requested it """
         missingPackages = {}  # type: Dict[str, XmlGenFile]
         for entry in genFiles:
-            for dep in entry.DirectDependencies:
-                if not dep.Name in packageDict:
-                    if not dep.Name in missingPackages:
-                        missingPackages[dep.Name] = entry
-                    if config.Verbosity > 1:
-                        config.LogPrint(".. {0} missing {1}".format(entry.Name, dep.Name))
+            self.__FindMissingPackages(log, packageDict, entry.DirectDependencies, missingPackages, entry)
             for platform in list(entry.Platforms.values()):
-                if activePlatform.PlatformId == PluginSharedValues.PLATFORM_ID_ALL or platform.Name == activePlatform.PlatformName:
+                if platform.Name == activePlatform.PlatformName:
                     for dep in platform.DirectDependencies:
                         if not dep.Name in packageDict:
                             if not dep.Name in missingPackages:
                                 missingPackages[dep.Name] = entry
-                                if config.Verbosity >= 2 and config.Verbosity < 4:
-                                    config.LogPrint(".. Platform {0} package {1} missing {2}".format(platform.Name, entry.Name, dep.Name))
-                            if config.Verbosity >= 4:
-                                config.LogPrint(".. Platform {0} package {1} missing {2}".format(platform.Name, entry.Name, dep.Name))
+                                if log.Verbosity >= 2:
+                                    log.LogPrint(".. Package '{0}' Platform '{1}' missing '{2}'".format(entry.Name, platform.Name, dep.Name))
+                    for flavor in platform.Flavors:
+                        for flavorOption in flavor.Options:
+                            for dep in flavorOption.DirectDependencies:
+                                if not dep.Name in packageDict:
+                                    if not dep.Name in missingPackages:
+                                        missingPackages[dep.Name] = entry
+                                        if log.Verbosity >= 2:
+                                            log.LogPrint(".. Package '{0}' platform '{1}' flavor '{2}' Option '{3}' missing '{4}'".format(entry.Name, platform.Name, flavor.Name, flavorOption.Name, dep.Name))
+
+
         return missingPackages
 
+    def __FindMissingPackages(self, log: Log, packageDict: Dict[str, List[XmlGenFile]], entries: List[XmlGenFileDependency],
+                              missingPackages: Dict[str, XmlGenFile], source: XmlGenFile) -> None:
+        for dep in entries:
+            if not dep.Name in packageDict:
+                if not dep.Name in missingPackages:
+                    missingPackages[dep.Name] = source
+                if log.Verbosity > 1:
+                    log.LogPrint(".. '{0}' missing '{1}'".format(source.Name, dep.Name))
 
-    def __LoadFiles(self, config: Config,
-                    files: List[PackageFile],
-                    rPackageDict: Dict[str, List[XmlGenFile]],
-                    rGenFiles: List[XmlGenFile],
-                    defaultPackageLanguage: int,
-                    factoryFunction: Callable[[Config, int], XmlGenFile]) -> None:
+    def __LoadFiles(self, config: Config, files: List[PackageFile],
+                    rPackageDict: Dict[str, List[XmlGenFile]], rGenFiles: List[XmlGenFile],
+                    defaultPackageLanguage: PackageLanguage,
+                    factoryFunction: Callable[[Log, ToolConfig, PackageLanguage], XmlGenFile]) -> None:
+        log = config  # type: Log
+        toolConfig = config.ToolConfig
         for file in files:
-            config.LogPrint("'{0}'".format(file.AbsoluteFilePath))
-            xml = factoryFunction(config, defaultPackageLanguage)
+            log.LogPrint("'{0}'".format(file.AbsoluteFilePath))
+            xml = factoryFunction(log, toolConfig, defaultPackageLanguage)
             xml.Load(config, self.PackageTemplateLoader, file)
             self.__ValidatePackage(config, file, xml)
             rGenFiles.insert(0, xml)
@@ -240,4 +255,3 @@ class PackageLoader(object):
             if '.' in pathBasedPackageName:
                 raise XmlInvalidSubPackageNameException(xmlGenFile.XMLElement, pathBasedPackageName, xmlGenFile.Name, sourceFile.AbsoluteFilePath, sourceFile.PackageRootLocation.ResolvedPath)
             raise XmlInvalidPackageNameException(xmlGenFile.XMLElement, pathBasedPackageName, xmlGenFile.Name, sourceFile.AbsoluteFilePath, sourceFile.PackageRootLocation.ResolvedPath)
-

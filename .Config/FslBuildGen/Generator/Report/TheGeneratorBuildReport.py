@@ -32,12 +32,13 @@
 #****************************************************************************************************************************************************
 
 from typing import Dict
-from typing import List
-from typing import Optional
+#from typing import List
+#from typing import Optional
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Packages.Package import Package
 
 class TheGeneratorBuildReport(object):
     def __init__(self, packageReportDict: Dict[Package, PackageGeneratorReport]) -> None:
         super().__init__()
-        self.PackageReportDict  = packageReportDict
+        self.PackageReportDict = packageReportDict
+

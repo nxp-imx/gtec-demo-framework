@@ -22,6 +22,16 @@
 /.Config/FslBuildGen/BuildExternal/__pycache__
 /.Config/FslBuildGen/Context/*.pyc
 /.Config/FslBuildGen/Context/__pycache__
+/.Config/FslBuildGen/Engine/*.pyc
+/.Config/FslBuildGen/Engine/__pycache__
+/.Config/FslBuildGen/Engine/Cache/*.pyc
+/.Config/FslBuildGen/Engine/Cache/__pycache__
+/.Config/FslBuildGen/Engine/Order/*.pyc
+/.Config/FslBuildGen/Engine/Order/__pycache__
+/.Config/FslBuildGen/Engine/Resolver/*.pyc
+/.Config/FslBuildGen/Engine/Resolver/__pycache__
+/.Config/FslBuildGen/Engine/Unresolved/*.pyc
+/.Config/FslBuildGen/Engine/Unresolved/__pycache__
 /.Config/FslBuildGen/Generator/*.pyc
 /.Config/FslBuildGen/Generator/__pycache__
 /.Config/FslBuildGen/Generator/Report/*.pyc
@@ -30,8 +40,12 @@
 /.Config/FslBuildGen/Info/__pycache__
 /.Config/FslBuildGen/Location/*.pyc
 /.Config/FslBuildGen/Location/__pycache__
+/.Config/FslBuildGen/OpenProject/*.pyc
+/.Config/FslBuildGen/OpenProject/__pycache__
 /.Config/FslBuildGen/Packages/*.pyc
 /.Config/FslBuildGen/Packages/__pycache__
+/.Config/FslBuildGen/Packages/Unresolved/*.pyc
+/.Config/FslBuildGen/Packages/Unresolved/__pycache__
 /.Config/FslBuildGen/Template/*.pyc
 /.Config/FslBuildGen/Template/__pycache__
 /.Config/FslBuildGen/Tool/*.pyc
@@ -42,6 +56,8 @@
 /.Config/FslBuildGen/Vars/__pycache__
 /.Config/FslBuildGen/Xml/*.pyc
 /.Config/FslBuildGen/Xml/__pycache__
+/.Config/FslBuildGen/Xml/Flavor/*.pyc
+/.Config/FslBuildGen/Xml/Flavor/__pycache__
 /.Config/FslBuildGen/Xml/Project/*.pyc
 /.Config/FslBuildGen/Xml/Project/__pycache__
 /.Config/FslBuildGen/Xml/ToolConfig/*.pyc
@@ -64,4 +80,3 @@
 /ThirdParty/G2DEmulation/G2DEmulation.v12.suo
 /ThirdParty/DevCompat/bin/
 /CMakeLists.txt
-

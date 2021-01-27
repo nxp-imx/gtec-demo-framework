@@ -1,11 +1,22 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources",
-      "Content": [
-        "Textures/Cubemap/Stairs/Raw/*.*"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Textures/Cubemap/Stairs/Raw/*.*"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/Blur",
+        "Content": [
+          "TextureAtlas/License.json",
+          "TextureAtlas/MainAtlas.bta",
+          "TextureAtlas/MainAtlas.png",
+          "TextureAtlas/MainAtlasFont.fbk"
+        ]
+      }
+    ]
   }
 }

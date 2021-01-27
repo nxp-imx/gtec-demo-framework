@@ -31,22 +31,23 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Dict
 from typing import Optional
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
-from FslBuildGen.BuildExternal import CMakeTypes
+#from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
-from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.Log import Log
+#from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 
 class GeneratorContext(PlatformContext):
-    def __init__(self, basicConfig: BasicConfig, errorHelpManager: ErrorHelpManager, recipeFilterManager: RecipeFilterManager,
+    def __init__(self, log: Log, errorHelpManager: ErrorHelpManager, recipeFilterManager: RecipeFilterManager,
                  experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin) -> None:
         if generator.CMakeConfig is None:
             raise Exception("Invalid generator")
@@ -59,21 +60,25 @@ class GeneratorContext(PlatformContext):
             installReadonlySource = experimental.DefaultThirdPartyInstallReadonlyCacheDirectory
             readonlyCachePath = None if installReadonlySource is None else installReadonlySource.ResolvedPath  # type: Optional[str]
             recipeBuilderSetup = RecipeBuilderSetup(targetLocation, readonlyCachePath)
-            if IOUtil.TryGetEnvironmentVariable(experimental.DisableDownloadEnv) != None:
+            if IOUtil.TryGetEnvironmentVariable(experimental.DisableDownloadEnv) is not None:
                 allowDownloads = False
-                basicConfig.LogPrint("Downloads disabled since the environment variable {0} was defined".format(experimental.DisableDownloadEnv))
+                log.LogPrint("Downloads disabled since the environment variable {0} was defined".format(experimental.DisableDownloadEnv))
             elif experimental.AllowDownloads:
                 allowDownloads = True
             else:
-                basicConfig.LogPrint("Downloads disabled since the project has it disabled by default")
+                log.LogPrint("Downloads disabled since the project has it disabled by default")
 
-        generatorInfo = GeneratorInfo(generator.IsCMake, generator.CMakeConfig.AllowFindPackage)
-        super().__init__(basicConfig, errorHelpManager, generator.PlatformName, generator.PlatformName, generatorInfo, generator.CMakeConfig,
+        validVariableDict = {}      # type: Dict[str, object]
+        validVariableDict['PlatformName'] = generator.PlatformName
+        validVariableDict['IsCMakeBuild'] = generator.IsCMake
+
+        generatorInfo = GeneratorInfo(generator.IsCMake, generator.CMakeConfig.AllowFindPackage, validVariableDict)
+        super().__init__(log, errorHelpManager, generator.PlatformName, generator.PlatformName, generatorInfo, generator.CMakeConfig,
                          recipeBuilderSetup)
 
         #allowDownload=True, disableDownloadEnv=None
 
-        self.BasicConfig = basicConfig
+        self.Log = log
         self.Generator = generator
         # for now the generator is also the platform and the existing code use that name so maintain compatibility for now
         self.Platform = generator

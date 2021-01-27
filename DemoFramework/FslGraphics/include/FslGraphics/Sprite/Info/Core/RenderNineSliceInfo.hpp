@@ -31,8 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/Math/Pixel/PxThickness.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 
 namespace Fsl
@@ -49,31 +48,29 @@ namespace Fsl
     PxSize2D ScaledSizePx;
 
     //! The scaled image trim in pixels
-    PxThickness ScaledTrimMarginPx;
+    PxThicknessF ScaledTrimMarginPxf;
 
     //! The scaled trimmed nine slice (basically the nine slice information minus the trim, scaled to the current density)
-    PxThickness ScaledTrimmedNineSlicePx;
+    PxThicknessF ScaledTrimmedNineSlicePxf;
 
     //! The scaled content margin
     PxThickness ScaledContentMarginPx;
 
     constexpr RenderNineSliceInfo() = default;
-    constexpr RenderNineSliceInfo(const NativeNineSliceTextureArea& imageNativeNineSliceTextureArea, const PxSize2D scaledImageSizePx,
-                                  const PxThickness& scaledImageTrimMarginPx, const PxThickness& scaledTrimmedNineSlicePx,
-                                  const PxThickness& scaledContentMarginPx)
+    constexpr RenderNineSliceInfo(const NativeNineSliceTextureArea& imageNativeNineSliceTextureArea, const PxTrimmedNineSlice& trimemdNineSlice)
       : TextureArea(imageNativeNineSliceTextureArea)
-      , ScaledSizePx(scaledImageSizePx)
-      , ScaledTrimMarginPx(scaledImageTrimMarginPx)
-      , ScaledTrimmedNineSlicePx(scaledTrimmedNineSlicePx)
-      , ScaledContentMarginPx(scaledContentMarginPx)
+      , ScaledSizePx(trimemdNineSlice.SizePx)
+      , ScaledTrimMarginPxf(trimemdNineSlice.TrimMarginPxf)
+      , ScaledTrimmedNineSlicePxf(trimemdNineSlice.TrimmedNineSlicePxf)
+      , ScaledContentMarginPx(trimemdNineSlice.ContentMarginPx)
     {
     }
 
 
     constexpr bool operator==(const RenderNineSliceInfo& rhs) const
     {
-      return TextureArea == rhs.TextureArea && ScaledSizePx == rhs.ScaledSizePx && ScaledTrimMarginPx == rhs.ScaledTrimMarginPx &&
-             ScaledTrimmedNineSlicePx == rhs.ScaledTrimmedNineSlicePx && ScaledContentMarginPx == rhs.ScaledContentMarginPx;
+      return TextureArea == rhs.TextureArea && ScaledSizePx == rhs.ScaledSizePx && ScaledTrimMarginPxf == rhs.ScaledTrimMarginPxf &&
+             ScaledTrimmedNineSlicePxf == rhs.ScaledTrimmedNineSlicePxf && ScaledContentMarginPx == rhs.ScaledContentMarginPx;
     }
 
     constexpr bool operator!=(const RenderNineSliceInfo& rhs) const

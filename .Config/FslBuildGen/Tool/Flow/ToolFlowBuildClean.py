@@ -32,34 +32,34 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
-from typing import List
+#from typing import List
 from typing import Optional
 import argparse
 import os
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
-from FslBuildGen.Generator import PluginConfig
-from FslBuildGen import ParseUtil
+#from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
-from FslBuildGen.Build import Builder
+#from FslBuildGen.Build import Builder
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
-from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
+#from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
-from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.ExtensionListManager import ExtensionListManager
-from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
-from FslBuildGen.Log import Log
-from FslBuildGen.PackageFilters import PackageFilters
-from FslBuildGen.PackageConfig import PlatformNameString
+#from FslBuildGen.DataTypes import PackageType
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
+#from FslBuildGen.Log import Log
+#from FslBuildGen.PackageFilters import PackageFilters
+#from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
-from FslBuildGen.Info import InfoSaver
+#from FslBuildGen.Info import InfoSaver
 
 class DefaultValue(object):
     IgnoreNotSupported = False
@@ -79,8 +79,8 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 
 class ToolFlowBuildInfo(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -118,15 +118,16 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
-                                                                                   localToolConfig.GetUserCMakeConfig())
+                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   config.ToolConfig.CMakeConfiguration,
+                                                                                   localToolConfig.GetUserCMakeConfig(), False)
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
-        requestedFiles = None if config.IsSDKBuild else theFiles
+        #requestedFiles = None if config.IsSDKBuild else theFiles
 
         self.Log.LogPrint("Deleting package build directories")
         for package in topLevelPackage.ResolvedBuildOrder:
@@ -135,12 +136,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
                 removePath = IOUtil.NormalizePath(package.AbsoluteBuildPath)
                 if IOUtil.IsDirectory(removePath):
                     self.Log.LogPrint("- Deleting '{0}'".format(removePath))
-                    drive, tail = os.path.splitdrive(removePath)
-                    driveId = IOUtil.NormalizePath(drive).lower()
-                    removePathId = removePath.lower()
-                    # some basic checks to prevent deletes of '/' or a drive letter.
-                    if  ('../' in removePath or '/..' in removePath or removePath == '/' or removePath == '..' or
-                         len(removePath) <= 0 or removePathId==driveId or removePath.endswith('/')):
+                    if IOUtil.IsDriveRootPath(removePath):
                         raise Exception("Invalid path format '{0}'".format(removePath))
                     IOUtil.SafeRemoveDirectoryTree(removePath)
 
@@ -167,8 +163,8 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
 
     def GetTitle(self) -> str:

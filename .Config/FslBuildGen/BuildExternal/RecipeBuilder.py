@@ -31,25 +31,25 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Any
-from typing import cast
-from typing import Dict
+#from typing import Any
+#from typing import cast
+#from typing import Dict
 from typing import List
 from typing import Optional
-import hashlib
-import json
+#import hashlib
+#import json
 from FslBuildGen import IOUtil
-from FslBuildGen import PackageUtil
+#from FslBuildGen import PackageUtil
 from FslBuildGen import PackageListUtil
 from FslBuildGen.BasicConfig import BasicConfig
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Build.BuildConfigRecord import BuildConfigRecord
 from FslBuildGen.Build.DataTypes import CommandType
-from FslBuildGen.Build.Filter import PackageFilter
+#from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.BuildExternal.BuilderConfig import BuilderConfig
 from FslBuildGen.BuildExternal.BuilderSettings import BuilderSettings
-from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
+#from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.BuildExternal.Pipeline import RecipeRecord
 from FslBuildGen.BuildExternal.PipelineCommandBuilder import PipelineCommandBuilder
@@ -58,16 +58,17 @@ from FslBuildGen.BuildExternal.ValidationEngine import InstallationStatus
 from FslBuildGen.BuildExternal.ValidationEngine import ValidationEngine
 from FslBuildGen.BuildExternal.State.BuildAreaInfoFileUtil import BuildAreaInfoFileUtil
 from FslBuildGen.BuildExternal.State.BuildInfoFileUtil import BuildInfoFileUtil
-from FslBuildGen.BuildExternal.State.RecipePackageState import RecipePackageState
+#from FslBuildGen.BuildExternal.State.RecipePackageState import RecipePackageState
 from FslBuildGen.BuildExternal.State.RecipePackageStateCache import RecipePackageStateCache
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
-from FslBuildGen.ErrorHelpManager import ErrorHelpManager
+#from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
-from FslBuildGen.BuildContent.Sync.BuildState import BasicContent
-from FslBuildGen.BuildContent.Sync.BuildState import BasicContentState
+#from FslBuildGen.BuildContent.Sync.BuildState import BasicContent
+#from FslBuildGen.BuildContent.Sync.BuildState import BasicContentState
+from FslBuildGen.ToolConfig import ToolConfig
 
 __g_installAreaInformationFilename = "BuildDirInfo.json"
 __g_BuildPackageInformationFilename = "BuildInfo.json"
@@ -85,7 +86,7 @@ def __RunValidationEngineCheck(validationEngine: ValidationEngine, package: Pack
 
 
 # packagesToBuild contains all packages that are scheduled for a rebuild
-def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: ValidationEngine, package: Package, packagesToBuild: List[Package],
+def __TryValidateInstallation(log: Log, validationEngine: ValidationEngine, package: Package, packagesToBuild: List[Package],
                               recipePackageStateCache: RecipePackageStateCache, cmakeConfig: GeneratorCMakeConfig) -> bool:
     if package.ResolvedDirectExperimentalRecipe is None:
         raise Exception("Invalid package")
@@ -93,10 +94,10 @@ def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: Valida
     installPath = sourceRecipe.ResolvedInstallLocation
     if installPath is not None:
         if not IOUtil.IsDirectory(installPath.ResolvedPath):
-            basicConfig.LogPrintVerbose(2, "Installation directory not located: {0}".format(installPath.ResolvedPath))
+            log.LogPrintVerbose(2, "Installation directory not located: {0}".format(installPath.ResolvedPath))
             return False
-        elif basicConfig.Verbosity >= 2:
-            basicConfig.LogPrint("Installation directory located at '{0}'".format(installPath.ResolvedPath))
+        elif log.Verbosity >= 2:
+            log.LogPrint("Installation directory located at '{0}'".format(installPath.ResolvedPath))
 
     # Check if the user decided to do a build override by creating the required file.
     # This allows the user to tell the system that it has been build and it should mind its own buisness
@@ -105,12 +106,12 @@ def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: Valida
         overrideFilename = IOUtil.Join(installPath.ResolvedPath, __g_BuildPackageInformationOverrideFilename)
         packageHasUserBuildOverride = IOUtil.IsFile(overrideFilename)
         if packageHasUserBuildOverride:
-            basicConfig.LogPrint("Package {0} contained a build override file '{1}'".format(package.Name, __g_BuildPackageInformationOverrideFilename))
+            log.LogPrint("Package {0} contained a build override file '{1}'".format(package.Name, __g_BuildPackageInformationOverrideFilename))
 
     if not __RunValidationEngineCheck(validationEngine, package):
         if packageHasUserBuildOverride:
             raise Exception("Package {0} contained a build override file '{1}', but it failed validation. Fix the issues or delete the override file '{2}'".format(package.Name, __g_BuildPackageInformationOverrideFilename, overrideFilename))
-        basicConfig.LogPrintVerbose(2, "Install validation failed")
+        log.LogPrintVerbose(2, "Install validation failed")
         return False
 
     # If there is a user build override we dont check the build dependency json file
@@ -121,14 +122,14 @@ def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: Valida
     if not PackageRecipeUtil.HasBuildPipeline(package):
         return True
 
-    if not BuildInfoFileUtil.TryValidateBuildInformation(basicConfig, package, packagesToBuild, recipePackageStateCache, cmakeConfig,
+    if not BuildInfoFileUtil.TryValidateBuildInformation(log, package, packagesToBuild, recipePackageStateCache, cmakeConfig,
                                                          __g_BuildPackageInformationFilename):
-        basicConfig.LogPrintVerbose(2, "Install validator failed to load build information")
+        log.LogPrintVerbose(2, "Install validator failed to load build information")
         return False
     return True
 
 
-def __FindMissingInstallations(basicConfig: BasicConfig,
+def __FindMissingInstallations(log: Log,
                                validationEngine: ValidationEngine,
                                resolvedBuildOrder: List[Package],
                                recipePackageStateCache: RecipePackageStateCache,
@@ -136,44 +137,43 @@ def __FindMissingInstallations(basicConfig: BasicConfig,
     """ Check packages in the resolvedBuildOrder and return all that fails install validation, keeping the initial order """
     missingPackages = []  # type: List[Package]
     for package in resolvedBuildOrder:
-        basicConfig.LogPrint("Checking if package {0} is installed".format(package.Name))
+        log.LogPrint("Checking if package {0} is installed".format(package.Name))
         try:
-            basicConfig.PushIndent()
-            if not __TryValidateInstallation(basicConfig, validationEngine, package, missingPackages, recipePackageStateCache, cmakeConfig):
+            log.PushIndent()
+            if not __TryValidateInstallation(log, validationEngine, package, missingPackages, recipePackageStateCache, cmakeConfig):
                 missingPackages.append(package)
         finally:
-            basicConfig.PopIndent()
+            log.PopIndent()
     return missingPackages
 
 
-def __CreatePipelines(basicConfig: BasicConfig,
+def __CreatePipelines(log: Log,
                       builder: PipelineCommandBuilder,
                       resolvedBuildOrder: List[Package]) -> List[RecipeRecord]:
     pipelines = []  # type: List[RecipeRecord]
     for package in resolvedBuildOrder:
-        basicConfig.LogPrint("Creating package {0} build pipelines".format(package.Name))
+        log.LogPrint("Creating package {0} build pipelines".format(package.Name))
         try:
-            basicConfig.PushIndent()
-            record = RecipeRecord(basicConfig, builder, package)
+            log.PushIndent()
+            record = RecipeRecord(log, builder, package)
             pipelines.append(record)
         finally:
-            basicConfig.PopIndent()
+            log.PopIndent()
     return pipelines
 
 
 
 
-def ValidateInstallationForPackages(config: Config,
+def ValidateInstallationForPackages(log: Log, configSDKPath: str,
                                     generatorContext: GeneratorContext,
                                     resolvedBuildOrder: List[Package],
                                     builderSettings: BuilderSettings = BuilderSettings(),
                                     packageRecipeResultManager: Optional[PackageRecipeResultManager] = None) -> None:
     if packageRecipeResultManager is None:
-       packageRecipeResultManager = PackageRecipeResultManager(config)
+        packageRecipeResultManager = PackageRecipeResultManager(log)
 
-    basicConfig = generatorContext.BasicConfig
     if not generatorContext.RecipePathBuilder.IsEnabled:
-        basicConfig.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
+        log.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
         return
 
     if generatorContext.RecipePathBuilder.TargetLocation is None:
@@ -181,7 +181,7 @@ def ValidateInstallationForPackages(config: Config,
 
     # Claim the 'package' install directory to prevent multiple builds from using the same
     # as it would give concurrency issues
-    BuildAreaInfoFileUtil.ProcessInstallDirClaim(basicConfig, generatorContext.RecipePathBuilder.TargetLocation.ResolvedPath, config.SDKPath,
+    BuildAreaInfoFileUtil.ProcessInstallDirClaim(log, generatorContext.RecipePathBuilder.TargetLocation.ResolvedPath, configSDKPath,
                                                  builderSettings.ForceClaimInstallArea, __g_installAreaInformationFilename)
 
     if resolvedBuildOrder is None:
@@ -193,77 +193,74 @@ def ValidateInstallationForPackages(config: Config,
     if len(resolvedBuildOrder) == 0:
         return
 
-    recipePackageStateCache = RecipePackageStateCache(basicConfig)
+    recipePackageStateCache = RecipePackageStateCache(log)
 
     # Here we basically run the installation validation engine and see if there is anything that triggers a exception
-    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager, generatorContext.ErrorHelpManager)
-    __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache, generatorContext.CMakeConfig)
+    validationEngine = ValidationEngine(log, generatorContext.VariableProcessor, packageRecipeResultManager, generatorContext.ErrorHelpManager)
+    __FindMissingInstallations(log, validationEngine, resolvedBuildOrder, recipePackageStateCache, generatorContext.CMakeConfig)
 
 # requestedPackages is the packages specifically requested by the user or None for SDK builds.
-def BuildPackagesInOrder(config: Config,
+def BuildPackagesInOrder(log: Log, configSDKPath: str, configIsDryRun: bool,
                          generatorContext: GeneratorContext,
                          resolvedBuildOrder: List[Package],
                          builderSettings: BuilderSettings = BuilderSettings(),
-                         packageRecipeResultManager: Optional[PackageRecipeResultManager]=None) -> None:
+                         packageRecipeResultManager: Optional[PackageRecipeResultManager] = None) -> None:
     if packageRecipeResultManager is None:
-        packageRecipeResultManager = PackageRecipeResultManager(config)
-    __DoBuildPackagesInOrder(config, generatorContext, resolvedBuildOrder, builderSettings, packageRecipeResultManager)
+        packageRecipeResultManager = PackageRecipeResultManager(log)
+    __DoBuildPackagesInOrder(log, configSDKPath, configIsDryRun, generatorContext, resolvedBuildOrder, builderSettings, packageRecipeResultManager)
 
 
-def __DoBuildPackagesInOrder(config: Config,
-                             generatorContext: GeneratorContext,
-                             resolvedBuildOrder: List[Package],
-                             builderSettings: BuilderSettings,
+def __DoBuildPackagesInOrder(log: Log, configSDKPath: str, configIsDryRun: bool, generatorContext: GeneratorContext,
+                             resolvedBuildOrder: List[Package], builderSettings: BuilderSettings,
                              packageRecipeResultManager: PackageRecipeResultManager) -> None:
-    basicConfig = generatorContext.BasicConfig
     if not generatorContext.RecipePathBuilder.IsEnabled:
-        basicConfig.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
+        log.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
         return
     if generatorContext.RecipePathBuilder.TargetLocation is None:
         raise Exception("Invalid path builder")
 
     # Claim the 'package' install directory to prevent multiple builds from using the same
     # as it would give concurrency issues
-    BuildAreaInfoFileUtil.ProcessInstallDirClaim(basicConfig, generatorContext.RecipePathBuilder.TargetLocation.ResolvedPath, config.SDKPath,
+    BuildAreaInfoFileUtil.ProcessInstallDirClaim(log, generatorContext.RecipePathBuilder.TargetLocation.ResolvedPath, configSDKPath,
                                                  builderSettings.ForceClaimInstallArea, __g_installAreaInformationFilename)
 
     if resolvedBuildOrder is None:
-        basicConfig.LogPrintVerbose(2, "No recipes to build")
+        log.LogPrintVerbose(2, "No recipes to build")
         return
 
     # Filter all packages that don't have a experimental recipe
     resolvedBuildOrder = [entry for entry in resolvedBuildOrder if not entry.ResolvedDirectExperimentalRecipe is None]
 
     if len(resolvedBuildOrder) == 0:
-        basicConfig.LogPrintVerbose(2, "No recipes to build")
+        log.LogPrintVerbose(2, "No recipes to build")
         return
 
 
-    recipePackageStateCache = RecipePackageStateCache(basicConfig)
-    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager, generatorContext.ErrorHelpManager)
-    missingPackagesInBuildOrder = __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache,
+    recipePackageStateCache = RecipePackageStateCache(log)
+    validationEngine = ValidationEngine(log, generatorContext.VariableProcessor, packageRecipeResultManager, generatorContext.ErrorHelpManager)
+    missingPackagesInBuildOrder = __FindMissingInstallations(log, validationEngine, resolvedBuildOrder, recipePackageStateCache,
                                                              generatorContext.CMakeConfig)
     builder = PipelineCommandBuilder(generatorContext, builderSettings.CheckBuildCommands, builderSettings.BuildThreads)
-    recipeRecords = __CreatePipelines(basicConfig, builder, missingPackagesInBuildOrder)
+    recipeRecords = __CreatePipelines(log, builder, missingPackagesInBuildOrder)
 
     for recipeRecord in recipeRecords:
-        basicConfig.LogPrint("Package location: {0}".format(recipeRecord.SourcePackage.AbsolutePath))
+        log.LogPrint("Package location: {0}".format(recipeRecord.SourcePackage.AbsolutePath))
         try:
-            basicConfig.PushIndent()
+            log.PushIndent()
             if not recipeRecord.SourcePackage.ResolvedPlatformDirectSupported:
                 raise Exception("The package '{0}' is not supported on this platform".format(recipeRecord.SourcePackage.Name))
             if not recipeRecord.Pipeline is None:
-                basicConfig.DoPrint("Building package: {0}".format(recipeRecord.SourcePackage.Name))
+                log.DoPrint("Building package: {0}".format(recipeRecord.SourcePackage.Name))
                 if builderSettings.PreDeleteBuild:
                     # We clear the build path to prepare for a new build
                     IOUtil.SafeRemoveDirectoryTree(recipeRecord.Pipeline.BuildPath)
 
                 for command in recipeRecord.Pipeline.CommandList:
-                    if not config.IsDryRun:
+                    if not configIsDryRun:
                         command.Execute()
 
                 # We finished building, so lets save some information about what we did
-                BuildInfoFileUtil.SaveBuildInformation(basicConfig, recipeRecord, recipePackageStateCache, generatorContext.CMakeConfig,
+                BuildInfoFileUtil.SaveBuildInformation(log, recipeRecord, recipePackageStateCache, generatorContext.CMakeConfig,
                                                        __g_BuildPackageInformationFilename)
 
                 if builderSettings.PostDeleteBuild:
@@ -276,50 +273,45 @@ def __DoBuildPackagesInOrder(config: Config,
                 # we fail early as 'dependent' pipes might fail to build due to this
                 # generatorContext.RecipeFilterManager
                 if generatorContext.RecipeFilterManager.AllRecipesEnabled or recipeRecord.SourcePackage.Name in generatorContext.RecipeFilterManager.ContentDict:
-                    basicConfig.DoPrintWarning("Missing installation of package '{0}' and no recipe for solving it is available".format(recipeRecord.SourcePackage.Name))
+                    log.DoPrintWarning("Missing installation of package '{0}' and no recipe for solving it is available".format(recipeRecord.SourcePackage.Name))
                 else:
-                    basicConfig.LogPrintVerbose(4, "Package '{0}' recipe not enabled".format(recipeRecord.SourcePackage.Name))
+                    log.LogPrintVerbose(4, "Package '{0}' recipe not enabled".format(recipeRecord.SourcePackage.Name))
                 validationEngine.Process(recipeRecord.SourcePackage)
         finally:
-            basicConfig.PopIndent()
+            log.PopIndent()
 
         validationEngine.Process(recipeRecord.SourcePackage)
 
     packageCount = len(recipeRecords)
     if packageCount > 0:
-        basicConfig.LogPrint("Build {0} packages".format(packageCount))
+        log.LogPrint("Build {0} packages".format(packageCount))
     else:
-        basicConfig.LogPrintVerbose(2, "No recipe was build!")
+        log.LogPrintVerbose(2, "No recipe was build!")
 
 
-def __BuildNow(config: Config,
-               generatorContext: GeneratorContext,
-               builderConfig: BuilderConfig,
-               topLevelPackage: Package,
-               buildConfig: BuildConfigRecord,
-               packageRecipeResultManager: PackageRecipeResultManager) -> None:
-    __DoBuildPackagesInOrder(config, generatorContext, topLevelPackage.ResolvedBuildOrder, builderConfig.Settings, packageRecipeResultManager)
+def __BuildNow(log: Log, configSDKPath: str, configIsDryRun: bool, generatorContext: GeneratorContext, builderConfig: BuilderConfig,
+               topLevelPackage: Package, buildConfig: BuildConfigRecord, packageRecipeResultManager: PackageRecipeResultManager) -> None:
+    __DoBuildPackagesInOrder(log, configSDKPath, configIsDryRun, generatorContext, topLevelPackage.ResolvedBuildOrder, builderConfig.Settings, packageRecipeResultManager)
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user
 # generator = the generator that was used to build the files
-def BuildPackages(config: Config,
+def BuildPackages(log: Log, configSDKPath: str, configIsDryRun: bool, toolConfig: ToolConfig,
                   generatorContext: GeneratorContext,
                   builderConfig: BuilderConfig,
                   packages: List[Package],
                   packageRecipeResultManager: Optional[PackageRecipeResultManager] = None) -> None:
     if packageRecipeResultManager is None:
-       packageRecipeResultManager = PackageRecipeResultManager(config)
+        packageRecipeResultManager = PackageRecipeResultManager(log)
 
     PlatformUtil.CheckBuildPlatform(generatorContext.Platform.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
-    buildConfig = BuildConfigRecord(config.ToolConfig.ToolVersion, generatorContext.Platform.PlatformName, {}, CommandType.Build, [], None, None, 0)
+    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.Platform.PlatformName, {}, CommandType.Build, [], None, None, 0)
 
-    basicConfig = generatorContext.BasicConfig
     try:
-        basicConfig.LogPrint("- Building recipe packages")
-        basicConfig.PushIndent()
-        __BuildNow(config, generatorContext, builderConfig, topLevelPackage, buildConfig, packageRecipeResultManager)
+        log.LogPrint("- Building recipe packages")
+        log.PushIndent()
+        __BuildNow(log, configSDKPath, configIsDryRun, generatorContext, builderConfig, topLevelPackage, buildConfig, packageRecipeResultManager)
     finally:
-        basicConfig.PopIndent()
+        log.PopIndent()

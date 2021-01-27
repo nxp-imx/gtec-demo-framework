@@ -37,7 +37,6 @@ import datetime
 from FslBuildGen import IOUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.DataTypes import BuildPlatformType
-from FslBuildGen.DataTypes import SubPackageSupport
 from FslBuildGen.Log import Log
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.SharedGeneration import ToolEnvironmentVariableName
@@ -80,7 +79,6 @@ class Config(BaseConfig):
         self.TestPath = toolConfig.UnitTestPath
         self.DisableWrite = self.IsQuery
         self.DisableQueryWrite = False  # type: bool
-        self.SubPackageSupport = SubPackageSupport.Enabled #SubPackageSupport.ExecutableOnly if toolConfig.DefaultPackageLanguage != PackageLanguage.CSharp else SubPackageSupport.Enabled
         self.GroupException = True  # type: bool
         # Variant extension is getting closer to working, so lets enable it
         self.AllowVariantExtension = True  # type: bool
@@ -100,18 +98,6 @@ class Config(BaseConfig):
         #if not os.path.isdir(self.SDKConfigPath):
         #    raise EnvironmentError("Config path '%s' does not point to a directory" % (self.SDKConfigPath))
 
-        buildPlatformType = PlatformUtil.DetectBuildPlatformType()
-        if buildPlatformType == BuildPlatformType.Windows:
-            self.__ResolvedLegacyToCurrentOSPathMethod = self.TryLegacyToDosPath
-            self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod = self.TryLegacyToDosPathDirectConversion
-            self.__ResolvedToCurrentOSPathMethod = self.ToDosPath
-            self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToDosPathDirectConversion
-        else:
-            self.__ResolvedLegacyToCurrentOSPathMethod = self.TryLegacyToBashPath
-            self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod = self.TryLegacyToBashPathDirectConversion
-            self.__ResolvedToCurrentOSPathMethod = self.ToBashPath
-            self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToBashPathDirectConversion
-
 
     def ForceDisableAllWrite(self) -> None:
         self.DisableWrite = True
@@ -119,57 +105,57 @@ class Config(BaseConfig):
         self.IsDryRun = True
 
 
-    def TryToPath(self, path: Optional[str]) -> Optional[str]:
-        return self.ToolConfig.TryToPath(path)
+    #def TryToPath(self, path: Optional[str]) -> Optional[str]:
+    #    return self.ToolConfig.TryToPath(path)
 
-    def ToPath(self, path: str) -> str:
-        return self.ToolConfig.ToPath(path)
-
-
-    def TryLegacyToBashPath(self, path: Optional[str]) -> Optional[str]:
-        return self.ToolConfig.TryLegacyToBashPath(path)
+    #def ToPath(self, path: str) -> str:
+    #    return self.ToolConfig.ToPath(path)
 
 
-    def ToBashPath(self, path: str) -> str:
-        return self.ToolConfig.ToBashPath(path)
+    #def TryLegacyToBashPath(self, path: Optional[str]) -> Optional[str]:
+    #    return self.ToolConfig.TryLegacyToBashPath(path)
 
 
-    def TryLegacyToBashPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
-        return self.ToolConfig.TryLegacyToBashPathDirectConversion(path)
+    #def ToBashPath(self, path: str) -> str:
+    #    return self.ToolConfig.ToBashPath(path)
 
 
-    def ToBashPathDirectConversion(self, path: str) -> str:
-        return self.ToolConfig.ToBashPathDirectConversion(path)
+    #def TryLegacyToBashPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+    #    return self.ToolConfig.TryLegacyToBashPathDirectConversion(path)
 
 
-    def TryLegacyToDosPath(self, path: Optional[str]) -> Optional[str]:
-        return self.ToolConfig.TryLegacyToDosPath(path)
+    #def ToBashPathDirectConversion(self, path: str) -> str:
+    #    return self.ToolConfig.ToBashPathDirectConversion(path)
 
 
-    def ToDosPath(self, path: str) -> str:
-        return self.ToolConfig.ToDosPath(path)
+    #def TryLegacyToDosPath(self, path: Optional[str]) -> Optional[str]:
+    #    return self.ToolConfig.TryLegacyToDosPath(path)
 
 
-    def TryLegacyToDosPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
-        return self.ToolConfig.TryLegacyToDosPathDirectConversion(path)
+    #def ToDosPath(self, path: str) -> str:
+    #    return self.ToolConfig.ToDosPath(path)
 
 
-    def ToDosPathDirectConversion(self, path: str) -> str:
-        return self.ToolConfig.ToDosPathDirectConversion(path)
+    #def TryLegacyToDosPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+    #    return self.ToolConfig.TryLegacyToDosPathDirectConversion(path)
 
 
-    def TryLegacyToCurrentOSPath(self, path: Optional[str]) -> Optional[str]:
-        """ Resolve the path to how it would look on the current OS """
-        return self.__ResolvedLegacyToCurrentOSPathMethod(path)
+    #def ToDosPathDirectConversion(self, path: str) -> str:
+    #    return self.ToolConfig.ToDosPathDirectConversion(path)
 
 
-    def ToCurrentOSPathDirectConversion(self, path: str) -> str:
-        """ Resolve the path to how it would look on the current OS """
-        return self.__ResolvedToCurrentOSPathDirectConversionMethod(path)
+    #def TryLegacyToCurrentOSPath(self, path: Optional[str]) -> Optional[str]:
+    #    """ Resolve the path to how it would look on the current OS """
+    #    return self.__ResolvedLegacyToCurrentOSPathMethod(path)
 
-    def TryToCurrentOSPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
-        """ Resolve the path to how it would look on the current OS """
-        return self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod(path)
+
+    #def ToCurrentOSPathDirectConversion(self, path: str) -> str:
+    #    """ Resolve the path to how it would look on the current OS """
+    #    return self.__ResolvedToCurrentOSPathDirectConversionMethod(path)
+
+    #def TryToCurrentOSPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+    #    """ Resolve the path to how it would look on the current OS """
+    #    return self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod(path)
 
 
     def SetTestMode(self) -> None:

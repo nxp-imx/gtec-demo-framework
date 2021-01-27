@@ -195,7 +195,7 @@ namespace Fsl
 
       PxPoint2 adjustPx = TypeConverter::To<PxPoint2>(renderSizePx - desiredImageSize) / 2;
 
-      ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location() + TypeConverter::UncheckedTo<Vector2>(adjustPx),
+      ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location() + TypeConverter::To<PxVector2>(adjustPx),
                       desiredImageSize, m_currentColor.GetValue());
     }
 

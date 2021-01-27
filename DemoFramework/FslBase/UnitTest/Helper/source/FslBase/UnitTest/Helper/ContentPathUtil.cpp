@@ -48,7 +48,7 @@ namespace Fsl
 #else
       IO::Path GetBasePath()
       {
-        auto pszExePath = CurrentExePath::TryGetCurrentExePath();
+        const auto* pszExePath = CurrentExePath::TryGetCurrentExePath();
         if (pszExePath != nullptr)
         {
           return Fsl::IO::Path::GetDirectoryName(pszExePath);

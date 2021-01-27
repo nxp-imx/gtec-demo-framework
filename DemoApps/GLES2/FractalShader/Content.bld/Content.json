@@ -1,0 +1,15 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/FractalShader",
+        "Content": [
+          "TextureAtlas/License.json",
+          "TextureAtlas/MainAtlas.bta",
+          "TextureAtlas/MainAtlas.png"
+        ]
+      }
+    ]
+  }
+}

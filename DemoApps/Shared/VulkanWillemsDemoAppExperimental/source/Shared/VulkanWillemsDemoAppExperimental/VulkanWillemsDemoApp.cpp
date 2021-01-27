@@ -853,7 +853,7 @@ namespace Fsl
     MeshLoader::MeshBuffer VulkanWillemsDemoApp::LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout,
                                                           const float scale)
     {
-      MeshLoader::MeshCreateInfo meshCreateInfo;
+      MeshLoader::MeshCreateInfo meshCreateInfo{};
       meshCreateInfo.Scale = glm::vec3(scale);
       meshCreateInfo.Center = glm::vec3(0.0f);
       meshCreateInfo.UVScale = glm::vec2(1.0f);

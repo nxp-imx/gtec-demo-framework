@@ -33,7 +33,7 @@
 
 from typing import Optional
 from typing import List
-from FslBuildGen import PackageUtil
+#from FslBuildGen import PackageUtil
 from FslBuildGen.BuildExternal.DataTypes import RecipeType
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package

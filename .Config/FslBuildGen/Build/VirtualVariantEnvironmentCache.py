@@ -91,4 +91,3 @@ class VirtualVariantEnvironmentCache(object):
                     self.EnvDict[key] = value
                 elif self.EnvDict[key] != value:
                     raise Exception("newly cached value for key '{0} does not match cached value. Cached: {1}, new: {2}".format(key, self.EnvDict[key], value))
-

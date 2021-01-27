@@ -37,7 +37,7 @@ import os.path
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
-from FslBuildGen.DataTypes import PackageLanguage
+#from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import FileNotFoundException
 from FslBuildGen.Xml.Exceptions import XmlException
 from FslBuildGen.Xml.Exceptions import XmlInvalidRootElement
@@ -47,7 +47,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 class XmlNewVSProjectTemplateCustomizationBuildOutput(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        location = self._ReadAttrib(xmlElement, 'Location');
+        location = self._ReadAttrib(xmlElement, 'Location')
         if '\\' in location:
             raise Exception("'\\' is now allowed in location use '/' instead ('{0}')".format(location))
         self.Location = location

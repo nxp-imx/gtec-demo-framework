@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.Log import Log
@@ -52,7 +52,7 @@ class XmlClangTidyPlatform(XmlBase):
     def __TryReadCompiler(self, log: Log, xmlElement: ET.Element) -> Optional[XmlClangTidyPlatformCompiler]:
         foundElements = xmlElement.findall("Compiler")
         if len(foundElements) > 1:
-            raise XmlException2(xmlElement, "There can only be one 'Compiler' element in a ClangTidyConfiguration.Platform")
+            raise XmlException2("There can only be one 'Compiler' element in a ClangTidyConfiguration.Platform")
         if len(foundElements) <= 0:
             return None
         return XmlClangTidyPlatformCompiler(log, foundElements[0])
@@ -60,7 +60,7 @@ class XmlClangTidyPlatform(XmlBase):
     def __TryReadDefines(self, log: Log, xmlElement: ET.Element) -> Optional[XmlClangTidyPlatformDefines]:
         foundElements = xmlElement.findall("Defines")
         if len(foundElements) > 1:
-            raise XmlException2(xmlElement, "There can only be one 'Defines' element in a ClangTidyConfiguration.Platform")
+            raise XmlException2("There can only be one 'Defines' element in a ClangTidyConfiguration.Platform")
         if len(foundElements) <= 0:
             return None
         return XmlClangTidyPlatformDefines(log, foundElements[0])
@@ -68,7 +68,7 @@ class XmlClangTidyPlatform(XmlBase):
     def __TryReadStrictChecks(self, log: Log, xmlElement: ET.Element) -> Optional[XmlClangTidyPlatformStrictChecks]:
         foundElements = xmlElement.findall("StrictChecks")
         if len(foundElements) > 1:
-            raise XmlException2(xmlElement, "There can only be one 'StrictChecks' element in a ClangTidyConfiguration.Platform")
+            raise XmlException2("There can only be one 'StrictChecks' element in a ClangTidyConfiguration.Platform")
         if len(foundElements) <= 0:
             return None
         return XmlClangTidyPlatformStrictChecks(log, foundElements[0])

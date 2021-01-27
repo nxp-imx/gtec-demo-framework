@@ -67,7 +67,7 @@ namespace Fsl
     }
 
 
-    Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Bitmap& bitmap,
+    Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Texture& texture,
                                     const VkFilter filter, const VkSamplerAddressMode addressMode)
     {
       Vulkan::VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
@@ -86,10 +86,10 @@ namespace Fsl
       samplerCreateInfo.compareEnable = VK_FALSE;
       samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
       samplerCreateInfo.minLod = 0.0f;
-      samplerCreateInfo.maxLod = 0.0f;
+      samplerCreateInfo.maxLod = static_cast<float>(texture.GetLevels());
       samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 
-      return imageCreator.CreateTexture(bitmap, samplerCreateInfo);
+      return imageCreator.CreateTexture(texture, samplerCreateInfo);
     }
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -351,11 +351,9 @@ namespace Fsl
     // Load the texture
     FSLLOG3_INFO("Loading texture");
     {
-      Bitmap bitmap;
-      contentManager->Read(bitmap, "Models/Knight2/armor_default_color.jpg", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
-      FSLLOG3_INFO("TODO: Add mip map support");
-      // GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      m_resources.Texture = CreateTexture(m_device, m_deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+      Texture texture = contentManager->ReadTexture("Models/Knight2/armor_default_color.jpg", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft,
+                                                    PixelChannelOrder::Undefined, true);
+      m_resources.Texture = CreateTexture(m_device, m_deviceQueue, texture, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
     }
 
     FSLLOG3_INFO("Loading scene");

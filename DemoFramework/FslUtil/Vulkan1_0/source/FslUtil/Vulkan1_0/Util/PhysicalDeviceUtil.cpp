@@ -30,6 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 
@@ -39,6 +43,36 @@ namespace Fsl
   {
     namespace PhysicalDeviceUtil
     {
+      bool IsDeviceExtensionsAvailable(const VkPhysicalDevice device, const uint32_t extensionCount, const char* const* enabledExtensionNames,
+                                       const char* const pszLayerName)
+      {
+        if (device == VK_NULL_HANDLE || extensionCount == 0 || enabledExtensionNames == nullptr)
+        {
+          return false;
+        }
+
+        const std::vector<VkExtensionProperties> extensionProperties = EnumerateDeviceExtensionProperties(device, pszLayerName);
+        const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
+        for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
+        {
+          if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
+          {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      std::vector<VkExtensionProperties> EnumerateDeviceExtensionProperties(const VkPhysicalDevice device, const char* const pszLayerName)
+      {
+        uint32_t count = 0;
+        RAPIDVULKAN_CHECK2(vkEnumerateDeviceExtensionProperties(device, pszLayerName, &count, nullptr), "failed to acquire the count");
+
+        std::vector<VkExtensionProperties> result(count);
+        RAPIDVULKAN_CHECK2(vkEnumerateDeviceExtensionProperties(device, pszLayerName, &count, result.data()), "failed to enumerate layer properties");
+        return result;
+      }
+
       std::vector<VkQueueFamilyProperties> GetPhysicalDeviceQueueFamilyProperties(const VkPhysicalDevice device)
       {
         uint32_t count = 0;

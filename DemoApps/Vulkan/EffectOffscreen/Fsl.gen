@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="Vulkan.EffectOffscreen" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
-    <Platform Name="Windows" ProjectId="F0427489-7610-4F20-ACC2-D435A27D3ADC"/>
   </Executable>
 </FslBuildGen>

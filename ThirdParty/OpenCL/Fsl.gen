@@ -19,7 +19,6 @@
     </Platform>
     <Platform Name="Windows" Supported="true">
       <FindPackage Name="OpenCL" Version="1.2"/>
-      <Dependency Name="Recipe.AmdAppSDK_3_0" If="!AllowFindPackage"/>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

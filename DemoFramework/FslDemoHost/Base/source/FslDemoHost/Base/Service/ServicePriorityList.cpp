@@ -33,14 +33,19 @@
 
 namespace Fsl
 {
+  Priority ServicePriorityList::AsyncImageService()
+  {
+    return Priority::Max() - 40;
+  }
+
   Priority ServicePriorityList::BitmapConverterService()
   {
     return Priority::Max() - 10;
   }
 
-  Priority ServicePriorityList::ImageConverterLibraryService()
+  Priority ServicePriorityList::ContentMonitor()
   {
-    return Priority::Max() - 9;
+    return Priority::Min();
   }
 
   Priority ServicePriorityList::EGLHostService()
@@ -48,24 +53,14 @@ namespace Fsl
     return Priority::Max() - 40;
   }
 
-  Priority ServicePriorityList::WindowHostService()
-  {
-    return Priority::Max() - 30;
-  }
-
-  Priority ServicePriorityList::VulkanHostService()
-  {
-    return Priority::Max() - 30;
-  }
-
-  Priority ServicePriorityList::NativeGraphicsService()
-  {
-    return Priority::Max() - 40;
-  }
-
-  Priority ServicePriorityList::ImageLibraryService()
+  Priority ServicePriorityList::EventsService()
   {
     return Priority::Max() - 20;
+  }
+
+  Priority ServicePriorityList::HostInfo()
+  {
+    return Priority::Max();
   }
 
   Priority ServicePriorityList::ImageBasicService()
@@ -73,9 +68,14 @@ namespace Fsl
     return Priority::Max() - 30;
   }
 
-  Priority ServicePriorityList::AsyncImageService()
+  Priority ServicePriorityList::ImageConverterLibraryService()
   {
-    return Priority::Max() - 40;
+    return Priority::Max() - 9;
+  }
+
+  Priority ServicePriorityList::ImageLibraryService()
+  {
+    return Priority::Max() - 20;
   }
 
   Priority ServicePriorityList::ImageService()
@@ -83,39 +83,14 @@ namespace Fsl
     return Priority::Max() - 50;
   }
 
-  Priority ServicePriorityList::EventsService()
+  Priority ServicePriorityList::NativeGraphicsService()
   {
-    return Priority::Max() - 20;
+    return Priority::Max() - 40;
   }
-
 
   Priority ServicePriorityList::NativeWindowEventsService()
   {
     return Priority::Max() - 10;
-  }
-
-
-  Priority ServicePriorityList::TestService()
-  {
-    return Priority::Min();
-  }
-
-
-  Priority ServicePriorityList::PlatformControlService()
-  {
-    return Priority::Max() - 10;
-  }
-
-
-  Priority ServicePriorityList::ProfilerService()
-  {
-    return Priority::Max() - 10;
-  }
-
-
-  Priority ServicePriorityList::ContentMonitor()
-  {
-    return Priority::Min();
   }
 
   Priority ServicePriorityList::Options()
@@ -123,8 +98,33 @@ namespace Fsl
     return Priority::Min();
   }
 
-  Priority ServicePriorityList::HostInfo()
+  Priority ServicePriorityList::PlatformControlService()
   {
-    return Priority::Max();
+    return Priority::Max() - 10;
+  }
+
+  Priority ServicePriorityList::ProfilerService()
+  {
+    return Priority::Max() - 10;
+  }
+
+  Priority ServicePriorityList::TestService()
+  {
+    return Priority::Min();
+  }
+
+  Priority ServicePriorityList::TextureService()
+  {
+    return Priority::Max() - 10;
+  }
+
+  Priority ServicePriorityList::VulkanHostService()
+  {
+    return Priority::Max() - 30;
+  }
+
+  Priority ServicePriorityList::WindowHostService()
+  {
+    return Priority::Max() - 30;
   }
 }

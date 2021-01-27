@@ -32,8 +32,8 @@
 #****************************************************************************************************************************************************
 
 from typing import Dict
-from typing import List
-from typing import Optional
+#from typing import List
+#from typing import Optional
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import BuildVariantConfigDefaults
 from FslBuildGen.SharedGeneration import ToolAddedVariant

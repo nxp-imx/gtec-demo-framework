@@ -35,7 +35,6 @@ from typing import Dict
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.Xml.Exceptions import ImportTemplateNotFoundException
-from FslBuildGen.Xml.SubPackageSupportConfig import SubPackageSupportConfig
 from FslBuildGen.Xml.XmlGenFslBuildTemplate import XmlGenFslBuildTemplate
 from FslBuildGen.Xml.XmlStuff import XmlGenFileImportTemplate
 
@@ -49,13 +48,13 @@ class PackageTemplateLoader(object):
         self.TemplateDict = {}  # type: Dict[str, XmlGenFslBuildTemplate]
 
 
-    def Import(self, subPackageSupportConfig: SubPackageSupportConfig, cmd: XmlGenFileImportTemplate, name: str) -> XmlGenFslBuildTemplate:
+    def Import(self, cmd: XmlGenFileImportTemplate, name: str) -> XmlGenFslBuildTemplate:
         if name in self.TemplateDict:
             return self.TemplateDict[name]
 
         if not name in self.TemplateLocationCache:
             raise ImportTemplateNotFoundException(cmd.XMLElement, name)
 
-        template = XmlGenFslBuildTemplate(self.__Config, self.TemplateLocationCache[name], subPackageSupportConfig)
+        template = XmlGenFslBuildTemplate(self.__Config, self.__Config.ToolConfig.RequirementTypes, self.TemplateLocationCache[name])
         self.TemplateDict[name] = template
         return template

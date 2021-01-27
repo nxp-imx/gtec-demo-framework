@@ -57,7 +57,7 @@ class PackageExperimentalRecipe(object):
         self.ValidateInstallation = xmlExperimentalRecipe.ValidateInstallation if self.Type != RecipeType.Disabled else None
         self.IsLocalSourceBuild = False
         if (self.Pipeline is not None and len(self.Pipeline.CommandList) > 0 and
-            self.Pipeline.CommandList[0].CommandType == BuildRecipePipelineCommand.Source):
+                self.Pipeline.CommandList[0].CommandType == BuildRecipePipelineCommand.Source):
             self.IsLocalSourceBuild = True
 
         # The installation path of the package
@@ -82,4 +82,3 @@ class PackageExperimentalRecipe(object):
             return RecipeType.External
         return RecipeType.Undefined
         #raise Exception("Could not determine recipe type of recipe '{0}'".format(xmlExperimentalRecipe.Name))
-

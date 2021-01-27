@@ -59,7 +59,7 @@ namespace Fsl
 
       static PxExtent2D GetExtent(const image_t& image)
       {
-        return PxExtent2D(image.GetExtent().Width, image.GetExtent().Height);
+        return {image.GetExtent().Width, image.GetExtent().Height};
       }
     };
 

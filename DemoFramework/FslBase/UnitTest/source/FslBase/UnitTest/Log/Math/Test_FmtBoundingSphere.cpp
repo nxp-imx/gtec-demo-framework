@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtBoundingSphere, Log)
 {
-  BoundingSphere value(Vector3(1.0f, 2.0f, 3.0f), 10.0f);
+  BoundingSphere value(Vector3(1.1f, 2.1f, 3.1f), 10.1f);
 
-  EXPECT_EQ(std::string("{Center={X=1.0 Y=2.0 Z=3.0} Radius=10.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{Center={X=1.1 Y=2.1 Z=3.1} Radius=10.1}"), fmt::format("{}", value));
 }

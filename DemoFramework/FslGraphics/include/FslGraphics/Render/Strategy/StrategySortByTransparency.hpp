@@ -729,7 +729,6 @@ namespace Fsl
       (*pDstSegment) = segment_type(textureInfo, blendState, sdfRenderConfig);
 
       assert(IsValid());
-      return;
     }
   };
 

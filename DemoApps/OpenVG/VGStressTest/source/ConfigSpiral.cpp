@@ -33,10 +33,17 @@
 #include <algorithm>
 #include <cassert>
 
-#define TYPE_COUNT 4
 
 namespace Fsl
 {
+  namespace
+  {
+    namespace LocalConfig
+    {
+      constexpr int TypeCount = 4;
+    }
+  }
+
   ConfigSpiral::ConfigSpiral()
     : m_type(3)
     , m_quadricSpiralLayers(50)             // 50
@@ -59,7 +66,7 @@ namespace Fsl
 
   void ConfigSpiral::SetType(const int value)
   {
-    m_type = std::max(std::min(value, TYPE_COUNT - 1), 0);
+    m_type = std::max(std::min(value, LocalConfig::TypeCount - 1), 0);
   }
 
   int ConfigSpiral::GetQuadricSpiralLayers() const
@@ -90,8 +97,9 @@ namespace Fsl
 
   float ConfigSpiral::GetQuadricSpiralRevolutionChange(const int scrWidth, const int scrHeight) const
   {
-    const float minDiv2 = (std::max(scrWidth, scrHeight) / 2) - m_quadricSpiralStrokeLineWidth;
-    return (m_adaptToScreen ? minDiv2 / m_quadricSpiralRevolutionCount : m_quadricSpiralRevolutionChange);
+    const int screenDiv2 = std::max(scrWidth, scrHeight) / 2;
+    const float minDiv2 = static_cast<float>(screenDiv2) - m_quadricSpiralStrokeLineWidth;
+    return (m_adaptToScreen ? minDiv2 / float(m_quadricSpiralRevolutionCount) : m_quadricSpiralRevolutionChange);
   }
 
   void ConfigSpiral::SetQuadricSpiralRevolutionChange(const float value)
@@ -127,8 +135,9 @@ namespace Fsl
 
   float ConfigSpiral::GetSegmentedSpiralRevolutionChange(const int scrWidth, const int scrHeight) const
   {
-    const float minDiv2 = (std::min(scrWidth, scrHeight) / 2) - m_segmentedSpiralStrokeLineWidth;
-    return (m_adaptToScreen ? minDiv2 / m_segmentedSpiralRevolutionCount : m_segmentedSpiralRevolutionChange);
+    const int screenDiv2 = (std::min(scrWidth, scrHeight) / 2);
+    const float minDiv2 = static_cast<float>(screenDiv2) - m_segmentedSpiralStrokeLineWidth;
+    return (m_adaptToScreen ? minDiv2 / float(m_segmentedSpiralRevolutionCount) : m_segmentedSpiralRevolutionChange);
   }
 
   void ConfigSpiral::SetSegmentedSpiralRevolutionChange(const float value)

@@ -209,7 +209,9 @@ namespace Fsl
     handle_type Insert(const handle_type handle, const_reference element)
     {
       if (!IsValidHandle(handle))
+      {
         throw std::invalid_argument("Invalid handle");
+      }
 
       const index_type index = m_data[handle].HandleToIndex;
       return DoInsertAt(index, element);
@@ -221,7 +223,9 @@ namespace Fsl
     handle_type Insert(const handle_type handle, value_type&& element)
     {
       if (!IsValidHandle(handle))
+      {
         throw std::invalid_argument("Invalid handle");
+      }
 
       const index_type index = m_data[handle].HandleToIndex;
       return DoInsertAt(index, std::move(element));
@@ -282,7 +286,7 @@ namespace Fsl
       const handle_type removedHandle = m_data[index].Handle;
 
       // Move all the previous handles one step to the left
-      for (index_type i = UncheckedNumericCast<std::size_t>(index); i < m_count; ++i)
+      for (auto i = UncheckedNumericCast<std::size_t>(index); i < m_count; ++i)
       {
         auto& rEntry0 = m_data[i];
         auto& rEntry1 = m_data[i + 1];
@@ -528,7 +532,9 @@ namespace Fsl
       }
 
       if (index0 == index1)
+      {
         return;
+      }
 
       auto& rRec1 = m_data[index0];
       auto& rRec2 = m_data[index1];
@@ -580,7 +586,9 @@ namespace Fsl
       }
 
       if (fromIndex == toIndex)
+      {
         return;
+      }
 
       if (fromIndex < toIndex)
       {
@@ -692,7 +700,9 @@ namespace Fsl
       std::vector<int32_t> taken(m_data.size());
       {    // Validate indices to handle conversions
         for (std::size_t i = 0; i < taken.size(); ++i)
+        {
           taken[i] = -1;
+        }
         for (int i = 0; i < m_data.size(); ++i)
         {
           const auto handle = m_data[i].Handle;
@@ -706,7 +716,9 @@ namespace Fsl
 
       {    // Validate handle to index conversions
         for (std::size_t i = 0; i < taken.size(); ++i)
+        {
           taken[i] = -1;
+        }
         for (handle_type handle = 0; handle < m_data.size(); ++handle)
         {
           const auto index = m_data[handle].HandleToIndex;

@@ -53,8 +53,7 @@ namespace Fsl
     {
       assert(!PixelFormatUtil::IsCompressed(srcTexture.GetPixelFormat()));
       TextureBlobBuilder builder(srcTexture.GetTextureType(), srcTexture.GetExtent(), desiredPixelFormat, srcTexture.GetTextureInfo(),
-                                 srcTexture.GetBitmapOrigin());
-      builder.SetDefaultBlobLayout();
+                                 srcTexture.GetBitmapOrigin(), true);
       return Texture(builder);
     }
 

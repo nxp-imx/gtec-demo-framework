@@ -56,7 +56,7 @@ class XmlGenFileExternalDependency(XmlBase):
         self.Location = self._TryReadAttrib(xmlElement, 'Location')  # type: Optional['str']
         # New assembly keywords primarily used for C# assemblies
         self.HintPath = self._TryReadAttrib(xmlElement, 'HintPath')  # type: Optional['str']
-        self.Version =  self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
+        self.Version = self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
         self.PublicKeyToken = self._TryReadAttrib(xmlElement, 'PublicKeyToken')  # type: Optional['str']
         self.ProcessorArchitecture = self._TryReadAttrib(xmlElement, 'ProcessorArchitecture')  # type: Optional['str']
         self.Culture = self._TryReadAttrib(xmlElement, 'Culture')  # type: Optional['str']
@@ -67,7 +67,7 @@ class XmlGenFileExternalDependency(XmlBase):
         strAccess = self._TryReadAttrib(xmlElement, 'Access')  # type: Optional['str']
 
         access = None
-        if self.Include != None or strAccess != None:
+        if self.Include is not None or strAccess is not None:
             strAccess = self._ReadAttrib(xmlElement, 'Access') if access is None else access
             if strAccess == "Public":
                 access = AccessType.Public
@@ -85,7 +85,7 @@ class XmlGenFileExternalDependency(XmlBase):
 
         # The access type is only relevant for the include file location
         # the rest should always be included
-        self.Access = AccessType.Public if access is None else access   # type: int
+        self.Access = AccessType.Public if access is None else access   # type: AccessType
         self.ConsumedBy = None
 
         if self.Type == ExternalDependencyType.DLL:
@@ -94,7 +94,7 @@ class XmlGenFileExternalDependency(XmlBase):
             if self.Access != AccessType.Public:
                 raise XmlException(xmlElement, "DLL dependency: '{0}' can only have a access type of Public".format(self.Name))
 
-        if not isinstance(self.Access, int):
+        if not isinstance(self.Access, AccessType):
             raise Exception("Internal error")
 
 
@@ -103,7 +103,7 @@ class XmlGenFileExternalDependency(XmlBase):
         packageManager = None
         for child in xmlElement:
             if child.tag == 'PackageManager':
-                if packageManager != None:
+                if packageManager is not None:
                     raise Exception("PackageManager has already been defined")
                 packageManager = XmlGenFileExternalDependencyPackageManager(self.Log, child)
         return packageManager
@@ -111,7 +111,7 @@ class XmlGenFileExternalDependency(XmlBase):
 
 
 class FakeXmlGenFileExternalDependency(XmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, location: str, access: int, extDepType: ExternalDependencyType,
+    def __init__(self, log: Log, name: str, location: str, access: AccessType, extDepType: ExternalDependencyType,
                  debugName: Optional[str] = None, includeLocation: Optional[str] = None, isManaged: bool = False) -> None:
         strType = ExternalDependencyType.ToString(extDepType)
         fakeXmlElementAttribs = {'Name': name, 'Location': location, 'Access': AccessType.ToString(access), "Type": strType} # type: Dict[str, str]
@@ -138,17 +138,17 @@ class FakeXmlGenFileExternalDependency(XmlGenFileExternalDependency):
 
 
 class FakeXmlGenFileExternalDependencyHeaders(FakeXmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, location: str, access: int, isManaged: bool) -> None:
+    def __init__(self, log: Log, name: str, location: str, access: AccessType, isManaged: bool) -> None:
         super().__init__(log, name, location, access, ExternalDependencyType.Headers, None, location, isManaged=isManaged)
 
 
 class FakeXmlGenFileExternalDependencyStaticLib(FakeXmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, debugName: str, location: str, access: int, isManaged: bool) -> None:
+    def __init__(self, log: Log, name: str, debugName: str, location: str, access: AccessType, isManaged: bool) -> None:
         super().__init__(log, name, location, access, ExternalDependencyType.StaticLib, debugName, isManaged=isManaged)
 
 
 class FakeXmlGenFileExternalDependencyDLL(FakeXmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, debugName: str, location: str, access: int, isManaged: bool) -> None:
+    def __init__(self, log: Log, name: str, debugName: str, location: str, access: AccessType, isManaged: bool) -> None:
         super().__init__(log, name, location, access, ExternalDependencyType.DLL, debugName, isManaged=isManaged)
 
 class FakeXmlGenFileExternalDependencyCMakeFindModern(XmlGenFileExternalDependency):

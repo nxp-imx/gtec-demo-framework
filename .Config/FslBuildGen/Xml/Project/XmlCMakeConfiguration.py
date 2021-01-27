@@ -52,4 +52,3 @@ class XmlCMakeConfiguration(XmlBase):
         for element in foundElements:
             res.append(XmlCMakePlatform(log, element))
         return res
-

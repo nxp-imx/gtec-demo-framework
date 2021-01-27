@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="OpenCV4"/>
     <Platform Name="Yocto" Supported="false"/>
-    <Platform Name="Windows" ProjectId="E280D414-14EF-4F41-914B-CB73EA9F261B"/>
   </Executable>
 </FslBuildGen>

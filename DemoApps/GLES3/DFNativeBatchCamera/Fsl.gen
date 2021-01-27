@@ -3,6 +3,5 @@
   <Executable Name="GLES3.DFNativeBatchCamera" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="Shared.Camera.Platform"/>
-    <Platform Name="Windows" ProjectId="48067327-3C21-4E02-86A0-0B91C8274748"/>
   </Executable>
 </FslBuildGen>

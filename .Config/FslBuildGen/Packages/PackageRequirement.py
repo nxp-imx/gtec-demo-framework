@@ -32,14 +32,13 @@
 #****************************************************************************************************************************************************
 
 from typing import Set
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.Packages.PackageElement import PackageElement
-from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
-
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 
 class PackageRequirement(PackageElement):
-    def __init__(self, base: XmlGenFileRequirement, introducedByPackageName: str) -> None:
-        super().__init__(base.Name, base.XMLElement)
+    def __init__(self, base: UnresolvedPackageRequirement, introducedByPackageName: str) -> None:
+        super().__init__(base.Name)
         self.Id = self.Name.lower()
         # type#extends
         self.GroupId = "{0}#{1}".format(base.Type.lower(), base.Extends.lower())

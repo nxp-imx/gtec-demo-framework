@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.NativeWindowTest" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppWindow"/>
     <Dependency Name="Shared.VulkanCustom"/>
-    <Platform Name="Windows" ProjectId="82BF59E7-37A4-4B26-A50D-5F2D2F900DF3"/>
   </Executable>
 </FslBuildGen>

@@ -54,7 +54,7 @@ namespace Fsl
         max.Y = (entry.Position.Y > max.Y ? entry.Position.Y : max.Y);
         max.Z = (entry.Position.Z > max.Z ? entry.Position.Z : max.Z);
       }
-      return BoundingBox(min, max);
+      return {min, max};
     }
 
 

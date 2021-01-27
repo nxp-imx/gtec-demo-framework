@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <algorithm>
 #include <cassert>
@@ -122,41 +122,41 @@ namespace Fsl
       return m_bottom;
     }
 
-    inline constexpr Vector2 GetSize() const
+    inline constexpr PxVector2 GetSize() const
     {
       return {Width(), Height()};
     }
 
-    inline constexpr Vector2 TopLeft() const
+    inline constexpr PxVector2 TopLeft() const
     {
       return {m_left, m_top};
     }
 
-    inline constexpr Vector2 TopRight() const
+    inline constexpr PxVector2 TopRight() const
     {
       return {m_right, m_top};
     }
 
-    inline constexpr Vector2 BottomLeft() const
+    inline constexpr PxVector2 BottomLeft() const
     {
       return {m_left, m_bottom};
     }
 
-    inline constexpr Vector2 BottomRight() const
+    inline constexpr PxVector2 BottomRight() const
     {
       return {m_right, m_bottom};
     }
 
 
     //! @brief Get the start location of this rect
-    constexpr Vector2 Location() const
+    constexpr PxVector2 Location() const
     {
       return {m_left, m_top};
     }
 
 
     //! @brief Get the center of this rect
-    constexpr Vector2 Center() const
+    constexpr PxVector2 Center() const
     {
       return {m_left + (Width() / 2.0f), m_top + (Height() / 2.0f)};
     }
@@ -170,7 +170,7 @@ namespace Fsl
     }
 
     //! @brief Set the start location of this rect
-    constexpr void MoveLocation(const Vector2& location)
+    constexpr void MoveLocation(const PxVector2& location)
     {
       m_right = location.X + (m_right - m_left);
       m_bottom = location.Y + (m_bottom - m_top);

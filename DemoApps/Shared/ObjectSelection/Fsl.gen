@@ -3,6 +3,5 @@
   <Library Name="Shared.ObjectSelection" CreationYear="2017">
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.Theme.Basic"/>
-    <Platform Name="Windows" ProjectId="027DAB26-F1E3-4046-B190-47EA438323F7"/>
   </Library>
 </FslBuildGen>

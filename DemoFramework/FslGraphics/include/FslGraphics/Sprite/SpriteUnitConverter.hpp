@@ -42,7 +42,11 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxThickness.hpp>
+#include <FslBase/Math/Pixel/PxThicknessF.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedImage.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Sprite/SpriteDpConfig.hpp>
 #include <cassert>
@@ -305,6 +309,21 @@ namespace Fsl
               static_cast<PxThickness::value_type>(scaledR), static_cast<PxThickness::value_type>(scaledB)};
     }
 
+    PxVector2 ToPxVector2(const DpPointF& valueDpf) const
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return {valueDpf.X, valueDpf.Y};
+      }
+
+      const float scaledX = float(valueDpf.X) * m_scaleDpToPx;
+      const float scaledY = float(valueDpf.Y) * m_scaleDpToPx;
+      assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<PxPoint2::value_type>::max()));
+      assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<PxPoint2::value_type>::max()));
+      return {scaledX, scaledY};
+    }
+
+
     constexpr float CalcImageDensityScale(const uint32_t imageDpi) const
     {
       if (imageDpi == 0u)
@@ -333,9 +352,16 @@ namespace Fsl
     }
 
     PxSize2D CalcScaledPxSize2D(const PxExtent2D& extentPx, const uint32_t imageDpi) const;
+    PxSize2DF CalcScaledPxSize2DF(const PxExtent2D& extentPx, const uint32_t imageDpi) const;
     PxThickness CalcScaledPxThickness(const PxThickness& thicknessPx, const uint32_t imageDpi) const;
     PxThickness CalcScaledPxThickness(const PxThicknessU& thicknessPx, const uint32_t imageDpi) const;
+    PxThicknessF CalcScaledPxThicknessF(const PxThicknessU& thicknessPx, const uint32_t imageDpi) const;
     PxThicknessU CalcScaledPxThicknessU(const PxThicknessU& thicknessPx, const uint32_t imageDpi) const;
+    PxTrimmedImage CalcScaledPxTrimmedImage(const PxExtent2D extentPx, const PxThicknessU& trimMarginPx, const PxExtent2D trimmedExtentPx,
+                                            const uint32_t imageDpi) const;
+    PxTrimmedNineSlice CalcScaledPxTrimmedNineSlice(const PxExtent2D extentPx, const PxThicknessU& trimMarginPx,
+                                                    const PxThicknessU& trimmedNineSlicePx, const PxThicknessU& contentMarginPx,
+                                                    const uint32_t imageDpi) const;
 
     /// Calc how much a image of a given DPI should be scaled.
     // static constexpr float CalcImageScale(const uint32_t imageDpi)

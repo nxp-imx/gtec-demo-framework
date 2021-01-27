@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="glm"/>
     <Dependency Name="Shared.Camera.Platform"/>
-    <Platform Name="Windows" ProjectId="0C479E75-D152-43D4-A5E5-5502467F7963"/>
   </Executable>
 </FslBuildGen>

@@ -1,5 +1,4 @@
 /.vs/
-/.StartProject.bat
 /resource.h
 /##PROJECT_NAME##.manifest
 /##PROJECT_NAME##.opensdf

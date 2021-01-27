@@ -35,6 +35,7 @@
 #include <FslBase/Math/Dp/DpSize.hpp>
 #include <FslBase/Math/Dp/DpThickness.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderPixelSpanInfo.hpp>
@@ -282,7 +283,7 @@ namespace Fsl
 
       // ------
 
-      SliderPixelSpanInfo WinDraw(INativeBatch2D& batch, const Vector2 dstPositionPxf, const PxSize2D& renderSizePx,
+      SliderPixelSpanInfo WinDraw(INativeBatch2D& batch, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx,
                                   const LayoutOrientation orientation, const LayoutDirection layoutDirection, const bool isEnabled,
                                   const int32_t cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
 

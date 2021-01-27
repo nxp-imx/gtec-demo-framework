@@ -31,7 +31,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
-from typing import Dict
+#from typing import Dict
 from typing import List
 from typing import Optional
 import argparse
@@ -39,24 +39,25 @@ from FslBuildGen.Generator import GeneratorPlugin
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
 from FslBuildGen import ParseUtil
-from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
-from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Log import Log
-from FslBuildGen.PackageFilters import PackageFilters
+#from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
+from FslBuildGen.Tool.Flow.BuildHelper import BuildHelper
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
-
 
 class DefaultValue(object):
     DryRun = False
@@ -95,11 +96,11 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 
 class ToolFlowBuild(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
-        # Process the inpurt arguments here, before calling the real work function
+        # Process the input arguments here, before calling the real work function
         localToolConfig = LocalToolConfig()
 
         # Configure the ToolAppConfig part
@@ -133,17 +134,18 @@ class ToolFlowBuild(AToolAppFlow):
         # Get the platform and see if its supported
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
         platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
-                                                                                                 localToolConfig.Generator, buildVariantConfig, False,
-                                                                                                 config.ToolConfig.CMakeConfiguration,
-                                                                                                 localToolConfig.GetUserCMakeConfig())
+                                                                                                 localToolConfig.Generator, buildVariantConfig,
+                                                                                                 toolConfig.DefaultPackageLanguage,
+                                                                                                 toolConfig.CMakeConfiguration,
+                                                                                                 localToolConfig.GetUserCMakeConfig(), False)
         PlatformUtil.CheckBuildPlatform(platformGeneratorPlugin.PlatformName)
 
-        config.LogPrint("Active platform: {0}".format(platformGeneratorPlugin.PlatformName))
+        self.Log.LogPrint("Active platform: {0}".format(platformGeneratorPlugin.PlatformName))
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
-                                            config.ToolConfig.Experimental, platformGeneratorPlugin)
+        generatorContext = GeneratorContext(self.Log, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
+                                            toolConfig.Experimental, platformGeneratorPlugin)
         self.ToolAppContext.PluginConfigContext.SetLegacyGeneratorType(localToolConfig.GenType)
 
         packageFilters = localToolConfig.BuildPackageFilters
@@ -157,27 +159,27 @@ class ToolFlowBuild(AToolAppFlow):
 
         if localToolConfig.ListFeatures or localToolConfig.ListVariants or localToolConfig.ListExtensions or localToolConfig.ListRequirements:
             if localToolConfig.ListFeatures:
-                Builder.ShowFeatureList(self.Log, config, topLevelPackage, requestedFiles)
+                Builder.ShowFeatureList(self.Log, topLevelPackage, requestedFiles)
             if localToolConfig.ListVariants:
                 Builder.ShowVariantList(self.Log, topLevelPackage, requestedFiles, platformGeneratorPlugin)
             if localToolConfig.ListExtensions:
                 Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles)
             if localToolConfig.ListRequirements:
-                Builder.ShowRequirementList(self.Log, config, topLevelPackage, requestedFiles)
+                Builder.ShowRequirementList(self.Log, topLevelPackage, requestedFiles)
         else:
             if localToolConfig.BuildPackageFilters is None or localToolConfig.BuildPackageFilters.ExtensionNameList is None:
                 raise Exception("localToolConfig.BuildPackageFilters.ExtensionNameList not set")
-            Builder.BuildPackages(generatorContext, config, packages,
-                                  localToolConfig.BuildVariantsDict, localToolConfig.RemainingArgs, localToolConfig.ForAllExe,
-                                  platformGeneratorPlugin, localToolConfig.EnableContentBuilder, localToolConfig.ForceClaimInstallArea,
-                                  localToolConfig.BuildThreads, localToolConfig.Command, True)
+            requestedPackages = BuildHelper.FindRequestedPackages(config, packages, requestedFiles)
 
-
+            Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
+                                  toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantsDict,
+                                  localToolConfig.RemainingArgs, localToolConfig.ForAllExe, platformGeneratorPlugin,
+                                  localToolConfig.EnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
+                                  localToolConfig.Command, True)
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
-
+    #def __init__(self) -> None:
+    #    pass
 
     def GetTitle(self) -> str:
         return 'FslBuild'
@@ -200,6 +202,9 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
 
     def AddCustomArguments(self, parser: argparse.ArgumentParser, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
         defaultContentBuilder = "on" if DefaultValue.EnableContentBuilder else "off"
+
+        allCommandTypes = CommandType.AllStrings()
+
         parser.add_argument('-t', '--type', default=DefaultValue.Type, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')
         parser.add_argument('--GenType', default=DefaultValue.GenType, help='Chose the generator type to use ({0})'.format(", ".join(list(GeneratorPlugin.GENERATOR_TYPES.keys()))))
         parser.add_argument('--ListFeatures', action='store_true', help='List all features supported by build and exit')
@@ -211,7 +216,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--IgnoreNotSupported', action='store_true', help='try to build things that are marked as not supported')
         parser.add_argument('--ContentBuilder', default=defaultContentBuilder, help='Enable/disable the content builder')
         parser.add_argument('--ForAllExe', default=DefaultValue.ForAllExe, help='For each executable run the given command. (EXE) = the full path to the executable. (EXE_NAME) = name of the executable. (EXE_PATH) = the executables dir. (PACKAGE_PATH) = full path to package (CONTENT_PATH) = full path to package content directory. *Experimental*')
-        parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: build, clean, install, open. Beware install is not supported by all build backends')
+        parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: {0}. Beware install is not supported by all build backends'.format(", ".join(allCommandTypes)))
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.T3DStressTest"/>
     <Dependency Name="FslGraphics3D.Procedural"/>
-    <Platform Name="Windows" ProjectId="7AB32F6B-B4DA-4586-BC4D-5DCC1F67EB40"/>
   </Executable>
 </FslBuildGen>

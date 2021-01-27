@@ -40,6 +40,10 @@ namespace Fsl
   {
     //! Controls whether we override the present mode
     bool OverridePresentMode{false};
+
+    //! If true the device extensions should be logged
+    bool LogDeviceExtensions{false};
+
     //! If OverridePresentMode is true this is the present mode that will be used
     VkPresentModeKHR PresentMode{VK_PRESENT_MODE_FIFO_KHR};
 

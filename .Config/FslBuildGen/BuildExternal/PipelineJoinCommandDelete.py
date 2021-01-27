@@ -33,16 +33,16 @@
 
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommandDelete
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PipelineInfo import PipelineInfo
 from FslBuildGen.BuildExternal.PipelineJoinCommand import PipelineJoinCommand
+from FslBuildGen.Log import Log
 
 
 class PipelineJoinCommandDelete(PipelineJoinCommand):
-    def __init__(self, basicConfig: BasicConfig,
+    def __init__(self, log: Log,
                  sourceCommand: XmlRecipePipelineJoinCommandDelete,
                  pipelineInfo: PipelineInfo, finalDstPath: str) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo, finalDstPath)
+        super().__init__(log, sourceCommand, pipelineInfo, finalDstPath)
         self.__SourceCommand = sourceCommand
 
 

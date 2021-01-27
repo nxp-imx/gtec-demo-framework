@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.LineBuilder101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.LineBuilder101"/>
-    <Platform Name="Windows" ProjectId="476B0908-A79E-4E09-9BBF-FB40520FFA2D"/>
   </Executable>
 </FslBuildGen>

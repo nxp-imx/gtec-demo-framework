@@ -7,6 +7,5 @@
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="Shared.CubeMapping.API.OpenGLES3"/>
     <Dependency Name="Shared.HDR.SkyboxTonemapping"/>
-    <Platform Name="Windows" ProjectId="A0F8F0AF-96D9-494F-9289-56FD6C2645E2"/>
   </Executable>
 </FslBuildGen>

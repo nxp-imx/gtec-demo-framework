@@ -5,7 +5,6 @@
     <Requirement Name="HW_CAMERA_MIPI8X" Type="feature"/>
     <Define Name="FSL_ENABLE_CAMERA_ADAPTER_MIPI8X" Access="Public"/>
     <Dependency Name="Shared.Camera.Adapter.Interface"/>
-    <Platform Name="Windows" ProjectId="4EB87040-9E9B-42E0-BF75-C683EBC77911"/>
     <Platform Name="Yocto" Supported="true"/>
   </Library>
 </FslBuildGen>

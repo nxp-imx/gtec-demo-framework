@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Callable
+#from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -39,9 +39,9 @@ from typing import Tuple
 from typing import Union
 import itertools
 import os
-from FslBuildGen import IOUtil
-from FslBuildGen import Util
-from FslBuildGen.Log import Log
+#from FslBuildGen import IOUtil
+#from FslBuildGen import Util
+#from FslBuildGen.Log import Log
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import InvalidVariableOptionNameException
@@ -181,7 +181,7 @@ class ReportVariableFormatter(object):
         resultList = [] # type: List[str]
         scratchpadFormatList = parsedFormatString.SplitList # type: List[str]
         cartesianProduct = list(itertools.product(*optionList))  # type: List[Tuple[int, ...]]
-        newStr = strFormat
+        #newStr = strFormat
         for entry in cartesianProduct:
             result = GetFormattedString(scratchpadFormatList, variableList, entry, parsedFormatString.EnvCommandList, linkedCommandDict)
             resultList.append(result)

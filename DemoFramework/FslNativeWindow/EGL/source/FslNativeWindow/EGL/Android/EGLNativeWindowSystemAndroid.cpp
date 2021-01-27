@@ -53,19 +53,23 @@ namespace Fsl
   std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                 const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
-    const auto pNativeEglSetup = dynamic_cast<const NativeEGLSetup*>(pPlatformCustomWindowAllocationParams);
-    if (!pNativeEglSetup)
-      throw NotSupportedException("NativeEGLSetup pointer expected");
+    const auto nativeEglSetup = EGLNativeWindowHelper::ToNativeEGLSetup(pPlatformCustomWindowAllocationParams);
 
     // setup a little lambda method for tweaking the window after its been created.
-    const auto nativeEGLSetupConfig = pNativeEglSetup->Config;
-
-    PlatformCallbackNativeWindowAndroidOnWindowCreate onWindowCreated = [nativeEGLSetupConfig](ANativeWindow* hDisplay, android_app* pAppState) {
+    PlatformCallbackNativeWindowAndroidOnWindowCreate onWindowCreated = [nativeEglSetup](ANativeWindow* hDisplay, android_app* pAppState) {
       // EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
       // As soon as we picked a EGLConfig, we can safely reconfigure the ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID.
       EGLint format;
-      eglGetConfigAttrib(hDisplay, nativeEGLSetupConfig, EGL_NATIVE_VISUAL_ID, &format);
-      ANativeWindow_setBuffersGeometry(pAppState->window, 0, 0, format);
+      LOCAL_LOG("eglGetConfigAttrib");
+      if (eglGetConfigAttrib(nativeEglSetup.Display, nativeEglSetup.Config, EGL_NATIVE_VISUAL_ID, &format))
+      {
+        LOCAL_LOG("ANativeWindow_setBuffersGeometry");
+        ANativeWindow_setBuffersGeometry(pAppState->window, 0, 0, format);
+      }
+      else
+      {
+        FSLLOG3_WARNING("Failed to acquire information for ANativeWindow_setBuffersGeometry");
+      }
     };
 
     LOCAL_LOG("AllocateWindow1");

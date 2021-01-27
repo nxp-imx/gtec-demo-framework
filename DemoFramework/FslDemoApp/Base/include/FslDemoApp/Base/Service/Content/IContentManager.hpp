@@ -143,31 +143,34 @@ namespace Fsl
 
     //! @brief Read the content of the file as a texture.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @param desiredPixelFormat the pixel format that the texture should be using. If this is PixelFormat::Undefined then the source image's format
     //! is used.
-    //         (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
+    //!        (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
     //! @param desiredOrigin the origin that should be used for the bitmap. If this is BitmapOrigin::Undefined hosts default is used (see
     //! GetPreferredBitmapOrigin).
-    //         (if the source image uses a different origin it will be converted).
+    //!        (if the source image uses a different origin it will be converted).
     //! @param preferredChannelOrder this is only used if desiredPixelFormat is PixelFormat::Undefined.
-    //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
-    //         The channel order is just a hint and the image service is free to ignore it.
+    //!        Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
+    //!        The channel order is just a hint and the image service is free to ignore it.
+    //! @param generateMipMapsHint = if true mip maps will be generated for the texture.
+    //!                              The request is just a hint and the service is allowed to ignore it. This can easy be the case if
+    //!                              the source texture is compressed or using a unsupported texture format.
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     virtual void Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                       const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-                      const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const = 0;
+                      const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined, const bool generateMipMapsHint = false) const = 0;
 
     //! @brief Try to read the content of the file as a BasicTextureAtlas.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     //! @throws if its a unsupported format.
     virtual void Read(BasicTextureAtlas& rTextureAtlas, const IO::Path& relativePath) const = 0;
 
     //! @brief Try to read the content of the file as a BasicFontKerning.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     //! @throws if its a unsupported format.
     virtual void Read(BasicFontKerning& rFontKerning, const IO::Path& relativePath) const = 0;
@@ -175,14 +178,14 @@ namespace Fsl
 
     //! @brief Try to read the content of the file as a BitmapFont.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     //! @throws if its a unsupported format.
     virtual void Read(BitmapFont& rBitmapFont, const IO::Path& relativePath) const = 0;
 
     //! @brief Read the entire content of the given file into a string.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @return true if the file was read, false otherwise
     virtual bool TryReadAllText(std::string& rText, const IO::Path& relativePath) const FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT = 0;
 
@@ -191,13 +194,13 @@ namespace Fsl
     //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @param desiredPixelFormat the pixel format that the bitmap should be using. If this is PixelFormat::Undefined then the source image's format
     //! is used.
-    //         (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
+    //!        (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
     //! @param desiredOrigin the origin that should be used for the bitmap. If this is BitmapOrigin::Undefined hosts default is used (see
     //! GetPreferredBitmapOrigin).
-    //         (if the source image uses a different origin it will be converted).
+    //!        (if the source image uses a different origin it will be converted).
     //! @param preferredChannelOrder this is only used if desiredPixelFormat is PixelFormat::Undefined.
-    //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
-    //         The channel order is just a hint and the image service is free to ignore it.
+    //!        Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
+    //!        The channel order is just a hint and the image service is free to ignore it.
     //! @return true if the bitmap was loaded, false otherwise
     virtual bool TryRead(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                          const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
@@ -205,16 +208,16 @@ namespace Fsl
 
     //! @brief Read the content of the file as a bitmap.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @param desiredPixelFormat the pixel format that the bitmap should be using. If this is PixelFormat::Undefined then the source image's format
     //! is used.
-    //         (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
+    //!        (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
     //! @param desiredOrigin the origin that should be used for the bitmap. If this is BitmapOrigin::Undefined hosts default is used (see
     //! GetPreferredBitmapOrigin).
-    //         (if the source image uses a different origin it will be converted).
+    //!        (if the source image uses a different origin it will be converted).
     //! @param preferredChannelOrder this is only used if desiredPixelFormat is PixelFormat::Undefined.
-    //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
-    //         The channel order is just a hint and the image service is free to ignore it.
+    //!        Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
+    //!        The channel order is just a hint and the image service is free to ignore it.
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     virtual Bitmap ReadBitmap(const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                               const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
@@ -222,20 +225,24 @@ namespace Fsl
 
     //! @brief Read the content of the file as a texture.
     //! @param relativePath the relative path to load the content from
-    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @param desiredPixelFormat the pixel format that the texture should be using. If this is PixelFormat::Undefined then the source image's format
     //! is used.
-    //         (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
+    //!        (if the source image uses a different pixel format it will be converted to the desiredPixelFormat if possible).
     //! @param desiredOrigin the origin that should be used for the bitmap. If this is BitmapOrigin::Undefined hosts default is used (see
     //! GetPreferredBitmapOrigin).
-    //         (if the source image uses a different origin it will be converted).
+    //!        (if the source image uses a different origin it will be converted).
     //! @param preferredChannelOrder this is only used if desiredPixelFormat is PixelFormat::Undefined.
-    //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
-    //         The channel order is just a hint and the image service is free to ignore it.
+    //!        Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
+    //!        The channel order is just a hint and the image service is free to ignore it.
+    //! @param generateMipMapsHint = if true mip maps will be generated for the texture.
+    //!                              The request is just a hint and the service is allowed to ignore it. This can easy be the case if
+    //!                              the source texture is compressed or using a unsupported texture format.
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     virtual Texture ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-                                const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const = 0;
+                                const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined,
+                                const bool generateMipMapsHint = false) const = 0;
 
     //! @brief Try to read the content of the file as a BitmapFont.
     //! @param relativePath the relative path to load the content from

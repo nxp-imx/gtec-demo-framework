@@ -32,16 +32,16 @@
 #****************************************************************************************************************************************************
 
 from typing import Callable
-from typing import Dict
+#from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
-from typing import Union
-import itertools
-import os
+#from typing import Tuple
+#from typing import Union
+#import itertools
+#import os
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
-from FslBuildGen.Log import Log
+#from FslBuildGen.Log import Log
 from FslBuildGen.Generator.Report.VariableDict import VariableDict
 from FslBuildGen.Generator.Report.VariableReport import VariableReport
 
@@ -141,7 +141,7 @@ class ParsedFormatString(object):
                         self.SplitList.append(source[startSplitIndex:index - 1])
                     startSplitIndex = index - 1
                     blockStartIndex = index + 1
-                    stringEndSplitIndex = blockStartIndex-2
+                    #stringEndSplitIndex = blockStartIndex-2
             elif state == ParseState.VariableBlock:
                 if ch == '}':
                     state = ParseState.Scanning
@@ -160,7 +160,7 @@ class ParsedFormatString(object):
                         raise FormatStringUndefinedVariableNameException(variableName)
 
                     self.VarCommandList.append(LookupVariableCommand(variableName, variableValue, len(self.SplitList) - 1))
-                    stringEndSplitIndex = blockStartIndex
+                    #stringEndSplitIndex = blockStartIndex
             elif state == ParseState.EnvBlock:
                 if ch == ')':
                     state = ParseState.Scanning

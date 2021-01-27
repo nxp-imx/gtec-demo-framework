@@ -33,10 +33,10 @@
 
 import subprocess
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
 from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildContent.ToolFinder import ToolFinder
+from FslBuildGen.Log import Log
 
 # .vert   for a vertex shader
 # .tesc   for a tessellation control shader
@@ -52,13 +52,14 @@ class VulkanContentProcessor(ContentProcessor):
         super().__init__("VulkanContentProcessor", g_vulkanFeatureName, g_vulkanFileExtensionSet)
 
 
-    def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
-        outputFilename = super().GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
+    def GetOutputFileName(self, log: Log, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
+        outputFilename = super().GetOutputFileName(log, contentOutputPath, contentFileRecord, removeExtension)
         return outputFilename + ".spv"
 
 
 
-    def Process(self, config: Config, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord, toolFinder: ToolFinder) -> None:
+    def Process(self, log: Log, configDisableWrite: bool, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord,
+                toolFinder: ToolFinder) -> None:
         # we ask the tool to write to a temporary file so that we can ensure that the output file is only modified
         # if the content was changed
         tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFileRecord)
@@ -66,14 +67,14 @@ class VulkanContentProcessor(ContentProcessor):
         #if config.Verbosity == 0:
         #    buildCommand += ['-s']
 
-        if config.DisableWrite:
+        if configDisableWrite:
             # if write is disabled we do a vulkan shader compiler check directly since the subprocess call can't fail
             # which would normally trigger the check
             toolFinder.CheckVulkanShaderCompiler()
             return
 
-        outputFileName = self.GetOutputFileName(config, contentOutputPath, contentFileRecord)
-        self.EnsureDirectoryExist(config, outputFileName)
+        outputFileName = self.GetOutputFileName(log, contentOutputPath, contentFileRecord)
+        self.EnsureDirectoryExist(configDisableWrite, outputFileName)
 
         try:
             result = subprocess.call(buildCommand, cwd=contentBuildPath)

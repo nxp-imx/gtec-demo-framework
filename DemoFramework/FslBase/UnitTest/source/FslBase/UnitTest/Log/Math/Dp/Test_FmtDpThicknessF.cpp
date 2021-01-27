@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathDp_FmtDpThicknessF, Log)
 {
-  DpThicknessF value(1, 2, 10, 20);
+  DpThicknessF value(1.1f, 2.1f, 10.1f, 20.1f);
 
-  EXPECT_EQ(std::string("{Left=1.0 Top=2.0 Right=10.0 Bottom=20.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{Left=1.1 Top=2.1 Right=10.1 Bottom=20.1}"), fmt::format("{}", value));
 }

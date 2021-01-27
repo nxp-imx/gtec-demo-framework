@@ -59,12 +59,12 @@ namespace Fsl
     bool m_toggleMinMax;
 
   public:
-    VGStressTest(const DemoAppConfig& config);
-    ~VGStressTest();
+    explicit VGStressTest(const DemoAppConfig& config);
+    ~VGStressTest() override;
 
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

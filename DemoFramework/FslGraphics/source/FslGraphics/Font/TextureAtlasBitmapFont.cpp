@@ -47,7 +47,7 @@ namespace Fsl
   {
     inline int32_t ScaledBaseLine(const int32_t baseLinePx, const float fontScale)
     {
-      return int32_t(std::round(static_cast<float>(baseLinePx) * std::max(fontScale, 0.0f)));
+      return std::max(int32_t(std::round(static_cast<float>(baseLinePx) * fontScale)), 0);
     }
 
     inline PxSize2D DoMeasureString(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, const StringViewLite& strView)
@@ -176,7 +176,7 @@ namespace Fsl
     {
       int32_t renderRightPx = 0;
       int32_t renderBottomPx = 0;
-      if (!strView.empty() || fontScale <= 0.0f)
+      if (!strView.empty() && fontScale >= 0.0f)
       {
         const auto baseLinePx = lookup.GetBaseLinePx();
         const auto scaledBaseLinePx = ScaledBaseLine(baseLinePx, fontScale);
@@ -200,14 +200,14 @@ namespace Fsl
             // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
             // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
             const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
-            auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
+            // auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
             const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
 
             const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
             auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
 
             dstXEndPx = dstXEndPx > dstXPx ? dstXEndPx : (dstXEndPx + 1);
-            scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
+            // scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
 
             const int32_t currentRightPx = dstXEndPx;
             const int32_t currentBottomPx = scaledYEndPx;
@@ -300,14 +300,14 @@ namespace Fsl
             // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
             // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
             const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
-            auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
+            // auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
             const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
 
             const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
             auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
 
             dstXEndPx = dstXEndPx > dstXPx ? dstXEndPx : (dstXEndPx + 1);
-            scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
+            // scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
 
             const int32_t currentRightPx = dstXEndPx;
             const int32_t currentBottomPx = scaledYEndPx;

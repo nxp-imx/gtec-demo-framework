@@ -43,14 +43,14 @@ namespace Fsl
       inline glm::mat4 GetClipMatrixForDepthZeroToOne()
       {
         // Vulkan clip space has inverted Y.
-        return glm::mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+        return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
       }
 
       //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
       inline glm::mat4 GetClipMatrixForDepthMinusOneToOne()
       {
         // Vulkan clip space has inverted Y and half Z.
-        return glm::mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
+        return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
       }
 
       //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan

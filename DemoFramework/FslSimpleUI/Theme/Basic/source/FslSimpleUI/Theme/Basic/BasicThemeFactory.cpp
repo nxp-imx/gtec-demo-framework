@@ -197,6 +197,11 @@ namespace Fsl
 
       namespace LocalConfig
       {
+        constexpr const int32_t PaddingLow = 2;
+        constexpr const int32_t PaddingHigh = 10;
+        constexpr const DpThickness PaddingLR(PaddingHigh, PaddingLow, PaddingHigh, PaddingLow);
+        constexpr const DpThickness PaddingTB(PaddingLow, PaddingHigh, PaddingLow, PaddingHigh);
+
         constexpr const DpPoint CheckBoxCursorChecked(24, 24);
         constexpr const DpPoint CheckBoxCursorUnchecked(24, 24);
 
@@ -733,7 +738,7 @@ namespace Fsl
         background->SetBackground(m_leftBarNineSliceSprite);
         background->SetAlignmentY(UI::ItemAlignment::Stretch);
         background->SetBackgroundColor(GetBarColor(barType));
-        background->SetPadding(DpThickness(20, 20, 20, 20));
+        background->SetPadding(LocalConfig::PaddingLR);
         background->FinishAnimation();
         return background;
       }
@@ -757,7 +762,7 @@ namespace Fsl
         background->SetAlignmentX(UI::ItemAlignment::Stretch);
         background->SetAlignmentY(UI::ItemAlignment::Near);
         background->SetBackgroundColor(GetBarColor(barType));
-        background->SetPadding(DpThickness(20, 20, 20, 20));
+        background->SetPadding(LocalConfig::PaddingTB);
         background->FinishAnimation();
         return background;
       }
@@ -780,7 +785,7 @@ namespace Fsl
         background->SetAlignmentX(UI::ItemAlignment::Far);
         background->SetAlignmentY(UI::ItemAlignment::Stretch);
         background->SetBackgroundColor(GetBarColor(barType));
-        background->SetPadding(DpThickness(20, 20, 20, 20));
+        background->SetPadding(LocalConfig::PaddingLR);
         background->FinishAnimation();
         return background;
       }
@@ -804,7 +809,7 @@ namespace Fsl
         background->SetAlignmentX(UI::ItemAlignment::Stretch);
         background->SetAlignmentY(UI::ItemAlignment::Far);
         background->SetBackgroundColor(GetBarColor(barType));
-        background->SetPadding(DpThickness(20, 20, 20, 20));
+        background->SetPadding(LocalConfig::PaddingTB);
         background->FinishAnimation();
         return background;
       }

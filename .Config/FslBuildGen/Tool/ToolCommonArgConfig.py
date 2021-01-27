@@ -41,7 +41,6 @@ class ToolCommonArgConfig(object):
         self.AddUseFeatures = False
         self.AddPlatformArg = False
         self.AllowForceClaimInstallArea = False
-        self.AllowPlaformAll = False
         self.AllowRecursive = False
         #self.AllowVSVersion = True
         self.SupportBuildTime = False

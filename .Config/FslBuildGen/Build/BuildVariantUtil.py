@@ -32,9 +32,9 @@
 #****************************************************************************************************************************************************
 
 from typing import Dict
-from typing import List
+#from typing import List
 from typing import Optional
-from FslBuildGen.Build.CaptureEnvironmentVariablesFromScript import CaptureEnvironmentVariablesFromScript
+#from FslBuildGen.Build.CaptureEnvironmentVariablesFromScript import CaptureEnvironmentVariablesFromScript
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -123,7 +123,7 @@ class BuildVariantUtil(object):
 
     @staticmethod
     def CreateCompleteStaticVariantSettings(resolvedAllVariantDict: Dict[str, PackagePlatformVariant],
-                                            variantsSelectionDict: Dict[str, str]) -> Dict[str,str]:
+                                            variantsSelectionDict: Dict[str, str]) -> Dict[str, str]:
         """
         Create a settings dict variant options in the resolvedAllVariantDict.
         We will use the supplied settings from variantsSelectionDict when available and chose a default option when not.

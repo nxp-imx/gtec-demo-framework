@@ -291,7 +291,7 @@ namespace Fsl
 
     // log2(n) is the # of kernels that will be invoked (for a radix-2 FFT)
     const unsigned int log2n = Log2NFFT(m_length);
-    if(log2n <= 0 || log2n >= 32)
+    if (log2n <= 0 || log2n >= 32)
     {
       throw NotSupportedException("Invalid length");
     }

@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.ModelLoaderBasics" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslAssimp"/>
-    <Platform Name="Windows" ProjectId="6EC56606-0390-4DE3-BCF9-A6A16C750B0E"/>
   </Executable>
 </FslBuildGen>

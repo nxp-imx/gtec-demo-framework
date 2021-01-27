@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtRect, Log)
 {
-  auto value = Rect::FromLeftTopRightBottom(1.0f, 2.0f, 15.0f, 25.0f);
+  auto value = Rect::FromLeftTopRightBottom(1.1f, 2.1f, 15.1f, 25.1f);
 
-  EXPECT_EQ(std::string("{Left=1.0 Top=2.0 Right=15.0 Bottom=25.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{Left=1.1 Top=2.1 Right=15.1 Bottom=25.1}"), fmt::format("{}", value));
 }

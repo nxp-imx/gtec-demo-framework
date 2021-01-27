@@ -57,6 +57,31 @@ namespace Fsl
     }
 
 
+    void GridLayout::AddColumnDefinition(const GridColumnDefinition& definition)
+    {
+      if (!m_definitionCache.HasEntriesX)
+      {
+        assert(m_definitionsX.size() == 1u);
+        m_definitionsX.clear();
+        m_definitionCache.HasEntriesX = true;
+      }
+
+      return m_definitionsX.emplace_back(definition);
+    }
+
+    void GridLayout::AddRowDefinition(const GridRowDefinition& definition)
+    {
+      if (!m_definitionCache.HasEntriesY)
+      {
+        assert(m_definitionsY.size() == 1u);
+        m_definitionsY.clear();
+        m_definitionCache.HasEntriesY = true;
+      }
+
+      return m_definitionsY.emplace_back(definition);
+    }
+
+
     void GridLayout::SetColumn(const std::shared_ptr<BaseWindow>& window, const uint32_t index)
     {
       if (index >= m_definitionsX.size())
@@ -154,55 +179,6 @@ namespace Fsl
     //  throw NotImplementedException("ClearRowDefinitions");
     //}
 
-    void GridLayout::AddColumnDefinition(const GridColumnDefinition& definition)
-    {
-      if (!m_definitionCache.HasEntriesX)
-      {
-        assert(m_definitionsX.size() == 1u);
-        m_definitionsX.clear();
-        m_definitionCache.HasEntriesX = true;
-      }
-
-      return m_definitionsX.emplace_back(definition);
-    }
-
-    void GridLayout::AddRowDefinition(const GridRowDefinition& definition)
-    {
-      if (!m_definitionCache.HasEntriesY)
-      {
-        assert(m_definitionsY.size() == 1u);
-        m_definitionsY.clear();
-        m_definitionCache.HasEntriesY = true;
-      }
-
-      return m_definitionsY.emplace_back(definition);
-    }
-
-
-    PxSize2D GridLayout::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      PxSize2D sizePx = FinalizeSizes(finalSizePx);
-
-      for (uint32_t index = 0; index < m_cellRecords.size(); ++index)
-      {
-        const auto& cell = m_cellRecords[index];
-        assert(cell.IndexX <= m_definitionsX.size());
-        assert(cell.IndexY <= m_definitionsY.size());
-
-        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].TempValue));
-        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].TempValue));
-        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].MinimumSizePx));
-        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].MinimumSizePx));
-
-        PxRectangle rectPx(m_definitionsX[cell.IndexX].TempValue, m_definitionsY[cell.IndexY].TempValue, m_definitionsX[cell.IndexX].MinimumSizePx,
-                           m_definitionsY[cell.IndexY].MinimumSizePx);
-
-        ChildAt(index)->Arrange(rectPx);
-      }
-      return !m_limitToAvailableSpace ? sizePx
-                                      : PxSize2D(std::min(finalSizePx.Width(), sizePx.Width()), std::min(finalSizePx.Height(), sizePx.Height()));
-    }
-
 
     PxSize2D GridLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
@@ -242,6 +218,31 @@ namespace Fsl
       return !m_limitToAvailableSpace
                ? resolvedSize
                : PxSize2D(std::min(availableSizePx.Width(), resolvedSize.Width()), std::min(availableSizePx.Height(), resolvedSize.Height()));
+    }
+
+
+    PxSize2D GridLayout::ArrangeOverride(const PxSize2D& finalSizePx)
+    {
+      PxSize2D sizePx = FinalizeSizes(finalSizePx);
+
+      for (uint32_t index = 0; index < m_cellRecords.size(); ++index)
+      {
+        const auto& cell = m_cellRecords[index];
+        assert(cell.IndexX <= m_definitionsX.size());
+        assert(cell.IndexY <= m_definitionsY.size());
+
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].TempValue));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].TempValue));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].MinimumSizePx));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].MinimumSizePx));
+
+        PxRectangle rectPx(m_definitionsX[cell.IndexX].TempValue, m_definitionsY[cell.IndexY].TempValue, m_definitionsX[cell.IndexX].MinimumSizePx,
+                           m_definitionsY[cell.IndexY].MinimumSizePx);
+
+        ChildAt(index)->Arrange(rectPx);
+      }
+      return !m_limitToAvailableSpace ? sizePx
+                                      : PxSize2D(std::min(finalSizePx.Width(), sizePx.Width()), std::min(finalSizePx.Height(), sizePx.Height()));
     }
 
 
@@ -374,6 +375,7 @@ namespace Fsl
         }
         rDef.MeasureSizePx = std::max(userSizePx, userMinSizePx);
         rDef.MinimumSizePx = userMinSizePx;
+        rDef.TempValue = 0;
       }
       return hasStar;
     }

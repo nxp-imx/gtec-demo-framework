@@ -1,10 +1,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\build\##PLATFORM_NAME##\##PACKAGE_TARGET_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</OutDir>
-    <IntDir>build\##PLATFORM_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</IntDir>
+    <OutDir>$(SolutionDir)\build\##PLATFORM_NAME##\$(Configuration)\##PACKAGE_TARGET_NAME####PROJECT_VARIANT_NAME##\</OutDir>
+    <IntDir>build\##PLATFORM_NAME##\$(Configuration)\##PACKAGE_TARGET_NAME####PROJECT_VARIANT_NAME##\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\build\##PLATFORM_NAME##\##PACKAGE_TARGET_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</OutDir>
-    <IntDir>build\##PLATFORM_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</IntDir>
+    <OutDir>$(SolutionDir)\build\##PLATFORM_NAME##\$(Configuration)\##PACKAGE_TARGET_NAME####PROJECT_VARIANT_NAME##\</OutDir>
+    <IntDir>build\##PLATFORM_NAME##\$(Configuration)\##PACKAGE_TARGET_NAME####PROJECT_VARIANT_NAME##\</IntDir>
   </PropertyGroup>

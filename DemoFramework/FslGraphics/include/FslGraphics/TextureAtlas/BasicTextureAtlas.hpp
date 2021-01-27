@@ -59,8 +59,6 @@ namespace Fsl
 
     void Reset(const uint32_t capacity);
 
-    [[deprecated]] void SetEntry(const int32_t index, const Rectangle& srcRect, const Rectangle& trimmedRect, UTF8String name);
-
     void SetEntry(const uint32_t index, const PxRectangleU& rectanglePx, const PxThicknessU& trimPx, const uint32_t dpi, IO::Path path);
 
     void AddNineSlice(const uint32_t textureIndex, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx);

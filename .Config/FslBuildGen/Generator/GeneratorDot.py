@@ -44,23 +44,25 @@ from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDependency
 from FslBuildGen.Packages.Package import PackageExternalDependency
+from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 #from FslBuildGen.Exceptions import *
 
 class GeneratorDot(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str) -> None:
+    def __init__(self, log: Log, toolConfig: ToolConfig, packages: List[Package], platformName: str) -> None:
         super().__init__()
 
         self.UseVariantNames = True
-        self.RequireExecutable = True
+        self.RequireExecutable = self.__HasExecutable(packages)
         self.ShowExternals = False
         self.ColorNodesByType = True
 
         # Find all base packages
-        basePackages = self.__FindBasePackages(config.ToolConfig.ProjectInfo.Contexts, packages)
+        basePackages = self.__FindBasePackages(toolConfig.ProjectInfo.Contexts, packages)
 
         packageList = packages
         if self.RequireExecutable:
@@ -69,10 +71,10 @@ class GeneratorDot(GeneratorBase):
                 packageList = packages
 
 
-        #dotFile = self.CreateDirectDependencies(config, packageList, platformName)
-        #dotFile = self.CreateAllDependencies(config, packageList, platformName)
-        #dotFile = self.CreateSimpleDependencies(config, packageList, platformName)
-        dotFile = self.CreateSimpleDependencies2(config, packageList, basePackages, platformName)
+        #dotFile = self.CreateDirectDependencies(log, packageList, platformName)
+        #dotFile = self.CreateAllDependencies(log, packageList, platformName)
+        #dotFile = self.CreateSimpleDependencies(log, packageList, platformName)
+        dotFile = self.CreateSimpleDependencies2(log, packageList, basePackages, platformName)
 
         content = "\n".join(dotFile)
 
@@ -90,6 +92,12 @@ class GeneratorDot(GeneratorBase):
             os.remove(tmpFile)
             raise
 
+    def __HasExecutable(self, packages: List[Package]) -> bool:
+        for package in packages:
+            if package.Type == PackageType.Executable:
+                return True
+        return False
+
     def __FindBasePackages(self, projectContexts: List[ToolConfigProjectContext], packages: List[Package]) -> List[Package]:
         packageDict = {} # type: Dict[str, Package]
         for package in packages:
@@ -102,7 +110,7 @@ class GeneratorDot(GeneratorBase):
         return basePackages
 
 
-    def CreateDirectDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
+    def CreateDirectDependencies(self, log: Log, packages: List[Package], platformName: str) -> List[str]:
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -145,7 +153,7 @@ class GeneratorDot(GeneratorBase):
         return dotFile
 
 
-    def CreateAllDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
+    def CreateAllDependencies(self, log: Log, packages: List[Package], platformName: str) -> List[str]:
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -183,7 +191,7 @@ class GeneratorDot(GeneratorBase):
         return dotFile
 
 
-    def CreateSimpleDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
+    def CreateSimpleDependencies(self, log: Log, packages: List[Package], platformName: str) -> List[str]:
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -228,7 +236,7 @@ class GeneratorDot(GeneratorBase):
     #    return False;
 
 
-    def GetRootNamespace(self, config: Config, namespace: Optional[str]) -> str:
+    def GetRootNamespace(self, log: Log, namespace: Optional[str]) -> str:
         if namespace is None:
             return ''
         if not '.' in namespace:
@@ -236,10 +244,10 @@ class GeneratorDot(GeneratorBase):
         return namespace[0:namespace.find('.')]
 
 
-    def GetRootName(self, config: Config, package: Package) -> str:
-        if package.Namespace is None or package.AbsoluteBuildPath is None:
+    def GetRootName(self, log: Log, package: Package) -> str:
+        if package.AbsoluteBuildPath is None:
             raise Exception("Invalid package")
-        #if not '.' in package.Namespace:
+        #if not '.' in package.NameInfo.Namespace:
         #    if 'ThirdParty' in package.AbsoluteBuildPath:
         #        return 'ThirdParty'
         #    return ""
@@ -248,11 +256,11 @@ class GeneratorDot(GeneratorBase):
         return ""
 
 
-    def GroupPackages(self, config: Config, packages: List[Package]) -> Dict[str, List[Package]]:
+    def GroupPackages(self, log: Log, packages: List[Package]) -> Dict[str, List[Package]]:
         groupDict = {}  # type: Dict[str, List[Package]]
         for package in packages:
             #rootNamespace = self.GetRootNamespace(config, package.Namespace)
-            rootNamespace = self.GetRootName(config, package)
+            rootNamespace = self.GetRootName(log, package)
             if rootNamespace not in groupDict:
                 groupDict[rootNamespace] = []
             groupDict[rootNamespace].append(package)
@@ -262,7 +270,7 @@ class GeneratorDot(GeneratorBase):
         return groupDict
 
 
-    def CreateSimpleDependencies2(self, config: Config, packages: List[Package], basePackages: List[Package], platformName: str) -> List[str]:
+    def CreateSimpleDependencies2(self, log: Log, packages: List[Package], basePackages: List[Package], platformName: str) -> List[str]:
         groups = None # type: Optional[Dict[str, List[Package]]]
         #groups = self.GroupPackages(config, packages)
 
@@ -299,7 +307,9 @@ class GeneratorDot(GeneratorBase):
             for package in packages:
                 packageName = self.GetName(package)
                 col = "black" if package not in basePackages else "gold"
-                if package.Type == PackageType.Executable:
+                if package.Type == PackageType.Library:
+                    dotFile.append('  "{0}" [style=filled fillcolor=white color={1}]'.format(packageName, col))
+                elif package.Type == PackageType.Executable:
                     dotFile.append('  "{0}" [style=filled fillcolor=green color={1}]'.format(packageName, col))
                 elif package.Type == PackageType.ExternalLibrary:
                     dotFile.append('  "{0}" [style=filled fillcolor=lightgrey color={1}]'.format(packageName, col))

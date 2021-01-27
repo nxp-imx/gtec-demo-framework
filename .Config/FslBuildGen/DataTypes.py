@@ -35,7 +35,7 @@ from typing import Optional
 from enum import Enum
 from FslBuildGen.Exceptions import UnknownTypeException
 
-class PackageType:
+class PackageType(Enum):
     TopLevel = 0          # a top level package, this is a internal thing (used for total
                           # verification)
     Library = 1           # a static library
@@ -47,7 +47,7 @@ class PackageType:
 
 
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'PackageType') -> str:
         if value == PackageType.TopLevel:
             return "TopLevel"
         elif value == PackageType.Library:
@@ -63,7 +63,7 @@ class PackageType:
         raise UnknownTypeException("Unknown PackageType: {0}".format(value))
 
     @staticmethod
-    def FromString(value: str) -> int:
+    def FromString(value: str) -> 'PackageType':
         if value == "TopLevel":
             return PackageType.TopLevel
         elif value == "Library":
@@ -85,14 +85,34 @@ class PackageType:
                 PackageType.ToString(PackageType.ToolRecipe)]
 
 
+class PackageInstanceType(Enum):
+    Normal = 0
+    Flavor = 1
+    FlavorSingleton = 2
+
+    @staticmethod
+    def ToString(value: 'PackageInstanceType') -> str:
+        if value == PackageInstanceType.Normal:
+            return "Normal"
+        elif value == PackageInstanceType.Flavor:
+            return "Flavor"
+        elif value == PackageInstanceType.FlavorSingleton:
+            return "FlavorSingleton"
+        raise UnknownTypeException("Unknown PackageInstanceType: {0}".format(value))
+
+
 # Beware that code relies on the more accessible accesstype being smaller value (so public < private < link)
-class AccessType:
+class AccessType(Enum):
     Public = 0
     Private = 1
     Link = 2  # (only valid for Dependency)
 
+    #@staticmethod
+    #def IsLessThan(lhs: 'AccessType', rhs: 'AccessType' )
+    #    return lhs.value < rhs.value
+
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'AccessType') -> str:
         if value == AccessType.Public:
             return "Public"
         elif value == AccessType.Private:
@@ -171,16 +191,9 @@ class ExternalDependencyType(Enum):
                 ExternalDependencyType.ToString(ExternalDependencyType.CMakeFindModern)]
 
 
-class VariantType:
+class VariantType(Enum):
     Normal = 1
     Virtual = 2
-
-
-class SubPackageSupport:
-    Disabled = 1
-    Enabled = 2
-    ExecutableOnly = 3
-
 
 class CompilerNames:
     VisualStudio = "VisualStudio"
@@ -224,7 +237,7 @@ class VisualStudioVersion:
         return None
 
 
-class BuildPlatformType:
+class BuildPlatformType(Enum):
     Unix = 0
     Windows = 1
     Unknown = -1
@@ -241,12 +254,12 @@ class BuildVariantType:
     Dynamic = 1
 
 
-class PackageLanguage:
+class PackageLanguage(Enum):
     CPP = 0
     CSharp = 1
 
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'PackageLanguage') -> str:
         if value == PackageLanguage.CPP:
             return "C++"
         elif value == PackageLanguage.CSharp:
@@ -254,7 +267,7 @@ class PackageLanguage:
         return "Unknown"
 
     @staticmethod
-    def FromString(strPackageLanguage: str) -> int:
+    def FromString(strPackageLanguage: str) -> 'PackageLanguage':
         if strPackageLanguage == "C++":
             return PackageLanguage.CPP
         elif strPackageLanguage == "C#":
@@ -580,4 +593,3 @@ class ClangTidyProfile(Enum):
         elif value == ClangTidyProfile.Strict:
             return ClangTidyProfileString.Strict
         return None if not returnValueStringIfUnknown else "{0}".format(value)
-

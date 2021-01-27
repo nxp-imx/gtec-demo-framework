@@ -3,6 +3,5 @@
   <Executable Name="GLES3.Scissor101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="Shared.Scissor101"/>
-    <Platform Name="Windows" ProjectId="5E145F4C-5747-4877-95C1-733A8CCFBAC0"/>
   </Executable>
 </FslBuildGen>

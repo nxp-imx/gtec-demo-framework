@@ -30,7 +30,6 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -53,6 +52,7 @@ class GroupedException(Exception):
 
 class PackageHasMultipleDefinitionsException(Exception):
     def __init__(self, message: str) -> None:
+        # pylint: disable=useless-super-delegation
         super().__init__(message)
 
 
@@ -259,3 +259,47 @@ class PackageLoaderFailedToLocatePackageException(DependencyNotFoundException):
 class InvalidDependencyException(Exception):
     def __init__(self, packageName: str, depName: str) -> None:
         super().__init__("'{0}' has a invalid dependency to package '{1}'".format(packageName, depName))
+
+class VariantOptionNameCollisionException(Exception):
+    def __init__(self, firstName: str, secondName: str) -> None:
+        msg = "The option name: '{0}' collides with the previously defined '{1}'".format(secondName, firstName)
+        super().__init__(msg)
+
+class InvalidPackageFlavorNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid package flavor name".format(name))
+
+class InvalidPackageFlavorOptionNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid package flavor option name".format(name))
+
+
+class InvalidUnresolvedBasicPackageNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid unresolved basic package name".format(name))
+
+
+class InvalidUnresolvedPackageNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid unresolved package name".format(name))
+
+
+class InvalidPackageNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid package name".format(name))
+
+class InvalidPackageInstanceNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid package instance name".format(name))
+
+class InvalidCompanyNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid company name".format(name))
+
+class InvalidPackageShortNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid package short name".format(name))
+
+class InvalidPackageNamespaceNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid package namespace name".format(name))

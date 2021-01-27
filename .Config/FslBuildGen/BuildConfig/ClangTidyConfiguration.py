@@ -63,4 +63,3 @@ class ClangTidyConfiguration(ClangConfiguration):
                 raise Exception("ClangTidyConfiguration: File extension can not start with '..'")
             if not fileExt.startswith("."):
                 raise Exception("ClangTidyConfiguration: File extension '{0}' does not start with '.'")
-

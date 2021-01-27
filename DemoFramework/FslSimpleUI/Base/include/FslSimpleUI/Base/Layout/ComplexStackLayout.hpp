@@ -91,7 +91,7 @@ namespace Fsl
     private:
       PxSize2D CalcFixedStarSizeHorizontal(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx);
       PxSize2D CalcFixedStarSizeVertical(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx);
-      void FinalizeStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars);
+      void FinalizePositionAndStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars);
       void ArrangeHorizontal(const int32_t finalSizeYPx);
       void ArrangeVertical(const int32_t finalSizeXPx);
     };

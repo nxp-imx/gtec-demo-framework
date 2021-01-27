@@ -78,4 +78,3 @@ class FakeXmlConfigPackageLocation(XmlConfigPackageLocation):
                 xmlElement.append(xmlBlacklistElement)
 
         super().__init__(log, xmlElement)
-

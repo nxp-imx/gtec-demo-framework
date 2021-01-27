@@ -3,6 +3,5 @@
   <Executable Name="GLES3.DFGraphicsBasic2D" NoInclude="true" CreationYear="2014">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="Shared.DFGraphicsBasic2D"/>
-    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>
   </Executable>
 </FslBuildGen>

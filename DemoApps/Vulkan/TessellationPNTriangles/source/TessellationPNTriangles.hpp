@@ -53,8 +53,8 @@ namespace Fsl
 
     struct UboTE
     {
-      glm::mat4 Projection;
-      glm::mat4 Model;
+      glm::mat4 Projection{};
+      glm::mat4 Model{};
       float TessAlpha = 1.0f;
     };
 

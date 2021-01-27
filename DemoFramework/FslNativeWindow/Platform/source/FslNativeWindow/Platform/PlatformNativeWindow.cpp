@@ -134,7 +134,7 @@ namespace Fsl
       }
       else
       {
-        FSLLOG3_VERBOSE3_IF(m_loggedOnceGetWindowMetrics, "NativeWindow did not support TryGetDensityDpi so using {}", densityDpi);
+        FSLLOG3_VERBOSE3_IF(!m_loggedOnceGetWindowMetrics, "NativeWindow did not support TryGetDensityDpi so using {}", densityDpi);
       }
       gotDensityDPI = false;
     }

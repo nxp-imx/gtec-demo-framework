@@ -145,9 +145,9 @@ namespace Fsl
       Camera m_camera;
 
       float m_zoom = 0;
-      glm::vec3 m_rotation = glm::vec3();
-      glm::vec3 m_cameraPos = glm::vec3();
-      glm::vec2 m_mousePos;
+      glm::vec3 m_rotation{};
+      glm::vec3 m_cameraPos{};
+      glm::vec2 m_mousePos{};
 
       std::string m_title = "Vulkan Example";
       std::string m_name = "vulkanExample";

@@ -52,9 +52,9 @@ dependencies {
 
 task buildContentFiles(type: Exec) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '--input', '##PACKAGE_PATH##'
+        commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--input', '##PACKAGE_PATH##'
     } else {
-        commandLine "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '--input', '##PACKAGE_PATH##'
+        commandLine "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--input', '##PACKAGE_PATH##'
     }
 }
 

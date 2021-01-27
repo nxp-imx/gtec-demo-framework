@@ -39,6 +39,7 @@
 namespace Fsl
 {
   class IImageService;
+  class ITextureService;
 
   class ContentManagerService final
     : public ThreadLocalService
@@ -46,6 +47,7 @@ namespace Fsl
   {
     IO::Path m_contentPath;
     std::shared_ptr<IImageService> m_imageService;
+    std::shared_ptr<ITextureService> m_textureService;
 
   public:
     ContentManagerService(const ServiceProvider& serviceProvider, const IO::Path& contentPath);
@@ -70,7 +72,7 @@ namespace Fsl
               const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
     void Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
               const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-              const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
+              const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined, const bool generateMipMapsHint = false) const final;
     void Read(BasicTextureAtlas& rTextureAtlas, const IO::Path& relativePath) const final;
     void Read(BasicFontKerning& rFontKerning, const IO::Path& relativePath) const final;
     void Read(BitmapFont& rBitmapFont, const IO::Path& relativePath) const final;
@@ -83,7 +85,8 @@ namespace Fsl
                       const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
     Texture ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                         const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-                        const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
+                        const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined,
+                        const bool generateMipMapsHint = false) const final;
     BitmapFont ReadBitmapFont(const IO::Path& relativePath) const final;
 
   private:

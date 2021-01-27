@@ -49,25 +49,26 @@ class TemplateEnvironment(object):
 
 
     def SetPackage(self, package: Package, androidProjectPath: Optional[str]) -> None:
-        if package.PackageLocation is None or package.ShortName is None or package.ContentPath is None or package.AbsolutePath is None:
+        if package.PackageLocation is None or package.ContentPath is None or package.AbsolutePath is None:
             raise Exception("Invalid package")
 
         location = package.PackageLocation.Name  # type: str
         targetName = package.Name  # type: str
+        sourceName = package.NameInfo.SourceName;
         platformProjectId = None # type: Optional[str]
         if package.ResolvedPlatform is not None:
-            platformProjectId = package.ResolvedPlatform.ProjectId
+            platformProjectId = package.CustomInfo.VisualStudioProjectGUID
         creationYear = package.CreationYear  # type: Optional[str]
-        companyName = package.CompanyName  # type: str
+        companyName = package.CompanyName.Value  # type: str
 
         packageContentPath = package.ContentPath.AbsoluteDirPath
         #androidProjectDir = buildCMakeFile.replace("##PACKAGE_ANDROID_PROJECT_PATH##", androidProjectDir)
-        self.SetPackageValues(location, package.Name, package.ShortName, package.AbsolutePath, targetName, packageContentPath, platformProjectId, 
-                              creationYear, companyName, androidProjectPath)
+        self.SetPackageValues(location, package.Name, package.NameInfo.ShortName.Value, package.AbsolutePath,
+                              targetName, sourceName, packageContentPath, platformProjectId, creationYear, companyName, androidProjectPath)
 
 
-    def SetPackageValues(self, packageLocation: str, packageName: str, packageShortName: str, packagePath: str, 
-                         packageTargetName: str, packageContentPath: Optional[str],
+    def SetPackageValues(self, packageLocation: str, packageName: str, packageShortName: str, packagePath: str,
+                         packageTargetName: str, packageSourceName: str, packageContentPath: Optional[str],
                          platformProjectId: Optional[str], creationYear: Optional[str], companyName: str,
                          androidProjectPath: Optional[str] = None) -> None:
         platformProjectId = platformProjectId if platformProjectId != None else "ERROR_PLATFORM_PROJECT_ID_NOT_DEFINED"
@@ -76,6 +77,7 @@ class TemplateEnvironment(object):
         self.Dict["##DIRS_PACKAGE_NAME##"] = packageName.replace('.','/')
         self.Dict["##PACKAGE_SHORT_NAME##"] = packageShortName
         self.Dict["##PACKAGE_TARGET_NAME##"] = packageTargetName
+        self.Dict["##PACKAGE_SOURCE_NAME##"] = packageSourceName
         self.Dict["##PACKAGE_PATH##"] = packagePath
         if packageContentPath is not None:
             self.Dict["##PACKAGE_CONTENT_PATH##"] = packageContentPath

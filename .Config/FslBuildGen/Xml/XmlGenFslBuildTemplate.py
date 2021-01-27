@@ -31,18 +31,18 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import List
 import os
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
+from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import FileNotFoundException
 from FslBuildGen.Xml.Exceptions import XmlInvalidRootElement
-from FslBuildGen.Xml.SubPackageSupportConfig import SubPackageSupportConfig
 from FslBuildGen.Xml.XmlCommonFslBuild import XmlCommonFslBuild
 
 
 class XmlGenFslBuildTemplate(XmlCommonFslBuild):
-    def __init__(self, config: Config, filename: str, subPackageSupport: SubPackageSupportConfig) -> None:
+    def __init__(self, log: Log, requirementTypes: List[str], filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate gen file %s", filename)
 
@@ -51,7 +51,7 @@ class XmlGenFslBuildTemplate(XmlCommonFslBuild):
         if xmlElement.tag != 'FslBuildTemplate':
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildTemplate'")
 
-        super().__init__(config, xmlElement, subPackageSupport)
+        super().__init__(log, requirementTypes, xmlElement)
 
         self.Name = IOUtil.GetFileNameWithoutExtension(filename)
         self.DirectRequirements = self._GetXMLRequirements(xmlElement)

@@ -182,14 +182,14 @@ namespace Fsl
     Vulkan::VUTexture CreateMainAtlasTexture(const std::shared_ptr<IContentManager>& contentManager, const Vulkan::VUDevice& device,
                                              const Vulkan::VUDeviceQueueRecord& deviceQueue)
     {
-      auto bitmap = contentManager->ReadBitmap("MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
+      auto bitmap = contentManager->ReadBitmap("TextureAtlas/MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
       return CreateTexture(device, deviceQueue, bitmap, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
     }
 
     AtlasTextureInfo CreateMainAtlasTextureInfo(const std::shared_ptr<IContentManager>& contentManager)
     {
       BasicTextureAtlas atlas;
-      contentManager->Read(atlas, "MainAtlas.bta");
+      contentManager->Read(atlas, "TextureAtlas/MainAtlas.bta");
       return TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Banners");
     }
 

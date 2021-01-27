@@ -32,11 +32,10 @@
 #****************************************************************************************************************************************************
 
 class PackageNameMagicString(object):
-    TopLevelName = 'SYS__TopLevel'
+    TopLevelName = 'SYS_tOpLeVeL_sYsInTeRnAl'
 
 
 class PlatformNameString(object):
-    ALL = "All"
     INVALID = "Invalid"
     ANDROID = "Android"
     UBUNTU = "Ubuntu"
@@ -44,8 +43,6 @@ class PlatformNameString(object):
     WINDOWS = "Windows"
     FREERTOS = "FreeRTOS"
     QNX = "QNX"
-    # Special
-    CMAKE = "CMake"
 
 class PlatformNameIdString(object):
     INVALID = PlatformNameString.INVALID.lower()
@@ -55,8 +52,6 @@ class PlatformNameIdString(object):
     WINDOWS = PlatformNameString.WINDOWS.lower()
     FREERTOS = PlatformNameString.FREERTOS.lower()
     QNX = PlatformNameString.QNX.lower()
-    # Special
-    CMAKE = PlatformNameString.CMAKE.lower()
 
 APPROVED_PLATFORM_NAMES = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.WINDOWS,
-                           PlatformNameString.FREERTOS, PlatformNameString.QNX, PlatformNameString.CMAKE]
+                           PlatformNameString.FREERTOS, PlatformNameString.QNX]

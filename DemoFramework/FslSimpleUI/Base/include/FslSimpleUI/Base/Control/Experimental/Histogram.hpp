@@ -232,7 +232,7 @@ namespace Fsl
           const value_type interval = (m_info.Max - m_info.Min) / value_type(m_bars.size() - 1);
           for (const auto& entry : m_values)
           {
-            value_type bucket = static_cast<value_type>(std::round((entry - m_info.Min) / interval));
+            auto bucket = static_cast<value_type>(std::round((entry - m_info.Min) / interval));
             const uint32_t bucketIndex = MathHelper::Clamp(uint32_t(bucket), 0u, uint32_t(m_bars.size()));
             ++m_bars[bucketIndex].Entries;
             if (m_bars[bucketIndex].Entries > m_info.MaxEntriesInOneBar)

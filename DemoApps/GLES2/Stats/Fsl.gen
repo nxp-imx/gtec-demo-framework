@@ -3,6 +3,5 @@
   <Executable Name="GLES2.Stats" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.Stats"/>
-    <Platform Name="Windows" ProjectId="EA64E1BF-27C1-4BBD-B3D9-F2E9FF76811F"/>
   </Executable>
 </FslBuildGen>

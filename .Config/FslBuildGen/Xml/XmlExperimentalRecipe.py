@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import cast
+#from typing import cast
 from typing import List
 from typing import Optional
 import xml.etree.ElementTree as ET
@@ -206,7 +206,7 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
             raise Exception("Name contained leading or ending whitespaces'{0}'".format(name))
         if len(name) <= 0:
             raise Exception("Name length must be greater than zero")
-        if not Util.IsValidComamndName(name):
+        if not Util.IsValidCommandName(name):
             raise Exception("Name must start with a a-z or A-Z and can only contain a-z,A-Z,0-9,_ and - '{0}'".format(name))
         if name.lower() in g_bannedCommands:
             raise Exception("The command '{0}' is banned".format(name))
@@ -217,11 +217,11 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
         if (self.MinVersion is None and len(self.AddOnErrorWarning) == 0) or self.VersionCommand is None or self.VersionRegEx is None:
             missingAttribs = []
             if self.MinVersion is None:
-              missingAttribs.append("MinVersion")
+                missingAttribs.append("MinVersion")
             if self.VersionCommand is None:
-              missingAttribs.append("VersionCommand")
+                missingAttribs.append("VersionCommand")
             if self.VersionRegEx is None:
-              missingAttribs.append("VersionRegEx")
+                missingAttribs.append("VersionRegEx")
             raise Exception("{0} are not defined".format(", ".join(missingAttribs)))
         if self.MinVersion is not None:
             trimmed = self.MinVersion.strip()
@@ -298,11 +298,11 @@ class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):
         if self.MinVersion is None or self.VersionCommand is None or self.VersionRegEx is None:
             missingAttribs = []
             if self.MinVersion is None:
-              missingAttribs.append("MinVersion")
+                missingAttribs.append("MinVersion")
             if self.VersionCommand is None:
-              missingAttribs.append("VersionCommand")
+                missingAttribs.append("VersionCommand")
             if self.VersionRegEx is None:
-              missingAttribs.append("VersionRegEx")
+                missingAttribs.append("VersionRegEx")
             raise Exception("{0} are not defined".format(", ".join(missingAttribs)))
         if self.MinVersion is not None:
             trimmed = self.MinVersion.strip()
@@ -322,7 +322,7 @@ class XmlRecipeInstallation(XmlBase):
 
     def __GetCommandList(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipeValidateCommand]:
         elements = [] # type: List[XmlRecipeValidateCommand]
-        if xmlElement != None:
+        if xmlElement is not None:
             for child in xmlElement:
                 if child.tag == 'EnvironmentVariable':
                     elements.append(XmlRecipeValidateCommandEnvironmentVariable(log, child))
@@ -399,7 +399,7 @@ class XmlRecipePipelineCommand(XmlRecipePipelineBasicCommand):
 
     def __GetJoinCommandList(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipePipelineJoinCommand]:
         elements = []  # type: List[XmlRecipePipelineJoinCommand]
-        if xmlElement != None:
+        if xmlElement is not None:
             for child in xmlElement:
                 if child.tag == 'Copy':
                     elements.append(XmlRecipePipelineJoinCommandCopy(log, child))
@@ -501,8 +501,8 @@ class XmlRecipePipelineCommandCombine(XmlRecipePipelineBuildCommand):
 
     def __GetCombineCommandList(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipePipelineBuildCommand]:
         elements = []  # type: List[XmlRecipePipelineBuildCommand]
-        if xmlElement != None:
-            isFirstCommand = True
+        if xmlElement is not None:
+            #isFirstCommand = True
             for child in xmlElement:
                 command = _TryAllocatePipelineCombineCommand(log, child)
                 if command is not None:
@@ -510,7 +510,7 @@ class XmlRecipePipelineCommandCombine(XmlRecipePipelineBuildCommand):
                 else:
                     if not child.tag in g_validValidCombineCommands:
                         raise Exception("Unknown element '{0}' found in combine command list. Valid commands: {1}".format(child.tag, g_validValidCombineCommands))
-                isFirstCommand = False
+                #isFirstCommand = False
         return elements
 
 
@@ -556,7 +556,7 @@ class XmlRecipePipeline(XmlBase):
 
     def __GetCommandList(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipePipelineCommand]:
         elements = []  # type: List[XmlRecipePipelineCommand]
-        if xmlElement != None:
+        if xmlElement is not None:
             isFirstCommand = True
             for child in xmlElement:
                 command = _TryAllocatePipelineCommand(log, child) if not isFirstCommand else _TryAllocatePipelineFetchCommand(log, child)
@@ -591,7 +591,7 @@ class XmlExperimentalRecipe(XmlBase):
         self.Find = False if findResult is None else findResult
 
         if self.FindVersion is not None:
-            if findResult is not None and findResult == False:
+            if findResult is not None and not findResult:
                 self.FindVersion = None
                 log.LogPrintVerbose(2, "Recipe specified Find=False, so discarding the specified FindVersion '{0}'".format(self.FindVersion))
             else:
@@ -600,7 +600,7 @@ class XmlExperimentalRecipe(XmlBase):
                     raise Exception("Recipe '{0}' version {1} is not compatible with the specified FindVersion '{2}'.".format(self.ShortName, self.Version, self.FindVersion))
 
         if self.FindTargetName is not None:
-            if findResult is not None and findResult == False:
+            if findResult is not None and not findResult:
                 self.FindTargetName = None
                 log.LogPrintVerbose(2, "Recipe specified Find=False, so discarding the specified FindTargetName '{0}'".format(self.FindTargetName))
             else:

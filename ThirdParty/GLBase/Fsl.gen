@@ -2,17 +2,15 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="GLBase" CreationYear="2014">
     <Platform Name="Windows">
-      <Variant Name="$(FSL_GLES_NAME)" Type="Virtual">
-        <Option Name="$(FSL_GLES_NAME)"/>
-      </Variant>
-      <!--
-      <Variant Name="EGLBackend">
-        <Option Name="ArmMali">
-          <ExternalDependency Name="libEGL" Include="%FSL_GLES_EMULATOR_PATH%/include" Access="Public" Location="%FSL_GLES_EMULATOR_PATH%" Type="StaticLib"/>
+      <Flavor Name="OpenImpl">
+        <Option Name="OpenGLES">
+          <!--FindPackage Name="OpenGLES3"/-->
+          <Dependency Name="Recipe.OpenGLES"/>
         </Option>
-        <Option Name="Vivante"/>
-      </Variant>
-      -->
+        <Option Name="OpenVG">
+          <Dependency Name="Recipe.openvg_ri"/>
+        </Option>
+      </Flavor>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

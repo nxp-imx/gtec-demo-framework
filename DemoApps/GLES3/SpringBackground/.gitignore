@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/TextureAtlas/
 /Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico

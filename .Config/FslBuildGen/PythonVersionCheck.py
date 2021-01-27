@@ -36,21 +36,7 @@ import sys
 
 def CheckVersion():
     # type: () -> None
-    forceAllowPythonVersion = False
-    if (sys.version_info >= (3, 4) and sys.version_info < (3, 5)):
-        try:
-            from typing import Any
-            forceAllowPythonVersion = True
-        except ImportError:
-            if os.name == 'posix':
-                print("To run this tool with Python 3.4 please install the 'typing' library with 'sudo pip3 install typing' or upgrade to Python 3.5+. If you dont have 'pip3' then you need to install it with 'sudo apt-get install python3-pip'")
-            elif os.name == 'nt':
-                print("To run this tool with Python 3.4 please install the 'typing' library with 'python3 -m pip install typing' or upgrade to Python 3.5+.")
-            else:
-                print("To run this tool with Python 3.4 please install the 'typing' library or upgrade to Python 3.5+.")
-            sys.exit(1)
-
-    if not forceAllowPythonVersion and sys.version_info < (3, 4):
-        print("This tool requires Python 3.4 or better, please upgrade your python version. You are running python {0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]))
+    if sys.version_info < (3, 6):
+        print("This tool requires Python 3.6 or better, please upgrade your python version. You are running python {0}.{1}.{2}".format(sys.version_info[0], sys.version_info[1], sys.version_info[2]))
         # So exit with a error
         sys.exit(1)

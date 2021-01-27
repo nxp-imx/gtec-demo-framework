@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslGraphics3D.Camera"/>
-    <Platform Name="Windows" ProjectId="891BBC9F-380C-4EF0-AF23-597031DA4B49"/>
   </Executable>
 </FslBuildGen>

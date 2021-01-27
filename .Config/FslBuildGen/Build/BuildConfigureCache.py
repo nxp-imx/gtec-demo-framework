@@ -41,12 +41,12 @@ from FslBuildGen.Log import Log
 class BuildConfigureCache(object):
     CURRENT_VERSION = 4
 
-    def __init__(self, fileHashDict: Dict[str,str], commandList: List[str], platformName: str, fslBuildVersion: str, allowFindPackage: str) -> None:
+    def __init__(self, fileHashDict: Dict[str, str], commandList: List[str], platformName: str, fslBuildVersion: str, allowFindPackage: str) -> None:
         super().__init__()
         self.Version = BuildConfigureCache.CURRENT_VERSION
         self.FileHashDict = fileHashDict
         self.CommandList = commandList
-        self.PlatformName = platformName;
+        self.PlatformName = platformName
         self.FslBuildVersion = fslBuildVersion
         self.AllowFindPackage = allowFindPackage
 
@@ -84,7 +84,7 @@ class BuildConfigureCache(object):
 
     @staticmethod
     def Save(log: Log, cacheFilename: str, buildConfigureCache: 'BuildConfigureCache') -> None:
-        log.LogPrintVerbose(4, "- Saving generated file hash cache")
+        log.LogPrintVerbose(4, "- Saving generated file hash cache '{0}'".format(cacheFilename))
         jsonText = json.dumps(buildConfigureCache.__dict__, ensure_ascii=False, sort_keys=True, indent=2)
         IOUtil.WriteFileIfChanged(cacheFilename, jsonText)
 

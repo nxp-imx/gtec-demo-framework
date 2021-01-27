@@ -32,29 +32,31 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
-from typing import Dict
+#from typing import Dict
 from typing import List
 from typing import Optional
 import argparse
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
-from FslBuildGen import ParseUtil
+#from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
+from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.BuildExternal import RecipeBuilder
 from FslBuildGen.BuildExternal.BuilderConfig import BuilderConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Generator import GeneratorPlugin
-from FslBuildGen.Generator import PluginConfig
-from FslBuildGen.Log import Log
-from FslBuildGen.PackageFilters import PackageFilters
+#from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen.Log import Log
+#from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
-from FslBuildGen.PackageConfig import PlatformNameString
+#from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
+from FslBuildGen.Tool.Flow.BuildHelper import BuildHelper
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
@@ -66,6 +68,7 @@ class DefaultValue(object):
     ForceClaimInstallArea = False
     GenType = "default"
     Graph = False
+    Graph2 = False
     IgnoreNotSupported = False
     ListBuildVariants = False
     ListVariants = False
@@ -80,6 +83,7 @@ class LocalToolConfig(ToolAppConfig):
         self.ForceClaimInstallArea = DefaultValue.ForceClaimInstallArea
         self.GenType = DefaultValue.GenType
         self.Graph = DefaultValue.Graph
+        self.Graph2 = DefaultValue.Graph2
         self.IgnoreNotSupported = DefaultValue.IgnoreNotSupported
         self.ListBuildVariants = DefaultValue.ListBuildVariants
         self.ListVariants = DefaultValue.ListVariants
@@ -91,8 +95,8 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 
 class ToolFlowBuildGen(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -108,6 +112,7 @@ class ToolFlowBuildGen(AToolAppFlow):
         localToolConfig.ForceClaimInstallArea = args.ForceClaimInstallArea
         localToolConfig.GenType = args.GenType
         localToolConfig.Graph = args.graph
+        localToolConfig.Graph2 = args.graph2
         localToolConfig.IgnoreNotSupported = args.IgnoreNotSupported
         localToolConfig.ListBuildVariants = args.ListBuildVariants
         localToolConfig.ListVariants = args.ListVariants
@@ -135,11 +140,15 @@ class ToolFlowBuildGen(AToolAppFlow):
 
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
         platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
-                                                                                                 localToolConfig.Generator, buildVariantConfig, True,
+                                                                                                 localToolConfig.Generator, buildVariantConfig,
+                                                                                                 config.ToolConfig.DefaultPackageLanguage,
                                                                                                  config.ToolConfig.CMakeConfiguration,
-                                                                                                 localToolConfig.GetUserCMakeConfig())
+                                                                                                 localToolConfig.GetUserCMakeConfig(), False)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
-        packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, localToolConfig.BuildPackageFilters)
+
+
+        packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin,
+                                                 localToolConfig.BuildPackageFilters, writeGraph=localToolConfig.Graph2)
 
         # If the platform was manually switched, then check if the build platform is supported,
         # if its not disable recipe building and log a warning
@@ -166,25 +175,24 @@ class ToolFlowBuildGen(AToolAppFlow):
                         finally:
                             self.Log.PopIndent()
         elif not localToolConfig.DontBuildRecipes:
-            if not isinstance(packages, dict):
-                self.__DoBuildRecipes(config, generatorContext, packages, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)
-            else:
-                for platformName, platformResult in packages.items():
-                    platformPackageList = platformResult[0]
-                    if len(platformPackageList) > 0 and PlatformUtil.TryCheckBuildPlatform(platformName):
-                        self.Log.DoPrint("Generator: {0}".format(platformName))
-                        tempPlatformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(platformName,
-                                                                                                                     localToolConfig.Generator,
-                                                                                                                     buildVariantConfig, True,
-                                                                                                                     config.ToolConfig.CMakeConfiguration,
-                                                                                                                     localToolConfig.GetUserCMakeConfig())
-                        tempGeneratorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, tempPlatformGeneratorPlugin)
-                        try:
-                            self.Log.PushIndent()
-                            self.__DoBuildRecipes(config, tempGeneratorContext, platformPackageList,  localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)
-                        finally:
-                            self.Log.PopIndent()
+            self.__DoBuildRecipes(config, generatorContext, packages, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)
 
+            if generatorContext.Generator.IsCMake:
+                # Ensure we do what corrosponds to a  "FslBuild -c config" for cmake generators
+                if localToolConfig.BuildPackageFilters is None or localToolConfig.BuildPackageFilters.ExtensionNameList is None:
+                    raise Exception("localToolConfig.BuildPackageFilters.ExtensionNameList not set")
+                requestedFiles = None if config.IsSDKBuild else theFiles
+                requestedPackages = BuildHelper.FindRequestedPackages(config, packages, requestedFiles)
+
+                localToolConfigCommand = CommandType.Config;
+                localToolConfigEnableContentBuilder = True
+                localToolConfigForAllExe = None
+
+                Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
+                                      toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantsDict,
+                                      localToolConfig.RemainingArgs, localToolConfigForAllExe, platformGeneratorPlugin,
+                                      localToolConfigEnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
+                                      localToolConfigCommand, True)
 
     def __DoShowList(self, packages: List[Package], requestedFiles: Optional[List[str]], listVariants: bool, listBuildVariants: bool,
                      platformGeneratorPlugin: GeneratorPlugin.GeneratorPlugin) -> None:
@@ -202,12 +210,12 @@ class ToolFlowBuildGen(AToolAppFlow):
         builderConfig = BuilderConfig()
         builderConfig.Settings.ForceClaimInstallArea = forceClaimInstallArea
         builderConfig.Settings.BuildThreads = buildThreads
-        RecipeBuilder.BuildPackages(config, generatorContext, builderConfig, packages)
+        RecipeBuilder.BuildPackages(config, config.SDKPath, config.IsDryRun, config.ToolConfig, generatorContext, builderConfig, packages)
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
 
     def GetTitle(self) -> str:
@@ -218,7 +226,6 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
         argConfig.AddGeneratorSelection = True
-        argConfig.AllowPlaformAll = True
         #argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
@@ -232,6 +239,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def AddCustomArguments(self, parser: argparse.ArgumentParser, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
         parser.add_argument('-t', '--type', default=DefaultValue.PackageConfigurationType, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')
         parser.add_argument('--graph', action='store_true', help='Generate a dependency graph using dot (requires the graphviz dot executable in path)')
+        parser.add_argument('--graph2', action='store_true', help='Generate a flavor aware dependency graph using dot (requires the graphviz dot executable in path)')
         parser.add_argument('--DryRun', action='store_true', help='No files will be created')
         parser.add_argument('--IgnoreNotSupported', action='store_true', help='try to build things that are marked as not supported')
         parser.add_argument('--GenType', default=DefaultValue.GenType, help='Chose the generator type to use ({0})'.format(", ".join(list(GeneratorPlugin.GENERATOR_TYPES.keys()))))

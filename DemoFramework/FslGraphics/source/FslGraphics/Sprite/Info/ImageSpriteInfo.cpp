@@ -53,8 +53,9 @@ namespace Fsl
     , ImageInfo(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageTrimMarginPx, imageTrimmedRectanglePx,
                 SpriteUnitConverter::CalcImageDpExtent(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageDpi))
     , ImageDpi(imageDpi)
-    , RenderInfo(spriteMaterialInfo.CalcNativeTextureArea(imageTrimmedRectanglePx, debugName), TypeConverter::To<PxSize2D>(ImageInfo.ExtentPx),
-                 TypeConverter::To<PxThickness>(imageTrimMarginPx), TypeConverter::To<PxSize2D>(ImageInfo.TrimmedRectanglePx.GetExtent()))
+    , RenderInfo(spriteMaterialInfo.CalcNativeTextureArea(imageTrimmedRectanglePx, debugName),
+                 PxTrimmedImage(TypeConverter::To<PxSize2D>(ImageInfo.ExtentPx), TypeConverter::To<PxThicknessF>(imageTrimMarginPx),
+                                TypeConverter::To<PxSize2DF>(ImageInfo.TrimmedRectanglePx.GetExtent())))
   {
     if (!spriteMaterialInfo.IsValid())
     {

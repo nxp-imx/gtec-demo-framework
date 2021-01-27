@@ -31,19 +31,22 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Dict
-from typing import List
+#from typing import Dict
+#from typing import List
 from typing import Optional
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
+from FslBuildGen.Generator.Report.GeneratorOpenProjectReport import GeneratorOpenProjectReport
 
 
 class PackageGeneratorReport(object):
     def __init__(self, buildReport: Optional[GeneratorBuildReport],
                  executableReport: Optional[GeneratorExecutableReport],
-                 variableReport: GeneratorVariableReport) -> None:
+                 variableReport: GeneratorVariableReport,
+                 openProjectReport: Optional[GeneratorOpenProjectReport]) -> None:
         super().__init__()
-        self.BuildReport  = buildReport                 # type: Optional[GeneratorBuildReport]
+        self.BuildReport = buildReport                  # type: Optional[GeneratorBuildReport]
         self.ExecutableReport = executableReport        # type: Optional[GeneratorExecutableReport]
         self.VariableReport = variableReport            # type: GeneratorVariableReport
+        self.OpenProjectReport = openProjectReport      # type: Optional[GeneratorOpenProjectReport]

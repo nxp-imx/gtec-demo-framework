@@ -3,6 +3,5 @@
   <Executable Name="GLES2.UI.DevNativeTexture2D" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.UI.DevNativeTexture2D"/>
-    <Platform Name="Windows" ProjectId="E54A3837-6B95-4225-9B14-8242C6059E97"/>
   </Executable>
 </FslBuildGen>

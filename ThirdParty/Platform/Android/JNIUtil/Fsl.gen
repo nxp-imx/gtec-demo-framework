@@ -8,6 +8,5 @@
       <Dependency Name="Platform.Android.Glue"/>
       <Dependency Name="Platform.Android.NDKHelper"/>
     </Platform>
-    <Platform Name="Windows" ProjectId="B7B23BD7-FF76-4A8E-AD14-E2F603E9FABF"/>
   </Library>
 </FslBuildGen>

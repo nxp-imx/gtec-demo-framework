@@ -31,8 +31,6 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.Log import Log
-from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
 from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
@@ -40,9 +38,9 @@ from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
 
 class BuildUtil(object):
     @staticmethod
-    def GetBuildDir(log: Log, toolConfig: ToolConfig, buildDir: str) -> str:
+    def GetBuildDir(projectInfo: ToolConfigProjectInfo, buildDir: str) -> str:
         variableReport = GeneratorVariableReport()
-        BuildUtil.AddCustomVariables(variableReport, toolConfig.ProjectInfo)
+        BuildUtil.AddCustomVariables(variableReport, projectInfo)
         return ReportVariableFormatter.Format(buildDir, variableReport, {})
 
     @staticmethod

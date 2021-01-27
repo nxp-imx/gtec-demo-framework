@@ -35,7 +35,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from FslBuildGen import PathUtil
-from FslBuildGen import IOUtil
+#from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.CMakeConfigurationPlatform import CMakeConfigurationPlatform
 from FslBuildGen.CMakeUtil import CMakeVersion
 
@@ -51,7 +51,7 @@ class CMakeConfiguration(object):
         self.DefaultBuildDir = defaultBuildDir
         self.DefaultInstallPrefix = defaultInstallPrefix
         self.MinimumVersion = minimumVersion
-        self.NinjaRecipePackageName = ninjaRecipePackageName;
+        self.NinjaRecipePackageName = ninjaRecipePackageName
 
 
         platformDict = {}                                                # type: Dict[str,CMakeConfigurationPlatform]

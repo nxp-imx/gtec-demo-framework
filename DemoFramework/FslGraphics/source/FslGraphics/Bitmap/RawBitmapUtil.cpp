@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
@@ -38,11 +39,6 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   int RawBitmapUtil::CalcAlignment(const PixelFormat pixelFormat, const uint32_t width, const uint32_t stride, const uint32_t bytesPerPixel)
   {
     FSL_PARAM_NOT_USED(pixelFormat);
@@ -838,4 +834,199 @@ namespace Fsl
       pDst += dstStride;
     }
   }
+
+  void RawBitmapUtil::DownscaleNearest(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  {
+    if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
+    {
+      throw std::invalid_argument("DownscaleNearest requires valid bitmaps");
+    }
+    if (rDstBitmap.Width() > srcBitmap.Width() || rDstBitmap.Height() > srcBitmap.Height() || rDstBitmap.GetOrigin() != srcBitmap.GetOrigin())
+    {
+      throw std::invalid_argument("DownscaleNearest requires that dst width, height is less or equal to the src");
+    }
+    if (rDstBitmap.GetOrigin() != srcBitmap.GetOrigin() || rDstBitmap.GetPixelFormat() != srcBitmap.GetPixelFormat())
+    {
+      throw std::invalid_argument("DownscaleNearest requires that the origin and pixel format matches");
+    }
+    if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+    {
+      return;
+    }
+
+    switch (PixelFormatLayoutUtil::GetBytesPerPixel(srcBitmap.GetPixelFormatLayout()))
+    {
+    case 4:
+      DownscaleNearest32(rDstBitmap, srcBitmap);
+      break;
+    default:
+      throw NotSupportedException("PixelFormat is unsupported");
+    }
+  }
+
+
+  void RawBitmapUtil::DownscaleNearest32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  {
+    if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
+    {
+      throw std::invalid_argument("DownscaleNearest32 requires valid bitmaps");
+    }
+    if (rDstBitmap.Width() > srcBitmap.Width() || rDstBitmap.Height() > srcBitmap.Height())
+    {
+      throw std::invalid_argument("DownscaleNearest32 requires that dst width, height is less or equal to the src");
+    }
+    if (rDstBitmap.GetOrigin() != srcBitmap.GetOrigin() || rDstBitmap.GetPixelFormat() != srcBitmap.GetPixelFormat())
+    {
+      throw std::invalid_argument("DownscaleNearest32 requires that the origin and pixel format matches");
+    }
+    if (PixelFormatLayoutUtil::GetBytesPerPixel(srcBitmap.GetPixelFormatLayout()) != 4)
+    {
+      throw std::invalid_argument("DownscaleNearest32 requires that the pixel format uses four bytes per pixel");
+    }
+    if ((rDstBitmap.Stride() % 4) != 0 || (srcBitmap.Stride() % 4) != 0 || (rDstBitmap.GetByteSize() % 4) != 0 || (srcBitmap.GetByteSize() % 4) != 0)
+    {
+      throw NotSupportedException("DownscaleNearest32 requires that the src and dst bitmap is 32bit aligned");
+    }
+    if (srcBitmap.Width() > 0xFFFF || srcBitmap.Height() > 0xFFFF)
+    {
+      throw NotSupportedException("DownscaleNearest32 can only downscale sizes of 0xFFFF or less");
+    }
+    if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+    {
+      return;
+    }
+
+    const auto* const pSrcStart = static_cast<const uint32_t*>(srcBitmap.Content());
+    const uint32_t srcStride = srcBitmap.Stride() / 4;
+    const uint32_t srcXAdd = (srcBitmap.Width() << 16) / rDstBitmap.Width();
+    const uint32_t srcYAdd = (srcBitmap.Height() << 16) / rDstBitmap.Height();
+
+    auto* pDst = static_cast<uint32_t*>(rDstBitmap.Content());
+    const uint32_t* const pDstEnd = pDst + (rDstBitmap.GetByteSize() / 4);
+    const uint32_t dstStride = rDstBitmap.Stride() / 4;
+    const uint32_t dstWidth = rDstBitmap.Width();
+    assert(dstStride >= dstWidth);
+    const uint32_t dstStrideAdd = dstStride - dstWidth;
+
+    uint64_t srcY = 1 << 15;
+    while (pDst < pDstEnd)
+    {
+      assert((srcY >> 16) < srcBitmap.Height());
+      const uint32_t* const pSrc = pSrcStart + ((srcY >> 16) * srcStride);
+      uint32_t srcX = 1 << 15;
+      const uint32_t* const pDstEndX = (pDst + dstWidth);
+      while (pDst < pDstEndX)
+      {
+        assert((srcX >> 16) < srcBitmap.Width());
+        *pDst = pSrc[srcX >> 16];
+        srcX += srcXAdd;
+        ++pDst;
+      }
+      pDst += dstStrideAdd;
+      srcY += srcYAdd;
+    }
+  }
+
+  void RawBitmapUtil::DownscaleBoxFilter(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  {
+    if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
+    {
+      throw std::invalid_argument("DownscaleBoxFilter requires valid bitmaps");
+    }
+    if (rDstBitmap.GetOrigin() != srcBitmap.GetOrigin() || rDstBitmap.GetPixelFormat() != srcBitmap.GetPixelFormat())
+    {
+      throw std::invalid_argument("DownscaleBoxFilter requires that the origin and pixel format matches");
+    }
+    if (!PixelFormatLayoutUtil::IsSwizzleCompatible(srcBitmap.GetPixelFormatLayout(), PixelFormatLayout::R8G8B8A8))
+    {
+      throw std::invalid_argument("DownscaleBoxFilter unsupported pixel format");
+    }
+    if ((rDstBitmap.Width() * 2) != srcBitmap.Width() || (rDstBitmap.Height() * 2) != srcBitmap.Height())
+    {
+      if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+      {
+        return;
+      }
+      throw std::invalid_argument("DownscaleBoxFilter requires that dst width, height is half the size of the src");
+    }
+
+    switch (PixelFormatLayoutUtil::GetBytesPerPixel(srcBitmap.GetPixelFormatLayout()))
+    {
+    case 4:
+      DownscaleBoxFilter32(rDstBitmap, srcBitmap);
+      break;
+    default:
+      throw NotSupportedException("PixelFormat is unsupported");
+    }
+  }
+
+  // MIPMAPPING hints
+  // http://number-none.com/product/Mipmapping,%20Part%201/index.html
+  // WARNING this does not take into account the gamma encoding during the averaging.
+  void RawBitmapUtil::DownscaleBoxFilter32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  {
+    if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
+    {
+      throw std::invalid_argument("DownscaleBoxFilter32 requires valid bitmaps");
+    }
+    if (rDstBitmap.GetOrigin() != srcBitmap.GetOrigin() || rDstBitmap.GetPixelFormat() != srcBitmap.GetPixelFormat())
+    {
+      throw std::invalid_argument("DownscaleBoxFilter32 requires that the origin and pixel format matches");
+    }
+    if (!PixelFormatLayoutUtil::IsSwizzleCompatible(srcBitmap.GetPixelFormatLayout(), PixelFormatLayout::R8G8B8A8))
+    {
+      throw std::invalid_argument("DownscaleBoxFilter32 unsupported pixel format");
+    }
+    if ((rDstBitmap.Stride() % 4) != 0 || (srcBitmap.Stride() % 4) != 0 || (rDstBitmap.GetByteSize() % 4) != 0 || (srcBitmap.GetByteSize() % 4) != 0)
+    {
+      throw NotSupportedException("DownscaleBoxFilter32 requires that the src and dst bitmap is 32bit aligned");
+    }
+    if ((rDstBitmap.Width() * 2) != srcBitmap.Width() || (rDstBitmap.Height() * 2) != srcBitmap.Height())
+    {
+      if (rDstBitmap.Width() <= 0 || rDstBitmap.Height() <= 0)
+      {
+        return;
+      }
+      throw std::invalid_argument("DownscaleBoxFilter32 requires that dst width, height is half the size of the src");
+    }
+
+    const auto* pSrc = static_cast<const uint32_t*>(srcBitmap.Content());
+    const uint32_t srcStride = srcBitmap.Stride() / 4;
+    const uint32_t* const pSrcEnd = pSrc + (srcStride * (srcBitmap.Height() - 1));
+    const uint32_t srcWidth = srcBitmap.Width();
+    const uint32_t srcStrideAdd = (srcStride * 2) - srcWidth;
+
+    auto* pDst = static_cast<uint32_t*>(rDstBitmap.Content());
+    const uint32_t dstStride = rDstBitmap.Stride() / 4;
+    const uint32_t dstWidth = rDstBitmap.Width();
+    assert(dstStride >= dstWidth);
+    const uint32_t dstStrideAdd = dstStride - dstWidth;
+
+    while (pSrc < pSrcEnd)
+    {
+      const uint32_t* const pSrcEndX = pSrc + srcWidth;
+      while (pSrc < pSrcEndX)
+      {
+        // Average the four adjacent pixels to generate the downscaled color
+        const uint32_t col00 = pSrc[0];
+        const uint32_t col10 = pSrc[1];
+        const uint32_t col01 = pSrc[srcStride + 0];
+        const uint32_t col11 = pSrc[srcStride + 1];
+
+        const uint32_t c0 =
+          (((((col00 & 0xFF000000) >> 8) + ((col10 & 0xFF000000) >> 8) + ((col01 & 0xFF000000) >> 8) + ((col11 & 0xFF000000) >> 8)) / 4) & 0xFF0000)
+          << 8;
+        const uint32_t c1 = (((col00 & 0xFF0000) + (col10 & 0xFF0000) + (col01 & 0xFF0000) + (col11 & 0xFF0000)) / 4) & 0xFF0000;
+        const uint32_t c2 = (((col00 & 0xFF00) + (col10 & 0xFF00) + (col01 & 0xFF00) + (col11 & 0xFF00)) / 4) & 0xFF00;
+        const uint32_t c3 = (((col00 & 0xFF) + (col10 & 0xFF) + (col01 & 0xFF) + (col11 & 0xFF)) / 4);
+
+        *pDst = c0 | c1 | c2 | c3;
+        pSrc += 2;
+        ++pDst;
+      }
+      pDst += dstStrideAdd;
+      pSrc += srcStrideAdd;
+    }
+  }
+
 }

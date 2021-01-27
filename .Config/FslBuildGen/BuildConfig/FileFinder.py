@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
@@ -51,7 +51,7 @@ class FileFinder(object):
     @staticmethod
     def FindClosestFileInRoot(log: Log, toolConfig: ToolConfig, startDirectory: str, findFilename: str) -> str:
         foundPath = FileFinder.LocateFileInParentTree(log, startDirectory, findFilename)
-        foundDir  = IOUtil.GetDirectoryName(foundPath)
+        foundDir = IOUtil.GetDirectoryName(foundPath)
 
         rootDir = toolConfig.TryFindRootDirectory(foundDir)
         if rootDir is None:
@@ -64,6 +64,6 @@ class FileFinder(object):
         if foundPath is None:
             return None
 
-        foundDir  = IOUtil.GetDirectoryName(foundPath)
+        foundDir = IOUtil.GetDirectoryName(foundPath)
         rootDir = toolConfig.TryFindRootDirectory(foundDir)
         return foundDir if rootDir is not None else None

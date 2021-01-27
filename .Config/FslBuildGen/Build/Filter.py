@@ -42,9 +42,10 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen import Util
 from FslBuildGen.Build.RequirementTree import RequirementTree
 from FslBuildGen.Build.RequirementTreeNode import RequirementTreeNode
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.Resolver.PreResolvePackageResult import PreResolvePackageResult
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Info.AppInfo import AppInfoPackage
@@ -67,6 +68,7 @@ class LocalUtil:
                 notSupported.append(dependency)
         return notSupported
 
+CommonPackage = TypeVar('CommonPackage', Package, PreResolvePackageResult)
 
 class RequirementFilter:
     @staticmethod
@@ -95,7 +97,7 @@ class RequirementFilter:
 
 
     @staticmethod
-    def GetRequirementListFromPackages(requestedPackages: List[Package],
+    def GetRequirementListFromPackages(requestedPackages: List[CommonPackage],
                                        requirementType: Optional[str] = None) -> List[PackageRequirement]:
         # extract the package requirements into a unique list while still respecting the filter
         requirementDict = {}  # type: Dict[str, PackageRequirement]
@@ -111,6 +113,21 @@ T = TypeVar('T')
 
 class PackageFilter:
     @staticmethod
+    def __ToPackageName(package: Union[CommonPackage, AppInfoPackage]) -> str:
+        if isinstance(package, AppInfoPackage):
+            return package.Name
+        if isinstance(package, Package):
+            return package.NameInfo.FullName.Value
+        return package.SourcePackage.NameInfo.FullName.Value
+
+    @staticmethod
+    def __HasRecipe(package: Union[CommonPackage, AppInfoPackage]) -> bool:
+        if isinstance(package, PreResolvePackageResult):
+            return package.SourcePackage.DirectExperimentalRecipe is not None
+        return package.ResolvedDirectExperimentalRecipe is not None
+
+
+    @staticmethod
     def __ContainsFeature(resolvedFeatureList: Union[List[PackageRequirement], List[RequirementInfo]], featureName: str) -> bool:
         for feature in resolvedFeatureList:
             if feature.Name == featureName:
@@ -119,7 +136,7 @@ class PackageFilter:
 
 
     @staticmethod
-    def __UsesFeatures(package: Union[Package, AppInfoPackage], requiredFeatureNameList: List[str]) -> bool:
+    def __UsesFeatures(package: Union[CommonPackage, AppInfoPackage], requiredFeatureNameList: List[str]) -> bool:
         for featureName in requiredFeatureNameList:
             if not PackageFilter.__ContainsFeature(package.ResolvedAllUsedFeatures, featureName):
                 return False
@@ -127,7 +144,7 @@ class PackageFilter:
 
 
     @staticmethod
-    def __FeaturesAvailable(package: Union[Package, AppInfoPackage], featureNameList: List[str]) -> bool:
+    def __FeaturesAvailable(package: Union[CommonPackage, AppInfoPackage], featureNameList: List[str]) -> bool:
         for feature in package.ResolvedAllUsedFeatures:
             if not feature.Name in featureNameList:
                 return False
@@ -141,14 +158,14 @@ class PackageFilter:
 
 
     @staticmethod
-    def __IsAllPackageExtensionAvailable(package: Union[Package, AppInfoPackage], requirementTree: Union[RequirementTree, AppInfoGlobalRequirementTree]) -> bool:
+    def __IsAllPackageExtensionAvailable(package: Union[CommonPackage, AppInfoPackage], requirementTree: Union[RequirementTree, AppInfoGlobalRequirementTree]) -> bool:
         for requirement in package.ResolvedAllRequirements:
             if requirement.Type == PackageRequirementTypeString.Extension and not PackageFilter.__IsExtensionAvailable(requirementTree, requirement.Extends, requirement.Name):
                 return False
         return True
 
     @staticmethod
-    def __GetCompleteMissingExtensionNames(package: Union[Package, AppInfoPackage], requirementTree: Union[RequirementTree, AppInfoGlobalRequirementTree]) -> List[str]:
+    def __GetCompleteMissingExtensionNames(package: Union[CommonPackage, AppInfoPackage], requirementTree: Union[RequirementTree, AppInfoGlobalRequirementTree]) -> List[str]:
         missing = []
         for requirement in package.ResolvedAllRequirements:
             if requirement.Type == PackageRequirementTypeString.Extension and not PackageFilter.__IsExtensionAvailable(requirementTree, requirement.Extends, requirement.Name):
@@ -157,7 +174,7 @@ class PackageFilter:
 
 
     @staticmethod
-    def __GetCompleteMissingFeatureNames(package: Union[Package, AppInfoPackage], featureNameList: List[str]) -> List[str]:
+    def __GetCompleteMissingFeatureNames(package: Union[CommonPackage, AppInfoPackage], featureNameList: List[str]) -> List[str]:
         missing = []
         for feature in package.ResolvedAllUsedFeatures:
             if not feature.Name in featureNameList:
@@ -167,7 +184,7 @@ class PackageFilter:
 
     @overload
     @staticmethod
-    def __FiltersPackagesByRequiredFeature(log: Log, packages: List[Package],
+    def __FiltersPackagesByRequiredFeature(log: Log, packages: List[CommonPackage],
                                            requiredFeatureNameList: List[str]) -> List[T]:
         pass
 
@@ -178,7 +195,7 @@ class PackageFilter:
         pass
 
     @staticmethod
-    def __FiltersPackagesByRequiredFeature(log: Log, packages: Union[List[Package], List[AppInfoPackage]],
+    def __FiltersPackagesByRequiredFeature(log: Log, packages: Union[List[CommonPackage], List[AppInfoPackage]],
                                            requiredFeatureNameList: List[str]) -> List[T]:
         """ Filter packages to those that require the specified feature.
             - If '*' is contained in 'requiredFeatureNameList' then we return 'packages' and no filtering is done.
@@ -194,7 +211,7 @@ class PackageFilter:
             if PackageFilter.__UsesFeatures(package, requiredFeatureNameList):
                 filteredPackageList.append(package)
             else:
-                log.LogPrint("Skipping '{0}' since it did not use the features '{1}'".format(package.Name, ", ".join(requiredFeatureNameList)))
+                log.LogPrint("Skipping '{0}' since it did not use the features '{1}'".format(PackageFilter.__ToPackageName(package), ", ".join(requiredFeatureNameList)))
         return cast(List[T], filteredPackageList)
 
 
@@ -234,7 +251,7 @@ class PackageFilter:
 
     @overload
     @staticmethod
-    def __FiltersPackagesByFeatures(log: Log, packages: List[Package], featureNameList: List[str]) -> List[T]:
+    def __FiltersPackagesByFeatures(log: Log, packages: List[CommonPackage], featureNameList: List[str]) -> List[T]:
         pass
 
 
@@ -245,8 +262,8 @@ class PackageFilter:
 
 
     @staticmethod
-    def __FiltersPackagesByFeatures(log: Log, packages: Union[List[Package], List[AppInfoPackage]],
-                                   featureNameList: List[str]) -> List[T]:
+    def __FiltersPackagesByFeatures(log: Log, packages: Union[List[CommonPackage], List[AppInfoPackage]],
+                                    featureNameList: List[str]) -> List[T]:
         """  Filter packages by features.
              If '*' is in the featureNameList a clone of 'packages' will be returned
              Else we return a list containing only the packages that can be build with the available features
@@ -262,16 +279,16 @@ class PackageFilter:
         for package in packages:
             if PackageFilter.__FeaturesAvailable(package, featureNameList):
                 filteredPackageList.append(package)
-            elif package.Type == PackageType.Library or package.Type == PackageType.Executable or package.ResolvedDirectExperimentalRecipe is not None:
+            elif package.Type == PackageType.Library or package.Type == PackageType.Executable or PackageFilter.__HasRecipe(package):
                 missingFeatures = PackageFilter.__GetCompleteMissingFeatureNames(package, featureNameList)
-                log.LogPrint("Could not build package '{0}' due to missing features '{1}'".format(package.Name, ", ".join(missingFeatures)))
+                log.LogPrint("Could not build package '{0}' due to missing features '{1}'".format(PackageFilter.__ToPackageName(package), ", ".join(missingFeatures)))
         return cast(List[T], filteredPackageList)
 
 
     @overload
     @staticmethod
     def __FiltersPackagesByExtensions(log: Log,
-                                      packages: List[Package],
+                                      packages: List[CommonPackage],
                                       extensionNameList: ExtensionListManager,
                                       featureNameList: List[str],
                                       requirementTree: RequirementTree) -> List[T]:
@@ -290,7 +307,7 @@ class PackageFilter:
 
     @staticmethod
     def __FiltersPackagesByExtensions(log: Log,
-                                      packages: Union[List[Package], List[AppInfoPackage]],
+                                      packages: Union[List[CommonPackage], List[AppInfoPackage]],
                                       extensionNameList: ExtensionListManager,
                                       featureNameList: List[str],
                                       requirementTree: Union[RequirementTree, AppInfoGlobalRequirementTree]) -> List[T]:
@@ -308,15 +325,15 @@ class PackageFilter:
         for package in packages:
             if PackageFilter.__IsAllPackageExtensionAvailable(package, requirementTree):
                 filteredPackageList.append(package)
-            elif package.Type == PackageType.Library or package.Type == PackageType.Executable or package.ResolvedDirectExperimentalRecipe != None:
+            elif package.Type == PackageType.Library or package.Type == PackageType.Executable or PackageFilter.__HasRecipe(package):
                 missingNames = PackageFilter.__GetCompleteMissingExtensionNames(package, requirementTree)
-                log.LogPrint("Could not build package '{0}' due to missing extension '{1}'".format(package.Name, ", ".join(missingNames)))
+                log.LogPrint("Could not build package '{0}' due to missing extension '{1}'".format(PackageFilter.__ToPackageName(package), ", ".join(missingNames)))
         return cast(List[T], filteredPackageList)
 
 
     @overload
     @staticmethod
-    def __FiltersPackagesBySupported(log: Log, packages: List[Package]) -> List[T]:
+    def __FiltersPackagesBySupported(log: Log, packages: List[CommonPackage]) -> List[T]:
         pass
 
     @overload
@@ -325,12 +342,12 @@ class PackageFilter:
         pass
 
     @staticmethod
-    def __FiltersPackagesBySupported(log: Log, packages: Union[List[Package], List[AppInfoPackage]]) -> List[T]:
+    def __FiltersPackagesBySupported(log: Log, packages: Union[List[CommonPackage], List[AppInfoPackage]]) -> List[T]:
         """ Remove packages that are marked as not supported by the platform
         """
         packageList = []
         for package in packages:
-            if not package.ResolvedPlatformNotSupported:
+            if package.ResolvedPlatformSupported:
                 packageList.append(package)
             elif not package.Type == PackageType.TopLevel and log.IsVerbose and isinstance(package, Package):
                 notSupported = LocalUtil.BuildListOfDirectlyNotSupported(package)
@@ -352,7 +369,7 @@ class PackageFilter:
     def PrintExecutableSkipReason(log: Log, fullPackageList: List[Package], filteredPackageList: List[Package]) -> None:
         for package in fullPackageList:
             if package.Type == PackageType.Executable:
-                if package.ResolvedPlatformNotSupported:
+                if not package.ResolvedPlatformSupported:
                     notSupported = LocalUtil.BuildListOfDirectlyNotSupported(package)
                     notSupportedNames = Util.ExtractNames(notSupported)
                     log.DoPrint("{0} was marked as not supported on this platform by package: {1}".format(package.Name, notSupportedNames))
@@ -374,15 +391,15 @@ class PackageFilter:
 
 
     @staticmethod
-    def __DetermineActualUserBuildRequest(allAvailablePackageListInResolvedBuildOrder: List[Package],
-                                          requestedPackages: Optional[List[Package]]) -> List[Package]:
+    def __DetermineActualUserBuildRequest(allAvailablePackageListInResolvedBuildOrder: List[CommonPackage],
+                                          requestedPackages: Optional[List[CommonPackage]]) -> List[CommonPackage]:
         if requestedPackages is not None and len(requestedPackages) > 0:
             return requestedPackages
         return allAvailablePackageListInResolvedBuildOrder
 
-
     @staticmethod
-    def __FiltersRecipePackages(log: Log, resolvedPackageOrder: List[Package], requestedPackages: Optional[List[Package]]) -> List[Package]:
+    def __FiltersRecipePackages(log: Log, resolvedPackageOrder: List[CommonPackage],
+                                requestedPackages: Optional[List[CommonPackage]]) -> List[CommonPackage]:
         return [package for package in resolvedPackageOrder if not package.ContainsRecipe() or (requestedPackages is not None and package in requestedPackages)]
 
 
@@ -418,6 +435,20 @@ class PackageFilter:
         """
         resolvedBuildOrder = topLevelPackage.ResolvedBuildOrder
         requirements = RequirementFilter.GetRequirementList(topLevelPackage, None)
+        return PackageFilter.Filter2(log, resolvedBuildOrder, requirements, requestedPackages, packageFilters)
+
+    @staticmethod
+    def Filter2(log: Log,
+                resolvedBuildOrder: List[CommonPackage], requirements: List[PackageRequirement],
+                requestedPackages: Optional[List[CommonPackage]],
+                packageFilters: PackageFilters) -> List[CommonPackage]:
+        """ Filter the package list based
+            - Required packages by the requested packages (if requestedPackages isnt None)
+            - If there is executeables then chose those that implement the required features in requiredFeatureNameList
+            - the available features from featureNameList
+            - the available extensions from extensionNameList
+            - if they are supported on the platform
+        """
         requirementTree = RequirementTree(requirements)
 
         # Smart expand the input lists

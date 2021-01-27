@@ -5,6 +5,5 @@
     <Dependency Name="FslGraphics3D.SceneFormat"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.Theme.Basic"/>
-    <Platform Name="Windows" ProjectId="82B051E3-82AC-479B-9902-70CEEF1EF552"/>
   </Library>
 </FslBuildGen>

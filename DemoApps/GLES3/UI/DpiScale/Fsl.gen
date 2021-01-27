@@ -3,6 +3,5 @@
   <Executable Name="GLES3.UI.DpiScale" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="Shared.UI.DpiScale"/>
-    <Platform Name="Windows" ProjectId="D9582C7C-00EB-4272-B8E2-81E7FB8D9121"/>
   </Executable>
 </FslBuildGen>

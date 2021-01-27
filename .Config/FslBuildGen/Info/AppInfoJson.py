@@ -31,12 +31,12 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Any
+#from typing import Any
 from typing import cast
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Union
+#from typing import Union
 import json
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import PackageType
@@ -220,7 +220,7 @@ def __ParsePackageVariableReport(log: Log, packageName: str, jsonDict: Dict[str,
     jsonOptionsList = jsonDict[JsonPackageVariableReport.Options]
     if not isinstance(jsonOptionsList, list):
         raise Exception("Invalid file format")
-    options =  __ParseJsonStringList(log, packageName, jsonOptionsList)
+    options = __ParseJsonStringList(log, packageName, jsonOptionsList)
 
     return GeneratorVariableReportInfo(name, options, linkTargetName)
 
@@ -332,4 +332,3 @@ def TryLoad(log: Log, path: str) -> Optional[AppInfo]:
     except Exception:
         log.LogPrintWarning("Failed to parse json content in file: '{0}'".format(path))
         raise
-

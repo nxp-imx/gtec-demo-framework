@@ -37,12 +37,12 @@ from typing import List
 from typing import Optional
 import json
 from FslBuildGen import IOUtil
-from FslBuildGen import PackageUtil
-from FslBuildGen.Build.Filter import PackageFilter
+#from FslBuildGen import PackageUtil
+#from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
@@ -53,7 +53,7 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 
-# TODO: this should really generate and save the Info objects instead, but the code was orignally written as simple export only code
+# TODO: this should really generate and save the Info objects instead, but the code was originally written as simple export only code
 
 ## Info save code
 
@@ -120,8 +120,8 @@ class JsonPackage(object):
         #self.PlatformName = package.ResolvedPlatformName
 
         self.AllRequirements = [JsonRequirement(requirement) for requirement in package.ResolvedAllRequirements]
-        if package.ResolvedPlatformNotSupported:
-            self.Supported = not package.ResolvedPlatformNotSupported  # type: bool
+        if not package.ResolvedPlatformSupported:
+            self.Supported = package.ResolvedPlatformSupported # type: bool
 
         if packageGeneratorReport is not None:
             self.GeneratorReport = JsonPackageGeneratorReport(package, packageGeneratorReport)

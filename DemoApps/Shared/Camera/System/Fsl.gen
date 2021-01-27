@@ -3,6 +3,5 @@
   <Library Name="Shared.Camera.System" CreationYear="2018">
     <Requirement Name="EarlyAccess" Type="feature"/>
     <Dependency Name="Shared.Camera.Adapter.Interface"/>
-    <Platform Name="Windows" ProjectId="22FECF11-56BE-4CAC-BF97-B369EFB9937D"/>
   </Library>
 </FslBuildGen>

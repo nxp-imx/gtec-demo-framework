@@ -37,16 +37,16 @@
 
 namespace Fsl
 {
-  class ##PACKAGE_SHORT_NAME## : public DemoAppGLES2
+  class ##PACKAGE_SHORT_NAME## final : public DemoAppGLES2
   {
     GLES2::GLProgram m_program;
 
   public:
     ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
-    ~##PACKAGE_SHORT_NAME##() override;
+    ~##PACKAGE_SHORT_NAME##() final;
   protected:
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const DemoTime& demoTime) final;
   };
 }
 

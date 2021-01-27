@@ -15,7 +15,7 @@
       <ExternalDependency Name="OpenVG" Type="StaticLib"/>
     </Platform>
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.openvg_ri"/>
+      <Dependency Name="GLBase" Flavor="OpenImpl=OpenVG"/>
       <!--ExternalDependency Name="ShivaVG.lib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/ShivaVG-0.2.1/include" Access="Public" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/ShivaVG-0.2.1/projects/visualc8/Debug/Bin" Type="StaticLib"/-->
     </Platform>
   </ExternalLibrary>

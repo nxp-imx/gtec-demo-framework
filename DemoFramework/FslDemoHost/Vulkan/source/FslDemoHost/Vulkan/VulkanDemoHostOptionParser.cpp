@@ -209,6 +209,7 @@ namespace Fsl
     }
     case CommandId::LogExtensions:
       m_logExtensions = true;
+      m_launchOptions.LogDeviceExtensions = true;
       return OptionParseResult::Parsed;
     case CommandId::LogLayers:
       m_logLayers = true;

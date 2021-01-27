@@ -45,9 +45,7 @@ namespace Fsl
 
     namespace InstanceUtil
     {
-      bool IsInstanceLayerAvailable(const std::vector<VkLayerProperties>& layerProperties, const char* const pszLayerName);
       bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames);
-      bool IsInstanceExtensionAvailable(const std::vector<VkExtensionProperties>& extensionProperties, const char* const pszExtensionName);
       bool IsInstanceExtensionsAvailable(const uint32_t extensionCount, const char* const* enabledExtensionNames,
                                          const char* const pszLayerName = nullptr);
 

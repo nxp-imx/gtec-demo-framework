@@ -85,16 +85,22 @@ namespace Fsl
     constexpr Viewport() = default;
 
     constexpr Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height)
-      : X(x)
-      , Y(y)
-      , Width(width)
-      , Height(height)
-      , MaxDepth(1.0f)
+      : Viewport(x, y, width, height, 0.0f, 1.0f)
     {
     }
 
     constexpr explicit Viewport(const Rectangle& bounds)
       : Viewport(bounds.X(), bounds.Y(), bounds.Width(), bounds.Height())
+    {
+    }
+
+    constexpr Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height, float minDepth, float maxDepth)
+      : X(x)
+      , Y(y)
+      , Width(width)
+      , Height(height)
+      , MinDepth(minDepth)
+      , MaxDepth(maxDepth)
     {
     }
 

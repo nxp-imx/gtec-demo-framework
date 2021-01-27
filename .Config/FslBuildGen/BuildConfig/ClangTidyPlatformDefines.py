@@ -32,12 +32,12 @@
 #****************************************************************************************************************************************************
 
 from typing import List
-from FslBuildGen import IOUtil
+#from FslBuildGen import IOUtil
 
 class ClangTidyPlatformDefines(object):
-    def __init__(self, all: List[str], debug: List[str], release: List[str]) -> None:
+    def __init__(self, allList: List[str], debug: List[str], release: List[str]) -> None:
         super().__init__()
-        self.All = all
+        self.All = allList
         self.Debug = debug
         self.Release = release
 

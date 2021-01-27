@@ -85,6 +85,7 @@ namespace Fsl
     HighResolutionTimer m_timer;
 
   public:
+    // NOLINTNEXTLINE(google-explicit-constructor)
     CpuStatsAdapterLinux(const bool coreParserEnabled = true);
     void Process() final{};
     uint32_t GetCpuCount() const final;

@@ -46,22 +46,24 @@ import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
 from FslBuildGen import ToolSharedValues
+from FslBuildGen import Util
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageString
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.DataTypes import SubPackageSupport
 from FslBuildGen.Exceptions import FileNotFoundException
 from FslBuildGen.Exceptions import PackageMissingRequiredIncludeDirectoryException
 from FslBuildGen.Exceptions import PackageMissingRequiredSourceDirectoryException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
-from FslBuildGen.Location.ResolvedPath import ResolvedPath
+# from FslBuildGen.Location.ResolvedPath import ResolvedPath
+from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import APPROVED_PLATFORM_NAMES
 from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
+from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import BuildCustomizationAlreadyDefinedException
@@ -73,7 +75,6 @@ from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlInvalidRootElement
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedPackageType
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedPlatformException
-from FslBuildGen.Xml.SubPackageSupportConfig import SubPackageSupportConfig
 from FslBuildGen.Xml.XmlCommonFslBuild import XmlCommonFslBuild
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipeline
@@ -89,11 +90,12 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileBuildCustomization_Optimization
 from FslBuildGen.Xml.XmlStuff import XmlGenFileImportTemplate
 from FslBuildGen.Xml.XmlStuff import XmlGenFilePlatform
 from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
-
+from FslBuildGen.Xml.Flavor.XmlGenFileFlavor import XmlGenFileFlavor
 
 class XmlGenFile(XmlCommonFslBuild):
-    def __init__(self, config: Config, defaultPackageLanguage: int) -> None:
-        super().__init__(config, FakeXmlElementFactory.CreateWithName("FakeGenFile", "FSLBUILD_INVALID_INITIAL_VALUE"), SubPackageSupportConfig(PackageType.TopLevel, SubPackageSupport.Disabled))
+    def __init__(self, log: Log, toolConfig: ToolConfig, defaultPackageLanguage: PackageLanguage) -> None:
+        super().__init__(log, toolConfig.RequirementTypes,
+                         FakeXmlElementFactory.CreateWithName("FakeGenFile", "FSLBUILD_INVALID_INITIAL_VALUE"))
         self.SourceFilename = None # type: Optional[str]
         self.SourceFileHash = ""   # type: str
         self.Name = ''
@@ -134,6 +136,10 @@ class XmlGenFile(XmlCommonFslBuild):
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate gen file %s", filename)
 
+        configDisableIncludeDirCheck = config.DisableIncludeDirCheck
+        configDisableSourceDirCheck = config.DisableSourceDirCheck
+        toolConfig = config.ToolConfig
+
         self.SourceFilename = filename
         self.PackageFile = packageFile
         self.PackageLocation = packageFile.PackageRootLocation
@@ -149,12 +155,12 @@ class XmlGenFile(XmlCommonFslBuild):
         packageName = self._ReadAttrib(elem, 'Name')
         defaultValues = self.__GetDefaultValues(elem, packageName)
         allowNoInclude = self._ReadBoolAttrib(elem, 'NoInclude', False)
-        companyName = self._ReadAttrib(elem, 'Company', config.ToolConfig.DefaultCompany)
+        companyName = self._ReadAttrib(elem, 'Company', toolConfig.DefaultCompany)
 
         # Used by FslBuildDoc to determine if it should be visible in the main readme
         self.ShowInMainReadme = self._ReadBoolAttrib(elem, 'ShowInMainReadme', True)
 
-        if config.ToolConfig.RequirePackageCreationYear:
+        if toolConfig.RequirePackageCreationYear:
             creationYear = self._ReadAttrib(elem, 'CreationYear')
         else:
             creationYear = self._ReadAttrib(elem, 'CreationYear', PackageCreationYearString.NotDefined)
@@ -170,7 +176,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.AllowCombinedDirectory = self._ReadBoolAttrib(elem, 'AllowCombinedDirectory', False)
         self.PackageNameBasedIncludePath = self._ReadBoolAttrib(elem, 'PackageNameBasedIncludePath', True)
 
-        self.BaseLoad(elem, SubPackageSupportConfig(theType, config.SubPackageSupport))
+        self.BaseLoad(elem)
 
         requirements = self._GetXMLRequirements(elem)
         allowRecipes = self.__DoesTypeAllowRecipes(theType)
@@ -182,14 +188,14 @@ class XmlGenFile(XmlCommonFslBuild):
             self.DirectDependencies += resDD
             self.ExternalDependencies += resED
 
-        platforms = self.__GetXMLPlatforms(elem, packageName, self.DirectDependencies, allowRecipes, defaultValues)
+        platforms = self.__GetXMLPlatforms(toolConfig.RequirementTypes, elem, packageName, self.DirectDependencies, allowRecipes, defaultValues)
         self.BuildCustomization = self.__GetBuildCustomizations(elem, packageName)
 
         templates = self.__GetXMLImportTemplates(elem)
         self.__ImportTemplates(packageTemplateLoader, templates, requirements, self.DirectDependencies, self.ExternalDependencies, self.DirectDefines)
 
         if self.BaseIncludePath == self.BaseSourcePath and not self.AllowCombinedDirectory:
-            raise XmlException2(elem, "Package '{0}' uses the same directory for include and source '{1}'".format(packageName, self.BaseIncludePath))
+            raise XmlException2("Package '{0}' uses the same directory for include and source '{1}'".format(packageName, self.BaseIncludePath))
 
         self.XMLElement = elem
         self.Name = packageName
@@ -212,7 +218,8 @@ class XmlGenFile(XmlCommonFslBuild):
         self.__ResolveNames(self.Name)
         self.__ValidateBasicDependencyCorrectness()
         self.__ValidateDefines()
-        self.__ResolvePaths(config, packageFile, allowNoInclude)
+
+        self.__ResolvePaths(configDisableIncludeDirCheck, configDisableSourceDirCheck, packageFile, allowNoInclude)
         # FIX: check for clashes with platform addition
         #      check for platform variant name clashes
 
@@ -221,11 +228,11 @@ class XmlGenFile(XmlCommonFslBuild):
         hashObject = hashlib.sha1(encodedContent)
         return hashObject.hexdigest()
 
-    def __DoesTypeAllowRecipes(self, packageType: int) -> bool:
+    def __DoesTypeAllowRecipes(self, packageType: PackageType) -> bool:
         return packageType == PackageType.ExternalLibrary or packageType == PackageType.ToolRecipe
 
 
-    def __FindPackageElementAndType(self, elem: ET.Element) -> Tuple[ET.Element, int]:
+    def __FindPackageElementAndType(self, elem: ET.Element) -> Tuple[ET.Element, PackageType]:
         currentElem = elem.find("Library")
         if not currentElem is None:
             return (currentElem, PackageType.Library)
@@ -248,20 +255,15 @@ class XmlGenFile(XmlCommonFslBuild):
 
         raise XmlUnsupportedPackageType("Could not locate a Executable, Library, ExternalLibrary or HeaderLibrary element")
 
+    # def SYS_SetName(self, name: str) -> None:
+    #     self.Name = name
+    #     self.__ResolveNames(name)
 
     def __ResolveNames(self, name: str) -> None:
-        self.ShortName, self.Namespace = XmlGenFile.GetPackageNamesUtil(name)
+        self.ShortName, self.Namespace = Util.GetPackageNames(name)
 
 
-    @staticmethod
-    def GetPackageNamesUtil(name: str) -> Tuple[str, str]:
-        index = name.rfind('.')
-        if index < 0:
-            return name, ''
-        return name[index+1:], name[:index]
-
-
-    def SetType(self, theType: int) -> None:
+    def SetType(self, theType: PackageType) -> None:
         self.Type = theType
         self.IsVirtual = (theType == PackageType.TopLevel or theType == PackageType.ExternalLibrary or theType == PackageType.HeaderLibrary or theType == PackageType.ToolRecipe)
 
@@ -272,26 +274,26 @@ class XmlGenFile(XmlCommonFslBuild):
         platforms[xmlPlatform.Name] = xmlPlatform
 
     def __GenerateClones(self, platformNamesStr: str, child: ET.Element, defaultValues: LocalPackageDefaultValues,
-                 requirements: List[XmlGenFileRequirement], dependencies: List[XmlGenFileDependency],
-                 variants: List[XmlGenFileVariant], experimentalRecipe: Optional[XmlExperimentalRecipe],
-                 subPackageSupport: SubPackageSupportConfig) -> List[XmlGenFilePlatform]:
+                         requirements: List[XmlGenFileRequirement], dependencies: List[XmlGenFileDependency],
+                         flavors: List[XmlGenFileFlavor], variants: List[XmlGenFileVariant],
+                         experimentalRecipe: Optional[XmlExperimentalRecipe]) -> List[XmlGenFilePlatform]:
 
         platformNames = platformNamesStr.split(PackageString.PLATFORM_SEPARATOR)      # type: List[str]
 
         expandedPlatformList = [] # type: List[XmlGenFilePlatform]
         for name in platformNames:
             if self.Log.Verbosity >= 2:
-                self.Log.LogPrint("Adding entry for platform '{0}' from entry marked with '{1}'".format(name, platformNamesStr));
+                self.Log.LogPrint("Adding entry for platform '{0}' from entry marked with '{1}'".format(name, platformNamesStr))
             if not name in PackageConfig.APPROVED_PLATFORM_NAMES:
                 raise XmlUnsupportedPlatformException(child, "{0}' from '{1}".format(name, platformNamesStr))
 
-            xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, variants, experimentalRecipe, self.GetSubPackageSupport())
+            xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, flavors, variants, experimentalRecipe)
             xmlPlatform.SYS_SetName(name)
             expandedPlatformList.append(xmlPlatform)
         return expandedPlatformList
 
 
-    def __GetXMLPlatforms(self, elem: ET.Element, ownerPackageName: str,
+    def __GetXMLPlatforms(self, requirementTypes: List[str], elem: ET.Element, ownerPackageName: str,
                           directDependencies: List[XmlGenFileDependency], allowRecipes: bool,
                           defaultValues: LocalPackageDefaultValues) -> Dict[str, XmlGenFilePlatform]:
         platforms = {}  # type: Dict[str, XmlGenFilePlatform]
@@ -299,13 +301,15 @@ class XmlGenFile(XmlCommonFslBuild):
             if child.tag == 'Platform':
                 dependencies = self._GetXMLDependencies(child)
                 requirements = self._GetXMLRequirements(child)
+                flavors = self.__GetXMLFlavors(requirementTypes, child, ownerPackageName)
                 variants = self.__GetXMLVariants(child, ownerPackageName)
                 experimentalRecipe = self._TryGetExperimentalRecipe(child, ownerPackageName, allowRecipes)
                 dependencies, resED = self.__ProcessExperimentalRecipeDependencies(directDependencies, dependencies, experimentalRecipe, [])
-                xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, variants, experimentalRecipe, self.GetSubPackageSupport())
+                xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, flavors, variants, experimentalRecipe)
 
                 if PackageString.PLATFORM_SEPARATOR in xmlPlatform.Name:
-                    xmlPlatforms = self.__GenerateClones(xmlPlatform.Name, child, defaultValues, requirements, dependencies, variants, experimentalRecipe, self.GetSubPackageSupport())
+                    xmlPlatforms = self.__GenerateClones(xmlPlatform.Name, child, defaultValues, requirements, dependencies, flavors, variants,
+                                                         experimentalRecipe)
                     for clonePlatform in xmlPlatforms:
                         self._AddPlatform(platforms, clonePlatform, resED)
                 else:
@@ -327,7 +331,7 @@ class XmlGenFile(XmlCommonFslBuild):
         if child is None:
             return None
         if not allowRecipe:
-            raise Exception("This package type does not allow '{0}' elments".format(recipeElementName))
+            raise Exception("This package type does not allow '{0}' elements".format(recipeElementName))
         return XmlExperimentalRecipe(self.Log, child, defaultName)
 
 
@@ -344,7 +348,7 @@ class XmlGenFile(XmlCommonFslBuild):
     def __ProcessExperimentalRecipeDependencies(self, directDependencies: List[XmlGenFileDependency],
                                                 dependencies: List[XmlGenFileDependency],
                                                 experimentalRecipe: Optional[XmlExperimentalRecipe],
-                                                externalDependencies: List[XmlGenFileExternalDependency]) -> Tuple[List[XmlGenFileDependency],List[XmlGenFileExternalDependency]]:
+                                                externalDependencies: List[XmlGenFileExternalDependency]) -> Tuple[List[XmlGenFileDependency], List[XmlGenFileExternalDependency]]:
         resDirectDependencies = self.__AddExperimentalRecipeDependencies(directDependencies, dependencies, experimentalRecipe)
         resExternalDependencies = externalDependencies
         if experimentalRecipe is not None and experimentalRecipe.Find:
@@ -418,11 +422,18 @@ class XmlGenFile(XmlCommonFslBuild):
         return elements
 
 
+    def __GetXMLFlavors(self, requirementTypes: List[str], elem: ET.Element, ownerPackageName: str) -> List[XmlGenFileFlavor]:
+        elements = []
+        for child in elem:
+            if child.tag == 'Flavor':
+                elements.append(XmlGenFileFlavor(self.Log, requirementTypes, child, ownerPackageName))
+        return elements
+
     def __GetXMLVariants(self, elem: ET.Element, ownerPackageName: str) -> List[XmlGenFileVariant]:
         elements = []
         for child in elem:
             if child.tag == 'Variant':
-                elements.append(XmlGenFileVariant(self.Log, child, ownerPackageName, self.GetSubPackageSupport()))
+                elements.append(XmlGenFileVariant(self.Log, child, ownerPackageName))
         return elements
 
 
@@ -433,7 +444,7 @@ class XmlGenFile(XmlCommonFslBuild):
                           externalDependencies: List[XmlGenFileExternalDependency],
                           directDefines: List[XmlGenFileDefine]) -> None:
         for template in templates:
-            imported = packageTemplateLoader.Import(self.GetSubPackageSupport(), template, template.Name)
+            imported = packageTemplateLoader.Import(template, template.Name)
             for reqEntry in imported.DirectRequirements:
                 requirements.append(reqEntry)
             for directEntry in imported.DirectDependencies:
@@ -451,6 +462,10 @@ class XmlGenFile(XmlCommonFslBuild):
         for platform in list(self.Platforms.values()):
             platformNameDict = copy.copy(nameDict)
             self.__ValidateNames(platformNameDict, platform.DirectDependencies, errorMsg)
+            for flavor in platform.Flavors:
+                for flavorOption in flavor.Options:
+                    platformFlavorNameDict = copy.copy(platformNameDict)
+                    self.__ValidateNames(platformFlavorNameDict, flavorOption.DirectDependencies, errorMsg)
 
         errorMsg = "ExternalDependency defined multiple times '{0}'"
         nameDict.clear()
@@ -458,6 +473,10 @@ class XmlGenFile(XmlCommonFslBuild):
         for platform in list(self.Platforms.values()):
             platformNameDict = copy.copy(nameDict)
             self.__ValidateNames(platformNameDict, platform.ExternalDependencies, errorMsg)
+            for flavor in platform.Flavors:
+                for flavorOption in flavor.Options:
+                    platformFlavorNameDict = copy.copy(platformNameDict)
+                    self.__ValidateNames(platformNameDict, flavorOption.ExternalDependencies, errorMsg)
 
 
     def __ValidateDefines(self) -> None:
@@ -467,6 +486,10 @@ class XmlGenFile(XmlCommonFslBuild):
         for platform in list(self.Platforms.values()):
             platformNameDict = copy.copy(nameDict)
             self.__ValidateNames(platformNameDict, platform.DirectDefines, errorMsg)
+            for flavor in platform.Flavors:
+                for flavorOption in flavor.Options:
+                    platformFlavorNameDict = copy.copy(platformNameDict)
+                    self.__ValidateNames(platformFlavorNameDict, flavorOption.DirectDefines, errorMsg)
 
 
     def __ValidateNames(self, rNameDict: Dict[str, Union[XmlGenFileDependency, XmlGenFileExternalDependency, XmlGenFileDefine]],
@@ -480,27 +503,29 @@ class XmlGenFile(XmlCommonFslBuild):
                 rNameDict[entryId] = entry
             else:
                 nameStr = "{0} ({1})".format(entry.Name, entryId)
-                raise XmlException2(entry.XMLElement, errorStr.format(entry.Name))
+                raise XmlException2(errorStr.format(entry.Name))
 
-    def __ResolvePathIncludeDir(self, config: Config, allowNoInclude: bool) -> None:
+    def __ResolvePathIncludeDir(self, configDisableIncludeDirCheck: bool, allowNoInclude: bool) -> None:
         packagePath = self.PackageFile
         if packagePath is None:
             raise Exception("PackageFile can not be None")
 
         self.IncludePath = PackagePath(IOUtil.Join(packagePath.AbsoluteDirPath, self.BaseIncludePath), packagePath.PackageRootLocation)
         includeDirExist = os.path.isdir(self.IncludePath.AbsoluteDirPath)
-        if not includeDirExist and (os.path.exists(self.IncludePath.AbsoluteDirPath) or not (allowNoInclude or config.DisableIncludeDirCheck)):
+        if not includeDirExist and (os.path.exists(self.IncludePath.AbsoluteDirPath) or not (allowNoInclude or configDisableIncludeDirCheck)):
             raise PackageMissingRequiredIncludeDirectoryException(self.IncludePath.AbsoluteDirPath)
         if not includeDirExist and allowNoInclude:
             self.IncludePath = None
 
 
-    def __ResolvePaths(self, config: Config, packagePath: PackagePath, allowNoInclude: bool) -> None:
+    def __ResolvePaths(self, configDisableIncludeDirCheck: bool, configDisableSourceDirCheck: bool, packagePath: PackagePath,
+                       allowNoInclude: bool) -> None:
+
         rootRelativeDirPath = packagePath.RootRelativeDirPath
         if not self.IsVirtual:
             sourcePath = self.BaseSourcePath
             if self.PackageLanguage == PackageLanguage.CPP:
-                self.__ResolvePathIncludeDir(config, allowNoInclude)
+                self.__ResolvePathIncludeDir(configDisableIncludeDirCheck, allowNoInclude)
             elif self.PackageLanguage == PackageLanguage.CSharp:
                 #sourcePath = self.Name
                 pass
@@ -511,10 +536,10 @@ class XmlGenFile(XmlCommonFslBuild):
             self.ContentPath = PackagePath(IOUtil.Join(rootRelativeDirPath, ToolSharedValues.CONTENT_FOLDER_NAME), packagePath.PackageRootLocation)
             self.ContentSourcePath = PackagePath(IOUtil.Join(rootRelativeDirPath, ToolSharedValues.CONTENT_BUILD_FOLDER_NAME), packagePath.PackageRootLocation)
 
-            if not os.path.isdir(self.SourcePath.AbsoluteDirPath) and not config.DisableSourceDirCheck:
+            if not os.path.isdir(self.SourcePath.AbsoluteDirPath) and not configDisableSourceDirCheck:
                 raise PackageMissingRequiredSourceDirectoryException(self.SourcePath.AbsoluteDirPath)
         elif self.Type == PackageType.HeaderLibrary:
             if self.PackageLanguage == PackageLanguage.CPP:
-                self.__ResolvePathIncludeDir(config, allowNoInclude)
+                self.__ResolvePathIncludeDir(configDisableIncludeDirCheck, allowNoInclude)
             else:
                 raise UsageErrorException("HeaderLibrary is only supported for C++")

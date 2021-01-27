@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.UI.SimpleUI101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.UI.SimpleUI101"/>
-    <Platform Name="Windows" ProjectId="BFC569A5-4E48-4EB4-A5BF-C35D15C17DBA"/>
   </Executable>
 </FslBuildGen>

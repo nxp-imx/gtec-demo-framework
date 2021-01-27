@@ -31,16 +31,16 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.Config import Config
+from FslBuildGen.ToolConfig import ToolConfig
 
 class PathVariables(object):
-    def __init__(self, config: Config, packageBuildPath: str, contentBuildPath: str, contentPathPath: str) -> None:
+    def __init__(self, toolConfig: ToolConfig, packageBuildPath: str, contentBuildPath: str, contentPathPath: str) -> None:
         super().__init__()
         self.PackageBuild = packageBuildPath
         self.ContentBuild = contentBuildPath
         self.Content = contentPathPath
 
-        rootDir = config.ToolConfig.TryFindRootDirectory(packageBuildPath)
+        rootDir = toolConfig.TryFindRootDirectory(packageBuildPath)
         if rootDir is None:
             raise Exception("Could not find a project root for the path '{0}'".format(packageBuildPath))
         self.ProjectRoot = rootDir.ResolvedPath  # type: str

@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtRay, Log)
 {
-  Ray value(Vector3(1.0f, 2.0f, 3.0f), Vector3(4.0f, 5.0f, 6.0f));
+  Ray value(Vector3(1.1f, 2.1f, 3.1f), Vector3(4.1f, 5.1f, 6.1f));
 
-  EXPECT_EQ(std::string("{Position={X=1.0 Y=2.0 Z=3.0} Direction={X=4.0 Y=5.0 Z=6.0}}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{Position={X=1.1 Y=2.1 Z=3.1} Direction={X=4.1 Y=5.1 Z=6.1}}"), fmt::format("{}", value));
 }

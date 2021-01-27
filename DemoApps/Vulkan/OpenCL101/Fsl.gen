@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.OpenCL101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="OpenCL1_2"/>
-    <Platform Name="Windows" ProjectId="BF6B7680-DE37-4257-A47F-193035394827"/>
   </Executable>
 </FslBuildGen>

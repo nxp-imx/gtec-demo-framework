@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TexturePacker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1">
+  <CreateAtlas Name="TextureAtlas/MainAtlas">
+    <AddFolder Path="TextureAtlas/Main"/>
+  </CreateAtlas>
+</TexturePacker>

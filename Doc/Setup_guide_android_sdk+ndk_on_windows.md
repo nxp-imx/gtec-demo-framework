@@ -17,23 +17,25 @@
   Once its installed its a good idea to run "SDK Manager.exe" and make sure everything is up to date.
   
   **IMPORTANT!**
-  - Android studio must be at least 3.5.3
+  - Android studio must be at least 4.1.2
   - Get the android studio full package and enable the default packages.
   - Configure the SDK manager
-    - "SDK Platforms" add if necessary "Android 9.0 (Pie)"
+    - "SDK Platforms" add if necessary "Android 10.0 (Q)" which is **SDK 29!**
     - "SDK Tools" add if necessary "CMake, LLDB, NDK, Android Support Repository"
   - Make sure to configure ANDROID_HOME to point to the android sdk directory
   - Make sure to configure ANDROID_NDK to point to the android ndk directory
-  - Make sure you have at least android-ndk-r19
+  - Make sure you have at least android-ndk-r19. 
+    - We recommend the latest LTS which currently is **NDK 21d**.
   
-- [Python 3.4+](https://www.python.org/ftp/python/3.8.1/python-3.8.1-amd64.exe)
+- [Python 3.6+](https://www.python.org/ftp/python/3.8.1/python-3.8.1-amd64.exe)
 
   To be able run python scripts, they are needed to build.
-  If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
   
 - Download the source from git.
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
+
+---------------------------------------------------------------------------------------------------
 
 ## Simple setup
 
@@ -48,9 +50,60 @@ sets it to a default location.
     directory to be the root of your demoframework folder to function
     (which is also the folder it resides in).
 
+---------------------------------------------------------------------------------------------------
+
 ## To Compile and run an existing sample application
 
-In this example we will utilize the GLES2 S06_Texturing app.
+The general approach will be:
+
+1. Make sure that you performed the [simple setup](#simple-setup), including the API's the sample need.
+2. Change directory to the sample directory:
+
+    ```bash
+    cd DemoApps/<MAIN-API-NAME>/<SAMPLE-NAME>
+    ```
+
+    Example MAIN-API-NAME's: GLES2, GLES3, OpenCL, Vulkan.
+
+    Type ```dir``` to see the dir choice.
+
+    Example SAMPLE-NAME's: Bloom, S06_Texturing.
+
+    Type ```dir``` after entering a API folder to see the list of samples
+
+3. Build the application
+
+    ```bash
+    FslBuild.py -p android
+    ```
+
+If you want to save a bit of compilation time you can build for the ANDROID ABI you need by adding
+
+```bash
+FslBuild.py -p android --Variants [ANDROID_ABI=armeabi-v7a]
+```
+
+
+The following commands are also pretty useful to know.
+
+Command                                         | Description
+------------------------------------------------|---------------------------------------
+`FslBuildGen.py -p android`                     | Generate the project which can then be opened in gradle
+`FslBuild.py -p android --ListVariants`         | List all the build variants that can be specified. This is useful to see the ANDROID_ABI's.
+`FslBuildInfo.py -p android --ListRequirements` | To list the samples requirements.
+
+It is also recommended to check out the `README.md` and `Example.jpg` that is included with all samples.
+
+Note:
+
+If you add source files to a project or change the Fsl.gen file then run the
+`FslBuildGen.py` script in the project root folder to regenerate the various
+build files or just make sure you always use the `FslBuild.py` script as it
+automatically adds files and regenerate build files as needed.
+
+### To Compile and run an existing GLES2 sample application
+
+In this example we will utilize the GLES2.S06_Texturing app.
 
 1. Make sure that you performed the [simple setup](#simple-setup)
 2. Change directory to the sample directory:
@@ -65,23 +118,7 @@ In this example we will utilize the GLES2 S06_Texturing app.
     FslBuild.py -p android
     ```
 
-If you just want to regenerate the cmake build files then you can just run
-
-```bash
-FslBuildGen.py -p android
-```
-
-If you want to save a bit of compilation time you can build for the ANDROID ABI you need by adding
-
-```bash
-FslBuildGen.py --Variants [ANDROID_ABI=armeabi-v7a]
-```
-
-or
-
-```bash
-FslBuild.py --Variants [ANDROID_ABI=armeabi-v7a]
-```
+---------------------------------------------------------------------------------------------------
 
 ## To create a new GLES2 demo project named 'CoolNewDemo'
   
@@ -128,7 +165,9 @@ or
 FslBuild.py -p android --Variants [ANDROID_ABI=armeabi-v7a]
 ```
 
-Using android studio.
+---------------------------------------------------------------------------------------------------
+
+## Using android studio.
 
 1. Follow the instructions for "creating a new project" or "building an existing project".  
 2. As projects are generated to the path specified by the FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR
@@ -140,6 +179,9 @@ Using android studio.
 If you add source files to a project or change the Fsl.gen file then run the
 FslBuildGen.py script in the project root folder to regenerate the various
 build files.
+
+---------------------------------------------------------------------------------------------------
+
 
 ## Linux notes
 
@@ -161,3 +203,4 @@ In the UI make sure to install the sdk in a directory you have access to for exa
 
 - https://developer.android.com/studio/install.html
 - http://askubuntu.com/questions/634082/how-to-install-android-studio-on-ubuntu
+

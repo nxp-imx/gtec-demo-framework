@@ -35,7 +35,7 @@
 
 namespace Fsl
 {
-  class ##PACKAGE_SHORT_NAME## : public VulkanBasic::DemoAppVulkanBasic
+  class ##PACKAGE_SHORT_NAME## final : public VulkanBasic::DemoAppVulkanBasic
   {
     struct DependentResources
     {
@@ -46,11 +46,11 @@ namespace Fsl
   public:
     ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
   protected:
-    void Update(const DemoTime& demoTime) override;
-    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
+    void Update(const DemoTime& demoTime) final;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
 
-    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
-    void OnFreeResources() override;
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) final;
+    void OnFreeResources() final;
   };
 }
 

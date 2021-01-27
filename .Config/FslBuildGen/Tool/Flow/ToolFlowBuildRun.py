@@ -37,24 +37,24 @@ from typing import List
 from typing import Optional
 import argparse
 import subprocess
-import sys
+#import sys
 from FslBuildGen import IOUtil
-from FslBuildGen import PackageListUtil
-from FslBuildGen import ParseUtil
+#from FslBuildGen import PackageListUtil
+#from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build.Filter import PackageFilter
-from FslBuildGen.Config import Config
-from FslBuildGen.Context.GeneratorContext import GeneratorContext
-from FslBuildGen.DataTypes import PackageType
+#from FslBuildGen.Config import Config
+#from FslBuildGen.Context.GeneratorContext import GeneratorContext
+#from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import ExitException
-from FslBuildGen.ExtensionListManager import ExtensionListManager
-from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
 from FslBuildGen.Info.AppInfo import AppInfoPackage
 from FslBuildGen.Info.AppInfoLoader import AppInfoLoader
 from FslBuildGen.Info.AppInfoRequirementTree import AppInfoRequirementTree
-from FslBuildGen.Log import Log
-from FslBuildGen.PackageConfig import PlatformNameString
+#from FslBuildGen.Log import Log
+#from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.Flow import ToolFlowBuild
@@ -126,10 +126,10 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 
 class ToolFlowBuildRun(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
-    def ProcessFromStandaloneCommandLine(self, args: Any, currentDirPath: str,  userTag: Optional[object]) -> None:
+    def ProcessFromStandaloneCommandLine(self, args: Any, currentDirPath: str, userTag: Optional[object]) -> None:
         # Process the input arguments here, before calling the real work function
         localToolConfig = LocalToolConfig()
         # Configure the ToolAppConfig part
@@ -155,8 +155,8 @@ class ToolFlowBuildRun(AToolAppFlow):
 
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
-        config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+        #config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
+        #                localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
 
         # Take advantage of the --ForAllExe option in the builder
         toolAppContext = self.ToolAppContext
@@ -217,7 +217,7 @@ class ToolFlowBuildRun(AToolAppFlow):
         executableReport = package.GeneratorReport.ExecutableReport
         variableReport = package.GeneratorReport.VariableReport
 
-        runCommandList =  []
+        runCommandList = []
 
         packagePath = package.AbsolutePath
         exePath = ReportVariableFormatter.Format(executableReport.ExeFormatString, variableReport, buildVariantsDict, executableReport.EnvironmentVariableResolveMethod)
@@ -246,8 +246,8 @@ class ToolFlowBuildRun(AToolAppFlow):
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
 
     def GetTitle(self) -> str:

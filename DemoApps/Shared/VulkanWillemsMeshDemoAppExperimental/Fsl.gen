@@ -3,6 +3,5 @@
   <Library Name="Shared.VulkanWillemsMeshDemoAppExperimental" CreationYear="2016">
     <Dependency Name="Shared.VulkanWillemsDemoAppExperimental"/>
     <Dependency Name="Assimp"/>
-    <Platform Name="Windows" ProjectId="6479B5B6-7ADF-42E8-B287-3F73ACB0FE8E"/>
   </Library>
 </FslBuildGen>

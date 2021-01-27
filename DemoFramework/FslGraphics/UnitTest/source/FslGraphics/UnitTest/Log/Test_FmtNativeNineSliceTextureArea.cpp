@@ -43,7 +43,7 @@ namespace
 
 TEST(TestLog_FmtNativeNineSliceTextureArea, Format)
 {
-  NativeNineSliceTextureArea value(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
+  NativeNineSliceTextureArea value(1.1f, 2.1f, 3.1f, 4.1f, 5.1f, 6.1f, 7.1f, 8.1f);
 
-  EXPECT_EQ(std::string("{X0=1.0 Y0=2.0 X1=3.0 Y1=4.0 X2=5.0 Y2=6.0 X3=7.0 Y3=8.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{X0=1.1 Y0=2.1 X1=3.1 Y1=4.1 X2=5.1 Y2=6.1 X3=7.1 Y3=8.1}"), fmt::format("{}", value));
 }

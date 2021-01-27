@@ -51,7 +51,7 @@ namespace Fsl
     //! @brief Since we have multiple controls that need this code its been isolated here as inline methods
     namespace ImageImpl
     {
-      inline void Draw(INativeBatch2D& batch2D, const NineSliceSprite* const pSprite, const Vector2 dstPositionPxf, const PxSize2D& dstSizePx,
+      inline void Draw(INativeBatch2D& batch2D, const NineSliceSprite* const pSprite, const PxVector2 dstPositionPxf, const PxSize2D& dstSizePx,
                        const Color& color)
       {
         if (pSprite != nullptr)
@@ -63,19 +63,19 @@ namespace Fsl
             // BlendState is stored in the NativeMaterialFlags
             batch2D.ChangeTo(static_cast<BlendState>(info.MaterialInfo.NativeMaterialFlags));
 
-            const auto& scaledImageTrimMarginPx = info.RenderInfo.ScaledTrimMarginPx;
-            auto renderWidthPx = dstSizePx.Width() - scaledImageTrimMarginPx.Right();
-            auto renderHeightPx = dstSizePx.Height() - scaledImageTrimMarginPx.Bottom();
+            const PxThicknessF& scaledImageTrimMarginPxf = info.RenderInfo.ScaledTrimMarginPxf;
+            const float renderWidthPxf = static_cast<float>(dstSizePx.Width()) - scaledImageTrimMarginPxf.Right();
+            const float renderHeightPxf = static_cast<float>(dstSizePx.Height()) - scaledImageTrimMarginPxf.Bottom();
 
-            const auto& scaledNineSlicePx = info.RenderInfo.ScaledTrimmedNineSlicePx;
-            const float dstX0Pxf = dstPositionPxf.X + static_cast<float>(scaledImageTrimMarginPx.Left());
-            const float dstY0Pxf = dstPositionPxf.Y + static_cast<float>(scaledImageTrimMarginPx.Top());
-            const float dstX1Pxf = dstPositionPxf.X + static_cast<float>(scaledImageTrimMarginPx.Left() + scaledNineSlicePx.Left());
-            const float dstY1Pxf = dstPositionPxf.Y + static_cast<float>(scaledImageTrimMarginPx.Top() + scaledNineSlicePx.Top());
-            const float dstX2Pxf = dstPositionPxf.X + static_cast<float>(renderWidthPx - scaledNineSlicePx.Right());
-            const float dstY2Pxf = dstPositionPxf.Y + static_cast<float>(renderHeightPx - scaledNineSlicePx.Bottom());
-            const float dstX3Pxf = dstPositionPxf.X + static_cast<float>(renderWidthPx);
-            const float dstY3Pxf = dstPositionPxf.Y + static_cast<float>(renderHeightPx);
+            const PxThicknessF& scaledNineSlicePxf = info.RenderInfo.ScaledTrimmedNineSlicePxf;
+            const float dstX0Pxf = dstPositionPxf.X + (scaledImageTrimMarginPxf.Left());
+            const float dstY0Pxf = dstPositionPxf.Y + (scaledImageTrimMarginPxf.Top());
+            const float dstX1Pxf = dstPositionPxf.X + (scaledImageTrimMarginPxf.Left() + scaledNineSlicePxf.Left());
+            const float dstY1Pxf = dstPositionPxf.Y + (scaledImageTrimMarginPxf.Top() + scaledNineSlicePxf.Top());
+            const float dstX2Pxf = dstPositionPxf.X + (renderWidthPxf - scaledNineSlicePxf.Right());
+            const float dstY2Pxf = dstPositionPxf.Y + (renderHeightPxf - scaledNineSlicePxf.Bottom());
+            const float dstX3Pxf = dstPositionPxf.X + (renderWidthPxf);
+            const float dstY3Pxf = dstPositionPxf.Y + (renderHeightPxf);
 
             // top left
             batch2D.Draw(*pNativeTexture,
@@ -128,7 +128,7 @@ namespace Fsl
         }
       }
 
-      inline static void DrawRotated90CW(INativeBatch2D& batch2D, const NineSliceSprite* const pSprite, const Vector2 dstPositionPxf,
+      inline static void DrawRotated90CW(INativeBatch2D& batch2D, const NineSliceSprite* const pSprite, const PxVector2 dstPositionPxf,
                                          const PxSize2D& dstSizePx, const Color& color)
       {
         if (pSprite != nullptr)
@@ -140,29 +140,29 @@ namespace Fsl
             // BlendState is stored in the NativeMaterialFlags
             batch2D.ChangeTo(static_cast<BlendState>(info.MaterialInfo.NativeMaterialFlags));
 
-            const auto& scaledImageTrimMarginPx = info.RenderInfo.ScaledTrimMarginPx;
-            auto renderWidthPx = dstSizePx.Width() - scaledImageTrimMarginPx.Bottom();
-            auto renderHeightPx = dstSizePx.Height() - scaledImageTrimMarginPx.Right();
+            const PxThicknessF& scaledImageTrimMarginPxf = info.RenderInfo.ScaledTrimMarginPxf;
+            const float renderWidthPxf = static_cast<float>(dstSizePx.Width()) - scaledImageTrimMarginPxf.Bottom();
+            const float renderHeightPxf = static_cast<float>(dstSizePx.Height()) - scaledImageTrimMarginPxf.Right();
 
-            const auto& scaledNineSlicePx = info.RenderInfo.ScaledTrimmedNineSlicePx;
-            const float dstX0Pxf = dstPositionPxf.X + static_cast<float>(scaledImageTrimMarginPx.Top());
-            const float dstY0Pxf = dstPositionPxf.Y + static_cast<float>(scaledImageTrimMarginPx.Left());
-            const float dstX1Pxf = dstPositionPxf.X + static_cast<float>(scaledImageTrimMarginPx.Top() + scaledNineSlicePx.Top());
-            const float dstY1Pxf = dstPositionPxf.Y + static_cast<float>(scaledImageTrimMarginPx.Left() + scaledNineSlicePx.Left());
-            const float dstX2Pxf = dstPositionPxf.X + static_cast<float>(renderWidthPx - scaledNineSlicePx.Bottom());
-            const float dstY2Pxf = dstPositionPxf.Y + static_cast<float>(renderHeightPx - scaledNineSlicePx.Right());
-            const float dstX3Pxf = dstPositionPxf.X + static_cast<float>(renderWidthPx);
-            const float dstY3Pxf = dstPositionPxf.Y + static_cast<float>(renderHeightPx);
+            const PxThicknessF& scaledNineSlicePxf = info.RenderInfo.ScaledTrimmedNineSlicePxf;
+            const float dstX0Pxf = dstPositionPxf.X + (scaledImageTrimMarginPxf.Top());
+            const float dstY0Pxf = dstPositionPxf.Y + (scaledImageTrimMarginPxf.Left());
+            const float dstX1Pxf = dstPositionPxf.X + (scaledImageTrimMarginPxf.Top() + scaledNineSlicePxf.Top());
+            const float dstY1Pxf = dstPositionPxf.Y + (scaledImageTrimMarginPxf.Left() + scaledNineSlicePxf.Left());
+            const float dstX2Pxf = dstPositionPxf.X + (renderWidthPxf - scaledNineSlicePxf.Bottom());
+            const float dstY2Pxf = dstPositionPxf.Y + (renderHeightPxf - scaledNineSlicePxf.Right());
+            const float dstX3Pxf = dstPositionPxf.X + (renderWidthPxf);
+            const float dstY3Pxf = dstPositionPxf.Y + (renderHeightPxf);
 
             // ABC | GDA
             // DEF | HEB
             // GHI | IFC
             // Basic quad vertex format
-            //  u1 u2
+            //  u0 u1
             // v 0--1    None     = 0=u0,v0 1=u1,v0 2=u0,v1 3=u2,v1
-            // 1 |  |    Rot90CW  = 0=u0,v1 1=u0,v0 2=u1,v1 3=u2,v0
+            // 0 |  |    Rot90CW  = 0=u0,v1 1=u0,v0 2=u1,v1 3=u2,v0
             // v |  |    Rot180CW = 0=u1,v1 1=u0,v1 2=u1,v0 3=u0,v0
-            // 2 2--3    Rot270CW = 0=u1,v0 1=u1,v1 2=u0,v0 3=u0,v1
+            // 1 2--3    Rot270CW = 0=u1,v0 1=u1,v1 2=u0,v0 3=u0,v1
 
             // top left
             batch2D.Draw(*pNativeTexture,

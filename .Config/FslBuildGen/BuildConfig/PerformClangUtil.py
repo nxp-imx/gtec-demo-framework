@@ -32,7 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import List
-from typing import Optional
+#from typing import Optional
 import subprocess
 from FslBuildGen.BuildConfig.ClangExeInfo import ClangExeInfo
 from FslBuildGen.BuildExternal.PackageRecipeResult import PackageRecipeResult
@@ -53,7 +53,7 @@ class PerformClangUtil(object):
 
     @staticmethod
     def LookupRecipeResults(packageRecipeResultManager: PackageRecipeResultManager,
-                           recipePackageName: str, magicCommandName: str) -> ClangExeInfo:
+                            recipePackageName: str, magicCommandName: str) -> ClangExeInfo:
         if not recipePackageName in packageRecipeResultManager.PackageDict:
             # ok no direct lookup, so lets try to locate it by the magic command name
             candidateList = PerformClangUtil._TryLookupAlternativeResults(packageRecipeResultManager, magicCommandName)
@@ -88,10 +88,9 @@ class PerformClangUtil(object):
             if result != 0:
                 log.LogPrintWarning("The command '{0}' failed with '{1}'.".format(" ".join(versionCommand), result))
         except FileNotFoundError:
-                log.DoPrintWarning("The command '{0}' failed with 'file not found'.".format(" ".join(versionCommand)))
-                raise
+            log.DoPrintWarning("The command '{0}' failed with 'file not found'.".format(" ".join(versionCommand)))
+            raise
 
     @staticmethod
     def CanProcessPackage(package: Package) -> bool:
         return package.ResolvedBuildAllIncludeFiles is not None and package.AllowCheck and (not package.IsVirtual or package.Type == PackageType.HeaderLibrary)
-

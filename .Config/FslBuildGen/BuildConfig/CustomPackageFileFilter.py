@@ -34,7 +34,7 @@
 from typing import Dict
 from typing import List
 from typing import Optional
-import fnmatch;
+import fnmatch
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
 from FslBuildGen.Log import Log
@@ -67,7 +67,7 @@ class CustomPackageFileFilter(object):
         matchedFiles.sort()
         return matchedFiles if len(matchedFiles) > 0 else None
 
-    def __MatchPaths(self, filenameList: List[str], filenameToPathsDict: Dict[str,List[str]], directoryPattern: str) -> List[str]:
+    def __MatchPaths(self, filenameList: List[str], filenameToPathsDict: Dict[str, List[str]], directoryPattern: str) -> List[str]:
         """
         Match
         """
@@ -80,7 +80,7 @@ class CustomPackageFileFilter(object):
                         result.append(filepath)
         return result
 
-    def __CreateFilenameLookupDict(self, filenameList: List[str]) -> Dict[str,List[str]]:
+    def __CreateFilenameLookupDict(self, filenameList: List[str]) -> Dict[str, List[str]]:
         """
         Create a lookup dict that matches a filename to all full paths where that filename exist
         """

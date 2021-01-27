@@ -1,5 +1,27 @@
 # Releases
 
+## Release 5.7.0
+
+* Python 3.6 or better is now required
+* Updated all setup guides.
+* Windows and Ubuntu now uses cmake find_package to locate the system OpenCL implementation.
+  This removes the the dependency on the deprecated AMD App SDK.
+* Samples:
+  * New Vulkan sample: Vulkan.GenerateMipMaps
+  * New Vulkan sample: Vulkan.ShaderClock sample (VK_KHR_shader_clock)
+  * Vulkan samples updated to utilize the new mipmap generation code.
+* Build tools:
+  * FslBuildCheck.py clang tidy now defaults to use cmake for dependencies. Legacy mode can still be used by adding ```--legacy```.
+  * FslBuild on windows now defaults to the cmake visual studio generator.
+  * FslBuild now support package flavors.
+  * **Breaking change** FslBuild removed support for dynamic variants.
+  * **Breaking change** FslBuild custom Visual Studio project generator no longer use dynamic variants for the OpenGL ES and OpenVG emulation. This means we no longer generate a the ```.StartProject.bat``` file. The user is now responsible calling ```ConfigureOpenGLESEmu.bat```   to configure the OpenGL ES emulator before launching the project.. Its recommended to call this right after the prepare.bat file.
+* Dependencies:
+  * Upgraded FMT to 7.1.
+  * Upgraded GLM to 0.9.9
+  * Upgraded GLI to master branch snapshot (0c171ee87fcfe35a7e0e0445adef06f92e0b6a91)
+  * Upgraded RapidVulkan to 1.2.162
+
 ## Release 5.6
 
 * This release contains breaking changes.

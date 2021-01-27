@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="OpenVX"/>
     <Dependency Name="FslUtil.OpenVX1_1"/>
-    <Platform Name="Windows" ProjectId="80B0657E-4580-4422-B954-9CECC4A36D50"/>
   </Executable>
 </FslBuildGen>

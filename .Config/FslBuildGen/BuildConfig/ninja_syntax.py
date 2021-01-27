@@ -80,12 +80,12 @@ class Writer(object):
 
     def build(self, outputs: Optional[Union[str, List[str]]],
               rule: str,
-              inputs: Optional[Union[str, List[str]]]=None,
-              implicit: Optional[Union[str, List[str]]]=None,
-              order_only: Optional[Union[str, List[str]]]=None,
-              variables: Optional[Any]=None,
-              implicit_outputs: Optional[Union[str, List[str]]]=None,
-              pool: Optional[str]=None) -> List[str]:
+              inputs: Optional[Union[str, List[str]]] = None,
+              implicit: Optional[Union[str, List[str]]] = None,
+              order_only: Optional[Union[str, List[str]]] = None,
+              variables: Optional[Any] = None,
+              implicit_outputs: Optional[Union[str, List[str]]] = None,
+              pool: Optional[str] = None) -> List[str]:
         outputList = as_list(outputs)
         out_outputs = [escape_path(x) for x in outputList]
         all_inputs = [escape_path(x) for x in as_list(inputs)]
@@ -138,7 +138,7 @@ class Writer(object):
             dollar_index -= 1
         return dollar_count
 
-    def _line(self, text: str, indent: int=0) -> None:
+    def _line(self, text: str, indent: int = 0) -> None:
         """Write 'text' word-wrapped at self.width characters."""
         leading_space = '  ' * indent
         while len(leading_space) + len(text) > self.width:
@@ -150,8 +150,7 @@ class Writer(object):
             space = available_space
             while True:
                 space = text.rfind(' ', 0, space)
-                if (space < 0 or
-                    self._count_dollars_before_index(text, space) % 2 == 0):
+                if (space < 0 or self._count_dollars_before_index(text, space) % 2 == 0):
                     break
 
             if space < 0:
@@ -159,8 +158,7 @@ class Writer(object):
                 space = available_space - 1
                 while True:
                     space = text.find(' ', space + 1)
-                    if (space < 0 or
-                        self._count_dollars_before_index(text, space) % 2 == 0):
+                    if (space < 0 or self._count_dollars_before_index(text, space) % 2 == 0):
                         break
             if space < 0:
                 # Give up on breaking.
@@ -178,12 +176,12 @@ class Writer(object):
         self.output.close()
 
 
-def as_list(input: Optional[Union[str, List[str]]]) -> List[str]:
-    if input is None:
+def as_list(inputObj: Optional[Union[str, List[str]]]) -> List[str]:
+    if inputObj is None:
         return []
-    if isinstance(input, list):
-        return input
-    return [input]
+    if isinstance(inputObj, list):
+        return inputObj
+    return [inputObj]
 
 
 def escape(string: str) -> str:
@@ -194,7 +192,7 @@ def escape(string: str) -> str:
     return string.replace('$', '$$')
 
 
-def expand(string: str, vars: Any, local_vars: Any={}) -> str:
+def expand(string: str, vars: Any, local_vars: Any = {}) -> str:
     """Expand a string containing $vars as Ninja would.
 
     Note: doesn't handle the full Ninja variable syntax, but it's enough

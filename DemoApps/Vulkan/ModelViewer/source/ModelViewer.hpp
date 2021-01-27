@@ -55,6 +55,7 @@
 
 namespace Fsl
 {
+  class ITextureService;
   namespace Graphics3D
   {
     class SceneNode;
@@ -181,7 +182,7 @@ namespace Fsl
     void PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useDiffuse, const bool useGlossMap,
                        const bool useSpecularMap, const bool useNormalMap, const std::string& baseShaderName, const bool requireVertexNormal = true);
 
-    bool PrepareTextures(const IContentManager& contentManager, const ModelSceneUtil::ModelLoaderConfig& config);
+    bool PrepareTextures(const IContentManager& contentManager, const ModelSceneUtil::ModelLoaderConfig& config, ITextureService* pTextureService);
   };
 }
 

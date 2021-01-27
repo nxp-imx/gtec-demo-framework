@@ -105,7 +105,7 @@ namespace Fsl
         Matrices.Perspective = glm::perspective(glm::radians(Fov), aspect, ZNear, ZFar);
       }
 
-      void SetPosition(glm::vec3 position)
+      void SetPosition(const glm::vec3& position)
       {
         Position = position;
         UpdateViewMatrix();
@@ -117,7 +117,7 @@ namespace Fsl
         UpdateViewMatrix();
       };
 
-      void Rotate(glm::vec3 delta)
+      void Rotate(const glm::vec3& delta)
       {
         Rotation += delta;
         UpdateViewMatrix();

@@ -31,9 +31,9 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 from typing import Optional
-from enum import Enum
+#from enum import Enum
 
 class RequirementType(object):
     Undefined = 0
@@ -89,4 +89,3 @@ class RequirementInfo(object):
         if len(src1) > 0:
             return "{0}, {1}".format(src1, src2)
         return "{0}".format(src2)
-

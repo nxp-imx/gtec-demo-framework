@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtVector3, Log)
 {
-  Vector3 value(1.0f, 2.0f, 3.0f);
+  Vector3 value(1.1f, 2.1f, 3.1f);
 
-  EXPECT_EQ(std::string("{X=1.0 Y=2.0 Z=3.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{X=1.1 Y=2.1 Z=3.1}"), fmt::format("{}", value));
 }

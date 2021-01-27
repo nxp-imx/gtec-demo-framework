@@ -3,6 +3,5 @@
   <Executable Name="GLES3.ColorspaceInfo" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslUtil.EGL"/>
-    <Platform Name="Windows" ProjectId="BF90AAFD-446C-4968-B705-C73E819B0532"/>
   </Executable>
 </FslBuildGen>

@@ -9,10 +9,7 @@ message(STATUS "Using CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
 ##DEFINE_PATH_ENVIRONMENT_AS_VARIABLES##
 
 # location of additional cmake modules
-#set(CMAKE_MODULE_PATH
-#    ${CMAKE_MODULE_PATH}
-#    ${FSL_GRAPHICS_SDK}/.Config/cmake
-#    )
+list(APPEND CMAKE_MODULE_PATH "${FSL_GRAPHICS_SDK}/.Config/cmake")
 
 # Disabled due to win7 x64 problems
 # find python

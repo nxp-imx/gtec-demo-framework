@@ -64,7 +64,7 @@ class XmlNewVSProjectTemplateFile(XmlBase):
         if elem.tag == 'FslBuildGeneratorVSProjectTemplate':
             pass
         elif elem.tag == 'FslBuildNewVSProjectTemplate':
-            log.LogPrintWarning("Template file '{0}' using legacy template FslBuildNewVSProjectTemplate update it to FslBuildGeneratorVSProjectTemplate".format(filename));
+            log.LogPrintWarning("Template file '{0}' using legacy template FslBuildNewVSProjectTemplate update it to FslBuildGeneratorVSProjectTemplate".format(filename))
         else:
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGeneratorVSProjectTemplate'")
 

@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.InputEvents" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.InputEvents"/>
-    <Platform Name="Windows" ProjectId="09ED28A8-4ACA-41AD-BB9D-DA8DA421DCF3"/>
   </Executable>
 </FslBuildGen>

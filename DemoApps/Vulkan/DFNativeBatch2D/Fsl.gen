@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.DFNativeBatch2D" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.DFNativeBatch2D"/>
-    <Platform Name="Windows" ProjectId="6326D185-ED09-4EEE-A00B-4EA4880B8ED9"/>
   </Executable>
 </FslBuildGen>

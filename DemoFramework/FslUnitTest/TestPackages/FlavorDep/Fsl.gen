@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslUnitTest.TestPackages.FlavorDep" CreationYear="2019">
+    <Requirement Name="Test_TestPackage" Type="feature"/>
+    <Platform Name="Windows" ProjectId="38A49A26-62E5-4719-937F-F485132FFB80">
+      <!--<Dependency Name="FslUnitTest.TestPackages.Flavors|FSL_TEST_STATIC_FLAVOR1=Option3"/>-->
+      <Dependency Name="FslUnitTest.TestPackages.Flavors"/>
+    </Platform>
+  </Library>
+</FslBuildGen>

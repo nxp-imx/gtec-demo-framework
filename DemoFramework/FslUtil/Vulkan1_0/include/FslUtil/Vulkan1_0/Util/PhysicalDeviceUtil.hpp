@@ -44,6 +44,11 @@ namespace Fsl
   {
     namespace PhysicalDeviceUtil
     {
+      bool IsDeviceExtensionsAvailable(const VkPhysicalDevice device, const uint32_t extensionCount, const char* const* enabledExtensionNames,
+                                       const char* const pszLayerName = nullptr);
+
+      std::vector<VkExtensionProperties> EnumerateDeviceExtensionProperties(const VkPhysicalDevice device, const char* const pszLayerName = nullptr);
+
       //! vkGetPhysicalDeviceFormatProperties
       inline VkFormatProperties GetPhysicalDeviceFormatProperties(const VkPhysicalDevice physicalDevice, const VkFormat format)
       {

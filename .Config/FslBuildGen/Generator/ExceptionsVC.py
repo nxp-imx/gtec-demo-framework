@@ -36,4 +36,4 @@ from FslBuildGen.Xml.Exceptions import XmlException2
 class PackageDuplicatedWindowsVisualStudioProjectIdException(XmlException2):
     def __init__(self, package1: Package, package2: Package, duplicatedProjectId: str) -> None:
         msg = "The windows platform requires a unique ProjectId to be defined. {0} is defined in {1} and {2} ".format(duplicatedProjectId, package1.Name, package2.Name)
-        super().__init__(package1.XMLElement, msg)
+        super().__init__(msg)

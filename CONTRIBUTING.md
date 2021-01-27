@@ -67,6 +67,14 @@ If you are submitting a new demo app you also need to:
     ```
 
    If your app is a console app or the API doesn't support taking screenshots please prepare a relevant screenshot (Example.jpg 1920x1080).
+   Beware for most platforms the screenshot is saved at the "executables current working directory".
+
+   For windows we have a helper batch script that will write the screenshot to the package directory:
+
+   ```bash
+   FslBuild.py --ForAllExe "WinScreenshot.bat (EXE) (PACKAGE_PATH)"
+   ```
+
 2. Write a description in the README.md
 3. Attach the the argument list to the README.md using this command (WARNING: you might want to check-in your README.md before doing this)
 

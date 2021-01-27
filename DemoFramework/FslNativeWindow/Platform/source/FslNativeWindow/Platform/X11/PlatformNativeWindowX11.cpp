@@ -260,9 +260,9 @@ namespace Fsl
       bool found = false;
       XRRScreenConfiguration* pScreenInfo = XRRGetScreenInfo(platformDisplay, platformWindow);
       {
-        Rotation currentRotation;
+        Rotation currentRotation{};
         const auto currentSize = XRRConfigCurrentConfiguration(pScreenInfo, &currentRotation);
-        int sizeCount;
+        int sizeCount = 0;
         XRRScreenSize* pSizes = XRRConfigSizes(pScreenInfo, &sizeCount);
         if (currentSize <= sizeCount)
         {
@@ -377,7 +377,7 @@ namespace Fsl
     }
 
     // Lookup the default visual
-    auto defaultVisual = DefaultVisual(m_platformDisplay, 0);
+    auto* defaultVisual = DefaultVisual(m_platformDisplay, 0);
     m_visualId = XVisualIDFromVisual(defaultVisual);
 
     // Get some extension info
@@ -385,7 +385,8 @@ namespace Fsl
     FSLLOG3_VERBOSE3("PlatformNativeWindowSystemX11| Extension RR: {}", m_extensionRREnabled);
     if (m_extensionRREnabled)
     {
-      int major, minor;
+      int major = 0;
+      int minor = 0;
       if (XRRQueryVersion(m_platformDisplay, &major, &minor) != 0)
       {
         FSLLOG3_VERBOSE3("PlatformNativeWindowSystemX11| RR version: {}.{}", major, minor);
@@ -426,8 +427,8 @@ namespace Fsl
                                                       const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
     FSLLOG3_VERBOSE3("PlatformNativeWindowSystemX11| CreateNativeWindow")
-    const auto window = m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_visualId, m_extensionRREnabled),
-                                             pPlatformCustomWindowAllocationParams);
+    auto window = m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_visualId, m_extensionRREnabled),
+                                       pPlatformCustomWindowAllocationParams);
 
     auto ptr = std::dynamic_pointer_cast<PlatformNativeWindowX11>(window);
     if (!ptr)
@@ -443,10 +444,10 @@ namespace Fsl
   bool PlatformNativeWindowSystemX11::ProcessMessages(const NativeWindowProcessMessagesArgs& /*args*/)
   {
     const std::shared_ptr<PlatformNativeWindowX11> window = m_window.lock();
-    VirtualKey::Enum keyCode;
+    VirtualKey::Enum keyCode = VirtualKey::Undefined;
     std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
     PxPoint2 mousePosition;
-    VirtualMouseButton::Enum mouseButton;
+    VirtualMouseButton::Enum mouseButton = VirtualMouseButton::Undefined;
     bool bQuit = false;
     XEvent event;
     static int wheelEvents = 0;
@@ -583,13 +584,16 @@ namespace Fsl
     FSLLOG3_VERBOSE3("PlatformNativeWindowX11| Constructing");
 
     const NativeWindowConfig nativeWindowConfig = nativeWindowSetup.GetConfig();
-    int windowWidth, windowHeight, windowX, windowY;
+    int windowWidth = 0;
+    int windowHeight = 0;
+    int windowX = 0;
+    int windowY = 0;
     g_eventQueue = nativeWindowSetup.GetEventQueue();
 
     XVisualInfo visualInfo{};
     visualInfo.visualid = platformWindowParams.VisualId;
 
-    int visualItemCount;
+    int visualItemCount = 0;
     m_pVisual = XGetVisualInfo(m_platformDisplay, VisualIDMask, &visualInfo, &visualItemCount);
     if (m_pVisual == nullptr)
     {

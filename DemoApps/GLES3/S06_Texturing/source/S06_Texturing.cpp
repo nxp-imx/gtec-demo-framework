@@ -235,7 +235,7 @@ namespace Fsl
 
     {    // Load the texture (we use a scope here, so the bitmap objects is thrown away as soon as we dont need it)
       Bitmap bitmap;
-      content->Read(bitmap, "Texturing.png", PixelFormat::R8G8B8_UNORM);
+      content->Read(bitmap, "GPUSdk/SquareLogo512x512.jpg", PixelFormat::R8G8B8_UNORM);
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       m_texture.SetData(bitmap, params);
     }

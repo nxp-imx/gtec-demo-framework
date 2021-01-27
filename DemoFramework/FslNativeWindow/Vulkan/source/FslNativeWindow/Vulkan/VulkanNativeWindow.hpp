@@ -122,7 +122,7 @@ namespace Fsl
   private:
     static NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
-      const auto pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
+      const auto* const pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
       if (pNativeSetup == nullptr)
       {
         throw NotSupportedException("NativeVulkanSetup pointer expected");

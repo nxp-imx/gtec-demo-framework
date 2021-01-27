@@ -190,7 +190,7 @@ namespace Fsl
       const auto& color = m_enabled ? m_fontColor : m_fontDisabledColor;
 
       batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
-      batch->DrawString(*pFont, content, dstPosPxf, color);
+      batch->DrawString(*pFont, content, TypeConverter::To<Vector2>(dstPosPxf), color);
     }
 
 

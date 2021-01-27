@@ -40,151 +40,162 @@ class XmlException(Exception):
     """
 
 class XmlException2(Exception):
-    def __init__(self, xmlElement: ET.Element, message: str) -> None:
+    def __init__(self, message: str) -> None:
         super().__init__("{0}".format(message))
 
 
 class XmlRequiredAttributeMissingException(XmlException2):
     def __init__(self, xmlElement: ET.Element, attribName: str) -> None:
         msg = "Element '{0}' did not contain the required '{1}' attribute".format(xmlElement.tag, attribName)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
                 #raise XmlDuplicatedCompilerConfigurationException(result[config.Id].BasedOn, result[config.Id].Name, config.XMLElement, config.Name)
 
 class XmlDuplicatedCompilerConfigurationException(XmlException2):
     def __init__(self, xmlElement1: ET.Element, name1: str, xmlElement2: ET.Element, name2: str) -> None:
         msg = "Compiler comfigured multiple times as '{0}' and '{1}'".format(name1, name2)
-        super().__init__(xmlElement1, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedCompilerVersionException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str, version: str, validVersions: str) -> None:
         msg = "Compiler '{0}' does not support version '{1}', expected '{2}'".format(name, version, validVersions)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedPlatformException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "Platform name: '{0}' is not a valid platform name, expected: {1}".format(name, ", ".join(PackageConfig.APPROVED_PLATFORM_NAMES))
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlMissingWindowsVisualStudioProjectIdException(XmlException2):
     def __init__(self, xmlElement: ET.Element, packageName: str) -> None:
         msg = "The windows platform requires a ProjectId to be defined. Package name '{0}'".format(packageName)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlInvalidPackageNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, correctName: str, invalidName: str, strPath: str, strPathRoot: str) -> None:
         msg = "The name: '{0}' does not match the expected name of '{1}' for package at {2} with a package root of {3}".format(invalidName, correctName, strPath, strPathRoot)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlInvalidSubPackageNameException(XmlInvalidPackageNameException):
     def __init__(self, xmlElement: ET.Element, correctName: str, invalidName: str, strPath: str, strPathRoot: str) -> None:
+        # pylint: disable=useless-super-delegation
         super().__init__(xmlElement, correctName, invalidName, strPath, strPathRoot)
 
 
 class XmlInvalidSubPackageShortNameConflictException(XmlException2):
     def __init__(self, xmlElement: ET.Element, correctName: str, invalidName: str) -> None:
         msg = "The short sub package name: '{0}' is not allowed because a directory called '{1}' exist".format(invalidName, correctName)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedPackageNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The name: '{0}' contains unsupported characters".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
+
+class XmlUnsupportedFlavorNameException(XmlException2):
+    def __init__(self, xmlElement: ET.Element, name: str) -> None:
+        msg = "The flavor name: '{0}' contains unsupported characters".format(name)
+        super().__init__(msg)
 
 class XmlUnsupportedVariantNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The variant name: '{0}' contains unsupported characters".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlRequirementNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The requirement name: '{0}' contains unsupported characters".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlRequirementStringException(XmlException2):
     def __init__(self, xmlElement: ET.Element, desc: str, name: str) -> None:
         msg = "The requirement {0}: '{1}' contains unsupported characters".format(desc, name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlRequirementTypeException(XmlException2):
     def __init__(self, xmlElement: ET.Element, entryName: str, entryType: str, entryExtends: str, validList: List[str]) -> None:
         msg = "The requirement type: '{0}' is invalid for '{1}' extends '{2}', expected [{3}]".format(entryType, entryName, entryExtends, ', '.join(validList))
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlRequirementTypeExtensionRequiresAValidExtendFieldException(XmlException2):
     def __init__(self, xmlElement: ET.Element, entryName: str) -> None:
         msg = "The requirement '{0}' with type of 'extension' requires a non empty 'Extends' attribute".format(entryName)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedVirtualVariantNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The variant name: '{0}' contains unsupported characters".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedTag(XmlException2):
     def __init__(self, xmlElement: ET.Element, message: str) -> None:
-        super().__init__(xmlElement, message)
+        # pylint: disable=useless-super-delegation
+        super().__init__(message)
 
+
+class XmlUnsupportedFlavorOptionNameException(XmlException2):
+    def __init__(self, xmlElement: ET.Element, name: str) -> None:
+        msg = "The flavor option name: '{0}' contains unsupported characters".format(name)
+        super().__init__(msg)
 
 class XmlUnsupportedVariantOptionNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The variant option name: '{0}' contains unsupported characters".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlInvalidVirtualVariantOptionException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "Variant '{0}'. A virtual variant must contain exactly one option.".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedVirtualVariantOptionNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, variantName: str, name: str) -> None:
         msg = "The virtual variant option name: '{0}' is not equal to the variant name '{1}'".format(variantName, name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlUnsupportedSubPackageNameException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The name: '{0}' is a invalid sub package name".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
-class XmlVariantOptionNameCollisionException(XmlException2):
+class XmlFlavorOptionNameCollisionException(XmlException2):
     def __init__(self, xmlElement: ET.Element, firstName: str, secondName: str) -> None:
         msg = "The option name: '{0}' collides with the previously defined '{1}'".format(secondName, firstName)
-        super().__init__(xmlElement, msg)
-
+        super().__init__(msg)
 
 class UnknownBuildCustomizationException(XmlException2):
     def __init__(self, xmlElement: ET.Element) -> None:
         msg = "The build customization name: '{0}' is not valid.".format(xmlElement.tag)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class DefaultValueAlreadyDefinedException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The default value name: '{0}' has already been defined.".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class UnknownDefaultValueException(XmlException2):
     def __init__(self, xmlElement: ET.Element) -> None:
         msg = "The default value name: '{0}' is not valid.".format(xmlElement.tag)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlFormatException(Exception):
@@ -195,7 +206,7 @@ class XmlFormatException(Exception):
 class ImportTemplateNotFoundException(XmlException2):
     def __init__(self, xmlElement: ET.Element, templateName: str) -> None:
         msg = "'{0}' tries to import unknown template '{1}'".format(xmlElement.tag, templateName)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class XmlInvalidRootElement(Exception):
@@ -210,10 +221,10 @@ class XmlUnsupportedPackageType(Exception):
 class PlatformAlreadyDefinedException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The platform name: '{0}' has already been defined.".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)
 
 
 class BuildCustomizationAlreadyDefinedException(XmlException2):
     def __init__(self, xmlElement: ET.Element, name: str) -> None:
         msg = "The build customization name: '{0}' has already been defined.".format(name)
-        super().__init__(xmlElement, msg)
+        super().__init__(msg)

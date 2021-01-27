@@ -38,5 +38,5 @@ class ErrorHelpManager(object):
         super().__init__()
         self.OnErrorWarningHints = []  # type: List[str]
 
-    def AddOnErrorWarningHint(self, help: str) -> None:
-        self.OnErrorWarningHints.append(help)
+    def AddOnErrorWarningHint(self, strHelp: str) -> None:
+        self.OnErrorWarningHints.append(strHelp)

@@ -53,6 +53,7 @@ from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
 from FslBuildGen.BuildConfig.CMakeConfigurationPlatform import CMakeConfigurationPlatform
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.CMakeUtil import CMakeUtil
+from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.DataTypes import CompilerNames
 from FslBuildGen.DataTypes import MagicStrings
 from FslBuildGen.DataTypes import PackageRequirementTypeString
@@ -267,8 +268,12 @@ class ToolConfigPackageConfiguration(object):
         self.Preload = basedUponXML.Preload
         self.Locations = self.__ResolveLocations(basicConfig, rootDirs, basedUponXML.Locations, configFileName, projectRootDirectory)
 
-    def ClearLocations(self) -> None:
+    def ClearLocations(self, keep: str) -> None:
+        oldLocations = self.Locations
         self.Locations = []
+        for entry in oldLocations:
+            if entry.Name == keep:
+                self.Locations.append(entry)
 
     def AddLocations(self, newRootLocations: ToolConfigPackageConfigurationAddLocationType) -> None:
         # done in two steps to make mypy happy
@@ -345,7 +350,8 @@ class ToolConfigContentBuilderConfiguration(object):
 
 
 class ToolConfig(object):
-    def __init__(self, toolVersion: Version, basicConfig: BasicConfig, filename: str, projectRootConfig: XmlProjectRootConfigFile) -> None:
+    def __init__(self, buildPlatformType: BuildPlatformType, toolVersion: Version, basicConfig: BasicConfig, filename: str,
+                 projectRootConfig: XmlProjectRootConfigFile) -> None:
         super().__init__()
         basedUponXML = XmlToolConfigFile(basicConfig, filename, projectRootConfig)
         self.ToolVersion = toolVersion
@@ -371,6 +377,18 @@ class ToolConfig(object):
         self.RequirementTypes = [PackageRequirementTypeString.Extension, PackageRequirementTypeString.Feature]
         self.Experimental = self.__ResolveExperimental(basicConfig, self.RootDirectories, basedUponXML.Experimental, filename, projectRootConfig.RootDirectory) # type: Optional[ToolConfigExperimental]
 
+        if buildPlatformType == BuildPlatformType.Windows:
+            self.__ResolvedLegacyToCurrentOSPathMethod = self.TryLegacyToDosPath
+            self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod = self.TryLegacyToDosPathDirectConversion
+            self.__ResolvedToCurrentOSPathMethod = self.ToDosPath
+            self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToDosPathDirectConversion
+        else:
+            self.__ResolvedLegacyToCurrentOSPathMethod = self.TryLegacyToBashPath
+            self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod = self.TryLegacyToBashPathDirectConversion
+            self.__ResolvedToCurrentOSPathMethod = self.ToBashPath
+            self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToBashPathDirectConversion
+
+
     def GetMinimalConfig(self) -> ToolMinimalConfig:
         ignoreDirectories = []  # type: List[str]
         # ignore the template import directory
@@ -385,7 +403,7 @@ class ToolConfig(object):
         requirementList = [] # type: List[BuildDocConfigurationRequirement]
         if len(configList) < 1:
             return BuildDocConfiguration(requirementList)
-        config = configList[0];
+        config = configList[0]
         for requirement in config.Requirements:
             requirementList.append(BuildDocConfigurationRequirement(requirement.Name, requirement.Skip))
         return BuildDocConfiguration(requirementList)
@@ -393,15 +411,15 @@ class ToolConfig(object):
     def __TryGetClangFormatConfiguration(self, configList: List[XmlClangFormatConfiguration], ninjaRecipePackageName: str) -> Optional[ClangFormatConfiguration]:
         if len(configList) < 1:
             return None
-        config = configList[0];
+        config = configList[0]
         return ClangFormatConfiguration(config.FileExtensions, config.Recipe, ninjaRecipePackageName)
 
     def __TryGetClangTidyConfiguration(self, configList: List[XmlClangTidyConfiguration], ninjaRecipePackageName: str) -> Optional[ClangTidyConfiguration]:
         if len(configList) < 1:
             return None
-        config = configList[0];
+        config = configList[0]
         platforms = self.__GetClangTidyPlatforms(config.Platforms)
-        clangConfig =  ClangTidyConfiguration(config.FileExtensions, config.ClangRecipe, config.ClangTidyRecipe, ninjaRecipePackageName, platforms)
+        clangConfig = ClangTidyConfiguration(config.FileExtensions, config.ClangRecipe, config.ClangTidyRecipe, ninjaRecipePackageName, platforms)
         allPlatformName = 'all'
         if allPlatformName in clangConfig.PlatformDict:
             # append the all configuration to all other configurations
@@ -464,7 +482,7 @@ class ToolConfig(object):
                                                            platformEntry.AllowFindPackage))
 
         if defaultBuildDir is None:
-            raise Exception("CMakleConfiguration.DefaultBuildDir must be defined")
+            raise Exception("CMakeConfiguration.DefaultBuildDir must be defined")
         return CMakeConfiguration(defaultBuildDir, defaultInstallPrefix, minVersion, platformList, ninjaRecipePackageName)
 
 
@@ -604,6 +622,15 @@ class ToolConfig(object):
         if path is None:
             return None
         return self.ToDosPathDirectConversion(path)
+
+
+    def ToCurrentOSPathDirectConversion(self, path: str) -> str:
+        """ Resolve the path to how it would look on the current OS """
+        return self.__ResolvedToCurrentOSPathDirectConversionMethod(path)
+
+    def TryToCurrentOSPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+        """ Resolve the path to how it would look on the current OS """
+        return self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod(path)
 
 
     def __ResolveNewProjectTemplateRootDirectories(self, basicConfig: BasicConfig,

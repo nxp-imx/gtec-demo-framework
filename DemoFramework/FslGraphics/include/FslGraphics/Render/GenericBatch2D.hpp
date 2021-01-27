@@ -37,6 +37,7 @@
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
@@ -374,7 +375,7 @@ namespace Fsl
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
       Vector2 scale(dstRectanglePxf.Width() / srcTexture.Info.ExtentPx.Width, dstRectanglePxf.Height() / srcTexture.Info.ExtentPx.Height);
-      Draw(srcTexture, dstRectanglePxf.Location(), color, Vector2(), scale);
+      Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), color, Vector2(), scale);
     }
   }
 
@@ -397,7 +398,7 @@ namespace Fsl
                      ? Vector2(dstRectanglePxf.Width() / srcTexture.Info.ExtentPx.Width, dstRectanglePxf.Height() / srcTexture.Info.ExtentPx.Height)
                      : Vector2(dstRectanglePxf.Width() / srcTexture.Info.ExtentPx.Height, dstRectanglePxf.Height() / srcTexture.Info.ExtentPx.Width);
 
-      Draw(srcTexture, dstRectanglePxf.Location(), color, Vector2(), scale, effect);
+      Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), color, Vector2(), scale, effect);
     }
   }
 
@@ -679,7 +680,7 @@ namespace Fsl
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
       Vector2 scale(dstRectanglePxf.Width() / srcRectanglePx.Width, dstRectanglePxf.Height() / srcRectanglePx.Height);
-      Draw(srcTexture, dstRectanglePxf.Location(), srcRectanglePx, color, Vector2(), scale);
+      Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), srcRectanglePx, color, Vector2(), scale);
     }
   }
 
@@ -740,7 +741,7 @@ namespace Fsl
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
       Vector2 scale(dstRectanglePxf.Width() / srcRectanglePx.Width, dstRectanglePxf.Height() / srcRectanglePx.Height);
-      Draw(srcTexture, dstRectanglePxf.Location(), srcRectanglePx, color, Vector2(), scale, clipRectPx);
+      Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), srcRectanglePx, color, Vector2(), scale, clipRectPx);
     }
   }
 
@@ -806,7 +807,7 @@ namespace Fsl
                      ? Vector2(dstRectanglePxf.Width() / srcRectanglePx.Width, dstRectanglePxf.Height() / srcRectanglePx.Height)
                      : Vector2(dstRectanglePxf.Width() / srcRectanglePx.Height, dstRectanglePxf.Height() / srcRectanglePx.Width);
 
-      Draw(srcTexture, dstRectanglePxf.Location(), srcRectanglePx, color, Vector2(), scale, effect);
+      Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), srcRectanglePx, color, Vector2(), scale, effect);
     }
   }
 
@@ -1615,8 +1616,8 @@ namespace Fsl
         // | |
         // 2-3
 
-        const float scaledDstWidth = static_cast<float>(srcGlyph.DstRectPx.Extent.Width);
-        const float scaledDstHeight = static_cast<float>(srcGlyph.DstRectPx.Extent.Height);
+        const auto scaledDstWidth = static_cast<float>(srcGlyph.DstRectPx.Extent.Width);
+        const auto scaledDstHeight = static_cast<float>(srcGlyph.DstRectPx.Extent.Height);
 
         const float u1 = srcGlyph.SrcRectPx.Left() / srcWidth;
         const float u2 = srcGlyph.SrcRectPx.Right() / srcWidth;

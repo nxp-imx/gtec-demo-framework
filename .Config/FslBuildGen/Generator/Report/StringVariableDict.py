@@ -31,17 +31,17 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Dict
-from typing import List
-from typing import Optional
+#from typing import Dict
+#from typing import List
+#from typing import Optional
 from FslBuildGen.Generator.Report.VariableDict import VariableDict
 from FslBuildGen.Generator.Report.VariableReport import VariableReport
 
 
 class StringVariableDict(VariableDict):
-    def __init__(self) -> None:
-        super().__init__()
+    #def __init__(self) -> None:
+    #    super().__init__()
 
     def Add(self, variableName: str, variableValue: str) -> None:
-        dict = self._GetDict()
-        dict[variableName] = VariableReport(variableName, [variableValue], None)
+        theDict = self._GetDict()
+        theDict[variableName] = VariableReport(variableName, [variableValue], None)

@@ -77,7 +77,7 @@ class GeneratorGNUmakefile(GeneratorBase):
         self.ExeTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, templateExe))
         self.LibTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, templateLib))
         for package in packages:
-            if not package.ResolvedPlatformNotSupported:
+            if package.ResolvedPlatformSupported:
                 if package.Type == PackageType.Library:
                     self.__GenerateLibraryBuildFile(config, generatorName, package, dstMakeFilename)
                 elif package.Type == PackageType.Executable:
@@ -101,7 +101,7 @@ class GeneratorGNUmakefile(GeneratorBase):
             if not depPackage.IsVirtual:
                 if depPackage.AbsolutePath is None:
                     raise Exception("Invalid package")
-                strContent += "pushd " + config.ToBashPath(depPackage.AbsolutePath) + " > /dev/null\n"
+                strContent += "pushd " + config.ToolConfig.ToBashPath(depPackage.AbsolutePath) + " > /dev/null\n"
                 strContent += 'make "$@"\n'
                 strContent += "popd > /dev/null\n"
         strContent += 'make "$@"\n'
@@ -127,10 +127,10 @@ class GeneratorGNUmakefile(GeneratorBase):
 
 
     def __GenerateBuildFile(self, config: Config, generatorName: str, package: Package, template: str, dstMakeFilename: str) -> None:
-        if package.ShortName is None or package.Namespace is None or package.ResolvedMakeObjectPath is None or package.AbsolutePath is None:
+        if package.ResolvedMakeObjectPath is None or package.AbsolutePath is None:
             raise Exception("Invalid Package")
         name = GeneratorGNUmakefileUtil.GetTargetName(package)
-        installPath = package.Namespace
+        installPath = package.NameInfo.Namespace.Value
         if package.Type == PackageType.Library:
             name = "lib" + name
 
@@ -255,7 +255,7 @@ class GeneratorGNUmakefile(GeneratorBase):
         buildOrder.reverse()
         for entry in buildOrder:
             if entry.Type == PackageType.Library:
-                asSdkBasedPath = config.TryToPath(entry.AbsolutePath)
+                asSdkBasedPath = config.ToolConfig.TryToPath(entry.AbsolutePath)
                 libPath = "%s/%s/lib%s$(TARGET_POSTFIX).a" % (asSdkBasedPath, entry.ResolvedMakeObjectPath, entry.Name)
                 #libPath = asSdkBasedPath + "/$(OBJ_PATH)/lib" + entry.Name +
                 #"$(TARGET_POSTFIX).a"
@@ -309,9 +309,7 @@ class GeneratorGNUmakefile(GeneratorBase):
 class GeneratorGNUmakefileUtil(object):
     @staticmethod
     def GetTargetName(package: Package) -> str:
-        if package.ShortName is None:
-            raise Exception("Invalid Package")
-        return package.ShortName if package.Type == PackageType.Executable else package.Name
+        return package.NameInfo.ShortName.Value if package.Type == PackageType.Executable else package.Name
 
 
     @staticmethod
@@ -399,4 +397,4 @@ class GeneratorGNUmakefileUtil(object):
         buildReport = GeneratorGNUmakefileUtil._TryGenerateBuildReport(log, generatorName, package, generatorConfig.BuildCommand)
         executableReport = GeneratorGNUmakefileUtil.TryGenerateExecutableReport(log, generatorName, package)
         variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(log, generatorName, package, configVariantOptions)
-        return PackageGeneratorReport(buildReport, executableReport, variableReport)
+        return PackageGeneratorReport(buildReport, executableReport, variableReport, None)

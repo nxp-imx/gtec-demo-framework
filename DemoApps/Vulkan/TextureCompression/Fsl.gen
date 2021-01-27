@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="Shared.TextureCompression"/>
-    <Platform Name="Windows" ProjectId="4912C84D-713E-4750-9104-6333694BE000"/>
   </Executable>
 </FslBuildGen>

@@ -32,25 +32,25 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
-from typing import Callable
+#from typing import Callable
 from typing import List
 from typing import Optional
-from typing import Tuple
+#from typing import Tuple
 import argparse
-import os
+#import os
 import sys
 import time
 from datetime import timedelta
 from FslBuildGen import IOUtil
 from FslBuildGen import ParseUtil
-from FslBuildGen import PluginSharedValues
-from FslBuildGen import Util
+#from FslBuildGen import PluginSharedValues
+#from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import BaseConfig
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.DataTypes import GeneratorNameString
-from FslBuildGen.DataTypes import VisualStudioVersion
+#from FslBuildGen.DataTypes import VisualStudioVersion
 from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Exceptions import AggregateException
 from FslBuildGen.Exceptions import ExitException
@@ -70,7 +70,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersion = Version(3, 1, 7, 6)
+CurrentVersion = Version(3, 2, 0, 8)
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -230,8 +230,6 @@ def __PrepareGeneratorPlugins(pluginConfigContext: PluginConfigContext, lowLevel
                               toolCommonArgConfig: ToolCommonArgConfig) -> List[str]:
     generatorPlugins = pluginConfigContext.GetGeneratorPlugins()
     generatorIds = [entry.PlatformId for entry in generatorPlugins]
-    if toolCommonArgConfig.AllowPlaformAll:
-        generatorIds.append(PluginSharedValues.PLATFORM_ID_ALL)
     return generatorIds
 
 
@@ -281,7 +279,7 @@ def __OnErrorInfo(buildTiming: Optional[BuildTimer], errorHelpManager: ErrorHelp
     if buildTiming is not None:
         PrintBuildTiming(buildTiming)
     if len(errorHelpManager.OnErrorWarningHints) > 0:
-        print("*** The following hints might help solve the issue but they also might be completely unrelated ***");
+        print("*** The following hints might help solve the issue but they also might be completely unrelated ***")
         for entry in errorHelpManager.OnErrorWarningHints:
             print("- HINT: {0}".format(entry))
 
@@ -395,8 +393,9 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
         toolConfigFile = projectRootConfig.ToolConfigFile
 
         # Get the path to the toolconfig file if necessary and load the tool config file
+        buildPlatformType = PlatformUtil.DetectBuildPlatformType()
         toolConfigPath = __GetToolConfigPath(toolConfigFile)
-        toolConfig = ToolConfig(CurrentVersion, basicConfig, toolConfigPath, projectRootConfig)
+        toolConfig = ToolConfig(buildPlatformType, CurrentVersion, basicConfig, toolConfigPath, projectRootConfig)
         baseConfig = BaseConfig(log, toolConfig)
     except (Exception) as ex:
         print("ERROR: {0}".format(ex))
@@ -513,4 +512,3 @@ def Run(appFlowFactory: AToolAppFlowFactory, allowStandaloneMode: bool = False) 
             p.print_stats(100)
         except ImportError:
             raise Exception("Standard python package cProfile or pstats is not available. So profiling is not available.")
-

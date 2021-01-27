@@ -40,7 +40,7 @@
 
 namespace Fsl
 {
-  //! While a PxThickness could contain negative values its considered invalid if it does.
+  //! A PxThickness can not contain negative values
   struct PxThickness
   {
     using value_type = int32_t;

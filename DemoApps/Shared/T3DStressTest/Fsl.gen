@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="Shared.T3DStressTest" CreationYear="2019">
     <Dependency Name="FslDemoApp.Base"/>
-    <Platform Name="Windows" ProjectId="71119B8C-4225-470D-B891-5B8AAB2804E6"/>
   </Library>
 </FslBuildGen>

@@ -33,9 +33,9 @@
 
 from typing import List
 from FslBuildGen import Util
-from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackagePlatformVariant
 from FslBuildGen.Packages.Package import PackagePlatformVariantOption
+from FslBuildGen.Packages.PackageInstanceName import PackageInstanceName
 from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
@@ -53,38 +53,26 @@ from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
 #        msg = "Feature name '{0}' in package '{1}' collides with feature name '{2}' from package '{3}'".format(name1, package1.Name, name2, package2.Name)
 #        super().__init__(package1.XMLElement, msg)
 
-
-class RequirementUseDuplicatedException(XmlException2):
-    def __init__(self, package: Package, requirement: XmlGenFileRequirement) -> None:
-        msg = "Requirement named '{0}' that extends '{1}' in package '{2}' already defined".format(requirement.Name, requirement.Extends, package.Name)
-        super().__init__(package.XMLElement, msg)
-
-
 class RequirementNameCollisionException(XmlException2):
-    def __init__(self, package1: Package, name1: str, package2: Package, name2: str) -> None:
-        msg = "Requirement name '{0}' in package '{1}' collides with requirement name '{2}' from package '{3}'".format(name1, package1.Name, name2, package2.Name)
-        super().__init__(package1.XMLElement, msg)
-
-
-class ExternalDependencyDuplicatedException(XmlException2):
-    def __init__(self, package: Package, dependency: XmlGenFileExternalDependency) -> None:
-        msg = "External  named '{0}' in package '{1}' already defined".format(dependency.Name, package.Name)
-        super().__init__(package.XMLElement, msg)
+    def __init__(self, packageName1: PackageInstanceName, name1: str, packageName2: PackageInstanceName, name2: str) -> None:
+        msg = "Requirement name '{0}' in package '{1}' collides with requirement name '{2}' from package '{3}'".format(name1, packageName1, name2, packageName2)
+        super().__init__(msg)
 
 
 class VariantExtensionNotSupportedException(XmlException2):
-    def __init__(self, extendingPackage: Package, extendingVariant: PackagePlatformVariant, basePackage: Package) -> None:
-        msg = "Package '{0}' variant: '{1}' can not extend the variant defined in '{2}'".format(extendingPackage.Name, extendingVariant.Name, basePackage.Name)
-        super().__init__(extendingPackage.XMLElement, msg)
+    def __init__(self, extendingPackageName: PackageInstanceName, extendingVariant: PackagePlatformVariant, basePackageName: PackageInstanceName) -> None:
+        msg = "Package '{0}' variant: '{1}' can not extend the variant defined in '{2}'".format(extendingPackageName, extendingVariant.Name, basePackageName)
+        super().__init__(msg)
 
 
 class ExtendingVariantCanNotIntroduceNewOptionsException(XmlException2):
-    def __init__(self, extendingPackage: Package, extendingVariant: PackagePlatformVariant, basePackage: Package, baseVariant: PackagePlatformVariant, newOptions: List[PackagePlatformVariantOption]) -> None:
-        msg = "Package '{0}' variant: '{1}' can not extend the options defined by '{2}' with '{3}'".format(extendingPackage.Name, extendingVariant.Name, basePackage.Name, ", ".join(Util.ExtractNames(newOptions)))
-        super().__init__(extendingPackage.XMLElement, msg)
+    def __init__(self, extendingPackageName: PackageInstanceName, extendingVariant: PackagePlatformVariant,
+                 basePackageName: PackageInstanceName, baseVariant: PackagePlatformVariant, newOptions: List[PackagePlatformVariantOption]) -> None:
+        msg = "Package '{0}' variant: '{1}' can not extend the options defined by '{2}' with '{3}'".format(extendingPackageName, extendingVariant.Name, basePackageName, ", ".join(Util.ExtractNames(newOptions)))
+        super().__init__(msg)
 
 
 class VariantNameCollisionException(XmlException2):
-    def __init__(self, extendingPackage: Package, extendingVariant: PackagePlatformVariant, basePackage: Package, baseVariant: PackagePlatformVariant) -> None:
-        msg = "Package '{0}' variant: '{1}' names collides with '{2}' variant '{3}'".format(extendingPackage.Name, extendingVariant.Name, basePackage.Name, baseVariant.Name)
-        super().__init__(extendingPackage.XMLElement, msg)
+    def __init__(self, extendingPackageName: PackageInstanceName, extendingVariant: PackagePlatformVariant, basePackageName: PackageInstanceName, baseVariant: PackagePlatformVariant) -> None:
+        msg = "Package '{0}' variant: '{1}' names collides with '{2}' variant '{3}'".format(extendingPackageName, extendingVariant.Name, basePackageName, baseVariant.Name)
+        super().__init__(msg)

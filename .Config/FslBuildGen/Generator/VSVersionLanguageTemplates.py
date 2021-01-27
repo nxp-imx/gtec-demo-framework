@@ -33,11 +33,12 @@
 
 from typing import Dict
 from typing import Optional
+from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Xml.XmlNewVSProjectTemplateFile import XmlNewVSProjectTemplateFile
 
 
 class VSVersionLanguageTemplates(object):
-    def __init__(self, packageLanguage: int) -> None:
+    def __init__(self, packageLanguage: PackageLanguage) -> None:
         super().__init__()
         self.PackageLanguage = packageLanguage
         self.TemplateDict = {}  # type: Dict[str, XmlNewVSProjectTemplateFile]

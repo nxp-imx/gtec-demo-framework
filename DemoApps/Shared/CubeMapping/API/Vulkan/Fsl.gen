@@ -3,6 +3,5 @@
   <Library Name="Shared.CubeMapping.API.Vulkan" CreationYear="2018">
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Dependency Name="FslDemoApp.Base"/>
-    <Platform Name="Windows" ProjectId="3F2BF233-0179-4E7D-BF80-3BF23297F1E8"/>
   </Library>
 </FslBuildGen>

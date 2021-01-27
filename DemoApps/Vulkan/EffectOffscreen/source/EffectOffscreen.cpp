@@ -147,7 +147,7 @@ namespace Fsl
       // A C
       // A = 1.0
 
-      const constexpr float ySplitPercentage = BOTTOM_HALF_SPLIT_PERCENTAGE;
+      constexpr const float ySplitPercentage = BOTTOM_HALF_SPLIT_PERCENTAGE;
 
       const float x0 = -size;
       const float x1 = size;
@@ -189,15 +189,13 @@ namespace Fsl
     }
 
     VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
-                            const std::shared_ptr<IContentManager>& contentManager, const IO::Path& filename, const bool repeat)
+                            const std::shared_ptr<IContentManager>& contentManager, const IO::Path& filename, const bool repeat,
+                            const bool generateMipMaps)
     {
-      // Improvement: use mip maps
-      // GLTextureParameters params(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      // return GLTexture(texture, params, TextureFlags::GenerateMipMaps);
-
       VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
 
-      Texture texture = contentManager->ReadTexture(filename, PixelFormat::R8G8B8A8_UNORM);
+      Texture texture =
+        contentManager->ReadTexture(filename, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::Undefined, PixelChannelOrder::Undefined, generateMipMaps);
 
       VkSamplerCreateInfo samplerCreateInfo{};
       samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -213,7 +211,7 @@ namespace Fsl
       samplerCreateInfo.compareEnable = VK_FALSE;
       samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
       samplerCreateInfo.minLod = 0.0f;
-      samplerCreateInfo.maxLod = 0.0f;
+      samplerCreateInfo.maxLod = static_cast<float>(texture.GetLevels());
       samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 
       return imageCreator.CreateTexture(texture, samplerCreateInfo);
@@ -533,8 +531,8 @@ namespace Fsl
     m_resources.EffectFragmentShaderTop.Reset(m_device.Get(), 0, contentManager->ReadBytes("EffectTop.frag.spv"));
     m_resources.EffectFragmentShaderBottom.Reset(m_device.Get(), 0, contentManager->ReadBytes("EffectBottom.frag.spv"));
 
-    m_resources.Texture = CreateTexture(m_device, m_deviceQueue, contentManager, "Textures/GPUSdk/SquareLogo512x512.jpg", false);
-    m_resources.EffectTexture = CreateTexture(m_device, m_deviceQueue, contentManager, "Textures/VFX/Distortion.png", true);
+    m_resources.Texture = CreateTexture(m_device, m_deviceQueue, contentManager, "Textures/GPUSdk/SquareLogo512x512.jpg", false, true);
+    m_resources.EffectTexture = CreateTexture(m_device, m_deviceQueue, contentManager, "Textures/VFX/Distortion.png", true, false);
     m_resources.CubeVertexBufferInfo = CreateCubeVertexBuffer(m_bufferManager);
     m_resources.DoubleQuadVertexBufferInfo = CreateDoubleQuadVertexBuffer(m_bufferManager);
     m_resources.MainDescriptorSetLayout = CreateDescriptorSetLayout(m_device);

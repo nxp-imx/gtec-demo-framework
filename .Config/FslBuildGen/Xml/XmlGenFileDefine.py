@@ -45,7 +45,7 @@ class XmlGenFileDefine(XmlBase):
         self.ConsumedBy = None
         access = self._ReadAttrib(xmlElement, 'Access')  # type: str
         if access == "Public":
-            self.Access = AccessType.Public  # type: int
+            self.Access = AccessType.Public  # type: AccessType
         elif access == "Private":
             self.Access = AccessType.Private
         else:

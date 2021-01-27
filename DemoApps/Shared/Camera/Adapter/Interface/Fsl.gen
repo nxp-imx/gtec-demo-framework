@@ -3,6 +3,5 @@
   <Library Name="Shared.Camera.Adapter.Interface" CreationYear="2018">
     <Requirement Name="EarlyAccess" Type="feature"/>
   	<Dependency Name="FslGraphics"/>
-    <Platform Name="Windows" ProjectId="604B42AE-9F73-46AC-B148-A58CA8490042"/>
   </Library>
 </FslBuildGen>

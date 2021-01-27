@@ -35,7 +35,7 @@
 #include <FslBase/ITag.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
-#include <FslDemoHost/Vulkan/Config/InstanceFeatureRequest.hpp>
+#include <FslDemoHost/Vulkan/Config/FeatureRequest.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequest.hpp>
 #include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <vulkan/vulkan.h>
@@ -56,10 +56,12 @@ namespace Fsl
     // VulkanDemoAppMode m_demoAppMode;
     std::deque<Vulkan::SurfaceFormatInfo> m_preferedSurfaceFormats;
     std::deque<Vulkan::PhysicalDeviceFeatureRequest> m_physicalDeviceFeatureRequest;
-    std::deque<Vulkan::InstanceFeatureRequest> m_instanceLayerRequest;
-    std::deque<Vulkan::InstanceFeatureRequest> m_instanceExtensionRequest;
+    std::deque<Vulkan::FeatureRequest> m_instanceLayerRequest;
+    std::deque<Vulkan::FeatureRequest> m_instanceExtensionRequest;
+    std::deque<Vulkan::FeatureRequest> m_deviceExtensionRequest;
     ConfigControl m_layerConfigControl{ConfigControl::Default};
     ConfigControl m_extensionConfigControl{ConfigControl::Default};
+    ConfigControl m_deviceExtensionConfigControl{ConfigControl::Default};
 
   public:
     DemoAppHostConfigVulkan();
@@ -81,6 +83,11 @@ namespace Fsl
       return m_extensionConfigControl;
     }
 
+    ConfigControl GetDeviceExtensionConfigControl() const
+    {
+      return m_deviceExtensionConfigControl;
+    }
+
     void AddPreferedSurfaceFormat(const Vulkan::SurfaceFormatInfo& surfaceFormatInfo)
     {
       m_preferedSurfaceFormats.push_back(surfaceFormatInfo);
@@ -96,6 +103,12 @@ namespace Fsl
     {
       m_extensionConfigControl = value;
     }
+
+    void SetDeviceExtensionConfigControl(const ConfigControl value)
+    {
+      m_deviceExtensionConfigControl = value;
+    }
+
 
     //! @brief Add a physical device feature
     void AddPhysicalDeviceFeatureRequest(const Vulkan::PhysicalDeviceFeature feature, const Vulkan::FeatureRequirement requirement)
@@ -124,7 +137,7 @@ namespace Fsl
       }
 
       if (m_instanceLayerRequest.end() != std::find_if(m_instanceLayerRequest.begin(), m_instanceLayerRequest.end(),
-                                                       [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); }))
+                                                       [name](const Vulkan::FeatureRequest& entry) { return (entry.Name == name); }))
       {
         throw UsageErrorException("instance layer already requested: " + name);
       }
@@ -142,7 +155,7 @@ namespace Fsl
       }
 
       if (m_instanceExtensionRequest.end() != std::find_if(m_instanceExtensionRequest.begin(), m_instanceExtensionRequest.end(),
-                                                           [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); }))
+                                                           [name](const Vulkan::FeatureRequest& entry) { return (entry.Name == name); }))
       {
         throw UsageErrorException("instance extension already requested: " + name);
       }
@@ -150,6 +163,21 @@ namespace Fsl
       m_instanceExtensionRequest.emplace_back(name, requirement);
     }
 
+    void AddDeviceExtensionRequest(const std::string& name, const Vulkan::FeatureRequirement requirement)
+    {
+      if (name.empty() || requirement == Vulkan::FeatureRequirement::Invalid)
+      {
+        throw std::invalid_argument("Not a valid instance layer request");
+      }
+
+      if (m_deviceExtensionRequest.end() != std::find_if(m_deviceExtensionRequest.begin(), m_deviceExtensionRequest.end(),
+                                                         [name](const Vulkan::FeatureRequest& entry) { return (entry.Name == name); }))
+      {
+        throw UsageErrorException("device extension already requested: " + name);
+      }
+
+      m_deviceExtensionRequest.emplace_back(name, requirement);
+    }
 
     void ExtractDeviceRequiredFeatures(std::deque<Vulkan::PhysicalDeviceFeatureRequest>& rTarget) const
     {
@@ -166,15 +194,21 @@ namespace Fsl
     }
 
 
-    const std::deque<Vulkan::InstanceFeatureRequest>& GetInstanceLayerRequests() const
+    const std::deque<Vulkan::FeatureRequest>& GetInstanceLayerRequests() const
     {
       return m_instanceLayerRequest;
     }
 
 
-    const std::deque<Vulkan::InstanceFeatureRequest>& GetInstanceExtensionRequests() const
+    const std::deque<Vulkan::FeatureRequest>& GetInstanceExtensionRequests() const
     {
       return m_instanceExtensionRequest;
+    }
+
+
+    const std::deque<Vulkan::FeatureRequest>& GetDeviceExtensionRequests() const
+    {
+      return m_deviceExtensionRequest;
     }
 
 

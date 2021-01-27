@@ -43,7 +43,7 @@ namespace Fsl
   class EGLNativeWindowSystemX11 : public EGLNativeWindowSystemTemplate<PlatformNativeWindowSystemX11>
   {
   public:
-    EGLNativeWindowSystemX11(const NativeWindowSystemSetup& setup);
+    explicit EGLNativeWindowSystemX11(const NativeWindowSystemSetup& setup);
   };
 }
 

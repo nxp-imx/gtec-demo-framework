@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="OpenVX.VxTutorial1" NoInclude="true" CreationYear="2017">
     <ImportTemplate Name="DemoAppOpenVX1_1"/>
-    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>
   </Executable>
 </FslBuildGen>

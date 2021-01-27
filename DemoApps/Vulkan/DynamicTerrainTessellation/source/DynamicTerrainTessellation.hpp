@@ -116,9 +116,9 @@ namespace Fsl
     Vertices m_vertices;
     UniformData m_uniformData;
     // View frustum passed to tessellation control shader for culling
-    Willems::Frustum m_frustum;
+    Willems::Frustum m_frustum{};
     UboTess m_uboTess;
-    UboVS m_uboVS;
+    UboVS m_uboVS{};
     DescriptorSetLayouts m_descriptorSetLayouts;
     PipelineLayouts m_pipelineLayouts;
     Pipelines m_pipelines;

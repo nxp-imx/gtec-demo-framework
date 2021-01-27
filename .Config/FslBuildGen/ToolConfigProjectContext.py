@@ -39,7 +39,7 @@ from FslBuildGen.ToolConfigBasePackage import ToolConfigBasePackage
 
 class ToolConfigProjectContext(object):
     def __init__(self, projectId: ProjectId,
-                 projectName: str, projectVersion: str, projectDirectory: str, basePackages: List[ToolConfigBasePackage], 
+                 projectName: str, projectVersion: str, projectDirectory: str, basePackages: List[ToolConfigBasePackage],
                  parentContext: Optional['ToolConfigProjectContext']) -> None:
         super().__init__()
         self.ProjectId = projectId

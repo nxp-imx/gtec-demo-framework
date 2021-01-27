@@ -33,21 +33,20 @@
 
 from typing import Optional
 from typing import List
-from typing import Union
+#from typing import Union
 import shutil
 import shlex
 import time
 from FslBuildGen import IOUtil
 from FslBuildGen.AndroidUtil import AndroidUtil
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
-from FslBuildGen.BuildExternal.PipelineBasicCommand import PipelineBasicCommand
+#from FslBuildGen.BuildExternal.PipelineBasicCommand import PipelineBasicCommand
 from FslBuildGen.BuildExternal.PipelineCommand import PipelineCommand
 from FslBuildGen.BuildExternal.PipelineInfo import PipelineInfo
-from FslBuildGen.BuildExternal.PipelineJoinCommand import PipelineJoinCommand
+#from FslBuildGen.BuildExternal.PipelineJoinCommand import PipelineJoinCommand
 from FslBuildGen.BuildExternal.PipelineTasks import PipelineTasks
-from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
-from FslBuildGen.BuildExternal.Tasks import GitApplyTask
+#from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
+#from FslBuildGen.BuildExternal.Tasks import GitApplyTask
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
 from FslBuildGen.DataTypes import BuildVariantConfig
@@ -60,7 +59,7 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageToolFinder import PackageToolFinder
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineBasicCommand
+#from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineBasicCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineBuildCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineFetchCommand
@@ -74,8 +73,8 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommandUnpack
 
 
 class PipelineCommandFetch(PipelineCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineFetchCommand, pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineFetchCommand, pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.Hash = "NotDefined" if sourceCommand is None or sourceCommand.Hash is None else sourceCommand.Hash
 
     @staticmethod
@@ -84,14 +83,14 @@ class PipelineCommandFetch(PipelineCommand):
 
 
 class PipelineCommandNOP(PipelineCommandFetch):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineFetchCommand, pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineFetchCommand, pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.AutoCreateDstDirectory = False
 
 
 class PipelineCommandDownload(PipelineCommandFetch):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineFetchCommandDownload, pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineFetchCommandDownload, pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         if pipelineInfo.Tasks.TaskDownload is None:
             raise Exception("The '{0}' operation has not been enabled for this platform".format(sourceCommand.CommandName))
         self.Task = pipelineInfo.Tasks.TaskDownload
@@ -110,11 +109,11 @@ class PipelineCommandDownload(PipelineCommandFetch):
             # Generate file hash
             filehash = PipelineCommandFetch.GenerateFileHash(archiveFilePath)
             if self.__SourceCommand.Hash is None:
-                if self.BasicConfig.Verbosity >= 1:
-                    self.BasicConfig.LogPrintWarning("No hash value defined for file {0} which has a hash value of {1}".format(archiveFilePath, filehash))
+                if self.Log.Verbosity >= 1:
+                    self.Log.LogPrintWarning("No hash value defined for file {0} which has a hash value of {1}".format(archiveFilePath, filehash))
             elif filehash != self.__SourceCommand.Hash:
                 raise Exception("The downloaded file {0} has a hash of {1} which did not match the expected value of {2}".format(archiveFilePath, filehash, self.__SourceCommand.Hash))
-            elif self.BasicConfig.Verbosity >= 2:
+            elif self.Log.Verbosity >= 2:
                 self.LogPrint("The downloaded file {0} hash was {1} as expected.".format(archiveFilePath, filehash))
         except Exception:
             # A error occurred removing the targetPath
@@ -144,8 +143,8 @@ class PipelineCommandDownload(PipelineCommandFetch):
 
 
 class PipelineCommandGitClone(PipelineCommandFetch):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineFetchCommandGitClone, pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineFetchCommandGitClone, pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         if pipelineInfo.Tasks.TaskGitClone is None:
             raise Exception("The '{0}' operation has not been enabled for this platform".format(sourceCommand.CommandName))
         self.Task = pipelineInfo.Tasks.TaskGitClone
@@ -167,11 +166,11 @@ class PipelineCommandGitClone(PipelineCommandFetch):
             # get the repo hash
             hashStr = self.Task.GetCurrentHash(dstPath)
             if self.__SourceCommand.Hash is None:
-                if self.BasicConfig.Verbosity >= 1:
-                    self.BasicConfig.LogPrintWarning("No hash value defined for repo {0} which has a hash value of {1}".format(dstPath, hashStr))
+                if self.Log.Verbosity >= 1:
+                    self.Log.LogPrintWarning("No hash value defined for repo {0} which has a hash value of {1}".format(dstPath, hashStr))
             elif hashStr != self.__SourceCommand.Hash:
                 raise Exception("The repo {0} has a hash of {1} which did not match the expected value of {2}".format(dstPath, hashStr, self.__SourceCommand.Hash))
-            elif self.BasicConfig.Verbosity >= 2:
+            elif self.Log.Verbosity >= 2:
                 self.LogPrint("The cloned repo {0} hash was {1} as expected.".format(dstPath, hashStr))
         except Exception:
             self.__DoSafeRemoveDirectoryTree(dstPath, 0)
@@ -195,8 +194,8 @@ class PipelineCommandGitClone(PipelineCommandFetch):
 
 
 class PipelineCommandUnpack(PipelineCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineCommandUnpack, pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineCommandUnpack, pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.AutoCreateDstDirectory = False
         if pipelineInfo.Tasks.TaskUnpackAndRename is None:
             raise Exception("The '{0}' operation has not been enabled for this platform".format(sourceCommand.CommandName))
@@ -209,26 +208,26 @@ class PipelineCommandUnpack(PipelineCommand):
 
 
 class PipelineCommandCMakeBuild(PipelineCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineCommandCMakeBuild, pipelineInfo: PipelineInfo, allowSkip: bool) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineCommandCMakeBuild, pipelineInfo: PipelineInfo, allowSkip: bool) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.Source = sourceCommand.Source
         if pipelineInfo.Tasks.TaskCMakeAndBuild is None:
             raise Exception("The '{0}' operation has not been enabled for this platform".format(sourceCommand.CommandName))
         self.Task = pipelineInfo.Tasks.TaskCMakeAndBuild
         self.__SourceCommand = sourceCommand
         self.AllowSkip = allowSkip
-        self.VariableDict = self.__BuildVariableDict(basicConfig)
+        self.VariableDict = self.__BuildVariableDict(log)
         self._IsAndroid = pipelineInfo.SourcePackage.ResolvedPlatform.Name == PlatformNameString.ANDROID if pipelineInfo.SourcePackage.ResolvedPlatform is not None else False
         if self._IsAndroid:
             minVersion = CMakeUtil.GetMinimumVersion()
             try:
                 version = CMakeUtil.GetVersion()
-                self.BasicConfig.LogPrint("CMake version {0}.{1}.{2}".format(version.Major, version.Minor, version.Build))
+                self.Log.LogPrint("CMake version {0}.{1}.{2}".format(version.Major, version.Minor, version.Build))
                 if version < minVersion:
-                    raise Exception ("CMake version {0}.{1}.{2} or greater is required".format(minVersion.Major, minVersion.Minor, minVersion.Build))
+                    raise Exception("CMake version {0}.{1}.{2} or greater is required".format(minVersion.Major, minVersion.Minor, minVersion.Build))
             except Exception as e:
-                self.BasicConfig.DoPrintWarning("Failed to determine CMake version, please ensure you have {0}.{1}.{2} or better available.".format(minVersion.Major, minVersion.Minor, minVersion.Build))
-                self.BasicConfig.LogPrintWarning(str(e))
+                self.Log.DoPrintWarning("Failed to determine CMake version, please ensure you have {0}.{1}.{2} or better available.".format(minVersion.Major, minVersion.Minor, minVersion.Build))
+                self.Log.LogPrintWarning(str(e))
 
     def DoExecute(self) -> None:
         sourcePackage = self.Info.SourcePackage
@@ -261,8 +260,8 @@ class PipelineCommandCMakeBuild(PipelineCommand):
             return
 
         for variant in recipeVariants:
-            self.BasicConfig.LogPrint("Recipe variant: {0}".format(variant))
-            self.BasicConfig.PushIndent()
+            self.Log.LogPrint("Recipe variant: {0}".format(variant))
+            self.Log.PushIndent()
             try:
                 cmakeOptionListCopy = list(cmakeOptionList)
                 if len(installedDependencyList) > 0:
@@ -286,7 +285,7 @@ class PipelineCommandCMakeBuild(PipelineCommand):
 
                 self.Task.RunCMakeAndBuild(toolFinder, sourcePath, installPathCopy, tempBuildPathCopy, target, cmakeProjectName, configurationList, cmakeOptionListCopy, allowSkip)
             finally:
-                self.BasicConfig.PopIndent()
+                self.Log.PopIndent()
 
 
     def __BuildDependencyPathString(self, dependencyPathList: List[str]) -> str:
@@ -328,38 +327,38 @@ class PipelineCommandCMakeBuild(PipelineCommand):
         return variables
 
 class PipelineCommandCombine(PipelineCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineCommandCombine, pipelineInfo: PipelineInfo, sourceRecipeName: str) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineCommandCombine, pipelineInfo: PipelineInfo, sourceRecipeName: str) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.__SourceCommand = sourceCommand
-        self.CommandList = self.__GenerateCommandList(basicConfig, sourceCommand.CommandList, pipelineInfo, sourceRecipeName)
+        self.CommandList = self.__GenerateCommandList(log, sourceCommand.CommandList, pipelineInfo, sourceRecipeName)
 
     def DoExecute(self) -> None:
         for command in self.CommandList:
             command.Execute()
 
-    def __GenerateCommandList(self, basicConfig: BasicConfig, commandList : List[XmlRecipePipelineBuildCommand], pipelineInfo: PipelineInfo, sourceRecipeName: str) -> List[PipelineCommand]:
-        list = []    # type: List[PipelineCommand]
+    def __GenerateCommandList(self, log: Log, commandList: List[XmlRecipePipelineBuildCommand], pipelineInfo: PipelineInfo, sourceRecipeName: str) -> List[PipelineCommand]:
+        theList = []    # type: List[PipelineCommand]
         commandIndex = 0
         for command in commandList:
             dstSubDir = "{:04}".format(commandIndex)
             commandDstRootPath = IOUtil.Join(pipelineInfo.DstRootPath, dstSubDir)
-            list.append(self.__CreateCommand(basicConfig, command, pipelineInfo, commandDstRootPath, sourceRecipeName))
+            theList.append(self.__CreateCommand(log, command, pipelineInfo, commandDstRootPath, sourceRecipeName))
             commandIndex = commandIndex + 1
-        return list
+        return theList
 
 
-    def __CreateCommand(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineCommand, pipelineInfo: PipelineInfo, dstRootPath: str, sourceRecipeName: str) -> PipelineCommand:
+    def __CreateCommand(self, log: Log, sourceCommand: XmlRecipePipelineCommand, pipelineInfo: PipelineInfo, dstRootPath: str, sourceRecipeName: str) -> PipelineCommand:
         if sourceCommand.CommandType == BuildRecipePipelineCommand.CMakeBuild:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCMakeBuild):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCMakeBuild")
             info = PipelineInfo(pipelineInfo.Tasks, pipelineInfo.SourcePackage, pipelineInfo.PathBuilder, pipelineInfo.SrcRootPath, dstRootPath, combinedDstRootPath=pipelineInfo.DstRootPath)
-            return PipelineCommandCMakeBuild(basicConfig, sourceCommand, info, False)
+            return PipelineCommandCMakeBuild(log, sourceCommand, info, False)
         raise Exception("Unsupported combined command '{0}' in '{1}'".format(sourceCommand.CommandType, sourceRecipeName))
 
 
 class PipelineCommandCopy(PipelineCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineCommandCopy, pipelineInfo: PipelineInfo, sourceRecipeName: str) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineCommandCopy, pipelineInfo: PipelineInfo, sourceRecipeName: str) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.AutoCreateDstDirectory = False
 
     def IsCompleted(self) -> bool:
@@ -378,8 +377,8 @@ class PipelineCommandCopy(PipelineCommand):
 
 
 class PipelineCommandInstall(PipelineCommand):
-    def __init__(self, basicConfig: BasicConfig, pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, None, pipelineInfo)
+    def __init__(self, log: Log, pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, None, pipelineInfo)
         self.AutoCreateDstDirectory = False
 
     def IsCompleted(self) -> bool:
@@ -398,7 +397,6 @@ class PipelineCommandBuilder(object):
     def __init__(self, generatorContext: GeneratorContext, checkBuildCommands: bool, buildThreads: int) -> None:
         super().__init__()
         self.__Log = generatorContext.Log
-        self.__BasicConfig = generatorContext.BasicConfig
         self.__AllowDownloads = generatorContext.AllowDownloads
 
         # Add the task objects
@@ -448,7 +446,7 @@ class PipelineCommandBuilder(object):
 
         # Add a final install command to finish the pipe
         installInfo = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, self.__CommandInputRootPath, self.__PipelineInstallPath)
-        pipelineInstallCommand = PipelineCommandInstall(self.__BasicConfig, installInfo)
+        pipelineInstallCommand = PipelineCommandInstall(self.__Log, installInfo)
         self.__CommandList.append(pipelineInstallCommand)
 
         result = self.__CommandList
@@ -496,22 +494,22 @@ class PipelineCommandBuilder(object):
             if not isinstance(sourceCommand, XmlRecipePipelineCommandUnpack):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandUnpack")
             info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
-            return PipelineCommandUnpack(self.__BasicConfig, sourceCommand, info)
+            return PipelineCommandUnpack(self.__Log, sourceCommand, info)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.CMakeBuild:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCMakeBuild):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCMakeBuild")
             info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
-            return PipelineCommandCMakeBuild(self.__BasicConfig, sourceCommand, info, True)
+            return PipelineCommandCMakeBuild(self.__Log, sourceCommand, info, True)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Combine:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCombine):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCombine")
             info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
-            return PipelineCommandCombine(self.__BasicConfig, sourceCommand, info, self.__SourceRecipe.FullName)
+            return PipelineCommandCombine(self.__Log, sourceCommand, info, self.__SourceRecipe.FullName)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Copy:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCopy):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCopy")
             info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
-            return PipelineCommandCopy(self.__BasicConfig, sourceCommand, info, self.__SourceRecipe.FullName)
+            return PipelineCommandCopy(self.__Log, sourceCommand, info, self.__SourceRecipe.FullName)
         raise Exception("Unsupported command '{0}' ({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.__SourceRecipe.FullName))
 
 
@@ -526,13 +524,13 @@ class PipelineCommandBuilder(object):
             cachePath = IOUtil.Join(readonlyCacheRootDir, targetFilename)
             if PipelineCommandDownload.IsValidCacheFile(cachePath, sourceCommand):
                 info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, readonlyCacheRootDir, readonlyCacheRootDir)
-                return PipelineCommandNOP(self.__BasicConfig, sourceCommand, info)
+                return PipelineCommandNOP(self.__Log, sourceCommand, info)
 
         if self.__PathBuilder.DownloadCacheRootPath is None:
             raise Exception("Invalid State")
 
         info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__PathBuilder.DownloadCacheRootPath, allowDownloads=self.__AllowDownloads)
-        return PipelineCommandDownload(self.__BasicConfig, sourceCommand, info)
+        return PipelineCommandDownload(self.__Log, sourceCommand, info)
 
 
     def __CreateCommandGitClone(self, sourceCommand: XmlRecipePipelineFetchCommandGitClone, srcRootPath: str) -> PipelineCommand:
@@ -544,14 +542,14 @@ class PipelineCommandBuilder(object):
             cachePath = IOUtil.Join(readonlyCacheRootDir, self.__SourceRecipe.FullName)
             if IOUtil.IsDirectory(cachePath):
                 info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, cachePath, cachePath)
-                return PipelineCommandNOP(self.__BasicConfig, sourceCommand, info)
+                return PipelineCommandNOP(self.__Log, sourceCommand, info)
 
         if self.__PathBuilder.DownloadCacheRootPath is None:
             raise Exception("Invalid State")
 
         dstPath = IOUtil.Join(self.__PathBuilder.DownloadCacheRootPath, self.__SourceRecipe.FullName)
         info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, dstPath, allowDownloads=self.__AllowDownloads)
-        return PipelineCommandGitClone(self.__BasicConfig, sourceCommand, info)
+        return PipelineCommandGitClone(self.__Log, sourceCommand, info)
 
 
     def __CreateCommandSource(self, sourceCommand: XmlRecipePipelineFetchCommandSource, srcRootPath: str) -> PipelineCommand:
@@ -560,5 +558,4 @@ class PipelineCommandBuilder(object):
 
         # We basically setup a NOP command that points to the source package location which will allow the pipeline to work with that
         info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPath, allowDownloads=self.__AllowDownloads)
-        return PipelineCommandNOP(self.__BasicConfig, sourceCommand, info)
-
+        return PipelineCommandNOP(self.__Log, sourceCommand, info)

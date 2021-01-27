@@ -218,6 +218,18 @@ namespace Fsl
     //! @note Works on any 1 byte format, but the validity is up to the caller to ensure.
     //        This does not work on overlapping buffers.
     static void Expand1ByteToNBytes(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+
+    //! @brief Downscales a image using nearest neighbor
+    static void DownscaleNearest(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+    static void DownscaleNearest32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+
+    //! @brief Downscale a image using a simple box filter
+    //! @note  The rDstBitmap is expected to be half the size of the srcBitmap and must use the same pixel format and origin.
+    static void DownscaleBoxFilter(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+
+    //! @brief Downscale a image using a simple box filter (only works on 32bit images with four 8bit channels)
+    //! @note  The rDstBitmap is expected to be half the size of the srcBitmap and must use the same pixel format and origin.
+    static void DownscaleBoxFilter32(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
   };
 }
 

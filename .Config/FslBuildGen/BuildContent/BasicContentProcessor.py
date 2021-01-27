@@ -37,10 +37,10 @@ from typing import Set
 import subprocess
 import shlex
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
 from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildContent.ToolFinder import ToolFinder
+from FslBuildGen.Log import Log
 from FslBuildGen.ToolConfig import ToolContentBuilder
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilderAddExtension
 
@@ -48,7 +48,7 @@ from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilderAddExtensio
 # $(InputFileName)  = Absolute path to the input file
 
 class BasicContentProcessor(ContentProcessor):
-    def __init__(self, config: Config, toolFinder: ToolFinder, contentBuilderConfig: ToolContentBuilder) -> None:
+    def __init__(self, log: Log, toolFinder: ToolFinder, contentBuilderConfig: ToolContentBuilder) -> None:
         super().__init__(contentBuilderConfig.Name, contentBuilderConfig.FeatureRequirements, self.__GetExtensionsSet(contentBuilderConfig.DefaultExtensions))
         self.BasedUpon = contentBuilderConfig
         self.DefaultExtensions = contentBuilderConfig.DefaultExtensions
@@ -67,8 +67,8 @@ class BasicContentProcessor(ContentProcessor):
         return res
 
 
-    def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
-        outputFilename = super().GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
+    def GetOutputFileName(self, log: Log, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
+        outputFilename = super().GetOutputFileName(log, contentOutputPath, contentFileRecord, removeExtension)
         extension = self.__TryFindExtension(contentFileRecord.RelativePath)
         if extension is None or extension.PostfixedOutputExtension is None or len(extension.PostfixedOutputExtension) <= 0:
             return outputFilename
@@ -94,21 +94,21 @@ class BasicContentProcessor(ContentProcessor):
         return res
 
 
-    def Process(self, config: Config, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord) -> None:
+    def Process(self, log: Log, configDisableWrite: bool, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord) -> None:
         # we ask the tool to write to a temporary file so that we can ensure that the output file is only modified
         # if the content was changed
         tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFileRecord)
         buildCommand = [self.ToolCommand]
         buildCommand += self.__GetToolParameterList(tmpOutputFileName, contentFileRecord.ResolvedPath)
 
-        if config.DisableWrite:
+        if configDisableWrite:
             # if write is disabled we do a "tool-command" check directly since the subprocess call can't fail
             # which would normally trigger the check
             self.__ToolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
             return
 
-        outputFileName = self.GetOutputFileName(config, contentOutputPath, contentFileRecord)
-        self.EnsureDirectoryExist(config, outputFileName)
+        outputFileName = self.GetOutputFileName(log, contentOutputPath, contentFileRecord)
+        self.EnsureDirectoryExist(configDisableWrite, outputFileName)
 
         try:
             result = subprocess.call(buildCommand, cwd=contentBuildPath)

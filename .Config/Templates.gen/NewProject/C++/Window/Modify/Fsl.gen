@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppWindow"/>
     <Dependency Name="FslDemoHost.Window"/>
     <Platform Name="Android" Supported="false"/>  
-    <Platform Name="Windows" ProjectId="##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"/>
   </Executable>
 </FslBuildGen>

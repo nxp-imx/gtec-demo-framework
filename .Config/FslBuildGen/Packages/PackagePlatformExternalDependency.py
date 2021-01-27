@@ -36,17 +36,17 @@ from typing import Union
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.Packages.PackageElement import PackageElement
-from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
+from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependency import UnresolvedExternalDependency
 
 # TODO: eliminate this class and reuse the PackageExternalDependency if possible
 class PackagePlatformExternalDependency(PackageElement):
-    def __init__(self, base: Union[XmlGenFileExternalDependency, 'PackagePlatformExternalDependency'], allowPrivate: bool) -> None:
-        super().__init__(base.Name, base.XMLElement)
+    def __init__(self, base: Union[UnresolvedExternalDependency, 'PackagePlatformExternalDependency'], allowPrivate: bool) -> None:
+        super().__init__(base.Name)
         self.DebugName = base.DebugName # type: str
         self.TargetName = base.TargetName # type: str
         self.Include = base.Include if base.Access != AccessType.Private or allowPrivate else None  # type: Optional[str]
         self.Location = base.Location  # type: Optional[str]
-        self.Access = base.Access  # type: int
+        self.Access = base.Access  # type: AccessType
         self.Type = base.Type  # type: ExternalDependencyType
         self.IsFirstActualUse = False  # type: bool
         self.IsManaged = False

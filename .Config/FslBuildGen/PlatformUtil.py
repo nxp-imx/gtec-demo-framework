@@ -71,7 +71,7 @@ class PlatformUtil(object):
 
 
     @staticmethod
-    def DetectBuildPlatformType() -> int:
+    def DetectBuildPlatformType() -> BuildPlatformType:
         if os.name == 'posix':
             return BuildPlatformType.Unix
         elif os.name == 'nt':
@@ -98,7 +98,7 @@ class PlatformUtil(object):
 
 
     @staticmethod
-    def GetPlatformDependentExecuteableName(exeName: str, buildPlatformType: int) -> str:
+    def GetPlatformDependentExecuteableName(exeName: str, buildPlatformType: BuildPlatformType) -> str:
         exeName = exeName if not exeName.lower().endswith(".exe") else IOUtil.GetFileNameWithoutExtension(exeName)
         if buildPlatformType == BuildPlatformType.Windows:
             return exeName + ".exe"
@@ -111,4 +111,3 @@ class PlatformUtil(object):
         if platformId == PlatformNameIdString.WINDOWS:
             return exeName + '.exe'
         return exeName
-

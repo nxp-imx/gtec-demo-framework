@@ -2,6 +2,7 @@
 <TexturePacker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1">
   <CreateAtlas Name="TextureAtlas/MainAtlas">
     <AddFolder Path="TextureAtlas/Main">
+      <ElementConfig Extrude="0"/>
       <File Path="Background9R.png">
         <AddNineSlice NineSlice="32, 32, 32, 32" ContentMargin="25, 25, 25, 25"/>
       </File>

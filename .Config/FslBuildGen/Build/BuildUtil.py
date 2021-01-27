@@ -67,10 +67,10 @@ class PlatformBuildUtil(object):
             # This is the old add thread arguments code from a simpler time when we only supported one build system per platform
             platformName = generatorOriginalName
             if (platformName == PlatformNameString.QNX or
-                platformName == PlatformNameString.YOCTO or
-                platformName == PlatformNameString.UBUNTU or
-                platformName == PlatformNameString.FREERTOS or
-                (external and platformName == PlatformNameString.ANDROID)):
+                    platformName == PlatformNameString.YOCTO or
+                    platformName == PlatformNameString.UBUNTU or
+                    platformName == PlatformNameString.FREERTOS or
+                    (external and platformName == PlatformNameString.ANDROID)):
                 PlatformBuildUtil.AddMakeThreadArgument(rArgumentList, numBuildThreads)
                 return True
             elif platformName == PlatformNameString.WINDOWS:
@@ -86,7 +86,7 @@ class PlatformBuildUtil(object):
             return PlatformBuildUtil.TryAddCMakeThreadArgument(rArgumentList, numBuildThreads, cmakeConfig)
         elif buildTypeInfo == PlatformBuildTypeInfo.CMakeCustom:
             return PlatformBuildUtil.TryAddCustomCMakeThreadArgument(rArgumentList, numBuildThreads, cmakeConfig)
-        log.DoPrintWarning("Unknown build type info {0}".format(buildTypeInfo));
+        log.DoPrintWarning("Unknown build type info {0}".format(buildTypeInfo))
         return False
 
     @staticmethod

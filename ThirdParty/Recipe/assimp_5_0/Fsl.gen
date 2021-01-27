@@ -25,7 +25,7 @@
       </ExperimentalRecipe>
     </Platform>
     
-    <Platform Name="Ubuntu" Supported="true">
+    <Platform Name="Ubuntu;QNX" Supported="true">
       <Dependency Name="zlib"/>
       <!-- Find is disabled due to a error in the assimp recipe -->
       <ExperimentalRecipe Name="assimp" Version="5.0.1" Find="false" FindVersion="5.0">

@@ -35,7 +35,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import List
-from typing import Union
+#from typing import Union
 import os
 import os.path
 import xml.etree.ElementTree as ET
@@ -149,7 +149,7 @@ class XmlExperimental(XmlBase):
                 platform = XmlExperimentalPlatform(log, element)
                 if platform.Id in platformDict:
                     errorMsg = "Multiple platforms called '{0}' found in Project.gen".format(platform.Id)
-                    raise XmlException2(element, errorMsg)
+                    raise XmlException2(errorMsg)
                 platformDict[platform.Id] = platform
         return platformDict
 
@@ -299,7 +299,7 @@ class XmlProjectRootConfigFile(XmlBase):
         self.ProjectName = "not set"
         self.ProjectVersion = "0.0.0.0"
         self.RootDirectory = LocalInvalidValues.INVALID_FILE_NAME  # type: str
-        self.DefaultPackageLanguage = PackageLanguage.CPP  # type: int
+        self.DefaultPackageLanguage = PackageLanguage.CPP  # type: PackageLanguage
         self.DefaultCompany = LocalInvalidValues.INVALID_COMPANY_NAME  # type: str
         self.ToolConfigFile = LocalInvalidValues.INVALID_FILE_NAME  # type: str
         self.RequirePackageCreationYear = False
@@ -380,7 +380,7 @@ class XmlProjectRootConfigFile(XmlBase):
         if dst is not None:
             dst.Merge(src)
 
-    def __GetDefaultPackageLanguage(self, xmlElement: ET.Element) -> int:
+    def __GetDefaultPackageLanguage(self, xmlElement: ET.Element) -> PackageLanguage:
         defaultPackageLanguage = self._ReadAttrib(xmlElement, 'DefaultPackageLanguage', "C++")
         return PackageLanguage.FromString(defaultPackageLanguage)
 

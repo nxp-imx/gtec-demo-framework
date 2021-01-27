@@ -31,6 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import List
 from typing import Optional
 from enum import Enum
 
@@ -39,6 +40,9 @@ class CommandType(Enum):
     Clean = 1
     Install = 2
     Open = 3
+    Open2 = 4
+    Config = 5
+    ConfigIfChanged = 6
 
     @staticmethod
     def FromString(value: str) -> 'CommandType':
@@ -50,6 +54,12 @@ class CommandType(Enum):
             return CommandType.Install
         elif value == "open":
             return CommandType.Open
+        elif value == "open2":
+            return CommandType.Open2
+        elif value == "config":
+            return CommandType.Config
+        elif value == "configIfChanged":
+            return CommandType.ConfigIfChanged
         raise Exception("Unsupported Command '{0}'".format(value))
 
     @staticmethod
@@ -70,4 +80,15 @@ class CommandType(Enum):
             return "install"
         elif value == CommandType.Open:
             return "open"
+        elif value == CommandType.Open2:
+            return "open2"
+        elif value == CommandType.Config:
+            return "config"
+        elif value == CommandType.ConfigIfChanged:
+            return "configIfChanged"
         return None
+
+    @staticmethod
+    def AllStrings() -> List[str]:
+        return  [CommandType.ToString(CommandType.Build), CommandType.ToString(CommandType.Clean), CommandType.ToString(CommandType.Install),
+                 CommandType.ToString(CommandType.Open), CommandType.ToString(CommandType.Open2), CommandType.ToString(CommandType.Config)]

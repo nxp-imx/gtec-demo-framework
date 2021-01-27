@@ -36,34 +36,34 @@ from typing import List
 from typing import Optional
 from typing import Set
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Packages.Package import Package
 
 class GeneratorGitIgnore(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str, activeGenerator: GeneratorBase) -> None:
+    def __init__(self, configSDKConfigTemplatePath: str, configDisableWrite: bool, packages: List[Package],
+                 platformName: str, activeGenerator: GeneratorBase) -> None:
         super().__init__()
 
-        virtualTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_virtual.txt"))
-        headerLibTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_headerlib.txt"))
-        libTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_lib.txt"))
-        exeTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_exe.txt"))
+        virtualTemplate = IOUtil.TryReadFile(IOUtil.Join(configSDKConfigTemplatePath, "Template_gitignore_virtual.txt"))
+        headerLibTemplate = IOUtil.TryReadFile(IOUtil.Join(configSDKConfigTemplatePath, "Template_gitignore_headerlib.txt"))
+        libTemplate = IOUtil.TryReadFile(IOUtil.Join(configSDKConfigTemplatePath, "Template_gitignore_lib.txt"))
+        exeTemplate = IOUtil.TryReadFile(IOUtil.Join(configSDKConfigTemplatePath, "Template_gitignore_exe.txt"))
 
         generatorIgnoreDict = activeGenerator.GetPackageGitIgnoreDict()
 
         for package in packages:
             if package.Type == PackageType.Library:
-                self.__GenerateLibraryBuildFile(config, package, platformName, libTemplate, generatorIgnoreDict)
+                self.__GenerateLibraryBuildFile(configDisableWrite, package, platformName, libTemplate, generatorIgnoreDict)
             elif package.Type == PackageType.Executable:
-                self.__GenerateLibraryBuildFile(config, package, platformName, exeTemplate, generatorIgnoreDict)
+                self.__GenerateLibraryBuildFile(configDisableWrite, package, platformName, exeTemplate, generatorIgnoreDict)
             elif package.Type == PackageType.HeaderLibrary:
-                self.__GenerateLibraryBuildFile(config, package, platformName, headerLibTemplate, generatorIgnoreDict)
+                self.__GenerateLibraryBuildFile(configDisableWrite, package, platformName, headerLibTemplate, generatorIgnoreDict)
             else:
-                self.__GenerateLibraryBuildFile(config, package, platformName, virtualTemplate, generatorIgnoreDict)
+                self.__GenerateLibraryBuildFile(configDisableWrite, package, platformName, virtualTemplate, generatorIgnoreDict)
 
 
-    def __GenerateLibraryBuildFile(self, config: Config, package: Package,
+    def __GenerateLibraryBuildFile(self, configDisableWrite: bool, package: Package,
                                    platformName: str, template: Optional[str],
                                    generatorIgnoreDict: Dict[str, Set[str]]) -> None:
         if template is None or package.AbsolutePath is None:
@@ -126,7 +126,7 @@ class GeneratorGitIgnore(GeneratorBase):
 
         finalContent = "\n".join(finalTargetArray) + '\n'
 
-        if not config.DisableWrite:
+        if not configDisableWrite:
             IOUtil.WriteFileIfChanged(targetFilePath, finalContent)
 
 

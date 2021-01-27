@@ -60,4 +60,3 @@ class GeneratorConfigCommandReport(object):
 
         # if this is None, the package absolute path should be used instead
         self.CurrentWorkingDirectoryFormatString = currentWorkingDirectoryFormatString
-

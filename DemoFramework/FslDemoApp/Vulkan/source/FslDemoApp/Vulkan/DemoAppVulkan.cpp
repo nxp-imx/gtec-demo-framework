@@ -31,9 +31,11 @@
 
 #include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
+#include <FslDemoHost/Vulkan/Config/PhysicalDeviceConfigUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequest.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
@@ -41,13 +43,25 @@
 #include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
 #include <array>
 
 namespace Fsl
 {
-  using namespace Vulkan;
+  namespace
+  {
+    void LogDeviceExtensions(const VkPhysicalDevice device)
+    {
+      auto extensionProperties = Vulkan::PhysicalDeviceUtil::EnumerateDeviceExtensionProperties(device);
+      FSLLOG3_INFO("Device extensions: ", extensionProperties.size());
+      for (const auto& extension : extensionProperties)
+      {
+        FSLLOG3_INFO("- Extension: '{}' specVersion: {}", extension.extensionName, extension.specVersion);
+      }
+    }
+  }
 
   DemoAppVulkan::DemoAppVulkan(const DemoAppConfig& demoAppConfig)
     : ADemoApp(demoAppConfig)
@@ -79,15 +93,28 @@ namespace Fsl
     }
 
     m_physicalDevice = vulkanHostInfo->GetPhysicalDevice();
+
+    if (m_launchOptions.LogDeviceExtensions)
     {
-      auto vulkanDeviceSetup = VulkanDeviceSetupUtil::CreateSetup(m_physicalDevice, m_surface, requiredFeatures);
+      LogDeviceExtensions(m_physicalDevice.Device);
+    }
+
+    {
+      std::array<Vulkan::FeatureRequest, 1> hostExtensions = {
+        Vulkan::FeatureRequest(VK_KHR_SWAPCHAIN_EXTENSION_NAME, Vulkan::FeatureRequirement::Mandatory)};
+
+      auto deviceConfig = PhysicalDeviceConfigUtil::BuildConfig(m_physicalDevice.Device, appHostConfig, ReadOnlySpanUtil::AsSpan(hostExtensions));
+      const PhysicalDeviceConfigUtil::DeviceConfigAsCharArrays deviceConfigEx(deviceConfig);
+      const ReadOnlySpan<const char*> extensions = ReadOnlySpanUtil::AsSpan(deviceConfigEx.Extensions);
+
+      auto vulkanDeviceSetup = Vulkan::VulkanDeviceSetupUtil::CreateSetup(m_physicalDevice, m_surface, requiredFeatures, extensions);
       m_deviceActiveFeatures = vulkanDeviceSetup.DeviceFeatures;
       m_device = std::move(vulkanDeviceSetup.Device);
       m_deviceCreateInfo = vulkanDeviceSetup.DeviceCreateInfo;
       m_deviceQueue = vulkanDeviceSetup.DeviceQueueRecord;
     }
 
-    VulkanValidationUtil::CheckWindowAndSurfaceExtent(m_physicalDevice.Device, m_surface, GetScreenExtent());
+    Vulkan::VulkanValidationUtil::CheckWindowAndSurfaceExtent(m_physicalDevice.Device, m_surface, GetScreenExtent());
 
     // We do this last to ensure that we dont have to call VulkanDeviceShutdown as nothing else can go wrong
     if (m_nativeGraphicsService)

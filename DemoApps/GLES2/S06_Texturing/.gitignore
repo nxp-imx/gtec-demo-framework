@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/GPUSdk/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.S06_Texturing

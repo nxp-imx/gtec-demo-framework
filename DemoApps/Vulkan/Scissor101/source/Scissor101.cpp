@@ -147,13 +147,10 @@ namespace Fsl
     Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
                                     const std::shared_ptr<IContentManager>& contentManager)
     {
-      // Improvement: use mip maps
-      // GLTextureParameters params(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      // return GLTexture(texture, params, TextureFlags::GenerateMipMaps);
-
       Vulkan::VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
 
-      Texture texture = contentManager->ReadTexture("Texturing.png", PixelFormat::R8G8B8A8_UNORM);
+      Texture texture =
+        contentManager->ReadTexture("Texturing.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::Undefined, PixelChannelOrder::Undefined, true);
 
       VkSamplerCreateInfo samplerCreateInfo{};
       samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -169,7 +166,7 @@ namespace Fsl
       samplerCreateInfo.compareEnable = VK_FALSE;
       samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
       samplerCreateInfo.minLod = 0.0f;
-      samplerCreateInfo.maxLod = 0.0f;
+      samplerCreateInfo.maxLod = static_cast<float>(texture.GetLevels());
       samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 
       return imageCreator.CreateTexture(texture, samplerCreateInfo);
@@ -457,13 +454,8 @@ namespace Fsl
     const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
-      VkClearColorValue clearColorValue{};
-      clearColorValue.float32[0] = 0.2f;
-      clearColorValue.float32[1] = 0.2f;
-      clearColorValue.float32[2] = 0.2f;
-      clearColorValue.float32[3] = 1.0f;
-
-      VkClearValue clearValues = {clearColorValue};
+      std::array<VkClearValue, 1> clearValues{};
+      clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -472,8 +464,8 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = &clearValues;
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {

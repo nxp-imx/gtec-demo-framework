@@ -38,11 +38,11 @@ from typing import Optional
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor
 import io
-import os
-import os.path
+#import os
+#import os.path
 import queue
 import subprocess
-import sys
+#import sys
 import threading
 from FslBuildGen import IOUtil
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
@@ -59,20 +59,20 @@ from FslBuildGen.BuildConfig.RunHelper import RunHelper
 from FslBuildGen.BuildConfig.SimpleCancellationToken import SimpleCancellationToken
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
-from FslBuildGen.DataTypes import CheckType
-from FslBuildGen.DataTypes import PackageType
+#from FslBuildGen.DataTypes import CheckType
+#from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import AggregateException
 from FslBuildGen.Exceptions import ExitException
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
-from FslBuildGen.PlatformUtil import PlatformUtil
+#from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
-from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
-from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
+#from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
+#from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 
 class MagicValues(object):
     ClangFormatCommand = "clang-format"
@@ -171,8 +171,8 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
             log.LogPrintWarning("The command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(buildCommand), result, currentWorkingDirectory))
             raise ExitException(result)
     except FileNotFoundError:
-            log.DoPrintWarning("The command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
-            raise
+        log.DoPrintWarning("The command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
+        raise
 
 def GetFilteredFiles(log: Log, customPackageFileFilter: Optional[CustomPackageFileFilter],
                      clangFormatConfiguration: ClangFormatConfiguration, package: Package) -> Optional[List[str]]:
@@ -238,7 +238,7 @@ class PerformClangFormatHelper(object):
     def RunInAnotherThread(packageQueue: Any,
                            cancellationToken: SimpleCancellationToken,
                            mainLog: Log, toolConfig: ToolConfig, customPackageFileFilter: Optional[CustomPackageFileFilter],
-                           clangFormatConfiguration: ClangFormatConfiguration, clangExeInfo: ClangExeInfo, repairEnabled: bool) -> Tuple[int,int]:
+                           clangFormatConfiguration: ClangFormatConfiguration, clangExeInfo: ClangExeInfo, repairEnabled: bool) -> Tuple[int, int]:
         threadId = threading.get_ident()
         mainLog.LogPrintVerbose(4, "Starting thread {0}".format(threadId))
         examinedCount = 0
@@ -296,10 +296,10 @@ class PerformClangFormatHelper2(object):
         totalProcessedCount = 0
 
         logOutput = False
-        currentWorkingDirectory = BuildUtil.GetBuildDir(log, toolConfig, cmakeConfig.CheckDir)
+        currentWorkingDirectory = BuildUtil.GetBuildDir(toolConfig.ProjectInfo, cmakeConfig.CheckDir)
         currentWorkingDirectory = IOUtil.Join(currentWorkingDirectory, "format")
-        ninjaOutputFile =  IOUtil.Join(currentWorkingDirectory, "build.ninja")
-        toolVersionOutputFile =  IOUtil.Join(currentWorkingDirectory, "ToolVersions.txt")
+        ninjaOutputFile = IOUtil.Join(currentWorkingDirectory, "build.ninja")
+        toolVersionOutputFile = IOUtil.Join(currentWorkingDirectory, "ToolVersions.txt")
         IOUtil.SafeMakeDirs(currentWorkingDirectory)
 
         log.LogPrint("Using path: '{0}'".format(currentWorkingDirectory))
@@ -335,7 +335,7 @@ class PerformClangFormatHelper2(object):
         totalProcessedCount = 0
         toolProjectContextsDict = PackagePathUtil.CreateToolProjectContextsDict(toolConfig.ProjectInfo)
         with io.StringIO() as ninjaFile:
-            ninjaFile.writelines("ninja_required_version = 1.8\n")
+            ninjaFile.write("ninja_required_version = 1.8\n")
 
             writer = Writer(ninjaFile, 149)
 
@@ -379,7 +379,7 @@ class PerformClangFormatHelper2(object):
 
             implicitDeps = [packageClosestFormatFile, toolVersionOutputFile]
 
-            writer.build(outputs=outputFile, rule=PerformClangFormatHelper2.RULE_FORMAT, implicit=implicitDeps,  inputs=fileEntry.ResolvedPath)
+            writer.build(outputs=outputFile, rule=PerformClangFormatHelper2.RULE_FORMAT, implicit=implicitDeps, inputs=fileEntry.ResolvedPath)
 
             # Write a dummy file so ninja finds a file (this is because clang format overwrites the existing file, so we need a dummy file to track progress)
             if not IOUtil.Exists(outputFile):

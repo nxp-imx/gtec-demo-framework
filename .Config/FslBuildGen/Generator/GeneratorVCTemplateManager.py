@@ -36,6 +36,7 @@ from typing import List
 from typing import Optional
 from typing import Set
 from FslBuildGen import IOUtil
+from FslBuildGen.DataTypes import PackageLanguage
 #from FslBuildGen.DataTypes import *
 #from FslBuildGen.Exceptions import *
 #from FslBuildGen.SharedGeneration import *
@@ -53,23 +54,23 @@ class GeneratorVCTemplateManager(object):
         # Language to template lookup
         # key =  the packageLanguage
         # value = VSVersionLanguageTemplates
-        self.LanguageToTemplatesDict = self.__LoadTemplates(log, pathTemplateRoot.ResolvedPath, vsVersion)  # type: Dict[int, VSVersionLanguageTemplates]
+        self.LanguageToTemplatesDict = self.__LoadTemplates(log, pathTemplateRoot.ResolvedPath, vsVersion)  # type: Dict[PackageLanguage, VSVersionLanguageTemplates]
 
 
-    def GetLanguageTemplates(self, packageLanguage: int) -> VSVersionLanguageTemplates:
+    def GetLanguageTemplates(self, packageLanguage: PackageLanguage) -> VSVersionLanguageTemplates:
         return self.LanguageToTemplatesDict[packageLanguage]
 
 
-    def TryGetLanguageTemplates(self, packageLanguage: int) -> Optional[VSVersionLanguageTemplates]:
+    def TryGetLanguageTemplates(self, packageLanguage: PackageLanguage) -> Optional[VSVersionLanguageTemplates]:
         return self.LanguageToTemplatesDict[packageLanguage] if packageLanguage in self.LanguageToTemplatesDict else None
 
 
-    def __LoadTemplates(self, log: Log, path: str, vsVersion: int) -> Dict[int, VSVersionLanguageTemplates]:
+    def __LoadTemplates(self, log: Log, path: str, vsVersion: int) -> Dict[PackageLanguage, VSVersionLanguageTemplates]:
         pathVS = IOUtil.Join(path, "VS{0}".format(vsVersion))
         vsDirs = self.__ScanDir(pathVS)
 
         templateIds = set()  # type: Set[str]
-        languageToTemplatesDict = {}  # type: Dict[int, VSVersionLanguageTemplates]
+        languageToTemplatesDict = {}  # type: Dict[PackageLanguage, VSVersionLanguageTemplates]
         for entry in vsDirs:
             templateList = self.__ScanForTemplates(log, entry)
             for template in templateList:

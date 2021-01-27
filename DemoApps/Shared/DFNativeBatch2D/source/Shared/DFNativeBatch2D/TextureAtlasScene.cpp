@@ -55,8 +55,8 @@ namespace Fsl
 
       // constexpr IO::PathView FontTexturePath("");
 
-      constexpr IO::PathView PathMainAtlas("MainAtlas.bta");
-      constexpr IO::PathView PathMainAtlasTexture("MainAtlas.png");
+      constexpr IO::PathView PathMainAtlas("TextureAtlas/MainAtlas.bta");
+      constexpr IO::PathView PathMainAtlasTexture("TextureAtlas/MainAtlas.png");
 
 
       constexpr IO::PathView PathTexture1("QuestquestGameIcons/cutepriest");
@@ -65,8 +65,8 @@ namespace Fsl
       constexpr IO::PathView PathTexture4("Test2");
       constexpr IO::PathView PathTextureFill("Fill");
 
-      constexpr IO::PathView PathMainAtlasFont("MainAtlasFont.fbk");
-      constexpr IO::PathView PathMainAtlasSmallFont("MainAtlasSmallFont.fbk");
+      constexpr IO::PathView PathMainAtlasFont("TextureAtlas/MainAtlasFont.fbk");
+      constexpr IO::PathView PathMainAtlasSmallFont("TextureAtlas/MainAtlasSmallFont.fbk");
       constexpr IO::PathView PathMainAtlasSdfFont("BasicUI/Font/SdfAtlas/FontAtlas_Font.fbk");
 
       constexpr IO::PathView PathSdfAtlas("BasicUI/Font/SdfAtlas/FontAtlas.bta");

@@ -10,7 +10,15 @@
           "UIAtlas/UIAtlas_*dpi_Font.nbf",
           "UIAtlas/UIAtlas_*dpi.png"
         ]
-      }     
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/SpringBackground",
+        "Content": [
+          "TextureAtlas/License.json",
+          "TextureAtlas/MainAtlas.bta",
+          "TextureAtlas/MainAtlas.png"
+        ]
+      }
     ]
   }
 }

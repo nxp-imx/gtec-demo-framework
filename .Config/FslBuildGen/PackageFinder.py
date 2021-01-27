@@ -35,7 +35,7 @@ from typing import cast
 from typing import Dict
 from typing import List
 from typing import Optional
-from FslBuildGen import IOUtil
+#from FslBuildGen import IOUtil
 from FslBuildGen.Exceptions import DependencyNotFoundException
 from FslBuildGen.Exceptions import PackageHasMultipleDefinitionsException
 from FslBuildGen.Exceptions import PackageLoaderFailedToLocatePackageException
@@ -139,7 +139,6 @@ class PackageFinder(object):
 
     def GetKnownPackageFiles(self, theFiles: List[PackageFile]) -> List[PackageFile]:
         """ Get all the files associated with the typeId then merge it with the supplied file list.
-
         """
 
         knownPackageLocationList = self.PackageLocationCache.GetKnownPackageLocations()  # type: List[PackageLocationCachePath]

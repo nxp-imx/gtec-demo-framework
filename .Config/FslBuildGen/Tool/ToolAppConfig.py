@@ -37,7 +37,7 @@ from typing import Optional
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.PackageConfig import PlatformNameString
-from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Tool.UserCMakeConfig import UserCMakeConfig
 

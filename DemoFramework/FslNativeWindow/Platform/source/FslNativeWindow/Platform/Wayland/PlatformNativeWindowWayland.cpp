@@ -652,8 +652,11 @@ namespace Fsl
 #endif
     }
 
-    const wl_registry_listener registry_listener = {RegistryHandleGlobal};
+    void RegistryHandleRemove(void* data, struct wl_registry* registry, uint32_t name)
+    {
+    }
 
+    const wl_registry_listener registry_listener = {RegistryHandleGlobal, RegistryHandleRemove};
 
     std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                   const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)

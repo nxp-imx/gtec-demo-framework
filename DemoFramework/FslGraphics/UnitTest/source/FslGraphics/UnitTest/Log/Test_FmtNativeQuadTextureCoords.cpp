@@ -43,8 +43,8 @@ namespace
 
 TEST(TestLog_FmtNativeQuadTextureCoords, Format)
 {
-  NativeQuadTextureCoords value(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f);
+  NativeQuadTextureCoords value(1.1f, 2.1f, 3.1f, 4.1f, 5.1f, 6.1f, 7.1f, 8.1f);
 
-  EXPECT_EQ(std::string("{TopLeft={X=1.0 Y=2.0} TopRight={X=3.0 Y=4.0} BottomLeft={X=5.0 Y=6.0} BottomRight={X=7.0 Y=8.0}}"),
+  EXPECT_EQ(std::string("{TopLeft={X=1.1 Y=2.1} TopRight={X=3.1 Y=4.1} BottomLeft={X=5.1 Y=6.1} BottomRight={X=7.1 Y=8.1}}"),
             fmt::format("{}", value));
 }

@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico

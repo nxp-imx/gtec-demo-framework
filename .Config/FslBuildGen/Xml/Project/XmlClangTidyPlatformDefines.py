@@ -39,10 +39,9 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 class XmlClangTidyPlatformDefines(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        all = self._TryReadAttrib(xmlElement, "All")
+        attribAll = self._TryReadAttrib(xmlElement, "All")
         debug = self._TryReadAttrib(xmlElement, "Debug")
         release = self._TryReadAttrib(xmlElement, "Release")
-        self.All = all.split(';') if all is not None else []                # type: List[str]
+        self.All = attribAll.split(';') if attribAll is not None else []    # type: List[str]
         self.Debug = debug.split(';') if debug is not None else []          # type: List[str]
         self.Release = release.split(';') if release is not None else []    # type: List[str]
-

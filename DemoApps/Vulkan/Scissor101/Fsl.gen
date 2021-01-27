@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.Scissor101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.Scissor101"/>
-    <Platform Name="Windows" ProjectId="2FBE3923-A44F-43EB-9BF3-D6B167B25B66"/>
   </Executable>
 </FslBuildGen>

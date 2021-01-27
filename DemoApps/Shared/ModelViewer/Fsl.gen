@@ -4,6 +4,5 @@
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslAssimp"/>
     <Dependency Name="FslGraphics3D.Camera"/>
-    <Platform Name="Windows" ProjectId="4015BCB0-0AF1-4239-97F9-9615E41E5FE7"/>
   </Library>
 </FslBuildGen>

@@ -6,6 +6,5 @@
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="FslGraphics3D.Procedural"/>
     <Dependency Name="Shared.ObjectSelection"/>
-    <Platform Name="Windows" ProjectId="4CFD4E05-68E5-467E-8E5E-D3D459951EBD"/>
   </Executable>
 </FslBuildGen>

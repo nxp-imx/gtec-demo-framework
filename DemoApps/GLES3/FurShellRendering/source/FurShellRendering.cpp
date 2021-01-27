@@ -136,7 +136,7 @@ namespace Fsl
 
     GLES3::GLTexture CreateMainAtlasTexture(const std::shared_ptr<IContentManager>& contentManager)
     {
-      auto bitmap = contentManager->ReadBitmap("MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
+      auto bitmap = contentManager->ReadBitmap("TextureAtlas/MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
       GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
       return GLES3::GLTexture(bitmap, texParams);
     }
@@ -144,7 +144,7 @@ namespace Fsl
     AtlasTextureInfo CreateMainAtlasTextureInfo(const std::shared_ptr<IContentManager>& contentManager)
     {
       BasicTextureAtlas atlas;
-      contentManager->Read(atlas, "MainAtlas.bta");
+      contentManager->Read(atlas, "TextureAtlas/MainAtlas.bta");
       return TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Banners");
     }
 
@@ -363,11 +363,11 @@ namespace Fsl
       float y2 = y1 + (m_resources.TexDescription.TrimmedRectPx.Height / res.Y);
 
       float u1 = m_resources.TexDescription.TrimmedRectPx.Left() / atlasSize.X;
-      float v1 = m_resources.TexDescription.TrimmedRectPx.Top() / atlasSize.Y;
+      float v1 = 1.0f - (m_resources.TexDescription.TrimmedRectPx.Top() / atlasSize.Y);
       float u2 = m_resources.TexDescription.TrimmedRectPx.Right() / atlasSize.X;
-      float v2 = m_resources.TexDescription.TrimmedRectPx.Bottom() / atlasSize.Y;
+      float v2 = 1.0f - (m_resources.TexDescription.TrimmedRectPx.Bottom() / atlasSize.Y);
 
-      BuildVB(m_resources.VBDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v1, u2, v2));
+      BuildVB(m_resources.VBDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
 
       m_resources.BasicProgram.Reset(contentManager->ReadAllText("BasicShader.vert"), contentManager->ReadAllText("BasicShader.frag"));
     }

@@ -48,11 +48,11 @@ Taking a native 160dpi image and scaling it up to higher DPI's lead to severely 
 
 The first row is native 160dpi up-scaled, the second  is native 640dpi down-scaled and the third is native sized images.
 
-160 dpi | 320 dpi | 640 dpi
---------|---------|--------
-![image](./Images/FslSimpleUI/Scaling/Base160dpi.png "Native 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base160dpiScaledTo320dpi.png "160dpi scaled to 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base160dpiScaledTo640dpi.png "160dpi scaled to 640dpi")
-![image](./Images/FslSimpleUI/Scaling/Base640dpiScaledTo160dpi.png "640dpi scaled to 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpiScaledTo320dpi.png "640dpi scaled to 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpi.png "Native 640dpi")
-![image](./Images/FslSimpleUI/Scaling/Base160dpi.png "Native 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base320dpi.png "Native 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpi.png "Native 640dpi")
+Method|160 dpi | 320 dpi | 640 dpi
+------|--------|---------|--------
+Upscale|![image](./Images/FslSimpleUI/Scaling/Base160dpi.png "Native 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base160dpiScaledTo320dpi.png "160dpi scaled to 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base160dpiScaledTo640dpi.png "160dpi scaled to 640dpi")
+Downscale|![image](./Images/FslSimpleUI/Scaling/Base640dpiScaledTo160dpi.png "640dpi scaled to 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpiScaledTo320dpi.png "640dpi scaled to 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpi.png "Native 640dpi")
+Native|![image](./Images/FslSimpleUI/Scaling/Base160dpi.png "Native 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base320dpi.png "Native 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpi.png "Native 640dpi")
 
 #### Animated example
 
@@ -148,10 +148,10 @@ This also means that any UI element being scaled up/down because of the screen D
 
 The same issue affects bitmap font based rendering. The following text for example is rendered at native resolution pixel correct and the second is off by 0.5 pixel (Texture 160dpi Scale 1.00)
 
-Native                                                            |4x zoom
-------------------------------------------------------------------|----------------------------------------------
-![image](./Images/UI.DpiScale/0A.png "Correct")  |![image](./Images/UI.DpiScale/0A_4x.png "Correct")
-![image](./Images/UI.DpiScale/0B.png "Incorrect")|![image](./Images/UI.DpiScale/0B_4x.png "Incorrect")
+Description   |Native                                                            |4x zoom
+--------------|------------------------------------------------------------------|----------------------------------------------
+Pixel Perfect |![image](./Images/UI.DpiScale/0A.png "Correct")  |![image](./Images/UI.DpiScale/0A_4x.png "Correct")
+Half pixel off|![image](./Images/UI.DpiScale/0B.png "Incorrect")|![image](./Images/UI.DpiScale/0B_4x.png "Incorrect")
 
 The blurring on the 0.5 sub-pixel rendering is obvious.  
 
@@ -363,11 +363,11 @@ Untrimmed | Trim margin 0 | Trim margin 1 | Trim margin 2
 ----------|---------------|---------------|----------------------------
 ![image](./Images/FslSimpleUI/Trim/Original64x64.png "Untrimmed")|![image](./Images/FslSimpleUI/Trim/TrimMargin0.png "No transparent border pixels")|![image](./Images/FslSimpleUI/Trim/TrimMargin1.png "One transparent border pixel")|![image](./Images/FslSimpleUI/Trim/TrimMargin2.png "Two transparent border pixels")|
 
-For size and rendering purposes there are basically no difference between the rendered result of a trimmed or non-trimmed image, since the atlas contains information about the number of trimmed pixels. We take that into account during rendering. When a trimmed image is scaled, there could be a slight difference in the exact result, since the scaling starts at different pixels.
-
-Using a trim margin of zero could also lead to slightly different rendering results between a trimmed and non-trimmed image.
+For size and rendering purposes there are generally no difference between the rendered result of a trimmed or non-trimmed image, since the atlas contains information about the number of trimmed pixels. We take that into account during rendering. However using a trim margin of zero could lead to slightly different rendering results between a trimmed and non-trimmed image.  
 
 The rendering of a trimmed image is just slightly more complicated as we need to take the number of trimmed pixels into account for both positioning and scaling. This is why we have both BasicImageSprites and ImageSprites, which allows for a control to simplify its calculations by only operating on images without trim.
+
+It's very important to calculate the x+y scale factors for "trim offset + trimmed image size" based on the scaled and rounded full image size and both the "trimOffset + trimmedSize" needs to be done in floats to ensure we have the correct precision.
 
 ##### NineSlice / NinePatch
 

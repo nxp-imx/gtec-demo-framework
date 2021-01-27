@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="glm"/>
     <Dependency Name="FslAssimp"/>
-    <Platform Name="Windows" ProjectId="7AFE985D-045C-4A93-A218-EC64D020BBD3"/>
   </Executable>
 </FslBuildGen>

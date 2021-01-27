@@ -33,9 +33,16 @@
 
 from typing import List
 from typing import Optional
+from typing import overload
 from typing import Set
+from typing import TypeVar
+from typing import Union
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Engine.Resolver.PreResolvePackageResult import PreResolvePackageResult
+
+CommonPackage = TypeVar('CommonPackage', Package, PreResolvePackageResult)
+
 
 def TryFindFirstExecutablePackage(packages: List[Package]) -> Optional[Package]:
     """ Given a list of packages locate the first marked as PackageType.Executable """
@@ -56,8 +63,7 @@ def GetExecutablePackages(packages: List[Package]) -> List[Package]:
     """ Given a list of packages marked as PackageType.Executable """
     return [package for package in packages if package.Type == PackageType.Executable]
 
-
-def GetTopLevelPackage(packages: List[Package]) -> Package:
+def GetTopLevelPackage(packages: List[CommonPackage]) -> CommonPackage:
     """ Given a list of packages locate the TopLevel one or raise a exception if not found"""
     for package in packages:
         if package.Type == PackageType.TopLevel:
@@ -65,8 +71,7 @@ def GetTopLevelPackage(packages: List[Package]) -> Package:
     raise Exception("No TopLevel package")
 
 
-
-def BuildReferencedPackageSet(packageList: List[Package]) -> Set[Package]:
+def BuildReferencedPackageSet(packageList: List[CommonPackage]) -> Set[CommonPackage]:
     """ build a set of packages that is referenced by the packages in packageList.
         This is basically all packages in the package list and any packages that they depend upon.
     """
@@ -78,7 +83,7 @@ def BuildReferencedPackageSet(packageList: List[Package]) -> Set[Package]:
     return referencedPackageSet
 
 
-def GetRequiredPackagesInSourcePackageListOrder(packageList: List[Package], sourcePackageList: List[Package]) -> List[Package]:
+def GetRequiredPackagesInSourcePackageListOrder(packageList: List[CommonPackage], sourcePackageList: List[CommonPackage]) -> List[CommonPackage]:
     """ Generate a list of all the packages that are required to build the packages in packageList in resolved build order.
     """
 

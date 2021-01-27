@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
-#include <FslBase/Math/EqualHelper_Vector2.hpp>
-#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/EqualHelper_PxVector2.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
@@ -55,7 +55,7 @@ namespace Fsl
         return !EqualHelper::IsAlmostEqual(value, correctMaxValue) ? value : correctMaxValue;
       }
 
-      inline Vector2 CalcSizeKeepAspectRatioScaling(const Vector2& targetSize, const Vector2& srcSize)
+      inline PxVector2 CalcSizeKeepAspectRatioScaling(const PxVector2& targetSize, const PxVector2& srcSize)
       {
         assert(targetSize.X >= 0.0f);
         assert(targetSize.Y >= 0.0f);
@@ -87,14 +87,14 @@ namespace Fsl
           return {};
         }
 
-        Vector2 size1(calcedX, targetSize.Y);
-        Vector2 size2(targetSize.X, calcedY);
+        PxVector2 size1(calcedX, targetSize.Y);
+        PxVector2 size2(targetSize.X, calcedY);
         // since we keep the aspect ratio the scaling factors will always be uniform
         return (size1.LengthSquared() < size2.LengthSquared() ? size1 : size2);
       }
 
 
-      inline Vector2 CalcSizeKeepAspectRatioDownScaling(const Vector2& targetSize, const Vector2& srcSize)
+      inline PxVector2 CalcSizeKeepAspectRatioDownScaling(const PxVector2& targetSize, const PxVector2& srcSize)
       {
         assert(targetSize.X >= 0.0f);
         assert(targetSize.Y >= 0.0f);
@@ -132,46 +132,46 @@ namespace Fsl
     }
 
 
-    bool UIScaleUtil::TryCalcScaling(Vector2& rScaling, const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
+    bool UIScaleUtil::TryCalcScaling(PxVector2& rScaling, const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      return TryCalcScaling(rScaling, targetSize, Vector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
+      return TryCalcScaling(rScaling, targetSize, PxVector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
     }
 
 
-    bool UIScaleUtil::TryCalcScaling(Vector2& rScaling, const Vector2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy)
+    bool UIScaleUtil::TryCalcScaling(PxVector2& rScaling, const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      rScaling = Vector2();
+      rScaling = PxVector2();
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
       {
         return false;
       }
 
-      Vector2 newSize;
+      PxVector2 newSize;
       if (!TryCalcSize(newSize, targetSize, srcSize, scalePolicy))
       {
         return false;
       }
 
-      rScaling = !EqualHelper::IsAlmostEqual(newSize, srcSize) ? Vector2((newSize.X / srcSize.X), (newSize.Y / srcSize.Y)) : Vector2(1.0f, 1.0f);
+      rScaling = !EqualHelper::IsAlmostEqual(newSize, srcSize) ? PxVector2((newSize.X / srcSize.X), (newSize.Y / srcSize.Y)) : PxVector2(1.0f, 1.0f);
       return true;
     }
 
 
-    bool UIScaleUtil::TryCalcSize(Vector2& rSize, const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
+    bool UIScaleUtil::TryCalcSize(PxVector2& rSize, const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      return TryCalcSize(rSize, targetSize, Vector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
+      return TryCalcSize(rSize, targetSize, PxVector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
     }
 
 
-    bool UIScaleUtil::TryCalcSize(Vector2& rSize, const Vector2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy)
+    bool UIScaleUtil::TryCalcSize(PxVector2& rSize, const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      rSize = Vector2();
+      rSize = PxVector2();
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
       {
         return false;
       }
 
-      Vector2 size = CalcSize(targetSize, srcSize, scalePolicy);
+      PxVector2 size = CalcSize(targetSize, srcSize, scalePolicy);
       if (size.X < 0 || size.Y < 0)
       {
         return false;
@@ -181,20 +181,15 @@ namespace Fsl
       return true;
     }
 
-    bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
-    {
-      return TryCalcSize(rSize, targetSize, Vector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
-    }
-
     bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      return TryCalcSize(rSize, targetSize, TypeConverter::UncheckedTo<Vector2>(srcSize), scalePolicy);
+      return TryCalcSize(rSize, targetSize, TypeConverter::To<PxVector2>(targetSize), scalePolicy);
     }
 
-    bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy)
+    bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      Vector2 scaledSize;
-      if (TryCalcSize(scaledSize, TypeConverter::UncheckedTo<Vector2>(targetSize), srcSize, scalePolicy))
+      PxVector2 scaledSize;
+      if (TryCalcSize(scaledSize, TypeConverter::To<PxVector2>(targetSize), srcSize, scalePolicy))
       {
         rSize = TypeConverter::UncheckedChangeTo<PxPoint2>(scaledSize);
         return true;
@@ -206,9 +201,9 @@ namespace Fsl
     bool UIScaleUtil::TryCalcSize(PxSize2D& rSize, const PxSize2D& targetSize, const PxSize2D& srcSize, const ItemScalePolicy scalePolicy)
     {
       PxPoint2 scaledSize;
-      if (TryCalcSize(scaledSize, TypeConverter::UncheckedTo<PxPoint2>(targetSize), TypeConverter::UncheckedTo<PxPoint2>(srcSize), scalePolicy))
+      if (TryCalcSize(scaledSize, TypeConverter::To<PxPoint2>(targetSize), TypeConverter::To<PxPoint2>(srcSize), scalePolicy))
       {
-        rSize = TypeConverter::UncheckedTo<PxSize2D>(scaledSize);
+        rSize = TypeConverter::To<PxSize2D>(scaledSize);
         return true;
       }
       rSize = {};
@@ -216,13 +211,13 @@ namespace Fsl
     }
 
 
-    Vector2 UIScaleUtil::CalcScaling(const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
+    PxVector2 UIScaleUtil::CalcScaling(const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      return CalcScaling(targetSize, Vector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
+      return CalcScaling(targetSize, PxVector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
     }
 
 
-    Vector2 UIScaleUtil::CalcScaling(const Vector2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy)
+    PxVector2 UIScaleUtil::CalcScaling(const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy)
     {
       // Early abort in case of crazy input
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
@@ -230,19 +225,19 @@ namespace Fsl
         return {};
       }
 
-      const Vector2 newSize = CalcSize(targetSize, srcSize, scalePolicy);
+      const PxVector2 newSize = CalcSize(targetSize, srcSize, scalePolicy);
 
-      return !EqualHelper::IsAlmostEqual(newSize, srcSize) ? Vector2((newSize.X / srcSize.X), (newSize.Y / srcSize.Y)) : Vector2(1.0f, 1.0f);
+      return !EqualHelper::IsAlmostEqual(newSize, srcSize) ? PxVector2((newSize.X / srcSize.X), (newSize.Y / srcSize.Y)) : PxVector2(1.0f, 1.0f);
     }
 
 
-    Vector2 UIScaleUtil::CalcSize(const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
+    PxVector2 UIScaleUtil::CalcSize(const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      return CalcSize(targetSize, Vector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
+      return CalcSize(targetSize, PxVector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
     }
 
 
-    Vector2 UIScaleUtil::CalcSize(const Vector2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy)
+    PxVector2 UIScaleUtil::CalcSize(const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy)
     {
       assert(!isnan(targetSize.X));
       assert(!isnan(targetSize.Y));
@@ -255,8 +250,8 @@ namespace Fsl
       assert(srcSize.X < CONSIDER_POSITIVE_INFINITY);
       assert(srcSize.Y < CONSIDER_POSITIVE_INFINITY);
 
-      const Vector2 clampedTarget(std::max(targetSize.X, 0.0f), std::max(targetSize.Y, 0.0f));
-      const Vector2 clampedSrc(srcSize.X <= 0.0f ? 0.0f : srcSize.X, srcSize.Y <= 0.0f ? 0.0f : srcSize.Y);
+      const PxVector2 clampedTarget(std::max(targetSize.X, 0.0f), std::max(targetSize.Y, 0.0f));
+      const PxVector2 clampedSrc(srcSize.X <= 0.0f ? 0.0f : srcSize.X, srcSize.Y <= 0.0f ? 0.0f : srcSize.Y);
 
       // Early abort for no scaling
       if (clampedTarget == clampedSrc)

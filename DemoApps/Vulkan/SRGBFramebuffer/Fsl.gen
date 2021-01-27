@@ -5,6 +5,5 @@
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.Theme.Basic"/>
     <Dependency Name="FslGraphics3D.Camera"/>
-    <Platform Name="Windows" ProjectId="0EC1CF6A-7A80-4ED7-8AA3-877A2FE6004A"/>
   </Executable>
 </FslBuildGen>

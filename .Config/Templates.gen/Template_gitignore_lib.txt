@@ -1,5 +1,4 @@
 /.vs/
-/.StartProject.bat
 /##PROJECT_NAME##.manifest
 /##PROJECT_NAME##.opensdf
 /##PROJECT_NAME##.sdf

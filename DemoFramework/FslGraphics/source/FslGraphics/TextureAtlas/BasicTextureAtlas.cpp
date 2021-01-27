@@ -45,7 +45,7 @@
 
 namespace Fsl
 {
-  constexpr const uint32_t DEFAULT_DP = 160;
+  // constexpr const uint32_t DEFAULT_DP = 160;
 
   namespace
   {
@@ -106,36 +106,6 @@ namespace Fsl
   void BasicTextureAtlas::Reset(const uint32_t capacity)
   {
     m_entries.resize(capacity);
-  }
-
-
-  void BasicTextureAtlas::SetEntry(const int32_t index, const Rectangle& srcRect, const Rectangle& trimmedRect, UTF8String name)
-  {
-    if (index < 0 || static_cast<std::size_t>(index) >= m_entries.size())
-    {
-      throw std::invalid_argument("out of bounds");
-    }
-
-    if (trimmedRect.X() < 0 || trimmedRect.Y() < 0 || trimmedRect.Width() < 0 || trimmedRect.Height() < 0)
-    {
-      throw NotSupportedException("trimmed rectangle can not contain negative values");
-    }
-
-    auto trimLeft = trimmedRect.Left() - srcRect.Left();
-    auto trimTop = trimmedRect.Top() - srcRect.Top();
-    auto trimRight = srcRect.Right() - trimmedRect.Right();
-    auto trimBottom = srcRect.Bottom() - trimmedRect.Bottom();
-    if (trimLeft < 0 || trimTop < 0 || trimRight < 0 || trimBottom < 0)
-    {
-      throw NotSupportedException("srcRect must fully contain the trimmed rectangle");
-    }
-
-    PxRectangleU rectanglePx(static_cast<uint32_t>(trimmedRect.X()), static_cast<uint32_t>(trimmedRect.Y()),
-                             static_cast<uint32_t>(trimmedRect.Width()), static_cast<uint32_t>(trimmedRect.Height()));
-    PxThicknessU trimPx(static_cast<uint32_t>(trimLeft), static_cast<uint32_t>(trimTop), static_cast<uint32_t>(trimRight),
-                        static_cast<uint32_t>(trimBottom));
-
-    SetEntry(index, rectanglePx, trimPx, DEFAULT_DP, IO::Path(std::move(name)));
   }
 
 

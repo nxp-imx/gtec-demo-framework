@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathDp_FmtDpSizeF, Log)
 {
-  DpSizeF value(1.0f, 2.0f);
+  DpSizeF value(1.1f, 2.1f);
 
-  EXPECT_EQ(std::string("{Width=1.0 Height=2.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{Width=1.1 Height=2.1}"), fmt::format("{}", value));
 }

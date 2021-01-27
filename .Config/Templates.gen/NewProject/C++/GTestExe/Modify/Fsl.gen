@@ -3,6 +3,5 @@
   <Executable Name="##PACKAGE_NAME##" NoInclude="true" CreationYear="##PACKAGE_CREATION_YEAR##">
     <!--Dependency Name="##PACKAGE_NAME##.Helper"/-->
     <Dependency Name="FslUnitTest"/>
-    <Platform Name="Windows" ProjectId="##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"/>
   </Executable>
 </FslBuildGen>

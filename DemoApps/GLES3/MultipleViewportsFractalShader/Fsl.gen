@@ -3,6 +3,5 @@
   <Executable Name="GLES3.MultipleViewportsFractalShader" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="Shared.FractalShader"/>
-    <Platform Name="Windows" ProjectId="4ACA4EE6-7D73-403E-B222-8399A35F796F"/>
   </Executable>
 </FslBuildGen>

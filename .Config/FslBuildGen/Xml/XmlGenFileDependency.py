@@ -31,8 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Dict
 from typing import Optional
 import xml.etree.ElementTree as ET
+from FslBuildGen import Util
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.Log import Log
 from FslBuildGen.Xml.Exceptions import XmlFormatException
@@ -43,14 +45,45 @@ class XmlGenFileDependency(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
+        flavor = self._TryReadAttrib(xmlElement, 'Flavor')  # type: Optional[str]
+        self.Flavor = self.__TryParseFlavor(flavor)
         access = self._ReadAttrib(xmlElement, 'Access', 'Public')  # type: str
         self.IfCondition = self._TryReadAttrib(xmlElement, 'If')  # type: Optional[str]
 
         if access == "Public":
-            self.Access = AccessType.Public  # type: int
+            self.Access = AccessType.Public  # type: AccessType
         elif access == "Private":
             self.Access = AccessType.Private
         elif access == "Link":
             self.Access = AccessType.Link
         else:
             raise XmlFormatException("Unknown access type '{0}' on Dependency: '{1}'".format(access, self.Name))
+
+    def __TryParseFlavor(self, flavor: Optional[str]) -> Dict[str, str]:
+        if flavor is None or len(flavor) <= 0:
+            return {}
+        uniqueIds = {} # type: Dict[str, str]
+        resDict = {} # type: Dict[str, str]
+        entries = flavor.split(',')
+        for entry in entries:
+            parts = entry.split('=')
+            if len(parts) != 2:
+                raise XmlFormatException("Dependency flavor constraint '{0}' not in the expected format 'flavor1=option, flavor2=option'".format(flavor))
+            key = parts[0].strip()
+            value = parts[1].strip()
+            if key in resDict:
+                raise XmlFormatException("Dependency flavor constraint key '{0}' already defined to '{1}'".format(key, resDict[key]))
+            keyId = key.upper()
+            if keyId in uniqueIds:
+                raise XmlFormatException("Dependency flavor constraint key '{0}' already collides with '{1}'".format(key, uniqueIds[keyId]))
+
+            if not Util.IsValidFlavorName(key):
+                raise XmlFormatException("Dependency flavor name '{0}' is invalid".format(key))
+
+            if not Util.IsValidFlavorOptionName(value):
+                raise XmlFormatException("Dependency flavor option '{1}' is invalid in {0}={1}".format(key, value))
+
+
+            uniqueIds[keyId] = key
+            resDict[key] = value
+        return resDict

@@ -35,28 +35,38 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Set
+from typing import Tuple
 from typing import Union
+from enum import Enum
 import json
 from FslBuildGen import IOUtil
 from FslBuildGen.Build.DataTypes import CommandType
-from FslBuildGen.BuildExternal import CMakeTypes
+from FslBuildGen.BuildConfig.CMakeCompileCommandsJson import CompileCommandDefine
+from FslBuildGen.BuildExternal import CMakeHelper
+from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Packages.Package import PackageDefine
 from FslBuildGen.Packages.PackageProjectContext import PackageProjectContext
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.Generator import CMakeGeneratorUtil
 from FslBuildGen.Generator import GitIgnoreHelper
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
+from FslBuildGen.Generator.Report.GeneratorConfigCommandCMakeReport import GeneratorConfigCommandCMakeReport
 from FslBuildGen.Generator.Report.GeneratorConfigCommandReport import GeneratorConfigCommandReport
 from FslBuildGen.Generator.Report.GeneratorConfigReport import GeneratorConfigReport
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
+from FslBuildGen.Generator.Report.GeneratorOpenProjectReport import GeneratorOpenProjectReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorBuildExecutableInfo import PackageGeneratorBuildExecutableInfo
 from FslBuildGen.Generator.Report.PackageGeneratorConfigReport import PackageGeneratorConfigReport
@@ -67,6 +77,7 @@ from FslBuildGen.SharedGeneration import ToolAddedVariant
 from FslBuildGen.SharedGeneration import ToolAddedVariantConfigOption
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
+from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 
 def GetVCBuildConfigurationName(entry: List[str]) -> str:
     return "-".join(entry)
@@ -82,7 +93,7 @@ class LocalMagicBuildVariants(object):
 # - Version tags and handling?
 # - All apps must be options
 # - All source install must be a option
-# - Ensure that the 'lib' depenendencies get set correctly (currently everything is public)
+# - Ensure that the 'lib' dependencies get set correctly (currently everything is public)
 # - Root CMakeList should work with 'Extended' repos
 # - Need to handle FEATURES as options
 # - cmake projects currently only handle one platform at a time. A final version should contain support for all platforms.
@@ -130,42 +141,58 @@ class LocalMagicBuildVariants(object):
 # Unfortunately our toolchain currently expects the information to be available at "config" time.
 #
 
+class CMakeGeneratorMode(Enum):
+    Normal = 0
+    Tidy = 1
+
 class ProjectContextCacheRecord(object):
     def __init__(self) -> None:
         super().__init__()
 
 class GeneratorCMake(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str, templateName: str,
-                 overrideTemplateName: Optional[str]) -> None:
+    def __init__(self, log: Log, toolConfig: ToolConfig, packages: List[Package], platformName: str, templateName: str,
+                 overrideTemplateName: Optional[str], cmakeBuildPackageDir: str, sdkConfigTemplatePath: str, disableWrite: bool,
+                 generatorMode: CMakeGeneratorMode) -> None:
         super().__init__()
 
-        self.__DisableWrite = config.DisableWrite
+        self.__DisableWrite = disableWrite
+
+        uniqueNormalVariables, uniqueEnvironmentVariables = CMakeGeneratorUtil.ExtractUniqueVariables(packages)
 
         # Create a quick lookup table
-        toolProjectContextsDict = {projectContext.ProjectId : projectContext for projectContext in config.ToolConfig.ProjectInfo.Contexts}
+        toolProjectContextsDict = {projectContext.ProjectId : projectContext for projectContext in toolConfig.ProjectInfo.Contexts}
 
         strTemplatePath = templateName
-        extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Ext", False, overrideTemplateName)
-        libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Lib", False, overrideTemplateName)
-        exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Exe", False, overrideTemplateName)
-        rootTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Root", False, overrideTemplateName)
-        notSupportedTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "NotSupported", False, overrideTemplateName)
+        extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Ext", False, overrideTemplateName)
+        libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Lib", False, overrideTemplateName)
+        exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Exe", False, overrideTemplateName)
+        rootTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "Root", False, overrideTemplateName)
+        notSupportedTemplate = CMakeGeneratorUtil.CodeTemplateCMake(sdkConfigTemplatePath, strTemplatePath, "NotSupported", False, overrideTemplateName)
 
         useExtendedProjectHack = True
         for package in packages:
-            isSupported = not package.ResolvedPlatformNotSupported
+            isSupported = package.ResolvedPlatformSupported
             if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
-                self.__GenerateCMakeFile(config, package, platformName, extTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName,
+                                         extTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack,
+                                         uniqueEnvironmentVariables, generatorMode)
             elif package.Type == PackageType.Library:
-                self.__GenerateCMakeFile(config, package, platformName, libTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName,
+                                         libTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack,
+                                         uniqueEnvironmentVariables, generatorMode)
             elif package.Type == PackageType.Executable:
-                self.__GenerateCMakeFile(config, package, platformName, exeTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName,
+                                         exeTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack,
+                                         uniqueEnvironmentVariables, generatorMode)
             elif package.Type == PackageType.TopLevel:
-                self.__GenerateRootCMakeFile(config, package, platformName, rootTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateRootCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName, rootTemplate, toolProjectContextsDict,
+                                             useExtendedProjectHack, uniqueEnvironmentVariables)
 
-    def __GenerateCMakeFile(self, config: Config, package: Package, platformName: str, template: CMakeGeneratorUtil.CodeTemplateCMake,
+
+    def __GenerateCMakeFile(self, log: Log, toolConfig: ToolConfig, cmakeBuildPackageDir: str, package: Package, platformName: str, template: CMakeGeneratorUtil.CodeTemplateCMake,
                             toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext],
-                            useExtendedProjectHack: bool) -> None:
+                            useExtendedProjectHack: bool, uniqueEnvironmentVariables: Set[str],
+                            generatorMode: CMakeGeneratorMode) -> None:
         if package.Type == PackageType.TopLevel:
             raise Exception("Usage error")
         #if package.IsVirtual:
@@ -177,55 +204,68 @@ class GeneratorCMake(GeneratorBase):
 
         aliasPackageName = CMakeGeneratorUtil.GetAliasName(packageName, package.ProjectContext.ProjectName)
 
-        targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(config, package, template.PackageTargetIncludeDirectories,
+        targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(toolConfig, package, template.PackageTargetIncludeDirectories,
                                                                                     template.PackageTargetIncludeDirEntry, template.PackageTargetIncludeDirVirtualEntry,
                                                                                     CMakeGeneratorUtil.CMakePathType.LocalRelative)
 
-        publicIncludeFiles = self.__Join(package.ResolvedBuildPublicIncludeFiles)
-        privateIncludeFiles = self.__Join(package.ResolvedBuildPrivateIncludeFiles)
-        includeFiles = self.__Join(package.ResolvedBuildAllIncludeFiles)
-        sourceFiles = self.__Join(package.ResolvedBuildSourceFiles)
+        publicIncludeFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildPublicIncludeFiles)
+        privateIncludeFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildPrivateIncludeFiles)
+        includeFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildAllIncludeFiles)
+        sourceFiles = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, package.ResolvedBuildSourceFiles)
 
-        linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(config, package,
+        linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(log, package,
                                                                                                            template.PackageDependencyTargetLinkLibraries,
                                                                                                            template.PackageDependencyFindPackage)
-        directDefinitions = CMakeGeneratorUtil.BuildDirectDefinitions(config, package, template.PackageDependencyTargetCompileDefinitions)
-        findDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(config, package, template.PackageDependencyFindPackage)
-        installInstructions = CMakeGeneratorUtil.BuildInstallInstructions(config, package, template.PackageInstall,
+
+        extraDefines = None
+        if generatorMode == CMakeGeneratorMode.Tidy and not package.IsVirtual:
+            extraDefines = GeneratorCMake.__GenerateTidyDefines(package)
+
+        directDefinitions = CMakeGeneratorUtil.BuildDirectDefinitions(log, package, template.PackageDependencyTargetCompileDefinitions, extraDefines)
+
+
+        findDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(log, package, template.PackageDependencyFindPackage)
+        installInstructions = CMakeGeneratorUtil.BuildInstallInstructions(log, package, template.PackageInstall,
                                                                           template.PackageInstallTargets,
                                                                           template.PackageInstallHeaders,
                                                                           template.PackageInstallContent,
                                                                           template.PackageInstallDLL,
                                                                           template.PackageInstallAppInfo)
-        targetCompileFeatures = CMakeGeneratorUtil.BuildCompileFeatures(config, package, template.SnippetTargetCompileFeaturesDefault,
+        targetCompileFeatures = CMakeGeneratorUtil.BuildCompileFeatures(log, package, template.SnippetTargetCompileFeaturesDefault,
                                                                         template.SnippetTargetCompileFeaturesInterface)
-        targetCompileOptions = CMakeGeneratorUtil.BuildCompileOptions(config, package, template.SnippetTargetCompileOptionsDefault)
-        targetFileCopy = CMakeGeneratorUtil.BuildFileCopy(config, package, template.PackageTargetCopyFile, template.PackageTargetCopyFilePath)
+        targetCompileOptions = CMakeGeneratorUtil.BuildCompileOptions(log, package, template.SnippetTargetCompileOptionsDefault)
+        targetFileCopy = CMakeGeneratorUtil.BuildFileCopy(log, package, template.PackageTargetCopyFile, template.PackageTargetCopyFilePath)
 
         cacheVariants = CMakeGeneratorUtil.GetCacheVariants(package, template.SnippetCacheVariant)
 
         contentInBinaryDirectory = True
 
-        packageContentBuilder = CMakeGeneratorUtil.GetContentBuilder(config, package, platformName, template.PackageContentBuilder, contentInBinaryDirectory)
-        #packageContentBuilderOutputFiles = CMakeGeneratorUtil.GetContentBuilderOutputFiles(config, package, contentInBinaryDirectory)
+        packageContentBuilder = CMakeGeneratorUtil.GetContentBuilder(toolConfig, package, platformName, template.PackageContentBuilder, contentInBinaryDirectory)
+        #packageContentBuilderOutputFiles = CMakeGeneratorUtil.GetContentBuilderOutputFiles(toolConfig, package, contentInBinaryDirectory)
 
-        packageContentSection = CMakeGeneratorUtil.GetContentSection(config, package, platformName, template.PackageContent, template.PackageContentFile, contentInBinaryDirectory)
-        #packageContentSectionOutputFiles = CMakeGeneratorUtil.GetContentSectionOutputFiles(config, package, contentInBinaryDirectory)
+        packageContentSection = CMakeGeneratorUtil.GetContentSection(toolConfig, package, platformName, template.PackageContent, template.PackageContentFile, contentInBinaryDirectory)
+        #packageContentSectionOutputFiles = CMakeGeneratorUtil.GetContentSectionOutputFiles(toolConfig, package, contentInBinaryDirectory)
 
-        packageContentDep = CMakeGeneratorUtil.GetContentDepSection(config, package, platformName, template.PackageContentDep, contentInBinaryDirectory)
-        packageContentDepOutputFiles = CMakeGeneratorUtil.GetContentDepOutputFile(config, package, contentInBinaryDirectory)
+        packageContentDep = CMakeGeneratorUtil.GetContentDepSection(toolConfig, package, platformName, template.PackageContentDep, contentInBinaryDirectory)
+        packageContentDepOutputFiles = CMakeGeneratorUtil.GetContentDepOutputFile(log, package, contentInBinaryDirectory)
 
-        packageCompilerSpecificFileDependencies = CMakeGeneratorUtil.CompilerSpecificFileDependencies(config, package,
+        packageCompilerSpecificFileDependencies = CMakeGeneratorUtil.CompilerSpecificFileDependencies(toolConfig, package,
                                                                                                       template.PackageCompilerConditional,
                                                                                                       template.PackageTargetSourceFiles,
                                                                                                       template.PackageCompilerFileDict)
 
-        packageVariantSettings = CMakeGeneratorUtil.GetVariantSettings(config, package, template.PackageVariantSettings,
+        packageVariantSettings = CMakeGeneratorUtil.GetVariantSettings(log, package, template.PackageVariantSettings,
                                                                        template.PackageDependencyTargetCompileDefinitions,
                                                                        template.PackageDependencyTargetLinkLibraries)
 
 
-        packageTargetSpecialFiles = CMakeGeneratorUtil.GetTargetSpecialFiles(config, package, template.PackageTargetSpecialFileNatvis)
+        packageTargetSpecialFiles = CMakeGeneratorUtil.GetTargetSpecialFiles(log, toolConfig, package, template.PackageTargetSpecialFileNatvis)
+
+        sourceGroups = GeneratorCMake.__GenerateSourceGroups(toolConfig, package)
+
+        packagePath = CMakeGeneratorUtil.GetPackageSDKBasedPathUsingCMakeVariable(toolConfig, package, "")
+        if packagePath.endswith('/'):
+            packagePath = packagePath[0:-1]
 
         buildCMakeFile = template.Master
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_INCLUDE_FILES##", includeFiles)
@@ -249,21 +289,73 @@ class GeneratorCMake(GeneratorBase):
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_COMPILER_SPECIFIC_FILE_DEPENDENCIES##", packageCompilerSpecificFileDependencies)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_VARIANT_SETTINGS##", packageVariantSettings)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_TARGET_SPECIAL_FILES##", packageTargetSpecialFiles)
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PATH##", packagePath)
+
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_SOURCE_GROUP##", sourceGroups)
 
         toolProjectContext = toolProjectContextsDict[package.ProjectContext.ProjectId]
-        sectionDefinePathEnvAsVariables = CMakeGeneratorUtil.CreateDefineRootDirectoryEnvironmentAsVariables(config.ToolConfig, toolProjectContext,
-                                                                                                             useExtendedProjectHack, template.PathEnvToVariable)
+        sectionDefinePathEnvAsVariables = CMakeGeneratorUtil.CreateDefineRootDirectoryEnvironmentAsVariables(toolConfig, toolProjectContext,
+                                                                                                             useExtendedProjectHack,
+                                                                                                             template.PathEnvToVariable,
+                                                                                                             uniqueEnvironmentVariables)
         buildCMakeFile = self.__CommonReplace(buildCMakeFile, package.ProjectContext, packageName, aliasPackageName, cacheVariants,
-                                              sectionDefinePathEnvAsVariables, config.ToolConfig.CMakeConfiguration.MinimumVersion,
+                                              sectionDefinePathEnvAsVariables, toolConfig.CMakeConfiguration.MinimumVersion,
                                               template)
 
-        self.__SaveFile(GeneratorCMake._GetPackageBuildFileName(package), buildCMakeFile)
-        GitIgnoreHelper.SafeAddEntry(self.GitIgnoreDict, package, "CMakeLists.txt")
+        dstFilename = GeneratorCMake._GetPackageBuildFileName(toolConfig, cmakeBuildPackageDir, package)
+        dstFilenameDir = IOUtil.GetDirectoryName(dstFilename)
+        if not self.__DisableWrite:
+            IOUtil.SafeMakeDirs(dstFilenameDir)
+            self.__SaveFile(dstFilename, buildCMakeFile)
+            #GitIgnoreHelper.SafeAddEntry(self.GitIgnoreDict, package, "CMakeLists.txt")
+
+    @staticmethod
+    def __GenerateSourceGroups(toolConfig: ToolConfig, package: Package) -> str:
+        resDict = {}  # type: Dict[str, List[str]]
+        if package.ResolvedBuildAllIncludeFiles is not None:
+            GeneratorCMake.__GroupByDir(resDict, package.ResolvedBuildAllIncludeFiles)
+        if package.ResolvedBuildSourceFiles is not None:
+            GeneratorCMake.__GroupByDir(resDict, package.ResolvedBuildSourceFiles)
+
+        #  CMakeGeneratorUtil.GetPackageSDKBasedPathUsingCMakeVariable(toolConfig, package, entry)
+
+        res = [] # type: List[str]
+
+        sortedDirectories = list(resDict.keys())
+        sortedDirectories.sort()
+
+        for dirName in sortedDirectories:
+            files = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, resDict[dirName])
+            res.append('source_group("{0}" FILES {1})'.format(dirName, files))
+
+        return "\n".join(res)
+
+    @staticmethod
+    def __GroupByDir(resDict: Dict[str, List[str]], files: List[str]) -> None:
+        for entry in files:
+            directory = IOUtil.GetDirectoryName(entry)
+            if directory not in resDict:
+                resDict[directory] = [entry]
+            else:
+                resDict[directory].append(entry)
+        for fileList in resDict.values():
+            fileList.sort()
 
 
-    def __GenerateRootCMakeFile(self, config: Config, package: Package, platformName: str, template: CMakeGeneratorUtil.CodeTemplateCMake,
-                                toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext],
-                                useExtendedProjectHack: bool) -> None:
+    @staticmethod
+    def __GenerateTidyDefines(package: Package) -> List[PackageDefine]:
+        packageNameDefineStr = "{0}{1}".format(CompileCommandDefine.PackageName, package.NameInfo.FullName.Value)
+        packageNameDefine = GeneratorCMake.__GenerateTidyDefine(packageNameDefineStr, AccessType.Private, package.NameInfo.FullName.Value, AccessType.Private)
+        return [packageNameDefine]
+
+    @staticmethod
+    def __GenerateTidyDefine(name: str, access: AccessType, introducedByPackageName: str, fromPackageAccess: AccessType) -> PackageDefine:
+        return PackageDefine(UnresolvedPackageDefine(name, access), introducedByPackageName, fromPackageAccess)
+
+
+    def __GenerateRootCMakeFile(self, log: Log, toolConfig: ToolConfig, cmakeBuildPackageDir: str, package: Package, platformName: str,
+                                template: CMakeGeneratorUtil.CodeTemplateCMake, toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext],
+                                useExtendedProjectHack: bool, uniqueEnvironmentVariables: Set[str]) -> None:
         if package.Type != PackageType.TopLevel:
             return
 
@@ -279,18 +371,18 @@ class GeneratorCMake(GeneratorBase):
 
             packageName = "TopLevel_{0}".format(projectContext.ProjectName)
 
-            addSubDirectoriesDirectDependencies = self.__BuildAddSubDirectoriesForTopLevelDirectDependencies(config, package, projectAbsolutePath, template)
-            #findExternalDependencies = self.__BuildFindExternalDependencies(config, package, template)
+            addSubDirectoriesDirectDependencies = self.__BuildAddSubDirectoriesForTopLevelDirectDependencies(toolConfig, package, projectAbsolutePath, template)
+            #findExternalDependencies = self.__BuildFindExternalDependencies(toolConfig, package, template)
 
             aliasPackageName = CMakeGeneratorUtil.GetAliasName(packageName, projectContext.ProjectName)
 
-            findDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(config, package, template.PackageDependencyFindPackage)
+            findDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(log, package, template.PackageDependencyFindPackage)
 
             allPackageNames = CMakeGeneratorUtil.GetAllPackageNames(package, projectContext if not useExtendedProjectHack else None)
 
             cacheVariants = CMakeGeneratorUtil.GetCacheVariants(package, template.SnippetCacheVariant)
 
-            extendedProjectParent = CMakeGeneratorUtil.GetAddExtendedPackageParent(config.ToolConfig, toolProjectContext, template.AddExtendedPackage)
+            extendedProjectParent = CMakeGeneratorUtil.GetAddExtendedPackageParent(toolConfig, toolProjectContext, template.AddExtendedPackage)
 
             buildCMakeFile = template.Master
             buildCMakeFile = buildCMakeFile.replace("##PACKAGES_FIND_DIRECT_EXTERNAL_DEPENDENCIES##", findDirectExternalDependencies)
@@ -298,17 +390,22 @@ class GeneratorCMake(GeneratorBase):
             buildCMakeFile = buildCMakeFile.replace("##ALL_PACKAGE_NAMES##", "\n  ".join(allPackageNames))
             buildCMakeFile = buildCMakeFile.replace("##EXTENDED_PROJECT_PARENT##", extendedProjectParent)
 
-            sectionDefinePathEnvAsVariables = CMakeGeneratorUtil.CreateDefineRootDirectoryEnvironmentAsVariables(config.ToolConfig, toolProjectContext,
-                                                                                                                    useExtendedProjectHack, template.PathEnvToVariable)
+            sectionDefinePathEnvAsVariables = CMakeGeneratorUtil.CreateDefineRootDirectoryEnvironmentAsVariables(toolConfig, toolProjectContext,
+                                                                                                                 useExtendedProjectHack,
+                                                                                                                 template.PathEnvToVariable,
+                                                                                                                 uniqueEnvironmentVariables)
             buildCMakeFile = self.__CommonReplace(buildCMakeFile, projectContext, packageName, aliasPackageName, cacheVariants,
-                                                  sectionDefinePathEnvAsVariables, config.ToolConfig.CMakeConfiguration.MinimumVersion,
+                                                  sectionDefinePathEnvAsVariables, toolConfig.CMakeConfiguration.MinimumVersion,
                                                   template)
 
-            dstFilename = GeneratorCMake._GetProjectPackageBuildFileName(toolProjectContext.Location)
-            self.__SaveFile(dstFilename, buildCMakeFile)
+            dstFilename = GeneratorCMake._GetProjectPackageBuildFileName(cmakeBuildPackageDir, toolProjectContext)
+            dstFilenameDir = IOUtil.GetDirectoryName(dstFilename)
+            if not self.__DisableWrite:
+                IOUtil.SafeMakeDirs(dstFilenameDir)
+                self.__SaveFile(dstFilename, buildCMakeFile)
 
 
-    def __CommonReplace(self, content: str, projectContext: Union[PackageProjectContext,ToolConfigProjectContext], packageName: str, aliasPackageName: str,
+    def __CommonReplace(self, content: str, projectContext: Union[PackageProjectContext, ToolConfigProjectContext], packageName: str, aliasPackageName: str,
                         cacheVariants: str, sectionDefinePathEnvAsVariables: str, cmakeMinimumVersion: CMakeVersion,
                         template: CMakeGeneratorUtil.CodeTemplateCMake) -> str:
 
@@ -341,16 +438,52 @@ class GeneratorCMake(GeneratorBase):
     def _GetBuildFileName(saveBasePath: str) -> str:
         return IOUtil.Join(saveBasePath, "CMakeLists.txt")
 
-    @staticmethod
-    def _GetProjectPackageBuildFileName(location: ResolvedPath) -> str:
-        return GeneratorCMake._GetBuildFileName(location.ResolvedPath)
+#    def _GetProjectPackageBuildFileName(location: ResolvedPath) -> str:
+#        return GeneratorCMake._GetBuildFileName(location.ResolvedPath)
 
     @staticmethod
-    def _GetPackageBuildFileName(package: Package) -> str:
+    def _GetProjectPackageBuildFileName(cmakeBuildPackageDir: str, toolProjectContext: ToolConfigProjectContext) -> str:
+        path = GeneratorCMake._GetProjectDirectoryName(cmakeBuildPackageDir, toolProjectContext)
+        return GeneratorCMake._GetBuildFileName(path)
+
+    @staticmethod
+    def _GetProjectDirectoryName(cmakeBuildPackageDir: str, projectContext: Union[ToolConfigProjectContext, PackageProjectContext]) -> str:
+        return IOUtil.Join(cmakeBuildPackageDir, projectContext.ProjectId.ShortProjectId)
+
+    @staticmethod
+    def _GetPackageRootPath(toolConfig: ToolConfig, package: Package) -> ToolConfigRootDirectory:
         if package.AbsolutePath is None:
-            raise Exception("Invalid package")
-        return GeneratorCMake._GetBuildFileName(package.AbsolutePath)
+            raise Exception("Invalid package '{0}'".format(package.NameInfo.FullName))
+        rootDirectory = toolConfig.TryFindRootDirectory(package.AbsolutePath)
+        if rootDirectory is None:
+            raise Exception("Could not find root directory for package '{0}'".format(package.NameInfo.FullName))
+        if not package.AbsolutePath.startswith(rootDirectory.ResolvedPathEx):
+            raise Exception("Found root directory did not match for package '{0}'".format(package.NameInfo.FullName))
+        return rootDirectory
 
+    @staticmethod
+    def _GetPackageRelativePath(toolConfig: ToolConfig, package: Package) -> str:
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package '{0}'".format(package.NameInfo.FullName))
+
+        rootDirectory = GeneratorCMake._GetPackageRootPath(toolConfig, package)
+        packageRelativePath = package.AbsolutePath[len(rootDirectory.ResolvedPathEx):]
+        packageRelativePath = IOUtil.GetDirectoryName(packageRelativePath)
+        return IOUtil.Join(packageRelativePath, package.NameInfo.ShortName.Value)
+
+    @staticmethod
+    def _GetPackageBuildFileName(toolConfig: ToolConfig, cmakeBuildPackageDir: str, package: Package) -> str:
+        #return GeneratorCMake._GetBuildFileName(package.AbsolutePath)
+        finalPath = GeneratorCMake._GetProjectDirectoryName(cmakeBuildPackageDir, package.ProjectContext)
+        #packageRelativePath = package.NameInfo.FullName.Value
+        #packageRelativePath = IOUtil.GetDirectoryName(package.Path.RootRelativeDirPath)
+        #packageRelativePath = IOUtil.Join(packageRelativePath, package.NameInfo.ShortName.Value)
+
+        packageRelativePath = GeneratorCMake._GetPackageRelativePath(toolConfig, package)
+        finalPath = IOUtil.Join(finalPath, packageRelativePath)
+
+        #packageRootPath = config.ToPath(package.AbsolutePath)
+        return GeneratorCMake._GetBuildFileName(finalPath)
 
 
     def __Join(self, srcList: Optional[List[str]]) -> str:
@@ -359,7 +492,7 @@ class GeneratorCMake(GeneratorBase):
         return "\n  " + "\n  ".join(srcList)
 
 
-    def __BuildAddSubDirectoriesForTopLevelDirectDependencies(self, config: Config, package: Package, projectAbsolutePath: str,
+    def __BuildAddSubDirectoriesForTopLevelDirectDependencies(self, toolConfig: ToolConfig, package: Package, projectAbsolutePath: str,
                                                               template: CMakeGeneratorUtil.CodeTemplateCMake) -> str:
         if package.Type != PackageType.TopLevel:
             return ""
@@ -374,7 +507,9 @@ class GeneratorCMake(GeneratorBase):
                 if entry.AbsolutePath is None:
                     raise Exception("Invalid package")
                 if entry.AbsolutePath.startswith(projectAbsolutePathEx):
-                    path = CMakeGeneratorUtil.GetRelativePath(config, projectAbsolutePath, entry.AbsolutePath)
+                    #path = CMakeGeneratorUtil.GetRelativePath(config, projectAbsolutePath, entry.AbsolutePath)
+                    path = GeneratorCMake._GetPackageRelativePath(toolConfig, entry)
+                    #path = entry.NameInfo.FullName.Value
                     content += template.PackageDependencyAddSubdirectories.replace("##PACKAGE_PATH##", path)
         return content
 
@@ -392,12 +527,12 @@ class GeneratorCMake(GeneratorBase):
         buildCommandNativeArguments = [] # type: List[str]
         if generatorConfig.BuildCommand != CommandType.Open:
             # Configuration (Debug, Release) for the configurations that support build time configuration switching
-            if CMakeTypes.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) == CMakeTypes.CMakeGeneratorMultiConfigCapability.Yes:
+            if CMakeHelper.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) == CMakeGeneratorMultiConfigCapability.Yes:
                 buildCommandArguments.append("--config")
                 buildCommandArguments.append("${{{0}}}".format(LocalMagicBuildVariants.CMakeBuildConfig))
 
             # Do a fallback solution for a few generators that we know how work
-            nativeArguments = CMakeTypes.GetNativeBuildThreadArguments(cmakeConfig.GeneratorName, generatorConfig.NumBuildThreads)
+            nativeArguments = CMakeHelper.GetNativeBuildThreadArguments(cmakeConfig.GeneratorName, generatorConfig.NumBuildThreads)
             if len(nativeArguments) > 0:
                 buildCommandNativeArguments += nativeArguments
             elif cmakeConfig.CMakeVersion >= CMakeVersion(3, 12, 0):
@@ -479,8 +614,21 @@ class GeneratorCMake(GeneratorBase):
         return variableReport
 
     @staticmethod
+    def __TryGenerateOpenReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig,
+                                cmakeBuildPackageDir: str, package: Package) -> Optional[GeneratorOpenProjectReport]:
+        if package.IsVirtual or package.AbsolutePath is None:
+            return None
+
+        sourcePath = GeneratorCMake._GetPackageRootPath(generatorConfig.ToolConfig, package).ResolvedPath
+        #packageBuildDirectory = GeneratorCMake._GetPackageBuildDir(generatorConfig, cmakeConfig, package)
+        buildSourceDirectory = GeneratorCMake._GetProjectDirectoryName(cmakeBuildPackageDir, package.ProjectContext)
+
+        return GeneratorOpenProjectReport(sourcePath, buildSourceDirectory)
+
+    @staticmethod
     def TryGenerateGeneratorPackageReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig,
-                                          package: Package, configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
+                                          cmakeBuildPackageDir: str, package: Package,
+                                          configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
         if package.IsVirtual and package.Type != PackageType.HeaderLibrary and package.Type != PackageType.TopLevel:
             return None
 
@@ -489,14 +637,16 @@ class GeneratorCMake(GeneratorBase):
         buildReport = GeneratorCMake._TryGenerateBuildReport(log, generatorConfig, cmakeConfig, package, isMasterBuild)
         executableReport = GeneratorCMake._TryGenerateExecutableReport(log, package)
         variableReport = GeneratorCMake._GenerateVariableReport(log, package, configVariantOptions, isMasterBuild)
-        return PackageGeneratorReport(buildReport, executableReport, variableReport)
+
+        openProjectReport = GeneratorCMake.__TryGenerateOpenReport(log, generatorConfig, cmakeConfig, cmakeBuildPackageDir, package)
+        return PackageGeneratorReport(buildReport, executableReport, variableReport, openProjectReport)
 
     @staticmethod
     def _ExtractRecipeInstallPaths(log: Log, package: Package) -> List[str]:
         res = []
         for depPackage in package.ResolvedBuildOrder:
             if (depPackage.ResolvedDirectExperimentalRecipe is not None and depPackage.ResolvedDirectExperimentalRecipe.AllowFind and
-                depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is not None):
+                    depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is not None):
                 newPath = depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation.ResolvedPath
                 res.append(newPath)
                 if ';' in newPath:
@@ -507,31 +657,43 @@ class GeneratorCMake(GeneratorBase):
         return res
 
     @staticmethod
-    def _GenerateConfigReport(log: Log, toolConfig: ToolConfig, platformName: str,
-                              cmakeConfig: GeneratorCMakeConfig,
-                              topLevelPackage: Package) -> GeneratorConfigReport:
+    def _GenerateConfigReport(log: Log, toolConfig: ToolConfig, platformName: str, cmakeConfig: GeneratorCMakeConfig,
+                              cmakeBuildPackageDir: str, topLevelPackage: Package) -> GeneratorConfigReport:
         if topLevelPackage.Type != PackageType.TopLevel:
             raise Exception("Package is not a top level package")
 
-        # Top level package handling
-        buildCommandArguments = []  # type: List[str]
+        cmakeConfigureSettingsDict = {}
+        cmakePrefixPathList = []
 
         if cmakeConfig.InstallPrefix is not None:
-             buildCommandArguments.append("-DCMAKE_INSTALL_PREFIX={0}".format(cmakeConfig.InstallPrefix))
+            cmakeConfigureSettingsDict["CMAKE_INSTALL_PREFIX"] = cmakeConfig.InstallPrefix
 
         # Configuration (Debug, Release) for the configurations that support configure time configuration
-        if CMakeTypes.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) != CMakeTypes.CMakeGeneratorMultiConfigCapability.Yes:
-            buildCommandArguments.append("-DCMAKE_BUILD_TYPE=${{{0}}}".format(LocalMagicBuildVariants.CMakeBuildConfig))
+        if CMakeHelper.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) != CMakeGeneratorMultiConfigCapability.Yes:
+            cmakeConfigureSettingsDict["CMAKE_BUILD_TYPE"] = "${{{0}}}".format(LocalMagicBuildVariants.CMakeBuildConfig)
 
-        buildCommandArguments.append("-DCODE_COVERAGE=${{{0}}}".format(LocalMagicBuildVariants.OptionCodeCoverage))
+        cmakeConfigureSettingsDict["CODE_COVERAGE"] = "${{{0}}}".format(LocalMagicBuildVariants.OptionCodeCoverage)
 
         # Normal variants
         for normalVariant in topLevelPackage.ResolvedNormalVariantNameList:
-            buildCommandArguments.append("-D{0}=${{{0}}}".format(normalVariant))
+            key = "{0}".format(normalVariant)
+            cmakeConfigureSettingsDict[key] = "${{{0}}}".format(normalVariant)
 
         recipePaths = GeneratorCMake._ExtractRecipeInstallPaths(log, topLevelPackage)
         if len(recipePaths) > 0:
-            buildCommandArguments.append('-DCMAKE_PREFIX_PATH={0}'.format(";".join(recipePaths)))
+            cmakeConfigureSettingsDict["CMAKE_PREFIX_PATH"] = "{0}".format(";".join(recipePaths))
+            cmakePrefixPathList = list(recipePaths)
+
+        # Top level package handling
+        cmakeCommandArguments = []  # type: List[str]
+        buildCommandArguments = []  # type: List[str]
+
+        for key, value in cmakeConfigureSettingsDict.items():
+            buildCommandArguments.append("-D{0}={1}".format(key, value))
+
+        # we handle the prefix paths differently since vscode prefers to get it in a list
+        if "CMAKE_PREFIX_PATH" in cmakeConfigureSettingsDict:
+            del cmakeConfigureSettingsDict["CMAKE_PREFIX_PATH"]
 
         # Set the generator name
         buildCommandArguments.append("-G")
@@ -541,11 +703,14 @@ class GeneratorCMake(GeneratorBase):
         additionalGeneratorArguments = cmakeConfig.CMakeConfigAppArguments
         if len(additionalGeneratorArguments) > 0:
             buildCommandArguments += additionalGeneratorArguments
+            #cmakeCommandArguments += additionalGeneratorArguments
 
         # Add the path to the root cmake file
-        topToolProjectContext = toolConfig.ProjectInfo.TopProjectContext
-        projectAbsolutePath = topToolProjectContext.Location.ResolvedPath
-        buildCommandArguments.append(projectAbsolutePath)
+        #topToolProjectContext = toolConfig.ProjectInfo.TopProjectContext
+        #projectAbsolutePath = topToolProjectContext.Location.ResolvedPath
+        #buildCommandArguments.append(projectAbsolutePath)
+        dstFilename = GeneratorCMake._GetProjectPackageBuildFileName(cmakeBuildPackageDir, toolConfig.ProjectInfo.TopProjectContext)
+        buildCommandArguments.append(IOUtil.GetDirectoryName(dstFilename))
 
         # Set the build dir
         configCWD = cmakeConfig.BuildDir
@@ -554,8 +719,9 @@ class GeneratorCMake(GeneratorBase):
 
         configCommand = "cmake"
         configCommandReport = GeneratorConfigCommandReport(configCommand, buildCommandArguments, configCWD)
+        configCommandCMakeReport = GeneratorConfigCommandCMakeReport(cmakeConfigureSettingsDict, cmakeCommandArguments, configCWD, cmakePrefixPathList)
 
-        return GeneratorConfigReport(configCommandReport)
+        return GeneratorConfigReport(configCommandReport, configCommandCMakeReport)
 
     @staticmethod
     def _GenerateConfigVariableReport(log: Log, topLevelPackage: Package, configVariantOptions: List[str]) -> GeneratorVariableReport:
@@ -576,19 +742,20 @@ class GeneratorCMake(GeneratorBase):
 
 
     @staticmethod
-    def _GeneratedFileSet(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, topLevelPackage: Package) -> Set[str]:
+    def _GeneratedFileSet(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, cmakeBuildPackageDir: str,
+                          topLevelPackage: Package) -> Set[str]:
         """
         Generate a list of all build files that will be generated for the given topLevelPackage by this generator
         """
         fileSet = set() # type: Set[str]
 
         for toolProjectContext in generatorConfig.ToolConfig.ProjectInfo.Contexts:
-            filename = GeneratorCMake._GetProjectPackageBuildFileName(toolProjectContext.Location)
+            filename = GeneratorCMake._GetProjectPackageBuildFileName(cmakeBuildPackageDir, toolProjectContext)
             if IOUtil.IsFile(filename):
                 fileSet.add(filename)
 
         for depPackage in topLevelPackage.ResolvedAllDependencies:
-            filename = GeneratorCMake._GetPackageBuildFileName(depPackage.Package)
+            filename = GeneratorCMake._GetPackageBuildFileName(generatorConfig.ToolConfig, cmakeBuildPackageDir, depPackage.Package)
             if IOUtil.IsFile(filename):
                 fileSet.add(filename)
 
@@ -603,16 +770,17 @@ class GeneratorCMake(GeneratorBase):
 
 
     @staticmethod
-    def GenerateGeneratorBuildConfigReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, topLevelPackage: Package,
-                                           configVariantOptions: List[str]) -> PackageGeneratorConfigReport:
+    def GenerateGeneratorBuildConfigReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, cmakeBuildPackageDir: str,
+                                           topLevelPackage: Package, configVariantOptions: List[str]) -> PackageGeneratorConfigReport:
         if topLevelPackage.Type != PackageType.TopLevel:
             raise Exception("Package is not a top level package")
 
+
         configReport = GeneratorCMake._GenerateConfigReport(log, generatorConfig.ToolConfig, generatorConfig.PlatformName,
-                                                            cmakeConfig, topLevelPackage)
+                                                            cmakeConfig, cmakeBuildPackageDir, topLevelPackage)
         variableReport = GeneratorCMake._GenerateConfigVariableReport(log, topLevelPackage, configVariantOptions)
 
-        generatedFileSet = GeneratorCMake._GeneratedFileSet(log, generatorConfig, cmakeConfig, topLevelPackage)
+        generatedFileSet = GeneratorCMake._GeneratedFileSet(log, generatorConfig, cmakeConfig, cmakeBuildPackageDir, topLevelPackage)
         # Master build report
         isMasterBuild = True
         masterBuildReport = GeneratorCMake._TryGenerateBuildReport(log, generatorConfig, cmakeConfig, topLevelPackage, isMasterBuild)
@@ -633,19 +801,25 @@ class GeneratorCMake(GeneratorBase):
         executableReport = generatorReport.ExecutableReport
         if executableReport is None:
             return None
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package: {0}".format(package.NameInfo.FullName))
 
-        packageBuildPathFormat = GeneratorCMake._GetPackageBuildDir(generatorConfig, cmakeConfig, package)
-        packageBuildPathFormat = IOUtil.Join(packageBuildPathFormat, ".fsl-build/config_${{{0}}}.json".format(LocalMagicBuildVariants.CMakeBuildConfig))
+        packageBuildPathFormatRoot = GeneratorCMake._GetPackageBuildDir(generatorConfig, cmakeConfig, package)
+        packageBuildPathFormat = IOUtil.Join(packageBuildPathFormatRoot, ".fsl-build/config_${{{0}}}.json".format(LocalMagicBuildVariants.CMakeBuildConfig))
 
         configurationFilePath = ReportVariableFormatter.Format(packageBuildPathFormat, variableReport, variantSettingsDict,
                                                                executableReport.EnvironmentVariableResolveMethod)
 
+        fileRunPath = ReportVariableFormatter.Format(packageBuildPathFormatRoot, variableReport, variantSettingsDict,
+                                                     executableReport.EnvironmentVariableResolveMethod)
+
         configurationFileDict = GeneratorCMake._TryLoadConfigJson(configurationFilePath)
         buildExePath = IOUtil.NormalizePath(configurationFileDict["EXE_PATH"])
-        return PackageGeneratorBuildExecutableInfo(buildExePath)
+        buildExeCwdPath = fileRunPath
+        return PackageGeneratorBuildExecutableInfo(buildExePath, buildExeCwdPath)
 
     @staticmethod
-    def _TryLoadConfigJson(configFile: str) -> Dict[str,str]:
+    def _TryLoadConfigJson(configFile: str) -> Dict[str, str]:
         strConfigJson = IOUtil.ReadFile(configFile)
         jsonDict = json.loads(strConfigJson)
         if not isinstance(jsonDict, dict):
@@ -656,4 +830,3 @@ class GeneratorCMake(GeneratorBase):
                 raise Exception("Incorrect configuration json file: '{0}'. Json decode failed".format(configFile))
             finalDict[key] = value
         return finalDict
-

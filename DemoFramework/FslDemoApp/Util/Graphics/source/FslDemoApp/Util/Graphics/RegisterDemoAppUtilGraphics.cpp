@@ -40,6 +40,7 @@
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
+#include <FslDemoHost/Base/Service/Texture/TextureService.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceProxyFactoryTemplate.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplFactoryTemplate.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
@@ -68,6 +69,7 @@ namespace Fsl
   using BitmapConverterServiceFactory = ThreadLocalSingletonServiceFactoryTemplate<BitmapConverterService, IBitmapConverter>;
   using ImageServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<ImageService, IImageService, IImageServiceControl>;
   using ImageBasicServiceFactory = ThreadLocalSingletonServiceFactoryTemplate<ImageBasicService, IImageBasicService>;
+  using TextureServiceFactory = ThreadLocalSingletonServiceFactoryTemplate<TextureService, ITextureService>;
 
 #ifdef FSL_FEATURE_GLI
   using ImageLibraryServiceGLIFactory = ThreadLocalSingletonServiceFactoryTemplate<ImageLibraryGLIService, IImageLibraryService>;
@@ -107,6 +109,7 @@ namespace Fsl
         serviceRegistry.SetServiceGroupName(imageServiceGroup, ServiceGroupName::Image());
       }
 
+      serviceRegistry.Register<TextureServiceFactory>(ServicePriorityList::TextureService());
 
       // The image service always run on the main thread
       serviceRegistry.Register<ImageServiceFactory>(ServicePriorityList::ImageService());

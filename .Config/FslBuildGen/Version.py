@@ -69,7 +69,7 @@ class Version(object):
             return "{0}.{1}".format(self.Major, self.Minor)
         return "{0}".format(self.Major)
 
-    def ToMajorMinorPacthString(self) -> str:
+    def ToMajorMinorPatchString(self) -> str:
         return "{0}.{1}.{2}".format(self.Major, self.Minor, self.Patch)
 
     def ToMajorMinorString(self) -> str:
@@ -93,12 +93,12 @@ class Version(object):
         if len(entries) < 1 or len(entries) > 4:
             return None
 
-        values = [-1,-1,-1,-1]
+        values = [-1, -1, -1, -1]
         try:
             for index, entry in enumerate(entries):
                 values[index] = int(entry)
             if not Version.IsValid(values):
                 return None
-            return Version(values[0],values[1],values[2],values[3])
+            return Version(values[0], values[1], values[2], values[3])
         except ValueError:
             return None

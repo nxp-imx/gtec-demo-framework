@@ -42,18 +42,23 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define MAP_SIZE 4096UL
-#define MAP_MASK (MAP_SIZE - 1)
-
 
 namespace Fsl
 {
   namespace
   {
+    namespace LocalConfig
+    {
+      constexpr const uint64_t MapSize = 4096UL;
+      constexpr const uint64_t MapMask = (MapSize - 1);
+
+    }
+
+
     inline const char* safeStrerror()
     {
       auto errorNumber = errno;
-      auto psz = strerror(errorNumber);
+      auto* psz = strerror(errorNumber);
       return psz != nullptr ? psz : "";
     }
   }
@@ -64,25 +69,26 @@ namespace Fsl
     , m_pVirtAddress(nullptr)
     , m_lastValue(0)
   {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
     if ((m_fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1)
     {
       throw IOException(safeStrerror());
     }
 
     // Map one page
-    m_pMem = mmap(nullptr, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, m_fd, targetAddress & ~MAP_MASK);
+    m_pMem = mmap(nullptr, LocalConfig::MapSize, PROT_READ | PROT_WRITE, MAP_SHARED, m_fd, targetAddress & (~LocalConfig::MapMask));
     if (m_pMem == reinterpret_cast<void*>(-1))
     {
       throw IOException(safeStrerror());
     }
 
-    m_pVirtAddress = (static_cast<uint8_t*>(m_pMem)) + (targetAddress & MAP_MASK);
+    m_pVirtAddress = (static_cast<uint8_t*>(m_pMem)) + (targetAddress & LocalConfig::MapMask);
   }
 
 
   ScopedSystemMemoryAccessLinux::~ScopedSystemMemoryAccessLinux()
   {
-    if (munmap(m_pMem, MAP_SIZE) == -1)
+    if (munmap(m_pMem, LocalConfig::MapSize) == -1)
     {
       FSLLOG3_WARNING("munmap failed with '{}'", safeStrerror());
     }

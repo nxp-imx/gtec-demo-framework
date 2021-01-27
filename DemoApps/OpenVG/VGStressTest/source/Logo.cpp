@@ -36,11 +36,12 @@
 
 namespace Fsl
 {
-  const RawBitmap Logo::GetBitmap()
+  RawBitmap Logo::GetBitmap()
   {
-    return RawBitmap(gpImageData, PxExtent2D(256, 256), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft);
+    return {gpImageData, PxExtent2D(256, 256), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft};
   }
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   const unsigned char Logo::gpImageData[] = {
     73,  101, 44,  255, 63,  95,  47,  255, 77,  102, 50,  255, 62,  91,  33,  255, 58,  91,  26,  255, 94,  128, 44,  255, 159, 180, 94,  255, 137,
     167, 119, 255, 125, 159, 119, 255, 95,  116, 69,  255, 67,  94,  28,  255, 126, 158, 84,  255, 131, 165, 108, 255, 112, 151, 100, 255, 114, 153,

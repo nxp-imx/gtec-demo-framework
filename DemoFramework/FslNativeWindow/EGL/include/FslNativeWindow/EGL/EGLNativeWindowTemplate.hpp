@@ -47,21 +47,31 @@ namespace Fsl
 {
   struct PxPoint2;
 
+  namespace EGLNativeWindowHelper
+  {
+    inline NativeEGLSetup ToNativeEGLSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
+    {
+      const auto* const pNativeEglSetup = dynamic_cast<const NativeEGLSetup*>(pPlatformCustomWindowAllocationParams);
+      if (pNativeEglSetup == nullptr)
+      {
+        throw NotSupportedException("NativeEGLSetup pointer expected");
+      }
+      return *pNativeEglSetup;
+    }
+  }
+
   template <typename TNativeWindow>
   class EGLNativeWindowTemplate
     : public virtual IEGLNativeWindow
     , public TNativeWindow
   {
+    NativeEGLSetup m_nativeSetup;
   public:
     EGLNativeWindowTemplate(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
       : TNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
+      , m_nativeSetup(EGLNativeWindowHelper::ToNativeEGLSetup(pPlatformCustomWindowAllocationParams))
     {
-      const auto pNativeEglSetup = dynamic_cast<const NativeEGLSetup*>(pPlatformCustomWindowAllocationParams);
-      if (pNativeEglSetup == nullptr)
-      {
-        throw NotSupportedException("NativeEGLSetup pointer expected");
-      }
     }
 
     EGLNativeWindowType GetWindowType() const override
@@ -79,6 +89,11 @@ namespace Fsl
     bool TryGetNativeSize(PxPoint2& rSize) const final
     {
       return TNativeWindow::TryGetNativeSize(rSize);
+    }
+
+    const NativeEGLSetup& GetNativeSetup() const
+    {
+      return m_nativeSetup;
     }
   };
 }

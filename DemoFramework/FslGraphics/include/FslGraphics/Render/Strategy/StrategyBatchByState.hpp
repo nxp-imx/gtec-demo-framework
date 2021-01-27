@@ -88,14 +88,10 @@ namespace Fsl
     // Pointers for optimal access to tracking areas
     struct AddQuadPointers
     {
-      vertex_type* pNextDstVertex;
-      segment_type* pCurrentDstSegment;
+      vertex_type* pNextDstVertex{nullptr};
+      segment_type* pCurrentDstSegment{nullptr};
 
-      AddQuadPointers()
-        : pNextDstVertex{nullptr}
-        , pCurrentDstSegment{nullptr}
-      {
-      }
+      AddQuadPointers() = default;
 
       AddQuadPointers(vertex_type* pDstVertex1, segment_type* pDstSegment1)
         : pNextDstVertex(pDstVertex1)
@@ -248,6 +244,52 @@ namespace Fsl
     }
 
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
+                        const Vector2& texCoords1, const Vector4& color)
+    {
+      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+
+      assert(IsValid());
+
+      // We expect the user called ensure capacity before starting to use this
+      assert(m_addQuad.pNextDstVertex != nullptr);
+      assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
+      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+
+      m_addQuad.pNextDstVertex->Position.X = vec0.X;
+      m_addQuad.pNextDstVertex->Position.Y = vec0.Y;
+      m_addQuad.pNextDstVertex->TextureCoordinate.X = texCoords0.X;
+      m_addQuad.pNextDstVertex->TextureCoordinate.Y = texCoords0.Y;
+      m_addQuad.pNextDstVertex->Color = color;
+
+      (m_addQuad.pNextDstVertex + 1)->Position.X = vec1.X;
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = vec1.Y;
+      (m_addQuad.pNextDstVertex + 1)->TextureCoordinate.X = texCoords1.X;
+      (m_addQuad.pNextDstVertex + 1)->TextureCoordinate.Y = texCoords0.Y;
+      (m_addQuad.pNextDstVertex + 1)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 2)->Position.X = vec2.X;
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = vec2.Y;
+      (m_addQuad.pNextDstVertex + 2)->TextureCoordinate.X = texCoords0.X;
+      (m_addQuad.pNextDstVertex + 2)->TextureCoordinate.Y = texCoords1.Y;
+      (m_addQuad.pNextDstVertex + 2)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 3)->Position.X = vec3.X;
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = vec3.Y;
+      (m_addQuad.pNextDstVertex + 3)->TextureCoordinate.X = texCoords1.X;
+      (m_addQuad.pNextDstVertex + 3)->TextureCoordinate.Y = texCoords1.Y;
+      (m_addQuad.pNextDstVertex + 3)->Color = color;
+
+      // Update our records
+      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+
+      assert(m_addQuad.pCurrentDstSegment != nullptr);
+      assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
+      assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
+      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+    }
+
+
+    inline void AddQuad(const PxVector2& vec0, const PxVector2& vec1, const PxVector2& vec2, const PxVector2& vec3, const Vector2& texCoords0,
                         const Vector2& texCoords1, const Vector4& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
@@ -533,7 +575,6 @@ namespace Fsl
       (*m_addQuad.pCurrentDstSegment) = segment_type(textureInfo, blendState, sdfRenderConfig);
 
       assert(IsValid());
-      return;
     }
   };
 

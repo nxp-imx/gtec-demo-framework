@@ -48,4 +48,3 @@ class XmlBuildDocConfiguration(XmlBase):
         for element in foundElements:
             res.append(XmlBuildDocRequirement(log, element))
         return res
-

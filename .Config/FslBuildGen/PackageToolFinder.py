@@ -38,7 +38,7 @@ from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.Packages.Package import Package
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommand
+#from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddTool
 
 
@@ -95,7 +95,7 @@ class PackageToolFinder(object):
         for package in toolPackages:
             recipe = package.ResolvedDirectExperimentalRecipe
             if recipe is not None and recipe.ResolvedInstallLocation is not None and recipe.ValidateInstallation is not None:
-                addToolList = [] # type: List[XmlRecipeValidateCommand]
+                #addToolList = [] # type: List[XmlRecipeValidateCommand]
                 validation = recipe.ValidateInstallation
 
                 for command in validation.CommandList:
@@ -103,7 +103,7 @@ class PackageToolFinder(object):
                         commandEx = cast(XmlRecipeValidateCommandAddTool, command)
                         toolName = IOUtil.GetFileNameWithoutExtension(commandEx.Name)
                         if toolName in resDict:
-                            if resDict[toolName] != package:
+                            if resDict[toolName].Package != package:
                                 raise Exception("Tool already registered by {0}".format(package.Name))
                         else:
                             resDict[toolName] = PackageToolRecord(package, recipe.ResolvedInstallLocation.ResolvedPath, commandEx)

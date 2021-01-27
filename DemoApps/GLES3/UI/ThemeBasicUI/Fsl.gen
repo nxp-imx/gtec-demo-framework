@@ -3,6 +3,5 @@
   <Executable Name="GLES3.UI.ThemeBasicUI" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="Shared.UI.ThemeBasicUI"/>
-    <Platform Name="Windows" ProjectId="6BC32473-4505-40F2-B3FE-B6709C73D6DB"/>
   </Executable>
 </FslBuildGen>

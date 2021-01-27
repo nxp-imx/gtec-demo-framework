@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.VulkanWillemsDemoAppExperimental"/>
     <Dependency Name="glm"/>
-    <Platform Name="Windows" ProjectId="##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"/>
   </Executable>
 </FslBuildGen>

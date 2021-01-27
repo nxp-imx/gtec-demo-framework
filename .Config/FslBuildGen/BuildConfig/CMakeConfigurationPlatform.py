@@ -31,10 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 from typing import Optional
-from typing import Set
-from FslBuildGen import IOUtil
+#from typing import Set
+#from FslBuildGen import IOUtil
 from FslBuildGen import PathUtil
 
 class CMakeConfigurationPlatform(object):

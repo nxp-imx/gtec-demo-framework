@@ -52,4 +52,3 @@ class SimpleCancellationToken(object):
             self.__IsCancelled = True
         finally:
             self.__Lock.release()
-

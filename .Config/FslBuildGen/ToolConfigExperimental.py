@@ -33,7 +33,7 @@
 
 from typing import List
 from typing import Optional
-import xml.etree.ElementTree as ET
+#import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor

@@ -3,6 +3,5 @@
   <Library Name="Shared.HDR.BasicScene.API.Vulkan" CreationYear="2018">
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Dependency Name="Shared.HDR.BasicScene"/>
-    <Platform Name="Windows" ProjectId="541C4D79-54DD-4304-9E2C-72A8A023380C"/>
   </Library>
 </FslBuildGen>

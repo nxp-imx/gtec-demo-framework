@@ -151,11 +151,10 @@ namespace Fsl
       return static_cast<float>(result);
     }
 
-
     //! @brief Determines if value is powered by two.
     //! @param value A value.
     //! @return true if value is powered by two; otherwise false.
-    constexpr inline static bool IsPowerOfTwo(const int32_t value)
+    constexpr inline bool IsPowerOfTwo(const int32_t value)
     {
       return (value > 0) && ((value & (value - 1)) == 0);
     }
@@ -163,7 +162,7 @@ namespace Fsl
     //! @brief Determines if value is powered by two.
     //! @param value A value.
     //! @return true if value is powered by two; otherwise false.
-    constexpr inline static bool IsPowerOfTwo(const uint32_t value)
+    constexpr inline bool IsPowerOfTwo(const uint32_t value)
     {
       return (value > 0u) && ((value & (value - 1)) == 0);
     }

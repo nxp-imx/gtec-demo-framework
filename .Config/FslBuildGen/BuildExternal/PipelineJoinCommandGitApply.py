@@ -33,20 +33,20 @@
 
 from typing import Optional
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PipelineInfo import PipelineInfo
 from FslBuildGen.BuildExternal.PipelineJoinCommand import PipelineJoinCommand
 from FslBuildGen.BuildExternal.Tasks import GitApplyTask
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommandGitApply
 
 
 class PipelineJoinCommandGitApply(PipelineJoinCommand):
-    def __init__(self, basicConfig: BasicConfig,
+    def __init__(self, log: Log,
                  sourceCommand: XmlRecipePipelineJoinCommandGitApply,
                  pipelineInfo: PipelineInfo,
                  finalDstPath: str,
                  task: Optional[GitApplyTask]) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo, finalDstPath)
+        super().__init__(log, sourceCommand, pipelineInfo, finalDstPath)
         if task is None:
             raise Exception("The '{0}' operation has not been enabled for this platform".format(sourceCommand.CommandName))
         self.Task = task
@@ -61,4 +61,3 @@ class PipelineJoinCommandGitApply(PipelineJoinCommand):
             srcPath = IOUtil.Join(self.Info.SrcRootPath, self.__SourceCommand.From)
 
         self.Task.RunGitApply(srcPath, self.Info.DstRootPath)
-

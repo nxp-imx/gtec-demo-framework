@@ -36,8 +36,8 @@ from FslBuildGen.DataTypes import OptimizationType
 from FslBuildGen.Xml.XmlStuff import XmlGenFileBuildCustomization
 
 class PackageBuildCustomizationBase(object):
-    def __init__(self) -> None:
-        super().__init__()
+    #def __init__(self) -> None:
+    #    super().__init__()
 
 
     def ReadValue(self, srcDict: Dict[str, XmlGenFileBuildCustomization], name: str, defaultValue: int) -> int:

@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtMatrix3, Log)
 {
-  Matrix3 value(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f);
+  Matrix3 value(1.1f, 2.1f, 3.1f, 4.1f, 5.1f, 6.1f, 7.1f, 8.1f, 9.1f);
 
-  EXPECT_EQ(std::string("{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1}"), fmt::format("{}", value));
 }

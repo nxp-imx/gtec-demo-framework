@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/ScopedStreamState.hpp>
 #include <FslUtil/Vulkan1_0/EncodedVulkanVersion.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <vulkan/vulkan.h>
@@ -75,6 +76,7 @@ inline std::ostream& operator<<(std::ostream& o, const VkFormat& value)
   {
     return o << psz;
   }
+  Fsl::IO::ScopedStreamState scopedState(o);
   return o << "0x" << std::hex << static_cast<uint32_t>(value);
 }
 

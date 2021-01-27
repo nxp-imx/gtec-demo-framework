@@ -32,7 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
-from typing import Callable
+#from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import Optional
@@ -40,23 +40,24 @@ from typing import List
 from typing import Set
 import argparse
 import json
-import subprocess
+#import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
 #from FslBuildGen import ParseUtil
-from FslBuildGen import PluginSharedValues
+#from FslBuildGen import PluginSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
-from FslBuildGen.PackageConfig import PlatformNameString
-from FslBuildGen.PackageFilters import PackageFilters
+#from FslBuildGen.PackageConfig import PlatformNameString
+#from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
+#from FslBuildGen.Packages.PackageNamespaceName import PackageNamespaceName
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
@@ -72,7 +73,7 @@ from FslBuildGen.Tool.Flow import ToolFlowBuild
 JsonDictType = Dict[str, Any]
 
 
-def ExtractPackages(packages: List[Package], packageType: int) -> List[Package]:
+def ExtractPackages(packages: List[Package], packageType: PackageType) -> List[Package]:
     res = []  # type: List[Package]
     for package in packages:
         if package.Type == packageType:
@@ -179,7 +180,7 @@ def TryInsertTableOfContents(basicConfig: BasicConfig, lines: List[str], depth: 
 # AG_DEMOAPP_HEADER_BEGIN
 def BuildDemoAppHeader(package: Package) -> List[str]:
     result = []  # type: List[str]
-    result.append("# {0}".format(package.ShortName))
+    result.append("# {0}".format(package.NameInfo.ShortName.Value))
 #    result.append('<img src="./Example.jpg" height="135px" style="float:right">')
     result.append('<img src="Example.jpg" height="135px">')
     result.append("")
@@ -235,7 +236,7 @@ class ProgramArgument(object):
         self.IsPositional = self.__ReadEntry(entry, "IsPositional")
         self.Name = self.__ReadEntry(entry, "Name", "")
         self.ShortName = self.__ReadEntry(entry, "ShortName", "")
-        self.Type = self.__ReadEntry(entry, "Type",  "")
+        self.Type = self.__ReadEntry(entry, "Type", "")
         self.Help_FormattedName = self.__ReadEntry(entry, "Help_FormattedName", "")
 
         strEnding = "OptionParser"
@@ -418,7 +419,7 @@ def ReadJsonFile(filename: str) -> JsonDictType:
 
 
 def TryBuildAndRun(toolAppContext: ToolAppContext, config: Config, package: Package) -> Optional[JsonDictType]:
-    if package.ResolvedPlatformNotSupported:
+    if not package.ResolvedPlatformSupported:
         return None
     if package.AbsolutePath is None:
         raise Exception("Invalid package")
@@ -489,7 +490,7 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
     exePackages = ExtractPackages(packages, PackageType.Executable)
     exePackages = __RemoveIgnored(log, exePackages, ignoreRequirementSet)
     exePackages = [package for package in exePackages if package.ShowInMainReadme]
-    exePackages.sort(key=lambda s: None if s.AbsolutePath is None else s.AbsolutePath.lower())
+    exePackages.sort(key=lambda s: "" if s.AbsolutePath is None else s.AbsolutePath.lower())
 
     packageArgumentsDict = {}  # type: Dict[Package, JsonDictType]
     if extractArguments is not None:
@@ -497,11 +498,9 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
 
     uniqueDict = {}  # type: Dict[str, List[Package]]
     for package in exePackages:
-        if package.Namespace is None:
-            raise Exception("Invalid package")
-        if not package.Namespace in uniqueDict:
-            uniqueDict[package.Namespace] = []
-        uniqueDict[package.Namespace].append(package)
+        if not package.NameInfo.Namespace.Value in uniqueDict:
+            uniqueDict[package.NameInfo.Namespace.Value] = []
+        uniqueDict[package.NameInfo.Namespace.Value].append(package)
 
     # sort the content
     for packageList in list(uniqueDict.values()):
@@ -526,7 +525,7 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
             if rootDir == activeRootDir:
                 config.LogPrintVerbose(4, "Processing package '{0}'".format(package.Name))
                 packageDir = package.AbsolutePath[len(rootDir.ResolvedPath)+1:]
-                result.append("### [{0}]({1})".format(package.ShortName, packageDir))
+                result.append("### [{0}]({1})".format(package.NameInfo.ShortName.Value, packageDir))
                 exampleImagePath = IOUtil.Join(package.AbsolutePath, "Example.jpg")
                 if IOUtil.IsFile(exampleImagePath):
                     exampleImagePath = exampleImagePath[len(rootDir.ResolvedPath)+1:]
@@ -570,8 +569,8 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 
 class ToolFlowBuildDoc(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -610,8 +609,9 @@ class ToolFlowBuildDoc(AToolAppFlow):
         # Get the generator and see if its supported
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
-                                                                                   localToolConfig.GetUserCMakeConfig())
+                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   config.ToolConfig.CMakeConfiguration,
+                                                                                   localToolConfig.GetUserCMakeConfig(), False)
         PlatformUtil.CheckBuildPlatform(generator.PlatformName)
 
         config.LogPrint("Active platform: {0}".format(generator.PlatformName))
@@ -652,12 +652,12 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
 
     def GetTitle(self) -> str:
-        return 'FslBuilDoc'
+        return 'FslBuildDoc'
 
 
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:

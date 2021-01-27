@@ -3,6 +3,7 @@
   <ExternalLibrary Name="glm" CreationYear="2016">
     <Define Name="GLM_FORCE_DEPTH_ZERO_TO_ONE" Access="Public"/>
     <Define Name="GLM_FORCE_RADIANS" Access="Public"/>
-    <Dependency Name="Recipe.glm_0_9_8_5"/>
+    <!--Define Name="GLM_FORCE_CTOR_INIT" Access="Public"/-->
+    <Dependency Name="Recipe.glm_0_9_9"/>
   </ExternalLibrary>
 </FslBuildGen>

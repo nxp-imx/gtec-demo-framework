@@ -61,8 +61,9 @@ GENERATOR_TYPES = {
 
 
 class GeneratorPlugin(GeneratorPluginBase2):
-    def __init__(self, platformName: str) -> None:
+    def __init__(self, log: Log, platformName: str) -> None:
         super().__init__(platformName)
+        self.Log = log
         self.OriginalPlatformId = self.PlatformId
         self.InDevelopment = False
         self.DotEnabled = False
@@ -120,17 +121,21 @@ class GeneratorPlugin(GeneratorPluginBase2):
 
 
     def GenerateDone(self, config: Config, packages: List[Package], name: str, activeGenerator: GeneratorBase) -> List[Package]:
+        toolConfig = config.ToolConfig
+        configSDKConfigTemplatePath = config.SDKConfigTemplatePath
+        configDisableWrite = config.DisableWrite
+
         if self.DotEnabled:
-            GeneratorDot(config, packages, name)
+            GeneratorDot(self.Log, toolConfig, packages, name)
         #if config.IsQuery:
         #    GenerateQuery.Answer(config, packages, name)
 
-        self.__GenerateGitIgnore(config, packages, name, activeGenerator)
+        self.__GenerateGitIgnore(configSDKConfigTemplatePath, configDisableWrite, packages, name, activeGenerator)
         self.LastActiveGenerator = activeGenerator
         return packages
 
 
-    def __GenerateGitIgnore(self, config: Config, packages: List[Package], name: str, activeGenerator: GeneratorBase) -> None:
-        ignore = GeneratorGitIgnore(config, packages, name, activeGenerator)
+    def __GenerateGitIgnore(self, configSDKConfigTemplatePath: str, configDisableWrite: bool, packages: List[Package], name: str, activeGenerator: GeneratorBase) -> None:
+        ignore = GeneratorGitIgnore(configSDKConfigTemplatePath, configDisableWrite, packages, name, activeGenerator)
 
 

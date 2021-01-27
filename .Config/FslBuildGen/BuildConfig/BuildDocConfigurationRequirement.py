@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 
 class BuildDocConfigurationRequirement(object):
     def __init__(self, name: str, skip: bool) -> None:

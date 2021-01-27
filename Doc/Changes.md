@@ -1,8 +1,24 @@
 # Latest version
 
-* Upgraded FMT from 6.2 to 7.0.
+## Release 5.7.0
+
+* Python 3.6 or better is now required
+* FslBuildCheck.py clang tidy now defaults to use cmake for dependencies. Legacy mode can still be used by adding ```--legacy```.
+* Vulkan samples updated to utilize the new mipmap generation code.
+* New Vulkan sample: GenerateMipMaps
+* New Vulkan sample: Vulkan.ShaderClock sample (VK_KHR_shader_clock)
+* Updated all setup guides.
+* Windows and Ubuntu now uses cmake find_package to locate the system OpenCL implementation.
+  This removes the the dependency on the deprecated AMD App SDK.
+* FslBuild on windows now defaults to the cmake visual studio generator.
+* FslBuild now support package flavors.
+* **Breaking change** FslBuild removed support for dynamic variants.
+* **Breaking change** FslBuild custom Visual Studio project generator no longer use dynamic variants for the OpenGL ES and OpenVG emulation. This means we no longer generate a the ```.StartProject.bat``` file. The user is now responsible calling ```ConfigureOpenGLESEmu.bat```   to configure the OpenGL ES emulator before launching the project.. Its recommended to call this right after the prepare.bat file.
+* Upgraded FMT from 6.2 to 7.1.
+* Upgraded GLI+GLM to newer versions
 
 ## Release 5.6.0
+
 * Renamed the new UIDemoAppExtension2 to UIDemoAppExtension as it has now replaced the former UIDemoAppExtension which is now called UIDemoAppLegacyExtension.
 * **Breaking change** Renamed UIDemoAppExtension to UIDemoAppLegacyExtension.
 * Downgraded ninja from 1.9.0 to 1.8.2 for better default compatibility with Ubuntu 18.04

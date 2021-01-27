@@ -30,14 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
-#include <cstring>
-
 
 namespace Fsl
 {
@@ -52,25 +53,6 @@ namespace Fsl
         const int ENGINE_PATCH = 0;
       }
 
-      bool IsInstanceLayerAvailable(const std::vector<VkLayerProperties>& layerProperties, const char* const pszLayerName)
-      {
-        if (pszLayerName == nullptr)
-        {
-          FSLLOG3_DEBUG_WARNING("IsInstanceLayerAvailable called with nullptr, this always returns false.");
-          return false;
-        }
-
-        for (uint32_t i = 0; i < layerProperties.size(); ++i)
-        {
-          if (std::strcmp(pszLayerName, layerProperties[i].layerName) == 0)
-          {
-            return true;
-          }
-        }
-        return false;
-      }
-
-
       bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames)
       {
         if (layerCount == 0 || enabledLayerNames == nullptr)
@@ -79,33 +61,15 @@ namespace Fsl
         }
 
         const std::vector<VkLayerProperties> layerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
+        const auto layerPropertiesSpan = ReadOnlySpanUtil::AsSpan(layerProperties);
         for (uint32_t extensionIndex = 0; extensionIndex < layerCount; ++extensionIndex)
         {
-          if (!IsInstanceLayerAvailable(layerProperties, enabledLayerNames[extensionIndex]))
+          if (!PropertyUtil::IsLayerAvailable(layerPropertiesSpan, enabledLayerNames[extensionIndex]))
           {
             return false;
           }
         }
         return true;
-      }
-
-
-      bool IsInstanceExtensionAvailable(const std::vector<VkExtensionProperties>& extensionProperties, const char* const pszExtensionName)
-      {
-        if (pszExtensionName == nullptr)
-        {
-          FSLLOG3_DEBUG_WARNING("IsInstanceExtensionAvailable called with nullptr, this always returns false.");
-          return false;
-        }
-
-        for (uint32_t i = 0; i < extensionProperties.size(); ++i)
-        {
-          if (std::strcmp(pszExtensionName, extensionProperties[i].extensionName) == 0)
-          {
-            return true;
-          }
-        }
-        return false;
       }
 
 
@@ -117,9 +81,10 @@ namespace Fsl
         }
 
         const std::vector<VkExtensionProperties> extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(pszLayerName);
+        const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
         for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
         {
-          if (!IsInstanceExtensionAvailable(extensionProperties, enabledExtensionNames[extensionIndex]))
+          if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
           {
             return false;
           }

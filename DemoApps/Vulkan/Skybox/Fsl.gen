@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="Shared.CubeMapping.API.Vulkan"/>
-    <Platform Name="Windows" ProjectId="D3A4775C-F5D2-415C-88E4-4CFACCABAF21"/>
   </Executable>
 </FslBuildGen>

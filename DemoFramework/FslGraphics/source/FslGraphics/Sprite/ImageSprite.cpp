@@ -63,8 +63,8 @@ namespace Fsl
   {
     SpriteUnitConverter unitConverter(densityDpi);
 
-    m_info.RenderInfo = RenderImageInfo(m_info.RenderInfo.TextureArea, unitConverter.CalcScaledPxSize2D(m_info.ImageInfo.ExtentPx, m_info.ImageDpi),
-                                        unitConverter.CalcScaledPxThickness(m_info.ImageInfo.TrimMarginPx, m_info.ImageDpi),
-                                        unitConverter.CalcScaledPxSize2D(m_info.ImageInfo.TrimmedRectanglePx.GetExtent(), m_info.ImageDpi));
+    m_info.RenderInfo = RenderImageInfo(m_info.RenderInfo.TextureArea,
+                                        unitConverter.CalcScaledPxTrimmedImage(m_info.ImageInfo.ExtentPx, m_info.ImageInfo.TrimMarginPx,
+                                                                               m_info.ImageInfo.TrimmedRectanglePx.GetExtent(), m_info.ImageDpi));
   }
 }

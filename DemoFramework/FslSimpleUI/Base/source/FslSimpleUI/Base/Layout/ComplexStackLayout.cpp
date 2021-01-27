@@ -130,9 +130,9 @@ namespace Fsl
       {
         // Fake that we have unlimited space in X and keep Y constrained.
         const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
+        LayoutLength layoutLength;
         for (auto itr = begin(); itr != end(); ++itr)
         {
-          LayoutLength layoutLength;
           if (layoutLengthItr != m_layoutLength.end())
           {
             layoutLength = *layoutLengthItr;
@@ -185,9 +185,9 @@ namespace Fsl
       {
         // Fake that we have unlimited space in Y and keep X constrained.
         const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
+        LayoutLength layoutLength;
         for (auto itr = begin(); itr != end(); ++itr)
         {
-          LayoutLength layoutLength;
           if (layoutLengthItr != m_layoutLength.end())
           {
             layoutLength = *layoutLengthItr;
@@ -252,9 +252,9 @@ namespace Fsl
       // Run through each element and give it the space it desired in Y, but only finalSize.X in X
       float totalStars = 0;
       int32_t totalSizePx = 0;
+      LayoutLength layoutLength{};
       for (auto itr = begin(); itr != end(); ++itr)
       {
-        LayoutLength layoutLength;
         if (layoutLengthItr != m_layoutLength.end())
         {
           layoutLength = *layoutLengthItr;
@@ -281,7 +281,7 @@ namespace Fsl
         case LayoutUnitType::Star:
         {
           totalStars += layoutLength.Value();
-          itr->SizePx = 0;    // this will be filled later by FinalizeStarSizes
+          itr->SizePx = 0;    // this will be filled later by FinalizePositionAndStarSizes
           itr->LayoutSizeMagic = layoutLength.Value();
           break;
         }
@@ -299,7 +299,7 @@ namespace Fsl
 
       // We now know the total size and total stars
       const int32_t sizeLeftPx = std::max(finalSizePx.Width() - totalSizePx, 0);
-      FinalizeStarSizes(unitConverter, sizeLeftPx, totalStars);
+      FinalizePositionAndStarSizes(unitConverter, sizeLeftPx, totalStars);
       if (finalSizePx.Width() >= totalSizePx && totalStars > 0)
       {
         totalSizePx = finalSizePx.Width();
@@ -346,7 +346,7 @@ namespace Fsl
         case LayoutUnitType::Star:
         {
           totalStars += layoutLength.Value();
-          itr->SizePx = 0;    // this will be filled later by FinalizeStarSizes
+          itr->SizePx = 0;    // this will be filled later by FinalizePositionAndStarSizes
           itr->LayoutSizeMagic = layoutLength.Value();
           break;
         }
@@ -364,10 +364,7 @@ namespace Fsl
 
       // We now know the total size and total stars
       const int32_t sizeLeftPx = std::max(finalSizePx.Height() - totalSizePx, 0);
-      if (totalStars > 0)
-      {
-        FinalizeStarSizes(unitConverter, sizeLeftPx, totalStars);
-      }
+      FinalizePositionAndStarSizes(unitConverter, sizeLeftPx, totalStars);
       if (finalSizePx.Width() >= totalSizePx && totalStars > 0)
       {
         totalSizePx = finalSizePx.Height();
@@ -376,7 +373,7 @@ namespace Fsl
     }
 
 
-    void ComplexStackLayout::FinalizeStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars)
+    void ComplexStackLayout::FinalizePositionAndStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars)
     {
       // Assign size to the star areas
       const auto spacingPx = unitConverter.DpToPxInt32(m_spacingDp);

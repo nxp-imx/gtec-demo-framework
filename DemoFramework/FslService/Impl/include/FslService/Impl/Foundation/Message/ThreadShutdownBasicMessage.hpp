@@ -34,6 +34,8 @@
 #include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
 #include <FslService/Impl/Registry/ServiceGroupId.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <utility>
+
 
 namespace Fsl
 {
@@ -49,6 +51,7 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(modernize-pass-by-value)
     ThreadShutdownBasicMessage(const ServiceGroupId& id, const std::exception_ptr& exception)
       : Id(id)
       , Exception(exception)

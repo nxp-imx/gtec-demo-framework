@@ -1,5 +1,6 @@
 # Setup guide Yocto (bsp)
 
+
 First you need to decide how you are going to be building for Yocto
 
 - [Building using a prebuild Yocto SDK](#building-using-a-prebuild-Yocto_sdk)
@@ -7,7 +8,7 @@ First you need to decide how you are going to be building for Yocto
 
 Third party software downloads are now disabled per default. To build using an old Yocto release that doesn't come with all third party software you need to add ```--Recipes [*]``` to your command line which will re-enable the download.
 
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 
 ## Building using a prebuild Yocto SDK
 
@@ -17,7 +18,8 @@ This tend to be the fastest way to get started.
 ### Prerequisites
 
 - Ubuntu 18.04
-- Python 3.5 (this is standard from Ubuntu 16.04 and forward)
+- [CMake 3.10.2 or newer](https://cmake.org/download/)
+- Python 3.6 (this is standard from Ubuntu 16.04 and forward)
 - A prebuild sdk for your board typically called something like ```toolchain.sh```
 - A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
 - Git
@@ -25,6 +27,7 @@ This tend to be the fastest way to get started.
     ```bash
     sudo apt-get install git
     ```
+
 - Ninja build
 
     ```bash
@@ -76,7 +79,7 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
     ```
 
    Another possible error you can encounter is that the FslBuild.py scripts fail to include the 'typing' library.
-   This can happen because the SDK comes with a too old Python3 version or a incomplete Python3.5 version.
+   This can happen because the SDK comes with a too old Python3 version or a incomplete Python3.6 version.
    As a workaround for that you could delete the Python3 binaries from the SDK which will cause it to use the system Python3 version instead.
 
 ### Ready to build via sdk
@@ -84,7 +87,7 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
 You are now ready to start building Yocto apps using the demo framework.
 Please continue the guide at [Using the demo framework].
 
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 
 ## Building using a full Yocto build
 
@@ -94,16 +97,8 @@ This process provides the most flexible solution but it also takes significantly
 ### BSP Build Prerequisites
 
 - The Ubuntu version required by the BSP release.
-- Python 3.4+
-  It should be part of the default Ubuntu install.
-  If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
-  To install the typing library in Python **3.4** run:
-
-    ```bash
-    sudo apt-get install python3-pip
-    sudo pip3 install typing
-    ```
-
+- [CMake 3.10.2 or newer](https://cmake.org/download/)
+- Python 3.6+ It should be part of the default Ubuntu install.
 - Ninja build
 
     ```bash
@@ -244,7 +239,7 @@ runqemu-extract-sdk ~/fsl-release-bsp/build-wayland/tmp/deploy/images/imx6qpsabr
 You are now ready to start building Yocto apps using the demo framework,
 please continue the guide at [Using the demo framework].
 
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 
 ## Using the demo framework
 
@@ -278,20 +273,54 @@ please continue the guide at [Using the demo framework].
 
     Before running the prepare.sh script.
 
-### To Compile all samples
+## To Compile and run an existing sample application
 
-1. Make sure that you performed the [simple setup](#simple-setup).
-2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2) If '--BuildThreads' is not specified it will be set to 'auto' which uses your cpu core count.
+The general approach will be:
+
+1. Make sure that you performed the [simple setup](#simple-setup), including the API's the sample need.
+2. Change directory to the sample directory:
 
     ```bash
-    FslBuild.py --Variants [WindowSystem=FB] -t sdk --BuildThreads 2
+    cd DemoApps/<MAIN-API-NAME>/<SAMPLE-NAME>
     ```
 
-    WindowSystem can be set to either: FB, Wayland or x11
+    Example MAIN-API-NAME's: GLES2, GLES3, OpenCL, Vulkan.
 
-### To Compile and run an existing sample application
+    Type ```dir``` to see the dir choice.
 
-In this example we will utilize the `GLES2.S06_Texturing` app.
+    Example SAMPLE-NAME's: Bloom, S06_Texturing.
+
+    Type ```dir``` after entering a API folder to see the list of samples
+
+3. Build and the application.
+
+    ```bash
+    FslBuild.py --Variants [WindowSystem=FB]
+    ```
+
+    WindowSystem can bet set to either `FB`, `Wayland`, `Wayland_IVI`, `X11` be sure to pick the right one.
+    If the app doesn't require a WindowSystem the `--Variants [WindowSystem=FB]`can be omitted.
+
+The following commands are also pretty useful to know.
+
+Command                                       | Description
+----------------------------------------------|---------------------------------------
+`FslBuild.py`                                 | To build the example.
+`FslBuild.py --ListVariants`                  | List all the build variants that can be specified. List all the build variants that can be specified. This is useful to see the WindowSystem's.
+`FslBuildInfo.py --ListRequirements`          | To list the samples requirements.
+
+It is also recommended to check out the `README.md` and `Example.jpg` that is included with all samples.
+
+Note:
+
+If you add source files to a project or change the Fsl.gen file then run the
+`FslBuildGen.py` script in the project root folder to regenerate the various
+build files or just make sure you always use the `FslBuild.py` script as it
+automatically adds files and regenerate build files as needed.
+
+### To Compile and run an existing GLES2 sample application
+
+In this example we will utilize the GLES2.S06_Texturing app.
 
 1. Make sure that you performed the [simple setup](#simple-setup).
 2. Change directory to the sample directory:
@@ -306,7 +335,6 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
     FslBuild.py --Variants [WindowSystem=FB]
     ```
 
-    WindowSystem can be set to either: FB, Wayland or x11
 
 ### To Compile and install an existing sample application
 
@@ -325,10 +353,53 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
     FslBuild.py --Variants [WindowSystem=FB] -c install --CMakeInstallPrefix $FSL_GRAPHICS_SDK/bin
     ```
 
-    WindowSystem can be set to either: FB, Wayland or x11
 4. Copy the content of ```$FSL_GRAPHICS_SDK/bin``` to the target
 
-### To create a new GLES2 demo project named 'CoolNewDemo'
+## To create a new demo project named 'CoolNewDemo'
+
+1. Make sure that you performed the [simple setup](#simple-setup) including the additional OpenGL ES setup.
+2. Change directory to the appropriate sample directory:
+
+    ```bash
+    cd DemoApps/<MAIN-API-NAME>
+    ```
+
+    Example MAIN-API-NAME's: GLES2, GLES3, OpenCL, Vulkan.
+
+    Type ```dir``` to see the dir choice.
+
+3. Create the project template using the FslBuildNew.py script
+
+    ```bash
+    FslBuildNew.py <TEMPLATE-NAME> CoolNewDemo  
+    ```
+
+    Example TEMPLATE-NAME's: GLES2, GLES3, OpenCL1_2, OpenCV4, Vulkan.
+
+    To get a full list run ```FslBuildNew.py . . --List```
+
+4. Change directory to the newly created project folder 'CoolNewDemo'
+
+    ```bash
+    cd CoolNewDemo
+    ```
+
+5. Compile the project
+
+    ```bash
+    FslBuild.py --Variants [WindowSystem=FB]
+    ```
+
+Note:
+
+If you add source files to a project or change the Fsl.gen file then run the
+`FslBuildGen.py` script in the project root folder to regenerate the various
+build files or just make sure you always use the `FslBuild.py` script as it
+automatically adds files and regenerate build files as needed.
+
+### So to create a new GLES2 demo project named 'CoolNewDemo'
+
+In this example we will create a GLES2 app called CoolNewDemo.
 
 1. Make sure that you performed the [simple setup](#simple-setup)
 2. Change directory to the GLES2 sample directory:
@@ -355,23 +426,19 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
     FslBuild.py --Variants [WindowSystem=FB]
     ```
 
-    WindowSystem can be set to either: FB, Wayland or x11
+    WindowSystem can bet set to either `FB`, `Wayland`, `Wayland_IVI`, `X11` be sure to pick the right one.
 
-Note:
 
-Once a build has been done once you can just invoke the make file directly.
-However this requires that you didn't change any dependencies or add files.
+### To Compile all samples
 
-To do this run
+1. Make sure that you performed the [simple setup](#simple-setup).
+2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2) If '--BuildThreads' is not specified it will be set to 'auto' which uses your cpu core count.
 
- ```bash
- make -f GNUmakefile_Yocto -j 2 WindowSystem=FB
- ```
+    ```bash
+    FslBuild.py --Variants [WindowSystem=FB] -t sdk --BuildThreads 2
+    ```
 
-If you add source files to a project or change the Fsl.gen file then run the
-`FslBuildGen.py` script in the project root folder to regenerate the various
-build files or just make sure you always use the `FslBuild.py` script as it
-automatically adds files and regenerate build files as needed.
+    WindowSystem can bet set to either `FB`, `Wayland`, `Wayland_IVI`, `X11` be sure to pick the right one.
 
 ### To see which features a DemoApp requires to be able to build
 
@@ -387,6 +454,8 @@ automatically adds files and regenerate build files as needed.
     ```bash
     FslBuild.py --ListFeatures
     ```
+
+---------------------------------------------------------------------------------------------------
 
 ## Copying DemoFramework apps to the sdcard
 
@@ -410,6 +479,8 @@ automatically adds files and regenerate build files as needed.
    Beware that 'install' can be used for all build commands, so you could build all apps and then just copy the bin directory.
 3. Manually copy the build Executable and its content directory to the sdcard
 4. Unmount the sdcard
+
+---------------------------------------------------------------------------------------------------
 
 ## Building Vulkan demo framework apps
 
@@ -452,6 +523,8 @@ The easiest way to get it is to install the Vulkan SDK, See the [official SDK gu
     ```
 
 7. Run the normal setup.
+
+---------------------------------------------------------------------------------------------------
 
 ## Building OpenCV demo framework apps
 

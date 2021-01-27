@@ -60,8 +60,8 @@ namespace Fsl
 
     struct UboVS
     {
-      glm::mat4 Projection;
-      glm::mat4 View;
+      glm::mat4 Projection{};
+      glm::mat4 View{};
       float Time = 0.0f;
     };
 

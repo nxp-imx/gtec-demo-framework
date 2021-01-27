@@ -3,6 +3,5 @@
   <Executable Name="GLES2.UI.PixelPerfect" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.UI.PixelPerfect"/>
-    <Platform Name="Windows" ProjectId="B159B6C9-647C-4D94-952B-A38E0E462444"/>
   </Executable>
 </FslBuildGen>

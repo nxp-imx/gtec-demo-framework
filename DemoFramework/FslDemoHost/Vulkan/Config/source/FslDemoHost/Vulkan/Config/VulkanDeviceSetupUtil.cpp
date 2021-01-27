@@ -31,6 +31,7 @@
 
 #include <FslDemoHost/Vulkan/Config/VulkanDeviceSetupUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
@@ -44,7 +45,8 @@ namespace Fsl
   namespace Vulkan
   {
     VulkanDeviceSetup VulkanDeviceSetupUtil::CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
-                                                         const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque)
+                                                         const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
+                                                         const ReadOnlySpan<const char*>& extensions)
     {
       {
         const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device);
@@ -61,13 +63,11 @@ namespace Fsl
         deviceQueueCreateInfo.queueCount = static_cast<uint32_t>(queuePriorities.size());
         deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
 
-        std::array<const char*, 1> extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
         VkDeviceCreateInfo deviceCreateInfo{};
         deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
         deviceCreateInfo.queueCreateInfoCount = 1;
         deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+        deviceCreateInfo.enabledExtensionCount = UncheckedNumericCast<uint32_t>(extensions.size());
         deviceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
         // Lookup the user defines feature requirements and set them

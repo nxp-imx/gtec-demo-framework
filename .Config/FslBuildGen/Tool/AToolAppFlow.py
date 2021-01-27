@@ -33,9 +33,9 @@
 
 from typing import Any
 from typing import Optional
-import argparse
+#import argparse
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
-from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
+#from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
 
 
@@ -43,7 +43,7 @@ class AToolAppFlow(object):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
         self.ToolAppContext = toolAppContext
         self.Log = toolAppContext.Log
-        self.ErrorHelpManager = toolAppContext.ErrorHelpManager;
+        self.ErrorHelpManager = toolAppContext.ErrorHelpManager
 
 
     def ProcessFromStandaloneCommandLine(self, args: Any, currentDirPath: str, userTag: Optional[object]) -> None:

@@ -10,9 +10,6 @@ Uses a single pipeline with basic shaders loaded from SPIR-V and and single unif
 
 This example is far more explicit than the other examples and is meant to be a starting point for learning Vulkan from the ground up.
 Much of the code is boilerplate that you'd usually encapsulate in helper functions and classes (which is what the other examples do).
-
-Based on a example called [Triangle](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

@@ -31,15 +31,15 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PipelineBasicCommand import PipelineBasicCommand
 from FslBuildGen.BuildExternal.PipelineInfo import PipelineInfo
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommand
 
 
 class PipelineJoinCommand(PipelineBasicCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: XmlRecipePipelineJoinCommand, pipelineInfo: PipelineInfo, finalDstPath: str) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo, finalDstPath)
+    def __init__(self, log: Log, sourceCommand: XmlRecipePipelineJoinCommand, pipelineInfo: PipelineInfo, finalDstPath: str) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo, finalDstPath)
         if self.Info.SrcRootPath is None:
             raise Exception("Source root path can not be null")
         if self.Info.DstRootPath is None:

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/ConstrainedValue.hpp>
+#include <FslBase/Math/MathHelper_Clamp.hpp>
 
 namespace Fsl
 {
@@ -150,8 +151,9 @@ namespace Fsl
         const auto clampedPercentage = MathHelper::Clamp(percentage, 0.0f, 1.0f);
         const value_type finalValue =
           !std::is_floating_point<value_type>::value
-            ? MathHelper::Clamp(static_cast<value_type>(std::round((m_max - m_min) * clampedPercentage)) + m_min, m_min, m_max)
-            : MathHelper::Clamp(value_type((m_max - m_min) * clampedPercentage) + m_min, m_min, m_max);
+            ? MathHelper::Clamp(static_cast<value_type>(static_cast<value_type>(std::round((m_max - m_min) * clampedPercentage)) + m_min), m_min,
+                                m_max)
+            : MathHelper::Clamp(value_type(value_type((m_max - m_min) * clampedPercentage) + m_min), m_min, m_max);
         return Set(finalValue);
       }
 

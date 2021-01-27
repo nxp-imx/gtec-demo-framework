@@ -32,7 +32,7 @@
 #****************************************************************************************************************************************************
 
 from FslBuildGen import IOUtil
-from FslBuildGen.DataTypes import BuildPlatformType
+#from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.Log import Log
 from FslBuildGen.PlatformUtil import PlatformUtil
 

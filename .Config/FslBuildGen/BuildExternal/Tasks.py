@@ -42,15 +42,18 @@ import urllib.request
 import urllib.parse
 import urllib.error
 from FslBuildGen import IOUtil
-from FslBuildGen import PackageConfig
+#from FslBuildGen import PackageConfig
 from FslBuildGen.Build.BuildUtil import PlatformBuildTypeInfo
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
-from FslBuildGen.BuildExternal import CMakeTypes
+from FslBuildGen.BuildExternal import CMakeHelper
+from FslBuildGen.BuildExternal.CMakeTypes import CMakeBuildType
+from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
+from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorName
 from FslBuildGen.BuildExternal.FileUnpacker import FileUnpack
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import BuildPlatformType
-from FslBuildGen.DataTypes import BuildThreads
+#from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import CMakeTargetType
 #from FslBuildGen.PackageConfig import PlatformNameString
@@ -62,21 +65,21 @@ class BasicTask(object):
     def __init__(self, generatorContext: GeneratorContext) -> None:
         super().__init__()
         self.Context = generatorContext
-        self.BasicConfig = generatorContext.BasicConfig
+        self.Log = generatorContext.Log
         #self._IsAndroid = generatorContext.PlatformName == PlatformNameString.ANDROID
 
     def LogPrint(self, message: str) -> None:
-        self.BasicConfig.LogPrint(message)
+        self.Log.LogPrint(message)
 
     def LogPrintWarning(self, message: str) -> None:
-        self.BasicConfig.LogPrintWarning(message)
+        self.Log.LogPrintWarning(message)
 
     def DoPrint(self, message: str) -> None:
-        self.BasicConfig.DoPrint(message)
+        self.Log.DoPrint(message)
 
     def CreateDirectory(self, path: str) -> None:
         if not IOUtil.IsDirectory(path):
-            self.BasicConfig.LogPrint("Creating '{0}' as it was missing".format(path))
+            self.Log.LogPrint("Creating '{0}' as it was missing".format(path))
             IOUtil.SafeMakeDirs(path)
 
 
@@ -124,8 +127,8 @@ class GitBaseTask(BasicTask):
 
 
 class GitCloneTask(GitBaseTask):
-    def __init__(self, generatorContext: GeneratorContext) -> None:
-        super().__init__(generatorContext)
+    #def __init__(self, generatorContext: GeneratorContext) -> None:
+    #    super().__init__(generatorContext)
 
 
     def RunGitClone(self, sourcePath: str, branch: str, targetPath: str) -> None:
@@ -160,7 +163,8 @@ class GitCloneTask(GitBaseTask):
             proc.wait()
             strVersion = strVersion.strip()
         finally:
-            proc.stdout.close()
+            if proc.stdout is not None:
+                proc.stdout.close()
         return str(strVersion)
 
 
@@ -169,7 +173,7 @@ class GitCloneTask(GitBaseTask):
         # for faster checkout
         ##--single-branch --depth 1
         buildCommand += ['--single-branch']
-        if branch != None and len(branch) > 0:
+        if branch is not None and len(branch) > 0:
             buildCommand += ['-b', branch]
         result = subprocess.call(buildCommand)
         if result != 0:
@@ -189,14 +193,14 @@ class GitCloneTask(GitBaseTask):
 
 
 class GitApplyTask(GitBaseTask):
-    def __init__(self, generatorContext: GeneratorContext) -> None:
-        super().__init__(generatorContext)
+    #def __init__(self, generatorContext: GeneratorContext) -> None:
+    #    super().__init__(generatorContext)
 
 
     def RunGitApply(self, sourcePatchFile: str, targetPath: str) -> None:
         self.LogPrint("Running git apply {0} in {1}".format(sourcePatchFile, targetPath))
         buildCommand = [self.GitCommand, 'apply', sourcePatchFile, "--whitespace=fix"]
-        if self.BasicConfig.Verbosity > 0:
+        if self.Log.Verbosity > 0:
             buildCommand.append("-v")
         result = subprocess.call(buildCommand, cwd=targetPath)
         if result != 0:
@@ -223,7 +227,7 @@ class CMakeBuilder(object):
                  buildTypeInfo: PlatformBuildTypeInfo) -> None:
         super().__init__()
         self.Context = generatorContext
-        self.BasicConfig = generatorContext.BasicConfig
+        self.Log = generatorContext.Log
         # Builders like ninja and make only contains a single configuration
         self.IsSingleConfiguration = False
 #        #self.__ConfigureForPlatform(generatorContext)
@@ -232,7 +236,7 @@ class CMakeBuilder(object):
                                                                  buildThreads, buildTypeInfo, generatorContext.CMakeConfig, True)
 
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
-                buildEnv: Dict[str,str], parentPath: str) -> None:
+                buildEnv: Dict[str, str], parentPath: str) -> None:
         pass
 
 
@@ -241,7 +245,7 @@ class CMakeBuilderDummy(CMakeBuilder):
         super().__init__(generatorContext, buildThreads, PlatformBuildTypeInfo.CMakeCustom)
         self.IsSingleConfiguration = False
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
-                buildEnv: Dict[str,str], parentPath: str) -> None:
+                buildEnv: Dict[str, str], parentPath: str) -> None:
         raise Exception("This builder's Execute method is not supposed to be called")
 
 
@@ -256,16 +260,16 @@ class CMakeBuilderGeneric(CMakeBuilder):
             raise Exception("The chosen CMake generator '{0}' requires cmake version {1} or newer".format(cmakeConfig.CMakeFinalGeneratorName, CMakeBuilderGeneric.MINIMUM_VERSION))
 
         # The cmake make files only support one configuration
-        self.IsSingleConfiguration = (CMakeTypes.GetGeneratorMultiConfigCapabilities(cmakeConfig.CMakeFinalGeneratorName) != CMakeTypes.CMakeGeneratorMultiConfigCapability.Yes)
+        self.IsSingleConfiguration = (CMakeHelper.GetGeneratorMultiConfigCapabilities(cmakeConfig.CMakeFinalGeneratorName) != CMakeGeneratorMultiConfigCapability.Yes)
 
 
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
-                buildEnv: Dict[str,str], parentPath: str) -> None:
+                buildEnv: Dict[str, str], parentPath: str) -> None:
 
-        self.BasicConfig.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, cmakeProjectName,
-                                                                                                             BuildVariantConfig.ToString(configuration)))
+        self.Log.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, cmakeProjectName,
+                                                                                                     BuildVariantConfig.ToString(configuration)))
 
-        cmakeConfig = CMakeTypes.CMakeBuildType.FromBuildVariantConfig(configuration)
+        cmakeConfig = CMakeBuildType.FromBuildVariantConfig(configuration)
         buildCommand = ['cmake', '--build', path, '--config', cmakeConfig]
 
         if self.NumBuildThreads > 0:
@@ -276,7 +280,7 @@ class CMakeBuilderGeneric(CMakeBuilder):
             if result != 0:
                 raise Exception("cmake failed {0}".format(buildCommand))
         except Exception:
-            self.BasicConfig.LogPrint("* cmake failed '{0}'".format(buildCommand))
+            self.Log.LogPrint("* cmake failed '{0}'".format(buildCommand))
             raise
 
         if target == CMakeTargetType.Install:
@@ -286,7 +290,7 @@ class CMakeBuilderGeneric(CMakeBuilder):
                 if result != 0:
                     raise Exception("cmake failed {0}".format(buildCommand))
             except Exception:
-                self.BasicConfig.LogPrint("* cmake failed '{0}'".format(buildCommand))
+                self.Log.LogPrint("* cmake failed '{0}'".format(buildCommand))
                 raise
 
 
@@ -298,7 +302,7 @@ class CMakeBuilderNinja(CMakeBuilder):
         self.__UseRecipe = useRecipe
 
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
-                buildEnv: Dict[str,str], parentPath: str) -> None:
+                buildEnv: Dict[str, str], parentPath: str) -> None:
         projectFile = "rules.ninja"
 
         if self.__UseRecipe:
@@ -307,7 +311,7 @@ class CMakeBuilderNinja(CMakeBuilder):
         else:
             commandName = self.__CommandName
 
-        self.BasicConfig.LogPrint("* Running ninja at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
+        self.Log.LogPrint("* Running ninja at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
         buildCommand = [commandName]
         if target == CMakeTargetType.Install:
             buildCommand.append('install')
@@ -319,7 +323,7 @@ class CMakeBuilderNinja(CMakeBuilder):
             if result != 0:
                 raise Exception("ninja failed with {0} command {1}".format(result, buildCommand))
         except Exception:
-            self.BasicConfig.LogPrint("* ninja failed '{0}'".format(buildCommand))
+            self.Log.LogPrint("* ninja failed '{0}'".format(buildCommand))
             raise
 
 
@@ -331,10 +335,10 @@ class CMakeBuilderMake(CMakeBuilder):
 
 
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
-                buildEnv: Dict[str,str], parentPath: str) -> None:
+                buildEnv: Dict[str, str], parentPath: str) -> None:
         projectFile = "Makefile"
 
-        self.BasicConfig.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
+        self.Log.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
         buildCommand = ['make', '-f', projectFile]
         buildCommand += self.BuilderThreadArguments
         if target == CMakeTargetType.Install:
@@ -344,7 +348,7 @@ class CMakeBuilderMake(CMakeBuilder):
             if result != 0:
                 raise Exception("make failed {0}".format(buildCommand))
         except Exception:
-            self.BasicConfig.LogPrint("* make failed '{0}'".format(buildCommand))
+            self.Log.LogPrint("* make failed '{0}'".format(buildCommand))
             raise
 
 
@@ -355,10 +359,10 @@ class CMakeBuilderMSBuild(CMakeBuilder):
     # msbuild INSTALL.vcxproj /p:Configuration=Debug
     # msbuild INSTALL.vcxproj /p:Configuration=Release
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
-                buildEnv: Dict[str,str], parentPath: str) -> None:
+                buildEnv: Dict[str, str], parentPath: str) -> None:
         projectFile = self.__GetMSBuildFilename(target, cmakeProjectName)
         configurationString = self.__GetMSBuildBuildVariantConfigString(configuration)
-        self.BasicConfig.LogPrint("* Running msbuild at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, configurationString))
+        self.Log.LogPrint("* Running msbuild at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, configurationString))
         configurationString = "/p:Configuration={0}".format(configurationString)
         buildCommand = ['msbuild.exe', projectFile, configurationString]
         buildCommand += self.BuilderThreadArguments
@@ -367,7 +371,7 @@ class CMakeBuilderMSBuild(CMakeBuilder):
             if result != 0:
                 raise Exception("msbuild failed {0}".format(buildCommand))
         except Exception:
-            self.BasicConfig.LogPrint("* msbuild failed '{0}'".format(buildCommand))
+            self.Log.LogPrint("* msbuild failed '{0}'".format(buildCommand))
             raise
 
 
@@ -424,8 +428,8 @@ class CMakeAndBuildTask(BasicTask):
 
 
     def __DoBuildNow(self, toolFinder: PackageToolFinder, sourcePath: str, installPath: str, tempBuildPath: str, target: CMakeTargetType,
-                      cmakeProjectName: str, configurationList: List[BuildVariantConfig], cmakeOptionList: List[str],
-                      buildEnv: Dict[str, str]) -> None:
+                     cmakeProjectName: str, configurationList: List[BuildVariantConfig], cmakeOptionList: List[str],
+                     buildEnv: Dict[str, str]) -> None:
 
         if not self.Builder.IsSingleConfiguration:
             self.RunCMake(tempBuildPath, sourcePath, installPath, cmakeOptionList, buildEnv)
@@ -474,21 +478,21 @@ class CMakeAndBuildTask(BasicTask):
     def __TryGetBuildTypeString(self, buildVariantConfig: Optional[BuildVariantConfig]) -> Optional[str]:
         if buildVariantConfig is None:
             return None
-        buildType = CMakeTypes.CMakeBuildType.FromBuildVariantConfig(buildVariantConfig)
+        buildType = CMakeBuildType.FromBuildVariantConfig(buildVariantConfig)
         return "CMAKE_BUILD_TYPE={0}".format(buildType)
 
 
 
     def __DetermineBuilder(self, generatorName: str, generatorContext: GeneratorContext, buildThreads: int) -> CMakeBuilder:
-        if generatorName == CMakeTypes.CMakeGeneratorName.Android:
+        if generatorName == CMakeGeneratorName.Android:
             if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows:
                 return CMakeBuilderNinja(generatorContext, buildThreads)
             return CMakeBuilderMake(generatorContext, buildThreads)
         if generatorContext.CMakeConfig.CMakeVersion < CMakeBuilderGeneric.MINIMUM_VERSION:
-            if generatorName == CMakeTypes.CMakeGeneratorName.Ninja:
+            if generatorName == CMakeGeneratorName.Ninja:
                 return CMakeBuilderNinja(generatorContext, buildThreads, False)
-            if generatorName == CMakeTypes.CMakeGeneratorName.UnixMakeFile:
+            if generatorName == CMakeGeneratorName.UnixMakeFile:
                 return CMakeBuilderMake(generatorContext, buildThreads)
-            if generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2017_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2019_X64:
+            if generatorName == CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeGeneratorName.VisualStudio2017_X64 or generatorName == CMakeGeneratorName.VisualStudio2019_X64:
                 return CMakeBuilderMSBuild(generatorContext, buildThreads)
         return CMakeBuilderGeneric(generatorContext, buildThreads)

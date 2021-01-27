@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtBoundingBox, Log)
 {
-  BoundingBox value(Vector3(1.0f, 2.0f, 3.0f), Vector3(10.0f, 20.0f, 30.0f));
+  BoundingBox value(Vector3(1.1f, 2.1f, 3.1f), Vector3(10.1f, 20.1f, 30.1f));
 
-  EXPECT_EQ(std::string("{Min={X=1.0 Y=2.0 Z=3.0} Max={X=10.0 Y=20.0 Z=30.0}}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{Min={X=1.1 Y=2.1 Z=3.1} Max={X=10.1 Y=20.1 Z=30.1}}"), fmt::format("{}", value));
 }

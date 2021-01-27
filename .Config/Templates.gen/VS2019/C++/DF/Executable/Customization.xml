@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGeneratorVSProjectTemplateCustomization Version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGeneratorVSProjectTemplateCustomization.xsd">
-  <BuildOutput Location="${PACKAGE_BUILD_PATH}/${PACKAGE_TARGET_NAME}/${PACKAGE_NORMAL_VARIANT_NAME_HINT}${CONFIGURATION}${PROJECT_VARIANT_NAME}"/>
+  <BuildOutput Location="${PACKAGE_BUILD_PATH}/${PACKAGE_NORMAL_VARIANT_NAME_HINT}${CONFIGURATION}/${PACKAGE_TARGET_NAME}${PROJECT_VARIANT_NAME}"/>
 </FslBuildGeneratorVSProjectTemplateCustomization>

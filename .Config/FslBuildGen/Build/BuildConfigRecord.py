@@ -34,16 +34,16 @@
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Union
+#from typing import Union
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Build.DataTypes import CommandType
-from FslBuildGen.DataTypes import BuildVariantConfig
-from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.DataTypes import BuildVariantConfig
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorPluginBase2
 from FslBuildGen.Version import Version
-from FslBuildGen.PackageFilters import PackageFilters
-from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
-from FslBuildGen.SharedGeneration import ToolAddedVariant
+#from FslBuildGen.PackageFilters import PackageFilters
+#from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
+#from FslBuildGen.SharedGeneration import ToolAddedVariant
 
 
 class BuildConfigRecord(object):

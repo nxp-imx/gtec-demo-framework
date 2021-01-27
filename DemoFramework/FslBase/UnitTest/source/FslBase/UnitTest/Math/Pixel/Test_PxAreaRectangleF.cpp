@@ -251,7 +251,7 @@ TEST(TestMathPixel_PxAreaRectangleF, MoveLocation)
   const float height = 4.0f;
   PxAreaRectangleF value(offsetX, offsetY, width, height);
 
-  const Vector2 newLoc(20.0f, 30.0f);
+  const PxVector2 newLoc(20.0f, 30.0f);
   value.MoveLocation(newLoc);
 
   // The rect stores left, top, right, bottom so they ought to be exact values

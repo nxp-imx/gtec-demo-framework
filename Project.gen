@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" ShortName="DF" Version="5.6.2" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" ShortName="DF" Version="5.7.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -28,7 +28,7 @@
       <Platform Name="QNX" DefaultGeneratorName="Ninja"/>
       <Platform Name="Ubuntu" DefaultGeneratorName="Ninja"/>
       <!-- For now we rely on FslBuild to select the default generator based on CompilerConfiguration from this file, as that was the old way to do it instead of using 
-           DefaultGeneratorName="Visual Studio 15 2017 Win64"-->
+           DefaultGeneratorName="Visual Studio 16 2019 Win64"-->
       <Platform Name="Windows"/>
       <!-- 
       The current Yocto SDKs do not contain the required cmake files needed by find_package, so we force disable it for now.
@@ -117,7 +117,6 @@
         <Defines All="FSL_PLATFORM_UBUNTU;PIC" Debug="DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Windows">
-        <!-- We use C++14 as it's required for VS2017 -->
         <Compiler Flags="-std=c++14;-Wmicrosoft;-fms-compatibility"/>
         <Defines All="_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE" Debug="_DEBUG" Release="NDEBUG"/>
       </Platform>

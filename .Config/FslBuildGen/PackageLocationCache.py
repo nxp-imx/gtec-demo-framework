@@ -322,7 +322,7 @@ class PackageLocationCache(object):
         directories.sort()
 
         for dirEntry in directories:
-            if not Util.IsValidPackageName(dirEntry, True):
+            if not Util.IsValidPackageName(dirEntry):
                 if self.Log.Verbosity >= 4:
                     self.Log.LogPrint("Ignored directory '{0}' at '{1}' as it was not a valid package name".format(dirEntry, IOUtil.Join(sourcePath, dirEntry)))
                 continue

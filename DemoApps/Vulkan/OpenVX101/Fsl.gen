@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="OpenVX"/>
     <Dependency Name="FslUtil.OpenVX1_1"/>
-    <Platform Name="Windows" ProjectId="7BF28940-DB45-49B9-93A3-9121102B609A"/>
   </Executable>
 </FslBuildGen>

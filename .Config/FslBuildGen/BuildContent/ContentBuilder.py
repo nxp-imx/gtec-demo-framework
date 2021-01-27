@@ -40,21 +40,22 @@ from FslBuildGen.Config import Config
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildContent.ToolFinder import ToolFinder
 from FslBuildGen.BuildContent.BasicContentProcessor import BasicContentProcessor
-from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
+#from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
 from FslBuildGen.BuildContent.ContentRootRecord import ContentRootRecord
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildContent.PathVariables import PathVariables
 from FslBuildGen.BuildContent.Processor.ContentBuildCommandFile import ContentBuildCommandFile
-from FslBuildGen.BuildContent.Processor.Commands import Command
-from FslBuildGen.BuildContent.Processor.Commands import CommandContentBuildSync
+#from FslBuildGen.BuildContent.Processor.Commands import Command
+#from FslBuildGen.BuildContent.Processor.Commands import CommandContentBuildSync
 from FslBuildGen.BuildContent.Processor.SourceContent import SourceContent
 from FslBuildGen.BuildContent.Sync import BuildState
 from FslBuildGen.BuildContent.Sync.Content import Content
 from FslBuildGen.PackagePath import PackagePath
+from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigContentBuilderConfiguration
 #from FslBuildGen.BuildContent.VulkanContentProcessor import VulkanContentProcessor
 
-def GetContentOuputContentRootRecord(log: Log, contentOutputPath: str) -> ContentRootRecord:
+def GetContentOutputContentRootRecord(log: Log, contentOutputPath: str) -> ContentRootRecord:
     return ContentRootRecord(log, contentOutputPath)
 
 
@@ -73,12 +74,12 @@ class Features(object):
 
 
 class ContentProcessorManager(object):
-    def __init__(self, config: Config, features: Features, toolFinder: ToolFinder) -> None:
+    def __init__(self, log: Log, toolConfig: ToolConfig, features: Features, toolFinder: ToolFinder) -> None:
         super().__init__()
 
         contentProcessors = []  # type: List[BasicContentProcessor]
 #        contentProcessors = [VulkanContentProcessor()]
-        contentProcessors += self.__AddBasicContentProcessors(config, toolFinder, config.ToolConfig.ContentBuilderConfiguration)
+        contentProcessors += self.__AddBasicContentProcessors(log, toolFinder, toolConfig.ContentBuilderConfiguration)
         self.__ContentProcessors = self.__FilterProcessorsBasedOnFeatures(contentProcessors, features)
 
     def TryFindContentProcessor(self, contentFile: PathRecord) -> Optional[BasicContentProcessor]:
@@ -91,11 +92,11 @@ class ContentProcessorManager(object):
         return processors[0] if len(processors) == 1 else None
 
 
-    def __AddBasicContentProcessors(self, config: Config, toolFinder: ToolFinder, contentBuilderConfiguration: ToolConfigContentBuilderConfiguration) -> List[BasicContentProcessor]:
+    def __AddBasicContentProcessors(self, log: Log, toolFinder: ToolFinder, contentBuilderConfiguration: ToolConfigContentBuilderConfiguration) -> List[BasicContentProcessor]:
         """ Add basic content builders from the tool config XML file """
         contentBuilders = []  # type: List[BasicContentProcessor]
         for contentBuilder in contentBuilderConfiguration.ContentBuilders:
-            contentBuilders.append(BasicContentProcessor(config, toolFinder, contentBuilder))
+            contentBuilders.append(BasicContentProcessor(log, toolFinder, contentBuilder))
         return contentBuilders
 
     def __FilterProcessorsBasedOnFeatures(self, contentProcessors: List[BasicContentProcessor], features: Features) -> List[BasicContentProcessor]:
@@ -107,30 +108,32 @@ class ContentProcessorManager(object):
 
 
 class Builder(object):
-    def __init__(self, config: Config, packageBuildPath: str, contentBuildPath: str, contentOutputPath: str, contentProcessorManager: ContentProcessorManager) -> None:
+    def __init__(self, log: Log, configDisableWrite: bool, toolConfig: ToolConfig, packageBuildPath: str, contentBuildPath: str,
+                 contentOutputPath: str, contentProcessorManager: ContentProcessorManager) -> None:
         super().__init__()
-        configPathVariables = PathVariables(config, packageBuildPath, contentBuildPath, contentOutputPath)
+
+        configPathVariables = PathVariables(toolConfig, packageBuildPath, contentBuildPath, contentOutputPath)
         commandFilename = IOUtil.Join(contentBuildPath, ToolSharedValues.CONTENT_BUILD_FILE_NAME)
-        commandFile = ContentBuildCommandFile(config, commandFilename, configPathVariables)
+        commandFile = ContentBuildCommandFile(log, commandFilename, configPathVariables)
 
         # We don't include the files at "Content" (contentOutputPath)
-        sourceContent = SourceContent(config, contentOutputPath, contentBuildPath, commandFile, False, commandFilename)
+        sourceContent = SourceContent(log, contentOutputPath, contentBuildPath, commandFile, False, commandFilename)
 
         absoluteCacheFileName = IOUtil.Join(packageBuildPath, "_ContentBuildCache.fsl")
         absoluteOutputCacheFileName = IOUtil.Join(packageBuildPath, "_ContentBuildCacheOutput.fsl")
 
-        srcsSyncState = BuildState.GenerateSyncState(config, absoluteCacheFileName, sourceContent.AllContentSource, True)
-        outputSyncState = BuildState.GenerateOutputSyncState(config, absoluteOutputCacheFileName, contentOutputPath, True)
+        srcsSyncState = BuildState.GenerateSyncState(log, absoluteCacheFileName, sourceContent.AllContentSource, True)
+        outputSyncState = BuildState.GenerateOutputSyncState(log, absoluteOutputCacheFileName, contentOutputPath, True)
 
         if sourceContent.IsEmpty:
-            config.LogPrint("No files found")
+            log.LogPrint("No files found")
             return
 
-        if not config.DisableWrite:
+        if not configDisableWrite:
             IOUtil.SafeMakeDirs(contentOutputPath)
 
-        self.__ProcessSyncFiles(config, contentBuildPath, contentOutputPath, sourceContent.ContentSource, srcsSyncState, outputSyncState)
-        self.__ProcessContentFiles(config, contentBuildPath, contentOutputPath, contentProcessorManager, sourceContent.ContentBuildSource, srcsSyncState, outputSyncState)
+        self.__ProcessSyncFiles(log, contentBuildPath, contentOutputPath, sourceContent.ContentSource, srcsSyncState, outputSyncState)
+        self.__ProcessContentFiles(log, configDisableWrite, contentBuildPath, contentOutputPath, contentProcessorManager, sourceContent.ContentBuildSource, srcsSyncState, outputSyncState)
         srcsSyncState.Save()
         outputSyncState.Save()
 
@@ -149,7 +152,7 @@ class Builder(object):
                            srcContent: Content,
                            syncState: BuildState.SyncState,
                            outputSyncState: BuildState.SyncState) -> None:
-        dstRoot = GetContentOuputContentRootRecord(log, contentOutputPath)
+        dstRoot = GetContentOutputContentRootRecord(log, contentOutputPath)
         for contentFile in srcContent.Files:
             # Generate the output file record
             outputFileRecord = GetContentSyncOutputFilename(log, dstRoot, contentFile)
@@ -183,20 +186,16 @@ class Builder(object):
                 outputSyncState.Add(outputFileState)
 
 
-    def __ProcessContentFiles(self, config: Config,
-                              contentBuildPath: str,
-                              contentOutputPath: str,
-                              contentProcessorManager: ContentProcessorManager,
-                              srcContent: Content,
-                              syncState: BuildState.SyncState,
+    def __ProcessContentFiles(self, log: Log, configDisableWrite: bool, contentBuildPath: str, contentOutputPath: str,
+                              contentProcessorManager: ContentProcessorManager, srcContent: Content, syncState: BuildState.SyncState,
                               outputSyncState: BuildState.SyncState) -> None:
-        dstRoot = ContentRootRecord(config, contentOutputPath)
+        dstRoot = ContentRootRecord(log, contentOutputPath)
         for contentFile in srcContent.Files:
             processor = contentProcessorManager.TryFindContentProcessor(contentFile)
             if processor is not None:
                 # Query the processor for the output filename
-                outputFileName = processor.GetOutputFileName(config, contentOutputPath, contentFile)
-                outputFileRecord = PathRecord(config, dstRoot, outputFileName[len(dstRoot.ResolvedPath)+1:])
+                outputFileName = processor.GetOutputFileName(log, contentOutputPath, contentFile)
+                outputFileRecord = PathRecord(log, dstRoot, outputFileName[len(dstRoot.ResolvedPath)+1:])
 
                 # Query the sync state of the content file
                 syncStateFileName = self.__GetSyncStateFileName(contentBuildPath, contentFile.RelativePath)
@@ -212,7 +211,7 @@ class Builder(object):
 
                 if buildResource:
                     try:
-                        processor.Process(config, contentBuildPath, contentOutputPath, contentFile)
+                        processor.Process(log, configDisableWrite, contentBuildPath, contentOutputPath, contentFile)
                     except:
                         # Save if a exception occured to prevent reprocessing the working files, but we invalidate
                         outputSyncState.Save()
@@ -220,24 +219,26 @@ class Builder(object):
                         raise
 
                     # Add a entry for the output file
-                    outputFileState = outputSyncState.BuildContentState(config, outputFileRecord, True, True)
+                    outputFileState = outputSyncState.BuildContentState(log, outputFileRecord, True, True)
                     # Tag it with the source file checksum so we have another way to detect changes
                     if contentState is not None:
-                        outputFileState.TagChecksum = contentState.Checksum;
+                        outputFileState.TagChecksum = contentState.Checksum
                     outputSyncState.Add(outputFileState)
 
 
-def GetContentProcessorManager(config: Config, featureList: List[str]) -> ContentProcessorManager:
-    toolFinder = ToolFinder(config)
-    features = Features(config, featureList)
-    return ContentProcessorManager(config, features, toolFinder)
+def GetContentProcessorManager(log: Log, toolConfig: ToolConfig, featureList: List[str]) -> ContentProcessorManager:
+    toolFinder = ToolFinder(log)
+    features = Features(log, featureList)
+    return ContentProcessorManager(log, toolConfig, features, toolFinder)
 
 
 def GetContentOutputPath(packagePath: PackagePath) -> str:
     currentPath = packagePath.AbsoluteDirPath
     return IOUtil.Join(currentPath, ToolSharedValues.CONTENT_FOLDER_NAME)
 
-def Build(config: Config, packagePath: PackagePath, featureList: List[str], outputPath: Optional[str] = None) -> None:
+def Build(log: Log, configBuildDir: str, configDisableWrite: bool, toolConfig: ToolConfig,
+          packagePath: PackagePath, featureList: List[str], outputPath: Optional[str] = None) -> None:
+
     currentPath = packagePath.AbsoluteDirPath
     contentBuildDir = ToolSharedValues.CONTENT_BUILD_FOLDER_NAME
     contentBuildPath = IOUtil.Join(currentPath, contentBuildDir)
@@ -245,14 +246,14 @@ def Build(config: Config, packagePath: PackagePath, featureList: List[str], outp
     contentOutputPath = GetContentOutputPath(packagePath) if outputPath is None else outputPath
 
     if not IOUtil.IsDirectory(contentBuildPath):
-        config.LogPrintVerbose(1, "No '{0}' directory present at '{1}' so there is no content to process.".format(contentBuildDir, currentPath))
+        log.LogPrintVerbose(1, "No '{0}' directory present at '{1}' so there is no content to process.".format(contentBuildDir, currentPath))
         return
 
-    packageBuildPath = IOUtil.Join(currentPath, config.GetBuildDir())
-    if not config.DisableWrite:
+    packageBuildPath = IOUtil.Join(currentPath, configBuildDir)
+    if not configDisableWrite:
         IOUtil.SafeMakeDirs(packageBuildPath)
 
-    contentProcessorManager = GetContentProcessorManager(config, featureList)
-    Builder(config, packageBuildPath, contentBuildPath, contentOutputPath, contentProcessorManager)
+    contentProcessorManager = GetContentProcessorManager(log, toolConfig, featureList)
+    Builder(log, configDisableWrite, toolConfig, packageBuildPath, contentBuildPath, contentOutputPath, contentProcessorManager)
 
 

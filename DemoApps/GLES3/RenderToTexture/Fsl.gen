@@ -5,7 +5,6 @@
     <Dependency Name="glm"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.Theme.Basic"/>
-    <Platform Name="Windows" ProjectId="E7CA4EAA-E153-4DDC-A8CE-DA362C53FFE6"/>
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="g2d" Type="StaticLib"/>
       <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES3"/>

@@ -31,8 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 
 class Variable(object):
     RecipeVariant = "${RECIPE_VARIANT}"
-

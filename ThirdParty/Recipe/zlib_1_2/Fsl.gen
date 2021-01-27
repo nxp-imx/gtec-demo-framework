@@ -21,7 +21,7 @@
     </Platform>
 
     
-    <Platform Name="Ubuntu" Supported="true">
+    <Platform Name="Ubuntu;QNX" Supported="true">
       <ExperimentalRecipe Name="ZLIB" Version="1.2.11" FindTargetName="ZLIB::ZLIB">
         <Pipeline>
           <Download URL="https://zlib.net/zlib-1.2.11.tar.gz" Hash="c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"/>
@@ -43,13 +43,12 @@
         <Pipeline>
           <Download URL="https://zlib.net/zlib-1.2.11.tar.gz" Hash="c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"/>
           <Unpack File="zlib-1.2.11.tar.gz" OutputPath="zlib-1.2.11"/>
-          <CMakeBuild Project="" Target="install" Configuration="debug;release" OutputPath="_Install"/>
+          <CMakeBuild Project="" Target="install" Configuration="release" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
           <AddHeaders Name="include"/>
           <AddLib Name="lib/zlib.lib"/>
           <AddDLL Name="bin/zlib.dll"/>
-          <AddDLL Name="bin/zlibd.dll"/>
           <Path Name="include/zconf.h" Method="IsFile"/>
           <Path Name="include/zlib.h" Method="IsFile"/>
         </Installation>

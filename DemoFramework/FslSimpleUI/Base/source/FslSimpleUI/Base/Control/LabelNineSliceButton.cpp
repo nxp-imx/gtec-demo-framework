@@ -302,7 +302,7 @@ namespace Fsl
           posPxf.X += static_cast<float>(contentMarginPx.Left() + paddingPx.Left() + offsetXPx);
           posPxf.Y += static_cast<float>(contentMarginPx.Top() + paddingPx.Top() + offsetYPx);
           batch.ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
-          batch.DrawString(*pFont, m_content, posPxf, m_fontCurrentColor.GetValue());
+          batch.DrawString(*pFont, m_content, TypeConverter::To<Vector2>(posPxf), m_fontCurrentColor.GetValue());
         }
       }
     }

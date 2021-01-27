@@ -3,6 +3,5 @@
   <Executable Name="GLES2.SdfFonts" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.SdfFonts"/>
-    <Platform Name="Windows" ProjectId="E428D608-50C8-4DAD-A408-501ACB8ED762"/>
   </Executable>
 </FslBuildGen>

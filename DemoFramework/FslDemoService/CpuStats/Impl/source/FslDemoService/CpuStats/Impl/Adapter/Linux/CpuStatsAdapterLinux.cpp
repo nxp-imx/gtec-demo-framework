@@ -132,7 +132,7 @@ namespace Fsl
     }
     m_lastTryGetApplicationCpuUsageTime = currentTime;
 
-    clock_t currentAppTime;
+    clock_t currentAppTime{};
     ProcessTimes processTimes;
     if (!TryGetProcessTimes(processTimes, &currentAppTime))
     {
@@ -223,7 +223,9 @@ namespace Fsl
 
   bool CpuStatsAdapterLinux::TryGetProcessTimes(ProcessTimes& rTimes, clock_t* pCurrentTime) const
   {
-    struct tms buf;
+    struct tms buf
+    {
+    };
     auto currentTime = times(&buf);
     if (pCurrentTime != nullptr)
     {

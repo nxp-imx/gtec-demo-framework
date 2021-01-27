@@ -40,8 +40,8 @@ from FslBuildGen.Log import Log
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildContent.ContentRootRecord import ContentRootRecord
-from FslBuildGen.BuildContent.Processor.ContentFileRecord import ContentFileRecord
-from FslBuildGen.Location.ResolvedPath import ResolvedPath
+#from FslBuildGen.BuildContent.Processor.ContentFileRecord import ContentFileRecord
+#from FslBuildGen.Location.ResolvedPath import ResolvedPath
 
 
 class Content(object):

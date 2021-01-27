@@ -539,7 +539,6 @@ namespace Fsl
 
       private:
         static void UpdateLabelColor(LabelBase& rLabel);
-
       };
     }
   }

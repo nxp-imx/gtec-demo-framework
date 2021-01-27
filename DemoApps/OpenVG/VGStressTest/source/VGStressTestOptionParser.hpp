@@ -40,8 +40,8 @@ namespace Fsl
   {
     struct VGStressTestVariables
     {
-      uint16_t SpiralTwists;
-      bool UseTexture;
+      uint16_t SpiralTwists{10};
+      bool UseTexture{false};
       // bool VGS_freeze_on_error;
       // int16_t VGS_target_rect[4];
       // uint8_t VGS_dcic_period;
@@ -50,20 +50,13 @@ namespace Fsl
       // uint8_t VGS_gpio_bit;
       // uint32_t VGS_IOMUXC_SW_MUX_CTL_PAD;
       // uint32_t VGS_IOMUXC_SW_MUX_CTL_PAD_value;
-      uint16_t Layers;
-      bool AdaptToScreen;
+      uint16_t Layers{50};
+      bool AdaptToScreen{false};
       // bool VGS_direct_render;
-      bool ToggleMinMax;
+      bool ToggleMinMax{false};
       // Rectangle VGS_dcic_roi;
 
-      VGStressTestVariables()
-        : SpiralTwists(10)
-        , UseTexture(false)
-        , Layers(50)
-        , AdaptToScreen(false)
-        , ToggleMinMax(false)
-      {
-      }
+      VGStressTestVariables() = default;
 
       // result.VGS_freeze_on_error = 1;
       // result.VGS_target_rect[0] = 0;
@@ -89,14 +82,14 @@ namespace Fsl
 
   public:
     VGStressTestOptionParser();
-    ~VGStressTestOptionParser();
+    ~VGStressTestOptionParser() override;
 
-    const ConfigSpiral GetConfig() const;
+    ConfigSpiral GetConfig() const;
 
   protected:
-    virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    virtual OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
-    virtual bool OnParsingComplete() override;
+    void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
+    bool OnParsingComplete() override;
   };
 }
 

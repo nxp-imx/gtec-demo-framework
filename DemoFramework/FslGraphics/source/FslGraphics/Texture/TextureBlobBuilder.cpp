@@ -99,10 +99,10 @@ namespace Fsl
 
 
   TextureBlobBuilder::TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
-                                         const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin)
+                                         const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin, const bool useDefaultBlobLayout)
     : TextureBlobBuilder()
   {
-    Reset(textureType, extent, pixelFormat, textureInfo, bitmapOrigin);
+    Reset(textureType, extent, pixelFormat, textureInfo, bitmapOrigin, useDefaultBlobLayout);
   }
 
 
@@ -204,9 +204,13 @@ namespace Fsl
 
 
   void TextureBlobBuilder::Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
-                                 const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin)
+                                 const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin, const bool useDefaultBlobLayout)
   {
     DoReset(textureType, extent, pixelFormat, textureInfo, bitmapOrigin, false, 0);
+    if (useDefaultBlobLayout)
+    {
+      SetDefaultBlobLayout();
+    }
   }
 
 

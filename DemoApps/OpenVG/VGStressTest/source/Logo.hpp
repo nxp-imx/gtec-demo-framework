@@ -37,10 +37,10 @@ namespace Fsl
 {
   class Logo
   {
-    static const uint8_t gpImageData[];
+    static const uint8_t gpImageData[];    // NOLINT(modernize-avoid-c-arrays)
 
   public:
-    static const RawBitmap GetBitmap();
+    static RawBitmap GetBitmap();
   };
 }
 

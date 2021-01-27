@@ -39,4 +39,4 @@ class BuilderSettings(object):
         self.PostDeleteBuild = True
         self.CheckBuildCommands = False
         self.ForceClaimInstallArea = False
-        self.BuildThreads = BuildThreads.Auto;
+        self.BuildThreads = BuildThreads.Auto

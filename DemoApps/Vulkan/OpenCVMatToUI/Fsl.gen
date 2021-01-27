@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.OpenCVExperimental"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Platform Name="Windows" ProjectId="8CE50B32-9EC3-458A-9A07-217121781DD7"/>
   </Executable>
 </FslBuildGen>

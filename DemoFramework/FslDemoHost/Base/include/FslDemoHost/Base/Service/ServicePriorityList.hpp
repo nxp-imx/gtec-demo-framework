@@ -39,24 +39,25 @@ namespace Fsl
   class ServicePriorityList
   {
   public:
-    static Priority BitmapConverterService();
-    static Priority ImageConverterLibraryService();
-    static Priority EGLHostService();
-    static Priority WindowHostService();
-    static Priority VulkanHostService();
-    static Priority NativeGraphicsService();
-    static Priority ImageLibraryService();
-    static Priority ImageBasicService();
     static Priority AsyncImageService();
-    static Priority ImageService();
+    static Priority BitmapConverterService();
+    static Priority ContentMonitor();
+    static Priority EGLHostService();
     static Priority EventsService();
+    static Priority HostInfo();
+    static Priority ImageBasicService();
+    static Priority ImageConverterLibraryService();
+    static Priority ImageLibraryService();
+    static Priority ImageService();
+    static Priority NativeGraphicsService();
     static Priority NativeWindowEventsService();
-    static Priority TestService();
+    static Priority Options();
     static Priority PlatformControlService();
     static Priority ProfilerService();
-    static Priority ContentMonitor();
-    static Priority Options();
-    static Priority HostInfo();
+    static Priority TestService();
+    static Priority TextureService();
+    static Priority VulkanHostService();
+    static Priority WindowHostService();
   };
 }
 

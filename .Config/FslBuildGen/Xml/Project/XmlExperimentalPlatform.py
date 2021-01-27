@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.Log import Log
@@ -52,6 +52,5 @@ class XmlExperimentalPlatform(XmlBase):
             return None
         if len(foundElements) > 1:
             errorMsg = "Multiple entries called '{0}' for platform found in Project.gen".format(foundElements)
-            raise XmlException2(xmlElement, errorMsg)
+            raise XmlException2(errorMsg)
         return XmlExperimentalPlatformRecipes_DefaultValue(log, foundElements[0])
-

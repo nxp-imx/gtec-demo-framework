@@ -1,57 +1,84 @@
 #ifndef VULKAN_TRIANGLE_TRIANGLE_HPP
 #define VULKAN_TRIANGLE_TRIANGLE_HPP
-/*
- * Vulkan Example - Basic indexed triangle rendering
+/****************************************************************************************************************************************************
+ * Copyright 2021 NXP
+ * All rights reserved.
  *
- * Note:
- * This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
- * Contrary to the other examples, this one won't make use of helper functions or initializers
- * Except in a few cases (swap chain setup e.g.)
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
  *
- * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
- */
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
-// Based on a example called 'Triangle' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
-// Recreated as a DemoFramework freestyle window sample by Freescale (2016)
-
-
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
-#include <RapidVulkan/DescriptorSet.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
-#include <RapidVulkan/Fence.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
-#include <RapidVulkan/Semaphore.hpp>
+#include <RapidVulkan/ShaderModule.hpp>
+// GLM Headers for standard math operations
+#include <glm/glm.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  class Triangle : public Willems::VulkanWillemsDemoApp
+  struct BufferAndMemory
   {
-    // Vertex buffer and attributes
-    struct VertexBuffer
-    {
-      RapidVulkan::Memory Memory;    // Handle to the device memory for this buffer
-      RapidVulkan::Buffer Buffer;    // Handle to the Vulkan buffer object that the memory is bound to
-      VkPipelineVertexInputStateCreateInfo InputState{};
-      VkVertexInputBindingDescription InputBinding{};
-      std::vector<VkVertexInputAttributeDescription> InputAttributes;
+    RapidVulkan::Memory Memory;    // Handle to the device memory for this buffer
+    RapidVulkan::Buffer Buffer;    // Handle to the Vulkan buffer object that the memory is bound to
+  };
 
-      VertexBuffer() = default;
+  struct VertexBuffer
+  {
+    BufferAndMemory Content;
+    VkVertexInputBindingDescription InputBinding{};
+    std::vector<VkVertexInputAttributeDescription> InputAttributes{};
+  };
+
+  class Triangle final : public VulkanBasic::DemoAppVulkanBasic
+  {
+    struct CameraInfo
+    {
+      glm::vec3 Rotation{};
+      float Zoom{0};
     };
+
+    // Vertex buffer and attributes
 
     // Index buffer
     struct IndexBuffer
     {
-      RapidVulkan::Memory Memory;
-      RapidVulkan::Buffer Buffer;
+      BufferAndMemory Content;
       uint32_t Count{0};
+    };
 
-      IndexBuffer() = default;
+    struct Mesh
+    {
+      VertexBuffer Vertices;
+      IndexBuffer Indices;
     };
 
     // For simplicity we use the same uniform block layout as in the shader:
@@ -67,9 +94,9 @@ namespace Fsl
     // Note: You should use data types that align with the GPU in order to avoid manual padding (vec4, mat4)
     struct UboVS
     {
-      glm::mat4 ProjectionMatrix;
-      glm::mat4 ModelMatrix;
-      glm::mat4 ViewMatrix;
+      glm::mat4 ProjectionMatrix{};
+      glm::mat4 ModelMatrix{};
+      glm::mat4 ViewMatrix{};
     };
 
     // Uniform block object
@@ -77,56 +104,61 @@ namespace Fsl
     {
       RapidVulkan::Memory Memory;
       RapidVulkan::Buffer Buffer;
-      VkDescriptorBufferInfo Descriptor;
+      VkDescriptorBufferInfo Descriptor{};
+    };
+
+    struct Resources
+    {
+      // PrepareVertices
+      Mesh TriangleMesh;
+
+      UniformDataVS UniformData;
+
+      // SetupDescriptorSetLayout
+      RapidVulkan::DescriptorSetLayout DescriptorSetLayout;
+      RapidVulkan::PipelineLayout PipelineLayout;
+
+      RapidVulkan::ShaderModule VertShaderModule;
+      RapidVulkan::ShaderModule FragShaderModule;
+
+      // SetupDescriptorPool
+      RapidVulkan::DescriptorPool DescriptorPool;
+
+      // SetupDescriptorSet
+      // We use the native type here since this is managed by a pool
+      VkDescriptorSet DescriptorSet{VK_NULL_HANDLE};
     };
 
 
-    // PrepareSynchronizationPrimitives
-    RapidVulkan::Semaphore m_presentCompleteSemaphore;
-    RapidVulkan::Semaphore m_renderCompleteSemaphore;
-    std::vector<RapidVulkan::Fence> m_waitFences;
-    // PrepareVertices
-    VertexBuffer m_vertices;
-    IndexBuffer m_indices;
-    // PrepareUniformBuffers
+    struct DependentResources
+    {
+      RapidVulkan::RenderPass MainRenderPass;
+      RapidVulkan::GraphicsPipeline Pipeline;
+    };
+
+    CameraInfo m_cameraInfo;
+    Resources m_resources;
+    DependentResources m_dependentResources;
+
     UboVS m_uboVS;
-    UniformDataVS m_uniformDataVS;
-    // SetupDescriptorSetLayout
-    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
-    RapidVulkan::PipelineLayout m_pipelineLayout;
-    // PreparePipelines
-    RapidVulkan::GraphicsPipeline m_pipeline;
-    // SetupDescriptorPool
-    RapidVulkan::DescriptorPool m_descriptorPool;
-    // SetupDescriptorSet
-    // We use the native type here since this is managed by a pool
-    VkDescriptorSet m_descriptorSet;
 
   public:
     explicit Triangle(const DemoAppConfig& config);
-    ~Triangle() override;
 
   protected:
-    void Prepare() override;
-    void SetupDepthStencil(const VkFormat depthFormat) override;
-    void SetupRenderPass(const VkFormat colorFormat, const VkFormat depthFormat) override;
-    void SetupFrameBuffer() override;
+    void Update(const DemoTime& demoTime) final;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
+    void DrawTriangle(VkCommandBuffer hCmdBuffer, const uint32_t cmdBufferIndex);
 
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) final;
+    void OnFreeResources() final;
 
   private:
-    void PrepareSynchronizationPrimitives();
-    void PrepareVertices(const bool useStagingBuffers);
-    void PrepareUniformBuffers();
-    void UpdateUniformBuffers();
-    void SetupDescriptorSetLayout();
-    void PreparePipelines();
-    void SetupDescriptorPool();
-    void SetupDescriptorSet();
-
-  protected:
-    void BuildCommandBuffers() override;
+    static Mesh PrepareVertices(const Vulkan::VUDevice& device, Vulkan::VUDeviceQueueRecord& rDeviceQueue, const VkCommandPool cmdPool,
+                                const bool useStagingBuffers);
+    static UniformDataVS PrepareUniformBuffers(const Vulkan::VUDevice& device, const CameraInfo& cameraInfo, const float aspectRatio);
+    static UboVS UpdateUniformBuffers(const Vulkan::VUDevice& device, const CameraInfo& cameraInfo, const float aspectRatio,
+                                      UniformDataVS& rUniformData);
   };
 }
 

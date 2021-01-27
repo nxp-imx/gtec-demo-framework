@@ -6,6 +6,5 @@
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="Shared.CubeMapping.API.Vulkan"/>
     <Dependency Name="Shared.HDR.SkyboxTonemapping"/>
-    <Platform Name="Windows" ProjectId="1C9CA11A-E452-47BB-AF11-80D0BD682DAB"/>
   </Executable>
 </FslBuildGen>

@@ -98,13 +98,12 @@ namespace Fsl
 
       void WinResolve(const DemoTime& demoTime) final
       {
-        if (!IsLayoutDirty())
-        {
-          return;
-        }
         ContentControlBase::WinResolve(demoTime);
-        UpdateLinkedContent();
-        FixLayout();
+        if (IsLayoutDirty() || !m_cacheValid)
+        {
+          UpdateLinkedContent();
+          FixLayout();
+        }
       }
 
       // --- Forward to SliderBase
@@ -155,6 +154,7 @@ namespace Fsl
         if (m_slider->SetOrientation(orientation))
         {
           m_layout->SetLayoutOrientation(orientation);
+          m_cacheValid = false;
           switch (orientation)
           {
           case LayoutOrientation::Horizontal:

@@ -49,3 +49,7 @@ namespace
 TEST(TestTexture_TextureUtil, Construct_Default)
 {
 }
+
+// TEST(TestTexture_TextureUtil, TryChangeOrigin)
+//{
+//}

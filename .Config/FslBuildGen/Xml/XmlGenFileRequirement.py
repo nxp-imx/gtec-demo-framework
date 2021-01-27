@@ -31,9 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import List
 import xml.etree.ElementTree as ET
 from FslBuildGen import Util
-from FslBuildGen.Config import Config
+from FslBuildGen.Log import Log
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.Exceptions import XmlRequirementNameException
@@ -42,8 +43,8 @@ from FslBuildGen.Xml.Exceptions import XmlRequirementStringException
 from FslBuildGen.Xml.Exceptions import XmlRequirementTypeExtensionRequiresAValidExtendFieldException
 
 class XmlGenFileRequirement(XmlBase):
-    def __init__(self, config: Config, xmlElement: ET.Element) -> None:
-        super().__init__(config, xmlElement)
+    def __init__(self, log: Log, requirementTypes: List[str], xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')        # type: str
         self.Type = self._ReadAttrib(xmlElement, 'Type')        # type: str
         self.Extends = self._ReadAttrib(xmlElement, 'Extends', '') # type: str
@@ -51,8 +52,8 @@ class XmlGenFileRequirement(XmlBase):
 
         if not Util.IsValidRequirementName(self.Name):
             raise XmlRequirementNameException(xmlElement, self.Name)
-        if not self.Type in config.ToolConfig.RequirementTypes:
-            raise XmlRequirementTypeException(xmlElement, self.Name, self.Type, self.Extends, config.ToolConfig.RequirementTypes)
+        if not self.Type in requirementTypes:
+            raise XmlRequirementTypeException(xmlElement, self.Name, self.Type, self.Extends, requirementTypes)
 
         if len(self.Extends) > 0 and not Util.IsValidRequirementName(self.Extends):
             raise XmlRequirementStringException(xmlElement, "extends", self.Extends)

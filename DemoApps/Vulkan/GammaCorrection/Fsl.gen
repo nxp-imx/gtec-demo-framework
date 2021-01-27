@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslGraphics3D.Camera"/>
-    <Platform Name="Windows" ProjectId="D36DDBE7-DAC7-4F28-A628-5D7D643627A1"/>
   </Executable>
 </FslBuildGen>

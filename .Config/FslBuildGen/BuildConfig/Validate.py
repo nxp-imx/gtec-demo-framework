@@ -33,7 +33,7 @@
 
 from typing import List
 import os
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.Log import Log
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
@@ -54,8 +54,8 @@ def CheckCommon(log: Log, verbosityLevel: int) -> None:
 
 def CheckWindowsGLESCommon(log: Log) -> None:
     IOUtil.GetEnvironmentVariableForDirectory("FSL_GLES_EMULATOR_PATH")
-    IOUtil.GetEnvironmentVariableForDirectory("FSL_GLES_INCLUDE_PATH")
-    IOUtil.GetEnvironmentVariableForDirectory("FSL_GLES_LIB_PATH")
+    # IOUtil.GetEnvironmentVariableForDirectory("FSL_GLES_INCLUDE_PATH")
+    # IOUtil.GetEnvironmentVariableForDirectory("FSL_GLES_LIB_PATH")
 
 
 def CheckWindowsGLESArm(log: Log) -> None:
@@ -81,9 +81,9 @@ def CheckWindowsGLESVivante(log: Log) -> None:
 def CheckWindowsGLES(log: Log) -> None:
     log.LogPrint("- OpenGL ES environment")
     try:
-        emulator = os.environ.get("FSL_GLES_NAME")
+        emulator = os.environ.get("FSL_GLES_EMULATOR_NAME")
         if not emulator:
-            raise EnvironmentError("OpenGLES emulation 'FSL_GLES_NAME' environment variable is not set.")
+            raise EnvironmentError("OpenGLES emulation 'FSL_GLES_EMULATOR_NAME' environment variable is not set.")
 
         emulator = emulator.lower()
         if(emulator == 'arm' or emulator == 'default'):

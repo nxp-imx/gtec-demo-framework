@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.SdfFonts" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.SdfFonts"/>
-    <Platform Name="Windows" ProjectId="6CB93161-F59B-4757-A633-F1727DBCD889"/>
   </Executable>
 </FslBuildGen>

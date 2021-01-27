@@ -32,7 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
-from FslBuildGen.BasicConfig import BasicConfig
+#from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PipelineTasks import PipelineTasks
 from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
 from FslBuildGen.Packages.Package import Package

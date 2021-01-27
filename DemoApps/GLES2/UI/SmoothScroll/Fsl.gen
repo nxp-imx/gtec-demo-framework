@@ -3,6 +3,5 @@
   <Executable Name="GLES2.UI.SmoothScroll" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.UI.SmoothScroll"/>
-    <Platform Name="Windows" ProjectId="42EEB316-E05B-45F0-A71C-F25B8B21C7C3"/>
   </Executable>
 </FslBuildGen>

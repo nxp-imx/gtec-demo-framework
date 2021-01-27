@@ -37,8 +37,8 @@ namespace Fsl
 {
   namespace Debug
   {
-    const char* TryToString(const ImageFormat& value);
-    const char* ToString(const ImageFormat& value);
+    extern const char* TryToString(const ImageFormat& value);
+    extern const char* ToString(const ImageFormat& value);
   }
 }
 

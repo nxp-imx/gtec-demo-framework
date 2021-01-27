@@ -57,7 +57,7 @@ class ToolAddedVariantConfigOption(object):
             return ToolAddedVariantConfigOption.Release
         if BuildVariantConfigDefaults.DefaultSetting == BuildVariantConfig.Coverage:
             return ToolAddedVariantConfigOption.Coverage
-        raise Exception("unsupported default setting {0}".format(BuildVariantConfigDefaults.DefaultSetting));
+        raise Exception("unsupported default setting {0}".format(BuildVariantConfigDefaults.DefaultSetting))
 
 class ToolAddedVariant(object):
     CONFIG = "config"

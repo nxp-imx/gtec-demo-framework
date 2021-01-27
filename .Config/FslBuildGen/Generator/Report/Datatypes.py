@@ -47,8 +47,8 @@ class FormatStringEnvironmentVariableResolveMethod(Enum):
 
     @staticmethod
     def Convert(value: int) -> 'FormatStringEnvironmentVariableResolveMethod':
-        if value == FormatStringEnvironmentVariableResolveMethod.Lookup:
+        if value == FormatStringEnvironmentVariableResolveMethod.Lookup.value:
             return FormatStringEnvironmentVariableResolveMethod.Lookup
-        elif value == FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable:
+        elif value == FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable.value:
             return FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable
         raise UnknownTypeException("Unknown FormatStringEnvironmentVariableResolveMethod: {0}".format(value))

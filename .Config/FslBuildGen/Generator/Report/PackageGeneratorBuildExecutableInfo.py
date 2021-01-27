@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 class PackageGeneratorBuildExecutableInfo(object):
-    def __init__(self, buildExePath: str) -> None:
+    def __init__(self, buildExePath: str, buildExeCwdPath: str) -> None:
         super().__init__()
         self.BuildExePath = buildExePath
+        self.BuildExeCwdPath = buildExeCwdPath

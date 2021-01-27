@@ -48,7 +48,7 @@ namespace Fsl
     }
 
 
-    SliderPixelSpanInfo SliderRenderImpl::WinDraw(INativeBatch2D& batch, const Vector2 dstPositionPxf, const PxSize2D& renderSizePx,
+    SliderPixelSpanInfo SliderRenderImpl::WinDraw(INativeBatch2D& batch, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx,
                                                   const LayoutOrientation orientation, const LayoutDirection layoutDirection, const bool isEnabled,
                                                   const int32_t cursorPositionPx, const bool isDragging,
                                                   const SpriteUnitConverter& spriteUnitConverter)
@@ -97,7 +97,7 @@ namespace Fsl
               spanInfo =
                 SliderPixelSpanInfo(startPx, renderSizePx.Width() - virtualCursorLengthPx - backgroundContentMarginPx.SumX(), reverseDirection);
 
-              Vector2 cursorPositionPxf(dstPositionPxf.X + static_cast<float>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
+              PxVector2 cursorPositionPxf(dstPositionPxf.X + static_cast<float>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
 
               ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
 
@@ -115,7 +115,7 @@ namespace Fsl
               spanInfo =
                 SliderPixelSpanInfo(startPx, renderSizePx.Height() - virtualCursorLengthPx - backgroundContentMarginPx.SumY(), !reverseDirection);
 
-              Vector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(cursorPositionPx - cursorOriginPx.Y));
+              PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(cursorPositionPx - cursorOriginPx.Y));
 
               ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
 

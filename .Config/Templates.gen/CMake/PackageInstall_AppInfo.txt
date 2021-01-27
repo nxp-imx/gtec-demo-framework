@@ -3,14 +3,14 @@ IF (WIN32)
 install(CODE
   "execute_process(
     COMMAND
-      FslBuildInfo.bat --SaveJson ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable] --input ${PROJECT_SOURCE_DIR}
+      FslBuildInfo.bat --SaveJson ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable] --input ##PACKAGE_PATH##
   )"
 )
 else()
 install(CODE
   "execute_process(
     COMMAND
-      FslBuildInfo.py --SaveJson ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable] --input ${PROJECT_SOURCE_DIR}
+      FslBuildInfo.py --SaveJson ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable] --input ##PACKAGE_PATH##
   )"
 )
 ENDIF()

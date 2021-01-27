@@ -31,6 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include "Platform.hpp"
+#include <array>
 #include <stdexcept>
 #include <ctime>
 #include <cstdlib>
@@ -40,12 +41,12 @@ namespace Fsl
 {
   std::string Platform::GetCurrentWorkingDirectory()
   {
-    char buffer[FILENAME_MAX];
-    if (getcwd(buffer, sizeof(buffer)) == nullptr)
+    std::array<char, FILENAME_MAX> buffer{};
+    if (getcwd(buffer.data(), buffer.size()) == nullptr)
     {
       throw std::runtime_error("Failed to retrieve the current working directory");
     }
-    return std::string(buffer);
+    return std::string(buffer.data());
   }
 
 

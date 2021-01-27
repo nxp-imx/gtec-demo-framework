@@ -102,12 +102,12 @@ namespace Fsl
       //};
 
 
-      inline static void Draw(INativeBatch2D& batch2D, const ImageSprite* const pSprite, const Vector2 dstPositionPxf, const Color& color)
+      inline static void Draw(INativeBatch2D& batch2D, const ImageSprite* const pSprite, const PxVector2 dstPositionPxf, const Color& color)
       {
         if (pSprite != nullptr)
         {
           const auto& info = pSprite->GetInfo();
-          if (info.RenderInfo.ScaledTrimmedSizePx.Width() > 0 && info.RenderInfo.ScaledTrimmedSizePx.Height() > 0)
+          if (info.RenderInfo.ScaledTrimmedSizePxf.Width() > 0.0f && info.RenderInfo.ScaledTrimmedSizePxf.Height() > 0.0f)
           {
             const auto* const pNativeTexture = dynamic_cast<const INativeTexture2D*>(info.MaterialInfo.Material.get());
             if (pNativeTexture != nullptr)
@@ -116,10 +116,9 @@ namespace Fsl
               batch2D.ChangeTo(static_cast<BlendState>(info.MaterialInfo.NativeMaterialFlags));
 
               // Create a unscaled destination rectangle (applying the trim to the offset)
-              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Left()),
-                                               dstPositionPxf.Y + static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Top()),
-                                               static_cast<float>(info.RenderInfo.ScaledTrimmedSizePx.Width()),
-                                               static_cast<float>(info.RenderInfo.ScaledTrimmedSizePx.Height()));
+              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + info.RenderInfo.ScaledTrimMarginPxf.Left(),
+                                               dstPositionPxf.Y + info.RenderInfo.ScaledTrimMarginPxf.Top(),
+                                               info.RenderInfo.ScaledTrimmedSizePxf.Width(), info.RenderInfo.ScaledTrimmedSizePxf.Height());
               batch2D.Draw(*pNativeTexture, info.RenderInfo.TextureArea, dstRectanglePxf, color);
             }
           }
@@ -127,13 +126,13 @@ namespace Fsl
       }
 
 
-      inline static void Draw(INativeBatch2D& batch2D, const ImageSprite* const pSprite, const Vector2 dstPositionPxf, const Color& color,
+      inline static void Draw(INativeBatch2D& batch2D, const ImageSprite* const pSprite, const PxVector2 dstPositionPxf, const Color& color,
                               const PxPoint2& origin)
       {
         if (pSprite != nullptr)
         {
           const auto& info = pSprite->GetInfo();
-          if (info.RenderInfo.ScaledTrimmedSizePx.Width() > 0 && info.RenderInfo.ScaledTrimmedSizePx.Height() > 0)
+          if (info.RenderInfo.ScaledTrimmedSizePxf.Width() > 0.0f && info.RenderInfo.ScaledTrimmedSizePxf.Height() > 0.0f)
           {
             const auto* const pNativeTexture = dynamic_cast<const INativeTexture2D*>(info.MaterialInfo.Material.get());
             if (pNativeTexture != nullptr)
@@ -142,17 +141,16 @@ namespace Fsl
               batch2D.ChangeTo(static_cast<BlendState>(info.MaterialInfo.NativeMaterialFlags));
 
               // Create a unscaled destination rectangle (applying the trim to the offset)
-              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Left() - origin.X),
-                                               dstPositionPxf.Y + static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Top() - origin.Y),
-                                               static_cast<float>(info.RenderInfo.ScaledTrimmedSizePx.Width()),
-                                               static_cast<float>(info.RenderInfo.ScaledTrimmedSizePx.Height()));
+              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + info.RenderInfo.ScaledTrimMarginPxf.Left() - origin.X,
+                                               dstPositionPxf.Y + info.RenderInfo.ScaledTrimMarginPxf.Top() - origin.Y,
+                                               info.RenderInfo.ScaledTrimmedSizePxf.Width(), info.RenderInfo.ScaledTrimmedSizePxf.Height());
               batch2D.Draw(*pNativeTexture, info.RenderInfo.TextureArea, dstRectanglePxf, color);
             }
           }
         }
       }
 
-      inline static void Draw(INativeBatch2D& batch2D, const ImageSprite* const pSprite, const Vector2 dstPositionPxf, const PxSize2D& dstSizePx,
+      inline static void Draw(INativeBatch2D& batch2D, const ImageSprite* const pSprite, const PxVector2 dstPositionPxf, const PxSize2D& dstSizePx,
                               const Color& color)
       {
         if (pSprite != nullptr && dstSizePx.Width() > 0 && dstSizePx.Height() > 0)
@@ -164,15 +162,14 @@ namespace Fsl
             // BlendState is stored in the NativeMaterialFlags
             batch2D.ChangeTo(static_cast<BlendState>(info.MaterialInfo.NativeMaterialFlags));
 
-            const int32_t ScaledTrimSumX = info.RenderInfo.ScaledTrimMarginPx.SumX();
-            const int32_t ScaledTrimSumY = info.RenderInfo.ScaledTrimMarginPx.SumY();
+            const float scaledTrimSumXPxf = info.RenderInfo.ScaledTrimMarginPxf.SumX();
+            const float scaledTrimSumYPxf = info.RenderInfo.ScaledTrimMarginPxf.SumY();
             if (dstSizePx == info.RenderInfo.ScaledSizePx)
             {
               // Create a unscaled destination rectangle (applying the trim to the offset)
-              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Left()),
-                                               dstPositionPxf.Y + static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Top()),
-                                               static_cast<float>(info.RenderInfo.ScaledTrimmedSizePx.Width()),
-                                               static_cast<float>(info.RenderInfo.ScaledTrimmedSizePx.Height()));
+              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + info.RenderInfo.ScaledTrimMarginPxf.Left(),
+                                               dstPositionPxf.Y + info.RenderInfo.ScaledTrimMarginPxf.Top(),
+                                               info.RenderInfo.ScaledTrimmedSizePxf.Width(), info.RenderInfo.ScaledTrimmedSizePxf.Height());
               batch2D.Draw(*pNativeTexture, info.RenderInfo.TextureArea, dstRectanglePxf, color);
             }
             else
@@ -182,11 +179,10 @@ namespace Fsl
               const float finalScalingY = static_cast<float>(dstSizePx.Height()) / static_cast<float>(info.RenderInfo.ScaledSizePx.Height());
 
               // We scale and apply round to the result since in this scaling scenario we are still interested in a pixel perfect result
-              PxAreaRectangleF dstRectanglePxf(
-                dstPositionPxf.X + std::round(static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Left() * finalScalingX)),
-                dstPositionPxf.Y + std::round(static_cast<float>(info.RenderInfo.ScaledTrimMarginPx.Top() * finalScalingY)),
-                static_cast<float>(dstSizePx.Width()) - std::round(static_cast<float>(ScaledTrimSumX) * finalScalingX),
-                static_cast<float>(dstSizePx.Height()) - std::round(static_cast<float>(ScaledTrimSumY) * finalScalingY));
+              PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + std::round(info.RenderInfo.ScaledTrimMarginPxf.Left() * finalScalingX),
+                                               dstPositionPxf.Y + std::round(info.RenderInfo.ScaledTrimMarginPxf.Top() * finalScalingY),
+                                               static_cast<float>(dstSizePx.Width()) - std::round(scaledTrimSumXPxf * finalScalingX),
+                                               static_cast<float>(dstSizePx.Height()) - std::round(scaledTrimSumYPxf * finalScalingY));
 
               batch2D.Draw(*pNativeTexture, info.RenderInfo.TextureArea, dstRectanglePxf, color);
             }

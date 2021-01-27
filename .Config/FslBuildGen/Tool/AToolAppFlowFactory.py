@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Any
+#from typing import Any
 from typing import Optional
 import argparse
 from FslBuildGen.Config import BaseConfig

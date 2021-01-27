@@ -3,31 +3,23 @@
   <ExternalLibrary Name="GLES" CreationYear="2014">
     <Default.Platform.Supported Value="false"/>
     <Requirement Name="OpenGLES" Type="feature"/>
-    <Dependency Name="GLBase"/>
-    <Platform Name="Android" Supported="true"/>
+    <Platform Name="Android" Supported="true">
+      <Dependency Name="GLBase"/>
+    </Platform>
     <Platform Name="Ubuntu" Supported="true">
+      <Dependency Name="GLBase"/>
       <ExternalDependency Name="GLESv2" Type="StaticLib"/>
     </Platform>
     <Platform Name="QNX" Supported="true">
+      <Dependency Name="GLBase"/>
       <ExternalDependency Name="GLESv2" Type="StaticLib"/>
     </Platform>
     <Platform Name="Yocto" Supported="true">
+      <Dependency Name="GLBase"/>
       <ExternalDependency Name="GLESv2" Type="StaticLib"/>
     </Platform>
     <Platform Name="Windows" Supported="true">
-      <Variant Name="$(FSL_GLES_NAME)" Type="Virtual" Extend="true">
-        <Option Name="$(FSL_GLES_NAME)">
-          <ExternalDependency Name="$(FSL_GLES_LIB_GLES)" Include="$(FSL_GLES_INCLUDE_PATH)" Access="Public" Location="$(FSL_GLES_LIB_PATH)" Type="StaticLib"/>
-        </Option>
-      </Variant>
-      <!--
-      <Variant Name="EGLBackend">
-        <Option Name="ArmMali">
-          <ExternalDependency Name="libGLESv2" Include="$(FSL_GLES_EMULATOR_PATH)/include" Access="Public" Location="$(FSL_GLES_EMULATOR_PATH)" Type="StaticLib"/>
-        </Option>
-        <Option Name="Vivante"/>
-      </Variant>
-      -->
+      <Dependency Name="GLBase" Flavor="OpenImpl=OpenGLES"/>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

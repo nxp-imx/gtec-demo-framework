@@ -936,12 +936,13 @@ namespace Fsl
   {
     Vulkan::VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
 
-    auto texture = contentManager->ReadTexture("SeamlessFur.png", PixelFormat::R8G8B8A8_UNORM);
-    //  m_resources.Texture.Reset(texture, texParams, TextureFlags::GenerateMipMaps);
+    auto texture =
+      contentManager->ReadTexture("SeamlessFur.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::Undefined, PixelChannelOrder::Undefined, true);
     m_resources.Texture = CreateTexture(imageCreator, texture);
 
-    texture = contentManager->ReadTexture("MarbleChessboard.jpg", PixelFormat::R8G8B8A8_UNORM);
-    m_resources.TextureChessboard = CreateTexture(imageCreator, texture);    //, TextureFlags::GenerateMipMaps);
+    texture =
+      contentManager->ReadTexture("MarbleChessboard.jpg", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::Undefined, PixelChannelOrder::Undefined, true);
+    m_resources.TextureChessboard = CreateTexture(imageCreator, texture);
   }
 
 

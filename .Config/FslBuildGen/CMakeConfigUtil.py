@@ -36,9 +36,9 @@ import shlex
 from FslBuildGen.Log import Log
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
-from FslBuildGen.BuildExternal import CMakeTypes
+from FslBuildGen.BuildExternal import CMakeHelper
 from FslBuildGen.CMakeUtil import CMakeUtil
-from FslBuildGen.CMakeUtil import CMakeVersion
+#from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Version import Version
@@ -46,14 +46,13 @@ from FslBuildGen.Tool.UserCMakeConfig import UserCMakeConfig
 
 def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig,
                               userCMakeConfig: Optional[UserCMakeConfig], cmakeConfiguration: CMakeConfiguration,
-                              defaultCompilerVersion: int) -> GeneratorCMakeConfig:
+                              defaultCompilerVersion: int, isCheckMode: bool) -> GeneratorCMakeConfig:
     """
     Build the CMake config based on the supplied parameters and the default settings from the toolconfig
     """
 
     # Setup default configuration
     buildDir = IOUtil.Join(cmakeConfiguration.DefaultBuildDir, platformName)
-    checkDir = IOUtil.Join(buildDir, 'fsl')
     generatorName = ""
     installPrefix = cmakeConfiguration.DefaultInstallPrefix
 
@@ -86,12 +85,16 @@ def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str,
     # If we still dont have a generator name then try to select a good default
     if len(generatorName) <= 0:
         # Try to determine the default generator name for the platform
-        generatorName = CMakeTypes.GetPlatformDefaultCMakeGenerator(platformName, defaultCompilerVersion)
+        generatorName = CMakeHelper.GetPlatformDefaultCMakeGenerator(platformName, defaultCompilerVersion)
 
     cmakeVersion = CMakeUtil.GetVersion()
 
     cmakeConfigGlobalArgs = [] if userCMakeConfig is None else shlex.split(userCMakeConfig.ConfigGlobalArgs)
     cmakeConfigAppArgs = [] if userCMakeConfig is None else shlex.split(userCMakeConfig.ConfigAppArgs)
+
+    checkDir = IOUtil.Join(buildDir, 'fsl')
+    if isCheckMode:
+        buildDir = checkDir
 
     return GeneratorCMakeConfig(toolVersion, platformName, buildVariantConfig, buildDir, buildDirSetByUser, checkDir, generatorName, installPrefix,
                                 cmakeVersion, cmakeConfigGlobalArgs, cmakeConfigAppArgs, allowFindPackage)

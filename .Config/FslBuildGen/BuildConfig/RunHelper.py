@@ -53,8 +53,8 @@ class RunHelper(object):
                 log.LogPrintWarning("The command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(buildCommand), result, currentWorkingDirectory))
                 raise ExitException(result)
         except FileNotFoundError:
-                log.DoPrintWarning("The command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
-                raise
+            log.DoPrintWarning("The command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
+            raise
 
     @staticmethod
     def RunNow(log: Log, buildCommand: List[str], currentWorkingDirectory: str, logOutput: bool) -> int:
@@ -62,12 +62,10 @@ class RunHelper(object):
             return subprocess.call(buildCommand, cwd=currentWorkingDirectory)
         try:
             with subprocess.Popen(buildCommand, cwd=currentWorkingDirectory, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True) as proc:
-                output = proc.stdout.read().strip()
-                proc.stdout.close()
+                output = proc.stdout.read().strip() if proc.stdout is not None else ""
+                if proc.stdout is not None:
+                    proc.stdout.close()
                 return proc.wait()
         finally:
             if output is not None and len(output) > 0:
                 log.DoPrint(output)
-
-
-

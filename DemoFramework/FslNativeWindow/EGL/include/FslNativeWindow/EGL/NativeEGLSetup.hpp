@@ -39,9 +39,10 @@ namespace Fsl
   class NativeEGLSetup : public PlatformNativeWindowAllocationParams
   {
   public:
-    EGLNativeDisplayType DisplayType;
-    EGLDisplay Display;
-    EGLConfig Config;
+    EGLNativeDisplayType DisplayType{};
+    EGLDisplay Display{};
+    EGLConfig Config{};
+
 
     NativeEGLSetup(const EGLNativeDisplayType displayType, const EGLDisplay display, const EGLConfig config)
       : DisplayType(displayType)
@@ -49,6 +50,14 @@ namespace Fsl
       , Config(config)
     {
     }
+
+    //static NativeEGLSetup Invalid()
+    //{
+    //  return NativeEGLSetup();
+    //}
+
+  //protected:
+  //  NativeEGLSetup() = default;
   };
 }
 

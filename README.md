@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.6.2
+# DemoFramework 5.7.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -54,7 +54,7 @@ since the exact same demo/benchmark code run on all of them.
 * [Demo playback](#demo-playback)
   * [Command line arguments](#command-line-arguments)
   * [Default keyboard mappings.](#default-keyboard-mappings)
-  * [Demo single stepping / pause.](#demo-single-stepping-/-pause)
+  * [Demo single stepping / pause](#demo-single-stepping-/-pause)
 * [Demo applications](#demo-applications)
   * [Console](#console)
   * [G2D](#g2d)
@@ -104,6 +104,7 @@ uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
 # Building
 
 See the setup guides for your platform:
+
 * [Android](Doc/Setup_guide_android_sdk+ndk_on_windows.md)
 * [Ubuntu 18.04](Doc/Setup_guide_ubuntu18.04.md)
 * [Windows](Doc/Setup_guide_windows.md)
@@ -114,12 +115,12 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 ## Reasoning
 
 While writing this we currently have thirty-four OpenGL ES 2 samples, sixty-four OpenGL ES 3.x samples,
-fifty-three Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-three OpenVX sample and five other samples. Which is *174 sample applications*.
+fifty-four Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and five other samples. Which is *175 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 174 * 4 = *696 build files* for the samples alone.
-Maintaining 696 or even just 174 build files would be an extremely time consuming and error prone process.
+maintain 175 * 4 = *700 build files* for the samples alone.
+Maintaining 700 or even just 175 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -153,14 +154,12 @@ Here is an example ‘Fsl.gen’ build-meta-data file for the GLES2.Blur sample 
   <Executable Name="GLES2.Blur" NoInclude="true">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="EnvironmentMappingShared"/>
-    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>
   </Executable>
 </FslBuildGen>
 ```
 
 It basically specifies that this directory contains an executable package with no include directory,
-that it uses the ‘DemoAppGLES2’ template and has a dependency on a package called ‘EnvironmentMappingShared’ then it
-defines a ‘ProjectId’ for visual studio for windows.
+that it uses the ‘DemoAppGLES2’ template and has a dependency on a package called ‘EnvironmentMappingShared’.
 
 Another example is the ‘Fsl.gen’ file for the FslGraphics package which has had lots of files added over the years,
 but its build file has been untouched.
@@ -170,7 +169,6 @@ but its build file has been untouched.
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslGraphics">
     <Dependency Name="FslBase"/>
-    <Platform Name="Windows" ProjectId="0E59129C-BD25-4810-97C5-98E54599F134"/>
   </Library>
 </FslBuildGen>
 ```
@@ -189,7 +187,7 @@ Operating System | Build system
 -----------------|---------------------
 Android          | gradle + cmake (Android Studio can be used with the generated projects)
 Ubuntu           | cmake (ninja)
-Windows          | Visual studio 2019 (IDE or msbuild)
+Windows          | cmake (Visual studio 2019 x64)
 Yocto            | cmake (ninja)
 
 ## Scripts
@@ -203,9 +201,10 @@ See the [FslBuildGen document](./Doc/FslBuildGen.docx) for details.
 
 Extends the technology behind FslBuildGen with additional knowledge about how to execute the build system for a given platform.
 So basically, FslBuild works like this
-1.	Invoke the build-file generator that updates all build files if necessary.
-2.	Filter the builds request based on the provided feature and extension list.
-3.	Build all necessary build files in the correct order.
+
+1. Invoke the build-file generator that updates all build files if necessary.
+2. Filter the builds request based on the provided feature and extension list.
+3. Build all necessary build files in the correct order.
 
 #### Useful arguments
 
@@ -237,9 +236,10 @@ Instead add your changes to the ‘Fsl.gen’ files as they control the build fi
 
 This only runs the content builder part of the build process.
 
-```
+```bash
 FslBuildContent.py
 ```
+
 Build the current directories package content.
 
 ### FslBuildNew.py
@@ -247,9 +247,10 @@ Build the current directories package content.
 Generate a new project of the specified type. This is basically a project wizard that will prepare a new project directory with a basic template
 for the chosen project type.
 
-```
+```bash
 FslBuildNew.py GLES2 FlyingPigsApp
 ```
+
 Create the FlyingPigsApp sample app directory using the GLES2 template.
 
 ### FslBuildCheck.py
@@ -257,21 +258,23 @@ Create the FlyingPigsApp sample app directory using the GLES2 template.
 Package build environment checker. Based on what features the package uses this will try to detect setup errors.
 It also has the capability to scan the source for common mistakes.
 
-```
+```bash
 FslBuildCheck.py
 ```
+
 Check the current build environment to see if the package can be build.
 
-```
+```bash
 FslBuildCheck.py --scan
 ```
+
 Scan the current package and see if there is any common mistakes with for example include guards, tabs, etc.
 
 ### FslBuildDoc.py
 
 A new **work in progress* tool that helps keep the README.md files similar and that fills out various areas of the root README.md file.
 
-```
+```bash
 FslBuildDoc.py
 ```
 
@@ -280,9 +283,10 @@ FslBuildDoc.py
 This is a stand alone tool used to scan for 'graphics' files like textures and models and determine if a there is a 'License.json'
 file accompanying them
 
-```
+```bash
 FslResourceScan.py . -v --list
 ```
+
 Scan the current directory and all it subdirectories for graphics files and license issues, then list all licenses found.
 
 # Demo application details
@@ -464,6 +468,7 @@ Since the demo framework is controlling the main method, you need to register yo
 ### OpenGL ES 3.X registration
 
 To register a demo for OpenGLES 3.X you would use the GLES3 register method:
+
 ```C++
     DemoAppRegister::GLES3::Register<S01_SimpleTriangle>(rSetup, "GLES3.S01_SimpleTriangle", config);
 ```
@@ -477,11 +482,14 @@ It is left up to the DemoApp to save and restore demo specific state.
 
 The demo app can request an exit to occur, or it can be terminated via an external request.
 In both cases one of the following things occur.
+
 1. If the app has been constructed and has received a FixedUpdate, then it will finish its FixedUpdate, Update, Draw, swap sequence before its shutdown.
 2. If the app requests a shutdown during construction, the app will be destroyed before calling any other method on the object (and no swap will occur).
+
 The app can request an exit to occur by calling:
+
 ```C++
-        GetDemoAppControl()->RequestExit(1);
+    GetDemoAppControl()->RequestExit(1);
 ```
 
 # Demo playback
@@ -512,7 +520,7 @@ Escape  | Exit the app.
 F4      | Take a screenshot (If supported by the test service)
 F5      | Restart the app.
 
-## Demo single stepping / pause.
+## Demo single stepping / pause
 
 All samples support time stepping which can be useful for debugging.
 It might not be available on platforms that don't support the given keys.
@@ -748,9 +756,9 @@ It also shows you how to use the ContentManager service to load a 'png' file fro
 into a bitmap utility class which is then used to used to create a OpenGL ES texture.
 
 
-### [S07_EnvironmentMapping](DemoApps/GLES2/S07_EnvironmentMapping)
+### [S07_EnvMapping](DemoApps/GLES2/S07_EnvMapping)
 
-<a href="DemoApps/GLES2/S07_EnvironmentMapping/Example.jpg"><img src="DemoApps/GLES2/S07_EnvironmentMapping/Example.jpg" height="108px" title="GLES2.S07_EnvironmentMapping"></a>
+<a href="DemoApps/GLES2/S07_EnvMapping/Example.jpg"><img src="DemoApps/GLES2/S07_EnvMapping/Example.jpg" height="108px" title="GLES2.S07_EnvMapping"></a>
 
 This sample shows how to use a cubemap texture to simulate a reflective material.
 
@@ -758,9 +766,9 @@ It also shows you how to use the ContentManager service to load a 'dds' file fro
 into a Texture utility class which is then used to used to create a OpenGL ES cubemap texture.
 
 
-### [S08_EnvironmentMappingRefraction](DemoApps/GLES2/S08_EnvironmentMappingRefraction)
+### [S08_EnvMappingRefraction](DemoApps/GLES2/S08_EnvMappingRefraction)
 
-<a href="DemoApps/GLES2/S08_EnvironmentMappingRefraction/Example.jpg"><img src="DemoApps/GLES2/S08_EnvironmentMappingRefraction/Example.jpg" height="108px" title="GLES2.S08_EnvironmentMappingRefraction"></a>
+<a href="DemoApps/GLES2/S08_EnvMappingRefraction/Example.jpg"><img src="DemoApps/GLES2/S08_EnvMappingRefraction/Example.jpg" height="108px" title="GLES2.S08_EnvMappingRefraction"></a>
 
 This sample is a variation from the previous sample, again, a cubemap texture is used,
 but this time instead of simulating a reflective material a refractive material is simulated.
@@ -1313,9 +1321,9 @@ It also shows you how to use the ContentManager service to load a 'png' file fro
 into a bitmap utility class which is then used to used to create a OpenGL ES texture.
 
 
-### [S07_EnvironmentMapping](DemoApps/GLES3/S07_EnvironmentMapping)
+### [S07_EnvMapping](DemoApps/GLES3/S07_EnvMapping)
 
-<a href="DemoApps/GLES3/S07_EnvironmentMapping/Example.jpg"><img src="DemoApps/GLES3/S07_EnvironmentMapping/Example.jpg" height="108px" title="GLES3.S07_EnvironmentMapping"></a>
+<a href="DemoApps/GLES3/S07_EnvMapping/Example.jpg"><img src="DemoApps/GLES3/S07_EnvMapping/Example.jpg" height="108px" title="GLES3.S07_EnvMapping"></a>
 
 This sample shows how to use a cubemap texture to simulate a reflective material.
 
@@ -1323,9 +1331,9 @@ It also shows you how to use the ContentManager service to load a 'dds' file fro
 into a Texture utility class which is then used to used to create a OpenGL ES cubemap texture.
 
 
-### [S08_EnvironmentMappingRefraction](DemoApps/GLES3/S08_EnvironmentMappingRefraction)
+### [S08_EnvMappingRefraction](DemoApps/GLES3/S08_EnvMappingRefraction)
 
-<a href="DemoApps/GLES3/S08_EnvironmentMappingRefraction/Example.jpg"><img src="DemoApps/GLES3/S08_EnvironmentMappingRefraction/Example.jpg" height="108px" title="GLES3.S08_EnvironmentMappingRefraction"></a>
+<a href="DemoApps/GLES3/S08_EnvMappingRefraction/Example.jpg"><img src="DemoApps/GLES3/S08_EnvMappingRefraction/Example.jpg" height="108px" title="GLES3.S08_EnvMappingRefraction"></a>
 
 This sample is a variation from the previous sample, again, a cubemap texture is used,
 but this time instead of simulating a reflective material a refractive material is simulated.
@@ -1726,13 +1734,6 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 Shows how to render to a offscreen texture. The texture is then used to render the next pass where it applies a very simple 'water' like effect.
 
 
-### [EffectSubpass](DemoApps/Vulkan/EffectSubpass)
-
-<a href="DemoApps/Vulkan/EffectSubpass/Example.jpg"><img src="DemoApps/Vulkan/EffectSubpass/Example.jpg" height="108px" title="Vulkan.EffectSubpass"></a>
-
-Shows how to render to a subpass which is used as texture to render the next pass where it applies a very simple 'water' like effect.
-
-
 ### [FractalShader](DemoApps/Vulkan/FractalShader)
 
 <a href="DemoApps/Vulkan/FractalShader/Example.jpg"><img src="DemoApps/Vulkan/FractalShader/Example.jpg" height="108px" title="Vulkan.FractalShader"></a>
@@ -1772,6 +1773,13 @@ Also demonstrates how to use different descriptor sets.
 
 Based on a example called [Vulkan Gears](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
 Recreated as a DemoFramework freestyle window sample in 2016.
+
+
+### [GenerateMipMaps](DemoApps/Vulkan/GenerateMipMaps)
+
+<a href="DemoApps/Vulkan/GenerateMipMaps/Example.jpg"><img src="DemoApps/Vulkan/GenerateMipMaps/Example.jpg" height="108px" title="Vulkan.GenerateMipMaps"></a>
+
+A simple example that shows how to generate mipmaps at runtime.
 
 
 ### [HDR01_BasicToneMapping](DemoApps/Vulkan/HDR01_BasicToneMapping)
@@ -1976,6 +1984,13 @@ It also showcases two simple SDF effects:
 - Shadow
 
 
+### [ShaderClock](DemoApps/Vulkan/ShaderClock)
+
+<a href="DemoApps/Vulkan/ShaderClock/Example.jpg"><img src="DemoApps/Vulkan/ShaderClock/Example.jpg" height="108px" title="Vulkan.ShaderClock"></a>
+
+Simple example that showcase the device extension VK_KHR_shader_clock.
+
+
 ### [Skybox](DemoApps/Vulkan/Skybox)
 
 <a href="DemoApps/Vulkan/Skybox/Example.jpg"><img src="DemoApps/Vulkan/Skybox/Example.jpg" height="108px" title="Vulkan.Skybox"></a>
@@ -2070,9 +2085,6 @@ Uses a single pipeline with basic shaders loaded from SPIR-V and and single unif
 
 This example is far more explicit than the other examples and is meant to be a starting point for learning Vulkan from the ground up.
 Much of the code is boilerplate that you'd usually encapsulate in helper functions and classes (which is what the other examples do).
-
-Based on a example called [Triangle](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [Vulkan101](DemoApps/Vulkan/Vulkan101)

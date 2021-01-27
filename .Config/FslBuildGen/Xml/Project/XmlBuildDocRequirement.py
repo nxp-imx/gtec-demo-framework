@@ -31,7 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 import xml.etree.ElementTree as ET
 from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase

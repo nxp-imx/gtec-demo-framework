@@ -51,7 +51,7 @@ namespace Fsl
         MeshBufferInfo m_vertices;
         MeshBufferInfo m_indices;
         uint32_t m_indexCount;
-        glm::vec3 m_dim;
+        glm::vec3 m_dim{};
 
       public:
         MeshBuffer(const MeshBuffer&) = delete;

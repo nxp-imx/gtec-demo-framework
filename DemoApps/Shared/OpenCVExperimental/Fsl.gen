@@ -3,6 +3,5 @@
   <Library Name="Shared.OpenCVExperimental" CreationYear="2017">
     <Dependency Name="FslGraphics"/>
     <Dependency Name="OpenCV4"/>
-    <Platform Name="Windows" ProjectId="D50CCDBA-D00F-44AA-82D2-0CDC206D3A71"/>
   </Library>
 </FslBuildGen>

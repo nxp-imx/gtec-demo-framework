@@ -32,7 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
-from typing import Callable
+#from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import Iterable
@@ -42,31 +42,30 @@ from typing import Set
 from typing import Tuple
 import argparse
 import difflib
-import subprocess
+#import subprocess
 import re
 import os
 import shutil
 import uuid
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
-from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen.Generator import PluginConfig
 #from FslBuildGen import PackageListUtil
 #from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 #from FslBuildGen import Util
 #from FslBuildGen.Build import Builder
-from FslBuildGen.BasicConfig import BasicConfig
+#from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen import Util
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Config import BaseConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import MagicStrings
 from FslBuildGen.DataTypes import PackageLanguage
-from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.Generator import GeneratorVCUtil
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
-from FslBuildGen.Log import Log
-from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
@@ -86,7 +85,6 @@ from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 
 g_templateFileName = "Template.xml"
 
-g_defaultVCID = 'F73214FE-7A4B-4D7D-89EC-416B25E643BF'
 g_templatePathCode = "Code"
 g_templatePathFslGen = "FslGen"
 g_projectInclude = "include"
@@ -95,11 +93,12 @@ g_projectSource = "source"
 g_allowOverwriteOption = '--AllowOverwrite'
 
 class GlobalStrings:
-    SanityCheckProjectName = "SC__"
-    SanityCheckDir = "SC__TMP"
+    SanityCheckProjectName = "sC_sYs"
+    SanityCheckDir = "sC_tMp"
 
 class UnknownTemplateException(Exception):
     def __init__(self, msg: str) -> None:
+        # pylint: disable=useless-super-delegation
         super().__init__(msg)
 
 
@@ -169,7 +168,7 @@ class ConfigVariant(object):
         self.PrefixedProjectName = template.Prefix + projectName
 
         self.PackageName = packageName
-        self.PackageShortName, self.PackageNamespace = XmlGenFile.GetPackageNamesUtil(packageName)
+        self.PackageShortName, self.PackageNamespace = Util.GetPackageNames(packageName)
         self.PackageTargetName = packageName
 
         self.ProjectPrefix = template.Prefix
@@ -192,7 +191,7 @@ class LocalConfig(object):
                  projectType: str,
                  forced: bool,
                  templateDict: Dict[str, List[XmlNewTemplateFile]],
-                 reservedProjectNames:  Iterable[str],
+                 reservedProjectNames: Iterable[str],
                  strCurrentLanguage: str) -> None:
         self.CurrentYear = config.CurrentYearString
         self.ValidateProjectName(projectName)
@@ -297,26 +296,6 @@ def ParsePackages(generatorContext: GeneratorContext, config: Config, toolMiniCo
     return MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
 
-def GenerateGUID(config: Config, packages: List[Package], guid: str) -> str:
-    if guid != g_defaultVCID:
-        return guid
-    used = set()
-    for package in packages:
-        winPlatform = package.GetPlatform(PlatformNameString.WINDOWS)
-        if winPlatform:
-            used.add(winPlatform.ProjectId)
-
-    count = 0
-    newGuid = ("%s" % (uuid.uuid4())).upper()
-    while newGuid in used:
-        if count > 100000:
-            config.LogPrint("Failed to generate unique GUID in allocated time using default, please add a unique GUID manually")
-            return guid
-        newGuid = ("%s" % (uuid.uuid4())).upper()
-        count = count + 1
-    return newGuid
-
-
 def GenerateProject(config: Config, localConfig: LocalConfig, configVariant: ConfigVariant, visualStudioGUID: str, genFileOnly: bool) -> None:
     #
     packageName = configVariant.PackageName
@@ -327,7 +306,8 @@ def GenerateProject(config: Config, localConfig: LocalConfig, configVariant: Con
     templateFileRecordManager = TemplateFileRecordManager(localConfig.TemplatePathProjectType)
     templateFileProcessor = TemplateFileProcessor(config, "PlatformNotDefined", genFileOnly)
     templateFileProcessor.Environment.SetPackageValues(configVariant.ProjectPath, packageName, packageShortName, configVariant.ProjectPath,
-                                                       packageTargetName, None, visualStudioGUID, config.CurrentYearString, packageCompany)
+                                                       packageTargetName, packageTargetName, None, visualStudioGUID, config.CurrentYearString,
+                                                       packageCompany)
     #templateFileProcessor.Environment.Set("##FEATURE_LIST##", featureList)
     templateFileProcessor.Process(config, templateFileRecordManager, configVariant.ProjectPath, None)
 
@@ -353,7 +333,7 @@ class DefaultValue:
     ProjectName = "NotDefined"
     SanityCheck = "off"
     Template = "NotDefined"
-    VisualStudioGUID = g_defaultVCID
+    VisualStudioGUID = GeneratorVCUtil.DefaultVCID
     ListTemplates = False
 
 
@@ -384,8 +364,8 @@ def GetDefaultLocalConfig(defaultPackageLanguage: str, template: str, projectNam
 
 
 class ToolFlowBuildNew(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -478,8 +458,9 @@ class ToolFlowBuildNew(AToolAppFlow):
             # Get the generator and see if its supported on this platform
             buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
             generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                       buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
-                                                                                       localToolConfig.GetUserCMakeConfig())
+                                                                                       buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                       config.ToolConfig.CMakeConfiguration,
+                                                                                       localToolConfig.GetUserCMakeConfig(), False)
             PlatformUtil.CheckBuildPlatform(generator.PlatformName)
             config.LogPrint("Active platform: {0}".format(generator.PlatformName))
             generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
@@ -503,7 +484,7 @@ class ToolFlowBuildNew(AToolAppFlow):
 
         visualStudioGUID = localToolConfig.VisualStudioGUID
         if packages:
-            visualStudioGUID = GenerateGUID(config, packages, visualStudioGUID)
+            visualStudioGUID = GeneratorVCUtil.GenerateGUID(config, packages, visualStudioGUID)
 
         GenerateProject(config, localConfig, configVariant, visualStudioGUID, localToolConfig.GenFileOnly)
 
@@ -516,8 +497,9 @@ class ToolFlowBuildNew(AToolAppFlow):
             buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
             platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                      localToolConfig.Generator, buildVariantConfig,
-                                                                                                     False, config.ToolConfig.CMakeConfiguration,
-                                                                                                     localToolConfig.GetUserCMakeConfig())
+                                                                                                     config.ToolConfig.DefaultPackageLanguage,
+                                                                                                     config.ToolConfig.CMakeConfiguration,
+                                                                                                     localToolConfig.GetUserCMakeConfig(), False)
             MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, projectConfig, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, packageFilters)
 
             if performSanityCheck:
@@ -636,8 +618,8 @@ def TryFind(templates: List[XmlNewTemplateFile], newEntry: XmlNewTemplateFile) -
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
 
     def GetTitle(self) -> str:
@@ -701,8 +683,8 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         formatString = "{0} [{1}]" if len(templateDict) > 1 else "{1}"
         for language in sortedLanguages:
             languageTemplateList = templateDict[language]
-            langugageTemplateNames = [entry.Name for entry in languageTemplateList]
-            languageTemplates = ", ".join(langugageTemplateNames)
+            languageTemplateNames = [entry.Name for entry in languageTemplateList]
+            languageTemplates = ", ".join(languageTemplateNames)
             templateList.append(formatString.format(language, languageTemplates))
 
         templates = ", ".join(templateList)

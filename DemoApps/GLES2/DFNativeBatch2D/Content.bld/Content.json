@@ -11,6 +11,12 @@
           "BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf",
           "BasicUI/Font/SdfAtlas/License.json"
         ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/DFNativeBatch2D",
+        "Content": [
+          "TextureAtlas/*.*"
+        ]
       }
     ]
   }

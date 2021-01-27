@@ -65,13 +65,13 @@ namespace Fsl
 
     TextureBlobBuilder();
     TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
-                       const BitmapOrigin bitmapOrigin);
+                       const BitmapOrigin bitmapOrigin, const bool useDefaultBlobLayout);
     TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                        const BitmapOrigin bitmapOrigin, const std::size_t contentSize);
 
     void Reset();
     void Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
-               const BitmapOrigin bitmapOrigin);
+               const BitmapOrigin bitmapOrigin, const bool useDefaultBlobLayout);
     void Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                const BitmapOrigin bitmapOrigin, const std::size_t contentSize);
 

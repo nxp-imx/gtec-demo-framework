@@ -32,14 +32,15 @@
 #****************************************************************************************************************************************************
 
 #from typing import List
-#from typing import Optional
-from FslBuildGen.DataTypes import BuildVariantConfig
+from typing import Optional
+#from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.Generator.Report.GeneratorConfigCommandCMakeReport import GeneratorConfigCommandCMakeReport
 from FslBuildGen.Generator.Report.GeneratorConfigCommandReport import GeneratorConfigCommandReport
 
 class GeneratorConfigReport(object):
-    def __init__(self, configCommandReport: GeneratorConfigCommandReport) -> None:
+    def __init__(self, configCommandReport: GeneratorConfigCommandReport, configCommandCMakeReport: Optional[GeneratorConfigCommandCMakeReport]) -> None:
         """
         """
         super().__init__()
-        # If this is None, it means that the builder should skip this.
         self.ConfigCommandReport = configCommandReport
+        self.ConfigCommandCMakeReport = configCommandCMakeReport

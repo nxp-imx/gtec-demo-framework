@@ -97,7 +97,7 @@ namespace Fsl
     // Light values
     glm::vec3 m_lightIntensity{};
     glm::vec4 m_lightPosition{};
-    glm::vec3 m_lightColor{};
+    // glm::vec3 m_lightColor{};
     // GLfloat m_ambientStrength{};
     // GLfloat m_specularStrength{};
 

@@ -99,7 +99,7 @@ namespace Fsl
         DIR* pDir = opendir(path.ToUTF8String().c_str());
         if (pDir != nullptr)
         {
-          SafeDirent* pEnt;
+          SafeDirent* pEnt = nullptr;
           // print all the files and directories within directory
           while ((pEnt = readdir(pDir)) != nullptr)
           {

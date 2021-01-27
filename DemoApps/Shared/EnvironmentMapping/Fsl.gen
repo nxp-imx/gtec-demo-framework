@@ -3,6 +3,5 @@
   <Library Name="Shared.EnvironmentMapping" CreationYear="2017">
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
-    <Platform Name="Windows" ProjectId="7D5F00B3-4B4B-4FEE-A0C4-6169C0FA5E2A"/>
   </Library>
 </FslBuildGen>

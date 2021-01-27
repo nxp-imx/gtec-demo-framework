@@ -31,12 +31,12 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Callable
-from typing import Dict
-from typing import List
+#from typing import Callable
+#from typing import Dict
+#from typing import List
 from typing import Optional
-from typing import Set
-from FslBuildGen.DataTypes import BuildVariantConfig
+#from typing import Set
+#from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 
 

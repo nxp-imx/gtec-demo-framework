@@ -34,7 +34,6 @@
 from typing import List
 from typing import Optional
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PipelineBasicCommand import PipelineBasicCommand
 from FslBuildGen.BuildExternal.PipelineInfo import PipelineInfo
 from FslBuildGen.BuildExternal.PipelineJoinCommand import PipelineJoinCommand
@@ -42,6 +41,7 @@ from FslBuildGen.BuildExternal.PipelineJoinCommandCopy import PipelineJoinComman
 from FslBuildGen.BuildExternal.PipelineJoinCommandDelete import PipelineJoinCommandDelete
 from FslBuildGen.BuildExternal.PipelineJoinCommandGitApply import PipelineJoinCommandGitApply
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommandCopy
@@ -51,8 +51,8 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommandUn
 
 
 class PipelineCommand(PipelineBasicCommand):
-    def __init__(self, basicConfig: BasicConfig, sourceCommand: Optional[XmlRecipePipelineCommand], pipelineInfo: PipelineInfo) -> None:
-        super().__init__(basicConfig, sourceCommand, pipelineInfo)
+    def __init__(self, log: Log, sourceCommand: Optional[XmlRecipePipelineCommand], pipelineInfo: PipelineInfo) -> None:
+        super().__init__(log, sourceCommand, pipelineInfo)
         self.Skip = False
         self.AutoCreateDstDirectory = True
         if sourceCommand is None or sourceCommand.OutputPath is None or len(sourceCommand.OutputPath) <= 0:
@@ -97,7 +97,7 @@ class PipelineCommand(PipelineBasicCommand):
         if sourceCommand.CommandType == BuildRecipePipelineCommand.JoinCopy:
             if not isinstance(sourceCommand, XmlRecipePipelineJoinCommandCopy):
                 raise Exception("Invalid command type")
-            return PipelineJoinCommandCopy(self.BasicConfig, sourceCommand, self.Info, self.FinalDstPath)
+            return PipelineJoinCommandCopy(self.Log, sourceCommand, self.Info, self.FinalDstPath)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.JoinUnpack:
             if not isinstance(sourceCommand, XmlRecipePipelineJoinCommandUnpack):
                 raise Exception("Invalid command type")
@@ -106,9 +106,9 @@ class PipelineCommand(PipelineBasicCommand):
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.JoinGitApply:
             if not isinstance(sourceCommand, XmlRecipePipelineJoinCommandGitApply):
                 raise Exception("Invalid command type")
-            return PipelineJoinCommandGitApply(self.BasicConfig, sourceCommand, self.Info, self.FinalDstPath, self.Info.Tasks.TaskGitApply)
+            return PipelineJoinCommandGitApply(self.Log, sourceCommand, self.Info, self.FinalDstPath, self.Info.Tasks.TaskGitApply)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.JoinDelete:
             if not isinstance(sourceCommand, XmlRecipePipelineJoinCommandDelete):
                 raise Exception("Invalid command type")
-            return PipelineJoinCommandDelete(self.BasicConfig, sourceCommand, self.Info, self.FinalDstPath)
+            return PipelineJoinCommandDelete(self.Log, sourceCommand, self.Info, self.FinalDstPath)
         raise Exception("Unsupported join command '{0}'({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.Info.SourceRecipe.FullName))

@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="Shared.TextureCompression"/>
-    <Platform Name="Windows" ProjectId="5B34C6E7-731B-4C69-B094-F73B8ACF7C23"/>
   </Executable>
 </FslBuildGen>

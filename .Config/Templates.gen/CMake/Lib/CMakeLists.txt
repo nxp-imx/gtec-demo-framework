@@ -41,8 +41,15 @@ project(
 # Target #
 ##########
 
+set(##PACKAGE_NAME##_SOURCE ##PACKAGE_SOURCE_FILES##
+)
+
+set(##PACKAGE_NAME##_INCLUDE ##PACKAGE_PUBLIC_INCLUDE_FILES####PACKAGE_PRIVATE_INCLUDE_FILES##
+)
+
+
 # Add all the include and source files to the library
-add_library(##PACKAGE_NAME####PACKAGE_SOURCE_FILES####PACKAGE_PUBLIC_INCLUDE_FILES####PACKAGE_PRIVATE_INCLUDE_FILES##
+add_library(##PACKAGE_NAME## ${##PACKAGE_NAME##_SOURCE} ${##PACKAGE_NAME##_INCLUDE}
 )
 
 #Add an alias so that library can be used inside the build tree
@@ -50,9 +57,18 @@ add_library(##ALIAS_PACKAGE_NAME## ALIAS ##PACKAGE_NAME##)
 
 # Ensure that debug libs are postfixed with a _d
 set_property(TARGET ##PACKAGE_NAME## PROPERTY DEBUG_POSTFIX _d)
-  
+
+# Add libs folder for target project
+set_property(TARGET ##PACKAGE_NAME## PROPERTY FOLDER "Libs")
+ 
 ##PACKAGES_FIND_DIRECT_EXTERNAL_DEPENDENCIES##
 ##TARGET_INCLUDE_DIRECTORIES##
+
+#########################
+# SOURCE GROUPS FOR IDE #
+#########################
+  
+##PACKAGE_SOURCE_GROUP##
 
 #######################
 # Target Dependencies #

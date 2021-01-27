@@ -1,12 +1,20 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources",
-      "Content": [
-        "Textures/Seamless/Fur/*.*",
-        "Textures/Seamless/GrassPattern/*.*"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Textures/Seamless/Fur/*.*",
+          "Textures/Seamless/GrassPattern/*.*"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/FurShellRendering",
+        "Content": [
+          "TextureAtlas/*.*"
+        ]
+      }
+    ]
   }
 }

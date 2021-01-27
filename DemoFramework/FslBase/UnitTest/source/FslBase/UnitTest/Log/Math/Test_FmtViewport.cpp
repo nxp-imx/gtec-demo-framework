@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_FmtViewport, Log)
 {
-  Viewport value(2, 3, 10, 20);
+  Viewport value(2, 3, 10, 20, 0.1f, 1.1f);
 
-  EXPECT_EQ(std::string("{X=2 Y=3 Width=10 Height=20 MinDepth=0.0 MaxDepth=1.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{X=2 Y=3 Width=10 Height=20 MinDepth=0.1 MaxDepth=1.1}"), fmt::format("{}", value));
 }

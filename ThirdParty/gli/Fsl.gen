@@ -2,6 +2,6 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="gli" CreationYear="2016">
     <Define Name="FSL_FEATURE_GLI" Access="Public"/>
-    <Dependency Name="Recipe.gli_0_8_2_0"/>
+    <Dependency Name="Recipe.gli_0_8_3"/>
   </ExternalLibrary>
 </FslBuildGen>

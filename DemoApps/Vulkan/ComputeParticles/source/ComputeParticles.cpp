@@ -336,7 +336,7 @@ namespace Fsl
     m_compute.Ubo.DeltaT = m_frameTimer * 2.5f;
     if (m_animate)
     {
-      m_compute.Ubo.DestX = sin(glm::radians(m_timer * 360.0f)) * 0.75f;
+      m_compute.Ubo.DestX = static_cast<float>(sin(glm::radians(m_timer * 360.0f)) * 0.75f);
       m_compute.Ubo.DestY = 0.0f;
     }
     else

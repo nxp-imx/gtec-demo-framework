@@ -8,6 +8,5 @@
     <Dependency Name="FslUtil.EGL"/>
     <Dependency Name="Shared.HDR.BasicScene"/>
     <Dependency Name="Shared.HDR.BasicScene.API.OpenGLES3"/>
-    <Platform Name="Windows" ProjectId="A584841D-EA47-4CFA-B346-383C850BE505"/>
   </Executable>
 </FslBuildGen>

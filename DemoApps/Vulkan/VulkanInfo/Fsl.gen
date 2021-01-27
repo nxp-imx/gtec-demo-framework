@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppConsoleMinimal"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Platform Name="Android" Supported="false"/>  
-    <Platform Name="Windows" ProjectId="4ACE4C2D-5545-473A-9FA3-D77C2403FD3E"/>
   </Executable>
 </FslBuildGen>

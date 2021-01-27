@@ -39,7 +39,7 @@ class RecipeFilterManager(object):
         super().__init__()
         allRecipesEnabled = containsWildcard
         if containsWildcard:
-            allRecipesEnabled = self.__IsAllRecipesEnabled(content);
+            allRecipesEnabled = self.__IsAllRecipesEnabled(content)
 
         self.AllRecipesEnabled = allRecipesEnabled                      # if this is then all packages are enabled
         self.DefaultEnabled = containsWildcard

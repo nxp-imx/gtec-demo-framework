@@ -91,6 +91,7 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(modernize-pass-by-value)
     BasicMessage(const BasicMessageType type, const int32_t param1, const std::exception_ptr& exception)
       : Type(type)
       , Param1(param1)
@@ -98,6 +99,7 @@ namespace Fsl
     {
     }
 
+    // NOLINTNEXTLINE(modernize-pass-by-value)
     BasicMessage(const BasicMessageType type, const std::exception_ptr& exception)
       : Type(type)
       , Exception(exception)
@@ -105,6 +107,7 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(modernize-pass-by-value)
     BasicMessage(const BasicMessageType type, const int32_t param1, const int32_t param2, const std::exception_ptr& exception,
                  std::shared_ptr<Message> content, std::shared_ptr<IMessagePool> messagePool)
       : Type(type)

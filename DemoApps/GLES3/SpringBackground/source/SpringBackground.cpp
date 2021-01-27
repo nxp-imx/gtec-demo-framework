@@ -69,8 +69,8 @@ namespace Fsl
       auto nativeGraphicsService = config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeGraphics();
       auto contentManager = GetContentManager();
       BasicTextureAtlas atlas;
-      contentManager->Read(atlas, "MainAtlas.bta");
-      auto texture = contentManager->ReadTexture("MainAtlas.png");
+      contentManager->Read(atlas, "TextureAtlas/MainAtlas.bta");
+      auto texture = contentManager->ReadTexture("TextureAtlas/MainAtlas.png");
       Texture2D atlasTexture(nativeGraphicsService, texture, Texture2DFilterHint::Smooth);
       TextureAtlasMap textureAtlasMap(atlas);
 

@@ -6,6 +6,5 @@
     <Dependency Name="FslDemoHost.Vulkan.Config"/>
     <Dependency Name="FslNativeWindow.Vulkan"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
-    <Platform Name="Windows" ProjectId="E09406C9-7D49-4566-9765-D674043EF844"/>
   </Library>
 </FslBuildGen>

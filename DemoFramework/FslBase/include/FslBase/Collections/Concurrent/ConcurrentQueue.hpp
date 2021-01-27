@@ -50,7 +50,7 @@ namespace Fsl
   template <typename T>
   void ConcurrentQueue<T>::Enqueue(const T& value)
   {
-    bool wasEmpty;
+    bool wasEmpty = false;
     {
       std::lock_guard<std::mutex> lock(m_mutex);
       wasEmpty = m_queue.empty();

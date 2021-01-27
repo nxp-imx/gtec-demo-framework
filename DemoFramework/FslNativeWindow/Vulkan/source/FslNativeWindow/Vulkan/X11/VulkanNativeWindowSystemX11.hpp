@@ -44,7 +44,7 @@ namespace Fsl
   class VulkanNativeWindowSystemX11 : public VulkanNativeWindowSystemTemplate<PlatformNativeWindowSystemX11>
   {
   public:
-    VulkanNativeWindowSystemX11(const NativeWindowSystemSetup& setup);
+    explicit VulkanNativeWindowSystemX11(const NativeWindowSystemSetup& setup);
   };
 }    // namespace Fsl
 

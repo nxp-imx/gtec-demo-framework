@@ -48,8 +48,8 @@ namespace Fsl
 
     struct UboVS
     {
-      glm::mat4 Projection;
-      glm::mat4 Model;
+      glm::mat4 Projection{};
+      glm::mat4 Model{};
       float LodBias{0.0f};
 
       UboVS() = default;

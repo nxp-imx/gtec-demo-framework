@@ -10,19 +10,10 @@
     ```
 
   **Beware we now use ninja-build as the default build system instead of make!**
-
-- Python 3.5+
+- [CMake 3.10.2 or newer](https://cmake.org/download/)
+- Python 3.6+
   To be able run python scripts, they are not needed to build.
   It should be part of the default Ubuntu install.
-- One of these (they are mutually exclusive):
-  - Mesa OpenGL ES 2
-
-    ```bash
-    sudo apt-get install libgles2-mesa-dev
-    ```
-
-  - [Arm Mali OpenGL ES 3.0 Emulator V3.0.4 (64 bit)](https://developer.arm.com/products/software-development-tools/graphics-development-tools/opengl-es-emulator/downloads)
-
 - DevIL (Developer's Image Library)
 
     ```bash
@@ -33,12 +24,17 @@
   Is now downloaded and build from source when needed. So its no longer necessary to run "sudo apt-get install libassimp-dev".
 - Download the source from git.
 
+For OpenGL ES, OpenCL, OpenCV, OpenVX and Vulkan support additional packages are required, see below.
+
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
+
+---------------------------------------------------------------------------------------------------
 
 ## Simple setup
 
-1. Start a terminal (ctrl+alt t) in the DemoFramework folder
-2. Run the `prepare.sh` file located in the root of the framework folder to
+1. Decide what API's you want to compile and run apps for then install them using one of the guides below.
+2. Start a terminal (ctrl+alt t) in the DemoFramework folder
+3. Run the `prepare.sh` file located in the root of the framework folder to
    configure the necessary environment variables and paths.
    Please beware that the `prepare.sh` file requires the current working 
    directory to be the root of your demoframework folder to function 
@@ -48,48 +44,213 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
     source prepare.sh
     ```
 
-## To Compile all samples
+### Add OpenGL ES support
 
-1. Make sure that you performed the [simple setup](#simple-setup).
-2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
+1. One of these (they are mutually exclusive):
+    - [Arm Mali OpenGL ES Emulator v3.0.4 (64 bit)](https://developer.arm.com/products/software-development-tools/graphics-development-tools/opengl-es-emulator/downloads)
+    - Mesa OpenGL ES 2
+
+        ```bash
+        sudo apt-get install libgles2-mesa-dev
+        ```
+
+2. Continue the normal setup.
+
+### Add Vulkan support
+
+Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
+
+1. [Download the Vulkan sdk](https://vulkan.lunarg.com/sdk/home)
+2. Follow the [documentation](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
+3. Ensure that you run the `setup-env.sh` as recommended by the documentation.
+4. Ensure that the LIBRARY_PATH is set for GCC
 
     ```bash
-    FslBuild.py -t sdk --BuildThreads 2
+    export LIBRARY_PATH=$VULKAN_SDK/lib:$LIBRARY_PATH
     ```
+
+5. Continue the normal setup.
+
+### Add OpenCL support
+
+1. Download and install a OpenCL implementation. Beware we depend on cmake's find_package support to locate the installed OpenCL implementation.
+2. Continue the normal setup.
+
+### Add OpenCV 4.2 support
+
+1. Install the required packages
+
+    ```bash
+    sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+    ```
+
+2. Install the optional packages
+
+    ```bash
+    sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+    ```
+
+3. Create a sdk directory
+
+    ```bash
+    mkdir ~/sdk
+    cd ~/sdk
+    ```
+
+4. Download the 4.2.0 release for ubuntu, unzip it, remove the download, enter the directory
+
+    ```bash
+    wget https://github.com/opencv/opencv/archive/4.2.0.zip
+    unzip 4.2.0.zip
+    rm 4.2.0.zip
+    cd opencv-4.2.0
+    ```
+
+5. Build OpenCV
+
+    ```bash
+    mkdir release
+    cd release
+    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
+    make -j $(nproc)
+    sudo make install
+    ```
+
+6. Ensure that the OpenCV 4 headers are where they used to be
+
+    ```bash
+    sudo ln -s /usr/local/include/opencv4/opencv2/ /usr/local/include/opencv2
+    ```
+
+7. Ensure that you can locate the OpenCV .so files
+
+    ```bash
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
+    ```
+
+8. Continue the normal setup.
+
+---------------------------------------------------------------------------------------------------
+
+### Add OpenVX support
+
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.2)
+2. Continue the normal setup.
+
+The build chain will download and compile a OpenVX implementation.
+
+---------------------------------------------------------------------------------------------------
 
 ## To Compile and run an existing sample application
 
+The general approach will be:
+
+1. Make sure that you performed the [simple setup](#simple-setup), including the API's the sample need.
+2. Change directory to the sample directory:
+
+    ```bash
+    cd DemoApps/<MAIN-API-NAME>/<SAMPLE-NAME>
+    ```
+
+    Example MAIN-API-NAME's: GLES2, GLES3, OpenCL, Vulkan.
+
+    Type ```dir``` to see the dir choice.
+
+    Example SAMPLE-NAME's: Bloom, S06_Texturing.
+
+    Type ```dir``` after entering a API folder to see the list of samples
+
+3. Build and run the application 
+
+    ```bash
+    FslBuildRun.py 
+    ```
+
+The following commands are also pretty useful to know.
+
+Command                                       | Description
+----------------------------------------------|---------------------------------------
+`FslBuild.py`                                 | To build the example.
+`FslBuildRun.py`                              | To build and run the example.
+`FslBuild.py --ListVariants`                  | List all the build variants that can be specified.
+`FslBuildInfo.py --ListRequirements`          | To list the samples requirements.
+`FslBuild.py -c open2`                        | *Experimental* [Open the project in Visual Studio Code](#Visual-Studio-Code-Support)
+
+It is also recommended to check out the `README.md` and `Example.jpg` that is included with all samples.
+
+Note:
+
+If you add source files to a project or change the Fsl.gen file then run the
+`FslBuildGen.py` script in the project root folder to regenerate the various
+build files or just make sure you always use the `FslBuild.py` script as it
+automatically adds files and regenerate build files as needed.
+
+### To Compile and run an existing GLES2 sample application
+
 In this example we will utilize the GLES2.S06_Texturing app.
 
-1. Make sure that you performed the [simple setup](#simple-setup).
+1. Make sure that you performed the [simple setup](#simple-setup), including installing and configuring a OpenGLES emulator.
 2. Change directory to the sample directory:
 
     ```bash
     cd DemoApps/GLES2/S06_Texturing
     ```
 
-3. Compile and run the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
-   If '--BuildThreads' is not specified it will be set to 'auto' which uses your cpu core count.
+3. Build and run the application
 
     ```bash
     FslBuildRun.py
     ```
 
-    To specify arguments for the executable:
+---------------------------------------------------------------------------------------------------
+
+## To create a new demo project named 'CoolNewDemo'
+
+1. Make sure that you performed the [simple setup](#simple-setup) including the additional OpenGL ES setup.
+2. Change directory to the appropriate sample directory:
 
     ```bash
-    FslBuildRun.py -- -h
+    cd DemoApps/<MAIN-API-NAME>
     ```
 
-    Any argument specified after '--' will be send to the executable.
+    Example MAIN-API-NAME's: GLES2, GLES3, OpenCL, Vulkan.
 
-### To Compile and install an existing sample application
+    Type ```dir``` to see the dir choice.
 
-Installation is not supported for Ubuntu apps, please see 'To Compile and run an existing sample application' instead.
+3. Create the project template using the FslBuildNew.py script
 
-## To create a new GLES2 demo project named 'CoolNewDemo'
+    ```bash
+    FslBuildNew.py <TEMPLATE-NAME> CoolNewDemo  
+    ```
 
-1. Make sure that you performed the [simple setup](#simple-setup).
+    Example TEMPLATE-NAME's: GLES2, GLES3, OpenCL1_2, OpenCV4, Vulkan.
+
+    To get a full list run ```FslBuildNew.py . . --List```
+
+4. Change directory to the newly created project folder 'CoolNewDemo'
+
+    ```bash
+    cd CoolNewDemo
+    ```
+
+5. Compile the project
+
+    ```bash
+    FslBuild.py
+    ```
+
+Note:
+
+If you add source files to a project or change the Fsl.gen file then run the
+`FslBuildGen.py` script in the project root folder to regenerate the various
+build files or just make sure you always use the `FslBuild.py` script as it
+automatically adds files and regenerate build files as needed.
+
+### So to create a new GLES2 demo project named 'CoolNewDemo'
+
+In this example we will create a GLES2 app called CoolNewDemo.
+
+1. Make sure that you performed the [simple setup](#simple-setup) including the additional OpenGL ES setup.
 2. Change directory to the GLES2 sample directory:
 
     ```bash
@@ -114,148 +275,58 @@ Installation is not supported for Ubuntu apps, please see 'To Compile and run an
     FslBuild.py
     ```
 
-Note:
+---------------------------------------------------------------------------------------------------
 
-If you add source files to a project or change the Fsl.gen file then run the
-`FslBuildGen.py` script in the project root folder to regenerate the various
-build files or just make sure you always use the `FslBuild.py` script as it
-automatically adds files and regenerate build files as needed.
+## To Compile all samples
 
-## Building Vulkan demo framework apps
-
-Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
-
-1. Download the Vulkan sdk from https://vulkan.lunarg.com/sdk/home
-2. Move the downloaded file to a sdk dir
+1. Make sure that you performed the [simple setup](#simple-setup).
+2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
 
     ```bash
-    mkdir ~/vulkan
-    mv vulkansdk-linux-x86_64-1.1.92.1.tar.gz ~/vulkan
+    FslBuild.py -t sdk --BuildThreads 2
     ```
 
-3. Unpack it it
+    Beware the FslBuild scripts will chose a sensible default for --BuildThreads if its not supplied.
+
+---------------------------------------------------------------------------------------------------
+
+## Visual Studio Code support
+
+There is now ***experimental*** visual studio code support.
+To support visual studio code we generate/patch the configuration files stored under ```.vscode```.
+
+- ```launch.json``` contains the configuration used to launch the executable if one exist
+- ```settings.json``` contains the cmake configuration required to build the project.
+
+### Prerequisites
+
+- [Visual Studio Code](https://code.visualstudio.com/docs/setup/linux)
+- Visual Studio Code Extensions:
+  - [CMake Tools](https://code.visualstudio.com/docs/cpp/CMake-linux)
+  - [C/C++](https://code.visualstudio.com/docs/languages/cpp)
+- Recommended visual studio code extensions:
+  - [Code Spell Checker](https://github.com/streetsidesoftware/vscode-spell-checker)
+  - [Gitlens - Git supercharged](https://github.com/eamodio/vscode-gitlens)
+  - [Visual Studio Keymap](https://github.com/rebornix/vscode-vs-keybindings)
+
+### To Compile and run an existing sample application using VSCode
+
+In this example we will utilize the GLES2.S06_Texturing app.
+
+1. Make sure that you performed the [simple setup](#simple-setup).
+2. Change directory to the sample directory:
 
     ```bash
-    cd ~/vulkan
-    tar zxf vulkansdk-linux-x86_64-1.1.92.1.tar.gz
+    cd DemoApps/GLES2/S06_Texturing
     ```
 
-4. Install the necessary packages
+3. Open the project in visual studio code
 
     ```bash
-    sudo apt-get install libglm-dev cmake libxcb-dri3-0 libxcb-present0 libpciaccess0 libpng-dev libxcb-keysyms1-dev libxcb-dri3-dev libx11-dev libmirclient-dev libwayland-dev libxrandr-dev libxcb-ewmh-dev
+    FslBuild.py -c open2
     ```
 
-5. Setup the vulkan environment
+    This should launch visual studio code configured for the app.
 
-    ```bash
-    pushd ~/vulkan/1.1.92.1
-    source setup-env.sh
-    popd
-    ```
-
-6. Ensure that the LIBRARY_PATH is set for GCC
-
-    ```bash
-    export LIBRARY_PATH=$VULKAN_SDK/lib:$LIBRARY_PATH
-    ```
-
-7. Run the normal setup.
-
-## Building OpenCV 4.2 demo framework apps
-
-1. Follow the normal setup procedure for the sdk
-2. Install the required packages
-
-    ```bash
-    sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
-    ```
-
-3. Install the optional packages
-
-    ```bash
-    sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
-    ```
-
-4. Create a sdk directory
-
-    ```bash
-    mkdir ~/sdk
-    cd ~/sdk
-    ```
-
-5. Download the 4.2.0 release for ubuntu, unzip it, remove the download, enter the directory
-
-    ```bash
-    wget https://github.com/opencv/opencv/archive/4.2.0.zip
-    unzip 4.2.0.zip
-    rm 4.2.0.zip
-    cd opencv-4.2.0
-    ```
-
-6. Build OpenCV
-
-    ```bash
-    mkdir release
-    cd release
-    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
-    make -j $(nproc)
-    sudo make install
-    ```
-
-7. Ensure that the OpenCV 4 headers are where they used to be
-
-    ```bash
-    sudo ln -s /usr/local/include/opencv4/opencv2/ /usr/local/include/opencv2
-    ```
-
-8. Ensure that you can locate the OpenCV .so files
-
-    ```bash
-    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
-    ```
-
-9. Add a dependency to OpenCV to your "fsl.gen" file like this
-
-    ```xml
-    <Dependency Name="OpenCV4"/>
-    ```
-
-   See DemoApps/GLES2/OpenCV101/Fsl.gen for how its done.
-
-10. Run FslBuildGen.py to regenerate the project files.
-
-## Building OpenCL demo framework apps
-
-- This is a guide that works for running inside a virtual machine.
-  It will use the AMD OpenCL CPU implementation.
-  If you encounter problems or want to use proper GPU accelleration please refer to AMD's guidelines.
-
-1. Download the [AMD sdk](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/)
-   (AMD APP SDK v2.9.1 beware the 3.0 release appears to be broken)
-2. Go to the location of the downloaded file AMD-APP-SDK-linux-v2.9-1.599.381-GA-x64.tar.bz2
-3. Extract the sdk (Follow the next three steps or look at the install guide)
-
-    ```bash
-    tar xvjf AMD-APP-SDK-linux-v2.9-1.599.381-GA-x64.tar.bz2
-    ```
-
-4. Remove the downloaded file
-
-    ```bash
-    rm AMD-APP-SDK-linux-v2.9-1.599.381-GA-x64.tar.bz2
-    ```
-
-5. Run the extracted script
-
-    ```bash
-    sudo ./AMD-APP-SDK-v2.9-1.599.381-GA-linux64.sh
-    ```
-
-6. Ensure that the environment variable AMDAPPSDKROOT is set (You might need to restart your terminal or logoff)
-
-    ```bash
-    printenv AMDAPPSDKROOT
-    ```
-
-7. You are now ready to build and run OpenCL apps.
+***BEWARE***: Visual Studio Code has its own setting for debug/release build which is configured in the bottom blue line.
+***BEWARE***: Make sure you use the correct launch script. "FslBuild-Windows" for windows and "FslBuild-Ubuntu" for ubuntu.

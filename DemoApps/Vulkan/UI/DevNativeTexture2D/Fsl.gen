@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.UI.DevNativeTexture2D" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.UI.DevNativeTexture2D"/>
-    <Platform Name="Windows" ProjectId="8A707F77-EA61-4544-B96A-369887C06244"/>
   </Executable>
 </FslBuildGen>

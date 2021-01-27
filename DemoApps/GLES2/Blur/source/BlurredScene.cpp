@@ -116,15 +116,15 @@ namespace Fsl
 
     {
       BasicTextureAtlas atlas;
-      contentManager->Read(atlas, "MainAtlas.bta");
+      contentManager->Read(atlas, "TextureAtlas/MainAtlas.bta");
 
       BasicFontKerning fontKerning;
-      contentManager->Read(fontKerning, "MainAtlasFont.fbk");
+      contentManager->Read(fontKerning, "TextureAtlas/MainAtlasFont.fbk");
 
       m_font.Reset(atlas, fontKerning);
 
       Fsl::Bitmap bitmap;
-      contentManager->Read(bitmap, "MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "TextureAtlas/MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
       m_texFontAtlas.Reset(m_graphicsService->GetNativeGraphics(), bitmap, Texture2DFilterHint::Smooth);
       m_texDescription.Reset(m_texFontAtlas, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Banners"));
 

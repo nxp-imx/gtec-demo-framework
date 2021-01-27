@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.FractalShader" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.FractalShader"/>
-    <Platform Name="Windows" ProjectId="DA86F832-EE6D-498D-95D1-F8733AB11E10"/>
   </Executable>
 </FslBuildGen>

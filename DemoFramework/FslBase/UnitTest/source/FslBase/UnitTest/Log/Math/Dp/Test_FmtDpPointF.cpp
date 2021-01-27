@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathDp_FmtDpPointF, Log)
 {
-  DpPointF value(1.0f, 2.0f);
+  DpPointF value(1.1f, 2.1f);
 
-  EXPECT_EQ(std::string("{X=1.0 Y=2.0}"), fmt::format("{}", value));
+  EXPECT_EQ(std::string("{X=1.1 Y=2.1}"), fmt::format("{}", value));
 }

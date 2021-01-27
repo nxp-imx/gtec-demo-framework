@@ -86,8 +86,9 @@ namespace Fsl
                 SpriteUnitConverter::CalcDpThicknessU(nineSlicePx, imageDpi), SpriteUnitConverter::CalcDpThicknessU(contentMarginPx, imageDpi))
     , ImageDpi(imageDpi)
     , RenderInfo(CalcNativeNineSliceTextureArea(spriteMaterialInfo, imageTrimmedRectanglePx, ImageInfo.TrimmedNineSlicePx, debugName),
-                 TypeConverter::To<PxSize2D>(ImageInfo.ExtentPx), TypeConverter::To<PxThickness>(ImageInfo.TrimMarginPx),
-                 TypeConverter::To<PxThickness>(ImageInfo.TrimmedNineSlicePx), TypeConverter::To<PxThickness>(ImageInfo.ContentMarginPx))
+                 PxTrimmedNineSlice(TypeConverter::To<PxSize2D>(ImageInfo.ExtentPx), TypeConverter::To<PxThicknessF>(ImageInfo.TrimMarginPx),
+                                    TypeConverter::To<PxThicknessF>(ImageInfo.TrimmedNineSlicePx),
+                                    TypeConverter::To<PxThickness>(ImageInfo.ContentMarginPx)))
   {
     if (!spriteMaterialInfo.IsValid())
     {

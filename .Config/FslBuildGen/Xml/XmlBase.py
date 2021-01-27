@@ -43,13 +43,14 @@ from FslBuildGen.Xml.Exceptions import XmlRequiredAttributeMissingException
 
 class XmlBase(XmlBaseInfo):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        # pylint: disable=useless-super-delegation
         super().__init__(log, xmlElement)
 
 
     def _GetElement(self, xmlElement: ET.Element, elementName: str) -> ET.Element:
         foundElement = xmlElement.find(elementName)
         if foundElement is None:
-            raise XmlException2(xmlElement, "Could not locate the expected {0} element".format(elementName))
+            raise XmlException2("Could not locate the expected {0} element".format(elementName))
         return foundElement
 
 

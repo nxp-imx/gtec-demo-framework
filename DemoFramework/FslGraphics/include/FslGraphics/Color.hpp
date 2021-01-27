@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/MathHelper_Bilinear.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <algorithm>
@@ -57,8 +58,7 @@ namespace Fsl
     }
 
     constexpr Color(const float r, const float g, const float b, const float a) noexcept
-      : m_value(static_cast<uint32_t>(Convert(b)) | (static_cast<uint32_t>(Convert(g)) << 8) | (static_cast<uint32_t>(Convert(r)) << 16) |
-                (static_cast<uint32_t>(Convert(a)) << 24))
+      : m_value(ToUInt32(b) | (ToUInt32(g) << 8) | (ToUInt32(r) << 16) | (ToUInt32(a) << 24))
     {
     }
 
@@ -277,30 +277,56 @@ namespace Fsl
 
     static constexpr inline Color SetA(const Color color, float value)
     {
-      return SetA(color, Convert(value));
+      return SetA(color, ToUInt8(value));
     }
 
     static constexpr inline Color SetR(const Color color, float value)
     {
-      return SetR(color, Convert(value));
+      return SetR(color, ToUInt8(value));
     }
 
     static constexpr inline Color SetG(const Color color, float value)
     {
-      return SetG(color, Convert(value));
+      return SetG(color, ToUInt8(value));
     }
 
     static constexpr inline Color SetB(const Color color, float value)
     {
-      return SetB(color, Convert(value));
+      return SetB(color, ToUInt8(value));
+    }
+
+    static constexpr inline Color Bilinear(const Color& val00, const Color& val10, const Color& val01, const Color& val11, const float weightX,
+                                           const float weightY)
+    {
+      return {
+        MathHelper::Bilinear(static_cast<float>(val00.R()) / 255.0f, static_cast<float>(val10.R()) / 255.0f, static_cast<float>(val01.R()) / 255.0f,
+                             static_cast<float>(val11.R()) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.G()) / 255.0f, static_cast<float>(val10.G()) / 255.0f, static_cast<float>(val01.G()) / 255.0f,
+                             static_cast<float>(val11.G()) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.B()) / 255.0f, static_cast<float>(val10.B()) / 255.0f, static_cast<float>(val01.B()) / 255.0f,
+                             static_cast<float>(val11.B()) / 255.0f, weightX, weightY),
+        MathHelper::Bilinear(static_cast<float>(val00.A()) / 255.0f, static_cast<float>(val10.A()) / 255.0f, static_cast<float>(val01.A()) / 255.0f,
+                             static_cast<float>(val11.A()) / 255.0f, weightX, weightY),
+      };
     }
 
   private:
-    static constexpr inline uint8_t Convert(const float value)
+    static constexpr inline uint8_t ToUInt8(const float value)
     {
       const auto asInt = static_cast<int32_t>(value * 255.0f);
       return static_cast<uint8_t>(MathHelper::Clamp(asInt, 0, 255));
     }
+
+    static constexpr inline uint32_t ToUInt32(const float value)
+    {
+      const auto asInt = static_cast<int32_t>(value * 255.0f);
+      return static_cast<uint32_t>(MathHelper::Clamp(asInt, 0, 255));
+    }
+
+    // static constexpr inline float ToFloat(const uint8_t value)
+    //{
+    //  return value / 255.0f;
+    //}
   };
 }
 

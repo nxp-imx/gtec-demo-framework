@@ -3,6 +3,5 @@
   <Executable Name="Console.ConsoleMinimal101" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppConsoleMinimal"/>
     <Platform Name="Android" Supported="false"/>  
-    <Platform Name="Windows" ProjectId="ADFC6E84-5A8F-484B-9340-D82D24E9BED6"/>
   </Executable>
 </FslBuildGen>

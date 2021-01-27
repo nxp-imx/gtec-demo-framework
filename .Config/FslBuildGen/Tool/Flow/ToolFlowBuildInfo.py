@@ -46,12 +46,12 @@ from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.ExtensionListManager import ExtensionListManager
-from FslBuildGen.Generator import PluginConfig
+#from FslBuildGen.ExtensionListManager import ExtensionListManager
+#from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
-from FslBuildGen.Log import Log
-from FslBuildGen.PackageConfig import PlatformNameString
-from FslBuildGen.PackageFilters import PackageFilters
+#from FslBuildGen.Log import Log
+#from FslBuildGen.PackageConfig import PlatformNameString
+#from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
@@ -65,7 +65,7 @@ class DefaultValue(object):
     PackageTypeList = "*"
     RequireFeaturesList = "*"
     UseExtensionsList = "*"
-    UseFeaturesList =  "*"
+    UseFeaturesList = "*"
     #RequireExtensionsList = "*"
 
     #DryRun = False
@@ -108,8 +108,8 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 
 class ToolFlowBuildInfo(AToolAppFlow):
-    def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super().__init__(toolAppContext)
+    #def __init__(self, toolAppContext: ToolAppContext) -> None:
+    #    super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -153,8 +153,9 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
-                                                                                   localToolConfig.GetUserCMakeConfig())
+                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   config.ToolConfig.CMakeConfiguration,
+                                                                                   localToolConfig.GetUserCMakeConfig(), False)
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
@@ -179,7 +180,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
                                                 localToolConfig.IncludeGeneratorReport)
 
         if localToolConfig.ListFeatures:
-            Builder.ShowFeatureList(self.Log, config, topLevelPackage, requestedFiles)
+            Builder.ShowFeatureList(self.Log, topLevelPackage, requestedFiles)
         if localToolConfig.ListVariants:
             requestedFiles = None if config.IsSDKBuild else theFiles
             Builder.ShowVariantList(self.Log, topLevelPackage, requestedFiles, generator)
@@ -188,7 +189,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
         if localToolConfig.ListExtensions:
             Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles)
         if localToolConfig.ListRequirements:
-            Builder.ShowRequirementList(self.Log, config, topLevelPackage, requestedFiles)
+            Builder.ShowRequirementList(self.Log, topLevelPackage, requestedFiles)
         if localToolConfig.ListRecipes:
             RecipeInfo.ShowRecipeList(self.Log, topLevelPackage, requestedFiles)
         if localToolConfig.Stats:
@@ -220,8 +221,8 @@ class ToolFlowBuildInfo(AToolAppFlow):
         self.Log.DoPrint("- ToolRecipe: {}".format(toolRecipe))
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
-    def __init__(self) -> None:
-        pass
+    #def __init__(self) -> None:
+    #    pass
 
 
     def GetTitle(self) -> str:

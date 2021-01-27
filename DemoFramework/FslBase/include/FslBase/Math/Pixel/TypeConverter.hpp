@@ -40,6 +40,7 @@
 #include <FslBase/Math/Pixel/PxRectangleU.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxThickness.hpp>
+#include <FslBase/Math/Pixel/PxThicknessF.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/TypeConverter.hpp>
 #include <cassert>
@@ -161,6 +162,20 @@ namespace Fsl
       return {NumericCast<PxSize2D::value_type>(value.Width), NumericCast<PxSize2D::value_type>(value.Height)};
     }
 
+    // --- PxSize2DF
+
+    template <>
+    constexpr inline PxSize2DF To<PxSize2DF, PxSize2D>(const PxSize2D& value)
+    {
+      return {static_cast<PxSize2DF::value_type>(value.Width()), static_cast<PxSize2DF::value_type>(value.Height())};
+    }
+
+    template <>
+    constexpr inline PxSize2DF To<PxSize2DF, PxExtent2D>(const PxExtent2D& value)
+    {
+      return {static_cast<PxSize2DF::value_type>(value.Width), static_cast<PxSize2DF::value_type>(value.Height)};
+    }
+
     // --- PxThickness
 
     template <>
@@ -169,6 +184,16 @@ namespace Fsl
       return {NumericCast<PxThickness::value_type>(value.Left), NumericCast<PxThickness::value_type>(value.Top),
               NumericCast<PxThickness::value_type>(value.Right), NumericCast<PxThickness::value_type>(value.Bottom)};
     }
+
+    // --- PxThicknessF
+
+    template <>
+    constexpr inline PxThicknessF To<PxThicknessF, PxThicknessU>(const PxThicknessU& value)
+    {
+      return {static_cast<PxThicknessF::value_type>(value.Left), static_cast<PxThicknessF::value_type>(value.Top),
+              static_cast<PxThicknessF::value_type>(value.Right), static_cast<PxThicknessF::value_type>(value.Bottom)};
+    }
+
 
     // --- PxThicknessU
 
@@ -179,6 +204,14 @@ namespace Fsl
               NumericCast<PxThicknessU::value_type>(value.Right()), NumericCast<PxThicknessU::value_type>(value.Bottom())};
     }
 
+
+    // --- PxVector2
+
+    template <>
+    constexpr inline PxVector2 To<PxVector2, PxPoint2>(const PxPoint2& value)
+    {
+      return {static_cast<float>(value.X), static_cast<float>(value.Y)};
+    }
 
     // -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -306,6 +339,7 @@ namespace Fsl
       return static_cast<uint32_t>(rounded);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
     // --- PxAreaRectangleF
 
@@ -385,6 +419,14 @@ namespace Fsl
       return {value.Width(), value.Height()};
     }
 
+    // PxPoint2
+
+    template <>
+    inline PxPoint2 UncheckedChangeTo<PxPoint2, PxVector2>(const PxVector2& value)
+    {
+      return {UncheckedChangeTo<PxPoint2::value_type>(value.X), UncheckedChangeTo<PxPoint2::value_type>(value.Y)};
+    }
+
     // --- PxRectangle
 
     template <>
@@ -430,6 +472,12 @@ namespace Fsl
       return {UncheckedNumericCast<PxSize2D::value_type>(value.Width), UncheckedNumericCast<PxSize2D::value_type>(value.Height)};
     }
 
+    template <>
+    inline PxSize2D UncheckedChangeTo<PxSize2D, PxVector2>(const PxVector2& value)
+    {
+      return {UncheckedChangeTo<PxSize2D::value_type>(value.X), UncheckedChangeTo<PxSize2D::value_type>(value.Y)};
+    }
+
     // --- PxThickness
 
     template <>
@@ -446,6 +494,14 @@ namespace Fsl
     {
       return {UncheckedNumericCast<PxThicknessU::value_type>(value.Left()), UncheckedNumericCast<PxThicknessU::value_type>(value.Top()),
               UncheckedNumericCast<PxThicknessU::value_type>(value.Right()), UncheckedNumericCast<PxThicknessU::value_type>(value.Bottom())};
+    }
+
+    // --- PxVector2
+
+    template <>
+    constexpr inline PxVector2 UncheckedTo<PxVector2, PxPoint2>(const PxPoint2& value) noexcept
+    {
+      return {static_cast<float>(value.X), static_cast<float>(value.Y)};
     }
 
   }

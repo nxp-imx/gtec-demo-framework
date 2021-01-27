@@ -7,6 +7,6 @@ endif()
 # add natvis file to the library so it will automatically be loaded into Visual Studio
 if(VS_ADD_NATIVE_VISUALIZERS)
   target_sources(##PACKAGE_NAME## INTERFACE
-                 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/##FILENAME##>
+                 $<BUILD_INTERFACE:##FULL_FILE_PATH##>
   )
 endif()

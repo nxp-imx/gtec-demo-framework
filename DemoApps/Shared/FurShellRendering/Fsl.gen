@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="Shared.FurShellRendering" CreationYear="2019">
     <Dependency Name="FslDemoApp.Base"/>
-    <Platform Name="Windows" ProjectId="F3EAA546-B6BF-425D-A246-B382C8D235CA"/>
   </Library>
 </FslBuildGen>

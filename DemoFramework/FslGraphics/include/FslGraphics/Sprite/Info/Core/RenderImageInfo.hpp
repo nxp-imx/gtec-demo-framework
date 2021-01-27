@@ -31,8 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/Math/Pixel/PxThickness.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedImage.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 
 namespace Fsl
@@ -49,25 +48,24 @@ namespace Fsl
     PxSize2D ScaledSizePx;
 
     //! The scaled image trim in pixels
-    PxThickness ScaledTrimMarginPx;
+    PxThicknessF ScaledTrimMarginPxf;
 
     //! The scaled trimmed image size in pixels
-    PxSize2D ScaledTrimmedSizePx;
+    PxSize2DF ScaledTrimmedSizePxf;
 
     constexpr RenderImageInfo() = default;
-    constexpr RenderImageInfo(const NativeTextureArea& imageNativeTextureArea, const PxSize2D scaledImageSizePx,
-                              const PxThickness& scaledImageTrimMarginPx, const PxSize2D scaledTrimmedImageSizePx)
+    constexpr RenderImageInfo(const NativeTextureArea& imageNativeTextureArea, const PxTrimmedImage& trimmedImagePx)
       : TextureArea(imageNativeTextureArea)
-      , ScaledSizePx(scaledImageSizePx)
-      , ScaledTrimMarginPx(scaledImageTrimMarginPx)
-      , ScaledTrimmedSizePx(scaledTrimmedImageSizePx)
+      , ScaledSizePx(trimmedImagePx.SizePx)
+      , ScaledTrimMarginPxf(trimmedImagePx.TrimMarginPxf)
+      , ScaledTrimmedSizePxf(trimmedImagePx.TrimmedSizePxf)
     {
     }
 
     constexpr bool operator==(const RenderImageInfo& rhs) const
     {
-      return TextureArea == rhs.TextureArea && ScaledSizePx == rhs.ScaledSizePx && ScaledTrimMarginPx == rhs.ScaledTrimMarginPx &&
-             ScaledTrimmedSizePx != rhs.ScaledTrimmedSizePx;
+      return TextureArea == rhs.TextureArea && ScaledSizePx == rhs.ScaledSizePx && ScaledTrimMarginPxf == rhs.ScaledTrimMarginPxf &&
+             ScaledTrimmedSizePxf == rhs.ScaledTrimmedSizePxf;
     }
 
     constexpr bool operator!=(const RenderImageInfo& rhs) const

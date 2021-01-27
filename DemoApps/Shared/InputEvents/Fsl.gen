@@ -2,6 +2,5 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="Shared.InputEvents" CreationYear="2018">
     <Dependency Name="FslDemoApp.Base"/>
-    <Platform Name="Windows" ProjectId="00377FD7-D6E6-4DE4-984C-3251555C8128"/>
   </Library>
 </FslBuildGen>

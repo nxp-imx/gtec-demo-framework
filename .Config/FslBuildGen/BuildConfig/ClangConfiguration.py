@@ -31,8 +31,8 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
-from FslBuildGen import IOUtil
+#from typing import List
+#from FslBuildGen import IOUtil
 
 class ClangConfiguration(object):
     def __init__(self) -> None:

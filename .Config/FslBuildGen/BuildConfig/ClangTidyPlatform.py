@@ -31,9 +31,9 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
+#from typing import List
 from typing import Set
-from FslBuildGen import IOUtil
+#from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.ClangTidyPlatformCompiler import ClangTidyPlatformCompiler
 from FslBuildGen.BuildConfig.ClangTidyPlatformDefines import ClangTidyPlatformDefines
 

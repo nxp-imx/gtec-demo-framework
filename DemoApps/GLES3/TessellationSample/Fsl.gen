@@ -10,7 +10,7 @@
     <Dependency Name="FslGraphics3D.SceneFormat"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.Theme.Basic"/>
-    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF">
+    <Platform Name="Windows">
       <Dependency Name="FslAssimp"/>
     </Platform>
     <Platform Name="Ubuntu">

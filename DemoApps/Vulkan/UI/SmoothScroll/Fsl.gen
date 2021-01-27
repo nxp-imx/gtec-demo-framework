@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.UI.SmoothScroll" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.UI.SmoothScroll"/>
-    <Platform Name="Windows" ProjectId="2C8937FF-D0BE-4AEF-91CB-22EF71A5344F"/>
   </Executable>
 </FslBuildGen>

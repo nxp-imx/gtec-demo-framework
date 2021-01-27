@@ -4,6 +4,5 @@
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoService.CpuStats"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Platform Name="Windows" ProjectId="E32E34EA-8520-44C7-B248-7CE1E48A9086"/>
   </Library>
 </FslBuildGen>

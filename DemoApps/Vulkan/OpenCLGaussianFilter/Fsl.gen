@@ -4,6 +4,5 @@
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="OpenCL"/>
     <Dependency Name="FslUtil.OpenCL1_2"/>
-    <Platform Name="Windows" ProjectId="2FC9753B-045D-461C-A340-52A6877E6397"/>
   </Executable>
 </FslBuildGen>

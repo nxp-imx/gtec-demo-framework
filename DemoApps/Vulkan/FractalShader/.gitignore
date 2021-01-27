@@ -1,6 +1,7 @@
 /.StartProject.bat
 /.vs/
 /CMakeLists.txt
+/Content/TextureAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /Vulkan.FractalShader.VC.VC.opendb

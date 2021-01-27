@@ -3,6 +3,5 @@
   <Executable Name="Vulkan.UI.DpiScale" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.UI.DpiScale"/>
-    <Platform Name="Windows" ProjectId="5A1DE307-5908-451C-AEC5-D7B6FCF72E61"/>
   </Executable>
 </FslBuildGen>

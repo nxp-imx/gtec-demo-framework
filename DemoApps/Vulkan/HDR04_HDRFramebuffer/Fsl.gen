@@ -6,6 +6,5 @@
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="Shared.HDR.BasicScene"/>
     <Dependency Name="Shared.HDR.BasicScene.API.Vulkan"/>
-    <Platform Name="Windows" ProjectId="2113B180-1759-4C4C-B0CE-F64F6359D426"/>
   </Executable>
 </FslBuildGen>

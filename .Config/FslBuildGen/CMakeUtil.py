@@ -86,15 +86,16 @@ class CMakeUtil(object):
     def RunCommand(cmd: List[str]) -> str:
         try:
             with subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True) as proc:
-                verStr = proc.stdout.read().strip()
-                proc.stdout.close()
+                verStr = proc.stdout.read().strip() if proc.stdout is not None else ""
+                if proc.stdout is not None:
+                    proc.stdout.close()
                 if proc.wait() != 0:
                     raise Exception("Failed to get CMake version (1).")
                 if not isinstance(verStr, str):
                     raise Exception("Failed to get CMake version (2).")
                 return verStr
-        except OSError as e:
-            raise Exception("Failed to get CMake version (3).")
+        except OSError:
+            raise Exception("Failed to get CMake version (3)")
 
 
     @staticmethod
