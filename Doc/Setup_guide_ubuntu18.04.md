@@ -97,13 +97,13 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
     cd ~/sdk
     ```
 
-4. Download the 4.2.0 release for ubuntu, unzip it, remove the download, enter the directory
+4. Download the 4.5.2 release for ubuntu, unzip it, remove the download, enter the directory
 
     ```bash
-    wget https://github.com/opencv/opencv/archive/4.2.0.zip
-    unzip 4.2.0.zip
-    rm 4.2.0.zip
-    cd opencv-4.2.0
+    wget https://github.com/opencv/opencv/archive/4.5.2.zip
+    unzip 4.5.2.zip
+    rm 4.5.2.zip
+    cd opencv-4.5.2
     ```
 
 5. Build OpenCV

@@ -1,5 +1,14 @@
 # Latest version
 
+## Release 5.7.1
+
+* Compatible with GCC11
+* Fixed G2D dependency issue.
+* Fixed android compilation issues.
+* Updated to OpenCV 4.5.2
+* Added some notes to help people that hit a "access denied" error when trying to run the visual studio cmake project.
+
+
 ## Release 5.7.0
 
 * Python 3.6 or better is now required

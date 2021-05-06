@@ -73,20 +73,20 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
 1. Download and install a OpenCL implementation. Beware we depend on cmake's find_package support to locate the installed OpenCL implementation.
 2. Continue the normal setup.
 
-### Add OpenCV 4.2 support
+### Add OpenCV 4.5 support
 
-1. Install the 4.2.0 sdk files.
+1. Install the 4.5.2 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
 
     ```bash
-    set OPENCV_DIR=c:\_sdk\opencv-4.2.0\build
+    set OPENCV_DIR=c:\_sdk\opencv-4.5.2\build
     ```
 
 3. Continue the normal setup.
 
 ### Add OpenVX support
 
-1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.2)
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4)
 2. Continue the normal setup.
 
 The build chain will download and compile a OpenVX implementation.
