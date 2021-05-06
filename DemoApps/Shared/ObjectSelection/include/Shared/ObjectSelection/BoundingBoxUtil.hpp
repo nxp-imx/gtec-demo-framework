@@ -34,6 +34,7 @@
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <vector>
+#include <limits>
 
 namespace Fsl
 {
