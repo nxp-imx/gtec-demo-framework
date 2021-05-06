@@ -66,7 +66,7 @@ namespace Fsl
         m_definitionCache.HasEntriesX = true;
       }
 
-      return m_definitionsX.emplace_back(definition);
+      m_definitionsX.emplace_back(definition);
     }
 
     void GridLayout::AddRowDefinition(const GridRowDefinition& definition)
@@ -78,7 +78,7 @@ namespace Fsl
         m_definitionCache.HasEntriesY = true;
       }
 
-      return m_definitionsY.emplace_back(definition);
+      m_definitionsY.emplace_back(definition);
     }
 
 
