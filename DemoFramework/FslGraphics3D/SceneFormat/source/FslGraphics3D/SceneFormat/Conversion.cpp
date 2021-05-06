@@ -33,6 +33,7 @@
 #include "Conversion.hpp"
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <vector>
 
 namespace Fsl

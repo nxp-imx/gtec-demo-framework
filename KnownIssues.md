@@ -32,7 +32,8 @@
 - FslBuildCheck.py --tidy can fail to compile certain projects if the clang compiler is installed and it appears before the visual studio compiler in the project path. 
   Since the ninja build will default to use clang instead of MSVC.
   To fix this ensure that the MSVC directories appear before the llvm tools in the path.
-
+- If you get a "access denied" error when trying to run the cmake project under visual studio then you need to right click the executable project in the solution explorer and select "Set as Startup Project".
+  
 ## G2D
 
 - Early access. Everything is subject to changes.

@@ -138,7 +138,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet = nullptr;
+      VkDescriptorSet descriptorSet{VK_NULL_HANDLE};
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -149,7 +149,7 @@ namespace Fsl
     VkDescriptorSet UpdateDescriptorSet(const VkDevice device, const VkDescriptorSet descriptorSet, const Vulkan::VUBufferMemory& vertUboBuffer,
                                         const Vulkan::VUTexture& texture)
     {
-      assert(descriptorSet != nullptr);
+      assert(descriptorSet != VK_NULL_HANDLE);
       assert(vertUboBuffer.IsValid());
       assert(texture.IsValid());
 
@@ -180,7 +180,7 @@ namespace Fsl
     VkDescriptorSet UpdateObjectTransformDescriptorSet(const VkDevice device, const VkDescriptorSet descriptorSet,
                                                        const Vulkan::VUSegmentedBufferMemory& vertUboBuffer)
     {
-      assert(descriptorSet != nullptr);
+      assert(descriptorSet != VK_NULL_HANDLE);
       assert(vertUboBuffer.IsValid());
 
       std::array<VkWriteDescriptorSet, 1> writeDescriptorSets{};

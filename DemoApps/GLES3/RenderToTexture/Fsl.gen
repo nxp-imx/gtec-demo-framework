@@ -6,7 +6,7 @@
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.Theme.Basic"/>
     <Platform Name="Yocto" Supported="true">
-      <ExternalDependency Name="g2d" Type="StaticLib"/>
+      <Dependency Name="G2D"/>
       <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES3"/>
     </Platform>    
   </Executable>

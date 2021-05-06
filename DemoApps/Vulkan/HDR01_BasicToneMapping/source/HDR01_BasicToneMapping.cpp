@@ -122,7 +122,7 @@ namespace Fsl
                                         const Vulkan::VUBufferMemory& fragUboBuffer, const Vulkan::VUTexture& texture)
 
     {
-      assert(descriptorSet != nullptr);
+      assert(descriptorSet != VK_NULL_HANDLE);
       assert(vertUboBuffer.IsValid());
       assert(fragUboBuffer.IsValid());
       assert(texture.IsValid());

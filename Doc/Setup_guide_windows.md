@@ -118,7 +118,9 @@ The general approach will be:
     FslBuild.py -c open
     ```
 
-4. Compile and run the project (The default is to press F5)
+4. Verify that the executable is set as the startup project in the solution explorer, if its not then right click the executable and select "Set as Startup Project".
+   If this is not done you are likely to get a "access denied" error when you try to run the project as it might try to run the "ALL_BUILD" target instead.
+5. Compile and run the project (The default is to press F5)
 
 The following commands are also pretty useful to know.
 

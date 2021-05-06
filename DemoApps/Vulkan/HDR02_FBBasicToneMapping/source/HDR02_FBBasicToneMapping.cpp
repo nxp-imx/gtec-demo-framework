@@ -134,7 +134,7 @@ namespace Fsl
                                         const Vulkan::VUImageMemoryView& attachment)
 
     {
-      assert(descriptorSet != nullptr);
+      assert(descriptorSet != VK_NULL_HANDLE);
       assert(vertUboBuffer.IsValid());
       assert(fragUboBuffer.IsValid());
       assert(texture.IsValid());
