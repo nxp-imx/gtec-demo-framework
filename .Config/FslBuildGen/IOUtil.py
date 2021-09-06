@@ -302,19 +302,43 @@ def __IgnoreFile(ignoreDirectories: List[str], filename: str) -> bool:
 def FindFileByName(directory: str, findFilename: str, ignoreDirectories: Optional[List[str]] = None) -> List[str]:
     """
     This function will find all instances of a findFilename in the directory and its subdirectories
-    :param ignoreDirectories: if this is supplied any filename that starts with one of the ignore directories will be ignored.
-                              beware if the ignoreDirectory doesnt end with a '/' partial matches can be ignored
+    :param ignoreDirectories: Will not scan any of the ignored directories.
     """
     filePaths = []  # type: List[str]   # List which will store all of the full filepaths.
 
     try:
-        # Walk the tree.
-        for root, directories, files in os.walk(directory):
-            for filename in files:
-                if filename == findFilename:
-                    # Join the two strings in order to form the full filepath.
-                    filepath = ToUnixStylePath(os.path.join(root, filename))
-                    if ignoreDirectories is None or not __IgnoreFile(ignoreDirectories, filepath):
+        if ignoreDirectories is None or directory not in ignoreDirectories:
+            # Walk the tree.
+            for root, directories, files in os.walk(directory):
+                if ignoreDirectories is not None:
+                    directories[:] = [dir for dir in directories if ToUnixStylePath(os.path.join(root, dir)) not in ignoreDirectories]
+                for filename in files:
+                    if filename == findFilename:
+                        # Join the two strings in order to form the full filepath.
+                        filepath = ToUnixStylePath(os.path.join(root, filename))
+                        filePaths.append(filepath)  # Add it to the list.
+    except StopIteration: # Python >2.5
+        pass
+    return filePaths
+
+
+def FindFileByExtension(directory: str, extension: str, ignoreDirectories: Optional[List[str]] = None) -> List[str]:
+    """
+    This function will find all instances of files with the given extension in the directory and its subdirectories
+    :param ignoreDirectories: Will not scan any of the ignored directories.
+    """
+    filePaths = []  # type: List[str]   # List which will store all of the full filepaths.
+
+    try:
+        if ignoreDirectories is None or directory not in ignoreDirectories:
+            # Walk the tree.
+            for root, directories, files in os.walk(directory):
+                if ignoreDirectories is not None:
+                    directories[:] = [dir for dir in directories if ToUnixStylePath(os.path.join(root, dir)) not in ignoreDirectories]
+                for filename in files:
+                    if filename.endswith(extension):
+                        # Join the two strings in order to form the full filepath.
+                        filepath = ToUnixStylePath(os.path.join(root, filename))
                         filePaths.append(filepath)  # Add it to the list.
     except StopIteration: # Python >2.5
         pass

@@ -73,7 +73,7 @@ namespace Fsl
 
     public:
       StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
-                       std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler, const WindowFlags& windowFlags,
+                       std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler, const WindowFlags windowFlags,
                        FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent);
       ~StateEventSender() final;
 
@@ -89,6 +89,11 @@ namespace Fsl
       SendResult Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx) final;
 
       // From IModuleCallbackReceiver
+      void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node) final
+      {
+        FSL_PARAM_NOT_USED(node);
+      }
+
       void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) final;
 
     private:

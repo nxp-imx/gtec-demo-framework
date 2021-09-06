@@ -122,7 +122,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
                                                                                    config.ToolConfig.CMakeConfiguration,
                                                                                    localToolConfig.GetUserCMakeConfig(), False)
 
-        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 

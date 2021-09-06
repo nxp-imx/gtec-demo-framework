@@ -31,25 +31,20 @@
 
 #include <Shared/ObjectSelection/MenuUI.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 
 namespace Fsl
 {
-  using namespace UI;
-
-  namespace
-  {
-  }
-
-
   MenuUI::MenuUI(const DemoAppConfig& config)
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
-    , m_themeFactory(m_uiExtension->GetContext(), m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId())
+    , m_themeFactory(UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension))
     , m_optionParser(config.GetOptions<OptionParser>())
     , m_drawNearPlaneMouse(m_optionParser->IsNearPlaneMouseEnabled())
     , m_drawFarPlaneMouse(m_optionParser->IsFarPlaneMouseEnabled())
@@ -95,7 +90,7 @@ namespace Fsl
     }
   }
 
-  void MenuUI::OnContentChanged(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_cbMenuDrawNearPlaneMouse)
     {
@@ -133,35 +128,37 @@ namespace Fsl
 
   void MenuUI::BuildUI()
   {
+    UI::Theme::IThemeControlFactory& themeFactory = *m_themeFactory;
+
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    m_rootLayout = std::make_shared<FillLayout>(context);
+    m_rootLayout = std::make_shared<UI::FillLayout>(context);
 
     // Finally add everything to the window manager (to ensure its seen)
     m_uiExtension->GetWindowManager()->Add(m_rootLayout);
 
-    auto stackLayout = std::make_shared<ComplexStackLayout>(context);
-    stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
+    auto stackLayout = std::make_shared<UI::ComplexStackLayout>(context);
+    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
-    stackLayout->SetAlignmentX(ItemAlignment::Stretch);
-    stackLayout->SetAlignmentY(ItemAlignment::Stretch);
+    stackLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
+    stackLayout->SetAlignmentY(UI::ItemAlignment::Stretch);
 
     // Create the outer stack for the menu
-    m_layoutMenu = m_themeFactory.CreateBottomBar(stackLayout);
+    m_layoutMenu = themeFactory.CreateBottomBar(stackLayout);
     m_rootLayout->AddChild(m_layoutMenu);
 
-    m_cbMenuDrawNearPlaneMouse = m_themeFactory.CreateSwitch("NearPlaneMouseCross");
+    m_cbMenuDrawNearPlaneMouse = themeFactory.CreateSwitch("NearPlaneMouseCross");
     m_cbMenuDrawNearPlaneMouse->SetAlignmentX(UI::ItemAlignment::Center);
-    m_cbMenuDrawFarPlaneMouse = m_themeFactory.CreateSwitch("FarPlaneMouseCross");
+    m_cbMenuDrawFarPlaneMouse = themeFactory.CreateSwitch("FarPlaneMouseCross");
     m_cbMenuDrawFarPlaneMouse->SetAlignmentX(UI::ItemAlignment::Center);
 
-    m_cbMenuOrientedBoundingBox = m_themeFactory.CreateSwitch("OrientedBoundingBox");
+    m_cbMenuOrientedBoundingBox = themeFactory.CreateSwitch("OrientedBoundingBox");
     m_cbMenuOrientedBoundingBox->SetAlignmentX(UI::ItemAlignment::Center);
-    m_cbMenuAxisAlignedBoundingBox = m_themeFactory.CreateSwitch("AxisAlignedBoundingBox");
+    m_cbMenuAxisAlignedBoundingBox = themeFactory.CreateSwitch("AxisAlignedBoundingBox");
     m_cbMenuAxisAlignedBoundingBox->SetAlignmentX(UI::ItemAlignment::Center);
 
     stackLayout->AddChild(m_cbMenuOrientedBoundingBox);

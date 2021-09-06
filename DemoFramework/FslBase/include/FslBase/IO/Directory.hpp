@@ -54,7 +54,7 @@ namespace Fsl
       //! @brief Check if a directory exists
       static bool Exists(const Path& path);
 
-      //! @brief
+      //! @brief Get the current working directory
       //! @note Could not be named getCurrentDirectory because it clashes with a windows.h define.
       static Path GetCurrentWorkingDirectory();
 

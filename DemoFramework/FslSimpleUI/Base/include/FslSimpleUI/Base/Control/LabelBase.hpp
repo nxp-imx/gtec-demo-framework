@@ -34,6 +34,7 @@
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <string>
 
 namespace Fsl
@@ -46,12 +47,13 @@ namespace Fsl
     class LabelBase : public BaseWindow
     {
       bool m_enabled{true};
+      PxSize2D m_cachedMeasureMinimalFontSizePx;
 
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      std::shared_ptr<SpriteFont> m_font;
+      SpriteFontMesh m_font;
       Color m_fontColor{DefaultColor::Palette::Font};
       Color m_fontDisabledColor{DefaultColor::Palette::FontDisabled};
       ItemAlignment m_contentAlignmentX{ItemAlignment::Near};
@@ -85,7 +87,7 @@ namespace Fsl
 
       const std::shared_ptr<SpriteFont>& GetFont() const
       {
-        return m_font;
+        return m_font.GetSprite();
       }
 
       void SetFont(const std::shared_ptr<SpriteFont>& value);
@@ -112,12 +114,15 @@ namespace Fsl
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
-      PxPoint2 DoMeasureRenderedString(const std::string& value) const
+      PxSize2D DoMeasureRenderedString(const std::string& value) const
       {
-        return DoMeasureRenderedString(StringViewLiteUtil::AsStringViewLite(value));
+        return m_font.Measure(value);
       }
 
-      PxPoint2 DoMeasureRenderedString(const StringViewLite& value) const;
+      PxSize2D DoMeasureRenderedString(const StringViewLite& value) const
+      {
+        return m_font.Measure(value);
+      }
     };
   }
 }

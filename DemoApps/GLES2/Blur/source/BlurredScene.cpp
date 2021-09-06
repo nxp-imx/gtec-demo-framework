@@ -34,10 +34,10 @@
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslUtil/OpenGLES2/DynamicNativeTexture2D.hpp>
 #include <utility>
 #include "GausianHelper.hpp"
 #include "BlurredScene.hpp"
@@ -47,6 +47,7 @@
 #include "TwoPassLinearScaledBlurredDraw.hpp"
 #include "OptionParser.hpp"
 #include "VBHelper.hpp"
+#include "TextureUtil.hpp"
 
 namespace Fsl
 {
@@ -59,10 +60,10 @@ namespace Fsl
     : m_config(config.GetOptions<OptionParser>()->GetConfig())
     , m_scene(std::move(scene))
     , m_graphicsService(config.DemoServiceProvider.Get<IGraphicsService>())
+    , m_basicRenderSystem(m_graphicsService->GetBasicRenderSystem())
     , m_batch2D(m_graphicsService->GetNativeBatch2D())
     , m_screenResolution(config.ScreenResolution)
     , m_currentIndex(0)
-    , m_hTexAtlas(0)
   {
     // length 17
     // sigma 4
@@ -121,14 +122,14 @@ namespace Fsl
       BasicFontKerning fontKerning;
       contentManager->Read(fontKerning, "TextureAtlas/MainAtlasFont.fbk");
 
-      m_font.Reset(atlas, fontKerning);
-
       Fsl::Bitmap bitmap;
       contentManager->Read(bitmap, "TextureAtlas/MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
+
+      SpriteNativeAreaCalc spriteNativeAreaCalc(true);
+      m_font.Reset(spriteNativeAreaCalc, bitmap.GetExtent(), atlas, fontKerning, 160);
+
       m_texFontAtlas.Reset(m_graphicsService->GetNativeGraphics(), bitmap, Texture2DFilterHint::Smooth);
       m_texDescription.Reset(m_texFontAtlas, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Banners"));
-
-      m_hTexAtlas = std::dynamic_pointer_cast<DynamicNativeTexture2D>(m_texFontAtlas.GetNative())->Get();
     }
 
     // Build the description VB
@@ -184,6 +185,8 @@ namespace Fsl
 
   void BlurredScene::Draw()
   {
+    GLuint hTexAtlas = TextureUtil::ToNative(*m_basicRenderSystem, m_texFontAtlas.GetNative());
+
     m_blurredDraw->Draw(m_scene.get());
 
     switch (m_config.TheCaptionType)
@@ -203,7 +206,7 @@ namespace Fsl
       glDisable(GL_DEPTH_TEST);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, m_hTexAtlas);
+      glBindTexture(GL_TEXTURE_2D, hTexAtlas);
       glUseProgram(m_program.Get());
       glBindBuffer(m_vbDescription.GetTarget(), m_vbDescription.Get());
       m_vbDescription.EnableAttribArrays();

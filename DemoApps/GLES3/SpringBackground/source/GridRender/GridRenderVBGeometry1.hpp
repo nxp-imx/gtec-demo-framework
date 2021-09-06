@@ -38,7 +38,7 @@
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
 #include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
-#include <FslGraphics/Vertices/VertexPositionColor.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include "../IGridRender.hpp"
 #include <array>
 #include <cstddef>
@@ -49,7 +49,7 @@ namespace Fsl
   {
     Point2 m_gridSize;
     Point2 m_gridFinalSize;
-    std::vector<VertexPositionColor> m_coordinates;
+    std::vector<VertexPositionColorF> m_coordinates;
     GLES3::GLVertexBuffer m_vertexBuffer;
     GLES3::GLShaderProgram m_shaderVert;
     GLES3::GLShaderProgram m_shaderGeom;
@@ -69,9 +69,9 @@ namespace Fsl
     void Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& points) override;
 
   private:
-    void Calc3DCoordinates(std::vector<VertexPositionColor>& rDst, const std::vector<PointMass>& points);
-    int32_t CreateLinesHorizontal(std::vector<VertexPositionColor>& rDst, const std::vector<PointMass>& points, const std::ptrdiff_t dstOffset);
-    int32_t CreateLinesVertical(std::vector<VertexPositionColor>& rDst, const std::vector<PointMass>& points, const std::ptrdiff_t dstOffset);
+    void Calc3DCoordinates(std::vector<VertexPositionColorF>& rDst, const std::vector<PointMass>& points);
+    int32_t CreateLinesHorizontal(std::vector<VertexPositionColorF>& rDst, const std::vector<PointMass>& points, const std::ptrdiff_t dstOffset);
+    int32_t CreateLinesVertical(std::vector<VertexPositionColorF>& rDst, const std::vector<PointMass>& points, const std::ptrdiff_t dstOffset);
   };
 }
 

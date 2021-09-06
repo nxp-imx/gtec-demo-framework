@@ -31,6 +31,7 @@
 
 #include "MainAtlas.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
 #include <array>
@@ -41,8 +42,8 @@ namespace Fsl
   namespace
   {
     const std::array<NamedAtlasTexture, 2> g_entries = {
-      NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(PxRectangleU(2, 2, 556, 180), PxThicknessU(16, 9, 1348, 891), 160)),
-      NamedAtlasTexture("Banner_Mandelbrot", AtlasTextureInfo(PxRectangleU(2, 184, 585, 46), PxThicknessU(18, 184 - 171, 1317, 1021), 160)),
+      NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(PxRectangleU32(2, 2, 556, 180), PxThicknessU(16, 9, 1348, 891), 160)),
+      NamedAtlasTexture("Banner_Mandelbrot", AtlasTextureInfo(PxRectangleU32(2, 184, 585, 46), PxThicknessU(18, 184 - 171, 1317, 1021), 160)),
     };
   }
 
@@ -61,7 +62,7 @@ namespace Fsl
 
   const NamedAtlasTexture& MainAtlas::GetEntry(const uint32_t index) const
   {
-    assert(index >= 0 && index <= Count());
+    assert(index <= Count());
     return g_entries[index];
   }
 

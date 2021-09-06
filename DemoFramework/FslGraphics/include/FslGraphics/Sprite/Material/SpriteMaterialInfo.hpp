@@ -32,8 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
-#include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <memory>
 
@@ -55,13 +53,11 @@ namespace Fsl
     bool IsOpaque{true};
 
     std::shared_ptr<ISpriteMaterial> Material;
-    //! native flags whose meaning can only be understood by the 'sprite material backend'
-    uint32_t NativeMaterialFlags{};
 
     SpriteMaterialInfo() = default;
 
     SpriteMaterialInfo(const SpriteMaterialId spriteMaterialId, const PxExtent2D extentPx, const bool isOpaque,
-                       std::shared_ptr<ISpriteMaterial> material, const uint32_t nativeMaterialFlags);
+                       std::shared_ptr<ISpriteMaterial> material);
     ~SpriteMaterialInfo();
 
 
@@ -70,17 +66,19 @@ namespace Fsl
       return bool(Material);
     }
 
-    NativeTextureArea CalcNativeTextureArea(const PxRectangleU& imageRectanglePx, const StringViewLite& debugName) const;
-
     bool operator==(const SpriteMaterialInfo& rhs) const
     {
-      return Id == rhs.Id && ExtentPx == rhs.ExtentPx && IsOpaque == rhs.IsOpaque && Material == rhs.Material &&
-             NativeMaterialFlags == rhs.NativeMaterialFlags;
+      return Id == rhs.Id && ExtentPx == rhs.ExtentPx && IsOpaque == rhs.IsOpaque && Material == rhs.Material;
     }
 
     bool operator!=(const SpriteMaterialInfo& rhs) const
     {
       return !(*this == rhs);
+    }
+
+    static SpriteMaterialInfo Invalid()
+    {
+      return SpriteMaterialInfo();
     }
   };
 }

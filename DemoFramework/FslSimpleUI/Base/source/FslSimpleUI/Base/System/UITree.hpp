@@ -31,32 +31,37 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Optional.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Rect.hpp>
-#include <FslSimpleUI/Base/UIStats.hpp>
+#include <FslSimpleUI/Base/ItemVisibility.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
+#include <FslSimpleUI/Base/UIStats.hpp>
 #include <deque>
 #include <map>
 #include <memory>
 #include <utility>
 #include <vector>
-#include "ITreeContextInfo.hpp"
-#include "ITreeNodeLocator.hpp"
-#include "ITreeNodeClickInputTargetLocater.hpp"
 #include "Event/IEventHandler.hpp"
 #include "Event/WindowEventQueueRecord.hpp"
 #include "Event/EventRoute.hpp"
+#include "ITreeContextInfo.hpp"
+#include "ITreeNodeBasicInfo.hpp"
+#include "ITreeNodeLocator.hpp"
+#include "ITreeNodeClickInputTargetLocater.hpp"
+#include "TreeNodeDrawContext.hpp"
 #include "TreeNodeFlags.hpp"
 
 namespace Fsl
 {
-  struct DemoTime;
   struct Point2;
+  struct TransitionTimeSpan;
 
   namespace UI
   {
+    class DrawCommandBuffer;
     class IEventListener;
     class ModuleCallbackRegistry;
     class RootWindow;
@@ -69,14 +74,14 @@ namespace Fsl
 
     struct UITreeDrawRecord
     {
-      UIDrawContext DrawContext;
-      TreeNode* pNode{nullptr};
+      TreeNodeDrawContext DrawContext;
+      BaseWindow* pWindow{nullptr};
 
-      UITreeDrawRecord() = default;
+      UITreeDrawRecord() noexcept = default;
 
-      UITreeDrawRecord(const UIDrawContext& drawContext, TreeNode* pTheNode)
+      UITreeDrawRecord(const TreeNodeDrawContext& drawContext, BaseWindow* pTheWindow) noexcept
         : DrawContext(drawContext)
-        , pNode(pTheNode)
+        , pWindow(pTheWindow)
       {
       }
     };
@@ -104,6 +109,7 @@ namespace Fsl
       , public ITreeContextInfo
       , public ITreeNodeLocator
       , public ITreeNodeClickInputTargetLocater
+      , public ITreeNodeBasicInfo
       , public IEventHandler
     {
       enum class Context
@@ -137,15 +143,17 @@ namespace Fsl
       std::shared_ptr<TreeNode> m_root;
       PxRectangle m_rootRectPx;
 
-      bool m_updateCacheDirty;
-      bool m_resolveCacheDirty;
-      bool m_drawCacheDirty;
-      bool m_clickInputCacheDirty;
-      bool m_layoutIsDirty;
+      bool m_updateCacheDirty{true};
+      bool m_resolveCacheDirty{true};
+      bool m_postLayoutCacheIsDirty{true};
+      bool m_drawCacheDirty{true};
+      bool m_clickInputCacheDirty{true};
+      bool m_layoutIsDirty{true};
 
 
       FastTreeNodeVector m_vectorUpdate;
       FastTreeNodeVector m_vectorResolve;
+      FastTreeNodeVector m_vectorPostLayout;
       UITreeDrawVector m_vectorDraw;
       std::vector<UITreeInputTargetRecord> m_vectorClickInputTarget;
       std::vector<UITreeInputTargetRecord> m_vectorMouseOverTarget;
@@ -162,6 +170,8 @@ namespace Fsl
       ~UITree() final;
 
       void Init(const std::shared_ptr<RootWindow>& rootWindow);
+      void PostInit();
+      void PreShutdown();
       void Shutdown();
       void ScheduleCloseAll();
 
@@ -176,8 +186,8 @@ namespace Fsl
 
       void ProcessEvents();
       void Resized(const PxExtent2D& extentPx, const uint32_t densityDpi);
-      void Update(const DemoTime& demoTime);
-      void Draw();
+      void Update(const TransitionTimeSpan& timespan);
+      void Draw(DrawCommandBuffer& drawCommandBuffer);
 
 
       std::size_t GetNodeCount() const;
@@ -202,7 +212,8 @@ namespace Fsl
                           const bool considerTreeRootAMember) const final;
       void ScheduleClose(const std::shared_ptr<BaseWindow>& window) final;
       void ScheduleCloseAllChildren(const std::shared_ptr<BaseWindow>& parentWindow) final;
-      bool TrySetWindowFlags(const BaseWindow* const pWindow, const WindowFlags& flags, const bool enable) final;
+      bool TrySetWindowFlags(const BaseWindow* const pWindow, const WindowFlags flags, const bool enable) final;
+      bool TrySetWindowVisibility(const BaseWindow* const pWindow, const ItemVisibility visibility) final;
       void SYS_SetEventSource(WindowEvent* const pEvent, const IWindowId* const pSource) final;
 
       // From ITreeContextInfo
@@ -218,6 +229,10 @@ namespace Fsl
       std::shared_ptr<TreeNode> TryGetMouseOverWindow(const PxPoint2& hitPositionPx) const final;
       std::shared_ptr<TreeNode> TryGetClickInputWindow(const PxPoint2& hitPositionPx) const final;
 
+      // From ITreeNodeBasicInfo
+      PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const final;
+      Optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const final;
+
       // From IEventHandler
       void HandleEvent(const std::shared_ptr<TreeNode>& target, const RoutedEvent& routedEvent) final;
 
@@ -227,16 +242,16 @@ namespace Fsl
       void UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
 
     private:
-      inline void PerformLayout();
+      inline bool PerformLayout();
       inline void RebuildDeques();
-      void RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx);
+      void RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx, const ItemVisibility parentVisibility);
       inline void ProcessEventsPreUpdate();
-      inline void ProcessEventsPostUpdate(const DemoTime& demoTime);
-      inline void ProcessEventsPostResolve(const DemoTime& demoTime);
+      inline void ProcessEventsPostUpdate(const TransitionTimeSpan& timespan);
+      inline void ProcessEventsPostResolve(const TransitionTimeSpan& timespan);
 
       //! @param pNewWindows if not null this should be filled with any new nodes that are spawned by processing
       //! @param filterFlags any node that has any of the supplied flags will be added to pNewWindows
-      void ProcessEvents(FastTreeNodeVector* pNewWindows, const TreeNodeFlags& filterFlags = TreeNodeFlags());
+      void ProcessEvents(FastTreeNodeVector* pNewWindows, const TreeNodeFlags filterFlags = {});
       void SendEvent(const WindowEventQueueRecord& eventRecord);
 
       class ScopedContextChange

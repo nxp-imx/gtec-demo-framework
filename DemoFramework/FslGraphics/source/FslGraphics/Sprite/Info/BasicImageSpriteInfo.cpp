@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Sprite/Info/BasicImageSpriteInfo.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <memory>
@@ -37,13 +38,16 @@
 
 namespace Fsl
 {
-  BasicImageSpriteInfo::BasicImageSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx,
-                                             const uint32_t imageDpi, const StringViewLite& debugName)
+  BasicImageSpriteInfo::BasicImageSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                             const PxRectangleU16& imageRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , ImageInfo(imageRectanglePx.GetExtent(), imageRectanglePx, SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi))
     , ImageDpi(imageDpi)
-    , RenderInfo(spriteMaterialInfo.CalcNativeTextureArea(imageRectanglePx, debugName), TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()))
+    , RenderInfo(spriteNativeAreaCalc.CalcNativeTextureArea(imageRectanglePx, spriteMaterialInfo.ExtentPx),
+                 TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()))
   {
+    FSL_PARAM_NOT_USED(debugName);
+
     if (!spriteMaterialInfo.IsValid())
     {
       throw std::invalid_argument("spriteMaterialInfo must be valid");

@@ -1,0 +1,82 @@
+@startuml ServiceFramework Class Diagram
+'!pragma ratio 0.66
+'left to right direction
+scale 1
+
+namespace FslGraphics {
+    interface IDynamicNativeTexture2D
+    interface INativeBatch2D
+
+    INativeTexture2D <|-- IDynamicNativeTexture2D
+}
+
+namespace FslDemoService.NativeGraphics.Base {
+    interface INativeGraphicsService
+}
+
+namespace FslUtil.Vulkan1_0 {
+    class Batch2D
+    class NativeTextureManager
+    class QuadBatch
+    class VMBufferManager
+    class VulkanImageCreator
+
+    class NativeBatch2D
+    class NativeIndexBuffer
+    class NativeVertexBuffer
+    class ANativeTexture2D
+    class DynamicNativeTexture2D
+    class DynamicNativeTexture2DLink
+    class NativeTexture2D
+    class NativeTexture2DLink
+    class NativeTextureManager
+
+    vector_VUTexture o-- VUTexture
+
+    ' DynamicNativeTexture2D
+    FslGraphics.IDynamicNativeTexture2D <|-- DynamicNativeTexture2D
+    ANativeTexture2D <|-- DynamicNativeTexture2D
+    DynamicNativeTexture2D o-- DynamicNativeTexture2DLink
+
+    ' DynamicNativeTexture2DLink
+    DynamicNativeTexture2DLink o-- VulkanImageCreator
+    DynamicNativeTexture2DLink o-- vector_VUTexture
+
+    ' NativeBatch2D
+    FslGraphics.INativeBatch2D <-- NativeBatch2D
+    Batch2D <-- NativeBatch2D
+
+    ' NativeTexture2D
+    FslGraphics.INativeTexture2D <|-- NativeTexture2D
+    ANativeTexture2D <|-- NativeTexture2D
+    NativeTexture2D o-- NativeTexture2DLink
+    NativeTexture2DLink o-- VUTexture
+
+    ' NativeTextureManager
+    NativeTextureManager o-- VulkanImageCreator
+    NativeTextureManager o-- vector_Record
+    NativeTextureManager o-- vector_DynamicRecord
+
+    vector_Record o.. NativeTexture2D
+    vector_Record o-- NativeTexture2DLink
+
+    vector_DynamicRecord o.. DynamicNativeTexture2D
+    vector_DynamicRecord o-- DynamicNativeTexture2DLink
+}
+
+namespace FslDemoService.NativeGraphics.Vulkan {
+    class NativeGraphicsBasic2D
+    class NativeGraphicsService
+    class NativeGraphicsSwapchainInfo
+
+    FslDemoService.NativeGraphics.Base.INativeGraphicsService <|-- NativeGraphicsService
+
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.NativeTextureManager
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.VMBufferManager
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.VulkanImageCreator
+    NativeGraphicsService o.. NativeGraphicsBasic2D
+    NativeGraphicsService o.. NativeGraphicsSwapchainInfo
+    NativeGraphicsService o.. FslUtil.Vulkan1_0.QuadBatch
+}
+
+@enduml

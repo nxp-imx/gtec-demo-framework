@@ -38,7 +38,6 @@
 #include "Spring.hpp"
 #include "IGridRender.hpp"
 #include <vector>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 

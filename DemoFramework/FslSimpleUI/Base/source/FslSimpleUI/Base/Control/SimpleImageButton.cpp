@@ -32,13 +32,13 @@
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
-#include "Impl/ImageImpl_ImageSprite.hpp"
 
 namespace Fsl
 {
@@ -47,6 +47,7 @@ namespace Fsl
     SimpleImageButton::SimpleImageButton(const std::shared_ptr<WindowContext>& context)
       : ButtonBase(context)
       , m_windowContext(context)
+      , m_content(context->TheUIContext.Get()->MeshManager)
       , m_scalePolicy(ItemScalePolicy::FitKeepAR)
       , m_currentColor(context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
     {
@@ -55,26 +56,20 @@ namespace Fsl
     }
 
 
-    void SimpleImageButton::SetContent(const std::shared_ptr<ImageSprite>& value)
+    void SimpleImageButton::SetContent(const std::shared_ptr<ISizedSprite>& value)
     {
-      if (value == m_content)
+      if (m_content.SetSprite(value))
       {
-        return;
+        PropertyUpdated(PropertyType::Content);
       }
-
-      m_content = value;
-      PropertyUpdated(PropertyType::Content);
     }
 
-    void SimpleImageButton::SetContent(std::shared_ptr<ImageSprite>&& value)
+    void SimpleImageButton::SetContent(std::shared_ptr<ISizedSprite>&& value)
     {
-      if (value == m_content)
+      if (m_content.SetSprite(std::move(value)))
       {
-        return;
+        PropertyUpdated(PropertyType::Content);
       }
-
-      m_content = std::move(value);
-      PropertyUpdated(PropertyType::Content);
     }
 
 
@@ -130,19 +125,21 @@ namespace Fsl
     {
       ButtonBase::WinDraw(context);
 
-      ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location(), RenderSizePx(), m_currentColor.GetValue());
+      // ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location(), RenderSizePx(), m_currentColor.GetValue());
+      context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_currentColor.GetValue());
     }
 
 
     PxSize2D SimpleImageButton::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      return ImageImpl::ArrangeOverride(finalSizePx, m_content.get(), m_scalePolicy);
+      return m_content.Measure(finalSizePx, m_scalePolicy);
     }
 
 
     PxSize2D SimpleImageButton::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      return ImageImpl::MeasureOverride(availableSizePx, m_content.get());
+      FSL_PARAM_NOT_USED(availableSizePx);
+      return m_content.Measure();
     }
 
 

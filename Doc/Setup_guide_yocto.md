@@ -1,46 +1,78 @@
-# Setup guide Yocto (bsp)
 
+# Setup guide Yocto (bsp)
 
 First you need to decide how you are going to be building for Yocto
 
-- [Building using a prebuild Yocto SDK](#building-using-a-prebuild-Yocto_sdk)
-- [Building using a full Yocto build](#building-using-a-full-yocto-build)
+* [Building using a prebuild Yocto SDK](#building-using-a-prebuild-yocto-sdk)
+* [Building using a full Yocto build](#building-using-a-full-yocto-build)
 
 Third party software downloads are now disabled per default. To build using an old Yocto release that doesn't come with all third party software you need to add ```--Recipes [*]``` to your command line which will re-enable the download.
 
 ---------------------------------------------------------------------------------------------------
 
-## Building using a prebuild Yocto SDK
+## Table of contents
+
+<!-- #AG_TOC_BEGIN# -->
+* [Building using a prebuild Yocto SDK](#building-using-a-prebuild-yocto-sdk)
+  * [Prerequisites](#prerequisites)
+  * [Preparing a Yocto SDK build](#preparing-a-yocto-sdk-build)
+  * [Yocto SDK environment setup](#yocto-sdk-environment-setup)
+  * [Ready to build via sdk](#ready-to-build-via-sdk)
+* [Building using a full Yocto build](#building-using-a-full-yocto-build)
+  * [BSP Build Prerequisites](#bsp-build-prerequisites)
+  * [Preparing a Yocto build](#preparing-a-yocto-build)
+  * [x11 yocto image](#x11-yocto-image)
+  * [FB yocto image](#fb-yocto-image)
+  * [Wayland yocto image](#wayland-yocto-image)
+  * [Yocto environment setup](#yocto-environment-setup)
+  * [Ready to build using BSP build](#ready-to-build-using-bsp-build)
+* [Using the demo framework](#using-the-demo-framework)
+  * [Simple setup](#simple-setup)
+* [To Compile and run an existing sample application](#to-compile-and-run-an-existing-sample-application)
+  * [To Compile and run an existing GLES2 sample application](#to-compile-and-run-an-existing-gles2-sample-application)
+  * [To Compile and install an existing sample application](#to-compile-and-install-an-existing-sample-application)
+* [To create a new demo project named 'CoolNewDemo'](#to-create-a-new-demo-project-named-'coolnewdemo')
+  * [So to create a new GLES2 demo project named 'CoolNewDemo'](#so-to-create-a-new-gles2-demo-project-named-'coolnewdemo')
+  * [To Compile all samples](#to-compile-all-samples)
+  * [To see which features a DemoApp requires to be able to build](#to-see-which-features-a-demoapp-requires-to-be-able-to-build)
+* [Copying DemoFramework apps to the sdcard](#copying-demoframework-apps-to-the-sdcard)
+  * [Basic copy](#basic-copy)
+  * [Using install](#using-install)
+* [Building Vulkan demo framework apps](#building-vulkan-demo-framework-apps)
+* [Building OpenCV demo framework apps](#building-opencv-demo-framework-apps)
+<!-- #AG_TOC_END# -->
+
+# Building using a prebuild Yocto SDK
 
 Building using a prebuild Yocto SDK and a prebuild sd-card image.
 This tend to be the fastest way to get started.
 
-### Prerequisites
+## Prerequisites
 
-- Ubuntu 18.04
-- [CMake 3.10.2 or newer](https://cmake.org/download/)
-- Python 3.6 (this is standard from Ubuntu 16.04 and forward)
-- A prebuild sdk for your board typically called something like ```toolchain.sh```
-- A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
-- Git
+* Ubuntu 20.04
+* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* Python 3.6 (this is standard from Ubuntu 16.04 and forward)
+* A prebuild sdk for your board typically called something like ```toolchain.sh```
+* A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
+* Git
 
     ```bash
     sudo apt-get install git
     ```
 
-- Ninja build
+* Ninja build
 
     ```bash
     sudo apt-get install ninja-build
     ```
 
 For this guide we will assume you are using a FB image.
-  
-- Download the DemoFramework source using git.
+
+* Download the DemoFramework source using git.
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
 
-### Preparing a Yocto SDK build
+## Preparing a Yocto SDK build
 
 1. Start a terminal (ctrl+alt t)
 2. Install the sdk:
@@ -61,7 +93,7 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
 
 3. Your SDK is now installed.
 
-### Yocto SDK environment setup
+## Yocto SDK environment setup
 
 1. Start a terminal (ctrl+alt t)
 2. Prepare the yocto build environment by running the config command you got during the sdk install
@@ -82,42 +114,42 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
    This can happen because the SDK comes with a too old Python3 version or a incomplete Python3.6 version.
    As a workaround for that you could delete the Python3 binaries from the SDK which will cause it to use the system Python3 version instead.
 
-### Ready to build via sdk
+## Ready to build via sdk
 
 You are now ready to start building Yocto apps using the demo framework.
 Please continue the guide at [Using the demo framework].
 
 ---------------------------------------------------------------------------------------------------
 
-## Building using a full Yocto build
+# Building using a full Yocto build
 
 Building using a full manually build Yocto build.
 This process provides the most flexible solution but it also takes significantly longer to build the initial Yocto sdcard and toolchain.
 
-### BSP Build Prerequisites
+## BSP Build Prerequisites
 
-- The Ubuntu version required by the BSP release.
-- [CMake 3.10.2 or newer](https://cmake.org/download/)
-- Python 3.6+ It should be part of the default Ubuntu install.
-- Ninja build
+* The Ubuntu version required by the BSP release.
+* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* Python 3.6+ It should be part of the default Ubuntu install.
+* Ninja build
 
     ```bash
     sudo apt-get install ninja-build
     ```
 
-- A working yocto build
+* A working yocto build
   For example follow one of these:
-  - http://git.freescale.com/git/cgit.cgi/imx/fsl-arm-yocto-bsp.git/
-  - https://community.freescale.com/docs/DOC-94866
-  - Or read from here: [Preparing a Yocto build]
+  * http://git.freescale.com/git/cgit.cgi/imx/fsl-arm-yocto-bsp.git/
+  * https://community.freescale.com/docs/DOC-94866
+  * Or read from here: [Preparing a Yocto build]
 
 For this guide we will assume you are using a FB image.
 
-- Download the DemoFramework source using git.
+* Download the DemoFramework source using git.
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
 
-### Preparing a Yocto build
+## Preparing a Yocto build
 
 Before you build one of these yocto images you need to
 
@@ -137,17 +169,17 @@ Before you build one of these yocto images you need to
 
     You can now build one of the images below (or a custom one)
 
-### x11 yocto image
+## x11 yocto image
 
 Example:
 
-- Perform step 1
+* Perform step 1
 
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-x11 -e x11
     ```
 
-- Perform step 2
+* Perform step 2
 
     ```bash
     bitbake fsl-image-gui
@@ -165,17 +197,17 @@ the image is called `fsl-image-gui-imx6qpsabresd.rootfs.tar.bz2` (you will need 
 runqemu-extract-sdk ~/fsl-release-bsp/build-x11/tmp/deploy/images/imx6qpsabresd/fsl-image-gui-imx6qpsabresd.rootfs.tar.bz2  ~/unpacked-rootfs/build-x11
 ```
 
-### FB yocto image
+## FB yocto image
 
 Example:
 
-- Perform step 1
+* Perform step 1
 
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-fb -e fb
     ```
 
-- Perform step 2
+* Perform step 2
 
     ```bash
     bitbake fsl-image-gui
@@ -193,17 +225,17 @@ the image is called `fsl-image-gui-imx6qpsabresd.rootfs.tar.bz2` (you will need 
 runqemu-extract-sdk ~/fsl-release-bsp/build-fb/tmp/deploy/images/imx6qpsabresd/fsl-image-gui-imx6qpsabresd.rootfs.tar.bz2  ~/unpacked-rootfs/build-fb
 ```
 
-### Wayland yocto image
+## Wayland yocto image
 
 Example:
 
-- Perform step 1
+* Perform step 1
 
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-wayland -e wayland
     ```
 
-- Perform step 2
+* Perform step 2
 
     ```bash
     bitbake fsl-image-gui
@@ -221,7 +253,7 @@ the image is called `fsl-image-gui-imx6qpsabresd.rootfs.tar.bz2` (you will need 
 runqemu-extract-sdk ~/fsl-release-bsp/build-wayland/tmp/deploy/images/imx6qpsabresd/fsl-image-gui-imx6qpsabresd.rootfs.tar.bz2  ~/unpacked-rootfs/build-wayland
 ```
 
-### Yocto environment setup
+## Yocto environment setup
 
 1. Start a terminal (ctrl+alt t)
 2. Prepare the yocto build environment
@@ -234,20 +266,20 @@ runqemu-extract-sdk ~/fsl-release-bsp/build-wayland/tmp/deploy/images/imx6qpsabr
     popd
     ```
 
-### Ready to build using BSP build
+## Ready to build using BSP build
 
 You are now ready to start building Yocto apps using the demo framework,
 please continue the guide at [Using the demo framework].
 
 ---------------------------------------------------------------------------------------------------
 
-## Using the demo framework
+# Using the demo framework
 
-### Simple setup
+## Simple setup
 
 1. Make sure that you performed the Yocto environment setup for your chosen Yocto environment.
-   - SDK build [Yocto SDK environment setup]
-   - Custom build [Yocto environment setup].
+   * SDK build [Yocto SDK environment setup]
+   * Custom build [Yocto environment setup].
 2. cd to the demoframework folder
 3. Run the `prepare.sh` file located in the root of the framework folder to
     configure the necessary environment variables and paths.
@@ -273,7 +305,7 @@ please continue the guide at [Using the demo framework].
 
     Before running the prepare.sh script.
 
-## To Compile and run an existing sample application
+# To Compile and run an existing sample application
 
 The general approach will be:
 
@@ -318,7 +350,7 @@ If you add source files to a project or change the Fsl.gen file then run the
 build files or just make sure you always use the `FslBuild.py` script as it
 automatically adds files and regenerate build files as needed.
 
-### To Compile and run an existing GLES2 sample application
+## To Compile and run an existing GLES2 sample application
 
 In this example we will utilize the GLES2.S06_Texturing app.
 
@@ -335,8 +367,7 @@ In this example we will utilize the GLES2.S06_Texturing app.
     FslBuild.py --Variants [WindowSystem=FB]
     ```
 
-
-### To Compile and install an existing sample application
+## To Compile and install an existing sample application
 
 In this example we will utilize the `GLES2.S06_Texturing` app.
 
@@ -355,7 +386,7 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
 
 4. Copy the content of ```$FSL_GRAPHICS_SDK/bin``` to the target
 
-## To create a new demo project named 'CoolNewDemo'
+# To create a new demo project named 'CoolNewDemo'
 
 1. Make sure that you performed the [simple setup](#simple-setup) including the additional OpenGL ES setup.
 2. Change directory to the appropriate sample directory:
@@ -371,7 +402,7 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
 3. Create the project template using the FslBuildNew.py script
 
     ```bash
-    FslBuildNew.py <TEMPLATE-NAME> CoolNewDemo  
+    FslBuildNew.py <TEMPLATE-NAME> CoolNewDemo
     ```
 
     Example TEMPLATE-NAME's: GLES2, GLES3, OpenCL1_2, OpenCV4, Vulkan.
@@ -397,7 +428,7 @@ If you add source files to a project or change the Fsl.gen file then run the
 build files or just make sure you always use the `FslBuild.py` script as it
 automatically adds files and regenerate build files as needed.
 
-### So to create a new GLES2 demo project named 'CoolNewDemo'
+## So to create a new GLES2 demo project named 'CoolNewDemo'
 
 In this example we will create a GLES2 app called CoolNewDemo.
 
@@ -411,7 +442,7 @@ In this example we will create a GLES2 app called CoolNewDemo.
 3. Create the project template using the FslBuildNew.py script
 
     ```bash
-    FslBuildNew.py GLES2 CoolNewDemo  
+    FslBuildNew.py GLES2 CoolNewDemo
     ```
 
 4. Change directory to the newly created project folder 'CoolNewDemo'
@@ -428,8 +459,7 @@ In this example we will create a GLES2 app called CoolNewDemo.
 
     WindowSystem can bet set to either `FB`, `Wayland`, `Wayland_IVI`, `X11` be sure to pick the right one.
 
-
-### To Compile all samples
+## To Compile all samples
 
 1. Make sure that you performed the [simple setup](#simple-setup).
 2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2) If '--BuildThreads' is not specified it will be set to 'auto' which uses your cpu core count.
@@ -440,7 +470,7 @@ In this example we will create a GLES2 app called CoolNewDemo.
 
     WindowSystem can bet set to either `FB`, `Wayland`, `Wayland_IVI`, `X11` be sure to pick the right one.
 
-### To see which features a DemoApp requires to be able to build
+## To see which features a DemoApp requires to be able to build
 
 1. Make sure that you performed the [simple setup](#simple-setup)
 2. Change directory to the GLES2 sample directory:
@@ -457,15 +487,15 @@ In this example we will create a GLES2 app called CoolNewDemo.
 
 ---------------------------------------------------------------------------------------------------
 
-## Copying DemoFramework apps to the sdcard
+# Copying DemoFramework apps to the sdcard
 
-### Basic copy
+## Basic copy
 
 1. Mount the SDK card in ubuntu.
 2. Manually copy the build Exectuable and its content directory to the sdcard
 3. Unmount the sdcard
 
-### Using install
+## Using install
 
 1. Mount the SDK card in ubuntu.
 2. Build using
@@ -482,7 +512,7 @@ In this example we will create a GLES2 app called CoolNewDemo.
 
 ---------------------------------------------------------------------------------------------------
 
-## Building Vulkan demo framework apps
+# Building Vulkan demo framework apps
 
 To build Vulkan demoes you need access to the glslangValidator tool which is used to compile shaders into SPIR-V format.
 The easiest way to get it is to install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
@@ -526,7 +556,7 @@ The easiest way to get it is to install the Vulkan SDK, See the [official SDK gu
 
 ---------------------------------------------------------------------------------------------------
 
-## Building OpenCV demo framework apps
+# Building OpenCV demo framework apps
 
 1. Edit the `<build directory>/conf/local.conf` file and add the line:
 
@@ -534,5 +564,5 @@ The easiest way to get it is to install the Vulkan SDK, See the [official SDK gu
     CORE_IMAGE_EXTRA_INSTALL += "libopencv-core-dev libopencv-highgui-dev"
     ```
 
-    - Help: http://imxcv.blogspot.dk/2014/02/building-opencv-24x-for-freescales-imx6.html
-    - Note: CORE_IMAGE_EXTRA_INSTALL += "gpu-viv-bin-mx6q gpu-viv-bin-mx6q-dev" does not appear to be needed.
+    * Help: http://imxcv.blogspot.dk/2014/02/building-opencv-24x-for-freescales-imx6.html
+    * Note: CORE_IMAGE_EXTRA_INSTALL += "gpu-viv-bin-mx6q gpu-viv-bin-mx6q-dev" does not appear to be needed.

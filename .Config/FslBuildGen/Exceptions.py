@@ -303,3 +303,7 @@ class InvalidPackageShortNameException(Exception):
 class InvalidPackageNamespaceNameException(Exception):
     def __init__(self, name: str) -> None:
         super().__init__("'{0}' is not a valid package namespace name".format(name))
+
+class InvalidDefineValueException(Exception):
+    def __init__(self, defineName: str, defineValue: Optional[str]) -> None:
+        super().__init__("'{1}' is not a valid define value for {0}".format(defineName, defineValue))

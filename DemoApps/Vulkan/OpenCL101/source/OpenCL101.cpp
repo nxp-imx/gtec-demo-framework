@@ -66,10 +66,10 @@ namespace Fsl
 
   void OpenCL101::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t CurrentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[CurrentFrameIndex];
+    rCmdBuffers.Begin(CurrentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
       clearColorValue.float32[0] = 0.5f;
@@ -89,14 +89,14 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = 1;
       renderPassBeginInfo.pClearValues = &clearValues;
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(CurrentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, CurrentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(CurrentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(CurrentFrameIndex);
   }
 
 

@@ -32,7 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Vector3.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 
 namespace Fsl
 {
@@ -60,7 +61,25 @@ namespace Fsl
     {
     }
 
-    static VertexDeclaration GetVertexDeclaration();
+    constexpr static VertexDeclarationArray<4> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 4> elements = {
+        VertexElementEx(offsetof(ParticleGPU, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(ParticleGPU, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Custom, 0),
+        VertexElementEx(offsetof(ParticleGPU, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
+        VertexElementEx(offsetof(ParticleGPU, Type), VertexElementFormat::Single, VertexElementUsage::Custom, 2),
+      };
+      return VertexDeclarationArray<4>(elements, sizeof(ParticleGPU));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<4> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
   };
 }
 

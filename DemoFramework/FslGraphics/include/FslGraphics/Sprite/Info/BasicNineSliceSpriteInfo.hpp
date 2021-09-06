@@ -34,7 +34,7 @@
 #include <FslBase/Math/Dp/DpExtent.hpp>
 #include <FslBase/Math/Dp/DpThicknessU.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/Sprite/Info/Core/CoreBasicNineSliceInfo.hpp>
@@ -45,9 +45,10 @@
 
 namespace Fsl
 {
+  class SpriteNativeAreaCalc;
   class StringViewLite;
 
-  //! @brief Represents a atlas texture 2d image with no trim
+  //! @brief Represents a atlas texture 2d nine-slice image with no trim
   struct BasicNineSliceSpriteInfo
   {
     //! Render material information
@@ -61,8 +62,9 @@ namespace Fsl
     RenderBasicNineSliceInfo RenderInfo;
 
     BasicNineSliceSpriteInfo() = default;
-    BasicNineSliceSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx, const PxThicknessU& nineSlicePx,
-                             const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName);
+    BasicNineSliceSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                             const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx,
+                             const uint32_t imageDpi, const StringViewLite& debugName);
 
 
     bool operator==(const BasicNineSliceSpriteInfo& rhs) const

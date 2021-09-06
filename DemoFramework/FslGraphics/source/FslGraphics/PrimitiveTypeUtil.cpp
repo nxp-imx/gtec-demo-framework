@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/PrimitiveTypeUtil.hpp>
-#include <FslGraphics/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <algorithm>
 #include <cassert>
@@ -43,10 +42,8 @@ namespace Fsl
     {
     case PrimitiveType::LineList:
       return indexCount / 2;
-      break;
     case PrimitiveType::LineStrip:
       return std::max(indexCount - 1, 0);
-      break;
     case PrimitiveType::TriangleList:
       return indexCount / 3;
     case PrimitiveType::TriangleStrip:

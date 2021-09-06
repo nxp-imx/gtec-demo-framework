@@ -1,0 +1,28 @@
+@startuml FslGraphics Control Draw Overview
+
+caption Quick overview of how controls draw using the DrawCommandBuffer
+
+participant TheApp
+participant UITree
+participant Image
+participant BackgroundLabelButton
+participant DrawCommandBuffer
+activate TheApp
+activate UITree
+activate Image
+activate BackgroundLabelButton
+activate DrawCommandBuffer
+...
+== Draw ==
+
+TheApp->UITree: Draw
+UITree->Image: Draw
+Image->DrawCommandBuffer: Draw(mesh)
+UITree->BackgroundLabelButton: Draw
+BackgroundLabelButton->DrawCommandBuffer: Draw(hBackgroundMesh)
+BackgroundLabelButton->DrawCommandBuffer: Draw(hBackgroundHoverOverlayMesh)
+BackgroundLabelButton->DrawCommandBuffer: DrawText(hTextMesh)
+...
+
+@enduml
+

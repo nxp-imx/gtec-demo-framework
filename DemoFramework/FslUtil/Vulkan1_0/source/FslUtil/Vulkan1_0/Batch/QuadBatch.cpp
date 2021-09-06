@@ -38,6 +38,7 @@
 #include <FslGraphics/Font/SdfFontUtil.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Vertices/VertexElementFormat.hpp>
+#include <FslUtil/Vulkan1_0/Batch/ConfigHelper.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VUBufferMemoryUtil.hpp>
@@ -131,41 +132,6 @@ namespace Fsl
       }
 
 
-      RapidVulkan::PipelineLayout CreatePipelineLayout(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
-                                                       const VkDescriptorSetLayout& descriptorSetLayoutTexture)
-      {
-        const std::array<VkDescriptorSetLayout, 2> layouts = {descriptorSetLayoutUniform, descriptorSetLayoutTexture};
-
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = UncheckedNumericCast<uint32_t>(layouts.size());
-        pipelineLayoutInfo.pSetLayouts = layouts.data();
-        return RapidVulkan::PipelineLayout(device, pipelineLayoutInfo);
-      }
-
-
-      RapidVulkan::PipelineLayout CreatePipelineLayoutWithPushConstant(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
-                                                                       const VkDescriptorSetLayout& descriptorSetLayoutTexture,
-                                                                       const uint32_t cbPushConstants)
-      {
-        VkPushConstantRange pushConstantRange{};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = cbPushConstants;
-
-        const std::array<VkDescriptorSetLayout, 2> layouts = {descriptorSetLayoutUniform, descriptorSetLayoutTexture};
-
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = UncheckedNumericCast<uint32_t>(layouts.size());
-        pipelineLayoutInfo.pSetLayouts = layouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-
-        return RapidVulkan::PipelineLayout(device, pipelineLayoutInfo);
-      }
-
-
       RapidVulkan::PipelineCache CreatePipelineCache(const VkDevice device)
       {
         // Pipeline cache
@@ -173,181 +139,6 @@ namespace Fsl
         pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
         return RapidVulkan::PipelineCache(device, pipelineCacheCreateInfo);
       }
-
-
-      std::array<VkVertexInputAttributeDescription, 3> GetVertexAttributes(const VertexDeclaration& vertexDecl)
-      {
-        assert(vertexDecl.Count() == 3);
-
-        std::array<VkVertexInputAttributeDescription, 3> vertexAttributes{};
-
-        for (std::size_t i = 0; i < vertexAttributes.size(); ++i)
-        {
-          auto entry = vertexDecl.At(i);
-          vertexAttributes[i].location = UncheckedNumericCast<uint32_t>(i);
-          vertexAttributes[i].binding = 0;
-          vertexAttributes[i].format = VulkanConvert::ToVkFormat(entry.Format);
-          vertexAttributes[i].offset = entry.Offset;
-        }
-        return vertexAttributes;
-      }
-
-      VkPipelineColorBlendAttachmentState CreatePipelineColorBlendAttachmentState(const BlendState blendState)
-      {
-        VkPipelineColorBlendAttachmentState blendAttachmentState{};
-        blendAttachmentState.colorWriteMask =
-          VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-
-        switch (blendState)
-        {
-        case BlendState::Additive:
-          blendAttachmentState.blendEnable = VK_TRUE;
-          blendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
-          blendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
-          break;
-        case BlendState::AlphaBlend:
-          blendAttachmentState.blendEnable = VK_TRUE;
-          blendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-          blendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
-          blendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-          blendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
-          break;
-        case BlendState::NonPremultiplied:
-        case BlendState::Sdf:
-          blendAttachmentState.blendEnable = VK_TRUE;
-          blendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-          blendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-          blendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
-          blendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-          blendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
-          break;
-        case BlendState::Opaque:
-          blendAttachmentState.blendEnable = VK_FALSE;
-          blendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.colorBlendOp = VK_BLEND_OP_ADD;
-          blendAttachmentState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-          blendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
-          break;
-        default:
-          throw NotSupportedException("Unsupported blend state");
-        }
-        return blendAttachmentState;
-      }
-
-      RapidVulkan::GraphicsPipeline CreateGraphicsPipeline(const VkDevice device, const RapidVulkan::ShaderModule& vertexShader,
-                                                           const RapidVulkan::ShaderModule& fragmentShader,
-                                                           const RapidVulkan::PipelineLayout& pipelineLayout,
-                                                           const RapidVulkan::PipelineCache& pipelineCache, const VkRenderPass renderPass,
-                                                           const uint32_t subpass, const PxExtent2D& screenExtentPx, const BlendState blendState)
-      {
-        assert(device != VK_NULL_HANDLE);
-        assert(vertexShader.IsValid());
-        assert(fragmentShader.IsValid());
-        assert(pipelineLayout.IsValid());
-        assert(pipelineCache.IsValid());
-        assert(renderPass != VK_NULL_HANDLE);
-        std::array<VkPipelineShaderStageCreateInfo, 2> pipelineShaderStageCreateInfo{};
-        pipelineShaderStageCreateInfo[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        pipelineShaderStageCreateInfo[0].flags = 0;
-        pipelineShaderStageCreateInfo[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-        pipelineShaderStageCreateInfo[0].module = vertexShader.Get();
-        pipelineShaderStageCreateInfo[0].pName = "main";
-        pipelineShaderStageCreateInfo[0].pSpecializationInfo = nullptr;
-
-        pipelineShaderStageCreateInfo[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        pipelineShaderStageCreateInfo[1].flags = 0;
-        pipelineShaderStageCreateInfo[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        pipelineShaderStageCreateInfo[1].module = fragmentShader.Get();
-        pipelineShaderStageCreateInfo[1].pName = "main";
-        pipelineShaderStageCreateInfo[1].pSpecializationInfo = nullptr;
-
-        auto vertexDecl = VertexPositionColorTexture::GetVertexDeclaration();
-
-        VkVertexInputBindingDescription vertexBindings{};
-        vertexBindings.binding = 0;
-        vertexBindings.stride = vertexDecl.VertexStride();
-        vertexBindings.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-        const auto vertexAttributes = GetVertexAttributes(vertexDecl);
-
-        VkPipelineVertexInputStateCreateInfo vertexInputState{};
-        vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputState.vertexBindingDescriptionCount = 1;
-        vertexInputState.pVertexBindingDescriptions = &vertexBindings;
-        vertexInputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributes.size());
-        vertexInputState.pVertexAttributeDescriptions = vertexAttributes.data();
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssemblyState{};
-        inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-        VkViewport viewport{};
-        viewport.width = static_cast<float>(screenExtentPx.Width);
-        viewport.height = static_cast<float>(screenExtentPx.Height);
-        VkRect2D scissor{};
-        scissor.extent = TypeConverter::UncheckedTo<VkExtent2D>(screenExtentPx);
-
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 1;
-        viewportState.pViewports = &viewport;
-        viewportState.scissorCount = 1;
-        viewportState.pScissors = &scissor;
-
-        VkPipelineRasterizationStateCreateInfo rasterizationState{};
-        rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-        rasterizationState.lineWidth = 1.0f;
-
-        VkPipelineMultisampleStateCreateInfo multisampleState{};
-        multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-        VkPipelineDepthStencilStateCreateInfo depthStencilState{};
-        depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-        depthStencilState.depthTestEnable = VK_FALSE;
-        depthStencilState.depthWriteEnable = VK_FALSE;
-        depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-        depthStencilState.front.compareOp = VK_COMPARE_OP_ALWAYS;
-        depthStencilState.back.compareOp = VK_COMPARE_OP_ALWAYS;
-
-        auto blendAttachmentState = CreatePipelineColorBlendAttachmentState(blendState);
-
-        VkPipelineColorBlendStateCreateInfo colorBlendState{};
-        colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-        colorBlendState.attachmentCount = 1;
-        colorBlendState.pAttachments = &blendAttachmentState;
-
-        VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
-        pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
-        pipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
-        pipelineCreateInfo.pVertexInputState = &vertexInputState;
-        pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
-        pipelineCreateInfo.pViewportState = &viewportState;
-        pipelineCreateInfo.pRasterizationState = &rasterizationState;
-        pipelineCreateInfo.pMultisampleState = &multisampleState;
-        pipelineCreateInfo.pDepthStencilState = &depthStencilState;
-        pipelineCreateInfo.pColorBlendState = &colorBlendState;
-        pipelineCreateInfo.pDynamicState = nullptr;
-        pipelineCreateInfo.layout = pipelineLayout.Get();
-        pipelineCreateInfo.renderPass = renderPass;
-        pipelineCreateInfo.subpass = subpass;
-
-        return RapidVulkan::GraphicsPipeline(device, pipelineCache.Get(), pipelineCreateInfo);
-      }
-
 
       void UpdateDescriptorSetUniform(const VkDevice device, const VkDescriptorSet descriptorSet, const VkDescriptorBufferInfo& bufferInfo)
       {
@@ -387,7 +178,7 @@ namespace Fsl
       , m_quadCapacity(std::max(quadCapacityHint, QUAD_MIN_BATCH_SIZE))
       //, m_vertexCapacity(INTERNAL_QUAD_VERTEX_COUNT * m_quadCapacity)
       , m_logEnabled(logEnabled)
-      , m_pushConstantsDefault(SdfFontUtil::CalcSpread(4.0f, 1.0f))
+      , m_pushConstantsDefault(SdfFontUtil::CalcSmooth(4.0f, 1.0f))
     {
     }
 
@@ -398,7 +189,7 @@ namespace Fsl
     }
 
 
-    void QuadBatch::BeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex)
+    void QuadBatch::BeginFrame(const VkCommandBuffer commandBuffer, const uint32_t frameIndex)
     {
       // First we check that 'activeFrame' state is correct (to ensure that the 'Usage' is correct)
       if (m_activeFrame.CurrentState != FrameState::NotReady)
@@ -423,23 +214,23 @@ namespace Fsl
       {
         throw std::invalid_argument("commandBuffer can not be invalid");
       }
-      if (commandBufferIndex > m_dependentResource.CommandBufferCount)
+      if (frameIndex > m_dependentResource.MaxFramesInFlight)
       {
-        throw std::invalid_argument("commandBufferIndex should be less than commandBufferCount");
+        throw std::invalid_argument("frameIndex should be less than maxFramesInFlight");
       }
 
 
       assert(m_deviceResource.IsValid);
 
       // Prepare the device render resources for the given command index for a new frame
-      assert(m_deviceResource.Render[commandBufferIndex].IsValid());
-      m_deviceResource.Render[commandBufferIndex].Clear();
+      assert(m_deviceResource.Render[frameIndex].IsValid());
+      m_deviceResource.Render[frameIndex].Clear();
 
       // Reset the push constants to their default value
       m_pushConstants = m_pushConstantsDefault;
       m_activeFrame.CurrentState = FrameState::DrawFrame;
       m_activeFrame.CommandBuffer = commandBuffer;
-      m_activeFrame.CommandBufferIndex = commandBufferIndex;
+      m_activeFrame.FrameIndex = frameIndex;
       m_stats = {};
     }
 
@@ -491,7 +282,7 @@ namespace Fsl
       case BlendState::Sdf:
         selectedPipeline = m_dependentResource.PipelineSdf.Get();
         selectedPipelineLayout = m_deviceResource.PipelineLayoutSdf.Get();
-        m_pushConstants.Spread = SdfFontUtil::CalcSpread(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
+        m_pushConstants.Spread = SdfFontUtil::CalcSmooth(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
         break;
       default:
         throw NotSupportedException("Unsupported blend state");
@@ -519,7 +310,7 @@ namespace Fsl
         return;
       }
 
-      auto& rRender = m_deviceResource.Render[m_activeFrame.CommandBufferIndex];
+      auto& rRender = m_deviceResource.Render[m_activeFrame.FrameIndex];
 
       const VertexPositionColorTexture* pSrcVertices = pVertices;
       const VertexPositionColorTexture* const pSrcVerticesEnd = pVertices + (length * 4);
@@ -644,8 +435,8 @@ namespace Fsl
         m_deviceResource.SdfFragmentShader.Reset(device, 0, m_sdfFragmentShaderBinary);
 
         m_deviceResource.PipelineLayout =
-          CreatePipelineLayout(device, m_deviceResource.DescriptorSetLayoutUniform.Get(), m_deviceResource.DescriptorSetTexture.Get());
-        m_deviceResource.PipelineLayoutSdf = CreatePipelineLayoutWithPushConstant(
+          ConfigHelper::CreatePipelineLayout(device, m_deviceResource.DescriptorSetLayoutUniform.Get(), m_deviceResource.DescriptorSetTexture.Get());
+        m_deviceResource.PipelineLayoutSdf = ConfigHelper::CreatePipelineLayoutWithPushConstant(
           device, m_deviceResource.DescriptorSetLayoutUniform.Get(), m_deviceResource.DescriptorSetTexture.Get(), sizeof(PushConstantRecord));
 
         m_deviceResource.PipelineCache = CreatePipelineCache(device);
@@ -678,7 +469,7 @@ namespace Fsl
     }
 
 
-    void QuadBatch::CreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass, const uint32_t subpass,
+    void QuadBatch::CreateDependentResources(const uint32_t maxFramesInFlight, const VkRenderPass renderPass, const uint32_t subpass,
                                              const PxExtent2D& screenExtentPx)
     {
       if (m_activeFrame.CurrentState != FrameState::NotReady)
@@ -693,9 +484,9 @@ namespace Fsl
       {
         throw std::invalid_argument("renderPass can not be null");
       }
-      if (commandBufferCount <= 0)
+      if (maxFramesInFlight <= 0)
       {
-        throw std::invalid_argument("commandBufferCount should be >= 1");
+        throw std::invalid_argument("maxFramesInFlight should be >= 1");
       }
 
 
@@ -716,35 +507,47 @@ namespace Fsl
                                    m_deviceResource.UniformBuffer.GetDescriptorBufferInfo());
       }
 
-      EnforceCommandBufferCount(commandBufferCount);
+      EnforceCommandBufferCount(maxFramesInFlight);
 
       try
       {
         VkDevice const device = m_deviceResource.UniformBuffer.GetDevice();
 
+        const auto vertexDecl = VertexPositionColorTexture::AsVertexDeclarationSpan();
+
         // We set IsValid here to ensure that the DestroyDependentResources tries to free everything if its called.
         // Just don't call any other method that works on m_dependentResource before its been fully filled
+
+        const VkShaderModule hVertexShader = m_deviceResource.VertexShader.Get();
+        const VkShaderModule hFragShader = m_deviceResource.FragmentShader.Get();
+        const VkShaderModule hFragShaderSdf = m_deviceResource.SdfFragmentShader.Get();
+        const VkPipelineCache hPipelineCache = m_deviceResource.PipelineCache.Get();
+        const VkPipelineLayout pipelineLayout = m_deviceResource.PipelineLayout.Get();
+        const VkPipelineLayout pipelineLayoutSdf = m_deviceResource.PipelineLayoutSdf.Get();
+        constexpr BasicCullMode cullMode = BasicCullMode::Back;
+        constexpr BasicFrontFace frontFace = BasicFrontFace::CounterClockwise;
+
         m_dependentResource.IsValid = true;
-        m_dependentResource.CommandBufferCount = commandBufferCount;
+        m_dependentResource.MaxFramesInFlight = maxFramesInFlight;
         m_dependentResource.PipelineAdditive =
-          CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::Additive);
+          ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass,
+                                               screenExtentPx, BlendState::Additive, cullMode, frontFace, vertexDecl);
 
         m_dependentResource.PipelineAlphaBlend =
-          CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::AlphaBlend);
+          ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass,
+                                               screenExtentPx, BlendState::AlphaBlend, cullMode, frontFace, vertexDecl);
 
         m_dependentResource.PipelineNonPremultiplied =
-          CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::NonPremultiplied);
+          ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass,
+                                               screenExtentPx, BlendState::NonPremultiplied, cullMode, frontFace, vertexDecl);
 
         m_dependentResource.PipelineOpaque =
-          CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::Opaque);
+          ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShader, pipelineLayout, hPipelineCache, renderPass, subpass,
+                                               screenExtentPx, BlendState::Opaque, cullMode, frontFace, vertexDecl);
 
         m_dependentResource.PipelineSdf =
-          CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.SdfFragmentShader, m_deviceResource.PipelineLayoutSdf,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::Sdf);
+          ConfigHelper::CreateGraphicsPipeline(device, hVertexShader, hFragShaderSdf, pipelineLayoutSdf, hPipelineCache, renderPass, subpass,
+                                               screenExtentPx, BlendState::Sdf, cullMode, frontFace, vertexDecl);
       }
       catch (const std::exception& ex)
       {
@@ -793,14 +596,14 @@ namespace Fsl
       assert(m_activeFrame.CheckIsEmpty());
     }
 
-    void QuadBatch::EnforceCommandBufferCount(const uint32_t commandBufferCount)
+    void QuadBatch::EnforceCommandBufferCount(const uint32_t maxFramesInFlight)
     {
       assert(m_deviceResource.IsValid);
-      if (commandBufferCount == m_deviceResource.Render.size())
+      if (maxFramesInFlight == m_deviceResource.Render.size())
       {
         return;
       }
-      m_deviceResource.Render.resize(commandBufferCount);
+      m_deviceResource.Render.resize(maxFramesInFlight);
       VkDevice device = m_deviceResource.UniformBuffer.GetDevice();
       assert(device != VK_NULL_HANDLE);
       for (auto& rEntry : m_deviceResource.Render)

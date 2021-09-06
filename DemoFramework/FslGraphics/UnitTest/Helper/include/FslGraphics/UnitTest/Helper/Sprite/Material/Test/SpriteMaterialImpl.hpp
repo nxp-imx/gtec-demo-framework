@@ -33,7 +33,9 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
+#include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/Sprite/Material/ISpriteMaterial.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 
@@ -51,13 +53,30 @@ namespace Fsl
     {
     }
 
-    NativeTextureArea CalcNativeTextureArea(const PxRectangleU& imageRectanglePx) const final
+    SpriteMaterialId GetId() const
     {
-      // dummy implementation
-      return TestCalcNativeTextureArea(m_extentPx, imageRectanglePx);
+      return m_materialId;
     }
 
-    static constexpr NativeTextureArea TestCalcNativeTextureArea(const PxExtent2D& extentPx, const PxRectangleU& imageRectanglePx)
+    PxExtent2D GetExtent() const
+    {
+      return m_extentPx;
+    }
+
+    static constexpr NativeTextureArea TestCalcNativeTextureArea(const PxExtent2D& extentPx, const PxRectangleU16& imageRectanglePx)
+    {
+      if (imageRectanglePx.Right() > extentPx.Width || imageRectanglePx.Bottom() > extentPx.Height)
+      {
+        throw std::invalid_argument("the supplied imageRectangle does not fit inside the given extent");
+      }
+
+      return {imageRectanglePx.Left() == 0 ? 0.0f : float(imageRectanglePx.Left()) / static_cast<float>(extentPx.Width),
+              imageRectanglePx.Top() == 0 ? 0.0f : float(imageRectanglePx.Top()) / static_cast<float>(extentPx.Height),
+              imageRectanglePx.Right() >= extentPx.Width ? 1.0f : float(imageRectanglePx.Right()) / static_cast<float>(extentPx.Width),
+              imageRectanglePx.Bottom() >= extentPx.Height ? 1.0f : float(imageRectanglePx.Bottom()) / static_cast<float>(extentPx.Height)};
+    }
+
+    static constexpr NativeTextureArea TestCalcNativeTextureArea(const PxExtent2D& extentPx, const PxRectangleU32& imageRectanglePx)
     {
       if (imageRectanglePx.Right() > extentPx.Width || imageRectanglePx.Bottom() > extentPx.Height)
       {
@@ -66,8 +85,8 @@ namespace Fsl
 
       return {imageRectanglePx.Left() == 0 ? 0.0f : imageRectanglePx.Left() / static_cast<float>(extentPx.Width),
               imageRectanglePx.Top() == 0 ? 0.0f : imageRectanglePx.Top() / static_cast<float>(extentPx.Height),
-              imageRectanglePx.Right() == extentPx.Width ? 1.0f : imageRectanglePx.Right() / static_cast<float>(extentPx.Width),
-              imageRectanglePx.Bottom() == extentPx.Height ? 1.0f : imageRectanglePx.Bottom() / static_cast<float>(extentPx.Height)};
+              imageRectanglePx.Right() >= extentPx.Width ? 1.0f : imageRectanglePx.Right() / static_cast<float>(extentPx.Width),
+              imageRectanglePx.Bottom() >= extentPx.Height ? 1.0f : imageRectanglePx.Bottom() / static_cast<float>(extentPx.Height)};
     }
   };
 }

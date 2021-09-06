@@ -42,6 +42,7 @@
 #include <FslDemoHost/Base/DemoState.hpp>
 #include <FslDemoHost/Base/LogStatsMode.hpp>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -55,6 +56,18 @@ namespace Fsl
 
   class DemoAppManager
   {
+    struct AppRecord
+    {
+      std::shared_ptr<IDemoApp> DemoApp;
+      uint32_t FrameIndex{0};
+
+      AppRecord() = default;
+      explicit AppRecord(std::shared_ptr<IDemoApp> demoApp)
+        : DemoApp(std::move(demoApp))
+      {
+      }
+    };
+
     std::unique_ptr<DemoAppProfilerOverlay> m_demoAppProfilerOverlay;
     std::shared_ptr<IDemoAppControlEx> m_demoAppControl;
     std::shared_ptr<IGraphicsServiceControl> m_graphicsService;
@@ -84,14 +97,19 @@ namespace Fsl
     DemoAppStatsFlags m_logStatsFlags;
     bool m_enableStats;
     bool m_useFirewall;
-    bool m_preallocateBasic2D;
-    std::shared_ptr<IDemoApp> m_demoApp;
+
+    AppRecord m_record;
 
   public:
     DemoAppManager(DemoAppSetup demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
-                   const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D,
+                   const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall, const bool enableContentMonitor,
                    const uint32_t forcedUpdateTime, const bool renderSystemOverlay);
     virtual ~DemoAppManager();
+
+    uint32_t GetFrameIndex() const
+    {
+      return m_record.FrameIndex;
+    }
 
     void Suspend(const bool bSuspend);
 
@@ -107,6 +125,7 @@ namespace Fsl
     void OnDeactivate();
     //! @brief Should be called after a buffer swap has been completed
     void OnFrameSwapCompleted();
+    void EndFrameSequence();
 
     void RequestExit();
     bool HasExitRequest() const;

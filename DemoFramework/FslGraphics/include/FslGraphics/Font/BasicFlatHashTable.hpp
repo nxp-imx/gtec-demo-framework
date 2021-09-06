@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <cassert>
 #include <limits>

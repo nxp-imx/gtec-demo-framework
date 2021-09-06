@@ -33,7 +33,7 @@
 
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
@@ -64,12 +64,12 @@ namespace Fsl
     {
       std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> SliderHeatmap;
       std::shared_ptr<UI::Switch> SwitchHeatmap;
-      std::shared_ptr<UI::SliderAndFmtValueLabel<uint16_t>> SliderIterations;
-      std::shared_ptr<UI::LabelNineSliceButton> BtnDefault;
+      std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> SliderIterations;
+      std::shared_ptr<UI::BackgroundLabelButton> BtnDefault;
 
       UIRecord() = default;
       UIRecord(std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> sliderHeatmap, std::shared_ptr<UI::Switch> switchHeatmap,
-               std::shared_ptr<UI::SliderAndFmtValueLabel<uint16_t>> sliderIterations, std::shared_ptr<UI::LabelNineSliceButton> btnDefault)
+               std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> sliderIterations, std::shared_ptr<UI::BackgroundLabelButton> btnDefault)
         : SliderHeatmap(std::move(sliderHeatmap))
         , SwitchHeatmap(std::move(switchHeatmap))
         , SliderIterations(std::move(sliderIterations))
@@ -109,7 +109,7 @@ namespace Fsl
 
   private:
     static Resources CreateResources(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
-                                     const VulkanBasic::RenderConfig& renderConfig);
+                                     const RenderConfig& renderConfig);
 
     UIRecord CreateUI(const bool heatmapSupported, const uint32_t heatmapScale, const uint16_t iterations);
 

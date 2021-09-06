@@ -39,6 +39,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -59,7 +60,57 @@ TEST(TestVertices_VertexPosition, Construct_Default)
 TEST(TestVertices_VertexPosition, GetVertexDeclaration)
 {
   const VertexElementEx expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const auto vertexDecl = VertexPosition::GetVertexDeclaration();
+  const auto vertexDecl = VertexDeclaration(VertexPosition::AsVertexDeclarationSpan());
+
+  EXPECT_EQ(sizeof(VertexPosition), vertexDecl.VertexStride());
+  ASSERT_EQ(1u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Position, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexPosition, GetVertexDeclarationArray)
+{
+  const VertexElementEx expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const auto vertexDecl = VertexPosition::GetVertexDeclarationArray();
+
+  EXPECT_EQ(sizeof(VertexPosition), vertexDecl.VertexStride());
+  ASSERT_EQ(1u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Position, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexPosition, AsVertexDeclarationSpan)
+{
+  const VertexElementEx expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const auto vertexDecl = VertexPosition::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPosition), vertexDecl.VertexStride());
   ASSERT_EQ(1u, vertexDecl.Count());

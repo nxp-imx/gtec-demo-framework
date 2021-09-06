@@ -31,7 +31,7 @@
 
 #include <FslGraphics/Vertices/VertexConverter.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics/Vertices/VertexPositionColor.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -58,8 +58,9 @@ TEST(TestVertices_VertexConverter, Convert_VertexPositionColorToVertexPositionCo
   constexpr Vector4 col2(11.0f, 12.0f, 13.0f, 14.0f);
   constexpr Vector3 pos3(15.0f, 16.0f, 17.0f);
   constexpr Vector4 col3(18.0f, 19.0f, 20.0f, 21.0f);
-  const std::array<VertexPositionColor, 3> src = {VertexPositionColor(pos1, col1), VertexPositionColor(pos2, col2), VertexPositionColor(pos3, col3)};
-  std::array<VertexPositionColor, 3> dst;
+  const std::array<VertexPositionColorF, 3> src = {VertexPositionColorF(pos1, col1), VertexPositionColorF(pos2, col2),
+                                                   VertexPositionColorF(pos3, col3)};
+  std::array<VertexPositionColorF, 3> dst;
 
   VertexConverter::Convert(dst.data(), dst.size(), src.data(), src.size());
 
@@ -77,7 +78,8 @@ TEST(TestVertices_VertexConverter, Convert_VertexPositionColorToVertexPosition)
   constexpr Vector4 col2(11.0f, 12.0f, 13.0f, 14.0f);
   constexpr Vector3 pos3(15.0f, 16.0f, 17.0f);
   constexpr Vector4 col3(18.0f, 19.0f, 20.0f, 21.0f);
-  const std::array<VertexPositionColor, 3> src = {VertexPositionColor(pos1, col1), VertexPositionColor(pos2, col2), VertexPositionColor(pos3, col3)};
+  const std::array<VertexPositionColorF, 3> src = {VertexPositionColorF(pos1, col1), VertexPositionColorF(pos2, col2),
+                                                   VertexPositionColorF(pos3, col3)};
   std::array<VertexPosition, 3> dst;
 
   VertexConverter::Convert(dst.data(), dst.size(), src.data(), src.size());
@@ -91,7 +93,7 @@ TEST(TestVertices_VertexConverter, Convert_VertexPositionColorToVertexPosition)
 TEST(TestVertices_VertexConverter, Convert_VertexPositionToVertexPositionColor)
 {
   std::array<VertexPosition, 3> src = {VertexPosition(1.0f, 2.0f, 3.0f), VertexPosition(4.0f, 5.0f, 6.0f), VertexPosition(7.0f, 8.0f, 9.0f)};
-  std::array<VertexPositionColor, 3> dst;
+  std::array<VertexPositionColorF, 3> dst;
 
   VertexConverter::Convert(dst.data(), dst.size(), src.data(), src.size());
 

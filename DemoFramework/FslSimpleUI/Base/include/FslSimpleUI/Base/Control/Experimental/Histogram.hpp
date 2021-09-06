@@ -1,5 +1,6 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_EXPERIMENTAL_HISTOGRAM_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_EXPERIMENTAL_HISTOGRAM_HPP
+#ifdef FSL_DISABLED
 /****************************************************************************************************************************************************
  * Copyright 2020 NXP
  * All rights reserved.
@@ -246,4 +247,5 @@ namespace Fsl
   }
 }
 
+#endif
 #endif

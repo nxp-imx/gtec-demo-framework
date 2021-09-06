@@ -2,9 +2,9 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.RenderToTexture" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppGLES3"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.Core"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
     <Platform Name="Yocto" Supported="true">
       <Dependency Name="G2D"/>
       <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES3"/>

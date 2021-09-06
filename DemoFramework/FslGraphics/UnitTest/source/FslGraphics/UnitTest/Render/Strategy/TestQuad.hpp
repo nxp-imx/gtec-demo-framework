@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslGraphics/Color.hpp>
 
 namespace Fsl
 {
@@ -44,12 +45,12 @@ namespace Fsl
     Vector2 Vec3;
     Vector2 TexCoords0;
     Vector2 TexCoords1;
-    Vector4 Color;
+    Fsl::Color Color;
 
     constexpr TestQuad() = default;
 
     constexpr TestQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
-                       const Vector2& texCoords1, const Vector4& color)
+                       const Vector2& texCoords1, const Fsl::Color& color)
       : Vec0(vec0)
       , Vec1(vec1)
       , Vec2(vec2)

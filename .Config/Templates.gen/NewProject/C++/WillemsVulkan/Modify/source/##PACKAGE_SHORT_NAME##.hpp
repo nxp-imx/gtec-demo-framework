@@ -44,7 +44,7 @@ namespace Fsl
     void Prepare() override;
     void BuildCommandBuffers() override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
   };
 }
 

@@ -33,6 +33,7 @@
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <FslGraphics/Vertices/VertexConverter.hpp>
 #include <FslGraphics3D/SceneFormat/ChunkType.hpp>
@@ -49,18 +50,6 @@
 #include <limits>
 #include <utility>
 #include <vector>
-
-// Nasty hack for dealing with UTF8 file names on windows,
-// since its the only supported platform that doesn't allow UTF8 strings
-// but instead provides its own 'hack' for opening wstring's
-#if _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
-#else
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) X.ToUTF8String()
-#endif
 
 //! workaround for GCC complaint
 #ifdef __GNUC__
@@ -364,7 +353,7 @@ namespace Fsl
         {
           mesh = scene.GetMeshAt(i);
           assert(mesh);
-          const SFVertexDeclaration vertexDeclaration = Conversion::Convert(mesh->GetVertexDeclaration());
+          const SFVertexDeclaration vertexDeclaration = Conversion::Convert(mesh->AsVertexDeclarationSpan());
           const auto itrFind = std::find(rVertexDeclarations.begin(), rVertexDeclarations.end(), vertexDeclaration);
           const auto vertexDeclarationIndex = std::distance(rVertexDeclarations.begin(), itrFind);
           if (itrFind == rVertexDeclarations.end())
@@ -795,7 +784,7 @@ namespace Fsl
       }
 
 
-      std::size_t LocateOffset(const VertexDeclaration& vertexDeclaration, const SceneFormat::VertexElementUsage usage, const uint8_t usageIndex)
+      std::size_t LocateOffset(VertexDeclarationSpan vertexDeclaration, const SceneFormat::VertexElementUsage usage, const uint8_t usageIndex)
       {
         for (std::size_t i = 0; i < vertexDeclaration.Count(); ++i)
         {
@@ -850,7 +839,7 @@ namespace Fsl
       std::size_t WriteVerticesLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const InternalMeshRecord& record,
                                   const std::deque<InternalVertexDeclaration>& dstVertexDeclarations)
       {
-        const auto meshVertexDeclaration = record.SourceMesh->GetVertexDeclaration();
+        const auto meshVertexDeclaration = record.SourceMesh->AsVertexDeclarationSpan();
         const auto meshContent = record.SourceMesh->GenericDirectAccess();
         const auto srcVertexCount = meshContent.VertexCount;
         const auto srcVertexStride = meshContent.VertexStride;
@@ -1013,8 +1002,8 @@ namespace Fsl
         const auto cbSrcIndices = indexByteSize * indexCount;
 
         RawMeshContentEx rawDst = mesh->GenericDirectAccess();
-        VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, mesh->GetVertexDeclaration(), pVertices,
-                                        cbSrcVertices, srcVertexDeclaration, vertexCount, pDstDefaultValues, cbDstDefaultValues);
+        VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, mesh->AsVertexDeclarationSpan(), pVertices,
+                                        cbSrcVertices, srcVertexDeclaration.AsSpan(), vertexCount, pDstDefaultValues, cbDstDefaultValues);
         IndexConverter::GenericConvert(rawDst.pIndices, rawDst.IndexStride * rawDst.IndexCount, rawDst.IndexStride, pIndices, cbSrcIndices,
                                        indexByteSize, indexCount);
 
@@ -1572,7 +1561,7 @@ namespace Fsl
     std::shared_ptr<Graphics3D::Scene> BasicSceneFormat::GenericLoad(const IO::Path& filename, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
                                                                      const void* const pDstDefaultValues, const int32_t cbDstDefaultValues)
     {
-      std::ifstream fileStream(PATH_GET_NAME(filename), std::ios::in | std::ios::binary);
+      std::ifstream fileStream(PlatformPathTransform::ToSystemPath(filename), std::ios::in | std::ios::binary);
       return GenericLoad(fileStream, sceneAllocator, pDstDefaultValues, cbDstDefaultValues);
     }
 
@@ -1605,7 +1594,7 @@ namespace Fsl
 
     void BasicSceneFormat::Save(const IO::Path& strFilename, const Scene& scene)
     {
-      std::ofstream fileStream(PATH_GET_NAME(strFilename), std::ios::out | std::ios::binary);
+      std::ofstream fileStream(PlatformPathTransform::ToSystemPath(strFilename), std::ios::out | std::ios::binary);
       Save(fileStream, scene);
     }
 

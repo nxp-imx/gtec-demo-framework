@@ -41,6 +41,8 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/ITag.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include "NDKHelper.h"
@@ -51,6 +53,33 @@
 
 namespace Fsl
 {
+  std::vector<std::string> GetCommandLineArguments(android_app* pAppState)
+  {
+    JNIEnv* jni;
+    pAppState->activity->vm->AttachCurrentThread(&jni, nullptr);
+
+    // Default class retrieval
+    jclass clazz = jni->GetObjectClass(pAppState->activity->clazz);
+    jmethodID methodID0 = jni->GetMethodID(clazz, "GetCommandLineArgumentCount", "()I");
+    jmethodID methodID1 = jni->GetMethodID(clazz, "TryGetCommandLineArgument", "(I)Ljava/lang/String;");
+    jint argCount = jni->CallIntMethod(pAppState->activity->clazz, methodID0);
+
+    std::vector<std::string> args(argCount >= 0 ? argCount : 0);
+
+    for (jint i = 0; i < argCount; ++i)
+    {
+      jstring argument = (jstring)jni->CallObjectMethod(pAppState->activity->clazz, methodID1, i);
+      const char* pszArgument = jni->GetStringUTFChars(argument, nullptr);
+      args[i].assign(pszArgument);
+      jni->ReleaseStringUTFChars(argument, pszArgument);
+      jni->DeleteLocalRef(argument);
+    }
+    jni->DeleteLocalRef(clazz);
+
+    pAppState->activity->vm->DetachCurrentThread();
+    return args;
+  }
+
   int AndroidMain(android_app* state, const char* const pszHelperClassName)
   {
     // LogConfig::SetLogLevel(LogType::Verbose4);
@@ -69,12 +98,18 @@ namespace Fsl
 #ifdef USE_NDK_PROFILER
     monstartup("libDemoNativeActivity.so");
 #endif
+    const auto arguments = GetCommandLineArguments(state);
+    const char* const pszApp = "AndroidExe";
+    std::vector<StringViewLite> argv(arguments.size() + 1);
+    argv[0] = StringViewLiteUtil::AsStringViewLite(pszApp);
+    for (std::size_t i = 0; i < arguments.size(); ++i)
+    {
+      argv[i + 1] = StringViewLiteUtil::AsStringViewLite(arguments[i]);
+    }
 
-    char pszEmpty[] = {0};
-    char* argv[] = {pszEmpty, pszEmpty};
     std::shared_ptr<Fsl::ITag> tag(new Fsl::PlatformNativeWindowSystemAndroidTag(state));
     Fsl::DemoRunnerConfig config(false, contentDir, saveDir, tag);
-    return Fsl::RunDemo(1, argv, config);
+    return Fsl::RunDemo(ReadOnlySpanUtil::AsSpan(argv), config);
   }
 }
 

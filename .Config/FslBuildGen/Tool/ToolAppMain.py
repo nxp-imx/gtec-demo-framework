@@ -70,7 +70,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersion = Version(3, 2, 0, 8)
+CurrentVersion = Version(3, 3, 1, 1)
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -395,7 +395,7 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
         # Get the path to the toolconfig file if necessary and load the tool config file
         buildPlatformType = PlatformUtil.DetectBuildPlatformType()
         toolConfigPath = __GetToolConfigPath(toolConfigFile)
-        toolConfig = ToolConfig(buildPlatformType, CurrentVersion, basicConfig, toolConfigPath, projectRootConfig)
+        toolConfig = ToolConfig(lowLevelToolConfig, buildPlatformType, CurrentVersion, basicConfig, toolConfigPath, projectRootConfig)
         baseConfig = BaseConfig(log, toolConfig)
     except (Exception) as ex:
         print("ERROR: {0}".format(ex))

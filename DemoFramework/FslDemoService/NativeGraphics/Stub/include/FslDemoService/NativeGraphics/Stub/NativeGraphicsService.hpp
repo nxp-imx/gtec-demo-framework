@@ -31,9 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
-#include <FslService/Consumer/ServiceProvider.hpp>
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
+#include <FslDemoService/NativeGraphics/No3D/ANativeGraphicsServiceNo3D.hpp>
 
 #include <memory>
 
@@ -41,9 +39,7 @@ namespace Fsl
 {
   namespace Stub
   {
-    class NativeGraphicsService final
-      : public ThreadLocalService
-      , public INativeGraphicsService
+    class NativeGraphicsService final : public ANativeGraphicsServiceNo3D
     {
       bool m_showWarning;
 
@@ -51,16 +47,10 @@ namespace Fsl
       explicit NativeGraphicsService(const ServiceProvider& serviceProvider, const bool showWarning = true);
       ~NativeGraphicsService() final;
 
-      // From INativeGraphics
-      std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                        const TextureFlags textureFlags) final;
-      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                      const TextureFlags textureFlags) final;
       // From INativeGraphicsService
       bool IsSupported(const DemoHostFeature& activeAPI) const final;
       void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
       std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
-      std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) final;
 
     private:
     };

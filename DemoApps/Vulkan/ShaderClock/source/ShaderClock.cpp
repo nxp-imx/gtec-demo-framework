@@ -32,12 +32,13 @@
 #include "ShaderClock.hpp"
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
@@ -168,6 +169,8 @@ namespace Fsl
 
   void ShaderClock::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
+    FSL_PARAM_NOT_USED(args);
+
     if (theEvent->GetSource() == m_ui.SliderHeatmap)
     {
       m_scene.SetHeatmapScale(static_cast<float>(m_ui.SliderHeatmap->GetValue()));
@@ -198,10 +201,12 @@ namespace Fsl
 
   void ShaderClock::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    FSL_PARAM_NOT_USED(demoTime);
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
+
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -216,7 +221,7 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         m_scene.Draw(drawContext.CurrentFrameIndex, hCmdBuffer);
 
@@ -224,11 +229,11 @@ namespace Fsl
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -247,7 +252,7 @@ namespace Fsl
   }
 
   ShaderClock::Resources ShaderClock::CreateResources(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
-                                                      const VulkanBasic::RenderConfig& renderConfig)
+                                                      const RenderConfig& renderConfig)
   {
     auto bufferManager =
       std::make_shared<Vulkan::VMBufferManager>(device.GetPhysicalDevice(), device.Get(), deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
@@ -263,7 +268,8 @@ namespace Fsl
 
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
-    UI::Theme::BasicThemeFactory uiFactory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& uiFactory = *uiControlFactory;
 
     auto labelHeatmap = uiFactory.CreateLabel("Heatmap scale: ");
     labelHeatmap->SetAlignmentY(UI::ItemAlignment::Center);
@@ -276,7 +282,7 @@ namespace Fsl
     auto labelIterations = uiFactory.CreateLabel("Iterations: ");
     labelIterations->SetAlignmentY(UI::ItemAlignment::Center);
     auto sliderIterations = uiFactory.CreateSliderFmtValue(
-      UI::LayoutOrientation::Horizontal, ConstrainedValue<uint16_t>(iterations, LocalConfig::IterationsMin, LocalConfig::IterationsMax));
+      UI::LayoutOrientation::Horizontal, ConstrainedValue<uint32_t>(iterations, LocalConfig::IterationsMin, LocalConfig::IterationsMax));
     sliderIterations->SetAlignmentY(UI::ItemAlignment::Center);
 
     if (!heatmapSupported)

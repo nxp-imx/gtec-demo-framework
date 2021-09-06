@@ -2,6 +2,6 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="Vulkan.Triangle" NoInclude="true" CreationYear="2021">
     <ImportTemplate Name="DemoAppVulkan"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.DepthZeroToOne"/>
   </Executable>
 </FslBuildGen>

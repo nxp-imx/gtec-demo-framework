@@ -48,11 +48,13 @@ namespace Fsl
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
     DemoHostAppSetup m_demoHostAppSetup;
     ServiceProvider m_serviceProvider;
+    bool m_preallocateBasic2D{false};
     uint32_t m_verbosityLevel;
 
   public:
     DemoHostConfig(std::shared_ptr<ADemoHostOptionParser> optionParser, std::weak_ptr<INativeWindowEventQueue> eventQueue,
-                   DemoHostAppSetup demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider, const uint32_t verbosityLevel);
+                   DemoHostAppSetup demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider, const bool preallocateBasic2D,
+                   const uint32_t verbosityLevel);
     ~DemoHostConfig();
 
 
@@ -71,6 +73,7 @@ namespace Fsl
 
     const DemoHostAppSetup& GetDemoHostAppSetup() const;
     ServiceProvider GetServiceProvider() const;
+    bool GetPreallocateBasic2D() const;
     uint32_t GetVerbosityLevel() const;
   };
 }

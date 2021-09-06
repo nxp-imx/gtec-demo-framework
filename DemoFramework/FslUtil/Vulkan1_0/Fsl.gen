@@ -5,7 +5,7 @@
     <Dependency Name="VulkanBase"/>
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.DepthZeroToOne"/>
     <Platform Name="Windows" ProjectId="879B0671-DCD6-44B5-AED6-98F133DC87BD"/>
   </Library>
 </FslBuildGen>

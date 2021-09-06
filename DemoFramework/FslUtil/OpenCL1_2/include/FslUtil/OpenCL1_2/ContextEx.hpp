@@ -74,7 +74,7 @@ namespace Fsl
       explicit ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
       //! @brief returns the managed handle and releases the ownership.
-      cl_context Release() FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+      FSL_FUNC_WARN_UNUSED_RESULT cl_context Release()
       {
         m_platformId = nullptr;
         return m_context.Release();

@@ -46,7 +46,7 @@ namespace Fsl
     ~##PACKAGE_SHORT_NAME##() final;
   protected:
     void Update(const DemoTime& demoTime) final;
-    void Draw(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
   };
 }
 

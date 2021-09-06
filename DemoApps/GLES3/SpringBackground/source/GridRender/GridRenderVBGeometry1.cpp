@@ -35,7 +35,6 @@
 #include <FslBase/Math/VectorHelper.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
 #include <cassert>
@@ -55,7 +54,7 @@ namespace Fsl
     : m_gridSize(gridSize)
     , m_gridFinalSize((2 * gridSize.X) - 1, (2 * gridSize.Y) - 1)
     , m_coordinates(((m_gridFinalSize.X + 2) * m_gridSize.Y) + ((m_gridFinalSize.Y + 2) * m_gridSize.X))
-    , m_vertexBuffer(nullptr, m_coordinates.size(), VertexPositionColor::GetVertexDeclaration(), GL_STREAM_DRAW)
+    , m_vertexBuffer(nullptr, m_coordinates.size(), VertexPositionColorF::AsVertexDeclarationSpan(), GL_STREAM_DRAW)
     , m_locWorldView(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
   {
@@ -82,7 +81,7 @@ namespace Fsl
       m_shaderFrag.Reset(GL_FRAGMENT_SHADER, strFrag);
       GL_CHECK_FOR_ERROR();
 
-      auto vertexDecl = VertexPositionColor::GetVertexDeclaration();
+      constexpr auto vertexDecl = VertexPositionColorF::GetVertexDeclarationArray();
 
       m_attribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexPosition"),
                                            vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
@@ -118,7 +117,7 @@ namespace Fsl
 
     {
       Vector4 color(0.12f, 0.12f, 0.55f, 0.33f);
-      VertexPositionColor defaultVertex(Vector3(), color);
+      VertexPositionColorF defaultVertex(Vector3(), color);
       for (std::size_t i = 0; i < m_coordinates.size(); ++i)
       {
         m_coordinates[i] = defaultVertex;
@@ -126,8 +125,8 @@ namespace Fsl
 
       const std::ptrdiff_t dstStrideX = m_gridFinalSize.X + 2;
       {
-        VertexPositionColor* pDst = m_coordinates.data();
-        const VertexPositionColor* const pDstEnd = pDst + (dstStrideX * m_gridSize.Y);
+        VertexPositionColorF* pDst = m_coordinates.data();
+        const VertexPositionColorF* const pDstEnd = pDst + (dstStrideX * m_gridSize.Y);
         assert(pDstEnd <= (m_coordinates.data() + m_coordinates.size()));
         while (pDst < pDstEnd)
         {
@@ -138,8 +137,8 @@ namespace Fsl
       }
       {
         const std::ptrdiff_t dstStrideY = m_gridFinalSize.Y + 2;
-        VertexPositionColor* pDst = m_coordinates.data() + (dstStrideX * m_gridSize.Y);
-        const VertexPositionColor* const pDstEnd = m_coordinates.data() + m_coordinates.size();
+        VertexPositionColorF* pDst = m_coordinates.data() + (dstStrideX * m_gridSize.Y);
+        const VertexPositionColorF* const pDstEnd = m_coordinates.data() + m_coordinates.size();
         while (pDst < pDstEnd)
         {
           pDst[0].Color = Vector4();
@@ -198,7 +197,7 @@ namespace Fsl
   }
 
 
-  void GridRenderVBGeometry1::Calc3DCoordinates(std::vector<VertexPositionColor>& rDst, const std::vector<PointMass>& points)
+  void GridRenderVBGeometry1::Calc3DCoordinates(std::vector<VertexPositionColorF>& rDst, const std::vector<PointMass>& points)
   {
     int32_t pointsWritten = 0;
     pointsWritten += CreateLinesHorizontal(rDst, points, pointsWritten);
@@ -207,7 +206,7 @@ namespace Fsl
   }
 
 
-  int32_t GridRenderVBGeometry1::CreateLinesHorizontal(std::vector<VertexPositionColor>& rDst, const std::vector<PointMass>& points,
+  int32_t GridRenderVBGeometry1::CreateLinesHorizontal(std::vector<VertexPositionColorF>& rDst, const std::vector<PointMass>& points,
                                                        const std::ptrdiff_t dstOffset)
   {
     const int srcGridMaxX = m_gridSize.X;
@@ -224,8 +223,8 @@ namespace Fsl
       const PointMass* pSrcLeft = points.data();
       const PointMass* pSrcRight = pSrcLeft + srcGridMaxX - 3;
       const PointMass* const pSrcEnd = pSrcLeft + (srcStride * srcGridMaxY);
-      VertexPositionColor* pDstLeft = rDst.data() + dstOffset;
-      VertexPositionColor* pDstRight = pDstLeft + dstGridMaxX - 3 + 1;
+      VertexPositionColorF* pDstLeft = rDst.data() + dstOffset;
+      VertexPositionColorF* pDstRight = pDstLeft + dstGridMaxX - 3 + 1;
       while (pSrcLeft < pSrcEnd)
       {
         // lines from left to right
@@ -285,8 +284,8 @@ namespace Fsl
       const PointMass* pSrc = points.data();
       const PointMass* const pSrcEnd = pSrc + (srcStride * srcGridMaxY);
       // +3 to skip the three points written in the border handling code
-      VertexPositionColor* pDstLeft = rDst.data() + dstOffset + 3 + 1;
-      VertexPositionColor* pDstRight = rDst.data() + dstOffset + dstGridMaxX - 4 + 1 + dstStride;
+      VertexPositionColorF* pDstLeft = rDst.data() + dstOffset + 3 + 1;
+      VertexPositionColorF* pDstRight = rDst.data() + dstOffset + dstGridMaxX - 4 + 1 + dstStride;
       const int constrainedGridMaxX = srcGridMaxX - 3;
       const auto dstStride2 = dstStride * 2;
 
@@ -324,7 +323,7 @@ namespace Fsl
     return ((m_gridFinalSize.X + 2) * m_gridSize.Y);
   }
 
-  int32_t GridRenderVBGeometry1::CreateLinesVertical(std::vector<VertexPositionColor>& rDst, const std::vector<PointMass>& points,
+  int32_t GridRenderVBGeometry1::CreateLinesVertical(std::vector<VertexPositionColorF>& rDst, const std::vector<PointMass>& points,
                                                      const std::ptrdiff_t dstOffset)
   {
     const int srcGridMaxX = m_gridSize.X;
@@ -341,8 +340,8 @@ namespace Fsl
       const PointMass* pSrcTop = points.data();
       const PointMass* pSrcBottom = pSrcTop + (srcStride * (srcGridMaxY - 3));
 
-      VertexPositionColor* pDstTop = rDst.data() + dstOffset;
-      VertexPositionColor* pDstBottom = pDstTop + (dstGridMaxY - 3 + 1);
+      VertexPositionColorF* pDstTop = rDst.data() + dstOffset;
+      VertexPositionColorF* pDstBottom = pDstTop + (dstGridMaxY - 3 + 1);
       for (int x = 0; x < srcGridMaxX; ++x)
       {
         assert(pDstTop < pDstEnd);
@@ -396,14 +395,14 @@ namespace Fsl
       // +3 to skip the three points written in the border handling code
       const PointMass* const pSrcStart = points.data();
       const PointMass* const pSrcConstrainedEnd = pSrcStart + (srcStride * (srcGridMaxY - 3));
-      VertexPositionColor* pDstLeftStart = rDst.data() + dstOffset + 3 + 1;
-      VertexPositionColor* pDstRightStart = rDst.data() + dstOffset + dstGridMaxY - 5 + 1;
+      VertexPositionColorF* pDstLeftStart = rDst.data() + dstOffset + 3 + 1;
+      VertexPositionColorF* pDstRightStart = rDst.data() + dstOffset + dstGridMaxY - 5 + 1;
 
       for (int x = 0; x < srcGridMaxX; ++x)
       {
         // Write lines from bottom to top
         const PointMass* pSrc = pSrcStart;
-        VertexPositionColor* pDst = pDstRightStart;
+        VertexPositionColorF* pDst = pDstRightStart;
         while (pSrc < pSrcConstrainedEnd)
         {
           assert(pDst < pDstEnd);

@@ -114,7 +114,7 @@ namespace Fsl
     //! @brief Creates a new Matrix which contains sum of two matrices.
     //! @param matrix1 The first matrix to add.
     //! @param matrix2 The second matrix to add.
-    //! @param result The result of the matrix addition as an output parameter.
+    //! @param rResult The result of the matrix addition as an output parameter.
     static void Add(const Matrix& matrix1, const Matrix& matrix2, Matrix& rResult);
 
     //! @brief Direct access to the matrix array
@@ -184,7 +184,7 @@ namespace Fsl
     //! @param objectPosition Position of billboard object. It will rotate around that vector.
     //! @param cameraPosition The camera position.
     //! @param cameraUpVector The camera up vector.
-    //! @param cameraForwardVector Optional camera forward vector.
+    //! @param pCameraForwardVector Optional camera forward vector.
     //! @return The Matrix for spherical billboarding
     static Matrix CreateBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& cameraUpVector,
                                   const Vector3* pCameraForwardVector);
@@ -193,8 +193,8 @@ namespace Fsl
     //! @param objectPosition Position of billboard object. It will rotate around that vector.
     //! @param cameraPosition The camera position.
     //! @param cameraUpVector The camera up vector.
-    //! @param cameraForwardVector Optional camera forward vector.
-    //! @param result The Matrix for spherical billboarding as an output parameter.
+    //! @param pCameraForwardVector Optional camera forward vector.
+    //! @param rResult The Matrix for spherical billboarding as an output parameter.
     static void CreateBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& cameraUpVector,
                                 const Vector3* pCameraForwardVector, Matrix& rResult);
 
@@ -202,8 +202,8 @@ namespace Fsl
     //! @param objectPosition Object position the billboard will rotate around.
     //! @param cameraPosition Camera position.
     //! @param rotateAxis Axis of billboard for rotation.
-    //! @param cameraForwardVector Optional camera forward vector.
-    //! @param objectForwardVector Optional object forward vector.
+    //! @param pCameraForwardVector Optional camera forward vector.
+    //! @param pObjectForwardVector Optional object forward vector.
     //! @return The Matrix for cylindrical billboarding
     static Matrix CreateConstrainedBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& rotateAxis,
                                              const Vector3* pCameraForwardVector, const Vector3* pObjectForwardVector);
@@ -212,31 +212,31 @@ namespace Fsl
     //! @param objectPosition Object position the billboard will rotate around.
     //! @param cameraPosition Camera position.
     //! @param rotateAxis Axis of billboard for rotation.
-    //! @param cameraForwardVector Optional camera forward vector.
-    //! @param objectForwardVector Optional object forward vector.
-    //! @param result The Matrix for cylindrical billboarding as an output parameter.
+    //! @param pCameraForwardVector Optional camera forward vector.
+    //! @param pObjectForwardVector Optional object forward vector.
+    //! @param rResult The Matrix for cylindrical billboarding as an output parameter.
     static void CreateConstrainedBillboard(const Vector3 objectPosition, const Vector3 cameraPosition, const Vector3 rotateAxis,
                                            const Vector3* pCameraForwardVector, const Vector3* pObjectForwardVector, Matrix& rResult);
 
     //! @brief Creates a new Matrix which contains the rotation moment around specified axis.
-    //! @param The axis of rotation.
-    //! @param The angle of rotation in radians.
+    //! @param axis The axis of rotation.
+    //! @param angle The angle of rotation in radians.
     //! @return The rotation Matrix.
     static Matrix CreateFromAxisAngle(const Vector3& axis, const float angle);
 
     //! @brief Creates a new Matrix which contains the rotation moment around specified axis.
-    //! @param The axis of rotation.
-    //! @param The angle of rotation in radians.
-    //! @param The rotation Matrix as a out parameter.
+    //! @param rResult The rotation Matrix as a out parameter.
+    //! @param axis The axis of rotation.
+    //! @param angle The angle of rotation in radians.
     [[deprecated("use one of the other overloads instead")]] static void CreateFromAxisAngle(Matrix& rResult, const Vector3& axis, const float angle)
     {
       CreateFromAxisAngle(axis, angle, rResult);
     }
 
     //! @brief Creates a new Matrix which contains the rotation moment around specified axis.
-    //! @param The axis of rotation.
-    //! @param The angle of rotation in radians.
-    //! @param The rotation Matrix as a out parameter.
+    //! @param axis axis of rotation.
+    //! @param angle angle of rotation in radians.
+    //! @param rResullt rotation Matrix as a out parameter.
     static void CreateFromAxisAngle(const Vector3& axis, const float angle, Matrix& rResult);
 
     //! @brief Creates a new rotation Matrix from a Quaternion.
@@ -245,7 +245,7 @@ namespace Fsl
     static Matrix CreateFromQuaternion(const Quaternion& quaternion);
 
     //! @brief Creates a new rotation Matrix from a Quaternion.
-    //! @param rRotation The rotation Matrix as an output parameter.
+    //! @param rResult The rotation Matrix as an output parameter.
     //! @param quaternion Quaternion of rotation moment.
     [[deprecated("use one of the other overloads instead")]] static void CreateFromQuaternion(Matrix& rResult, const Quaternion& quaternion)
     {
@@ -253,8 +253,8 @@ namespace Fsl
     }
 
     //! @brief Creates a new rotation Matrix from a Quaternion.
-    //! @param rRotation The rotation Matrix as an output parameter.
     //! @param quaternion Quaternion of rotation moment.
+    //! @param rResult The rotation Matrix as an output parameter.
     static void CreateFromQuaternion(const Quaternion& quaternion, Matrix& rResult);
 
     //! @brief Creates a new rotation matrix from the specified yaw, pitch and roll values.
@@ -270,7 +270,6 @@ namespace Fsl
     //! @param yaw The yaw rotation value in radians.
     //! @param pitch The pitch rotation value in radians.
     //! @param roll The roll rotation value in radians.
-    //! @return The rotation matrix
     //! Creates a new rotation Matrix from the specified yaw, pitch and roll values.
     [[deprecated("use one of the other overloads instead")]] static void CreateFromYawPitchRoll(Matrix& rResult, const float yaw, const float pitch,
                                                                                                 const float roll)
@@ -283,7 +282,6 @@ namespace Fsl
     //! @param yaw The yaw rotation value in radians.
     //! @param pitch The pitch rotation value in radians.
     //! @param roll The roll rotation value in radians.
-    //! @return The rotation matrix
     //! Creates a new rotation Matrix from the specified yaw, pitch and roll values.
     static void CreateFromYawPitchRoll(const float yaw, const float pitch, const float roll, Matrix& rResult);
 
@@ -944,7 +942,7 @@ namespace Fsl
       return Negate(*this);
     }
 
-    Matrix& operator*=(const Matrix& rhs)
+    constexpr Matrix& operator*=(const Matrix& rhs)
     {
       using namespace MatrixFields;
       const float* pRhs = rhs.DirectAccess();
@@ -1018,7 +1016,7 @@ namespace Fsl
   };
 
   //! @brief Matrix multiply
-  inline Matrix operator*(const Matrix& lhs, const Matrix& rhs)
+  constexpr inline Matrix operator*(const Matrix& lhs, const Matrix& rhs)
   {
     using namespace MatrixFields;
 

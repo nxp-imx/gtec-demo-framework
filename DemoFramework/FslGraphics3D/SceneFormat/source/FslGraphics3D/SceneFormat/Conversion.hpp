@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/PrimitiveType.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslGraphics3D/SceneFormat/PrimitiveType.hpp>
 #include "SFVertexDeclaration.hpp"
 
@@ -52,7 +52,7 @@ namespace Fsl
       static Fsl::VertexElementUsage Convert(const SceneFormat::VertexElementUsage value);
 
       static SFVertexElement Convert(const VertexElementEx& element);
-      static SFVertexDeclaration Convert(const VertexDeclaration& vertexDeclaration);
+      static SFVertexDeclaration Convert(VertexDeclarationSpan vertexDeclaration);
     };
   }
 }

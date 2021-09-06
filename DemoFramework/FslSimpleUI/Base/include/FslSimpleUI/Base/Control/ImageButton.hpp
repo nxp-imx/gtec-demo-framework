@@ -36,10 +36,11 @@
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
+#include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 
 namespace Fsl
 {
-  class ImageSprite;
+  class ISizedSprite;
 
   namespace UI
   {
@@ -51,17 +52,23 @@ namespace Fsl
     {
       struct Background
       {
-        std::shared_ptr<ImageSprite> Sprite;
-        std::shared_ptr<ImageSprite> HoverSprite;
+        SizedSpriteMesh Sprite;
+        SizedSpriteMesh HoverSprite;
         Color HoverUpColor{DefaultColor::Button::BackgroundHoverUp};
         Color UpColor{DefaultColor::Button::BackgroundUp};
         Color DownColor{DefaultColor::Button::BackgroundDown};
         Color DisabledColor{DefaultColor::Button::BackgroundDisabled};
         ItemScalePolicy ScalePolicy{ItemScalePolicy::NoScaling};
+
+        explicit Background(const std::shared_ptr<IMeshManager>& meshManager)
+          : Sprite(meshManager)
+          , HoverSprite(meshManager)
+        {
+        }
       };
       const std::shared_ptr<WindowContext> m_windowContext;
 
-      std::shared_ptr<ImageSprite> m_content;
+      SizedSpriteMesh m_content;
 
       Background m_background;
       // BackgroundHoverOverlay m_backgroundHoverOverlay;
@@ -79,12 +86,12 @@ namespace Fsl
     public:
       explicit ImageButton(const std::shared_ptr<WindowContext>& context);
 
-      const std::shared_ptr<ImageSprite>& GetContent() const
+      const std::shared_ptr<ISizedSprite>& GetContent() const
       {
-        return m_content;
+        return m_content.GetSprite();
       }
-      void SetContent(const std::shared_ptr<ImageSprite>& value);
-      void SetContent(std::shared_ptr<ImageSprite>&& value);
+      void SetContent(const std::shared_ptr<ISizedSprite>& value);
+      void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
       Color GetBackgroundColorHoverUp() const
       {
@@ -137,19 +144,19 @@ namespace Fsl
       }
       void SetDisabledColor(const Color& value);
 
-      const std::shared_ptr<ImageSprite>& GetBackground() const
+      const std::shared_ptr<ISizedSprite>& GetBackground() const
       {
-        return m_background.Sprite;
+        return m_background.Sprite.GetSprite();
       }
 
-      void SetBackground(const std::shared_ptr<ImageSprite>& value);
+      void SetBackground(const std::shared_ptr<ISizedSprite>& value);
 
-      const std::shared_ptr<ImageSprite>& GetBackgroundHover() const
+      const std::shared_ptr<ISizedSprite>& GetBackgroundHover() const
       {
-        return m_background.HoverSprite;
+        return m_background.HoverSprite.GetSprite();
       }
 
-      void SetBackgroundHover(const std::shared_ptr<ImageSprite>& value);
+      void SetBackgroundHover(const std::shared_ptr<ISizedSprite>& value);
 
 
       void WinDraw(const UIDrawContext& context) final;

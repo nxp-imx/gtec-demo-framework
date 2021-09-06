@@ -37,7 +37,7 @@
 #include <FslUtil/OpenGLES2/GLVertexAttribLink.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElement.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElements.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <GLES2/gl2.h>
 #include <array>
 #include <vector>
@@ -81,8 +81,7 @@ namespace Fsl
       //! @brief Create a uninitialized vertex buffer
       GLVertexBuffer() = default;
 
-      //! @brief Create a initialized vertex buffer
-      GLVertexBuffer(const void* const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration, const GLenum usage);
+      GLVertexBuffer(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration, const GLenum usage);
 
       //! @brief Create a initialized vertex buffer
       template <typename T>
@@ -118,7 +117,7 @@ namespace Fsl
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void Reset(const void* const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration, const GLenum usage);
+      void Reset(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration, const GLenum usage);
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
@@ -126,7 +125,7 @@ namespace Fsl
       template <typename T>
       void Reset(const T* const pVertices, const std::size_t elementCount, const GLenum usage)
       {
-        Reset(pVertices, elementCount, T::GetVertexDeclaration(), usage);
+        Reset(pVertices, elementCount, T::AsVertexDeclarationSpan(), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
@@ -135,7 +134,7 @@ namespace Fsl
       template <typename T, std::size_t TSize>
       void Reset(const std::array<T, TSize>& vertices, const GLenum usage)
       {
-        Reset(vertices.data(), vertices.size(), T::GetVertexDeclaration(), usage);
+        Reset(vertices.data(), vertices.size(), T::AsVertexDeclarationSpan(), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
@@ -144,7 +143,7 @@ namespace Fsl
       template <typename T>
       void Reset(const std::vector<T>& vertices, const GLenum usage)
       {
-        Reset(vertices.data(), vertices.size(), T::GetVertexDeclaration(), usage);
+        Reset(vertices.data(), vertices.size(), T::AsVertexDeclarationSpan(), usage);
       }
 
 

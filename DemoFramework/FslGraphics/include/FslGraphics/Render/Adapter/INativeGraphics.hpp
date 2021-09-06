@@ -39,6 +39,7 @@
 namespace Fsl
 {
   class IDynamicNativeTexture2D;
+  class INativeIndexBuffer;
   class INativeTexture2D;
   class RawBitmap;
   class RawTexture;

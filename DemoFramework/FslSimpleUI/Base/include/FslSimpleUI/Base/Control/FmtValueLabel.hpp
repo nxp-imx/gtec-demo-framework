@@ -107,6 +107,21 @@ namespace Fsl
         return true;
       }
 
+
+      //! @return true if the format string was changed (false if the format string was already equal to the value being set)
+      bool SetFormatString(std::string&& strFormat)
+      {
+        if (strFormat == m_format)
+        {
+          return false;
+        }
+
+        m_format = std::move(strFormat);
+        m_cacheIsValid = false;
+        PropertyUpdated(PropertyType::Content);
+        return true;
+      }
+
       bool SetContent(const value_type value)
       {
         if (m_content == value)
@@ -120,7 +135,7 @@ namespace Fsl
         return true;
       }
 
-      PxPoint2 MeasureRenderedValue(const value_type value) const
+      PxSize2D MeasureRenderedValue(const value_type value) const
       {
         fmt::memory_buffer tmpBuffer;
         fmt::format_to(tmpBuffer, m_format, value);

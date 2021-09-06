@@ -331,6 +331,10 @@ class GeneratorPluginFreeRTOS(GeneratorPluginCMakeBase):
         super().__init__(log, PackageConfig.PlatformNameString.FREERTOS, None, "CMakeFreeRTOS")
         self.InDevelopment = True
 
+class GeneratorPluginEmscripten(GeneratorPluginCMakeBase):
+    def __init__(self, log: Log) -> None:
+        super().__init__(log, PackageConfig.PlatformNameString.EMSCRIPTEN)
+        self.InDevelopment = True
 
 #def __CreateCustomWindowGenerator(platformName):
 #    gen = GeneratorPluginWindows();
@@ -356,7 +360,7 @@ class ActualPluginConfigContext(PluginConfigContext):
         # prepare plugins
         self.__GeneratorPlugins = [GeneratorPluginAndroid(log), GeneratorPluginUbuntu(log),
                                    GeneratorPluginYocto(log), GeneratorPluginWindows(log),
-                                   GeneratorPluginFreeRTOS(log), GeneratorPluginQNX(log)]
+                                   GeneratorPluginFreeRTOS(log), GeneratorPluginQNX(log), GeneratorPluginEmscripten(log)]
         if not allowDevelopmentPlugins:
             self.__GeneratorPlugins = [entry for entry in self.__GeneratorPlugins if not entry.InDevelopment]
 

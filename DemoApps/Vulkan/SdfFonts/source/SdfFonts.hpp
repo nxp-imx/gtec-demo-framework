@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
@@ -79,8 +79,8 @@ namespace Fsl
 
     struct FontRecord
     {
-      TextureAtlasBitmapFont Font;
       Vulkan::VUTexture Texture;
+      TextureAtlasSpriteFont Font;
     };
 
     struct ExampleRecord
@@ -127,7 +127,7 @@ namespace Fsl
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
 
     Resources m_resources;
-    std::vector<FontGlyphPosition> m_positionsScratchpad;
+    std::vector<SpriteFontGlyphPosition> m_positionsScratchpad;
 
     DependentResources m_dependentResources;
 
@@ -156,14 +156,15 @@ namespace Fsl
     ExampleRecord PrepareExample(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
                                  const IContentManager& contentManager, const int32_t lineYPx, const IO::Path& bitmapFontPath,
                                  const IO::Path& fontAtlasTexturePath, const StringViewLite& strView,
-                                 std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                                 const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
+                                 std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
     MeshRecord GenerateMesh(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
                             const PxPoint2& dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
-                            const StringViewLite& strView, std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                            const StringViewLite& strView, std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
     void RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const uint32_t currentFrameIndex, const PxPoint2& dstPositionPx,
                                 const FontRecord& fontRecord, const BitmapFontConfig fontConfig, const StringViewLite& strView,
-                                std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                                std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
     const RapidVulkan::GraphicsPipeline& SelectPipeline(const SdfFontMode fontSdfMode);
   };

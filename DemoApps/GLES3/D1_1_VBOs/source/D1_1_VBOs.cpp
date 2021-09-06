@@ -6,7 +6,7 @@
 
 #include <FslBase/Math/Vector3.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslGraphics/Vertices/VertexPositionColor.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "D1_1_VBOs.hpp"
 #include <GLES3/gl3.h>
@@ -30,20 +30,20 @@ namespace Fsl
 
     {    // Initialization
       // 3 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      constexpr std::array<VertexPositionColor, 3> vertices = {
-        VertexPositionColor(Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
-        VertexPositionColor(Vector3(-1.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
-        VertexPositionColor(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v2, c2
+      constexpr std::array<VertexPositionColorF, 3> vertices = {
+        VertexPositionColorF(Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
+        VertexPositionColorF(Vector3(-1.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
+        VertexPositionColorF(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v2, c2
       };
       // Index buffer data
       constexpr std::array<GLushort, 3> indices = {0, 1, 2};
 
       // 4 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      constexpr std::array<VertexPositionColor, 4> vertices2 = {
-        VertexPositionColor(Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
-        VertexPositionColor(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
-        VertexPositionColor(Vector3(1.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),    // v2, c2
-        VertexPositionColor(Vector3(1.0f, 0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v3, c3
+      constexpr std::array<VertexPositionColorF, 4> vertices2 = {
+        VertexPositionColorF(Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
+        VertexPositionColorF(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
+        VertexPositionColorF(Vector3(1.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),    // v2, c2
+        VertexPositionColorF(Vector3(1.0f, 0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v3, c3
       };
 
       // Index buffer data

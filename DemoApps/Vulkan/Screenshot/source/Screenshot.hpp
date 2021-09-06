@@ -33,12 +33,12 @@
 
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeBatch2D.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
-#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 
 namespace Fsl
 {
@@ -63,7 +63,7 @@ namespace Fsl
     Texture2D m_texture;
     DependentResources m_dependentResources;
 
-    std::shared_ptr<UI::LabelNineSliceButton> m_btnScreenshot;
+    std::shared_ptr<UI::BackgroundLabelButton> m_btnScreenshot;
     std::shared_ptr<UI::Label> m_label;
 
     bool m_screenshotRequested{false};
@@ -75,7 +75,7 @@ namespace Fsl
   protected:
     void Update(const DemoTime& demoTime) override;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
-    AppDrawResult TrySwapBuffers(const DemoTime& demoTime) override;
+    AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) override;
 
     VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
     void OnFreeResources() override;

@@ -1,0 +1,29 @@
+@startuml UI execution order
+
+caption UI execution order
+
+    :App.PostUpdate;
+
+partition Update {
+    :ProcessEvents;
+    :Update;
+    :ProcessEvents;
+    :Resolve;
+    :ProcessEvents;
+
+    partition Layout {
+        :Measure;
+        :Arrange;
+    }
+
+    :PostLayout;
+}
+
+    :App.Draw;
+
+partition Draw {
+    :WinDraw;
+}
+
+
+@enduml

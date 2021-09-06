@@ -163,3 +163,46 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
     }
   }
 }
+
+TEST(TestRender_Batch2DUtil, Clip_Now)
+{
+  PxAreaRectangleF toClipRect = PxAreaRectangleF::FromLeftTopRightBottom(170, 799, 181, 813);
+  NativeTextureArea textureArea(0.921875000f, 0.662109375f, 0.943359375f, 0.634765625f);
+  const PxAreaRectangleF clipRect = PxAreaRectangleF::FromLeftTopRightBottom(161, 805, 1916, 1068);
+
+  EXPECT_TRUE(Batch2DUtil::Clip(toClipRect, textureArea, clipRect));
+}
+
+TEST(TestRender_Batch2DUtil, Clip_Top)
+{
+  PxAreaRectangleF toClipRect = PxAreaRectangleF::FromLeftTopRightBottom(10, 20, 50, 120);
+  NativeTextureArea textureArea(100, 200, 900, 10200);
+  const PxAreaRectangleF clipRect = PxAreaRectangleF::FromLeftTopRightBottom(0, 40, 1000, 1000);
+
+  EXPECT_TRUE(Batch2DUtil::Clip(toClipRect, textureArea, clipRect));
+
+  // 20%
+  // 20000
+
+  EXPECT_FLOAT_EQ(100.0f, textureArea.X0);
+  EXPECT_FLOAT_EQ(2200.0f, textureArea.Y0);
+  EXPECT_FLOAT_EQ(900.0f, textureArea.X1);
+  EXPECT_FLOAT_EQ(10200.0f, textureArea.Y1);
+}
+
+TEST(TestRender_Batch2DUtil, Clip_Top_ReversedTexCoord)
+{
+  PxAreaRectangleF toClipRect = PxAreaRectangleF::FromLeftTopRightBottom(10, 20, 50, 120);
+  NativeTextureArea textureArea(100, 10200, 900, 200);
+  const PxAreaRectangleF clipRect = PxAreaRectangleF::FromLeftTopRightBottom(0, 40, 1000, 1000);
+
+  EXPECT_TRUE(Batch2DUtil::Clip(toClipRect, textureArea, clipRect));
+
+  // 20%
+  // 20000
+
+  EXPECT_FLOAT_EQ(100.0f, textureArea.X0);
+  EXPECT_FLOAT_EQ(8200.0f, textureArea.Y0);
+  EXPECT_FLOAT_EQ(900.0f, textureArea.X1);
+  EXPECT_FLOAT_EQ(200.0f, textureArea.Y1);
+}

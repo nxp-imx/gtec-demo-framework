@@ -68,26 +68,24 @@ namespace Fsl
     }
 
     //! @param elementStride the size of one element in bytes
-    VUBufferMemory VMBufferManager::CreateBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
-                                                 const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags,
-                                                 const VMBufferUsage usage)
+    VUBufferMemory VMBufferManager::CreateBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity,
+                                                 const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
     {
       switch (usage)
       {
       case VMBufferUsage::STATIC:
-        return CreateStaticBuffer(pVertices, elementCount, elementCapacity, elementStride, bufferUsageFlags);
+        return CreateStaticBuffer(bufferSpan, elementCapacity, bufferUsageFlags);
       case VMBufferUsage::DYNAMIC:
-        return CreateDynamicBuffer(pVertices, elementCount, elementCapacity, elementStride, bufferUsageFlags);
+        return CreateDynamicBuffer(bufferSpan, elementCapacity, bufferUsageFlags);
       default:
         throw NotSupportedException("Unsupported VMBufferUsage");
       }
     }
 
-    VUBufferMemory VMBufferManager::CreateDynamicBuffer(const void* const pVertices, const std::size_t elementCount,
-                                                        const std::size_t elementCapacity, const std::size_t elementStride,
+    VUBufferMemory VMBufferManager::CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity,
                                                         const VkBufferUsageFlags bufferUsageFlags)
     {
-      if (elementCount > elementCapacity)
+      if (bufferSpan.size() > elementCapacity)
       {
         throw std::invalid_argument("elementCount must be <= elementCapacity");
       }
@@ -97,14 +95,14 @@ namespace Fsl
 
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-      bufferCreateInfo.size = elementCapacity * elementStride;
+      bufferCreateInfo.size = elementCapacity * bufferSpan.stride();
       bufferCreateInfo.usage = bufferUsageFlags;
       bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
       VUBufferMemory buffer(m_physicalDevice, m_device, bufferCreateInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       buffer.Map();
-      buffer.Upload(0, pVertices, elementCount * elementStride);
+      buffer.Upload(0, bufferSpan.data(), bufferSpan.byte_size());
       // We leave the buffer mapped as this is a dynamic buffer that will be changed often
       return buffer;
     }
@@ -128,14 +126,14 @@ namespace Fsl
       return buffer;
     }
 
-    VUBufferMemory VMBufferManager::CreateStaticBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
-                                                       const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags)
+    VUBufferMemory VMBufferManager::CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity,
+                                                       const VkBufferUsageFlags bufferUsageFlags)
     {
       if ((bufferUsageFlags & (VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)) != 0)
       {
         throw NotSupportedException("Transfer buffers can not created using this method");
       }
-      if (elementCount > elementCapacity)
+      if (bufferSpan.size() > elementCapacity)
       {
         throw std::invalid_argument("elementCount must be <= elementCapacity");
       }
@@ -149,13 +147,13 @@ namespace Fsl
 
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-      bufferCreateInfo.size = elementCapacity * elementStride;
+      bufferCreateInfo.size = elementCapacity * bufferSpan.stride();
       bufferCreateInfo.usage = bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
       bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
       VUBufferMemory stagingBuffer(m_physicalDevice, m_device, bufferCreateInfo,
                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-      stagingBuffer.Upload(0, pVertices, elementCount * elementStride);
+      stagingBuffer.Upload(0, bufferSpan.data(), bufferSpan.byte_size());
 
       bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
       VUBufferMemory finalBuffer(m_physicalDevice, m_device, bufferCreateInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);

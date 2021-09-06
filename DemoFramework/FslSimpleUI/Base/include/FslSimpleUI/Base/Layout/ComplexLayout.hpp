@@ -33,6 +33,7 @@
 
 #include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 
 namespace Fsl
@@ -73,6 +74,7 @@ namespace Fsl
       void AddChild(const std::shared_ptr<BaseWindow>& window) override
       {
         m_children.Add(window);
+        window->SYS_SetParentBaseColor(GetFinalBaseColor());
       }
 
       void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
@@ -91,6 +93,19 @@ namespace Fsl
       }
 
     protected:
+      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override
+      {
+        Layout::OnPropertiesUpdated(flags);
+        if (flags.IsFlagged(PropertyType::BaseColor) && !m_children.empty())
+        {
+          for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
+          {
+            assert(itr->Window);
+            itr->Window->SYS_SetParentBaseColor(GetFinalBaseColor());
+          }
+        }
+      }
+
       const std::shared_ptr<BaseWindow>& ChildAt(const uint32_t index) const
       {
         return m_children.ChildAt(index);

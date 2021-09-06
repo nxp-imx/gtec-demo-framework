@@ -48,7 +48,7 @@ namespace Fsl
   struct Vector3;
   struct Vector4;
   class IContentManager;
-  class VertexDeclaration;
+  class VertexDeclarationSpan;
 
   class TessellationShader
   {
@@ -81,7 +81,7 @@ namespace Fsl
     TessellationShader(const TessellationShader&) = delete;
     TessellationShader& operator=(const TessellationShader&) = delete;
 
-    TessellationShader(const std::shared_ptr<IContentManager>& contentManager, const VertexDeclaration& vertexDeclaration);
+    TessellationShader(const std::shared_ptr<IContentManager>& contentManager, VertexDeclarationSpan vertexDeclaration);
 
     void UpdateUniforms(const RenderTessellationConfig& tessRenderConfig, const RenderCameraConfig& cameraConfig, const RenderMaterial& material,
                         const int32_t activeTexDiffuseId, const int32_t activeTexNormalId, const int32_t activeTexDisplaceId);

@@ -3,6 +3,7 @@
   <Executable Name="Vulkan.Bloom" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="FslDemoService.NativeGraphics.Vulkan"/>
     <Dependency Name="Shared.Bloom"/>
   </Executable>
 </FslBuildGen>

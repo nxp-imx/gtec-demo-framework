@@ -41,14 +41,17 @@
 namespace Fsl
 {
   SpriteFontInfo::SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-                                 const uint32_t imageDpi, const bool enableKerning, const StringViewLite& debugName)
+                                 const uint32_t imageDpi, const bool enableKerning, const bool isSdfBased, const float sdfScale,
+                                 const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , AtlasTextureExtentPx(spriteMaterialInfo.ExtentPx)
     , AtlasTextureExtentDp(SpriteUnitConverter::CalcImageDpExtent(AtlasTextureExtentPx, imageDpi))
     , LineSpacingPx(lineSpacingPx)
     , BaseLinePx(baseLinePx)
     , ImageDpi(imageDpi)
-    , FontConfig(1.0f, enableKerning)
+    , IsSdfBased(isSdfBased)
+    , SdfScale(!isSdfBased ? 1.0f : sdfScale)
+    , FontConfig(SdfScale, enableKerning)
     , ScaledLineSpacingPx(lineSpacingPx)
     , ScaledBaseLinePx(baseLinePx)
   {

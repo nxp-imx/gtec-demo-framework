@@ -34,11 +34,18 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginFrameInfo.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeDependentCreateInfo.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsBeginFrameInfo.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsDependentCreateInfo.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsDeviceCreateInfo.hpp>
 #include <FslDemoService/Graphics/Impl/Basic2D.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsServiceOptionParser.hpp>
-#include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsServiceControl.hpp>
+#include <FslDemoService/NativeGraphics/Base/NativeGraphicsDeviceCreateInfo.hpp>
 #include <FslDemoService/Profiler/DefaultProfilerColors.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <cassert>
@@ -67,7 +74,19 @@ namespace Fsl
   }
 
 
-  GraphicsService::~GraphicsService() = default;
+  GraphicsService::~GraphicsService()
+  {
+    if (m_resources.IsValid)
+    {
+      FSLLOG3_ERROR("Device is still valid, trying to destroy it.");
+      DestroyDevice();
+    }
+    if (m_apiResources.IsValid)
+    {
+      FSLLOG3_ERROR("API still selected, trying to clear it");
+      ClearActiveApi();
+    }
+  }
 
 
   void GraphicsService::Update()
@@ -77,9 +96,9 @@ namespace Fsl
     {
       uint32_t batchDrawCount = 0;
       uint32_t batchVertices = 0;
-      if (m_nativeBatch2D)
+      if (m_resources.NativeBatch2D)
       {
-        Batch2DStats stats = m_nativeBatch2D->GetStats();
+        Batch2DStats stats = m_resources.NativeBatch2D->GetStats();
         batchDrawCount = stats.Native.DrawCalls;
         batchVertices = stats.Native.Vertices;
       }
@@ -92,7 +111,7 @@ namespace Fsl
 
   void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat)
   {
-    if (!m_nativeService)
+    if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
@@ -104,12 +123,12 @@ namespace Fsl
 
   void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const Rectangle& srcRectangle)
   {
-    if (!m_nativeService)
+    if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
 
-    m_nativeService->Capture(rBitmap, srcRectangle);
+    m_apiResources.NativeService->Capture(rBitmap, srcRectangle);
     if (!rBitmap.IsValid())
     {
       FSLLOG3_WARNING("Capture failed");
@@ -128,98 +147,253 @@ namespace Fsl
 
   std::shared_ptr<IBasic2D> GraphicsService::GetBasic2D()
   {
-    if (!m_nativeService)
+    // The basic2d interface is allowed
+    if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
 
-    if (m_basic2D)
+    if (m_apiResources.NativeBasic2D)
     {
-      return m_basic2D;
+      return m_apiResources.NativeBasic2D;
     }
 
-    m_nativBasic2D = m_nativeService->CreateBasic2D(m_windowMetrics.ExtentPx);
-    m_basic2D = std::make_shared<Basic2D>(m_nativBasic2D);
-    if (!m_basic2D)
+    m_apiResources.NativBasic2D = m_apiResources.NativeService->CreateBasic2D(m_windowMetrics.ExtentPx);
+    m_apiResources.NativeBasic2D = std::make_shared<Basic2D>(m_apiResources.NativBasic2D);
+
+    if (!m_apiResources.NativeBasic2D)
     {
       throw NotSupportedException("Native service returned a null pointer for CreateBasic2D");
     }
-    return m_basic2D;
+    return m_apiResources.NativeBasic2D;
   }
 
 
   std::shared_ptr<INativeBatch2D> GraphicsService::GetNativeBatch2D()
   {
-    if (!m_nativeService)
+    if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
 
-    if (m_nativeBatch2D)
+    if (m_resources.NativeBatch2D)
     {
-      return m_nativeBatch2D;
+      return m_resources.NativeBatch2D;
     }
 
-    m_nativeBatch2D = m_nativeService->CreateNativeBatch2D(m_windowMetrics.ExtentPx);
-    if (!m_nativeBatch2D)
+    m_resources.NativeBatch2D = m_apiResources.NativeService->CreateNativeBatch2D(m_windowMetrics.ExtentPx);
+    if (!m_resources.NativeBatch2D)
     {
       throw NotSupportedException("Native service returned a null pointer for CreateNativeBatch2D");
     }
-    return m_nativeBatch2D;
+    return m_resources.NativeBatch2D;
   }
 
 
   std::shared_ptr<INativeGraphics> GraphicsService::GetNativeGraphics()
   {
-    if (!m_nativeService)
+    if (!m_apiResources.NativeService)
     {
       throw UsageErrorException("Not linked to native service");
     }
 
-    return m_nativeService;
+    return m_apiResources.NativeService;
   }
 
 
-  void GraphicsService::Reset()
+  std::shared_ptr<IBasicRenderSystem> GraphicsService::GetBasicRenderSystem()
   {
-    m_nativeBatch2D.reset();
-    m_basic2D.reset();
-    m_nativBasic2D.reset();
-    m_nativeService.reset();
+    if (!m_apiResources.NativeService)
+    {
+      throw UsageErrorException("Not linked to native service");
+    }
+    return m_apiResources.NativeService->GetBasicRenderSystem();
   }
 
 
-  void GraphicsService::Configure(const DemoHostFeature& activeAPI)
+  void GraphicsService::SetWindowMetrics(const DemoWindowMetrics& windowMetrics)
   {
-    Reset();
+    if (windowMetrics == m_windowMetrics)
+    {
+      return;
+    }
+
+    m_windowMetrics = windowMetrics;
+    if (m_apiResources.NativBasic2D)
+    {
+      m_apiResources.NativBasic2D->SetScreenExtent(windowMetrics.ExtentPx);
+    }
+    else if (m_preallocateBasic2D)
+    {
+      GetBasic2D();
+    }
+
+    if (m_resources.NativeBatch2D)
+    {
+      m_resources.NativeBatch2D->SetScreenExtent(windowMetrics.ExtentPx);
+    }
+  }
+
+
+  void GraphicsService::ClearActiveApi()
+  {
+    if (m_dependentResources.IsValid)
+    {
+      FSLLOG3_ERROR("DependentResources are still allocated, call order error.. Trying to DestroyDependentResources");
+      DestroyDependentResources();
+    }
+    if (m_resources.IsValid)
+    {
+      FSLLOG3_ERROR("Resources are still allocated, call order error.. Trying to DestroyDevice");
+      DestroyDevice();
+    }
+
+    m_apiResources = {};
+  }
+
+
+  void GraphicsService::SetActiveApi(const DemoHostFeature& activeAPI)
+  {
+    FSLLOG3_VERBOSE("GraphicsService::CreateDevice");
+    if (m_apiResources.IsValid)
+    {
+      FSLLOG3_ERROR("SetActiveApi called from unexpected state, clearing old api");
+      ClearActiveApi();
+    }
+    m_apiResources.IsValid = true;
+
     NativeGraphicsServiceDeque::const_iterator itr = m_nativeGraphicsServices.begin();
-    while (itr != m_nativeGraphicsServices.end() && !m_nativeService)
+    while (itr != m_nativeGraphicsServices.end() && !m_apiResources.NativeService)
     {
       if ((*itr)->IsSupported(activeAPI))
       {
-        m_nativeService = *itr;
+        m_apiResources.NativeService = *itr;
+        m_apiResources.NativeServiceControl = std::dynamic_pointer_cast<INativeGraphicsServiceControl>(m_apiResources.NativeService);
       }
       ++itr;
     }
 
-    FSLLOG3_WARNING_IF(!m_nativeService, "Unsupported API for GraphicsService");
+    FSLLOG3_WARNING_IF(!m_apiResources.NativeService, "Unsupported API for GraphicsService");
   }
 
 
-  void GraphicsService::SetWindowMetrics(const DemoWindowMetrics& windowMetrics, const bool preallocateBasic2D)
+  void GraphicsService::CreateDevice(const GraphicsDeviceCreateInfo& createInfo)
   {
-    m_windowMetrics = windowMetrics;
-    if (m_nativBasic2D)
+    FSLLOG3_VERBOSE("GraphicsService::CreateDevice");
+    if (!m_apiResources.IsValid)
     {
-      m_nativBasic2D->SetScreenExtent(windowMetrics.ExtentPx);
+      throw UsageErrorException("SetActiveApi must be called before CreateDevice");
     }
-    if (m_nativeBatch2D)
+    if (m_resources.IsValid)
     {
-      m_nativeBatch2D->SetScreenExtent(windowMetrics.ExtentPx);
+      FSLLOG3_ERROR("Old device is still valid, trying to destroy it");
+      DestroyDevice();
     }
-    if (preallocateBasic2D)
+
+    if (m_apiResources.NativeServiceControl)
     {
-      GetBasic2D();
+      NativeGraphicsDeviceCreateInfo nativeCreateInfo(createInfo.MaxFramesInFlight, createInfo.pCustomCreateInfo);
+      m_apiResources.NativeServiceControl->CreateDevice(nativeCreateInfo);
+    }
+
+    m_preallocateBasic2D = createInfo.PreallocateBasic2D;
+
+    m_resources = DeviceResources(true);
+  }
+
+
+  void GraphicsService::DestroyDevice()
+  {
+    if (!m_resources.IsValid)
+    {
+      return;
+    }
+
+    FSLLOG3_VERBOSE("GraphicsService::DestroyDevice");
+    if (m_dependentResources.IsValid)
+    {
+      FSLLOG3_ERROR("Dependent resources still allocated, trying to destory them");
+      DestroyDependentResources();
+    }
+    assert(m_apiResources.IsValid);
+
+    if (m_apiResources.NativeServiceControl)
+    {
+      m_apiResources.NativeServiceControl->DestroyDevice();
+    }
+
+    m_resources = {};
+  }
+
+
+  void GraphicsService::CreateDependentResources(const GraphicsDependentCreateInfo& createInfo)
+  {
+    FSLLOG3_VERBOSE("GraphicsService::CreateDependentResources");
+    if (!m_resources.IsValid)
+    {
+      throw UsageErrorException("CreateDevice must be called");
+    }
+    if (m_dependentResources.IsValid)
+    {
+      FSLLOG3_ERROR("Dependent resources are still valid, trying to destroy them");
+      DestroyDependentResources();
+    }
+
+    if (m_apiResources.NativeServiceControl)
+    {
+      BasicNativeDependentCreateInfo nativeCreateInfo(createInfo.ExtentPx, createInfo.pCustomCreateInfo);
+      m_apiResources.NativeServiceControl->CreateDependentResources(nativeCreateInfo);
+    }
+    m_dependentResources = DeviceDependentResources(true);
+  }
+
+
+  void GraphicsService::DestroyDependentResources()
+  {
+    if (!m_dependentResources.IsValid)
+    {
+      return;
+    }
+    FSLLOG3_VERBOSE("GraphicsService::DestroyDependentResources");
+    if (m_apiResources.NativeServiceControl)
+    {
+      m_apiResources.NativeServiceControl->DestroyDependentResources();
+    }
+    m_dependentResources = {};
+  }
+
+  void GraphicsService::PreUpdate()
+  {
+    if (m_apiResources.NativeServiceControl)
+    {
+      m_apiResources.NativeServiceControl->PreUpdate();
     }
   }
+
+  void GraphicsService::BeginFrame(const GraphicsBeginFrameInfo& frameInfo)
+  {
+    if (m_apiResources.NativeServiceControl)
+    {
+      BasicNativeBeginFrameInfo nativeFrameInfo(frameInfo.FrameIndex, frameInfo.pCustomInfo);
+      m_apiResources.NativeServiceControl->BeginFrame(nativeFrameInfo);
+    }
+  }
+
+  void GraphicsService::EndFrame()
+  {
+    if (m_apiResources.NativeServiceControl)
+    {
+      m_apiResources.NativeServiceControl->EndFrame();
+    }
+  }
+
+  void GraphicsService::OnRenderSystemEvent(const BasicRenderSystemEvent theEvent)
+  {
+    if (m_apiResources.NativeServiceControl)
+    {
+      m_apiResources.NativeServiceControl->OnRenderSystemEvent(theEvent);
+    }
+  }
+
+
 }

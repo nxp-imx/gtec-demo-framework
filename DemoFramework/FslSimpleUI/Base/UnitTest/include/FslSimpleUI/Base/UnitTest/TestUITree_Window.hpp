@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
+#include <FslBase/Transition/TransitionTimeSpan.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowMethodFlags.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
 
@@ -55,10 +55,10 @@ public:
     {
       ASSERT_EQ(0u, callCount.WinMarkLayoutAsDirty);
     }
-    if (checkFlags.IsEnabled(WindowMethod::WinGetContentPxRectangle))
-    {
-      ASSERT_EQ(0u, callCount.WinGetContentRect);
-    }
+    // if (checkFlags.IsEnabled(WindowMethod::WinGetContentPxRectangle))
+    //{
+    //  ASSERT_EQ(0u, callCount.WinGetContentRect);
+    //}
     if (checkFlags.IsEnabled(WindowMethod::WinHandleEvent))
     {
       ASSERT_EQ(0u, callCount.WinHandleEvent);

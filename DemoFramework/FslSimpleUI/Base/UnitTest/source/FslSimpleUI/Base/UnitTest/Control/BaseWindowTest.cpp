@@ -35,7 +35,7 @@ namespace Fsl
 {
   namespace UI
   {
-    BaseWindowTest::BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags)
+    BaseWindowTest::BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags)
       : BaseWindow(context)
     {
       if (windowFlags.GetValue() > 0)
@@ -72,16 +72,16 @@ namespace Fsl
       return res;
     }
 
-    const PxRectangle& BaseWindowTest::WinGetContentPxRectangle() const
-    {
-      ++m_callCount.WinGetContentRect;
-      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
-      {
-        m_callId.WinGetContentRect = m_callIdManager->Claim();
-      }
+    // const PxRectangle& BaseWindowTest::WinGetContentPxRectangle() const
+    //{
+    //  ++m_callCount.WinGetContentRect;
+    //  if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
+    //  {
+    //    m_callId.WinGetContentRect = m_callIdManager->Claim();
+    //  }
 
-      return BaseWindow::WinGetContentPxRectangle();
-    }
+    //  return BaseWindow::WinGetContentRectanglePx();
+    //}
 
     void BaseWindowTest::WinHandleEvent(const RoutedEvent& routedEvent)
     {
@@ -96,7 +96,7 @@ namespace Fsl
       Callbacks.WinHandleEvent(routedEvent);
     }
 
-    void BaseWindowTest::WinUpdate(const DemoTime& demoTime)
+    void BaseWindowTest::WinUpdate(const TransitionTimeSpan& timeSpan)
     {
       ++m_callCount.WinUpdate;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinUpdate))
@@ -104,12 +104,12 @@ namespace Fsl
         m_callId.WinUpdate = m_callIdManager->Claim();
       }
 
-      BaseWindow::WinUpdate(demoTime);
+      BaseWindow::WinUpdate(timeSpan);
 
-      Callbacks.WinUpdate(demoTime);
+      Callbacks.WinUpdate(timeSpan);
     }
 
-    void BaseWindowTest::WinResolve(const DemoTime& demoTime)
+    void BaseWindowTest::WinResolve(const TransitionTimeSpan& timeSpan)
     {
       ++m_callCount.WinResolve;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinResolve))
@@ -117,9 +117,9 @@ namespace Fsl
         m_callId.WinResolve = m_callIdManager->Claim();
       }
 
-      BaseWindow::WinResolve(demoTime);
+      BaseWindow::WinResolve(timeSpan);
 
-      Callbacks.WinResolve(demoTime);
+      Callbacks.WinResolve(timeSpan);
     }
 
     void BaseWindowTest::WinDraw(const UIDrawContext& context)

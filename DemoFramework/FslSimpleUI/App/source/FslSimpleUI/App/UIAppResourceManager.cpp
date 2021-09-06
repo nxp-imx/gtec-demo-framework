@@ -36,29 +36,29 @@
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/String/StringToValue.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Font/BitmapFontConverter.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Render/BlendStateUtil.hpp>
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
-#include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Render/Basic/Material/BasicMaterialCreateInfo.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/BasicNineSliceSprite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
-#include <FslGraphics/Sprite/NineSliceSprite.hpp>
-#include <FslGraphics/Sprite/SpriteDpConfig.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
+#include <FslGraphics/Sprite/NineSliceSprite.hpp>
+#include <FslGraphics/Sprite/OptimizedBasicNineSliceSprite.hpp>
+#include <FslGraphics/Sprite/OptimizedNineSliceSprite.hpp>
 #include <FslGraphics/TextureAtlas/CompatibilityTextureAtlasMap.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
+#include <FslSimpleUI/App/UIAppConfig.hpp>
 #include <array>
 #include <cmath>
 #include <limits>
@@ -66,79 +66,14 @@
 
 namespace Fsl
 {
-  namespace
-  {
-    namespace LocalConfig
-    {
-      constexpr StringViewLite AtlasExtension(".bta");
-      // constexpr StringViewLite NewFontExtension(".nbf");
-      constexpr StringViewLite OldFontExtension(".fbk");
-      constexpr StringViewLite FilenameDpiPostfix("dpi");
-      constexpr char FilenameDpStartChar = '_';
-
-      // This is expected to be a sorted array (low to high)
-      // Density:                                   0.5,0.6, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0
-      constexpr std::array<uint32_t, 9> ValidDpis = {80, 96, 160, 240, 320, 400, 480, 560, 640};
-
-      constexpr float PreferenceWeight = 0.97f;
-      constexpr float UpscalePrefScale = 1.5f;
-
-      constexpr uint32_t BaseDp = 160;
-    }
-
-    static_assert(LocalConfig::ValidDpis.size() <= 32u, "the EncodedAvailableDp encodes the indices in bits");
-
-    bool IsValidSupportedDp(const uint64_t dp)
-    {
-      for (auto entry : LocalConfig::ValidDpis)
-      {
-        if (dp == entry)
-        {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    // 0         160        320        480        640
-    // A          B          C          D          E
-    // |----------|----------|----------|----------|
-    //
-    // |BBBBBBBBBB|BCCCCCCCCC|CDDDDDDDDD|EEEEEEEEEE|E
-
-    float CalcScore(const uint32_t dpToScore, const uint32_t densityDpi)
-    {
-      const int32_t delta = (UncheckedNumericCast<int32_t>(densityDpi) - UncheckedNumericCast<int32_t>(dpToScore));
-      static_assert(LocalConfig::PreferenceWeight >= 0.0f && LocalConfig::PreferenceWeight <= 1.0f, "PreferenceWeight not in a valid range");
-      // 100.0f is just used to ensure that the we are flooring positive values
-      float tmp = (float(delta) / float(LocalConfig::BaseDp)) + 100.0f + LocalConfig::PreferenceWeight;
-      assert(tmp >= 0.0f);
-      tmp = 100.0f - std::floor(tmp);
-      return tmp >= 0.0f ? tmp : (-tmp) * LocalConfig::UpscalePrefScale;
-    }
-
-    BitmapFont LoadFromLegacyFontFormat(const IContentManager& contentManager, const IO::Path& path,
-                                        const CompatibilityTextureAtlasMap* const pTextureAtlasMap)
-    {
-      if (pTextureAtlasMap == nullptr)
-      {
-        throw std::invalid_argument("no texture atlas available");
-      }
-
-      BasicFontKerning kerning;
-      contentManager.Read(kerning, path);
-      return BitmapFontConverter::ToBitmapFont(*pTextureAtlasMap, kerning, BitmapFontType::Bitmap);
-    }
-  }
-
-  UIAppResourceManager::UIAppResourceManager(std::weak_ptr<IContentManager> contentManager, std::weak_ptr<INativeGraphics> nativeGraphics,
-                                             const DemoWindowMetrics& windowMetrics, const UITestPatternMode testPatternMode)
+  UIAppResourceManager::UIAppResourceManager(std::weak_ptr<IContentManager> contentManager, std::weak_ptr<IBasicRenderSystem> renderSystem,
+                                             const DemoWindowMetrics& windowMetrics, const UITestPatternMode testPatternMode,
+                                             const bool allowDepthBuffer, const bool defaultToDynamicMaterials, const bool useYFlipTextureCoordinates)
     : m_contentManager(std::move(contentManager))
-    , m_nativeGraphics(std::move(nativeGraphics))
-    , m_densityDpi(windowMetrics.DensityDpi)
-    , m_testPatternMode(testPatternMode)
-    , m_manager(windowMetrics.DensityDpi)
-    , m_testPatternEnabled(UITestPatternModeUtil::IsFlagged(testPatternMode, UITestPatternMode::Enabled))
+    , m_renderSystem(std::move(renderSystem))
+    , m_textureManager(windowMetrics.DensityDpi, testPatternMode)
+    , m_materialManager(allowDepthBuffer, defaultToDynamicMaterials)
+    , m_manager(windowMetrics.DensityDpi, useYFlipTextureCoordinates)
   {
   }
 
@@ -148,25 +83,35 @@ namespace Fsl
     m_fonts.clear();
     m_nineSlices.clear();
     m_images.clear();
-    m_materials.clear();
-    m_textureLookup.clear();
-    m_textures.Clear();
+    m_materialManager.Clear();
+    m_textureManager.Clear();
+  }
+
+
+  void UIAppResourceManager::SYS_SetRenderSystemViewport(const PxViewport& viewportPx)
+  {
+    auto renderSystemPtr = m_renderSystem.lock();
+    if (!renderSystemPtr)
+    {
+      throw UsageErrorException("renderSystem is no longer valid");
+    }
+    m_materialManager.PatchMaterials(*renderSystemPtr, viewportPx);
   }
 
 
   void UIAppResourceManager::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
-    if (windowMetrics.DensityDpi == m_densityDpi)
+    if (windowMetrics.DensityDpi == m_textureManager.GetDensityDpi())
     {
       // Nothing important was modified
       return;
     }
-    m_densityDpi = windowMetrics.DensityDpi;
+    m_textureManager.SetDensityDpi(windowMetrics.DensityDpi);
 
-    auto nativeGraphics = m_nativeGraphics.lock();
-    if (!nativeGraphics)
+    auto renderSystem = m_renderSystem.lock();
+    if (!renderSystem)
     {
-      throw UsageErrorException("nativeGraphics is no longer valid");
+      throw UsageErrorException("renderSystem is no longer valid");
     }
 
     auto contentManager = m_contentManager.lock();
@@ -176,181 +121,189 @@ namespace Fsl
     }
 
     // Then reload any missing materials
-    UpdateDpAwareSpriteMaterials(*contentManager, *nativeGraphics, m_densityDpi);
+    UpdateDpAwareSpriteMaterials(*contentManager, *renderSystem, m_textureManager.GetDensityDpi());
 
     // Finally update the sprite manager
     m_manager.Resize(windowMetrics.DensityDpi);
   }
 
 
+  bool UIAppResourceManager::FontExists(const UIAppTextureHandle textureHandle, IO::PathView fontName) const
+  {
+    auto contentManager = m_contentManager.lock();
+    if (!contentManager)
+    {
+      FSLLOG3_DEBUG_WARNING("content manager is no longer valid");
+      return false;
+    }
+
+    return m_textureManager.SpriteFontExists(*contentManager, textureHandle, fontName);
+  }
+
+
   const CompatibilityTextureAtlasMap& UIAppResourceManager::GetLegacyTextureAtlasMap(const UIAppTextureHandle hTexture) const
   {
-    const TextureDefinition& textureRecord = m_textures.Get(hTexture.Value);
-    if (!textureRecord.Atlas)
-    {
-      throw NotFoundException("No texture atlas associated with the given texture");
-    }
-    return *textureRecord.Atlas;
+    return m_textureManager.GetAtlas(hTexture);
   }
 
-  UIAppResourceManager::StaticTextureInfo UIAppResourceManager::CreateTexture(const IO::PathView& atlasPath,
-                                                                              const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                                                              const UIAppResourceFlag flags)
+  UIAppTexture<INativeTexture2D> UIAppResourceManager::CreateTexture(const IO::PathView& atlasPath,
+                                                                     const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                                     const UIAppResourceFlag flags)
   {
-    auto nativeGraphics = m_nativeGraphics.lock();
-    if (!nativeGraphics)
+    auto renderSystem = m_renderSystem.lock();
+    if (!renderSystem)
     {
-      throw UsageErrorException("nativeGraphics is no longer valid");
+      throw UsageErrorException("renderSystem is no longer valid");
     }
-    // If this is a UI resource and pattern mode is set to allow switching we force this texture to be dynamic
-    if (UIAppResourceFlagUtil::IsFlagged(flags, UIAppResourceFlag::UIGroup) &&
-        UITestPatternModeUtil::IsFlagged(m_testPatternMode, UITestPatternMode::AllowSwitching))
+    auto contentManager = m_contentManager.lock();
+    if (!contentManager)
     {
-      auto res = CreateDynamicTexture(atlasPath, textureCreationInfo, flags);
-      return {res.Handle, res.Texture, res.ExtentPx, res.TexturePixelFormat};
+      throw UsageErrorException("contentManager is no longer valid");
     }
-
-    PrepareCreateResult prepareCreateResult = PrepareCreateTexture(atlasPath, textureCreationInfo, flags);
-    assert(prepareCreateResult.TextureResult.SrcTexture.GetExtent().Depth == 1u);
-
-    const PxExtent2D extent = prepareCreateResult.TextureResult.SrcTexture.GetExtent2D();
-    const PixelFormat pixelFormat = prepareCreateResult.TextureResult.SrcTexture.GetPixelFormat();
-    std::shared_ptr<INativeTexture2D> texture;
-    {
-      RawTexture srcRawTexture;
-      Texture::ScopedDirectAccess directAccess(prepareCreateResult.TextureResult.SrcTexture, srcRawTexture);
-      texture = nativeGraphics->CreateTexture2D(srcRawTexture, textureCreationInfo.Texture.FilterHint, textureCreationInfo.Texture.Flags);
-    }
-
-    auto handle = DoAddTexture(std::move(prepareCreateResult), texture, flags);
-    return {handle, texture, extent, pixelFormat};
+    return m_textureManager.CreateTexture(*contentManager, *renderSystem, atlasPath, textureCreationInfo, flags);
   }
 
 
-  UIAppResourceManager::DynamicTextureInfo UIAppResourceManager::CreateDynamicTexture(const IO::PathView& atlasPath,
-                                                                                      const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                                                                      const UIAppResourceFlag flags)
+  UIAppTexture<IDynamicNativeTexture2D> UIAppResourceManager::CreateDynamicTexture(const IO::PathView& atlasPath,
+                                                                                   const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                                                   const UIAppResourceFlag flags)
   {
-    auto nativeGraphics = m_nativeGraphics.lock();
-    if (!nativeGraphics)
+    auto renderSystem = m_renderSystem.lock();
+    if (!renderSystem)
     {
-      throw UsageErrorException("nativeGraphics is no longer valid");
+      throw UsageErrorException("renderSystem is no longer valid");
     }
-    // Ensure the dynamic flag is set
-    const auto modifiedFlags = flags | UIAppResourceFlag::Dynamic;
-
-    PrepareCreateResult prepareCreateResult = PrepareCreateTexture(atlasPath, textureCreationInfo, flags);
-    assert(prepareCreateResult.TextureResult.SrcTexture.GetExtent().Depth == 1u);
-
-    const PxExtent2D extent = prepareCreateResult.TextureResult.SrcTexture.GetExtent2D();
-    const PixelFormat pixelFormat = prepareCreateResult.TextureResult.SrcTexture.GetPixelFormat();
-    std::shared_ptr<IDynamicNativeTexture2D> texture;
+    auto contentManager = m_contentManager.lock();
+    if (!contentManager)
     {
-      RawTexture srcRawTexture;
-      Texture::ScopedDirectAccess directAccess(prepareCreateResult.TextureResult.SrcTexture, srcRawTexture);
-      texture = nativeGraphics->CreateDynamicTexture2D(srcRawTexture, textureCreationInfo.Texture.FilterHint, textureCreationInfo.Texture.Flags);
+      throw UsageErrorException("contentManager is no longer valid");
     }
-    auto handle = DoAddTexture(std::move(prepareCreateResult), texture, modifiedFlags);
-    return {handle, texture, extent, pixelFormat};
+    return m_textureManager.CreateDynamicTexture(*contentManager, *renderSystem, atlasPath, textureCreationInfo, flags);
   }
-
 
   void UIAppResourceManager::AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture,
                                                const BlendState blendState)
   {
-    if (!m_textures.IsValidHandle(hTexture.Value))
+    auto renderSystem = m_renderSystem.lock();
+    if (!renderSystem)
+    {
+      throw UsageErrorException("renderSystem is no longer valid");
+    }
+
+    if (!m_textureManager.IsValidHandle(hTexture))
     {
       throw std::invalid_argument("invalid texture handle");
     }
-
-    // verify that the material isn't defined!
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind != m_materials.end())
-    {
-      throw UsageErrorException(fmt::format("Material already defined {}", spriteMaterialId.Value));
-    }
-
-    const TextureDefinition& textureRecord = m_textures.Get(hTexture.Value);
-
-    const auto nativeMaterialFlags = static_cast<uint32_t>(blendState);
-    SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureRecord.ExtentPx, BlendStateUtil::IsOpaque(blendState), textureRecord.Texture,
-                                          nativeMaterialFlags);
-    m_materials.emplace(spriteMaterialId, MaterialRecord{hTexture, spriteMaterialInfo});
+    SimpleUIApp::UIAppTextureInfo textureInfo = m_textureManager.GetTextureInfo(hTexture);
+    m_materialManager.AddMaterial(*renderSystem, spriteMaterialId, hTexture, textureInfo, blendState);
   }
 
+  // --- platform independent custom texture sprites
+
+  std::shared_ptr<BasicImageSprite> UIAppResourceManager::CreateCustomTextureSprite(const std::shared_ptr<INativeTexture2D>& nativeTexture,
+                                                                                    const BlendState blendState)
+  {
+    if (!nativeTexture)
+    {
+      throw std::invalid_argument("nativeTexture can not be null");
+    }
+    auto renderSystem = m_renderSystem.lock();
+    if (!renderSystem)
+    {
+      throw UsageErrorException("renderSystem is no longer valid");
+    }
+
+    // For now we just do this every-time (this will not scale well, but should be good enough for our small demos)
+    PerformGarbageCollection();
+
+    UIAppTextureHandle hTexture;
+    SpriteMaterialId dynmamicSpriteMaterialId;
+    try
+    {
+      // Register the custom texture to generate a handle for it
+      hTexture = m_textureManager.RegisterExternalTexture(*renderSystem, nativeTexture);
+      // Create the material for the sprite, here we do use a material type that keeps that 'texture' object alive as
+      // long as the material is registered in the manager. This is ok since we use the sprite object to keep track of the
+      // lifetime requirements of it. So once the sprite is deleted we can garbage collect the 'custom' sprite
+      SimpleUIApp::UIAppTextureInfo textureInfo = m_textureManager.GetTextureInfo(hTexture);
+      dynmamicSpriteMaterialId = m_materialManager.AddMaterial(*renderSystem, hTexture, textureInfo, blendState);
+
+      // Finally create a custom texture record which we store a weak pointer to
+      const auto materialInfo = m_materialManager.GetMaterialInfo(dynmamicSpriteMaterialId);
+      const PxRectangleU16 imageRectanglePx(0, 0, materialInfo.MaterialInfo.ExtentPx.Width, materialInfo.MaterialInfo.ExtentPx.Height);
+
+      // a texture sprite is always showed at 1:1 pixel ratio no matter the DPI and its DPI will never be modified
+      const uint32_t densityDpi = m_manager.GetDensityDpi();
+      const uint32_t imageDpi = densityDpi;
+      auto sprite = std::make_shared<BasicImageSprite>(m_manager.GetSpriteNativeAreaCalc(), materialInfo.MaterialInfo, imageRectanglePx, imageDpi,
+                                                       "Texture", densityDpi);
+
+      m_customTextures.push_back(CustomTextureRecord{materialInfo.TextureHandle, dynmamicSpriteMaterialId, sprite});
+      return sprite;
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG3_ERROR("A exception occured: {}", ex.what());
+
+      if (dynmamicSpriteMaterialId.Value != 0)
+      {
+        assert(dynmamicSpriteMaterialId.Value >= UIAppConfig::MaterialId::DynamicOffset.Value);
+        m_materialManager.RemoveMaterial(dynmamicSpriteMaterialId);
+        dynmamicSpriteMaterialId = {};
+      }
+      m_textureManager.UnregisterTexture(hTexture);
+      throw;
+    }
+  }
 
   // --- platform independent interface
 
 
   SpriteMaterialInfo UIAppResourceManager::GetSpriteMaterialInfo(const SpriteMaterialId& spriteMaterialId)
   {
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind == m_materials.end())
-    {
-      throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
-    }
-    return itrFind->second.MaterialInfo;
+    return m_materialManager.GetSpriteMaterialInfo(spriteMaterialId);
   }
 
 
   std::shared_ptr<BasicImageSprite> UIAppResourceManager::CreateBasicImageSprite(const SpriteMaterialId& spriteMaterialId,
                                                                                  const IO::PathView& atlasPathName)
   {
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind == m_materials.end())
-    {
-      throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
-    }
-
-    const TextureDefinition& textureDefinition = m_textures.Get(itrFind->second.TextureHandle.Value);
+    const auto materialInfo = m_materialManager.GetMaterialInfo(spriteMaterialId);
 
     // Lookup the atlas texture information and then add the material to the manager
-    const AtlasTextureInfo& atlasTextureInfo = GetAtlasTextureInfo(textureDefinition, atlasPathName);
+    const AtlasTextureInfo atlasTextureInfo = m_textureManager.GetAtlasTextureInfo(materialInfo.TextureHandle, atlasPathName);
 
-    auto sprite = m_manager.AddBasicImageSprite(itrFind->second.MaterialInfo, atlasTextureInfo, atlasPathName);
+    auto sprite = m_manager.AddBasicImageSprite(materialInfo.MaterialInfo, atlasTextureInfo, atlasPathName);
 
-    m_images.push_back(ImageRecord{SpriteType::Basic, itrFind->second.TextureHandle, IO::Path(atlasPathName), sprite});
+    m_images.push_back(ImageRecord{SpriteType::Basic, materialInfo.TextureHandle, IO::Path(atlasPathName), sprite});
     return sprite;
   }
 
 
   std::shared_ptr<ImageSprite> UIAppResourceManager::CreateImageSprite(const SpriteMaterialId& spriteMaterialId, const IO::PathView& atlasPathName)
   {
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind == m_materials.end())
-    {
-      throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
-    }
-
-    const TextureDefinition& textureDefinition = m_textures.Get(itrFind->second.TextureHandle.Value);
+    const auto materialInfo = m_materialManager.GetMaterialInfo(spriteMaterialId);
 
     // Lookup the atlas texture information and then add the material to the manager
-    AtlasTextureInfo atlasTextureInfo = GetAtlasTextureInfo(textureDefinition, atlasPathName);
-    auto sprite = m_manager.AddImageSprite(itrFind->second.MaterialInfo, atlasTextureInfo, atlasPathName);
+    AtlasTextureInfo atlasTextureInfo = m_textureManager.GetAtlasTextureInfo(materialInfo.TextureHandle, atlasPathName);
+    auto sprite = m_manager.AddImageSprite(materialInfo.MaterialInfo, atlasTextureInfo, atlasPathName);
 
-    m_images.push_back(ImageRecord{SpriteType::Normal, itrFind->second.TextureHandle, IO::Path(atlasPathName), sprite});
+    m_images.push_back(ImageRecord{SpriteType::Normal, materialInfo.TextureHandle, IO::Path(atlasPathName), sprite});
     return sprite;
   }
 
   std::shared_ptr<BasicNineSliceSprite> UIAppResourceManager::CreateBasicNineSliceSprite(const SpriteMaterialId& spriteMaterialId,
                                                                                          const IO::PathView& atlasPathName)
   {
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind == m_materials.end())
-    {
-      throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
-    }
-
-    const TextureDefinition& textureDefinition = m_textures.Get(itrFind->second.TextureHandle.Value);
+    const auto materialInfo = m_materialManager.GetMaterialInfo(spriteMaterialId);
 
     // Lookup the atlas texture information and then add the material to the manager
-    const AtlasTextureInfo& atlasTextureInfo = GetAtlasTextureInfo(textureDefinition, atlasPathName);
-    // We rely on GetAtlasTextureInfo to complain if the atlas is missing
-    assert(textureDefinition.Atlas);
-    const AtlasNineSlicePatchInfo& atlasPatchInfo = textureDefinition.Atlas->GetAtlasNineSlicePatchInfo(atlasPathName);
+    const auto& atlas = m_textureManager.GetAtlas(materialInfo.TextureHandle);
+    const AtlasTextureInfo atlasTextureInfo = atlas.GetAtlasTextureInfo(atlasPathName);
+    const AtlasNineSlicePatchInfo atlasPatchInfo = atlas.GetAtlasNineSlicePatchInfo(atlasPathName);
 
-    auto sprite = m_manager.AddBasicNineSliceSprite(itrFind->second.MaterialInfo, atlasTextureInfo, atlasPatchInfo, atlasPathName);
-    m_nineSlices.push_back(NineSliceRecord{SpriteType::Basic, itrFind->second.TextureHandle, IO::Path(atlasPathName), sprite});
+    auto sprite = m_manager.AddBasicNineSliceSprite(materialInfo.MaterialInfo, atlasTextureInfo, atlasPatchInfo, atlasPathName);
+    m_nineSlices.emplace_back(SpriteType::Basic, materialInfo.TextureHandle, IO::Path(atlasPathName), sprite);
     return sprite;
   }
 
@@ -358,22 +311,80 @@ namespace Fsl
   std::shared_ptr<NineSliceSprite> UIAppResourceManager::CreateNineSliceSprite(const SpriteMaterialId& spriteMaterialId,
                                                                                const IO::PathView& atlasPathName)
   {
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind == m_materials.end())
-    {
-      throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
-    }
+    const auto materialInfo = m_materialManager.GetMaterialInfo(spriteMaterialId);
 
-    const TextureDefinition& textureDefinition = m_textures.Get(itrFind->second.TextureHandle.Value);
+    const auto& atlas = m_textureManager.GetAtlas(materialInfo.TextureHandle);
 
     // Lookup the atlas texture information and then add the material to the manager
-    const AtlasTextureInfo& atlasTextureInfo = GetAtlasTextureInfo(textureDefinition, atlasPathName);
-    // We rely on GetAtlasTextureInfo to complain if the atlas is missing
-    assert(textureDefinition.Atlas);
-    const AtlasNineSlicePatchInfo& atlasPatchInfo = textureDefinition.Atlas->GetAtlasNineSlicePatchInfo(atlasPathName);
+    const AtlasTextureInfo atlasTextureInfo = atlas.GetAtlasTextureInfo(atlasPathName);
+    const AtlasNineSlicePatchInfo atlasPatchInfo = atlas.GetAtlasNineSlicePatchInfo(atlasPathName);
 
-    auto sprite = m_manager.AddNineSliceSprite(itrFind->second.MaterialInfo, atlasTextureInfo, atlasPatchInfo, atlasPathName);
-    m_nineSlices.push_back(NineSliceRecord{SpriteType::Normal, itrFind->second.TextureHandle, IO::Path(atlasPathName), sprite});
+    auto sprite = m_manager.AddNineSliceSprite(materialInfo.MaterialInfo, atlasTextureInfo, atlasPatchInfo, atlasPathName);
+    m_nineSlices.emplace_back(SpriteType::Normal, materialInfo.TextureHandle, IO::Path(atlasPathName), sprite);
+    return sprite;
+  }
+
+  std::shared_ptr<OptimizedBasicNineSliceSprite>
+    UIAppResourceManager::CreateOptimizedBasicNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                              const SpriteMaterialId& transparentSpriteMaterialId, const IO::PathView& atlasPathName)
+  {
+    const auto opaqueMaterialInfo = m_materialManager.GetMaterialInfo(opaqueSpriteMaterialId);
+    const auto transparentMaterialInfo = m_materialManager.GetMaterialInfo(transparentSpriteMaterialId);
+    if (!opaqueMaterialInfo.MaterialInfo.IsOpaque)
+    {
+      throw std::invalid_argument("the opaque material must be opaque!");
+    }
+    if (transparentMaterialInfo.MaterialInfo.IsOpaque)
+    {
+      throw std::invalid_argument("the transparent material must be transparent!");
+    }
+    if (opaqueMaterialInfo.TextureHandle != transparentMaterialInfo.TextureHandle)
+    {
+      throw std::invalid_argument("the opaque and transparent material is expected to use the same texture");
+    }
+
+    const auto& atlas = m_textureManager.GetAtlas(opaqueMaterialInfo.TextureHandle);
+
+    // Lookup the atlas texture information and then add the material to the manager
+    const AtlasTextureInfo atlasTextureInfo = atlas.GetAtlasTextureInfo(atlasPathName);
+    const AtlasNineSlicePatchInfo atlasPatchInfo = atlas.GetAtlasNineSlicePatchInfo(atlasPathName);
+
+    auto sprite = m_manager.AddOptimizedBasicNineSliceSprite(opaqueMaterialInfo.MaterialInfo, transparentMaterialInfo.MaterialInfo, atlasTextureInfo,
+                                                             atlasPatchInfo, atlasPathName);
+
+    m_nineSlices.emplace_back(SpriteType::Basic, opaqueMaterialInfo.TextureHandle, atlasPathName, sprite);
+    return sprite;
+  }
+
+
+  std::shared_ptr<OptimizedNineSliceSprite> UIAppResourceManager::CreateOptimizedNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                                 const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                                 const IO::PathView& atlasPathName)
+  {
+    const auto opaqueMaterialInfo = m_materialManager.GetMaterialInfo(opaqueSpriteMaterialId);
+    const auto transparentMaterialInfo = m_materialManager.GetMaterialInfo(transparentSpriteMaterialId);
+    if (!opaqueMaterialInfo.MaterialInfo.IsOpaque)
+    {
+      throw std::invalid_argument("the opaque material must be opaque!");
+    }
+    if (transparentMaterialInfo.MaterialInfo.IsOpaque)
+    {
+      throw std::invalid_argument("the transparent material must be transparent!");
+    }
+    if (opaqueMaterialInfo.TextureHandle != transparentMaterialInfo.TextureHandle)
+    {
+      throw std::invalid_argument("the opaque and transparent material is expected to use the same texture");
+    }
+
+    const auto& atlas = m_textureManager.GetAtlas(opaqueMaterialInfo.TextureHandle);
+
+    // Lookup the atlas texture information and then add the material to the manager
+    const AtlasTextureInfo atlasTextureInfo = atlas.GetAtlasTextureInfo(atlasPathName);
+    const AtlasNineSlicePatchInfo atlasPatchInfo = atlas.GetAtlasNineSlicePatchInfo(atlasPathName);
+
+    auto sprite = m_manager.AddOptimizedNineSliceSprite(opaqueMaterialInfo.MaterialInfo, transparentMaterialInfo.MaterialInfo, atlasTextureInfo,
+                                                        atlasPatchInfo, atlasPathName);
+    m_nineSlices.emplace_back(SpriteType::Normal, opaqueMaterialInfo.TextureHandle, IO::Path(atlasPathName), sprite);
     return sprite;
   }
 
@@ -389,24 +400,86 @@ namespace Fsl
     return DoCreateSpriteFont(spriteMaterialId, fontName, spriteFontConfig, false);
   }
 
+  std::shared_ptr<SpriteFont> UIAppResourceManager::TryCreateSpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName,
+                                                                        const SpriteFontConfig& spriteFontConfig)
+  {
+    try
+    {
+      return DoCreateSpriteFont(spriteMaterialId, fontName, spriteFontConfig, false);
+    }
+    catch (const std::exception& /*ex*/)
+    {
+      // Failed to create sprite font
+      return {};
+    }
+  }
+
+
+  void UIAppResourceManager::PatchSpriteFont(std::shared_ptr<SpriteFont> font, const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName)
+  {
+    if (fontName.empty())
+    {
+      throw std::invalid_argument("fontName can not be empty");
+    }
+    if (fontName.find('/') != IO::PathView::npos)
+    {
+      throw std::invalid_argument("fontName can not contain '/'");
+    }
+    auto contentManager = m_contentManager.lock();
+    if (!contentManager)
+    {
+      throw UsageErrorException("ContentManager is no longer valid");
+    }
+
+    const auto materialInfo = m_materialManager.GetMaterialInfo(spriteMaterialId);
+    auto itrFindFont = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const FontRecord& entry) { return entry.Font == font; });
+    if (itrFindFont == m_fonts.end())
+    {
+      throw NotFoundException("Unknown font");
+    }
+
+    // Read the bitmap font file
+    BitmapFont bitmapFont = m_textureManager.ReadSpriteFont(*contentManager, materialInfo.TextureHandle, fontName, false);
+
+    m_manager.PatchSpriteFont(font, materialInfo.MaterialInfo, bitmapFont, fontName);
+
+    itrFindFont->FontName = fontName;
+    itrFindFont->TextureHandle = materialInfo.TextureHandle;
+
+
+    m_materialManager.PatchSpriteFontMaterial(spriteMaterialId, materialInfo.MaterialInfo.ExtentPx, bitmapFont, materialInfo.TextureHandle);
+  }
+
+
+  bool UIAppResourceManager::SetOptions(const bool allowDepthBuffer)
+  {
+    if (allowDepthBuffer == m_materialManager.IsDepthBufferAllowed())
+    {
+      return false;
+    }
+
+    auto renderSystem = m_renderSystem.lock();
+    if (renderSystem)
+    {
+      m_materialManager.SetOptions(*renderSystem, allowDepthBuffer);
+
+      {    // Patch all content with the new material
+        auto contentManager = m_contentManager.lock();
+        const uint32_t textureCount = m_textureManager.Count();
+        for (uint32_t i = 0; i < textureCount; ++i)
+        {
+          const auto texInfo = m_textureManager.FastGetInfoAt(i);
+          PatchContent(texInfo.TextureHandle, texInfo.ExtentPx, contentManager.get());
+        }
+      }
+    }
+    return true;
+  }
+
 
   bool UIAppResourceManager::SetTestPattern(const bool enabled)
   {
-    if (!UITestPatternModeUtil::IsFlagged(m_testPatternMode, UITestPatternMode::AllowSwitching))
-    {
-      FSLLOG3_WARNING(
-        "SetTestPattern: UIAppResourceManager was not created with UITestPatternMode::DisabledAllowSwitching or "
-        "UITestPatternMode::EnableAllowSwitching enabled, so request ignored");
-      return false;
-    }
-    if (enabled == m_testPatternEnabled)
-    {
-      return false;
-    }
-
-    m_testPatternEnabled = enabled;
-    ApplyTestPattern();
-    return true;
+    return m_textureManager.SetTestPattern(enabled);
   }
 
 
@@ -427,506 +500,215 @@ namespace Fsl
       throw UsageErrorException("ContentManager is no longer valid");
     }
 
-    auto itrFind = m_materials.find(spriteMaterialId);
-    if (itrFind == m_materials.end())
-    {
-      throw NotFoundException(fmt::format("Unknown material {}", spriteMaterialId.Value));
-    }
-
-    if (!isLegacyFullPathFontName)
-    {
-      ValidateSpriteFontExistence(*contentManager, itrFind->second.TextureHandle, fontName);
-    }
+    const auto materialInfo = m_materialManager.GetMaterialInfo(spriteMaterialId);
 
     // Read the bitmap font file
-    BitmapFont bitmapFont = ReadSpriteFont(*contentManager, itrFind->second.TextureHandle, fontName, isLegacyFullPathFontName);
+    BitmapFont bitmapFont = m_textureManager.ReadSpriteFont(*contentManager, materialInfo.TextureHandle, fontName, isLegacyFullPathFontName);
 
-    auto spriteFont = m_manager.AddSpriteFont(itrFind->second.MaterialInfo, bitmapFont, spriteFontConfig, fontName);
-    m_fonts.push_back(FontRecord{itrFind->second.TextureHandle, fontName, spriteFont});
+    auto spriteFont = m_manager.AddSpriteFont(materialInfo.MaterialInfo, bitmapFont, spriteFontConfig, fontName);
+    m_fonts.push_back(FontRecord{materialInfo.TextureHandle, fontName, spriteFont});
+
+    m_materialManager.PatchSpriteFontMaterial(spriteMaterialId, materialInfo.MaterialInfo.ExtentPx, bitmapFont, materialInfo.TextureHandle);
+
     return spriteFont;
   }
 
 
-  void UIAppResourceManager::UpdateDpAwareSpriteMaterials(IContentManager& contentManager, INativeGraphics& rNativeGraphics,
+  void UIAppResourceManager::UpdateDpAwareSpriteMaterials(IContentManager& contentManager, IBasicRenderSystem& rRenderSystem,
                                                           const uint32_t densityDpi)
   {
     // Step1: Free all the current textures to ensure that we can reuse the memory during loading
-    //        This frees dp aware textures which actually use a different dp texture for the new density dpi.
-    for (std::size_t i = 0; i < m_textures.Count(); ++i)
+    //        This frees DPI aware textures which actually use a different DPI texture for the new density dpi.
     {
-      auto& rEntry = m_textures[i];
-      if (!rEntry.PathInfo.AvailableDp.Empty())
+      const uint32_t textureCount = m_textureManager.Count();
+      for (uint32_t i = 0; i < textureCount; ++i)
       {
-        const uint32_t newDp = DetermineResourceDp(rEntry.PathInfo, densityDpi);
-        if (newDp != rEntry.Dpi)
+        if (m_textureManager.TryReleaseAtIfDifferentDpi(i, densityDpi))
         {
-          FSLLOG3_VERBOSE("Freeing dp aware material '{}'", BuildResourceName(rEntry.PathInfo, rEntry.Dpi))
-
-          rEntry.Dpi = newDp;
-          rEntry.Texture.reset();
-          rEntry.Atlas.reset();
-
-          const auto hTexture = m_textures.IndexToHandle(i);
+          const auto hTexture = m_textureManager.FastIndexToHandle(i);
           // Free the texture from all sprite fonts that use it
           for (auto& rFontRecord : m_fonts)
           {
-            if (hTexture == rFontRecord.TextureHandle.Value)
+            if (hTexture == rFontRecord.TextureHandle)
             {
               // Clear all associated content
               rFontRecord.Font->ClearContent();
             }
           }
 
-          // Disabled because the textures backing the images are 'async freed' anyway
-          // Free the texture from all image sprites that use it
-          // for (auto& rImageRecord : m_images)
-          //{
-          //  if (hTexture == rImageRecord.TextureHandle.Value)
-          //  {
-          //    // Clear all associated content
-          //    rImageRecord.Sprite->ClearContent();
-          //  }
-          //}
-
+          // NOTE: disabled for now since it would not completely release it anyway (both due to material cloning and because the textures destruction
+          // is deferred)
+          //
           // Then free the texture from all materials that use it
-          for (auto& rMaterialEntry : m_materials)
-          {
-            if (hTexture == rMaterialEntry.second.TextureHandle.Value)
-            {
-              rMaterialEntry.second.MaterialInfo.Material.reset();
-            }
-          }
+          // m_materialManager.ReleaseMaterialTexture(hTexture);
         }
       }
     }
 
     // Step2: load all missing textures
-    for (std::size_t i = 0; i < m_textures.Count(); ++i)
     {
-      auto& rEntry = m_textures[i];
-      if (!rEntry.PathInfo.AvailableDp.Empty() && !rEntry.Texture)
+      const uint32_t textureCount = m_textureManager.Count();
+      for (uint32_t i = 0; i < textureCount; ++i)
       {
-        const bool isAtlas = UIAppResourceFlagUtil::IsFlagged(rEntry.Flags, UIAppResourceFlag::Atlas);
-        PrepareTextureResult result = PrepareTexture(contentManager, rEntry.PathInfo, isAtlas, rEntry.Dpi, rEntry.CreationInfo, m_testPatternMode);
-        assert(result.SrcTexture.GetExtent().Depth == 1u);
+        // auto& rEntry = m_textureManager.FastAt(i);
+        if (m_textureManager.FastIsTextureMissing(i))
         {
-          RawTexture srcRawTexture;
-          Texture::ScopedDirectAccess directAccess(result.SrcTexture, srcRawTexture);
-          rEntry.Texture =
-            (!UIAppResourceFlagUtil::IsFlagged(rEntry.Flags, UIAppResourceFlag::Dynamic)
-               ? rNativeGraphics.CreateTexture2D(srcRawTexture, rEntry.CreationInfo.Texture.FilterHint, rEntry.CreationInfo.Texture.Flags)
-               : rNativeGraphics.CreateDynamicTexture2D(srcRawTexture, rEntry.CreationInfo.Texture.FilterHint, rEntry.CreationInfo.Texture.Flags));
-        }
-        rEntry.ExtentPx = result.SrcTexture.GetExtent2D();
-        rEntry.Atlas = std::move(result.Atlas);
+          auto hTexture = m_textureManager.ReloadTextureAt(i, contentManager, rRenderSystem);
 
-        const auto hTexture = m_textures.IndexToHandle(i);
-        // Cache the current texture and test pattern (if enabled)
-        AttachTestPattern(UIAppTextureHandle(hTexture), std::move(result.SrcTexture), rEntry.Flags);
-
-        // Apply test patterns if enabled
-        if (m_testPatternEnabled)
-        {
-          ApplyTestPattern();
-        }
-
-        // Patch all materials that used the texture
-        PatchMaterials(hTexture, rEntry);
-        // Patch all image sprites that used the texture
-        PatchImages(hTexture, rEntry);
-        // Patch all nineslice sprites that used the texture
-        PatchNineSlices(hTexture, rEntry);
-        // Patch all sprite fonts that used the texture
-        PatchFonts(hTexture, contentManager, rEntry);
-      }
-    }
-  }
-
-  void UIAppResourceManager::PatchMaterials(const HandleVector<TextureDefinition>::handle_type hTexture,
-                                            HandleVector<TextureDefinition>::const_reference rEntry)
-  {
-    for (auto& rMaterialEntry : m_materials)
-    {
-      if (hTexture == rMaterialEntry.second.TextureHandle.Value)
-      {
-        const auto& oldInfo = rMaterialEntry.second.MaterialInfo;
-        FSLLOG3_VERBOSE3("Patching material: {}", oldInfo.Id.Value);
-        // Patch the material info with the new information
-        SpriteMaterialInfo spriteMaterialInfo(oldInfo.Id, oldInfo.ExtentPx, oldInfo.IsOpaque, rEntry.Texture, oldInfo.NativeMaterialFlags);
-        rMaterialEntry.second.MaterialInfo = spriteMaterialInfo;
-      }
-    }
-  }
-
-  void UIAppResourceManager::PatchImages(const HandleVector<TextureDefinition>::handle_type hTexture,
-                                         HandleVector<TextureDefinition>::const_reference rEntry)
-  {
-    for (const auto& rImage : m_images)
-    {
-      if (hTexture == rImage.TextureHandle.Value)
-      {
-        FSLLOG3_VERBOSE2("Patching image sprite: '{}' of type {}", rImage.AtlasName, uint32_t(rImage.Type));
-        // Lookup the atlas texture information and then patch the basic texture
-        const TextureDefinition& textureDefinition = m_textures.Get(rImage.TextureHandle.Value);
-        const AtlasTextureInfo& atlasTextureInfo = GetAtlasTextureInfo(textureDefinition, rImage.AtlasName.AsPathView());
-
-        const auto& oldInfo = rImage.Sprite->GetMaterialInfo();
-
-        // Patch the material info with the new information
-        m_manager.Patch(rImage.Sprite, SpriteMaterialInfo(oldInfo.Id, rEntry.ExtentPx, oldInfo.IsOpaque, rEntry.Texture, oldInfo.NativeMaterialFlags),
-                        atlasTextureInfo, rImage.AtlasName.AsPathView());
-      }
-    }
-  }
-
-
-  void UIAppResourceManager::PatchNineSlices(const HandleVector<TextureDefinition>::handle_type hTexture,
-                                             HandleVector<TextureDefinition>::const_reference rEntry)
-  {
-    for (const auto& rNineSlice : m_nineSlices)
-    {
-      if (hTexture == rNineSlice.TextureHandle.Value)
-      {
-        FSLLOG3_VERBOSE2("Patching nine-slice sprite: '{}' of type {}", rNineSlice.AtlasName, uint32_t(rNineSlice.Type));
-        // Lookup the atlas texture information and then patch the basic texture
-        const TextureDefinition& textureDefinition = m_textures.Get(rNineSlice.TextureHandle.Value);
-        const AtlasTextureInfo& atlasTextureInfo = GetAtlasTextureInfo(textureDefinition, rNineSlice.AtlasName.AsPathView());
-        // We rely on GetAtlasTextureInfo to complain if the atlas is missing
-        assert(textureDefinition.Atlas);
-        const AtlasNineSlicePatchInfo& atlasPatchInfo = textureDefinition.Atlas->GetAtlasNineSlicePatchInfo(rNineSlice.AtlasName);
-
-        const auto& oldInfo = rNineSlice.Sprite->GetMaterialInfo();
-
-        // Patch the material info with the new information
-        m_manager.Patch(rNineSlice.Sprite,
-                        SpriteMaterialInfo(oldInfo.Id, rEntry.ExtentPx, oldInfo.IsOpaque, rEntry.Texture, oldInfo.NativeMaterialFlags),
-                        atlasTextureInfo, atlasPatchInfo, rNineSlice.AtlasName.AsPathView());
-      }
-    }
-  }
-
-
-  void UIAppResourceManager::PatchFonts(const HandleVector<TextureDefinition>::handle_type hTexture, IContentManager& contentManager,
-                                        HandleVector<TextureDefinition>::const_reference rEntry)
-  {
-    for (auto& rFontRecord : m_fonts)
-    {
-      if (hTexture == rFontRecord.TextureHandle.Value)
-      {
-        FSLLOG3_VERBOSE2("Reloading font: '{}'", rFontRecord.FontName);
-        auto bitmapFont = ReadSpriteFont(contentManager, rFontRecord.TextureHandle, rFontRecord.FontName.AsPathView(), false);
-
-        const auto& oldInfo = rFontRecord.Font->GetInfo().MaterialInfo;
-        // Patch the material info with the new information
-        m_manager.PatchSpriteFont(rFontRecord.Font,
-                                  SpriteMaterialInfo(oldInfo.Id, rEntry.ExtentPx, oldInfo.IsOpaque, rEntry.Texture, oldInfo.NativeMaterialFlags),
-                                  bitmapFont, rFontRecord.FontName.AsPathView());
-      }
-    }
-  }
-
-
-  UIAppResourceManager::PrepareCreateResult UIAppResourceManager::PrepareCreateTexture(const IO::PathView& atlasPath,
-                                                                                       const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                                                                       const UIAppResourceFlag flags)
-  {
-    auto contentManager = m_contentManager.lock();
-    if (!contentManager)
-    {
-      throw UsageErrorException("ContentManager is no longer valid");
-    }
-    const bool allowDpAware = !UIAppResourceFlagUtil::IsFlagged(flags, UIAppResourceFlag::NotDpAware);
-
-
-    // Determine if this is a DP aware resource
-    auto pathInfo = AnalyzePath(*contentManager, atlasPath, allowDpAware);
-    auto selectedDp = DetermineResourceDp(pathInfo, m_densityDpi);
-
-    auto itrFind = m_textureLookup.find(pathInfo.SrcPath);
-    if (itrFind != m_textureLookup.end())
-    {
-      throw std::invalid_argument(fmt::format("The texture '{}' resolves to '{}' which has already been created.", atlasPath, pathInfo.SrcPath));
-    }
-
-    const bool isAtlas = UIAppResourceFlagUtil::IsFlagged(flags, UIAppResourceFlag::Atlas);
-    return {textureCreationInfo, pathInfo, selectedDp,
-            PrepareTexture(*contentManager, pathInfo, isAtlas, selectedDp, textureCreationInfo, m_testPatternMode)};
-  }
-
-
-  UIAppTextureHandle UIAppResourceManager::DoAddTexture(PrepareCreateResult prepareCreateResult,
-                                                        const std::shared_ptr<INativeTexture2D>& nativeTexture, const UIAppResourceFlag flags)
-  {
-    const auto& key = prepareCreateResult.PathInfo.SrcPath;
-    auto handle = HandleVectorConfig::InvalidHandle;
-    try
-    {
-      const PxExtent2D extentPx = prepareCreateResult.TextureResult.SrcTexture.GetExtent2D();
-
-      handle = m_textures.Add(TextureDefinition{prepareCreateResult.CreationInfo, prepareCreateResult.PathInfo, prepareCreateResult.Dpi,
-                                                nativeTexture, extentPx, flags, std::move(prepareCreateResult.TextureResult.Atlas)});
-      UIAppTextureHandle hTexture(handle);
-      m_textureLookup[key] = hTexture;
-
-      AttachTestPattern(hTexture, std::move(prepareCreateResult.TextureResult.SrcTexture), flags);
-      return hTexture;
-    }
-    catch (const std::exception& ex)
-    {
-      FSLLOG3_ERROR("Failed to add due to a exception. {}", ex.what());
-      if (handle != HandleVectorConfig::InvalidHandle)
-      {
-        m_testPatternTextures.erase(UIAppTextureHandle(handle));
-        m_textureLookup.erase(key);
-        m_textures.Remove(handle);
-      }
-      throw;
-    }
-  }
-
-
-  UIAppResourceManager::PrepareTextureResult UIAppResourceManager::PrepareTexture(const IContentManager& contentManager, const AnalyzedPath& pathInfo,
-                                                                                  const bool isAtlas, const uint32_t selectedDp,
-                                                                                  const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                                                                  const UITestPatternMode testPatternMode)
-  {
-    IO::Path resourceName(BuildResourceName(pathInfo, selectedDp));
-
-    FSLLOG3_VERBOSE("Loading texture '{0}'", resourceName)
-
-    auto texture = contentManager.ReadTexture(resourceName, textureCreationInfo.DesiredPixelFormat, textureCreationInfo.DesiredOrigin,
-                                              textureCreationInfo.PreferredChannelOrder);
-
-    const auto textureExtentPx = texture.GetExtent();
-    if (textureExtentPx.Depth != 1u)
-    {
-      throw std::invalid_argument("Must be a 2d texture");
-    }
-    std::unique_ptr<CompatibilityTextureAtlasMap> textureAtlasMap;
-    if (isAtlas)
-    {
-      auto directoryname = IO::Path::GetDirectoryNameView(resourceName.AsPathView());
-      auto filenameWithoutExt = IO::Path::GetFileNameWithoutExtensionView(resourceName.AsPathView());
-      IO::Path atlasPath(IO::Path::Combine(directoryname, IO::Path(fmt::format("{}{}", filenameWithoutExt, LocalConfig::AtlasExtension))));
-      FSLLOG3_VERBOSE("Loading texture atlas '{0}'", atlasPath)
-      BasicTextureAtlas textureAtlas;
-      contentManager.Read(textureAtlas, atlasPath);
-      textureAtlasMap = std::make_unique<CompatibilityTextureAtlasMap>(std::move(textureAtlas));
-    }
-
-    if (UITestPatternModeUtil::IsFlagged(testPatternMode, UITestPatternMode::Enabled))
-    {
-      if (!PixelFormatUtil::IsCompressed(texture.GetPixelFormat()))
-      {
-        if (textureAtlasMap)
-        {
-          assert(isAtlas);
-          TestAtlasTextureGenerator::PatchWithTestPattern(texture, *textureAtlasMap);
-        }
-        else
-        {
-          assert(!isAtlas);
-          TestAtlasTextureGenerator::PatchWithTestPattern(texture);
-        }
-      }
-    }
-    return {texture, std::move(textureAtlasMap)};
-  }
-
-  //! Analyze the path to see if the filename without extension ends in "_<number>dp"
-  UIAppResourceManager::AnalyzedPath UIAppResourceManager::AnalyzePath(const IContentManager& contentManager, const IO::PathView pathView,
-                                                                       const bool allowDpAware)
-  {
-    if (allowDpAware)
-    {
-      auto pathExtView = IO::Path::GetExtensionView(pathView);
-      auto pathFilenameView = IO::Path::GetFileNameWithoutExtensionView(pathView);
-      auto pathDirectoryView = IO::Path::GetDirectoryNameView(pathView);
-
-      if (pathFilenameView.ends_with(LocalConfig::FilenameDpiPostfix))
-      {
-        // we know the filename ends with 'dp', so lets try to see if we can find a '_'
-        auto parseFilenameView(pathFilenameView);
-        parseFilenameView.remove_suffix(LocalConfig::FilenameDpiPostfix.size());
-        const auto index = parseFilenameView.rfind(LocalConfig::FilenameDpStartChar);
-        if (index != IO::PathView::npos)
-        {
-          const auto parsedFilename = parseFilenameView.substr(0, index + 1u);
-          auto parsedDpPart = parseFilenameView.substr(index + 1u);
-          if (!parsedFilename.empty() && !parsedDpPart.empty())
+          const auto* pTextureInfo = m_textureManager.TryFastGetTextureInfoAt(i);
+          if (pTextureInfo != nullptr)
           {
-            // We found a possible match, so lets try to parse it as a number
-            uint64_t value = 0;
-            if (StringToValue::TryParse(value, parsedDpPart) && IsValidSupportedDp(value))
-            {
-              // We successfully parsed the value and it was a supported dp, so this is a valid "_<num>dp" pattern
-              auto patternPath = IO::Path::Combine(pathDirectoryView,
-                                                   IO::Path(fmt::format("{}{{}}{}{}", parsedFilename, LocalConfig::FilenameDpiPostfix, pathExtView)));
-              EncodedAvailableDp availableDp(DetermineAvailableDp(contentManager, patternPath));
-              // If there are less than two available graphics resources we just treat the path as a normal one and disable the pattern
-              if (availableDp.Count() > 1u)
-              {
-                return {patternPath, availableDp};
-              }
-              FSLLOG3_WARNING_IF(availableDp.Count() <= 0u, "File pattern '{}' did not contain any of the supported dp's, disabling dp awareness",
-                                 patternPath);
-            }
+            // Patch all materials that are used by the texture
+            m_materialManager.PatchMaterials(rRenderSystem, hTexture, pTextureInfo->ExtentPx, pTextureInfo->Texture);
+            PatchContent(hTexture, pTextureInfo->ExtentPx, &contentManager);
           }
         }
       }
     }
-    return {pathView, EncodedAvailableDp()};
   }
 
-  UIAppResourceManager::EncodedAvailableDp UIAppResourceManager::DetermineAvailableDp(const IContentManager& contentManager,
-                                                                                      const IO::Path& patternPath)
+  void UIAppResourceManager::PatchContent(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx,
+                                          IContentManager* const pContentManager)
   {
-    EncodedAvailableDp availableDp;
-    static_assert(LocalConfig::ValidDpis.size() <= std::numeric_limits<uint32_t>::max(), "expectation failed");
-    for (uint32_t i = 0; i < LocalConfig::ValidDpis.size(); ++i)
+    PatchImages(srcTextureHandle, srcExtentPx);
+    // Patch all nine-slice sprites that used the texture
+    PatchNineSlices(srcTextureHandle, srcExtentPx);
+    if (pContentManager != nullptr)
     {
-      IO::Path filename(fmt::format(patternPath.AsUTF8String().AsString(), LocalConfig::ValidDpis[i]));
-      if (contentManager.Exists(filename))
-      {
-        availableDp.AddIndex(i);
-      }
+      // Patch all sprite fonts that used the texture
+      PatchFonts(srcTextureHandle, srcExtentPx, *pContentManager);
     }
-    return availableDp;
   }
 
-  uint32_t UIAppResourceManager::DetermineResourceDp(const AnalyzedPath& analyzedPath, const uint32_t densityDpi)
+  void UIAppResourceManager::PatchImages(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx)
   {
-    if (analyzedPath.AvailableDp.Empty())
+    for (const auto& rImage : m_images)
     {
-      return SpriteDpConfig::BaseDpi;
-    }
-
-    float bestScore = std::numeric_limits<float>::max();
-    uint32_t bestDp = 0u;
-    for (uint32_t i = 0; i < LocalConfig::ValidDpis.size(); ++i)
-    {
-      float score = analyzedPath.AvailableDp.IsFlagged(i) ? CalcScore(LocalConfig::ValidDpis[i], densityDpi) : std::numeric_limits<float>::max();
-      if (score < bestScore)
+      if (srcTextureHandle == rImage.TextureHandle)
       {
-        bestDp = LocalConfig::ValidDpis[i];
-        bestScore = score;
-      }
-    }
-    assert(bestDp != 0u);
-    return bestDp;
-  }
+        FSLLOG3_VERBOSE2("Patching image sprite: '{}' of type {}", rImage.AtlasName, uint32_t(rImage.Type));
+        // Lookup the atlas texture information and then patch the basic texture
+        const auto& atlas = m_textureManager.GetAtlas(rImage.TextureHandle);
+        const AtlasTextureInfo atlasTextureInfo = atlas.GetAtlasTextureInfo(rImage.AtlasName.AsPathView());
 
-
-  IO::Path UIAppResourceManager::BuildResourceName(const AnalyzedPath& analyzedPath, const uint32_t selectedDp)
-  {
-    return !analyzedPath.AvailableDp.Empty() ? IO::Path(fmt::format(analyzedPath.SrcPath.AsUTF8String().AsString(), selectedDp))
-                                             : analyzedPath.SrcPath;
-  }
-
-  //! Run through all the available dp's for the parent texture and verify there is a sprite font for all of them
-  //! This is done to help detect missing font files which would only show itself at runtime and only if that specific dp was tested.
-  void UIAppResourceManager::ValidateSpriteFontExistence(const IContentManager& contentManager, const UIAppTextureHandle handle,
-                                                         const IO::PathView& fontName) const
-  {
-    const TextureDefinition& textureInfo = m_textures.Get(handle.Value);
-
-    for (uint32_t i = 0; i < LocalConfig::ValidDpis.size(); ++i)
-    {
-      if (textureInfo.PathInfo.AvailableDp.IsFlagged(i))
-      {
-        IO::Path resourceFontName(GetFontName(textureInfo, LocalConfig::ValidDpis[i], fontName));
-        if (!contentManager.Exists(resourceFontName))
+        const uint32_t materialCount = rImage.Sprite->GetMaterialCount();
+        if (materialCount < 1u)
         {
-          throw NotFoundException(fmt::format("Missing font file '{}'", resourceFontName));
+          throw InternalErrorException("PatchImages: Sprites are expected to contain at least one material");
+        }
+        const SpriteMaterialInfo newSpriteMaterialInfo0 =
+          m_materialManager.PatchMaterial(rImage.Sprite->GetMaterialInfo(0u).Id, srcExtentPx, srcTextureHandle);
+
+        switch (materialCount)
+        {
+        case 1u:
+          // Patch the material info with the new information
+          m_manager.Patch(rImage.Sprite, newSpriteMaterialInfo0, atlasTextureInfo, rImage.AtlasName.AsPathView());
+          break;
+        case 2u:
+        {
+          const SpriteMaterialInfo newSpriteMaterialInfo1 =
+            m_materialManager.PatchMaterial(rImage.Sprite->GetMaterialInfo(1u).Id, srcExtentPx, srcTextureHandle);
+          // Patch the material info with the new information
+          m_manager.Patch(rImage.Sprite, newSpriteMaterialInfo0, newSpriteMaterialInfo1, atlasTextureInfo, rImage.AtlasName.AsPathView());
+          break;
+        }
+        default:
+          throw NotSupportedException("PatchImages of this format is not supported");
         }
       }
     }
   }
 
-  BitmapFont UIAppResourceManager::ReadSpriteFont(const IContentManager& contentManager, const UIAppTextureHandle handle,
-                                                  const IO::PathView& fontName, const bool isLegacyFullPathFontName) const
+
+  void UIAppResourceManager::PatchNineSlices(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx)
   {
-    // fontName can not be empty
-    assert(!fontName.empty());
-    // fontName can not contain '/'
-    assert(isLegacyFullPathFontName || fontName.find('/') == IO::PathView::npos);
-
-    // Build the font name
-    const TextureDefinition& textureInfo = m_textures.Get(handle.Value);
-
-    if (isLegacyFullPathFontName && !UIAppResourceFlagUtil::IsFlagged(textureInfo.Flags, UIAppResourceFlag::NotDpAware))
+    for (const auto& rNineSlice : m_nineSlices)
     {
-      throw UsageErrorException("texture was not marked as a legacy texture, so can not create a legacy sprite font for it");
-    }
-
-    IO::Path resourceFontName(!isLegacyFullPathFontName ? GetFontName(textureInfo, textureInfo.Dpi, fontName) : fontName);
-    FSLLOG3_VERBOSE2("Loading font: '{}'", resourceFontName);
-
-    const bool isLegacyFontFormat = (isLegacyFullPathFontName && fontName.ends_with(LocalConfig::OldFontExtension));
-
-    // Read the bitmap font file
-    auto bitmapFont = !isLegacyFontFormat ? contentManager.ReadBitmapFont(resourceFontName)
-                                          : LoadFromLegacyFontFormat(contentManager, resourceFontName, textureInfo.Atlas.get());
-
-    FSLLOG3_WARNING_IF(!isLegacyFullPathFontName && bitmapFont.GetDpi() != textureInfo.Dpi,
-                       "BitmapFont is not of the expected DPI of {} instead it is {}", textureInfo.Dpi, bitmapFont.GetDpi());
-
-    return bitmapFont;
-  }
-
-  IO::Path UIAppResourceManager::GetFontName(const TextureDefinition& textureInfo, const uint32_t dpi, const IO::PathView& fontName)
-  {
-    auto resourceName = BuildResourceName(textureInfo.PathInfo, dpi);
-    auto directoryView = IO::Path::GetDirectoryNameView(resourceName.AsPathView());
-    auto filenameWithoutExtView = IO::Path::GetFileNameWithoutExtensionView(resourceName.AsPathView());
-    return IO::Path::Combine(directoryView, IO::Path(fmt::format("{}_{}", filenameWithoutExtView, fontName)));
-  }
-
-  void UIAppResourceManager::AttachTestPattern(const UIAppTextureHandle hTexture, Texture texture, const UIAppResourceFlag flags)
-  {
-    const bool allowTestPatternSwitching = UITestPatternModeUtil::IsFlagged(m_testPatternMode, UITestPatternMode::AllowSwitching);
-    const bool isUIResource = UIAppResourceFlagUtil::IsFlagged(flags, UIAppResourceFlag::UIGroup);
-    if (allowTestPatternSwitching && isUIResource)
-    {
-      FSLLOG3_VERBOSE3("Building test pattern for texture {}", hTexture.Value);
-      const TextureDefinition& textureRecord = m_textures.Get(hTexture.Value);
-      const PixelFormat pixelFormat = texture.GetPixelFormat();
-      const auto origin = texture.GetBitmapOrigin();
-      const auto extentPx = texture.GetExtent2D();
-      Texture testTexture = textureRecord.Atlas
-                              ? TestAtlasTextureGenerator::CreateTestPatternTexture(extentPx, pixelFormat, origin, *textureRecord.Atlas)
-                              : TestAtlasTextureGenerator::CreateTestPatternTexture(extentPx, pixelFormat, origin);
-      m_testPatternTextures[hTexture] = TestPatternRecord{std::move(texture), testTexture};
-    }
-  }
-
-  void UIAppResourceManager::ApplyTestPattern()
-  {
-    if (!m_testPatternTextures.empty())
-    {
-      FSLLOG3_VERBOSE3("Applying test patterns");
-      for (const auto& entry : m_testPatternTextures)
+      if (srcTextureHandle == rNineSlice.TextureHandle)
       {
-        const TextureDefinition& textureRecord = m_textures.Get(entry.first.Value);
-        auto* pTexture = dynamic_cast<IDynamicNativeTexture2D*>(textureRecord.Texture.get());
-        if (pTexture != nullptr)
+        FSLLOG3_VERBOSE2("Patching nine-slice sprite: '{}' of type {}", rNineSlice.AtlasName, uint32_t(rNineSlice.Type));
+        // Lookup the atlas texture information and then patch the basic texture
+        const auto& atlas = m_textureManager.GetAtlas(rNineSlice.TextureHandle);
+        const AtlasTextureInfo atlasTextureInfo = atlas.GetAtlasTextureInfo(rNineSlice.AtlasName.AsPathView());
+        const AtlasNineSlicePatchInfo atlasPatchInfo = atlas.GetAtlasNineSlicePatchInfo(rNineSlice.AtlasName);
+
+        const uint32_t materialCount = rNineSlice.Sprite->GetMaterialCount();
+        if (materialCount < 1u)
         {
-          FSLLOG3_VERBOSE3("Set texture {} test pattern {}", entry.first.Value, m_testPatternEnabled);
-          const auto& srcTexture = m_testPatternEnabled ? entry.second.TestPattern : entry.second.Original;
-          RawTexture rawTexture;
-          Texture::ScopedDirectAccess directAccess(srcTexture, rawTexture);
-          pTexture->SetData(rawTexture, textureRecord.CreationInfo.Texture.FilterHint, textureRecord.CreationInfo.Texture.Flags);
+          throw InternalErrorException("PatchNineSlices: Sprites are expected to contain at least one material");
+        }
+
+        const SpriteMaterialInfo newSpriteMaterialInfo0 =
+          m_materialManager.PatchMaterial(rNineSlice.Sprite->GetMaterialInfo(0u).Id, srcExtentPx, srcTextureHandle);
+
+        switch (materialCount)
+        {
+        case 1u:
+          // Patch the material info with the new information
+          m_manager.Patch(rNineSlice.Sprite, newSpriteMaterialInfo0, atlasTextureInfo, atlasPatchInfo, rNineSlice.AtlasName.AsPathView());
+          break;
+        case 2u:
+        {
+          const SpriteMaterialInfo newSpriteMaterialInfo1 =
+            m_materialManager.PatchMaterial(rNineSlice.Sprite->GetMaterialInfo(1u).Id, srcExtentPx, srcTextureHandle);
+
+          // Patch the material info with the new information
+          m_manager.Patch(rNineSlice.Sprite, newSpriteMaterialInfo0, newSpriteMaterialInfo1, atlasTextureInfo, atlasPatchInfo,
+                          rNineSlice.AtlasName.AsPathView());
+          break;
+        }
+        default:
+          throw NotSupportedException("PatchImages of this format is not supported");
         }
       }
     }
   }
 
-  AtlasTextureInfo UIAppResourceManager::GetAtlasTextureInfo(const TextureDefinition& textureDefinition, const IO::PathView& atlasPathName)
+
+  void UIAppResourceManager::PatchFonts(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx, IContentManager& contentManager)
   {
-    if (!textureDefinition.Atlas)
+    for (auto& rFontRecord : m_fonts)
     {
-      throw UsageErrorException("No atlas associated");
+      if (srcTextureHandle == rFontRecord.TextureHandle)
+      {
+        FSLLOG3_VERBOSE2("Reloading font: '{}'", rFontRecord.FontName);
+        auto bitmapFont = m_textureManager.ReadSpriteFont(contentManager, rFontRecord.TextureHandle, rFontRecord.FontName.AsPathView(), false);
+
+        const auto& oldInfo = rFontRecord.Font->GetInfo().MaterialInfo;
+        const auto oldMaterialInfo = m_materialManager.GetMaterialInfo(oldInfo.Id);
+        assert(oldMaterialInfo.TextureHandle == srcTextureHandle);
+
+        SpriteMaterialInfo newMaterialInfo = m_materialManager.PatchSpriteFontMaterial(oldInfo.Id, srcExtentPx, bitmapFont, srcTextureHandle);
+
+        // Patch the material info with the new information
+        m_manager.PatchSpriteFont(rFontRecord.Font, newMaterialInfo, bitmapFont, rFontRecord.FontName.AsPathView());
+      }
     }
-    return textureDefinition.Atlas->GetAtlasTextureInfo(atlasPathName);
+  }
+
+
+  void UIAppResourceManager::PerformGarbageCollection()
+  {
+    FSLLOG3_VERBOSE5("UIAppResourceManager::PerformGarbageCollection");
+    auto itr = m_customTextures.begin();
+    while (itr != m_customTextures.end())
+    {
+      if (!itr->Sprite.expired())
+      {
+        ++itr;
+      }
+      else
+      {
+        FSLLOG3_VERBOSE5("- Custom texture expired, removing it. SpriteMaterialId: {}, TextureId: {}", itr->MaterialId.Value,
+                         itr->TextureHandle.Value);
+
+        m_materialManager.RemoveMaterial(itr->MaterialId);
+        m_textureManager.UnregisterTexture(itr->TextureHandle);
+
+        // erase the expired sprite entry
+        itr = m_customTextures.erase(itr);
+      }
+    }
   }
 }

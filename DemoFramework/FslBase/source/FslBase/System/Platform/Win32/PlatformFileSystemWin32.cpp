@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
 /****************************************************************************************************************************************************
  * Copyright (c) 2015 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -35,7 +35,7 @@
 #include <FslBase/IO/PathDeque.hpp>
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 #include <utility>
-#include <windows.h>
+#include <Windows.h>
 
 
 namespace Fsl

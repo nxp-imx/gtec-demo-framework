@@ -41,8 +41,7 @@
 
 namespace Fsl
 {
-  inline void Expect_EQ(const Fsl::VertexPositionColorTexture& vertex, const Fsl::Vector2& pos, const Fsl::Vector2& texCoord,
-                        const Fsl::Vector4& color)
+  inline void Expect_EQ(const Fsl::VertexPositionColorTexture& vertex, const Fsl::Vector2& pos, const Fsl::Vector2& texCoord, const Fsl::Color& color)
   {
     EXPECT_EQ(vertex.Position.X, pos.X);
     EXPECT_EQ(vertex.Position.Y, pos.Y);

@@ -423,7 +423,7 @@ namespace Fsl
 
 
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
-                        const Vector2& texCoords1, const Vector4& color)
+                        const Vector2& texCoords1, const Color& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
 

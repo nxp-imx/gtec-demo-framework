@@ -142,7 +142,7 @@ class ToolFlowBuild(AToolAppFlow):
 
         self.Log.LogPrint("Active platform: {0}".format(platformGeneratorPlugin.PlatformName))
 
-        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platformGeneratorPlugin.CMakeConfig), currentDirPath, localToolConfig.Recursive)
 
         generatorContext = GeneratorContext(self.Log, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
                                             toolConfig.Experimental, platformGeneratorPlugin)

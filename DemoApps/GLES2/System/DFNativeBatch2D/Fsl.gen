@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES2.System.DFNativeBatch2D" NoInclude="true" CreationYear="2014">
+    <ImportTemplate Name="DemoAppGLES2"/>
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES2"/>
+    <Dependency Name="Shared.System.DFNativeBatch2D"/>
+  </Executable>
+</FslBuildGen>

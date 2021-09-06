@@ -175,7 +175,7 @@ namespace Fsl
     // Create index and vertex buffers for all the meshes.
     {
       m_indexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
-      m_vertexBuffers.Resize(scene->Meshes.size(), BasicMesh::vertex_type::GetVertexDeclaration());
+      m_vertexBuffers.Resize(scene->Meshes.size(), BasicMesh::vertex_type::AsVertexDeclarationSpan());
       std::size_t vertexCount = 0;
       std::size_t indexCount = 0;
       for (std::size_t i = 0; i < scene->Meshes.size(); ++i)
@@ -369,7 +369,7 @@ namespace Fsl
     m_locMatSpecular = glGetUniformLocation(m_program.Get(), "MatSpecular");
     m_locMatShininess = glGetUniformLocation(m_program.Get(), "MatShininess");
 
-    auto vertexDecl = BasicMesh::vertex_type::GetVertexDeclaration();
+    constexpr auto vertexDecl = BasicMesh::vertex_type::GetVertexDeclarationArray();
     m_attribLink[0] =
       GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_attribLink[1] =

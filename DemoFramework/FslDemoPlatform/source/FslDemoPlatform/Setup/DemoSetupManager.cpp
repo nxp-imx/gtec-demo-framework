@@ -34,7 +34,7 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
 #include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
-#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoHost/Base/Service/AppInfo/AppInfoService.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorService.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlServiceFactory.hpp>
@@ -48,6 +48,7 @@
 #include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/Test/TestService.hpp>
 #include <FslDemoPlatform/Service/DemoPlatformControl/DemoPlatformControl.hpp>
 #include <FslService/Impl/ServiceOptionParserDeque.hpp>
@@ -60,6 +61,7 @@
 
 namespace Fsl
 {
+  using AppInfoServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<AppInfoService, IAppInfoService, IAppInfoControlService>;
   using GamepadsFactory = ThreadLocalSingletonServiceFactoryTemplate<GamepadsService, IGamepads>;
   using PlatformControlFactory = ThreadLocalSingletonServiceFactoryTemplate<DemoPlatformControl, IDemoPlatformControl>;
   using EventsFactory = ThreadLocalSingletonServiceFactoryTemplate2<EventsService, IEventService, IEventPoster>;
@@ -111,6 +113,7 @@ namespace Fsl
     serviceRegistry.Register<PlatformControlFactory>(ServicePriorityList::PlatformControlService());
     serviceRegistry.Register<ProfilerServiceFactory>(ServicePriorityList::ProfilerService());
     serviceRegistry.Register<ContentMonitorServiceFactory>(ServicePriorityList::ContentMonitor());
+    serviceRegistry.Register<AppInfoServiceFactory>(ServicePriorityList::AppInfoService());
     serviceRegistry.Register<OptionsServiceFactory>(ServicePriorityList::Options());
 
     // Prepare the hosts

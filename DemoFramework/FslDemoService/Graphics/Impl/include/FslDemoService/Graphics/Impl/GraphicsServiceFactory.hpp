@@ -66,6 +66,7 @@ namespace Fsl
     {
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IGraphicsService)));
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IGraphicsServiceControl)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IGraphicsServiceHost)));
     }
 
 

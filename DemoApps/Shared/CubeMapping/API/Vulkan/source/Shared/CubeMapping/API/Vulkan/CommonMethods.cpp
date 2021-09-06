@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <Shared/CubeMapping/API/Vulkan/CommonMethods.hpp>
 #include <Shared/CubeMapping/API/Vulkan/SkyboxVertices.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
@@ -44,7 +45,8 @@ namespace Fsl
                                 const std::array<VertexElementUsage, 2>& shaderBindOrder)
     {
       SkyboxMesh mesh;
-      mesh.VertexBuffer.Reset(bufferManager, SkyboxVertices::GetVertices(1.0f), Vulkan::VMBufferUsage::STATIC);
+      auto vertices = SkyboxVertices::GetVertices(1.0f);
+      mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
       Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.VertexAttributeDescription, shaderBindOrder, mesh.VertexBuffer);
       mesh.VertexInputBindingDescription.binding = 0;
       mesh.VertexInputBindingDescription.stride = mesh.VertexBuffer.GetElementStride();

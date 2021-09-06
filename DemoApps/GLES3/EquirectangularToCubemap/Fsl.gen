@@ -5,6 +5,6 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="Shared.CubeMapping.API.OpenGLES3"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.Core"/>
   </Executable>
 </FslBuildGen>

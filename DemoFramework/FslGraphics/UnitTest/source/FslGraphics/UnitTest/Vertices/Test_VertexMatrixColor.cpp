@@ -39,6 +39,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -61,7 +62,69 @@ TEST(TestVertices_VertexMatrixColor, GetVertexDeclaration)
 {
   const VertexElementEx expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
   const VertexElementEx expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
-  const auto vertexDecl = VertexMatrixColor::GetVertexDeclaration();
+  const auto vertexDecl = VertexDeclaration(VertexMatrixColor::AsVertexDeclarationSpan());
+
+  EXPECT_EQ(sizeof(VertexMatrixColor), vertexDecl.VertexStride());
+  ASSERT_EQ(2u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Matrix4x4, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(expected1, vertexDecl.VertexElementGet(VertexElementUsage::Color, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+  EXPECT_EQ(expected1, vertexDecl.At(1u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexMatrixColor, GetVertexDeclarationArray)
+{
+  const VertexElementEx expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElementEx expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const auto vertexDecl = VertexMatrixColor::GetVertexDeclarationArray();
+
+  EXPECT_EQ(sizeof(VertexMatrixColor), vertexDecl.VertexStride());
+  ASSERT_EQ(2u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Matrix4x4, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(expected1, vertexDecl.VertexElementGet(VertexElementUsage::Color, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+  EXPECT_EQ(expected1, vertexDecl.At(1u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexMatrixColor, AsVertexDeclarationSpan)
+{
+  const VertexElementEx expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElementEx expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const auto vertexDecl = VertexMatrixColor::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexMatrixColor), vertexDecl.VertexStride());
   ASSERT_EQ(2u, vertexDecl.Count());

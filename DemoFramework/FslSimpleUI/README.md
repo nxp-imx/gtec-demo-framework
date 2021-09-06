@@ -20,7 +20,7 @@ If you want to see a example of how to use the basic UI controls from scratch yo
 
 When working with the UI system its recommended to store all or at least the most used bitmaps in the same texture atlas.
 One commercially available texture packer is [Texture Packer](https://www.codeandweb.com/texturepacker) which can output a
-json file that we can convert to a binary format that can be loaded by the demo framework.  
+json file that we can convert to a binary format that can be loaded by the demo framework.
 
 If you look at the DFSimpleUI100 sample its based on the texture atlas at `Resources/Source/DFSimpleUI101/TextureAtlas` directory which contain a `MainAtlas.tps` file that can be loaded into texture packer. Pressing publish in texture packer produces a `MainAtlas.png` and `MainAtlas.json` file based on the files under `Main`. The `MainAtlas.png` can be copied directly to the samples `Content` directory but the json file needs to be converted to a binary file. For this we included the TPConvert python script that can be run like this:
 

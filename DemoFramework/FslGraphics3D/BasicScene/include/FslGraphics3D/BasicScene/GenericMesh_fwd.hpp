@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpan.hpp>
 #include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <vector>
 
@@ -102,6 +103,8 @@ namespace Fsl
       //! @note The reference is only valid until this object is modified.
       const std::vector<TIndex>& GetIndexArray() const;
 
+      ReadOnlyFlexVertexSpan AsReadOnlyFlexVertexSpan() const;
+
       //! @brief Get a pointer to the vertices
       //! @note The pointer is only valid until this object is modified.
       TVertex* DirectAccessVertices();
@@ -110,7 +113,7 @@ namespace Fsl
       //! @note The pointer is only valid until this object is modified.
       TIndex* DirectAccessIndices();
 
-      VertexDeclaration GetVertexDeclaration() const override;
+      VertexDeclarationSpan AsVertexDeclarationSpan() const override;
       RawMeshContent GenericDirectAccess() const override;
       RawMeshContentEx GenericDirectAccess() override;
     };

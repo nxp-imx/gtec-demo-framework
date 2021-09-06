@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include "../IGridRender.hpp"
 
 namespace Fsl

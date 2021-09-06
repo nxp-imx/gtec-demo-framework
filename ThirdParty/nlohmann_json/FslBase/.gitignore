@@ -1,0 +1,13 @@
+/.vs/
+/build/
+/nlohmann_json.FslBase.VC.VC.opendb
+/nlohmann_json.FslBase.VC.db
+/nlohmann_json.FslBase.manifest
+/nlohmann_json.FslBase.opensdf
+/nlohmann_json.FslBase.sdf
+/nlohmann_json.FslBase.sln
+/nlohmann_json.FslBase.v12.sdf
+/nlohmann_json.FslBase.v12.suo
+/nlohmann_json.FslBase.vcxproj
+/nlohmann_json.FslBase.vcxproj.filters
+/nlohmann_json.FslBase.vcxproj.user

@@ -39,6 +39,7 @@
 
 namespace Fsl
 {
+  class SpriteNativeAreaCalc;
   class StringViewLite;
 
   //! @brief Represents a atlas texture 2d image with no trim
@@ -55,8 +56,8 @@ namespace Fsl
     RenderBasicImageInfo RenderInfo;
 
     BasicImageSpriteInfo() = default;
-    BasicImageSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx, const uint32_t imageDpi,
-                         const StringViewLite& debugName);
+    BasicImageSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                         const PxRectangleU16& imageRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName);
 
 
     bool operator==(const BasicImageSpriteInfo& rhs) const

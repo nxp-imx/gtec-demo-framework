@@ -120,7 +120,7 @@ class ToolFlowBuildExternal(AToolAppFlow):
                                                                                   localToolConfig.GetUserCMakeConfig(), False)
         theFiles = [] # type: List[str]
         if not localToolConfig.VoidBuild:
-            theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
+            theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platform.CMakeConfig), currentDirPath, localToolConfig.Recursive)
         else:
             self.Log.LogPrintVerbose(1, "Doing a void build")
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platform)

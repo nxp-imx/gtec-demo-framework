@@ -43,7 +43,7 @@ namespace Fsl
   {
     namespace
     {
-      void FillWithTestPattern(Bitmap& rBitmap, const PxRectangleU& dstRect)
+      void FillWithTestPattern(Bitmap& rBitmap, const PxRectangleU32& dstRect)
       {
         constexpr const uint32_t colorRed = 0xFFFF0000;
         constexpr const uint32_t colorBlue = 0xFF0000FF;
@@ -78,7 +78,7 @@ namespace Fsl
       }
       rBitmap.Clear();
 
-      FillWithTestPattern(rBitmap, PxRectangleU(0, 0, rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
+      FillWithTestPattern(rBitmap, PxRectangleU32(0, 0, rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
     }
 
 

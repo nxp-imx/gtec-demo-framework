@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
+#include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 
 namespace Fsl
 {
@@ -39,17 +40,19 @@ namespace Fsl
   {
     PxThicknessU NineSlicePx;
     PxThicknessU ContentMarginPx;
+    AtlasNineSliceFlags Flags{AtlasNineSliceFlags::Opaque};
 
     constexpr AtlasNineSlicePatchInfo() noexcept = default;
-    constexpr AtlasNineSlicePatchInfo(const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx) noexcept
+    constexpr AtlasNineSlicePatchInfo(const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx, const AtlasNineSliceFlags flags) noexcept
       : NineSlicePx(nineSlicePx)
       , ContentMarginPx(contentMarginPx)
+      , Flags(flags)
     {
     }
 
     constexpr bool operator==(const AtlasNineSlicePatchInfo& rhs) const noexcept
     {
-      return NineSlicePx == rhs.NineSlicePx && ContentMarginPx == rhs.ContentMarginPx;
+      return NineSlicePx == rhs.NineSlicePx && ContentMarginPx == rhs.ContentMarginPx && Flags == rhs.Flags;
     }
 
     constexpr bool operator!=(const AtlasNineSlicePatchInfo& rhs) const noexcept

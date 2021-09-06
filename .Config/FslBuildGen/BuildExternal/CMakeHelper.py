@@ -57,6 +57,9 @@ def TryGetPlatformDefaultCMakeGenerator(platformName: str, compilerVersion: int)
         return CMakeGeneratorName.FromVisualStudioVersion(compilerVersion)
     elif platformName == PackageConfig.PlatformNameString.ANDROID:
         return CMakeGeneratorName.Android
+    elif platformName == PackageConfig.PlatformNameString.EMSCRIPTEN:
+        return CMakeGeneratorName.FromVisualStudioVersion(compilerVersion)
+#        return CMakeGeneratorName.Ninja
     return None
 
     #if generator.Name == PackageConfig.PlatformNameString.ANDROID:

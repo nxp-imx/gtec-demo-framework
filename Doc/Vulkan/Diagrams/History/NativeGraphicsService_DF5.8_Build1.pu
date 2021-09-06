@@ -1,0 +1,127 @@
+@startuml NativeGraphicsService DF5.8.0 Build1 Class Diagram
+'!pragma ratio 0.66
+'left to right direction
+scale 1
+
+namespace FslGraphics {
+    interface INativeTexture2D
+    interface IDynamicNativeTexture2D
+    interface INativeBatch2D
+}
+
+namespace FslGraphics3D.BasicRender {
+
+    namespace FslGraphics3D.BasicRender.Adapter {
+        interface INativeTexture
+        interface INativeTextureFactory
+    }
+
+    FslGraphics.INativeTexture2D <|-- FslGraphics.IDynamicNativeTexture2D
+
+    class NativeTextureManager
+    class BasicStaticTexture
+    class BasicDynamicTexture
+    class BasicStaticTextureLink
+    class BasicDynamicTextureLink
+    class DynamicRecord
+    class StaticRecord
+    class vector<T>
+    class "vector<DynamicRecord>" as vector_DynamicRecord
+    class "vector<StaticRecord>" as vector_StaticRecord
+    class "vector<NativeDynamicRecord>" as vector_NativeDynamicRecord
+
+    NativeTextureManager o-- vector_StaticRecord
+    NativeTextureManager o-- vector_DynamicRecord
+    NativeTextureManager o-- FslGraphics3D.BasicRender.Adapter.INativeTextureFactory
+
+    vector_StaticRecord *-- StaticRecord
+
+    StaticRecord o.. BasicStaticTexture
+    StaticRecord o-- BasicStaticTextureLink
+
+    vector_DynamicRecord *-- DynamicRecord
+
+    DynamicRecord o.. BasicDynamicTexture
+    DynamicRecord o-- BasicDynamicTextureLink
+
+    FslGraphics.INativeTexture2D <|-- BasicStaticTexture
+    FslGraphics.IDynamicNativeTexture2D <|-- BasicDynamicTexture
+
+    ' BasicDynamicTextureLink
+    BasicDynamicTextureLink o-- FslGraphics3D.BasicRender.Adapter.INativeTextureFactory
+    BasicDynamicTextureLink o-- vector_NativeDynamicRecord
+
+    vector_NativeDynamicRecord *-- NativeDynamicRecord
+    NativeDynamicRecord o-- FslGraphics3D.BasicRender.Adapter.INativeTexture
+
+    ' BasicStaticTextureLink
+    BasicStaticTextureLink o-- FslGraphics3D.BasicRender.Adapter.INativeTexture
+
+    BasicDynamicTexture o-- BasicDynamicTextureLink
+    BasicStaticTexture o-- BasicStaticTextureLink
+}
+
+namespace FslDemoService.NativeGraphics.Base {
+    interface INativeGraphicsService
+    class ANativeGraphicsService
+
+    INativeGraphicsService <|-- ANativeGraphicsService
+    ANativeGraphicsService o-- FslGraphics3D.BasicRender.NativeTextureManager
+}
+
+namespace FslUtil.Vulkan1_0 {
+    class Batch2D
+    class QuadBatch
+    class VMBufferManager
+    class VulkanImageCreator
+    class VUTexture
+
+    Batch2D o-- QuadBatch
+}
+
+
+namespace FslDemoService.NativeGraphics.Vulkan {
+    class NativeGraphicsBasic2D
+    class NativeGraphicsService
+    class NativeGraphicsSwapchainInfo
+    class NativeBatch2D
+    class NativeGraphicsTexture
+    class NativeGraphicsTextureManager
+    class Record
+    class vector<T>
+    class "vector<Record>" as vector_Record
+
+    ' Batch2D
+    FslGraphics.INativeBatch2D <|-- NativeBatch2D
+    FslUtil.Vulkan1_0.Batch2D <|-- NativeBatch2D
+
+    FslDemoService.NativeGraphics.Base.ANativeGraphicsService <|-- NativeGraphicsService
+    NativeGraphicsService o-- NativeGraphicsTextureManager
+
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.VMBufferManager
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.VulkanImageCreator
+    NativeGraphicsService o.. NativeGraphicsBasic2D
+    NativeGraphicsService o.. NativeGraphicsSwapchainInfo
+    NativeGraphicsService o.. FslUtil.Vulkan1_0.QuadBatch
+
+
+    ' NativeGraphicsTexture
+    FslGraphics3D.BasicRender.Adapter.INativeTexture <|-- NativeGraphicsTexture
+
+    ' NativeGraphicsTextureManager
+    FslGraphics3D.BasicRender.Adapter.INativeTextureFactory <|-- NativeGraphicsTextureManager
+    NativeGraphicsTextureManager o-- FslUtil.Vulkan1_0.VulkanImageCreator
+    NativeGraphicsTextureManager o-- vector_Record
+
+    vector_Record *-- Record
+
+    Record o.. NativeGraphicsTexture
+    NativeGraphicsTexture o-- FslUtil.Vulkan1_0.VUTexture
+}
+
+App o-- FslGraphics.INativeBatch2D
+App o-- FslGraphics.INativeTexture2D
+App o-- FslDemoService.NativeGraphics.Base.INativeGraphicsService
+
+
+@enduml

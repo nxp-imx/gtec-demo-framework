@@ -233,11 +233,11 @@ namespace Fsl
 
         assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].TempValue));
         assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].TempValue));
-        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].MinimumSizePx));
-        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].MinimumSizePx));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].ArrangeMinimumSizePx));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].ArrangeMinimumSizePx));
 
-        PxRectangle rectPx(m_definitionsX[cell.IndexX].TempValue, m_definitionsY[cell.IndexY].TempValue, m_definitionsX[cell.IndexX].MinimumSizePx,
-                           m_definitionsY[cell.IndexY].MinimumSizePx);
+        PxRectangle rectPx(m_definitionsX[cell.IndexX].TempValue, m_definitionsY[cell.IndexY].TempValue,
+                           m_definitionsX[cell.IndexX].ArrangeMinimumSizePx, m_definitionsY[cell.IndexY].ArrangeMinimumSizePx);
 
         ChildAt(index)->Arrange(rectPx);
       }
@@ -298,8 +298,11 @@ namespace Fsl
       uint32_t retryCount = 0;
       do
       {
-        // restore min sizes for g2
-        RestoreMinSize(m_definitionsX);
+        if (hasXChanges)
+        {
+          // restore min sizes for g2
+          RestoreMinSize(m_definitionsY);
+        }
 
         if (m_definitionCache.HasStarX)
         {
@@ -309,7 +312,7 @@ namespace Fsl
         MeasureCellGroup2(unitConverter, m_cellInfo.FirstIndexCellGroup2, availableSizePx);
 
         // restore min sizes for g1
-        RestoreMinSize(m_definitionsY);
+        RestoreMinSize(m_definitionsX);
 
         if (m_definitionCache.HasStarY)
         {
@@ -499,11 +502,11 @@ namespace Fsl
         PxSize2D desiredSizePx = window->DesiredSizePx();
         if (m_definitionsX[indexX].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
+          m_definitionsX[indexX].ApplyMeasureMinSize(desiredSizePx.Width());
         }
         if (m_definitionsY[indexY].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
+          m_definitionsY[indexY].ApplyMeasureMinSize(desiredSizePx.Height());
         }
 
         // Validate our assumptions
@@ -549,17 +552,17 @@ namespace Fsl
         // Finally measure the cell
         window->Measure(avail);
 
-        widthModified |= (oldWidthPx != window->DesiredSizePx().Width());    // FIX: check if this is correct, it was modified from == to !=
+        widthModified |= (oldWidthPx != window->DesiredSizePx().Width());
 
         // Apply the measured window dimensions to the minimum cell size
         PxSize2D desiredSizePx = window->DesiredSizePx();
         if (!ignoreDesiredX)
         {
-          m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
+          m_definitionsX[indexX].ApplyMeasureMinSize(desiredSizePx.Width());
         }
         if (!useInfinityY)
         {
-          m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
+          m_definitionsY[indexY].ApplyMeasureMinSize(desiredSizePx.Height());
         }
 
         // Validate our assumptions
@@ -609,10 +612,10 @@ namespace Fsl
 
         // Apply the measured window dimensions to the minimum cell size
         PxSize2D desiredSizePx = window->DesiredSizePx();
-        m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
+        m_definitionsX[indexX].ApplyMeasureMinSize(desiredSizePx.Width());
         if (m_definitionsY[indexY].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
+          m_definitionsY[indexY].ApplyMeasureMinSize(desiredSizePx.Height());
         }
 
         // Validate our assumptions
@@ -661,9 +664,9 @@ namespace Fsl
         PxSize2D desiredSizePx = window->DesiredSizePx();
         if (m_definitionsX[indexX].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
+          m_definitionsX[indexX].ApplyMeasureMinSize(desiredSizePx.Width());
         }
-        m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
+        m_definitionsY[indexY].ApplyMeasureMinSize(desiredSizePx.Height());
 
         // Validate our assumptions
         assert(index != m_cellRecords[index].NextIndex);
@@ -708,7 +711,7 @@ namespace Fsl
           {
             auto staredSpacePxf = static_cast<float>(spaceLeftPx) * (rEntry.Size / totalStar);
             rEntry.MeasureSizePx = static_cast<int32_t>(std::round(staredSpacePxf));
-            rEntry.ApplyMinSize(rEntry.MeasureSizePx);
+            rEntry.ApplyMeasureMinSize(rEntry.MeasureSizePx);
           }
         }
       }
@@ -716,6 +719,8 @@ namespace Fsl
 
     PxSize2D GridLayout::FinalizeSizes(const PxSize2D& finalSizePx)
     {
+      ResetMinimumSize(m_definitionsX);
+      ResetMinimumSize(m_definitionsY);
       FinalizeStars(m_definitionsY, finalSizePx.Height());
       FinalizeStars(m_definitionsX, finalSizePx.Width());
 
@@ -724,15 +729,24 @@ namespace Fsl
         for (auto& rEntry : m_definitionsX)
         {
           rEntry.TempValue = sizePx.Width();
-          sizePx.AddWidth(rEntry.MinimumSizePx);
+          sizePx.AddWidth(rEntry.ArrangeMinimumSizePx);
         }
         for (auto& rEntry : m_definitionsY)
         {
           rEntry.TempValue = sizePx.Height();
-          sizePx.AddHeight(rEntry.MinimumSizePx);
+          sizePx.AddHeight(rEntry.ArrangeMinimumSizePx);
         }
       }
       return sizePx;
+    }
+
+
+    void GridLayout::ResetMinimumSize(std::deque<GridRowColumnDefinitionEx>& rDefinitions)
+    {
+      for (auto& rEntry : rDefinitions)
+      {
+        rEntry.ClearArrangeMinSize();
+      }
     }
 
 
@@ -779,13 +793,33 @@ namespace Fsl
             sizePx += std::max(rEntry.MeasureSizePx, rEntry.MinimumSizePx);
           }
         }
+        if (sizePx > spaceLeftPx)
+        {
+          // Due to full pixel rounding the required final size grew larger than the available pixels, so we need to reduce the size a bit.
+          // The following algorithm is pretty dumb but it will produce a result that fit on screen if at all possible
+          bool entriesChanged = true;
+          while (sizePx > spaceLeftPx && entriesChanged)
+          {
+            entriesChanged = false;
+            for (auto itrFix = rDefinitions.rbegin(); itrFix != rDefinitions.rend() && sizePx > spaceLeftPx; ++itrFix)
+            {
+              if ((uint32_t(itrFix->MeasureUnitType) & uint32_t(InternalGridUnitType::Star)) == uint32_t(InternalGridUnitType::Star) &&
+                  itrFix->MeasureSizePx > itrFix->MinimumSizePx)
+              {
+                --sizePx;
+                --itrFix->MeasureSizePx;
+                entriesChanged = true;
+              }
+            }
+          }
+        }
         if (sizePx <= spaceLeftPx)
         {
           for (auto& rEntry : rDefinitions)
           {
             if ((uint32_t(rEntry.MeasureUnitType) & uint32_t(InternalGridUnitType::Star)) == uint32_t(InternalGridUnitType::Star))
             {
-              rEntry.ApplyMinSize(rEntry.MeasureSizePx);
+              rEntry.SetArrangeMinSize(rEntry.MeasureSizePx);
             }
           }
         }

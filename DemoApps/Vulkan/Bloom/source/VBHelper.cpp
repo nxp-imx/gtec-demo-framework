@@ -32,6 +32,7 @@
 
 #include "VBHelper.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <array>
@@ -51,7 +52,7 @@ namespace Fsl
     QuadMesh mesh;
 
     std::array<VertexElementUsage, 2> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
-    mesh.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+    mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
 
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.AttributeDescription, shaderBindOrder, mesh.VertexBuffer);
     mesh.BindingDescription.binding = 0;

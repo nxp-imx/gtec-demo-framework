@@ -74,7 +74,7 @@ TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load)
   EXPECT_EQ(PxPoint2(-15, -7), entry0.TextureInfo.OffsetPx);
   EXPECT_EQ(PxExtent2D(1920, 1080), entry0.TextureInfo.ExtentPx);
   EXPECT_EQ(PxThicknessU(17, 9, 1426, 873), entry0.TextureInfo.TrimMarginPx);
-  EXPECT_EQ(PxRectangleU(2, 2, 477, 198), entry0.TextureInfo.TrimmedRectPx);
+  EXPECT_EQ(PxRectangleU32(2, 2, 477, 198), entry0.TextureInfo.TrimmedRectPx);
   EXPECT_EQ(DEFAULT_DP, entry0.TextureInfo.Dpi);
 }
 

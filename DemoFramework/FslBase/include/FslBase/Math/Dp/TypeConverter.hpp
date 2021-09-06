@@ -34,6 +34,8 @@
 #include <FslBase/Math/Dp/DpExtent.hpp>
 #include <FslBase/Math/Dp/DpPoint.hpp>
 #include <FslBase/Math/Dp/DpSize.hpp>
+#include <FslBase/Math/Dp/DpThickness.hpp>
+#include <FslBase/Math/Dp/DpThicknessF.hpp>
 #include <FslBase/TypeConverter.hpp>
 #include <cassert>
 #include <cmath>
@@ -86,6 +88,15 @@ namespace Fsl
     constexpr inline DpSize To<DpSize, DpExtent>(const DpExtent& value)
     {
       return {NumericCast<DpSize::value_type>(value.Width), NumericCast<DpSize::value_type>(value.Height)};
+    }
+
+    // --- DpThicknessF
+
+    template <>
+    constexpr inline DpThicknessF To<DpThicknessF, DpThickness>(const DpThickness& value)
+    {
+      return {static_cast<DpThicknessF::value_type>(value.Left()), static_cast<DpThicknessF::value_type>(value.Top()),
+              static_cast<DpThicknessF::value_type>(value.Right()), static_cast<DpThicknessF::value_type>(value.Bottom())};
     }
 
     // -----------------------------------------------------------------------------------------------------------------------------------------------

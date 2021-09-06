@@ -35,7 +35,7 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
@@ -46,7 +46,7 @@ namespace Fsl
 {
   using namespace GLES3;
 
-  TessellationShader::TessellationShader(const std::shared_ptr<IContentManager>& contentManager, const VertexDeclaration& vertexDeclaration)
+  TessellationShader::TessellationShader(const std::shared_ptr<IContentManager>& contentManager, VertexDeclarationSpan vertexDeclaration)
     : LocTessLevelInner(GLValues::INVALID_LOCATION)
     , LocTessLevelOuter(GLValues::INVALID_LOCATION)
     , LocWorld(GLValues::INVALID_LOCATION)

@@ -36,7 +36,6 @@
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include "ParticleSystemBasicScene.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"
@@ -167,7 +166,7 @@ namespace Fsl
     {    // Prepare the default program
       m_program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText("Shader.frag"));
       const GLuint hProgram = m_program.Get();
-      auto vertexDecl = VertexPositionColorTexture::GetVertexDeclaration();
+      constexpr auto vertexDecl = VertexPositionColorTexture::GetVertexDeclarationArray();
       m_cubeAttribLink[0] =
         GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_cubeAttribLink[1] =

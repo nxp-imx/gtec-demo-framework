@@ -201,11 +201,11 @@ namespace Fsl
     static Mesh CreateMesh(const Procedural::BasicMesh& mesh);
     static ProgramDirectionalLight PrepareDirectionalLightProgram(const std::shared_ptr<IContentManager>& contentManager,
                                                                   std::array<GLES3::GLVertexAttribLink, 3>& rAttribLink,
-                                                                  const VertexDeclaration& vertexDecl);
+                                                                  VertexDeclarationSpan vertexDecl);
     static ProgramColor PrepareSolidColorProgram(const std::shared_ptr<IContentManager>& contentManager,
-                                                 std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink, const VertexDeclaration& vertexDecl);
+                                                 std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink, VertexDeclarationSpan vertexDecl);
     static ProgramColor PrepareTexturedProgram(const std::shared_ptr<IContentManager>& contentManager,
-                                               std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink, const VertexDeclaration& vertexDecl);
+                                               std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink, VertexDeclarationSpan vertexDecl);
     static void GenerateObjects(std::vector<MeshObject>& rObjects, const uint32_t objectCount, const bool useRandomSeed);
   };
 }

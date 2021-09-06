@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Font/BitmapFontKerningFastLookup.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <fmt/format.h>

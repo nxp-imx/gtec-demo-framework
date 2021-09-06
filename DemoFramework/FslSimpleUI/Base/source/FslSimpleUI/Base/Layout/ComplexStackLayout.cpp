@@ -398,7 +398,7 @@ namespace Fsl
 
     void ComplexStackLayout::ArrangeHorizontal(const int32_t finalSizeYPx)
     {
-      // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
+      // Run through each element and give it the space it desired in X, but only finalSizeY in Y
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Arrange(PxRectangle(itr->PositionPx, 0, itr->SizePx, finalSizeYPx));
@@ -408,7 +408,7 @@ namespace Fsl
 
     void ComplexStackLayout::ArrangeVertical(const int32_t finalSizeXPx)
     {
-      // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
+      // Run through each element and give it the space it desired in Y, but only finalSizeX in X
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Arrange(PxRectangle(0, itr->PositionPx, finalSizeXPx, itr->SizePx));

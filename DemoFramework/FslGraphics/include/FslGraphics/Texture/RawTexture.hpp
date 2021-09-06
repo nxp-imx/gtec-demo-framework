@@ -100,11 +100,6 @@ namespace Fsl
       return m_contentByteSize;
     }
 
-    [[deprecated("use one of the other overloads instead")]] std::size_t GetContentByteSize() const
-    {
-      return GetByteSize();
-    }
-
     //! The stride at the given level (not valid for compressed textures)
     std::size_t GetStride(const std::size_t level = 0) const;
 

@@ -65,7 +65,7 @@ namespace Fsl
 
     private:
       //! @brief Locate a window by hitting
-      std::shared_ptr<TreeNode> LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags& flags) const;
+      std::shared_ptr<TreeNode> LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags flags) const;
     };
   }
 }

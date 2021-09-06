@@ -34,13 +34,14 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  struct Color;
-  class VertexDeclaration;
-
   struct VertexPositionColorNormalTangentTexture
   {
     Vector3 Position;
@@ -61,11 +62,47 @@ namespace Fsl
     {
     }
 
-    VertexPositionColorNormalTangentTexture(const Vector3& position, const Fsl::Color& color, const Vector3& normal, const Vector3& tangent,
-                                            const Vector2& textureCoordinate);
+    constexpr VertexPositionColorNormalTangentTexture(const Vector3& position, const Fsl::Color& color, const Vector3& normal, const Vector3& tangent,
+                                                      const Vector2& textureCoordinate) noexcept
+      : Position(position)
+      , Color(color.ToVector4())
+      , Normal(normal)
+      , Tangent(tangent)
+      , TextureCoordinate(textureCoordinate)
+    {
+    }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+    constexpr static VertexDeclarationArray<5> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 5> elements = {
+        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                        VertexElementUsage::TextureCoordinate, 0)};
+      return VertexDeclarationArray<5>(elements, sizeof(VertexPositionColorNormalTangentTexture));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<5> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+    constexpr bool operator==(const VertexPositionColorNormalTangentTexture& rhs) const
+    {
+      return Position == rhs.Position && Color == rhs.Color && Normal == rhs.Normal && Tangent == rhs.Tangent &&
+             TextureCoordinate == rhs.TextureCoordinate;
+    }
+
+    constexpr bool operator!=(const VertexPositionColorNormalTangentTexture& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

@@ -38,7 +38,7 @@
 
 namespace Fsl
 {
-  DemoAppProfilerGraph::DemoAppProfilerGraph(const int32_t minValue, const int32_t maxValue, const Point2& size)
+  DemoAppProfilerGraph::DemoAppProfilerGraph(const int64_t minValue, const int64_t maxValue, const Point2& size)
     : m_minValue(minValue)
     , m_maxValue(maxValue)
     , m_size(size)
@@ -58,9 +58,9 @@ namespace Fsl
   }
 
 
-  void DemoAppProfilerGraph::Add(const int32_t latestValue)
+  void DemoAppProfilerGraph::Add(const int64_t latestValue)
   {
-    int32_t cappedValue = std::min(std::max(latestValue - m_minValue, 0), m_maxValue - m_minValue);
+    int64_t cappedValue = std::min(std::max(latestValue - m_minValue, int64_t(0)), m_maxValue - m_minValue);
     m_entries.push_back(cappedValue);
   }
 

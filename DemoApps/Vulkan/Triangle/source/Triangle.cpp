@@ -33,8 +33,8 @@
 
 #include "Triangle.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -258,46 +258,68 @@ namespace Fsl
       return {std::move(basicVertexBuffer), std::move(basicIndexBuffer)};
     }
 
-    BasicMesh PrepareVerticesBasic(const Vulkan::VUDevice& /*device*/, Vulkan::VUDeviceQueueRecord& /*rDeviceQueue*/,
-                                   const ReadOnlySpan<Vertex> /*vertices*/, const ReadOnlySpan<uint32_t> /*indices*/)
+    BasicMesh PrepareVerticesBasic(const Vulkan::VUDevice& device, const ReadOnlySpan<Vertex> vertexSpan, const ReadOnlySpan<uint32_t> indexSpan)
     {
-      throw NotImplementedException("PrepareVertices");
       // Don't use staging
       // Create host-visible buffers only and use these for rendering. This is not advised and will usually result in lower rendering performance
+      const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = device.GetPhysicalDevice().MemoryProperties;
 
-      //  // Vertex buffer
-      //  VkBufferCreateInfo vertexBufferInfo = {};
-      //  vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-      //  vertexBufferInfo.size = vertexBufferSize;
-      //  vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+      BasicMesh mesh;
+      {
+        // Vertex buffer
+        VkBufferCreateInfo vertexBufferInfo{};
+        vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        vertexBufferInfo.size = NumericCast<VkDeviceSize>(sizeof(Vertex) * vertexSpan.size());
+        vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-      //  // Copy vertex data to a buffer visible to the host
-      //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &vertexBufferInfo, nullptr, &vertices.buffer));
-      //  vkGetBufferMemoryRequirements(device, vertices.buffer, &memReqs);
-      //  memAlloc.allocationSize = memReqs.size;
-      //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-      //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &vertices.memory));
-      //  RAPIDVULKAN_CHECK(vkMapMemory(device, vertices.memory, 0, memAlloc.allocationSize, 0, &data));
-      //  memcpy(data, vertexBuffer.data(), vertexBufferSize);
-      //  vkUnmapMemory(device, vertices.memory);
-      //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, vertices.buffer, vertices.memory, 0));
+        // Copy vertex data to a buffer visible to the host
+        mesh.Vertices.Buffer.Reset(device.Get(), vertexBufferInfo);
+        VkMemoryRequirements memReqs{};
+        vkGetBufferMemoryRequirements(device.Get(), mesh.Vertices.Buffer.Get(), &memReqs);
 
-      //  // Index buffer
-      //  VkBufferCreateInfo indexbufferInfo = {};
-      //  indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-      //  indexbufferInfo.size = indexBufferSize;
-      //  indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        VkMemoryAllocateInfo memAlloc{};
+        memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        memAlloc.allocationSize = memReqs.size;
+        memAlloc.memoryTypeIndex =
+          Vulkan::MemoryTypeUtil::GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        mesh.Vertices.Memory.Reset(device.Get(), memAlloc);
+        {
+          void* pBufferData{};
+          RAPIDVULKAN_CHECK(vkMapMemory(device.Get(), mesh.Vertices.Memory.Get(), 0, memAlloc.allocationSize, 0, &pBufferData));
+          std::memcpy(pBufferData, vertexSpan.data(), vertexBufferInfo.size);
+          vkUnmapMemory(device.Get(), mesh.Vertices.Memory.Get());
+        }
+        RAPIDVULKAN_CHECK(vkBindBufferMemory(device.Get(), mesh.Vertices.Buffer.Get(), mesh.Vertices.Memory.Get(), 0));
+      }
 
-      //  // Copy index data to a buffer visible to the host
-      //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &indexbufferInfo, nullptr, &indices.buffer));
-      //  vkGetBufferMemoryRequirements(device, indices.buffer, &memReqs);
-      //  memAlloc.allocationSize = memReqs.size;
-      //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-      //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &indices.memory));
-      //  RAPIDVULKAN_CHECK(vkMapMemory(device, indices.memory, 0, indexBufferSize, 0, &data));
-      //  memcpy(data, indexBuffer.data(), indexBufferSize);
-      //  vkUnmapMemory(device, indices.memory);
-      //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, indices.buffer, indices.memory, 0));
+      // Index buffer
+      {
+        VkBufferCreateInfo indexbufferInfo{};
+        indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        indexbufferInfo.size = NumericCast<VkDeviceSize>(sizeof(uint32_t) * indexSpan.size());
+        indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+        // Copy index data to a buffer visible to the host
+        mesh.Indices.Buffer.Reset(device.Get(), indexbufferInfo);
+
+        VkMemoryRequirements memReqs{};
+        vkGetBufferMemoryRequirements(device.Get(), mesh.Indices.Buffer.Get(), &memReqs);
+
+        VkMemoryAllocateInfo memAlloc{};
+        memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        memAlloc.allocationSize = memReqs.size;
+        memAlloc.memoryTypeIndex =
+          Vulkan::MemoryTypeUtil::GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+        mesh.Indices.Memory.Reset(device.Get(), memAlloc);
+        {
+          void* pBufferData{};
+          RAPIDVULKAN_CHECK(vkMapMemory(device.Get(), mesh.Indices.Memory.Get(), 0, memAlloc.allocationSize, 0, &pBufferData));
+          std::memcpy(pBufferData, indexSpan.data(), indexbufferInfo.size);
+          vkUnmapMemory(device.Get(), mesh.Indices.Memory.Get());
+        }
+        RAPIDVULKAN_CHECK(vkBindBufferMemory(device.Get(), mesh.Indices.Buffer.Get(), mesh.Indices.Memory.Get(), 0));
+      }
+      return mesh;
     }
 
     BasicMesh PrepareMesh(const Vulkan::VUDevice& device, Vulkan::VUDeviceQueueRecord& rDeviceQueue, const VkCommandPool cmdPool,
@@ -309,7 +331,7 @@ namespace Fsl
       }
 
 
-      return PrepareVerticesBasic(device, rDeviceQueue, vertices, indices);
+      return PrepareVerticesBasic(device, vertices, indices);
     }
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -570,15 +592,18 @@ namespace Fsl
 
   void Triangle::Update(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
   void Triangle::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    FSL_PARAM_NOT_USED(demoTime);
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
+
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -593,19 +618,21 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawTriangle(hCmdBuffer, currentSwapBufferIndex);
+        DrawTriangle(hCmdBuffer, currentFrameIndex);
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
   void Triangle::DrawTriangle(VkCommandBuffer hCmdBuffer, const uint32_t cmdBufferIndex)
   {
+    FSL_PARAM_NOT_USED(cmdBufferIndex);
+
     auto screenExtent = GetScreenExtent();
 
     const Mesh& mesh = m_resources.TriangleMesh;
@@ -648,7 +675,8 @@ namespace Fsl
 
   VkRenderPass Triangle::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
   {
-    // FIX: Replace this with a renderPass that matches your requirements
+    FSL_PARAM_NOT_USED(context);
+
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();
 
     m_dependentResources.Pipeline =

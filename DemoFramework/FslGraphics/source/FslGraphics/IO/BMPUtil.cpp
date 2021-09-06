@@ -32,6 +32,7 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
@@ -46,19 +47,6 @@
 // BMP format explained:
 // http://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
 // http://www.fileformat.info/format/bmp/egff.htm
-
-// Nasty hack for dealing with UTF8 file names on windows,
-// since its the only supported platform that doesn't allow UTF8 strings
-// but instead provides its own 'hack' for opening wstring's
-#ifdef _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
-#else
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) X.ToUTF8String()
-#endif
-
 
 namespace Fsl
 {
@@ -590,7 +578,7 @@ namespace Fsl
 
   void BMPUtil::Load(Bitmap& rBitmap, const IO::Path& strFilename, const BitmapOrigin originHint)
   {
-    std::ifstream file(PATH_GET_NAME(strFilename), std::ios::in | std::ios::binary);
+    std::ifstream file(PlatformPathTransform::ToSystemPath(strFilename), std::ios::in | std::ios::binary);
     if (file.good())
     {
       Load(rBitmap, file, originHint);
@@ -650,7 +638,7 @@ namespace Fsl
 
   void BMPUtil::Save(const IO::Path& strFilename, const RawBitmap& bitmap)
   {
-    std::ofstream file(PATH_GET_NAME(strFilename), std::ios::out | std::ios::binary);
+    std::ofstream file(PlatformPathTransform::ToSystemPath(strFilename), std::ios::out | std::ios::binary);
     Save(file, bitmap);
   }
 

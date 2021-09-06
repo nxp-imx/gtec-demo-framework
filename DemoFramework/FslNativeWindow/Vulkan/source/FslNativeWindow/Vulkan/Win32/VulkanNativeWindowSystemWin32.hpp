@@ -1,6 +1,6 @@
 #ifndef FSLNATIVEWINDOW_VULKAN_WIN32_VULKANNATIVEWINDOWSYSTEMWIN32_HPP
 #define FSLNATIVEWINDOW_VULKAN_WIN32_VULKANNATIVEWINDOWSYSTEMWIN32_HPP
-#ifdef _WIN32
+#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
 /****************************************************************************************************************************************************
  * Copyright (c) 2016 Freescale Semiconductor, Inc.
  * All rights reserved.

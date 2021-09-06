@@ -179,7 +179,7 @@ namespace Fsl
     }
 
 
-    inline void MeshExtractPositions(const RawMeshContentEx& dstRawMeshContent, const VertexDeclaration& dstVertexDeclaration,
+    inline void MeshExtractPositions(const RawMeshContentEx& dstRawMeshContent, VertexDeclarationSpan dstVertexDeclaration,
                                      const aiMesh* const pSrcMesh, const Vector3& positionMod, const Vector3& scale)
     {
       // Extract the vertex positions (if present in both the model and the mesh we extract to)
@@ -201,7 +201,7 @@ namespace Fsl
 
 
     // Extract the vertex normals (if present in both the model and the mesh we extract to)
-    inline void MeshExtractNormals(const RawMeshContentEx& dstRawMeshContent, const VertexDeclaration& dstVertexDeclaration,
+    inline void MeshExtractNormals(const RawMeshContentEx& dstRawMeshContent, VertexDeclarationSpan dstVertexDeclaration,
                                    const aiMesh* const pSrcMesh)
     {
       const auto indexNormals = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Normal, 0);
@@ -222,7 +222,7 @@ namespace Fsl
 
 
     // Extract the vertex tangent (if present in both the model and the mesh we extract to)
-    inline void MeshExtractTangents(const RawMeshContentEx& dstRawMeshContent, const VertexDeclaration& dstVertexDeclaration,
+    inline void MeshExtractTangents(const RawMeshContentEx& dstRawMeshContent, VertexDeclarationSpan dstVertexDeclaration,
                                     const aiMesh* const pSrcMesh)
     {
       const auto indexTangents = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Tangent, 0);
@@ -243,7 +243,7 @@ namespace Fsl
 
 
     // Extract the vertex bitangents (if present in both the model and the mesh we extract to)
-    inline void MeshExtractBitangents(const RawMeshContentEx& dstRawMeshContent, const VertexDeclaration& dstVertexDeclaration,
+    inline void MeshExtractBitangents(const RawMeshContentEx& dstRawMeshContent, VertexDeclarationSpan dstVertexDeclaration,
                                       const aiMesh* const pSrcMesh)
     {
       const auto indexBitangents = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Bitangent, 0);
@@ -264,7 +264,7 @@ namespace Fsl
 
 
     // Extract the vertex texture coordinates (if present in both the model and the mesh we extract to)
-    inline void MeshExtractTextureCoordinates(const RawMeshContentEx& dstRawMeshContent, const VertexDeclaration& dstVertexDeclaration,
+    inline void MeshExtractTextureCoordinates(const RawMeshContentEx& dstRawMeshContent, VertexDeclarationSpan dstVertexDeclaration,
                                               const aiMesh* const pSrcMesh)
     {
       for (int32_t usageIndex = 0; usageIndex < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++usageIndex)
@@ -292,8 +292,7 @@ namespace Fsl
     }
 
     // Extract the vertex colors (if present in both the model and the mesh we extract to)
-    inline void MeshExtractColors(const RawMeshContentEx& dstRawMeshContent, const VertexDeclaration& dstVertexDeclaration,
-                                  const aiMesh* const pSrcMesh)
+    inline void MeshExtractColors(const RawMeshContentEx& dstRawMeshContent, VertexDeclarationSpan dstVertexDeclaration, const aiMesh* const pSrcMesh)
     {
       for (int32_t usageIndex = 0; usageIndex < AI_MAX_NUMBER_OF_COLOR_SETS; ++usageIndex)
       {
@@ -379,7 +378,7 @@ namespace Fsl
       throw UsageErrorException("The allocator failed to allocate a mesh");
     }
 
-    auto vertexDeclaration = mesh->GetVertexDeclaration();
+    auto vertexDeclaration = mesh->AsVertexDeclarationSpan();
     RawMeshContentEx rawMeshContent = mesh->GenericDirectAccess();
 
     assert(rawMeshContent.pVertices != nullptr);

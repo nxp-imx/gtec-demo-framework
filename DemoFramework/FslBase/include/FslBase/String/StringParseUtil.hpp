@@ -33,8 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2U.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Rectangle.hpp>
-#include <FslBase/Span.hpp>
+#include <FslBase/Span/Span.hpp>
 #include <FslBase/String/StringParseArrayResult.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <chrono>
@@ -60,6 +61,7 @@ namespace Fsl
     static std::size_t Parse(double& rResult, const StringViewLite strView);
     static std::size_t Parse(Point2& rResult, const StringViewLite strView);
     static std::size_t Parse(Point2U& rResult, const StringViewLite strView);
+    static std::size_t Parse(PxSize2D& rResult, const StringViewLite strView);
     static std::size_t Parse(Rectangle& rResult, const StringViewLite strView);
 
     //! @brief Parse the input string into the correct type

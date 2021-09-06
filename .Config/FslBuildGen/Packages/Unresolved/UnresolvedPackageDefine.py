@@ -31,10 +31,12 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Optional
 from FslBuildGen.DataTypes import AccessType
 
 class UnresolvedPackageDefine(object):
-    def __init__(self, name: str, access: AccessType) -> None:
+    def __init__(self, name: str, value: Optional[str], access: AccessType) -> None:
         super().__init__()
         self.Name = name
+        self.Value = value
         self.Access = access

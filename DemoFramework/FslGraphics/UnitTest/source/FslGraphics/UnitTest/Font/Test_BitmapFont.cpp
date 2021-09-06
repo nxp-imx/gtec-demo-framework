@@ -61,16 +61,18 @@ TEST(TestFont_BitmapFont, Construct)
   const uint16_t size = 42;
   const uint16_t lineSpacingPx = 21;
   const uint16_t baseLinePx = 18;
+  const PxThicknessU16 paddingPx(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
+  const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
   constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
 
   std::vector<BitmapFontChar> chars = {char0};
   std::vector<BitmapFontKerning> kernings = {kerning0};
 
-  BitmapFont font(name, dpi, size, lineSpacingPx, baseLinePx, textureName, fontType, chars, kernings);
+  BitmapFont font(name, dpi, size, lineSpacingPx, baseLinePx, paddingPx, textureName, fontType, sdfParams, chars, kernings);
 
   EXPECT_EQ(name, font.GetName());
   EXPECT_EQ(textureName, font.GetTextureName());
@@ -78,7 +80,9 @@ TEST(TestFont_BitmapFont, Construct)
   EXPECT_EQ(size, font.GetSize());
   EXPECT_EQ(lineSpacingPx, font.GetLineSpacingPx());
   EXPECT_EQ(baseLinePx, font.GetBaseLinePx());
+  EXPECT_EQ(paddingPx, font.GetPaddingPx());
   EXPECT_EQ(fontType, font.GetFontType());
+  EXPECT_EQ(sdfParams, font.GetSdfParams());
   EXPECT_EQ(ReadOnlySpanUtil::AsSpan(chars), font.GetChars());
   EXPECT_EQ(ReadOnlySpanUtil::AsSpan(kernings), font.GetKernings());
 }
@@ -91,19 +95,21 @@ TEST(TestFont_BitmapFont, Construct_SortChars)
   const uint16_t size = 42;
   const uint16_t lineSpacingPx = 21;
   const uint16_t baseLinePx = 18;
+  const PxThicknessU16 paddingPx(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
+  const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(3u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontChar char1(2u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontChar char2(1u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char0(3u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char1(2u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char2(1u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
   constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
 
   std::vector<BitmapFontChar> chars = {char0, char1, char2};
   std::vector<BitmapFontChar> sortedChars = {char2, char1, char0};
   std::vector<BitmapFontKerning> kernings = {kerning0};
 
-  BitmapFont font(name, dpi, size, lineSpacingPx, baseLinePx, textureName, fontType, chars, kernings);
+  BitmapFont font(name, dpi, size, lineSpacingPx, baseLinePx, paddingPx, textureName, fontType, sdfParams, chars, kernings);
 
   EXPECT_EQ(name, font.GetName());
   EXPECT_EQ(textureName, font.GetTextureName());
@@ -111,7 +117,9 @@ TEST(TestFont_BitmapFont, Construct_SortChars)
   EXPECT_EQ(size, font.GetSize());
   EXPECT_EQ(lineSpacingPx, font.GetLineSpacingPx());
   EXPECT_EQ(baseLinePx, font.GetBaseLinePx());
+  EXPECT_EQ(paddingPx, font.GetPaddingPx());
   EXPECT_EQ(fontType, font.GetFontType());
+  EXPECT_EQ(sdfParams, font.GetSdfParams());
   EXPECT_EQ(ReadOnlySpanUtil::AsSpan(sortedChars), font.GetChars());
   EXPECT_EQ(ReadOnlySpanUtil::AsSpan(kernings), font.GetKernings());
 }
@@ -124,10 +132,12 @@ TEST(TestFont_BitmapFont, SortedKernings)
   const uint16_t size = 42;
   const uint16_t lineSpacingPx = 21;
   const uint16_t baseLinePx = 18;
+  const PxThicknessU16 paddingPx(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
+  const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
 
   constexpr const BitmapFontKerning kerning0(3u, 0u, -1);
   constexpr const BitmapFontKerning kerning1(0u, 0u, -2);
@@ -139,7 +149,7 @@ TEST(TestFont_BitmapFont, SortedKernings)
   std::vector<BitmapFontKerning> kernings = {kerning0, kerning1, kerning2, kerning3, kerning4};
   std::vector<BitmapFontKerning> sortedKernings = {kerning1, kerning3, kerning2, kerning4, kerning0};
 
-  BitmapFont font(name, dpi, size, lineSpacingPx, baseLinePx, textureName, fontType, chars, kernings);
+  BitmapFont font(name, dpi, size, lineSpacingPx, baseLinePx, paddingPx, textureName, fontType, sdfParams, chars, kernings);
 
   EXPECT_EQ(name, font.GetName());
   EXPECT_EQ(textureName, font.GetTextureName());
@@ -147,7 +157,9 @@ TEST(TestFont_BitmapFont, SortedKernings)
   EXPECT_EQ(size, font.GetSize());
   EXPECT_EQ(lineSpacingPx, font.GetLineSpacingPx());
   EXPECT_EQ(baseLinePx, font.GetBaseLinePx());
+  EXPECT_EQ(paddingPx, font.GetPaddingPx());
   EXPECT_EQ(fontType, font.GetFontType());
+  EXPECT_EQ(sdfParams, font.GetSdfParams());
   EXPECT_EQ(ReadOnlySpanUtil::AsSpan(chars), font.GetChars());
   EXPECT_EQ(ReadOnlySpanUtil::AsSpan(sortedKernings), font.GetKernings());
 }
@@ -159,17 +171,20 @@ TEST(TestFont_BitmapFont, Construct_DuplicatedChar)
   const uint16_t size = 42;
   const uint16_t lineSpacingPx = 21;
   const uint16_t baseLinePx = 18;
+  const PxThicknessU16 paddingPx(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
+  const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontChar char1(1u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char1(1u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
   constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
 
   std::vector<BitmapFontChar> chars = {char0, char1, char0};
   std::vector<BitmapFontKerning> kernings = {kerning0};
 
-  EXPECT_THROW(BitmapFont(name, dpi, size, lineSpacingPx, baseLinePx, textureName, fontType, chars, kernings), std::invalid_argument);
+  EXPECT_THROW(BitmapFont(name, dpi, size, lineSpacingPx, baseLinePx, paddingPx, textureName, fontType, sdfParams, chars, kernings),
+               std::invalid_argument);
 }
 
 
@@ -180,15 +195,18 @@ TEST(TestFont_BitmapFont, Construct_DuplicatedKerning)
   const uint16_t size = 42;
   const uint16_t lineSpacingPx = 21;
   const uint16_t baseLinePx = 18;
+  const PxThicknessU16 paddingPx(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
+  const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
   constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
   constexpr const BitmapFontKerning kerning1(1u, 0u, -2);
 
   std::vector<BitmapFontChar> chars = {char0};
   std::vector<BitmapFontKerning> kernings = {kerning0, kerning1, kerning0};
 
-  EXPECT_THROW(BitmapFont(name, dpi, size, lineSpacingPx, baseLinePx, textureName, fontType, chars, kernings), std::invalid_argument);
+  EXPECT_THROW(BitmapFont(name, dpi, size, lineSpacingPx, baseLinePx, paddingPx, textureName, fontType, sdfParams, chars, kernings),
+               std::invalid_argument);
 }

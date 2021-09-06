@@ -34,37 +34,43 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Collections/HandleVector.hpp>
+#include <FslBase/Math/Pixel/PxViewport.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
 #include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslSimpleUI/App/Resource/UIAppMaterialManager.hpp>
+#include <FslSimpleUI/App/Resource/UIAppTextureManager.hpp>
 #include <FslSimpleUI/App/UIAppResourceFlag.hpp>
 #include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 #include <FslSimpleUI/App/UIAppTextureResourceCreationInfo.hpp>
 #include <FslSimpleUI/App/UITestPatternMode.hpp>
-#include <map>
 #include <memory>
 
 namespace Fsl
 {
+  struct DemoWindowMetrics;
   class Bitmap;
   class BasicNineSliceSprite;
-  struct DemoWindowMetrics;
+  class BasicSpriteMaterial;
   class IContentManager;
   class IDynamicNativeTexture2D;
   class IImageSprite;
-  class INativeGraphics;
+  class IBasicRenderSystem;
   class INativeTexture2D;
   class INineSliceSprite;
   class ISpriteMaterial;
+  struct PxViewport;
   class SpriteFont;
   struct SpriteFontConfig;
   struct SpriteMaterialId;
-  class CompatibilityTextureAtlasMap;
 
-  class UIAppResourceManager final : public ISpriteResourceManager
+  class UIAppResourceManager final
+    : public ISpriteResourceManager
+    , public ICustomSpriteResourceManager
   {
     enum class SpriteType
     {
@@ -72,68 +78,6 @@ namespace Fsl
       Normal = 1,
     };
 
-    struct EncodedAvailableDp
-    {
-      uint32_t EncodedValue{};
-
-      constexpr void AddIndex(const uint32_t index)
-      {
-        EncodedValue |= 1 << index;
-      }
-
-      constexpr bool Empty() const
-      {
-        return EncodedValue == 0u;
-      }
-
-      constexpr uint32_t Count() const
-      {
-        return BitsUtil::Count(EncodedValue);
-      }
-
-      constexpr bool IsFlagged(const uint32_t bitIndex) const
-      {
-        return (EncodedValue & (1 << bitIndex)) != 0u;
-      }
-    };
-
-    struct AnalyzedPath
-    {
-      IO::Path SrcPath;
-      EncodedAvailableDp AvailableDp;
-    };
-
-    struct TextureDefinition
-    {
-      UIAppTextureResourceCreationInfo CreationInfo;
-      AnalyzedPath PathInfo;
-      uint32_t Dpi{0};
-      std::shared_ptr<INativeTexture2D> Texture;
-      PxExtent2D ExtentPx;
-      UIAppResourceFlag Flags;
-      std::unique_ptr<CompatibilityTextureAtlasMap> Atlas;
-    };
-
-    struct PrepareTextureResult
-    {
-      Texture SrcTexture;
-      std::unique_ptr<CompatibilityTextureAtlasMap> Atlas;
-    };
-
-    struct PrepareCreateResult
-    {
-      UIAppTextureResourceCreationInfo CreationInfo;
-      AnalyzedPath PathInfo;
-      uint32_t Dpi;
-      PrepareTextureResult TextureResult;
-    };
-
-
-    struct MaterialRecord
-    {
-      UIAppTextureHandle TextureHandle{};
-      SpriteMaterialInfo MaterialInfo;
-    };
 
     struct ImageRecord
     {
@@ -145,10 +89,19 @@ namespace Fsl
 
     struct NineSliceRecord
     {
-      SpriteType Type;
+      SpriteType Type{SpriteType::Basic};
       UIAppTextureHandle TextureHandle{};
       IO::Path AtlasName;
       std::shared_ptr<INineSliceSprite> Sprite;
+
+      NineSliceRecord() = default;
+      NineSliceRecord(const SpriteType type, const UIAppTextureHandle textureHandle, IO::Path atlasName, std::shared_ptr<INineSliceSprite> sprite)
+        : Type(type)
+        , TextureHandle(textureHandle)
+        , AtlasName(std::move(atlasName))
+        , Sprite(std::move(sprite))
+      {
+      }
     };
 
     struct FontRecord
@@ -158,80 +111,76 @@ namespace Fsl
       std::shared_ptr<SpriteFont> Font;
     };
 
-    struct TestPatternRecord
+    struct CustomTextureRecord
     {
-      Texture Original;
-      Texture TestPattern;
+      UIAppTextureHandle TextureHandle{};
+      SpriteMaterialId MaterialId;
+      std::weak_ptr<IImageSprite> Sprite;
     };
 
 
     std::weak_ptr<IContentManager> m_contentManager;
-    std::weak_ptr<INativeGraphics> m_nativeGraphics;
-    uint32_t m_densityDpi{};
-    UITestPatternMode m_testPatternMode{};
-    HandleVector<TextureDefinition> m_textures;
-    std::map<IO::Path, UIAppTextureHandle> m_textureLookup;
-    std::map<SpriteMaterialId, MaterialRecord> m_materials;
+    std::weak_ptr<IBasicRenderSystem> m_renderSystem;
+
+    SimpleUIApp::UIAppTextureManager m_textureManager;
+    SimpleUIApp::UIAppMaterialManager m_materialManager;
+
     std::vector<ImageRecord> m_images;
     std::vector<NineSliceRecord> m_nineSlices;
     std::vector<FontRecord> m_fonts;
+    std::vector<CustomTextureRecord> m_customTextures;
     SpriteManager m_manager;
 
-    std::map<UIAppTextureHandle, TestPatternRecord> m_testPatternTextures;
-    bool m_testPatternEnabled{false};
 
   public:
-    struct StaticTextureInfo
-    {
-      UIAppTextureHandle Handle;
-      std::shared_ptr<INativeTexture2D> Texture;
-      PxExtent2D ExtentPx;
-      PixelFormat TexturePixelFormat;
-    };
-    struct DynamicTextureInfo
-    {
-      UIAppTextureHandle Handle;
-      std::shared_ptr<IDynamicNativeTexture2D> Texture;
-      PxExtent2D ExtentPx;
-      PixelFormat TexturePixelFormat;
-    };
-
-    UIAppResourceManager(std::weak_ptr<IContentManager> contentManager, std::weak_ptr<INativeGraphics> nativeGraphics,
-                         const DemoWindowMetrics& windowMetrics, const UITestPatternMode testPatternMode);
+    UIAppResourceManager(std::weak_ptr<IContentManager> contentManager, std::weak_ptr<IBasicRenderSystem> renderSystem,
+                         const DemoWindowMetrics& windowMetrics, const UITestPatternMode testPatternMode, const bool allowDepthBuffer,
+                         const bool defaultToDynamicMaterials, const bool useYFlipTextureCoordinates);
     ~UIAppResourceManager() override;
 
+    void SYS_SetRenderSystemViewport(const PxViewport& viewPortPx);
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics);
 
+    bool FontExists(const UIAppTextureHandle textureHandle, IO::PathView fontName) const;
 
-    // --- platform dependent interface (the platform here is NativeBatch and INativeGraphics)
+
+    // --- platform dependent interface (the platform here is NativeBatch and IBasicRenderSystem)
 
     // [[deprecated("use the new sprites instead, as this doesnt support dp awareness")]]
     const CompatibilityTextureAtlasMap& GetLegacyTextureAtlasMap(const UIAppTextureHandle hTexture) const;
 
 
     //! The define native material signature is defined by the render engine
-    StaticTextureInfo CreateTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                    const UIAppResourceFlag flags = UIAppResourceFlag::Undefined);
+    UIAppTexture<INativeTexture2D> CreateTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                 const UIAppResourceFlag flags = UIAppResourceFlag::Undefined);
     //! The define native material signature is defined by the render engine
-    StaticTextureInfo CreateTexture(const IO::Path& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                    const UIAppResourceFlag flags = UIAppResourceFlag::Undefined)
+    UIAppTexture<INativeTexture2D> CreateTexture(const IO::Path& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                 const UIAppResourceFlag flags = UIAppResourceFlag::Undefined)
     {
       return CreateTexture(atlasPath.AsPathView(), textureCreationInfo, flags);
     }
 
 
     //! The define native material signature is defined by the render engine
-    DynamicTextureInfo CreateDynamicTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                            const UIAppResourceFlag flags = UIAppResourceFlag::Undefined);
+    UIAppTexture<IDynamicNativeTexture2D> CreateDynamicTexture(const IO::PathView& atlasPath,
+                                                               const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                               const UIAppResourceFlag flags = UIAppResourceFlag::Undefined);
     //! The define native material signature is defined by the render engine
-    DynamicTextureInfo CreateDynamicTexture(const IO::Path& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                            const UIAppResourceFlag flags = UIAppResourceFlag::Undefined)
+    UIAppTexture<IDynamicNativeTexture2D> CreateDynamicTexture(const IO::Path& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                               const UIAppResourceFlag flags = UIAppResourceFlag::Undefined)
     {
       return CreateDynamicTexture(atlasPath.AsPathView(), textureCreationInfo, flags);
     }
 
     //! @brief Define a material with the given unique spriteMaterialId
     void AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture, const BlendState blendState);
+
+    // --- platform independent custom texture sprites
+
+    //! @brief Create a custom 'texture' sprite which have a dynamic lifetime that is valid until the caller releases it's last pointer.
+    //!        This means that the custom sprite and backing texture will not be kept alive by the resource manager.
+    std::shared_ptr<BasicImageSprite> CreateCustomTextureSprite(const std::shared_ptr<INativeTexture2D>& nativeTexture,
+                                                                const BlendState blendState) final;
 
     // --- platform independent interface
 
@@ -274,6 +223,32 @@ namespace Fsl
     //  return CreateNineSliceSprite(spriteMaterialId, atlasPathName.AsPathView(), nineSlice);
     //}
 
+    //! Create a basic nine slice sprite based on the given material id (platform independent)
+    std::shared_ptr<OptimizedBasicNineSliceSprite> CreateOptimizedBasicNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                       const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                       const IO::PathView& atlasPathName) final;
+
+    //! Create a basic nine slice sprite based on the given material id (platform independent)
+    std::shared_ptr<OptimizedBasicNineSliceSprite> CreateOptimizedBasicNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                       const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                       const IO::Path& atlasPathName) final
+    {
+      return CreateOptimizedBasicNineSliceSprite(opaqueSpriteMaterialId, transparentSpriteMaterialId, atlasPathName.AsPathView());
+    }
+
+    //! Create a nine slice sprite based on the given material id (platform independent)
+    std::shared_ptr<OptimizedNineSliceSprite> CreateOptimizedNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                             const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                             const IO::PathView& atlasPathName) final;
+
+    //! Create a nine slice sprite based on the given material id (platform independent)
+    std::shared_ptr<OptimizedNineSliceSprite> CreateOptimizedNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                             const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                             const IO::Path& atlasPathName) final
+    {
+      return CreateOptimizedNineSliceSprite(opaqueSpriteMaterialId, transparentSpriteMaterialId, atlasPathName.AsPathView());
+    }
+
     std::shared_ptr<SpriteFont> CreateLegacySpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName,
                                                        const SpriteFontConfig& spriteFontConfig) final;
     std::shared_ptr<SpriteFont> CreateLegacySpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::Path& fontName,
@@ -292,10 +267,35 @@ namespace Fsl
       return CreateSpriteFont(spriteMaterialId, fontName.AsPathView(), spriteFontConfig);
     }
 
+    //! Create a sprite font based on the given material id (platform independent)
+    std::shared_ptr<SpriteFont> TryCreateSpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName,
+                                                    const SpriteFontConfig& spriteFontConfig) final;
+    //! Create a sprite font based on the given material id (platform independent)
+    std::shared_ptr<SpriteFont> TryCreateSpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::Path& fontName,
+                                                    const SpriteFontConfig& spriteFontConfig) final
+    {
+      return TryCreateSpriteFont(spriteMaterialId, fontName.AsPathView(), spriteFontConfig);
+    }
+
+    void PatchSpriteFont(std::shared_ptr<SpriteFont> font, const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName) final;
+    void PatchSpriteFont(std::shared_ptr<SpriteFont> font, const SpriteMaterialId& spriteMaterialId, const IO::Path& fontName) final
+    {
+      return PatchSpriteFont(font, spriteMaterialId, fontName.AsPathView());
+    }
+
+
+    //! @brief Enable / disable depth buffer various options for all materials
+    bool SetOptions(const bool allowDepthBuffer);
+
 
     //! @brief Enable/disable the UI test pattern (the manager has to be created with allow switching enabled for this to work)
     //! @return true if it was modified.
     bool SetTestPattern(const bool enabled);
+
+    const SpriteNativeAreaCalc& GetSpriteNativeAreaCalc() const
+    {
+      return m_manager.GetSpriteNativeAreaCalc();
+    }
 
   private:
     //! Create a sprite font based on the given material id (platform independent)
@@ -303,38 +303,13 @@ namespace Fsl
                                                    const SpriteFontConfig& spriteFontConfig, const bool isLegacyFullPathFontName);
 
 
-    void UpdateDpAwareSpriteMaterials(IContentManager& contentManager, INativeGraphics& rNativeGraphics, const uint32_t densityDpi);
+    void UpdateDpAwareSpriteMaterials(IContentManager& contentManager, IBasicRenderSystem& rRenderSystem, const uint32_t densityDpi);
 
-    void PatchMaterials(const HandleVector<TextureDefinition>::handle_type hTexture, HandleVector<TextureDefinition>::const_reference rEntry);
-    void PatchImages(const HandleVector<TextureDefinition>::handle_type hTexture, HandleVector<TextureDefinition>::const_reference rEntry);
-    void PatchNineSlices(const HandleVector<TextureDefinition>::handle_type hTexture, HandleVector<TextureDefinition>::const_reference rEntry);
-    void PatchFonts(const HandleVector<TextureDefinition>::handle_type hTexture, IContentManager& contentManager,
-                    HandleVector<TextureDefinition>::const_reference rEntry);
-
-    PrepareCreateResult PrepareCreateTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                             const UIAppResourceFlag flags);
-    UIAppTextureHandle DoAddTexture(PrepareCreateResult prepareCreateResult, const std::shared_ptr<INativeTexture2D>& nativeTexture,
-                                    const UIAppResourceFlag flags);
-
-    static PrepareTextureResult PrepareTexture(const IContentManager& contentManager, const AnalyzedPath& pathInfo, const bool isAtlas,
-                                               const uint32_t selectedDp, const UIAppTextureResourceCreationInfo& textureCreationInfo,
-                                               const UITestPatternMode testPatternMode);
-
-    static AnalyzedPath AnalyzePath(const IContentManager& contentManager, const IO::PathView pathView, const bool allowDpAware);
-    static EncodedAvailableDp DetermineAvailableDp(const IContentManager& contentManager, const IO::Path& patternPath);
-    static uint32_t DetermineResourceDp(const AnalyzedPath& path, const uint32_t densityDpi);
-    static IO::Path BuildResourceName(const AnalyzedPath& analyzedPath, const uint32_t selectedDp);
-
-    void ValidateSpriteFontExistence(const IContentManager& contentManager, const UIAppTextureHandle handle, const IO::PathView& fontName) const;
-    BitmapFont ReadSpriteFont(const IContentManager& contentManager, const UIAppTextureHandle handle, const IO::PathView& fontName,
-                              const bool isLegacyFullPathFontName) const;
-
-    static IO::Path GetFontName(const TextureDefinition& textureInfo, const uint32_t dpi, const IO::PathView& fontName);
-
-    void AttachTestPattern(const UIAppTextureHandle hTexture, Texture texture, const UIAppResourceFlag flags);
-    void ApplyTestPattern();
-
-    static AtlasTextureInfo GetAtlasTextureInfo(const TextureDefinition& textureDefinition, const IO::PathView& atlasPathName);
+    void PatchContent(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx, IContentManager* const pContentManager);
+    void PatchImages(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx);
+    void PatchNineSlices(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx);
+    void PatchFonts(const UIAppTextureHandle srcTextureHandle, const PxExtent2D srcExtentPx, IContentManager& contentManager);
+    void PerformGarbageCollection();
   };
 }
 

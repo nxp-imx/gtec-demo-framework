@@ -36,7 +36,6 @@
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanSetup.hpp>
 #include <FslDemoApp/Vulkan/Basic/DrawContext.hpp>
 #include <FslDemoApp/Vulkan/Basic/FrameBufferCreateContext.hpp>
-#include <FslDemoApp/Vulkan/Basic/RenderConfig.hpp>
 #include <FslDemoApp/Vulkan/Basic/SwapchainInfo.hpp>
 #include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
@@ -67,13 +66,6 @@ namespace Fsl
   {
     class DemoAppVulkanBasic : public DemoAppVulkan
     {
-    public:
-      //! The default maximum number of frames currently being rendered
-      static constexpr uint32_t GetDefaultMaxFramesInFlight()
-      {
-        return 2;
-      }
-
     private:
       enum class AppState
       {
@@ -95,32 +87,68 @@ namespace Fsl
       struct FrameDrawRecord
       {
         RapidVulkan::Semaphore ImageAcquiredSemaphore;
-        RapidVulkan::Semaphore RenderingCompleteSemaphore;
-        RapidVulkan::Fence InFlightFence;
+        RapidVulkan::Semaphore ImageReleasedSemaphore;
+        RapidVulkan::Fence QueueSubmitFence;
+        uint32_t AssignedSwapImageIndex{0};
+        bool HasSwapBufferImage{false};
       };
 
       struct SwapchainRecord
       {
         RapidVulkan::ImageView SwapchainImageView;
         RapidVulkan::Framebuffer Framebuffer;
+        //! This is the frame index it was assigned to
+        uint32_t AssignedFrameIndex{0};
+        //! This is true if this swapchain record has been assigned to a frame index
+        bool HasAssignedFrame{false};
       };
 
       struct Resources
       {
         RapidVulkan::CommandPool MainCommandPool;
+        std::vector<RapidVulkan::Semaphore> m_recycledSemaphores;
         std::vector<FrameDrawRecord> Frames;
-        uint32_t CurrentFrame = 0;
+
+        RapidVulkan::Semaphore AcquireSemaphore(VkDevice device)
+        {
+          if (!m_recycledSemaphores.empty())
+          {
+            auto tmp = std::move(m_recycledSemaphores.back());
+            m_recycledSemaphores.pop_back();
+            return tmp;
+          }
+          return RapidVulkan::Semaphore(device, 0);
+        }
+
+        void ReleaseSemaphore(RapidVulkan::Semaphore&& value)
+        {
+          m_recycledSemaphores.push_back(std::move(value));
+          // If this fires its likely we have a error
+          assert(m_recycledSemaphores.size() < 1024);
+        }
+      };
+
+      struct FrameRecord
+      {
+        bool IsValid{false};
+        uint32_t FrameIndex{0};
+
+        FrameRecord() = default;
+        explicit FrameRecord(const uint32_t frameIndex)
+          : IsValid(true)
+          , FrameIndex(frameIndex)
+        {
+        }
       };
 
       struct DependentResources
       {
         bool Valid = false;
-        uint32_t MaxFramesInFlight = 0;
+        uint32_t FramesInFlightCount{0};
         //! A optional Depth image, only enabled if requested
         //! We only need one RenderAttachment as command buffers on the same queue are executed in order
         Vulkan::VUImageMemoryView DepthImage;
         RapidVulkan::CommandBuffers CmdBuffers;
-        uint32_t CurrentSwapBufferIndex = 0;
         std::vector<SwapchainRecord> SwapchainRecords;
         std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> NGScreenshotLink;
       };
@@ -128,10 +156,11 @@ namespace Fsl
       std::shared_ptr<DemoAppHostConfigVulkan> m_demoHostConfig;
       Vulkan::SurfaceFormatInfo m_surfaceFormatInfo;
 
-      DemoAppVulkanSetup m_appSetup;
+      const DemoAppVulkanSetup m_appSetup;
       Resources m_resources;
       Vulkan::VUSwapchainKHR m_swapchain;
       DependentResources m_dependentResources;
+      FrameRecord m_frameRecord;
 
       AppState m_currentAppState = AppState::Ready;
       std::unique_ptr<DemoAppProfilerOverlay> m_demoAppProfilerOverlay;
@@ -143,21 +172,21 @@ namespace Fsl
       void OnConstructed() override;
       void OnDestroy() override;
 
-      //! @brief Get information about the 'basic' rendering configuration
-      //!        This can be used to to the initial setup before BuildResources.
-      RenderConfig GetRenderConfig() const;
-
-      AppDrawResult TryPrepareDraw(const DemoTime& demoTime) override;
+      AppDrawResult TryPrepareDraw(const FrameInfo& frameInfo) override;
 
     public:
-      void _Draw(const DemoTime& demoTime) override;
+      void _BeginDraw(const FrameInfo& frameInfo) override;
+      void _EndDraw(const FrameInfo& frameInfo) override;
 
     protected:
       void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
-      void Draw(const DemoTime& demoTime) override;
-      AppDrawResult TrySwapBuffers(const DemoTime& demoTime) override;
+      void Draw(const DemoTime& /*demoTime*/) final
+      {
+      }
+      void Draw(const FrameInfo& frameInfo) final;
+      AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) override;
 
-      void AddSystemUI(VkCommandBuffer hCmdBuffer, const uint32_t cmdBufferIndex);
+      void AddSystemUI(VkCommandBuffer hCmdBuffer, const uint32_t frameIndex);
 
       void BuildResources();
       void FreeResources();
@@ -220,8 +249,8 @@ namespace Fsl
 
       RecreateSwapchainResult TryRecreateSwapchain();
 
-      AppDrawResult TryDoPrepareDraw(const DemoTime& demoTime);
-      AppDrawResult TryDoSwapBuffers(const DemoTime& demoTime);
+      AppDrawResult TryDoPrepareDraw(const FrameInfo& frameInfo);
+      AppDrawResult TryDoSwapBuffers(const FrameInfo& frameInfo);
       void SetAppState(AppDrawResult result);
     };
   }

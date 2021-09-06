@@ -99,8 +99,6 @@ namespace Fsl
       }
     }
 
-    GLVertexElement::GLVertexElement() = default;
-
 
     GLVertexElement::GLVertexElement(const VertexElementEx& source)
       : Source(source)

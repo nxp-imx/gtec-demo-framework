@@ -36,12 +36,14 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslGraphics/Texture/TextureMipMapUtil.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -56,8 +58,6 @@ namespace Fsl
 {
   namespace
   {
-    const float SPEED = 0.8f;
-
     const auto VERTEX_BUFFER_BIND_ID = 0;
 
     // B D
@@ -494,29 +494,30 @@ namespace Fsl
 
   void GenerateMipMaps::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
-    const auto frameIndex = drawContext.CurrentFrameIndex;
-    assert(frameIndex < m_resources.MainFrameResources.size());
+    FSL_PARAM_NOT_USED(demoTime);
+
+    const auto currentFrameIndex = drawContext.CurrentFrameIndex;
+    assert(currentFrameIndex < m_resources.MainFrameResources.size());
 
     // Upload the changes
     VertexUBOData buffer;
     buffer.MatModelView = m_matModel;
     buffer.MatProj = m_matProj;
-    m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &buffer, sizeof(VertexUBOData));
+    m_resources.MainFrameResources[currentFrameIndex].UboBuffer.Upload(0, &buffer, sizeof(VertexUBOData));
 
     // Update the descriptor set when the mip lod changes
     const uint32_t currentMipLod = m_ui.Slider->GetValue();
-    if (m_resources.MainFrameResources[frameIndex].mipMapLod != currentMipLod)
+    if (m_resources.MainFrameResources[currentFrameIndex].mipMapLod != currentMipLod)
     {
-      m_resources.MainFrameResources[frameIndex].mipMapLod = currentMipLod;
+      m_resources.MainFrameResources[currentFrameIndex].mipMapLod = currentMipLod;
       VkDescriptorImageInfo textureImageInfo = m_resources.Texture.GetDescriptorImageInfo();
       textureImageInfo.sampler = m_resources.Samplers[currentMipLod].Get();
-      UpdateDescriptorSet(m_device.Get(), m_resources.MainFrameResources[frameIndex].DescriptorSet,
-                          m_resources.MainFrameResources[frameIndex].UboBuffer, textureImageInfo);
+      UpdateDescriptorSet(m_device.Get(), m_resources.MainFrameResources[currentFrameIndex].DescriptorSet,
+                          m_resources.MainFrameResources[currentFrameIndex].UboBuffer, textureImageInfo);
     }
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -531,19 +532,19 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawToCommandBuffer(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+        DrawToCommandBuffer(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
 
         // Calling this last allows the UI to draw on top of everything.
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -575,7 +576,8 @@ namespace Fsl
 
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
-    UI::Theme::BasicThemeFactory uiFactory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& uiFactory = *uiControlFactory;
 
     auto labelSlider = uiFactory.CreateLabel("MipMap level: ");
     labelSlider->SetAlignmentY(UI::ItemAlignment::Center);
@@ -643,7 +645,7 @@ namespace Fsl
   GenerateMipMaps::VertexBufferInfo GenerateMipMaps::CreateVertexBuffer(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager)
   {
     VertexBufferInfo info;
-    info.VertexBuffer.Reset(bufferManager, g_vertices, Vulkan::VMBufferUsage::STATIC);
+    info.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(g_vertices), Vulkan::VMBufferUsage::STATIC);
 
     // Generate attribute description by matching shader layout with the vertex declarations
     std::array<VertexElementUsage, 2> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};

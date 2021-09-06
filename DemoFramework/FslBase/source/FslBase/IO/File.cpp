@@ -33,23 +33,13 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/System/Platform/PlatformFileSystem.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <fmt/format.h>
 #include <cassert>
 #include <fstream>
 #include <limits>
 #include <vector>
-
-// Nasty hack for dealing with UTF8 file names on windows,
-// since its the only supported platform that doesn't allow UTF8 strings
-// but instead provides its own 'hack' for opening wstring's
-#ifdef _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
-#else
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) X.ToUTF8String()
-#endif
+#include <utility>
 
 namespace Fsl
 {
@@ -116,7 +106,7 @@ namespace Fsl
     {
       try
       {
-        std::ifstream file(PATH_GET_NAME(path), std::ios::in | std::ios::binary);
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
         const std::size_t length = GetStreamLength(file, path);
 
         // Read the entire content of the file
@@ -138,7 +128,7 @@ namespace Fsl
     {
       try
       {
-        std::ifstream file(PATH_GET_NAME(path), std::ios::in | std::ios::binary);
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
         if (!file.good())
         {
           return false;
@@ -152,7 +142,7 @@ namespace Fsl
         content[length] = 0;
 
         // Convert it to a string
-        rDst = std::string(content.data());
+        rDst.assign(content.data());
         return true;
       }
       catch (const std::ios_base::failure&)
@@ -161,6 +151,35 @@ namespace Fsl
       }
     }
 
+    // Optional<std::string> File::TryReadAllText(const Path& path)
+    //{
+    //  std::string res;
+    //  return TryReadAllText(res, path) ? Optional<std::string>(std::move(res)) : Optional<std::string>();
+    //}
+
+
+    bool File::TryReadAllBytes(std::vector<uint8_t>& rDst, const Path& path)
+    {
+      try
+      {
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
+        if (!file.good())
+        {
+          return false;
+        }
+
+        const std::size_t length = GetStreamLength(file, path);
+
+        // Read the entire content of the file
+        rDst.resize(length);
+        StreamRead(file, path, rDst.data(), length);
+        return true;
+      }
+      catch (const std::ios_base::failure&)
+      {
+        return false;
+      }
+    }
 
     bool File::Exists(const Path& path)
     {
@@ -192,7 +211,7 @@ namespace Fsl
 
     uint64_t File::GetLength(const Path& path)
     {
-      std::ifstream file(PATH_GET_NAME(path), std::ios::ate | std::ios::binary);
+      std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::ate | std::ios::binary);
       if (!file.good())
       {
         throw IOException(fmt::format("Failed to open file '{0}'", path));
@@ -213,7 +232,7 @@ namespace Fsl
     {
       try
       {
-        std::ifstream file(PATH_GET_NAME(path), std::ios::in | std::ios::binary);
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
         const std::size_t length = GetStreamLength(file, path);
         rTargetArray.resize(length);
 
@@ -239,7 +258,7 @@ namespace Fsl
 
       try
       {
-        std::ifstream file(PATH_GET_NAME(path), std::ios::in | std::ios::binary);
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
         const std::size_t length = GetStreamLength(file, path);
         if (length > cbDstArrayEx)
         {
@@ -271,7 +290,7 @@ namespace Fsl
 
       try
       {
-        std::ifstream file(PATH_GET_NAME(path), std::ios::in | std::ios::binary);
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
         const std::size_t length = GetStreamLength(file, path);
 
         if (fileOffsetEx >= length && !(fileOffsetEx == 0 && length == 0))
@@ -318,7 +337,7 @@ namespace Fsl
 
       try
       {
-        std::ifstream file(PATH_GET_NAME(path), std::ios::in | std::ios::binary);
+        std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
         const std::size_t length = GetStreamLength(file, path);
 
         if (fileOffsetEx >= length && !(fileOffsetEx == 0 && length == 0))
@@ -347,7 +366,7 @@ namespace Fsl
     {
       try
       {
-        std::ofstream file(PATH_GET_NAME(path), std::ios::out | std::ios::binary);
+        std::ofstream file(PlatformPathTransform::ToSystemPath(path), std::ios::out | std::ios::binary);
         // Write the entire content of the file
         StreamWrite(file, path, content.data(), content.size());
       }
@@ -362,7 +381,7 @@ namespace Fsl
     {
       try
       {
-        std::ofstream file(PATH_GET_NAME(path), std::ios::out | std::ios::binary);
+        std::ofstream file(PlatformPathTransform::ToSystemPath(path), std::ios::out | std::ios::binary);
         // Write the entire content of the file
         StreamWrite(file, path, pContent, contentSizeInBytes);
       }

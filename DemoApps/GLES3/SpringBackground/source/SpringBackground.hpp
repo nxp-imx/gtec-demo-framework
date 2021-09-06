@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <FslSimpleUI/Base/Control/ImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>

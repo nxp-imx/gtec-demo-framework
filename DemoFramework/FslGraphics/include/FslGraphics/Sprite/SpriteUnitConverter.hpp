@@ -149,6 +149,19 @@ namespace Fsl
       return {static_cast<DpSize::value_type>(scaledX), static_cast<DpSize::value_type>(scaledY)};
     }
 
+    DpSize ToDpSize(const PxSize2D& valuePx) const
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return {valuePx.Width(), valuePx.Height()};
+      }
+      const float scaledX = std::round(float(valuePx.Width()) * m_scalePxToDp);
+      const float scaledY = std::round(float(valuePx.Height()) * m_scalePxToDp);
+      assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<DpSize::value_type>::max()));
+      assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<DpSize::value_type>::max()));
+      return {static_cast<DpSize::value_type>(scaledX), static_cast<DpSize::value_type>(scaledY)};
+    }
+
 
     DpExtent ToDpExtent(const PxExtent2D& valuePx) const
     {
@@ -371,6 +384,9 @@ namespace Fsl
 
     static DpExtent CalcImageDpExtent(const PxExtent2D imageExtentPx, const uint32_t imageDpi);
     static DpThicknessU CalcDpThicknessU(const PxThicknessU& thicknessPx, const uint32_t imageDpi);
+
+    PxVector2 CalcScaledOffsetPxVector2(const PxPoint2& offsetPx, const uint32_t imageDpi) const;
+    float CalcScaledOffsetValuePxf(const int32_t offsetPx, const uint32_t imageDpi) const;
 
   private:
   };

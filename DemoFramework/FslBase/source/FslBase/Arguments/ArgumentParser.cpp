@@ -201,7 +201,7 @@ namespace Fsl
             if (cmd.ShortName.size() == 1 && strSrc.front() == cmd.ShortName[0])
             {
               found = true;
-              auto result = TryAddArgument(cmd, EncodedCommand(cmd.Type, cmd.Id, nullptr), rParseContext);
+              const auto result = TryAddArgument(cmd, EncodedCommand(cmd.Type, cmd.Id, nullptr), rParseContext);
               if (result != ParseResult::Completed)
               {
                 return {result, CommandType::Undefined, commandIndex};
@@ -239,7 +239,7 @@ namespace Fsl
         {
           if (!cmd.Name.empty() && cmd.Name == strSrc)
           {
-            auto result = TryAddArgument(cmd, EncodedCommand(cmd.Type, cmd.Id, StringViewLite()), rParseContext);
+            const auto result = TryAddArgument(cmd, EncodedCommand(cmd.Type, cmd.Id, StringViewLite()), rParseContext);
             if (result != ParseResult::Completed)
             {
               return {result, CommandType::Undefined, commandIndex};
@@ -374,7 +374,7 @@ namespace Fsl
 
       ParseArgumentResult TryParseArguments(const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands, ParseContext& rParseContext)
       {
-        assert(args.size() >= 1);
+        assert(!args.empty());
         if (args.size() > std::numeric_limits<uint32_t>::max())
         {
           return {ParseResult::UnsupportedNumberOfArguments, LocalConfig::EmptyIndex, -1};
@@ -393,7 +393,7 @@ namespace Fsl
           {
           case ParserMode::ParseArgumentType:
           {
-            auto res = TryParseArgumentType(strArg, commands, rParseContext);
+            const auto res = TryParseArgumentType(strArg, commands, rParseContext);
             if (res.Result != ParseResult::Completed)
             {
               return {res.Result, i, res.CommandIndex};
@@ -543,7 +543,7 @@ namespace Fsl
           *pErrorInfo = {};
         }
 
-        auto res = TryValidateArgumentCommands(commands);
+        const auto res = TryValidateArgumentCommands(commands);
         if (res != ParseResult::Completed)
         {
           return res;

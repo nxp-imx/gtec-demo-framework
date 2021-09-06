@@ -32,11 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/DemoRunnerConfig.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 
 namespace Fsl
 {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   extern int RunDemo(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig);
+
+  extern int RunDemo(ReadOnlySpan<StringViewLite> args, const DemoRunnerConfig& demoRunnerConfig);
 }
 
 #endif

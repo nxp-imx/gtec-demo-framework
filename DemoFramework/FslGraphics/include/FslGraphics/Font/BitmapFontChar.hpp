@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 
 namespace Fsl
 {
@@ -43,7 +43,7 @@ namespace Fsl
     uint32_t Id{};
 
     //! The rectangle of the character image in the texture.
-    PxRectangleU SrcTextureRectPx;
+    PxRectangleU32 SrcTextureRectPx;
 
     //! How much the current position should be offset when copying the image from the texture to the screen.
     PxPoint2 OffsetPx;
@@ -53,7 +53,7 @@ namespace Fsl
 
     constexpr BitmapFontChar() = default;
 
-    constexpr BitmapFontChar(const uint32_t id, const PxRectangleU& srcTextureRectPx, const PxPoint2& offsetPx, uint16_t xAdvancePx)
+    constexpr BitmapFontChar(const uint32_t id, const PxRectangleU32& srcTextureRectPx, const PxPoint2& offsetPx, uint16_t xAdvancePx)
       : Id(id)
       , SrcTextureRectPx(srcTextureRectPx)
       , OffsetPx(offsetPx)

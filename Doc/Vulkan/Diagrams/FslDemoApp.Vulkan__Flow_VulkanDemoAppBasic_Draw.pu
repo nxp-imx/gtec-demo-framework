@@ -17,6 +17,7 @@ activate Swapchain
 activate CommandBuffers
 activate RenderPass
 activate SwapchainRecords
+activate GraphicsService
 activate NativeGraphicsService
 activate QuadBatch
 activate NativeBatch2D
@@ -43,10 +44,14 @@ CustomDemoApp->ADemoApp: _TryPrepareDraw
 ADemoApp->CustomDemoApp: TryPrepareDraw
 CustomDemoApp->DemoAppVulkanBasic: TryPrepareDraw
 
+->CustomDemoApp: _BeginDraw
+CustomDemoApp->DemoAppVulkanBasic: _BeginDraw
+DemoAppVulkanBasic->GraphicsService: BeginFrame
+GraphicsService->NativeGraphicsService: BeginFrame
+NativeGraphicsService->QuadBatch: BeginFrame
+
 ->CustomDemoApp: _Draw
 CustomDemoApp->DemoAppVulkanBasic: _Draw
-DemoAppVulkanBasic->NativeGraphicsService: VulkanBeginFrame
-NativeGraphicsService->QuadBatch: BeginFrame
 DemoAppVulkanBasic->ADemoApp: _Draw
 ADemoApp->DemoAppVulkanBasic: Draw
 DemoAppVulkanBasic->CustomDemoApp: VulkanDraw
@@ -80,7 +85,11 @@ deactivate NativeBatch2D
 
 ' VulkanDraw is finished, and control is returned to DemoAppVUlkanBaic
 ' so finish the frame
-DemoAppVulkanBasic->NativeGraphicsService: VulkanEndFrame
+
+->CustomDemoApp: _EndDraw
+CustomDemoApp->DemoAppVulkanBasic: _EndDraw
+DemoAppVulkanBasic->GraphicsService: EndFrame
+GraphicsService->NativeGraphicsService: EndFrame
 NativeGraphicsService->QuadBatch: EndFrame
 DemoAppVulkanBasic->DeviceQueue: Submit
 

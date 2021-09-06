@@ -43,6 +43,7 @@ namespace Fsl
     class IStateEventCreator;
     class IStateEventSender;
     class IStateEventSenderGroup;
+    class ITreeNodeBasicInfo;
     class ITreeNodeClickInputTargetLocater;
     class SimpleEventSender;
     struct StateEventInfo;
@@ -56,6 +57,8 @@ namespace Fsl
 
       //! @brief Get the click target locater
       virtual std::shared_ptr<ITreeNodeClickInputTargetLocater> GetTargetLocater() const = 0;
+
+      virtual std::shared_ptr<ITreeNodeBasicInfo> GetBasicInfo() const = 0;
 
       //! @brief Get the window event pool
       virtual std::shared_ptr<WindowEventPool> GetWindowEventPool() const = 0;

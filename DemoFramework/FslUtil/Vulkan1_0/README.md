@@ -7,7 +7,7 @@ All operations are fully error checked and throw exceptions on errors.
 
 ### Batch
 
-Very basic quad batch draw functionality. 
+Very basic quad batch draw functionality.
 This is later used to implement the NativeBatch service for Vulkan.
 
 ### Draft

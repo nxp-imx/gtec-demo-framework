@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="FslSimpleUI.Theme.Basic" CreationYear="2020">
-    <Dependency Name="FslSimpleUI.Base"/>
+    <Dependency Name="FslSimpleUI.Theme.Base"/>
     <Platform Name="Windows" ProjectId="C364FC19-4C4A-4810-A831-3DC5C8462879"/>
   </Library>
 </FslBuildGen>

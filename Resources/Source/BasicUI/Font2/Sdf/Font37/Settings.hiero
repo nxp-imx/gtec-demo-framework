@@ -1,0 +1,29 @@
+font.name=Segoe UI Symbol
+font.size=37
+font.bold=true
+font.italic=false
+font.gamma=1.8
+font.mono=false
+
+font2.file=
+font2.use=false
+
+pad.top=2
+pad.right=2
+pad.bottom=2
+pad.left=2
+pad.advance.x=-4
+pad.advance.y=-4
+
+glyph.native.rendering=false
+glyph.page.width=512
+glyph.page.height=256
+glyph.text=ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz\n1234567890 \n"!`?'.,;:()[]{}<>|/@\^$-%+=#_&~*\nμ\n
+
+render_type=0
+
+effect.class=com.badlogic.gdx.tools.hiero.unicodefont.effects.DistanceFieldEffect
+effect.Color=ffffff
+effect.Scale=64
+effect.Spread=2.0
+

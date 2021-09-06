@@ -32,15 +32,18 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
+#include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
+#include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoApp/Base/Service/Events/IEventService.hpp>
 #include <FslDemoApp/Base/Service/ContentMonitor/IContentMonitor.hpp>
-#include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
-#include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
-#include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/DemoAppManagerEventListener.hpp>
+#include <FslDemoHost/Base/Service/AppInfo/IAppInfoControlService.hpp>
+#include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
+#include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
 #include <FslDemoService/CpuStats/ICpuStatsService.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
 #include <FslDemoService/Profiler/IProfilerService.hpp>
@@ -65,8 +68,7 @@ namespace Fsl
 
   DemoAppManager::DemoAppManager(DemoAppSetup demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats,
                                  const LogStatsMode logStatsMode, const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall,
-                                 const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime,
-                                 const bool renderSystemOverlay)
+                                 const bool enableContentMonitor, const uint32_t forcedUpdateTime, const bool renderSystemOverlay)
     : m_eventListener(std::make_shared<DemoAppManagerEventListener>())
     , m_demoAppSetup(std::move(demoAppSetup))
     , m_demoAppConfig(demoAppConfig)
@@ -78,7 +80,6 @@ namespace Fsl
     , m_logStatsFlags(logStatsFlags)
     , m_enableStats(enableStats)
     , m_useFirewall(enableFirewall)
-    , m_preallocateBasic2D(preallocateBasic2D)
   {
     if (renderSystemOverlay)
     {
@@ -91,6 +92,10 @@ namespace Fsl
     m_profilerServiceControl = m_demoAppConfig.DemoServiceProvider.Get<IProfilerServiceControl>();
     m_profilerService = m_demoAppConfig.DemoServiceProvider.Get<IProfilerService>();
     m_cpuStatsService = m_demoAppConfig.DemoServiceProvider.TryGet<ICpuStatsService>();
+    auto appInfo = m_demoAppConfig.DemoServiceProvider.Get<IAppInfoControlService>();
+    appInfo->SetAppName(StringViewLiteUtil::AsStringViewLite(m_demoAppSetup.ApplicationName));
+
+    m_demoAppControl->SetRenderLoopMaxFramesInFlight(demoAppSetup.CustomAppConfig.MaxFramesInFlight);
 
     if (enableContentMonitor)
     {
@@ -162,6 +167,8 @@ namespace Fsl
       return false;
     }
 
+    m_record.DemoApp->_Begin();
+
     // Detect metrics changes
     if (windowMetrics != m_demoAppConfig.WindowMetrics)
     {
@@ -169,9 +176,9 @@ namespace Fsl
 
       if (m_graphicsService)
       {
-        m_graphicsService->SetWindowMetrics(m_demoAppConfig.WindowMetrics, true);
+        m_graphicsService->SetWindowMetrics(m_demoAppConfig.WindowMetrics);
       }
-      m_demoApp->_ConfigurationChanged(windowMetrics);
+      m_record.DemoApp->_ConfigurationChanged(windowMetrics);
     }
 
     // Check if the update timer should be reset or not
@@ -244,7 +251,7 @@ namespace Fsl
       }
       m_accumulatedTotalTime += timeDiff;
       m_currentDemoTimeUpdate = DemoTime(m_accumulatedTotalTime, timeDiff);
-      m_demoApp->_PreUpdate(m_currentDemoTimeUpdate);
+      m_record.DemoApp->_PreUpdate(m_currentDemoTimeUpdate);
 
       // We use m_frameTimeConfig instead of m_expectedFrameTime because m_expectedFrameTime might be modified
       // by the TimeStepMode.
@@ -255,14 +262,18 @@ namespace Fsl
         m_accumulatedTotalTimeFixed += m_expectedFrameTime;
         demoTimeFixedUpdate.TotalTimeInMicroseconds = m_accumulatedTotalTimeFixed;
 
-        m_demoApp->_FixedUpdate(demoTimeFixedUpdate);
+        m_record.DemoApp->_FixedUpdate(demoTimeFixedUpdate);
         m_accumulatedTime -= m_expectedFrameTime;
         ++updateCount;
       }
 
+      if (m_graphicsService)
+      {
+        m_graphicsService->PreUpdate();
+      }
 
-      m_demoApp->_Update(m_currentDemoTimeUpdate);
-      m_demoApp->_PostUpdate(m_currentDemoTimeUpdate);
+      m_record.DemoApp->_Update(m_currentDemoTimeUpdate);
+      m_record.DemoApp->_PostUpdate(m_currentDemoTimeUpdate);
 
       m_timeStatsAfterUpdate = m_timer.GetTime();
     }
@@ -276,13 +287,26 @@ namespace Fsl
 
   AppDrawResult DemoAppManager::TryDraw()
   {
-    auto result = m_demoApp->_TryPrepareDraw(m_currentDemoTimeUpdate);
+    FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeUpdate);
+
+    auto result = m_record.DemoApp->_TryPrepareDraw(frameInfo);
     if (result != AppDrawResult::Completed)
     {
       return result;
     }
 
-    m_demoApp->_Draw(m_currentDemoTimeUpdate);
+    m_record.DemoApp->_BeginDraw(frameInfo);
+    try
+    {
+      m_record.DemoApp->_Draw(frameInfo);
+      m_record.DemoApp->_EndDraw(frameInfo);
+    }
+    catch (std::exception& ex)
+    {
+      FSLLOG3_ERROR("Exception during draw: {}", ex.what());
+      m_record.DemoApp->_EndDraw(frameInfo);
+      throw;
+    }
 
     m_timeStatsAfterDraw = m_timer.GetTime();
 
@@ -299,11 +323,31 @@ namespace Fsl
 
   AppDrawResult DemoAppManager::TryAppSwapBuffers()
   {
-    if (!m_demoApp)
+    if (!m_record.DemoApp)
     {
       return AppDrawResult::Completed;
     }
-    return m_demoApp->_TrySwapBuffers(m_currentDemoTimeUpdate);
+    FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeUpdate);
+
+    AppDrawResult result = m_record.DemoApp->_TrySwapBuffers(frameInfo);
+
+    if (result == AppDrawResult::Completed)
+    {    // Increase the frame index
+      ++m_record.FrameIndex;
+      m_record.FrameIndex %= m_demoAppControl->GetRenderLoopFrameCounter();
+      assert(m_record.FrameIndex < m_demoAppSetup.CustomAppConfig.MaxFramesInFlight);
+    }
+
+
+    return result;
+  }
+
+  void DemoAppManager::EndFrameSequence()
+  {
+    if (m_record.DemoApp)
+    {
+      m_record.DemoApp->_End();
+    }
   }
 
 
@@ -403,7 +447,7 @@ namespace Fsl
   {
     assert(m_demoAppControl);
 
-    bool bExitRightAway = !bCheckExternalOnly && !m_demoApp;
+    bool bExitRightAway = !bCheckExternalOnly && !m_record.DemoApp;
 
     if (!m_hasExitRequest && m_demoAppControl->HasExitRequest())
     {
@@ -426,7 +470,8 @@ namespace Fsl
       applyFirewall = true;
     }
 
-    if (m_demoApp && (restartRequest || CheckRestartFlags(m_demoAppSetup.CustomAppConfig.RestartFlags, windowMetrics, m_demoAppConfig.WindowMetrics)))
+    if (m_record.DemoApp &&
+        (restartRequest || CheckRestartFlags(m_demoAppSetup.CustomAppConfig.RestartFlags, windowMetrics, m_demoAppConfig.WindowMetrics)))
     {
       // Release the app
       DoShutdownAppNow();
@@ -434,32 +479,32 @@ namespace Fsl
 
     // Check if a exit request exist (this catches the rare case where the exit occurs during a screen resolution change was detected
     // and the app was discarded above and it requested a exit during destruction) thereby allowing a fast exit.
-    if (!m_demoApp && m_demoAppControl->HasExitRequest())
+    if (!m_record.DemoApp && m_demoAppControl->HasExitRequest())
     {
       return;
     }
 
     // Handle delayed app initialization
-    if (!m_demoApp)
+    if (!m_record.DemoApp)
     {
       m_demoAppConfig.UpdateWindowMetrics(windowMetrics);
       if (m_graphicsService)
       {
-        m_graphicsService->SetWindowMetrics(windowMetrics, m_preallocateBasic2D);
+        m_graphicsService->SetWindowMetrics(windowMetrics);
       }
       if (!applyFirewall && ((windowMetrics.ExtentPx != PxExtent2D(0, 0)) || isConsoleBasedApp))
       {
-        m_demoApp = m_demoAppSetup.Factory->Allocate(m_demoAppConfig);
+        m_record = AppRecord(m_demoAppSetup.Factory->Allocate(m_demoAppConfig));
       }
       else
       {
-        m_demoApp = std::make_shared<DemoAppFirewall>(m_demoAppConfig, m_demoAppSetup.Factory, isConsoleBasedApp);
+        m_record = AppRecord(std::make_shared<DemoAppFirewall>(m_demoAppConfig, m_demoAppSetup.Factory, isConsoleBasedApp));
       }
 
-      m_demoApp->_PostConstruct();
+      m_record.DemoApp->_PostConstruct();
 
-      m_eventListener->SetDemoApp(m_demoApp);
-      assert(m_demoApp);
+      m_eventListener->SetDemoApp(m_record.DemoApp);
+      assert(m_record.DemoApp);
     }
   }
 
@@ -500,19 +545,19 @@ namespace Fsl
 
   void DemoAppManager::DoShutdownAppNow()
   {
-    if (m_demoApp)
+    if (m_record.DemoApp)
     {
       try
       {
-        m_demoApp->_PreDestruct();
+        m_record.DemoApp->_PreDestruct();
       }
       catch (const std::exception& ex)
       {
         FSLLOG3_ERROR("Exception throw in _PreDestruct: {}", ex.what());
-        m_demoApp.reset();
+        m_record = {};
         throw;
       }
-      m_demoApp.reset();
+      m_record = {};
     }
   }
 }

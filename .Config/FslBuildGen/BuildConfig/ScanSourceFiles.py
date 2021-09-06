@@ -47,7 +47,7 @@ __g_includeExtensionList = [".h", ".hpp"]
 __g_sourceExtensionList = [".cpp", ".c"]
 __g_shaderExtensionList = [".frag", ".vert", ".geom", ".tesc", ".tese"]
 
-__g_thirdParty = '/ThirdParty/'
+#__g_thirdParty = '/ThirdParty/'
 
 class SourceFile(object):
     def __init__(self, package: Package, fileName: str) -> None:
@@ -254,7 +254,8 @@ def __CheckIncludeGuard(log: Log, sourceFile: SourceFile, repairEnabled: bool) -
 
 
 def __CheckTabs(log: Log, sourceFile: SourceFile, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
-    if __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
+    #if __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
+    if (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
         return True
 
     tabCount = 0
@@ -285,9 +286,9 @@ def __ProcessIncludeFile(log: Log, package: Package, fullPath: str, repairEnable
     noErrors = True
     asciiRepair = False
     sourceFile = SourceFile(package, fullPath)
-    if not __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
-        if not __CheckIncludeGuard(log, sourceFile, repairEnabled):
-            noErrors = False
+    #if not __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
+    if not __CheckIncludeGuard(log, sourceFile, repairEnabled):
+        noErrors = False
     if not __CheckASCII(log, sourceFile, repairEnabled):
         # The ASCII repair is not safe, so dont do it
         #asciiRepair = True

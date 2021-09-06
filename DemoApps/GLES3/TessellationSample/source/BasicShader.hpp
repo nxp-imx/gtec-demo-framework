@@ -45,7 +45,7 @@ namespace Fsl
   struct Vector3;
   struct Vector4;
   class IContentManager;
-  class VertexDeclaration;
+  class VertexDeclarationSpan;
 
   class BasicShader
   {
@@ -65,7 +65,7 @@ namespace Fsl
     BasicShader(const BasicShader&) = delete;
     BasicShader& operator=(const BasicShader&) = delete;
 
-    BasicShader(const std::shared_ptr<IContentManager>& contentManager, const VertexDeclaration& vertexDeclaration);
+    BasicShader(const std::shared_ptr<IContentManager>& contentManager, VertexDeclarationSpan vertexDeclaration);
 
     void UpdateUniforms(const RenderCameraConfig& cameraConfig, const RenderMaterial& material, const int32_t activeTexDiffuseId,
                         const int32_t activeTexNormalId);

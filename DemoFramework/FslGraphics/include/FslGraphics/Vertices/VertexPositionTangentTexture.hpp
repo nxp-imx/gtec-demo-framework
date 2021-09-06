@@ -33,12 +33,13 @@
 
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  class VertexDeclaration;
-
   struct VertexPositionTangentTexture
   {
     Vector3 Position;
@@ -54,8 +55,34 @@ namespace Fsl
     {
     }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+    constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 3> elements = {
+        VertexElementEx(offsetof(VertexPositionTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(VertexPositionTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
+        VertexElementEx(offsetof(VertexPositionTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                        VertexElementUsage::TextureCoordinate, 0)};
+      return VertexDeclarationArray<3>(elements, sizeof(VertexPositionTangentTexture));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+    constexpr bool operator==(const VertexPositionTangentTexture& rhs) const
+    {
+      return Position == rhs.Position && Tangent == rhs.Tangent && TextureCoordinate == rhs.TextureCoordinate;
+    }
+
+    constexpr bool operator!=(const VertexPositionTangentTexture& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

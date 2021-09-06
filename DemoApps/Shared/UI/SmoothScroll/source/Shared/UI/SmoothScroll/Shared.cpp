@@ -36,17 +36,21 @@
 #include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Font/BitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
+#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
-#include <FslSimpleUI/Base/Control/NineSliceImage.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/SmoothScroll/OptionParser.hpp>
 #include <cassert>
 
@@ -61,6 +65,7 @@ namespace Fsl
     constexpr ConstrainedValue<float> ScrollSpeed(2.1f, 0.0f, 50.0f);
 
     constexpr IO::PathView MainUIAtlas("UIAtlas/UIAtlas_160dpi");
+    constexpr IO::PathView FontUIAtlas("CustomAtlas/Font72Atlas");
 
     constexpr StringViewLite TextLine0("The quick brown fox jumps over the lazy dog!");
     constexpr StringViewLite TextLine1("abcdefghijklmnopqrstuvwxyz");
@@ -74,15 +79,17 @@ namespace Fsl
 
   namespace
   {
-    std::shared_ptr<AtlasFont> CreateFont(const IContentManager& contentManager, const IO::Path& path, const Texture2D& atlasTexture,
-                                          const ITextureAtlas& /*textureAtlas*/)
+    std::shared_ptr<AtlasFont> CreateFont(const IContentManager& contentManager, const SpriteNativeAreaCalc& spriteNativeAreaCalc,
+                                          const uint32_t densityDpi, const IO::Path& path, const Texture2D& atlasTexture)
     {
-      return std::make_shared<AtlasFont>(atlasTexture, TextureAtlasBitmapFont(contentManager.ReadBitmapFont(path)));
+      return std::make_shared<AtlasFont>(
+        atlasTexture, TextureAtlasSpriteFont(spriteNativeAreaCalc, atlasTexture.GetExtent(), contentManager.ReadBitmapFont(path), densityDpi));
     }
 
 
-    Resources CreateResources(const std::shared_ptr<INativeGraphics>& nativeGraphics, const IContentManager& contentManager, const IO::Path& path,
-                              const uint32_t imageDP)
+    Resources CreateResources(const std::shared_ptr<INativeGraphics>& nativeGraphics, const IContentManager& contentManager,
+                              const SpriteNativeAreaCalc& spriteNativeAreaCalc, const IO::Path& path, const uint32_t imageDpi,
+                              const uint32_t densityDpi)
     {
       IO::Path pathPNG(path + ".png");
       IO::Path pathBTA(path + ".bta");
@@ -107,8 +114,8 @@ namespace Fsl
 
       // Prepare the bitmap font
       FSLLOG3_INFO("- Loading '{}'", pathFBK);
-      resources.Font = CreateFont(contentManager, pathFBK, resources.AtlasTexture, textureAtlas);
-      resources.Density = imageDP;
+      resources.Font = CreateFont(contentManager, spriteNativeAreaCalc, densityDpi, pathFBK, resources.AtlasTexture);
+      resources.Density = imageDpi;
       resources.FontConfig = BitmapFontConfig(resources.ResolutionDensityScale);
       return resources;
     }
@@ -130,7 +137,7 @@ namespace Fsl
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     auto nativeGraphics = config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeGraphics();
-    m_res480 = CreateResources(nativeGraphics, *contentManager, "UIAtlas/UIAtlas_480dpi", 480);
+    m_res480 = CreateResources(nativeGraphics, *contentManager, m_uiExtension->GetSpriteNativeAreaCalc(), LocalConfig::FontUIAtlas, 480, 160);
 
     m_texCircle = AtlasTexture2D(m_res480.AtlasTexture, m_res480.AtlasMap.GetAtlasTextureInfo("Control/White/FloatingSmallRoundButtonN"));
     m_texCircleTest = AtlasTexture2D(m_res480.AtlasTestTexture, m_res480.AtlasMap.GetAtlasTextureInfo("Control/White/FloatingSmallRoundButtonN"));
@@ -221,7 +228,7 @@ namespace Fsl
     auto rectMiddleBottomPx = ExtractWindowRectangle(m_ui.MainLayout, m_ui.DummyMiddleBottom);
     const bool useTestAtlas = m_ui.TestPatternCheckBox->IsChecked();
     const auto& fontAtlasTexture = !useTestAtlas ? m_res480.Font->GetAtlasTexture() : m_res480.AtlasTestTexture;
-    const auto& bitmapFont = m_res480.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = m_res480.Font->GetTextureAtlasSpriteFont();
     const auto& fontConfig = m_res480.FontConfig;
 
     const auto& circleTexture = !useTestAtlas ? m_texCircle : m_texCircleTest;
@@ -263,7 +270,7 @@ namespace Fsl
 
       if (drawCircle)
       {
-        PxRectangleU srcCircleRect(0, 0, m_texCircle.GetExtent().Width, m_texCircle.GetExtent().Height);
+        PxRectangleU32 srcCircleRect(0, 0, m_texCircle.GetExtent().Width, m_texCircle.GetExtent().Height);
         const uint8_t color = (drawText ? 0x20 : 0xFF);
         Color circleColor(color, color, color, color);
         rNativeBatch.Draw(circleTexture, position0, srcCircleRect, circleColor, rectTopLeftPx);
@@ -309,7 +316,7 @@ namespace Fsl
   }
 
 
-  void Shared::DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font,
+  void Shared::DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font,
                         const BitmapFontConfig& fontConfig, const Vector2& positionPxf, const Color& fontColor, const PxClipRectangle& clipRectPx)
   {
     Vector2 pos0Pxf(positionPxf.X, positionPxf.Y);
@@ -327,7 +334,8 @@ namespace Fsl
   Shared::SimpleUI Shared::CreateUI()
   {
     auto windowContext = m_uiExtension->GetContext();
-    UI::Theme::BasicThemeFactory uiFactory(windowContext, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    UI::Theme::IThemeControlFactory& uiFactory = *uiControlFactory;
 
     auto labelSlider = uiFactory.CreateLabel("Scroll speed:");
     labelSlider->SetAlignmentY(UI::ItemAlignment::Center);
@@ -377,7 +385,7 @@ namespace Fsl
     auto background = uiFactory.CreateBottomBar(bottomStack);
 
     // We use the full fill texture here to get a gradient rendered.
-    auto uiDividerSprite = uiFactory.GetDividerNineSliceSprite();
+    auto uiDividerSprite = uiFactory.GetResources().GetDividerNineSliceSprite();
 
     auto dummyTopLeft = std::make_shared<UI::BaseWindow>(windowContext);
     dummyTopLeft->SetAlignmentX(UI::ItemAlignment::Stretch);

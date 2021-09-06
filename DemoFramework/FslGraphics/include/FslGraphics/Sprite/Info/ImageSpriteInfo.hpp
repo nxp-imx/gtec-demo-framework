@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Dp/DpExtent.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxThickness.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
@@ -45,6 +45,7 @@
 
 namespace Fsl
 {
+  class SpriteNativeAreaCalc;
   class StringViewLite;
 
   //! @brief Represents a atlas texture 2d image with no trim
@@ -61,8 +62,9 @@ namespace Fsl
     RenderImageInfo RenderInfo;
 
     ImageSpriteInfo() = default;
-    ImageSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx, const PxRectangleU& imageTrimmedRectanglePx,
-                    const uint32_t imageDpi, const StringViewLite& debugName);
+    ImageSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                    const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx, const uint32_t imageDpi,
+                    const StringViewLite& debugName);
 
     bool IsValid() const
     {

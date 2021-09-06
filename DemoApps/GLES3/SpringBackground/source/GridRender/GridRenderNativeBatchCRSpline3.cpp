@@ -31,8 +31,9 @@
 
 #include "GridRenderNativeBatchCRSpline3.hpp"
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <cassert>
+#include "../TextureUtil.hpp"
 
 namespace Fsl
 {
@@ -40,7 +41,7 @@ namespace Fsl
 
   namespace
   {
-    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const PxRectangleU nativeTexRect, const Vector2& start,
+    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const PxRectangleU32 nativeTexRect, const Vector2& start,
                          const Vector2& end, const Color& color, const float thickness)
     {
       Vector2 delta = end - start;
@@ -77,12 +78,10 @@ namespace Fsl
 
   void GridRenderNativeBatchCRSpline3::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& /*points*/)
   {
-    auto nativeTex = std::dynamic_pointer_cast<DynamicNativeTexture2D>(drawContext.TexFill.TryGetNative());
-    assert(nativeTex);
-    GLBatch2D::texture_type texFillNative(nativeTex->Get(), drawContext.TexFill.GetAtlasSize());
+    GLBatch2D::texture_type texFillNative = TextureUtil::ToNative(drawContext.RenderSystem, drawContext.TexFill);
 
-    const PxRectangleU texTrimmedRect(drawContext.TexFill.GetInfo().TrimmedRectPx);
-    const PxRectangleU rectFillTex(texTrimmedRect.X + (texTrimmedRect.Width / 2), texTrimmedRect.Y + (texTrimmedRect.Height / 2), 1, 1);
+    const PxRectangleU32 texTrimmedRect(drawContext.TexFill.GetInfo().TrimmedRectPx);
+    const PxRectangleU32 rectFillTex(texTrimmedRect.X + (texTrimmedRect.Width / 2), texTrimmedRect.Y + (texTrimmedRect.Height / 2), 1, 1);
 
     auto* pBatch = drawContext.pBatch;
 

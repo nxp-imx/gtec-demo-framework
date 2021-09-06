@@ -43,7 +43,7 @@ namespace Fsl
     class WindowEventPool;
     class WindowEventQueue;
 
-    class WindowEventSender
+    class WindowEventSender final
     {
       const std::shared_ptr<WindowEventQueue> m_windowEventQueue;
       const std::shared_ptr<ITreeNodeLocator> m_treeNodeLocator;

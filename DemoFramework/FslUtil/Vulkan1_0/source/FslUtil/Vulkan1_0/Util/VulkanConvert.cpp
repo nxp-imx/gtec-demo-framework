@@ -108,7 +108,6 @@ namespace Fsl
       }
 
 
-      // FIX: implement all conversions
       VkFormat TryToVkFormat(const VertexElementFormat vertexFormat)
       {
         switch (vertexFormat)
@@ -121,15 +120,23 @@ namespace Fsl
           return VK_FORMAT_R32G32B32_SFLOAT;
         case VertexElementFormat::Vector4:
           return VK_FORMAT_R32G32B32A32_SFLOAT;
-        case VertexElementFormat::Matrix4x4:
         case VertexElementFormat::X8_UNORM:
+          return VK_FORMAT_R8_UNORM;
         case VertexElementFormat::X8_UINT:
+          return VK_FORMAT_R8_UINT;
         case VertexElementFormat::X8Y8_UNORM:
+          return VK_FORMAT_R8G8_UNORM;
         case VertexElementFormat::X8Y8_UINT:
+          return VK_FORMAT_R8G8_UINT;
         case VertexElementFormat::X8Y8Z8_UNORM:
+          return VK_FORMAT_R8G8B8_UNORM;
         case VertexElementFormat::X8Y8Z8_UINT:
+          return VK_FORMAT_R8G8B8_UINT;
         case VertexElementFormat::X8Y8Z8W8_UNORM:
+          return VK_FORMAT_R8G8B8A8_UNORM;
         case VertexElementFormat::X8Y8Z8W8_UINT:
+          return VK_FORMAT_R8G8B8A8_UINT;
+        case VertexElementFormat::Matrix4x4:
         case VertexElementFormat::Undefined:
         default:
           return VK_FORMAT_UNDEFINED;

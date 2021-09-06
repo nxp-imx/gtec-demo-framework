@@ -38,7 +38,8 @@ namespace Fsl
 {
   DemoHostSetup EGLDemoHostSetup::Get()
   {
-    std::shared_ptr<IDemoHostFactory> demoHostFactory = std::make_shared<TemplateIDemoHostFactory<EGLDemoHost>>();
+    std::shared_ptr<IDemoHostFactory> demoHostFactory =
+      std::make_shared<TemplateIDemoHostFactory<EGLDemoHost>>(DemoHostCaps::Flags::HostControlGraphicsServiceApi);
     std::shared_ptr<ADemoHostOptionParser> optionParser = std::make_shared<EGLDemoHostOptionParser>();
     return DemoHostSetup(demoHostFactory, optionParser);
   }

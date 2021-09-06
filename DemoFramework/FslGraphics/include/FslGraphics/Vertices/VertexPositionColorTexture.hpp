@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_VERTICES_VERTEXPOSITIONCOLORTEXTURE_HPP
 #define FSLGRAPHICS_VERTICES_VERTEXPOSITIONCOLORTEXTURE_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -33,34 +33,81 @@
 
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Math/Vector4.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  struct Color;
-  class VertexDeclaration;
-
   struct VertexPositionColorTexture
   {
     Vector3 Position;
-    Vector4 Color;
+    Fsl::Color Color;
     Vector2 TextureCoordinate;
 
     constexpr VertexPositionColorTexture() noexcept = default;
 
-    constexpr VertexPositionColorTexture(const Vector3& position, const Vector4& color, const Vector2& textureCoordinate) noexcept
+    constexpr VertexPositionColorTexture(const Vector3& position, const Fsl::Color color, const Vector2 textureCoordinate) noexcept
       : Position(position)
       , Color(color)
       , TextureCoordinate(textureCoordinate)
     {
     }
 
-    VertexPositionColorTexture(const Vector3& position, const Fsl::Color& color, const Vector2& textureCoordinate);
+    constexpr VertexPositionColorTexture(const float positionX, const float positionY, const float positionZ, const Fsl::Color color,
+                                         const float textureCoordinateU, const float textureCoordinateV) noexcept
+      : Position(positionX, positionY, positionZ)
+      , Color(color)
+      , TextureCoordinate(textureCoordinateU, textureCoordinateV)
+    {
+    }
 
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+    static constexpr VertexDeclarationArray<3> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 3> g_elements = {
+        VertexElementEx(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0),
+        VertexElementEx(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
+                        0)};
+      constexpr VertexDeclarationArray<3> span(g_elements, sizeof(VertexPositionColorTexture));
+      return span;
+    }
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    // static VertexDeclarationSpan GetVertexDeclarationArray()
+    //{
+    //  constexpr static std::array<VertexElementEx, 3> g_elements = {
+    //    VertexElementEx(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+    //    VertexElementEx(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+    //    VertexElementEx(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
+    //    VertexElementUsage::TextureCoordinate,
+    //                    0)};
+    //  // In C++ declare this a constexpr!
+    //  static VertexDeclarationSpan span(g_elements.data(), g_elements.size(), sizeof(VertexPositionColorTexture));
+    //  return span;
+    //}
+
+
+    constexpr bool operator==(const VertexPositionColorTexture& rhs) const
+    {
+      return Position == rhs.Position && Color == rhs.Color && TextureCoordinate == rhs.TextureCoordinate;
+    }
+
+    constexpr bool operator!=(const VertexPositionColorTexture& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

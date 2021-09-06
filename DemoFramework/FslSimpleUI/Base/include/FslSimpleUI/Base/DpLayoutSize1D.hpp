@@ -45,30 +45,30 @@ namespace Fsl
       value_type m_value{-1.0f};
 
     public:
-      constexpr DpLayoutSize1D() = default;
+      constexpr DpLayoutSize1D() noexcept = default;
 
-      constexpr explicit DpLayoutSize1D(const value_type value)
+      constexpr explicit DpLayoutSize1D(const value_type value) noexcept
         : m_value(value >= 0.0f ? value : -1.0f)
       {
       }
 
-      constexpr explicit DpLayoutSize1D(const int32_t value)
+      constexpr explicit DpLayoutSize1D(const int32_t value) noexcept
         : m_value(value >= 0 ? float(value) : -1.0f)
       {
       }
 
-      constexpr bool HasValue() const
+      constexpr bool HasValue() const noexcept
       {
         return m_value >= 0.0f;
       }
 
-      constexpr float Value() const
+      constexpr float Value() const noexcept
       {
         return (m_value >= 0.0f ? m_value : 0.0f);
       }
 
       //! @brief Get the unfiltered value
-      constexpr float RawValue() const
+      constexpr float RawValue() const noexcept
       {
         return m_value;
       }

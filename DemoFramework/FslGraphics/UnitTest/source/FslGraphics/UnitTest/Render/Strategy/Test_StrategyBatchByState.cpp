@@ -48,9 +48,9 @@ namespace
 
   TYPED_TEST_SUITE(TestFixture_StrategyBatchByState, TestTypes);
 
-  const constexpr Vector4 g_color0(0.1f, 0.2f, 0.3f, 0.4f);
-  const constexpr Vector4 g_color1(0.5f, 0.6f, 0.7f, 0.8f);
-  const constexpr Vector4 g_color2(0.9f, 1.0f, 1.1f, 1.2f);
+  const constexpr Color g_color0(0.1f, 0.2f, 0.3f, 0.4f);
+  const constexpr Color g_color1(0.5f, 0.6f, 0.7f, 0.8f);
+  const constexpr Color g_color2(0.9f, 1.0f, 1.1f, 1.2f);
 
   const constexpr TestQuad g_quad0(Vector2(100, 101), Vector2(102, 103), Vector2(104, 105), Vector2(106, 107), Vector2(0, 1), Vector2(2, 3),
                                    g_color0);

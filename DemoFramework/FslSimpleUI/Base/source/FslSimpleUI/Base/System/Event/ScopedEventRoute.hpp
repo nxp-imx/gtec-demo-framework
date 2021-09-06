@@ -59,7 +59,7 @@ namespace Fsl
         return m_route;
       }
 
-      ScopedEventRoute(const std::shared_ptr<EventRoutePool>& pool, const std::shared_ptr<IEventHandler>& eventHandler, const WindowFlags& flags)
+      ScopedEventRoute(const std::shared_ptr<EventRoutePool>& pool, const std::shared_ptr<IEventHandler>& eventHandler, const WindowFlags flags)
       {
         FSL_PARAM_NOT_USED(eventHandler);
 

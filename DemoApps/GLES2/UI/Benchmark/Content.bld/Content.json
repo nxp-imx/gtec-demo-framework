@@ -1,0 +1,26 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlasBig_*dpi.bta",
+          "UIAtlas/UIAtlasBig_*dpi.png",
+          "UIAtlas/UIAtlasBig_*dpi_Font.nbf",
+          "UIAtlas/UIAtlasBig_*dpi_Header.nbf",
+          "UIAtlas/UIAtlasBig_*dpi_SdfFont.nbf",
+          "UIAtlas/UIAtlasBig_*dpi_SdfHeader.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+        "Textures/GPUSdk/SquareLogo512x512.jpg",
+        "Textures/GPUSdk/License.json"
+        ]
+      }
+    ]
+  }
+}

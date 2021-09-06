@@ -43,6 +43,7 @@ class PlatformNameString(object):
     WINDOWS = "Windows"
     FREERTOS = "FreeRTOS"
     QNX = "QNX"
+    EMSCRIPTEN = "Emscripten"
 
 class PlatformNameIdString(object):
     INVALID = PlatformNameString.INVALID.lower()
@@ -52,6 +53,7 @@ class PlatformNameIdString(object):
     WINDOWS = PlatformNameString.WINDOWS.lower()
     FREERTOS = PlatformNameString.FREERTOS.lower()
     QNX = PlatformNameString.QNX.lower()
+    EMSCRIPTEN = PlatformNameString.EMSCRIPTEN.lower()
 
 APPROVED_PLATFORM_NAMES = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.WINDOWS,
-                           PlatformNameString.FREERTOS, PlatformNameString.QNX]
+                           PlatformNameString.FREERTOS, PlatformNameString.QNX, PlatformNameString.EMSCRIPTEN]

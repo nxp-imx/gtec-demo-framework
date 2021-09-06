@@ -88,7 +88,10 @@ namespace Fsl
       // Now use the safe copied values instead
       PatchPointers();
       m_value.pNext = nullptr;
-      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "DeviceCreateInfoCopy always stores a nullptr for pNext");
+      if (Fsl::LogConfig::GetLogLevel() >= LogType::Verbose)
+      {
+        FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "DeviceCreateInfoCopy always stores a nullptr for pNext");
+      }
     }
 
 

@@ -47,15 +47,15 @@ namespace Fsl
     GamepadThumbStick LeftThumb;
     GamepadThumbStick RightThumb;
 
-    GamepadState() = default;
+    constexpr GamepadState() noexcept = default;
 
-    bool operator==(const GamepadState& rhs) const
+    constexpr bool operator==(const GamepadState& rhs) const noexcept
     {
       return IsConnected == rhs.IsConnected && Buttons == rhs.Buttons && LeftTrigger == rhs.LeftTrigger && RightTrigger == rhs.RightTrigger &&
              LeftThumb == rhs.LeftThumb && RightThumb == rhs.RightThumb;
     }
 
-    bool operator!=(const GamepadState& rhs) const
+    constexpr bool operator!=(const GamepadState& rhs) const noexcept
     {
       return !(*this == rhs);
     }

@@ -47,9 +47,9 @@ namespace Fsl
     //! a negative or positive time interval
     int64_t Ticks{0};
 
-    constexpr TransitionTimeSpan() = default;
+    constexpr TransitionTimeSpan() noexcept = default;
 
-    constexpr explicit TransitionTimeSpan(const int64_t ticks)
+    constexpr explicit TransitionTimeSpan(const int64_t ticks) noexcept
       : Ticks(ticks)
     {
     }
@@ -116,6 +116,11 @@ namespace Fsl
       default:
         throw NotSupportedException("The given time unit has not been implemented");
       }
+    }
+
+    constexpr float DeltaTime() const
+    {
+      return float(double(Ticks) / 10000000.0);
     }
 
     constexpr bool operator==(const TransitionTimeSpan& rhs) const

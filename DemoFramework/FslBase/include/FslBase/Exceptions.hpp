@@ -50,6 +50,14 @@ namespace Fsl
     }
   };
 
+  class InternalErrorException : public std::runtime_error
+  {
+  public:
+    explicit InternalErrorException(const std::string& whatArg)
+      : std::runtime_error(whatArg)
+    {
+    }
+  };
 
   class UnknownTypeException : public std::runtime_error
   {

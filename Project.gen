@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" ShortName="DF" Version="5.7.1" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" ShortName="DF" Version="5.8.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -69,7 +69,6 @@
           cppcoreguidelines-macro-usage
           cppcoreguidelines-narrowing-conversions
           cppcoreguidelines-pro-type-member-init
-          cppcoreguidelines-pro-type-vararg
           cppcoreguidelines-slicing
           google-build-explicit-make-pair
           google-build-namespaces

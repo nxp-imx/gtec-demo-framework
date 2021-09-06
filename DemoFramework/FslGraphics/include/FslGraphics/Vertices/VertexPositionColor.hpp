@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_VERTICES_VERTEXPOSITIONCOLOR_HPP
 #define FSLGRAPHICS_VERTICES_VERTEXPOSITIONCOLOR_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -33,17 +33,18 @@
 
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  struct Color;
-  class VertexDeclaration;
-
   struct VertexPositionColor
   {
     Vector3 Position;
-    Vector4 Color;
+    Fsl::Color Color;
 
     constexpr VertexPositionColor() noexcept = default;
 
@@ -53,11 +54,29 @@ namespace Fsl
     {
     }
 
-    VertexPositionColor(const Vector3& position, const Fsl::Color& color);
+    constexpr VertexPositionColor(const Vector3& position, const Fsl::Color& color) noexcept
+      : Position(position)
+      , Color(color)
+    {
+    }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
 
+    constexpr static VertexDeclarationArray<2> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 2> elements = {
+        VertexElementEx(offsetof(VertexPositionColor, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(VertexPositionColor, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0)};
+      return VertexDeclarationArray<2>(elements, sizeof(VertexPositionColor));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<2> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
 
     constexpr bool operator==(const VertexPositionColor& rhs) const
     {

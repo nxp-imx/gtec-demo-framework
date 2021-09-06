@@ -54,4 +54,8 @@ cov-analyze --dir %FSL_COVERITY_DIR% --all
 if %errorlevel% neq 0 (
   exit /b %errorlevel%
 )
+
 rem cov-format-errors --dir %FSL_COVERITY_DIR% --html-output coverity.html
+rem if %errorlevel% neq 0 (
+rem   exit /b %errorlevel%
+rem )

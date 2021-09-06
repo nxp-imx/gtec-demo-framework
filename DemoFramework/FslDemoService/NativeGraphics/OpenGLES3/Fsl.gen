@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslDemoService.NativeGraphics.OpenGLES3" CreationYear="2017">
-    <Dependency Name="FslDemoService.NativeGraphics.Base"/>
+    <Dependency Name="FslDemoService.NativeGraphics.BasicRender"/>
     <Dependency Name="FslService.Impl"/>
     <Dependency Name="FslUtil.OpenGLES3" Access="Private"/>
     <Platform Name="Windows" ProjectId="6C1F663A-864F-4538-ABB6-7B2FF8B406AA"/>

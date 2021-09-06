@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "PointBench.hpp"

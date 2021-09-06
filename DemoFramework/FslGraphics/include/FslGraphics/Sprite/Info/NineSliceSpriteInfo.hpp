@@ -38,9 +38,10 @@
 
 namespace Fsl
 {
+  class SpriteNativeAreaCalc;
   class StringViewLite;
 
-  //! @brief Represents a atlas texture 2d image with no trim
+  //! @brief Represents a atlas texture 2d nine-slice image with trim
   struct NineSliceSpriteInfo
   {
     //! Render material information
@@ -54,9 +55,9 @@ namespace Fsl
     RenderNineSliceInfo RenderInfo;
 
     NineSliceSpriteInfo() = default;
-    NineSliceSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx,
-                        const PxRectangleU& imageTrimmedRectanglePx, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx,
-                        const uint32_t imageDpi, const StringViewLite& debugName);
+    NineSliceSpriteInfo(const SpriteNativeAreaCalc& spriteAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                        const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx, const PxThicknessU& nineSlicePx,
+                        const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName);
 
     bool IsValid() const
     {

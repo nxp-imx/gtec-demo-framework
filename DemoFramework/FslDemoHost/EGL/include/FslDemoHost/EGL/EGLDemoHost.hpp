@@ -44,6 +44,7 @@ namespace Fsl
   class DemoAppHostConfigEGL;
   class IEGLNativeWindow;
   class IEGLNativeWindowSystem;
+  class IGraphicsServiceHost;
   class IWindowHostInfoControl;
   class EGLHostService;
   class EGLDemoHostOptionParser;
@@ -78,6 +79,7 @@ namespace Fsl
     std::shared_ptr<IEGLNativeWindow> m_window;
     std::shared_ptr<IWindowHostInfoControl> m_windowHostInfoControl;
     std::shared_ptr<EGLHostService> m_hostService;
+    std::shared_ptr<IGraphicsServiceHost> m_graphicsService;
     EGLDisplay m_hDisplay;
     EGLSurface m_hSurface;
     EGLContext m_hContext;
@@ -94,6 +96,7 @@ namespace Fsl
     bool m_logExtensions;
     bool m_apiInit;
     DemoHostFeature m_activeApi;
+    uint32_t m_maxFramesInFlight;
 
   public:
     explicit EGLDemoHost(const DemoHostConfig& demoHostConfig);

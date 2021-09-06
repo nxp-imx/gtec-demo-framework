@@ -39,7 +39,9 @@ namespace Fsl
   {
     enum class Flags
     {
-      AppRenderedSystemOverlay = 0x01
+      AppRenderedSystemOverlay = 0x01,
+      //! If this is defined the Host will call SetActiveApi/ClearActiveApi on the graphics service
+      HostControlGraphicsServiceApi = 0x02
     };
 
     uint32_t Value = 0;

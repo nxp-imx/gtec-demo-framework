@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
@@ -61,14 +61,21 @@ namespace Fsl
       m_content.insert(m_content.begin(), pSrc, pSrc + texture.GetByteSize());
     }
 
-    NativeTextureArea CalcNativeTextureArea(const PxRectangleU& imageRectanglePx) const override
+    BasicNativeTextureHandle TryGetNativeHandle() const noexcept override
+    {
+      return {};
+    }
+
+    NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const override
     {
       assert(static_cast<float>(m_extentPx.Width) >= 0.0f);
       assert(static_cast<float>(m_extentPx.Height) >= 0.0f);
+      assert(imageRectanglePx.Right() <= m_extentPx.Width);
+      assert(imageRectanglePx.Bottom() <= m_extentPx.Height);
       return {imageRectanglePx.Left() == 0 ? 0.0f : imageRectanglePx.Left() / static_cast<float>(m_extentPx.Width),
               imageRectanglePx.Top() == 0 ? 0.0f : imageRectanglePx.Top() / static_cast<float>(m_extentPx.Height),
-              imageRectanglePx.Right() == m_extentPx.Width ? 1.0f : imageRectanglePx.Right() / static_cast<float>(m_extentPx.Width),
-              imageRectanglePx.Bottom() == m_extentPx.Height ? 1.0f : imageRectanglePx.Bottom() / static_cast<float>(m_extentPx.Height)};
+              imageRectanglePx.Right() >= m_extentPx.Width ? 1.0f : imageRectanglePx.Right() / static_cast<float>(m_extentPx.Width),
+              imageRectanglePx.Bottom() >= m_extentPx.Height ? 1.0f : imageRectanglePx.Bottom() / static_cast<float>(m_extentPx.Height)};
     }
   };
 }

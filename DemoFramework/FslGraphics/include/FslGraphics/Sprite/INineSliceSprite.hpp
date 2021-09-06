@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/ISprite.hpp>
+#include <FslGraphics/Sprite/IContentSprite.hpp>
 
 namespace Fsl
 {
-  class INineSliceSprite : public ISprite
+  class INineSliceSprite : public IContentSprite
   {
   public:
   };

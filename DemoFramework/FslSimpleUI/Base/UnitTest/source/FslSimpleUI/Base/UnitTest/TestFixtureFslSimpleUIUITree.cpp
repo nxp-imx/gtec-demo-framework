@@ -30,9 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
-#include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
+#include <FslBase/Transition/TransitionTimeSpan.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
@@ -42,6 +40,7 @@
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UIContext.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
+#include <FslSimpleUI/Render/Stub/RenderSystem.hpp>
 
 
 using namespace Fsl;
@@ -49,11 +48,12 @@ using namespace Fsl;
 
 TestFixtureFslSimpleUIUITree::TestFixtureFslSimpleUIUITree()
   : m_moduleCallbackRegistry(std::make_shared<UI::ModuleCallbackRegistry>())
+  , m_renderSystem(std::make_unique<UI::RenderStub::RenderSystem>(), false)
   , m_eventPool(std::make_shared<UI::WindowEventPool>())
   , m_eventQueue(std::make_shared<UI::WindowEventQueueEx>())
   , m_tree(std::make_shared<UI::UITree>(m_moduleCallbackRegistry, m_eventPool, m_eventQueue))
   , m_windowEventSender(std::make_shared<UI::WindowEventSender>(m_eventQueue, m_eventPool, m_tree))
-  , m_uiContext(std::make_shared<UI::UIContext>(m_tree, m_windowEventSender))
+  , m_uiContext(std::make_shared<UI::UIContext>(m_tree, m_windowEventSender, m_renderSystem.GetMeshManager()))
   , m_windowContext(std::make_shared<UI::BaseWindowContext>(m_uiContext, SpriteDpConfig::BaseDpi))
   , m_rootWindow(std::make_shared<UI::RootWindow>(m_windowContext, PxExtent2D(800, 600), 160))
 {

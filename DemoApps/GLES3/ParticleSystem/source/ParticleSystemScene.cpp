@@ -36,14 +36,14 @@
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include "ParticleSystemScene.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"
@@ -178,7 +178,7 @@ namespace Fsl
     {    // Prepare the default program
       m_program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText("Shader.frag"));
       const GLuint hProgram = m_program.Get();
-      auto vertexDecl = VertexPositionColorTexture::GetVertexDeclaration();
+      constexpr auto vertexDecl = VertexPositionColorTexture::GetVertexDeclarationArray();
       m_cubeAttribLink[0] =
         GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_cubeAttribLink[1] =
@@ -479,10 +479,11 @@ namespace Fsl
                                     const std::shared_ptr<UIDemoAppExtension>& uiExtension)
   {
     auto context = uiExtension->GetContext();
-    UI::Theme::BasicThemeFactory factory(context, uiExtension->GetSpriteResourceManager(), uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*uiExtension);
+    auto& factory = *uiControlFactory;
 
 
-    m_valueLabelParticleCount = factory.CreateFmtValueLabel<int32_t>(10);
+    m_valueLabelParticleCount = factory.CreateFmtValueLabel(int32_t(10));
 
     auto labelParticles = factory.CreateLabel("Particles: ");
 
@@ -491,7 +492,7 @@ namespace Fsl
     stackLayout->AddChild(labelParticles);
     stackLayout->AddChild(m_valueLabelParticleCount);
 
-    m_sliderEmit = factory.CreateSliderFmtValue<int32_t>(UI::LayoutOrientation::Horizontal, LocalConfig::EmitRange);
+    m_sliderEmit = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::EmitRange);
 
     auto outerStack = std::make_shared<StackLayout>(context);
     outerStack->SetLayoutOrientation(LayoutOrientation::Vertical);
@@ -516,7 +517,7 @@ namespace Fsl
         m_cbParticleSystemGPU2 = factory.CreateSwitch("GPUSystem2");
         m_cbParticleSystemGPU2->SetAlignmentX(UI::ItemAlignment::Stretch);
 
-        m_valueLabelGPUParticleCount = factory.CreateFmtValueLabel<int32_t>(10);
+        m_valueLabelGPUParticleCount = factory.CreateFmtValueLabel(int32_t(10));
 
         auto labelParticles2 = factory.CreateLabel("GPUParticles: ");
         stackLayoutQ->SetLayoutOrientation(LayoutOrientation::Horizontal);

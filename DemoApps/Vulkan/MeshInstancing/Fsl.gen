@@ -3,6 +3,6 @@
   <Executable Name="Vulkan.MeshInstancing" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.VulkanWillemsMeshDemoAppExperimental"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.DepthZeroToOne"/>
   </Executable>
 </FslBuildGen>

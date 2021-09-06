@@ -74,7 +74,7 @@ namespace Fsl
     }
 
 
-    EventRoute::EventRoute(const WindowFlags& flags)
+    EventRoute::EventRoute(const WindowFlags flags)
       : m_flags(flags)
       , m_tunnelList(INITIAL_NODE_CAPACITY)
       , m_bubbleList(INITIAL_NODE_CAPACITY)
@@ -88,7 +88,7 @@ namespace Fsl
     EventRoute::~EventRoute() = default;
 
 
-    void EventRoute::Initialize(const WindowFlags& flags)
+    void EventRoute::Initialize(const WindowFlags flags)
     {
       m_flags = flags;
       m_isInitialized = true;

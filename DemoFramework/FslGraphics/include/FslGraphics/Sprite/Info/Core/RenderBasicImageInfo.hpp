@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_SPRITE_INFO_CORE_RENDERBASICIMAGEINFO_HPP
 #define FSLGRAPHICS_SPRITE_INFO_CORE_RENDERBASICIMAGEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ namespace Fsl
 
     constexpr bool operator==(const RenderBasicImageInfo& rhs) const
     {
-      return TextureArea == TextureArea && ScaledSizePx == rhs.ScaledSizePx;
+      return TextureArea == rhs.TextureArea && ScaledSizePx == rhs.ScaledSizePx;
     }
 
     constexpr bool operator!=(const RenderBasicImageInfo& rhs) const

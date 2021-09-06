@@ -1,0 +1,39 @@
+@startuml App execution order
+
+caption App execution order
+
+:Construct;
+:_PostConstruct;
+
+repeat
+    partition FullFrame {
+        :_OnEvent;
+        :_Begin;
+        :_ConfigurationChanged;
+        partition Update {
+            :_PreUpdate;
+            while (Have outstanding ticks?) is (true)
+                :_FixedUpdate;
+            endwhile (false)
+            :_Update;
+            :_PostUpdate;
+        }
+        if (_TryPrepareDraw) is (Completed) then 
+            partition Draw {
+                :_BeginDraw;
+                :_Draw;
+                :_EndDraw;
+                :_TrySwapBuffers;
+            }
+            :_End;
+        endif
+    }
+repeatwhile (<b>quitRequested) is (false)
+
+:_PreDestruct;
+:Destruct;
+
+
+
+
+@enduml

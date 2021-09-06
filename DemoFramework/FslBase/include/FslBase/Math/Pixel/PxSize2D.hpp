@@ -66,12 +66,12 @@ namespace Fsl
       assert(height >= 0);
     }
 
-    constexpr inline value_type Width() const
+    constexpr inline value_type Width() const noexcept
     {
       return m_width;
     }
 
-    constexpr inline value_type Height() const
+    constexpr inline value_type Height() const noexcept
     {
       return m_height;
     }
@@ -168,6 +168,24 @@ namespace Fsl
     static constexpr PxSize2D Max(const PxSize2D& val0, const PxSize2D& val1)
     {
       return {std::max(val0.m_width, val1.m_width), std::max(val0.m_height, val1.m_height)};
+    }
+
+    static constexpr PxSize2D Max(const PxSize2D& val0, const PxSize2D& val1, const PxSize2D& val2)
+    {
+      return {std::max(std::max(val0.m_width, val1.m_width), val2.m_width), std::max(std::max(val0.m_height, val1.m_height), val2.m_height)};
+    }
+
+    static constexpr PxSize2D Max(const PxSize2D& val0, const PxSize2D& val1, const PxSize2D& val2, const PxSize2D& val3)
+    {
+      return {std::max(std::max(std::max(val0.m_width, val1.m_width), val2.m_width), val3.m_width),
+              std::max(std::max(std::max(val0.m_height, val1.m_height), val2.m_height), val3.m_height)};
+    }
+
+
+    static constexpr PxSize2D Flip(const PxSize2D& val)
+    {
+      // coverity[swapped_arguments]
+      return {val.Height(), val.Width(), OptimizationCheckFlag::NoCheck};
     }
   };
 

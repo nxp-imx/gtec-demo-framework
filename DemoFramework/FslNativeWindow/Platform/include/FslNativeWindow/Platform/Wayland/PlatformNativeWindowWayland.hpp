@@ -33,6 +33,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
+#include <vector>
 
 namespace Fsl
 {
@@ -40,6 +41,15 @@ namespace Fsl
   {
     std::function<void(void*)> m_destroyWindowCallback;
     wl_surface* m_platformSurface;
+    struct waylandDisplayGeometry
+    {
+      uint32_t width;
+      uint32_t height;
+      uint32_t physicalWidth;
+      uint32_t physicalHeight;
+    };
+    std::vector<waylandDisplayGeometry> m_displayOutput;
+    Point2 m_cachedScreenDPI;
 
   public:
     PlatformNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
@@ -53,6 +63,8 @@ namespace Fsl
 
   protected:
     bool TryGetNativeSize(PxPoint2& rSize) const override;
+    bool TryGetNativeDpi(Vector2& rDPI) const override;
+    void GetOutputs(struct wl_list* infos);
     // Wayland hopefully sends a event when the dpi is changed, and we then need to notify the framework with
     // eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowConfigChanged());
     // virtual bool TryGetNativeDpi(Vector2& rDPI) const override;

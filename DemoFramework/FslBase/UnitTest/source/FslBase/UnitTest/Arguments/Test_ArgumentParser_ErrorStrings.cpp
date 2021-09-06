@@ -34,7 +34,7 @@
 #include <FslBase/Arguments/ArgumentParserErrorStrings.hpp>
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <cassert>

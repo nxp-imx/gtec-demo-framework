@@ -49,7 +49,7 @@ namespace Fsl
   namespace UI
   {
     RootWindow::RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi)
-      : BaseWindow(context)
+      : BaseWindow(context, WindowFlags::WinInit)
       , m_resolutionPx(TypeConverter::UncheckedTo<PxSize2D>(extentPx))
       , m_densityDpi(densityDpi)
     {
@@ -67,13 +67,6 @@ namespace Fsl
 
       Measure(LayoutHelperPxfConverter::ToPxAvailableSize(m_resolutionPx));
       Arrange(PxRectangle(0, 0, m_resolutionPx.Width(), m_resolutionPx.Height()));
-    }
-
-
-    WindowFlags RootWindow::WinGetFlags() const
-    {
-      auto baseValue = BaseWindow::WinGetFlags();
-      return WindowFlags(baseValue.GetValue() | WindowFlags::WinInit);
     }
 
 

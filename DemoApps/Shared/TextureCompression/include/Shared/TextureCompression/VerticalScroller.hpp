@@ -37,7 +37,7 @@ namespace Fsl
 {
   namespace UI
   {
-    class VerticalScroller : public ContentControl
+    class VerticalScroller final : public ContentControl
     {
       float m_animationPosition = 0.0f;
       float m_animationSpeed = 1.0f;
@@ -48,13 +48,15 @@ namespace Fsl
       explicit VerticalScroller(const std::shared_ptr<BaseWindowContext>& context);
 
       //! @note This is only called if enabled.
-      void WinUpdate(const DemoTime& demoTime) override;
+      void WinUpdate(const TransitionTimeSpan& timeSpan) final;
+      void WinResolve(const TransitionTimeSpan& timeSpan) final;
 
       void SetScrollPadding(const DpThicknessF& paddingDp);
 
     protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizepx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizepx) final;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+      bool UpdateAnimationState(const bool forceCompleteAnimation) final;
     };
   }
 }

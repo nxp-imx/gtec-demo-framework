@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/IWindowInfo.hpp>
+#include <FslSimpleUI/Base/ItemVisibility.hpp>
 #include <memory>
 
 namespace Fsl
@@ -108,7 +109,9 @@ namespace Fsl
       virtual void ScheduleCloseAllChildren(const std::shared_ptr<BaseWindow>& parentWindow) = 0;
 
       //! @brief Set window flags
-      virtual bool TrySetWindowFlags(const BaseWindow* const pWindow, const WindowFlags& flags, const bool enable) = 0;
+      virtual bool TrySetWindowFlags(const BaseWindow* const pWindow, const WindowFlags flags, const bool enable) = 0;
+      //! @brief Set window visibility flags
+      virtual bool TrySetWindowVisibility(const BaseWindow* const pWindow, const ItemVisibility visibility) = 0;
 
 
       //! @brief Set the event source of this event

@@ -34,7 +34,6 @@
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <GLES3/gl3.h>
 #include <iostream>
 #include "ParticleSystem.hpp"

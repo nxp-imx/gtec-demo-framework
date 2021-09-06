@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES2.Bloom" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppGLES2"/>
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES2"/>
     <Dependency Name="Shared.Bloom"/>
   </Executable>
 </FslBuildGen>

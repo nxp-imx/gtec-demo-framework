@@ -33,14 +33,15 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
@@ -61,12 +62,13 @@ namespace Fsl
     ISpriteResourceManager& spriteResourceManager = m_uiExtension->GetSpriteResourceManager();
     auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
 
-    UI::Theme::BasicThemeFactory factory(context, spriteResourceManager, defaultMaterialId);
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
-    auto spriteBack = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_previous_white_24dp");
-    auto spriteNext = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_next_white_24dp");
-    auto spritePlay = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_play_arrow_white_24dp");
-    auto spriteStop = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_stop_white_24dp");
+    auto spriteBack = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_previous_white_48dp");
+    auto spriteNext = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_next_white_48dp");
+    auto spritePlay = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_play_arrow_white_48dp");
+    auto spriteStop = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_stop_white_48dp");
 
     // Allocate the four player buttons
     m_btnBack = factory.CreateImageButton(UI::Theme::ImageButtonType::Normal, spriteBack);

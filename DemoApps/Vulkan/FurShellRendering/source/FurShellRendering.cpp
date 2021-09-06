@@ -43,6 +43,7 @@
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -222,7 +223,7 @@ namespace Fsl
       };
 
       VertexBufferInfo<2> info;
-      info.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+      info.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
 
       // Generate attribute description by matching shader layout with the vertex declarations
       std::array<VertexElementUsage, 2> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
@@ -724,11 +725,10 @@ namespace Fsl
   void FurShellRendering::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                      const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
-    const auto frameIndex = drawContext.CurrentFrameIndex;
+    const auto currentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
       clearValues[0].color = {{m_backgroundColor.X, m_backgroundColor.Y, m_backgroundColor.Z, 1.0f}};
@@ -744,22 +744,22 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawToCommandBuffer(m_resources.MainFrameResources[frameIndex], hCmdBuffer, currentSwapBufferIndex, frameIndex);
+        DrawToCommandBuffer(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer, currentFrameIndex, currentFrameIndex);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
-  AppDrawResult FurShellRendering::TrySwapBuffers(const DemoTime& demoTime)
+  AppDrawResult FurShellRendering::TrySwapBuffers(const FrameInfo& frameInfo)
   {
     ForceFinishEachFrame();
-    return DemoAppVulkanBasic::TrySwapBuffers(demoTime);
+    return DemoAppVulkanBasic::TrySwapBuffers(frameInfo);
   }
 
   VkRenderPass FurShellRendering::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)

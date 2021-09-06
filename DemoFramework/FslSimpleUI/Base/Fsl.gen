@@ -3,7 +3,8 @@
   <Library Name="FslSimpleUI.Base" CreationYear="2017">
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
-    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.Render.Base"/>
+    <!--Dependency Name="FslDemoApp.Base"/-->
     <Platform Name="Windows" ProjectId="B0949C39-636A-4869-9E85-23B2F186FD07"/>
   </Library>
 </FslBuildGen>

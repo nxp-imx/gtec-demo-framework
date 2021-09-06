@@ -41,9 +41,13 @@ namespace Fsl
   {
     namespace
     {
-      const uint32_t BUCKET_SIZE = 4096;
-      // const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
-      // const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
+      namespace LocalConfig
+      {
+        constexpr const uint32_t BucketSize = 4096;
+        // const uint32_t ARRAY_START_SIZE = LocalConfig::BucketSize;
+        // const uint32_t ARRAY_EXPAND_ENTRIES = LocalConfig::BucketSize;
+      }
+
 
       inline VUBufferMemory CreateBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDeviceSize bufferByteSize,
                                          const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags)
@@ -108,9 +112,9 @@ namespace Fsl
       {
         throw std::invalid_argument("device must be valid");
       }
-      if (minimumVertexCountRequest > BUCKET_SIZE)
+      if (minimumVertexCountRequest > LocalConfig::BucketSize)
       {
-        throw std::invalid_argument("minimumVertexCountRequest must be smaller than BUCKET_SIZE");
+        throw std::invalid_argument("minimumVertexCountRequest must be '<=' LocalConfig::BucketSize");
       }
 
       Reset();
@@ -122,7 +126,7 @@ namespace Fsl
         m_segmentVertexCount = minimumVertexCountRequest;
 
         // Allocate the initial bucket
-        m_buckets.push_back(CreateBuffer(m_physicalDevice, m_device, sizeof(VertexPositionColorTexture) * BUCKET_SIZE,
+        m_buckets.push_back(CreateBuffer(m_physicalDevice, m_device, sizeof(VertexPositionColorTexture) * LocalConfig::BucketSize,
                                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
         m_buckets.back().Map();
@@ -150,22 +154,22 @@ namespace Fsl
 
       assert((vertexCapacityHint % m_segmentVertexCount) == 0);
 
-      uint32_t currentBucketIndex = m_activeCount / BUCKET_SIZE;
-      uint32_t indexInsideBucket = m_activeCount % BUCKET_SIZE;
-      uint32_t currentBucketCapacity = BUCKET_SIZE - indexInsideBucket;
+      uint32_t currentBucketIndex = m_activeCount / LocalConfig::BucketSize;
+      uint32_t indexInsideBucket = m_activeCount % LocalConfig::BucketSize;
+      uint32_t currentBucketCapacity = LocalConfig::BucketSize - indexInsideBucket;
       if (currentBucketCapacity < m_segmentVertexCount)
       {
         ++currentBucketIndex;
         indexInsideBucket = 0;
-        currentBucketCapacity = BUCKET_SIZE;
-        m_activeCount = currentBucketIndex * BUCKET_SIZE;
+        currentBucketCapacity = LocalConfig::BucketSize;
+        m_activeCount = currentBucketIndex * LocalConfig::BucketSize;
       }
 
       // Check if we need to allocate another bucket
       assert(currentBucketIndex <= m_buckets.size());
       if (currentBucketIndex >= m_buckets.size())
       {
-        m_buckets.push_back(CreateBuffer(m_physicalDevice, m_device, sizeof(VertexPositionColorTexture) * BUCKET_SIZE,
+        m_buckets.push_back(CreateBuffer(m_physicalDevice, m_device, sizeof(VertexPositionColorTexture) * LocalConfig::BucketSize,
                                          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
         m_buckets.back().Map();

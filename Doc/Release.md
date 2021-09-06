@@ -1,5 +1,33 @@
 # Releases
 
+## Release 5.8.0
+
+* New samples
+  * GLES2.System.DevBasicRender
+  * GLES2.UI.Benchmark
+  * GLES3.System.DevBasicRender
+  * GLES3.UI.Benchmark
+  * Vulkan.GpuTimestamp
+  * Vulkan.System.DevBasicRender
+  * Vulkan.UI.Benchmark
+* UI rendering
+  * Rewrote the UI rendering code to depend on the new FslGraphics3D.BasicRender.
+  * Significant performance improvements.
+  * Rendering code support various rendering optimizations that can be toggled at run-time.
+  * Updated the [custom UI guidelines](./FslSimpleUI.md)
+* Android
+  * Android apps now support command line arguments. Add the arguments using ```-e "args" "<arguments>" for example ```-e "args" "--DensityDpi 160 -vvvv"```
+* Dependencies:
+  * Upgraded to OpenCV 4.5.2
+
+## Release 5.7.1
+
+* Compatible with GCC11
+* Fixed G2D dependency issue.
+* Fixed android compilation issues.
+* Updated to OpenCV 4.5.2
+* Added some notes to help people that hit a "access denied" error when trying to run the visual studio cmake project.
+
 ## Release 5.7.0
 
 * Python 3.6 or better is now required
@@ -13,7 +41,7 @@
 * Build tools:
   * FslBuildCheck.py clang tidy now defaults to use cmake for dependencies. Legacy mode can still be used by adding ```--legacy```.
   * FslBuild on windows now defaults to the cmake visual studio generator.
-  * FslBuild now support package flavors.
+  * FslBuild now support package flavors
   * **Breaking change** FslBuild removed support for dynamic variants.
   * **Breaking change** FslBuild custom Visual Studio project generator no longer use dynamic variants for the OpenGL ES and OpenVG emulation. This means we no longer generate a the ```.StartProject.bat``` file. The user is now responsible calling ```ConfigureOpenGLESEmu.bat```   to configure the OpenGL ES emulator before launching the project.. Its recommended to call this right after the prepare.bat file.
 * Dependencies:
@@ -91,7 +119,7 @@
 * Vulkan screenshot support
 * Replaced TCLAP with a custom argument parser to reduce executable size.
 * FslBuild
-  * now supports “-c install”.
+  * now supports "-c install".
   * Experimental CMake support (see FslBuild_CMake.md)
   * Experimental VS2019 support
   * Android Studio 3.5.0
@@ -99,7 +127,7 @@
 
 ## Release 5.3
 
-* Disable third party downloads per default for Yocto builds. To build using an old Yocto release that doesn't come with all third party software you need to add “--Recipes [*]” to your command line which will re-enable the download.
+* Disable third party downloads per default for Yocto builds. To build using an old Yocto release that doesn't come with all third party software you need to add "--Recipes [*]" to your command line which will re-enable the download.
 * Updated all OpenCV 3 apps to OpenCV 4.
 * New samples
   * GLES2.LineBuilder

@@ -31,17 +31,15 @@
 
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <utility>
 
 namespace Fsl
 {
   namespace UI
   {
-    WindowContext::WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<INativeBatch2D> batch2D,
-                                 std::shared_ptr<SpriteFont> defaultFont, const uint32_t densityDpi)
+    WindowContext::WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<SpriteFont> defaultFont,
+                                 const uint32_t densityDpi)
       : BaseWindowContext(uiContext, densityDpi)
-      , Batch2D(std::move(batch2D))
       , DefaultFont(std::move(defaultFont))
     {
       if (!DefaultFont)

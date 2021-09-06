@@ -31,42 +31,42 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/BaseTexture2D.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 
 namespace Fsl
 {
   class AtlasFont
   {
     const BaseTexture2D m_atlasTexture;
-    const TextureAtlasBitmapFont m_textureAtlasBitmapFont;
+    const TextureAtlasSpriteFont m_textureAtlasSpriteFont;
 
   public:
     AtlasFont(const AtlasFont&) = delete;
     AtlasFont& operator=(const AtlasFont&) = delete;
 
-    AtlasFont(const BaseTexture2D& atlasTexture, TextureAtlasBitmapFont textureAtlasBitmapFont);
+    AtlasFont(const BaseTexture2D& atlasTexture, TextureAtlasSpriteFont textureAtlasSpriteFont);
 
     const BaseTexture2D& GetAtlasTexture() const
     {
       return m_atlasTexture;
     }
 
-    const TextureAtlasBitmapFont& GetAtlasBitmapFont() const
+    const TextureAtlasSpriteFont& GetTextureAtlasSpriteFont() const
     {
-      return m_textureAtlasBitmapFont;
+      return m_textureAtlasSpriteFont;
     }
 
     //! @brief Measure the string size in pixels
     PxSize2D MeasureString(const StringViewLite& strView) const
     {
-      return m_textureAtlasBitmapFont.MeasureString(strView);
+      return m_textureAtlasSpriteFont.MeasureString(strView);
     }
 
     //! @brief Measure the string size in pixels taking into account the font config
     PxSize2D MeasureString(const StringViewLite& strView, const BitmapFontConfig& fontConfig) const
     {
-      return m_textureAtlasBitmapFont.MeasureString(strView, fontConfig);
+      return m_textureAtlasSpriteFont.MeasureString(strView, fontConfig);
     }
   };
 }

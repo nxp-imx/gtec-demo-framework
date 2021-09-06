@@ -38,9 +38,7 @@ namespace Fsl
   // This can only be used for relative timer compares
   class HighResolutionTimer
   {
-#ifdef _WIN32
     double m_frequency{};
-#endif
 
   public:
     HighResolutionTimer(const HighResolutionTimer&) = delete;

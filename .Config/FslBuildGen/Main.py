@@ -282,7 +282,7 @@ def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: O
     localToolConfig = LowLevelToolConfig(log.Verbosity, False, False, False, False, currentDir)
     projectRootConfig = ToolAppMain.GetProjectRootConfig(localToolConfig, basicConfig, currentDir)
     buildPlatformType = PlatformUtil.DetectBuildPlatformType()
-    toolConfig = ToolConfig(buildPlatformType, Version(1, 3, 3, 7), basicConfig, projectRootConfig.ToolConfigFile, projectRootConfig)
+    toolConfig = ToolConfig(localToolConfig, buildPlatformType, Version(1, 3, 3, 7), basicConfig, projectRootConfig.ToolConfigFile, projectRootConfig)
     config = Config(log, toolConfig, PluginSharedValues.TYPE_UNIT_TEST, None, True)
     config.ForceDisableAllWrite()
     if enableTestMode:

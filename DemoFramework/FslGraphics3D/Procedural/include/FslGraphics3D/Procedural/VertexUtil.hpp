@@ -47,7 +47,7 @@ namespace Fsl
     template <typename TVertex>
     std::size_t VertexUtil::Copy(std::vector<TVertex>& rDst, const std::size_t dstIndex, const std::vector<TVertex>& srcVertices)
     {
-      if (dstIndex < 0 || (std::size_t(dstIndex) + srcVertices.size()) > rDst.size())
+      if (/*dstIndex < 0 ||*/ (std::size_t(dstIndex) + srcVertices.size()) > rDst.size())
       {
         throw std::invalid_argument("One of the arguments is invalid");
       }
@@ -82,8 +82,8 @@ namespace Fsl
                                               const std::vector<TVertexSrc>& srcVertices, const float len)
     {
       // We could generate one piece of code that handles this in a generic way by using the vertex declarations and direct memory access
-      // ExtractNormalsAsLineList(rDst.data(), dstIndex, rDst.size(), TVertexDst::GetVertexDeclaration(), srcVertices.data(), srcVertices.size(),
-      // TVertexSrc::GetVertexDeclaration());
+      // ExtractNormalsAsLineList(rDst.data(), dstIndex, rDst.size(), TVertexDst::AsVertexDeclarationSpan(), srcVertices.data(), srcVertices.size(),
+      // TVertexSrc::AsVertexDeclarationSpan());
 
       if (rDst.size() < (srcVertices.size() * 2))
       {

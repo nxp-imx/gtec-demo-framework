@@ -41,7 +41,7 @@ namespace Fsl
     {
       uint32_t WinInit{};
       uint32_t WinMarkLayoutAsDirty{};
-      uint32_t WinGetContentRect{};
+      // uint32_t WinGetContentRect{};
       uint32_t WinHandleEvent{};
       uint32_t WinUpdate{};
       uint32_t WinResolve{};

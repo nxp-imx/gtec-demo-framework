@@ -31,27 +31,31 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
+#include <FslBase/Math/BasicWindowMetrics.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslSimpleUI/Base/Render/UIRenderSystem.hpp>
 #include <FslSimpleUI/Base/UIStats.hpp>
 #include <memory>
 
 namespace Fsl
 {
-  struct DemoTime;
-  class KeyEvent;
-  class MouseButtonEvent;
-  class MouseMoveEvent;
-  class MouseWheelEvent;
   struct PxPoint2;
+  struct TransitionTimeSpan;
 
   namespace UI
   {
+    class AExternalModule;
     class BaseWindowContext;
+    struct ExternalModuleId;
+    class ExternalModules;
     class IEventListener;
+    class IExternalModuleFactory;
     class IModuleHost;
     class InputModule;
+    class IRenderSystemBase;
     class IWindowManager;
     class ModuleCallbackRegistry;
+    class RenderPerformanceCapture;
     class RootWindow;
     class SimpleEventSender;
     class UIContext;
@@ -63,6 +67,8 @@ namespace Fsl
 
     class UIManager
     {
+      UIRenderSystem m_renderSystem;
+      BasicWindowMetrics m_windowMetrics;
       std::shared_ptr<ModuleCallbackRegistry> m_moduleCallbackRegistry;
       std::shared_ptr<WindowEventPool> m_eventPool;
       std::shared_ptr<WindowEventQueueEx> m_eventQueue;
@@ -74,11 +80,19 @@ namespace Fsl
       std::shared_ptr<SimpleEventSender> m_simpleEventSender;
       std::shared_ptr<IModuleHost> m_moduleHost;
       std::shared_ptr<InputModule> m_inputModule;
+      std::shared_ptr<ExternalModules> m_externalModules;
       bool m_leftButtonDown;
 
     public:
-      explicit UIManager(const DemoWindowMetrics& windowMetrics);
+      UIManager(const UIManager&) = delete;
+      UIManager& operator=(const UIManager&) = delete;
+
+      explicit UIManager(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics);
+      explicit UIManager(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
+                         ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> externalModuleFactories);
       ~UIManager();
+
+      std::shared_ptr<AExternalModule> GetExternalModule(const ExternalModuleId& moduleId) const;
 
       const std::shared_ptr<UIContext>& GetUIContext() const;
       std::shared_ptr<IWindowManager> GetWindowManager() const;
@@ -88,8 +102,8 @@ namespace Fsl
       // bool SendKeyEvent(const KeyEvent& event);
       //! @brief Send a mouse button event
       //! @note Returns true if the event was handled by a UIElement
-      bool SendMouseButtonEvent(const MouseButtonEvent& event);
-      bool SendMouseMoveEvent(const MouseMoveEvent& event);
+      bool SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown);
+      bool SendMouseMoveEvent(const PxPoint2& positionPx);
       // bool SendMouseWheelEvent(const MouseWheelEvent& event);
 
       //! Check if the UI system is considered idle
@@ -99,11 +113,15 @@ namespace Fsl
 
       void ProcessEvents();
 
-      void SetDensityDpi(const uint32_t dpi);
-      void Resized(const DemoWindowMetrics& windowMetrics);
-      void FixedUpdate(const DemoTime& demoTime);
-      void Update(const DemoTime& demoTime);
-      void Draw();
+      void Resized(const BasicWindowMetrics& windowMetrics);
+      void FixedUpdate(const TransitionTimeSpan& timespan);
+      void Update(const TransitionTimeSpan& timespan);
+      void PreDraw();
+      void Draw(RenderPerformanceCapture* const pPerformanceCapture);
+      void PostDraw();
+
+      const UI::IRenderSystemBase& GetRenderSystem() const;
+      UI::IRenderSystemBase* TryGetRenderSystem();
 
       //! @brief Register a event listener
       void RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
@@ -111,7 +129,12 @@ namespace Fsl
       //! @brief Unregister a event listener
       void UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
 
-    private:
+      bool SYS_GetUseYFlipTextureCoordinates() const
+      {
+        return m_renderSystem.SYS_GetUseYFlipTextureCoordinates();
+      }
+
+      void ForceInvalidateLayout();
     };
   }
 }

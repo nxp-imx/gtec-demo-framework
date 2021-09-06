@@ -39,6 +39,8 @@
 #include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostOptionParser.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsDeviceCreateInfo.hpp>
+#include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowSystemFactory.hpp>
 #include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/IEGLNativeWindow.hpp>
@@ -763,6 +765,7 @@ namespace Fsl
     , m_nativeWindowSetup()
     , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
     , m_hostService(demoHostConfig.GetServiceProvider().Get<EGLHostService>())
+    , m_graphicsService(demoHostConfig.GetServiceProvider().Get<IGraphicsServiceHost>())
     , m_hDisplay(EGL_NO_DISPLAY)
     , m_hSurface(EGL_NO_SURFACE)
     , m_hContext(EGL_NO_CONTEXT)
@@ -776,6 +779,7 @@ namespace Fsl
     , m_logExtensions(false)
     , m_apiInit(false)
     , m_activeApi(DemoHostFeatureName::OpenGLES, 0)
+    , m_maxFramesInFlight(demoHostConfig.GetDemoHostAppSetup().AppSetup.CustomAppConfig.MaxFramesInFlight)
   {
     const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), m_demoHostConfig.GetVerbosityLevel(),
                                                           m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
@@ -959,6 +963,12 @@ namespace Fsl
       //! Give extending classes a chance to react
       m_apiInit = true;
       OnAPIInitialized();
+
+      m_graphicsService->SetActiveApi(m_activeApi);
+
+      //! Let the graphics service know that the device is ready
+      GraphicsDeviceCreateInfo createInfo(m_maxFramesInFlight, m_demoHostConfig.GetPreallocateBasic2D(), nullptr);
+      m_graphicsService->CreateDevice(createInfo);
     }
     catch (const std::exception&)
     {
@@ -976,6 +986,11 @@ namespace Fsl
     // Give extending classes a chance to react
     if (m_apiInit)
     {
+      //! Let the graphics service know that the device is ready
+      m_graphicsService->DestroyDevice();
+
+      m_graphicsService->ClearActiveApi();
+
       m_apiInit = false;
       OnAPIShutdown();
     }
@@ -993,6 +1008,8 @@ namespace Fsl
     assert(m_hContext == EGL_NO_CONTEXT);
     assert(m_hSurface == EGL_NO_SURFACE);
     assert(m_hConfig == LocalConfig::EmptyValueEGLConfig);
+
+    FSLLOG3_VERBOSE("EGLDemoHost::InitEGL");
 
     // The OpenVG reference implementation EGL layer fails if this is executed before init.
     // So for now if we are using OpenVG we do not check for Angle support.
@@ -1077,7 +1094,7 @@ namespace Fsl
       // Do EGL extension check
       DoCheckExtensions(m_hDisplay, m_extensionRequests);
 
-      LOCAL_LOG("Creating native window");
+      FSLLOG3_VERBOSE("EGLDemoHost::InitEGL: Creating native window");
 
       // Prepare the native window
       const NativeEGLSetup nativeEglSetup(hDisplay, m_hDisplay, m_hConfig);
@@ -1156,6 +1173,7 @@ namespace Fsl
   void EGLDemoHost::InitSurfaceAndContext()
   {
     //! The app manager should not exist when this is called
+    FSLLOG3_VERBOSE("EGLDemoHost::InitSurfaceAndContext");
 
     assert(!m_enableGLES || m_eglContextClientVersionMajor > 0);
     assert(m_hDisplay != EGL_NO_DISPLAY);
@@ -1163,6 +1181,7 @@ namespace Fsl
     assert(m_window);
     if (m_hDisplay == EGL_NO_DISPLAY || m_hConfig == LocalConfig::EmptyValueEGLConfig || !m_window)
     {
+      FSLLOG3_VERBOSE("EGLDemoHost::InitSurfaceAndContext, no display or invalid config");
       return;
     }
 
@@ -1215,6 +1234,7 @@ namespace Fsl
     {
       return;
     }
+    FSLLOG3_VERBOSE("EGLDemoHost::ShutdownSurfaceAndContext");
 
     assert(m_hConfig != LocalConfig::EmptyValueEGLConfig);
     assert(m_window);
@@ -1246,6 +1266,8 @@ namespace Fsl
     //! The app manager should have been released before calling this
     assert(m_hContext == EGL_NO_CONTEXT);
     assert(m_hSurface == EGL_NO_SURFACE);
+
+    FSLLOG3_VERBOSE("EGLDemoHost::ShutdownEGL");
 
     if (m_hDisplay != EGL_NO_DISPLAY)
     {

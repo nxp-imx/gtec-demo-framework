@@ -83,7 +83,7 @@ namespace Fsl
     //! @brief Transforms a normalized plane by a matrix.
     //! @param plane The normalized plane to transform.
     //! @param matrix The transformation matrix.
-    //! @param result The transformed plane.
+    //! @param rResult The transformed plane.
     static void Transform(const Plane& plane, const Matrix& matrix, Plane& rResult);
 
     //! @brief Transforms a normalized plane by a quaternion rotation.

@@ -96,6 +96,37 @@ TEST(TestMathPixel_PxAreaRectangleF, Construct1)
   EXPECT_FLOAT_EQ(offsetY + height, value.BottomRight().Y);
 }
 
+
+TEST(TestMathPixel_PxAreaRectangleF, Construct1_NoCheck)
+{
+  float offsetX = 1.0f;
+  float offsetY = 2.0f;
+  float width = 10.0f;
+  float height = 20.0f;
+  PxAreaRectangleF value(offsetX, offsetY, width, height, OptimizationCheckFlag::NoCheck);
+
+  // The rect stores left, top, right, bottom so they ought to be exact values
+  EXPECT_EQ(offsetX, value.Left());
+  EXPECT_EQ(offsetY, value.Top());
+  EXPECT_FLOAT_EQ(offsetX + width, value.Right());
+  EXPECT_FLOAT_EQ(offsetY + height, value.Bottom());
+
+  EXPECT_FLOAT_EQ(width, value.Width());
+  EXPECT_FLOAT_EQ(height, value.Height());
+
+  EXPECT_EQ(offsetX, value.TopLeft().X);
+  EXPECT_EQ(offsetY, value.TopLeft().Y);
+
+  EXPECT_FLOAT_EQ(offsetX + width, value.TopRight().X);
+  EXPECT_EQ(offsetY, value.TopRight().Y);
+
+  EXPECT_EQ(offsetX, value.BottomLeft().X);
+  EXPECT_FLOAT_EQ(offsetY + height, value.BottomLeft().Y);
+
+  EXPECT_FLOAT_EQ(offsetX + width, value.BottomRight().X);
+  EXPECT_FLOAT_EQ(offsetY + height, value.BottomRight().Y);
+}
+
 TEST(TestMathPixel_PxAreaRectangleF, FromLeftTopRightBottom)
 {
   float left = 1.0f;

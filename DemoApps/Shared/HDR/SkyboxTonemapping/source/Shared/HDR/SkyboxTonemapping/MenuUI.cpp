@@ -33,11 +33,12 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 
 namespace Fsl
 {
@@ -383,7 +384,8 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
 
     m_checkboxes.resize(render.size());
@@ -397,7 +399,7 @@ namespace Fsl
     labelExposure->SetAlignmentX(UI::ItemAlignment::Near);
     labelExposure->SetAlignmentY(UI::ItemAlignment::Center);
 
-    m_exposureSlider = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::Exposure);
+    m_exposureSlider = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::Exposure);
     m_exposureSlider->SetAlignmentX(UI::ItemAlignment::Stretch);
 
 
@@ -426,7 +428,6 @@ namespace Fsl
     mainStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
     mainStack->AddChild(stackLayout);
     mainStack->AddChild(stackLayout2);
-
 
     auto bottomBar = factory.CreateBottomBar();
     bottomBar->SetContent(mainStack);

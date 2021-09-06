@@ -46,12 +46,19 @@
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <fmt/format.h>
 #include <memory>
 
 namespace Fsl
 {
+  namespace UI
+  {
+    namespace Theme
+    {
+      class IThemeControlFactory;
+    }
+  }
+
   struct Resources
   {
     Texture2D AtlasTexture;
@@ -141,11 +148,11 @@ namespace Fsl
   private:
     void SetDefaultValues();
 
-    UIRecordLeft CreateUILeftSide(UI::Theme::BasicThemeFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext);
-    UIRecordRight CreateUIRightSide(UI::Theme::BasicThemeFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext);
-    UIRecordMiddle CreateUIMiddle(UI::Theme::BasicThemeFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext);
+    UIRecordLeft CreateUILeftSide(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext);
+    UIRecordRight CreateUIRightSide(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext);
+    UIRecordMiddle CreateUIMiddle(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext);
     UIRecord CreateUI(const uint32_t densityDpi, const bool enableTestPattern, const bool enableUITestPattern);
-    StatsUIRecord CreateStatsUI(UI::Theme::BasicThemeFactory& uiFactory);
+    StatsUIRecord CreateStatsUI(UI::Theme::IThemeControlFactory& uiFactory);
     void UpdateResourceScale();
     void SetUITestPattern(const bool enabled);
   };

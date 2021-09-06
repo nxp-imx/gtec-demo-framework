@@ -1,13 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
   <Type Name="Fsl::StringViewLite">
-      <DisplayString>{{ str={m_pStr,[m_length]} size={m_length} }}</DisplayString>
+      <DisplayString>{{str={m_pStr,[m_length]} size={m_length} }}</DisplayString>
   </Type>
   <Type Name="Fsl::Span&lt;*&gt;">
     <DisplayString>{{ data={m_pData,[m_length]} size={m_length} }}</DisplayString>
+    <Expand>
+        <Item Name="size" ExcludeView="simple">m_length</Item>
+        <ArrayItems>
+          <Size>m_length</Size>
+          <ValuePointer>m_pData</ValuePointer>
+        </ArrayItems>
+    </Expand>
   </Type>
   <Type Name="Fsl::ReadOnlySpan&lt;*&gt;">
-    <DisplayString>{{ data={m_pData,[m_length]} size={m_length} }}</DisplayString>
+    <DisplayString>{{data={m_pData,[m_length]} size={m_length} }}</DisplayString>
+    <Expand>
+        <Item Name="size" ExcludeView="simple">m_length</Item>
+        <ArrayItems>
+          <Size>m_length</Size>
+          <ValuePointer>m_pData</ValuePointer>
+        </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="Fsl::ReadOnlyTypedFlexSpan&lt;*&gt;">
+    <DisplayString>{{size={m_length} stride={m_stride}}}</DisplayString>
+    <Expand>
+      <Item Name="size" ExcludeView="simple">m_length</Item>
+      <Item Name="stride" ExcludeView="simple">m_stride</Item>
+      <IndexListItems>
+          <Size>m_length</Size>
+          <ValueNode>*((const $T1*)(((const uint8_t*)m_pData) + (m_stride * $i)))</ValueNode>
+        </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="Fsl::TypedFlexSpan&lt;*&gt;">
+    <DisplayString>{{size={m_length} stride={m_stride}}}</DisplayString>
+    <Expand>
+      <Item Name="size" ExcludeView="simple">m_length</Item>
+      <Item Name="stride" ExcludeView="simple">m_stride</Item>
+      <IndexListItems>
+        <Size>m_length</Size>
+        <ValueNode>*((const $T1*)(((const uint8_t*)m_pData) + (m_stride * $i)))</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="Fsl::ReadOnlyFlexSpan">
+    <DisplayString>{{size={m_length} stride={m_stride}}}</DisplayString>
+    <Expand>
+      <Item Name="size" ExcludeView="simple">m_length</Item>
+      <Item Name="stride" ExcludeView="simple">m_stride</Item>
+      <!--
+      <IndexListItems>
+        <Size>m_length</Size>
+        <ValueNode>*(((const uint8_t*)m_pData) + (m_stride * $i))</ValueNode>
+      </IndexListItems>
+      -->
+    </Expand>
+  </Type>
+  <Type Name="Fsl::CircularFixedSizeBuffer&lt;*&gt;">
+    <DisplayString>{{size={m_entries}}}</DisplayString>
+    <Expand>
+      <Item Name="size" ExcludeView="simple">m_entries</Item>
+      <IndexListItems>
+        <Size>m_entries</Size>
+        <ValueNode>m_data[(m_frontIndex + $i) % m_data.size()]</ValueNode>
+      </IndexListItems>
+    </Expand>
   </Type>
   <Type Name="Fsl::UTF8String">
     <DisplayString>{m_content}</DisplayString>

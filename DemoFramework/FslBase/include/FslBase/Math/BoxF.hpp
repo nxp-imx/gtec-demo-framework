@@ -69,12 +69,12 @@ namespace Fsl
       return {X1 + ((X2 - X1) * 0.5f), Y1 + ((Y2 - Y1) * 0.5f)};
     }
 
-    constexpr bool operator==(const BoxF& rhs) const
+    constexpr bool operator==(const BoxF& rhs) const noexcept
     {
       return ((X1 == rhs.X1) && (Y1 == rhs.Y1) && (X2 == rhs.X2) && (Y2 == rhs.Y2));
     }
 
-    constexpr bool operator!=(const BoxF& rhs) const
+    constexpr bool operator!=(const BoxF& rhs) const noexcept
     {
       return ((X1 != rhs.X1) || (Y1 != rhs.Y1) || (X2 != rhs.X2) || (Y2 != rhs.Y2));
     }

@@ -33,6 +33,7 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -441,7 +442,6 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(demoTime);
 
-    const auto currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
     assert(frameIndex < m_resources.MainFrameResources.size());
 
@@ -451,8 +451,8 @@ namespace Fsl
     buffer.MatProj = m_matProj;
     m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &buffer, sizeof(VertexUBOData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[frameIndex];
+    rCmdBuffers.Begin(frameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.2f, 0.2f, 0.2f, 1.0f}};
@@ -467,16 +467,16 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(frameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         DrawToCommandBuffer(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, frameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(frameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(frameIndex);
   }
 
 
@@ -569,7 +569,7 @@ namespace Fsl
   Scissor101::VertexBufferInfo Scissor101::CreateVertexBuffer(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager)
   {
     VertexBufferInfo info;
-    info.VertexBuffer.Reset(bufferManager, g_vertices, Vulkan::VMBufferUsage::STATIC);
+    info.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(g_vertices), Vulkan::VMBufferUsage::STATIC);
 
     // Generate attribute description by matching shader layout with the vertex declarations
     std::array<VertexElementUsage, 2> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};

@@ -1,0 +1,101 @@
+@startuml FslGraphics Sprite Creation
+
+participant TheApp
+participant UITree
+participant Image
+participant BackgroundLabelButton
+participant DrawCommandBuffer
+participant UIRenderSystem
+participant NativeVertexBuffer
+participant NativeIndexBuffer
+participant SpriteManager
+participant NineSliceSprite
+participant ImageSprite
+activate TheApp
+...
+== Init ==
+
+TheApp->SpriteManager++: Construct
+TheApp->NineSliceSprite++: Construct
+TheApp->ImageSprite++: Construct
+TheApp->DrawCommandBuffer++: Construct
+TheApp->UITree++: Construct
+TheApp->UIRenderSystem++: Construct
+UIRenderSystem->NativeVertexBuffer++: Construct
+UIRenderSystem->NativeIndexBuffer++: Construct
+TheApp->Image++: Construct
+Image->UIRenderSystem: CreateMesh(imageSpriteId)
+TheApp->BackgroundLabelButton++: Construct
+BackgroundLabelButton->UIRenderSystem: CreateMesh(backgroundSpriteId)
+BackgroundLabelButton->UIRenderSystem: CreateMesh(hoverBackgroundSpriteId)
+BackgroundLabelButton->UIRenderSystem: CreateMesh(backgroundHoverOverlaySpriteId)
+BackgroundLabelButton->UIRenderSystem: CreateTextMesh(fontSpriteId, text)
+
+...
+== Update / events ==
+
+' During update or events the controls look can be reconfigured
+TheApp->Image: SetBackground
+Image->UIRenderSystem: SetMeshSprite(hMesh, spriteId)
+TheApp->BackgroundLabelButton: SetContent
+BackgroundLabelButton->UIRenderSystem: SetMeshText(hTextMesh, spriteId)
+
+...
+== Layout ==
+
+TheApp->UITree: Layout
+UITree->Image: Measure
+Image->ImageSprite: GetRenderInfo
+UITree->BackgroundLabelButton: Measure
+BackgroundLabelButton->NineSliceSprite: GetRenderInfo
+UITree->Image: Arrange
+UITree->BackgroundLabelButton: Arrange
+...
+== Draw ==
+
+TheApp->UIRenderSystem: BeginFrame
+TheApp->UITree: Draw
+UITree->Image: Draw
+Image->DrawCommandBuffer: Draw(mesh)
+UITree->BackgroundLabelButton: Draw
+BackgroundLabelButton->DrawCommandBuffer: Draw(hBackgroundMesh)
+BackgroundLabelButton->DrawCommandBuffer: Draw(hBackgroundHoverOverlayMesh)
+BackgroundLabelButton->DrawCommandBuffer: DrawText(hTextMesh)
+TheApp->UIRenderSystem: Draw
+UIRenderSystem->DrawCommandBuffer: SwapQueue
+UIRenderSystem->UIRenderSystem++: ForEachCommand
+UIRenderSystem->UIRenderSystem: GetMeshRecord
+UIRenderSystem->UIRenderSystem: DrawCommandType
+UIRenderSystem->NativeIndexBuffer: SetData
+deactivate UIRenderSystem
+TheApp->UIRenderSystem: EndFrame
+
+...
+== Shutdown ==
+
+TheApp->BackgroundLabelButton: Destruct
+BackgroundLabelButton->UIRenderSystem: DestroyMesh
+deactivate BackgroundLabelButton
+TheApp->Image: Destruct
+Image->UIRenderSystem: DestroyMesh
+deactivate Image
+TheApp->UIRenderSystem: Destruct
+UIRenderSystem->NativeIndexBuffer: Destruct
+deactivate NativeIndexBuffer
+UIRenderSystem->NativeVertexBuffer: Destruct
+deactivate NativeVertexBuffer
+deactivate UIRenderSystem
+TheApp->UITree: Destruct
+deactivate UITree
+TheApp->DrawCommandBuffer: Destruct
+deactivate DrawCommandBuffer
+TheApp->ImageSprite: Destruct
+deactivate ImageSprite
+TheApp->NineSliceSprite: Destruct
+deactivate NineSliceSprite
+TheApp->SpriteManager: Destruct
+deactivate SpriteManager
+deactivate TheApp
+
+@enduml
+

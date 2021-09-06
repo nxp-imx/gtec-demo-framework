@@ -356,7 +356,10 @@ def __BuildDefinitions(package: Package, directDefines: List[PackageDefine], tem
     snippet = templatePackageDependencyTargetCompileDefinitions
     content = ""
     for entry in directDefines:
-        content += "\n  {0}\n    {1}".format(GetAccessTypeString(package, entry.Access), entry.Name)
+        if entry.Value is None:
+            content += "\n  {0}\n    {1}".format(GetAccessTypeString(package, entry.Access), entry.Name)
+        else:
+            content += "\n  {0}\n    {1}={2}".format(GetAccessTypeString(package, entry.Access), entry.Name, entry.Value)
 
     return snippet.replace("##PACKAGE_COMPILE_DEFINITIONS##", content)
 
@@ -675,6 +678,8 @@ def GetContentBuilder(toolConfig: ToolConfig, package: Package, platformName:str
     inputContentFiles.sort()
     outputContentFiles.sort()
 
+    extraArgs = "" if not toolConfig.LowLevelToolConfig.AllowDevelopmentPlugins else " --dev"
+
     customArgs = ""
     if contentInBinaryDirectory:
         outputContentFiles = _MakeRelativeToCurrentBinaryDirectory(outputContentFiles)
@@ -690,6 +695,7 @@ def GetContentBuilder(toolConfig: ToolConfig, package: Package, platformName:str
     content = content.replace("##PACKAGE_PATH##", packagePath)
     content = content.replace("##PACKAGE_CONTENTBUILDER_INPUT_FILES##", inputFiles)
     content = content.replace("##PACKAGE_CONTENTBUILDER_OUTPUT_FILES##", outputFiles)
+    content = content.replace("##EXTRA_ARGS##", extraArgs)
     content = content.replace("##CUSTOM_ARGS##", customArgs)
     return "\n" + content
 
@@ -818,7 +824,8 @@ def GetAddExtendedPackageParent(toolConfig: ToolConfig, projectContext: ToolConf
 
     content = snippet
     content = content.replace("##PARENT_NAME##", parentContext.ProjectName)
-    content = content.replace("##PARENT_ROOT##", "${{{0}}}".format(rootDir.GetEnvironmentVariableName()))
+    #content = content.replace("##PARENT_ROOT##", "${{{0}}}".format(rootDir.GetEnvironmentVariableName()))
+    content = content.replace("##PARENT_ROOT##", "../{0}".format(parentContext.ProjectId.ShortProjectId))
     return content
 
 def GetVariantSettings(log: Log, package: Package, snippetPackageVariantSettings: str,

@@ -37,7 +37,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
-#include <FslGraphics/Vertices/VertexPositionColor.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics3D/Procedural/BoxGenerator.hpp>
 #include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
@@ -72,7 +72,7 @@ namespace Fsl
     , m_menuUI(config)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
-    , m_resources(3, VertexPositionColor::GetVertexDeclaration())
+    , m_resources(3, VertexDeclaration(VertexPositionColorF::AsVertexDeclarationSpan()))
     , m_hasSelectedObject(false)
     , m_selectedIndex(0)
   {
@@ -96,10 +96,11 @@ namespace Fsl
     PrepareMeshes(m_resources.Meshes, m_resources.Texture);
 
     m_resources.ProgDirectionalLight =
-      PrepareDirectionalLightProgram(contentManager, m_resources.AttribLink, VertexPositionNormalTexture::GetVertexDeclaration());
-    m_resources.ProgramSolidColor = PrepareSolidColorProgram(contentManager, m_resources.AttribLinkColoredToLine, m_resources.VertexDeclLine);
+      PrepareDirectionalLightProgram(contentManager, m_resources.AttribLink, VertexPositionNormalTexture::AsVertexDeclarationSpan());
+    m_resources.ProgramSolidColor =
+      PrepareSolidColorProgram(contentManager, m_resources.AttribLinkColoredToLine, m_resources.VertexDeclLine.AsSpan());
     m_resources.ProgramTextured =
-      PrepareTexturedProgram(contentManager, m_resources.AttribLinkTextured, VertexPositionNormalTexture::GetVertexDeclaration());
+      PrepareTexturedProgram(contentManager, m_resources.AttribLinkTextured, VertexPositionNormalTexture::AsVertexDeclarationSpan());
 
     GenerateObjects(m_resources.Objects, optionParser->GetObjectCount(), m_menuUI.IsRandomSeedEnabled());
 
@@ -540,7 +541,7 @@ namespace Fsl
 
   ObjectSelection::ProgramDirectionalLight ObjectSelection::PrepareDirectionalLightProgram(const std::shared_ptr<IContentManager>& contentManager,
                                                                                            std::array<GLES3::GLVertexAttribLink, 3>& rAttribLink,
-                                                                                           const VertexDeclaration& vertexDecl)
+                                                                                           VertexDeclarationSpan vertexDecl)
   {
     ProgramDirectionalLight newProgram;
     newProgram.Program.Reset(contentManager->ReadAllText("BasicShaderDLight.vert"), contentManager->ReadAllText("BasicShaderDLightTextured.frag"));
@@ -566,7 +567,7 @@ namespace Fsl
 
   ObjectSelection::ProgramColor ObjectSelection::PrepareSolidColorProgram(const std::shared_ptr<IContentManager>& contentManager,
                                                                           std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink,
-                                                                          const VertexDeclaration& vertexDecl)
+                                                                          VertexDeclarationSpan vertexDecl)
   {
     ProgramColor newProgram;
     newProgram.Program.Reset(contentManager->ReadAllText("VertexColored.vert"), contentManager->ReadAllText("VertexColored.frag"));
@@ -585,7 +586,7 @@ namespace Fsl
 
   ObjectSelection::ProgramColor ObjectSelection::PrepareTexturedProgram(const std::shared_ptr<IContentManager>& contentManager,
                                                                         std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink,
-                                                                        const VertexDeclaration& vertexDecl)
+                                                                        VertexDeclarationSpan vertexDecl)
   {
     ProgramColor newProgram;
     // Prepare the texture program

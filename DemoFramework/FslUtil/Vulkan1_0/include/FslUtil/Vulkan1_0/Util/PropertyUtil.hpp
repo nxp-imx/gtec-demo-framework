@@ -33,7 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl

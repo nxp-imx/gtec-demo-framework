@@ -133,7 +133,6 @@ class ToolFlowBuildGen(AToolAppFlow):
         if localToolConfig.Graph:
             self.ToolAppContext.PluginConfigContext.EnableGraph()
 
-        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
         self.ToolAppContext.PluginConfigContext.SetLegacyGeneratorType(localToolConfig.GenType)
 
@@ -145,6 +144,8 @@ class ToolFlowBuildGen(AToolAppFlow):
                                                                                                  config.ToolConfig.CMakeConfiguration,
                                                                                                  localToolConfig.GetUserCMakeConfig(), False)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
+
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platformGeneratorPlugin.CMakeConfig), currentDirPath, localToolConfig.Recursive)
 
 
         packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin,

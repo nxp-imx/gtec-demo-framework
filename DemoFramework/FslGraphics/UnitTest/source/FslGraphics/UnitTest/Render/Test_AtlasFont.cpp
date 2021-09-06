@@ -50,7 +50,7 @@ namespace
 
 TEST(TestRender_AtlasFont, Construct_Invalid)
 {
-  EXPECT_THROW(AtlasFont(BaseTexture2D(), TextureAtlasBitmapFont()), std::invalid_argument);
+  EXPECT_THROW(AtlasFont(BaseTexture2D(), TextureAtlasSpriteFont()), std::invalid_argument);
 }
 
 
@@ -60,7 +60,7 @@ TEST(TestRender_AtlasFont, Construct_EmptyBitmapFont)
   const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
 
-  AtlasFont font(atlasTex, TextureAtlasBitmapFont());
+  AtlasFont font(atlasTex, TextureAtlasSpriteFont());
 
   EXPECT_EQ(atlasTex, font.GetAtlasTexture());
   // Since there are no valid chars, we expect a measure to be zero

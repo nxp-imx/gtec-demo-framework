@@ -33,12 +33,13 @@
 
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  class VertexDeclaration;
-
   struct VertexPositionNormalTexture
   {
     Vector3 Position;
@@ -54,8 +55,35 @@ namespace Fsl
     {
     }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+    constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 3> elements = {
+        VertexElementEx(offsetof(VertexPositionNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(VertexPositionNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElementEx(offsetof(VertexPositionNormalTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
+                        0)};
+
+      return VertexDeclarationArray<3>(elements, sizeof(VertexPositionNormalTexture));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+    constexpr bool operator==(const VertexPositionNormalTexture& rhs) const
+    {
+      return Position == rhs.Position && Normal == rhs.Normal && TextureCoordinate == rhs.TextureCoordinate;
+    }
+
+    constexpr bool operator!=(const VertexPositionNormalTexture& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

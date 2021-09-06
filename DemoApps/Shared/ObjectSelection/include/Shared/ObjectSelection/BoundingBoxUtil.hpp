@@ -46,7 +46,7 @@ namespace Fsl
       Vector3 min = Vector3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
       Vector3 max = Vector3(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
 
-      for (auto entry : vertices)
+      for (const auto& entry : vertices)
       {
         min.X = (entry.Position.X < min.X ? entry.Position.X : min.X);
         min.Y = (entry.Position.Y < min.Y ? entry.Position.Y : min.Y);

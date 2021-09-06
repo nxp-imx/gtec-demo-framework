@@ -35,11 +35,11 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeBatch2D.hpp>
 #include <FslUtil/OpenGLES2/GLFrameBuffer.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
-#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
 #include <memory>
 #include "ABlurredDraw.hpp"
 #include "Config.hpp"

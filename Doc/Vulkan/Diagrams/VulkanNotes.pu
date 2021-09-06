@@ -1,0 +1,104 @@
+@startuml NativeGraphicsService DF5.8.0 Build6 Class Diagram'
+'!pragma ratio 0.66
+'left to right direction
+scale 1
+
+class Buffer
+class BufferView
+class CommandBuffer
+class CommandPool
+class ComputePipeline
+class Device
+class DescriptorImageInfo
+class DescriptorBufferInfo
+class DescriptorPool
+class DescriptorSet
+class DescriptorSetLayout
+class DescriptorUpdateTemplate
+class DisplayPlaneSurface
+class Event
+class Fence
+class FrameBuffer
+class GraphicsPipeline
+class Image
+enum ImageLayout
+class ImageView
+class Instance
+class Memory
+class PhysicalDevice
+interface Pipeline
+class PipelineCache
+class PipelineLayout
+class QueryPool
+class RenderPass
+class Sampler
+class Semaphore
+class ShaderModule
+class SwapchainKHR
+class VertexInputAttributeDescription
+class VertexInputBindingDescription
+
+Pipeline <|-- ComputePipeline
+Pipeline <|-- GraphicsPipeline
+
+Instance o-- PhysicalDevice
+PhysicalDevice o-- Device
+
+'Device o-- DescriptorPool
+'Device o-- GraphicsPipeline
+
+BufferView o-- Buffer
+Buffer o.. memory
+
+DescriptorPool o-- DescriptorSet 
+
+DescriptorSet o.. DescriptorBufferInfo
+DescriptorSet o.. DescriptorImageInfo
+DescriptorSet o.. BufferView
+DescriptorSet o-- DescriptorSetLayout
+
+FrameBuffer o-- RenderPass
+FrameBuffer o-- ImageView
+
+ImageView o-- Image
+
+PipelineLayout o-- DescriptorSetLayout
+
+PipelineCache o-- Pipeline 
+
+GraphicsPipeline o-- PipelineLayout
+GraphicsPipeline o-- RenderPass
+GraphicsPipeline o-- ShaderModule
+GraphicsPipeline o-- VertexInputAttributeDescription
+GraphicsPipeline o-- VertexInputBindingDescription
+
+DescriptorImageInfo o-- ImageLayout
+DescriptorImageInfo o-- ImageView
+DescriptorImageInfo o-- Sampler
+
+DescriptorBufferInfo o-- Buffer
+
+namespace Commands {
+
+class CmdBeginRenderPass
+class CmdBindDescriptorSets
+class CmdBindVertexBuffers
+class CmdBindPipeline
+class CmdPushConstants
+class CmdDraw
+
+CmdBeginRenderPass o-- .FrameBuffer
+CmdBeginRenderPass o-- .RenderPass
+
+CmdBindDescriptorSets o-- .PipelineLayout
+CmdBindDescriptorSets o-- .DescriptorSet
+
+CmdBindPipeline o-- .Pipeline
+
+CmdPushConstants o-- .PipelineLayout
+
+CmdBindVertexBuffers o-- .Buffer
+
+}
+
+@enduml

@@ -43,15 +43,27 @@ namespace Fsl
   {
     struct GLVertexAttribLink
     {
+      // The shader location
       GLint AttribIndex{0};
+      // The vertex location based on the vertex declaration
       uint32_t VertexElementIndex{0};
 
-      GLVertexAttribLink() = default;
+      constexpr GLVertexAttribLink() noexcept = default;
 
-      GLVertexAttribLink(const GLint attribIndex, const uint32_t vertexElementIndex)
+      constexpr GLVertexAttribLink(const GLint attribIndex, const uint32_t vertexElementIndex) noexcept
         : AttribIndex(attribIndex)
         , VertexElementIndex(vertexElementIndex)
       {
+      }
+
+      constexpr bool operator==(const GLVertexAttribLink& rhs) const noexcept
+      {
+        return AttribIndex == rhs.AttribIndex && VertexElementIndex == rhs.VertexElementIndex;
+      }
+
+      constexpr bool operator!=(const GLVertexAttribLink& rhs) const noexcept
+      {
+        return !(*this == rhs);
       }
     };
   }

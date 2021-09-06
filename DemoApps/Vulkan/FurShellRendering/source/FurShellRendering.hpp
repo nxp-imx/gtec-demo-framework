@@ -173,7 +173,7 @@ namespace Fsl
   protected:
     void Update(const DemoTime& demoTime) override;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
-    AppDrawResult TrySwapBuffers(const DemoTime& demoTime) override;
+    AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) override;
 
     VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
     void OnFreeResources() override;

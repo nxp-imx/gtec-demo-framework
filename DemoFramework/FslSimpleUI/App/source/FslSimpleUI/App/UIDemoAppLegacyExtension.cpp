@@ -37,13 +37,13 @@
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
 #include <FslSimpleUI/App/UIAppConfig.hpp>
 #include <FslSimpleUI/App/UIAppResourceManager.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtensionCreateInfoUtil.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <utility>
 
@@ -53,6 +53,9 @@ namespace Fsl
   {
     namespace LocalConfig
     {
+      // Legacy rendering did not use the depth buffer and we dont want to modify any app that relies on this.
+      constexpr bool AllowDepthBuffer = false;
+
       constexpr IO::PathView UIDefaultPath("UI");
 
       constexpr IO::PathView FontNbf("_Font.nbf");
@@ -62,22 +65,24 @@ namespace Fsl
     }
   }
 
-
   UIDemoAppLegacyExtension::UIDemoAppLegacyExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener,
                                                      const IO::Path& fontName, const UITestPatternMode testPatternMode)
-    : UIDemoAppExtensionBase(demoAppConfig, eventListener)
+    : UIDemoAppExtensionBase(
+        UIDemoAppExtensionCreateInfoUtil::ChangeTo(
+          demoAppConfig, UIDemoAppRenderCreateInfo(UIDemoAppMaterialCreateInfo(), UIDemoAppMaterialConfig(LocalConfig::AllowDepthBuffer))),
+        eventListener)
   {
     auto contentManager = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     auto graphicsService = demoAppConfig.DemoServiceProvider.Get<IGraphicsService>();
     m_resourceManager =
-      std::make_unique<UIAppResourceManager>(contentManager, graphicsService->GetNativeGraphics(), demoAppConfig.WindowMetrics, testPatternMode);
+      std::make_unique<UIAppResourceManager>(contentManager, graphicsService->GetBasicRenderSystem(), demoAppConfig.WindowMetrics, testPatternMode,
+                                             LocalConfig::AllowDepthBuffer, false, SYS_GetUseYFlipTextureCoordinates());
 
     // Load the default texture atlas and font stuff
     m_resources = PrepareDefaultResources(*m_resourceManager, *contentManager, fontName);
 
     // Prepare the window context
-    m_context = std::make_shared<UI::WindowContext>(GetUIContext(), graphicsService->GetNativeBatch2D(), m_resources.DefaultFont,
-                                                    demoAppConfig.WindowMetrics.DensityDpi);
+    m_context = std::make_shared<UI::WindowContext>(GetUIContext(), m_resources.DefaultFont, demoAppConfig.WindowMetrics.DensityDpi);
   }
 
 
@@ -101,10 +106,7 @@ namespace Fsl
   {
     if (m_context)
     {
-      const auto batch = m_context->Batch2D;
-      batch->Begin();
       DoDraw();
-      batch->End();
     }
   }
 
@@ -148,7 +150,7 @@ namespace Fsl
       throw UsageErrorException("resource manager is not valid");
     }
     SpriteFontConfig spriteFontConfig(true);
-    return m_resourceManager->CreateSpriteFont(UIAppConfig::DefaultUIAlphaBlendMaterialId, font, spriteFontConfig);
+    return m_resourceManager->CreateSpriteFont(UIAppConfig::MaterialId::DefaultUI_AlphaBlend, font, spriteFontConfig);
   }
 
   std::shared_ptr<SpriteFont> UIDemoAppLegacyExtension::CreateLegacySpriteFont(const IO::PathView& font)
@@ -158,7 +160,7 @@ namespace Fsl
       throw UsageErrorException("resource manager is not valid");
     }
     SpriteFontConfig spriteFontConfig(true);
-    return m_resourceManager->CreateLegacySpriteFont(UIAppConfig::DefaultUIAlphaBlendMaterialId, font, spriteFontConfig);
+    return m_resourceManager->CreateLegacySpriteFont(UIAppConfig::MaterialId::DefaultUI_AlphaBlend, font, spriteFontConfig);
   }
 
   const ISpriteResourceManager& UIDemoAppLegacyExtension::GetSpriteResourceManager() const
@@ -184,7 +186,7 @@ namespace Fsl
 
   SpriteMaterialId UIDemoAppLegacyExtension::GetDefaultMaterialId() const
   {
-    return UIAppConfig::DefaultUIAlphaBlendMaterialId;
+    return UIAppConfig::MaterialId::DefaultUI_AlphaBlend;
   }
 
 
@@ -210,11 +212,11 @@ namespace Fsl
     auto textureResult = rResourceManager.CreateTexture(pathFontnameTexture, createInfo,
                                                         UIAppResourceFlag::UIGroup | UIAppResourceFlag::Atlas | UIAppResourceFlag::NotDpAware);
 
-    rResourceManager.AddSpriteMaterial(UIAppConfig::DefaultUIAlphaBlendMaterialId, textureResult.Handle, BlendState::AlphaBlend);
+    rResourceManager.AddSpriteMaterial(UIAppConfig::MaterialId::DefaultUI_AlphaBlend, textureResult.Handle, BlendState::AlphaBlend);
 
     SpriteFontConfig spriteFontConfig(true);
     const auto& finalFontName = contentManager.Exists(pathNbfFont) ? pathNbfFont : pathFontnameKerning;
-    auto defaultFont = rResourceManager.CreateLegacySpriteFont(UIAppConfig::DefaultUIAlphaBlendMaterialId, finalFontName, spriteFontConfig);
+    auto defaultFont = rResourceManager.CreateLegacySpriteFont(UIAppConfig::MaterialId::DefaultUI_AlphaBlend, finalFontName, spriteFontConfig);
 
     return {textureResult.Handle, defaultFont, Texture2D(textureResult.Texture, textureResult.ExtentPx, textureResult.TexturePixelFormat),
             rResourceManager.GetLegacyTextureAtlasMap(textureResult.Handle)};

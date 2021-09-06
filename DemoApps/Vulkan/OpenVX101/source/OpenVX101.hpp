@@ -33,7 +33,7 @@
 
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
-#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 
 namespace Fsl

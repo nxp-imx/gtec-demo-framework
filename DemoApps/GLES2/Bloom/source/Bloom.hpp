@@ -35,10 +35,10 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeBatch2D.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLFrameBuffer.hpp>
-#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
 #include <Shared/Bloom/MenuUI.hpp>
 #include <deque>
 #include <vector>

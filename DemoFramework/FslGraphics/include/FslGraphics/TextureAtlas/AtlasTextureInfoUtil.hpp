@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <cassert>
@@ -45,7 +45,7 @@ namespace Fsl
     //         Since the 'untrimmed src rect on the texture can start at a negative position we need to work in signed integers.
     //         Hence the need for all the casting.
     //         BEWARE: We also assume that none of the values exceed std::numeric_limit<int32_t>::max()
-    inline bool AdjustSourceRect(PxRectangleU& rPxSrcRect, const AtlasTextureInfo& texInfo, Vector2& rOrigin)
+    inline bool AdjustSourceRect(PxRectangleU32& rPxSrcRect, const AtlasTextureInfo& texInfo, Vector2& rOrigin)
     {
       int32_t clippedSrcRectLeftPx = static_cast<int32_t>(rPxSrcRect.X) + texInfo.OffsetPx.X;
       int32_t clippedSrcRectTopPx = static_cast<int32_t>(rPxSrcRect.Y) + texInfo.OffsetPx.Y;
@@ -58,7 +58,7 @@ namespace Fsl
           clippedSrcRectRightPx <= static_cast<int32_t>(texInfo.TrimmedRectPx.Left()) ||
           clippedSrcRectBottomPx <= static_cast<int32_t>(texInfo.TrimmedRectPx.Top()))
       {
-        rPxSrcRect = PxRectangleU();
+        rPxSrcRect = PxRectangleU32();
         return false;
       }
 
@@ -88,9 +88,9 @@ namespace Fsl
       assert(clippedSrcRectTopPx >= 0);
       assert(clippedSrcRectRightPx >= clippedSrcRectLeftPx);
       assert(clippedSrcRectBottomPx >= clippedSrcRectTopPx);
-      rPxSrcRect = PxRectangleU(static_cast<uint32_t>(clippedSrcRectLeftPx), static_cast<uint32_t>(clippedSrcRectTopPx),
-                                static_cast<uint32_t>(clippedSrcRectRightPx - clippedSrcRectLeftPx),
-                                static_cast<uint32_t>(clippedSrcRectBottomPx - clippedSrcRectTopPx));
+      rPxSrcRect = PxRectangleU32(static_cast<uint32_t>(clippedSrcRectLeftPx), static_cast<uint32_t>(clippedSrcRectTopPx),
+                                  static_cast<uint32_t>(clippedSrcRectRightPx - clippedSrcRectLeftPx),
+                                  static_cast<uint32_t>(clippedSrcRectBottomPx - clippedSrcRectTopPx));
       return true;
     }
 

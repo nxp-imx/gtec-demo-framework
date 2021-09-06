@@ -1,0 +1,50 @@
+@startuml UIRender Overview
+scale 1
+
+caption High level overview of how the FslSimpleUI works
+
+namespace Render {
+    class Device
+    class IndexBuffer
+    class VertexBuffer
+    class Material
+}
+
+namespace System {
+    class InputManager
+}
+
+namespace UI {
+    class Manager
+    class Tree
+    class Control
+    class DrawCommandQueue
+    class RenderSystem
+    class MeshManager
+    class Sprite
+
+    Manager o-- Tree
+    Manager o-- RenderSystem
+    Tree o-- Control
+    Control o- MeshManager
+    Control o-- DrawCommandQueue
+    RenderSystem o-- DrawCommandQueue
+    RenderSystem o-- MeshManager
+    RenderSystem o-- Render.Device
+    RenderSystem o-- Render.VertexBuffer
+    RenderSystem o-- Render.IndexBuffer
+    RenderSystem o-- Render.Material
+    Control o--Sprite
+    MeshManager o-- Sprite
+}
+
+namespace CustomApp {
+    class App
+
+    App o-- UI.Manager
+    App o-- UI.Tree
+    App o-- UI.Control
+    App o-- System.InputManager
+}
+
+@enduml

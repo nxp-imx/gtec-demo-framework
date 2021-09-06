@@ -4,6 +4,6 @@
     <Dependency Name="FslGraphics"/>
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
   </Library>
 </FslBuildGen>

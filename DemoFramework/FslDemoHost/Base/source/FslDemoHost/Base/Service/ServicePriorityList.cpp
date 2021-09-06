@@ -33,6 +33,11 @@
 
 namespace Fsl
 {
+  Priority ServicePriorityList::AppInfoService()
+  {
+    return Priority::Max();
+  }
+
   Priority ServicePriorityList::AsyncImageService()
   {
     return Priority::Max() - 40;

@@ -18,6 +18,7 @@ activate DepthBuffer
 activate CommandBuffers
 activate RenderPass
 activate SwapchainRecords
+activate GraphicsService
 activate NativeGraphicsService
 
 ->CustomDemoApp: _PreDestruct
@@ -26,7 +27,8 @@ ADemoApp->CustomDemoApp: OnDestroy
 CustomDemoApp->DemoAppVulkanBasic: OnDestroy
 DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
 DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForIdle
-DemoAppVulkanBasic->NativeGraphicsService: VulkanDestroyDependentResources
+DemoAppVulkanBasic->GraphicsService: DestroyDependentResources
+GraphicsService->NativeGraphicsService: DestroyDependentResources
 DemoAppVulkanBasic->SwapchainRecords: Clear
 deactivate SwapchainRecords
 DemoAppVulkanBasic->CustomDemoApp: OnFreeResources

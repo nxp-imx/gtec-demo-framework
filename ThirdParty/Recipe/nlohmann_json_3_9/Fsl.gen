@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.nlohmann_json_3_9" CreationYear="2021">
+    <ExperimentalRecipe Name="nlohmann_json" Version="3.9.1" Find="true">
+      <Pipeline>
+        <Download URL="https://github.com/nlohmann/json/archive/refs/tags/v3.9.1.tar.gz" To="nlohmann_json-3.9.1.tar.gz" Hash="4cf0df69731494668bdd6460ed8cb269b68de9c19ad8c27abc24cd72605b2d5b"/>
+        <Unpack File="nlohmann_json-3.9.1.tar.gz" OutputPath="json-3.9.1"/>
+        <CMakeBuild Project="nlohmann_json" Target="install" Configuration="release" Options="-DJSON_BuildTests=OFF" OutputPath="_Install"/>        
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/nlohmann/json.hpp" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ExternalLibrary>
+</FslBuildGen>

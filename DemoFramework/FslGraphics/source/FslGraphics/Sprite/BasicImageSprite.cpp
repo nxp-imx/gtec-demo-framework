@@ -31,27 +31,32 @@
 
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <cassert>
 
 namespace Fsl
 {
-  BasicImageSprite::BasicImageSprite(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx, const uint32_t imageDpi,
-                                     const StringViewLite& debugName, const uint32_t densityDpi)
-    : m_info(spriteMaterialInfo, imageRectanglePx, imageDpi, debugName)
+  BasicImageSprite::BasicImageSprite(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                     const PxRectangleU16& imageRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName,
+                                     const uint32_t densityDpi)
+    : m_info(spriteNativeAreaCalc, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName)
   {
     Resize(densityDpi);
   }
 
 
-  void BasicImageSprite::SetContent(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx, const uint32_t imageDpi,
-                                    const StringViewLite& debugName, const uint32_t densityDpi)
+  void BasicImageSprite::SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                    const PxRectangleU16& imageRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName,
+                                    const uint32_t densityDpi)
   {
-    m_info = BasicImageSpriteInfo(spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
+    m_info = BasicImageSpriteInfo(spriteNativeAreaCalc, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
     Resize(densityDpi);
   }
 
 
-  const SpriteMaterialInfo& BasicImageSprite::GetMaterialInfo() const
+  const SpriteMaterialInfo& BasicImageSprite::GetMaterialInfo(const uint32_t index) const
   {
+    FSL_PARAM_NOT_USED(index);
+    assert(index == 0u);
     return m_info.MaterialInfo;
   }
 

@@ -32,11 +32,12 @@
 #include <FslGraphics/Sprite/Info/BasicImageSpriteInfo.hpp>
 #include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
-#include <FslBase/Log/Math/Pixel/LogPxRectangleU.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Log/LogNativeTextureArea.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 
@@ -54,7 +55,7 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct_Default)
 
   EXPECT_FALSE(value.MaterialInfo.IsValid());
   EXPECT_EQ(PxExtent2D(), value.ImageInfo.ExtentPx);
-  EXPECT_EQ(PxRectangleU(), value.ImageInfo.RectanglePx);
+  EXPECT_EQ(PxRectangleU16(), value.ImageInfo.RectanglePx);
   EXPECT_EQ(DpExtent(), value.ImageInfo.ExtentDp);
   EXPECT_EQ(SpriteDpConfig::BaseDpi, value.ImageDpi);
   EXPECT_EQ(NativeTextureArea(), value.RenderInfo.TextureArea);
@@ -63,27 +64,30 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct_Default)
 
 TEST(TestSprite_BasicImageSpriteInfo, Construct_InvalidMaterial)
 {
+  SpriteNativeAreaCalc area(false);
+
   SpriteMaterialInfo invalidMaterial;
-  constexpr PxRectangleU imageRectanglePx(10, 20, 12, 26);
+  constexpr PxRectangleU16 imageRectanglePx(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
 
-  EXPECT_THROW(BasicImageSpriteInfo(invalidMaterial, imageRectanglePx, imageDpi, debugName), std::invalid_argument);
+  EXPECT_THROW(BasicImageSpriteInfo(area, invalidMaterial, imageRectanglePx, imageDpi, debugName), std::invalid_argument);
 }
 
 
 TEST(TestSprite_BasicImageSpriteInfo, Construct)
 {
+  SpriteNativeAreaCalc area(false);
   constexpr PxExtent2D textureExtent(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material, 127u);
-  constexpr PxRectangleU imageRectanglePx(10, 20, 12, 26);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
+  constexpr PxRectangleU16 imageRectanglePx(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
   constexpr auto nativeTextureArea = SpriteMaterialImpl::TestCalcNativeTextureArea(textureExtent, imageRectanglePx);
 
-  BasicImageSpriteInfo value(spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
+  BasicImageSpriteInfo value(area, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
 
   EXPECT_EQ(spriteMaterialInfo, value.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), value.ImageInfo.ExtentPx);
@@ -97,16 +101,17 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct)
 
 TEST(TestSprite_BasicImageSpriteInfo, Construct2X)
 {
+  SpriteNativeAreaCalc area(false);
   constexpr PxExtent2D textureExtent(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material, 127u);
-  constexpr PxRectangleU imageRectanglePx(10, 20, 12, 28);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
+  constexpr PxRectangleU16 imageRectanglePx(10, 20, 12, 28);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi * 2;
   constexpr StringViewLite debugName("hello world");
   constexpr auto nativeTextureArea = SpriteMaterialImpl::TestCalcNativeTextureArea(textureExtent, imageRectanglePx);
 
-  BasicImageSpriteInfo value(spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
+  BasicImageSpriteInfo value(area, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
 
   const DpExtent extentDp = SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi);
 
@@ -122,15 +127,16 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct2X)
 
 TEST(TestSprite_BasicImageSpriteInfo, Construct_NotCompatible)
 {
+  SpriteNativeAreaCalc area(false);
   constexpr PxExtent2D textureExtent(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material, 127u);
-  constexpr PxRectangleU imageRectanglePx(10, 20, 12, 25);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
+  constexpr PxRectangleU16 imageRectanglePx(10, 20, 12, 25);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi * 2;
   constexpr StringViewLite debugName("hello world");
 
-  BasicImageSpriteInfo value(spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
+  BasicImageSpriteInfo value(area, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
 
   const DpExtent extentDp = SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi);
   constexpr auto nativeTextureArea = SpriteMaterialImpl::TestCalcNativeTextureArea(textureExtent, imageRectanglePx);

@@ -36,11 +36,13 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Sprite/BasicImageSprite.hpp>
+#include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
@@ -78,11 +80,14 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<UI::BaseWindow> CreateTextureAndText(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& tex,
+    std::shared_ptr<UI::BaseWindow> CreateTextureAndText(const std::shared_ptr<UI::WindowContext>& context,
+                                                         ICustomSpriteResourceManager& customSpriteResourceManager, const Texture2D& tex,
                                                          const std::string& strCaption)
     {
-      const auto image = std::make_shared<UI::Texture2DImage>(context);
-      image->SetContent(tex);
+      auto sprite = customSpriteResourceManager.CreateCustomTextureSprite(tex.TryGetNative(), BlendState::AlphaBlend);
+
+      const auto image = std::make_shared<UI::Image>(context);
+      image->SetContent(sprite);
 
       const auto label = std::make_shared<UI::Label>(context);
       label->SetContent(strCaption);
@@ -95,18 +100,22 @@ namespace Fsl
       return stack;
     }
 
-    std::shared_ptr<UI::BaseWindow> CreateImageGroup(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& tex1, const Texture2D& texR,
-                                                     const Texture2D& texG, const Texture2D& texB, const std::string& strCaption)
+    std::shared_ptr<UI::BaseWindow> CreateImageGroup(const std::shared_ptr<UI::WindowContext>& context,
+                                                     ICustomSpriteResourceManager& customSpriteResourceManager, const Texture2D& tex1,
+                                                     const Texture2D& texR, const Texture2D& texG, const Texture2D& texB,
+                                                     const std::string& strCaption)
     {
-      const auto image1 = std::make_shared<UI::Texture2DImage>(context);
-      image1->SetContent(tex1);
+      auto sprite1 = customSpriteResourceManager.CreateCustomTextureSprite(tex1.TryGetNative(), BlendState::AlphaBlend);
+
+      const auto image1 = std::make_shared<UI::Image>(context);
+      image1->SetContent(sprite1);
 
       const auto label = std::make_shared<UI::Label>(context);
       label->SetContent(strCaption);
 
-      const auto controlRed = CreateTextureAndText(context, texR, "Red");
-      const auto controlGreen = CreateTextureAndText(context, texG, "Green");
-      const auto controlBlue = CreateTextureAndText(context, texB, "Blue");
+      const auto controlRed = CreateTextureAndText(context, customSpriteResourceManager, texR, "Red");
+      const auto controlGreen = CreateTextureAndText(context, customSpriteResourceManager, texG, "Green");
+      const auto controlBlue = CreateTextureAndText(context, customSpriteResourceManager, texB, "Blue");
 
       auto colorsStackLayout = std::make_shared<UI::StackLayout>(context);
       colorsStackLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
@@ -212,10 +221,11 @@ namespace Fsl
 
   void OpenCVMatToUI::CreateUI()
   {
+    ICustomSpriteResourceManager& customSpriteResourceManager = m_uiExtension->GetCustomSpriteResourceManager();
     auto context = m_uiExtension->GetContext();
 
-    const auto group1 = CreateImageGroup(context, m_texTest, m_texTestR, m_texTestG, m_texTestB, "Reference");
-    const auto group2 = CreateImageGroup(context, m_texTestMat, m_texTestMatR, m_texTestMatG, m_texTestMatB, "OpenCV");
+    const auto group1 = CreateImageGroup(context, customSpriteResourceManager, m_texTest, m_texTestR, m_texTestG, m_texTestB, "Reference");
+    const auto group2 = CreateImageGroup(context, customSpriteResourceManager, m_texTestMat, m_texTestMatR, m_texTestMatG, m_texTestMatB, "OpenCV");
 
     auto stackLayout = std::make_shared<UI::StackLayout>(context);
     stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);

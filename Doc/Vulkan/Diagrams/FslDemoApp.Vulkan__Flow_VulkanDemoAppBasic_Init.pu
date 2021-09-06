@@ -15,6 +15,7 @@ participant Swapchain
 participant CommandBuffers
 participant RenderPass
 participant SwapchainRecords
+activate GraphicsService
 activate NativeGraphicsService
 
 ->CustomDemoApp:Construct
@@ -41,7 +42,8 @@ DemoAppVulkanBasic->CommandBuffers++: Reset(swapChainImageCount)
 DemoAppVulkanBasic->CustomDemoApp: OnBuildResources
 CustomDemoApp->RenderPass++: Construct
 DemoAppVulkanBasic->SwapchainRecords++: Create
-DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
+DemoAppVulkanBasic->GraphicsService: CreateDependentResources
+GraphicsService->NativeGraphicsService: CreateDependentResources
 deactivate DemoAppVulkanBasic
 
 @enduml

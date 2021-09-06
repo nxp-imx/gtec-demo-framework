@@ -37,6 +37,7 @@ namespace Fsl
 {
   namespace UI
   {
+    class IMeshManager;
     class IWindowManager;
     class WindowEventSender;
 
@@ -45,8 +46,10 @@ namespace Fsl
     public:
       const std::shared_ptr<IWindowManager> WindowManager;
       const std::shared_ptr<WindowEventSender> EventSender;
+      const std::shared_ptr<IMeshManager> MeshManager;
 
-      UIContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender);
+      UIContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender,
+                const std::shared_ptr<IMeshManager>& meshManager);
       ~UIContext();
     };
   }

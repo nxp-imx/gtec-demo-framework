@@ -31,8 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/ReadOnlySpan.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Math/Pixel/PxThicknessU16.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
@@ -45,6 +46,31 @@ namespace Fsl
 {
   class BitmapFont final
   {
+  public:
+    struct SdfParams
+    {
+      // If this is zero it means its not defined
+      uint16_t Spread{0};
+      float Scale{1.0f};
+
+      constexpr SdfParams() noexcept = default;
+      constexpr SdfParams(const uint16_t spread, const float scale) noexcept
+        : Spread(spread)
+        , Scale(scale)
+      {
+      }
+
+      constexpr bool operator==(const SdfParams& rhs) const noexcept
+      {
+        return Spread == rhs.Spread && Scale == rhs.Scale;
+      }
+      constexpr bool operator!=(const SdfParams& rhs) const noexcept
+      {
+        return !(*this == rhs);
+      }
+    };
+
+  private:
     //! This is the name of the true type font
     std::string m_name;
 
@@ -62,8 +88,12 @@ namespace Fsl
     //! The number of pixels from the absolute top of the line to the base of the characters.
     uint16_t m_baseLinePx{};
 
+    PxThicknessU16 m_paddingPx;
+
     //! The name of the font type
     BitmapFontType m_fontType{BitmapFontType::Bitmap};
+
+    SdfParams m_sdfParams;
 
     // A sorted vector of chars (sorted on Id low to high)
     std::vector<BitmapFontChar> m_chars;
@@ -75,15 +105,16 @@ namespace Fsl
     BitmapFont() = default;
 
     BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-               std::string textureName, const BitmapFontType fontType, std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
+               const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+               std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
 
     BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-               const StringViewLite textureName, const BitmapFontType fontType, const ReadOnlySpan<BitmapFontChar> chars,
-               const ReadOnlySpan<BitmapFontKerning> kernings);
+               const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+               const ReadOnlySpan<BitmapFontChar> chars, const ReadOnlySpan<BitmapFontKerning> kernings);
 
     BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-               const StringViewLite textureName, const BitmapFontType fontType, std::vector<BitmapFontChar> chars,
-               std::vector<BitmapFontKerning> kernings);
+               const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+               std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
 
 
     StringViewLite GetName() const
@@ -116,6 +147,11 @@ namespace Fsl
       return m_baseLinePx;
     }
 
+    PxThicknessU16 GetPaddingPx() const
+    {
+      return m_paddingPx;
+    }
+
     BitmapFontType GetFontType() const
     {
       return m_fontType;
@@ -139,6 +175,16 @@ namespace Fsl
     inline ReadOnlySpan<BitmapFontKerning> GetKernings() const
     {
       return ReadOnlySpanUtil::AsSpan(m_kernings);
+    }
+
+    SdfParams GetSdfParams() const
+    {
+      return m_sdfParams;
+    }
+
+    void SetSdfParams(const SdfParams params)
+    {
+      m_sdfParams = params;
     }
 
     // const BitmapFontChar* TryGetChar(const uint32_t id) const;

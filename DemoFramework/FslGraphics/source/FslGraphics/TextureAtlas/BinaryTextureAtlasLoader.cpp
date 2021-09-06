@@ -36,14 +36,16 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Optional.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <fmt/format.h>
 #include <array>
@@ -51,19 +53,6 @@
 #include <fstream>
 #include <vector>
 #include <utility>
-
-
-// Nasty hack for dealing with UTF8 file names on windows,
-// since its the only supported platform that doesn't allow UTF8 strings
-// but instead provides its own 'hack' for opening wstring's
-#ifdef _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
-#else
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) X.ToUTF8String()
-#endif
 
 namespace Fsl
 {
@@ -99,7 +88,8 @@ namespace Fsl
       constexpr const uint32_t BTA_VERSION3 = 0x2001;
       constexpr const uint32_t BTA_VERSION4 = 0x4000;
 
-      constexpr const uint32_t CHUNKTYPE_NINESLICE_VERSION = 1;
+      constexpr const uint32_t CHUNKTYPE_NINESLICE_VERSION1 = 1;
+      constexpr const uint32_t CHUNKTYPE_NINESLICE_VERSION2 = 2;
     }
 
     enum class ChunkType
@@ -141,7 +131,7 @@ namespace Fsl
 
     struct BTA3AtlasEntry
     {
-      PxRectangleU RectanglePx;
+      PxRectangleU32 RectanglePx;
       PxThicknessU TrimPx;
       uint32_t Dpi{};
       uint32_t ParentPathIndex{};
@@ -218,7 +208,7 @@ namespace Fsl
       return {srcRectX, srcRectY, UncheckedNumericCast<int32_t>(srcRectWidth), UncheckedNumericCast<int32_t>(srcRectHeight)};
     }
 
-    PxRectangleU ReadRectangleU(ReadOnlySpan<uint8_t>& rSpan)
+    PxRectangleU32 ReadRectangleU(ReadOnlySpan<uint8_t>& rSpan)
     {
       return {ValueCompression::ReadSimpleUInt32(rSpan), ValueCompression::ReadSimpleUInt32(rSpan), ValueCompression::ReadSimpleUInt32(rSpan),
               ValueCompression::ReadSimpleUInt32(rSpan)};
@@ -289,7 +279,7 @@ namespace Fsl
         throw NotSupportedException("srcRect must fully contain the trimmed rectangle");
       }
 
-      const auto rectanglePx = TypeConverter::UncheckedTo<PxRectangleU>(trimmedRect);
+      const auto rectanglePx = TypeConverter::UncheckedTo<PxRectangleU32>(trimmedRect);
 
       PxThicknessU trimPx(static_cast<uint32_t>(trimLeft), static_cast<uint32_t>(trimTop), static_cast<uint32_t>(trimRight),
                           static_cast<uint32_t>(trimBottom));
@@ -416,9 +406,9 @@ namespace Fsl
 
     void ProcessNineSliceChunk(BasicTextureAtlas& rTextureAtlas, ReadOnlySpan<uint8_t>& rSpan, const uint32_t chunkVersion)
     {
-      if (chunkVersion != BTAFormat::CHUNKTYPE_NINESLICE_VERSION)
+      if (chunkVersion != BTAFormat::CHUNKTYPE_NINESLICE_VERSION1 && chunkVersion != BTAFormat::CHUNKTYPE_NINESLICE_VERSION2)
       {
-        throw NotSupportedException("Unsupported chunk version");
+        throw NotSupportedException(fmt::format("Unsupported nine-slice chunk version {}", chunkVersion));
       }
 
       const uint32_t nineSliceEntries = ValueCompression::ReadSimpleUInt32(rSpan);
@@ -428,7 +418,15 @@ namespace Fsl
         auto nineSlice = ReadThicknessU(rSpan);
         auto contentMargin = ReadThicknessU(rSpan);
         const uint32_t textureIndex = ValueCompression::ReadSimpleUInt32(rSpan);
-        rTextureAtlas.AddNineSlice(textureIndex, nineSlice, contentMargin);
+
+        // For older nineslice chunks we just assume they are fully transparent as that will always render correctly
+        AtlasNineSliceFlags flags = AtlasNineSliceFlags::Transparent;
+        if (chunkVersion >= BTAFormat::CHUNKTYPE_NINESLICE_VERSION2)
+        {
+          const uint32_t encodedFlags = ValueCompression::ReadSimpleUInt32(rSpan);
+          flags = static_cast<AtlasNineSliceFlags>(encodedFlags);
+        }
+        rTextureAtlas.AddNineSlice(textureIndex, nineSlice, contentMargin, flags);
       }
 
       if (!rSpan.empty())
@@ -493,7 +491,7 @@ namespace Fsl
 
   void BinaryTextureAtlasLoader::Load(BasicTextureAtlas& rTextureAtlas, const IO::Path& strFilename)
   {
-    std::ifstream file(PATH_GET_NAME(strFilename), std::ios::in | std::ios::binary);
+    std::ifstream file(PlatformPathTransform::ToSystemPath(strFilename), std::ios::in | std::ios::binary);
     if (file.good())
     {
       Load(rTextureAtlas, file);

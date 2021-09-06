@@ -35,6 +35,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
@@ -425,7 +426,7 @@ namespace Fsl
       std::array<VertexElementUsage, 4> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Color, VertexElementUsage::Normal,
                                                            VertexElementUsage::TextureCoordinate};
 
-      m_resources.Mesh.VertexBuffer.Reset(m_resources.BufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+      m_resources.Mesh.VertexBuffer.Reset(m_resources.BufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
       m_resources.Mesh.IndexBuffer.Reset(m_resources.BufferManager, indices, Vulkan::VMBufferUsage::STATIC);
 
       Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.VertexAttributeDescription, shaderBindOrder,
@@ -488,14 +489,13 @@ namespace Fsl
   void ModelLoaderBasics::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                      const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
     // Upload the changes
-    m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
+    m_resources.MainFrameResources[currentFrameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -511,15 +511,15 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawMeshes(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+        DrawMeshes(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 

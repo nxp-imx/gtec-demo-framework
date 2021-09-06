@@ -44,7 +44,7 @@ namespace Fsl
 
     DependentResources m_dependentResources;
   public:
-    ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
+    explicit ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
   protected:
     void Update(const DemoTime& demoTime) final;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;

@@ -35,8 +35,10 @@
 namespace Fsl
 {
   Color::Color(const int32_t r, const int32_t g, const int32_t b, const int32_t a)
-    : m_value(static_cast<uint32_t>(b & 0xFF) | (static_cast<uint32_t>(g & 0xFF) << 8) | (static_cast<uint32_t>(r & 0xFF) << 16) |
-              (static_cast<uint32_t>(a & 0xFF) << 24))
+    : m_r(static_cast<uint8_t>(r & 0xFF))
+    , m_g(static_cast<uint8_t>(g & 0xFF))
+    , m_b(static_cast<uint8_t>(b & 0xFF))
+    , m_a(static_cast<uint8_t>(a & 0xFF))
   {
     FSLLOG3_DEBUG_WARNING_IF(r < 0 || r > 255, "Red is expected to be between 0-255 so {} is not valid.", r);
     FSLLOG3_DEBUG_WARNING_IF(g < 0 || g > 255, "Green is expected to be between 0-255 so {} is not valid.", g);
@@ -46,7 +48,10 @@ namespace Fsl
 
 
   Color::Color(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a)
-    : m_value((b & 0xFF) | ((g & 0xFF) << 8) | ((r & 0xFF) << 16) | ((a & 0xFF) << 24))
+    : m_r(static_cast<uint8_t>(r & 0xFF))
+    , m_g(static_cast<uint8_t>(g & 0xFF))
+    , m_b(static_cast<uint8_t>(b & 0xFF))
+    , m_a(static_cast<uint8_t>(a & 0xFF))
   {
     FSLLOG3_DEBUG_WARNING_IF(r > 255, "Red is expected to be between 0-255 so {} is not valid.", r);
     FSLLOG3_DEBUG_WARNING_IF(g > 255, "Green is expected to be between 0-255 so {} is not valid.", g);

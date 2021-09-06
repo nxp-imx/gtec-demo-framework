@@ -170,7 +170,7 @@ namespace Fsl
 
   ParticleSystemGLES3::ParticleSystemGLES3(const uint32_t capacity, const std::shared_ptr<IContentManager>& contentManager)
     : m_primitiveCount(capacity)
-    , m_vertexBuffer2(nullptr, capacity, ParticleGPU::GetVertexDeclaration(), GL_STREAM_DRAW)
+    , m_vertexBuffer2(nullptr, capacity, ParticleGPU::AsVertexDeclarationSpan(), GL_STREAM_DRAW)
     , m_pCurrentVertexBuffer(&m_vertexBuffer1)
     , m_pOtherVertexBuffer(&m_vertexBuffer2)
     , m_transformFeedbackObject(0)
@@ -194,7 +194,7 @@ namespace Fsl
 
     {
       const auto hProgram = m_programTransform.Get();
-      const auto vertexDecl = ParticleGPU::GetVertexDeclaration();
+      constexpr const auto vertexDecl = ParticleGPU::GetVertexDeclarationArray();
       m_particleAttribLinkFeedback[0] = GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticlePosition"),
                                                            vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_particleAttribLinkFeedback[1] = GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleVelocity"),
@@ -310,7 +310,7 @@ namespace Fsl
     m_shaderFrag.Reset(GL_FRAGMENT_SHADER, strFrag);
     GL_CHECK_FOR_ERROR();
 
-    auto vertexDecl = ParticleGPU::GetVertexDeclaration();
+    constexpr const auto vertexDecl = ParticleGPU::GetVertexDeclarationArray();
 
     m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "ParticlePosition"),
                                                  vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));

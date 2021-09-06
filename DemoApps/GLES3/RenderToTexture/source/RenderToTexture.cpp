@@ -31,13 +31,14 @@
 
 #include "RenderToTexture.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Layout/GridLayout.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 
 namespace Fsl
 {
@@ -92,7 +93,8 @@ namespace Fsl
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
     auto windowContext = m_uiExtension->GetContext();
-    auto uiFactory = UI::Theme::BasicThemeFactory(windowContext, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& uiFactory = *uiControlFactory;
 
     auto leftBar = std::make_shared<UI::GridLayout>(windowContext);
     leftBar->SetAlignmentX(UI::ItemAlignment::Center);

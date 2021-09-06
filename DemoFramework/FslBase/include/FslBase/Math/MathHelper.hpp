@@ -267,9 +267,9 @@ namespace Fsl
     }
 
     //! @brief Ensure the value is wrapped to fit between min and max.
-    //! @param value
-    //! @param value = min value (included)
-    //! @param value = max value (excluded)
+    //! @param value the value to wrap
+    //! @param min = min value (included)
+    //! @param max = max value (excluded)
     //! @return The value that fits between min and max.
     float Wrap(const float value, const float min, const float max);
 

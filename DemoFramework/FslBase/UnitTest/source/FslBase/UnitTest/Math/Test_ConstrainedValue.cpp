@@ -159,11 +159,12 @@ TEST(TestMath_ConstrainedValue, SetRange_Invalid)
 
   const int32_t min = 10;
   const int32_t max = 15;
-  value.SetRange(max, min);
+  EXPECT_TRUE(value.SetRange(max, min));
 
   EXPECT_EQ(max, value.Min());
   EXPECT_EQ(max, value.Max());
   EXPECT_EQ(max, value.Get());
+  EXPECT_FALSE(value.SetRange(max, min));
 }
 
 

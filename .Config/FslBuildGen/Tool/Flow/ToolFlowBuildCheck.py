@@ -289,7 +289,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
             if discoverFeatureList:
                 config.LogPrint("No features specified, so using package to determine them")
             if localToolConfig.ScanSource or applyClangFormat or applyClangTidy or discoverFeatureList:
-                packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(), closestGenFilePath, localToolConfig.Recursive,
+                packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
                                                              generatorContext.Platform, toolPackageNames)
                 packageProcess.Resolve(generatorContext, packageFilters, applyClangTidy, False)
                 packages = packageProcess.Packages
@@ -301,7 +301,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         if not localToolConfig.ScanSource and not applyClangFormat and not applyClangTidy:
             Validate.ValidatePlatform(config, localToolConfig.PlatformName, packageFilters.FeatureNameList)
             if packageProcess is None:
-                packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(), closestGenFilePath, localToolConfig.Recursive,
+                packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
                                                              generatorContext.Platform, toolPackageNames)
             if not packageProcess.IsFullResolve or packages is None:
                 # For now this requires a full resolve (but basically it only requires basic + files)

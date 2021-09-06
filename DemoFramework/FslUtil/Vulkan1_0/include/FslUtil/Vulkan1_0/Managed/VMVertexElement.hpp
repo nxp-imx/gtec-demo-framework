@@ -44,9 +44,9 @@ namespace Fsl
     {
       VkFormat NativeFormat{VK_FORMAT_UNDEFINED};
 
-      VMVertexElement() = default;
+      constexpr VMVertexElement() noexcept = default;
 
-      VMVertexElement(const VertexElementEx& source, const VkFormat format)
+      constexpr VMVertexElement(const VertexElementEx& source, const VkFormat format) noexcept
         : VertexElementEx(source)
         , NativeFormat(format)
       {

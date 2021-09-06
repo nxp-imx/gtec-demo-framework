@@ -157,7 +157,7 @@ namespace Fsl
     m_program.Reset(contentManager->ReadAllText("ShaderSphereBillboard.vert"), contentManager->ReadAllText("Shader.frag"));
 
     const GLuint hProgram = m_program.Get();
-    auto vertexDecl = TVertex::GetVertexDeclaration();
+    constexpr auto vertexDecl = TVertex::GetVertexDeclarationArray();
     m_particleAttribLink[0] =
       GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_particleAttribLink[1] =

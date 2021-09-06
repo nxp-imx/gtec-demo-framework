@@ -37,17 +37,20 @@ namespace Fsl
 {
   struct HostConfig
   {
-    bool AppFirewall = false;
-    bool ContentMonitor = false;
-    bool StatOverlay = false;
+    bool AppFirewall{false};
+    bool ContentMonitor{false};
+    bool StatOverlay{false};
+    bool PreloadBasic2D{false};
     DemoAppStatsFlags LogStatsFlags{DemoAppStatsFlags::Nothing};
 
     HostConfig() = default;
 
-    HostConfig(const bool appFirewall, const bool contentMonitor, const bool statOverlay, const DemoAppStatsFlags logStatsFlags)
+    HostConfig(const bool appFirewall, const bool contentMonitor, const bool statOverlay, const bool preloadBasic2D,
+               const DemoAppStatsFlags logStatsFlags)
       : AppFirewall(appFirewall)
       , ContentMonitor(contentMonitor)
       , StatOverlay(statOverlay)
+      , PreloadBasic2D(preloadBasic2D)
       , LogStatsFlags(logStatsFlags)
     {
     }

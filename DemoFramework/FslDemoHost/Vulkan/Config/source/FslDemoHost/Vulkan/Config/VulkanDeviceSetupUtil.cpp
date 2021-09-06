@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
+#include <FslDemoHost/Vulkan/Config/IVulkanDeviceCreationCustomizer.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
@@ -46,7 +47,8 @@ namespace Fsl
   {
     VulkanDeviceSetup VulkanDeviceSetupUtil::CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
                                                          const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
-                                                         const ReadOnlySpan<const char*>& extensions)
+                                                         const ReadOnlySpan<const char*>& extensions,
+                                                         IVulkanDeviceCreationCustomizer* const pDeviceCreationCustomizer)
     {
       {
         const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device);
@@ -69,6 +71,13 @@ namespace Fsl
         deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
         deviceCreateInfo.enabledExtensionCount = UncheckedNumericCast<uint32_t>(extensions.size());
         deviceCreateInfo.ppEnabledExtensionNames = extensions.data();
+
+        // Allow the app to tweak the next pointer
+        if (pDeviceCreationCustomizer != nullptr)
+        {
+          pDeviceCreationCustomizer->Configure(physicalDevice.Device);
+          deviceCreateInfo.pNext = pDeviceCreationCustomizer->GetVkDeviceCreateInfoNextPointer();
+        }
 
         // Lookup the user defines feature requirements and set them
         VkPhysicalDeviceFeatures deviceFeatures{};

@@ -45,6 +45,7 @@ from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Engine.Resolver.ProcessedPackageDependency import ProcessedPackageDependency
+from FslBuildGen.Exceptions import InvalidDefineValueException
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Location.PathBuilder import PathBuilder
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
@@ -359,11 +360,15 @@ class PackageDefine(PackageElement):
     def __init__(self, base: Union[UnresolvedPackageDefine, 'PackageDefine'], introducedByPackageName: str, fromPackageAccess: AccessType) -> None:
         super().__init__(base.Name)
         self.IntroducedByPackageName = introducedByPackageName  # type: str
+        self.Value = base.Value  # type: Optional[str]
         self.Access = base.Access # type: AccessType
         self.IsFirstActualUse = False  # type: bool
         self.ConsumedBy = base.ConsumedBy if isinstance(base, PackageDefine) else None # type: Optional[Package]
         # the access to the package this was received from
         self.FromPackageAccess = fromPackageAccess # type: AccessType
+
+        if self.Value is not None and not Util.IsValidDefineValue(self.Value):
+            raise InvalidDefineValueException(self.Name, self.Value)
 
 
 class VariantExtensionCanNotOverwriteExistingExternalDependencyException(XmlException2):

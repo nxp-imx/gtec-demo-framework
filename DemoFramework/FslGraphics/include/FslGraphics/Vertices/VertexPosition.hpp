@@ -32,8 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Vector3.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
@@ -62,8 +63,24 @@ namespace Fsl
       return VertexDeclarationArray<1>(elements, sizeof(VertexPosition));
     }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<1> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+    constexpr bool operator==(const VertexPosition& rhs) const
+    {
+      return Position == rhs.Position;
+    }
+
+    constexpr bool operator!=(const VertexPosition& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

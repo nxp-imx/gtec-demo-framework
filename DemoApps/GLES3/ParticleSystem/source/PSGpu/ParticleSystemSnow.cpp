@@ -86,7 +86,7 @@ namespace Fsl
     , m_pointSize(pointSize)
     , m_programTransform(contentManager->ReadAllText("PSSnow_TransformFeedbackShader.vert"),
                          contentManager->ReadAllText("PSSnow_TransformFeedbackShader.frag"), PostCompilePreLinkCallback)
-    , m_vertexBuffer2(nullptr, capacity, ParticleSnowGPU::GetVertexDeclaration(), GL_STREAM_DRAW)
+    , m_vertexBuffer2(nullptr, capacity, ParticleSnowGPU::AsVertexDeclarationSpan(), GL_STREAM_DRAW)
     , m_pCurrentVertexBuffer(&m_vertexBuffer1)
     , m_pOtherVertexBuffer(&m_vertexBuffer2)
     , m_transformFeedbackObject(0)
@@ -104,7 +104,7 @@ namespace Fsl
 
     {
       const auto hProgram = m_programTransform.Get();
-      const auto vertexDecl = ParticleSnowGPU::GetVertexDeclaration();
+      constexpr const auto vertexDecl = ParticleSnowGPU::GetVertexDeclarationArray();
       m_particleAttribLinkFeedback[0] =
         GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticlePosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_particleAttribLinkFeedback[1] =
@@ -214,7 +214,7 @@ namespace Fsl
     m_shaderFrag.Reset(GL_FRAGMENT_SHADER, strFrag);
     GL_CHECK_FOR_ERROR();
 
-    auto vertexDecl = ParticleSnowGPU::GetVertexDeclaration();
+    constexpr const auto vertexDecl = ParticleSnowGPU::GetVertexDeclarationArray();
 
     m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "ParticlePosition"),
                                                  vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));

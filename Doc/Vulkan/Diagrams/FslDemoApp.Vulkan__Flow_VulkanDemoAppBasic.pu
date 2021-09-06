@@ -2,6 +2,7 @@
 
 box "Framework" #LightBlue
     participant IGraphicsService
+    participant GraphicsService
     participant NativeGraphicsService
     participant ServiceProvider
     participant DemoHostManager
@@ -12,6 +13,7 @@ end box
 == Init ==
 
 Activate IGraphicsService
+Activate GraphicsService
 Activate NativeGraphicsService
 Activate ServiceProvider
 Activate DemoHostManager
@@ -35,7 +37,8 @@ DemoAppVulkan->ADemoApp++: Construct
 DemoAppVulkan->VulkanDeviceSetupUtil: CreateSetup
 VulkanDeviceSetupUtil->Device++: Construct
 DemoAppVulkan->ServiceProvider: Get<NativeGraphicsService>
-DemoAppVulkan->NativeGraphicsService: VulkanDeviceInit
+DemoAppVulkan->GraphicsService: CreateDevice
+GraphicsService->NativeGraphicsService: CreateDevice
 ' QuadBatch does not exist at this point so this call is not excuted
 'NativeGraphicsService->QuadBatch: CreateDeviceResources
 CustomDemoApp->IGraphicsService: GetNativeBatch2D
@@ -43,7 +46,7 @@ IGraphicsService->NativeGraphicsService: CreateNativeBatch2D
 NativeGraphicsService->QuadBatch++: Construct
 ' Since the device has been initialized, we call create resources here right away
 NativeGraphicsService->QuadBatch: CreateDeviceResources
-' Since VulkanCreateDependentResources has not been called we do not call this
+' Since CreateDependentResources has not been called we do not call this
 ' NativeGraphicsService->QuadBatch: CreateDependentResources
 NativeGraphicsService->NativeBatch2D++: Construct
 
@@ -59,7 +62,8 @@ DemoAppVulkanBasic->CommandBuffers++: Reset(swapChainImageCount)
 DemoAppVulkanBasic->CustomDemoApp: OnBuildResources
 CustomDemoApp->RenderPass++: Construct
 DemoAppVulkanBasic->SwapchainRecords++: Create
-DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
+DemoAppVulkanBasic->GraphicsService: CreateDependentResources
+GraphicsService->NativeGraphicsService: CreateDependentResources
 NativeGraphicsService->QuadBatch: CreateDependentResources
 Deactivate DemoAppVulkanBasic
 ...
@@ -74,9 +78,11 @@ DemoHostManager->DemoHostManager++: AppDrawAndSwapBuffers
 DemoHostManager->DemoAppManager: TryDraw
 DemoAppManager->ADemoApp: _TryPrepareDraw
 ADemoApp->DemoAppVulkanBasic: TryPrepareDraw
-DemoAppManager->DemoAppVulkanBasic: _Draw
-DemoAppVulkanBasic->NativeGraphicsService: VulkanBeginFrame
+DemoAppManager->DemoAppVulkanBasic: _BeginDraw
+DemoAppVulkanBasic->GraphicsService: BeginFrame
+GraphicsService->NativeGraphicsService: BeginFrame
 NativeGraphicsService->QuadBatch: BeginFrame
+DemoAppManager->DemoAppVulkanBasic: _Draw
 DemoAppVulkanBasic->ADemoApp: _Draw
 ADemoApp->CustomDemoApp: Draw
 CustomDemoApp->NativeBatch2D: Begin
@@ -88,7 +94,9 @@ NativeBatch2D->NativeBatch2D++: FlushQuads
 NativeBatch2D->QuadBatch: DrawQuads
 Deactivate NativeBatch2D
 CustomDemoApp->DemoAppVulkanBasic: AddSystemUI
-DemoAppVulkanBasic->NativeGraphicsService: VulkanEndFrame
+DemoAppManager->DemoAppVulkanBasic: _EndDraw
+DemoAppVulkanBasic->GraphicsService: EndFrame
+GraphicsService->NativeGraphicsService: EndFrame
 NativeGraphicsService->QuadBatch: EndFrame
 DemoHostManager->VulkanDemoHost: TrySwapBuffers
 DemoHostManager->DemoAppManager: TryAppSwapBuffers
@@ -103,7 +111,8 @@ DemoAppManager->ADemoApp: _OnPreDestruct
 ADemoApp->DemoAppVulkanBasic: OnDestroy
 DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
 DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForIdle
-DemoAppVulkanBasic->NativeGraphicsService: VulkanDestroyDependentResources
+DemoAppVulkanBasic->GraphicsService: DestroyDependentResources
+GraphicsService->NativeGraphicsService: DestroyDependentResources
 NativeGraphicsService->QuadBatch: DestroyDependentResources
 DemoAppVulkanBasic->SwapchainRecords: Clear
 Deactivate SwapchainRecords
@@ -117,7 +126,9 @@ DemoAppVulkanBasic->DemoAppVulkan: OnDestroy
 DemoAppVulkan->DemoAppVulkan++: SafeShutdown
 DemoAppVulkan->DemoAppVulkan++: SafeWaitForIdle
 Deactivate DemoAppVulkan
-DemoAppVulkan->NativeGraphicsService: VulkanDeviceShutdown
+DemoAppVulkan->GraphicsService: DestroyDevice
+GraphicsService->NativeGraphicsService: DestroyDevice
+NativeGraphicsService->QuadBatch: DestroyDeviceResources
 Deactivate DemoAppVulkan
 DemoAppVulkan->ADemoApp: OnDestroy
 Deactivate DemoAppVulkanBasic
@@ -132,9 +143,8 @@ DemoAppVulkan->DemoAppVulkan++: SafeShutdown
 DemoAppVulkan->DemoAppVulkan++: SafeWaitForDeviceIdle
 Deactivate DemoAppVulkan
 ' This will already have been called in this sequence
-' DemoAppVulkan->NativeGraphicsService: VulkanDeviceShutdown
+' DemoAppVulkan->NativeGraphicsService:DestroyDevice
 Deactivate DemoAppVulkan
-NativeGraphicsService->QuadBatch: DestroyDeviceResources
 
 DemoAppVulkan->ADemoApp: Destruct
 Deactivate ADemoApp
@@ -154,6 +164,7 @@ Deactivate NativeBatch2D
 Deactivate DemoHostManager
 Deactivate ServiceProvider
 Deactivate NativeGraphicsService
+Deactivate GraphicsService
 Deactivate IGraphicsService
 @enduml
 

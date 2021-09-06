@@ -35,6 +35,7 @@
 #include <FslBase/String/UTF8String.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslGraphics3D/BasicScene/RawMeshContent.hpp>
 #include <FslGraphics3D/BasicScene/RawMeshContentEx.hpp>
 
@@ -101,8 +102,8 @@ namespace Fsl
       virtual void Reset(const int32_t vertexCount, const int32_t indexCount, const PrimitiveType primitiveType);
       virtual void Reset(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType);
 
-      //! @brief Get the vertex declaration
-      virtual VertexDeclaration GetVertexDeclaration() const = 0;
+      //! @brief Get the vertex declaration span
+      virtual VertexDeclarationSpan AsVertexDeclarationSpan() const = 0;
       //! @brief Get readonly direct access to the vertex data
       virtual RawMeshContent GenericDirectAccess() const = 0;
       //! @brief Get direct access to the vertex data

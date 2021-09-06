@@ -31,9 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Getopt/OptionGroup.hpp>
-#include <FslBase/Getopt/OptionType.hpp>
-
 namespace Fsl
 {
   // Please beware that the enum values matches the values that getopt option.has_flag expects

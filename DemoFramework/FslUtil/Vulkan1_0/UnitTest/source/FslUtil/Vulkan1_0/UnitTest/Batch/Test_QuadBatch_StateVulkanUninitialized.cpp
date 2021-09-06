@@ -31,7 +31,7 @@
 
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/TestFixtureFslUtil_Vulkan1_0.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchShaders.hpp>
 #include <vector>

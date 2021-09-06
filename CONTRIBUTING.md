@@ -1,26 +1,25 @@
+
 # Contributing to the DemoFramework
 
 ## Table Of Contents
 
-[How Can I Contribute?](#how-can-i-contribute)
+<!-- #AG_TOC_BEGIN# -->
+* [How Can I Contribute](#how-can-i-contribute)
+  * [Pull Requests](#pull-requests)
+* [Styleguides](#styleguides)
+  * [C++ Styleguide](#c++-styleguide)
+* [Tools](#tools)
+<!-- #AG_TOC_END# -->
 
-* [Pull Requests](#pull-requests)
+# How Can I Contribute
 
-[Styleguides](#Styleguides)
-
-* [C++ Styleguide](#c++-styleguide)
-
-[Tools](#Tools)
-
-## How Can I Contribute
-
-### Pull Requests
+## Pull Requests
 
 * Follow the [C++ styleguide](#c++-styleguide) with help from [FslBuildCheck](#preparing-the-code-for-a-pull-request).
 * [Check](#check-resource-licenses) that all resources like images, textures and meshes have a attached license.
 * Create the appropriate [meta data](#create-the-appropriate-meta-data).
 
-#### Preparing the code for a pull request
+### Preparing the code for a pull request
 
 Beware "FslBuildCheck --tidy" will most likely not run for yocto builds, it might work for those SDK's that use clang.
 
@@ -43,7 +42,7 @@ Beware "FslBuildCheck --tidy" will most likely not run for yocto builds, it migh
 7. Keep running the checks at step 4 until all issues have been fixed.
 8. The code itself is now ready to do a pull request.
 
-#### Check resource licenses
+### Check resource licenses
 
 All graphical resources like images, textures, fonts and meshes need to have a license attached.
 We utilize a custom ```License.json``` file that covers all resources in the same directory, so if you need to have multiple licenses then you need to put them in separate directories.
@@ -56,7 +55,7 @@ FslResourceScan.py --list -v .
 
 Fix all resource license issues.
 
-#### Create the appropriate meta data
+### Create the appropriate meta data
 
 If you are submitting a new demo app you also need to:
 
@@ -85,16 +84,16 @@ If you are submitting a new demo app you also need to:
 4. Verify that the app README.md file looks fine using a github markdown viewer (for example visual studio code).
 5. Verify that the root README.md file contains a nice entry for the app.
 
-## Styleguides
+# Styleguides
 
-### C++ Styleguide
+## C++ Styleguide
 
 All C++ code must adhere to format defined by the included ```.clang-format```. For now we utilize the layout provided by clang-format 10.0. It's recommended to utilize a editor that is clang format compatible. Like Visual Studio, Visual Studio Code, Emacs, Vim and lots of others. For more information about clang format check the official [documentation](https://clang.llvm.org/docs/ClangFormat.html).
 
 To further ensure a common style is used in the code we also employ clang-tidy using our ```.clang-tidy``` file.
 For more information about clang tidy check the official [documentation](http://clang.llvm.org/extra/clang-tidy/).
 
-#### Manual style recommendations
+### Manual style recommendations
 
 Before applying all these recommendations manually make sure you take advantage of the automation available using ClangTidy as described [here](preparing-the-pull-request).
 
@@ -120,24 +119,24 @@ Before applying all these recommendations manually make sure you take advantage 
 * As a rule of thumb dont use 'fopen' use the ContentManager or PersistentDataManager instead.
 * Keep your functions small. As a rule of thumb keep them under 50 lines.
 
-##### Memory Handling
+#### Memory Handling
 
 * Don't use malloc or C style memory handling. Use new and utilize the STL classes as appropriate.
 * Use the [RAII](https://en.cppreference.com/w/cpp/language/raii) [smarts pointers](http://en.cppreference.com/w/cpp/memory)
 * For dynamically allocated arrays use std::vector instead of managing the memory yourself.
 
-##### API specific
+#### API specific
 
 * If you just want to exit on a API error code then use the API checking macros instead of doing your own error checking as they will log more detailed information and throw an appropriate exception.
   * EGL_CHECK, GL_CHECK, RAPIDOPENCL_CHECK, RAPIDOPENVX_CHECK, RAPIDVULKAN_CHECK, etc
 * Use the Helper classes as much as possible as they will do the necessary parameter validation and error checking.
   * If your sample is showcasing a specific API call sequence then you might consider not using the helper classes for that sequence.
-  
-#### FslBuildCheck tool-chain examples
+
+### FslBuildCheck tool-chain examples
 
 **WARNING:** Before following the below example please ensure you checked in your change locally so you can revert the format changes if need be.
 
-##### FslBuildCheck --format
+#### FslBuildCheck --format
 
 The FslBuld tool-chain supports invoking clang-format like this:
 
@@ -157,7 +156,7 @@ Additional arguments can be supplied to clang-format like this
 FslBuildCheck.py --format --formatArgs="-h"
 ```
 
-##### FslBuildCheck --tidy
+#### FslBuildCheck --tidy
 
 The FslBuld tool-chain supports invoking clang-tidy like this:
 
@@ -208,7 +207,7 @@ FslBuildCheck.py --format --scan --tidy --repair  --file *.hpp
 ```
 
 
-## Tools
+# Tools
 
 These are just recommended third party tools and plugins, but use them at your own risk!
 

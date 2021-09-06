@@ -57,6 +57,8 @@ namespace Fsl
     int m_exitCode;
     TimeStepMode m_timestepMode;
     bool m_captureModeEnabled;
+    uint32_t m_renderLoopMaxFramesInFlight{1};
+    uint32_t m_renderLoopFrameCounter{0};
 
   public:
     DemoAppControlService(const ServiceProvider& serviceProvider, const int defaultExitCode);
@@ -77,6 +79,9 @@ namespace Fsl
     int GetExitCode() const final;
     void SetTimeStepMode(const TimeStepMode timeStepMode) final;
     TimeStepMode GetTimeStepMode() const final;
+    uint32_t GetRenderLoopFrameCounter() const final;
+    void SetRenderLoopFrameCounter(const uint32_t frameCount) final;
+    uint32_t GetRenderLoopMaxFramesInFlight() const final;
     bool TryEnableMouseCaptureMode(const bool enabled) final;
     void EnableMouseCaptureMode(const bool enabled) final;
     bool GetMouseCaptureMode() final;
@@ -85,10 +90,12 @@ namespace Fsl
     void ClearScreenshotRequestRequest() final;
     void ClearAppRestartRequestRequest() final;
     void ClearUpdateTimerResetRequest() final;
+    void SetRenderLoopMaxFramesInFlight(const uint32_t maxFramesInFlight) final;
 
   private:
     void DoRequestExit(const int exitCode);
   };
 }
+
 
 #endif

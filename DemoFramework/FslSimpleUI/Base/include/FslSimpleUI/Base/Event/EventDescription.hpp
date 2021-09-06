@@ -43,7 +43,7 @@ namespace Fsl
       const EventRoutingStrategy RoutingStrategy;
       const WindowFlags RequiredFlags;
 
-      EventDescription(const EventRoutingStrategy routingStrategy, const WindowFlags& requiredFlags)
+      EventDescription(const EventRoutingStrategy routingStrategy, const WindowFlags requiredFlags)
         : RoutingStrategy(routingStrategy)
         , RequiredFlags(requiredFlags)
       {

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <HeaderLibrary Name="FslSimpleUI.Render.Base" CreationYear="2021">
+    <Dependency Name="FslGraphics"/>
+  </HeaderLibrary>
+</FslBuildGen>

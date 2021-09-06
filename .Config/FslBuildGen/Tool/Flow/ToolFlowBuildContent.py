@@ -131,7 +131,7 @@ class ToolFlowBuildContent(AToolAppFlow):
         if discoverFeatureList or localToolConfig.Project is None:
             if discoverFeatureList:
                 config.LogPrint("No features specified, so using package to determine them")
-            topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(),
+            topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(generator.CMakeConfig),
                                                                   localToolConfig.Recursive)
             if discoverFeatureList:
                 featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
@@ -142,7 +142,7 @@ class ToolFlowBuildContent(AToolAppFlow):
         if localToolConfig.Validate:
             Validate.ValidatePlatform(config, localToolConfig.PlatformName, featureList)
             if topLevelPackage is None:
-                topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(),
+                topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(generator.CMakeConfig),
                                                                       localToolConfig.Recursive)
             RecipeBuilder.ValidateInstallationForPackages(self.Log, config.SDKPath, generatorContext, topLevelPackage.ResolvedBuildOrder)
 

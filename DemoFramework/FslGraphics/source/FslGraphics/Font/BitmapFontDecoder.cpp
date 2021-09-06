@@ -34,27 +34,33 @@
 #include <FslBase/Compression/ValueCompression.hpp>
 #include <FslBase/Compression/ValueCompression_Span.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 //#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/IO/File.hpp>
+#include <fmt/format.h>
 #include <utility>
 
 namespace Fsl
 {
-  namespace NBFHeader
-  {
-    constexpr const uint32_t Magic = 0x004E4246;
-    constexpr const uint32_t Version = 2;
-
-    constexpr const uint32_t HeaderOffsetMagic = 0;
-    constexpr const uint32_t HeaderOffsetVersion = 4;
-    constexpr const uint32_t HeaderOffsetContentSize = 8;
-    constexpr const uint32_t SizeOfHeader = 4 * 3;
-  }
-
   namespace
   {
-    ReadOnlySpan<uint8_t> ReadAndValidateHeader(const ReadOnlySpan<uint8_t>& header)
+    namespace NBFHeader
+    {
+      constexpr const uint32_t Version2 = 2;
+      constexpr const uint32_t Version3 = 3;
+
+      // NBF, since this is written as little endian it becomes FBN in the file :/
+      constexpr const uint32_t Magic = 0x004E4246;
+      constexpr const uint32_t MinVersion = Version2;
+      constexpr const uint32_t MaxVersion = Version3;
+
+      constexpr const uint32_t HeaderOffsetMagic = 0;
+      constexpr const uint32_t HeaderOffsetVersion = 4;
+      constexpr const uint32_t HeaderOffsetContentSize = 8;
+      constexpr const uint32_t SizeOfHeader = 4 * 3;
+    }
+
+    ReadOnlySpan<uint8_t> ReadAndValidateHeader(const ReadOnlySpan<uint8_t>& header, uint32_t& rVersion)
     {
       auto magic = ByteSpanUtil::ReadUInt32LE(header, NBFHeader::HeaderOffsetMagic);
       auto version = ByteSpanUtil::ReadUInt32LE(header, NBFHeader::HeaderOffsetVersion);
@@ -63,15 +69,17 @@ namespace Fsl
       {
         throw FormatException("invalid header");
       }
-      if (version != NBFHeader::Version)
+      if (version < NBFHeader::MinVersion || version > NBFHeader::MaxVersion)
       {
-        throw FormatException("unsupported version");
+        throw FormatException(fmt::format("unsupported NBF version {} the currently supported version range is {} to {}", version,
+                                          NBFHeader::MinVersion, NBFHeader::MaxVersion));
       }
       auto remainingSpan = header.subspan(NBFHeader::SizeOfHeader);
       if (contentSize != remainingSpan.size())
       {
         throw FormatException("content is not of the expected size");
       }
+      rVersion = version;
       return remainingSpan;
     }
 
@@ -97,7 +105,7 @@ namespace Fsl
       }
     }
 
-    PxRectangleU ReadPxRectangleU(ReadOnlySpan<uint8_t>& rSpan)
+    PxRectangleU32 ReadPxRectangleU(ReadOnlySpan<uint8_t>& rSpan)
     {
       const auto x = ValueCompression::ReadSimpleUInt32(rSpan);
       const auto y = ValueCompression::ReadSimpleUInt32(rSpan);
@@ -117,7 +125,7 @@ namespace Fsl
     BitmapFontChar DecodeChar(ReadOnlySpan<uint8_t>& rSpan)
     {
       const auto id = ValueCompression::ReadSimpleUInt32(rSpan);
-      const PxRectangleU srcTextureRectPx = ReadPxRectangleU(rSpan);
+      const PxRectangleU32 srcTextureRectPx = ReadPxRectangleU(rSpan);
       const auto offsetPx = ReadPxPoint2(rSpan);
       const auto xAdvancePx = ValueCompression::ReadSimpleUInt16(rSpan);
       return {id, srcTextureRectPx, offsetPx, xAdvancePx};
@@ -162,13 +170,29 @@ namespace Fsl
 
   BitmapFont BitmapFontDecoder::Decode(const ReadOnlySpan<uint8_t>& content)
   {
-    auto remainingContent = ReadAndValidateHeader(content);
+    uint32_t currentVersion{0};
+    auto remainingContent = ReadAndValidateHeader(content, currentVersion);
 
     auto name = ReadString(remainingContent);
     auto dpi = ValueCompression::ReadSimpleUInt16(remainingContent);
     auto size = ValueCompression::ReadSimpleUInt16(remainingContent);
     auto lineSpacingPx = ValueCompression::ReadSimpleUInt16(remainingContent);
     auto baseLinePx = ValueCompression::ReadSimpleUInt16(remainingContent);
+    uint16_t sdfSpread = 0;
+    uint16_t sdfDesiredBaseLinePx = 0;
+    uint16_t paddingLeft = 0;
+    uint16_t paddingTop = 0;
+    uint16_t paddingRight = 0;
+    uint16_t paddingBottom = 0;
+    if (currentVersion == NBFHeader::Version3)
+    {
+      paddingLeft = ValueCompression::ReadSimpleUInt16(remainingContent);
+      paddingTop = ValueCompression::ReadSimpleUInt16(remainingContent);
+      paddingRight = ValueCompression::ReadSimpleUInt16(remainingContent);
+      paddingBottom = ValueCompression::ReadSimpleUInt16(remainingContent);
+      sdfSpread = ValueCompression::ReadSimpleUInt16(remainingContent);
+      sdfDesiredBaseLinePx = ValueCompression::ReadSimpleUInt16(remainingContent);
+    }
     auto textureName = ReadString(remainingContent);
     auto fontType = ReadBitmapFontType(remainingContent);
 
@@ -178,6 +202,11 @@ namespace Fsl
     {
       throw FormatException("Failed to read all content");
     }
-    return {std::move(name), dpi, size, lineSpacingPx, baseLinePx, std::move(textureName), fontType, std::move(chars), std::move(kernings)};
+
+    const float sdfScale = sdfDesiredBaseLinePx == 0 ? 1.0f : float(sdfDesiredBaseLinePx) / float(baseLinePx);
+    const PxThicknessU16 paddingPx(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    BitmapFont::SdfParams sdfParams(sdfSpread, sdfScale);
+    return {std::move(name),        dpi,      size,      lineSpacingPx,    baseLinePx,         paddingPx,
+            std::move(textureName), fontType, sdfParams, std::move(chars), std::move(kernings)};
   }
 }

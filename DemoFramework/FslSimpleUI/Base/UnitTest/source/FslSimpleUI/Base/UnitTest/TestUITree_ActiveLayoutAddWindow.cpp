@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslBase/Transition/TransitionTimeSpan.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
 #include <FslSimpleUI/Base/UnitTest/TestUITree_ActiveLayout.hpp>
@@ -56,7 +56,7 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   auto tree = m_tree;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  auto onUpdate = [newWindow, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow); };
+  auto onUpdate = [newWindow, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow); };
 
   m_mainWindow->Callbacks.HookWinUpdate = onUpdate;
 
@@ -64,8 +64,8 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   CheckZero(callCount, WindowMethod::All);
 
   // Update the tree which adds the new window during the update call using the above callback
-  const DemoTime demoTime(0, 0);
-  m_tree->Update(demoTime);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  m_tree->Update(timeSpan);
 
   // Since the child was added directly on the window manager this returns zero
   ASSERT_EQ(0u, m_mainWindow->GetChildCount());
@@ -77,12 +77,12 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   ASSERT_EQ(1u, callCount.WinUpdate);
   ASSERT_EQ(1u, callCount.WinResolve);
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   CheckZeroExcept(callCount, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
   callCount = newWindow->GetCallCount();
 
   ASSERT_EQ(1u, callCount.WinInit);
@@ -100,7 +100,7 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   auto mainWindow = m_mainWindow;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  m_mainWindow->Callbacks.HookWinUpdate = [newWindow, mainWindow](const DemoTime& /*demoTime*/) { mainWindow->AddChild(newWindow); };
+  m_mainWindow->Callbacks.HookWinUpdate = [newWindow, mainWindow](const TransitionTimeSpan& /*timeSpan*/) { mainWindow->AddChild(newWindow); };
 
   auto callCount = newWindow->GetCallCount();
   CheckZero(callCount, WindowMethod::All);
@@ -108,8 +108,8 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   ASSERT_EQ(1u, m_tree->GetNodeCount());
 
   // Update the tree which adds the new window during the update call using the above callback
-  const DemoTime demoTime(0, 0);
-  m_tree->Update(demoTime);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  m_tree->Update(timeSpan);
 
   ASSERT_EQ(1u, m_mainWindow->GetChildCount());
 
@@ -122,12 +122,12 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve |
-                     WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
+  auto ignoreFlags =
+    WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
   CheckZeroExcept(callCount, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
   callCount = newWindow->GetCallCount();
 
   ASSERT_EQ(1u, callCount.WinInit);

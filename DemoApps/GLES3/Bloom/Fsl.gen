@@ -3,6 +3,7 @@
   <Executable Name="GLES3.Bloom" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3"/>
     <Dependency Name="Shared.Bloom"/>
   </Executable>
 </FslBuildGen>

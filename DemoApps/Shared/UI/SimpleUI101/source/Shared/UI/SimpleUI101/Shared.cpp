@@ -45,10 +45,11 @@
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
+#include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Button.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
@@ -105,7 +106,7 @@ namespace Fsl
 
     std::shared_ptr<NineSliceSprite> ninesliceBackgroundSprite = rSpriteManager.CreateNineSliceSprite(defaultMaterialId, "Background9R");
 
-    auto background = std::make_shared<UI::BackgroundNineSlice>(windowContext);
+    auto background = std::make_shared<UI::Background>(windowContext);
     background->SetContent(stackLayout2);
     background->SetBackground(ninesliceBackgroundSprite);
 

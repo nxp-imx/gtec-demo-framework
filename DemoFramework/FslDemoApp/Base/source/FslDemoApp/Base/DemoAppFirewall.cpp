@@ -135,6 +135,29 @@ namespace Fsl
   }
 
 
+  void DemoAppFirewall::_Begin()
+  {
+    if (!m_app)
+    {
+      ADemoApp::_Begin();
+      return;
+    }
+
+    try
+    {
+      m_app->_Begin();
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG3_ERROR("App._Begin threw exception: {}", message);
+      SafeDispose();
+      BuildErrorString("App._Begin threw exception:", message);
+    }
+  }
+
+
   void DemoAppFirewall::_OnEvent(IEvent* const pEvent)
   {
     if (!m_app)
@@ -273,7 +296,7 @@ namespace Fsl
   }
 
 
-  AppDrawResult DemoAppFirewall::_TryPrepareDraw(const DemoTime& demoTime)
+  AppDrawResult DemoAppFirewall::_TryPrepareDraw(const FrameInfo& frameInfo)
   {
     if (!m_app)
     {
@@ -282,7 +305,7 @@ namespace Fsl
 
     try
     {
-      return m_app->_TryPrepareDraw(demoTime);
+      return m_app->_TryPrepareDraw(frameInfo);
     }
     catch (const std::exception& ex)
     {
@@ -295,12 +318,33 @@ namespace Fsl
     }
   }
 
-
-  void DemoAppFirewall::_Draw(const DemoTime& demoTime)
+  void DemoAppFirewall::_BeginDraw(const FrameInfo& frameInfo)
   {
     if (!m_app)
     {
-      ADemoApp::_Draw(demoTime);
+      ADemoApp::_BeginDraw(frameInfo);
+      return;
+    }
+
+    try
+    {
+      m_app->_BeginDraw(frameInfo);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG3_ERROR("App._BeginDraw threw exception: {}", message);
+      SafeDispose();
+      BuildErrorString("App._BeginDraw threw exception:", message);
+    }
+  }
+
+  void DemoAppFirewall::_Draw(const FrameInfo& frameInfo)
+  {
+    if (!m_app)
+    {
+      ADemoApp::_Draw(frameInfo);
       if (m_basic2D)
       {
         m_basic2D->Begin();
@@ -320,7 +364,7 @@ namespace Fsl
 
     try
     {
-      m_app->_Draw(demoTime);
+      m_app->_Draw(frameInfo);
     }
     catch (const std::exception& ex)
     {
@@ -332,7 +376,31 @@ namespace Fsl
     }
   }
 
-  AppDrawResult DemoAppFirewall::_TrySwapBuffers(const DemoTime& demoTime)
+
+  void DemoAppFirewall::_EndDraw(const FrameInfo& frameInfo)
+  {
+    if (!m_app)
+    {
+      ADemoApp::_EndDraw(frameInfo);
+      return;
+    }
+
+    try
+    {
+      m_app->_EndDraw(frameInfo);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG3_ERROR("App._EndDraw threw exception: {}", message);
+      SafeDispose();
+      BuildErrorString("App._EndDraw threw exception:", message);
+    }
+  }
+
+
+  AppDrawResult DemoAppFirewall::_TrySwapBuffers(const FrameInfo& frameInfo)
   {
     if (!m_app)
     {
@@ -341,7 +409,7 @@ namespace Fsl
 
     try
     {
-      return m_app->_TrySwapBuffers(demoTime);
+      return m_app->_TrySwapBuffers(frameInfo);
     }
     catch (const std::exception& ex)
     {
@@ -351,6 +419,29 @@ namespace Fsl
       SafeDispose();
       BuildErrorString("App._TrySwapBuffers threw exception:", message);
       return AppDrawResult::Completed;
+    }
+  }
+
+
+  void DemoAppFirewall::_End()
+  {
+    if (!m_app)
+    {
+      ADemoApp::_End();
+      return;
+    }
+
+    try
+    {
+      m_app->_End();
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG3_ERROR("App._End threw exception: {}", message);
+      SafeDispose();
+      BuildErrorString("App._End threw exception:", message);
     }
   }
 

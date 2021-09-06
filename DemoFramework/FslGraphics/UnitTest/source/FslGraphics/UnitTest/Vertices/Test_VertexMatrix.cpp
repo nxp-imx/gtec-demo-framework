@@ -39,6 +39,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -59,7 +60,57 @@ TEST(TestVertices_VertexMatrix, Construct_Default)
 TEST(TestVertices_VertexMatrix, GetVertexDeclaration)
 {
   const VertexElementEx expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
-  const auto vertexDecl = VertexMatrix::GetVertexDeclaration();
+  const auto vertexDecl = VertexDeclaration(VertexMatrix::AsVertexDeclarationSpan());
+
+  EXPECT_EQ(sizeof(VertexMatrix), vertexDecl.VertexStride());
+  ASSERT_EQ(1u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Matrix4x4, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexMatrix, GetVertexDeclarationArray)
+{
+  const VertexElementEx expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const auto vertexDecl = VertexMatrix::GetVertexDeclarationArray();
+
+  EXPECT_EQ(sizeof(VertexMatrix), vertexDecl.VertexStride());
+  ASSERT_EQ(1u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Matrix4x4, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Matrix4x4, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexMatrix, AsVertexDeclarationSpan)
+{
+  const VertexElementEx expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const auto vertexDecl = VertexMatrix::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexMatrix), vertexDecl.VertexStride());
   ASSERT_EQ(1u, vertexDecl.Count());

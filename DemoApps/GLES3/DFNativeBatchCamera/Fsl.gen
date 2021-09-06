@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.DFNativeBatchCamera" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3"/>
     <Dependency Name="Shared.Camera.Platform"/>
   </Executable>
 </FslBuildGen>

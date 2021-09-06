@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 
 namespace Fsl
@@ -41,7 +41,7 @@ namespace Fsl
   {
     PxExtent2D ExtentPx;
     PxPoint2 OffsetPx;
-    PxRectangleU TrimmedRectPx;
+    PxRectangleU32 TrimmedRectPx;
     PxThicknessU TrimMarginPx;
     uint32_t Dpi{0};
 
@@ -49,7 +49,7 @@ namespace Fsl
 
     //! @param srcRect the untrimmed rect
     //! @param trimmedRect he trimmed rect
-    constexpr AtlasTextureInfo(const PxRectangleU& trimmedRectPx, const PxThicknessU& trimPx, const uint32_t dpi) noexcept
+    constexpr AtlasTextureInfo(const PxRectangleU32& trimmedRectPx, const PxThicknessU& trimPx, const uint32_t dpi) noexcept
       : ExtentPx(trimmedRectPx.Width + trimPx.SumX(), trimmedRectPx.Height + trimPx.SumY())
       , OffsetPx(trimmedRectPx.X - trimPx.Left, trimmedRectPx.Y - trimPx.Top)
       , TrimmedRectPx(trimmedRectPx)

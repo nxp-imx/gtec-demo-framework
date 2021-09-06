@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
 
-// Create a dummy function to have something to link.
-void FslDemoService_NativeGraphics_Dummy()
+namespace Fsl
 {
+  namespace FslDemoServiceDummy
+  {
+  }
 }

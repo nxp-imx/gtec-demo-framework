@@ -35,7 +35,8 @@
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElement.hpp>
 #include <FslUtil/OpenGLES3/GLVertexAttribLink.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslUtil/OpenGLES3/GLVertexElementAttribConfig.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <GLES3/gl3.h>
 #include <array>
 #include <utility>
@@ -86,7 +87,7 @@ namespace Fsl
       GLVertexElements() = default;
 
       //! @brief Create a initialized vertex buffer
-      explicit GLVertexElements(const VertexDeclaration& vertexDeclaration);
+      explicit GLVertexElements(VertexDeclarationSpan vertexDeclaration);
 
 
       void Reset() noexcept
@@ -97,9 +98,9 @@ namespace Fsl
       }
 
       //! @brief Reset the buffer to contain the declaration
-      void Reset(const VertexDeclaration& vertexDeclaration);
+      void Reset(VertexDeclarationSpan vertexDeclaration);
 
-      bool IsEqual(const VertexDeclaration& vertexDeclaration) const;
+      bool IsEqual(VertexDeclarationSpan vertexDeclaration) const;
 
       //! @brief Enable all attrib arrays binding them in order to index 0 to the last VertexElement.
       //! @note  If Two vertex buffers contain vertex elements in the same format, you can get away with just enabling the attrib's once
@@ -202,6 +203,8 @@ namespace Fsl
 
       //! @brief Find the element index of for the given usage and usageIndex (if not found <0 is returned)
       int32_t VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const;
+
+      std::vector<GLVertexElementAttribConfig> ExtractConfiguration(const ReadOnlySpan<GLVertexAttribLink> attribLinks);
     };
   }
 }

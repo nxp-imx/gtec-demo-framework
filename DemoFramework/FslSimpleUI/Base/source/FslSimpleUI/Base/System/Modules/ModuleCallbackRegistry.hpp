@@ -54,6 +54,10 @@ namespace Fsl
       void RemoveCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module);
 
 
+      //! @brief Called when a TreeNode is addded
+      //! @note  This should only be called by the UITree!!
+      void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node);
+
       //! @brief Called when a TreeNode is disposed (this call occurs right before we dispose it)
       //! @note  This should only be called by the UITree!!
       void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node);

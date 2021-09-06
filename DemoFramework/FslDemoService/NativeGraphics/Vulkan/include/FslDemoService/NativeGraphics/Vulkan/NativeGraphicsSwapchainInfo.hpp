@@ -46,9 +46,9 @@ namespace Fsl
 
       VkImageUsageFlags ImageUsageFlags{0u};
 
-      NativeGraphicsSwapchainInfo() = default;
+      constexpr NativeGraphicsSwapchainInfo() noexcept = default;
 
-      NativeGraphicsSwapchainInfo(const VkImage frameImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags)
+      constexpr NativeGraphicsSwapchainInfo(const VkImage frameImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags) noexcept
         : FrameImage(frameImage)
         , ImageFormat(imageFormat)
         , ImageUsageFlags(imageUsageFlags)

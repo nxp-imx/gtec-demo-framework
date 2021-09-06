@@ -2,7 +2,8 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="Vulkan.Screenshot" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslDemoService.NativeGraphics.Vulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
   </Executable>
 </FslBuildGen>

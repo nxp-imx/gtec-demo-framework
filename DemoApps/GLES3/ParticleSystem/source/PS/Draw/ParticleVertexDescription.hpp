@@ -31,14 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
   class ParticleVertexDescription
   {
   public:
-    static VertexDeclaration GetVertexDeclaration();
+    static VertexDeclarationArray<7> GetVertexDeclarationArray();
+
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      static VertexDeclarationArray<7> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
   };
 }
 

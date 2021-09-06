@@ -37,6 +37,7 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -185,7 +186,8 @@ namespace Fsl
     BasicFontKerning fontBasicKerning;
     contentManager->Read(fontBasicKerning, "MainAtlas.fbk");
 
-    m_font.Reset(atlas, fontBasicKerning);
+    SpriteNativeAreaCalc spriteNativeAreaCalc(true);
+    m_font.Reset(spriteNativeAreaCalc, bitmap.GetExtent(), atlas, fontBasicKerning, 160);
 
     const auto nativeGraphics = m_graphics->GetNativeGraphics();
     m_texFont.Reset(nativeGraphics, bitmap, Texture2DFilterHint::Smooth);

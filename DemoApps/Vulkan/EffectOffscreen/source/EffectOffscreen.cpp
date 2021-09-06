@@ -33,6 +33,7 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTextureTexture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
@@ -581,21 +582,20 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(demoTime);
 
-    const auto currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
-    const auto frameIndex = drawContext.CurrentFrameIndex;
-    assert(frameIndex < m_resources.MainFrameResources.size());
+    const auto currentFrameIndex = drawContext.CurrentFrameIndex;
+    assert(currentFrameIndex < m_resources.MainFrameResources.size());
 
     // Upload the changes
     VertexUBOData buffer;
     buffer.MatModelView = m_matModel;
     buffer.MatProj = m_matProj;
-    m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &buffer, sizeof(VertexUBOData));
+    m_resources.MainFrameResources[currentFrameIndex].UboBuffer.Upload(0, &buffer, sizeof(VertexUBOData));
 
-    m_resources.MainFrameResources[frameIndex].EffectUboBuffer.Upload(0, &m_effectUboData, sizeof(EffectFragUBOData));
+    m_resources.MainFrameResources[currentFrameIndex].EffectUboBuffer.Upload(0, &m_effectUboData, sizeof(EffectFragUBOData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
 
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       DrawOffscreenRenderpass(rCmdBuffers, drawContext);
 
@@ -613,16 +613,16 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawToCommandBuffer(m_resources.MainFrameResources[frameIndex], hCmdBuffer, drawContext.SwapchainImageExtent);
+        DrawToCommandBuffer(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer, drawContext.SwapchainImageExtent);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -676,9 +676,8 @@ namespace Fsl
 
   void EffectOffscreen::DrawOffscreenRenderpass(RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const auto currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
-    const auto frameIndex = drawContext.CurrentFrameIndex;
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const auto currentFrameIndex = drawContext.CurrentFrameIndex;
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
 
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -694,7 +693,7 @@ namespace Fsl
     renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
-    rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
       VkViewport viewport{};
       viewport.x = 0.0f;
@@ -709,9 +708,9 @@ namespace Fsl
       scissor.extent = m_dependentResources.Offscreen.Extent;
       vkCmdSetScissor(hCmdBuffer, 0, 1, &scissor);
 
-      DrawSceneToCommandBuffer(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+      DrawSceneToCommandBuffer(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
     }
-    rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+    rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
   }
 
 
@@ -777,7 +776,7 @@ namespace Fsl
   EffectOffscreen::VertexBufferInfo EffectOffscreen::CreateCubeVertexBuffer(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager)
   {
     VertexBufferInfo info;
-    info.VertexBuffer.Reset(bufferManager, g_vertices, VMBufferUsage::STATIC);
+    info.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(g_vertices), VMBufferUsage::STATIC);
 
     // Generate attribute description by matching shader layout with the vertex declarations
     std::array<VertexElementUsage, 2> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
@@ -793,7 +792,9 @@ namespace Fsl
   EffectOffscreen::EffectVertexBufferInfo EffectOffscreen::CreateDoubleQuadVertexBuffer(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager)
   {
     EffectVertexBufferInfo info;
-    info.VertexBuffer.Reset(bufferManager, CreateDoubleQuadVertexArray(1.0f), VMBufferUsage::STATIC);
+
+    const auto vertices = CreateDoubleQuadVertexArray(1.0f);
+    info.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), VMBufferUsage::STATIC);
 
     // Generate attribute description by matching shader layout with the vertex declarations
     //{

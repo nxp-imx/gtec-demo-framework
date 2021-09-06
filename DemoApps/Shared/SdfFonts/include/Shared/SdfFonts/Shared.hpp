@@ -43,13 +43,13 @@
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 //#include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
 //#include <FslSimpleUI/Base/System/EventListener.hpp>
 //#include <FslSimpleUI/Base/System/UIManager.hpp>
@@ -58,6 +58,14 @@
 
 namespace Fsl
 {
+  namespace UI
+  {
+    namespace Theme
+    {
+      class IThemeControlFactory;
+    }
+  }
+
   enum class SdfFontMode
   {
     Normal = 0,
@@ -82,6 +90,10 @@ namespace Fsl
     float ShadowSmoothing{};
   };
 
+  class BasicImageSprite;
+  class IBasicRenderSystem;
+  class IGraphicsService;
+
   class Shared : public UI::EventListener
   {
     struct UIRecord
@@ -99,7 +111,7 @@ namespace Fsl
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> ShadowOffsetXSlider;
       std::shared_ptr<UI::Label> ShadowOffsetYLabel;
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> ShadowOffsetYSlider;
-      std::shared_ptr<UI::LabelNineSliceButton> ButtonDefault;
+      std::shared_ptr<UI::BackgroundLabelButton> ButtonDefault;
       std::shared_ptr<UI::BaseWindow> MainContent;
       std::shared_ptr<UI::Layout> MainLayout;
     };
@@ -109,8 +121,10 @@ namespace Fsl
     UI::CallbackEventListenerScope m_uiEventListener;
     // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
+    std::shared_ptr<IGraphicsService> m_graphicsService;
+    std::shared_ptr<IBasicRenderSystem> m_renderSystem;
 
-    std::shared_ptr<ImageSprite> m_fillSprite;
+    std::shared_ptr<BasicImageSprite> m_fillSprite;
     AtlasTexture2D m_fillTexture;
     UIRecord m_uiRecord;
 
@@ -145,13 +159,13 @@ namespace Fsl
     FontDrawConfig GetFontDrawConfig() const;
 
     void DrawBoundingBoxes(INativeBatch2D& nativeBatch, const PxPoint2& dstPositionPx, const StringViewLite& strView,
-                           const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
-                           std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                           const TextureAtlasSpriteFont& font, const BitmapFontConfig& fontConfig,
+                           std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
   private:
     void SetDefaultValues();
     void UpdateLinkedUIState();
-    UIRecord CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::BasicThemeFactory& rUIFactory, const uint32_t densityDpi);
+    UIRecord CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::IThemeControlFactory& rUIFactory, const uint32_t densityDpi);
   };
 }
 

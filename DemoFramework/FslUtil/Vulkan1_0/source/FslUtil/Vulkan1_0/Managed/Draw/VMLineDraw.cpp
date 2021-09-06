@@ -31,6 +31,8 @@
 
 #include <FslUtil/Vulkan1_0/Managed/Draw/VMLineDraw.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <array>
@@ -320,7 +322,7 @@ namespace Fsl
           rFrame.VertUboBuffer = CreateUBO(device, sizeOfVertexUBOData);
           rFrame.DescriptorSet = CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout);
           // Prepare a dynamic vertex buffer that can hold LINE_CAPACITY lines
-          rFrame.LineVertBuffer.Reset(bufferManager, VERTICES_PER_LINE * initialLineCapacity, VertexPositionColor::GetVertexDeclaration());
+          rFrame.LineVertBuffer.Reset(bufferManager, VERTICES_PER_LINE * initialLineCapacity, VertexPositionColor::AsVertexDeclarationSpan());
           UpdateDescriptorSet(device.Get(), rFrame.DescriptorSet, rFrame.VertUboBuffer);
         }
         m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
@@ -433,13 +435,13 @@ namespace Fsl
         FSLLOG3_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: {} to {}", rFrame.LineVertBuffer.GetVertexCount(), newCapacity);
         // Dump the existing buffer and then create a new one
         rFrame.LineVertBuffer.Reset();
-        rFrame.LineVertBuffer.Reset(m_resources.BufferManager, newCapacity, VertexPositionColor::GetVertexDeclaration());
+        rFrame.LineVertBuffer.Reset(m_resources.BufferManager, newCapacity, VertexPositionColor::AsVertexDeclarationSpan());
       }
 
 
       {    // Update the vertex buffer data
         assert(vertexCount <= rFrame.LineVertBuffer.GetVertexCount());
-        m_resources.MainFrameResources[frameIndex].LineVertBuffer.SetData(pVertices, vertexCount, sizeof(VertexPositionColor));
+        m_resources.MainFrameResources[frameIndex].LineVertBuffer.SetData(ReadOnlyFlexSpanUtil::AsSpan(pVertices, vertexCount));
       }
 
       vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_resources.MainPipelineLayout.Get(), 0, 1, &rFrame.DescriptorSet, 0,
@@ -449,8 +451,8 @@ namespace Fsl
       vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineRender.Get());
 
       std::array<VkDeviceSize, 1> offsets = {0};
-      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, static_cast<uint32_t>(offsets.size()), rFrame.LineVertBuffer.GetBufferPointer(),
-                             offsets.data());
+      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, UncheckedNumericCast<uint32_t>(offsets.size()),
+                             rFrame.LineVertBuffer.GetBufferPointer(), offsets.data());
 
       assert(vertexCount <= std::numeric_limits<uint32_t>::max());
       vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertexCount), 1, 0, 0);

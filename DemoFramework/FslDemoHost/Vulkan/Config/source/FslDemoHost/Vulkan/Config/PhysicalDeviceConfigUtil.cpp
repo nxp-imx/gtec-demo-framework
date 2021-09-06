@@ -56,6 +56,8 @@ namespace Fsl
 
       DeviceConfigRequest BuildHostDeviceConfigRequest(const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests, ConfigControl configControl)
       {
+        // FIX: add support for config control
+        FSL_PARAM_NOT_USED(configControl);
         DeviceConfigRequest deviceConfig;
         for (std::size_t i = 0; i < hostExtensionRequests.size(); ++i)
         {

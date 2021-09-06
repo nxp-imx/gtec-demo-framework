@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <deque>
@@ -52,8 +52,8 @@ namespace Fsl
 
   namespace UI
   {
+    class BackgroundLabelButton;
     class Label;
-    class LabelNineSliceButton;
     class RadioButton;
     class StackLayout;
     class Switch;
@@ -61,7 +61,7 @@ namespace Fsl
 
     namespace Theme
     {
-      class BasicThemeFactory;
+      class IThemeControlFactory;
     }
   }
 
@@ -79,7 +79,7 @@ namespace Fsl
     std::shared_ptr<IGraphicsService> m_graphics;
     std::shared_ptr<GLES3::NativeBatch2D> m_nativeBatch;
 
-    TextureAtlasBitmapFont m_font;
+    TextureAtlasSpriteFont m_font;
 
     UI::CallbackEventListenerScope m_uiEventListener;
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
@@ -118,7 +118,7 @@ namespace Fsl
     void Update(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
 
-    void BuildUI(UI::Theme::BasicThemeFactory& factory);
+    void BuildUI(UI::Theme::IThemeControlFactory& factory);
     void UpdateCaption();
     void UpdateUIWithSceneSettings();
   };

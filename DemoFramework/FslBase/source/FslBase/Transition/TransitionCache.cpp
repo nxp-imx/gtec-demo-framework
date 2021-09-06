@@ -59,7 +59,6 @@ namespace Fsl
       {
       case TransitionType::Linear:
         return GetLinearLookupTable(length);
-        break;
       case TransitionType::Smooth:
       default:
         return GetCosBasedLookupTable(length);

@@ -145,6 +145,7 @@
 
   <xs:complexType name="_T_Define">
     <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Value" type="xs:string" use="optional"/>
     <xs:attribute name="Access" type="_TP_Access" use="required"/>
   </xs:complexType>
 

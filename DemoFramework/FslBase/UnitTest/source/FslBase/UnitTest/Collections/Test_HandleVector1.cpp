@@ -455,13 +455,13 @@ TEST(TestCollections_HandleVector1, Reserve_Empty)
 
   // This should do nothing
   vector.Reserve(9);
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(0, vector.Count());
+  EXPECT_EQ(10u, vector.Capacity());
+  EXPECT_EQ(0u, vector.Count());
 
   // This should grow the vector
   vector.Reserve(11);
-  EXPECT_EQ(11, vector.Capacity());
-  EXPECT_EQ(0, vector.Count());
+  EXPECT_GE(vector.Capacity(), 11u);
+  EXPECT_EQ(vector.Count(), 0u);
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -482,13 +482,13 @@ TEST(TestCollections_HandleVector1, Reserve)
 
   // This should do nothing
   vector.Reserve(9);
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(vector.Capacity(), 10u);
+  EXPECT_EQ(vector.Count(), 3u);
 
   // This should grow the vector
   vector.Reserve(11);
-  EXPECT_EQ(11, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_GE(vector.Capacity(), 11u);
+  EXPECT_EQ(vector.Count(), 3u);
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -1150,7 +1150,7 @@ TEST(TestCollections_HandleVector1, TestHandles)
   EXPECT_TRUE(vector.IsValidHandle(item4));
   EXPECT_TRUE(vector.IsValidHandle(item5));
 
-  vector.RemoveFast(item4);
+  vector.RemoveBySwap(item4);
   EXPECT_TRUE(vector.DEBUG_IsValid());
 
   EXPECT_TRUE(vector.IsValidHandle(item1));
@@ -1173,7 +1173,7 @@ TEST(TestCollections_HandleVector1, TestHandles)
   EXPECT_TRUE(vector.IsValidHandle(item4a));
   EXPECT_TRUE(vector.IsValidHandle(item5));
 
-  vector.RemoveFast(item2);
+  vector.RemoveBySwap(item2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
 
   EXPECT_TRUE(vector.DEBUG_IsValid());

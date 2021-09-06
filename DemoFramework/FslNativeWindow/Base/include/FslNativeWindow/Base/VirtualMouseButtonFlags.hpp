@@ -40,78 +40,78 @@ namespace Fsl
   {
     uint32_t Flags{0};
 
-    VirtualMouseButtonFlags() = default;
+    constexpr VirtualMouseButtonFlags() noexcept = default;
 
 
-    explicit VirtualMouseButtonFlags(const uint32_t flags)
+    constexpr explicit VirtualMouseButtonFlags(const uint32_t flags) noexcept
       : Flags(flags)
     {
     }
 
-    explicit VirtualMouseButtonFlags(const VirtualMouseButton::Enum flags)
+    constexpr explicit VirtualMouseButtonFlags(const VirtualMouseButton::Enum flags) noexcept
       : Flags(static_cast<uint32_t>(flags))
     {
     }
 
 
-    bool IsEnabled(const VirtualMouseButton::Enum flags) const
+    constexpr bool IsEnabled(const VirtualMouseButton::Enum flags) const noexcept
     {
       return (Flags & static_cast<uint32_t>(flags)) != 0;
     }
 
-    bool IsLeftButtonPressed() const
+    constexpr bool IsLeftButtonPressed() const noexcept
     {
       return (Flags & VirtualMouseButton::Left) != 0;
     }
 
 
-    bool IsMiddleButtonPressed() const
+    constexpr bool IsMiddleButtonPressed() const noexcept
     {
       return (Flags & VirtualMouseButton::Middle) != 0;
     }
 
 
-    bool IsRightButtonPressed() const
+    constexpr bool IsRightButtonPressed() const noexcept
     {
       return (Flags & VirtualMouseButton::Right) != 0;
     }
 
 
-    bool IsXButton1Pressed() const
+    constexpr bool IsXButton1Pressed() const noexcept
     {
       return (Flags & VirtualMouseButton::X1) != 0;
     }
 
 
-    bool IsXButton2Pressed() const
+    constexpr bool IsXButton2Pressed() const noexcept
     {
       return (Flags & VirtualMouseButton::X2) != 0;
     }
 
 
-    bool IsXButton3Pressed() const
+    constexpr bool IsXButton3Pressed() const noexcept
     {
       return (Flags & VirtualMouseButton::X3) != 0;
     }
 
 
-    bool IsXButton4Pressed() const
+    constexpr bool IsXButton4Pressed() const noexcept
     {
       return (Flags & VirtualMouseButton::X4) != 0;
     }
 
 
-    bool IsXButton5Pressed() const
+    constexpr bool IsXButton5Pressed() const noexcept
     {
       return (Flags & VirtualMouseButton::X5) != 0;
     }
 
-    bool IsUndefined() const
+    constexpr bool IsUndefined() const noexcept
     {
       return (Flags & VirtualMouseButton::Undefined) != 0;
     }
 
-    void SetFlag(const VirtualMouseButton::Enum flags, const bool enabled)
+    constexpr void SetFlag(const VirtualMouseButton::Enum flags, const bool enabled) noexcept
     {
       if (enabled)
       {

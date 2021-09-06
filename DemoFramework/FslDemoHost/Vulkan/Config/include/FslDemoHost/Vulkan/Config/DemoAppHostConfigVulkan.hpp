@@ -50,6 +50,11 @@ namespace Fsl
   //  Freestyle,
   //};
 
+  namespace Vulkan
+  {
+    class IVulkanDeviceCreationCustomizer;
+  }
+
 
   class DemoAppHostConfigVulkan : public DemoAppHostConfig
   {
@@ -59,9 +64,14 @@ namespace Fsl
     std::deque<Vulkan::FeatureRequest> m_instanceLayerRequest;
     std::deque<Vulkan::FeatureRequest> m_instanceExtensionRequest;
     std::deque<Vulkan::FeatureRequest> m_deviceExtensionRequest;
+
+    uint32_t m_appVersion{VK_MAKE_VERSION(1, 0, 0)};
+    uint32_t m_apiVersion{VK_API_VERSION_1_0};
     ConfigControl m_layerConfigControl{ConfigControl::Default};
     ConfigControl m_extensionConfigControl{ConfigControl::Default};
     ConfigControl m_deviceExtensionConfigControl{ConfigControl::Default};
+
+    std::shared_ptr<Vulkan::IVulkanDeviceCreationCustomizer> m_customizer;
 
   public:
     DemoAppHostConfigVulkan();
@@ -211,6 +221,32 @@ namespace Fsl
       return m_deviceExtensionRequest;
     }
 
+    uint32_t GetInstanceAppVersion() const
+    {
+      return m_appVersion;
+    }
+
+    void SetInstanceAppVersion(const uint32_t version)
+    {
+      m_appVersion = version;
+    }
+
+    uint32_t GetInstanceApiVersion() const
+    {
+      return m_apiVersion;
+    }
+
+    void SetInstanceApiVersion(const uint32_t version)
+    {
+      m_apiVersion = version;
+    }
+
+    void SetDeviceCreationCustomizer(std::shared_ptr<Vulkan::IVulkanDeviceCreationCustomizer> customizer);
+
+    const std::shared_ptr<Vulkan::IVulkanDeviceCreationCustomizer>& TryGetDeviceCreationCustomizer() const
+    {
+      return m_customizer;
+    }
 
     bool HasDeviceRequiredFeatures() const
     {

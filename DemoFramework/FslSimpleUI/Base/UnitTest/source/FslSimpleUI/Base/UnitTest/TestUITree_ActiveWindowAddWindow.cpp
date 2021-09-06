@@ -30,10 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslBase/Transition/TransitionTimeSpan.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
 #include <FslSimpleUI/Base/UnitTest/TestUITree_ActiveWindow.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 
 using namespace Fsl;
 
@@ -56,9 +57,9 @@ TEST_F(TestUITree_ActiveWindow, Add)
   ASSERT_EQ(startCallId + 1, callId.WinInit);
   CheckZeroExcept(callCount, WindowMethod::WinInit);
 
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(2u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
@@ -67,7 +68,7 @@ TEST_F(TestUITree_ActiveWindow, Add)
   ASSERT_EQ(1u, callCount.WinUpdate);
   ASSERT_EQ(1u, callCount.WinResolve);
 
-  CheckZeroExcept(callCount, WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve);
+  CheckZeroExcept(callCount, WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve);
 
   // Check that the methods got called in the expected order
   auto callIdNewWindow = window->GetCallId();
@@ -92,9 +93,9 @@ TEST_F(TestUITree_ActiveWindow, Add_NoFlags)
   auto callCount = window->GetCallCount();
   CheckZero(callCount, WindowMethod::All);
 
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(2u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   CheckZero(callCount, WindowMethod::All);
@@ -118,7 +119,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_NoLayout)
   auto tree = m_tree;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  auto onUpdate = [newWindow, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow); };
+  auto onUpdate = [newWindow, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow); };
 
   m_mainWindow->Callbacks.HookWinUpdate = onUpdate;
 
@@ -128,9 +129,9 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_NoLayout)
   CheckZero(callCount, WindowMethod::All);
 
   // Update the tree which adds the new window during the update call using the above callback
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
@@ -140,12 +141,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_NoLayout)
   ASSERT_EQ(1u, callCount.WinUpdate);
   ASSERT_EQ(1u, callCount.WinResolve);
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   CheckZeroExcept(callCount, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
   callCount = newWindow->GetCallCount();
 
   ASSERT_EQ(1u, callCount.WinInit);
@@ -178,10 +179,10 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_NoLayout)
   auto mainWindow = m_mainWindow;
   auto tree = m_tree;
   auto newWindow1 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
 
   auto newWindow2 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
 
   m_mainWindow->Callbacks.HookWinUpdate = mainWindowOnUpdate;
   newWindow1->Callbacks.HookWinUpdate = newWindowOnUpdate;
@@ -197,12 +198,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_NoLayout)
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(3u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -219,7 +220,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_NoLayout)
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -263,10 +264,10 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_NoLayout)
   auto mainWindow = m_mainWindow;
   auto tree = m_tree;
   auto newWindow1 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
 
   auto newWindow2 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
 
   m_mainWindow->Callbacks.HookWinUpdate = mainWindowOnUpdate;
   newWindow1->Callbacks.HookWinResolve = newWindowOnResolve;
@@ -281,12 +282,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_NoLayout)
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its resolve it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(3u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -303,7 +304,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_NoLayout)
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -346,7 +347,7 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_NoLayout)
   auto tree = m_tree;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  auto onResolve = [newWindow, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow); };
+  auto onResolve = [newWindow, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow); };
 
   m_mainWindow->Callbacks.HookWinResolve = onResolve;
 
@@ -356,9 +357,9 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_NoLayout)
   CheckZero(callCount, WindowMethod::All);
 
   // Update the tree which adds the new window during the update call using the above callback
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
@@ -368,12 +369,12 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_NoLayout)
   ASSERT_EQ(1u, callCount.WinUpdate);
   ASSERT_EQ(1u, callCount.WinResolve);
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   CheckZeroExcept(callCount, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
   callCount = newWindow->GetCallCount();
 
   ASSERT_EQ(1u, callCount.WinInit);
@@ -406,10 +407,10 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_NoLayout)
   auto mainWindow = m_mainWindow;
   auto tree = m_tree;
   auto newWindow1 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
 
   auto newWindow2 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
 
   newWindow1->SetCallIdManager(callIdManager);
   newWindow2->SetCallIdManager(callIdManager);
@@ -425,12 +426,12 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_NoLayout)
 
   // Update the tree which adds the new window during the resolve call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(3u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -447,7 +448,7 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_NoLayout)
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -491,9 +492,9 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_NoLayout)
   auto mainWindow = m_mainWindow;
   auto tree = m_tree;
   auto newWindow1 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
   auto newWindow2 = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
-  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
 
   newWindow1->SetCallIdManager(callIdManager);
   newWindow2->SetCallIdManager(callIdManager);
@@ -508,12 +509,12 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_NoLayout)
 
   // Update the tree which adds the new window during the resolve call using the above callback and
   // as the new window adds newWindow2 during its resolve it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(3u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -530,7 +531,7 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_NoLayout)
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -593,9 +594,9 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_UpdateAddChild
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
 
   m_mainWindow->Callbacks.HookWinUpdate = mainWindowOnUpdate;
   newWindow1->Callbacks.HookWinUpdate = newWindowOnUpdate;
@@ -610,12 +611,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_UpdateAddChild
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -638,7 +639,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_UpdateAddChild
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -701,9 +702,9 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_ResolveAddChil
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
   m_mainWindow->Callbacks.HookWinUpdate = mainWindowOnUpdate;
   newWindow1->Callbacks.HookWinUpdate = newWindowOnUpdate;
   newWindow2->Callbacks.HookWinResolve = newWindow2OnResolve;
@@ -717,12 +718,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_ResolveAddChil
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -745,7 +746,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_ResolveAddChil
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -808,9 +809,9 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_UpdateAddChil
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
 
   m_mainWindow->Callbacks.HookWinUpdate = mainWindowOnUpdate;
   newWindow1->Callbacks.HookWinResolve = newWindowOnResolve;
@@ -825,12 +826,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_UpdateAddChil
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -853,7 +854,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_UpdateAddChil
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -916,9 +917,9 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_ResolveAddChi
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnUpdate = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
 
   m_mainWindow->Callbacks.HookWinUpdate = mainWindowOnUpdate;
   newWindow1->Callbacks.HookWinResolve = newWindowOnResolve;
@@ -933,12 +934,12 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_ResolveAddChi
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -961,7 +962,7 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_ResolveAddChi
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -1026,9 +1027,9 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_UpdateAddChil
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
 
   m_mainWindow->Callbacks.HookWinResolve = mainWindowOnResolve;
   newWindow1->Callbacks.HookWinUpdate = newWindowOnUpdate;
@@ -1043,12 +1044,12 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_UpdateAddChil
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -1071,7 +1072,7 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_UpdateAddChil
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -1134,9 +1135,9 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_ResolveAddChi
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnUpdate = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
   m_mainWindow->Callbacks.HookWinResolve = mainWindowOnResolve;
   newWindow1->Callbacks.HookWinUpdate = newWindowOnUpdate;
   newWindow2->Callbacks.HookWinResolve = newWindow2OnResolve;
@@ -1150,12 +1151,12 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_ResolveAddChi
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -1178,7 +1179,7 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_ResolveAddChi
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -1241,9 +1242,9 @@ TEST_F(TestUITree_ActiveWindow, MainesolveAddChild_ResolveAddChild_UpdateAddChil
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnUpdate = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
 
   m_mainWindow->Callbacks.HookWinResolve = mainWindowOnResolve;
   newWindow1->Callbacks.HookWinResolve = newWindowOnResolve;
@@ -1258,12 +1259,12 @@ TEST_F(TestUITree_ActiveWindow, MainesolveAddChild_ResolveAddChild_UpdateAddChil
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -1286,7 +1287,7 @@ TEST_F(TestUITree_ActiveWindow, MainesolveAddChild_ResolveAddChild_UpdateAddChil
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -1349,9 +1350,9 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_ResolveAddCh
   newWindow2->SetCallIdManager(callIdManager);
   newWindow3->SetCallIdManager(callIdManager);
 
-  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow1); };
-  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow1, newWindow2); };
-  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const DemoTime& /*demoTime*/) { tree->AddChild(newWindow2, newWindow3); };
+  auto mainWindowOnResolve = [newWindow1, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow1); };
+  auto newWindowOnResolve = [newWindow2, newWindow1, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow1, newWindow2); };
+  auto newWindow2OnResolve = [newWindow3, newWindow2, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(newWindow2, newWindow3); };
 
   m_mainWindow->Callbacks.HookWinResolve = mainWindowOnResolve;
   newWindow1->Callbacks.HookWinResolve = newWindowOnResolve;
@@ -1366,12 +1367,12 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_ResolveAddCh
 
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
   ASSERT_EQ(1u, m_tree->GetNodeCount());
-  m_tree->Update(demoTime);
+  m_tree->Update(timeSpan);
   ASSERT_EQ(4u, m_tree->GetNodeCount());
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
@@ -1394,7 +1395,7 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_ResolveAddCh
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   ignoreFlags |= WindowMethod::WinDraw;
 

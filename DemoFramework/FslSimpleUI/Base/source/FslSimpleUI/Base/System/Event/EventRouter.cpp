@@ -55,7 +55,7 @@ namespace Fsl
       void CalcClipRect(PxPoint2& rTopLeftPx, PxClipRectangle& rClipRectPx, const PxPoint2& parentTopLeftPx, const PxClipRectangle& parentClipRectPx,
                         const std::shared_ptr<TreeNode>& node)
       {
-        PxRectangle boundingRectPx = node->WinGetContentPxRectangle();
+        PxRectangle boundingRectPx = node->WinGetContentRectanglePx();
         rTopLeftPx = PxPoint2(parentTopLeftPx.X + boundingRectPx.X(), parentTopLeftPx.Y + boundingRectPx.Y());
         {
           // assert(EqualHelper::IsEqual(node->CalcScreenTopLeftCornerPx(), rTopLeft));
@@ -70,7 +70,7 @@ namespace Fsl
       //      A more correct and probably faster solution would be to store all hit enabled children in a oct-tree for fast searching
       std::shared_ptr<TreeNode> RecursiveLocateTopChildThatWasHit(const PxPoint2& currentTopLeftPx, const PxClipRectangle& currentClipRectPx,
                                                                   const std::shared_ptr<TreeNode>& node, const PxPoint2& eventPosPx,
-                                                                  const WindowFlags& flags)
+                                                                  const WindowFlags flags)
       {
         assert(node);
 
@@ -137,7 +137,7 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<TreeNode> EventRouter::LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags& flags) const
+    std::shared_ptr<TreeNode> EventRouter::LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags flags) const
     {
       if (flags.IsOnlyFlagEnabled(WindowFlags::ClickInput))
       {
@@ -145,7 +145,7 @@ namespace Fsl
       }
 
       // locate the actual window that was hit
-      PxClipRectangle clipRectPx(TypeConverter::UncheckedTo<PxClipRectangle>(m_rootNode->WinGetContentPxRectangle()));
+      PxClipRectangle clipRectPx(TypeConverter::UncheckedTo<PxClipRectangle>(m_rootNode->WinGetContentRectanglePx()));
       const PxPoint2 topLeftPx = clipRectPx.TopLeft();
       return RecursiveLocateTopChildThatWasHit(topLeftPx, clipRectPx, m_rootNode, hitPositionPx, flags);
     }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Vulkan1_2" CreationYear="2021">
+    <Requirement Name="Vulkan1.2" Type="feature" Extends="Vulkan" Version="1.2"/>
+    <Dependency Name="Vulkan"/>
+  </ExternalLibrary>
+</FslBuildGen>

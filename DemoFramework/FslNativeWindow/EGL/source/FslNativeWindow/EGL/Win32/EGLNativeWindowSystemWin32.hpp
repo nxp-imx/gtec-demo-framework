@@ -1,6 +1,6 @@
 #ifndef FSLNATIVEWINDOW_EGL_WIN32_EGLNATIVEWINDOWSYSTEMWIN32_HPP
 #define FSLNATIVEWINDOW_EGL_WIN32_EGLNATIVEWINDOWSYSTEMWIN32_HPP
-#ifdef _WIN32
+#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.

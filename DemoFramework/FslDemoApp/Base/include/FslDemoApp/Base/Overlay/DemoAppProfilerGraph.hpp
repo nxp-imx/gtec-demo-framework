@@ -45,17 +45,17 @@ namespace Fsl
 
   class DemoAppProfilerGraph
   {
-    int32_t m_minValue;
-    int32_t m_maxValue;
+    int64_t m_minValue;
+    int64_t m_maxValue;
     Point2 m_size;
-    CircularFixedSizeBuffer<int32_t> m_entries;
+    CircularFixedSizeBuffer<int64_t> m_entries;
     std::vector<Vector2> m_coords;
 
   public:
-    DemoAppProfilerGraph(const int32_t minValue, const int32_t maxValue, const Point2& size);
+    DemoAppProfilerGraph(const int64_t minValue, const int64_t maxValue, const Point2& size);
 
     Point2 GetSize() const;
-    void Add(const int32_t latestValue);
+    void Add(const int64_t latestValue);
     void Draw(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPosition, const Color& color);
   };
 }

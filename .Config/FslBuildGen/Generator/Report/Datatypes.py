@@ -43,7 +43,7 @@ class FormatStringEnvironmentVariableResolveMethod(Enum):
 
     @staticmethod
     def ToInt(value: 'FormatStringEnvironmentVariableResolveMethod') -> int:
-        return cast(int, value.value)
+        return value.value
 
     @staticmethod
     def Convert(value: int) -> 'FormatStringEnvironmentVariableResolveMethod':

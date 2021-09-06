@@ -31,11 +31,38 @@
  *
  ****************************************************************************************************************************************************/
 
-#if defined(_MSC_VER)
+// Defines:
+// FSL_FUNC_WARN_UNUSED_RESULT            Issue a warning if the result is unused (do not use together with FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT)
+// FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT    Issue a warning if the result is unused (deprecated use FSL_FUNC_WARN_UNUSED_RESULT instead, do not use
+// both)
+
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_WARN_UNUSED_RESULT [[nodiscard]]
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+
+#else
+
+#if defined(__clang__)
+
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_WARN_UNUSED_RESULT [[nodiscard]]
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+
+#elif defined(_MSC_VER)
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_WARN_UNUSED_RESULT    // _Check_return_
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+
 #elif defined(__GNUC__)
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 
@@ -44,12 +71,22 @@
 //#endif
 
 #elif defined(__QNXNTO__)
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_WARN_UNUSED_RESULT
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+
 #else
+
+#pragma message("WARNING: It would be a good idea to implement FSL_FUNC_WARN_UNUSED_RESULT for this compiler")
 #pragma message("WARNING: It would be a good idea to implement FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT for this compiler")
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_FUNC_WARN_UNUSED_RESULT
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+
+#endif
 #endif
 
 #endif

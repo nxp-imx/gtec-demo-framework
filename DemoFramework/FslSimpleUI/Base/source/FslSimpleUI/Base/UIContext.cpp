@@ -31,14 +31,19 @@
 
 #include <FslSimpleUI/Base/UIContext.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Render/Base/IMeshManager.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-    UIContext::UIContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender)
+    UIContext::UIContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender,
+                         const std::shared_ptr<IMeshManager>& meshManager)
       : WindowManager(windowManager)
       , EventSender(eventSender)
+      , MeshManager(meshManager)
     {
       if (!windowManager)
       {
@@ -47,6 +52,10 @@ namespace Fsl
       if (!eventSender)
       {
         throw std::invalid_argument("eventSender can not be null");
+      }
+      if (!meshManager)
+      {
+        throw std::invalid_argument("meshManager can not be null");
       }
     }
 

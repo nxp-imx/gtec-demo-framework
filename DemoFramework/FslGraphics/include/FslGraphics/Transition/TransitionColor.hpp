@@ -68,20 +68,21 @@ namespace Fsl
     void SetStartDelay(const TransitionTimeSpan& value);
 
     //! @brief Check if the animation is completed
-    bool IsCompleted() const
+    bool IsCompleted() const noexcept
     {
       return m_currentTime >= m_endTime;
     }
 
     //! @brief Get the current value
-    Color GetValue() const
+    Color GetValue() const noexcept
     {
       return m_val;
     }
+
     void SetValue(const Color& value);
 
     //! @brief Get the actual value (the value the animation will finish at)
-    Color GetActualValue() const
+    Color GetActualValue() const noexcept
     {
       return m_target;
     }

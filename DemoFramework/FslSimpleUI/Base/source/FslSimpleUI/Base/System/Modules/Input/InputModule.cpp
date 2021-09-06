@@ -77,7 +77,7 @@ namespace Fsl
         if (target)
         {
           // Dont allow mouse over while in a active click event
-          if (!m_hitBasedInputSender->HasActiveClickEvent())
+          if (!m_hitBasedInputSender->HasActiveClickEventThatIsNot(target))
           {
             m_mouseOver.Target = target;
             assert(target);

@@ -53,6 +53,7 @@ from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
 from FslBuildGen.BuildConfig.CMakeConfigurationPlatform import CMakeConfigurationPlatform
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.CMakeUtil import CMakeUtil
+from FslBuildGen.CMakeIgnoreDirUtil import CMakeIgnoreDirUtil
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.DataTypes import CompilerNames
 from FslBuildGen.DataTypes import MagicStrings
@@ -64,8 +65,10 @@ from FslBuildGen.Exceptions import DuplicatedConfigPackageLocation
 from FslBuildGen.Exceptions import DuplicatedConfigRootPath
 from FslBuildGen.Exceptions import DuplicatedNewProjectTemplatesRootPath
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.Version import Version
+from FslBuildGen.Tool.LowLevelToolConfig import LowLevelToolConfig
 from FslBuildGen.ToolConfigBasePackage import ToolConfigBasePackage
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 from FslBuildGen.ToolConfigPackageRootUtil import ToolConfigPackageRootUtil
@@ -350,10 +353,11 @@ class ToolConfigContentBuilderConfiguration(object):
 
 
 class ToolConfig(object):
-    def __init__(self, buildPlatformType: BuildPlatformType, toolVersion: Version, basicConfig: BasicConfig, filename: str,
+    def __init__(self, lowLevelToolConfig: LowLevelToolConfig, buildPlatformType: BuildPlatformType, toolVersion: Version, basicConfig: BasicConfig, filename: str,
                  projectRootConfig: XmlProjectRootConfigFile) -> None:
         super().__init__()
         basedUponXML = XmlToolConfigFile(basicConfig, filename, projectRootConfig)
+        self.LowLevelToolConfig = lowLevelToolConfig
         self.ToolVersion = toolVersion
         self.BasedOn = basedUponXML
         self.GenFileName = basedUponXML.GenFileName.Name
@@ -389,14 +393,18 @@ class ToolConfig(object):
             self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToBashPathDirectConversion
 
 
-    def GetMinimalConfig(self) -> ToolMinimalConfig:
+    def GetMinimalConfig(self, cmakeConfig: Optional[GeneratorCMakeConfig]) -> ToolMinimalConfig:
         ignoreDirectories = []  # type: List[str]
         # ignore the template import directory
         for templateImport in self.TemplateImportDirectories:
-            ignoreDirectories.append(templateImport.ResolvedPathEx)
+            ignoreDirectories.append(templateImport.ResolvedPath)
         # ignore the NewProjectTemplateRootDirectories
         for newProjectTemplate in self.NewProjectTemplateRootDirectories:
-            ignoreDirectories.append(newProjectTemplate.ResolvedPathEx)
+            ignoreDirectories.append(newProjectTemplate.ResolvedPath)
+
+        if cmakeConfig is not None:
+            ignoreDirectories += CMakeIgnoreDirUtil.GetIgnoreDirs(self.ProjectInfo, cmakeConfig, self.CMakeConfiguration.DefaultBuildDir)
+
         return ToolMinimalConfig(self.RootDirectories, ignoreDirectories)
 
     def __TryGetBuildDocConfiguration(self, configList: List[XmlBuildDocConfiguration]) -> BuildDocConfiguration:

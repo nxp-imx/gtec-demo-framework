@@ -30,23 +30,27 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Sprite/SpriteManager.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/BasicNineSliceSprite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
-#include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/NineSliceSprite.hpp>
+#include <FslGraphics/Sprite/OptimizedBasicNineSliceSprite.hpp>
+#include <FslGraphics/Sprite/OptimizedNineSliceSprite.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSlicePatchInfo.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
-#include <FslBase/Log/IO/FmtPathView.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <utility>
 
 namespace Fsl
 {
-  SpriteManager::SpriteManager(const uint32_t densityDpi)
-    : m_densityDpi(densityDpi)
+  SpriteManager::SpriteManager(const uint32_t densityDpi, const bool useYFlipTextureCoordinates)
+    : m_spriteNativeAreaCalc(useYFlipTextureCoordinates)
+    , m_densityDpi(densityDpi)
   {
     if (densityDpi <= 0)
     {
@@ -115,7 +119,9 @@ namespace Fsl
       throw UsageErrorException("BasicImageSprite image can not contain trim");
     }
 
-    auto sprite = std::make_shared<BasicImageSprite>(spriteMaterialInfo, textureInfo.TrimmedRectPx, textureInfo.Dpi, debugName, m_densityDpi);
+    auto sprite =
+      std::make_shared<BasicImageSprite>(m_spriteNativeAreaCalc, spriteMaterialInfo, TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx),
+                                         textureInfo.Dpi, debugName, m_densityDpi);
 
     Add(sprite);
     return sprite;
@@ -130,8 +136,9 @@ namespace Fsl
       throw std::invalid_argument("spriteMaterialInfo must be valid");
     }
 
-    auto sprite = std::make_shared<ImageSprite>(spriteMaterialInfo, textureInfo.TrimMarginPx, textureInfo.TrimmedRectPx, textureInfo.Dpi, debugName,
-                                                m_densityDpi);
+    auto sprite =
+      std::make_shared<ImageSprite>(m_spriteNativeAreaCalc, spriteMaterialInfo, textureInfo.TrimMarginPx,
+                                    TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx), textureInfo.Dpi, debugName, m_densityDpi);
 
     Add(sprite);
     return sprite;
@@ -159,7 +166,8 @@ namespace Fsl
           throw UsageErrorException("BasicImageSprite image can not contain trim");
         }
 
-        pImageSprite->SetContent(spriteMaterialInfo, textureInfo.TrimmedRectPx, textureInfo.Dpi, debugName, m_densityDpi);
+        pImageSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx),
+                                 textureInfo.Dpi, debugName, m_densityDpi);
         return;
       }
     }
@@ -167,10 +175,55 @@ namespace Fsl
       auto* pImageSprite = dynamic_cast<ImageSprite*>(pSprite);
       if (pImageSprite != nullptr)
       {
-        pImageSprite->SetContent(spriteMaterialInfo, textureInfo.TrimMarginPx, textureInfo.TrimmedRectPx, textureInfo.Dpi, debugName, m_densityDpi);
+        pImageSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, textureInfo.TrimMarginPx,
+                                 TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx), textureInfo.Dpi, debugName, m_densityDpi);
         return;
       }
     }
+    throw NotSupportedException("Unsupported sprite type");
+  }
+
+  void SpriteManager::Patch(const std::shared_ptr<IImageSprite>& sprite, const SpriteMaterialInfo& spriteMaterialInfo0,
+                            const SpriteMaterialInfo& spriteMaterialInfo1, const AtlasTextureInfo& textureInfo, const IO::PathView& debugName)
+  {
+    FSL_PARAM_NOT_USED(textureInfo);
+    FSL_PARAM_NOT_USED(debugName);
+    IImageSprite* const pSprite = sprite.get();
+    if (pSprite == nullptr)
+    {
+      throw std::invalid_argument("sprite can not be null");
+    }
+    if (!spriteMaterialInfo0.IsValid())
+    {
+      throw std::invalid_argument("spriteMaterialInfo0 must be valid");
+    }
+    if (!spriteMaterialInfo1.IsValid())
+    {
+      throw std::invalid_argument("spriteMaterialInfo1 must be valid");
+    }
+
+    //{    // Try BasicImageSprite
+    //  auto* pImageSprite = dynamic_cast<BasicImageSprite*>(pSprite);
+    //  if (pImageSprite != nullptr)
+    //  {
+    //    if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+    //    {
+    //      throw UsageErrorException("BasicImageSprite image can not contain trim");
+    //    }
+
+    //    pImageSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, textureInfo.TrimmedRectPx, textureInfo.Dpi, debugName, m_densityDpi);
+    //    return;
+    //  }
+    //}
+    //{    // Try ImageSprite
+    //  auto* pImageSprite = dynamic_cast<ImageSprite*>(pSprite);
+    //  if (pImageSprite != nullptr)
+    //  {
+    //    pImageSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, textureInfo.TrimMarginPx, textureInfo.TrimmedRectPx, textureInfo.Dpi,
+    //                             debugName, m_densityDpi);
+    //    return;
+    //  }
+    //}
     throw NotSupportedException("Unsupported sprite type");
   }
 
@@ -190,8 +243,9 @@ namespace Fsl
       throw UsageErrorException("BasicNineSliceSprite image can not contain trim");
     }
 
-    auto sprite = std::make_shared<BasicNineSliceSprite>(spriteMaterialInfo, textureInfo.TrimmedRectPx, patchInfo.NineSlicePx,
-                                                         patchInfo.ContentMarginPx, textureInfo.Dpi, debugName, m_densityDpi);
+    auto sprite =
+      std::make_shared<BasicNineSliceSprite>(m_spriteNativeAreaCalc, spriteMaterialInfo, TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx),
+                                             patchInfo.NineSlicePx, patchInfo.ContentMarginPx, textureInfo.Dpi, debugName, m_densityDpi);
 
     Add(sprite);
     return sprite;
@@ -207,8 +261,62 @@ namespace Fsl
       throw std::invalid_argument("spriteMaterialInfo must be valid");
     }
 
-    auto sprite = std::make_shared<NineSliceSprite>(spriteMaterialInfo, textureInfo.TrimMarginPx, textureInfo.TrimmedRectPx, patchInfo.NineSlicePx,
+    auto sprite = std::make_shared<NineSliceSprite>(m_spriteNativeAreaCalc, spriteMaterialInfo, textureInfo.TrimMarginPx,
+                                                    TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx), patchInfo.NineSlicePx,
                                                     patchInfo.ContentMarginPx, textureInfo.Dpi, debugName, m_densityDpi);
+
+    Add(sprite);
+    return sprite;
+  }
+
+
+  std::shared_ptr<OptimizedBasicNineSliceSprite>
+    SpriteManager::AddOptimizedBasicNineSliceSprite(const SpriteMaterialInfo& opaqueSpriteMaterialInfo,
+                                                    const SpriteMaterialInfo& transparentSpriteMaterialInfo, const AtlasTextureInfo& textureInfo,
+                                                    const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName)
+  {
+    if (!opaqueSpriteMaterialInfo.IsValid())
+    {
+      throw std::invalid_argument("opaqueSpriteMaterialInfo must be valid");
+    }
+    if (!transparentSpriteMaterialInfo.IsValid())
+    {
+      throw std::invalid_argument("transparentSpriteMaterialInfo must be valid");
+    }
+
+    if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+    {
+      throw UsageErrorException("BasicNineSliceSprite image can not contain trim");
+    }
+
+    auto sprite = std::make_shared<OptimizedBasicNineSliceSprite>(
+      m_spriteNativeAreaCalc, opaqueSpriteMaterialInfo, transparentSpriteMaterialInfo, TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx),
+      patchInfo.NineSlicePx, patchInfo.ContentMarginPx, patchInfo.Flags, textureInfo.Dpi, debugName, m_densityDpi);
+
+    Add(sprite);
+    return sprite;
+  }
+
+
+  std::shared_ptr<OptimizedNineSliceSprite> SpriteManager::AddOptimizedNineSliceSprite(const SpriteMaterialInfo& opaqueSpriteMaterialInfo,
+                                                                                       const SpriteMaterialInfo& transparentSpriteMaterialInfo,
+                                                                                       const AtlasTextureInfo& textureInfo,
+                                                                                       const AtlasNineSlicePatchInfo& patchInfo,
+                                                                                       const IO::PathView& debugName)
+  {
+    if (!opaqueSpriteMaterialInfo.IsValid())
+    {
+      throw std::invalid_argument("opaqueSpriteMaterialInfo must be valid");
+    }
+    if (!transparentSpriteMaterialInfo.IsValid())
+    {
+      throw std::invalid_argument("transparentSpriteMaterialInfo must be valid");
+    }
+
+    auto sprite = std::make_shared<OptimizedNineSliceSprite>(m_spriteNativeAreaCalc, opaqueSpriteMaterialInfo, transparentSpriteMaterialInfo,
+                                                             textureInfo.TrimMarginPx, TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx),
+                                                             patchInfo.NineSlicePx, patchInfo.ContentMarginPx, patchInfo.Flags, textureInfo.Dpi,
+                                                             debugName, m_densityDpi);
 
     Add(sprite);
     return sprite;
@@ -236,8 +344,8 @@ namespace Fsl
           throw UsageErrorException("BasicImageSprite image can not contain trim");
         }
 
-        pNineSliceSprite->SetContent(spriteMaterialInfo, textureInfo.TrimmedRectPx, patchInfo.NineSlicePx, patchInfo.ContentMarginPx, textureInfo.Dpi,
-                                     debugName, m_densityDpi);
+        pNineSliceSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx),
+                                     patchInfo.NineSlicePx, patchInfo.ContentMarginPx, textureInfo.Dpi, debugName, m_densityDpi);
         return;
       }
     }
@@ -245,14 +353,60 @@ namespace Fsl
       auto* pNineSliceSprite = dynamic_cast<NineSliceSprite*>(pSprite);
       if (pNineSliceSprite != nullptr)
       {
-        pNineSliceSprite->SetContent(spriteMaterialInfo, textureInfo.TrimMarginPx, textureInfo.TrimmedRectPx, patchInfo.NineSlicePx,
-                                     patchInfo.ContentMarginPx, textureInfo.Dpi, debugName, m_densityDpi);
+        pNineSliceSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, textureInfo.TrimMarginPx,
+                                     TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx), patchInfo.NineSlicePx, patchInfo.ContentMarginPx,
+                                     textureInfo.Dpi, debugName, m_densityDpi);
         return;
       }
     }
     throw NotSupportedException("Unsupported sprite type");
   }
 
+
+  void SpriteManager::Patch(const std::shared_ptr<INineSliceSprite>& sprite, const SpriteMaterialInfo& spriteMaterialInfo0,
+                            const SpriteMaterialInfo& spriteMaterialInfo1, const AtlasTextureInfo& textureInfo,
+                            const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName)
+  {
+    INineSliceSprite* const pSprite = sprite.get();
+    if (pSprite == nullptr)
+    {
+      throw std::invalid_argument("sprite can not be null");
+    }
+    if (!spriteMaterialInfo0.IsValid())
+    {
+      throw std::invalid_argument("spriteMaterialInfo0 must be valid");
+    }
+    if (!spriteMaterialInfo1.IsValid())
+    {
+      throw std::invalid_argument("spriteMaterialInfo1 must be valid");
+    }
+    {    // Try OptimizedBasicNineSliceSprite
+      auto* pNineSliceSprite = dynamic_cast<OptimizedBasicNineSliceSprite*>(pSprite);
+      if (pNineSliceSprite != nullptr)
+      {
+        if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+        {
+          throw UsageErrorException("BasicImageSprite image can not contain trim");
+        }
+
+        pNineSliceSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo0, spriteMaterialInfo1,
+                                     TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx), patchInfo.NineSlicePx, patchInfo.ContentMarginPx,
+                                     patchInfo.Flags, textureInfo.Dpi, debugName, m_densityDpi);
+        return;
+      }
+    }
+    {    // Try NineSliceSprite
+      auto* pNineSliceSprite = dynamic_cast<OptimizedNineSliceSprite*>(pSprite);
+      if (pNineSliceSprite != nullptr)
+      {
+        pNineSliceSprite->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo0, spriteMaterialInfo1, textureInfo.TrimMarginPx,
+                                     TypeConverter::To<PxRectangleU16>(textureInfo.TrimmedRectPx), patchInfo.NineSlicePx, patchInfo.ContentMarginPx,
+                                     patchInfo.Flags, textureInfo.Dpi, debugName, m_densityDpi);
+        return;
+      }
+    }
+    throw NotSupportedException("Unsupported sprite type");
+  }
 
   std::shared_ptr<SpriteFont> SpriteManager::AddSpriteFont(const SpriteMaterialInfo& spriteMaterialInfo, const BitmapFont& bitmapFont,
                                                            const SpriteFontConfig& spriteFontConfig, const IO::PathView& debugName)
@@ -262,7 +416,7 @@ namespace Fsl
       throw std::invalid_argument("spriteMaterialInfo must be valid");
     }
 
-    auto sprite = std::make_shared<SpriteFont>(spriteMaterialInfo, bitmapFont.GetDpi(), bitmapFont, spriteFontConfig, m_densityDpi, debugName);
+    auto sprite = std::make_shared<SpriteFont>(m_spriteNativeAreaCalc, spriteMaterialInfo, bitmapFont, spriteFontConfig, m_densityDpi, debugName);
 
     Add(sprite);
     return sprite;
@@ -280,7 +434,7 @@ namespace Fsl
     const auto fontConfig = font->GetInfo().FontConfig;
     const SpriteFontConfig spriteFontConfig(fontConfig.Kerning);
 
-    font->SetContent(spriteMaterialInfo, bitmapFont.GetDpi(), bitmapFont, spriteFontConfig, m_densityDpi, debugName);
+    font->SetContent(m_spriteNativeAreaCalc, spriteMaterialInfo, bitmapFont, spriteFontConfig, m_densityDpi, debugName);
   }
 
 }

@@ -59,7 +59,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, Construct)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, PxRectangleU(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
 
   EXPECT_NO_THROW(TextureAtlasMap dummy(atlas));
 }
@@ -69,14 +69,14 @@ TEST(TestTextureAtlas_TextureAtlasMap, GetAtlasTextureInfo)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, PxRectangleU(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
 
   TextureAtlasMap map(atlas);
   auto textureInfo = map.GetAtlasTextureInfo("hello");
   EXPECT_EQ(PxPoint2(1, 2), textureInfo.OffsetPx);
   EXPECT_EQ(PxExtent2D(20, 30), textureInfo.ExtentPx);
   EXPECT_EQ(PxThicknessU(3, 4, 9, 14), textureInfo.TrimMarginPx);
-  EXPECT_EQ(PxRectangleU(4, 6, 8, 12), textureInfo.TrimmedRectPx);
+  EXPECT_EQ(PxRectangleU32(4, 6, 8, 12), textureInfo.TrimmedRectPx);
   EXPECT_EQ(TEST_DP, textureInfo.Dpi);
 }
 
@@ -85,7 +85,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, NotFound)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, PxRectangleU(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
+  atlas.SetEntry(0, PxRectangleU32(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
 
   TextureAtlasMap map(atlas);
   EXPECT_THROW(map.GetAtlasTextureInfo("/hello"), NotFoundException);

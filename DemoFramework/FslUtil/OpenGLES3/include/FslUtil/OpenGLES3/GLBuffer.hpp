@@ -35,6 +35,8 @@
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Span/ReadOnlyFlexSpan.hpp>
+#include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <cstdlib>
 #include <GLES3/gl3.h>
@@ -45,7 +47,7 @@ namespace Fsl
   {
     class GLBuffer
     {
-      GLuint m_handle;
+      GLuint m_handle{GLValues::INVALID_HANDLE};
       GLenum m_target{0};
       uint32_t m_capacity{0};
       uint32_t m_elementStride{0};
@@ -102,11 +104,17 @@ namespace Fsl
 
 
       //! @brief Create a uninitialized buffer
-      GLBuffer();
+      GLBuffer() noexcept = default;
 
       //! @brief Create a initialized buffer
       //! @param elementStride the size of one element in bytes
-      GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage);
+      GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage)
+        : GLBuffer(target, ReadOnlyFlexSpanUtil::AsSpan(pEntries, pEntries != nullptr ? elementCount : 0u, elementStride), elementCount, usage)
+      {
+      }
+
+      GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage);
+      GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage);
 
       virtual ~GLBuffer();
 
@@ -114,14 +122,14 @@ namespace Fsl
       virtual void Reset() noexcept;
 
       //! @brief Check if this buffer contains a valid gl handle.
-      bool IsValid() const
+      bool IsValid() const noexcept
       {
         return m_handle != GLValues::INVALID_HANDLE;
       }
 
       //! @brief Get the gl handle associated with the buffer.
       //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      GLuint Get() const
+      GLuint Get() const noexcept
       {
         return m_handle;
       }
@@ -134,28 +142,49 @@ namespace Fsl
       }
 
       //! @brief Get the buffer target
-      GLenum GetTarget() const
+      GLenum GetTarget() const noexcept
       {
         return m_target;
       }
 
       //! @brief Get the capacity
-      uint32_t GetCapacity() const
+      uint32_t GetCapacity() const noexcept
       {
         return m_capacity;
       }
 
       //! @brief Get the element stride (size of one element in bytes)
-      uint32_t GetElementStride() const
+      uint32_t GetElementStride() const noexcept
       {
         return m_elementStride;
       }
 
       //! @brief Get the buffer usage
-      GLenum GetUsage() const
+      GLenum GetUsage() const noexcept
       {
         return m_usage;
       }
+
+      //! @brief Update the given area of the buffer
+      //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
+      //! @param dstIndex the dst index where the data will be written.
+      //! @param bufferData the elements that should be written.
+      //! @note   This method does not check for glErrors since its intended for use during rendering.
+      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+      //! @throws std::invalid_argument if the bufferData span stride is incompatible with the buffer.
+      //! @throws UsageErrorException if the object isn't valid
+      void SetData(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData);
+
+      //! @brief Update the given area of the buffer
+      //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
+      //!        This does not unbind the GLBuffer after modification
+      //! @param dstIndex the dst index where the data will be written.
+      //! @param bufferData the elements that should be written.
+      //! @note   This method does not check for glErrors since its intended for use during rendering.
+      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+      //! @throws std::invalid_argument if the bufferData span stride is incompatible with the buffer.
+      //! @throws UsageErrorException if the object isn't valid
+      void SetDataEx(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData);
 
       //! @brief Update the given area of the buffer
       //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
@@ -166,7 +195,10 @@ namespace Fsl
       //! @throws std::invalid_argument if pElements == nullptr
       //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
       //! @throws UsageErrorException if the object isn't valid
-      void SetData(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
+      void SetData(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
+      {
+        SetData(dstIndex, ReadOnlyFlexSpanUtil::AsSpan(pElements, elementCount, m_elementStride));
+      }
 
       //! @brief Update the given area of the buffer (Unlike SetData this call assumes that the buffer is already bound to the correct target)
       //! @param dstIndex the dst index where the data will be written.
@@ -182,8 +214,17 @@ namespace Fsl
       //! @brief Fill the buffer with the given entries
       //! @param pElements a pointer to the data that will be copied (or null to just initialize it to the given size but no copy is done)
       //! @param elementStride the size of one element in bytes
-      void Reset(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride,
-                 const GLenum usage);
+      void Reset(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage)
+      {
+        Reset(target, ReadOnlyFlexSpanUtil::AsSpan(pEntries, pEntries != nullptr ? elementCount : 0u, elementStride), usage);
+      }
+
+      void Reset(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage)
+      {
+        Reset(target, buffer, buffer.size(), usage);
+      }
+
+      void Reset(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage);
     };
   }
 }

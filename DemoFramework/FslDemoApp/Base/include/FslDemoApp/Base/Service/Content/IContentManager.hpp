@@ -187,7 +187,7 @@ namespace Fsl
     //! @param relativePath the relative path to load the content from
     //!        (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @return true if the file was read, false otherwise
-    virtual bool TryReadAllText(std::string& rText, const IO::Path& relativePath) const FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT = 0;
+    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryReadAllText(std::string& rText, const IO::Path& relativePath) const = 0;
 
     //! @brief Read the content of the file as a bitmap.
     //! @param relativePath the relative path to load the content from
@@ -202,9 +202,10 @@ namespace Fsl
     //!        Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
     //!        The channel order is just a hint and the image service is free to ignore it.
     //! @return true if the bitmap was loaded, false otherwise
-    virtual bool TryRead(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                         const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-                         const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT = 0;
+    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryRead(Bitmap& rBitmap, const IO::Path& relativePath,
+                                                     const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
+                                                     const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
+                                                     const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const = 0;
 
     //! @brief Read the content of the file as a bitmap.
     //! @param relativePath the relative path to load the content from

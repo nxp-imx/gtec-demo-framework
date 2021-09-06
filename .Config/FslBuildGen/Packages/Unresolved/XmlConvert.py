@@ -93,7 +93,7 @@ class XmlConvert(object):
 
     @staticmethod
     def ToUnresolvedPackageDefine(xmlDefine: XmlGenFileDefine) -> UnresolvedPackageDefine:
-        return UnresolvedPackageDefine(xmlDefine.Name, xmlDefine.Access)
+        return UnresolvedPackageDefine(xmlDefine.Name, xmlDefine.Value, xmlDefine.Access)
 
     @staticmethod
     def ToUnresolvedPackageVariant(xmlVariant: XmlGenFileVariant) -> UnresolvedPackageVariant:

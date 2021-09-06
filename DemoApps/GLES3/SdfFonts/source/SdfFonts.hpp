@@ -33,7 +33,7 @@
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
@@ -92,8 +92,8 @@ namespace Fsl
 
     struct FontRecord
     {
-      TextureAtlasBitmapFont Font;
       GLES3::GLTexture Texture;
+      TextureAtlasSpriteFont Font;
     };
 
     struct ExampleRecord
@@ -122,7 +122,7 @@ namespace Fsl
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
 
     Resources m_resources;
-    std::vector<FontGlyphPosition> m_positionsScratchpad;
+    std::vector<SpriteFontGlyphPosition> m_positionsScratchpad;
 
   public:
     explicit SdfFonts(const DemoAppConfig& config);
@@ -142,16 +142,18 @@ namespace Fsl
 
     static ExampleRecord PrepareExample(const IContentManager& contentManager, const int32_t lineYPx, const IO::Path& vertShaderPath,
                                         const IO::Path& fragShaderPath, const IO::Path& bitmapFontPath, const IO::Path& fontAtlasTexturePath,
-                                        const StringViewLite& strView, std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                                        const StringViewLite& strView, const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
+                                        std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
     static ShaderRecord GenerateShaderRecord(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath);
 
 
     static MeshRecord GenerateMesh(const PxPoint2& dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
-                                   const ShaderRecord& shader, const StringViewLite& strView, std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                                   const ShaderRecord& shader, const StringViewLite& strView,
+                                   std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
     static void RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const PxPoint2& dstPositionPx, const FontRecord& fontRecord,
                                        const BitmapFontConfig fontConfig, const StringViewLite& strView,
-                                       std::vector<FontGlyphPosition>& rPositionsScratchpad);
+                                       std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
 
     const ShaderRecord& SelectShaderRecord(const SdfFontMode fontSdfMode);
   };

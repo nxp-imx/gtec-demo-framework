@@ -33,6 +33,7 @@
 
 #include <FslBase/Attributes.hpp>
 #include <FslGraphics/Vertices/VertexElementEx.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <vector>
 
 namespace Fsl
@@ -53,6 +54,9 @@ namespace Fsl
 
 
     VertexDeclaration();
+
+    //! @brief Create a vertex declaration based on the given elements.
+    explicit VertexDeclaration(VertexDeclarationSpan span);
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
@@ -88,6 +92,8 @@ namespace Fsl
 
     //! @brief Get the element for the given usage and usageIndex (if not found a NotFoundException is thrown)
     VertexElementEx VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const;
+
+    VertexDeclarationSpan AsSpan() const;
 
     bool operator==(const VertexDeclaration& rhs) const;
     bool operator!=(const VertexDeclaration& rhs) const;

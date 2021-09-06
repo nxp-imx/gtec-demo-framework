@@ -33,13 +33,14 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslSimpleUI/Base/ItemAlignmentUtil.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <cassert>
 #include <limits>
 
@@ -50,12 +51,8 @@ namespace Fsl
     LabelBase::LabelBase(const std::shared_ptr<WindowContext>& context)
       : BaseWindow(context)
       , m_windowContext(context)
-      , m_font(context->DefaultFont)
+      , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
     {
-      if (!m_font)
-      {
-        throw std::invalid_argument("context->DefaultFont is invalid");
-      }
       Enable(WindowFlags(WindowFlags::DrawEnabled));
     }
 
@@ -93,14 +90,8 @@ namespace Fsl
 
     void LabelBase::SetFont(const std::shared_ptr<SpriteFont>& value)
     {
-      if (!value)
+      if (m_font.SetSprite(value))
       {
-        throw std::invalid_argument("font can not be null");
-      }
-
-      if (value != m_font)
-      {
-        m_font = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -123,74 +114,27 @@ namespace Fsl
       }
     }
 
-
     void LabelBase::WinDraw(const UIDrawContext& context)
     {
       BaseWindow::WinDraw(context);
 
-      const auto content = DoGetContent();
-
-      SpriteFont* const pFont = m_font.get();
-      if (content.empty() || pFont == nullptr)
+      if (!m_font.IsValid() || m_font.GetText().empty())
       {
         return;
       }
 
-      const auto batch = m_windowContext->Batch2D;
 
-      assert(pFont != nullptr);
-
-      auto stringSizePx = pFont->MeasureString(content);
+      PxSize2D stringSizePx = m_font.Measure();
       auto dstPosPxf = context.TargetRect.TopLeft();
 
-      switch (m_contentAlignmentX)
-      {
-      case ItemAlignment::Center:
-      {
-        auto renderSizePx = RenderSizePx();
-        // We intentionally do the following calc in integers and convert it to a float at the end
-        // NOLINTNEXTLINE(bugprone-integer-division)
-        dstPosPxf.X += float((renderSizePx.Width() - stringSizePx.Width()) / 2);
-        break;
-      }
-      case ItemAlignment::Far:
-      {
-        auto renderSizePx = RenderSizePx();
-        dstPosPxf.X += float(renderSizePx.Width() - stringSizePx.Width());
-        break;
-      }
-      case ItemAlignment::Near:
-      case ItemAlignment::Stretch:
-      default:
-        break;
-      }
-
-      switch (m_contentAlignmentY)
-      {
-      case ItemAlignment::Center:
-      {
-        auto renderSizePx = RenderSizePx();
-        // We intentionally do the following calc in integers and convert it to a float at the end
-        // NOLINTNEXTLINE(bugprone-integer-division)
-        dstPosPxf.Y += float((renderSizePx.Height() - stringSizePx.Height()) / 2);
-        break;
-      }
-      case ItemAlignment::Far:
-      {
-        auto renderSizePx = RenderSizePx();
-        dstPosPxf.Y += float(renderSizePx.Height() - stringSizePx.Height());
-        break;
-      }
-      case ItemAlignment::Near:
-      case ItemAlignment::Stretch:
-      default:
-        break;
-      }
+      auto renderSizePx = RenderSizePx();
+      // NOLINTNEXTLINE(bugprone-integer-division)
+      dstPosPxf.X += static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_contentAlignmentX, renderSizePx.Width() - stringSizePx.Width()));
+      // NOLINTNEXTLINE(bugprone-integer-division)
+      dstPosPxf.Y += static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_contentAlignmentY, renderSizePx.Height() - stringSizePx.Height()));
 
       const auto& color = m_enabled ? m_fontColor : m_fontDisabledColor;
-
-      batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
-      batch->DrawString(*pFont, content, TypeConverter::To<Vector2>(dstPosPxf), color);
+      context.CommandBuffer.Draw(m_font.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
     }
 
 
@@ -203,23 +147,12 @@ namespace Fsl
     PxSize2D LabelBase::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
       FSL_PARAM_NOT_USED(availableSizePx);
-
-      const auto* pFont = m_font.get();
-      assert(pFont != nullptr);
       const auto content = DoGetContent();
-      const auto& fontInfo = pFont->GetInfo();
-      auto measured = pFont->MeasureString(content);
-      return {measured.Width(), fontInfo.ScaledLineSpacingPx};
-    }
+      m_font.SetText(content);
 
-
-    PxPoint2 LabelBase::DoMeasureRenderedString(const StringViewLite& value) const
-    {
-      const auto* pFont = m_font.get();
-      assert(pFont != nullptr);
-      const auto& fontInfo = pFont->GetInfo();
-      auto measured = pFont->MeasureString(value);
-      return {measured.Width(), fontInfo.ScaledLineSpacingPx};
+      auto measureRes = m_font.ComplexMeasure();
+      m_cachedMeasureMinimalFontSizePx = measureRes.MinimalSizePx;
+      return measureRes.MeasureSizePx;
     }
   }
 }

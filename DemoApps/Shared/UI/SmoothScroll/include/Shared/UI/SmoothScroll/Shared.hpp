@@ -40,8 +40,10 @@
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <memory>
 
 namespace Fsl
@@ -73,7 +75,7 @@ namespace Fsl
       std::shared_ptr<UI::Switch> DrawImageCheckBox;
       std::shared_ptr<UI::Switch> TestPatternCheckBox;
       std::shared_ptr<UI::SliderAndFmtValueLabel<float>> Slider;
-      std::shared_ptr<UI::LabelNineSliceButton> BtnDefault;
+      std::shared_ptr<UI::BackgroundLabelButton> BtnDefault;
       std::shared_ptr<UI::BaseWindow> MainLayout;
     };
 
@@ -118,7 +120,7 @@ namespace Fsl
     void DecreaseSlider(const float speed);
     void IncreaseSlider(const float speed);
 
-    void DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font,
+    void DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& srcTexture, const TextureAtlasSpriteFont& font,
                   const BitmapFontConfig& fontConfig, const Vector2& positionPxf, const Color& fontColor, const PxClipRectangle& clipRectPx);
 
     SimpleUI CreateUI();

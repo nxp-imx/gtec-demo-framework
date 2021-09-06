@@ -30,8 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
+#include <FslDemoHost/Vulkan/Config/IVulkanDeviceCreationCustomizer.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <utility>
+
 
 namespace Fsl
 {
@@ -45,4 +48,11 @@ namespace Fsl
   //  : m_demoAppMode(demoAppMode)
   //{
   //}
+
+
+  void DemoAppHostConfigVulkan::SetDeviceCreationCustomizer(std::shared_ptr<Vulkan::IVulkanDeviceCreationCustomizer> customizer)
+  {
+    m_customizer = std::move(customizer);
+  }
+
 }

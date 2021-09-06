@@ -38,21 +38,21 @@
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindowFlags.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 #include <FslSimpleUI/Base/DpLayoutSize2D.hpp>
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
+#include <FslSimpleUI/Base/ItemVisibility.hpp>
 #include <FslSimpleUI/Base/IWindowId.hpp>
 #include <FslSimpleUI/Base/LayoutCache.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
 #include <memory>
-#include <stdexcept>
 
 namespace Fsl
 {
-  struct DemoTime;
   struct TransitionTimeSpan;
 
   namespace UI
@@ -79,16 +79,27 @@ namespace Fsl
       BaseWindowFlags m_flags;
       LayoutCache m_layoutCache;
 
+      Color m_parentBaseColor{Color::White()};
+      Color m_baseColor{Color::White()};
+      Color m_cachedBaseColor{Color::White()};
+
     public:
       BaseWindow(const BaseWindow&) = delete;
       BaseWindow& operator=(const BaseWindow&) = delete;
 
-      explicit BaseWindow(const std::shared_ptr<BaseWindowContext>& context);
+      explicit BaseWindow(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags initialFlags = {});
       ~BaseWindow() override;
 
       //! @brief Called on windows that registered for it once they become known to the window manager.
       virtual void WinInit()
       {
+      }
+
+      //! @brief Called on all windows just before the window is disposed from the window manager
+      //! @note  If the window is not registered in a window manager this will not get called!
+      void WinShutdown()
+      {
+        OnShutdown();
       }
 
       //! @brief Called by the engine to inform the window that the resolution has been modified and give it a chance to recache things as needed.
@@ -101,12 +112,12 @@ namespace Fsl
       //! @return true if the window was marked as dirty, false if it was already dirty.
       virtual bool WinMarkLayoutAsDirty();
 
-      virtual WindowFlags WinGetFlags() const
+      WindowFlags WinGetFlags() const noexcept
       {
         return WindowFlags(m_flags);    // NOLINT(modernize-return-braced-init-list)
       }
 
-      virtual const PxRectangle& WinGetContentPxRectangle() const
+      const PxRectangle& WinGetContentRectanglePx() const noexcept
       {
         return m_layoutCache.ContentRectPx;
       }
@@ -114,7 +125,8 @@ namespace Fsl
       virtual void WinHandleEvent(const RoutedEvent& routedEvent);
 
       //! @note This is only called if enabled.
-      virtual void WinUpdate(const DemoTime& demoTime);
+      virtual void WinUpdate(const TransitionTimeSpan& timespan);
+
 
       //! @brief Called by the UITree to request a draw operation.
       //! @param drawContext the UIDrawContext.
@@ -126,18 +138,25 @@ namespace Fsl
 
       //! @brief Called by the UITree to request a resolve operation.
       //! @note This is only called if enabled (WindowFlags::ResolveEnabled).
-      virtual void WinResolve(const DemoTime& demoTime)
+      virtual void WinResolve(const TransitionTimeSpan& timespan)
       {
-        FSL_PARAM_NOT_USED(demoTime);
+        FSL_PARAM_NOT_USED(timespan);
       }
 
       void Arrange(const PxRectangle& finalRectPx);
 
       void Measure(const PxAvailableSize& availableSizePx);
 
+      //! @brief Called by the UITree to allow mesh resizing before the actual draw sequence starts.
+      //! @param drawContext the UIDrawContext.
+      //! @note This is only called if enabled.
+      virtual void WinPostLayout()
+      {
+      }
+
       //! @brief Get the current width
       //! @return the width or a negative value if auto sizing is used
-      DpLayoutSize1D GetWidth() const
+      DpLayoutSize1D GetWidth() const noexcept
       {
         return m_sizeDp.LayoutSizeWidth();
       }
@@ -148,7 +167,7 @@ namespace Fsl
 
       //! @brief Get the current height
       //! @return the height or a negative value if auto sizing is used
-      DpLayoutSize1D GetHeight() const
+      DpLayoutSize1D GetHeight() const noexcept
       {
         return m_sizeDp.LayoutSizeHeight();
       }
@@ -157,29 +176,44 @@ namespace Fsl
       //! @param value the new height (set it to a negative value to use auto sizing)
       void SetHeight(const DpLayoutSize1D value);
 
-      DpThicknessF GetMargin() const
+      DpThicknessF GetMargin() const noexcept
       {
         return m_marginDp;
       }
 
       void SetMargin(const DpThicknessF& valueDp);
 
-      ItemAlignment GetAlignmentX() const
+      ItemAlignment GetAlignmentX() const noexcept
       {
         return m_alignmentX;
       }
 
-      void SetAlignmentX(const ItemAlignment& value);
+      void SetAlignmentX(const ItemAlignment value);
 
-      ItemAlignment GetAlignmentY() const
+      ItemAlignment GetAlignmentY() const noexcept
       {
         return m_alignmentY;
       };
 
-      void SetAlignmentY(const ItemAlignment& value);
+      void SetAlignmentY(const ItemAlignment value);
+
+      Color GetBaseColor() const noexcept
+      {
+        return m_baseColor;
+      }
+
+      void SetBaseColor(const Color color);
+
+
+      ItemVisibility GetVisibility() const noexcept
+      {
+        return m_flags.GetVisibility();
+      }
+
+      void SetVisibility(const ItemVisibility value);
 
       //! @brief Get the layout desired size.
-      const PxSize2D& DesiredSizePx() const
+      const PxSize2D& DesiredSizePx() const noexcept
       {
         return m_layoutCache.DesiredSizePx;
       }
@@ -225,7 +259,33 @@ namespace Fsl
         SetAnimationUpdate(UpdateAnimationState(true));
       }
 
+      //! @brief This is only intended to be called internally from components reacting to the base color being changed to propagate it to the
+      //! children.
+      void SYS_SetParentBaseColor(const Color color);
+
+
+      bool IsBusy() const noexcept
+      {
+        return m_flags.IsEnabled(WindowFlags::UpdateEnabled);
+      }
+
     protected:
+      virtual void OnShutdown()
+      {
+      }
+
+      Color GetFinalBaseColor() const noexcept
+      {
+        return m_cachedBaseColor;
+      }
+
+
+      Color GetParentBaseColor() const noexcept
+      {
+        return m_parentBaseColor;
+      }
+
+
       virtual void UpdateAnimation(const TransitionTimeSpan& timeSpan)
       {
         FSL_PARAM_NOT_USED(timeSpan);
@@ -300,8 +360,8 @@ namespace Fsl
         return m_flags.IsEnabled(BaseWindowFlags::UpdateEnabled);
       };
 
-      void Enable(const WindowFlags& flags);
-      void Disable(const WindowFlags& flags);
+      void Enable(const WindowFlags flags);
+      void Disable(const WindowFlags flags);
 
       inline void MarkLayoutArrangeBegin()
       {
@@ -363,6 +423,11 @@ namespace Fsl
 
       //! @brief Control the layout dirty flag
       void SetLayoutDirty(const bool isDirty);
+
+      void CheckAnimationState()
+      {
+        SetAnimationUpdate(UpdateAnimationState(false));
+      }
 
     private:
       //! @brief Toggle update calls on / off due to animation state

@@ -53,9 +53,6 @@ namespace Fsl
       //! - customConfig.RestartOnResize = false;
       ResizeStrategy ActiveResizeStrategy{ResizeStrategy::RebuildResources};
 
-      //! The max frames in flight (if zero the default setting will be used)
-      uint32_t MaxFramesInFlight{0};
-
       //! The subpass the system UI should be rendered on.
       uint32_t SubpassSystemUI{0};
 

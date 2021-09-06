@@ -40,49 +40,46 @@ namespace Fsl
 {
   namespace AppHelper
   {
-    TextureAtlasBitmapFont ReadFont(const IContentManager& contentManager, const IO::Path& pathBitmapFont)
+    TextureAtlasSpriteFont ReadFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,
+                                    const IContentManager& contentManager, const IO::Path& pathBitmapFont, const uint32_t densityDpi)
     {
       BitmapFont bitmapFont;
       contentManager.Read(bitmapFont, pathBitmapFont);
-      return TextureAtlasBitmapFont(bitmapFont);
+      return TextureAtlasSpriteFont(spriteNativeAreaCalc, textureExtentPx, bitmapFont, densityDpi);
     }
 
-    void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx, const ReadOnlySpan<FontGlyphPosition>& positions,
-                          float zPos, const PxSize2D& fontTextureSize,
-                          const std::function<NativeTextureArea(const PxRectangleU&, const PxSize2D&)>& fnCalcTextureArea)
+    void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx,
+                          const ReadOnlySpan<SpriteFontGlyphPosition>& positions, float zPos, const PxSize2D& /*fontTextureSize*/)
     {
-      assert(fnCalcTextureArea);
       uint32_t dstVertexIndex = 0;
       for (std::size_t i = 0; i < positions.size(); ++i)
       {
         const auto& glyph = positions[i];
-        if (glyph.SrcRectPx.Width > 0)
+        if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
         {
-          const auto dstX0 = float(dstPositionPx.X + glyph.DstRectPx.Offset.X);
-          const auto dstY0 = float(dstPositionPx.Y + glyph.DstRectPx.Offset.Y);
-          const auto dstX1 = float(dstPositionPx.X + glyph.DstRectPx.Offset.X + glyph.DstRectPx.Extent.Width);
-          const auto dstY1 = float(dstPositionPx.Y + glyph.DstRectPx.Offset.Y + glyph.DstRectPx.Extent.Height);
+          const auto dstX0 = float(dstPositionPx.X) + glyph.DstRectPxf.Left();
+          const auto dstY0 = float(dstPositionPx.Y) + glyph.DstRectPxf.Top();
+          const auto dstX1 = float(dstPositionPx.X) + glyph.DstRectPxf.Right();
+          const auto dstY1 = float(dstPositionPx.Y) + glyph.DstRectPxf.Bottom();
 
-          const auto nativeTexArea = fnCalcTextureArea(glyph.SrcRectPx, fontTextureSize);
-
-          dstVertices[dstVertexIndex + 0] = VertexPositionTexture(Vector3(dstX0, dstY0, zPos), Vector2(nativeTexArea.X0, nativeTexArea.Y0));
-          dstVertices[dstVertexIndex + 1] = VertexPositionTexture(Vector3(dstX1, dstY0, zPos), Vector2(nativeTexArea.X1, nativeTexArea.Y0));
-          dstVertices[dstVertexIndex + 2] = VertexPositionTexture(Vector3(dstX0, dstY1, zPos), Vector2(nativeTexArea.X0, nativeTexArea.Y1));
-          dstVertices[dstVertexIndex + 3] = VertexPositionTexture(Vector3(dstX1, dstY1, zPos), Vector2(nativeTexArea.X1, nativeTexArea.Y1));
+          dstVertices[dstVertexIndex + 0] = VertexPositionTexture(Vector3(dstX0, dstY0, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0));
+          dstVertices[dstVertexIndex + 1] = VertexPositionTexture(Vector3(dstX1, dstY0, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y0));
+          dstVertices[dstVertexIndex + 2] = VertexPositionTexture(Vector3(dstX0, dstY1, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y1));
+          dstVertices[dstVertexIndex + 3] = VertexPositionTexture(Vector3(dstX1, dstY1, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y1));
 
           dstVertexIndex += 4;
         }
       }
     }
 
-    void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<FontGlyphPosition>& positions)
+    void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<SpriteFontGlyphPosition>& positions)
     {
       uint32_t dstVertexIndex = 0;
       uint32_t dstIBIndex = 0;
       for (std::size_t i = 0; i < positions.size(); ++i)
       {
         const auto& glyph = positions[i];
-        if (glyph.SrcRectPx.Width > 0)
+        if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
         {
           // A B
           // |\|

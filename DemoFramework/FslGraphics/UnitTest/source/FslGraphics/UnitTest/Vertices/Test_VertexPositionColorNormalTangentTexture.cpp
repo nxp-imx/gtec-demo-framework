@@ -39,6 +39,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <array>
 #include <cstddef>
 
@@ -89,7 +90,67 @@ TEST(TestVertices_VertexPositionColorNormalTangentTexture, GetVertexDeclaration)
     VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
                     VertexElementUsage::TextureCoordinate, 0u)};
 
-  const auto vertexDecl = VertexPositionColorNormalTangentTexture::GetVertexDeclaration();
+  const auto vertexDecl = VertexDeclaration(VertexPositionColorNormalTangentTexture::AsVertexDeclarationSpan());
+
+  EXPECT_EQ(sizeof(VertexPositionColorNormalTangentTexture), vertexDecl.VertexStride());
+  ASSERT_EQ(expected.size(), vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  for (uint32_t i = 0; i < expected.size(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(expected[i].Usage, expected[i].UsageIndex), static_cast<int32_t>(i)) << "index: " << i;
+    EXPECT_EQ(vertexDecl.VertexElementIndexOf(expected[i].Usage, expected[i].UsageIndex), static_cast<int32_t>(i)) << "index: " << i;
+    EXPECT_EQ(expected[i], vertexDecl.VertexElementGet(expected[i].Usage, expected[i].UsageIndex)) << "index: " << i;
+    // by index
+    EXPECT_EQ(expected[i], vertexDecl.At(i)) << "index: " << i;
+    // Direct access should produce the same as At
+    EXPECT_EQ(expected[i], vertexDecl.DirectAccess()[i]) << "index: " << i;
+  }
+}
+
+
+TEST(TestVertices_VertexPositionColorNormalTangentTexture, GetVertexDeclarationArray)
+{
+  std::array<VertexElementEx, 5> expected = {
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                    VertexElementUsage::TextureCoordinate, 0u)};
+
+  const auto vertexDecl = VertexPositionColorNormalTangentTexture::GetVertexDeclarationArray();
+
+  EXPECT_EQ(sizeof(VertexPositionColorNormalTangentTexture), vertexDecl.VertexStride());
+  ASSERT_EQ(expected.size(), vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  for (uint32_t i = 0; i < expected.size(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(expected[i].Usage, expected[i].UsageIndex), static_cast<int32_t>(i)) << "index: " << i;
+    EXPECT_EQ(vertexDecl.VertexElementIndexOf(expected[i].Usage, expected[i].UsageIndex), static_cast<int32_t>(i)) << "index: " << i;
+    EXPECT_EQ(expected[i], vertexDecl.VertexElementGet(expected[i].Usage, expected[i].UsageIndex)) << "index: " << i;
+    // by index
+    EXPECT_EQ(expected[i], vertexDecl.At(i)) << "index: " << i;
+    // Direct access should produce the same as At
+    EXPECT_EQ(expected[i], vertexDecl.DirectAccess()[i]) << "index: " << i;
+  }
+}
+
+
+TEST(TestVertices_VertexPositionColorNormalTangentTexture, AsVertexDeclarationSpan)
+{
+  std::array<VertexElementEx, 5> expected = {
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
+    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                    VertexElementUsage::TextureCoordinate, 0u)};
+
+  const auto vertexDecl = VertexPositionColorNormalTangentTexture::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionColorNormalTangentTexture), vertexDecl.VertexStride());
   ASSERT_EQ(expected.size(), vertexDecl.Count());

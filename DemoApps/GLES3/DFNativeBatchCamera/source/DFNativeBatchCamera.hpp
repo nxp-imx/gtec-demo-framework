@@ -34,9 +34,9 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include "DFNativeBatchCameraRender.hpp"
 
 namespace Fsl

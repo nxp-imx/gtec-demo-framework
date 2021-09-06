@@ -42,7 +42,7 @@ namespace Fsl
   namespace G2D
   {
     NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
-      : ThreadLocalService(serviceProvider)
+      : ANativeGraphicsServiceNo3D(serviceProvider)
     {
       FSLLOG3_WARNING("NativeGraphicsService is mostly a stub");
     }
@@ -50,19 +50,6 @@ namespace Fsl
 
     NativeGraphicsService::~NativeGraphicsService() = default;
 
-
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags textureFlags)
-    {
-      return std::shared_ptr<INativeTexture2D>();
-    }
-
-
-    std::shared_ptr<IDynamicNativeTexture2D>
-      NativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
-    {
-      return std::shared_ptr<IDynamicNativeTexture2D>();
-    }
 
     bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
     {
@@ -83,12 +70,6 @@ namespace Fsl
     std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
     {
       return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx));
-    }
-
-
-    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& extentPx)
-    {
-      return std::shared_ptr<INativeBatch2D>();
     }
   }
 }

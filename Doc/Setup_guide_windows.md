@@ -1,13 +1,36 @@
+
 # Setup guide Windows
 
-## Prerequisites
+## Table of contents
 
-- [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
+<!-- #AG_TOC_BEGIN# -->
+* [Prerequisites](#prerequisites)
+* [Simple setup](#simple-setup)
+  * [Add OpenGL ES support](#add-opengl-es-support)
+  * [Add Vulkan support](#add-vulkan-support)
+  * [Add OpenCL support](#add-opencl-support)
+  * [Add OpenCV 4.5 support](#add-opencv-45-support)
+  * [Add OpenVX support](#add-openvx-support)
+* [To Compile and run an existing sample application](#to-compile-and-run-an-existing-sample-application)
+  * [To Compile and run an existing GLES2 sample application](#to-compile-and-run-an-existing-gles2-sample-application)
+* [To create a new demo project named 'CoolNewDemo'](#to-create-a-new-demo-project-named-'coolnewdemo')
+  * [So to create a new GLES2 demo project named 'CoolNewDemo'](#so-to-create-a-new-gles2-demo-project-named-'coolnewdemo')
+* [Visual Studio Code support](#visual-studio-code-support)
+  * [VS Code Prerequisites](#vs-code-prerequisites)
+  * [To Compile and run an existing sample application using VSCode](#to-compile-and-run-an-existing-sample-application-using-vscode)
+* [Appendix](#appendix)
+  * [Appendix: Windows configure OpenGLS emulation bat file changes](#appendix-windows-configure-opengls-emulation-bat-file-changes)
+  * [Appendix: Notes](#appendix-notes)
+<!-- #AG_TOC_END# -->
+
+# Prerequisites
+
+* [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
   (community or better)
-- [CMake 3.10.2 or newer](https://cmake.org/download/)
-- [Python 3.6+](https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe)
+* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* [Python 3.6+](https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe)
   To be able run python scripts.
-- Download the source from git.
+* Download the source from git.
 
 For OpenGL ES, OpenCL, OpenCV, OpenVX and Vulkan support additional packages are required, see below.
 
@@ -15,12 +38,12 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
 
 ---------------------------------------------------------------------------------------------------
 
-## Simple setup
+# Simple setup
 
 1. Decide what API's you want to compile and run apps for, then install them using one of the guides below.
 2. Start a windows console (cmd.exe) in the DemoFramework folder
 3. Run the visual studio ```vcvarsall.bat x64``` to prepare your command line compiler environment for x64 compilation.
-   - For VS2019 its often located here: ```"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64```
+   * For VS2019 its often located here: ```"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64```
 4. Run the `prepare.bat` file located in the root of the framework folder to
    configure the necessary environment variables and paths.
    Please beware that the `prepare.bat` file requires the current working
@@ -31,13 +54,13 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
     prepare.bat
     ```
 
-### Add OpenGL ES support
+## Add OpenGL ES support
 
 1. One of these (they are mutually exclusive):
-    - [Arm Mali OpenGL ES Emulator v3.0.4-2c-g8d905 (64 bit)](https://developer.arm.com/tools-and-software/graphics-and-gaming/opengl-es-emulator/downloads)
+    * [Arm Mali OpenGL ES Emulator v3.0.4-2c-g8d905 (64 bit)](https://developer.arm.com/tools-and-software/graphics-and-gaming/opengl-es-emulator/downloads)
 
        *Please use the exact version (64bit) and use the installer to install it to the default location!*
-    - Vivante OpenGL ES Emulator
+    * Vivante OpenGL ES Emulator
 
     To get started its recommended to utilize the Arm Mali OpenGL ES 3.0.4 emulator (64 bit)
     which this guide will assume you are using.
@@ -59,7 +82,7 @@ powervr |the powervr emulator
 qualcomm|the qualcomm andreno adreno emulator (expects its installed in "c:\AdrenoSDK")
 vivante |the vivante emulator
 
-### Add Vulkan support
+## Add Vulkan support
 
 Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html)
 
@@ -68,12 +91,12 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
 
 3. Continue the normal setup.
 
-### Add OpenCL support
+## Add OpenCL support
 
 1. Download and install a OpenCL implementation. Beware we depend on cmake's find_package support to locate the installed OpenCL implementation.
 2. Continue the normal setup.
 
-### Add OpenCV 4.5 support
+## Add OpenCV 4.5 support
 
 1. Install the 4.5.2 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
@@ -84,7 +107,7 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
 
 3. Continue the normal setup.
 
-### Add OpenVX support
+## Add OpenVX support
 
 1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4)
 2. Continue the normal setup.
@@ -93,7 +116,7 @@ The build chain will download and compile a OpenVX implementation.
 
 ---------------------------------------------------------------------------------------------------
 
-## To Compile and run an existing sample application
+# To Compile and run an existing sample application
 
 The general approach will be:
 
@@ -141,8 +164,7 @@ If you add source files to a project or change the Fsl.gen file then run the
 build files or just make sure you always use the `FslBuild.py` script as it
 automatically adds files and regenerate build files as needed.
 
-
-### To Compile and run an existing GLES2 sample application
+## To Compile and run an existing GLES2 sample application
 
 In this example we will utilize the GLES2.S06_Texturing app.
 
@@ -163,7 +185,7 @@ In this example we will utilize the GLES2.S06_Texturing app.
 
 ---------------------------------------------------------------------------------------------------
 
-## To create a new demo project named 'CoolNewDemo'
+# To create a new demo project named 'CoolNewDemo'
 
 1. Make sure that you performed the [simple setup](#simple-setup) including the additional OpenGL ES setup.
 2. Change directory to the appropriate sample directory:
@@ -179,7 +201,7 @@ In this example we will utilize the GLES2.S06_Texturing app.
 3. Create the project template using the FslBuildNew.py script
 
     ```bash
-    FslBuildNew.py <TEMPLATE-NAME> CoolNewDemo  
+    FslBuildNew.py <TEMPLATE-NAME> CoolNewDemo
     ```
 
     Example TEMPLATE-NAME's: GLES2, GLES3, OpenCL1_2, OpenCV4, Vulkan.
@@ -205,7 +227,7 @@ If you add source files to a project or change the Fsl.gen file then run the
 build files or just make sure you always use the `FslBuild.py` script as it
 automatically adds files and regenerate build files as needed.
 
-### So to create a new GLES2 demo project named 'CoolNewDemo'
+## So to create a new GLES2 demo project named 'CoolNewDemo'
 
 In this example we will create a GLES2 app called CoolNewDemo.
 
@@ -219,7 +241,7 @@ In this example we will create a GLES2 app called CoolNewDemo.
 3. Create the project template using the FslBuildNew.py script
 
     ```bash
-    FslBuildNew.py GLES2 CoolNewDemo  
+    FslBuildNew.py GLES2 CoolNewDemo
     ```
 
 4. Change directory to the newly created project folder 'CoolNewDemo'
@@ -236,26 +258,26 @@ In this example we will create a GLES2 app called CoolNewDemo.
 
 ---------------------------------------------------------------------------------------------------
 
-## Visual Studio Code support
+# Visual Studio Code support
 
 There is now ***experimental*** visual studio code support.
 To support visual studio code we generate/patch the configuration files stored under ```.vscode```.
 
-- ```launch.json``` contains the configuration used to launch the executable if one exist
-- ```settings.json``` contains the cmake configuration required to build the project.
+* ```launch.json``` contains the configuration used to launch the executable if one exist
+* ```settings.json``` contains the cmake configuration required to build the project.
 
-### Prerequisites
+## VS Code Prerequisites
 
-- [Visual Studio Code](https://code.visualstudio.com/docs/setup/windows)
-- Visual Studio Code Extensions:
-  - [CMake Tools](https://code.visualstudio.com/docs/cpp/CMake-linux)
-  - [C/C++](https://code.visualstudio.com/docs/languages/cpp)
-- Recommended visual studio code extensions:
-  - [Code Spell Checker](https://github.com/streetsidesoftware/vscode-spell-checker)
-  - [Gitlens - Git supercharged](https://github.com/eamodio/vscode-gitlens)
-  - [Visual Studio Keymap](https://github.com/rebornix/vscode-vs-keybindings)
+* [Visual Studio Code](https://code.visualstudio.com/docs/setup/windows)
+* Visual Studio Code Extensions:
+  * [CMake Tools](https://code.visualstudio.com/docs/cpp/CMake-linux)
+  * [C/C++](https://code.visualstudio.com/docs/languages/cpp)
+* Recommended visual studio code extensions:
+  * [Code Spell Checker](https://github.com/streetsidesoftware/vscode-spell-checker)
+  * [Gitlens - Git supercharged](https://github.com/eamodio/vscode-gitlens)
+  * [Visual Studio Keymap](https://github.com/rebornix/vscode-vs-keybindings)
 
-### To Compile and run an existing sample application using VSCode
+## To Compile and run an existing sample application using VSCode
 
 In this example we will utilize the GLES2.S06_Texturing app.
 
@@ -279,14 +301,16 @@ In this example we will utilize the GLES2.S06_Texturing app.
 
 ---------------------------------------------------------------------------------------------------
 
+# Appendix
+
 ## Appendix: Windows configure OpenGLS emulation bat file changes
 
-- Introduced FSL_GLES_EMULATOR_PATH as the main path to the emulation installation
-- Renamed FSL_GLES_NAME to FSL_GLES_EMULATOR_NAME
-- Renamed FSL_GLES_LIB_PATH to FSL_GLES_EMULATOR_LIB_PATH
-- Removed FSL_GLES_INCLUDE_PATH
-- Removed FSL_GLES_LIB_EGL
-- Removed FSL_GLES_LIB_GLES
+* Introduced FSL_GLES_EMULATOR_PATH as the main path to the emulation installation
+* Renamed FSL_GLES_NAME to FSL_GLES_EMULATOR_NAME
+* Renamed FSL_GLES_LIB_PATH to FSL_GLES_EMULATOR_LIB_PATH
+* Removed FSL_GLES_INCLUDE_PATH
+* Removed FSL_GLES_LIB_EGL
+* Removed FSL_GLES_LIB_GLES
 
 ---------------------------------------------------------------------------------------------------
 

@@ -5,6 +5,26 @@ All operations are fully error checked and throw exceptions on errors.
 
 # Table of contents
 <!-- #AG_TOC_BEGIN# -->
+* [Classes](#classes)
+  * [GLBuffer](#glbuffer)
+  * [GLBufferArray](#glbufferarray)
+  * [GLIndexBuffer](#glindexbuffer)
+  * [GLIndexBufferArray](#glindexbufferarray)
+  * [GLVertexBuffer](#glvertexbuffer)
+  * [GLVertexBufferArray](#glvertexbufferarray)
+  * [GLVertexElement](#glvertexelement)
+  * [GLFrameBuffer](#glframebuffer)
+  * [GLRenderBuffer](#glrenderbuffer)
+  * [GLProgram](#glprogram)
+  * [GLShader](#glshader)
+  * [GLTexture](#gltexture)
+  * [GLTextureInfo](#gltextureinfo)
+  * [GLTextureParameters](#gltextureparameters)
+  * [GLRawBitmapUtil](#glrawbitmaputil)
+  * [GLValues](#glvalues)
+  * [GLUtil](#glutil)
+  * [GLBatch2D](#glbatch2d)
+  * [NativeBatch2D](#nativebatch2d)
 <!-- #AG_TOC_END# -->
 
 # Classes
@@ -31,7 +51,7 @@ Has simple utility methods for filling the buffer from a source vector or pointe
 std::vector<uint8_t> indices = {0,1,2,3};
 GLIndexBuffer indexBuffer(indices, GL_STATIC_DRAW);
 
-// Create from a pointer and length 
+// Create from a pointer and length
 std::array<uint8_t, 4> indices = {0,1,2,3};
 GLIndexBuffer indexBuffer(indices.data(), indices.size(), GL_STATIC_DRAW);
 ```
@@ -181,7 +201,7 @@ A collection of commen utility functionality.
 
 ## GLBatch2D
 A simple specialization of the GenericBatch2D for OpenGL ES 2.
-This is basically a simple immediate mode quad rendering utility. 
+This is basically a simple immediate mode quad rendering utility.
 
 
 ## NativeBatch2D

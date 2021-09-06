@@ -34,6 +34,7 @@
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslGraphics/Vertices/VertexElementEx.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <array>
@@ -52,6 +53,26 @@ namespace Fsl
     VertexDeclarationArray& operator=(const VertexDeclarationArray&) = default;
 
     constexpr VertexDeclarationArray() = default;
+
+    // C++17
+    //! @brief Create a vertex declaration based on the given elements.
+    //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
+    explicit constexpr VertexDeclarationArray(VertexDeclarationSpan srcSpan)
+      : m_elements()
+      , m_vertexStride(srcSpan.VertexStride())
+    {
+      if (srcSpan.Count() != TEntries)
+      {
+        throw std::invalid_argument("incompatible sized src span");
+      }
+      for (std::size_t i = 0; i < TEntries; ++i)
+      {
+        m_elements[i] = srcSpan.At(i);
+      }
+      // We do not need to verify the elements as the span has been validated
+      // VerifyElements(m_elements, m_vertexStride);
+    }
+
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
@@ -138,6 +159,14 @@ namespace Fsl
       throw NotFoundException("Could not locate a vertex element of the requested type");
     }
 
+    // In C++17 declare this a constexpr
+    VertexDeclarationSpan AsReadOnlySpan() const
+    {
+      return VertexDeclarationSpan(ReadOnlySpan<VertexElementEx>(m_elements.data(), m_elements.size()), m_vertexStride,
+                                   OptimizationCheckFlag::NoCheck);
+    }
+
+
     constexpr bool operator==(const VertexDeclarationArray& rhs) const
     {
       return (m_vertexStride == rhs.m_vertexStride && m_elements == rhs.m_elements);
@@ -149,8 +178,8 @@ namespace Fsl
     }
 
   private:
-    constexpr bool Contains(const std::array<VertexElementEx, TEntries>& elements, const VertexElementUsage usage, const uint32_t usageIndex,
-                            const std::size_t ignoreIndex)
+    constexpr static bool Contains(const std::array<VertexElementEx, TEntries>& elements, const VertexElementUsage usage, const uint32_t usageIndex,
+                                   const std::size_t ignoreIndex)
     {
       for (std::size_t i = 0; i < elements.size(); ++i)
       {
@@ -163,63 +192,31 @@ namespace Fsl
     }
 
     // Rewritten because GCC 5 has issues with it
-    // constexpr void VerifyElements(const std::array<VertexElementEx, TEntries>& elements, const uint32_t vertexStride)
-    // {
-    //   // We expect the element offsets to be in order: smallest -> largest
-    //   uint32_t maxOffset = 0;
-    //   for (std::size_t i = 0; i < elements.size(); ++i)
-    //   {
-    //     auto offset = elements[i].Offset + VertexElementFormatUtil::GetBytesPerElement(elements[i].Format);
-    //     if (offset < maxOffset)
-    //     {
-    //       throw NotSupportedException("The offsets should be in order: smallest -> largest");
-    //     }
-
-    //     maxOffset = offset;
-
-    //     if (Contains(elements, elements[i].Usage, elements[i].UsageIndex, i))
-    //     {
-    //       throw NotSupportedException("Duplicated elements: A usage and usageIndex can only be listed once");
-    //     }
-    //   }
-
-    //   if (maxOffset > vertexStride)
-    //   {
-    //     throw NotSupportedException("At least one of the elements is outside of the vertex stride");
-    //   }
-    // }
-
-    constexpr void VerifyElements(const std::array<VertexElementEx, TEntries>& elements, const uint32_t vertexStride)
+    constexpr static void VerifyElements(const std::array<VertexElementEx, TEntries>& elements, const uint32_t vertexStride)
     {
       // We expect the element offsets to be in order: smallest -> largest
       uint32_t maxOffset = 0;
       for (std::size_t i = 0; i < elements.size(); ++i)
       {
-        maxOffset = ValidateOffset(elements[i].Offset + VertexElementFormatUtil::GetBytesPerElement(elements[i].Format), maxOffset);
-        CheckContains(!Contains(elements, elements[i].Usage, elements[i].UsageIndex, i));
+        auto offset = elements[i].Offset + VertexElementFormatUtil::GetBytesPerElement(elements[i].Format);
+        if (offset < maxOffset)
+        {
+          throw NotSupportedException("The offsets should be in order: smallest -> largest");
+        }
+
+        maxOffset = offset;
+
+        if (Contains(elements, elements[i].Usage, elements[i].UsageIndex, i))
+        {
+          throw NotSupportedException("Duplicated elements: A usage and usageIndex can only be listed once");
+        }
       }
-      CheckStride(maxOffset, vertexStride);
-    }
 
-    // GCC 5 workaround
-    constexpr inline static uint32_t ValidateOffset(const uint32_t offset, const uint32_t previousMaxOffset)
-    {
-      return offset >= previousMaxOffset ? static_cast<uint32_t>(previousMaxOffset)
-                                         : throw NotSupportedException("The offsets should be in order: smallest -> largest");
+      if (maxOffset > vertexStride)
+      {
+        throw NotSupportedException("At least one of the elements is outside of the vertex stride");
+      }
     }
-
-    // GCC 5 workaround
-    constexpr inline static bool CheckContains(const bool res)
-    {
-      return res ? true : throw NotSupportedException("Duplicated elements: A usage and usageIndex can only be listed once");
-    }
-
-    // GCC 5 workaround
-    constexpr inline static bool CheckStride(const uint32_t maxOffset, const uint32_t vertexStride)
-    {
-      return (maxOffset <= vertexStride ? true : throw NotSupportedException("At least one of the elements is outside of the vertex stride"));
-    }
-
 
     // We need C++17 for this
     // constexpr void CopyElements(std::array<VertexElementEx, TEntries>& rDstElements, const std::array<VertexElementEx, TEntries>& srcElements)

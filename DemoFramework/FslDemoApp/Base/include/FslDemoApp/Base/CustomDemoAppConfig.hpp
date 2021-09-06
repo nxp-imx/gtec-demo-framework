@@ -69,6 +69,7 @@ namespace Fsl
   struct CustomDemoAppConfig
   {
     CustomDemoAppConfigRestartFlags RestartFlags{CustomDemoAppConfigRestartFlags::ConfigurationChanged};
+    uint32_t MaxFramesInFlight{2};
     std::shared_ptr<ITag> AppRegistrationUserTag;
 
     CustomDemoAppConfig() = default;

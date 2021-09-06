@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Dp/DpExtent.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 
 namespace Fsl
@@ -48,13 +48,13 @@ namespace Fsl
     PxThicknessU TrimMarginPx;
 
     //! The trimmed rectangle on the source atlas texture
-    PxRectangleU TrimmedRectanglePx;
+    PxRectangleU16 TrimmedRectanglePx;
 
     //! The image density extent (this is the dp size of the image)
     DpExtent ExtentDp;
 
     constexpr CoreImageInfo() = default;
-    constexpr CoreImageInfo(const PxExtent2D extentPx, const PxThicknessU& trimMarginPx, const PxRectangleU& trimmedRectanglePx,
+    constexpr CoreImageInfo(const PxExtent2D extentPx, const PxThicknessU& trimMarginPx, const PxRectangleU16& trimmedRectanglePx,
                             const DpExtent extentDp)
       : ExtentPx(extentPx)
       , TrimMarginPx(trimMarginPx)

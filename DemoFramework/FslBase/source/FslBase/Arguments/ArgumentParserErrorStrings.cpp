@@ -155,6 +155,8 @@ namespace Fsl
         //  return formatter.Format("nullptr found at argument index '{}'", parseErrorInfo.SourceArgumentIndex);
         case ParseResult::CommandListIsInvalidError:
           return "Command list is invalid";
+        case ParseResult::UnsupportedNumberOfArguments:
+          return "Unsupported number of arguments";
         default:
           return formatter.Format("Unknown error {0}", static_cast<uint32_t>(result));
         }

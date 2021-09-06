@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>

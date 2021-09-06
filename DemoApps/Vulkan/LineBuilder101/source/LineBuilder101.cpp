@@ -82,14 +82,13 @@ namespace Fsl
 
   void LineBuilder101::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
     // Upload the changes
-    m_resources.LineDraw.UpdateVertexUBO(&m_vertexUboData, sizeof(VertexUBOData), frameIndex);
+    m_resources.LineDraw.UpdateVertexUBO(&m_vertexUboData, sizeof(VertexUBOData), currentFrameIndex);
 
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.4f, 0.4f, 0.4f, 1.0f}};
@@ -104,19 +103,19 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        m_resources.LineDraw.Draw(hCmdBuffer, m_example.GetLineBuilder().GetVertexSpan(), frameIndex);
+        m_resources.LineDraw.Draw(hCmdBuffer, m_example.GetLineBuilder().GetVertexSpan(), currentFrameIndex);
 
         // Allow the example to draw a bit too
         m_example.Draw(demoTime);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 

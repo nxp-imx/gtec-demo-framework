@@ -32,19 +32,19 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Pixel/PxRectangle2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 
 namespace Fsl
 {
   struct FontGlyphPosition
   {
-    PxRectangle2D DstRectPx;
-    PxRectangleU SrcRectPx;
+    PxAreaRectangleF DstRectPxf;
+    PxRectangleU32 SrcRectPx;
 
     constexpr FontGlyphPosition() = default;
-    constexpr FontGlyphPosition(const PxRectangle2D& dstRectPx, const PxRectangleU& srcRectPx)
-      : DstRectPx(dstRectPx)
+    constexpr FontGlyphPosition(const PxAreaRectangleF& dstRectPxf, const PxRectangleU32& srcRectPx)
+      : DstRectPxf(dstRectPxf)
       , SrcRectPx(srcRectPx)
     {
     }

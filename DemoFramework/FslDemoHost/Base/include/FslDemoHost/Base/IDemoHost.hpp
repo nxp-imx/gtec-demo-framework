@@ -63,6 +63,7 @@ namespace Fsl
     virtual DemoHostFeature GetActiveAPI() const = 0;
     //! @brief Get the current window metrics
     virtual DemoWindowMetrics GetWindowMetrics() const = 0;
+
     //! @brief Called to swap the main buffer.
     //! @return SwapBuffersResult::Completed on success, SwapBuffersResult::Failed if a error occurred.
     virtual SwapBuffersResult TrySwapBuffers() = 0;

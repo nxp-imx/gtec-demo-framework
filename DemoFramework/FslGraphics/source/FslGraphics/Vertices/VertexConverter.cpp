@@ -40,7 +40,7 @@ namespace Fsl
 {
   namespace
   {
-    int32_t IndexOf(const VertexDeclaration& vertexDeclaration, const VertexElementUsage usage, const std::size_t usageIndex)
+    int32_t IndexOf(VertexDeclarationSpan vertexDeclaration, const VertexElementUsage usage, const std::size_t usageIndex)
     {
       for (std::size_t i = 0; i < vertexDeclaration.Count(); ++i)
       {
@@ -56,9 +56,9 @@ namespace Fsl
     }
   }
 
-  void VertexConverter::GenericConvert(void* const pDst, const std::size_t cbDst, const VertexDeclaration& dstVertexDeclaration,
-                                       const void* const pSrc, const std::size_t cbSrc, const VertexDeclaration& srcVertexDeclaration,
-                                       const std::size_t srcVertexCount, const void* const pDstDefaultValues, const uint32_t cbDstDefaultValues)
+  void VertexConverter::GenericConvert(void* const pDst, const std::size_t cbDst, VertexDeclarationSpan dstVertexDeclaration, const void* const pSrc,
+                                       const std::size_t cbSrc, VertexDeclarationSpan srcVertexDeclaration, const std::size_t srcVertexCount,
+                                       const void* const pDstDefaultValues, const uint32_t cbDstDefaultValues)
   {
     const uint32_t srcVertexStride = srcVertexDeclaration.VertexStride();
     const uint32_t dstVertexStride = dstVertexDeclaration.VertexStride();
@@ -119,10 +119,9 @@ namespace Fsl
   }
 
 
-  void VertexConverter::GenericConvert(void* const pDst, const std::size_t cbDst, const VertexDeclaration& dstVertexDeclaration,
-                                       const void* const pSrc, const std::size_t cbSrc, const VertexDeclaration& srcVertexDeclaration,
-                                       const std::size_t srcVertexStartIndex, const std::size_t srcVertexCount, const void* const pDstDefaultValues,
-                                       const uint32_t cbDstDefaultValues)
+  void VertexConverter::GenericConvert(void* const pDst, const std::size_t cbDst, VertexDeclarationSpan dstVertexDeclaration, const void* const pSrc,
+                                       const std::size_t cbSrc, VertexDeclarationSpan srcVertexDeclaration, const std::size_t srcVertexStartIndex,
+                                       const std::size_t srcVertexCount, const void* const pDstDefaultValues, const uint32_t cbDstDefaultValues)
   {
     const uint32_t srcVertexStride = srcVertexDeclaration.VertexStride();
 

@@ -37,6 +37,7 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -101,10 +102,10 @@ namespace Fsl
   void OpenCVMatToNativeBatch::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                           const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
       clearColorValue.float32[0] = 0.5f;
@@ -124,7 +125,7 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = 1;
       renderPassBeginInfo.pClearValues = &clearValues;
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         m_nativeBatch->Begin(BlendState::Opaque);
 
@@ -140,11 +141,11 @@ namespace Fsl
 
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -229,7 +230,8 @@ namespace Fsl
     BasicFontKerning fontBasicKerning;
     contentManager->Read(fontBasicKerning, "MainAtlas.fbk");
 
-    m_font.Reset(atlas, fontBasicKerning);
+    SpriteNativeAreaCalc spriteNativeAreaCalc(false);
+    m_font.Reset(spriteNativeAreaCalc, bitmap.GetExtent(), atlas, fontBasicKerning, 160);
 
     const auto nativeGraphics = m_graphics->GetNativeGraphics();
     m_texFont.Reset(nativeGraphics, bitmap, Texture2DFilterHint::Smooth);

@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/HDR/BasicScene/API/Vulkan/SimpleMeshUtil.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <Shared/HDR/BasicScene/ModelVertices.hpp>
 
@@ -39,7 +40,8 @@ namespace Fsl
                                                      const std::array<VertexElementUsage, 3>& shaderBindOrder)
   {
     SimpleMesh mesh;
-    mesh.VertexBuffer.Reset(bufferManager, ModelVertices::CreateTunnelVertexArray(), Vulkan::VMBufferUsage::STATIC);
+    auto vertices = ModelVertices::CreateTunnelVertexArray();
+    mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.VertexAttributeDescription, shaderBindOrder, mesh.VertexBuffer);
     mesh.VertexInputBindingDescription.binding = 0;
     mesh.VertexInputBindingDescription.stride = mesh.VertexBuffer.GetElementStride();
@@ -52,7 +54,8 @@ namespace Fsl
                                                    const std::array<VertexElementUsage, 2>& shaderBindOrder)
   {
     SimpleMesh mesh;
-    mesh.VertexBuffer.Reset(bufferManager, ModelVertices::CreateQuadVertexArray(), Vulkan::VMBufferUsage::STATIC);
+    auto vertices = ModelVertices::CreateQuadVertexArray();
+    mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.VertexAttributeDescription, shaderBindOrder, mesh.VertexBuffer);
     mesh.VertexInputBindingDescription.binding = 0;
     mesh.VertexInputBindingDescription.stride = mesh.VertexBuffer.GetElementStride();

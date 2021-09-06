@@ -315,11 +315,11 @@ namespace Fsl
 
   void T3DStressTest::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
       clearValues[0].color = {{1.0f, 0.0f, 0.0f, 1.0f}};
@@ -335,22 +335,22 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawToCommandBuffer(hCmdBuffer, currentSwapBufferIndex, frameIndex);
+        DrawToCommandBuffer(hCmdBuffer, currentFrameIndex, frameIndex);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
-  AppDrawResult T3DStressTest::TrySwapBuffers(const DemoTime& demoTime)
+  AppDrawResult T3DStressTest::TrySwapBuffers(const FrameInfo& frameInfo)
   {
     ForceFinishEachFrame();
-    return DemoAppVulkanBasic::TrySwapBuffers(demoTime);
+    return DemoAppVulkanBasic::TrySwapBuffers(frameInfo);
   }
 
   VkRenderPass T3DStressTest::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)

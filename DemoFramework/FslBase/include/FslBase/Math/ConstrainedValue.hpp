@@ -67,12 +67,13 @@ namespace Fsl
 
     constexpr bool SetRange(value_type min, value_type max)
     {
+      max = (max >= min ? max : min);
       if (min == m_min && max == m_max)
       {
         return false;
       }
       m_min = min;
-      m_max = (max >= min ? max : min);
+      m_max = max;
       m_value = MathHelper::Clamp(m_value, m_min, m_max);
       return true;
     }
@@ -82,11 +83,13 @@ namespace Fsl
       return m_value;
     }
 
+    //! Get the minimum value (inclusive)
     constexpr value_type Min() const
     {
       return m_min;
     }
 
+    //! Get the maximum value (inclusive)
     constexpr value_type Max() const
     {
       return m_max;

@@ -52,7 +52,7 @@ namespace Fsl
 #ifdef NDEBUG
       constexpr bool LOCAL_VALIDATION_LAYER_ENABLED = false;
 #else
-      constexpr static bool LOCAL_VALIDATION_LAYER_ENABLED = true;
+      constexpr bool LOCAL_VALIDATION_LAYER_ENABLED = true;
 #endif
 
 

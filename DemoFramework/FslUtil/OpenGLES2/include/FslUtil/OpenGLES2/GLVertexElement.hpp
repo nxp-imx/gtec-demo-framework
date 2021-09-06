@@ -49,7 +49,7 @@ namespace Fsl
       const GLvoid* Pointer{nullptr};
       uint32_t ExtendedIndex{0};
 
-      GLVertexElement();
+      constexpr GLVertexElement() = default;
 
       explicit GLVertexElement(const VertexElementEx& source);
 

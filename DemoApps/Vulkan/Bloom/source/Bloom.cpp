@@ -800,15 +800,14 @@ namespace Fsl
   void Bloom::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[frameIndex];
     if (m_scene)
     {
       m_scene->PreDraw(frameIndex, hCmdBuffer);
     }
 
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    rCmdBuffers.Begin(frameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       DrawOffscreenRenderpasses(rCmdBuffers, drawContext);
 
@@ -826,16 +825,16 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(frameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         DrawFinalComposite(frameIndex, hCmdBuffer);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, frameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(frameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(frameIndex);
   }
 
 
@@ -952,9 +951,8 @@ namespace Fsl
 
   void Bloom::DrawOffscreenRenderpasses(RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const auto currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[frameIndex];
 
     // 1. Render the scene to a low res frame buffer
     {
@@ -972,7 +970,7 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(frameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         VkViewport viewport{};
         viewport.x = 0.0f;
@@ -992,7 +990,7 @@ namespace Fsl
           m_scene->Draw(frameIndex, hCmdBuffer);
         }
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(frameIndex);
     }
 
     // 2. Apply bright pass
@@ -1000,68 +998,58 @@ namespace Fsl
     const VkRenderPass renderPass = m_dependentResources.OffscreenRPNoDepth.Get();
     if (m_menuUI.IsBrightPassEnabled())
     {
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB256A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB256, m_dependentResources.PipelineBrightPass);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB256A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB256,
+                  m_dependentResources.PipelineBrightPass);
     }
     else
     {
       // To make the code simpler when the brightpass is disabled we just do a copy instead (but this copy really is unnecessary and wasting GPU
       // time)
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB256A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB256, m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB256A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB256,
+                  m_dependentResources.PipelineCopy);
     }
 
     // 3. copy to the smaller blur render targets
     if (m_menuUI.IsScaleInputSequentiallyEnabled())
     {
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB128A, hPipelineLayout,
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB128A, hPipelineLayout,
                   m_resources.OffscreenDescriptorSetFB256A, m_dependentResources.PipelineCopy);
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB64A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB128A, m_dependentResources.PipelineCopy);
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB32A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB64A, m_dependentResources.PipelineCopy);
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB16A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB32A, m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB64A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB128A,
+                  m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB32A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB64A,
+                  m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB16A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB32A,
+                  m_dependentResources.PipelineCopy);
     }
     else
     {
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB128A, hPipelineLayout,
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB128A, hPipelineLayout,
                   m_resources.OffscreenDescriptorSetFB256A, m_dependentResources.PipelineCopy);
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB64A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB256A, m_dependentResources.PipelineCopy);
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB32A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB256A, m_dependentResources.PipelineCopy);
-      PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB16A, hPipelineLayout,
-                  m_resources.OffscreenDescriptorSetFB256A, m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB64A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB256A,
+                  m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB32A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB256A,
+                  m_dependentResources.PipelineCopy);
+      PostProcess(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB16A, hPipelineLayout, m_resources.OffscreenDescriptorSetFB256A,
+                  m_dependentResources.PipelineCopy);
     }
 
     if (m_menuUI.IsBlurEnabled())
     {
       // 4. Blur the content using two passes for 256, 128, 64, 32 and 16
-      PostProcessBlurH(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB256B,
-                       m_resources.OffscreenDescriptorSetFB256A);
-      PostProcessBlurV(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB256A,
-                       m_resources.OffscreenDescriptorSetFB256B);
+      PostProcessBlurH(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB256B, m_resources.OffscreenDescriptorSetFB256A);
+      PostProcessBlurV(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB256A, m_resources.OffscreenDescriptorSetFB256B);
 
-      PostProcessBlurH(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB128B,
-                       m_resources.OffscreenDescriptorSetFB256A);
-      PostProcessBlurV(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB128A,
-                       m_resources.OffscreenDescriptorSetFB128B);
+      PostProcessBlurH(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB128B, m_resources.OffscreenDescriptorSetFB256A);
+      PostProcessBlurV(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB128A, m_resources.OffscreenDescriptorSetFB128B);
 
-      PostProcessBlurH(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB64B,
-                       m_resources.OffscreenDescriptorSetFB64A);
-      PostProcessBlurV(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB64A,
-                       m_resources.OffscreenDescriptorSetFB64B);
+      PostProcessBlurH(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB64B, m_resources.OffscreenDescriptorSetFB64A);
+      PostProcessBlurV(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB64A, m_resources.OffscreenDescriptorSetFB64B);
 
-      PostProcessBlurH(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB32B,
-                       m_resources.OffscreenDescriptorSetFB32A);
-      PostProcessBlurV(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB32A,
-                       m_resources.OffscreenDescriptorSetFB32B);
+      PostProcessBlurH(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB32B, m_resources.OffscreenDescriptorSetFB32A);
+      PostProcessBlurV(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB32A, m_resources.OffscreenDescriptorSetFB32B);
 
-      PostProcessBlurH(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB16B,
-                       m_resources.OffscreenDescriptorSetFB16A);
-      PostProcessBlurV(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB16A,
-                       m_resources.OffscreenDescriptorSetFB16B);
+      PostProcessBlurH(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB16B, m_resources.OffscreenDescriptorSetFB16A);
+      PostProcessBlurV(rCmdBuffers, frameIndex, renderPass, m_dependentResources.OffscreenFB16A, m_resources.OffscreenDescriptorSetFB16B);
     }
   }
 
@@ -1197,35 +1185,35 @@ namespace Fsl
   }
 
 
-  void Bloom::PostProcessBlurH(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
-                               const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet)
+  void Bloom::PostProcessBlurH(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t frameIndex, const VkRenderPass renderPass,
+                               const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet)
   {
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[frameIndex];
     // works since the dst and src size should be the same
     const VkPipelineLayout hPipelineLayout = PrepareBlurPipeline(m_activeBlueShaderType, hCmdBuffer, dst.GetExtent2D().width);
     const auto& pipeline = GetBlurHPipeline(m_activeBlueShaderType);
 
-    PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, dst, hPipelineLayout, srcDescriptorSet, pipeline);
+    PostProcess(rCmdBuffers, frameIndex, renderPass, dst, hPipelineLayout, srcDescriptorSet, pipeline);
   }
 
 
-  void Bloom::PostProcessBlurV(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
-                               const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet)
+  void Bloom::PostProcessBlurV(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t frameIndex, const VkRenderPass renderPass,
+                               const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet)
   {
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[frameIndex];
     // works since the dst and src size should be the same
     const VkPipelineLayout hPipelineLayout = PrepareBlurPipeline(m_activeBlueShaderType, hCmdBuffer, dst.GetExtent2D().height);
     const auto& pipeline = GetBlurVPipeline(m_activeBlueShaderType);
 
-    PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, dst, hPipelineLayout, srcDescriptorSet, pipeline);
+    PostProcess(rCmdBuffers, frameIndex, renderPass, dst, hPipelineLayout, srcDescriptorSet, pipeline);
   }
 
 
-  void Bloom::PostProcess(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t /*frameIndex*/,
-                          const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkPipelineLayout hPipelineLayout,
-                          const VkDescriptorSet& srcDescriptorSet, const RapidVulkan::GraphicsPipeline& pipeline)
+  void Bloom::PostProcess(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t frameIndex, const VkRenderPass renderPass,
+                          const Vulkan::VUFramebuffer& dst, const VkPipelineLayout hPipelineLayout, const VkDescriptorSet& srcDescriptorSet,
+                          const RapidVulkan::GraphicsPipeline& pipeline)
   {
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[frameIndex];
 
     // Composite everything
     const auto dstExtent = dst.GetExtent2D();
@@ -1243,7 +1231,7 @@ namespace Fsl
     renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
-    rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    rCmdBuffers.CmdBeginRenderPass(frameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
       VkViewport viewport{};
       viewport.x = 0.0f;
@@ -1260,7 +1248,7 @@ namespace Fsl
 
       PostProcess(hCmdBuffer, hPipelineLayout, srcDescriptorSet, pipeline);
     }
-    rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+    rCmdBuffers.CmdEndRenderPass(frameIndex);
   }
 
 

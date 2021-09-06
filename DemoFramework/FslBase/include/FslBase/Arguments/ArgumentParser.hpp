@@ -34,7 +34,7 @@
 #include <FslBase/Arguments/Command.hpp>
 #include <FslBase/Arguments/EncodedCommand.hpp>
 #include <FslBase/Arguments/ParseResult.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <cstdint>
 #include <deque>
@@ -48,7 +48,7 @@ namespace Fsl
     namespace ArgumentParser
     {
       //! @brief Try to parse the argument list into commands.
-      //! @param rEncodedArguments (the parsed argument commands)
+      //! @param rEncodedCommands (the parsed argument commands)
       //! @param args = the arguments as a span of valid string view lites pointers.
       //! @param commands a list of valid commands.
       //! @param pErrorInfo a optional structure that will be filled with extra error information in case a error occurs.

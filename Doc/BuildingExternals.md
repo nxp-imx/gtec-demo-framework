@@ -45,18 +45,18 @@ The paths below are subject to change.
   $(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)/.DownloadCache
   ```
 
-* All pipeline steps are executed under 
+* All pipeline steps are executed under
 
   ```bash
   $(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)/.Temp/Pipeline/<Platform>/<GeneratorShortName>/<PipelineStep>
   ```
 
-* The final package is installed to 
+* The final package is installed to
 
   ```bash
   $(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)/<Platform>/<GeneratorShortName>/<ExperimentalRecipeName>
   ```
-  
+
 This setup allows us to
 
 * Re-use a package from the download cache for future rebuilding.
@@ -67,16 +67,16 @@ This setup allows us to
 
 ## Automatic download
 
-The automatic download functionality can be disabled by setting the environment variable ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DISABLE_DOWNLOAD``` or 
+The automatic download functionality can be disabled by setting the environment variable ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DISABLE_DOWNLOAD``` or
 by changing the the value in the root "Project.gen" file from
 
-```xml 
+```xml
 <Experimental AllowDownloads="true">
 ```
 
-`To 
+`To
 
-```xml 
+```xml
 <Experimental AllowDownloads="false">
 ```
 
@@ -89,7 +89,7 @@ A recipe defines a:
 - optional build pipeline.
 - installation section.
 
-The build pipeline is responsible for fetching and building the recipe and 
+The build pipeline is responsible for fetching and building the recipe and
 the installation section is responsible for defining where headers, libs and DLL's can be located and
 other optional installation validations steps.
 
@@ -123,7 +123,7 @@ ExperimentalRecipe has basic support for CMake find_package as well so we can ge
 
 ## The build pipeline
 
-The basic principle of the pipeline is that each step in it takes a input directory and produces a output directory. 
+The basic principle of the pipeline is that each step in it takes a input directory and produces a output directory.
 
 So if you have step StepA, StepB and StepC like this
 
@@ -162,7 +162,7 @@ After the fetch step comes 0-n build steps.
 | Combine       | Runs multiple CMake and its platform associated builder |
 | Unpack        | Unpack a specific file (.zip, .tar, .tar.gz, .tgz)      |
 
-Each of these commands also take a optional 'join command list' that is executed before we 
+Each of these commands also take a optional 'join command list' that is executed before we
 hand over the result to the next step in the pipeline.
 
 | Join command  | Description                                        |
@@ -201,7 +201,7 @@ The recipe's basically come in two variants:
 
 ## A recipe for a pre-installed library.
 
-The recipe below setups the AmdAppSDK-3.0 by pointing it at the right directory, 
+The recipe below setups the AmdAppSDK-3.0 by pointing it at the right directory,
 then adds the necessary headers, static libs and DLL's.
 
 ```xml
@@ -242,9 +242,9 @@ This is a experimental feature intended to help people that utilize multiple SDK
 Using it will improve build time as it can skip downloading of source.
 **Beware** this feature is still experimental!
 
-The environment variable: ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR``` can be set to point to a shared caching directory. 
-Once you completed a build of the externals to the ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR``` directory you can manually copy it to the 
-shared cache directory. It is up to YOU to ensure that non concurrency issues occur when you do this copy so make sure that no builds 
+The environment variable: ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR``` can be set to point to a shared caching directory.
+Once you completed a build of the externals to the ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR``` directory you can manually copy it to the
+shared cache directory. It is up to YOU to ensure that non concurrency issues occur when you do this copy so make sure that no builds
 are running in the background!
 
 All scripts will only read from the directory so no concurrency issues should exist.
@@ -254,14 +254,14 @@ be re-used too.
 
 ## Populate the cache
 
-The simplest way to get the files for the cache is to run 
+The simplest way to get the files for the cache is to run
 
 ```bash
 FslBuildExternal.py -t sdk -v
 ```
 
-This will download and build all externals to the FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR directory. 
-Once that is done the files can be manually copied to the Readonly cache area. Just make sure nothing is using any of the 
+This will download and build all externals to the FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR directory.
+Once that is done the files can be manually copied to the Readonly cache area. Just make sure nothing is using any of the
 two directories when you do the copy, this is especially important for build bots etc.
 
 # Appendix: Recipe pipeline commands
@@ -348,8 +348,8 @@ Apply a git patch file.
 
 ### AddHeaders
 
-Defines where the 'header' files can be found relative to the package installation path. 
-The header file location under the installation path will be automatically added as a ExternalDependency 
+Defines where the 'header' files can be found relative to the package installation path.
+The header file location under the installation path will be automatically added as a ExternalDependency
 just as if the Fsl.gen file had defined it manually.
 
 To validate the command it will be checked if the path represents a directory under the installation path.
@@ -362,7 +362,7 @@ To validate the command it will be checked if the path represents a directory un
 
 ### AddLib
 Define the path to a library file that can be linked against. The path is relative to the package installation path.
-The lib under the installation path will be automatically added as a ExternalDependency 
+The lib under the installation path will be automatically added as a ExternalDependency
 just as if the Fsl.gen file had defined it manually.
 
 To validate the command it will be checked if the path represents a file under the installation path.
@@ -375,8 +375,8 @@ To validate the command it will be checked if the path represents a file under t
 
 
 ### AddDLL
-Define a DLL file that should be copied to the executable output folder. 
-The lib under the installation path will be automatically added as a ExternalDependency 
+Define a DLL file that should be copied to the executable output folder.
+The lib under the installation path will be automatically added as a ExternalDependency
 just as if the Fsl.gen file had defined it manually.
 
 To validate the command it will be checked if the path represents a file under the installation path.
@@ -426,7 +426,7 @@ Can be used to check if a file can be found in the current path.
 # Appendix: Path commands
 
 Per default all path commands in the pipeline read from the input path and write to the output path.
-However most paths can be overidden by using one of the predefined variables or even a environment variable. 
+However most paths can be overidden by using one of the predefined variables or even a environment variable.
 Beware that the use of environment variables is not recommended.
 
 Variables are indicated with $\{NAME\} and environment variables $(NAME).
@@ -455,7 +455,7 @@ All paths that defaults to use the output path, can use these:
 
 # Manual download/compile of external package
 
-1. Look in the recipe for the package and look at the name and version of the ExperimentalRecipe. In the example below its 'zlib' and '1.2.11' which gets resolved to 'zlib-1.2.11'. 
+1. Look in the recipe for the package and look at the name and version of the ExperimentalRecipe. In the example below its 'zlib' and '1.2.11' which gets resolved to 'zlib-1.2.11'.
 
   ```xml
       <ExperimentalRecipe Name="zlib" Version="1.2.11">

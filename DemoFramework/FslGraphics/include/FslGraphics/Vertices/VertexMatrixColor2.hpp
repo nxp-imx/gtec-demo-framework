@@ -33,12 +33,13 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  class VertexDeclaration;
-
   struct VertexMatrixColor2
   {
     Fsl::Matrix Matrix;
@@ -54,8 +55,35 @@ namespace Fsl
     {
     }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+    constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 3> elements = {
+        VertexElementEx(offsetof(VertexMatrixColor2, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
+        VertexElementEx(offsetof(VertexMatrixColor2, Color1), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElementEx(offsetof(VertexMatrixColor2, Color2), VertexElementFormat::Vector4, VertexElementUsage::Color, 1)};
+
+      return VertexDeclarationArray<3>(elements, sizeof(VertexMatrixColor2));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<3> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+
+    constexpr bool operator==(const VertexMatrixColor2& rhs) const
+    {
+      return Matrix == rhs.Matrix && Color1 == rhs.Color1 && Color2 == rhs.Color2;
+    }
+
+    constexpr bool operator!=(const VertexMatrixColor2& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

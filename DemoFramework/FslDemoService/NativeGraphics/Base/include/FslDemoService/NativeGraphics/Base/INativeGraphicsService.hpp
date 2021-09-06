@@ -43,6 +43,7 @@ namespace Fsl
   class Bitmap;
   class INativeGraphicsBasic2D;
   class INativeBatch2D;
+  class IBasicRenderSystem;
 
   class INativeGraphicsService : public INativeGraphics
   {
@@ -61,6 +62,9 @@ namespace Fsl
 
     //! @brief Create a NativeBatch2d instance
     virtual std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) = 0;
+
+    //! @brief Get the NativeBatch instance (or allocate one if not available)
+    virtual std::shared_ptr<IBasicRenderSystem> GetBasicRenderSystem() = 0;
   };
 }
 

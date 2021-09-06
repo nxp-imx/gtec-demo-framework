@@ -35,7 +35,7 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <algorithm>
+#include <cmath>
 
 namespace Fsl
 {

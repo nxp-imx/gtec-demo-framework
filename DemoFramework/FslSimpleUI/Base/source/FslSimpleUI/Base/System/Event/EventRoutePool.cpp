@@ -51,7 +51,7 @@ namespace Fsl
     EventRoutePool::~EventRoutePool() = default;
 
 
-    std::shared_ptr<EventRoute> EventRoutePool::Allocate(const WindowFlags& flags)
+    std::shared_ptr<EventRoute> EventRoutePool::Allocate(const WindowFlags flags)
     {
       if (!m_pool.empty())
       {

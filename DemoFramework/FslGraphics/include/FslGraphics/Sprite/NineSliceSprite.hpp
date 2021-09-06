@@ -36,6 +36,7 @@
 
 namespace Fsl
 {
+  class SpriteNativeAreaCalc;
   class StringViewLite;
 
   class NineSliceSprite final : public INineSliceSprite
@@ -45,13 +46,29 @@ namespace Fsl
   public:
     NineSliceSprite() = default;
 
-    NineSliceSprite(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx, const PxRectangleU& imageTrimmedRectanglePx,
-                    const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName,
-                    const uint32_t densityDpi);
+    NineSliceSprite(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                    const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx, const PxThicknessU& nineSlicePx,
+                    const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
 
-    void SetContent(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx, const PxRectangleU& imageTrimmedRectanglePx,
-                    const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName,
-                    const uint32_t densityDpi);
+    void SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                    const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx, const PxThicknessU& nineSlicePx,
+                    const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
+
+    PxSize2D GetRenderSizePx() const final
+    {
+      return m_info.RenderInfo.ScaledSizePx;
+    }
+
+    const PxThickness& GetRenderContentMarginPx() const final
+    {
+      return m_info.RenderInfo.ScaledContentMarginPx;
+    }
+
+    RenderContentInfo GetRenderContentInfo() const final
+    {
+      return {m_info.RenderInfo.ScaledSizePx, m_info.RenderInfo.ScaledContentMarginPx};
+    }
+
 
     const NineSliceSpriteInfo& GetInfo() const
     {
@@ -69,7 +86,11 @@ namespace Fsl
     }
 
 
-    const SpriteMaterialInfo& GetMaterialInfo() const final;
+    uint32_t GetMaterialCount() const final
+    {
+      return 1u;
+    }
+    const SpriteMaterialInfo& GetMaterialInfo(const uint32_t index) const final;
     void Resize(const uint32_t densityDpi) final;
   };
 }

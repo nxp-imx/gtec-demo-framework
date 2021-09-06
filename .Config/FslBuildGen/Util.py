@@ -305,6 +305,18 @@ def IsValidRequirementName(name: str) -> bool:
     return True
 
 
+def IsValidDefineValue(name: Optional[str]) -> bool:
+    if name is None:
+        return True;
+    if len(name) <= 0:
+        return False
+
+    for ch in name:
+        if not IsValidNameCharacter(ch):
+            return False
+    return True
+
+
 def ExtractNamesAsVariables(entries: Any) -> List[str]:
     resList = []
     for entry in entries:

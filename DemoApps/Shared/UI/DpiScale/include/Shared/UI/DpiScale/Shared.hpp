@@ -41,16 +41,17 @@
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 //#include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
 //#include <FslSimpleUI/Base/System/EventListener.hpp>
 //#include <FslSimpleUI/Base/System/UIManager.hpp>
@@ -59,6 +60,14 @@
 
 namespace Fsl
 {
+  namespace UI
+  {
+    namespace Theme
+    {
+      class IThemeControlFactory;
+    }
+  }
+
   struct Resources
   {
     Texture2D AtlasTexture;
@@ -97,7 +106,7 @@ namespace Fsl
       std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> SliderTextureDpi;
       std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> SliderDownscalePreference;
       std::shared_ptr<UI::Switch> CheckBoxShowScaleExample;
-      std::shared_ptr<UI::LabelNineSliceButton> BtnSetDefaultValues;
+      std::shared_ptr<UI::BackgroundLabelButton> BtnSetDefaultValues;
       std::shared_ptr<UI::Layout> MainLayout;
     };
 
@@ -108,6 +117,7 @@ namespace Fsl
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
 
     std::shared_ptr<IGraphicsService> m_graphics;
+    std::shared_ptr<IBasicRenderSystem> m_renderSystem;
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
 
     DemoWindowMetrics m_displayMetrics;
@@ -125,7 +135,7 @@ namespace Fsl
     Resources m_res640;
 
     fmt::memory_buffer m_fmtScratchpad;
-    std::vector<FontGlyphPosition> m_glyphScratchpad;
+    std::vector<SpriteFontGlyphPosition> m_glyphScratchpad;
     std::shared_ptr<ImageSprite> m_fillSprite;
     AtlasTexture2D m_texFill;
 
@@ -163,34 +173,34 @@ namespace Fsl
     int32_t CalcPxAreaHeightPx(const Resources& resources) const;
     int32_t CalcTextAreaHeightPx(const Resources& resources) const;
     void DrawTextArea(INativeBatch2D& rNativeBatch, const PxRectangle2D& dstRect, const Resources& resources, const bool useTestAtlas);
-    void DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont, const StringViewLite& text,
+    void DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont, const StringViewLite& text,
                   const PxPoint2& dstPositionPx, const Color& fontColor, const PxClipRectangle& clipRectPx);
-    void DrawTextNaiveScaling(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextNaiveScaling(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                               const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx, const Color& fontColor,
                               const PxClipRectangle& clipRectPx);
-    void DrawTextDstRoundedToFullPixels(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextDstRoundedToFullPixels(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                         const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                         const Color& fontColor, const PxClipRectangle& clipRectPx);
-    void DrawTextBaseLineAware(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextBaseLineAware(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx, const Color& fontColor,
                                const PxClipRectangle& clipRectPx);
-    void DrawTextAlmostPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextAlmostPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                     const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                     const Color& fontColor, const PxClipRectangle& clipRectPx);
-    void DrawTextAlmostPixelPerfect2(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextAlmostPixelPerfect2(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                      const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                      const Color& fontColor, const PxClipRectangle& clipRectPx);
 
-    void DrawTextPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                               const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx, const Color& fontColor,
                               const PxClipRectangle& clipRectPx);
 
-    void DrawTextRenderRules(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+    void DrawTextRenderRules(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                              const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx, const Color& fontColor,
                              const PxClipRectangle& clipRectPx);
 
 
-    UIRecord CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::BasicThemeFactory& rUIFactory, const uint32_t densityDpi,
+    UIRecord CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::IThemeControlFactory& rUIFactory, const uint32_t densityDpi,
                       const bool enableTestPattern, const bool enableUITestPattern);
     void UpdateResourceScale();
     const Resources& SelectResource(const uint32_t density, const float preferenceWeight);

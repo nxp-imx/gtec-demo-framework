@@ -352,7 +352,7 @@ namespace Fsl
     // Prepare the vertex buffer
     info.VertexBuffer.Reset(g_vertices.data(), g_vertices.size(), GL_STATIC_DRAW);
 
-    auto vertexDecl = VertexPositionTexture::GetVertexDeclaration();
+    constexpr auto vertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
     info.AttribLink[0] =
       GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     info.AttribLink[1] =

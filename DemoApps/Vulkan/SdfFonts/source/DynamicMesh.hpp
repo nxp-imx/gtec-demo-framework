@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/SpanRange.hpp>
-#include <FslBase/Span.hpp>
+#include <FslBase/Span/Span.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>

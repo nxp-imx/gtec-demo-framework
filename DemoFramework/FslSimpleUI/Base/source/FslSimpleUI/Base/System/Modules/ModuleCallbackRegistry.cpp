@@ -64,6 +64,26 @@ namespace Fsl
     ModuleCallbackRegistry::~ModuleCallbackRegistry() = default;
 
 
+    void ModuleCallbackRegistry::ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node)
+    {
+      assert(node);
+      auto itr = m_receivers.begin();
+      while (itr != m_receivers.end())
+      {
+        std::shared_ptr<IModuleCallbackReceiver> receiver = itr->lock();
+        if (receiver)
+        {
+          receiver->ModuleOnTreeNodeAdd(node);
+          ++itr;
+        }
+        else
+        {
+          itr = m_receivers.erase(itr);
+        }
+      }
+    }
+
+
     void ModuleCallbackRegistry::ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node)
     {
       assert(node);

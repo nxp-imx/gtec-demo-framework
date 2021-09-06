@@ -19,6 +19,7 @@
 package com.freescale.##PREFIXED_PROJECT_NAME_L##;
 
 import com.freescale.##PREFIXED_PROJECT_NAME_L##.R;
+import com.freescale.demoplatform.ShellSplitter;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -33,7 +34,11 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import java.util.List;
+
 public class DemoNativeActivity extends NativeActivity {
+    private List<String> m_commandLineArgs = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +58,11 @@ public class DemoNativeActivity extends NativeActivity {
             });
         }
 
+        String commandLineArgs = getIntent().getStringExtra("args");
+        if(commandLineArgs != null)
+        {
+            m_commandLineArgs = ShellSplitter.Split(commandLineArgs);
+        }
     }
 
     @TargetApi(19)    
@@ -92,6 +102,16 @@ public class DemoNativeActivity extends NativeActivity {
     DemoNativeActivity _activity;
     PopupWindow _popupWindow;
     TextView _label;
+
+    public int GetCommandLineArgumentCount()
+    {
+        return m_commandLineArgs != null ? m_commandLineArgs.size() : 0;
+    }
+
+    public String TryGetCommandLineArgument(int index)
+    {
+        return m_commandLineArgs != null && index >= 0 && index < m_commandLineArgs.size() ? m_commandLineArgs.get(index)  : null;
+    }
 
     @SuppressLint("InflateParams")
     public void showUI()

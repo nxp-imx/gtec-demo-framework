@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/ConstrainedValue.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
+#include <type_traits>
 
 namespace Fsl
 {

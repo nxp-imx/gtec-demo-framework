@@ -1,0 +1,114 @@
+@startuml MeshBuilder2D Class Diagram
+scale 1
+
+' The UIMeshBatcher keeps track of the active meshes and be implemented in various ways to
+' provide various strategies for dealing with how the batching of the meshes are done
+
+' class UIMeshBatcher {
+'     int32_t GetMeshCount()
+'     bool IsValidMesh()
+
+'     MeshHandle CreateMesh(int vertexCount, int indexCount)
+'     MeshHandle CreateMesh(int vertexCount, int indexCount, MaterialInfo materialInfo)
+'     void DestroyMesh(MeshHandle handle)
+'     void ReserveMeshVertices(MeshHandle hMesh, int minCapacity)
+'     void ReserveMeshIndices(MeshHandle hMesh, int minCapacity)
+
+'     MaterialInfo GetMeshMaterial(MeshHandle hMesh)
+'     void SetMeshMaterial(MeshHandle hMesh, MaterialInfo materialInfo)
+
+'     ReadOnlyArraySpan<VertexPositionColorTexture2> GetVertexSpan(MeshHandle hMesh)
+'     ReadOnlyArraySpan<UInt16> GetIndexSpan(MeshHandle hMesh)
+'     ReadOnlyMeshSpan GetMeshSpan(MeshHandle hMesh)
+
+'     bool IsInMeshBuild()
+'     void BeginMeshBuild()
+'     void EndMeshBuild()
+'     void ForceEndBuild()
+
+'     void AddCustomToBuild()
+'     float AddToBuild(MeshHandle hMesh, AddMeshFlags flags=AddMeshFlags.None)
+'     void ClearMesh(MeshHandle hMesh)
+'     int GetMeshVertexLength(MeshHandle hMesh)
+'     void SetMeshVertexLength(MeshHandle hMesh, int length)
+'     int GetMeshIndexLength(MeshHandle hMesh)
+'     void SetMeshIndexLength(MeshHandle hMesh, int length)
+'     void SetMesh(MeshHandle hMesh, VertexPositionColorTexture2[] srcVertices, int[] srcIndices)
+'     void SetMesh(MeshHandle hMesh, VertexPositionColorTexture2[] srcVertices, int vertexStartIndex, int vertexLength,
+'                  int[] srcIndices, int indicesStartIndex, int indicesLength)
+'     void UpdateMeshVertices(MeshHandle hMesh, int dstIndex, VertexPositionColorTexture2[] src, int startIndex, int length)
+'     void SetMeshVertices(MeshHandle hMesh, VertexPositionColorTexture2[] src)
+'     void SetMeshVertices(MeshHandle hMesh, VertexPositionColorTexture2[] src, int startIndex, int length)
+'     void UpdateMeshIndices(MeshHandle hMesh, int dstIndex, int[] src, int startIndex, int length)
+'     #void TouchMesh(ref MeshRecord rMeshRecord)
+
+'     ~ScopedUIMeshBuilder2D BeginScopedUIMeshBuilder2D()
+'     ~ScopedUIMeshBuilder2D EndScopedUIMeshBuilder2D()
+'     ~ScopedRawMeshBuilder2D BeginScopedRawMeshBuilder2D()
+'     ~ScopedRawMeshBuilder2D EndScopedRawMeshBuilder2D()
+' }
+
+' class InlineRawMeshBuilder2D {
+'     IsValid()
+'     GetVerticesWritten()
+'     GetIndicesWritten()
+'     GetEndDstVertexOffset()
+'     GetEndDstIndexOffset()
+'     GetVertexCount()
+'     GetIndexCount()
+'     GetRemainingVertexCapacity()
+'     GetRemainingIndexCapacity()
+'     Clear()
+'     AddRect()
+'     AddNineSlice()
+'     AddNineSliceUVRotated90CW()
+' }
+
+' class ScopedUIMeshBuilder2D {
+'     GetColor()
+'     SetColor()
+'     Clear()
+'     AddRect()
+'     AddNineSlice()
+'     AddNineSliceRotated90CW()
+'     AddString()
+' }
+
+
+namespace FslGraphics2D.Procedural.Mesh {
+    class MeshHandle
+
+    ' low level vertex + index generation.
+    ' It always writes exactly the requested vertices.
+    ' It expects that clipping and 'invisible due to color based culling' has been done.
+    ' It also expects that the user ensures that there is capacity before calling it and that the parameters are valid.
+    ' All error checking is done with asserts just to verify the assumptions in debug builds.
+    class InlineRawMeshBuilder2D
+
+    ' high level vertex + index generation
+    ' checks that there is enough capacity and throws a exception if there is not
+    class ScopedUIMeshBuilder2D
+
+    class VertexArrayManager
+    class VertexArray
+    class IndexArrayManager
+    class IndexArray
+    class UIMeshBatcher
+    class UIMeshRecord
+    class UIBucket
+
+    VertexArrayManager<--VertexArray
+    IndexArrayManager<--IndexArray
+
+    UIMeshBatcher o-- VertexArrayManager
+    UIMeshBatcher o-- IndexArrayManager
+    UIMeshBatcher o-- InlineRawMeshBuilder2D
+    UIMeshBatcher o-- ScopedUIMeshBuilder2D
+    UIMeshBatcher o-- UIMeshRecord
+    UIMeshBatcher o-- Bucket
+
+    ScopedUIMeshBuilder2D <-- InlineRawMeshBuilder2D
+
+}
+
+@enduml

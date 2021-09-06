@@ -62,7 +62,7 @@ namespace Fsl
 
     void ExtractMeshes(GLVertexBufferArray& rVertexBuffers, GLIndexBufferArray& rIndexBuffers, const MeshUtil::TestScene& scene)
     {
-      rVertexBuffers.Resize(scene.Meshes.size(), MeshUtil::TestMesh::vertex_type::GetVertexDeclaration());
+      rVertexBuffers.Resize(scene.Meshes.size(), MeshUtil::TestMesh::vertex_type::AsVertexDeclarationSpan());
       rIndexBuffers.Resize(scene.Meshes.size(), GL_UNSIGNED_SHORT);
       std::size_t vertexCount = 0;
       std::size_t indexCount = 0;
@@ -82,7 +82,7 @@ namespace Fsl
     {
       auto mesh = MeshUtil::ExtractToSingleMesh(scene);
 
-      rVertexBuffers.Resize(1, MeshUtil::TestMesh::vertex_type::GetVertexDeclaration());
+      rVertexBuffers.Resize(1, MeshUtil::TestMesh::vertex_type::AsVertexDeclarationSpan());
       rIndexBuffers.Resize(1, GL_UNSIGNED_SHORT);
       rVertexBuffers.Reset(0, mesh.Vertices, GL_STATIC_DRAW);
       rIndexBuffers.Reset(0, mesh.Indices, GL_STATIC_DRAW);
@@ -93,7 +93,7 @@ namespace Fsl
       auto mesh = MeshUtil::ExtractMeshEdges(scene);
 
       FSLLOG3_INFO("Building mesh");
-      rVertexBuffers.Resize(1, MeshUtil::TestMesh::vertex_type::GetVertexDeclaration());
+      rVertexBuffers.Resize(1, MeshUtil::TestMesh::vertex_type::AsVertexDeclarationSpan());
       rIndexBuffers.Resize(1, GL_UNSIGNED_SHORT);
 
       rVertexBuffers.Reset(0, mesh.Vertices, GL_STATIC_DRAW);
@@ -593,7 +593,7 @@ namespace Fsl
     m_resources.LocMatSpecular = m_resources.Program.TryGetUniformLocation("MatSpecular");
     m_resources.LocMatShininess = m_resources.Program.TryGetUniformLocation("MatShininess");
 
-    auto vertexDecl = MeshUtil::TestMesh::vertex_type::GetVertexDeclaration();
+    constexpr auto vertexDecl = MeshUtil::TestMesh::vertex_type::GetVertexDeclarationArray();
     m_resources.AttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexPosition"),
                                                    vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_resources.AttribLink[1] =

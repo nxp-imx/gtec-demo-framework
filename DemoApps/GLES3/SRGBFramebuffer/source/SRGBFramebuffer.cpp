@@ -35,13 +35,14 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
@@ -452,7 +453,7 @@ namespace Fsl
       VertexPositionNormalTexture(Vector3(x1, y, z0), normal, Vector2(u1, v0)),
     };
 
-    auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclaration();
+    constexpr auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclarationArray();
     std::vector<GLES3::GLVertexAttribLink> attribLink(3);
     attribLink[0] =
       GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
@@ -483,7 +484,8 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiThemeControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiThemeControlFactory;
 
     // Create a label to write stuff into when a button is pressed
 

@@ -33,8 +33,7 @@
 
 #include <FslBase/Compression/ValueCompression.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/Span.hpp>
-#include <cassert>
+#include <FslBase/Span/Span.hpp>
 #include <cstdlib>
 
 namespace Fsl
@@ -42,10 +41,28 @@ namespace Fsl
   namespace ValueCompression
   {
     //! @brief Read a int32 from pSrc at starting at index
+    inline int64_t ReadSimpleInt64(ReadOnlySpan<uint8_t>& rSrc)
+    {
+      int64_t result = 0;
+      const auto count = ValueCompression::ReadSimple(result, rSrc.data(), rSrc.size(), 0);
+      rSrc = rSrc.subspan(count);
+      return result;
+    }
+
+    //! @brief Read a uint32 from pSrc at starting at index
+    inline uint64_t ReadSimpleUInt64(ReadOnlySpan<uint8_t>& rSrc)
+    {
+      uint64_t result = 0;
+      const auto count = ValueCompression::ReadSimple(result, rSrc.data(), rSrc.size(), 0);
+      rSrc = rSrc.subspan(count);
+      return result;
+    }
+
+    //! @brief Read a int32 from pSrc at starting at index
     inline int32_t ReadSimpleInt32(ReadOnlySpan<uint8_t>& rSrc)
     {
       int32_t result = 0;
-      auto count = ValueCompression::ReadSimple(result, rSrc.data(), rSrc.size(), 0);
+      const auto count = ValueCompression::ReadSimple(result, rSrc.data(), rSrc.size(), 0);
       rSrc = rSrc.subspan(count);
       return result;
     }
@@ -54,7 +71,7 @@ namespace Fsl
     inline uint32_t ReadSimpleUInt32(ReadOnlySpan<uint8_t>& rSrc)
     {
       uint32_t result = 0;
-      auto count = ValueCompression::ReadSimple(result, rSrc.data(), rSrc.size(), 0);
+      const auto count = ValueCompression::ReadSimple(result, rSrc.data(), rSrc.size(), 0);
       rSrc = rSrc.subspan(count);
       return result;
     }
@@ -62,14 +79,14 @@ namespace Fsl
     //! @brief Read a int16 from pSrc at starting at index
     inline int16_t ReadSimpleInt16(ReadOnlySpan<uint8_t>& rSrc)
     {
-      auto result = ReadSimpleInt32(rSrc);
+      const auto result = ReadSimpleInt32(rSrc);
       return NumericCast<int16_t>(result);
     }
 
     //! @brief Read a uint16 from pSrc at starting at index
     inline uint16_t ReadSimpleUInt16(ReadOnlySpan<uint8_t>& rSrc)
     {
-      auto result = ReadSimpleUInt32(rSrc);
+      const auto result = ReadSimpleUInt32(rSrc);
       return NumericCast<uint16_t>(result);
     }
 
@@ -124,6 +141,48 @@ namespace Fsl
       return ValueCompression::WriteSimple(dst.data(), dst.size(), index, value);
     }
 
+    //! @brief Encodes a integer into a variable length encoding where the length can be determined from the first byte.
+    //         The encoding favors small values.
+    /// @return the number of bytes written
+    inline ReadOnlySpan<uint8_t>::size_type WriteSimple(Span<uint8_t> dst, const std::size_t index, const int64_t value)
+    {
+      return ValueCompression::WriteSimple(dst.data(), dst.size(), index, value);
+    }
+
+    //! @brief Encodes a integer into a variable length encoding where the length can be determined from the first byte.
+    //         The encoding favors small values.
+    /// @return the number of bytes written
+    inline ReadOnlySpan<uint8_t>::size_type WriteSimple(Span<uint8_t> dst, const std::size_t index, const uint64_t value)
+    {
+      return ValueCompression::WriteSimple(dst.data(), dst.size(), index, value);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    inline Span<uint8_t> WriteSimpleInt32(Span<uint8_t> dst, const int32_t value)
+    {
+      const auto finalSize = WriteSimple(dst, 0, value);
+      return dst.subspan(finalSize);
+    }
+
+    inline Span<uint8_t> WriteSimpleUInt32(Span<uint8_t> dst, const uint32_t value)
+    {
+      const auto finalSize = WriteSimple(dst, 0, value);
+      return dst.subspan(finalSize);
+    }
+
+    inline Span<uint8_t> WriteSimpleInt64(Span<uint8_t> dst, const int64_t value)
+    {
+      const auto finalSize = WriteSimple(dst, 0, value);
+      return dst.subspan(finalSize);
+    }
+
+    inline Span<uint8_t> WriteSimpleUInt64(Span<uint8_t> dst, const uint64_t value)
+    {
+      const auto finalSize = WriteSimple(dst, 0, value);
+      return dst.subspan(finalSize);
+    }
   };
 }
 

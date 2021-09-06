@@ -34,24 +34,23 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
-#include <FslBase/Span.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/Span.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <functional>
 
 namespace Fsl
 {
   namespace AppHelper
   {
-    extern TextureAtlasBitmapFont ReadFont(const IContentManager& contentManager, const IO::Path& pathBitmapFont);
+    extern TextureAtlasSpriteFont ReadFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,
+                                           const IContentManager& contentManager, const IO::Path& pathBitmapFont, const uint32_t densityDpi);
 
     extern void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx,
-                                 const ReadOnlySpan<FontGlyphPosition>& positions, float zPos, const PxSize2D& fontTextureSize,
-                                 const std::function<NativeTextureArea(const PxRectangleU&, const PxSize2D&)>& fnCalcTextureArea);
-    extern void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<FontGlyphPosition>& positions);
+                                 const ReadOnlySpan<SpriteFontGlyphPosition>& positions, float zPos, const PxSize2D& fontTextureSize);
+    extern void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<SpriteFontGlyphPosition>& positions);
   }
 }
 

@@ -11,7 +11,7 @@ android {
         targetSdkVersion ##FSL_PACKAGE_TARGET_ANDROID_SDK_VERSION##
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_shared"
@@ -28,6 +28,8 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // For ease of use we utilize the debug certificate for release (remove this to do a properly signed release build)
+            signingConfig debug.signingConfig
         }
     }
     externalNativeBuild {
@@ -39,15 +41,15 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     // Use relinker as recommended by the android documentation at
     // https://developer.android.com/ndk/guides/cpp-support.html#c_runtime_libraries
     // https://github.com/KeepSafe/ReLinker
-    implementation 'com.getkeepsafe.relinker:relinker:1.3.1'
+    implementation 'com.getkeepsafe.relinker:relinker:1.4.3'
 }
 
 task buildContentFiles(type: Exec) {

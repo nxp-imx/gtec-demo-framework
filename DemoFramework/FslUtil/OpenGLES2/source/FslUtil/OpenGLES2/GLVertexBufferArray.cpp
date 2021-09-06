@@ -42,14 +42,14 @@ namespace Fsl
 {
   namespace GLES2
   {
-    GLVertexBufferArray::GLVertexBufferArray(const std::size_t capacity, const VertexDeclaration& vertexDeclaration)
+    GLVertexBufferArray::GLVertexBufferArray(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration)
       : GLBufferArray(capacity, GL_ARRAY_BUFFER, vertexDeclaration.VertexStride())
       , m_vertexElements(vertexDeclaration)
     {
     }
 
 
-    void GLVertexBufferArray::Resize(const std::size_t capacity, const VertexDeclaration& vertexDeclaration)
+    void GLVertexBufferArray::Resize(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration)
     {
       if (!m_vertexElements.IsEqual(vertexDeclaration))
       {
@@ -67,7 +67,7 @@ namespace Fsl
 
 
     void GLVertexBufferArray::Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount,
-                                    const VertexDeclaration& vertexDeclaration, const GLenum usage)
+                                    VertexDeclarationSpan vertexDeclaration, const GLenum usage)
     {
       if (!m_vertexElements.IsEqual(vertexDeclaration))
       {

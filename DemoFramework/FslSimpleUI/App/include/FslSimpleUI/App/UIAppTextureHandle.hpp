@@ -32,16 +32,17 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Collections/HandleVectorConfig.hpp>
 
 namespace Fsl
 {
   struct UIAppTextureHandle
   {
-    int32_t Value{};
+    int32_t Value{HandleVectorConfig::InvalidHandle};
 
-    constexpr UIAppTextureHandle() = default;
+    constexpr UIAppTextureHandle() noexcept = default;
 
-    explicit constexpr UIAppTextureHandle(const int32_t value)
+    explicit constexpr UIAppTextureHandle(const int32_t value) noexcept
       : Value(value)
     {
     }

@@ -314,7 +314,6 @@ namespace Fsl
     ShutdownVulkan();
   }
 
-
   void VulkanDemoHost::InitVulkan()
   {
     {    // Init the Vulkan instance
@@ -330,8 +329,11 @@ namespace Fsl
       const auto instanceConfig = InstanceConfigUtil::InstanceConfigAsCharArrays(
         InstanceConfigUtil::BuildInstanceConfig(khrSurfaceExtensionName, instanceUserChoice, demoHostConfig));
 
-      m_instance = InstanceUtil::CreateInstance(applicationName, VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, 0, instanceConfig.Layers,
-                                                instanceConfig.Extensions, m_instanceCreateInfo.get());
+
+      const uint32_t appVersion = demoHostConfig->GetInstanceAppVersion();
+      const uint32_t apiVersion = demoHostConfig->GetInstanceApiVersion();
+      m_instance = InstanceUtil::CreateInstance(applicationName, appVersion, apiVersion, 0, instanceConfig.Layers, instanceConfig.Extensions,
+                                                m_instanceCreateInfo.get());
     }
 
     // Select the physical device

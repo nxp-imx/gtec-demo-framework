@@ -45,7 +45,7 @@ namespace Fsl
   {
     StateEventSender::StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
                                        std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler,
-                                       const WindowFlags& windowFlags, FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent)
+                                       const WindowFlags windowFlags, FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent)
       : m_treeContextInfo(std::move(treeContextInfo))
       , m_eventRouter(std::move(eventRouter))
       , m_eventPool(std::move(eventPool))
@@ -133,6 +133,8 @@ namespace Fsl
           {
             try
             {
+              FSLLOG3_VERBOSE5("StateEventSender: TargetDied sending cancel event to history");
+
               // We lock the history so that it wont get freed by the fake 'up'
               // This ensures that the StateEvent captures the rest of the real event series.
               m_history.Lock();
@@ -146,6 +148,11 @@ namespace Fsl
               m_history.MarkReceiverAsDead();
             }
           }
+        }
+        //! Doing this could lead to issues with receiving end before begin, but we detect that and ignore it
+        if (m_eventRoute.IsEmpty())
+        {
+          m_history.End();
         }
       }
     }

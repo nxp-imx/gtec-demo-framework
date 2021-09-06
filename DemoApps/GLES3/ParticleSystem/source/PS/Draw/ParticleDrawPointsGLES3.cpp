@@ -33,11 +33,12 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include "../ParticleDrawContext.hpp"
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include "../ParticleDrawContext.hpp"
 #include <cstddef>
 
 namespace Fsl
@@ -46,21 +47,27 @@ namespace Fsl
 
   namespace
   {
-    VertexDeclaration GetVertexDeclaration(const uint32_t cbParticleRecord)
+    VertexDeclarationArray<2> GetVertexDeclarationArray(const uint32_t cbParticleRecord)
     {
       assert(cbParticleRecord >= sizeof(Particle));
       static std::array<VertexElementEx, 2> elements = {
         VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElementEx(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
       };
-      return VertexDeclaration(elements.data(), elements.size(), cbParticleRecord);
+      return VertexDeclarationArray<2>(elements, cbParticleRecord);
+    }
+
+    GLES3::GLVertexBuffer CreateEmptyDynamicVertexBuffer(std::size_t capacity, const uint32_t cbParticleRecord)
+    {
+      const auto vertexDeclArray = GetVertexDeclarationArray(cbParticleRecord);
+      return GLES3::GLVertexBuffer(nullptr, capacity, vertexDeclArray.AsReadOnlySpan(), GL_DYNAMIC_DRAW);
     }
   }
 
   ParticleDrawPointsGLES3::ParticleDrawPointsGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity,
                                                    const uint32_t cbParticleRecord)
     : m_cbParticleRecord(cbParticleRecord)
-    , m_vertexBuffer(nullptr, capacity, GetVertexDeclaration(cbParticleRecord), GL_DYNAMIC_DRAW)
+    , m_vertexBuffer(CreateEmptyDynamicVertexBuffer(capacity, cbParticleRecord))
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(nullptr)
     , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
@@ -73,8 +80,8 @@ namespace Fsl
   ParticleDrawPointsGLES3::ParticleDrawPointsGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity,
                                                    const uint32_t cbParticleRecord, const bool useDoubleBuffering)
     : m_cbParticleRecord(cbParticleRecord)
-    , m_vertexBuffer(nullptr, capacity, GetVertexDeclaration(cbParticleRecord), GL_DYNAMIC_DRAW)
-    , m_vertexBuffer2(nullptr, capacity, GetVertexDeclaration(cbParticleRecord), GL_DYNAMIC_DRAW)
+    , m_vertexBuffer(CreateEmptyDynamicVertexBuffer(capacity, cbParticleRecord))
+    , m_vertexBuffer2(CreateEmptyDynamicVertexBuffer(capacity, cbParticleRecord))
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(useDoubleBuffering ? &m_vertexBuffer2 : nullptr)
     , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
@@ -115,7 +122,7 @@ namespace Fsl
     m_program.Reset(contentManager->ReadAllText("ShaderPoint.vert"), contentManager->ReadAllText("ShaderPoint.frag"));
 
     const GLuint hProgram = m_program.Get();
-    auto vertexDecl = GetVertexDeclaration(m_cbParticleRecord);
+    const auto vertexDecl = GetVertexDeclarationArray(m_cbParticleRecord);
 
     m_particleAttribLink[0] =
       GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));

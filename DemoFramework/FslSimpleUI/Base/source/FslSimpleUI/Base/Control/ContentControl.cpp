@@ -33,7 +33,6 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
 

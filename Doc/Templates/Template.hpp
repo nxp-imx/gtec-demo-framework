@@ -1,7 +1,7 @@
 #ifndef FSL_TEMPLATE_TEMPLATE_HPP
 #define FSL_TEMPLATE_TEMPLATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

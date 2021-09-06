@@ -330,4 +330,37 @@ namespace Fsl
             static_cast<DpThicknessU::value_type>(scaledR), static_cast<DpThicknessU::value_type>(scaledB)};
   }
 
+
+  PxVector2 SpriteUnitConverter::CalcScaledOffsetPxVector2(const PxPoint2& offsetPx, const uint32_t imageDpi) const
+  {
+    if (imageDpi == 0)
+    {
+      throw std::invalid_argument("imageDpi can not be zero");
+    }
+
+    if (imageDpi == m_densityDpi)
+    {
+      return TypeConverter::To<PxVector2>(offsetPx);
+    }
+
+    const float scaleFactor = CalcImageDensityScale(imageDpi);
+    return {static_cast<float>(offsetPx.X) * scaleFactor, static_cast<float>(offsetPx.Y) * scaleFactor};
+  }
+
+
+  float SpriteUnitConverter::CalcScaledOffsetValuePxf(const int32_t offsetPx, const uint32_t imageDpi) const
+  {
+    if (imageDpi == 0)
+    {
+      throw std::invalid_argument("imageDpi can not be zero");
+    }
+
+    if (imageDpi == m_densityDpi)
+    {
+      return static_cast<float>(offsetPx);
+    }
+
+    const float scaleFactor = CalcImageDensityScale(imageDpi);
+    return static_cast<float>(offsetPx) * scaleFactor;
+  }
 }

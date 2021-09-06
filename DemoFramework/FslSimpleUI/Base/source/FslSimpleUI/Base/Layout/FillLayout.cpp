@@ -45,6 +45,8 @@ namespace Fsl
     FillLayout::FillLayout(const std::shared_ptr<BaseWindowContext>& context)
       : SimpleLayout(context)
     {
+      SetAlignmentX(ItemAlignment::Stretch);
+      SetAlignmentY(ItemAlignment::Stretch);
     }
 
 
@@ -62,9 +64,30 @@ namespace Fsl
 
     PxSize2D FillLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
+      if (availableSizePx.ContainsInfinity())
+      {
+        PxSize2D maxSize;
+        for (auto itr = begin(); itr != end(); ++itr)
+        {
+          itr->Window->Measure(availableSizePx);
+          maxSize = PxSize2D::Max(maxSize, itr->Window->DesiredSizePx());
+        }
+        if (availableSizePx.IsInfinityWidth())
+        {
+          if (availableSizePx.IsInfinityHeight())
+          {
+            return maxSize;
+          }
+          return {maxSize.Width(), availableSizePx.Height()};
+        }
+        // height must be infinity since the width isnt
+        assert(availableSizePx.IsInfinityHeight());
+        return {availableSizePx.Width(), maxSize.Height()};
+      }
+
       if (!availableSizePx.IsNormal())
       {
-        throw UsageErrorException("FillLayout can not be used in infinity sized layouts");
+        throw UsageErrorException("FillLayout got invalid availableSize");
       }
 
       // FSLLOG3_INFO("Measure: availableSize: {}", availableSize);

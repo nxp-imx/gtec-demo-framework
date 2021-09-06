@@ -72,6 +72,7 @@ namespace Fsl
   void DemoAppControlService::RequestAppRestart()
   {
     m_hasAppRestartResetRequest = true;
+    RequestUpdateTimerReset();
   }
 
 
@@ -175,6 +176,22 @@ namespace Fsl
     return m_timestepMode;
   }
 
+  uint32_t DemoAppControlService::GetRenderLoopFrameCounter() const
+  {
+    return m_renderLoopFrameCounter > 0 ? m_renderLoopFrameCounter : m_renderLoopMaxFramesInFlight;
+  }
+
+  void DemoAppControlService::SetRenderLoopFrameCounter(const uint32_t frameCount)
+  {
+    FSLLOG3_WARNING_IF(frameCount > m_renderLoopMaxFramesInFlight, "SetRenderLoopFrameCounter: frameCount capped to m_renderLoopMaxFramesInFlight")
+    m_renderLoopFrameCounter = std::min(frameCount, m_renderLoopMaxFramesInFlight);
+  }
+
+  uint32_t DemoAppControlService::GetRenderLoopMaxFramesInFlight() const
+  {
+    return m_renderLoopMaxFramesInFlight;
+  }
+
   bool DemoAppControlService::TryEnableMouseCaptureMode(const bool enabled)
   {
     if (!m_windowHostInfo)
@@ -239,6 +256,13 @@ namespace Fsl
   void DemoAppControlService::ClearUpdateTimerResetRequest()
   {
     m_hasUpdateTimerResetRequest = false;
+  }
+
+  void DemoAppControlService::SetRenderLoopMaxFramesInFlight(const uint32_t maxFramesInFlight)
+  {
+    FSLLOG3_WARNING_IF(maxFramesInFlight <= 0u, "SetRenderLoopMaxFramesInFlight: Forcing maxFramesInFlight to be at least one")
+    m_renderLoopMaxFramesInFlight = std::max(maxFramesInFlight, 1u);
+    m_renderLoopFrameCounter = std::min(m_renderLoopFrameCounter, m_renderLoopMaxFramesInFlight);
   }
 
 

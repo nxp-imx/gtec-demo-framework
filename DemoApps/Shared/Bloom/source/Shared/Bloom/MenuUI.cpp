@@ -31,11 +31,12 @@
 
 #include <Shared/Bloom/MenuUI.hpp>
 #include <Shared/Bloom/OptionParser.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 
 namespace Fsl
 {
@@ -178,7 +179,8 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
     auto layoutMenu = std::make_shared<UI::StackLayout>(context);
     {
@@ -204,12 +206,12 @@ namespace Fsl
 
       auto labelBlur = factory.CreateLabel("Blur");
 
-      m_sliderBlur = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::BlurRange, "{:.3f}");
+      m_sliderBlur = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::BlurRange, "{:.3f}");
       m_sliderBlur->SetAlignmentX(UI::ItemAlignment::Stretch);
 
       auto labelBlend = factory.CreateLabel("Blend");
 
-      m_sliderBlend = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::BlendRange, "{:.3f}");
+      m_sliderBlend = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::BlendRange, "{:.3f}");
       m_sliderBlend->SetAlignmentX(UI::ItemAlignment::Stretch);
 
       layoutMenu->AddChild(m_cbMenuRotate);

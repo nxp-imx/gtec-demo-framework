@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <cstdlib>
 
 namespace Fsl
@@ -83,8 +83,8 @@ namespace Fsl
     static void Convert(TDstVertexFormat* const pDst, const std::size_t dstVertexCapacity, const TSrcVertexFormat* const pSrc,
                         const std::size_t srcVertexCount, const TDstVertexFormat& dstDefaultValue)
     {
-      const VertexDeclaration dstVertexDeclaration = TDstVertexFormat::GetVertexDeclaration();
-      const VertexDeclaration srcVertexDeclaration = TSrcVertexFormat::GetVertexDeclaration();
+      const VertexDeclarationSpan dstVertexDeclaration = TDstVertexFormat::AsVertexDeclarationSpan();
+      const VertexDeclarationSpan srcVertexDeclaration = TSrcVertexFormat::AsVertexDeclarationSpan();
       GenericConvert(pDst, dstVertexDeclaration.VertexStride() * dstVertexCapacity, dstVertexDeclaration, pSrc,
                      srcVertexDeclaration.VertexStride() * srcVertexCount, srcVertexDeclaration, srcVertexCount, &dstDefaultValue,
                      sizeof(TDstVertexFormat));
@@ -105,8 +105,8 @@ namespace Fsl
                         const std::size_t srcVertexCapacity, const std::size_t srcVertexStartIndex, const std::size_t srcVertexCount,
                         const TDstVertexFormat& dstDefaultValue)
     {
-      const VertexDeclaration dstVertexDeclaration = TDstVertexFormat::GetVertexDeclaration();
-      const VertexDeclaration srcVertexDeclaration = TSrcVertexFormat::GetVertexDeclaration();
+      const VertexDeclarationSpan dstVertexDeclaration = TDstVertexFormat::AsVertexDeclarationSpan();
+      const VertexDeclarationSpan srcVertexDeclaration = TSrcVertexFormat::AsVertexDeclarationSpan();
       GenericConvert(pDst, dstVertexDeclaration.VertexStride() * dstVertexCapacity, dstVertexDeclaration, pSrc,
                      srcVertexDeclaration.VertexStride() * srcVertexCapacity, srcVertexDeclaration, srcVertexStartIndex, srcVertexCount,
                      &dstDefaultValue, sizeof(TDstVertexFormat));
@@ -126,8 +126,8 @@ namespace Fsl
     //! @param cbDstDefaultValues the number of bytes used for the default vertex.
     //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
     //! format will be ignored.
-    static void GenericConvert(void* const pDst, const std::size_t cbDst, const VertexDeclaration& dstVertexDeclaration, const void* const pSrc,
-                               const std::size_t cbSrc, const VertexDeclaration& srcVertexDeclaration, const std::size_t srcVertexCount,
+    static void GenericConvert(void* const pDst, const std::size_t cbDst, VertexDeclarationSpan dstVertexDeclaration, const void* const pSrc,
+                               const std::size_t cbSrc, VertexDeclarationSpan srcVertexDeclaration, const std::size_t srcVertexCount,
                                const void* const pDstDefaultValues, const uint32_t cbDstDefaultValues);
 
     //! @brief Convert from one vertex format to another. This method exist for convenience and its performance is probably pretty bad!
@@ -144,8 +144,8 @@ namespace Fsl
     //! @param cbDstDefaultValues the number of bytes used for the default vertex.
     //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
     //! format will be ignored.
-    static void GenericConvert(void* const pDst, const std::size_t cbDst, const VertexDeclaration& dstVertexDeclaration, const void* const pSrc,
-                               const std::size_t cbSrc, const VertexDeclaration& srcVertexDeclaration, const std::size_t srcVertexStartIndex,
+    static void GenericConvert(void* const pDst, const std::size_t cbDst, VertexDeclarationSpan dstVertexDeclaration, const void* const pSrc,
+                               const std::size_t cbSrc, VertexDeclarationSpan srcVertexDeclaration, const std::size_t srcVertexStartIndex,
                                const std::size_t srcVertexCount, const void* const pDstDefaultValues, const uint32_t cbDstDefaultValues);
 
 

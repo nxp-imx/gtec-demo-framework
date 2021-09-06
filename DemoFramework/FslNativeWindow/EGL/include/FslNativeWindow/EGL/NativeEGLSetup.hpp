@@ -51,13 +51,13 @@ namespace Fsl
     {
     }
 
-    //static NativeEGLSetup Invalid()
+    // static NativeEGLSetup Invalid()
     //{
     //  return NativeEGLSetup();
     //}
 
-  //protected:
-  //  NativeEGLSetup() = default;
+    // protected:
+    //  NativeEGLSetup() = default;
   };
 }
 

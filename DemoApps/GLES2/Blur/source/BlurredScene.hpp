@@ -35,14 +35,15 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeBatch2D.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
-#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
-#include <FslService/Consumer/ServiceProvider.hpp>
 #include <deque>
 #include <memory>
 #include "AScene.hpp"
@@ -58,9 +59,10 @@ namespace Fsl
     Config m_config;
     std::shared_ptr<AScene> m_scene;
     std::shared_ptr<IGraphicsService> m_graphicsService;
+    std::shared_ptr<IBasicRenderSystem> m_basicRenderSystem;
     std::shared_ptr<INativeBatch2D> m_batch2D;
     Texture2D m_texFontAtlas;
-    TextureAtlasBitmapFont m_font;
+    TextureAtlasSpriteFont m_font;
     std::deque<std::shared_ptr<ABlurredDraw>> m_blurImplementations;
     std::shared_ptr<ABlurredDraw> m_blurredDraw;
     Point2 m_screenResolution;
@@ -68,7 +70,6 @@ namespace Fsl
     AtlasTexture2D m_texDescription;
     GLES2::GLProgram m_program;
     GLES2::GLVertexBuffer m_vbDescription;
-    GLuint m_hTexAtlas;
 
   public:
     BlurredScene(const DemoAppConfig& config, std::shared_ptr<AScene> scene);

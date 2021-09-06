@@ -51,6 +51,16 @@ namespace Fsl
       void WinInit() override;
 
     protected:
+      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
+
+      void SetContentVisibility(const ItemVisibility visibility)
+      {
+        if (m_content)
+        {
+          m_content->SetVisibility(visibility);
+        }
+      }
+
       //! @brief This includes any padding set
       PxSize2D GetContentDesiredSizePx() const;
 

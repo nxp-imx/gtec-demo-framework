@@ -47,16 +47,16 @@ namespace Fsl
     PxPoint2 Offset;
     PxExtent2D Extent;
 
+  public:
     constexpr PxRectangle2D() noexcept = default;
-
     constexpr PxRectangle2D(const PxPoint2& offset, const PxExtent2D& extent) noexcept
       : Offset(offset)
       , Extent(extent)
     {
     }
 
-    constexpr PxRectangle2D(const PxPoint2::value_type x, const PxPoint2::value_type y, const PxExtent2D::value_type width,
-                            const PxExtent2D::value_type height) noexcept
+    constexpr PxRectangle2D(const offset_type::value_type x, const offset_type::value_type y, const extent_type::value_type width,
+                            const extent_type::value_type height) noexcept
       : Offset(x, y)
       , Extent(width, height)
     {
@@ -70,8 +70,8 @@ namespace Fsl
       static_assert(sizeof(uint32_t) == sizeof(PxExtent2D::value_type), "expect the PxExtent2D value_type to be a uint32_t");
       // FSLLOG3_DEBUG_INFO_IF(right > left, "right > left, capping width to zero");
       // FSLLOG3_DEBUG_INFO_IF(bottom > top, "bottom > top, capping height to zero");
-      return {PxPoint2(left, top), PxExtent2D(right >= left ? uint32_t(int64_t(right) - int64_t(left)) : 0u,
-                                              bottom >= top ? uint32_t(int64_t(bottom) - int64_t(top)) : 0u)};
+      return {left, top, right >= left ? uint32_t(int64_t(right) - int64_t(left)) : 0u,
+              bottom >= top ? uint32_t(int64_t(bottom) - int64_t(top)) : 0u};
     }
 
     static constexpr PxRectangle2D Empty() noexcept

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
+#include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
@@ -43,13 +44,47 @@ namespace Fsl
 {
   class GraphicsServiceOptionParser;
   class INativeGraphicsService;
+  class INativeGraphicsServiceControl;
   class INativeGraphicsBasic2D;
 
   class GraphicsService final
     : public ThreadLocalService
     , public IGraphicsService
     , public IGraphicsServiceControl
+    , public IGraphicsServiceHost
   {
+    struct ApiResources
+    {
+      bool IsValid{false};
+      std::shared_ptr<INativeGraphicsService> NativeService;
+      std::shared_ptr<INativeGraphicsServiceControl> NativeServiceControl;
+      std::shared_ptr<INativeGraphicsBasic2D> NativBasic2D;
+      std::shared_ptr<IBasic2D> NativeBasic2D;
+    };
+
+    struct DeviceResources
+    {
+      bool IsValid{false};
+      std::shared_ptr<INativeBatch2D> NativeBatch2D;
+
+      DeviceResources() = default;
+      explicit DeviceResources(const bool isValid)
+        : IsValid(isValid)
+      {
+      }
+    };
+
+    struct DeviceDependentResources
+    {
+      bool IsValid{false};
+
+      DeviceDependentResources() = default;
+      explicit DeviceDependentResources(const bool isValid)
+        : IsValid(isValid)
+      {
+      }
+    };
+
     using NativeGraphicsServiceDeque = std::deque<std::shared_ptr<INativeGraphicsService>>;
 
     std::shared_ptr<IProfilerService> m_profilerService;
@@ -58,11 +93,12 @@ namespace Fsl
 
     NativeGraphicsServiceDeque m_nativeGraphicsServices;
 
-    std::shared_ptr<INativeGraphicsService> m_nativeService;
-    std::shared_ptr<INativeGraphicsBasic2D> m_nativBasic2D;
-    std::shared_ptr<IBasic2D> m_basic2D;
-    std::shared_ptr<INativeBatch2D> m_nativeBatch2D;
     DemoWindowMetrics m_windowMetrics;
+
+    ApiResources m_apiResources;
+    DeviceResources m_resources;
+    DeviceDependentResources m_dependentResources;
+    bool m_preallocateBasic2D{true};
 
   public:
     explicit GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser);
@@ -76,13 +112,22 @@ namespace Fsl
     std::shared_ptr<IBasic2D> GetBasic2D() final;
     std::shared_ptr<INativeBatch2D> GetNativeBatch2D() final;
     std::shared_ptr<INativeGraphics> GetNativeGraphics() final;
+    std::shared_ptr<IBasicRenderSystem> GetBasicRenderSystem() final;
 
     // From IGraphicsServiceControl
-    void Reset() final;
-    void Configure(const DemoHostFeature& activeAPI) final;
-    void SetWindowMetrics(const DemoWindowMetrics& windowMetrics, const bool preallocateBasic2D) final;
+    void SetWindowMetrics(const DemoWindowMetrics& windowMetrics) final;
+    void ClearActiveApi() final;
+    void SetActiveApi(const DemoHostFeature& activeAPI) final;
+    void PreUpdate() override;
 
-  private:
+    // From IGraphicsServiceHost
+    void CreateDevice(const GraphicsDeviceCreateInfo& createInfo) final;
+    void DestroyDevice() final;
+    void CreateDependentResources(const GraphicsDependentCreateInfo& createInfo) final;
+    void DestroyDependentResources() final;
+    void BeginFrame(const GraphicsBeginFrameInfo& frameInfo) override;
+    void EndFrame() override;
+    void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent) override;
   };
 }
 

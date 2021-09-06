@@ -57,7 +57,7 @@ namespace Fsl
   }
 
 
-  void ##PACKAGE_SHORT_NAME##::Draw(const DemoTime& demoTime)
+  void ##PACKAGE_SHORT_NAME##::Draw(const FrameInfo& frameInfo)
   {
   }
 

@@ -129,9 +129,9 @@ namespace Fsl
     }
 
 
-    void VulkanWillemsDemoApp::_Draw(const DemoTime& demoTime)
+    void VulkanWillemsDemoApp::_Draw(const FrameInfo& frameInfo)
     {
-      DemoAppVulkan::_Draw(demoTime);
+      DemoAppVulkan::_Draw(frameInfo);
 
 
       if (m_device.IsValid())

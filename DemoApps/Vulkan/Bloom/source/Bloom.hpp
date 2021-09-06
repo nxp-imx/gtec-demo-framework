@@ -35,9 +35,9 @@
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeBatch2D.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
-#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <FslUtil/Vulkan1_0/VUFramebuffer.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
@@ -180,13 +180,13 @@ namespace Fsl
     VkPipelineLayout PrepareBlurPipeline(const BlurShaderType shaderType, const VkCommandBuffer hCmdBuffer, const uint32_t texelSize) const;
     const RapidVulkan::GraphicsPipeline& GetBlurHPipeline(const BlurShaderType shaderType) const;
     const RapidVulkan::GraphicsPipeline& GetBlurVPipeline(const BlurShaderType shaderType) const;
-    void PostProcessBlurH(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
-                          const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet);
-    void PostProcessBlurV(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
-                          const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet);
-    void PostProcess(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
-                     const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkPipelineLayout hPipelineLayout,
-                     const VkDescriptorSet& srcDescriptorSet, const RapidVulkan::GraphicsPipeline& pipeline);
+    void PostProcessBlurH(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t frameIndex, const VkRenderPass renderPass,
+                          const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet);
+    void PostProcessBlurV(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t frameIndex, const VkRenderPass renderPass,
+                          const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet);
+    void PostProcess(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t frameIndex, const VkRenderPass renderPass,
+                     const Vulkan::VUFramebuffer& dst, const VkPipelineLayout hPipelineLayout, const VkDescriptorSet& srcDescriptorSet,
+                     const RapidVulkan::GraphicsPipeline& pipeline);
     void PostProcess(const VkCommandBuffer hCmdBuffer, const VkPipelineLayout hPipelineLayout, const VkDescriptorSet& srcDescriptorSet,
                      const RapidVulkan::GraphicsPipeline& pipeline);
 

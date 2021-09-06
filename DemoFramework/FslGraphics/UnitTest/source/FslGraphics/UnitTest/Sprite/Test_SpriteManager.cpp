@@ -54,8 +54,14 @@ namespace
       TestDensityDpi = densityDpi;
     }
 
-    const SpriteMaterialInfo& GetMaterialInfo() const final
+    uint32_t GetMaterialCount() const final
     {
+      return 1u;
+    }
+
+    const SpriteMaterialInfo& GetMaterialInfo(const uint32_t index) const final
+    {
+      FSL_PARAM_NOT_USED(index);
       return TestMaterialInfo;
     }
   };
@@ -66,7 +72,7 @@ namespace
 
 TEST(TestSprite_SpriteManager, Construct_Default)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
   EXPECT_EQ(0u, manager.Count());
 }
 
@@ -75,7 +81,7 @@ TEST(TestSprite_SpriteManager, Add)
 {
   auto material = std::make_shared<DummyUIMaterial>();
 
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
   manager.Add(material);
 
   EXPECT_EQ(1u, manager.Count());
@@ -87,7 +93,7 @@ TEST(TestSprite_SpriteManager, AddRemove)
 {
   auto material = std::make_shared<DummyUIMaterial>();
 
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
   manager.Add(material);
   EXPECT_EQ(1u, manager.Count());
   EXPECT_TRUE(manager.Contains(material));
@@ -102,7 +108,7 @@ TEST(TestSprite_SpriteManager, Resize)
   auto material1 = std::make_shared<DummyUIMaterial>();
   auto material2 = std::make_shared<DummyUIMaterial>();
 
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
   manager.Add(material0);
   manager.Add(material1);
   manager.Add(material2);
@@ -124,7 +130,7 @@ TEST(TestSprite_SpriteManager, Resize)
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidRenderMaterial)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr AtlasTextureInfo textureInfo;
   EXPECT_THROW(manager.AddBasicImageSprite(SpriteMaterialInfo(), textureInfo, IO::PathView("test")), std::invalid_argument);
@@ -133,13 +139,13 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidRenderMaterial)
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidTrim)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 40), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 40), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
   EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), UsageErrorException);
 }
@@ -147,39 +153,39 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidTrim)
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_InvalidDpi)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 40), PxThicknessU(), 0);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 40), PxThicknessU(), 0);
 
   EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_WidthOutOfBounds)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 512 - 10 + 1, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 512 - 10 + 1, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
 
   EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
 }
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite_HeightOutOfBounds)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 1024 - 20 + 1), PxThicknessU(), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 1024 - 20 + 1), PxThicknessU(), SpriteDpConfig::BaseDpi);
 
   EXPECT_THROW(manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
 }
@@ -187,13 +193,13 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite_HeightOutOfBounds)
 
 TEST(TestSprite_SpriteManager, AddBasicImageSprite)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 40), PxThicknessU(), SpriteDpConfig::BaseDpi);
 
   auto value = manager.AddBasicImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test"));
   EXPECT_EQ(1u, manager.Count());
@@ -203,7 +209,7 @@ TEST(TestSprite_SpriteManager, AddBasicImageSprite)
 
 TEST(TestSprite_SpriteManager, AddImageSprite_InvalidRenderMaterial)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr AtlasTextureInfo textureInfo;
   EXPECT_THROW(manager.AddImageSprite(SpriteMaterialInfo(), textureInfo, IO::PathView("test")), std::invalid_argument);
@@ -212,13 +218,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite_InvalidRenderMaterial)
 
 TEST(TestSprite_SpriteManager, AddImageSprite_InvalidDpi)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 40), PxThicknessU(1, 2, 3, 4), 0);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 40), PxThicknessU(1, 2, 3, 4), 0);
 
   EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
 }
@@ -226,13 +232,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite_InvalidDpi)
 
 TEST(TestSprite_SpriteManager, AddImageSprite_WidthOutOfBounds)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 512 - 10 + 1, 40), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 512 - 10 + 1, 40), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
   EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
 }
@@ -240,13 +246,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite_WidthOutOfBounds)
 
 TEST(TestSprite_SpriteManager, AddImageSprite_HeightOutOfBounds)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 1024 - 20 + 1), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 1024 - 20 + 1), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
   EXPECT_THROW(manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test")), std::invalid_argument);
 }
@@ -254,13 +260,13 @@ TEST(TestSprite_SpriteManager, AddImageSprite_HeightOutOfBounds)
 
 TEST(TestSprite_SpriteManager, AddImageSprite)
 {
-  SpriteManager manager(160);
+  SpriteManager manager(160, false);
 
   constexpr SpriteMaterialId spriteMaterialId(1);
   constexpr PxExtent2D textureExtent(512, 1024);
   auto renderMaterial = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
-  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial, 127u);
-  constexpr AtlasTextureInfo textureInfo(PxRectangleU(10, 20, 30, 40), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
+  const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, true, renderMaterial);
+  constexpr AtlasTextureInfo textureInfo(PxRectangleU32(10, 20, 30, 40), PxThicknessU(1, 2, 3, 4), SpriteDpConfig::BaseDpi);
 
   auto value = manager.AddImageSprite(spriteMaterialInfo, textureInfo, IO::PathView("test"));
   EXPECT_EQ(1u, manager.Count());

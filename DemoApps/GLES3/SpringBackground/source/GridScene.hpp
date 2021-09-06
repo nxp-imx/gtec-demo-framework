@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include "IScene.hpp"
 #include "Grid.hpp"
 #include "GridRender/GridRenderNativeBatchBasic.hpp"
@@ -49,6 +49,7 @@ namespace Fsl
   class GridScene : public IScene
   {
     Vector2 m_screenSize;
+    std::shared_ptr<IBasicRenderSystem> m_renderSystem;
     std::shared_ptr<GLES3::NativeBatch2D> m_batch;
     AtlasTexture2D m_texFill;
     Grid m_grid;

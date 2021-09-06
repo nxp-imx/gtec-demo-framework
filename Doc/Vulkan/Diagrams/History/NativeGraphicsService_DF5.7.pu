@@ -1,0 +1,96 @@
+@startuml NativeGraphicsService DF5.7.0 Class Diagram
+'!pragma ratio 0.66
+'left to right direction
+scale 1
+
+namespace FslGraphics {
+    interface INativeTexture2D
+    interface IDynamicNativeTexture2D
+    interface INativeBatch2D
+
+    INativeTexture2D <|-- IDynamicNativeTexture2D
+}
+
+namespace FslDemoService.NativeGraphics.Base {
+    interface INativeGraphicsService
+}
+
+namespace FslUtil.Vulkan1_0 {
+    class Batch2D
+    class QuadBatch
+    class NativeBatch2D
+    class VMBufferManager
+    class VulkanImageCreator
+    class VUTexture
+
+    ' NativeBatch2D
+    FslGraphics.INativeBatch2D <|-- NativeBatch2D
+    Batch2D <|-- NativeBatch2D
+    Batch2D o-- QuadBatch
+}
+
+namespace FslUtil.Vulkan1_0.NativeTexture {
+    class ANativeTexture2D
+    class DynamicNativeTexture2D
+    class DynamicNativeTexture2DLink
+    class NativeTexture2D
+    class NativeTexture2DLink
+    class NativeTextureManager
+    class Record
+    class vector<T>
+    class "vector<VUTexture>" as vector_VUTexture
+    class "vector<Record>" as vector_Record
+
+    vector_VUTexture *-- FslUtil.Vulkan1_0.VUTexture
+
+    ' DynamicNativeTexture2D
+    FslGraphics.IDynamicNativeTexture2D <|-- DynamicNativeTexture2D
+    ANativeTexture2D <|-- DynamicNativeTexture2D
+    DynamicNativeTexture2D o-- DynamicNativeTexture2DLink
+
+    ' DynamicNativeTexture2DLink
+    DynamicNativeTexture2DLink o-- FslUtil.Vulkan1_0.VulkanImageCreator
+    DynamicNativeTexture2DLink o-- vector_VUTexture
+
+    ' NativeTexture2D
+    FslGraphics.INativeTexture2D <|-- NativeTexture2D
+    ANativeTexture2D <|-- NativeTexture2D
+    NativeTexture2D o-- NativeTexture2DLink
+    NativeTexture2DLink o-- FslUtil.Vulkan1_0.VUTexture
+
+    ' NativeTextureManager
+    NativeTextureManager o-- FslUtil.Vulkan1_0.VulkanImageCreator
+    NativeTextureManager o-- vector_Record
+    NativeTextureManager o-- vector_DynamicRecord
+
+    vector_Record *-- Record
+
+    Record o.. NativeTexture2D
+    Record o-- NativeTexture2DLink
+
+    vector_DynamicRecord o.. DynamicNativeTexture2D
+    vector_DynamicRecord o-- DynamicNativeTexture2DLink
+}
+
+
+namespace FslDemoService.NativeGraphics.Vulkan {
+    class NativeGraphicsBasic2D
+    class NativeGraphicsService
+    class NativeGraphicsSwapchainInfo
+
+    FslDemoService.NativeGraphics.Base.INativeGraphicsService <|-- NativeGraphicsService
+
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.NativeTextureManager
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.VMBufferManager
+    NativeGraphicsService o-- FslUtil.Vulkan1_0.VulkanImageCreator
+    NativeGraphicsService o.. NativeGraphicsBasic2D
+    NativeGraphicsService o.. NativeGraphicsSwapchainInfo
+    NativeGraphicsService o.. FslUtil.Vulkan1_0.QuadBatch
+}
+
+App o-- FslGraphics.INativeBatch2D
+App o-- FslGraphics.INativeTexture2D
+App o-- FslDemoService.NativeGraphics.Base.INativeGraphicsService
+
+
+@enduml

@@ -34,9 +34,9 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <Shared/Camera/System/Camera.hpp>
 #include <Shared/Camera/System/CameraSystem.hpp>
 

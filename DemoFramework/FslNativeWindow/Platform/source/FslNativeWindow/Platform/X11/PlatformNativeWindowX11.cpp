@@ -60,7 +60,7 @@ namespace Fsl
 {
   namespace
   {
-    const int MAGIC_DEFAULT_DPI = 96;
+    const int32_t MAGIC_DEFAULT_DPI = 96;
 
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
     int WaitForMap(Display* /*display*/, XEvent* event, XPointer arg)    // NOLINT(readability-non-const-parameter)
@@ -280,18 +280,18 @@ namespace Fsl
     }
 
 
-    int CalcDPI(const int width, const int millimeterWidth)
+    int32_t CalcDPI(const int32_t width, const int32_t millimeterWidth)
     {
       assert(width > 0);
       assert(millimeterWidth > 0);
       // 1mm = 0.0393701f inches
       const auto w = static_cast<double>(width);
       const double inchesWidth = static_cast<double>(millimeterWidth) * 0.0393701;
-      return static_cast<int>(std::round(w / inchesWidth));
+      return static_cast<int32_t>(std::round(w / inchesWidth));
     }
 
 
-    void UpdateDPIIfPossible(PlatformNativeDisplayType platformDisplay, PlatformNativeWindowType platformWindow, Point2& rScreenDPI)
+    void TryUpdateDPI(PlatformNativeDisplayType platformDisplay, PlatformNativeWindowType platformWindow, Point2& rScreenDPI)
     {
       XRRScreenSize screenSize{};
       if (TryLookupDisplayScreenSize(platformDisplay, platformWindow, screenSize))
@@ -672,7 +672,7 @@ namespace Fsl
     }
 
     m_cachedWindowSize = PxPoint2(windowWidth, windowHeight);
-    UpdateDPIIfPossible(m_platformDisplay, m_platformWindow, m_cachedScreenDPI);
+    TryUpdateDPI(m_platformDisplay, m_platformWindow, m_cachedScreenDPI);
 
     {    // Post the activation message to let the framework know we are ready
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();

@@ -913,7 +913,7 @@ TEST(TestCollections_HandleVector0, RemoveAt_Last)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFast_First)
+TEST(TestCollections_HandleVector0, RemoveBySwap_First)
 {
   HandleVector<std::string> vector(10);
 
@@ -927,7 +927,7 @@ TEST(TestCollections_HandleVector0, RemoveFast_First)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFast(item1);
+  vector.RemoveBySwap(item1);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -941,7 +941,7 @@ TEST(TestCollections_HandleVector0, RemoveFast_First)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFast_Middle)
+TEST(TestCollections_HandleVector0, RemoveBySwap_Middle)
 {
   HandleVector<std::string> vector(10);
 
@@ -955,7 +955,7 @@ TEST(TestCollections_HandleVector0, RemoveFast_Middle)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFast(item2);
+  vector.RemoveBySwap(item2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -983,7 +983,7 @@ TEST(TestCollections_HandleVector0, FOO)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFast(item3);
+  vector.RemoveBySwap(item3);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -997,7 +997,7 @@ TEST(TestCollections_HandleVector0, FOO)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFast_LastAtCapacity)
+TEST(TestCollections_HandleVector0, RemoveBySwap_LastAtCapacity)
 {
   HandleVector<std::string> vector(3);
 
@@ -1011,7 +1011,7 @@ TEST(TestCollections_HandleVector0, RemoveFast_LastAtCapacity)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFast(item3);
+  vector.RemoveBySwap(item3);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -1027,7 +1027,7 @@ TEST(TestCollections_HandleVector0, RemoveFast_LastAtCapacity)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFastAt_First)
+TEST(TestCollections_HandleVector0, RemoveBySwapAt_First)
 {
   HandleVector<std::string> vector(10);
 
@@ -1041,7 +1041,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_First)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFastAt(0);
+  vector.RemoveBySwapAt(0);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -1055,7 +1055,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_First)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFastAt_Middle)
+TEST(TestCollections_HandleVector0, RemoveBySwapAt_Middle)
 {
   HandleVector<std::string> vector(10);
 
@@ -1069,7 +1069,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_Middle)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFastAt(1);
+  vector.RemoveBySwapAt(1);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -1083,7 +1083,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_Middle)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFastAt_Last)
+TEST(TestCollections_HandleVector0, RemoveBySwapAt_Last)
 {
   HandleVector<std::string> vector(10);
 
@@ -1097,7 +1097,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_Last)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFastAt(2);
+  vector.RemoveBySwapAt(2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 
@@ -1111,7 +1111,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_Last)
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST(TestCollections_HandleVector0, RemoveFastAt_LastAtCapacity)
+TEST(TestCollections_HandleVector0, RemoveBySwapAt_LastAtCapacity)
 {
   HandleVector<std::string> vector(3);
 
@@ -1125,7 +1125,7 @@ TEST(TestCollections_HandleVector0, RemoveFastAt_LastAtCapacity)
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(3, vector.Count());
 
-  vector.RemoveFastAt(2);
+  vector.RemoveBySwapAt(2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
   EXPECT_EQ(2, vector.Count());
 

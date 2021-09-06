@@ -37,8 +37,10 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Pixel/PxRectangle2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxSize2DF.hpp>
 #include <FslBase/Math/Pixel/PxThickness.hpp>
 #include <FslBase/Math/Pixel/PxThicknessF.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
@@ -62,7 +64,14 @@ namespace Fsl
     }
 
     template <>
-    constexpr inline PxAreaRectangleF To<PxAreaRectangleF, PxRectangleU>(const PxRectangleU& value)
+    constexpr inline PxAreaRectangleF To<PxAreaRectangleF, PxRectangleU16>(const PxRectangleU16& value)
+    {
+      return {static_cast<PxAreaRectangleF::value_type>(value.X), static_cast<PxAreaRectangleF::value_type>(value.Y),
+              static_cast<PxAreaRectangleF::value_type>(value.Width), static_cast<PxAreaRectangleF::value_type>(value.Height)};
+    }
+
+    template <>
+    constexpr inline PxAreaRectangleF To<PxAreaRectangleF, PxRectangleU32>(const PxRectangleU32& value)
     {
       return {static_cast<PxAreaRectangleF::value_type>(value.X), static_cast<PxAreaRectangleF::value_type>(value.Y),
               static_cast<PxAreaRectangleF::value_type>(value.Width), static_cast<PxAreaRectangleF::value_type>(value.Height)};
@@ -95,7 +104,14 @@ namespace Fsl
 
 
     template <>
-    constexpr inline PxClipRectangle To<PxClipRectangle, PxRectangleU>(const PxRectangleU& value)
+    constexpr inline PxClipRectangle To<PxClipRectangle, PxRectangleU16>(const PxRectangleU16& value)
+    {
+      return {NumericCast<PxClipRectangle::value_type>(value.X), NumericCast<PxClipRectangle::value_type>(value.Y),
+              NumericCast<PxClipRectangle::value_type>(value.Width), NumericCast<PxClipRectangle::value_type>(value.Height)};
+    }
+
+    template <>
+    constexpr inline PxClipRectangle To<PxClipRectangle, PxRectangleU32>(const PxRectangleU32& value)
     {
       return {NumericCast<PxClipRectangle::value_type>(value.X), NumericCast<PxClipRectangle::value_type>(value.Y),
               NumericCast<PxClipRectangle::value_type>(value.Width), NumericCast<PxClipRectangle::value_type>(value.Height)};
@@ -133,7 +149,14 @@ namespace Fsl
     // --- PxRectangle
 
     template <>
-    constexpr inline PxRectangle To<PxRectangle, PxRectangleU>(const PxRectangleU& value)
+    constexpr inline PxRectangle To<PxRectangle, PxRectangleU16>(const PxRectangleU16& value)
+    {
+      return {NumericCast<PxRectangle::value_type>(value.X), NumericCast<PxRectangle::value_type>(value.Y),
+              NumericCast<PxRectangle::value_type>(value.Width), NumericCast<PxRectangle::value_type>(value.Height)};
+    }
+
+    template <>
+    constexpr inline PxRectangle To<PxRectangle, PxRectangleU32>(const PxRectangleU32& value)
     {
       return {NumericCast<PxRectangle::value_type>(value.X), NumericCast<PxRectangle::value_type>(value.Y),
               NumericCast<PxRectangle::value_type>(value.Width), NumericCast<PxRectangle::value_type>(value.Height)};
@@ -145,6 +168,24 @@ namespace Fsl
       static_assert(std::is_same<PxRectangle::value_type, PxRectangle2D::offset_type::value_type>::value, "we expect the types to be equal");
       return {value.Offset.X, value.Offset.Y, NumericCast<PxRectangle::value_type>(value.Extent.Width),
               NumericCast<PxRectangle::value_type>(value.Extent.Height)};
+    }
+
+    // --- PxRectangleU16
+
+    template <>
+    constexpr inline PxRectangleU16 To<PxRectangleU16, PxRectangleU32>(const PxRectangleU32& value)
+    {
+      return {NumericCast<PxRectangleU16::value_type>(value.X), NumericCast<PxRectangleU16::value_type>(value.Y),
+              NumericCast<PxRectangleU16::value_type>(value.Width), NumericCast<PxRectangleU16::value_type>(value.Height)};
+    }
+
+    // --- PxRectangleU32
+
+    template <>
+    constexpr inline PxRectangleU32 To<PxRectangleU32, PxRectangleU16>(const PxRectangleU16& value)
+    {
+      return {UncheckedNumericCast<PxRectangleU32::value_type>(value.X), UncheckedNumericCast<PxRectangleU32::value_type>(value.Y),
+              UncheckedNumericCast<PxRectangleU32::value_type>(value.Width), UncheckedNumericCast<PxRectangleU32::value_type>(value.Height)};
     }
 
     // --- PxSize2D
@@ -351,7 +392,15 @@ namespace Fsl
     }
 
     template <>
-    constexpr inline PxAreaRectangleF UncheckedTo<PxAreaRectangleF, PxRectangleU>(const PxRectangleU& value) noexcept
+    constexpr inline PxAreaRectangleF UncheckedTo<PxAreaRectangleF, PxRectangleU16>(const PxRectangleU16& value) noexcept
+    {
+      return {static_cast<PxAreaRectangleF::value_type>(value.X), static_cast<PxAreaRectangleF::value_type>(value.Y),
+              static_cast<PxAreaRectangleF::value_type>(value.Width), static_cast<PxAreaRectangleF::value_type>(value.Height)};
+    }
+
+
+    template <>
+    constexpr inline PxAreaRectangleF UncheckedTo<PxAreaRectangleF, PxRectangleU32>(const PxRectangleU32& value) noexcept
     {
       return {static_cast<PxAreaRectangleF::value_type>(value.X), static_cast<PxAreaRectangleF::value_type>(value.Y),
               static_cast<PxAreaRectangleF::value_type>(value.Width), static_cast<PxAreaRectangleF::value_type>(value.Height)};
@@ -384,7 +433,14 @@ namespace Fsl
 
 
     template <>
-    constexpr inline PxClipRectangle UncheckedTo<PxClipRectangle, PxRectangleU>(const PxRectangleU& value) noexcept
+    constexpr inline PxClipRectangle UncheckedTo<PxClipRectangle, PxRectangleU16>(const PxRectangleU16& value) noexcept
+    {
+      return {UncheckedNumericCast<PxClipRectangle::value_type>(value.X), UncheckedNumericCast<PxClipRectangle::value_type>(value.Y),
+              UncheckedNumericCast<PxClipRectangle::value_type>(value.Width), UncheckedNumericCast<PxClipRectangle::value_type>(value.Height)};
+    }
+
+    template <>
+    constexpr inline PxClipRectangle UncheckedTo<PxClipRectangle, PxRectangleU32>(const PxRectangleU32& value) noexcept
     {
       return {UncheckedNumericCast<PxClipRectangle::value_type>(value.X), UncheckedNumericCast<PxClipRectangle::value_type>(value.Y),
               UncheckedNumericCast<PxClipRectangle::value_type>(value.Width), UncheckedNumericCast<PxClipRectangle::value_type>(value.Height)};
@@ -430,7 +486,14 @@ namespace Fsl
     // --- PxRectangle
 
     template <>
-    constexpr inline PxRectangle UncheckedTo<PxRectangle, PxRectangleU>(const PxRectangleU& value) noexcept
+    constexpr inline PxRectangle UncheckedTo<PxRectangle, PxRectangleU16>(const PxRectangleU16& value) noexcept
+    {
+      return {UncheckedNumericCast<PxRectangle::value_type>(value.X), UncheckedNumericCast<PxRectangle::value_type>(value.Y),
+              UncheckedNumericCast<PxRectangle::value_type>(value.Width), UncheckedNumericCast<PxRectangle::value_type>(value.Height)};
+    }
+
+    template <>
+    constexpr inline PxRectangle UncheckedTo<PxRectangle, PxRectangleU32>(const PxRectangleU32& value) noexcept
     {
       return {UncheckedNumericCast<PxRectangle::value_type>(value.X), UncheckedNumericCast<PxRectangle::value_type>(value.Y),
               UncheckedNumericCast<PxRectangle::value_type>(value.Width), UncheckedNumericCast<PxRectangle::value_type>(value.Height)};

@@ -35,6 +35,7 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/IDemoApp.hpp>
+#include <FslDemoApp/Base/RenderConfig.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
@@ -61,6 +62,7 @@ namespace Fsl
     };
 
   private:
+    RenderConfig m_renderConfig;
     DemoAppConfig m_demoAppConfig;
     std::weak_ptr<IContentManager> m_contentManger;
     std::weak_ptr<IPersistentDataManager> m_persistentDataManager;
@@ -73,17 +75,29 @@ namespace Fsl
     ~ADemoApp() override;
     void _PostConstruct() override;
     void _PreDestruct() override;
+    void _Begin() override;
     void _OnEvent(IEvent* const pEvent) override;
     void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
     void _PostUpdate(const DemoTime& demoTime) override;
-    AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) override;
-    void _Draw(const DemoTime& demoTime) override;
-    AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override;
+    AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) override;
+    void _BeginDraw(const FrameInfo& frameInfo) override;
+    void _Draw(const FrameInfo& frameInfo) override;
+    void _EndDraw(const FrameInfo& frameInfo) override;
+
+    AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) override;
+    void _End() override;
 
   protected:
+    //! @brief Get information about the 'basic' rendering configuration
+    RenderConfig GetRenderConfig() const
+    {
+      return m_renderConfig;
+    }
+
+
     // Overload these methods instead of the original IDemoApp ones!
 
     //! @brief Called just after the object has been successfully constructed
@@ -95,6 +109,10 @@ namespace Fsl
     //!        This allows having shutdown code the rely on virtual methods and limited exception support.
     //!        So this should really be the preferred location to put shutdown code instead of using the destructor!
     virtual void OnDestroy()
+    {
+    }
+
+    virtual void OnFrameSequenceBegin()
     {
     }
 
@@ -154,22 +172,42 @@ namespace Fsl
       FSL_PARAM_NOT_USED(demoTime);
     }
 
+    virtual void BeginDraw(const FrameInfo& frameInfo)
+    {
+      FSL_PARAM_NOT_USED(frameInfo);
+    }
+
     virtual void Draw(const DemoTime& demoTime)
     {
       FSL_PARAM_NOT_USED(demoTime);
     }
 
-    virtual AppDrawResult TryPrepareDraw(const DemoTime& demoTime)
+    virtual void Draw(const FrameInfo& frameInfo)
     {
-      FSL_PARAM_NOT_USED(demoTime);
+      FSL_PARAM_NOT_USED(frameInfo);
+    }
+
+    virtual void EndDraw(const FrameInfo& frameInfo)
+    {
+      FSL_PARAM_NOT_USED(frameInfo);
+    }
+
+
+    virtual AppDrawResult TryPrepareDraw(const FrameInfo& frameInfo)
+    {
+      FSL_PARAM_NOT_USED(frameInfo);
       return AppDrawResult::Completed;
     }
 
     //! @note This will only be called if the DemoHost delegates SwapBuffers to the app (most dont).
-    virtual AppDrawResult TrySwapBuffers(const DemoTime& demoTime)
+    virtual AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo)
     {
-      FSL_PARAM_NOT_USED(demoTime);
-      throw NotSupportedException("TrySwapBuffers");
+      FSL_PARAM_NOT_USED(frameInfo);
+      throw NotSupportedException("TrySwapBuffers not supported");
+    }
+
+    virtual void OnFrameSequenceEnd()
+    {
     }
 
     //! @brief Register a demo app extension
@@ -188,11 +226,6 @@ namespace Fsl
     //! @brief Get the aspect ratio of the window
     float GetWindowAspectRatio() const;
 
-    //! @brief Get the current screen resolution
-    [[deprecated("use GetWindowSizePx instead")]] const Point2& GetScreenResolution() const
-    {
-      return m_demoAppConfig.ScreenResolution;
-    }
 
     const PxExtent2D& GetScreenExtent() const
     {

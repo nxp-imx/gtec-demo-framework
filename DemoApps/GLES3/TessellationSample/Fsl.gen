@@ -4,12 +4,13 @@
     <Requirement Name="GL_EXT_geometry_shader" Type="extension" Extends="OpenGLES3.1"/>
     <Requirement Name="GL_EXT_tessellation_shader" Type="extension" Extends="OpenGLES3.1"/>
     <ImportTemplate Name="DemoAppGLES3"/>
-    <Dependency Name="FslUtil.OpenGLES3_1"/>
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3"/>
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="FslGraphics3D.Procedural"/>
     <Dependency Name="FslGraphics3D.SceneFormat"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
+    <Dependency Name="FslUtil.OpenGLES3_1"/>
     <Platform Name="Windows">
       <Dependency Name="FslAssimp"/>
     </Platform>

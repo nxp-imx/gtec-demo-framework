@@ -42,18 +42,17 @@
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/LayoutDirection.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
+#include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
+#include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 #include <memory>
-
 
 namespace Fsl
 {
-  class ImageSprite;
-  class INativeBatch2D;
-  class NineSliceSprite;
   class SpriteUnitConverter;
 
   namespace UI
   {
+    class DrawCommandBuffer;
     struct PxAvailableSize;
     struct RoutedEventArgs;
     class WindowMouseOverEvent;
@@ -62,53 +61,56 @@ namespace Fsl
     {
       struct BackgroundGraphicsRecord
       {
-        std::shared_ptr<NineSliceSprite> Sprite;
+        ContentSpriteMesh Sprite;
         Color EnabledColor;
         Color DisabledColor;
 
-        explicit BackgroundGraphicsRecord(const Color& enabledColor, const Color& disabledColor)
-          : EnabledColor(enabledColor)
+        explicit BackgroundGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor)
+          : Sprite(meshManager)
+          , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
         {
         }
       };
       struct CursorGraphicsRecord
       {
-        std::shared_ptr<ImageSprite> Sprite;
+        SizedSpriteMesh Sprite;
         DpPoint OriginDp;
         DpSize SizeDp;
         Color EnabledColor;
         Color DisabledColor;
 
-        explicit CursorGraphicsRecord(const Color& enabledColor, const Color& disabledColor)
-          : EnabledColor(enabledColor)
+        explicit CursorGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor)
+          : Sprite(meshManager)
+          , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
         {
         }
       };
       struct OverlayGraphicsRecord
       {
-        std::shared_ptr<ImageSprite> Sprite;
+        SizedSpriteMesh Sprite;
         Color EnabledColor;
         TransitionColor CurrentColor;
 
-        explicit OverlayGraphicsRecord(const Color& enabledColor, TransitionCache& rTransitionCache, const TransitionTimeSpan& time,
-                                       const TransitionType type)
-          : EnabledColor(enabledColor)
+        explicit OverlayGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, TransitionCache& rTransitionCache,
+                                       const TransitionTimeSpan& time, const TransitionType type)
+          : Sprite(meshManager)
+          , EnabledColor(enabledColor)
           , CurrentColor(rTransitionCache, time, type)
         {
         }
       };
 
-      BackgroundGraphicsRecord m_background{DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled};
-      CursorGraphicsRecord m_cursor{DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled};
+      BackgroundGraphicsRecord m_background;
+      CursorGraphicsRecord m_cursor;
       OverlayGraphicsRecord m_cursorOverlay;
 
       bool m_isHovering{false};
       bool m_verticalGraphicsRotationEnabled{false};
 
     public:
-      explicit SliderRenderImpl(TransitionCache& rTransitionCache);
+      explicit SliderRenderImpl(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache);
 
       bool GetEnableVerticalGraphicsRotation() const
       {
@@ -125,21 +127,12 @@ namespace Fsl
         return modified;
       }
 
-      const std::shared_ptr<ImageSprite>& GetCursorSprite() const
+      const std::shared_ptr<ISizedSprite>& GetCursorSprite() const
       {
-        return m_cursor.Sprite;
+        return m_cursor.Sprite.GetSprite();
       }
 
-      bool SetCursorSprite(const std::shared_ptr<ImageSprite>& value)
-      {
-        const bool modified = value != m_cursor.Sprite;
-        if (modified)
-        {
-          m_cursor.Sprite = value;
-        }
-        return modified;
-      }
-
+      bool SetCursorSprite(const std::shared_ptr<ISizedSprite>& value);
 
       const Color& GetCursorColor() const
       {
@@ -204,20 +197,12 @@ namespace Fsl
       // ------
 
 
-      const std::shared_ptr<ImageSprite>& GetCursorOverlaySprite() const
+      const std::shared_ptr<ISizedSprite>& GetCursorOverlaySprite() const
       {
-        return m_cursorOverlay.Sprite;
+        return m_cursorOverlay.Sprite.GetSprite();
       }
 
-      bool SetCursorOverlaySprite(const std::shared_ptr<ImageSprite>& value)
-      {
-        const bool modified = value != m_cursorOverlay.Sprite;
-        if (modified)
-        {
-          m_cursorOverlay.Sprite = value;
-        }
-        return modified;
-      }
+      bool SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value);
 
       const Color& GetCursorOverlayColor() const
       {
@@ -236,20 +221,12 @@ namespace Fsl
 
       // ------
 
-      const std::shared_ptr<NineSliceSprite>& GetBackgroundSprite() const
+      const std::shared_ptr<IContentSprite>& GetBackgroundSprite() const
       {
-        return m_background.Sprite;
+        return m_background.Sprite.GetSprite();
       }
 
-      bool SetBackgroundSprite(const std::shared_ptr<NineSliceSprite>& value)
-      {
-        const bool modified = value != m_background.Sprite;
-        if (modified)
-        {
-          m_background.Sprite = value;
-        }
-        return modified;
-      }
+      bool SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value);
 
       const Color& GetBackgroundColor() const
       {
@@ -283,11 +260,11 @@ namespace Fsl
 
       // ------
 
-      SliderPixelSpanInfo WinDraw(INativeBatch2D& batch, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx,
-                                  const LayoutOrientation orientation, const LayoutDirection layoutDirection, const bool isEnabled,
-                                  const int32_t cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
+      SliderPixelSpanInfo Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx, const Color finalColor,
+                               const LayoutOrientation orientation, const LayoutDirection layoutDirection, const bool isEnabled,
+                               const int32_t cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
 
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent);
+      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled);
 
       PxSize2D Measure(const PxAvailableSize& availableSizePx);
 

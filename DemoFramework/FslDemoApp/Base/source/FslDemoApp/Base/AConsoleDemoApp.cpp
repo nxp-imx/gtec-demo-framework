@@ -58,6 +58,11 @@ namespace Fsl
   }
 
 
+  void AConsoleDemoApp::_Begin()
+  {
+  }
+
+
   void AConsoleDemoApp::_PreDestruct()
   {
     m_destroyed = true;
@@ -107,16 +112,20 @@ namespace Fsl
   }
 
 
-  AppDrawResult AConsoleDemoApp::_TryPrepareDraw(const DemoTime& demoTime)
+  AppDrawResult AConsoleDemoApp::_TryPrepareDraw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(frameInfo);
     return AppDrawResult::Completed;
   }
 
-
-  void AConsoleDemoApp::_Draw(const DemoTime& demoTime)
+  void AConsoleDemoApp::_BeginDraw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(frameInfo);
+  }
+
+  void AConsoleDemoApp::_Draw(const FrameInfo& frameInfo)
+  {
+    FSL_PARAM_NOT_USED(frameInfo);
     Run();
 
     // Ensure that app is shutdown
@@ -125,6 +134,16 @@ namespace Fsl
     {
       appControl->RequestExit();
     }
+  }
+
+  void AConsoleDemoApp::_EndDraw(const FrameInfo& frameInfo)
+  {
+    FSL_PARAM_NOT_USED(frameInfo);
+  }
+
+
+  void AConsoleDemoApp::_End()
+  {
   }
 
 

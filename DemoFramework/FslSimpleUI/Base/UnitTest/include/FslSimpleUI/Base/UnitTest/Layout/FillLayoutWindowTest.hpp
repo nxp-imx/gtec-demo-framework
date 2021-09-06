@@ -43,7 +43,7 @@ namespace Fsl
     class FillLayoutWindowTest : public GenericLayoutWindowTest<FillLayout>
     {
     public:
-      explicit FillLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags())
+      explicit FillLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags())
         : GenericLayoutWindowTest<FillLayout>(context, windowFlags)
       {
       }

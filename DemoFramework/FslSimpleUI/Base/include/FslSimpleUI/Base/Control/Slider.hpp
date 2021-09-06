@@ -50,7 +50,7 @@ namespace Fsl
     public:
       explicit Slider(const std::shared_ptr<WindowContext>& context)
         : SliderBase<T>(context)
-        , m_impl(context->UITransitionCache)
+        , m_impl(context->TheUIContext.Get()->MeshManager, context->UITransitionCache)
       {
         // We need to be draw enabled, accept click input and receive a notification on init
         this->Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
@@ -70,12 +70,12 @@ namespace Fsl
         }
       }
 
-      const std::shared_ptr<ImageSprite>& GetCursorSprite() const
+      const std::shared_ptr<ISizedSprite>& GetCursorSprite() const
       {
         return m_impl.GetCursorSprite();
       }
 
-      void SetCursorSprite(const std::shared_ptr<ImageSprite>& value)
+      void SetCursorSprite(const std::shared_ptr<ISizedSprite>& value)
       {
         if (m_impl.SetCursorSprite(value))
         {
@@ -137,12 +137,12 @@ namespace Fsl
 
       // ------
 
-      const std::shared_ptr<ImageSprite>& GetCursorOverlaySprite() const
+      const std::shared_ptr<ISizedSprite>& GetCursorOverlaySprite() const
       {
         return m_impl.GetCursorOverlaySprite();
       }
 
-      void SetCursorOverlaySprite(const std::shared_ptr<ImageSprite>& value)
+      void SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value)
       {
         if (m_impl.SetCursorOverlaySprite(value))
         {
@@ -165,12 +165,12 @@ namespace Fsl
 
       // ------
 
-      const std::shared_ptr<NineSliceSprite>& GetBackgroundSprite() const
+      const std::shared_ptr<IContentSprite>& GetBackgroundSprite() const
       {
         return m_impl.GetBackgroundSprite();
       }
 
-      void SetBackgroundSprite(const std::shared_ptr<NineSliceSprite>& value)
+      void SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value)
       {
         if (m_impl.SetBackgroundSprite(value))
         {
@@ -210,16 +210,16 @@ namespace Fsl
       {
         SliderBase<T>::WinDraw(context);
 
-        auto spanInfo = m_impl.WinDraw(*(this->m_windowContext->Batch2D), context.TargetRect.TopLeft(), this->RenderSizePx(), this->GetOrientation(),
-                                       this->GetDirection(), this->IsEnabled(), this->GetCursorPositionPx(), this->IsDragging(),
-                                       this->m_windowContext->UnitConverter);
+        auto spanInfo =
+          m_impl.Draw(context.CommandBuffer, context.TargetRect.Location(), this->RenderSizePx(), this->GetFinalBaseColor(), this->GetOrientation(),
+                      this->GetDirection(), this->IsEnabled(), this->GetCursorPositionPx(), this->IsDragging(), this->m_windowContext->UnitConverter);
         this->SetSpanInfo(spanInfo);
       }
 
     protected:
       void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
       {
-        m_impl.OnMouseOver(args, theEvent);
+        m_impl.OnMouseOver(args, theEvent, this->IsEnabled());
       }
 
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final

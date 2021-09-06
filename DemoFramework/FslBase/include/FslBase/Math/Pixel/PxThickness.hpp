@@ -157,6 +157,13 @@ namespace Fsl
       return {std::max(val0.Left(), val1.Left()), std::max(val0.Top(), val1.Top()), std::max(val0.Right(), val1.Right()),
               std::max(val0.Bottom(), val1.Bottom()), OptimizationCheckFlag::NoCheck};
     }
+
+    static constexpr PxThickness Max(const PxThickness& val0, const PxThickness& val1, const PxThickness& val2)
+    {
+      return {std::max(std::max(val0.Left(), val1.Left()), val2.Left()), std::max(std::max(val0.Top(), val1.Top()), val2.Top()),
+              std::max(std::max(val0.Right(), val1.Right()), val2.Right()), std::max(std::max(val0.Bottom(), val1.Bottom()), val2.Bottom()),
+              OptimizationCheckFlag::NoCheck};
+    }
   };
 }
 

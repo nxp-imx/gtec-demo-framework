@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutLength.hpp>
@@ -83,6 +84,15 @@ namespace Fsl
       void ClearLayoutLengths();
       void PushLayoutLength(const LayoutLength& layoutLength);
       void PopLayoutLength();
+
+      using ComplexLayout<ComplexStackLayoutWindowRecord>::AddChild;
+      void AddChild(const std::shared_ptr<BaseWindow>& window, const LayoutLength& layoutLength)
+      {
+        FSLLOG3_DEBUG_WARNING_IF(m_layoutLength.size() != GetChildCount(),
+                                 "ComplexStackLayout: AddChild with layoutlength is not setting the layout for the added child!");
+        PushLayoutLength(layoutLength);
+        ComplexLayout<ComplexStackLayoutWindowRecord>::AddChild(window);
+      }
 
     protected:
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;

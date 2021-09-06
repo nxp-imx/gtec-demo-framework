@@ -35,55 +35,43 @@
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Dp/TypeConverter_Math.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
-#include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowMouseOverEvent.hpp>
+#include <FslSimpleUI/Base/ItemAlignmentUtil.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include "Impl/ImageImpl_ImageSprite.hpp"
+
+//#include <FslBase/Log/Math/Pixel/FmtPxVector2.hpp>
+
 
 namespace Fsl
 {
   namespace UI
   {
-    namespace
-    {
-      inline int32_t AddAlignmentPx(const ItemAlignment alignment, const int32_t availableSpace, const int32_t itemSize)
-      {
-        switch (alignment)
-        {
-        case ItemAlignment::Center:
-          return (availableSpace - itemSize) / 2;
-        case ItemAlignment::Far:
-          return availableSpace - itemSize;
-        case ItemAlignment::Near:
-        default:
-          return 0;
-        }
-      }
-    }
-
     ToggleButton::ToggleButton(const std::shared_ptr<WindowContext>& context)
       : BaseWindow(context)
       , m_windowContext(context)
-      , m_font(context->DefaultFont, context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
-      , m_cursor(context->UITransitionCache, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType)
-      , m_background(context->UITransitionCache, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType)
-      , m_hoverOverlay(context->UITransitionCache, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType,
-                       DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType)
+      , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont, context->UITransitionCache, DefaultAnim::ColorChangeTime,
+               DefaultAnim::ColorChangeTransitionType)
+      , m_cursor(context->TheUIContext.Get()->MeshManager, context->UITransitionCache, DefaultAnim::HoverOverlayTime,
+                 DefaultAnim::HoverOverlayTransitionType)
+      , m_background(context->TheUIContext.Get()->MeshManager, context->UITransitionCache, DefaultAnim::HoverOverlayTime,
+                     DefaultAnim::HoverOverlayTransitionType)
+      , m_hoverOverlay(context->TheUIContext.Get()->MeshManager, context->UITransitionCache, DefaultAnim::HoverOverlayTime,
+                       DefaultAnim::HoverOverlayTransitionType, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType)
     {
-      assert(m_font.Font);
+      assert(m_font.Mesh.GetSprite());
       Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
       UpdateAnimationState(true);
     }
@@ -119,9 +107,8 @@ namespace Fsl
         throw std::invalid_argument("font can not be null");
       }
 
-      if (value != m_font.Font)
+      if (m_font.Mesh.SetSprite(value))
       {
-        m_font.Font = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -129,18 +116,16 @@ namespace Fsl
 
     void ToggleButton::SetText(const StringViewLite& strView)
     {
-      if (strView != m_text)
+      if (m_font.Mesh.SetText(strView))
       {
-        StringViewLiteUtil::Set(m_text, strView);
         PropertyUpdated(PropertyType::Content);
       }
     }
 
     void ToggleButton::SetText(std::string&& value)
     {
-      if (value != m_text)
+      if (m_font.Mesh.SetText(std::move(value)))
       {
-        m_text = std::move(value);
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -181,11 +166,10 @@ namespace Fsl
       }
     }
 
-    void ToggleButton::SetHoverOverlaySprite(const std::shared_ptr<ImageSprite>& value)
+    void ToggleButton::SetHoverOverlaySprite(const std::shared_ptr<ISizedSprite>& value)
     {
-      if (value != m_hoverOverlay.Sprite)
+      if (m_hoverOverlay.Mesh.SetSprite(value))
       {
-        m_hoverOverlay.Sprite = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -299,20 +283,18 @@ namespace Fsl
       }
     }
 
-    void ToggleButton::SetCheckedSprite(const std::shared_ptr<ImageSprite>& value)
+    void ToggleButton::SetCheckedSprite(const std::shared_ptr<ISizedSprite>& value)
     {
-      if (value != m_cursor.Sprite)
+      if (m_cursor.Mesh.SetSprite(value))
       {
-        m_cursor.Sprite = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
 
-    void ToggleButton::SetUncheckedSprite(const std::shared_ptr<ImageSprite>& value)
+    void ToggleButton::SetUncheckedSprite(const std::shared_ptr<ISizedSprite>& value)
     {
-      if (value != m_background.Sprite)
+      if (m_background.Mesh.SetSprite(value))
       {
-        m_background.Sprite = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -342,91 +324,89 @@ namespace Fsl
     {
       BaseWindow::WinDraw(context);
 
-      const auto batch = m_windowContext->Batch2D;
-
       const PxVector2 positionPxf = context.TargetRect.TopLeft();
       const PxSize2D renderSizePx = RenderSizePx();
+      const Color finalColor(GetFinalBaseColor());
 
       // Draw the text if it has been set
-      PxSize2D measuredTextPx;
       {
-        const auto* const pFont = m_font.Font.get();
         const Color fontColor = m_font.CurrentColor.GetValue();
-        if (!m_text.empty() && pFont != nullptr && fontColor.PackedValue() > 0)
+        if (m_font.Mesh.IsValid() && !m_font.Mesh.GetText().empty() && fontColor.A() > 0)
         {
-          const auto& fontInfo = pFont->GetInfo();
-          measuredTextPx = pFont->MeasureString(StringViewLiteUtil::AsStringViewLite(m_text));
-          measuredTextPx.SetHeight(fontInfo.ScaledLineSpacingPx);
-
           int32_t centeredYPx = 0;
-          if (measuredTextPx.Height() < renderSizePx.Height())
+          if (m_cachedFontMeasureInfo.MeasureSizePx.Height() < renderSizePx.Height())
           {
-            centeredYPx = (renderSizePx.Height() - measuredTextPx.Height()) / 2;
+            // Center the round to nearest pixel
+            centeredYPx = ItemAlignmentUtil::CenterPx(renderSizePx.Height() - m_cachedFontMeasureInfo.MeasureSizePx.Height());
           }
-          batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
-          batch->DrawString(*pFont, m_text, Vector2(positionPxf.X, positionPxf.Y + float(centeredYPx)), fontColor);
+          const PxVector2 dstPositionPxf(positionPxf.X, positionPxf.Y + float(centeredYPx));
+          context.CommandBuffer.Draw(m_font.Mesh.Get(), dstPositionPxf, m_cachedFontMeasureInfo.MinimalSizePx, finalColor * fontColor);
         }
       }
 
       // Draw the ToggleButton
-      const ImageSprite* const pCursorSprite = m_cursor.Sprite.get();
-      const ImageSprite* const pBackgroundSprite = m_background.Sprite.get();
       {
-        int32_t offsetXPx = measuredTextPx.Width();
+        int32_t offsetXPx = m_cachedFontMeasureInfo.MeasureSizePx.Width();
         {
           const PxSize2D sizeTex = GetMaxSpriteSize();
-          offsetXPx += AddAlignmentPx(m_imageAlignment, std::max(renderSizePx.Width() - measuredTextPx.Width(), 0), sizeTex.Width());
+          offsetXPx += ItemAlignmentUtil::CalcAlignmentPx(
+            m_imageAlignment, std::max(renderSizePx.Width() - m_cachedFontMeasureInfo.MeasureSizePx.Width(), 0) - sizeTex.Width());
         }
 
-        if (pBackgroundSprite != nullptr)
+        if (m_background.Mesh.IsValid())    // Background mesh
         {
           int32_t centeredYPx = 0;
-          const auto& backgroundSpriteInfo = pBackgroundSprite->GetInfo();
-          if (backgroundSpriteInfo.RenderInfo.ScaledSizePx.Height() < renderSizePx.Height())
+          const auto backgroundSpriteRenderSizePx = m_background.Mesh.FastGetRenderSizePx();
+          if (backgroundSpriteRenderSizePx.Height() < renderSizePx.Height())
           {
-            centeredYPx = (renderSizePx.Height() - backgroundSpriteInfo.RenderInfo.ScaledSizePx.Height()) / 2;
+            centeredYPx = ItemAlignmentUtil::CenterPx(renderSizePx.Height() - backgroundSpriteRenderSizePx.Height());
           }
-          ImageImpl::Draw(*batch, pBackgroundSprite, PxVector2(positionPxf.X + float(offsetXPx), positionPxf.Y + float(centeredYPx)),
-                          m_background.CurrentColor.GetValue());
+          const PxVector2 dstPositionPxf(positionPxf.X + float(offsetXPx), positionPxf.Y + float(centeredYPx));
+
+          // Draw the background mesh
+          context.CommandBuffer.Draw(m_background.Mesh.Get(), dstPositionPxf, backgroundSpriteRenderSizePx,
+                                     finalColor * m_background.CurrentColor.GetValue());
         }
 
-        if (pCursorSprite != nullptr)
+        if (m_cursor.Mesh.IsValid())
         {
           const PxVector2 cursorPositionPxf =
             m_windowContext->UnitConverter.ToPxVector2(TypeConverter::To<DpPointF>(m_hoverOverlay.CurrentPositionDp.GetValue()));
 
           int32_t centeredYPx = 0;
-          const auto& cursorSpriteInfo = pCursorSprite->GetInfo();
+          const PxSize2D cursorSpriteRenderSizePx = m_cursor.Mesh.FastGetRenderSizePx();
           {
-            const PxSize2DF cursorOriginPxf(TypeConverter::To<PxSize2DF>(cursorSpriteInfo.RenderInfo.ScaledSizePx) / 2);
+            const PxSize2DF cursorOriginPxf(TypeConverter::To<PxSize2DF>(cursorSpriteRenderSizePx) / 2);
             const PxPoint2 adjustedCursorPositionPx =
               PxPoint2(offsetXPx, 0) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - cursorOriginPxf);
 
-            ImageImpl::Draw(*batch, pCursorSprite,
-                            PxVector2(positionPxf.X + float(adjustedCursorPositionPx.X), positionPxf.Y + float(adjustedCursorPositionPx.Y)),
-                            m_cursor.CurrentColor.GetValue());
+            const PxVector2 dstPositionPxf(positionPxf.X + float(adjustedCursorPositionPx.X), positionPxf.Y + float(adjustedCursorPositionPx.Y));
+
+            // Draw the cursor mesh
+            context.CommandBuffer.Draw(m_cursor.Mesh.Get(), dstPositionPxf, cursorSpriteRenderSizePx, finalColor * m_cursor.CurrentColor.GetValue());
           }
 
           // Draw the overlay (if enabled)
-          const ImageSprite* const pHoverSprite = m_hoverOverlay.Sprite.get();
-          if (m_isEnabled && (m_hoverOverlay.IsHovering || !m_hoverOverlay.CurrentColor.IsCompleted()) && pHoverSprite != nullptr)
+          if (m_isEnabled && (m_hoverOverlay.IsHovering || !m_hoverOverlay.CurrentColor.IsCompleted()) && m_hoverOverlay.Mesh.IsValid())
           {
             bool showOverlay = true;
             if (m_hoverOverlay.IsConstrainToGraphics)
             {
               PxPoint2 positionPx(TypeConverter::UncheckedChangeTo<PxPoint2>(positionPxf));
-              PxRectangle cursorRect(PxPoint2(positionPx.X + offsetXPx, positionPx.Y + centeredYPx), cursorSpriteInfo.RenderInfo.ScaledSizePx);
+              PxRectangle cursorRect(PxPoint2(positionPx.X + offsetXPx, positionPx.Y + centeredYPx), cursorSpriteRenderSizePx);
               showOverlay = cursorRect.Contains(m_hoverOverlay.LastScreenPositionPx);
             }
             if (showOverlay)
             {
-              const PxSize2DF overlayOriginPxf(TypeConverter::To<PxSize2DF>(pHoverSprite->GetInfo().RenderInfo.ScaledSizePx) / 2);
+              const PxSize2DF overlayOriginPxf(TypeConverter::To<PxSize2DF>(m_hoverOverlay.Mesh.GetSpriteObject().GetRenderSizePx()) / 2);
               const PxPoint2 adjustedOverlayPositionPx =
                 PxPoint2(offsetXPx, 0) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - overlayOriginPxf);
 
-              ImageImpl::Draw(*batch, pHoverSprite,
-                              PxVector2(positionPxf.X + float(adjustedOverlayPositionPx.X), positionPxf.Y + float(adjustedOverlayPositionPx.Y)),
-                              m_hoverOverlay.CurrentColor.GetValue());
+              const PxVector2 dstPositionPxf(positionPxf.X + float(adjustedOverlayPositionPx.X), positionPxf.Y + float(adjustedOverlayPositionPx.Y));
+
+              // Draw the overlay mesh
+              context.CommandBuffer.Draw(m_hoverOverlay.Mesh.Get(), dstPositionPxf, m_hoverOverlay.Mesh.FastGetRenderSizePx(),
+                                         finalColor * m_hoverOverlay.CurrentColor.GetValue());
             }
           }
         }
@@ -437,10 +417,13 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(args);
 
-      if (m_isEnabled && !theEvent->IsHandled() && theEvent->IsBegin() && !theEvent->IsRepeat())
+      if (m_isEnabled && !theEvent->IsHandled())
       {
         theEvent->Handled();
-        SetIsChecked(!m_isChecked);
+        if (theEvent->IsBegin() && !theEvent->IsRepeat())
+        {
+          SetIsChecked(!m_isChecked);
+        }
       }
     }
 
@@ -469,18 +452,8 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(availableSizePx);
 
-      PxSize2D sizePx;
-      if (!m_text.empty())
-      {
-        const auto* pFont = m_font.Font.get();
-        if (pFont != nullptr)
-        {
-          const auto& fontInfo = m_font.Font->GetInfo();
-          auto measuredPx = m_font.Font->MeasureString(StringViewLiteUtil::AsStringViewLite(m_text));
-          sizePx = PxSize2D(measuredPx.Width(), fontInfo.ScaledLineSpacingPx);
-        }
-      }
-
+      m_cachedFontMeasureInfo = m_font.Mesh.ComplexMeasure();
+      PxSize2D sizePx = m_cachedFontMeasureInfo.MeasureSizePx;
       const PxSize2D sizeTexPx = GetMaxSpriteSize();
 
       sizePx.AddWidth(sizeTexPx.Width());
@@ -491,9 +464,7 @@ namespace Fsl
 
     PxSize2D ToggleButton::GetMaxSpriteSize() const
     {
-      auto maxSize = m_cursor.Sprite ? m_cursor.Sprite->GetInfo().RenderInfo.ScaledSizePx : PxSize2D();
-      maxSize.SetMax(m_background.Sprite ? m_background.Sprite->GetInfo().RenderInfo.ScaledSizePx : PxSize2D());
-      return maxSize;
+      return PxSize2D::Max(m_cursor.Mesh.GetRenderSizePx(), m_background.Mesh.GetRenderSizePx());
     }
 
 
@@ -514,7 +485,7 @@ namespace Fsl
       // Determine if the hover overlay should be shown or not
       const Color hoverOverlayColor = m_isChecked ? m_hoverOverlay.Checked.PrimaryColor : m_hoverOverlay.Unchecked.PrimaryColor;
       const bool showHoverOverlay = m_hoverOverlay.IsHovering && isEnabled;
-      m_hoverOverlay.CurrentColor.SetValue(showHoverOverlay ? hoverOverlayColor : Color::Transparent());
+      m_hoverOverlay.CurrentColor.SetValue(showHoverOverlay ? hoverOverlayColor : Color::ClearA(hoverOverlayColor));
       m_hoverOverlay.CurrentPositionDp.SetValue(m_isChecked ? TypeConverter::To<Vector2>(m_hoverOverlay.Checked.PositionDp)
                                                             : TypeConverter::To<Vector2>(m_hoverOverlay.Unchecked.PositionDp));
 

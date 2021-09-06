@@ -30,68 +30,87 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Control/Impl/SliderRenderImpl.hpp>
-#include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/IContentSprite.hpp>
+#include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/Event/WindowMouseOverEvent.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
-#include "ImageImpl_ImageSprite.hpp"
-#include "ImageImpl_NineSliceSprite.hpp"
 
 namespace Fsl
 {
   namespace UI
   {
-    SliderRenderImpl::SliderRenderImpl(TransitionCache& rTransitionCache)
-      : m_cursorOverlay(DefaultColor::Slider::HoverOverlay, rTransitionCache, DefaultAnim::HoverOverlayTime, DefaultAnim::HoverOverlayTransitionType)
+    SliderRenderImpl::SliderRenderImpl(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache)
+      : m_background(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled)
+      , m_cursor(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled)
+      , m_cursorOverlay(meshManager, DefaultColor::Slider::HoverOverlay, rTransitionCache, DefaultAnim::HoverOverlayTime,
+                        DefaultAnim::HoverOverlayTransitionType)
     {
     }
 
+    bool SliderRenderImpl::SetCursorSprite(const std::shared_ptr<ISizedSprite>& value)
+    {
+      return m_cursor.Sprite.SetSprite(value);
+    }
 
-    SliderPixelSpanInfo SliderRenderImpl::WinDraw(INativeBatch2D& batch, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx,
-                                                  const LayoutOrientation orientation, const LayoutDirection layoutDirection, const bool isEnabled,
-                                                  const int32_t cursorPositionPx, const bool isDragging,
-                                                  const SpriteUnitConverter& spriteUnitConverter)
+    bool SliderRenderImpl::SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value)
+    {
+      return m_cursorOverlay.Sprite.SetSprite(value);
+    }
+
+
+    bool SliderRenderImpl::SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value)
+    {
+      return m_background.Sprite.SetSprite(value);
+    }
+
+
+    SliderPixelSpanInfo SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx,
+                                               const Color finalColor, const LayoutOrientation orientation, const LayoutDirection layoutDirection,
+                                               const bool isEnabled, const int32_t cursorPositionPx, const bool isDragging,
+                                               const SpriteUnitConverter& spriteUnitConverter)
     {
       FSL_PARAM_NOT_USED(isDragging);
 
       PxThickness backgroundContentMarginPx;
       {
         {
-          const NineSliceSprite* const pSprite = m_background.Sprite.get();
-          if (pSprite != nullptr)
+          if (m_background.Sprite.IsValid())
           {
             const auto& backgroundColor = (isEnabled ? m_background.EnabledColor : m_background.DisabledColor);
-            backgroundContentMarginPx = pSprite->GetRenderInfo().ScaledContentMarginPx;
+            backgroundContentMarginPx = m_background.Sprite.GetRenderContentMarginPx();
             if (!m_verticalGraphicsRotationEnabled)
             {
-              ImageImpl::Draw(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
+              // ImageImpl::Draw(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
+              commandBuffer.Draw(m_background.Sprite.Get(), dstPositionPxf, renderSizePx, finalColor * backgroundColor);
             }
             else
             {
               // coverity[swapped_arguments]
               backgroundContentMarginPx = PxThickness(backgroundContentMarginPx.Bottom(), backgroundContentMarginPx.Left(),
                                                       backgroundContentMarginPx.Top(), backgroundContentMarginPx.Right());
-              ImageImpl::DrawRotated90CW(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
+              // ImageImpl::DrawRotated90CW(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
+              commandBuffer.DrawRotated90CW(m_background.Sprite.Get(), dstPositionPxf, renderSizePx, finalColor * backgroundColor);
             }
           }
         }
 
         SliderPixelSpanInfo spanInfo;
         {
-          const ImageSprite* const pSprite = m_cursor.Sprite.get();
-          if (pSprite != nullptr)
+          if (m_cursor.Sprite.IsValid())
           {
-            const ImageSpriteInfo& info = pSprite->GetInfo();
+            const PxSize2D cursorRenderSizePx = m_cursor.Sprite.FastGetRenderSizePx();
 
-            const auto& cursorCulor = (isEnabled ? m_cursor.EnabledColor : m_cursor.DisabledColor);
+            const auto& cursorColor = (isEnabled ? m_cursor.EnabledColor : m_cursor.DisabledColor);
             const PxPoint2 cursorSizePx(spriteUnitConverter.ToPxPoint2(m_cursor.SizeDp));
             const PxPoint2 cursorOriginPx(spriteUnitConverter.ToPxPoint2(m_cursor.OriginDp));
             const bool reverseDirection = (layoutDirection != LayoutDirection::NearToFar);
 
             if (orientation == LayoutOrientation::Horizontal)
             {
-              const int32_t virtualCursorLengthPx = (cursorSizePx.X > 0 ? cursorSizePx.X : info.RenderInfo.ScaledSizePx.Width());
+              const int32_t virtualCursorLengthPx = (cursorSizePx.X > 0 ? cursorSizePx.X : cursorRenderSizePx.Width());
               const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Left();
 
               spanInfo =
@@ -99,17 +118,19 @@ namespace Fsl
 
               PxVector2 cursorPositionPxf(dstPositionPxf.X + static_cast<float>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
 
-              ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
+              // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
+              commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
 
               // Draw the overlay (if enabled)
-              if (m_cursorOverlay.Sprite && m_cursorOverlay.CurrentColor.GetValue().PackedValue() > 0)
+              if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
               {
-                ImageImpl::Draw(batch, m_cursorOverlay.Sprite.get(), cursorPositionPxf, m_cursorOverlay.CurrentColor.GetValue());
+                commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
+                                   finalColor * m_cursorOverlay.CurrentColor.GetValue());
               }
             }
             else
             {
-              const int32_t virtualCursorLengthPx = (cursorSizePx.Y > 0 ? cursorSizePx.Y : info.RenderInfo.ScaledSizePx.Height());
+              const int32_t virtualCursorLengthPx = (cursorSizePx.Y > 0 ? cursorSizePx.Y : cursorRenderSizePx.Height());
               const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Top();
 
               spanInfo =
@@ -117,12 +138,14 @@ namespace Fsl
 
               PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(cursorPositionPx - cursorOriginPx.Y));
 
-              ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
+              // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
+              commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
 
               // Draw the overlay (if enabled)
-              if (m_cursorOverlay.Sprite && m_cursorOverlay.CurrentColor.GetValue().PackedValue() > 0)
+              if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
               {
-                ImageImpl::Draw(batch, m_cursorOverlay.Sprite.get(), cursorPositionPxf, m_cursorOverlay.CurrentColor.GetValue());
+                commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
+                                   finalColor * m_cursorOverlay.CurrentColor.GetValue());
               }
             }
           }
@@ -131,16 +154,21 @@ namespace Fsl
       }
     }
 
-    void SliderRenderImpl::OnMouseOver(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowMouseOverEvent>& theEvent)
+    void SliderRenderImpl::OnMouseOver(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled)
     {
       // We allow the m_isHovering state to be modified even when disabled as that will allow us to render the "hover overlay"
       // at the correct position if the control is enabled while the mouse was hovering.
       m_isHovering = (theEvent->GetState() == EventTransactionState::Begin);
+      if (isEnabled)
+      {
+        theEvent->Handled();
+      }
     }
 
     PxSize2D SliderRenderImpl::Measure(const PxAvailableSize& availableSizePx)
     {
-      return ImageImpl::MeasureOverride(availableSizePx, m_background.Sprite.get());
+      FSL_PARAM_NOT_USED(availableSizePx);
+      return m_background.Sprite.Measure();
     }
 
     void SliderRenderImpl::UpdateAnimation(const TransitionTimeSpan& timeSpan)
@@ -151,7 +179,7 @@ namespace Fsl
     bool SliderRenderImpl::UpdateAnimationState(const bool forceCompleteAnimation, const bool isEnabled, const bool isDragging)
     {
       const bool showHoverOverlay = isEnabled && (m_isHovering || isDragging);
-      m_cursorOverlay.CurrentColor.SetValue(showHoverOverlay ? m_cursorOverlay.EnabledColor : Color::Transparent());
+      m_cursorOverlay.CurrentColor.SetValue(showHoverOverlay ? m_cursorOverlay.EnabledColor : Color::ClearA(m_cursorOverlay.EnabledColor));
 
       if (forceCompleteAnimation)
       {

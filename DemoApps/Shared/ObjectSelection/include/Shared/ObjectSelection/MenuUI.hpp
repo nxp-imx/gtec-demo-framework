@@ -33,27 +33,34 @@
 
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 
 namespace Fsl
 {
+  namespace UI
+  {
+    namespace Theme
+    {
+      class IThemeControlFactory;
+    }
+  }
+
   class OptionParser;
 
   class MenuUI : public UI::EventListener
   {
     UI::CallbackEventListenerScope m_uiEventListener;
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
-    UI::Theme::BasicThemeFactory m_themeFactory;
+    std::shared_ptr<UI::Theme::IThemeControlFactory> m_themeFactory;
 
     std::shared_ptr<OptionParser> m_optionParser;
 
     std::shared_ptr<UI::FillLayout> m_rootLayout;
 
-    std::shared_ptr<UI::BackgroundNineSlice> m_layoutMenu;
+    std::shared_ptr<UI::Background> m_layoutMenu;
     std::shared_ptr<UI::Switch> m_cbMenuDrawNearPlaneMouse;
     std::shared_ptr<UI::Switch> m_cbMenuDrawFarPlaneMouse;
     std::shared_ptr<UI::Switch> m_cbMenuOrientedBoundingBox;

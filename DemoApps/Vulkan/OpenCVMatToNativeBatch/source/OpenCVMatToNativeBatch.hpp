@@ -33,7 +33,7 @@
 
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
@@ -52,7 +52,7 @@ namespace Fsl
     std::shared_ptr<IGraphicsService> m_graphics;
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
     BasicImageConvert m_convert;
-    TextureAtlasBitmapFont m_font;
+    TextureAtlasSpriteFont m_font;
     Texture2D m_texFont;
 
     Texture2D m_texTest;

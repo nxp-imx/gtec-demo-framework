@@ -161,7 +161,6 @@ namespace Fsl
       const Color colorWhite = Color::White();
       Vector2 dstPos = dstPosition;
 
-
       // build the arrays needed to render
       const char* pSrc = strView.data();
       const char* const pSrcEnd = pSrc + strView.size();

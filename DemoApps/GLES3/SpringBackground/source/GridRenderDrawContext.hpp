@@ -31,19 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 
 namespace Fsl
 {
+  class IBasicRenderSystem;
+
   struct GridRenderDrawContext
   {
+    const IBasicRenderSystem& RenderSystem;
     GLES3::NativeBatch2D* pBatch;
     AtlasTexture2D TexFill;
     Vector2 AreaSize;
 
-    GridRenderDrawContext(GLES3::NativeBatch2D* batch, const AtlasTexture2D& texFill, const Vector2& areaSize)
-      : pBatch(batch)
+    GridRenderDrawContext(const IBasicRenderSystem& renderSystem, GLES3::NativeBatch2D* batch, const AtlasTexture2D& texFill, const Vector2& areaSize)
+      : RenderSystem(renderSystem)
+      , pBatch(batch)
       , TexFill(texFill)
       , AreaSize(areaSize)
     {

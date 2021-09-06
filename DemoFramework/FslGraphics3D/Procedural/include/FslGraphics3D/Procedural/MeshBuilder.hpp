@@ -227,7 +227,7 @@ namespace Fsl
     template <typename TVertex, typename TIndex>
     void MeshBuilder<TVertex, TIndex>::EnsureVertexCapacity(const std::size_t count)
     {
-      if (count >= 0 && std::size_t(count) >= m_vertices.size())
+      if (/*count >= 0 &&*/ std::size_t(count) >= m_vertices.size())
       {
         m_vertices.resize(count);
       }
@@ -242,7 +242,7 @@ namespace Fsl
         throw std::invalid_argument("indexCount is out of bounds");
       }
 
-      if (count >= 0 && std::size_t(count) >= m_indices.size())
+      if (/*count >= 0 &&*/ std::size_t(count) >= m_indices.size())
       {
         m_indices.resize(count);
       }

@@ -72,6 +72,7 @@ namespace Fsl
     std::shared_ptr<ITestService> m_testService;
 
     State m_state;
+    bool m_basic2DPreallocEnabled{false};
     std::shared_ptr<INativeWindowEventSender> m_nativeWindowEventSender;
     //! Provide support for exiting after a number of successfully rendered frames (if negative, we render a unlimited amount of frames)
     int32_t m_exitAfterFrame;

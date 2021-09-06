@@ -36,7 +36,6 @@
 namespace Fsl
 {
   struct PxPoint2;
-  struct Vector2;
 
   namespace UI
   {

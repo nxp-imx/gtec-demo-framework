@@ -3,7 +3,7 @@
   <Executable Name="Vulkan.SRGBFramebuffer" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
     <Dependency Name="FslGraphics3D.Camera"/>
   </Executable>
 </FslBuildGen>

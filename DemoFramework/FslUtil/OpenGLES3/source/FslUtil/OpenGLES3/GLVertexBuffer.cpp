@@ -42,7 +42,7 @@ namespace Fsl
 {
   namespace GLES3
   {
-    GLVertexBuffer::GLVertexBuffer(const void* const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration,
+    GLVertexBuffer::GLVertexBuffer(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration,
                                    const GLenum usage)
       : GLBuffer(GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage)
       , m_vertexElements(vertexDeclaration)
@@ -50,7 +50,7 @@ namespace Fsl
     }
 
 
-    void GLVertexBuffer::Reset(const void* const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration,
+    void GLVertexBuffer::Reset(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration,
                                const GLenum usage)
     {
       GLBuffer::Reset(GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage);

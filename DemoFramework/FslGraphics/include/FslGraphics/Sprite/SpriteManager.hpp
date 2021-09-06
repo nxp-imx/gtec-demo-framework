@@ -34,6 +34,7 @@
 #include <FslBase/IO/PathView.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <list>
 #include <memory>
 
@@ -47,6 +48,8 @@ namespace Fsl
   class IImageSprite;
   class ImageSprite;
   class INineSliceSprite;
+  class OptimizedBasicNineSliceSprite;
+  class OptimizedNineSliceSprite;
   class SpriteFont;
   struct SpriteFontConfig;
   struct SpriteMaterialInfo;
@@ -54,13 +57,23 @@ namespace Fsl
   //! @brief Very basic material manager
   class SpriteManager final
   {
+    SpriteNativeAreaCalc m_spriteNativeAreaCalc;
     std::list<std::shared_ptr<ISprite>> m_sprites;
     uint32_t m_densityDpi;
 
   public:
-    explicit SpriteManager(const uint32_t densityDpi);
+    explicit SpriteManager(const uint32_t densityDpi, const bool useYFlipTextureCoordinates);
     ~SpriteManager() = default;
 
+    const SpriteNativeAreaCalc& GetSpriteNativeAreaCalc() const
+    {
+      return m_spriteNativeAreaCalc;
+    }
+
+    uint32_t GetDensityDpi() const
+    {
+      return m_densityDpi;
+    }
 
     std::size_t Count() const;
     void Clear();
@@ -78,6 +91,8 @@ namespace Fsl
 
     void Patch(const std::shared_ptr<IImageSprite>& sprite, const SpriteMaterialInfo& spriteMaterialInfo, const AtlasTextureInfo& textureInfo,
                const IO::PathView& debugName);
+    void Patch(const std::shared_ptr<IImageSprite>& sprite, const SpriteMaterialInfo& spriteMaterialInfo0,
+               const SpriteMaterialInfo& spriteMaterialInfo1, const AtlasTextureInfo& textureInfo, const IO::PathView& debugName);
 
     std::shared_ptr<BasicNineSliceSprite> AddBasicNineSliceSprite(const SpriteMaterialInfo& spriteMaterialInfo, const AtlasTextureInfo& textureInfo,
                                                                   const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName);
@@ -86,8 +101,20 @@ namespace Fsl
     std::shared_ptr<NineSliceSprite> AddNineSliceSprite(const SpriteMaterialInfo& spriteMaterialInfo, const AtlasTextureInfo& textureInfo,
                                                         const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName);
 
+    std::shared_ptr<OptimizedBasicNineSliceSprite>
+      AddOptimizedBasicNineSliceSprite(const SpriteMaterialInfo& opaqueSpriteMaterialInfo, const SpriteMaterialInfo& transparentSpriteMaterialInfo,
+                                       const AtlasTextureInfo& textureInfo, const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName);
+
+    std::shared_ptr<OptimizedNineSliceSprite> AddOptimizedNineSliceSprite(const SpriteMaterialInfo& opaqueSpriteMaterialInfo,
+                                                                          const SpriteMaterialInfo& transparentSpriteMaterialInfo,
+                                                                          const AtlasTextureInfo& textureInfo,
+                                                                          const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName);
+
     void Patch(const std::shared_ptr<INineSliceSprite>& sprite, const SpriteMaterialInfo& spriteMaterialInfo, const AtlasTextureInfo& textureInfo,
                const AtlasNineSlicePatchInfo& patchInfo, const IO::PathView& debugName);
+    void Patch(const std::shared_ptr<INineSliceSprite>& sprite, const SpriteMaterialInfo& spriteMaterialInfo0,
+               const SpriteMaterialInfo& spriteMaterialInfo1, const AtlasTextureInfo& textureInfo, const AtlasNineSlicePatchInfo& patchInfo,
+               const IO::PathView& debugName);
 
     std::shared_ptr<SpriteFont> AddSpriteFont(const SpriteMaterialInfo& spriteMaterialInfo, const BitmapFont& bitmapFont,
                                               const SpriteFontConfig& spriteFontConfig, const IO::PathView& debugName);

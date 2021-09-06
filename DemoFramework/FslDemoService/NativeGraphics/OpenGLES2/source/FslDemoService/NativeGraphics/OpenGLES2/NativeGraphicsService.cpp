@@ -34,38 +34,23 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
-#include "NativeGraphicsBasic2D.hpp"
-#include <FslUtil/OpenGLES2/DynamicNativeTexture2D.hpp>
-#include <FslUtil/OpenGLES2/GLUtil.hpp>
-#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeBatch2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslGraphics3D/BasicRender/BasicRenderSystemCreateInfo.hpp>
+#include <FslUtil/OpenGLES2/GLUtil.hpp>
+#include "NativeGraphicsBasic2D.hpp"
 
 namespace Fsl
 {
   namespace GLES2
   {
     NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
-      : ThreadLocalService(serviceProvider)
+      : ANativeGraphicsService(serviceProvider)
     {
     }
 
 
     NativeGraphicsService::~NativeGraphicsService() = default;
-
-
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags textureFlags)
-    {
-      // For now we just use the same implementation
-      return std::make_shared<DynamicNativeTexture2D>(texture, filterHint, textureFlags);
-    }
-
-
-    std::shared_ptr<IDynamicNativeTexture2D>
-      NativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
-    {
-      return std::make_shared<DynamicNativeTexture2D>(texture, filterHint, textureFlags);
-    }
 
 
     bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
@@ -97,7 +82,26 @@ namespace Fsl
 
     std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& extentPx)
     {
-      return std::make_shared<NativeBatch2D>(extentPx);
+      return std::make_shared<NativeBatch2D>(GetBasicRenderSystem(), m_device, extentPx);
+    }
+
+
+    void NativeGraphicsService::CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo)
+    {
+      m_device = std::make_shared<NativeGraphicsDevice>();
+      ANativeGraphicsService::CreateDevice(createInfo);
+    }
+
+    void NativeGraphicsService::DestroyDevice() noexcept
+    {
+      m_device.reset();
+      ANativeGraphicsService::DestroyDevice();
+    }
+
+
+    std::shared_ptr<Graphics3D::INativeDevice> NativeGraphicsService::GetNativeDevice()
+    {
+      return m_device;
     }
   }
 }

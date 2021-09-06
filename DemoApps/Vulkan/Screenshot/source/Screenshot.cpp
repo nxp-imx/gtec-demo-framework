@@ -33,13 +33,14 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/VUScopedMapMemory.hpp>
@@ -239,7 +240,8 @@ namespace Fsl
 
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
-    UI::Theme::BasicThemeFactory uiFactory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& uiFactory = *uiControlFactory;
 
 
     // Allocate the screenshot button
@@ -284,10 +286,10 @@ namespace Fsl
 
   void Screenshot::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -302,7 +304,7 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         m_nativeBatch->Begin();
         m_nativeBatch->Draw(m_texture, Vector2(), Color::White());
@@ -312,17 +314,17 @@ namespace Fsl
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
-  AppDrawResult Screenshot::TrySwapBuffers(const DemoTime& demoTime)
+  AppDrawResult Screenshot::TrySwapBuffers(const FrameInfo& frameInfo)
   {
-    auto result = VulkanBasic::DemoAppVulkanBasic::TrySwapBuffers(demoTime);
+    auto result = VulkanBasic::DemoAppVulkanBasic::TrySwapBuffers(frameInfo);
     if (result != AppDrawResult::Completed)
     {
       return result;

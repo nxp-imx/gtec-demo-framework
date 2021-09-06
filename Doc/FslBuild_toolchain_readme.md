@@ -1,12 +1,31 @@
+
 # FslBuild Toolchain
 
-## FslBuildGen.py
+## Table Of Contents
 
-Is a cross-platform build-file generator. Which main purpose is to keep all 
+<!-- #AG_TOC_BEGIN# -->
+* [FslBuildGen.py](#fslbuildgenpy)
+* [FslBuild.py](#fslbuildpy)
+  * [FslBuild - Useful arguments](#fslbuild---useful-arguments)
+  * [Important notes](#important-notes)
+  * [Build system per platform](#build-system-per-platform)
+* [FslBuildInfo.py](#fslbuildinfopy)
+* [FslBuildNew.py](#fslbuildnewpy)
+  * [Template sanity checking](#template-sanity-checking)
+  * [Templates](#templates)
+  * [Note](#note)
+* [FslBuildRun.py](#fslbuildrunpy)
+  * [FslBuildRun - Useful arguments](#fslbuildrun---useful-arguments)
+  * [Experimental standalone test](#experimental-standalone-test)
+<!-- #AG_TOC_END# -->
+
+# FslBuildGen.py
+
+Is a cross-platform build-file generator. Which main purpose is to keep all
 build files consistent, in sync and up to date. See [FslBuildGen.docx](FslBuildGen.docx) for
 details.
 
-## FslBuild.py
+# FslBuild.py
 
 Extends the technology behind `FslBuildGen.py` with additional knowledge about how
 to execute the build system for a given platform.
@@ -17,7 +36,7 @@ So basically FslBuild works like this
 2. Filter the builds request based on the provided feature and extension lists.
 3. Build all necessary build files in the correct order.
 
-### FslBuild - Useful arguments
+## FslBuild - Useful arguments
 
 FslBuild comes with a few useful arguments
 
@@ -30,7 +49,7 @@ Argument           | Description
 --RequireFeatures  | The list of features that are required for a executable package to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.
 --UseFeatures      | Allows you to limit whats build based on a provided feature list. For example [EGL,OpenGLES2]. This parameter defaults to all features.
 --UseExtensions    | The list of available extensions to build for. For example [OpenGLES3.1:EXT_geometry_shader,OpenGLES3.1:EXT_tessellation_shader] to allow the OpenGLES3.1 extensions EXT_geometry_shader and EXT_tessellation_shader. You can also specify * for all extensions (default).
---Variants         | specify a list of variants and their configuration for example "--Variants [config=Debug,FSL_GLES_NAME=vivante]" or "--Variants [config=Debug,WindowSystem=X11]" This means that we have build system independent way of doing this so it works on all platforms.  
+--Variants         | specify a list of variants and their configuration for example "--Variants [config=Debug,FSL_GLES_NAME=vivante]" or "--Variants [config=Debug,WindowSystem=X11]" This means that we have build system independent way of doing this so it works on all platforms.
 --BuildThreads     | Configures how many threads the builder should use, beware this is a hint that may be ignored by the builder, can be a number or "auto". Defaults to auto.
 --BuildTime        | Time the build and print the result and the end.
 -c \<command\>     | Specify the build command type that should be executed: build, clean. Defaults to build.
@@ -38,19 +57,19 @@ Argument           | Description
 -v                 | Set verbosity level (can be specified multiple times).
 --                 | All arguments written after this is send directly to the native build system.
 
-### Important notes
+## Important notes
 
-- Don't modify the auto-generated files.
+* Don't modify the auto-generated files.
   The FslBuild scripts are responsible for creating all the build files for a
   platform and verifying dependencies. Since all build files are auto generated
   you can never modify them directly as the next build will overwrite your
   changes. Instead add your changes to the `Fsl.gen` files as they control the
   build file generation!
-- The 'Fsl.gen' file is the real build file.
-- All include and source files in the respective folders are automatically
+* The 'Fsl.gen' file is the real build file.
+* All include and source files in the respective folders are automatically
   added to the build files.
 
-### Build system per platform
+## Build system per platform
 
 Platform | Build system
 ---------|--------------------------------
@@ -60,7 +79,7 @@ Ubuntu   | cmake -> ninja
 Windows  | Visual studio (IDE or nmake)
 Yocto    | cmake -> ninja
 
-## FslBuildInfo.py
+# FslBuildInfo.py
 
 `FslBuildInfo.py` can be used to extract useful information about packages and export it to a easy to parse json file.
 
@@ -118,8 +137,7 @@ Argument            | Description
 -t 'sdk'            | Build all demo framework projects
 -v                  | Set verbosity level (can be specified multiple times).
 
-
-## FslBuildNew.py
+# FslBuildNew.py
 
 `FslBuildNew.py` is a new project wizard script. To create a new project you run
 
@@ -135,7 +153,7 @@ So for example
 
 Creates a new SuperGLES2Demo applicaiton based on the GLES2 template.
 
-### Template sanity checking
+## Template sanity checking
 
 From 1.8.0 FslBuildNew can now test build its templates to see if they compile.
 
@@ -160,7 +178,7 @@ FslBuildNew.py * * --SanityCheck debug
 Debug mode leaves all 'genrated' projects behind so they can be examined manually.
 Beware that repeated runs in debug mode skips existing sanity check dirs.
 
-### Templates
+## Templates
 
 The templates are currently located at `.Config/Templates.gen/NewProject` the first folder name specify the template language 'C++' inside
 that directory all the supported templates are stored. Each of these folders that contain a 'Template.xml' file is considered to be a valid template.
@@ -173,17 +191,17 @@ Copy         | A optional directory that will be recursively scanned for files. 
 
 All processed files (those under modify) will have their magic `##VARIABLES##` patched with proper values before they are written to the destination directory.
 
-### Note
+## Note
 
 The processing engine for the template 'Modify' and 'Copy' is the same engine used to generate the visual studio projects and android-gradle-cmake projects.
 
-## FslBuildRun.py
+# FslBuildRun.py
 
 A simple way to build and run a sample, its basically a simplified version of ```FslBuild.py --ForAll (EXE)``` command.
 All parameters after '--' gets send directly to the exectuable.
 It also has a experimental s
 
-### FslBuildRun - Useful arguments
+## FslBuildRun - Useful arguments
 
 FslBuild comes with a few useful arguments
 
@@ -193,14 +211,14 @@ Argument           | Description
 --RequireFeatures  | The list of features that are required for a executable package to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.
 --UseFeatures      | Allows you to limit whats build based on a provided feature list. For example [EGL,OpenGLES2]. This parameter defaults to all features.
 --UseExtensions    | The list of available extensions to build for. For example [OpenGLES3.1:EXT_geometry_shader,OpenGLES3.1:EXT_tessellation_shader] to allow the OpenGLES3.1 extensions EXT_geometry_shader and EXT_tessellation_shader. You can also specify * for all extensions (default).
---Variants         | specify a list of variants and their configuration for example "--Variants [config=Debug,FSL_GLES_NAME=vivante]" or "--Variants [config=Debug,WindowSystem=X11]" This means that we have build system independent way of doing this so it works on all platforms.  
+--Variants         | specify a list of variants and their configuration for example "--Variants [config=Debug,FSL_GLES_NAME=vivante]" or "--Variants [config=Debug,WindowSystem=X11]" This means that we have build system independent way of doing this so it works on all platforms.
 --BuildThreads     | Configures how many threads the builder should use, beware this is a hint that may be ignored by the builder, can be a number or "auto"
 --BuildTime        | Time the build and print the result and the end.
 --AppInfo          | Run via .AppInfo.json files instead of the packages this parameter can be: file or recursive.
 -v                 | Set verbosity level (can be specified multiple times).
 --                 | All arguments written after this is send directly to the native build system.
 
-### Experimental standalone test
+## Experimental standalone test
 
 This tool can be run without the SDK present by running it with the ```--standalone``` parameter.
 This will require you to specify the platform using ```-p```.

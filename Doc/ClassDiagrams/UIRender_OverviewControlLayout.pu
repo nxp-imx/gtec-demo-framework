@@ -1,0 +1,41 @@
+@startuml FslGraphics Sprite Creation
+
+caption Quick overview of how the layout system works
+
+participant TheApp
+participant UITree
+participant Image0
+participant StackLayout
+participant BackgroundLabelButton
+participant Image1
+participant NineSliceSprite
+participant ImageSprite
+activate TheApp
+activate UITree
+activate Image0
+activate StackLayout
+activate BackgroundLabelButton
+activate Image1
+activate NineSliceSprite
+activate ImageSprite
+...
+TheApp->UITree: Update
+...
+== Layout ==
+
+UITree->UITree++: Layout
+UITree->Image0: Measure
+Image0->ImageSprite: GetRenderInfo
+UITree->StackLayout: Measure
+StackLayout->BackgroundLabelButton: Measure
+BackgroundLabelButton->NineSliceSprite: GetRenderInfo
+StackLayout->Image1: Measure
+Image1->NineSliceSprite: GetRenderInfo
+UITree->Image0: Arrange
+UITree->StackLayout: Arrange
+StackLayout->BackgroundLabelButton: Arrange
+StackLayout->Image1: Arrange
+deactivate UITree
+...
+@enduml
+

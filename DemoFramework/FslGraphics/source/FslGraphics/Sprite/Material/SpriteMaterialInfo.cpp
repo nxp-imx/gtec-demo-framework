@@ -36,19 +36,13 @@
 namespace Fsl
 {
   SpriteMaterialInfo::SpriteMaterialInfo(const SpriteMaterialId spriteMaterialId, const PxExtent2D extentPx, const bool isOpaque,
-                                         std::shared_ptr<ISpriteMaterial> material, const uint32_t nativeMaterialFlags)
+                                         std::shared_ptr<ISpriteMaterial> material)
     : Id(spriteMaterialId)
     , ExtentPx(extentPx)
     , IsOpaque(isOpaque)
     , Material(std::move(material))
-    , NativeMaterialFlags(nativeMaterialFlags)
   {
   }
 
   SpriteMaterialInfo::~SpriteMaterialInfo() = default;
-
-  NativeTextureArea SpriteMaterialInfo::CalcNativeTextureArea(const PxRectangleU& imageRectanglePx, const StringViewLite& /*debugName*/) const
-  {
-    return Material ? Material->CalcNativeTextureArea(imageRectanglePx) : NativeTextureArea();
-  }
 }

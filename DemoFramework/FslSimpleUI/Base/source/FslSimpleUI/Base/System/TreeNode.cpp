@@ -52,11 +52,14 @@ namespace Fsl
 #ifdef _DEBUG
       {
         for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
+        {
           assert((*itr)->IsDisposed());
+        }
       }
 #endif
 
       m_flags.EnableFlag(TreeNodeFlags::Disposed);
+      m_window->WinShutdown();
     }
 
 

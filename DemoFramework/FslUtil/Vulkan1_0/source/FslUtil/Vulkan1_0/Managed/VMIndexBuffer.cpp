@@ -32,6 +32,7 @@
 #include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -40,20 +41,17 @@ namespace Fsl
 {
   namespace Vulkan
   {
-    void VMIndexBuffer::DoReset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pIndices, const std::size_t elementCount,
-                                const uint32_t elementStride, const VMBufferUsage usage)
+    void VMIndexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage)
     {
-      // We rely on everything public using a span.
-      assert(pIndices != nullptr || elementCount == 0);
       if (!bufferManager)
       {
         throw std::invalid_argument("bufferManager can not be null");
       }
-      if (elementCount > std::numeric_limits<uint32_t>::max())
+      if (indexSpan.size() > std::numeric_limits<uint32_t>::max())
       {
         throw NotSupportedException("element counts larger than a uint32_t is not supported");
       }
-      if (elementStride <= 0u)
+      if (indexSpan.stride() != 2 && indexSpan.stride() != 4)
       {
         throw NotSupportedException("elementStride must be greater than zero");
       }
@@ -62,10 +60,10 @@ namespace Fsl
 
       try
       {
-        m_indexBuffer = bufferManager->CreateBuffer(pIndices, elementCount, elementStride, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, usage);
+        m_indexBuffer = bufferManager->CreateBuffer(indexSpan, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, usage);
         m_bufferManager = bufferManager;
-        m_indexCount = static_cast<uint32_t>(elementCount);
-        m_elementStride = elementStride;
+        m_indexCount = UncheckedNumericCast<uint32_t>(indexSpan.size());
+        m_elementStride = UncheckedNumericCast<uint32_t>(indexSpan.stride());
         m_usage = usage;
       }
       catch (const std::exception&)
@@ -92,7 +90,7 @@ namespace Fsl
       {
         m_indexBuffer = bufferManager->CreateDynamicBuffer(elementCapacity, elementStride, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
         m_bufferManager = bufferManager;
-        m_indexCount = static_cast<uint32_t>(elementCapacity);
+        m_indexCount = UncheckedNumericCast<uint32_t>(elementCapacity);
         m_elementStride = elementStride;
         m_usage = VMBufferUsage::DYNAMIC;
       }
@@ -103,18 +101,18 @@ namespace Fsl
       }
     }
 
-    void VMIndexBuffer::DoSetData(const void* pIndices, const std::size_t elementCount, const uint32_t elementStride)
+    void VMIndexBuffer::SetData(ReadOnlyFlexSpan indexSpan)
     {
-      if (elementCount > m_indexCount)
+      if (indexSpan.size() > m_indexCount)
       {
         throw std::invalid_argument("out of bounds");
       }
-      if (elementStride != m_elementStride)
+      if (indexSpan.stride() != m_elementStride)
       {
         throw std::invalid_argument("elementStride must match the VMIndexBuffer element stride");
       }
 
-      m_indexBuffer.Upload(0u, pIndices, elementCount * elementStride);
+      m_indexBuffer.Upload(0u, indexSpan.data(), indexSpan.byte_size());
     }
   }
 }

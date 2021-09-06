@@ -8,7 +8,10 @@
           "UIAtlas/License.json",
           "UIAtlas/UIAtlas_*dpi.bta",
           "UIAtlas/UIAtlas_*dpi.png",
-          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+          "UIAtlas/UIAtlas_*dpi_Font.nbf",
+          "CustomAtlas/Font72Atlas.bta",
+          "CustomAtlas/Font72Atlas.png",
+          "CustomAtlas/Font72Atlas_Font.nbf"
         ]
       }
     ]

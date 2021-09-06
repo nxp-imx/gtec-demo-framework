@@ -176,7 +176,7 @@ LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<Opti
 
   // Create index and vertex buffers for all the meshes.
   m_indexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
-  m_vertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::GetVertexDeclaration());
+  m_vertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::AsVertexDeclarationSpan());
   std::size_t vertexCount = 0;
   std::size_t indexCount = 0;
   for (std::size_t i = 0; i < scene->Meshes.size(); ++i)

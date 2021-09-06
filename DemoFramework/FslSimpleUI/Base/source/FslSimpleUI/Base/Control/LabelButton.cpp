@@ -38,6 +38,7 @@
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
@@ -49,35 +50,25 @@ namespace Fsl
     LabelButton::LabelButton(const std::shared_ptr<WindowContext>& context)
       : ButtonBase(context)
       , m_windowContext(context)
-      , m_font(context->DefaultFont)
+      , m_fontMesh(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
     {
-      assert(m_font);
       Enable(WindowFlags(WindowFlags::DrawEnabled));
     }
 
 
     void LabelButton::SetContent(const std::string& value)
     {
-      if (value == m_content)
+      if (m_fontMesh.SetText(value))
       {
-        return;
+        PropertyUpdated(PropertyType::Content);
       }
-
-      m_content = value;
-      PropertyUpdated(PropertyType::Content);
     }
 
 
     void LabelButton::SetFont(const std::shared_ptr<SpriteFont>& value)
     {
-      if (!value)
+      if (m_fontMesh.SetSprite(value))
       {
-        throw std::invalid_argument("font can not be null");
-      }
-
-      if (value != m_font)
-      {
-        m_font = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -107,17 +98,11 @@ namespace Fsl
     {
       ButtonBase::WinDraw(context);
 
-      if (m_content.empty())
+      if (m_fontMesh.IsValid())
       {
-        return;
+        const auto color = !IsDown() ? m_colorUp : m_colorDown;
+        context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
       }
-
-      const auto color = !IsDown() ? m_colorUp : m_colorDown;
-      const auto batch = m_windowContext->Batch2D;
-      const auto* const pFont = m_font.get();
-      assert(pFont != nullptr);
-      batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
-      batch->DrawString(*pFont, m_content, TypeConverter::To<Vector2>(context.TargetRect.TopLeft()), color);
     }
 
 
@@ -130,12 +115,9 @@ namespace Fsl
     PxSize2D LabelButton::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
       FSL_PARAM_NOT_USED(availableSizePx);
-
-      const auto* const pFont = m_font.get();
-      assert(pFont != nullptr);
-      const auto& fontInfo = pFont->GetInfo();
-      auto measuredPx = pFont->MeasureString(StringViewLiteUtil::AsStringViewLite(m_content));
-      return {measuredPx.Width(), fontInfo.ScaledLineSpacingPx};
+      const auto measureInfo = m_fontMesh.ComplexMeasure();
+      m_cachedMeasureMinimalFontSizePx = measureInfo.MinimalSizePx;
+      return measureInfo.MeasureSizePx;
     }
   }
 }

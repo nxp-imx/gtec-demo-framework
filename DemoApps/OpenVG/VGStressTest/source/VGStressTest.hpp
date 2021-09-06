@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  typedef std::shared_ptr<OpenVG::VGPathBuffer> VGPathBufferPtr;
+  using VGPathBufferPtr = std::shared_ptr<OpenVG::VGPathBuffer>;
 
   class VGStressTest : public DemoAppVG
   {

@@ -39,18 +39,23 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Font/BitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
+#include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
-#include <FslSimpleUI/Base/Control/NineSliceImage.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/DpiScale/OptionParser.hpp>
 #include <cassert>
 
@@ -64,7 +69,7 @@ namespace Fsl
 
   namespace LocalConfig
   {
-    constexpr Color DividerColor(0x80808080);
+    constexpr Color DividerColor(0x80FFFFFF);
 
     constexpr uint32_t SliderDpiTickMin = 0u;
     constexpr uint32_t SliderDpiTickMax = 640u;
@@ -89,15 +94,17 @@ namespace Fsl
 
   namespace
   {
-    std::shared_ptr<AtlasFont> CreateFont(const IContentManager& contentManager, const IO::Path& path, const Texture2D& atlasTexture,
-                                          const ITextureAtlas& /*textureAtlas*/)
+    std::shared_ptr<AtlasFont> CreateFont(const IContentManager& contentManager, const SpriteNativeAreaCalc& spriteNativeAreaCalc,
+                                          const uint32_t densityDpi, const IO::Path& path, const Texture2D& atlasTexture)
     {
-      return std::make_shared<AtlasFont>(atlasTexture, TextureAtlasBitmapFont(contentManager.ReadBitmapFont(path)));
+      return std::make_shared<AtlasFont>(
+        atlasTexture, TextureAtlasSpriteFont(spriteNativeAreaCalc, atlasTexture.GetExtent(), contentManager.ReadBitmapFont(path), densityDpi));
     }
 
 
-    Resources CreateResources(const std::shared_ptr<INativeGraphics>& nativeGraphics, const IContentManager& contentManager, const IO::Path& path,
-                              const uint32_t imageDP)
+    Resources CreateResources(const std::shared_ptr<INativeGraphics>& nativeGraphics, const IContentManager& contentManager,
+                              const SpriteNativeAreaCalc& spriteNativeAreaCalc, const IO::Path& path, const uint32_t imageDpi,
+                              const uint32_t densityDpi)
     {
       IO::Path pathPNG(path + ".png");
       IO::Path pathBTA(path + ".bta");
@@ -122,8 +129,8 @@ namespace Fsl
 
       // Prepare the bitmap font
       FSLLOG3_INFO("- Loading '{}'", pathFBK);
-      resources.Font = CreateFont(contentManager, pathFBK, resources.AtlasTexture, textureAtlas);
-      resources.Density = imageDP;
+      resources.Font = CreateFont(contentManager, spriteNativeAreaCalc, densityDpi, pathFBK, resources.AtlasTexture);
+      resources.Density = imageDpi;
       resources.FontConfig = BitmapFontConfig(resources.ResolutionDensityScale);
       return resources;
     }
@@ -145,6 +152,7 @@ namespace Fsl
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
                                                          UITestPatternMode::DisabledAllowSwitching))
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
+    , m_renderSystem(m_graphics->GetBasicRenderSystem())
     , m_nativeBatch(m_graphics->GetNativeBatch2D())
     , m_displayMetrics(config.WindowMetrics)
     , m_exampleYPosition(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
@@ -161,21 +169,23 @@ namespace Fsl
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     FSLLOG3_INFO("Preparing resources");
-    m_res160 = CreateResources(nativeGraphics, *contentManager, "UIAtlas/UIAtlas_160dpi", 160);
-    m_res320 = CreateResources(nativeGraphics, *contentManager, "UIAtlas/UIAtlas_320dpi", 320);
-    m_res480 = CreateResources(nativeGraphics, *contentManager, "UIAtlas/UIAtlas_480dpi", 480);
-    m_res640 = CreateResources(nativeGraphics, *contentManager, "UIAtlas/UIAtlas_640dpi", 640);
+    const auto& spriteNativeAreaCalc = m_uiExtension->GetSpriteNativeAreaCalc();
+    m_res160 = CreateResources(nativeGraphics, *contentManager, spriteNativeAreaCalc, "UIAtlas/UIAtlas_160dpi", 160, 160);
+    m_res320 = CreateResources(nativeGraphics, *contentManager, spriteNativeAreaCalc, "UIAtlas/UIAtlas_320dpi", 320, 160);
+    m_res480 = CreateResources(nativeGraphics, *contentManager, spriteNativeAreaCalc, "UIAtlas/UIAtlas_480dpi", 480, 160);
+    m_res640 = CreateResources(nativeGraphics, *contentManager, spriteNativeAreaCalc, "UIAtlas/UIAtlas_640dpi", 640, 160);
 
     FSLLOG3_INFO("Preparing UI");
     {    // Build a simple UI
       auto windowContext = m_uiExtension->GetContext();
 
-      UI::Theme::BasicThemeFactory uiFactory(windowContext, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+      auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+      UI::Theme::IThemeControlFactory& uiFactory = *uiControlFactory;
 
       // We use the full fill texture here to get a gradient rendered.
-      m_fillSprite = uiFactory.GetFillSprite();
+      m_fillSprite = uiFactory.GetResources().GetFillSprite();
 
-      auto dividerSprite = uiFactory.GetDividerNineSliceSprite();
+      auto dividerSprite = uiFactory.GetResources().GetDividerNineSliceSprite();
 
       m_uiRecord = CreateUI(windowContext, uiFactory, config.WindowMetrics.DensityDpi, enableTestPattern, enableUITestPattern);
 
@@ -395,7 +405,8 @@ namespace Fsl
     m_uiRecord.LabelDensityDpi->SetContent(fmt::format("{}", windowMetrics.DensityDpi));
     m_uiRecord.LabelDensityScale->SetContent(fmt::format("{}", windowMetrics.DensityScaleFactor));
 
-    m_texFill = UISpriteToTextureUtil::ExtractFillTexture(m_fillSprite);
+    assert(m_renderSystem);
+    m_texFill = UISpriteToTextureUtil::ExtractFillTexture(*m_renderSystem, m_fillSprite);
   }
 
   void Shared::Update(const DemoTime& demoTime)
@@ -484,7 +495,7 @@ namespace Fsl
     auto dstPositionPx = dstRect.Offset;
 
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
-    const auto& bitmapFont = resources.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
 
     const int32_t lineSpacingPx = bitmapFont.LineSpacingPx();
 
@@ -536,7 +547,7 @@ namespace Fsl
     auto dstPositionPx = dstRect.Offset;
 
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
-    const auto& bitmapFont = resources.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
 
     const auto& fontConfig = resources.FontConfig;
     const auto lineSpacingPx = static_cast<int32_t>(std::round(bitmapFont.LineSpacingPx() * resources.ResolutionDensityScale));
@@ -599,7 +610,7 @@ namespace Fsl
     Vector2 dstPositionPx = TypeConverter::UncheckedTo<Vector2>(dstRect.Offset);
 
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
-    const auto& bitmapFont = resources.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
 
     Vector2 origin;
     Vector2 densityScale(resources.ResolutionDensityScale, resources.ResolutionDensityScale);
@@ -655,14 +666,14 @@ namespace Fsl
 
   int32_t Shared::CalcPxAreaHeightPx(const Resources& resources) const
   {
-    const auto& bitmapFont = resources.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
     return bitmapFont.LineSpacingPx() * 10;
   }
 
 
   int32_t Shared::CalcTextAreaHeightPx(const Resources& resources) const
   {
-    const auto& bitmapFont = resources.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
     auto lineSpacingPx = bitmapFont.LineSpacingPx();
     auto scaledLineSpacingPx = bitmapFont.LineSpacingPx(resources.FontConfig);
     return lineSpacingPx + (scaledLineSpacingPx * 7);
@@ -674,7 +685,7 @@ namespace Fsl
     const auto clipRectPxf = TypeConverter::UncheckedTo<PxClipRectangle>(dstRect);
     const auto dstAreaSizePx = TypeConverter::UncheckedTo<PxPoint2>(dstRect.Extent);
     const auto& fontAtlasTexture = !useTestAtlas ? resources.Font->GetAtlasTexture() : resources.AtlasTestTexture;
-    const auto& bitmapFont = resources.Font->GetAtlasBitmapFont();
+    const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
     constexpr StringViewLite text = LocalConfig::TextLine;
     constexpr const Color fontColor = Color::White();
     auto fontConfig = resources.FontConfig;
@@ -779,28 +790,34 @@ namespace Fsl
     }
   }
 
-  void Shared::DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawText(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                         const StringViewLite& text, const PxPoint2& dstPositionPx, const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
     // Extract the render rules
-    if (!bitmapFont.ExtractRenderRules(m_glyphScratchpad, text))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!bitmapFont.ExtractRenderRules(glyphScratchpadSpan, text))
     {
       return;
     }
 
-    for (std::size_t i = 0; i < text.size(); ++i)
+    auto dstPositionPxf = TypeConverter::UncheckedTo<PxVector2>(dstPositionPx);
+    const INativeTexture2D* pNativeTexFont = texFont.TryGetNativePointer();
+    if (pNativeTexFont != nullptr)
     {
-      const auto& glyph = m_glyphScratchpad[i];
-      if (glyph.SrcRectPx.Width > 0)
+      for (std::size_t i = 0; i < text.size(); ++i)
       {
-        auto fDstPosPx = TypeConverter::UncheckedTo<Vector2>(dstPositionPx + glyph.DstRectPx.Offset);
-        rNativeBatch.Draw(texFont, fDstPosPx, glyph.SrcRectPx, fontColor, clipRectPxf);
+        const auto& glyph = glyphScratchpadSpan[i];
+        if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
+        {
+          rNativeBatch.Draw(*pNativeTexFont, glyph.TextureArea, PxAreaRectangleF::AddLocation(dstPositionPxf, glyph.DstRectPxf), fontColor,
+                            clipRectPxf);
+        }
       }
     }
   }
 
   // 1
-  void Shared::DrawTextNaiveScaling(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextNaiveScaling(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                     const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                     const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -818,23 +835,23 @@ namespace Fsl
     auto dstPositionPxf = TypeConverter::UncheckedTo<Vector2>(dstPositionPx);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
-      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]);
+      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
       if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
       {
         const float dstXPxf = dstPositionPxf.X + (float(fontChar.OffsetPx.X) * fontScale);
         const float dstYPxf = dstPositionPxf.Y + (float(fontChar.OffsetPx.Y) * fontScale);
-        const float scaledfontCharWidthPxf = fontChar.SrcTextureRectPx.Width * fontScale;
-        const float scaledfontCharHeightPxf = fontChar.SrcTextureRectPx.Height * fontScale;
+        const float scaledfontCharWidthPxf = float(fontChar.SrcTextureRectPx.Width) * fontScale;
+        const float scaledfontCharHeightPxf = float(fontChar.SrcTextureRectPx.Height) * fontScale;
 
         PxAreaRectangleF fDstRectPx(dstXPxf, dstYPxf, scaledfontCharWidthPxf, scaledfontCharHeightPxf);
-        rNativeBatch.Draw(texFont, fDstRectPx, fontChar.SrcTextureRectPx, fontColor, clipRectPxf);
+        rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
       dstPositionPxf.X += float(fontChar.XAdvancePx) * fontScale;
     }
   }
 
   // 2
-  void Shared::DrawTextDstRoundedToFullPixels(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextDstRoundedToFullPixels(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                               const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                               const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -854,25 +871,25 @@ namespace Fsl
     auto dstXPosPx = dstPositionPx.X;
     for (std::size_t i = 0; i < text.size(); ++i)
     {
-      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]);
-      if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
+      const auto& fontCharInfo = bitmapFont.GetBitmapFontChar(text[i]);
+      if (fontCharInfo.RenderInfo.TextureArea.X1 > fontCharInfo.RenderInfo.TextureArea.X0)
       {
-        const auto scaledXStartPx = int32_t(std::round(float(fontChar.OffsetPx.X) * fontScale));
-        const auto scaledYStartPx = int32_t(std::round(float(fontChar.OffsetPx.Y) * fontScale));
+        const auto scaledXStartPx = int32_t(std::round(float(fontCharInfo.CharInfo.OffsetPx.X) * fontScale));
+        const auto scaledYStartPx = int32_t(std::round(float(fontCharInfo.CharInfo.OffsetPx.Y) * fontScale));
         const auto dstXPx = dstXPosPx + scaledXStartPx;
         const auto dstYPx = dstPositionPx.Y + scaledYStartPx;
-        const auto scaledGlyphWidthPx = int32_t(std::round(fontChar.SrcTextureRectPx.Width * fontScale));
-        const auto scaledGlyphHeightPx = int32_t(std::round(fontChar.SrcTextureRectPx.Height * fontScale));
+        const auto scaledGlyphWidthPx = int32_t(std::round(float(fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale));
+        const auto scaledGlyphHeightPx = int32_t(std::round(float(fontCharInfo.CharInfo.SrcTextureRectPx.Height) * fontScale));
 
         PxAreaRectangleF fDstRectPx(float(dstXPx), float(dstYPx), float(scaledGlyphWidthPx), static_cast<float>(scaledGlyphHeightPx));
-        rNativeBatch.Draw(texFont, fDstRectPx, fontChar.SrcTextureRectPx, fontColor, clipRectPxf);
+        rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontCharInfo.CharInfo.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstXPosPx += int32_t(std::round(float(fontChar.XAdvancePx) * fontScale));
+      dstXPosPx += int32_t(std::round(float(fontCharInfo.CharInfo.XAdvancePx) * fontScale));
     }
   }
 
   // 3
-  void Shared::DrawTextBaseLineAware(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextBaseLineAware(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                      const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                      const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -898,7 +915,7 @@ namespace Fsl
     auto dstXPosPx = dstPositionPx.X;
     for (std::size_t i = 0; i < text.size(); ++i)
     {
-      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]);
+      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
       if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
       {
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
@@ -908,18 +925,18 @@ namespace Fsl
 
         const auto dstXPx = dstXPosPx + scaledXStartPx;
         const auto dstYPx = dstPositionPx.Y + scaledYStartPx;
-        const auto scaledGlyphWidthPx = int32_t(std::round(fontChar.SrcTextureRectPx.Width * fontScale));
-        const auto scaledGlyphHeightPx = int32_t(std::round(fontChar.SrcTextureRectPx.Height * fontScale));
+        const auto scaledGlyphWidthPx = int32_t(std::round(float(fontChar.SrcTextureRectPx.Width) * fontScale));
+        const auto scaledGlyphHeightPx = int32_t(std::round(float(fontChar.SrcTextureRectPx.Height) * fontScale));
 
         PxAreaRectangleF fDstRectPx(float(dstXPx), float(dstYPx), float(scaledGlyphWidthPx), static_cast<float>(scaledGlyphHeightPx));
-        rNativeBatch.Draw(texFont, fDstRectPx, fontChar.SrcTextureRectPx, fontColor, clipRectPxf);
+        rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
       dstXPosPx += int32_t(std::round(float(fontChar.XAdvancePx) * fontScale));
     }
   }
 
   // 4
-  void Shared::DrawTextAlmostPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextAlmostPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                           const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                           const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -946,7 +963,7 @@ namespace Fsl
     auto dstXPosPxf = float(dstPositionPx.X);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
-      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]);
+      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
       if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
       {
         // calc distance from original baseline to the startY, then scale it
@@ -958,21 +975,21 @@ namespace Fsl
         // We use the sub-pixel precision of dstXPosPxf and apply the 'kerning' before we round which makes the final position much more precise
         const auto dstXPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X) * fontScale)));
         const auto dstXEndPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
-        const auto scaledGlyphHeightPx = int32_t(std::round(fontChar.SrcTextureRectPx.Height * fontScale));
+        const auto scaledGlyphHeightPx = int32_t(std::round(float(fontChar.SrcTextureRectPx.Height) * fontScale));
         const auto dstYPx = dstPositionPx.Y + scaledYStartPx;
         const auto dstYEndPx = dstYPx + scaledGlyphHeightPx;
 
         assert(dstXPx <= dstXEndPx);
         assert(dstYPx <= dstYEndPx);
         auto dstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(float(dstXPx), float(dstYPx), float(dstXEndPx), float(dstYEndPx));
-        rNativeBatch.Draw(texFont, dstRectPx, fontChar.SrcTextureRectPx, fontColor, clipRectPxf);
+        rNativeBatch.Draw(texFont, dstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
       dstXPosPxf += float(fontChar.XAdvancePx) * fontScale;
     }
   }
 
   // 5
-  void Shared::DrawTextAlmostPixelPerfect2(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextAlmostPixelPerfect2(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                            const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                            const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -998,7 +1015,7 @@ namespace Fsl
     auto dstXPosPxf = float(dstPositionPx.X);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
-      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]);
+      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
       if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
       {
         // calc distance from original baseline to the startY, then scale it
@@ -1019,14 +1036,14 @@ namespace Fsl
         dstYPx = std::min(dstYPx, dstYEndPx);
 
         auto fDstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(float(dstXPx), float(dstYPx), float(dstXEndPx), float(dstYEndPx));
-        rNativeBatch.Draw(texFont, fDstRectPx, fontChar.SrcTextureRectPx, fontColor, clipRectPxf);
+        rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
       dstXPosPxf += float(fontChar.XAdvancePx) * fontScale;
     }
   }
 
   // 6
-  void Shared::DrawTextPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextPixelPerfect(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                     const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                     const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -1051,7 +1068,7 @@ namespace Fsl
     auto dstXPosPxf = float(dstPositionPx.X);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
-      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]);
+      const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
       if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
       {
         // calc distance from original baseline to the startY, then scale it
@@ -1080,7 +1097,7 @@ namespace Fsl
         //}
 
         auto fDstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(float(dstXPx), float(dstYPx), float(dstXEndPx), float(dstYEndPx));
-        rNativeBatch.Draw(texFont, fDstRectPx, fontChar.SrcTextureRectPx, fontColor, clipRectPxf);
+        rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
       dstXPosPxf += float(fontChar.XAdvancePx) * fontScale;
     }
@@ -1088,7 +1105,7 @@ namespace Fsl
   }
 
   // 7
-  void Shared::DrawTextRenderRules(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasBitmapFont& bitmapFont,
+  void Shared::DrawTextRenderRules(INativeBatch2D& rNativeBatch, const BaseTexture2D& texFont, const TextureAtlasSpriteFont& bitmapFont,
                                    const BitmapFontConfig& fontConfig, const StringViewLite& text, const PxPoint2& dstPositionPx,
                                    const Color& fontColor, const PxClipRectangle& clipRectPxf)
   {
@@ -1096,44 +1113,50 @@ namespace Fsl
     // rNativeBatch.DrawString(texFont, bitmapFont, fontConfig, text, TypeConverter::UncheckedTo<Vector2>(dstPositionPx), fontColor, clipRectPxf);
 
     // Extract the render rules
-    if (!bitmapFont.ExtractRenderRules(m_glyphScratchpad, text, fontConfig))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!bitmapFont.ExtractRenderRules(glyphScratchpadSpan, text, fontConfig))
     {
       return;
     }
+
+    auto dstPositionPxf = TypeConverter::To<PxVector2>(dstPositionPx);
 
     // Simple and slow text rendering
     // - the RenderRules now ensure that the glyphs start at full pixel coordinates
     // - not pixel perfect
     // - naive scaling (this means that characters will start rendering at sub pixel locations)
-    for (std::size_t i = 0; i < text.size(); ++i)
+    const INativeTexture2D* pNativeTexFont = texFont.TryGetNativePointer();
+    if (pNativeTexFont != nullptr)
     {
-      const auto& glyph = m_glyphScratchpad[i];
-      if (glyph.SrcRectPx.Width > 0)
+      for (std::size_t i = 0; i < text.size(); ++i)
       {
-        PxAreaRectangleF dstRectPxf(float(dstPositionPx.X + glyph.DstRectPx.Offset.X), float(dstPositionPx.Y + glyph.DstRectPx.Offset.Y),
-                                    float(glyph.DstRectPx.Extent.Width), static_cast<float>(glyph.DstRectPx.Extent.Height));
-        rNativeBatch.Draw(texFont, dstRectPxf, glyph.SrcRectPx, fontColor, clipRectPxf);
+        const auto& glyph = glyphScratchpadSpan[i];
+        if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
+        {
+          rNativeBatch.Draw(*pNativeTexFont, glyph.TextureArea, PxAreaRectangleF::AddLocation(dstPositionPxf, glyph.DstRectPxf), fontColor,
+                            clipRectPxf);
+        }
       }
     }
   }
 
 
-  Shared::UIRecord Shared::CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::BasicThemeFactory& rUIFactory,
+  Shared::UIRecord Shared::CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::IThemeControlFactory& rUIFactory,
                                     const uint32_t densityDpi, const bool enableTestPattern, const bool enableUITestPattern)
   {
     UIRecord record;
 
 
     ConstrainedValue<uint32_t> sliderValue(densityDpi, LocalConfig::SliderDpiTickMin, LocalConfig::SliderDpiTickMax);
-    auto sliderDpi = rUIFactory.CreateSliderFmtValue<uint32_t>(UI::LayoutOrientation::Horizontal, sliderValue, "{}dp");
+    auto sliderDpi = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, sliderValue, "{}");
     sliderDpi->SetEnabled(false);
 
-    auto sliderTextureDpi = rUIFactory.CreateSliderFmtValue<uint32_t>(UI::LayoutOrientation::Horizontal, LocalConfig::SliderForceTextureDensity);
+    auto sliderTextureDpi = rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::SliderForceTextureDensity);
     sliderTextureDpi->SetTickFrequency(LocalConfig::SliderForceTextureDensityTick);
     sliderTextureDpi->SetEnabled(false);
 
     auto sliderDownscalePreference =
-      rUIFactory.CreateSliderFmtValue<uint32_t>(UI::LayoutOrientation::Horizontal, LocalConfig::SliderDownscalePreference, "{}%");
+      rUIFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::SliderDownscalePreference, "{}%");
     sliderDownscalePreference->SetTickFrequency(LocalConfig::SliderDownscalePreferenceTick);
 
     auto labelResPxCaption = CreateLabel(context, "Resolution: ", UI::ItemAlignment::Near, UI::ItemAlignment::Center);

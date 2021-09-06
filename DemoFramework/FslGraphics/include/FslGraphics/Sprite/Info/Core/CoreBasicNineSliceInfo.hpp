@@ -34,7 +34,7 @@
 #include <FslBase/Math/Dp/DpExtent.hpp>
 #include <FslBase/Math/Dp/DpThicknessU.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 
 namespace Fsl
@@ -46,7 +46,7 @@ namespace Fsl
     PxExtent2D ExtentPx;
 
     //! The rectangle on the source atlas texture
-    PxRectangleU RectanglePx;
+    PxRectangleU16 RectanglePx;
 
     //! The nine slice
     PxThicknessU NineSlicePx;
@@ -64,7 +64,7 @@ namespace Fsl
     DpThicknessU ContentMarginDp;
 
     constexpr CoreBasicNineSliceInfo() = default;
-    constexpr CoreBasicNineSliceInfo(const PxExtent2D extentPx, const PxRectangleU& rectanglePx, const PxThicknessU& nineSlicePx,
+    constexpr CoreBasicNineSliceInfo(const PxExtent2D extentPx, const PxRectangleU16& rectanglePx, const PxThicknessU& nineSlicePx,
                                      const PxThicknessU& contentMarginPx, const DpExtent imageExtentDp, const DpThicknessU& nineSliceDp,
                                      const DpThicknessU& contentMarginDp)
       : ExtentPx(extentPx)

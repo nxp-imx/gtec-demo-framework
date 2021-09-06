@@ -43,7 +43,7 @@ namespace Fsl
     static DemoHostSetup Get()
     {
       auto setup = EGLDemoHostSetup::Get();
-      setup.Factory = std::make_shared<TemplateIDemoHostFactory<DemoHostGLES3>>();
+      setup.Factory = std::make_shared<TemplateIDemoHostFactory<DemoHostGLES3>>(DemoHostCaps::Flags::HostControlGraphicsServiceApi);
       return setup;
     }
   };

@@ -38,17 +38,18 @@
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <memory>
 
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
@@ -74,7 +75,7 @@ namespace Fsl
     }
 
     template <typename T>
-    SceneRecord CreateSceneRecord(UI::Theme::BasicThemeFactory& factory, UI::StackLayout& stack, const DemoAppConfig& config,
+    SceneRecord CreateSceneRecord(UI::Theme::IThemeControlFactory& factory, UI::StackLayout& stack, const DemoAppConfig& config,
                                   const std::shared_ptr<OptionParser>& options, const int32_t id, const std::string& name,
                                   const std::shared_ptr<UI::RadioGroup>& radioGroup)
     {
@@ -101,7 +102,8 @@ namespace Fsl
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     m_context = m_uiExtension->GetContext();
-    UI::Theme::BasicThemeFactory factory(m_context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
     m_buttonStack = std::make_shared<UI::StackLayout>(m_context);
 
@@ -298,7 +300,7 @@ namespace Fsl
   }
 
 
-  void TessellationSample::BuildUI(UI::Theme::BasicThemeFactory& factory)
+  void TessellationSample::BuildUI(UI::Theme::IThemeControlFactory& factory)
   {
     // RenderMode:
     // Displacement on/off
@@ -321,11 +323,11 @@ namespace Fsl
     auto labalDispFactor = factory.CreateLabel("Displacement factor");
     auto labalDispMod = factory.CreateLabel("Displacement mod");
     auto labalShininess = factory.CreateLabel("Shininess");
-    m_sliderTInner = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::TInner);
-    m_sliderTOuter = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::TOuter);
-    m_sliderTDispFactor = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::DispFactor);
-    m_sliderTDispMod = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::DispMod);
-    m_sliderShininess = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::Shininess);
+    m_sliderTInner = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::TInner);
+    m_sliderTOuter = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::TOuter);
+    m_sliderTDispFactor = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::DispFactor);
+    m_sliderTDispMod = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::DispMod);
+    m_sliderShininess = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::Shininess);
 
 
     m_buttonStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);

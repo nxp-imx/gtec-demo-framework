@@ -50,5 +50,23 @@ namespace FslUtil.GLES3 {
     .INativeTexture2D <|-- NativeTexture2D
 }
 
+namespace FslDemoService.NativeGraphics.OpenGLES2 {
+    class NativeGraphicsService
+    
+    NativeGraphicsService o-- FslUtil.GLES2.NativeBatch2D
+}
+
+namespace FslDemoService.NativeGraphics.OpenGLES3 {
+    class NativeGraphicsService
+    
+    NativeGraphicsService o-- FslUtil.GLES3.NativeBatch2D
+}
+
+namespace App {
+  class TheApp  
+  TheApp  o-- .INativeBatch2D
+  TheApp  o-- .INativeTexture2D
+}
+
 
 @enduml

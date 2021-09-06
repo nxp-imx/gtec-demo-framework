@@ -207,7 +207,7 @@ TEST(TestMathPixel_TypeConverter_Math, UncheckedToPxRectangle_Rect)
 TEST(TestMathPixel_TypeConverter_Math, UncheckedToPxRectangleU_Rectangle)
 {
   const Rectangle value(1, 2, 3, 4);
-  const auto res = TypeConverter::UncheckedTo<PxRectangleU>(value);
+  const auto res = TypeConverter::UncheckedTo<PxRectangleU32>(value);
 
   EXPECT_EQ(uint32_t(value.Left()), res.Left());
   EXPECT_EQ(uint32_t(value.Top()), res.Top());

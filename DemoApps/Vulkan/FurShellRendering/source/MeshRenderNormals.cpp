@@ -32,7 +32,8 @@
 
 #include "MeshRenderNormals.hpp"
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslGraphics/Vertices/VertexPositionColor.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslGraphics3D/Procedural/VertexUtil.hpp>
 #include <cassert>
 #include <limits>
@@ -125,7 +126,7 @@ namespace Fsl
       Procedural::VertexUtil::ExtractNormalsAsLineList(vertices, 0, mesh.GetVertexArray(), 5);
 
       VertexBufferInfo<1> info;
-      info.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+      info.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
 
       // Generate attribute description by matching shader layout with the vertex declarations
       std::array<VertexElementUsage, 1> shaderAttribOrder = {VertexElementUsage::Position};

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontInfo.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
 
 namespace Fsl
@@ -40,23 +40,24 @@ namespace Fsl
   class StringViewLite;
   struct SpriteFontConfig;
   struct SpriteMaterialInfo;
+  class SpriteNativeAreaCalc;
 
   class SpriteFont final : public ISprite
   {
     SpriteFontInfo m_info;
-    TextureAtlasBitmapFont m_bitmapFontAtlas;
+    TextureAtlasSpriteFont m_bitmapFontAtlas;
 
   public:
     SpriteFont() = default;
 
-    SpriteFont(const SpriteMaterialInfo& spriteMaterialInfo, const uint32_t imageDpi, const BitmapFont& bitmapFont,
+    SpriteFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo, const BitmapFont& bitmapFont,
                const SpriteFontConfig& spriteFontConfig, const uint32_t densityDpi, const StringViewLite& debugName);
 
     //! @brief Clears the material and the bitmap font.
     //!        This is intended to be used during 'resizing' where we free the existing content first to have all the memory available for loading.
     void ClearContent();
 
-    void SetContent(const SpriteMaterialInfo& spriteMaterialInfo, const uint32_t imageDpi, const BitmapFont& bitmapFont,
+    void SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo, const BitmapFont& bitmapFont,
                     const SpriteFontConfig& spriteFontConfig, const uint32_t densityDpi, const StringViewLite& debugName);
 
     const SpriteFontInfo& GetInfo() const
@@ -64,14 +65,18 @@ namespace Fsl
       return m_info;
     }
 
-    const SpriteMaterialInfo& GetMaterialInfo() const final;
+    uint32_t GetMaterialCount() const final
+    {
+      return 1u;
+    }
+    const SpriteMaterialInfo& GetMaterialInfo(const uint32_t index) const final;
     void Resize(const uint32_t densityDpi) final;
 
     //! @brief Measure the string size in pixels taking into account the default font config of the font
     PxSize2D MeasureString(const StringViewLite& strView) const;
 
 
-    const TextureAtlasBitmapFont& GetAtlasBitmapFont() const
+    const TextureAtlasSpriteFont& GetTextureAtlasSpriteFont() const
     {
       return m_bitmapFontAtlas;
     }

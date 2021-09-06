@@ -33,6 +33,7 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
@@ -518,15 +519,14 @@ namespace Fsl
   void GammaCorrection::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                    const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
     // Upload the changes
-    m_resources.MainFrameResources[frameIndex].VertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUboData));
-    m_resources.MainFrameResources[frameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUboData));
+    m_resources.MainFrameResources[currentFrameIndex].VertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUboData));
+    m_resources.MainFrameResources[currentFrameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUboData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -541,20 +541,20 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawScenes(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+        DrawScenes(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
 
         // Calling this last allows the UI to draw on top of everything.
         // Beware that the UI drawing methods might alter the OpenGL state!
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -823,7 +823,7 @@ namespace Fsl
 
     std::array<VertexElementUsage, 3> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Normal,
                                                          VertexElementUsage::TextureCoordinate};
-    m_resources.Mesh.VertexBuffer.Reset(m_bufferManager, vertices, VMBufferUsage::STATIC);
+    m_resources.Mesh.VertexBuffer.Reset(m_bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), VMBufferUsage::STATIC);
 
     VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.VertexAttributeDescription, shaderBindOrder,
                                                             m_resources.Mesh.VertexBuffer);

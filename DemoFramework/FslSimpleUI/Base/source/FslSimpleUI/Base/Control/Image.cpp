@@ -34,14 +34,14 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslGraphics/Sprite/ImageSprite.hpp>
+#include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
 #include <utility>
-#include "Impl/ImageImpl_ImageSprite.hpp"
 
 namespace Fsl
 {
@@ -50,26 +50,25 @@ namespace Fsl
     Image::Image(const std::shared_ptr<WindowContext>& context)
       : BaseWindow(context)
       , m_windowContext(context)
+      , m_content(context->TheUIContext.Get()->MeshManager)
       , m_scalePolicy(ItemScalePolicy::FitKeepAR)
     {
       Enable(WindowFlags::DrawEnabled);
     }
 
 
-    void Image::SetContent(const std::shared_ptr<ImageSprite>& value)
+    void Image::SetContent(const std::shared_ptr<ISizedSprite>& value)
     {
-      if (value != m_content)
+      if (m_content.SetSprite(value))
       {
-        m_content = value;
         PropertyUpdated(PropertyType::Content);
       }
     }
 
-    void Image::SetContent(std::shared_ptr<ImageSprite>&& value)
+    void Image::SetContent(std::shared_ptr<ISizedSprite>&& value)
     {
-      if (value != m_content)
+      if (m_content.SetSprite(std::move(value)))
       {
-        m_content = std::move(value);
         PropertyUpdated(PropertyType::Content);
       }
     }
@@ -94,23 +93,41 @@ namespace Fsl
     }
 
 
+    void Image::SetRotateImageCW(const bool enabled)
+    {
+      if (enabled != m_rotate90)
+      {
+        m_rotate90 = enabled;
+        PropertyUpdated(PropertyType::Content);
+      }
+    }
+
+
     void Image::WinDraw(const UIDrawContext& context)
     {
       BaseWindow::WinDraw(context);
 
-      ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location(), RenderSizePx(), m_contentColor);
+      if (!m_rotate90)
+      {
+        context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_contentColor);
+      }
+      else
+      {
+        context.CommandBuffer.DrawRotated90CW(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_contentColor);
+      }
     }
 
 
     PxSize2D Image::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      return ImageImpl::ArrangeOverride(finalSizePx, m_content.get(), m_scalePolicy);
+      return m_content.Measure(finalSizePx, m_scalePolicy, m_rotate90);
     }
 
 
-    PxSize2D Image::MeasureOverride(const PxAvailableSize& availableSizePx)
+    PxSize2D Image::MeasureOverride(const PxAvailableSize& /*availableSizePx*/)
     {
-      return ImageImpl::MeasureOverride(availableSizePx, m_content.get());
+      PxSize2D desiredSizePx = m_content.Measure();
+      return !m_rotate90 ? desiredSizePx : PxSize2D::Flip(desiredSizePx);
     }
   }
 }

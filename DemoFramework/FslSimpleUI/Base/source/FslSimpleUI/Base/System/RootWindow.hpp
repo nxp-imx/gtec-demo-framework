@@ -44,7 +44,7 @@ namespace Fsl
     class IEventListener;
     struct RoutedEvent;
 
-    class RootWindow : public BaseWindow
+    class RootWindow final : public BaseWindow
     {
       PxSize2D m_resolutionPx;
       uint32_t m_densityDpi;
@@ -54,13 +54,15 @@ namespace Fsl
       RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi);
       ~RootWindow() override;
 
-      void WinInit() override;
-      WindowFlags WinGetFlags() const override;
-
+      void WinInit() final;
 
       PxSize2D GetScreenResolutionPx() const
       {
         return m_resolutionPx;
+      }
+      uint32_t GetDensityDpi() const
+      {
+        return m_densityDpi;
       }
 
       //! return true if the resolution was modified
@@ -73,19 +75,19 @@ namespace Fsl
 
     protected:
       // Event forwarding
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
+      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
+      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
+      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
 
       //! Layout
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final
       {
         FSL_PARAM_NOT_USED(finalSizePx);
         return m_resolutionPx;
       }
 
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
       {
         FSL_PARAM_NOT_USED(availableSizePx);
         return m_resolutionPx;

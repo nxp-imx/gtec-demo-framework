@@ -35,7 +35,7 @@ namespace Fsl
 {
   namespace SdfFontUtil
   {
-    constexpr inline float CalcSpread(const float spread, const float scale)
+    constexpr inline float CalcSmooth(const float spread, const float scale)
     {
       return 0.25f / (spread * scale);
     }

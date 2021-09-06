@@ -18,6 +18,7 @@ activate DepthBuffer
 activate CommandBuffers
 activate RenderPass
 activate SwapchainRecords
+activate GraphicsService
 activate NativeGraphicsService
 activate QuadBatch
 
@@ -30,7 +31,8 @@ deactivate DemoAppVulkanBasic
 DemoAppVulkanBasic->DemoAppVulkanBasic++: TryRebuildResources
 DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
 DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForDeviceIdle
-DemoAppVulkanBasic->NativeGraphicsService: VulkanDestroyDependentResources
+DemoAppVulkanBasic->GraphicsService: DestroyDependentResources
+GraphicsService->NativeGraphicsService: DestroyDependentResources
 NativeGraphicsService->QuadBatch: DestroyDependentResources
 DemoAppVulkanBasic->SwapchainRecords: Clear
 deactivate SwapchainRecords
@@ -52,7 +54,8 @@ DemoAppVulkanBasic->CommandBuffers++: Reset(swapChainImageCount)
 DemoAppVulkanBasic->CustomDemoApp: OnBuildResources
 CustomDemoApp->RenderPass++: Construct
 DemoAppVulkanBasic->SwapchainRecords++: Create
-DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
+DemoAppVulkanBasic->GraphicsService: CreateDependentResources
+GraphicsService->NativeGraphicsService: CreateDependentResources
 NativeGraphicsService->QuadBatch: CreateDependentResources
 deactivate DemoAppVulkanBasic
 deactivate DemoAppVulkanBasic

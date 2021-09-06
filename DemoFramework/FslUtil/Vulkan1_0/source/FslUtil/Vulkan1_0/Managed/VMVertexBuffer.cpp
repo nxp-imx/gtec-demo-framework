@@ -32,6 +32,7 @@
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -44,7 +45,7 @@ namespace Fsl
   {
     namespace
     {
-      void Convert(std::vector<VMVertexElement>& rVertexElements, const VertexDeclaration& vertexDeclaration)
+      void Convert(std::vector<VMVertexElement>& rVertexElements, VertexDeclarationSpan vertexDeclaration)
       {
         rVertexElements.resize(vertexDeclaration.Count());
         for (std::size_t i = 0; i < vertexDeclaration.Count(); ++i)
@@ -55,37 +56,41 @@ namespace Fsl
       }
     }
 
-    void VMVertexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
-                               const std::size_t elementCapacity, const VertexDeclaration& vertexDeclaration, const VMBufferUsage usage)
+    void VMVertexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlyFlexVertexSpan& vertexSpan,
+                               const std::size_t elementCapacity, const VMBufferUsage usage)
     {
       if (!bufferManager)
       {
         throw std::invalid_argument("bufferManager can not be null");
       }
-      if (pVertices == nullptr)
-      {
-        throw std::invalid_argument("pVertices can not be null");
-      }
-      if (elementCount > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("element counts larger than a uint32_t is not supported");
-      }
-      if (elementCount > elementCapacity)
+      if (vertexSpan.size() > elementCapacity)
       {
         throw NotSupportedException("element count should be <= elementCapacity");
       }
+      if (vertexSpan.stride() > std::numeric_limits<uint32_t>::max())
+      {
+        throw NotSupportedException("elementCapacity should be '<= 0xFFFFFFFF'");
+      }
+      if (vertexSpan.AsVertexDeclarationSpan().Empty())
+      {
+        throw NotSupportedException("vertex declaration can not be empty");
+      }
+      if (elementCapacity > std::numeric_limits<uint32_t>::max())
+      {
+        throw NotSupportedException("elementCapacity should be '<= 0xFFFFFFFF'");
+      }
+      assert(vertexSpan.size() <= std::numeric_limits<uint32_t>::max());
 
       Reset();
 
-
       try
       {
-        const auto stride = vertexDeclaration.VertexStride();
-        m_vertexBuffer = bufferManager->CreateBuffer(pVertices, elementCount, elementCapacity, stride, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, usage);
-        Convert(m_vertexElements, vertexDeclaration);
+        const auto stride = vertexSpan.stride();
+        m_vertexBuffer = bufferManager->CreateBuffer(vertexSpan.AsFlexSpan(), elementCapacity, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, usage);
+        Convert(m_vertexElements, vertexSpan.AsVertexDeclarationSpan());
         m_bufferManager = bufferManager;
         m_vertexCount = UncheckedNumericCast<uint32_t>(elementCapacity);
-        m_elementStride = stride;
+        m_elementStride = UncheckedNumericCast<uint32_t>(stride);
         m_usage = usage;
       }
       catch (const std::exception&)
@@ -96,11 +101,15 @@ namespace Fsl
     }
 
     void VMVertexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity,
-                               const VertexDeclaration& vertexDeclaration)
+                               VertexDeclarationSpan vertexDeclaration)
     {
       if (!bufferManager)
       {
         throw std::invalid_argument("bufferManager can not be null");
+      }
+      if (vertexDeclaration.Empty())
+      {
+        throw NotSupportedException("vertex declaration can not be empty");
       }
       if (elementCapacity > std::numeric_limits<uint32_t>::max())
       {
@@ -127,25 +136,29 @@ namespace Fsl
       }
     }
 
-    void VMVertexBuffer::SetData(const uint32_t dstElementOffset, const void* pVertices, const std::size_t elementCount, const uint32_t elementStride)
+    void VMVertexBuffer::SetData(const uint32_t dstElementOffset, ReadOnlyFlexSpan vertexSpan)
     {
       if (dstElementOffset > m_vertexCount)
       {
         throw std::invalid_argument("dstElementOffset out of bounds");
       }
-      if (elementCount > (m_vertexCount - dstElementOffset))
+      if (vertexSpan.size() > (m_vertexCount - dstElementOffset))
       {
         throw std::invalid_argument(
-          fmt::format("out of bounds (dstElementOffset {} elementCount {} vertexCount {})", dstElementOffset, elementCount, m_vertexCount));
+          fmt::format("out of bounds (dstElementOffset {} vertexSpan.size {} vertexCount {})", dstElementOffset, vertexSpan.size(), m_vertexCount));
       }
-      if (elementStride != m_elementStride)
+      if (vertexSpan.stride() != m_elementStride)
       {
         throw std::invalid_argument("elementStride must match the VMVertexBuffer element stride");
       }
+      if (vertexSpan.stride() > std::numeric_limits<uint32_t>::max())
+      {
+        throw NotSupportedException("elementCapacity should be '<= 0xFFFFFFFF'");
+      }
 
-      auto dstOffset = dstElementOffset * elementStride;
+      auto dstOffset = NumericCast<uint32_t>(dstElementOffset * vertexSpan.stride());
 
-      m_vertexBuffer.Upload(dstOffset, pVertices, elementCount * elementStride);
+      m_vertexBuffer.Upload(dstOffset, vertexSpan.data(), NumericCast<VkDeviceSize>(vertexSpan.byte_size()));
     }
 
     int32_t VMVertexBuffer::GetVertexElementIndex(const VertexElementUsage usage, const uint32_t usageIndex) const

@@ -40,16 +40,16 @@ namespace Fsl
   {
     uint32_t State{0};
 
-    GamepadButtonState() = default;
+    constexpr GamepadButtonState() noexcept = default;
 
 
-    bool IsPressed(const VirtualGamepadButton button) const
+    constexpr bool IsPressed(const VirtualGamepadButton button) const noexcept
     {
       return (State & static_cast<uint32_t>(button)) == static_cast<uint32_t>(button);
     }
 
 
-    void SetButtonState(const VirtualGamepadButton button, const bool pressed)
+    constexpr void SetButtonState(const VirtualGamepadButton button, const bool pressed) noexcept
     {
       if (pressed)
       {
@@ -62,12 +62,12 @@ namespace Fsl
     }
 
 
-    bool operator==(const GamepadButtonState& rhs) const
+    constexpr bool operator==(const GamepadButtonState& rhs) const noexcept
     {
       return State == rhs.State;
     }
 
-    bool operator!=(const GamepadButtonState& rhs) const
+    constexpr bool operator!=(const GamepadButtonState& rhs) const noexcept
     {
       return State != rhs.State;
     }

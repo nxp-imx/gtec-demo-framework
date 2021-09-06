@@ -66,6 +66,7 @@ namespace Fsl
     , public TNativeWindow
   {
     NativeEGLSetup m_nativeSetup;
+
   public:
     EGLNativeWindowTemplate(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
@@ -86,7 +87,7 @@ namespace Fsl
 
   protected:
     // Get rid of the inheritance via dominance warning
-    bool TryGetNativeSize(PxPoint2& rSize) const final
+    bool TryGetNativeSize(PxPoint2& rSize) const override
     {
       return TNativeWindow::TryGetNativeSize(rSize);
     }

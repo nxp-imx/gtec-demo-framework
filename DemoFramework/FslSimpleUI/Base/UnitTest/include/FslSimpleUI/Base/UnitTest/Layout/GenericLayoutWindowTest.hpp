@@ -71,7 +71,7 @@ namespace Fsl
         return m_callId;
       }
 
-      explicit GenericLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags())
+      explicit GenericLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags())
         : parent_type(context)
       {
         if (windowFlags.GetValue() > 0)
@@ -107,15 +107,15 @@ namespace Fsl
         return res;
       }
 
-      const PxRectangle& WinGetContentPxRectangle() const override
-      {
-        ++m_callCount.WinGetContentRect;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
-        {
-          m_callId.WinGetContentRect = m_callIdManager->Claim();
-        }
-        return parent_type::WinGetContentPxRectangle();
-      }
+      // const PxRectangle& WinGetContentPxRectangle() const override
+      //{
+      //  ++m_callCount.WinGetContentRect;
+      //  if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
+      //  {
+      //    m_callId.WinGetContentRect = m_callIdManager->Claim();
+      //  }
+      //  return parent_type::WinGetContentPxRectangle();
+      //}
 
       void WinHandleEvent(const RoutedEvent& routedEvent) override
       {
@@ -130,7 +130,7 @@ namespace Fsl
         Callbacks.WinHandleEvent(routedEvent);
       }
 
-      void WinUpdate(const DemoTime& demoTime) override
+      void WinUpdate(const TransitionTimeSpan& timeSpan) override
       {
         ++m_callCount.WinUpdate;
         if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinUpdate))
@@ -138,12 +138,12 @@ namespace Fsl
           m_callId.WinUpdate = m_callIdManager->Claim();
         }
 
-        parent_type::WinUpdate(demoTime);
+        parent_type::WinUpdate(timeSpan);
 
-        Callbacks.WinUpdate(demoTime);
+        Callbacks.WinUpdate(timeSpan);
       }
 
-      void WinResolve(const DemoTime& demoTime) override
+      void WinResolve(const TransitionTimeSpan& timeSpan) override
       {
         ++m_callCount.WinResolve;
         if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinResolve))
@@ -151,9 +151,9 @@ namespace Fsl
           m_callId.WinResolve = m_callIdManager->Claim();
         }
 
-        parent_type::WinResolve(demoTime);
+        parent_type::WinResolve(timeSpan);
 
-        Callbacks.WinResolve(demoTime);
+        Callbacks.WinResolve(timeSpan);
       }
 
       void WinDraw(const UIDrawContext& context) override

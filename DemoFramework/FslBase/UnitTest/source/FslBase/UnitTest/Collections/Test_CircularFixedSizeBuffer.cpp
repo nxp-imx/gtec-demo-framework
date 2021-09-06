@@ -656,3 +656,197 @@ TEST(TestCollections_CircularFixedSizeBuffer, PopBackDestructs)
 
   EXPECT_TRUE(weakObj1.expired());
 }
+
+
+TEST(TestCollections_CircularFixedSizeBuffer, Grow_Empty)
+{
+  CircularFixedSizeBuffer<uint32_t> buffer(2);
+  EXPECT_TRUE(buffer.empty());
+  buffer.grow(1);
+  EXPECT_TRUE(buffer.empty());
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, Grow_OneSegment)
+{
+  CircularFixedSizeBuffer<uint32_t> buffer(2);
+  buffer.push_back(1);
+  buffer.push_back(2);
+  EXPECT_EQ(1u, buffer.segment_count());
+  EXPECT_EQ(2u, buffer.size());
+  EXPECT_EQ(2u, buffer.capacity());
+
+  buffer.grow(1);
+  EXPECT_EQ(1u, buffer.segment_count());
+  EXPECT_EQ(2u, buffer.size());
+  EXPECT_EQ(3u, buffer.capacity());
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, Grow_TwoSegment_Simple)
+{
+  const uint32_t v1 = 1u;
+  const uint32_t v2 = 2u;
+  const uint32_t v3 = 3u;
+
+  CircularFixedSizeBuffer<uint32_t> buffer(2);
+  buffer.push_back(v1);
+  buffer.push_back(v2);
+  buffer.push_back(v3);
+  EXPECT_EQ(2u, buffer.segment_count());
+  EXPECT_EQ(2u, buffer.size());
+  EXPECT_EQ(buffer[0], v2);
+  EXPECT_EQ(buffer[1], v3);
+  {
+    auto seg0 = buffer.AsReadOnlySpan(0);
+    auto seg1 = buffer.AsReadOnlySpan(1);
+    EXPECT_EQ(1u, seg0.size());
+    EXPECT_EQ(1u, seg1.size());
+    EXPECT_EQ(seg0[0], v2);
+    EXPECT_EQ(seg1[0], v3);
+  }
+  EXPECT_EQ(2u, buffer.capacity());
+
+  buffer.grow(1);
+
+  EXPECT_EQ(1u, buffer.segment_count());
+  EXPECT_EQ(2u, buffer.size());
+  EXPECT_EQ(buffer[0], v2);
+  EXPECT_EQ(buffer[1], v3);
+  {
+    auto seg0 = buffer.AsReadOnlySpan(0);
+    EXPECT_EQ(2u, seg0.size());
+    EXPECT_EQ(seg0[0], v2);
+    EXPECT_EQ(seg0[1], v3);
+  }
+  EXPECT_EQ(3u, buffer.capacity());
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, Grow_TwoSegment)
+{
+  const uint32_t v1 = 1u;
+  const uint32_t v2 = 2u;
+  const uint32_t v3 = 3u;
+  const uint32_t v4 = 4u;
+  const uint32_t v5 = 5u;
+
+  CircularFixedSizeBuffer<uint32_t> buffer(3);
+  buffer.push_back(v1);
+  buffer.push_back(v2);
+  buffer.push_back(v3);
+  buffer.push_back(v4);
+  buffer.push_back(v5);
+  EXPECT_EQ(2u, buffer.segment_count());
+  EXPECT_EQ(3u, buffer.size());
+  EXPECT_EQ(buffer[0], v3);
+  EXPECT_EQ(buffer[1], v4);
+  EXPECT_EQ(buffer[2], v5);
+  {
+    auto seg0 = buffer.AsReadOnlySpan(0);
+    auto seg1 = buffer.AsReadOnlySpan(1);
+    EXPECT_EQ(1u, seg0.size());
+    EXPECT_EQ(2u, seg1.size());
+    EXPECT_EQ(seg0[0], v3);
+    EXPECT_EQ(seg1[0], v4);
+    EXPECT_EQ(seg1[1], v5);
+  }
+  EXPECT_EQ(3u, buffer.capacity());
+
+  buffer.grow(1);
+
+  EXPECT_EQ(2u, buffer.segment_count());
+  EXPECT_EQ(3u, buffer.size());
+  EXPECT_EQ(buffer[0], v3);
+  EXPECT_EQ(buffer[1], v4);
+  EXPECT_EQ(buffer[2], v5);
+  {
+    auto seg0 = buffer.AsReadOnlySpan(0);
+    auto seg1 = buffer.AsReadOnlySpan(1);
+    EXPECT_EQ(2u, seg0.size());
+    EXPECT_EQ(1u, seg1.size());
+    EXPECT_EQ(seg0[0], v3);
+    EXPECT_EQ(seg0[1], v4);
+    EXPECT_EQ(seg1[0], v5);
+  }
+  EXPECT_EQ(4u, buffer.capacity());
+}
+
+
+TEST(TestCollections_CircularFixedSizeBuffer, ResizePopFront_Empty_Shrink)
+{
+  CircularFixedSizeBuffer<uint32_t> buffer(2);
+  EXPECT_TRUE(buffer.empty());
+  buffer.resize_pop_front(1);
+  EXPECT_TRUE(buffer.empty());
+  EXPECT_EQ(1u, buffer.capacity());
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, ResizePopFront_Empty_SameSize)
+{
+  CircularFixedSizeBuffer<uint32_t> buffer(2);
+  EXPECT_TRUE(buffer.empty());
+  buffer.resize_pop_front(2);
+  EXPECT_TRUE(buffer.empty());
+  EXPECT_EQ(2u, buffer.capacity());
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, ResizePopFront_Empty_Grow)
+{
+  CircularFixedSizeBuffer<uint32_t> buffer(2);
+  EXPECT_TRUE(buffer.empty());
+  buffer.resize_pop_front(3);
+  EXPECT_TRUE(buffer.empty());
+  EXPECT_EQ(3u, buffer.capacity());
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, ResizePopFront_TwoSegments_Shrink0)
+{
+  const uint32_t v1 = 1u;
+  const uint32_t v2 = 2u;
+  const uint32_t v3 = 3u;
+  const uint32_t v4 = 4u;
+
+  CircularFixedSizeBuffer<uint32_t> buffer(3);
+  buffer.push_back(v1);
+  buffer.push_back(v2);
+  buffer.push_back(v3);
+  buffer.push_back(v4);
+  EXPECT_EQ(2u, buffer.segment_count());
+  EXPECT_EQ(3u, buffer.size());
+  EXPECT_EQ(buffer[0], v2);
+  EXPECT_EQ(buffer[1], v3);
+  EXPECT_EQ(buffer[2], v4);
+
+  buffer.resize_pop_front(2);
+
+  EXPECT_EQ(1u, buffer.segment_count());
+  EXPECT_EQ(2u, buffer.size());
+  EXPECT_EQ(buffer[0], v3);
+  EXPECT_EQ(buffer[1], v4);
+}
+
+TEST(TestCollections_CircularFixedSizeBuffer, ResizePopFront_TwoSegments_Shrink1)
+{
+  const uint32_t v1 = 1u;
+  const uint32_t v2 = 2u;
+  const uint32_t v3 = 3u;
+  const uint32_t v4 = 4u;
+  const uint32_t v5 = 5u;
+
+  CircularFixedSizeBuffer<uint32_t> buffer(3);
+  buffer.push_back(v1);
+  buffer.push_back(v2);
+  buffer.push_back(v3);
+  buffer.push_back(v4);
+  buffer.push_back(v5);
+  EXPECT_EQ(2u, buffer.segment_count());
+  EXPECT_EQ(3u, buffer.size());
+  EXPECT_EQ(buffer[0], v3);
+  EXPECT_EQ(buffer[1], v4);
+  EXPECT_EQ(buffer[2], v5);
+
+  buffer.resize_pop_front(2);
+
+  EXPECT_EQ(1u, buffer.segment_count());
+  EXPECT_EQ(2u, buffer.size());
+  EXPECT_EQ(buffer[0], v4);
+  EXPECT_EQ(buffer[1], v5);
+}

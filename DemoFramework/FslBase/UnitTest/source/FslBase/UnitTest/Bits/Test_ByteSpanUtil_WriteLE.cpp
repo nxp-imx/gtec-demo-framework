@@ -59,7 +59,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteUInt8LE)
     auto writtenValue = ByteSpanUtil::ReadUInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.ToReadOnlySpan());
+  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
 }
 
 
@@ -128,7 +128,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteInt8LE)
     auto writtenValue = ByteSpanUtil::ReadInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.ToReadOnlySpan());
+  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
 }
 
 
@@ -199,7 +199,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_UInt8)
     auto writtenValue = ByteSpanUtil::ReadUInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.ToReadOnlySpan());
+  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
 }
 
 
@@ -268,7 +268,7 @@ TEST(TestBits_ByteSpanUtil_WriteLE, WriteLE_Int8)
     auto writtenValue = ByteSpanUtil::ReadInt8LE(dstSpan, i);
     EXPECT_EQ(value, writtenValue);
   }
-  EXPECT_EQ(srcSpan, dstSpan.ToReadOnlySpan());
+  EXPECT_EQ(srcSpan, dstSpan.AsReadOnlySpan());
 }
 
 

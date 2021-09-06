@@ -137,8 +137,8 @@ The call sequence can be interrupted at any of the ```_Try``` method calls if th
 During the frame sequence any ```_Try``` method is allowed to fail and can request a specific recovery strategy to be used. Currently the frame sequence has these ```_Try``` method.
 
 ```C++
-AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) override;
-AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override;
+AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) override;
+AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) override;
 ```
 
 They can return

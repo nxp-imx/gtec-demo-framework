@@ -221,7 +221,7 @@ namespace Fsl
             {
               // The texture atlas did not contain information about the glyph, so mark is as a unavailable glyph
               assert(rangeGlyphId < atlasChars[atlasCharIndex].Id);
-              rFontChars[dstGlyphIndex] = BitmapFontChar(rangeGlyphId, PxRectangleU(), PxPoint2(), basicKerning.LayoutWidthPx);
+              rFontChars[dstGlyphIndex] = BitmapFontChar(rangeGlyphId, PxRectangleU32(), PxPoint2(), basicKerning.LayoutWidthPx);
             }
             ++dstGlyphIndex;
             ++rangeGlyphId;
@@ -231,7 +231,7 @@ namespace Fsl
           while (rangeGlyphId < rangeGlyphEndId)
           {
             FontGlyphBasicKerning basicKerning = basicFontKerning.Get(rangeGlyphId - rangeCharOffsetMod);
-            rFontChars[dstGlyphIndex] = BitmapFontChar(rangeGlyphId, PxRectangleU(), PxPoint2(), basicKerning.LayoutWidthPx);
+            rFontChars[dstGlyphIndex] = BitmapFontChar(rangeGlyphId, PxRectangleU32(), PxPoint2(), basicKerning.LayoutWidthPx);
             ++dstGlyphIndex;
             ++rangeGlyphId;
           }
@@ -278,8 +278,17 @@ namespace Fsl
       uint16_t defaultDpi = 0;
       auto chars = ExtractChars(textureAtlas, basicFontKerning, defaultDpi);
       auto kernings = ExtractKernings(textureAtlas, basicFontKerning);
-      return {basicFontKerning.GetName().AsStringViewLite(),     defaultDpi, size,  lineSpacingPx, baseLinePx,
-              basicFontKerning.GetPathName().AsStringViewLite(), fontType,   chars, kernings};
+      return {basicFontKerning.GetName().AsStringViewLite(),
+              defaultDpi,
+              size,
+              lineSpacingPx,
+              baseLinePx,
+              PxThicknessU16(),
+              basicFontKerning.GetPathName().AsStringViewLite(),
+              fontType,
+              BitmapFont::SdfParams(),
+              chars,
+              kernings};
     }
   };
 }

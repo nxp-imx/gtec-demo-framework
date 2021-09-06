@@ -75,12 +75,13 @@ namespace Fsl
         m_slider->SetAlignmentY(ItemAlignment::Center);
 
         m_label->SetContent(m_slider->GetValue());
-        m_label->SetAlignmentX(ItemAlignment::Far);
-        m_label->SetAlignmentY(ItemAlignment::Center);
-
+        m_label->SetAlignmentX(ItemAlignment::Stretch);
+        m_label->SetAlignmentY(ItemAlignment::Stretch);
+        m_label->SetContentAlignmentX(ItemAlignment::Far);
+        m_label->SetContentAlignmentY(ItemAlignment::Center);
 
         m_layout->SetAlignmentX(ItemAlignment::Stretch);
-        m_layout->SetAlignmentY(ItemAlignment::Center);
+        m_layout->SetAlignmentY(ItemAlignment::Stretch);
         m_layout->SetLayoutOrientation(LayoutOrientation::Horizontal);
         m_layout->AddChild(m_slider);
         m_layout->AddChild(m_label);
@@ -96,9 +97,9 @@ namespace Fsl
       }
 
 
-      void WinResolve(const DemoTime& demoTime) final
+      void WinResolve(const TransitionTimeSpan& timespan) final
       {
-        ContentControlBase::WinResolve(demoTime);
+        ContentControlBase::WinResolve(timespan);
         if (IsLayoutDirty() || !m_cacheValid)
         {
           UpdateLinkedContent();
@@ -160,22 +161,14 @@ namespace Fsl
           case LayoutOrientation::Horizontal:
             m_slider->SetAlignmentX(ItemAlignment::Stretch);
             m_slider->SetAlignmentY(ItemAlignment::Center);
-            m_label->SetAlignmentX(ItemAlignment::Far);
-            m_label->SetAlignmentY(ItemAlignment::Center);
             m_label->SetContentAlignmentX(ItemAlignment::Far);
             m_label->SetContentAlignmentY(ItemAlignment::Center);
-            m_layout->SetAlignmentX(ItemAlignment::Stretch);
-            m_layout->SetAlignmentY(ItemAlignment::Center);
             break;
           case LayoutOrientation::Vertical:
             m_slider->SetAlignmentX(ItemAlignment::Center);
             m_slider->SetAlignmentY(ItemAlignment::Stretch);
-            m_label->SetAlignmentX(ItemAlignment::Center);
-            m_label->SetAlignmentY(ItemAlignment::Far);
             m_label->SetContentAlignmentX(ItemAlignment::Center);
             m_label->SetContentAlignmentY(ItemAlignment::Far);
-            m_layout->SetAlignmentX(ItemAlignment::Center);
-            m_layout->SetAlignmentY(ItemAlignment::Stretch);
             break;
           }
           return true;
@@ -206,22 +199,22 @@ namespace Fsl
         return res;
       }
 
-      bool AddValue(const value_type& value)
+      bool AddValue(const value_type value)
       {
         return m_slider->AddValue(value);
       }
 
-      bool SubValue(const value_type& value)
+      bool SubValue(const value_type value)
       {
         return m_slider->SubValue(value);
       }
 
-      bool SetValue(const value_type& value)
+      bool SetValue(const value_type value)
       {
         return m_slider->SetValue(value);
       }
 
-      bool SetRange(const value_type& min, const value_type& max)
+      bool SetRange(const value_type min, const value_type max)
       {
         return m_slider->SetRange(min, max);
       }
@@ -266,12 +259,12 @@ namespace Fsl
 
       // ---
 
-      const std::shared_ptr<ImageSprite>& GetCursorSprite() const
+      const std::shared_ptr<ISizedSprite>& GetCursorSprite() const
       {
         return m_slider->GetCursorSprite();
       }
 
-      void SetCursorSprite(const std::shared_ptr<ImageSprite>& value)
+      void SetCursorSprite(const std::shared_ptr<ISizedSprite>& value)
       {
         m_slider->SetCursorSprite(value);
       }
@@ -319,12 +312,12 @@ namespace Fsl
       // ---
 
 
-      const std::shared_ptr<ImageSprite>& GetCursorOverlaySprite() const
+      const std::shared_ptr<ISizedSprite>& GetCursorOverlaySprite() const
       {
         return m_slider->GetCursorOverlaySprite();
       }
 
-      void SetCursorOverlaySprite(const std::shared_ptr<ImageSprite>& value)
+      void SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value)
       {
         m_slider->SetCursorOverlaySprite(value);
       }
@@ -342,12 +335,12 @@ namespace Fsl
 
       // ---
 
-      const std::shared_ptr<NineSliceSprite>& GetBackgroundSprite() const
+      const std::shared_ptr<IContentSprite>& GetBackgroundSprite() const
       {
         return m_slider->GetBackgroundSprite();
       }
 
-      void SetBackgroundSprite(const std::shared_ptr<NineSliceSprite>& value)
+      void SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value)
       {
         m_slider->SetBackgroundSprite(value);
       }
@@ -451,7 +444,7 @@ namespace Fsl
         const auto maxValue = m_slider->GetMaxValue();
         if (!m_cacheValid || minValue != m_cachedMinValue || maxValue != m_cachedMaxValue)
         {
-          const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+          // const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
           m_cacheValid = true;
           // The way we 'find' the max render size of the number is not a sure thing.
@@ -459,25 +452,25 @@ namespace Fsl
           m_cachedMinValue = minValue;
           m_cachedMaxValue = maxValue;
 
-          const PxPoint2 size1Px = m_label->MeasureRenderedValue(minValue);
-          const PxPoint2 size2Px = m_label->MeasureRenderedValue(maxValue);
-          const PxPoint2 finalSizePx = PxPoint2::Max(size1Px, size2Px);
-          const DpSize finalSizeDp = unitConverter.ToDpSize(finalSizePx);
+          const PxSize2D size1Px = m_label->MeasureRenderedValue(minValue);
+          const PxSize2D size2Px = m_label->MeasureRenderedValue(maxValue);
+          const PxSize2D finalSizePx = PxSize2D::Max(size1Px, size2Px);
+          // const DpSize finalSizeDp = unitConverter.ToDpSize(finalSizePx);
 
-          m_label->SetHeight(DpLayoutSize1D(finalSizeDp.Height()));
 
           m_layout->ClearLayoutLengths();
           m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Star, 1.0f));
           if (m_slider->GetOrientation() == LayoutOrientation::Horizontal)
           {
             // Since we recalc this on resize, we might as well just use the final px sizes
-            m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, float(finalSizePx.X)));
+            m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, float(finalSizePx.Width())));
+            // m_label->SetHeight(DpLayoutSize1D(finalSizeDp.Height()));
           }
           else
           {
             // Since we recalc this on resize, we might as well just use the final px sizes
-            m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, float(finalSizePx.Y)));
-            m_label->SetWidth(DpLayoutSize1D(finalSizeDp.Width()));
+            m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, float(finalSizePx.Height())));
+            // m_label->SetWidth(DpLayoutSize1D(finalSizeDp.Width()));
           }
         }
       }

@@ -58,7 +58,7 @@ namespace Fsl
 
     constexpr inline bool IsValidChar(const int ch)
     {
-      return (ch >= int(UTF8_CHAR_MIN) && ch <= int(UTF8_CHAR_MAX));
+      return (ch >= static_cast<int>(UTF8_CHAR_MIN) && ch <= static_cast<int>(UTF8_CHAR_MAX));
     }
   }
 
@@ -300,7 +300,7 @@ namespace Fsl
     // Slow but it works
     fmt::memory_buffer buf;
     std::string::const_iterator itr = m_content.begin();
-    std::string::const_iterator itrEnd = m_content.end();
+    const std::string::const_iterator itrEnd = m_content.end();
     bool bIsFirst = true;
     while (itr != itrEnd)
     {

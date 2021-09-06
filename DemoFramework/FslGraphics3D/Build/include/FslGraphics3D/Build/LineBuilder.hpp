@@ -34,7 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Math/Vector4.hpp>
+// #include <FslBase/Math/Vector4.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
@@ -126,132 +126,142 @@ namespace Fsl
       // Color color
 
       //! @brief Add a line of the given color
-      inline void Add(const Vector3& from, const Vector3& to, const Color& color)
-      {
-        Add(from, to, color.ToVector4());
-      }
+      // inline void Add(const Vector3& from, const Vector3& to, const Vector4& color)
+      //{
+      //  Add(from, to, Color(color));
+      //}
 
-      //! @brief Add a line of the given color and transform it by the supplied matrix
-      inline void Add(const Vector3& from, const Vector3& to, const Color& color, const Matrix& matrix)
-      {
-        Add(from, to, color.ToVector4(), matrix);
-      }
+      ////! @brief Add a line of the given color and transform it by the supplied matrix
+      // inline void Add(const Vector3& from, const Vector3& to, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(from, to, Color(color), matrix);
+      //}
 
-      //! @brief Add a line of the given color
-      inline void Add(const Vector3& from, const Vector3& to, const Color& colorFrom, const Color& colorTo)
-      {
-        Add(from, to, colorFrom.ToVector4(), colorTo.ToVector4());
-      }
+      ////! @brief Add a line of the given color
+      // inline void Add(const Vector3& from, const Vector3& to, const Vector4& colorFrom, const Color& colorTo)
+      //{
+      //  Add(from, to, Color(colorFrom), Color(colorTo));
+      //}
 
-      //! @brief Add a line of the given color and transform it by the supplied matrix
-      inline void Add(const Vector3& from, const Vector3& to, const Color& colorFrom, const Color& colorTo, const Matrix& matrix)
-      {
-        Add(from, to, colorFrom.ToVector4(), colorTo.ToVector4(), matrix);
-      }
+      ////! @brief Add a line of the given color and transform it by the supplied matrix
+      // inline void Add(const Vector3& from, const Vector3& to, const Vector4& colorFrom, const Vector4& colorTo, const Matrix& matrix)
+      //{
+      //  Add(from, to, Color(colorFrom), Color(colorTo), matrix);
+      //}
 
-      inline void Add(const BoundingBox& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // inline void Add(const BoundingBox& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      inline void Add(const BoundingBox& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // inline void Add(const BoundingBox& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      inline void Add(const BoundingFrustum& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
-      inline void Add(const BoundingFrustum& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // inline void Add(const BoundingFrustum& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
+      // inline void Add(const BoundingFrustum& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      inline void Add(const BoundingSphere& value, const Color& color, const uint32_t steps = DEFAULT_SPHERE_STEPS)
-      {
-        Add(value, color.ToVector4(), steps);
-      }
+      // inline void Add(const BoundingSphere& value, const Vector4& color, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      //{
+      //  Add(value, Color(color), steps);
+      //}
 
-      inline void Add(const BoundingSphere& value, const Color& color, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
-      {
-        Add(value, color.ToVector4(), matrix, steps);
-      }
+      // inline void Add(const BoundingSphere& value, const Vector4& color, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      //{
+      //  Add(value, Color(color), matrix, steps);
+      //}
 
-      inline void Add(const BoxF& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // inline void Add(const BoxF& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      inline void Add(const BoxF& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // inline void Add(const BoxF& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      void Add(const Ray& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // void Add(const Ray& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      void Add(const Ray& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // void Add(const Ray& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      void Add(const Rect& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // void Add(const Rect& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      void Add(const Rect& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // void Add(const Rect& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      void Add(const Rectangle& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // void Add(const Rectangle& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      void Add(const Rectangle& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // void Add(const Rectangle& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      void Add(const Rectangle2D& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // void Add(const Rectangle2D& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      void Add(const Rectangle2D& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // void Add(const Rectangle2D& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      void Add(const Rectangle3D& value, const Color& color)
-      {
-        Add(value, color.ToVector4());
-      }
+      // void Add(const Rectangle3D& value, const Vector4& color)
+      //{
+      //  Add(value, Color(color));
+      //}
 
-      void Add(const Rectangle3D& value, const Color& color, const Matrix& matrix)
-      {
-        Add(value, color.ToVector4(), matrix);
-      }
+      // void Add(const Rectangle3D& value, const Vector4& color, const Matrix& matrix)
+      //{
+      //  Add(value, Color(color), matrix);
+      //}
 
-      void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color)
-      {
-        AddGridXZ(rect, posY, steps, color.ToVector4());
-      }
+      // void AddGridXY(const Rect& rect, const float posZ, const uint32_t steps, const Vector4& color)
+      //{
+      //  AddGridXY(rect, posZ, steps, Color(color));
+      //}
 
-      void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color, const Matrix& matrix)
-      {
-        AddGridXZ(rect, posY, steps, color.ToVector4(), matrix);
-      }
+      // void AddGridXY(const Rect& rect, const float posZ, const uint32_t steps, const Vector4& color, const Matrix& matrix)
+      //{
+      //  AddGridXY(rect, posZ, steps, Color(color), matrix);
+      //}
+
+      // void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Vector4& color)
+      //{
+      //  AddGridXZ(rect, posY, steps, Color(color));
+      //}
+
+      // void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Vector4& color, const Matrix& matrix)
+      //{
+      //  AddGridXZ(rect, posY, steps, Color(color), matrix);
+      //}
 
       // VECTOR4 colors
 
       //! @brief Add a line of the given color
-      void Add(const Vector3& from, const Vector3& to, const Vector4& color)
+      void Add(const Vector3& from, const Vector3& to, const Color& color)
       {
         EnsureCapacityFor(2u);
         auto* pDst = m_vertices.data() + m_entries;
@@ -267,7 +277,7 @@ namespace Fsl
 
 
       //! @brief Add a line of the given color and transform it by the supplied matrix
-      void Add(const Vector3& from, const Vector3& to, const Vector4& color, const Matrix& matrix)
+      void Add(const Vector3& from, const Vector3& to, const Color& color, const Matrix& matrix)
       {
         EnsureCapacityFor(2u);
         auto* pDst = m_vertices.data() + m_entries;
@@ -281,7 +291,7 @@ namespace Fsl
         assert(m_entries <= m_vertices.size());
       }
 
-      void Add(const Vector3& from, const Vector3& to, const Vector4& colorFrom, const Vector4& colorTo)
+      void Add(const Vector3& from, const Vector3& to, const Color& colorFrom, const Color& colorTo)
       {
         EnsureCapacityFor(2u);
         auto* pDst = m_vertices.data() + m_entries;
@@ -295,7 +305,7 @@ namespace Fsl
         assert(m_entries <= m_vertices.size());
       }
 
-      void Add(const Vector3& from, const Vector3& to, const Vector4& colorFrom, const Vector4& colorTo, const Matrix& matrix)
+      void Add(const Vector3& from, const Vector3& to, const Color& colorFrom, const Color& colorTo, const Matrix& matrix)
       {
         EnsureCapacityFor(2u);
         auto* pDst = m_vertices.data() + m_entries;
@@ -309,31 +319,31 @@ namespace Fsl
         assert(m_entries <= m_vertices.size());
       }
 
-      void Add(const BoundingBox& boundingBox, const Vector4& color);
-      void Add(const BoundingBox& boundingBox, const Vector4& color, const Matrix& matrix);
-      void Add(const BoundingFrustum& boundingFrustum, const Vector4& color);
-      void Add(const BoundingFrustum& boundingFrustum, const Vector4& color, const Matrix& matrix);
-      void Add(const BoundingSphere& boundingSphere, const Vector4& color, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      void Add(const BoundingBox& boundingBox, const Color& color);
+      void Add(const BoundingBox& boundingBox, const Color& color, const Matrix& matrix);
+      void Add(const BoundingFrustum& boundingFrustum, const Color& color);
+      void Add(const BoundingFrustum& boundingFrustum, const Color& color, const Matrix& matrix);
+      void Add(const BoundingSphere& boundingSphere, const Color& color, const uint32_t steps = DEFAULT_SPHERE_STEPS)
       {
         AddSphere(boundingSphere.Center, boundingSphere.Radius, color, color, color, steps);
       }
-      void Add(const BoundingSphere& boundingSphere, const Vector4& color, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
+      void Add(const BoundingSphere& boundingSphere, const Color& color, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
       {
         AddSphere(boundingSphere.Center, boundingSphere.Radius, color, color, color, matrix, steps);
       }
-      void Add(const BoxF& value, const Vector4& color);
-      void Add(const BoxF& value, const Vector4& color, const Matrix& matrix);
+      void Add(const BoxF& value, const Color& color);
+      void Add(const BoxF& value, const Color& color, const Matrix& matrix);
 
-      void Add(const Ray& value, const Vector4& color);
-      void Add(const Ray& value, const Vector4& color, const Matrix& matrix);
-      void Add(const Rect& value, const Vector4& color);
-      void Add(const Rect& value, const Vector4& color, const Matrix& matrix);
-      void Add(const Rectangle& value, const Vector4& color);
-      void Add(const Rectangle& value, const Vector4& color, const Matrix& matrix);
-      void Add(const Rectangle2D& value, const Vector4& color);
-      void Add(const Rectangle2D& value, const Vector4& color, const Matrix& matrix);
-      void Add(const Rectangle3D& value, const Vector4& color);
-      void Add(const Rectangle3D& value, const Vector4& color, const Matrix& matrix);
+      void Add(const Ray& value, const Color& color);
+      void Add(const Ray& value, const Color& color, const Matrix& matrix);
+      void Add(const Rect& value, const Color& color);
+      void Add(const Rect& value, const Color& color, const Matrix& matrix);
+      void Add(const Rectangle& value, const Color& color);
+      void Add(const Rectangle& value, const Color& color, const Matrix& matrix);
+      void Add(const Rectangle2D& value, const Color& color);
+      void Add(const Rectangle2D& value, const Color& color, const Matrix& matrix);
+      void Add(const Rectangle3D& value, const Color& color);
+      void Add(const Rectangle3D& value, const Color& color, const Matrix& matrix);
 
       //! @note  x will be red, y will be green, z will be blue
       inline void AddAxisSphere(const BoundingSphere& sphere)
@@ -350,13 +360,13 @@ namespace Fsl
       //! @note  x will be red, y will be green, z will be blue
       inline void AddAxisSphere(const Vector3& center, const float radius, const uint32_t steps = DEFAULT_SPHERE_STEPS)
       {
-        AddSphere(center, radius, Color::Red().ToVector4(), Color::Green().ToVector4(), Color::Blue().ToVector4(), steps);
+        AddSphere(center, radius, Color::Red(), Color::Green(), Color::Blue(), steps);
       }
 
       //! @note  x will be red, y will be green, z will be blue
       inline void AddAxisSphere(const Vector3& center, const float radius, const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS)
       {
-        AddSphere(center, radius, Color::Red().ToVector4(), Color::Green().ToVector4(), Color::Blue().ToVector4(), matrix, steps);
+        AddSphere(center, radius, Color::Red(), Color::Green(), Color::Blue(), matrix, steps);
       }
 
       //! @brief Add a coordinate system
@@ -367,8 +377,21 @@ namespace Fsl
       //! @note  x will be red, y will be green, z will be blue
       void AddAxis(const Vector3& position, const float axisLength, const Matrix& matrix);
 
-      void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Vector4& color);
-      void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Vector4& color, const Matrix& matrix);
+      void AddGridXY(const Rect& rect, const float posZ, const uint32_t steps, const Color& color)
+      {
+        return AddGridXY(rect, posZ, steps, steps, color);
+      }
+
+      void AddGridXY(const Rect& rect, const float posZ, const uint32_t steps, const Color& color, const Matrix& matrix)
+      {
+        return AddGridXY(rect, posZ, steps, steps, color, matrix);
+      }
+
+      void AddGridXY(const Rect& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color);
+      void AddGridXY(const Rect& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color, const Matrix& matrix);
+
+      void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color);
+      void AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color, const Matrix& matrix);
 
       void AddLines(const vertex_type* const pVertices, const std::size_t vertexCount);
       void AddLines(const vertex_type* const pVertices, const std::size_t vertexCount, const Matrix& matrix);
@@ -396,10 +419,10 @@ namespace Fsl
         AddLines(vertices.data(), vertices.size(), matrix);
       }
 
-      void AddSphere(const Vector3& center, const float radius, const Vector4& colYZ, const Vector4& colXZ, const Vector4& colXY,
+      void AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY,
                      const uint32_t steps = DEFAULT_SPHERE_STEPS);
-      void AddSphere(const Vector3& center, const float radius, const Vector4& colYZ, const Vector4& colXZ, const Vector4& colXY,
-                     const Matrix& matrix, const uint32_t steps = DEFAULT_SPHERE_STEPS);
+      void AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY, const Matrix& matrix,
+                     const uint32_t steps = DEFAULT_SPHERE_STEPS);
 
     private:
       void EnsureCapacityFor(const std::size_t vertexCount)

@@ -50,16 +50,14 @@ TEST(TestSprite_SpriteMaterialInfo, Constuct_Values)
 {
   constexpr SpriteMaterialId id(12);
   constexpr PxExtent2D extent(42, 1337);
-  constexpr uint32_t nativeMaterialFlags(127);
   auto spriteMaterial = std::make_shared<SpriteMaterialImpl>(id, extent);
 
   constexpr bool isOpaque = true;
-  SpriteMaterialInfo info(id, extent, isOpaque, spriteMaterial, nativeMaterialFlags);
+  SpriteMaterialInfo info(id, extent, isOpaque, spriteMaterial);
 
   EXPECT_TRUE(info.IsValid());
   EXPECT_EQ(id, info.Id);
   EXPECT_EQ(extent, info.ExtentPx);
   EXPECT_EQ(isOpaque, info.IsOpaque);
   EXPECT_EQ(spriteMaterial, info.Material);
-  EXPECT_EQ(nativeMaterialFlags, info.NativeMaterialFlags);
 }

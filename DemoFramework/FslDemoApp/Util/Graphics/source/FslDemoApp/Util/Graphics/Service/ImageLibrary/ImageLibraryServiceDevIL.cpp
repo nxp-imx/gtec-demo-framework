@@ -35,6 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
@@ -45,13 +46,6 @@
 #include <cassert>
 #include <utility>
 #include <IL/il.h>
-#ifdef _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-#endif
-
-#ifdef _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-#endif
 
 namespace Fsl
 {
@@ -343,12 +337,8 @@ namespace Fsl
       // Its quite likely that UTF8 works on linux based platforms,
       // but windows might require a different solution.
 
-#ifdef _WIN32
       // Loads into the current bound image
-      ilLoadImage(PlatformWin32::Widen(path.ToUTF8String()).c_str());
-#else
-      ilLoadImage(path.ToAsciiString().c_str());
-#endif
+      ilLoadImage(PlatformPathTransform::ToSystemPath(path).c_str());
 
       ILenum devilError = ilGetError();
       if (devilError != IL_NO_ERROR)

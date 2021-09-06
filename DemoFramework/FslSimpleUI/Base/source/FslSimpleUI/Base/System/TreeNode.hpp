@@ -31,17 +31,18 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <cassert>
 #include <deque>
 #include <memory>
-#include "TreeNodeFlags.hpp"
-#include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <utility>
+#include "TreeNodeFlags.hpp"
 
 namespace Fsl
 {
   namespace UI
   {
+    class DrawCommandBuffer;
     struct RoutedEvent;
     struct UIDrawContext;
 
@@ -72,36 +73,46 @@ namespace Fsl
       //! @brief A static method to so we dont need to use enable_shared_from_this
       static void AddChild(const std::shared_ptr<TreeNode>& parentNode, const std::shared_ptr<TreeNode>& childNode);
 
-      std::shared_ptr<TreeNode> GetParent() const
+      inline std::shared_ptr<TreeNode> GetParent() const
       {
         return m_parent.lock();
       }
 
       //! @brief Get the associated window
-      std::shared_ptr<BaseWindow> GetWindow() const
+      inline const std::shared_ptr<BaseWindow>& GetWindow() const noexcept
       {
         return m_window;
       }
 
-      TreeNodeFlags GetFlags() const
+      inline BaseWindow* GetWindowPointer() noexcept
+      {
+        return m_window.get();
+      }
+
+      inline const BaseWindow* GetWindowPointer() const noexcept
+      {
+        return m_window.get();
+      }
+
+      inline TreeNodeFlags GetFlags() const noexcept
       {
         return m_flags;
       }
 
       //! @brief Check if this node is considered to be running
-      bool IsConsideredRunning() const
+      inline bool IsConsideredRunning() const noexcept
       {
         return m_flags.IsRunning();
       }
 
       //! @brief Check if this node is considered to be enabled
-      bool IsEnabled() const
+      inline bool IsEnabled() const noexcept
       {
         return m_flags.IsRunning();
       }
 
       //! @brief Check if this node has been marked as disposed
-      bool IsDisposed() const
+      inline bool IsDisposed() const noexcept
       {
         return m_flags.IsDisposed();
       }
@@ -117,30 +128,42 @@ namespace Fsl
       }
 
 
-      inline void EnableFlags(const TreeNodeFlags& flags)
+      inline void EnableFlags(const TreeNodeFlags flags) noexcept
       {
         m_flags.Value |= flags.Value;
       }
 
 
-      inline void DisableFlags(const TreeNodeFlags& flags)
+      inline void DisableFlags(const TreeNodeFlags flags) noexcept
       {
         m_flags.Value &= ~flags.Value;
       }
 
 
-      inline void Update(const DemoTime& demoTime)
+      inline void SetVisibility(const ItemVisibility visibility) noexcept
+      {
+        m_flags.SetVisibility(visibility);
+      }
+
+      inline void Update(const TransitionTimeSpan& timespan)
       {
         assert(m_flags.IsFlagged(TreeNodeFlags::UpdateEnabled));
         assert(m_flags.IsRunning());
-        m_window->WinUpdate(demoTime);
+        m_window->WinUpdate(timespan);
       }
 
-      inline void Resolve(const DemoTime& demoTime)
+      inline void Resolve(const TransitionTimeSpan& timespan)
       {
         assert(m_flags.IsFlagged(TreeNodeFlags::ResolveEnabled));
         assert(m_flags.IsRunning());
-        m_window->WinResolve(demoTime);
+        m_window->WinResolve(timespan);
+      }
+
+      inline void PostLayout()
+      {
+        assert(m_flags.IsFlagged(TreeNodeFlags::PostLayoutEnabled));
+        assert(m_flags.IsRunning());
+        m_window->WinPostLayout();
       }
 
       inline void Draw(const UIDrawContext& context)
@@ -156,10 +179,10 @@ namespace Fsl
         return m_window->WinMarkLayoutAsDirty();
       }
 
-      inline const PxRectangle& WinGetContentPxRectangle() const
+      inline const PxRectangle& WinGetContentRectanglePx() const
       {
         assert(m_flags.IsRunning());
-        return m_window->WinGetContentPxRectangle();
+        return m_window->WinGetContentRectanglePx();
       }
 
       inline void WinHandleEvent(const RoutedEvent& routedEvent)
@@ -171,7 +194,7 @@ namespace Fsl
       inline PxPoint2 CalcScreenTopLeftCornerPx() const
       {
         std::shared_ptr<TreeNode> parent = m_parent.lock();
-        return (parent ? (parent->CalcScreenTopLeftCornerPx() + WinGetContentPxRectangle().TopLeft()) : WinGetContentPxRectangle().TopLeft());
+        return (parent ? (parent->CalcScreenTopLeftCornerPx() + WinGetContentRectanglePx().TopLeft()) : WinGetContentRectanglePx().TopLeft());
       }
 
       void OnResolutionChanged(const ResolutionChangedInfo& info)
@@ -187,7 +210,7 @@ namespace Fsl
       }
 
     private:
-      static TreeNodeFlags ExtractWindowFlags(const std::shared_ptr<BaseWindow>& window)
+      static TreeNodeFlags ExtractWindowFlags(const std::shared_ptr<BaseWindow>& window) noexcept
       {
         return TreeNodeFlags(window->WinGetFlags());
       }

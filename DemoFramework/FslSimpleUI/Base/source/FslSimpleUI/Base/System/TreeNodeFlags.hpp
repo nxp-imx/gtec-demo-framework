@@ -50,54 +50,65 @@ namespace Fsl
         ClickInput = WindowFlags::ClickInput,
         MouseOver = WindowFlags::MouseOver,
         ResolveEnabled = WindowFlags::ResolveEnabled,
+        PostLayoutEnabled = WindowFlags::PostLayoutEnabled,
         Disposed = 0x01 << WindowFlags::BitsReserved,
       };
 
 
-      TreeNodeFlags() = default;
+      constexpr TreeNodeFlags() noexcept = default;
 
-      TreeNodeFlags(const Enum flag)    // NOLINT(google-explicit-constructor)
+      constexpr TreeNodeFlags(const Enum flag) noexcept    // NOLINT(google-explicit-constructor)
         : Value(static_cast<uint32_t>(flag))
       {
       }
 
-      explicit TreeNodeFlags(const WindowFlags& flags)
+      explicit constexpr TreeNodeFlags(const WindowFlags flags) noexcept
         : Value(flags.GetValue())
       {
       }
 
-      explicit TreeNodeFlags(const uint32_t flags)
+      explicit constexpr TreeNodeFlags(const uint32_t flags) noexcept
         : Value(flags)
       {
       }
 
-      bool IsRunning() const
+      constexpr bool IsRunning() const noexcept
       {
         return !IsFlagged(Disposed);
       }
 
 
-      bool IsDisposed() const
+      constexpr bool IsDisposed() const noexcept
       {
         return IsFlagged(Disposed);
       }
 
 
-      inline bool IsFlagged(Enum flag) const
+      constexpr inline bool IsFlagged(Enum flag) const noexcept
       {
         return ((Value & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag));
       }
 
 
-      bool IsFlagged(const WindowFlags& flags) const
+      constexpr bool IsFlagged(const WindowFlags flags) const noexcept
       {
         return ((Value & flags.GetValue()) == flags.GetValue());
       }
 
-
-      void EnableFlag(Enum flag)
+      constexpr void EnableFlag(Enum flag) noexcept
       {
         Value |= static_cast<uint32_t>(flag);
+      }
+
+      constexpr inline ItemVisibility GetVisibility() const noexcept
+      {
+        return static_cast<ItemVisibility>((Value & WindowFlags::VisibilityMask) >> WindowFlags::VisibilityShift);
+      }
+
+      constexpr inline void SetVisibility(const ItemVisibility visibility) noexcept
+      {
+        Value = (Value & (~WindowFlags::VisibilityMask)) |
+                ((static_cast<uint32_t>(visibility) << WindowFlags::VisibilityShift) & WindowFlags::VisibilityMask);
       }
     };
   }

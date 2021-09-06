@@ -68,7 +68,7 @@ namespace
   struct AtlasCharInfo
   {
     PxPoint2 OffsetPx;
-    PxRectangleU SrcTextureRectPx;
+    PxRectangleU32 SrcTextureRectPx;
   };
 
   BitmapFontChar Get(const ReadOnlySpan<BitmapFontChar>& charSpan, const int32_t id)

@@ -31,7 +31,7 @@
 
 #include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
@@ -41,7 +41,10 @@
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanDeviceSetupUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsDeviceCreateInfo.hpp>
+#include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsCustomVulkanDeviceCreateInfo.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
@@ -65,11 +68,11 @@ namespace Fsl
 
   DemoAppVulkan::DemoAppVulkan(const DemoAppConfig& demoAppConfig)
     : ADemoApp(demoAppConfig)
-    , m_nativeGraphicsService(demoAppConfig.DemoServiceProvider.Get<Vulkan::NativeGraphicsService>())
+    , m_hostInfo(demoAppConfig.DemoServiceProvider.Get<IHostInfo>())
+    , m_graphicsServiceHost(demoAppConfig.DemoServiceProvider.Get<IGraphicsServiceHost>())
   {
     // FIX: move most of this init code to the Vulkan demo host
-    auto hostInfo = demoAppConfig.DemoServiceProvider.Get<IHostInfo>();
-    auto appHostConfigBase = hostInfo->TryGetAppHostConfig();
+    auto appHostConfigBase = m_hostInfo->TryGetAppHostConfig();
     if (!appHostConfigBase)
     {
       throw std::runtime_error("The AppHostConfig was not set");
@@ -107,7 +110,8 @@ namespace Fsl
       const PhysicalDeviceConfigUtil::DeviceConfigAsCharArrays deviceConfigEx(deviceConfig);
       const ReadOnlySpan<const char*> extensions = ReadOnlySpanUtil::AsSpan(deviceConfigEx.Extensions);
 
-      auto vulkanDeviceSetup = Vulkan::VulkanDeviceSetupUtil::CreateSetup(m_physicalDevice, m_surface, requiredFeatures, extensions);
+      auto vulkanDeviceSetup = Vulkan::VulkanDeviceSetupUtil::CreateSetup(m_physicalDevice, m_surface, requiredFeatures, extensions,
+                                                                          appHostConfig->TryGetDeviceCreationCustomizer().get());
       m_deviceActiveFeatures = vulkanDeviceSetup.DeviceFeatures;
       m_device = std::move(vulkanDeviceSetup.Device);
       m_deviceCreateInfo = vulkanDeviceSetup.DeviceCreateInfo;
@@ -117,9 +121,13 @@ namespace Fsl
     Vulkan::VulkanValidationUtil::CheckWindowAndSurfaceExtent(m_physicalDevice.Device, m_surface, GetScreenExtent());
 
     // We do this last to ensure that we dont have to call VulkanDeviceShutdown as nothing else can go wrong
-    if (m_nativeGraphicsService)
+    if (m_graphicsServiceHost)
     {
-      m_nativeGraphicsService->VulkanDeviceInit(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
+      Vulkan::NativeGraphicsCustomVulkanDeviceCreateInfo vulkanCreateInfo(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
+
+      const bool preloadBasic2D = m_hostInfo->GetConfig().PreloadBasic2D;
+      GraphicsDeviceCreateInfo createInfo(GetRenderConfig().MaxFramesInFlight, preloadBasic2D, &vulkanCreateInfo);
+      m_graphicsServiceHost->CreateDevice(createInfo);
     }
   }
 
@@ -152,10 +160,10 @@ namespace Fsl
   void DemoAppVulkan::SafeShutdown()
   {
     SafeWaitForDeviceIdle();
-    if (m_nativeGraphicsService)
+    if (m_graphicsServiceHost)
     {
-      m_nativeGraphicsService->VulkanDeviceShutdown();
-      m_nativeGraphicsService.reset();
+      m_graphicsServiceHost->DestroyDevice();
+      m_graphicsServiceHost.reset();
     }
   }
 }

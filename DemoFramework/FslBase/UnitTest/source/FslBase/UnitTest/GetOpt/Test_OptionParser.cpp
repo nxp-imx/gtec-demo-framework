@@ -31,7 +31,7 @@
 
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>

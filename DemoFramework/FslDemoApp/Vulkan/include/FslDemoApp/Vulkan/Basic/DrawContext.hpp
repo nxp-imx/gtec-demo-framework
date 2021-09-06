@@ -41,17 +41,14 @@ namespace Fsl
     struct DrawContext
     {
       VkExtent2D SwapchainImageExtent{};
-      VkFramebuffer Framebuffer = VK_NULL_HANDLE;
-      uint32_t CurrentSwapBufferIndex = 0;
-      uint32_t CurrentFrameIndex = 0;
+      VkFramebuffer Framebuffer{VK_NULL_HANDLE};
+      uint32_t CurrentFrameIndex{0};
 
-      DrawContext() = default;
+      constexpr DrawContext() noexcept = default;
 
-      DrawContext(const VkExtent2D& swapchainImageExtent, const VkFramebuffer framebuffer, const uint32_t currentSwapBufferIndex,
-                  const uint32_t currentFrameIndex)
+      constexpr DrawContext(const VkExtent2D& swapchainImageExtent, const VkFramebuffer framebuffer, const uint32_t currentFrameIndex) noexcept
         : SwapchainImageExtent(swapchainImageExtent)
         , Framebuffer(framebuffer)
-        , CurrentSwapBufferIndex(currentSwapBufferIndex)
         , CurrentFrameIndex(currentFrameIndex)
       {
       }

@@ -1,4 +1,7 @@
 #!/bin/bash
+echo ********************
+echo *** Start script ***
+echo ********************
 set -o errexit
 
 if [ ! -n "${FSL_CI_BUILD_PARAM+1}" ]; then
@@ -9,19 +12,27 @@ if [ ! -z "${FSL_CI_COVERITY_PARAM}" ]; then
 PATH=$PATH:$FSL_CI_COVERITY_PARAM
 fi 
 
+echo *****************************
+echo *** Preparing environment ***
+echo *****************************
+
 source $WORKSPACE/.Config/Jenkins/ubuntu/PrepareJenkinsEnvironment.sh
 
 if [ ! -n "${FSL_CI_FEATURES+1}" ]; then
 export FSL_CI_FEATURES=[EarlyAccess,EGL,GoogleUnitTest,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenGLES3.2,OpenVX,OpenVX1.1,Vulkan]
 fi
 
+
+echo *******************
+echo *** Build clean ***
+echo *******************
 echo Cleaning up build to ensure coverity gets executed on all files.
 
 FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES -c clean
 
-echo ******************************
-echo *** Running coverity build ***
-echo ******************************
+echo ******************************************
+echo *** Coverity: Removing previous builds ***
+echo ******************************************
 
 export FSL_COVERITY_DIR=/data/coverity
 export FSL_COVERITY_HTML_DIR=$WORKSPACE/coverity.html
@@ -37,8 +48,32 @@ fi
 
 echo FSL_COVERITY_DIR=$FSL_COVERITY_DIR
 
+echo ***************************
+echo *** Coverity: Configure ***
+echo ***************************
+
 cov-configure --clang
-cov-build --dir $FSL_COVERITY_DIR FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigArgs="-DCMAKE_TOOLCHAIN_FILE=$FSL_GRAPHICS_SDK/.Config/Jenkins/ubuntu/clang-toolchain.cmake"
+
+echo ************************
+echo *** Coverity: Build  ***
+echo ************************
+
+cov-build --dir $FSL_COVERITY_DIR FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+rem cov-build --dir $FSL_COVERITY_DIR FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigGlobalArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+
+echo **************************
+echo *** Coverity: Analyze  ***
+echo **************************
+
 cov-analyze --dir $FSL_COVERITY_DIR --all
+
+echo *********************************
+echo *** Coverity: Generate report ***
+echo *********************************
+
 # Generate a html report for now
 cov-format-errors --dir $FSL_COVERITY_DIR --html-output $FSL_COVERITY_HTML_DIR
+
+echo ******************
+echo *** End script ***
+echo ******************

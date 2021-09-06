@@ -33,6 +33,7 @@
 
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
+#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <string>
 
 namespace Fsl
@@ -45,12 +46,13 @@ namespace Fsl
 
     class LabelButton : public ButtonBase
     {
+      PxSize2D m_cachedMeasureMinimalFontSizePx;
+
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      std::string m_content;
-      std::shared_ptr<SpriteFont> m_font;
+      SpriteFontMesh m_fontMesh;
       Color m_colorUp{DefaultColor::Button::Up};
       Color m_colorDown{DefaultColor::Button::Down};
 
@@ -59,13 +61,13 @@ namespace Fsl
 
       const std::string& GetContent() const
       {
-        return m_content;
+        return m_fontMesh.GetText();
       }
       void SetContent(const std::string& value);
 
       const std::shared_ptr<SpriteFont>& GetFont() const
       {
-        return m_font;
+        return m_fontMesh.GetSprite();
       }
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 

@@ -34,6 +34,8 @@
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
@@ -66,10 +68,9 @@ namespace Fsl
     // since a C++ string is const char* we do a char array here
     std::array<char, 3> g_normalVerbosityArgument = {'-', 'v', 0};
 
-    bool TryParseVerbosityLevel(const char* pszArgument, uint32_t& rCount)
+    bool TryParseVerbosityLevel(StringViewLite strArgument, uint32_t& rCount)
     {
-      assert(pszArgument != nullptr);
-      const char* pszSrc = pszArgument;
+      const char* pszSrc = strArgument.data();
       rCount = 0;
       while (*pszSrc == 'v')
       {
@@ -80,27 +81,28 @@ namespace Fsl
     }
 
     // We need the verbosity level checked early
-    uint32_t CheckVerbosityLevel(std::vector<char*>& rArguments)
+    uint32_t CheckVerbosityLevel(Span<StringViewLite> arguments)
     {
       uint32_t verbosityLevel = 0;
-      for (auto& rArgument : rArguments)
+      for (std::size_t i = 0; i < arguments.size(); ++i)
       {
-        if (rArgument != nullptr)
+        const StringViewLite& strArgument = arguments[i];
+        if (!strArgument.empty())
         {
-          if (strncmp(rArgument, "-v", 2) == 0)
+          if (strArgument.starts_with("-v"))
           {
             uint32_t count = 0;    // +1 to skip the leading '-'
-            if (TryParseVerbosityLevel(rArgument + 1, count))
+            if (TryParseVerbosityLevel(strArgument.substr(1), count))
             {
               verbosityLevel += count;
               if (verbosityLevel > 1)
               {
                 // The other option parse we use dont support the '-vvvv' style to replace the fancy one with a normal verbose
-                rArgument = g_normalVerbosityArgument.data();
+                arguments[i] = g_normalVerbosityArgument.data();
               }
             }
           }
-          else if (strcmp(rArgument, "--verbose") == 0)
+          else if (strArgument == "--verbose")
           {
             ++verbosityLevel;
           }
@@ -109,7 +111,7 @@ namespace Fsl
       return verbosityLevel;
     }
 
-    OptionParser::ParseResult TryParseInputArguments(std::vector<char*>& rArguments, const DemoBasicSetup& demoSetup,
+    OptionParser::ParseResult TryParseInputArguments(ReadOnlySpan<StringViewLite> arguments, const DemoBasicSetup& demoSetup,
                                                      const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     {
       std::deque<OptionParser::ParserRecord> inputParsers;
@@ -137,9 +139,7 @@ namespace Fsl
 
       try
       {
-        auto argc = static_cast<int>(rArguments.size());
-        char** argv = rArguments.data();
-        return OptionParser::Parse(argc, argv, inputParsers, g_title);
+        return OptionParser::Parse(arguments.subspan(1), inputParsers, g_title);
       }
       catch (const std::exception& ex)
       {
@@ -182,10 +182,10 @@ namespace Fsl
     }
 
 
-    int RunNow(std::vector<char*>& rArguments, const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
+    int RunNow(Span<StringViewLite> arguments, const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
     {
       // Early parsing to enable verbosity
-      const uint32_t verbosityLevel = CheckVerbosityLevel(rArguments);
+      const uint32_t verbosityLevel = CheckVerbosityLevel(arguments);
       if (verbosityLevel > 0)
       {
         switch (verbosityLevel)
@@ -231,7 +231,7 @@ namespace Fsl
         serviceFramework->PrepareServices(*demoBasicSetup.Host.ServiceOptionParsers);
       }
 
-      const auto parseResult = TryParseInputArguments(rArguments, demoBasicSetup, demoHostManagerOptionParser);
+      const auto parseResult = TryParseInputArguments(arguments, demoBasicSetup, demoHostManagerOptionParser);
       if (parseResult.Status != OptionParser::Result::OK)
       {
         return parseResult.Status == OptionParser::Result::Failed ? EXIT_FAILURE : EXIT_SUCCESS;
@@ -290,22 +290,46 @@ namespace Fsl
       return returnValue;
     }
 
-    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-    int RunNow(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
+    int RunNow(ReadOnlySpan<StringViewLite> args, const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
     {
-      const std::size_t argumentCount = (argc >= 0 && argv != nullptr) ? static_cast<std::size_t>(argc) : 0;
-      std::vector<char*> arguments(argumentCount);
+      const std::size_t argumentCount = args.size();
+      std::vector<StringViewLite> arguments(argumentCount);
       for (std::size_t i = 0; i < argumentCount; ++i)
       {
-        arguments[i] = argv[i];
+        arguments[i] = args[i];
       }
 
-      return RunNow(arguments, demoRunnerConfig, rExceptionMessageFormatter);
+      return RunNow(SpanUtil::AsSpan(arguments), demoRunnerConfig, rExceptionMessageFormatter);
     }
   }
 
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   int RunDemo(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig)
+  {
+    try
+    {
+      std::vector<StringViewLite> args(argc >= 0 ? argc : 0);
+      for (std::size_t i = 0; i < args.size(); ++i)
+      {
+        args[i] = StringViewLite(argv[i]);
+      }
+
+      return RunDemo(ReadOnlySpanUtil::AsSpan(args), demoRunnerConfig);
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG3_ERROR("A exception occurred: {}", ex.what());
+      return EXIT_FAILURE;
+    }
+    catch (...)
+    {
+      FSLLOG3_ERROR("A critical error occurred.");
+      return EXIT_FAILURE;
+    }
+  }
+
+
+  int RunDemo(ReadOnlySpan<StringViewLite> args, const DemoRunnerConfig& demoRunnerConfig)
   {
     if (demoRunnerConfig.UseDefaultSignalHandlers)
     {
@@ -317,7 +341,7 @@ namespace Fsl
     ExceptionMessageFormatter exceptionMessageFormatter;
     try
     {
-      return RunNow(argc, argv, demoRunnerConfig, exceptionMessageFormatter);
+      return RunNow(args, demoRunnerConfig, exceptionMessageFormatter);
     }
     catch (const std::exception& ex)
     {

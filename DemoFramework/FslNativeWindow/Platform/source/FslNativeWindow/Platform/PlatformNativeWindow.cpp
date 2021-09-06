@@ -130,11 +130,18 @@ namespace Fsl
       // Conditional logging depending on severity
       if (gotDensityDPI)
       {
-        FSLLOG3_WARNING("NativeWindow.TryGetDensityDpi failed so using {}", densityDpi);
+        FSLLOG3_WARNING("NativeWindow.TryGetDensityDpi failed so using custom density dpi of {} based on physical dpi {} instead", densityDpi,
+                        exactDpi);
       }
       else
       {
-        FSLLOG3_VERBOSE3_IF(!m_loggedOnceGetWindowMetrics, "NativeWindow did not support TryGetDensityDpi so using {}", densityDpi);
+        FSLLOG3_VERBOSE3_IF(!m_loggedOnceGetWindowMetrics && gotExactDPI,
+                            "NativeWindow did not support TryGetDensityDpi so using custom density dpi of {} based on physical dpi {} instead",
+                            densityDpi, exactDpi);
+        FSLLOG3_VERBOSE3_IF(
+          !m_loggedOnceGetWindowMetrics && !gotExactDPI,
+          "NativeWindow did not support TryGetDpi and TryGetDensityDpi so using custom density dpi of {} based on physical dpi {} instead",
+          densityDpi, exactDpi);
       }
       gotDensityDPI = false;
     }

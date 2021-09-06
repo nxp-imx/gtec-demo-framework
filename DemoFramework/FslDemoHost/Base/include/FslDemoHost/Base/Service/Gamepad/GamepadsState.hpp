@@ -42,6 +42,7 @@ namespace Fsl
   class GamepadsState : public INativeWindowEventListener
   {
     std::vector<GamepadState> m_gamepads;
+    uint32_t m_gamepadCount{0};
     GamepadDeadZoneType m_deadZoneType;
     bool m_isConfigured;
 

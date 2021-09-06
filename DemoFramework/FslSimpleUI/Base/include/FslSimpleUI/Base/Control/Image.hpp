@@ -34,11 +34,12 @@
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
+#include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 #include <memory>
 
 namespace Fsl
 {
-  class ImageSprite;
+  class ISizedSprite;
 
   namespace UI
   {
@@ -51,20 +52,21 @@ namespace Fsl
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      std::shared_ptr<ImageSprite> m_content;
+      SizedSpriteMesh m_content;
       Color m_contentColor{Color::White()};
       ItemScalePolicy m_scalePolicy;
+      bool m_rotate90{false};
 
     public:
       explicit Image(const std::shared_ptr<WindowContext>& context);
 
-      const std::shared_ptr<ImageSprite>& GetContent() const
+      const std::shared_ptr<ISizedSprite>& GetContent() const
       {
-        return m_content;
+        return m_content.GetSprite();
       }
 
-      void SetContent(const std::shared_ptr<ImageSprite>& value);
-      void SetContent(std::shared_ptr<ImageSprite>&& value);
+      void SetContent(const std::shared_ptr<ISizedSprite>& value);
+      void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
       Color GetContentColor() const
       {
@@ -79,6 +81,14 @@ namespace Fsl
       }
 
       void SetScalePolicy(const ItemScalePolicy value);
+
+      bool GetRotateImageCW() const
+      {
+        return m_rotate90;
+      }
+
+      void SetRotateImageCW(const bool enabled);
+
 
       void WinDraw(const UIDrawContext& context) override;
 

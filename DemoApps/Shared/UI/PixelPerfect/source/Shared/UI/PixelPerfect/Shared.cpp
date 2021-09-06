@@ -33,11 +33,13 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -84,7 +86,8 @@ namespace Fsl
 
     {    // Build a simple UI
       auto windowContext = m_uiExtension->GetContext();
-      auto uiFactory = UI::Theme::BasicThemeFactory(windowContext, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+      auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+      auto& uiFactory = *uiControlFactory;
 
       auto labelSlider = uiFactory.CreateLabel("Pixel offset:");
       labelSlider->SetAlignmentY(UI::ItemAlignment::Center);

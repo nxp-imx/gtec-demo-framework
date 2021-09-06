@@ -439,7 +439,7 @@ namespace Fsl
       VertexPositionNormalTexture(Vector3(x1, y, z0), normal, Vector2(u1, v0)),
     };
 
-    auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclaration();
+    constexpr auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclarationArray();
     std::array<GLVertexAttribLink, 3> attribLink = {
       GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
       GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0)),

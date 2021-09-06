@@ -43,6 +43,11 @@ namespace Fsl
     virtual void ClearScreenshotRequestRequest() = 0;
     virtual void ClearAppRestartRequestRequest() = 0;
     virtual void ClearUpdateTimerResetRequest() = 0;
+
+    //! @brief This is the max allowed number send to BeginFrame as a frame index
+    //!        This number is the fixed upper bound used by the app and should not change while the app is running.
+    //! @param maxFramesInFlight must be >= 1 (if less than 1 it will be forced to 1)
+    virtual void SetRenderLoopMaxFramesInFlight(const uint32_t maxFramesInFlight) = 0;
   };
 }
 

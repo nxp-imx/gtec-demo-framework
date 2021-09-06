@@ -33,7 +33,7 @@
 
 #include <FslBase/Arguments/Command.hpp>
 #include <FslBase/Arguments/ParseResult.hpp>
-#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <cstdint>
 #include <deque>

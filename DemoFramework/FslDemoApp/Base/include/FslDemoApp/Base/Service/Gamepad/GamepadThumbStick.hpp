@@ -40,15 +40,15 @@ namespace Fsl
     float X{0.0f};
     float Y{0.0f};
 
-    GamepadThumbStick() = default;
+    constexpr GamepadThumbStick() noexcept = default;
 
 
-    bool operator==(const GamepadThumbStick& rhs) const
+    constexpr bool operator==(const GamepadThumbStick& rhs) const
     {
       return X == rhs.X && Y == rhs.Y;
     }
 
-    bool operator!=(const GamepadThumbStick& rhs) const
+    constexpr bool operator!=(const GamepadThumbStick& rhs) const
     {
       return X != rhs.X || Y != rhs.Y;
     }

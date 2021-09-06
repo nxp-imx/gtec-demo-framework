@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslBase/Exceptions.hpp>
 
@@ -49,6 +50,19 @@ namespace Fsl
 
       auto uiContext = GetContext()->TheUIContext.Get();
       m_children.SYS_WinInit(this, uiContext->WindowManager);
+    }
+
+    void SimpleLayout::OnPropertiesUpdated(const PropertyTypeFlags& flags)
+    {
+      Layout::OnPropertiesUpdated(flags);
+      if (flags.IsFlagged(PropertyType::BaseColor) && !m_children.empty())
+      {
+        for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
+        {
+          assert(itr->Window);
+          itr->Window->SYS_SetParentBaseColor(GetFinalBaseColor());
+        }
+      }
     }
   }
 }

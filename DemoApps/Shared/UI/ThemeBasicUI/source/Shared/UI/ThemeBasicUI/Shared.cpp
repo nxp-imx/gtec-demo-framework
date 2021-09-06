@@ -41,24 +41,25 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
+#include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/App/UIAppConfig.hpp>
 #include <FslSimpleUI/App/UIAppTextureResourceCreationInfo.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
-#include <FslSimpleUI/Base/Control/BasicImage.hpp>
-#include <FslSimpleUI/Base/Control/BasicNineSliceImage.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/Experimental/Histogram.hpp>
+// #include <FslSimpleUI/Base/Control/Experimental/Histogram.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
-#include <FslSimpleUI/Base/Control/NineSliceImage.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/ThemeBasicUI/OptionParser.hpp>
 #include <cassert>
 
@@ -75,16 +76,14 @@ namespace Fsl
       constexpr IO::PathView SpriteAtlasName("SpritesUIAtlas/UIAtlas_160dpi.png");
       constexpr IO::PathView TestSpriteAtlasName("TestGraphics/TestGraphicsAtlas_160dpi.png");
 
-      constexpr SpriteMaterialId SpriteAtlasMaterialId(UIAppConfig::CustomSpriteMaterialIdOffset);
-      constexpr SpriteMaterialId TestAtlasMaterialId(UIAppConfig::CustomSpriteMaterialIdOffset + 1u);
+      constexpr SpriteMaterialId SpriteAtlasMaterialId(UIAppConfig::MaterialId::CustomSpriteOffset);
+      constexpr SpriteMaterialId TestAtlasMaterialId(UIAppConfig::MaterialId::CustomSpriteOffset + 1u);
 
       constexpr IO::PathView CatImageName("cat/Idle_1");
       constexpr IO::PathView DogImageName("dog/Idle_1");
 
       constexpr IO::PathView BasicNineSlice0("Scale/RedBlue/RedBlueNineSlice");
       constexpr IO::PathView NineSlice0("Scale/RedBlue/RedBlueNineSliceTrimL4T4R4B4");
-
-
     }
 
     Resources CreateResources(const std::shared_ptr<INativeGraphics>& nativeGraphics, const IContentManager& contentManager, const IO::Path& path,
@@ -247,9 +246,10 @@ namespace Fsl
   {
     auto windowContext = m_uiExtension->GetContext();
 
-    auto& rSpriteResourceManager = m_uiExtension->GetSpriteResourceManager();
+    // auto& rSpriteResourceManager = m_uiExtension->GetSpriteResourceManager();
 
-    auto uiFactory = UI::Theme::BasicThemeFactory(windowContext, rSpriteResourceManager, m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& uiFactory = *uiControlFactory;
 
     {    // Define a new atlas and the LocalConfig::SpriteAtlasMaterialId material
       UIAppTextureResourceCreationInfo creationInfo(PixelFormat::R8G8B8A8_UNORM, Texture2DFilterHint::Smooth);
@@ -284,7 +284,7 @@ namespace Fsl
     return record;
   }
 
-  Shared::UIRecordLeft Shared::CreateUILeftSide(UI::Theme::BasicThemeFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext)
+  Shared::UIRecordLeft Shared::CreateUILeftSide(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext)
   {
     auto stackButtons = std::make_shared<UI::StackLayout>(windowContext);
     {
@@ -322,23 +322,23 @@ namespace Fsl
 
     auto stackVertSlider = std::make_shared<UI::StackLayout>(windowContext);
     {
-      auto sliderHorz0 = uiFactory.CreateSlider<int>(UI::LayoutOrientation::Horizontal, ConstrainedValue<int>(25, 0, 100));
-      auto sliderHorz1 = uiFactory.CreateSlider<int>(UI::LayoutOrientation::Horizontal, ConstrainedValue<int>(25, 0, 100),
-                                                     UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
-      auto sliderHorz2 = uiFactory.CreateSlider<float>(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f));
-      auto sliderHorz3 = uiFactory.CreateSlider<float>(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f),
-                                                       UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderHorz0 = uiFactory.CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(25, 0, 100));
+      auto sliderHorz1 = uiFactory.CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(25, 0, 100),
+                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderHorz2 = uiFactory.CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f));
+      auto sliderHorz3 = uiFactory.CreateSlider(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f),
+                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
 
-      auto sliderFmtValueHorz0 = uiFactory.CreateSliderFmtValue<int>(UI::LayoutOrientation::Horizontal, ConstrainedValue<int>(25, 0, 100));
-      auto sliderFmtValueHorz1 = uiFactory.CreateSliderFmtValue<int>(UI::LayoutOrientation::Horizontal, ConstrainedValue<int>(25, 0, 100),
-                                                                     UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
-      auto sliderFmtValueHorz2 = uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f));
-      auto sliderFmtValueHorz3 = uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f),
-                                                                       UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderFmtValueHorz0 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(25, 0, 100));
+      auto sliderFmtValueHorz1 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(25, 0, 100),
+                                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderFmtValueHorz2 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f));
+      auto sliderFmtValueHorz3 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(0.25, -1.0f, 1.0f),
+                                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
       auto sliderFmtValueHorz4 =
-        uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
+        uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
       auto sliderFmtValueHorz5 =
-        uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
+        uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
       sliderFmtValueHorz5->SetEnabled(false);
 
       stackVertSlider->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
@@ -489,7 +489,7 @@ namespace Fsl
     return {leftLayout};
   }
 
-  Shared::UIRecordRight Shared::CreateUIRightSide(UI::Theme::BasicThemeFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext)
+  Shared::UIRecordRight Shared::CreateUIRightSide(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext)
   {
     auto& rSpriteResourceManager = m_uiExtension->GetSpriteResourceManager();
 
@@ -504,10 +504,10 @@ namespace Fsl
       auto label = uiFactory.CreateLabel(StringViewLite("Label"));
       auto labelDisabled = uiFactory.CreateLabel(StringViewLite("Label"));
       labelDisabled->SetEnabled(false);
-      auto fmtValueLabel0 = uiFactory.CreateFmtValueLabel<int32_t>(42);
-      auto fmtValueLabel1 = uiFactory.CreateFmtValueLabel<float>(MathHelper::PI);
-      auto fmtValueLabel2 = uiFactory.CreateFmtValueLabel<int32_t>(42, "Hello {} World");
-      auto fmtValueLabel3 = uiFactory.CreateFmtValueLabel<float>(MathHelper::PI, "Hello {:0.4f} world");
+      auto fmtValueLabel0 = uiFactory.CreateFmtValueLabel(int32_t(42));
+      auto fmtValueLabel1 = uiFactory.CreateFmtValueLabel(MathHelper::PI);
+      auto fmtValueLabel2 = uiFactory.CreateFmtValueLabel(int32_t(42), "Hello {} World");
+      auto fmtValueLabel3 = uiFactory.CreateFmtValueLabel(MathHelper::PI, "Hello {:0.4f} world");
       stackLabels->AddChild(label);
       stackLabels->AddChild(labelDisabled);
       stackLabels->AddChild(fmtValueLabel0);
@@ -519,12 +519,12 @@ namespace Fsl
 
     auto stackHorzSlider = std::make_shared<UI::StackLayout>(windowContext);
     {
-      auto sliderVert0 = uiFactory.CreateSlider<int>(UI::LayoutOrientation::Vertical, ConstrainedValue<int>(25, 0, 100));
-      auto sliderVert1 = uiFactory.CreateSlider<int>(UI::LayoutOrientation::Vertical, ConstrainedValue<int>(25, 0, 100),
-                                                     UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
-      auto sliderVert2 = uiFactory.CreateSlider<float>(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f));
-      auto sliderVert3 = uiFactory.CreateSlider<float>(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f),
-                                                       UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderVert0 = uiFactory.CreateSlider(UI::LayoutOrientation::Vertical, ConstrainedValue<int32_t>(25, 0, 100));
+      auto sliderVert1 = uiFactory.CreateSlider(UI::LayoutOrientation::Vertical, ConstrainedValue<int32_t>(25, 0, 100),
+                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderVert2 = uiFactory.CreateSlider(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f));
+      auto sliderVert3 = uiFactory.CreateSlider(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f),
+                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
 
       stackHorzSlider->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
       stackHorzSlider->SetAlignmentY(UI::ItemAlignment::Stretch);
@@ -536,15 +536,15 @@ namespace Fsl
 
     auto stackHorzSlider2 = std::make_shared<UI::StackLayout>(windowContext);
     {
-      auto sliderFmtValueVert0 = uiFactory.CreateSliderFmtValue<int>(UI::LayoutOrientation::Vertical, ConstrainedValue<int>(25, 0, 100));
-      auto sliderFmtValueVert1 = uiFactory.CreateSliderFmtValue<int>(UI::LayoutOrientation::Vertical, ConstrainedValue<int>(25, 0, 100),
-                                                                     UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
-      auto sliderFmtValueVert2 = uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f));
-      auto sliderFmtValueVert3 = uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f));
+      auto sliderFmtValueVert0 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<int32_t>(25, 0, 100));
+      auto sliderFmtValueVert1 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<int32_t>(25, 0, 100),
+                                                                UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
+      auto sliderFmtValueVert2 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f));
+      auto sliderFmtValueVert3 = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f));
       auto sliderFmtValueVert4 =
-        uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
+        uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
       auto sliderFmtValueVert5 =
-        uiFactory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
+        uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
       sliderFmtValueVert5->SetEnabled(false);
 
       stackHorzSlider2->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
@@ -569,15 +569,15 @@ namespace Fsl
       // histogram->SetWidth(100);
       // histogram->SetHeight(100);
 
-      auto background0 = std::make_shared<UI::BackgroundNineSlice>(windowContext);
-      background0->SetBackground(uiFactory.GetDialogNineSliceSprite());
+      auto background0 = std::make_shared<UI::Background>(windowContext);
+      background0->SetBackground(uiFactory.GetResources().GetDialogNineSliceSprite());
       background0->SetBackgroundColor(uiFactory.GetThemePrimaryDarkColor());
 
       auto label = uiFactory.CreateLabel(StringViewLite("Hey people!"));
       label->SetAlignmentX(UI::ItemAlignment::Center);
       label->SetAlignmentY(UI::ItemAlignment::Center);
-      auto background1 = std::make_shared<UI::BackgroundNineSlice>(windowContext);
-      background1->SetBackground(uiFactory.GetDialogNineSliceSprite());
+      auto background1 = std::make_shared<UI::Background>(windowContext);
+      background1->SetBackground(uiFactory.GetResources().GetDialogNineSliceSprite());
       background1->SetContent(label);
       background1->SetBackgroundColor(uiFactory.GetThemePrimaryDarkColor());
 
@@ -618,7 +618,7 @@ namespace Fsl
     return {rightLayout};
   }
 
-  Shared::UIRecordMiddle Shared::CreateUIMiddle(UI::Theme::BasicThemeFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext)
+  Shared::UIRecordMiddle Shared::CreateUIMiddle(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& windowContext)
   {
     auto& rSpriteResourceManager = m_uiExtension->GetSpriteResourceManager();
 
@@ -705,7 +705,7 @@ namespace Fsl
   }
 
 
-  Shared::StatsUIRecord Shared::CreateStatsUI(UI::Theme::BasicThemeFactory& uiFactory)
+  Shared::StatsUIRecord Shared::CreateStatsUI(UI::Theme::IThemeControlFactory& uiFactory)
   {
     auto windowContext = m_uiExtension->GetContext();
 

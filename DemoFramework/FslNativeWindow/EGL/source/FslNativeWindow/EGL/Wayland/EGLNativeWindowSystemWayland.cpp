@@ -49,17 +49,14 @@ namespace Fsl
     std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                   const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
-      PlatformCallbackNativeWindowWaylandCreate createWaylandWindow = [](void* hSurface, int hWidth, int hHeight) mutable {
-        return (void*)wl_egl_window_create((wl_surface*)hSurface, hWidth, hHeight);
-      };
+      PlatformCallbackNativeWindowWaylandCreate createWaylandWindow = [](void* hSurface, int hWidth, int hHeight) mutable
+      { return (void*)wl_egl_window_create((wl_surface*)hSurface, hWidth, hHeight); };
 
-      PlatformCallbackNativeWindowWaylandDestroy destroyWaylandWindow = [](void* nativeWindow) {
-        wl_egl_window_destroy((wl_egl_window*)nativeWindow);
-      };
+      PlatformCallbackNativeWindowWaylandDestroy destroyWaylandWindow = [](void* nativeWindow)
+      { wl_egl_window_destroy((wl_egl_window*)nativeWindow); };
 
-      PlatformCallbackNativeWindowWaylandResize resizeWaylandWindow = [](void* nativeWindow, int width, int height, int dx, int dy) {
-        wl_egl_window_resize((wl_egl_window*)nativeWindow, width, height, dx, dy);
-      };
+      PlatformCallbackNativeWindowWaylandResize resizeWaylandWindow = [](void* nativeWindow, int width, int height, int dx, int dy)
+      { wl_egl_window_resize((wl_egl_window*)nativeWindow, width, height, dx, dy); };
       // Patch the params and forward
       PlatformNativeWindowParams customWindowParams(windowParams);
       customWindowParams.CreateWaylandWindow = createWaylandWindow;

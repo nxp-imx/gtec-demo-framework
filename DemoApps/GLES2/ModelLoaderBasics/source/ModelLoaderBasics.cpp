@@ -99,7 +99,7 @@ namespace Fsl
     // Create index and vertex buffers for all the meshes.
     {
       m_resources.IndexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
-      m_resources.VertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::GetVertexDeclaration());
+      m_resources.VertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::AsVertexDeclarationSpan());
       std::size_t vertexCount = 0;
       std::size_t indexCount = 0;
       for (std::size_t i = 0; i < scene->Meshes.size(); ++i)
@@ -125,7 +125,7 @@ namespace Fsl
       m_resources.LocLightColor = m_resources.Program.GetUniformLocation("LightColor");
       m_resources.LocAmbientColor = m_resources.Program.GetUniformLocation("AmbientColor");
 
-      auto vertexDecl = TestMesh::vertex_type::GetVertexDeclaration();
+      constexpr auto vertexDecl = TestMesh::vertex_type::GetVertexDeclarationArray();
       m_resources.AttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexPosition"),
                                                      vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
       m_resources.AttribLink[1] =

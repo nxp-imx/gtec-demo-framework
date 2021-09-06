@@ -62,6 +62,15 @@ namespace Fsl
       }
     }
 
+    void ContentControlBase::OnPropertiesUpdated(const PropertyTypeFlags& flags)
+    {
+      BaseWindow::OnPropertiesUpdated(flags);
+      if (flags.IsFlagged(PropertyType::BaseColor) && m_content)
+      {
+        m_content->SYS_SetParentBaseColor(GetFinalBaseColor());
+      }
+    }
+
     PxSize2D ContentControlBase::GetContentDesiredSizePx() const
     {
       auto paddingPx = GetContext()->UnitConverter.ToPxThickness(m_paddingDp);
@@ -101,6 +110,7 @@ namespace Fsl
 
       if (m_content && m_isInitialized)
       {
+        m_content->SYS_SetParentBaseColor(GetFinalBaseColor());
         winMgr->AddChild(this, m_content);
       }
 

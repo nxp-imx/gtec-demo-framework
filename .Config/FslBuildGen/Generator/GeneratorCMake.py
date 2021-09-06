@@ -350,7 +350,7 @@ class GeneratorCMake(GeneratorBase):
 
     @staticmethod
     def __GenerateTidyDefine(name: str, access: AccessType, introducedByPackageName: str, fromPackageAccess: AccessType) -> PackageDefine:
-        return PackageDefine(UnresolvedPackageDefine(name, access), introducedByPackageName, fromPackageAccess)
+        return PackageDefine(UnresolvedPackageDefine(name, None, access), introducedByPackageName, fromPackageAccess)
 
 
     def __GenerateRootCMakeFile(self, log: Log, toolConfig: ToolConfig, cmakeBuildPackageDir: str, package: Package, platformName: str,

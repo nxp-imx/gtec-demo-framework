@@ -44,7 +44,7 @@ TEST(TestFont_BitmapFontChar, Construct_Default)
 {
   BitmapFontChar value;
   EXPECT_EQ(0u, value.Id);
-  EXPECT_EQ(PxRectangleU(), value.SrcTextureRectPx);
+  EXPECT_EQ(PxRectangleU32(), value.SrcTextureRectPx);
   EXPECT_EQ(PxPoint2(), value.OffsetPx);
   EXPECT_EQ(0u, value.XAdvancePx);
 }
@@ -53,7 +53,7 @@ TEST(TestFont_BitmapFontChar, Construct_Default)
 TEST(TestFont_BitmapFontChar, Construct)
 {
   const uint32_t id = 10;
-  const PxRectangleU srcTextureRectPx(1, 2, 3, 4);
+  const PxRectangleU32 srcTextureRectPx(1, 2, 3, 4);
   const PxPoint2 offsetPx(5, 6);
   uint16_t xAdvance = 42;
 
@@ -67,7 +67,7 @@ TEST(TestFont_BitmapFontChar, Construct)
 TEST(TestFont_BitmapFontChar, OpEqual)
 {
   const uint32_t id = 10;
-  const PxRectangleU srcTextureRectPx(1, 2, 3, 4);
+  const PxRectangleU32 srcTextureRectPx(1, 2, 3, 4);
   const PxPoint2 offsetPx(5, 6);
   uint16_t xAdvance = 42;
 
@@ -77,7 +77,7 @@ TEST(TestFont_BitmapFontChar, OpEqual)
 TEST(TestFont_BitmapFontChar, OpNotEqual)
 {
   const uint32_t id = 10;
-  const PxRectangleU srcTextureRectPx(1, 2, 3, 4);
+  const PxRectangleU32 srcTextureRectPx(1, 2, 3, 4);
   const PxPoint2 offsetPx(5, 6);
   uint16_t xAdvance = 42;
 

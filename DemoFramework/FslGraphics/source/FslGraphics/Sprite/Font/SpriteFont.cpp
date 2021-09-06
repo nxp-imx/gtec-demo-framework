@@ -36,15 +36,19 @@
 #include <FslGraphics/Font/BitmapFont.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <cassert>
 #include <utility>
 
 namespace Fsl
 {
-  SpriteFont::SpriteFont(const SpriteMaterialInfo& spriteMaterialInfo, const uint32_t imageDpi, const BitmapFont& bitmapFont,
+  SpriteFont::SpriteFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo, const BitmapFont& bitmapFont,
                          const SpriteFontConfig& spriteFontConfig, const uint32_t densityDpi, const StringViewLite& debugName)
-    : m_info(spriteMaterialInfo, bitmapFont.GetLineSpacingPx(), bitmapFont.GetBaseLinePx(), imageDpi, spriteFontConfig.EnableKerning, debugName)
-    , m_bitmapFontAtlas(bitmapFont)
+    : m_info(spriteMaterialInfo, bitmapFont.GetLineSpacingPx(), bitmapFont.GetBaseLinePx(), bitmapFont.GetDpi(), spriteFontConfig.EnableKerning,
+             bitmapFont.GetFontType() == BitmapFontType::SDF, bitmapFont.GetSdfParams().Scale, debugName)
+    , m_bitmapFontAtlas(spriteNativeAreaCalc, spriteMaterialInfo.ExtentPx, bitmapFont, densityDpi)
   {
+    FSL_PARAM_NOT_USED(spriteNativeAreaCalc);
+
     Resize(densityDpi);
   }
 
@@ -55,18 +59,24 @@ namespace Fsl
   }
 
 
-  void SpriteFont::SetContent(const SpriteMaterialInfo& spriteMaterialInfo, const uint32_t imageDpi, const BitmapFont& bitmapFont,
-                              const SpriteFontConfig& spriteFontConfig, const uint32_t densityDpi, const StringViewLite& debugName)
+  void SpriteFont::SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                              const BitmapFont& bitmapFont, const SpriteFontConfig& spriteFontConfig, const uint32_t densityDpi,
+                              const StringViewLite& debugName)
   {
-    m_info = SpriteFontInfo(spriteMaterialInfo, bitmapFont.GetLineSpacingPx(), bitmapFont.GetBaseLinePx(), imageDpi, spriteFontConfig.EnableKerning,
-                            debugName);
-    m_bitmapFontAtlas.Reset(bitmapFont);
+    FSL_PARAM_NOT_USED(spriteNativeAreaCalc);
+
+    m_info =
+      SpriteFontInfo(spriteMaterialInfo, bitmapFont.GetLineSpacingPx(), bitmapFont.GetBaseLinePx(), bitmapFont.GetDpi(),
+                     spriteFontConfig.EnableKerning, bitmapFont.GetFontType() == BitmapFontType::SDF, bitmapFont.GetSdfParams().Scale, debugName);
+    m_bitmapFontAtlas.Reset(spriteNativeAreaCalc, spriteMaterialInfo.ExtentPx, bitmapFont, densityDpi);
     Resize(densityDpi);
   }
 
 
-  const SpriteMaterialInfo& SpriteFont::GetMaterialInfo() const
+  const SpriteMaterialInfo& SpriteFont::GetMaterialInfo(const uint32_t index) const
   {
+    FSL_PARAM_NOT_USED(index);
+    assert(index == 0u);
     return m_info.MaterialInfo;
   }
 
@@ -74,7 +84,11 @@ namespace Fsl
   void SpriteFont::Resize(const uint32_t densityDpi)
   {
     SpriteUnitConverter unitConverter(densityDpi);
-    const auto scale = unitConverter.CalcImageDensityScale(m_info.ImageDpi);
+    auto scale = unitConverter.CalcImageDensityScale(m_info.ImageDpi);
+    if (m_info.IsSdfBased && m_info.SdfScale != 1.0f)
+    {
+      scale *= m_info.SdfScale;
+    }
     m_info.FontConfig.Scale = scale;
     m_info.ScaledLineSpacingPx = TypeConverter::ChangeTo<uint16_t>(static_cast<float>(m_info.LineSpacingPx) * scale);
     m_info.ScaledBaseLinePx = TypeConverter::ChangeTo<uint16_t>(static_cast<float>(m_info.BaseLinePx) * scale);

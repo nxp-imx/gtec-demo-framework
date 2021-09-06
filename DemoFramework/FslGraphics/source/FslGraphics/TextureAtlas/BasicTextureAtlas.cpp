@@ -109,7 +109,7 @@ namespace Fsl
   }
 
 
-  void BasicTextureAtlas::SetEntry(const uint32_t index, const PxRectangleU& rectanglePx, const PxThicknessU& trimPx, const uint32_t dpi,
+  void BasicTextureAtlas::SetEntry(const uint32_t index, const PxRectangleU32& rectanglePx, const PxThicknessU& trimPx, const uint32_t dpi,
                                    IO::Path path)
   {
     if (static_cast<std::size_t>(index) >= m_entries.size())
@@ -144,7 +144,8 @@ namespace Fsl
     m_entries[index] = NamedAtlasTexture(std::move(path), AtlasTextureInfo(rectanglePx, trimPx, dpi));
   }
 
-  void BasicTextureAtlas::AddNineSlice(const uint32_t textureIndex, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx)
+  void BasicTextureAtlas::AddNineSlice(const uint32_t textureIndex, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx,
+                                       const AtlasNineSliceFlags flags)
   {
     if (static_cast<std::size_t>(textureIndex) >= m_entries.size())
     {
@@ -161,7 +162,7 @@ namespace Fsl
     ValidateThicknessU(rTextureEntry, nineSlicePx, "nineslice");
     ValidateThicknessU(rTextureEntry, contentMarginPx, "contentMargin");
 
-    m_nineSlices.emplace_back(textureIndex, AtlasNineSlicePatchInfo(nineSlicePx, contentMarginPx));
+    m_nineSlices.emplace_back(textureIndex, AtlasNineSlicePatchInfo(nineSlicePx, contentMarginPx, flags));
   }
 
 }

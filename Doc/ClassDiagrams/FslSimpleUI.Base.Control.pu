@@ -3,6 +3,14 @@ scale 1
 
 ' FslGraphics
 
+caption WARNING: this is slightly outdated
+
+header
+<font color=red>Warning:</font>
+This is slightly outdated.
+The way that the controls interact with the actual rendering code has not been updated.
+endheader
+
 namespace FslGraphics {
     class NativeNineSliceTextureArea
     class NativeTextureArea
@@ -235,7 +243,6 @@ namespace FslSimpleUI {
             class FmtValueLabel
             class Image
             class ImageImpl_ImageSprite
-            class Label9SliceButton
             abstract class SliderBase<T>
             class Slider<T>
             class SliderAndFmtValueLabel<T>
@@ -247,7 +254,6 @@ namespace FslSimpleUI {
             FslSimpleUI.Base.BaseWindow <|-- SliderBase
 
             ButtonBase <|-- ImageButton
-            ButtonBase <|-- Label9SliceButton
             ButtonBase <|-- LabelButton
 
             FslSimpleUI.Base.BaseWindow <|--  ContentControlBase

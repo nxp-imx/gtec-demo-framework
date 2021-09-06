@@ -75,11 +75,13 @@ namespace Fsl
 
       inline TextureInfo GetTextureInfo(const RawBitmap& src)
       {
+        FSL_PARAM_NOT_USED(src);
         return {1u, 1u, 1u};
       }
 
       inline TextureInfo GetTextureInfo(const Bitmap& src)
       {
+        FSL_PARAM_NOT_USED(src);
         return {1u, 1u, 1u};
       }
 

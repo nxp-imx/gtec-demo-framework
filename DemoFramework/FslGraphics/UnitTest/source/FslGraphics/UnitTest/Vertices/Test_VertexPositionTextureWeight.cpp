@@ -39,6 +39,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -65,7 +66,83 @@ TEST(TestVertices_VertexPositionTextureWeight, GetVertexDeclaration)
   const VertexElementEx expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
                                   VertexElementUsage::TextureCoordinate, 0u);
   const VertexElementEx expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
-  const auto vertexDecl = VertexPositionTextureWeight::GetVertexDeclaration();
+  const auto vertexDecl = VertexDeclaration(VertexPositionTextureWeight::AsVertexDeclarationSpan());
+
+  EXPECT_EQ(sizeof(VertexPositionTextureWeight), vertexDecl.VertexStride());
+  ASSERT_EQ(3u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Position, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0u), 1);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::TextureCoordinate, 0u), 1);
+  EXPECT_EQ(expected1, vertexDecl.VertexElementGet(VertexElementUsage::TextureCoordinate, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::BlendWeight, 0u), 2);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::BlendWeight, 0u), 2);
+  EXPECT_EQ(expected2, vertexDecl.VertexElementGet(VertexElementUsage::BlendWeight, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+  EXPECT_EQ(expected1, vertexDecl.At(1u));
+  EXPECT_EQ(expected2, vertexDecl.At(2u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexPositionTextureWeight, GetVertexDeclarationArray)
+{
+  const VertexElementEx expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElementEx expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
+                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElementEx expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
+  const auto vertexDecl = VertexPositionTextureWeight::GetVertexDeclarationArray();
+
+  EXPECT_EQ(sizeof(VertexPositionTextureWeight), vertexDecl.VertexStride());
+  ASSERT_EQ(3u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Position, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0u), 1);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::TextureCoordinate, 0u), 1);
+  EXPECT_EQ(expected1, vertexDecl.VertexElementGet(VertexElementUsage::TextureCoordinate, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::BlendWeight, 0u), 2);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::BlendWeight, 0u), 2);
+  EXPECT_EQ(expected2, vertexDecl.VertexElementGet(VertexElementUsage::BlendWeight, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+  EXPECT_EQ(expected1, vertexDecl.At(1u));
+  EXPECT_EQ(expected2, vertexDecl.At(2u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexPositionTextureWeight, AsVertexDeclarationSpan)
+{
+  const VertexElementEx expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElementEx expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
+                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElementEx expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
+  const auto vertexDecl = VertexPositionTextureWeight::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionTextureWeight), vertexDecl.VertexStride());
   ASSERT_EQ(3u, vertexDecl.Count());

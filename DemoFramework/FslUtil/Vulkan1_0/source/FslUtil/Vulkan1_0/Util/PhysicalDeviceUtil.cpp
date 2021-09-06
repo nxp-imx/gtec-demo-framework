@@ -32,7 +32,7 @@
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>

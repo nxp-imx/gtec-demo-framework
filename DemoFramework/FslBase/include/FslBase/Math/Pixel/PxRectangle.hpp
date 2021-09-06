@@ -155,7 +155,7 @@ namespace Fsl
       return m_y + m_height;
     }
 
-    inline constexpr PxPoint2 GetSize() const noexcept
+    inline constexpr PxSize2D GetSize() const noexcept
     {
       return {m_width, m_height};
     }

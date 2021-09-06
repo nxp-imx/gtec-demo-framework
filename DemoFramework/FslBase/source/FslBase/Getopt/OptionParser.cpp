@@ -40,7 +40,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/NumericCast.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <algorithm>

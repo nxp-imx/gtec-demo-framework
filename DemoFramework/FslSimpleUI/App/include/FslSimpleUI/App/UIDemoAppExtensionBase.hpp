@@ -33,37 +33,60 @@
 
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
 #include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
-#include <FslSimpleUI/Base/System/UIManager.hpp>
+#include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
+#include <FslSimpleUI/App/UIAppDefaultMaterial.hpp>
 #include <memory>
 
 namespace Fsl
 {
-  class DemoAppConfig;
+  class DemoPerformanceCapture;
   class IProfilerService;
+  struct PxViewport;
   class TransitionCache;
+  struct UIDemoAppExtensionCreateInfo;
 
   namespace UI
   {
+    class AExternalModule;
+    class BaseWindow;
+    struct ExternalModuleId;
     class IEventListener;
+    class IRenderSystemBase;
+    class IWindowManager;
+    class UIContext;
+    class UIManager;
   }
+
 
   class UIDemoAppExtensionBase : public DemoAppExtension
   {
-    UI::UIManager m_uiManager;
+    std::unique_ptr<UI::UIManager> m_uiManager;
     std::shared_ptr<TransitionCache> m_transitionCache;
+    std::shared_ptr<DemoPerformanceCapture> m_demoPerformanceCapture;
 
     std::shared_ptr<IProfilerService> m_profilerService;
     ScopedProfilerCustomCounterHandle m_hProfileCounterUpdate;
     ScopedProfilerCustomCounterHandle m_hProfileCounterResolve;
     ScopedProfilerCustomCounterHandle m_hProfileCounterDraw;
     ScopedProfilerCustomCounterHandle m_hProfileCounterWin;
+    std::shared_ptr<UI::BaseWindow> m_mainWindow;
 
   public:
     UIDemoAppExtensionBase(const UIDemoAppExtensionBase&) = delete;
     UIDemoAppExtensionBase& operator=(const UIDemoAppExtensionBase&) = delete;
 
-    UIDemoAppExtensionBase(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener);
+    UIDemoAppExtensionBase(const UIDemoAppExtensionCreateInfo& createInfo, const std::shared_ptr<UI::IEventListener>& eventListener);
     ~UIDemoAppExtensionBase() override;
+
+    template <typename T>
+    std::shared_ptr<T> GetExternalModule(const UI::ExternalModuleId& moduleId) const
+    {
+      auto module = DoGetExternalModule(moduleId);
+      auto typedModule = std::dynamic_pointer_cast<T>(module);
+      return typedModule ? typedModule : throw UsageErrorException("external module was not of the expected type");
+    }
+
+    virtual void SYS_SetRenderSystemViewport(const PxViewport& viewportPx);
 
     void RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
     void UnregisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
@@ -75,22 +98,31 @@ namespace Fsl
     void Update(const DemoTime& demoTime) override;
     void PostUpdate(const DemoTime& demoTime) override;
 
-    //! @brief Get the window manager
-    std::shared_ptr<UI::IWindowManager> GetWindowManager() const
-    {
-      return m_uiManager.GetWindowManager();
-    }
+    void SetMainWindow(const std::shared_ptr<UI::BaseWindow>& mainWindow);
 
-    const std::shared_ptr<UI::UIContext>& GetUIContext() const
-    {
-      return m_uiManager.GetUIContext();
-    }
+    //! @brief Get the window manager
+    std::shared_ptr<UI::IWindowManager> GetWindowManager() const;
+
+    const std::shared_ptr<UI::UIContext>& GetUIContext() const;
 
     //! @brief Check if the UI system is considered idle
     bool IsIdle() const;
 
+    TransitionCache& GetTransitionCache() const
+    {
+      return *m_transitionCache;
+    }
+
+    const UI::IRenderSystemBase& GetRenderSystem() const;
+    UI::IRenderSystemBase* TryGetRenderSystem();
+
   protected:
+    void ForceInvalidateLayout();
+
+    DemoPerformanceCapture* TryGetDemoPerformanceCapture() const;
     void DoDraw();
+    bool SYS_GetUseYFlipTextureCoordinates() const;
+    std::shared_ptr<UI::AExternalModule> DoGetExternalModule(const UI::ExternalModuleId& moduleId) const;
   };
 }
 

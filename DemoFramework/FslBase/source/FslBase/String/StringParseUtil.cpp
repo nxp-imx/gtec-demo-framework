@@ -30,11 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringParseUtil.hpp>
+#include <FslBase/String/StringViewLiteArrayUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslBase/SpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <cassert>
@@ -72,15 +73,23 @@ namespace Fsl
         // Check the string contains a digit as expected
         if ((strView[0] >= '0' && strView[0] <= '9') || (strView.size() >= 2u && strView[0] == '+' && (strView[1] >= '0' && strView[1] <= '9')))
         {
+          //// 01234567890
+          //// 4294967295
+          if (strView.size() >= 32)
+          {
+            throw std::invalid_argument("string is too long");
+          }
+          const auto tmpBuffer = StringViewLiteArrayUtil::ToArray<32>(strView);
+
           char* pEnd = nullptr;
           errno = 0;
-          auto value = strtoul(strView.data(), &pEnd, 0);
+          auto value = strtoul(tmpBuffer.data(), &pEnd, 10);
           if ((value == ULONG_MAX && errno == ERANGE) || value > std::numeric_limits<uint32_t>::max())
           {
             throw OverflowException("The number is outside than the expected value range");
           }
 
-          if (pEnd != (strView.data() + strView.size()))
+          if (pEnd != (tmpBuffer.data() + strView.size()))
           {
             throw FormatException("number not in the correct format");
           }
@@ -107,14 +116,9 @@ namespace Fsl
           {
             throw std::invalid_argument("string is too long");
           }
-          std::array<char, 32> tmpBuffer{};
-          for (std::size_t i = 0; i < strView.size(); ++i)
-          {
-            tmpBuffer[i] = strView[i];
-          }
-          tmpBuffer[strView.size()] = 0;
+          const auto tmpBuffer = StringViewLiteArrayUtil::ToArray<32>(strView);
 
-          const auto value = strtol(tmpBuffer.data(), &pEnd, 0);
+          const auto value = strtol(tmpBuffer.data(), &pEnd, 10);
           if (((value == LONG_MIN || value == LONG_MAX) && errno == ERANGE) || value < std::numeric_limits<int32_t>::min() ||
               value > std::numeric_limits<int32_t>::max())
           {
@@ -138,15 +142,21 @@ namespace Fsl
         // Check the string doesn't start with a white space
         if (strView[0] != ' ')
         {
+          if (strView.size() >= 32)
+          {
+            throw std::invalid_argument("string is too long");
+          }
+          const auto tmpBuffer = StringViewLiteArrayUtil::ToArray<32>(strView);
+
           char* pEnd = nullptr;
           errno = 0;
-          const double value = strtod(strView.data(), &pEnd);
+          const double value = strtod(tmpBuffer.data(), &pEnd);
           if (value == HUGE_VAL && errno == ERANGE)
           {
             throw OverflowException("The number is outside than the expected value range");
           }
 
-          if (pEnd != (strView.data() + strView.size()))
+          if (pEnd != (tmpBuffer.data() + strView.size()))
           {
             throw FormatException("number not in the correct format");
           }
@@ -355,6 +365,18 @@ namespace Fsl
       throw FormatException("Point2U not in the correct format");
     }
     rResult = Point2U(values[0], values[1]);
+    return res.CharactersConsumed;
+  }
+
+  std::size_t StringParseUtil::Parse(PxSize2D& rResult, const StringViewLite strView)
+  {
+    std::array<int32_t, 2> values{};
+    StringParseArrayResult res = ParseArray(SpanUtil::AsSpan(values), strView);
+    if (res.ArrayEntries != values.size())
+    {
+      throw FormatException("Point2 not in the correct format");
+    }
+    rResult = PxSize2D(values[0], values[1]);
     return res.CharactersConsumed;
   }
 
@@ -674,12 +696,7 @@ namespace Fsl
         FSLLOG3_DEBUG_WARNING("string is too long");
         return false;
       }
-      std::array<char, 32> tmpBuffer{};
-      for (std::size_t i = 0; i < strView.size(); ++i)
-      {
-        tmpBuffer[i] = strView[i];
-      }
-      tmpBuffer[strView.size()] = 0;
+      std::array<char, 32> tmpBuffer = StringViewLiteArrayUtil::ToArray<32>(strView);
 
       const auto value = strtol(tmpBuffer.data(), &pEnd, radix);
       if (((value == LONG_MIN || value == LONG_MAX) && errno == ERANGE) || value < std::numeric_limits<int32_t>::min() ||

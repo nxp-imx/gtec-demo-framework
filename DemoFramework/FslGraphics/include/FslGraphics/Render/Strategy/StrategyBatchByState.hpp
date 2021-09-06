@@ -244,7 +244,7 @@ namespace Fsl
     }
 
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
-                        const Vector2& texCoords1, const Vector4& color)
+                        const Vector2& texCoords1, const Color& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
 
@@ -290,7 +290,7 @@ namespace Fsl
 
 
     inline void AddQuad(const PxVector2& vec0, const PxVector2& vec1, const PxVector2& vec2, const PxVector2& vec3, const Vector2& texCoords0,
-                        const Vector2& texCoords1, const Vector4& color)
+                        const Vector2& texCoords1, const Color& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
 
@@ -335,7 +335,7 @@ namespace Fsl
     }
 
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3,
-                        const NativeQuadTextureCoords& textureCoords, const Vector4& color)
+                        const NativeQuadTextureCoords& textureCoords, const Color& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
 
@@ -375,7 +375,7 @@ namespace Fsl
       m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
     }
 
-    inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeTextureArea& srcArea, const Vector4& color)
+    inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeTextureArea& srcArea, const Color& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
 
@@ -415,7 +415,7 @@ namespace Fsl
       m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
     }
 
-    inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeQuadTextureCoords& srcArea, const Vector4& color)
+    inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeQuadTextureCoords& srcArea, const Color& color)
     {
       static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
 

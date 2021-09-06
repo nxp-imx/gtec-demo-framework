@@ -36,6 +36,8 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <wayland-client.h>
 #include <wayland-cursor.h>
+
+#include <algorithm>
 #include <linux/input.h>
 #include <string.h>
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
@@ -117,6 +119,9 @@ namespace Fsl
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
       struct ivi_application* ivi_application{nullptr};
 #endif
+      struct wl_list infos;
+      bool roundtrip_needed;
+      struct wl_list outputs;
     };
 
     struct display sdisplay
@@ -125,6 +130,54 @@ namespace Fsl
     struct window swindow
     {
     };
+
+    typedef void (*print_info_t)(void* info);
+    typedef void (*destroy_info_t)(void* info);
+
+    struct global_info
+    {
+      struct wl_list link;
+
+      uint32_t id;
+      uint32_t version;
+      char* interface;
+
+      print_info_t print;
+      destroy_info_t destroy;
+    };
+
+    struct output_mode
+    {
+      struct wl_list link;
+
+      uint32_t flags;
+      int32_t width, height;
+      int32_t refresh;
+    };
+
+    struct output_info
+    {
+      struct global_info global;
+      struct wl_list global_link;
+
+      struct wl_output* output;
+
+      uint32_t version;
+
+      struct
+      {
+        int32_t x, y;
+        int32_t scale;
+        int32_t physical_width, physical_height;
+        enum wl_output_subpixel subpixel;
+        enum wl_output_transform output_transform;
+        char* make;
+        char* model;
+      } geometry;
+
+      struct wl_list modes;
+    };
+
     bool dummyRunning = true;
 
 
@@ -588,6 +641,241 @@ namespace Fsl
       KeyboardHandleKeymap, KeyboardHandleEnter, KeyboardHandleLeave, KeyboardHandleKey, KeyboardHandleModifiers,
     };
 
+    static void print_global_info(void* data)
+    {
+      struct global_info* global = (global_info*)data;
+      assert(global != nullptr);
+
+      FSLLOG3_VERBOSE4("interface: {}, version: {}, name: {}", global->interface, global->version, global->id);
+    }
+
+    static void init_global_info(void* info, struct global_info* global, uint32_t id, const char* interface, uint32_t version)
+    {
+      struct display* display = (struct display*)info;
+      assert(display != nullptr);
+      global->id = id;
+      global->version = version;
+      global->interface = strdup(interface);
+
+      wl_list_insert(display->infos.prev, &global->link);
+    }
+
+    static void print_output_info(void* data)
+    {
+      struct output_info* output = (output_info*)data;
+      assert(output != nullptr);
+
+      struct output_mode* mode;
+      const char* subpixel_orientation;
+      const char* transform;
+
+      print_global_info(data);
+
+      switch (output->geometry.subpixel)
+      {
+      case WL_OUTPUT_SUBPIXEL_UNKNOWN:
+        subpixel_orientation = "unknown";
+        break;
+      case WL_OUTPUT_SUBPIXEL_NONE:
+        subpixel_orientation = "none";
+        break;
+      case WL_OUTPUT_SUBPIXEL_HORIZONTAL_RGB:
+        subpixel_orientation = "horizontal rgb";
+        break;
+      case WL_OUTPUT_SUBPIXEL_HORIZONTAL_BGR:
+        subpixel_orientation = "horizontal bgr";
+        break;
+      case WL_OUTPUT_SUBPIXEL_VERTICAL_RGB:
+        subpixel_orientation = "vertical rgb";
+        break;
+      case WL_OUTPUT_SUBPIXEL_VERTICAL_BGR:
+        subpixel_orientation = "vertical bgr";
+        break;
+      default:
+        FSLLOG3_ERROR("unknown subpixel orientation {}", output->geometry.subpixel);
+        subpixel_orientation = "unexpected value";
+        break;
+      }
+
+      switch (output->geometry.output_transform)
+      {
+      case WL_OUTPUT_TRANSFORM_NORMAL:
+        transform = "normal";
+        break;
+      case WL_OUTPUT_TRANSFORM_90:
+        transform = "90";
+        break;
+      case WL_OUTPUT_TRANSFORM_180:
+        transform = "180";
+        break;
+      case WL_OUTPUT_TRANSFORM_270:
+        transform = "270";
+        break;
+      case WL_OUTPUT_TRANSFORM_FLIPPED:
+        transform = "flipped";
+        break;
+      case WL_OUTPUT_TRANSFORM_FLIPPED_90:
+        transform = "flipped 90";
+        break;
+      case WL_OUTPUT_TRANSFORM_FLIPPED_180:
+        transform = "flipped 180";
+        break;
+      case WL_OUTPUT_TRANSFORM_FLIPPED_270:
+        transform = "flipped 270";
+        break;
+      default:
+        FSLLOG3_ERROR("unknown output transform {}", output->geometry.output_transform);
+        transform = "unexpected value";
+        break;
+      }
+
+      FSLLOG3_INFO("x: {}, y: {}", output->geometry.x, output->geometry.y);
+      if (output->version >= 2)
+        FSLLOG3_INFO("scale: {}", output->geometry.scale);
+
+      FSLLOG3_INFO("physical_width: {} mm, physical_height: {} mm", output->geometry.physical_width, output->geometry.physical_height);
+      FSLLOG3_INFO("make: {}, model: {}", output->geometry.make, output->geometry.model);
+      FSLLOG3_INFO("subpixel_orientation: {}, output_transform: {}", subpixel_orientation, transform);
+
+      wl_list_for_each(mode, &output->modes, link)
+      {
+        FSLLOG3_INFO("mode:");
+
+        FSLLOG3_INFO("width: {} px, height: {} px, refresh: {} Hz", mode->width, mode->height, (float)mode->refresh / 1000);
+        FSLLOG3_INFO("flags:");
+        if (mode->flags & WL_OUTPUT_MODE_CURRENT)
+          FSLLOG3_INFO(" current");
+        if (mode->flags & WL_OUTPUT_MODE_PREFERRED)
+          FSLLOG3_INFO(" preferred");
+      }
+    }
+
+    static void output_handle_geometry(void* data, struct wl_output* wl_output, int32_t x, int32_t y, int32_t physical_width, int32_t physical_height,
+                                       int32_t subpixel, const char* make, const char* model, int32_t output_transform)
+    {
+      struct output_info* output = (output_info*)data;
+      assert(output != nullptr);
+
+      output->geometry.x = x;
+      output->geometry.y = y;
+      output->geometry.physical_width = physical_width;
+      output->geometry.physical_height = physical_height;
+      output->geometry.subpixel = (wl_output_subpixel)subpixel;
+      output->geometry.make = strdup(make);
+      output->geometry.model = strdup(model);
+      output->geometry.output_transform = (wl_output_transform)output_transform;
+    }
+
+    static void output_handle_mode(void* data, struct wl_output* wl_output, uint32_t flags, int32_t width, int32_t height, int32_t refresh)
+    {
+      struct output_info* output = (output_info*)data;
+      assert(output != nullptr);
+
+      struct output_mode* mode = (output_mode*)malloc(sizeof *mode);
+      FSLLOG3_VERBOSE4("Allocated space for mode");
+
+      mode->flags = flags;
+      mode->width = width;
+      mode->height = height;
+      mode->refresh = refresh;
+
+      wl_list_insert(output->modes.prev, &mode->link);
+    }
+
+    static void output_handle_done(void* data, struct wl_output* wl_output)
+    {
+      /* don't bother waiting for this; there's no good reason a
+       * compositor will wait more than one roundtrip before sending
+       * these initial events. */
+    }
+
+    static void output_handle_scale(void* data, struct wl_output* wl_output, int32_t scale)
+    {
+      struct output_info* output = (output_info*)data;
+      assert(output != nullptr);
+
+      output->geometry.scale = scale;
+    }
+
+    static const struct wl_output_listener output_listener = {
+      output_handle_geometry,
+      output_handle_mode,
+      output_handle_done,
+      output_handle_scale,
+    };
+
+    static void destroy_output_info(void* data)
+    {
+      struct output_info* output = (output_info*)data;
+      assert(output != nullptr);
+      struct output_mode *mode, *tmp;
+
+      wl_output_destroy(output->output);
+
+      if (output->geometry.make != NULL)
+        free(output->geometry.make);
+      if (output->geometry.model != NULL)
+        free(output->geometry.model);
+
+      wl_list_for_each_safe(mode, tmp, &output->modes, link)
+      {
+        wl_list_remove(&mode->link);
+        FSLLOG3_VERBOSE4("Freed space for mode");
+        free(mode);
+      }
+    }
+
+    static void add_output_info(void* info, uint32_t id, uint32_t version)
+    {
+      struct display* display = (struct display*)info;
+      assert(display != nullptr);
+
+      struct output_info* output = (output_info*)malloc(sizeof *output);    // Hugo, was zalloc
+      FSLLOG3_VERBOSE4("Allocated Space for output_info");
+
+      init_global_info(info, &output->global, id, "wl_output", version);
+      output->global.print = print_output_info;
+      output->global.destroy = destroy_output_info;
+
+      output->version = std::min(version, uint32_t{2});
+      output->geometry.scale = 1;
+      wl_list_init(&output->modes);
+
+      output->output = (wl_output*)wl_registry_bind(display->registry, id, &wl_output_interface, output->version);
+      wl_output_add_listener(output->output, &output_listener, output);
+
+      display->roundtrip_needed = true;
+      wl_list_insert(&display->outputs, &output->global_link);
+    }
+
+    static void print_infos(struct wl_list* infos)
+    {
+      struct global_info* info;
+      assert(infos != nullptr);
+
+      wl_list_for_each(info, infos, link) info->print(info);
+    }
+
+    static void destroy_info(void* data)
+    {
+      struct global_info* global = (global_info*)data;
+      assert(global != nullptr);
+
+      global->destroy(data);
+      wl_list_remove(&global->link);
+
+      FSLLOG3_VERBOSE4("Freed space for interface at {}", global->interface);
+      free(global->interface);
+      FSLLOG3_VERBOSE4("Freed space for global_info at {}", data);
+      free(data);
+    }
+
+    static void destroy_infos(struct wl_list* infos)
+    {
+      struct global_info *info, *tmp;
+      wl_list_for_each_safe(info, tmp, infos, link) destroy_info(info);
+    }
+
 
     void SeatHandleCapabilities(void* data, wl_seat* seat, uint32_t caps)
     {
@@ -644,6 +932,10 @@ namespace Fsl
         d->cursor_theme = wl_cursor_theme_load(nullptr, 32, d->shm);
         d->default_cursor = wl_cursor_theme_get_cursor(d->cursor_theme, "left_ptr");
       }
+      else if (strcmp(interface, "wl_output") == 0)
+      {
+        add_output_info(data, name, version);
+      }
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
       else if (strcmp(interface, "ivi_application") == 0)
       {
@@ -657,6 +949,35 @@ namespace Fsl
     }
 
     const wl_registry_listener registry_listener = {RegistryHandleGlobal, RegistryHandleRemove};
+
+    uint32_t CalcDPI(const uint32_t width, const uint32_t millimeterWidth)
+    {
+      assert(width > 0);
+      assert(millimeterWidth > 0);
+      // 1mm = 0.0393701f inches
+      const auto w = static_cast<double>(width);
+      const double inchesWidth = static_cast<double>(millimeterWidth) * 0.0393701;
+      return static_cast<uint32_t>(std::round(w / inchesWidth));
+    }
+
+    void TryUpdateDPI(const uint32_t& width, const uint32_t& height, const uint32_t& physicalWidth, const uint32_t& physicalHeight,
+                      Point2& rScreenDPI)
+    {
+      if (width > 0 && height > 0 && physicalWidth > 0 && physicalHeight > 0)
+      {
+        FSLLOG3_VERBOSE4("PlatformNativeWindowWayland| UpdateDPI: ");
+        FSLLOG3_VERBOSE4("- screenSize.width: {}", width);
+        FSLLOG3_VERBOSE4("- screenSize.height: {}", height);
+        FSLLOG3_VERBOSE4("- screenSize.mwidth: {}", physicalWidth);
+        FSLLOG3_VERBOSE4("- screenSize.mheight: {}", physicalHeight);
+        rScreenDPI = Point2(CalcDPI(width, physicalWidth), CalcDPI(height, physicalHeight));
+        FSLLOG3_VERBOSE4("- DPI: {}, {}", rScreenDPI.X, rScreenDPI.Y);
+      }
+      else
+      {
+        FSLLOG3_WARNING("Failed to acquire proper DPI information, using defaults");
+      }
+    }
 
     std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                   const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
@@ -679,6 +1000,9 @@ namespace Fsl
     try
     {
       m_platformDisplay = sdisplay.display;
+
+      wl_list_init(&sdisplay.infos);
+      wl_list_init(&sdisplay.outputs);
 
       if (nullptr == (sdisplay.registry = wl_display_get_registry(sdisplay.display)))
         throw GraphicsException("wl_display_get_registry Failure");
@@ -748,7 +1072,7 @@ namespace Fsl
   PlatformNativeWindowWayland::PlatformNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup,
                                                            const PlatformNativeWindowParams& platformWindowParams,
                                                            const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams, NativeWindowCapabilityFlags::NoFlags)
+    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams, NativeWindowCapabilityFlags::GetDpi)
   {
     const NativeWindowConfig nativeWindowConfig = nativeWindowSetup.GetConfig();
     g_eventQueue = nativeWindowSetup.GetEventQueue();
@@ -812,6 +1136,17 @@ namespace Fsl
       swindow.resizeWindowCallback = platformWindowParams.ResizeWaylandWindow;
     }
 
+    do
+    {
+      sdisplay.roundtrip_needed = false;
+      wl_display_roundtrip(sdisplay.display);
+    } while (sdisplay.roundtrip_needed);
+
+    GetOutputs(&sdisplay.infos);
+
+    TryUpdateDPI(m_displayOutput[0].width, m_displayOutput[0].height, m_displayOutput[0].physicalWidth, m_displayOutput[0].physicalHeight,
+                 m_cachedScreenDPI);
+
     if (nullptr == (sdisplay.cursor_surface = wl_compositor_create_surface(sdisplay.compositor)))
       throw GraphicsException("wl_compositor_create_surface Failure");
 
@@ -832,6 +1167,9 @@ namespace Fsl
       if (m_destroyWindowCallback)
         m_destroyWindowCallback(window->native);
     }
+
+    destroy_infos(&display->infos);
+
 #ifndef FSL_WINDOWSYSTEM_WAYLAND_IVI
     if (display->shell)
       wl_shell_surface_destroy(window->shell_surface);
@@ -871,5 +1209,36 @@ namespace Fsl
     rSize = PxPoint2(width, height);
     return true;
   }
+
+
+  bool PlatformNativeWindowWayland::TryGetNativeDpi(Vector2& rDPI) const
+  {
+    rDPI = Vector2(m_cachedScreenDPI.X, m_cachedScreenDPI.Y);
+    return true;
+  }
+
+
+  void PlatformNativeWindowWayland::GetOutputs(struct wl_list* infos)
+  {
+    struct global_info* info;
+    wl_list_for_each(info, infos, link)
+    {
+      struct output_info* output = (output_info*)info;
+      struct output_mode* mode;
+      waylandDisplayGeometry currentDisplayGeometry{};
+      currentDisplayGeometry.physicalWidth = output->geometry.physical_width;
+      currentDisplayGeometry.physicalHeight = output->geometry.physical_height;
+      wl_list_for_each(mode, &output->modes, link)
+      {
+        if (mode->flags & WL_OUTPUT_MODE_CURRENT)
+        {
+          currentDisplayGeometry.width = mode->width;
+          currentDisplayGeometry.height = mode->height;
+        }
+      }
+      m_displayOutput.push_back(currentDisplayGeometry);
+    }
+  }
+
 }
 #endif

@@ -78,14 +78,14 @@ TEST(Test_LineBuilder, Add_Line_ToFrom_Vector3_Color)
 }
 
 
-TEST(Test_LineBuilder, Add_Line_ToFrom_Vector3_Color_Vector4)
-{
-  LineBuilder lineBuilder;
-  lineBuilder.Add(Vector3(1.0f, 2.0f, 3.0f), Vector3(10.0f, 20.0f, 30.0f), Vector4(4.0f, 5.0f, 6.0f, 7.0f));
-
-  EXPECT_FALSE(lineBuilder.IsEmpty());
-  EXPECT_EQ(1u, lineBuilder.LineCount());
-}
+// TEST(Test_LineBuilder, Add_Line_ToFrom_Vector3_Color_Vector4)
+//{
+//  LineBuilder lineBuilder;
+//  lineBuilder.Add(Vector3(1.0f, 2.0f, 3.0f), Vector3(10.0f, 20.0f, 30.0f), Vector4(4.0f, 5.0f, 6.0f, 7.0f));
+//
+//  EXPECT_FALSE(lineBuilder.IsEmpty());
+//  EXPECT_EQ(1u, lineBuilder.LineCount());
+//}
 
 
 TEST(Test_LineBuilder, Add_Line_BoundingBox_Color_Color)
@@ -98,14 +98,14 @@ TEST(Test_LineBuilder, Add_Line_BoundingBox_Color_Color)
 }
 
 
-TEST(Test_LineBuilder, Add_Line_BoundingBox_Color_Vector4)
-{
-  LineBuilder lineBuilder;
-  lineBuilder.Add(BoundingBox(Vector3(1.0f, 2.0f, 3.0f), Vector3(10.0f, 20.0f, 30.0f)), Vector4(4.0f, 5.0f, 6.0f, 7.0f));
-
-  EXPECT_FALSE(lineBuilder.IsEmpty());
-  EXPECT_EQ(12u, lineBuilder.LineCount());
-}
+// TEST(Test_LineBuilder, Add_Line_BoundingBox_Color_Vector4)
+//{
+//  LineBuilder lineBuilder;
+//  lineBuilder.Add(BoundingBox(Vector3(1.0f, 2.0f, 3.0f), Vector3(10.0f, 20.0f, 30.0f)), Vector4(4.0f, 5.0f, 6.0f, 7.0f));
+//
+//  EXPECT_FALSE(lineBuilder.IsEmpty());
+//  EXPECT_EQ(12u, lineBuilder.LineCount());
+//}
 
 
 TEST(Test_LineBuilder, Clear)

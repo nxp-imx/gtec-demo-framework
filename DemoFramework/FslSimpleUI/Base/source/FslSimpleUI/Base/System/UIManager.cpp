@@ -31,21 +31,18 @@
 
 #include <FslSimpleUI/Base/System/UIManager.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
-#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
-#include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
-#include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
+#include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
 #include <FslSimpleUI/Base/UIContext.hpp>
-#include "Modules/ModuleHost.hpp"
-#include "Modules/ModuleCallbackRegistry.hpp"
-#include "Modules/Input/InputModule.hpp"
 #include "Event/EventRouter.hpp"
 #include "Event/SimpleEventSender.hpp"
 #include "Event/WindowEventQueueEx.hpp"
+#include "Modules/ModuleHost.hpp"
+#include "Modules/ModuleCallbackRegistry.hpp"
+#include "Modules/External/ExternalModules.hpp"
+#include "Modules/Input/InputModule.hpp"
 #include "UITree.hpp"
 #include "RootWindow.hpp"
 #include <cassert>
@@ -54,17 +51,22 @@ namespace Fsl
 {
   namespace UI
   {
-    namespace
+    UIManager::UIManager(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics)
+      : UIManager(std::move(renderSystem), useYFlipTextureCoordinates, windowMetrics, {})
     {
     }
 
-    UIManager::UIManager(const DemoWindowMetrics& windowMetrics)
-      : m_moduleCallbackRegistry(std::make_shared<ModuleCallbackRegistry>())
+
+    UIManager::UIManager(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
+                         ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> externalModuleFactories)
+      : m_renderSystem(std::move(renderSystem), useYFlipTextureCoordinates)
+      , m_windowMetrics(windowMetrics)
+      , m_moduleCallbackRegistry(std::make_shared<ModuleCallbackRegistry>())
       , m_eventPool(std::make_shared<WindowEventPool>())
       , m_eventQueue(std::make_shared<WindowEventQueueEx>())
       , m_tree(std::make_shared<UITree>(m_moduleCallbackRegistry, m_eventPool, m_eventQueue))
       , m_eventSender(std::make_shared<WindowEventSender>(m_eventQueue, m_eventPool, m_tree))
-      , m_uiContext(std::make_shared<UIContext>(m_tree, m_eventSender))
+      , m_uiContext(std::make_shared<UIContext>(m_tree, m_eventSender, m_renderSystem.GetMeshManager()))
       , m_baseWindowContext(std::make_shared<BaseWindowContext>(m_uiContext, windowMetrics.DensityDpi))
       , m_rootWindow(std::make_shared<RootWindow>(m_baseWindowContext, windowMetrics.ExtentPx, windowMetrics.DensityDpi))
       , m_leftButtonDown(false)
@@ -74,12 +76,26 @@ namespace Fsl
       {
         m_simpleEventSender = std::make_shared<SimpleEventSender>(m_tree, m_eventPool, m_tree, m_tree->GetRootNode(), m_tree);
 
-        m_moduleHost = std::make_shared<ModuleHost>(m_moduleCallbackRegistry, m_tree, m_tree->GetRootNode(), m_tree, m_tree, m_eventPool,
+        m_moduleHost = std::make_shared<ModuleHost>(m_moduleCallbackRegistry, m_tree, m_tree->GetRootNode(), m_tree, m_tree, m_tree, m_eventPool,
                                                     m_eventSender, m_simpleEventSender);
         m_inputModule = std::make_shared<InputModule>(m_moduleHost);
+
+        if (!externalModuleFactories.empty())
+        {
+          // Only create the external module if needed.
+          m_externalModules = std::make_shared<ExternalModules>(m_moduleHost, externalModuleFactories);
+          m_moduleCallbackRegistry->AddCallbackReceiver(m_externalModules);
+        }
+        // Give the tree a chance to send module events about the root window to all registered entities
+        m_tree->PostInit();
       }
       catch (const std::exception&)
       {
+        if (m_externalModules)
+        {
+          m_moduleCallbackRegistry->RemoveCallbackReceiver(m_externalModules);
+          m_externalModules.reset();
+        }
         m_inputModule.reset();
         m_moduleHost.reset();
         m_simpleEventSender.reset();
@@ -91,6 +107,16 @@ namespace Fsl
 
     UIManager::~UIManager()
     {
+      if (m_tree)
+      {
+        m_tree->PreShutdown();
+      }
+
+      if (m_externalModules)
+      {
+        m_moduleCallbackRegistry->RemoveCallbackReceiver(m_externalModules);
+        m_externalModules.reset();
+      }
       m_inputModule.reset();
       m_moduleHost.reset();
       m_simpleEventSender.reset();
@@ -106,6 +132,16 @@ namespace Fsl
         }
         m_tree.reset();
       }
+    }
+
+
+    std::shared_ptr<AExternalModule> UIManager::GetExternalModule(const ExternalModuleId& moduleId) const
+    {
+      if (m_externalModules)
+      {
+        return m_externalModules->GetExternalModule(moduleId);
+      }
+      throw NotFoundException("The requested external module was not found");
     }
 
 
@@ -137,42 +173,26 @@ namespace Fsl
     //}
 
 
-    bool UIManager::SendMouseButtonEvent(const MouseButtonEvent& event)
+    bool UIManager::SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown)
     {
       assert(m_inputModule);
-      if (event.GetButton() != VirtualMouseButton::Left)
-      {
-        return false;
-      }
 
-      m_leftButtonDown = event.IsPressed();
+      m_leftButtonDown = LeftButtonDown;
       const auto transactionState = m_leftButtonDown ? EventTransactionState::Begin : EventTransactionState::End;
-      const auto position = event.GetPosition();
-      const bool isHandled = m_inputModule->SendClickEvent(0, 0, transactionState, false, position);
-      if (isHandled && !event.IsHandled())
-      {
-        event.Handled();
-      }
-      return isHandled;
+      return m_inputModule->SendClickEvent(0, 0, transactionState, false, positionPx);
     }
 
 
-    bool UIManager::SendMouseMoveEvent(const MouseMoveEvent& event)
+    bool UIManager::SendMouseMoveEvent(const PxPoint2& positionPx)
     {
-      const auto position = event.GetPosition();
-
-      bool isHandled = m_inputModule->MouseMove(0, 0, position);
+      bool isHandled = m_inputModule->MouseMove(0, 0, positionPx);
 
       if (m_leftButtonDown)
       {
-        if (m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, position))
+        if (m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, positionPx))
         {
           isHandled = true;
         }
-      }
-      if (isHandled && !event.IsHandled())
-      {
-        event.Handled();
       }
       return isHandled;
     }
@@ -197,13 +217,15 @@ namespace Fsl
       m_tree->ProcessEvents();
     }
 
-    void UIManager::SetDensityDpi(const uint32_t dpi)    // NOLINT(readability-convert-member-functions-to-static)
+    void UIManager::Resized(const BasicWindowMetrics& windowMetrics)
     {
-      FSL_PARAM_NOT_USED(dpi);
-    }
+      if (windowMetrics == m_windowMetrics)
+      {
+        return;
+      }
+      m_windowMetrics = windowMetrics;
 
-    void UIManager::Resized(const DemoWindowMetrics& windowMetrics)
-    {
+      m_renderSystem.ConfigurationChanged(windowMetrics);
       if (m_baseWindowContext)
       {
         m_baseWindowContext->UnitConverter.SetDensityDpi(windowMetrics.DensityDpi);
@@ -215,23 +237,46 @@ namespace Fsl
     }
 
 
-    void UIManager::FixedUpdate(const DemoTime& demoTime)    // NOLINT(readability-convert-member-functions-to-static)
+    void UIManager::FixedUpdate(const TransitionTimeSpan& timespan)    // NOLINT(readability-convert-member-functions-to-static)
     {
-      FSL_PARAM_NOT_USED(demoTime);
+      FSL_PARAM_NOT_USED(timespan);
     }
 
 
-    void UIManager::Update(const DemoTime& demoTime)
+    void UIManager::Update(const TransitionTimeSpan& timespan)
     {
-      m_tree->Update(demoTime);
+      m_tree->Update(timespan);
     }
 
 
-    void UIManager::Draw()
+    void UIManager::PreDraw()
     {
-      m_tree->Draw();
+      m_renderSystem.PreDraw();
     }
 
+    void UIManager::Draw(RenderPerformanceCapture* const pPerformanceCapture)
+    {
+      {    // Record the draw command list
+        UIRenderSystem::ScopedDrawCommandBufferAccess scopedAccess(m_renderSystem);
+        m_tree->Draw(scopedAccess.GetDrawCommandBuffer());
+      }
+      m_renderSystem.Draw(pPerformanceCapture);
+    }
+
+    void UIManager::PostDraw()
+    {
+      m_renderSystem.PostDraw();
+    }
+
+    const UI::IRenderSystemBase& UIManager::GetRenderSystem() const
+    {
+      return m_renderSystem.GetRenderSystem();
+    }
+
+    UI::IRenderSystemBase* UIManager::TryGetRenderSystem()
+    {
+      return m_renderSystem.TryGetRenderSystem();
+    }
 
     void UIManager::RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
     {
@@ -243,5 +288,15 @@ namespace Fsl
     {
       m_tree->UnregisterEventListener(eventListener);
     }
+
+
+    void UIManager::ForceInvalidateLayout()
+    {
+      BasicWindowMetrics cachedMetrics = m_windowMetrics;
+      BasicWindowMetrics changedWindowMetrics(cachedMetrics.ExtentPx + PxExtent2D(1, 1), cachedMetrics.ExactDpi, cachedMetrics.DensityDpi);
+      Resized(changedWindowMetrics);
+      Resized(cachedMetrics);
+    }
+
   }
 }

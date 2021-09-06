@@ -29,53 +29,19 @@
  *
  ****************************************************************************************************************************************************/
 
-#ifdef _WIN32
-#include <Windows.h>
-#elif defined(__linux__) || defined(__QNXNTO__)
-#include <ctime>
-#elif defined(FSL_PLATFORM_FREERTOS)
-#include <FslBase/Log/Log3Core.hpp>
-#else
-#error Unsupported platform
-#endif
-
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include "Platform/PlatformPerformanceCounter.hpp"
 
 namespace Fsl
 {
-  HighResolutionTimer::HighResolutionTimer()    // NOLINT(modernize-use-equals-default)
+  HighResolutionTimer::HighResolutionTimer()
   {
-#ifdef _WIN32
-    LARGE_INTEGER value;
-    QueryPerformanceFrequency(&value);
-    m_frequency = value.QuadPart / 1000000.0;
-#endif
+    m_frequency = static_cast<double>(PlatformPerformanceCounter::GetPerformanceFrequency()) / 1000000.0;
   }
 
 
   uint64_t HighResolutionTimer::GetTime() const
   {
-#ifdef _WIN32
-    {
-      LARGE_INTEGER value;
-      QueryPerformanceCounter(&value);
-      return static_cast<uint64_t>(value.QuadPart / m_frequency);
-    }
-#elif defined(__linux__) || defined(__QNXNTO__)
-    {
-      using SafeTimespec = struct timespec;
-      SafeTimespec currentTime{};
-      clock_gettime(CLOCK_MONOTONIC, &currentTime);
-      uint64_t time = currentTime.tv_sec;
-      time *= 1000000;
-      time += (currentTime.tv_nsec / 1000);
-      return time;
-    }
-#elif defined(FSL_PLATFORM_FREERTOS)
-    {
-      FSLLOG3_WARNING("HighResolutionTimer::GetTime() not implemented");
-      return 0;
-    }
-#endif
+    return static_cast<uint64_t>(static_cast<double>(PlatformPerformanceCounter::GetPerformanceCounter()) / m_frequency);
   }
 }

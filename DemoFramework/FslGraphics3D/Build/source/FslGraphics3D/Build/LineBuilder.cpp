@@ -54,7 +54,7 @@ namespace Fsl
     namespace
     {
       inline void Fill(std::vector<VertexPositionColor>& rVertices, const uint32_t dstOffset, const std::array<Vector3, 8>& corners,
-                       const Vector4& color)
+                       const Color& color)
       {
         assert(rVertices.size() >= 24u);
         assert(dstOffset <= (rVertices.size() - 24u));
@@ -136,7 +136,7 @@ namespace Fsl
       }
     }
 
-    void LineBuilder::Add(const BoundingBox& boundingBox, const Vector4& color)
+    void LineBuilder::Add(const BoundingBox& boundingBox, const Color& color)
     {
       EnsureCapacityFor(24u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -254,7 +254,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const BoundingBox& boundingBox, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const BoundingBox& boundingBox, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(24u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -316,7 +316,7 @@ namespace Fsl
     }
 
 
-    void LineBuilder::Add(const BoundingFrustum& boundingFrustum, const Vector4& color)
+    void LineBuilder::Add(const BoundingFrustum& boundingFrustum, const Color& color)
     {
       EnsureCapacityFor(24u);
 
@@ -327,7 +327,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const BoundingFrustum& boundingFrustum, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const BoundingFrustum& boundingFrustum, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(24u);
 
@@ -348,7 +348,7 @@ namespace Fsl
     }
 
 
-    void LineBuilder::Add(const BoxF& value, const Vector4& color)
+    void LineBuilder::Add(const BoxF& value, const Color& color)
     {
       EnsureCapacityFor(24u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -466,7 +466,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const BoxF& value, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const BoxF& value, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(24u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -528,7 +528,7 @@ namespace Fsl
     }
 
 
-    void LineBuilder::Add(const Ray& value, const Vector4& color)
+    void LineBuilder::Add(const Ray& value, const Color& color)
     {
       std::array<vertex_type, 2> vertices;
       vertices[0].Position = value.Position;
@@ -541,7 +541,7 @@ namespace Fsl
     }
 
 
-    void LineBuilder::Add(const Ray& value, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const Ray& value, const Color& color, const Matrix& matrix)
     {
       std::array<vertex_type, 2> vertices;
       Vector3::Transform(value.Position, matrix, vertices[0].Position);
@@ -552,7 +552,7 @@ namespace Fsl
       AddLines(vertices.data(), vertices.size());
     }
 
-    void LineBuilder::Add(const Rect& value, const Vector4& color)
+    void LineBuilder::Add(const Rect& value, const Color& color)
     {
       EnsureCapacityFor(8u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -602,7 +602,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rect& value, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const Rect& value, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(8u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -637,7 +637,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rectangle& value, const Vector4& color)
+    void LineBuilder::Add(const Rectangle& value, const Color& color)
     {
       EnsureCapacityFor(8u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -691,7 +691,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rectangle& value, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const Rectangle& value, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(8u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -726,7 +726,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rectangle2D& value, const Vector4& color)
+    void LineBuilder::Add(const Rectangle2D& value, const Color& color)
     {
       EnsureCapacityFor(8u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -780,7 +780,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rectangle2D& value, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const Rectangle2D& value, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(8u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -814,7 +814,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rectangle3D& value, const Vector4& color)
+    void LineBuilder::Add(const Rectangle3D& value, const Color& color)
     {
       EnsureCapacityFor(24u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -940,7 +940,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::Add(const Rectangle3D& value, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::Add(const Rectangle3D& value, const Color& color, const Matrix& matrix)
     {
       EnsureCapacityFor(24u);
       auto* pDst = m_vertices.data() + m_entries;
@@ -1014,9 +1014,9 @@ namespace Fsl
       EnsureCapacityFor(6u);
       auto* pDst = m_vertices.data() + m_entries;
 
-      constexpr Vector4 colorRed = Color::Red().ToVector4();
-      constexpr Vector4 colorGreen = Color::Green().ToVector4();
-      constexpr Vector4 colorBlue = Color::Blue().ToVector4();
+      constexpr Color colorRed = Color::Red();
+      constexpr Color colorGreen = Color::Green();
+      constexpr Color colorBlue = Color::Blue();
 
       // Line 0 - X-Axis
       pDst[0].Position = position;
@@ -1051,9 +1051,9 @@ namespace Fsl
       EnsureCapacityFor(6u);
       auto* pDst = m_vertices.data() + m_entries;
 
-      constexpr Vector4 colorRed = Color::Red().ToVector4();
-      constexpr Vector4 colorGreen = Color::Green().ToVector4();
-      constexpr Vector4 colorBlue = Color::Blue().ToVector4();
+      constexpr Color colorRed = Color::Red();
+      constexpr Color colorGreen = Color::Green();
+      constexpr Color colorBlue = Color::Blue();
 
       // Line 0 - X-Axis
       Vector3::Transform(position, matrix, pDst[0].Position);
@@ -1077,7 +1077,116 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Vector4& color)
+    //
+    // *--*--*--*--*
+    // |  |  |  |  |
+    // *--*--*--*--*
+    // |  |  |  |  |
+    // *--*--*--*--*
+    // (5+3) * 2 =
+
+    void LineBuilder::AddGridXY(const Rect& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color)
+    {
+      const auto numVertices = VERTICES_PER_LINE * (stepsX + stepsY);
+      EnsureCapacityFor(numVertices);
+      auto* pDst = m_vertices.data() + m_entries;
+
+      // Completely unrolled with direct sets to prevent unnecessary temporary writes
+      {
+        const float xAdd = rect.Width() / float(stepsX);
+        const float y1 = rect.Top();
+        const float y2 = rect.Bottom();
+        float x = rect.Left() + xAdd;
+
+        for (uint32_t i = 0; i < stepsX; ++i)
+        {
+          pDst[0].Position.X = x;
+          pDst[0].Position.Y = y1;
+          pDst[0].Position.Z = posZ;
+          pDst[0].Color = color;
+          pDst[1].Position.X = x;
+          pDst[1].Position.Y = y2;
+          pDst[1].Position.Z = posZ;
+          pDst[1].Color = color;
+          pDst += 2;
+          x += xAdd;
+        }
+      }
+      {
+        const float yAdd = rect.Height() / float(stepsY);
+        const float x1 = rect.Left();
+        const float x2 = rect.Right();
+        float y = rect.Top() + yAdd;
+
+        for (uint32_t i = 0; i < stepsY; ++i)
+        {
+          pDst[0].Position.X = x1;
+          pDst[0].Position.Y = y;
+          pDst[0].Position.Z = posZ;
+          pDst[0].Color = color;
+          pDst[1].Position.X = x2;
+          pDst[1].Position.Y = y;
+          pDst[1].Position.Z = posZ;
+          pDst[1].Color = color;
+          pDst += 2;
+          y += yAdd;
+        }
+      }
+
+      assert(pDst == (m_vertices.data() + m_entries + numVertices));
+
+      m_entries += numVertices;
+      assert(m_entries <= m_vertices.size());
+    }
+
+
+    void LineBuilder::AddGridXY(const Rect& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color,
+                                const Matrix& matrix)
+    {
+      const auto numVertices = VERTICES_PER_LINE * (stepsX + stepsY);
+      EnsureCapacityFor(numVertices);
+      auto* pDst = m_vertices.data() + m_entries;
+
+      // Completely unrolled with direct sets to prevent unnecessary temporary writes
+      {
+        const float xAdd = rect.Width() / float(stepsX);
+        const float y1 = rect.Top();
+        const float y2 = rect.Bottom();
+        float x = rect.Left() + xAdd;
+
+        for (uint32_t i = 0; i < stepsX; ++i)
+        {
+          Vector3::Transform(Vector3(x, y1, posZ), matrix, pDst[0].Position);
+          pDst[0].Color = color;
+          Vector3::Transform(Vector3(x, y2, posZ), matrix, pDst[1].Position);
+          pDst[1].Color = color;
+          pDst += 2;
+          x += xAdd;
+        }
+      }
+      {
+        const float yAdd = rect.Height() / float(stepsY);
+        const float x1 = rect.Left();
+        const float x2 = rect.Right();
+        float y = rect.Top() + yAdd;
+
+        for (uint32_t i = 0; i < stepsY; ++i)
+        {
+          Vector3::Transform(Vector3(x1, y, posZ), matrix, pDst[0].Position);
+          pDst[0].Color = color;
+          Vector3::Transform(Vector3(x2, y, posZ), matrix, pDst[1].Position);
+          pDst[1].Color = color;
+          pDst += 2;
+          y += yAdd;
+        }
+      }
+
+      assert(pDst == (m_vertices.data() + m_entries + numVertices));
+      m_entries += numVertices;
+      assert(m_entries <= m_vertices.size());
+    }
+
+    void LineBuilder::AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color)
     {
       const auto numVertices = VERTICES_PER_LINE * 2u * steps;
       EnsureCapacityFor(numVertices);
@@ -1085,7 +1194,7 @@ namespace Fsl
 
       // Completely unrolled with direct sets to prevent unnecessary temporary writes
       {
-        const float xAdd = rect.Width() / float(steps + 1);
+        const float xAdd = rect.Width() / float(steps);
         const float z1 = rect.Top();
         const float z2 = rect.Bottom();
         float x = rect.Left() + xAdd;
@@ -1105,7 +1214,7 @@ namespace Fsl
         }
       }
       {
-        const float zAdd = rect.Height() / float(steps + 1);
+        const float zAdd = rect.Height() / float(steps);
         const float x1 = rect.Left();
         const float x2 = rect.Right();
         float z = rect.Top() + zAdd;
@@ -1125,20 +1234,21 @@ namespace Fsl
         }
       }
 
+      assert(pDst == (m_vertices.data() + m_entries + numVertices));
       m_entries += numVertices;
       assert(m_entries <= m_vertices.size());
     }
 
 
-    void LineBuilder::AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Vector4& color, const Matrix& matrix)
+    void LineBuilder::AddGridXZ(const Rect& rect, const float posY, const uint32_t steps, const Color& color, const Matrix& matrix)
     {
-      const auto numVertices = VERTICES_PER_LINE * 2u * steps;
+      const auto numVertices = VERTICES_PER_LINE * (2u * steps);
       EnsureCapacityFor(numVertices);
       auto* pDst = m_vertices.data() + m_entries;
 
       // Completely unrolled with direct sets to prevent unnecessary temporary writes
       {
-        const float xAdd = rect.Width() / float(steps + 1);
+        const float xAdd = rect.Width() / float(steps);
         const float z1 = rect.Top();
         const float z2 = rect.Bottom();
         float x = rect.Left() + xAdd;
@@ -1154,7 +1264,7 @@ namespace Fsl
         }
       }
       {
-        const float zAdd = rect.Height() / float(steps + 1);
+        const float zAdd = rect.Height() / float(steps);
         const float x1 = rect.Left();
         const float x2 = rect.Right();
         float z = rect.Top() + zAdd;
@@ -1170,12 +1280,13 @@ namespace Fsl
         }
       }
 
+      assert(pDst == (m_vertices.data() + m_entries + numVertices));
       m_entries += numVertices;
       assert(m_entries <= m_vertices.size());
     }
 
 
-    void LineBuilder::AddLines(const VertexPositionColor* const pVertices, const std::size_t vertexCount)
+    void LineBuilder::AddLines(const vertex_type* const pVertices, const std::size_t vertexCount)
     {
       if (pVertices == nullptr)
       {
@@ -1208,7 +1319,7 @@ namespace Fsl
       }
     }
 
-    void LineBuilder::AddLines(const VertexPositionColor* const pVertices, const std::size_t vertexCount, const Matrix& matrix)
+    void LineBuilder::AddLines(const vertex_type* const pVertices, const std::size_t vertexCount, const Matrix& matrix)
     {
       if (pVertices == nullptr)
       {
@@ -1241,7 +1352,7 @@ namespace Fsl
         assert(m_entries <= m_vertices.size());
       }
     }
-    void LineBuilder::AddSphere(const Vector3& center, const float radius, const Vector4& colYZ, const Vector4& colXZ, const Vector4& colXY,
+    void LineBuilder::AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY,
                                 const uint32_t steps)
     {
       const auto numVertices = VERTICES_PER_LINE * steps * 3;
@@ -1312,7 +1423,7 @@ namespace Fsl
       assert(m_entries <= m_vertices.size());
     }
 
-    void LineBuilder::AddSphere(const Vector3& center, const float radius, const Vector4& colYZ, const Vector4& colXZ, const Vector4& colXY,
+    void LineBuilder::AddSphere(const Vector3& center, const float radius, const Color& colYZ, const Color& colXZ, const Color& colXY,
                                 const Matrix& matrix, const uint32_t steps)
     {
       const auto numVertices = VERTICES_PER_LINE * steps * 3;

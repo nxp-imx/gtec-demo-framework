@@ -36,11 +36,12 @@ namespace Fsl
 {
   DemoHostConfig::DemoHostConfig(std::shared_ptr<ADemoHostOptionParser> optionParser, std::weak_ptr<INativeWindowEventQueue> eventQueue,
                                  DemoHostAppSetup demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider,
-                                 const uint32_t verbosityLevel)
+                                 const bool preallocateBasic2D, const uint32_t verbosityLevel)
     : m_optionParser(std::move(optionParser))
     , m_eventQueue(std::move(eventQueue))
     , m_demoHostAppSetup(std::move(demoHostAppSetup))
     , m_serviceProvider(serviceProvider)
+    , m_preallocateBasic2D(preallocateBasic2D)
     , m_verbosityLevel(verbosityLevel)
   {
   }
@@ -66,6 +67,10 @@ namespace Fsl
     return m_serviceProvider;
   }
 
+  bool DemoHostConfig::GetPreallocateBasic2D() const
+  {
+    return m_preallocateBasic2D;
+  }
 
   uint32_t DemoHostConfig::GetVerbosityLevel() const
   {

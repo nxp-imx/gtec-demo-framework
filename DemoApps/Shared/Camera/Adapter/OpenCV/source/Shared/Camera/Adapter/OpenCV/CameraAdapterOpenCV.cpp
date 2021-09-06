@@ -46,7 +46,6 @@ namespace Fsl
 
     CameraAdapterOpenCV::CameraAdapterOpenCV(const CameraAdapterAllocateInfo& allocateInfo)
       : m_cap(DEFAULT_CAMERA_DEVICE)
-      , m_vidFrame()
       , m_config(allocateInfo.Extent, PixelFormat::R8G8B8_UNORM)
       , m_frameId(0)
     {

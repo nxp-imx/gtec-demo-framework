@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/TextureFlags.hpp>
@@ -46,7 +46,7 @@ namespace Fsl
     namespace TextureUtil
     {
       //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU& srcRect, const PxSize2D& textureSize)
+      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxSize2D& textureSize)
       {
         return {srcRect.Left() == 0u ? 0.0f : srcRect.Left() / static_cast<float>(textureSize.Width()),
                 1.0f - (srcRect.Top() == 0u ? 0.0f : srcRect.Top() / static_cast<float>(textureSize.Height())),

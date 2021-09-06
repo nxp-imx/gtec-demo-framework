@@ -31,28 +31,32 @@
 
 #include <FslGraphics/Sprite/BasicNineSliceSprite.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <cassert>
 
 namespace Fsl
 {
-  BasicNineSliceSprite::BasicNineSliceSprite(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx,
-                                             const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx, const uint32_t imageDpi,
-                                             const StringViewLite& debugName, const uint32_t densityDpi)
-    : m_info(spriteMaterialInfo, imageRectanglePx, nineSlicePx, contentMarginPx, imageDpi, debugName)
+  BasicNineSliceSprite::BasicNineSliceSprite(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                             const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx,
+                                             const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName,
+                                             const uint32_t densityDpi)
+    : m_info(spriteNativeAreaCalc, spriteMaterialInfo, imageRectanglePx, nineSlicePx, contentMarginPx, imageDpi, debugName)
   {
     Resize(densityDpi);
   }
 
 
-  void BasicNineSliceSprite::SetContent(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx,
-                                        const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx, const uint32_t imageDpi,
-                                        const StringViewLite& debugName, const uint32_t densityDpi)
+  void BasicNineSliceSprite::SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                        const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx,
+                                        const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi)
   {
-    m_info = BasicNineSliceSpriteInfo(spriteMaterialInfo, imageRectanglePx, nineSlicePx, contentMarginPx, imageDpi, debugName);
+    m_info = BasicNineSliceSpriteInfo(spriteNativeAreaCalc, spriteMaterialInfo, imageRectanglePx, nineSlicePx, contentMarginPx, imageDpi, debugName);
     Resize(densityDpi);
   }
 
-  const SpriteMaterialInfo& BasicNineSliceSprite::GetMaterialInfo() const
+  const SpriteMaterialInfo& BasicNineSliceSprite::GetMaterialInfo(const uint32_t index) const
   {
+    FSL_PARAM_NOT_USED(index);
+    assert(index == 0u);
     return m_info.MaterialInfo;
   }
 

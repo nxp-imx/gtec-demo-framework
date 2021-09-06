@@ -78,7 +78,7 @@ namespace Fsl
 
   LineBuilder101::ProgramInfo LineBuilder101::CreateLineProgram(const std::shared_ptr<IContentManager>& contentManager)
   {
-    auto vertexDecl = Graphics3D::LineBuilder::vertex_type::GetVertexDeclaration();
+    constexpr auto vertexDecl = Graphics3D::LineBuilder::vertex_type::GetVertexDeclarationArray();
     ProgramInfo info;
     info.Program.Reset(contentManager->ReadAllText("VertexColorLine.vert"), contentManager->ReadAllText("VertexColorLine.frag"));
     info.LocWorldViewProjection = info.Program.GetUniformLocation("WorldViewProjection");

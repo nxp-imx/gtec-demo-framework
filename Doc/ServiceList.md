@@ -4,6 +4,8 @@ A list of all known service interfaces and their current providers.
 
 Service interface             | Providers
 ------------------------------|------------------------------------------------------------
+IAppInfoService               | AppInfoService
+IAppInfoControlService        | AppInfoService
 IAsyncImageService            | AsyncImageServiceProxy
 IBitmapConverter              | BitmapConverterService
 IContentManager               | ContentManagerService

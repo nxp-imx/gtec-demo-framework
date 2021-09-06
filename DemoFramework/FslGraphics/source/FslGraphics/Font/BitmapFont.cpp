@@ -78,15 +78,17 @@ namespace Fsl
   }
 
   BitmapFont::BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-                         std::string textureName, const BitmapFontType fontType, std::vector<BitmapFontChar> chars,
-                         std::vector<BitmapFontKerning> kernings)
+                         const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+                         std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings)
     : m_name(std::move(name))
     , m_textureName(std::move(textureName))
     , m_dpi(dpi)
     , m_size(size)
     , m_lineSpacingPx(lineSpacingPx)
     , m_baseLinePx(baseLinePx)
+    , m_paddingPx(paddingPx)
     , m_fontType(fontType)
+    , m_sdfParams(sdfParams)
     , m_chars(std::move(chars))
     , m_kernings(std::move(kernings))
   {
@@ -110,19 +112,19 @@ namespace Fsl
 
 
   BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-                         const StringViewLite textureName, const BitmapFontType fontType, const ReadOnlySpan<BitmapFontChar> chars,
-                         const ReadOnlySpan<BitmapFontKerning> kernings)
-    : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, StringViewLiteUtil::ToString(textureName), fontType,
-                 ReadOnlySpanUtil::ToVector(chars), ReadOnlySpanUtil::ToVector(kernings))
+                         const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+                         const ReadOnlySpan<BitmapFontChar> chars, const ReadOnlySpan<BitmapFontKerning> kernings)
+    : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, StringViewLiteUtil::ToString(textureName),
+                 fontType, sdfParams, ReadOnlySpanUtil::ToVector(chars), ReadOnlySpanUtil::ToVector(kernings))
   {
   }
 
 
   BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-                         const StringViewLite textureName, const BitmapFontType fontType, std::vector<BitmapFontChar> chars,
-                         std::vector<BitmapFontKerning> kernings)
-    : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, StringViewLiteUtil::ToString(textureName), fontType,
-                 std::move(chars), std::move(kernings))
+                         const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
+                         std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings)
+    : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, StringViewLiteUtil::ToString(textureName),
+                 fontType, sdfParams, std::move(chars), std::move(kernings))
   {
   }
 

@@ -43,33 +43,34 @@ namespace Fsl
       static const int BitsReserved = 16;
       static const uint16_t MASK_PropertyTypeFlags = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout) |
                                                      static_cast<uint16_t>(PropertyType::Alignment) |
-                                                     static_cast<uint16_t>(PropertyType::ScalePolicy) | static_cast<uint16_t>(PropertyType::Other);
+                                                     static_cast<uint16_t>(PropertyType::ScalePolicy) |
+                                                     static_cast<uint16_t>(PropertyType::BaseColor) | static_cast<uint16_t>(PropertyType::Other);
       static const uint16_t MASK_LayoutRelatedMask = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout);
 
       uint16_t Value{0};
 
-      PropertyTypeFlags() = default;
+      constexpr PropertyTypeFlags() noexcept = default;
 
 
-      PropertyTypeFlags(PropertyType type)    // NOLINT(google-explicit-constructor)
+      constexpr PropertyTypeFlags(PropertyType type) noexcept    // NOLINT(google-explicit-constructor)
         : Value(static_cast<uint16_t>(type))
       {
       }
 
 
-      bool IsFlagged(const PropertyType type) const
+      constexpr bool IsFlagged(const PropertyType type) const noexcept
       {
         return (Value & static_cast<uint16_t>(type)) == static_cast<uint16_t>(type);
       }
 
 
-      bool IsLayoutRelated() const
+      constexpr bool IsLayoutRelated() const noexcept
       {
         return (Value & MASK_LayoutRelatedMask) != 0;
       }
 
       //! @brief Gets the value ensuring all non PropertyTypeFlags are set to zero.
-      uint16_t GetSafeValue() const
+      constexpr uint16_t GetSafeValue() const noexcept
       {
         return (Value & MASK_PropertyTypeFlags);
       }

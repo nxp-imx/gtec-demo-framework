@@ -32,28 +32,27 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/BasicRender/ANativeGraphicsService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <FslUtil/Vulkan1_0/Native/VulkanSwapchainEvent.hpp>
 #include <memory>
 #include <list>
 
 namespace Fsl
 {
+  class IBasicMaterialToNativeTextureLookup;
+
   namespace Vulkan
   {
     class NativeGraphicsBasic2D;
+    class NativeGraphicsDevice;
     struct NativeGraphicsSwapchainInfo;
     class QuadBatch;
+    class VMBufferManager;
     class VulkanImageCreator;
-    class NativeTextureManager;
 
-    class NativeGraphicsService final
-      : public ThreadLocalService
-      , public INativeGraphicsService
+    class NativeGraphicsService final : public ANativeGraphicsService
     {
       enum class State
       {
@@ -64,22 +63,23 @@ namespace Fsl
       };
       struct Resources
       {
-        VkDevice Device = VK_NULL_HANDLE;
-        VkQueue Queue = VK_NULL_HANDLE;
-        uint32_t QueueFamilyIndex = 0u;
+        uint32_t MaxFramesInFlight{0};
+        VkDevice Device{VK_NULL_HANDLE};
+        VkQueue Queue{VK_NULL_HANDLE};
+        uint32_t QueueFamilyIndex{0u};
         VUPhysicalDeviceRecord PhysicalDevice;
         std::shared_ptr<VulkanImageCreator> ImageCreator;
-        std::shared_ptr<NativeTextureManager> TextureManager;
+        std::shared_ptr<VMBufferManager> BufferManager;
+        std::shared_ptr<NativeGraphicsDevice> NativeDevice;
       };
       struct DependentResources
       {
-        uint32_t CommandBufferCount = 0;
-        VkRenderPass RenderPass = VK_NULL_HANDLE;
-        uint32_t Subpass = 0;
+        VkRenderPass RenderPass{VK_NULL_HANDLE};
+        uint32_t Subpass{0};
         PxExtent2D ScreenExtentPx;
       };
 
-      State m_state = State::Uninitialized;
+      State m_state{State::Uninitialized};
       std::weak_ptr<NativeGraphicsBasic2D> m_basic2D;
       std::list<std::weak_ptr<QuadBatch>> m_quadBatches;
 
@@ -93,32 +93,26 @@ namespace Fsl
 
       void VulkanInit();
       void VulkanShutdown() noexcept;
-      void VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex);
-      void VulkanDeviceShutdown() noexcept;
 
-      void VulkanCreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass, const uint32_t subpass,
-                                          const PxExtent2D& screenExtentPx);
-      //! @note if theEvent == VulkanSwapchainEvent::Lost then vkDeviceWaitIdle will have been called.
-      void OnVulkanSwapchainEvent(const VulkanSwapchainEvent theEvent);
-      void VulkanDestroyDependentResources() noexcept;
+      void CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo) final;
+      void DestroyDevice() noexcept final;
 
-      void VulkanPreProcessFrame(const uint32_t commandBufferIndex);
-      void VulkanBeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex);
-      void VulkanEndFrame();
+      // @brief
+      // @param framesInFlightCount will be <= maxFramesInFlight
+      void CreateDependentResources(const BasicNativeDependentCreateInfo& createInfo) final;
+      void DestroyDependentResources() noexcept final;
 
-      //! @sets the swapchain info, this class will only keep a weak pointer to the information.
-      void SetSwapchainInfoLink(const std::weak_ptr<NativeGraphicsSwapchainInfo>& swapchainInfo);
+      void BeginFrame(const BasicNativeBeginFrameInfo& frameInfo) final;
+      void EndFrame() final;
 
-      // From INativeGraphics
-      std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                        const TextureFlags textureFlags) final;
-      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                      const TextureFlags textureFlags) final;
       // From INativeGraphicsService
       bool IsSupported(const DemoHostFeature& activeAPI) const final;
       void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
       std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& currentExtent) final;
       std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& currentExtent) final;
+
+    protected:
+      std::shared_ptr<Graphics3D::INativeDevice> GetNativeDevice() final;
 
     private:
       void PerformGarbageCollection() noexcept;

@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/IO/FileAttributes.hpp>
 #include <FslBase/IO/Path.hpp>
+//#include <FslBase/Optional.hpp>
 #include <string>
 #include <vector>
 
@@ -72,6 +73,18 @@ namespace Fsl
       //! @brief Read the entire content of the given file into a string.
       //! @throws IOException if the file isn't found or something goes wrong reading it.
       static bool TryReadAllText(std::string& rDst, const Path& path);
+
+      //! @brief Read the entire content of the given file into a string.
+      //! @throws IOException if the file isn't found or something goes wrong reading it.
+      // static Optional<std::string> TryReadAllText(const Path& path);
+
+      //! @brief Read the entire content of the given file into a binary array.
+      //! @throws IOException if the file isn't found or something goes wrong reading it.
+      static bool TryReadAllBytes(std::vector<uint8_t>& rDst, const Path& path);
+
+      //! @brief Read the entire content of the given file into a binary array.
+      //! @throws IOException if the file isn't found or something goes wrong reading it.
+      // static Optional<std::vector<uint8_t>> TryReadAllBytes(const Path& path);
 
       //! @brief Read the entire content of the given file into a binary array.
       //! @param rTargetArray the array to load the content into. The array will be resized to fit the file content

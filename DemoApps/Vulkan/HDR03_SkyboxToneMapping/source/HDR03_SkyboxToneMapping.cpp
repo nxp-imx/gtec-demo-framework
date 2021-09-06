@@ -35,6 +35,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
@@ -137,7 +138,7 @@ namespace Fsl
                                              const VkFormat renderFormat)
     {
       assert(device != VK_NULL_HANDLE);
-      assert(swapchainImageFormat != VK_NULL_HANDLE);
+      assert(swapchainImageFormat != VK_FORMAT_UNDEFINED);
       assert(depthImageFormat != VK_FORMAT_UNDEFINED);
 
       VkAttachmentReference colorAttachmentReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
@@ -501,15 +502,14 @@ namespace Fsl
   void HDR03_SkyboxToneMapping::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers,
                                            const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
     // Upload the changes
-    m_resources.MainFrameResources[frameIndex].SceneVertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUBOData));
-    m_resources.MainFrameResources[frameIndex].TonemapVertUboBuffer.Upload(0, &m_tonemapUboData, sizeof(TonemapperUBOData));
+    m_resources.MainFrameResources[currentFrameIndex].SceneVertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUBOData));
+    m_resources.MainFrameResources[currentFrameIndex].TonemapVertUboBuffer.Upload(0, &m_tonemapUboData, sizeof(TonemapperUBOData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
       clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -525,16 +525,16 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawIt(demoTime, m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+        DrawIt(demoTime, m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -760,7 +760,7 @@ namespace Fsl
       VertexPositionTexture(Vector3(x1, y1, zPos), Vector2(y1, v1)),
     };
 
-    mesh.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+    mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
 
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.VertexAttributeDescription, quadShaderBindOrder, mesh.VertexBuffer);
     mesh.VertexInputBindingDescription.binding = 0;

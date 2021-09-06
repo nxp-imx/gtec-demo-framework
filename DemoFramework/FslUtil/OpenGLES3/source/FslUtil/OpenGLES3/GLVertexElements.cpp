@@ -33,6 +33,8 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -43,7 +45,7 @@ namespace Fsl
   {
     namespace
     {
-      std::size_t CountMatrixElements(const VertexDeclaration& vertexDeclaration)
+      std::size_t CountMatrixElements(VertexDeclarationSpan vertexDeclaration)
       {
         std::size_t count = 0;
         const std::size_t elementCount = vertexDeclaration.Count();
@@ -56,7 +58,7 @@ namespace Fsl
 
 
       // Convert from the platform independent vertex declaration to a GL one
-      void ConvertToNative(std::vector<GLVertexElement>& rVertexElements, const VertexDeclaration& vertexDeclaration)
+      void ConvertToNative(std::vector<GLVertexElement>& rVertexElements, VertexDeclarationSpan vertexDeclaration)
       {
         assert(vertexDeclaration.Count() <= std::numeric_limits<uint32_t>::max());
         const auto numMatrixElements = CountMatrixElements(vertexDeclaration);
@@ -105,7 +107,7 @@ namespace Fsl
       }
 
 
-      bool IsEqualTo(const VertexDeclaration& vertexDeclaration, const std::vector<GLVertexElement>& vertexElements,
+      bool IsEqualTo(VertexDeclarationSpan vertexDeclaration, const std::vector<GLVertexElement>& vertexElements,
                      const std::size_t originalVertexElementCount)
       {
         if (vertexDeclaration.Count() != originalVertexElementCount)
@@ -131,41 +133,42 @@ namespace Fsl
       }
 
 
-      inline void EnableAttribArray(const std::vector<GLVertexElement>& vertexElement, const std::size_t elementIndex, const GLuint attribIndex,
-                                    const uint32_t vertexStride)
+      inline void EnableAttribArray(const GLVertexElement& vertexElement, const GLuint attribIndex, const uint32_t vertexStride,
+                                    const ReadOnlySpan<GLVertexElement> vertexElements)
       {
-        assert(elementIndex < vertexElement.size());
-
-        glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized,
-                              vertexStride, vertexElement[elementIndex].Pointer);
+        glVertexAttribPointer(attribIndex, vertexElement.Size, vertexElement.Type, vertexElement.Normalized, vertexStride, vertexElement.Pointer);
         glEnableVertexAttribArray(attribIndex);
         // if this is a matrix element we need to enable the rest of the components
-        if (vertexElement[elementIndex].Source.Format == VertexElementFormat::Matrix4x4)
+        if (vertexElement.Source.Format == VertexElementFormat::Matrix4x4)
         {
-          auto extendedIndex = vertexElement[elementIndex].ExtendedIndex;
-          glVertexAttribPointer(attribIndex + 1, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
-                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
-          glEnableVertexAttribArray(attribIndex + 1);
-          ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 2, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
-                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
-          glEnableVertexAttribArray(attribIndex + 2);
-          ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 3, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
-                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
-          glEnableVertexAttribArray(attribIndex + 3);
+          {
+            const GLVertexElement& extendedElement = vertexElements[vertexElement.ExtendedIndex];
+            glVertexAttribPointer(attribIndex + 1, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, vertexStride,
+                                  extendedElement.Pointer);
+            glEnableVertexAttribArray(attribIndex + 1);
+          }
+          {
+            const GLVertexElement& extendedElement = vertexElements[vertexElement.ExtendedIndex + 1];
+            glVertexAttribPointer(attribIndex + 2, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, vertexStride,
+                                  extendedElement.Pointer);
+            glEnableVertexAttribArray(attribIndex + 2);
+          }
+          {
+            const GLVertexElement& extendedElement = vertexElements[vertexElement.ExtendedIndex + 2];
+            glVertexAttribPointer(attribIndex + 3, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, vertexStride,
+                                  extendedElement.Pointer);
+            glEnableVertexAttribArray(attribIndex + 3);
+          }
         }
       }
 
 
-      inline void DisableAttribArray(const std::vector<GLVertexElement>& vertexElement, const uint32_t elementIndex, const GLuint attribIndex)
+      inline void DisableAttribArray(const GLVertexElement& vertexElement, const GLuint attribIndex)
       {
-        assert(elementIndex < vertexElement.size());
-
         glDisableVertexAttribArray(attribIndex);
 
         // if this is a matrix element we need to enable the rest of the components
-        if (vertexElement[elementIndex].Source.Format == VertexElementFormat::Matrix4x4)
+        if (vertexElement.Source.Format == VertexElementFormat::Matrix4x4)
         {
           glDisableVertexAttribArray(attribIndex + 1);
           glDisableVertexAttribArray(attribIndex + 2);
@@ -173,31 +176,34 @@ namespace Fsl
         }
       }
 
-      inline void EnableAttribPointer(const std::vector<GLVertexElement>& vertexElement, const uint32_t elementIndex, const GLuint attribIndex,
-                                      const uint32_t vertexStride)
+      inline void EnableAttribPointer(const GLVertexElement& vertexElement, const GLuint attribIndex, const uint32_t vertexStride,
+                                      const ReadOnlySpan<GLVertexElement> vertexElements)
       {
-        assert(elementIndex < vertexElement.size());
-
-        glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized,
-                              vertexStride, vertexElement[elementIndex].Pointer);
+        glVertexAttribPointer(attribIndex, vertexElement.Size, vertexElement.Type, vertexElement.Normalized, vertexStride, vertexElement.Pointer);
         // if this is a matrix element we need to enable the rest of the components
-        if (vertexElement[elementIndex].Source.Format == VertexElementFormat::Matrix4x4)
+        if (vertexElement.Source.Format == VertexElementFormat::Matrix4x4)
         {
-          auto extendedIndex = vertexElement[elementIndex].ExtendedIndex;
-          glVertexAttribPointer(attribIndex + 1, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
-                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
-          ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 2, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
-                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
-          ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 3, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
-                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          {
+            const GLVertexElement& extendedElement = vertexElements[vertexElement.ExtendedIndex];
+            glVertexAttribPointer(attribIndex + 1, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, vertexStride,
+                                  extendedElement.Pointer);
+          }
+          {
+            const GLVertexElement& extendedElement = vertexElements[vertexElement.ExtendedIndex + 1];
+            glVertexAttribPointer(attribIndex + 2, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, vertexStride,
+                                  extendedElement.Pointer);
+          }
+          {
+            const GLVertexElement& extendedElement = vertexElements[vertexElement.ExtendedIndex + 2];
+            glVertexAttribPointer(attribIndex + 3, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, vertexStride,
+                                  extendedElement.Pointer);
+          }
         }
       }
     }
 
 
-    GLVertexElements::GLVertexElements(const VertexDeclaration& vertexDeclaration)
+    GLVertexElements::GLVertexElements(VertexDeclarationSpan vertexDeclaration)
       : m_originalVertexElementCount(vertexDeclaration.Count())
       , m_vertexElementStride(vertexDeclaration.VertexStride())
     {
@@ -205,7 +211,7 @@ namespace Fsl
     }
 
 
-    void GLVertexElements::Reset(const VertexDeclaration& vertexDeclaration)
+    void GLVertexElements::Reset(VertexDeclarationSpan vertexDeclaration)
     {
       m_originalVertexElementCount = vertexDeclaration.Count();
       m_vertexElementStride = vertexDeclaration.VertexStride();
@@ -213,7 +219,7 @@ namespace Fsl
       ConvertToNative(m_vertexElements, vertexDeclaration);
     }
 
-    bool GLVertexElements::IsEqual(const VertexDeclaration& vertexDeclaration) const
+    bool GLVertexElements::IsEqual(VertexDeclarationSpan vertexDeclaration) const
     {
       return IsEqualTo(vertexDeclaration, m_vertexElements, m_originalVertexElementCount);
     }
@@ -251,51 +257,6 @@ namespace Fsl
     }
 
 
-    // void GLVertexElements::EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
-    //{
-    //  if (pAttributeIndices == nullptr)
-    //  {
-    //    throw std::invalid_argument("pAttributeIndices can not be null");
-    //  }
-    //  if (count > std::numeric_limits<uint32_t>::max())
-    //  {
-    //    throw NotSupportedException("We only support 32bit of elements");
-    //  }
-    //  FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements
-    //  ignored!");
-
-    //  const auto vertexStride = VertexStride();
-
-    //  const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
-    //  for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
-    //  {
-    //    EnableAttribArray(m_vertexElements, elementIndex, pAttributeIndices[elementIndex], vertexStride);
-    //    ++elementIndex;
-    //  }
-    //}
-
-
-    // void GLVertexElements::DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
-    //{
-    //  if (pAttributeIndices == nullptr)
-    //  {
-    //    throw std::invalid_argument("pAttributeIndices can not be null");
-    //  }
-    //  if (count > std::numeric_limits<uint32_t>::max())
-    //  {
-    //    throw NotSupportedException("We only support 32bit of elements");
-    //  }
-    //  FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements
-    //  ignored!");
-
-    //  const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
-    //  for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
-    //  {
-    //    DisableAttribArray(m_vertexElements, elementIndex, pAttributeIndices[elementIndex]);
-    //  }
-    //}
-
-
     void GLVertexElements::EnableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const
     {
       if (pLinks == nullptr)
@@ -307,13 +268,15 @@ namespace Fsl
         throw NotSupportedException("We only support 32bit of elements");
       }
 
+      const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
       const auto vertexStride = VertexStride();
       assert(count <= std::numeric_limits<uint32_t>::max());
       for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
       {
-        if (pLinks[i].AttribIndex >= 0)
+        if (pLinks[i].AttribIndex >= 0)    // if present in shader
         {
-          EnableAttribArray(m_vertexElements, pLinks[i].VertexElementIndex, pLinks[i].AttribIndex, vertexStride);
+          assert(pLinks[i].VertexElementIndex < vertexElementSpan.size());
+          EnableAttribArray(vertexElementSpan[pLinks[i].VertexElementIndex], pLinks[i].AttribIndex, vertexStride, vertexElementSpan);
         }
       }
     }
@@ -330,11 +293,13 @@ namespace Fsl
         throw NotSupportedException("We only support 32bit of elements");
       }
 
+      const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
       for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
       {
         if (pLinks[i].AttribIndex >= 0)
         {
-          DisableAttribArray(m_vertexElements, pLinks[i].VertexElementIndex, pLinks[i].AttribIndex);
+          assert(pLinks[i].VertexElementIndex < vertexElementSpan.size());
+          DisableAttribArray(vertexElementSpan[pLinks[i].VertexElementIndex], pLinks[i].AttribIndex);
         }
       }
     }
@@ -358,27 +323,6 @@ namespace Fsl
     }
 
 
-    // void GLVertexElements::SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const
-    //{
-    //  if (count > std::numeric_limits<uint32_t>::max())
-    //  {
-    //    throw NotSupportedException("We only support 32bit of elements");
-    //  }
-
-    //  FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements
-    //  ignored!");
-
-    //  const auto vertexStride = VertexStride();
-
-    //  const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
-    //  for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
-    //  {
-    //    EnableAttribPointer(m_vertexElements, elementIndex, pAttributeIndices[elementIndex], vertexStride);
-    //    ++elementIndex;
-    //  }
-    //}
-
-
     void GLVertexElements::SetVertexAttribPointers(const GLVertexAttribLink* const pLinks, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
@@ -386,12 +330,14 @@ namespace Fsl
         throw NotSupportedException("We only support 32bit of elements");
       }
 
+      const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
       const auto vertexStride = VertexStride();
       for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
       {
         if (pLinks[i].AttribIndex >= 0)
         {
-          EnableAttribPointer(m_vertexElements, pLinks[i].VertexElementIndex, pLinks[i].AttribIndex, vertexStride);
+          assert(pLinks[i].VertexElementIndex < vertexElementSpan.size());
+          EnableAttribPointer(vertexElementSpan[pLinks[i].VertexElementIndex], pLinks[i].AttribIndex, vertexStride, vertexElementSpan);
         }
       }
     }
@@ -419,6 +365,46 @@ namespace Fsl
         }
       }
       return -1;
+    }
+
+
+    std::vector<GLVertexElementAttribConfig> GLVertexElements::ExtractConfiguration(const ReadOnlySpan<GLVertexAttribLink> attribLinks)
+    {
+      std::vector<GLVertexElementAttribConfig> res(m_vertexElements.size());
+      res.clear();
+
+      const ReadOnlySpan<GLVertexElement> vertexElementSpan = ReadOnlySpanUtil::AsSpan(m_vertexElements);
+      // const auto vertexStride = VertexStride();
+      const auto count = UncheckedNumericCast<uint32_t>(attribLinks.size());
+      for (uint32_t i = 0; i < count; ++i)
+      {
+        if (attribLinks[i].AttribIndex >= 0)
+        {
+          assert(attribLinks[i].VertexElementIndex < vertexElementSpan.size());
+
+          GLint attribIndex = attribLinks[i].AttribIndex;
+          const GLVertexElement& vertexElement = vertexElementSpan[attribLinks[i].VertexElementIndex];
+
+          res.emplace_back(attribIndex, vertexElement.Size, vertexElement.Type, vertexElement.Normalized, vertexElement.Pointer);
+          // if this is a matrix element we need to enable the rest of the components
+          if (vertexElement.Source.Format == VertexElementFormat::Matrix4x4)
+          {
+            {
+              const GLVertexElement& extendedElement = vertexElementSpan[vertexElement.ExtendedIndex];
+              res.emplace_back(attribIndex + 1, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, extendedElement.Pointer);
+            }
+            {
+              const GLVertexElement& extendedElement = vertexElementSpan[vertexElement.ExtendedIndex + 1];
+              res.emplace_back(attribIndex + 2, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, extendedElement.Pointer);
+            }
+            {
+              const GLVertexElement& extendedElement = vertexElementSpan[vertexElement.ExtendedIndex + 2];
+              res.emplace_back(attribIndex + 3, extendedElement.Size, extendedElement.Type, extendedElement.Normalized, extendedElement.Pointer);
+            }
+          }
+        }
+      }
+      return res;
     }
   }
 }

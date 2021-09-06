@@ -1,0 +1,97 @@
+@startuml UIRender Class Diagram
+scale 1
+
+' FslSimpleUI.Base.Render
+
+namespace Render {
+    class DrawCommandBuffer {
+        void Draw(UIMeshHandle hMesh, PxPoint2D position)
+    }
+
+    interface IMeshManager {
+        UIMeshHandle CreateMesh(SpriteId spriteId)
+        void DestroyMesh(UIMeshHandle hMesh)
+        void SetMeshSprite(UIMeshHandle hMesh, SpriteId spriteId)
+    }
+
+    interface IRenderSystem {
+       void OnConfigurationChanged()
+       IMeshManager GetMeshManager()
+       DrawCommandBuffer AcquireDrawCommandBuffer()
+       void ReleaseDrawCommandBuffer()
+       void PreDraw()
+       void Draw()
+       void PostDraw()
+    }
+
+    interface IRenderSystemFactory
+
+    class DrawCommandBuffer
+    class DrawCommandBufferEx
+
+    DrawCommandBuffer <|-- DrawCommandBufferEx
+}
+
+namespace FslGraphics2D.Procedural.Batcher {
+    class FlexibleImmediateModeBatcher
+    class ImmediateModeBatcher
+}
+
+namespace Render.ImBatch {
+    class MeshManager
+    class RenderSystem
+    class RenderSystemFactory
+
+    interface ISpriteRender
+    class RenderBasicImageSprite
+    class RenderBasicImageSpriteBasicMesh
+    class RenderBasicNineSliceSprite
+    class RenderDummy
+    class RenderBasicImageSprite
+    class RenderNineSliceSprite
+    class SpriteFontRender
+
+    Render.IMeshManager <|-- MeshManager
+    Render.IRenderSystem <|-- RenderSystem
+    Render.IRenderSystemFactory <|-- RenderSystemFactory
+
+    RenderSystemFactory -- RenderSystem
+
+    RenderSystem o-- Render.IMeshManager
+    RenderSystem o-- Render.DrawCommandBufferEx
+    RenderSystem o-- FslGraphics2D.Procedural.Batcher.ImmediateModeBatcher
+    RenderSystem o-- MeshManager
+
+    MeshManager o-- ISpriteRender
+
+    ISpriteRender <|-- RenderBasicImageSprite
+    ISpriteRender <|-- RenderBasicImageSpriteBasicMesh
+    ISpriteRender <|-- RenderBasicNineSliceSprite
+    ISpriteRender <|-- RenderDummy
+    ISpriteRender <|-- RenderImageSprite
+    ISpriteRender <|-- RenderNineSliceSprite
+    ISpriteRender <|-- SpriteFontRender
+}
+
+namespace App {
+    class UIDemoAppExtensionBase
+
+    UIDemoAppExtensionBase o-- Render.IRenderSystemFactory
+    UIDemoAppExtensionBase o-- Render.IRenderSystem
+}
+
+namespace UI {
+    class LabelButton
+    class Image
+    class CheckBox
+    class Slider
+}
+
+
+UI.CheckBox o-- Render.IMeshManager
+UI.Image o-- Render.IMeshManager
+UI.LabelButton o-- Render.IMeshManager
+UI.Slider o-- Render.IMeshManager
+
+
+@enduml

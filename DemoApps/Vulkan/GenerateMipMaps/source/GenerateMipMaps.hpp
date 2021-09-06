@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
@@ -105,10 +105,10 @@ namespace Fsl
     struct UIRecord
     {
       std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> Slider;
-      std::shared_ptr<UI::LabelNineSliceButton> BtnDefault;
+      std::shared_ptr<UI::BackgroundLabelButton> BtnDefault;
 
       UIRecord() = default;
-      UIRecord(std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> slider, std::shared_ptr<UI::LabelNineSliceButton> btnDefault)
+      UIRecord(std::shared_ptr<UI::SliderAndFmtValueLabel<uint32_t>> slider, std::shared_ptr<UI::BackgroundLabelButton> btnDefault)
         : Slider(std::move(slider))
         , BtnDefault(std::move(btnDefault))
       {

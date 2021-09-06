@@ -44,6 +44,9 @@ namespace Fsl
     public:
       virtual ~IModuleCallbackReceiver() = default;
 
+      //! @brief Called when a TreeNode is added
+      virtual void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node) = 0;
+
       //! @brief Called when a TreeNode is disposed (this call occurs right before we dispose it)
       virtual void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) = 0;
     };

@@ -273,7 +273,7 @@ namespace Fsl
     // - Framebuffer
 
     // Rebuild the primary cmd buffer
-    BuildCmdBuffer(rCmdBuffers, drawContext.CurrentSwapBufferIndex, drawContext.SwapchainImageExtent, drawContext.Framebuffer);
+    BuildCmdBuffer(rCmdBuffers, drawContext.CurrentFrameIndex, drawContext.SwapchainImageExtent, drawContext.Framebuffer);
   }
 
 

@@ -33,12 +33,10 @@
 
 #include <FslBase/Math/Dp/DpExtent.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 
 namespace Fsl
 {
-  class StringViewLite;
-
   //! @brief Represents a atlas texture 2d image with no trim
   struct CoreBasicImageInfo
   {
@@ -46,13 +44,13 @@ namespace Fsl
     PxExtent2D ExtentPx;
 
     //! The rectangle on the source atlas texture
-    PxRectangleU RectanglePx;
+    PxRectangleU16 RectanglePx;
 
     //! The image density extent (this is the dp size of the image)
     DpExtent ExtentDp;
 
     constexpr CoreBasicImageInfo() = default;
-    constexpr CoreBasicImageInfo(const PxExtent2D extentPx, const PxRectangleU& rectanglePx, const DpExtent extentDp)
+    constexpr CoreBasicImageInfo(const PxExtent2D extentPx, const PxRectangleU16 rectanglePx, const DpExtent extentDp)
       : ExtentPx(extentPx)
       , RectanglePx(rectanglePx)
       , ExtentDp(extentDp)

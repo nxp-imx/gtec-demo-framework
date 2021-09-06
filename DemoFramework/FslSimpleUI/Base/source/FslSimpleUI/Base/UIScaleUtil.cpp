@@ -183,7 +183,7 @@ namespace Fsl
 
     bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
     {
-      return TryCalcSize(rSize, targetSize, TypeConverter::To<PxVector2>(targetSize), scalePolicy);
+      return TryCalcSize(rSize, targetSize, TypeConverter::To<PxVector2>(srcSize), scalePolicy);
     }
 
     bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy)

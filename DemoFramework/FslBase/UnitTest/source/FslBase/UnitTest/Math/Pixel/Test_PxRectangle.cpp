@@ -59,7 +59,7 @@ TEST(TestMathPixel_PxRectangle, Empty)
   EXPECT_EQ(PxPoint2(), value.TopRight());
   EXPECT_EQ(PxPoint2(), value.BottomLeft());
   EXPECT_EQ(PxPoint2(), value.BottomRight());
-  EXPECT_EQ(PxPoint2(), value.GetSize());
+  EXPECT_EQ(PxSize2D(), value.GetSize());
 }
 
 
@@ -81,7 +81,7 @@ TEST(TestMathPixel_PxRectangle, Construct1)
   EXPECT_EQ(PxPoint2(offsetX + width, offsetY), value.TopRight());
   EXPECT_EQ(PxPoint2(offsetX, offsetY + height), value.BottomLeft());
   EXPECT_EQ(PxPoint2(offsetX + width, offsetY + height), value.BottomRight());
-  EXPECT_EQ(PxPoint2(width, height), value.GetSize());
+  EXPECT_EQ(PxSize2D(width, height), value.GetSize());
 }
 
 
@@ -103,7 +103,7 @@ TEST(TestMathPixel_PxRectangle, Construct_PxPoint_PxPoint)
   EXPECT_EQ(PxPoint2(offsetX + width, offsetY), value.TopRight());
   EXPECT_EQ(PxPoint2(offsetX, offsetY + height), value.BottomLeft());
   EXPECT_EQ(PxPoint2(offsetX + width, offsetY + height), value.BottomRight());
-  EXPECT_EQ(PxPoint2(width, height), value.GetSize());
+  EXPECT_EQ(PxSize2D(width, height), value.GetSize());
 }
 
 
@@ -125,7 +125,7 @@ TEST(TestMathPixel_PxRectangle, Construct_PxPoint_PxSize2D)
   EXPECT_EQ(PxPoint2(offsetX + width, offsetY), value.TopRight());
   EXPECT_EQ(PxPoint2(offsetX, offsetY + height), value.BottomLeft());
   EXPECT_EQ(PxPoint2(offsetX + width, offsetY + height), value.BottomRight());
-  EXPECT_EQ(PxPoint2(width, height), value.GetSize());
+  EXPECT_EQ(PxSize2D(width, height), value.GetSize());
 }
 
 
@@ -147,7 +147,7 @@ TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom)
   EXPECT_EQ(PxPoint2(right, top), value.TopRight());
   EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
   EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
-  EXPECT_EQ(PxPoint2(right - left, bottom - top), value.GetSize());
+  EXPECT_EQ(PxSize2D(right - left, bottom - top), value.GetSize());
 }
 
 TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_MaxWidth)
@@ -168,7 +168,7 @@ TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_MaxWidth)
   EXPECT_EQ(PxPoint2(right, top), value.TopRight());
   EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
   EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
-  EXPECT_EQ(PxPoint2(right - left, bottom - top), value.GetSize());
+  EXPECT_EQ(PxSize2D(right - left, bottom - top), value.GetSize());
 }
 
 TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_MaxHeight)
@@ -189,7 +189,7 @@ TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_MaxHeight)
   EXPECT_EQ(PxPoint2(right, top), value.TopRight());
   EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
   EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
-  EXPECT_EQ(PxPoint2(right - left, bottom - top), value.GetSize());
+  EXPECT_EQ(PxSize2D(right - left, bottom - top), value.GetSize());
 }
 
 TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_NoCheck)
@@ -210,7 +210,7 @@ TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_NoCheck)
   EXPECT_EQ(PxPoint2(right, top), value.TopRight());
   EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
   EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
-  EXPECT_EQ(PxPoint2(right - left, bottom - top), value.GetSize());
+  EXPECT_EQ(PxSize2D(right - left, bottom - top), value.GetSize());
 }
 
 TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_NoCheck_MaxWidth)
@@ -231,7 +231,7 @@ TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_NoCheck_MaxWidth)
   EXPECT_EQ(PxPoint2(right, top), value.TopRight());
   EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
   EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
-  EXPECT_EQ(PxPoint2(right - left, bottom - top), value.GetSize());
+  EXPECT_EQ(PxSize2D(right - left, bottom - top), value.GetSize());
 }
 
 TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_NoCheck_MaxHeight)
@@ -252,7 +252,7 @@ TEST(TestMathPixel_PxRectangle, FromLeftTopRightBottom_NoCheck_MaxHeight)
   EXPECT_EQ(PxPoint2(right, top), value.TopRight());
   EXPECT_EQ(PxPoint2(left, bottom), value.BottomLeft());
   EXPECT_EQ(PxPoint2(right, bottom), value.BottomRight());
-  EXPECT_EQ(PxPoint2(right - left, bottom - top), value.GetSize());
+  EXPECT_EQ(PxSize2D(right - left, bottom - top), value.GetSize());
 }
 
 
@@ -314,7 +314,7 @@ TEST(TestMathPixel_PxRectangle, SetLocation)
   EXPECT_EQ(PxPoint2(newLocation.X + width, newLocation.Y), value.TopRight());
   EXPECT_EQ(PxPoint2(newLocation.X, newLocation.Y + height), value.BottomLeft());
   EXPECT_EQ(PxPoint2(newLocation.X + width, newLocation.Y + height), value.BottomRight());
-  EXPECT_EQ(PxPoint2(width, height), value.GetSize());
+  EXPECT_EQ(PxSize2D(width, height), value.GetSize());
 }
 
 TEST(TestMathPixel_PxRectangle, GetCenter)

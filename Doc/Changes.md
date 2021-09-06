@@ -1,5 +1,34 @@
 # Latest version
 
+## Release 5.8.0
+
+* Vulkan.GpuTimestamp sample.
+* Updated to OpenCV 4.5.2
+* Android apps now support command line arguments. Add the arguments using ```-e "args" "<arguments>" for example ```-e "args" "--DensityDpi 160 -vvvv"```
+* **Breaking change** Moved all FslBase Span classes into the Span subdirectory.
+* **Breaking change** Changed the way the theme factory in instanciated.
+* Added GLES2.UI.Benchmark, GLES3.UI.Benchmark, Vulkan.UI.Benchmark a basic benchmark app.
+* PreProcessFrame, BeginFrame and EndFrame are now part of the general app rendering model
+* MaxFramesInFlight and FrameIndex are now part of the general app rendering model and not just a Vulkan concept.
+* App's draw method was changed from "void Draw(const DemoTime& demoTime)" to "void Draw(const FrameInfo& frameInfo)", there are still backwards compatibility with the old method. But we will start deprecating the old one and replace it.
+* VulkanPreProcessFrame replaced by PreProcessFrame
+* VulkanDeviceInit replaced by CreateDevice
+* VulkanDeviceShutdown replaced by DestroyDevice
+* VulkanCreateDependentResources replaced by CreateDependentResources
+* VulkanDestroyDependentResources replaced by DestroyDependentResources
+* **Breaking change** NativeBatch2D was moved from FslUtil/api to FslDemoService/NativeGraphics/api
+* Introduced the FslDemoService.NativeGraphics.No3D package with a baseclass 'ANativeGraphicsServiceNo3D' for INativeGraphicsService's that doesn't support full 3d rendering.
+* Introduced the FslDemoService.NativeGraphics.BasicRender package with a baseclass 'ANativeGraphicsService' for INativeGraphicsService's that supports full 3d rendering.
+* **Breaking change** Removed all helper methods for std::array, std::vector and ReadOnlySpan on Vulkan::VMVertexBuffer. ReadOnlyFlexVertexSpan is now the only type directly supported.
+* **Breaking change** Removed GetVertexDeclaration() from all vertices. Code that still need to use GetVertexDeclaration() can construct one from a GetVertexDeclarationSpan().
+* **Breaking change** UI controls: renamed LabelNineSliceButton to BackgroundLabelButton
+* **Breaking change** UI controls: renamed BackgroundNineSlice to Background
+* **Breaking change** New UI rendering scheme
+  With the new rendering scheme we are able to merge a lot of controls.
+  * BasicNineSliceImage was replaced by Image
+  * BasicImage was replaced by Image
+  * NineSliceImage was replaced by Image
+
 ## Release 5.7.1
 
 * Compatible with GCC11
@@ -177,8 +206,8 @@
 * Updated third-party library OpenCV from 3.2.0 to 3.4.5
 * Updated third-party library fmt from 4.0.0 to 5.3.0
 * **Breaking change** Disable third party downloads per default for Yocto builds. To build using an old Yocto release that doesn't come with all third party software you need to add ```--Recipes [*]``` to your command line which will re-enable the download.
-* **Deprecation** Vector2+Vector3+Vector4+Matrix all static methods that outputs to a reference now takes the output as the last parameter 
-                  just as in MonoGame for consistency existing methods that took it as the first parameter was declared deprecated and 
+* **Deprecation** Vector2+Vector3+Vector4+Matrix all static methods that outputs to a reference now takes the output as the last parameter
+                  just as in MonoGame for consistency existing methods that took it as the first parameter was declared deprecated and
                   will be removed next release.
 * Added more unit tests
 * Most OriginalContent directories have been moved to Resources/Source.
@@ -228,8 +257,8 @@
 * FslBuild 2.6+ now checks that all include files are under their correct package name based include path.
   So for a package called "Hamster.Dance.Master" the include files will be under "include/Hamster/Dance/Master"
   This check can de disabled per package with PackageNameBasedIncludePath="false".
-* **Breaking change** Isolated the Graphics service from FslDemoHost.Base to FslDemoService/Graphics to 
-  allow better dependency control. This allowed us to remove the Graphics service from Console type demos 
+* **Breaking change** Isolated the Graphics service from FslDemoHost.Base to FslDemoService/Graphics to
+  allow better dependency control. This allowed us to remove the Graphics service from Console type demos
   removing their dependency on the Graphics, NativeGraphics and NativeWindow packages which they did not need.
 * **Breaking change** Reduced dependencies for the NativeGraphics service.
 * Android build now requires Android Studio 3.1 and the Android NDK16b or newer.
@@ -260,7 +289,7 @@
 * Enabled OpenVX1.1 on Yocto builds.
 * Converted all OpenVX legacy application to OpenVX 1.1.
 * All OpenVX 1.0.1 apps was postfixed with Legacy in their name.
-* IDemoAppControl now has the ability to enable/disable mouse capture for the platforms 
+* IDemoAppControl now has the ability to enable/disable mouse capture for the platforms
   that support it.
 * RawMouseMovement introduced. Platform support is limited to Windows at the moment.
 * Updated GLM to 0.9.8.5 from 0.9.8.4
@@ -282,10 +311,10 @@
 * **Breaking change**: Gen files attribute 'NotSupported' was replaced with 'Supported'.
 * **Breaking change**: Gen files <UsesFeature> was replaced with <Requirement> and it now supports both feature and extension types and extending other features.
 * **Breaking change**: All DemoApp Register methods now takes the application name as the second parameter.
-* **Breaking change**: TestService screenshot functionality naming scheme was modified. 
-  All numbered screenshots taken are now named '\<prefix>-\<number>.\<extension>' instead of "test-frame-\<number>.\<extension>", 
+* **Breaking change**: TestService screenshot functionality naming scheme was modified.
+  All numbered screenshots taken are now named '\<prefix>-\<number>.\<extension>' instead of "test-frame-\<number>.\<extension>",
   "test-screenshot-\<number>.\<extension>" or , "Screenshot-\<number>.\<extension>".
-  Manual screenshots taken with F4 now follows the same naming scheme. However if automatic screenshots is enabled with --ScreenshotFrequency 
+  Manual screenshots taken with F4 now follows the same naming scheme. However if automatic screenshots is enabled with --ScreenshotFrequency
   the user screenshots are instead saved to "UserScreenshot-\<number>.\<extension>" so they dont conflict with the automatic saves.
 * **Breaking change**: Removed FslImageConvert.exe as its no longer needed now that we can save directly to jpg on all platforms.
 * **Breaking change**: added command line argument 'ScreenshotFormat' that can be used to chose the format for the screenshot: bmp, jpg, png or tg' (defaults to png)
@@ -300,29 +329,29 @@
   | exact    | The exact name (this is equal to the prefix + format extension) |
 * **Breaking change**: Added command line argument 'ScreenshotNamePrefix' that can be used to chose the screenshot name prefix (defaults to 'Screenshot').
 * Added ImageLibrarySTBService which adds basic support for saving bmp, jpg, png or tga.
-* **Breaking change**: The low level functionality of FslUtil/OpenCL1_1 was deleted. 
+* **Breaking change**: The low level functionality of FslUtil/OpenCL1_1 was deleted.
   Chose to use the RapidOpenCL1 library instead as it provides the same functionality.
-  This made room for more high level classes in FslUtil/OpenCL1_1 for future improvements. 
-* **Breaking change**: The low level functionality of FslUtil/OpenCL1_2 was deleted. 
+  This made room for more high level classes in FslUtil/OpenCL1_1 for future improvements.
+* **Breaking change**: The low level functionality of FslUtil/OpenCL1_2 was deleted.
   Chose to use the RapidOpenCL2 library instead as it provides the same functionality.
-  This made room for more high level classes in FslUtil/OpenCL1_2 for future improvements. 
-* **Breaking change**: The low level functionality of FslUtil/OpenVX1_1 was deleted. 
+  This made room for more high level classes in FslUtil/OpenCL1_2 for future improvements.
+* **Breaking change**: The low level functionality of FslUtil/OpenVX1_1 was deleted.
   Chose to use the RapidOpenVX library instead as it provides the same functionality.
-  This made room for more high level classes in FslUtil/OpenVX1_1 for future improvements. 
-* **Breaking change**: The low level functionality of FslUtil/OpenVX1_0_1 was deleted. 
+  This made room for more high level classes in FslUtil/OpenVX1_1 for future improvements.
+* **Breaking change**: The low level functionality of FslUtil/OpenVX1_0_1 was deleted.
   Chose to use the RapidOpenVX library instead as it provides the same functionality.
-  This made room for more high level classes in FslUtil/OpenVX1_0_1 for future improvements. 
+  This made room for more high level classes in FslUtil/OpenVX1_0_1 for future improvements.
 * **Breaking change**:OpenCV: Feature OpenCV3.1 was renamed to OpenCV3.
 * **Breaking change**:OpenCV: OpenCV3_1 package was renamed to OpenCV3.
 * **Breaking change**:OpenCV: The define FSL_ENABLE_OPENCV3_1 was changed to FSL_ENABLE_OPENCV3.
-* OpenCV: updated from 3.1 to 3.2 on windows. 
+* OpenCV: updated from 3.1 to 3.2 on windows.
 * FslBuildNew.py now supports sanity checking of its templates
 * FslUtil/Vulkan1_0 is getting closer to a alpha state.
 * VulkanBasicObjects moved into FslUtil/Vulkan1_0
 * VulkanExperimental moved into FslUtil/Vulkan1_0
-* The low level functionality of FslUtil/Vulkan1_0 was deleted. 
+* The low level functionality of FslUtil/Vulkan1_0 was deleted.
   Chose to use the RapidVulkan library instead as it provides the same functionality.
-  This made room for more high level classes in FslUtil/Vulkan. 
+  This made room for more high level classes in FslUtil/Vulkan.
   Next step is to merge the experimental libs into it.
 * Renamed FslGraphics_Draft to FslGraphics3D.Procedural
 * Renamed FslGraphics3D to FslGraphics3D.BasicScene
@@ -368,7 +397,7 @@
   * FslBuildNew templates now reside in '.Config\Templates.gen\NewProject'
 * Updated Fsl python toolchain to 1.5.5.
   * All FslBuildNew templates moved so they reside under ".Config\Templates.gen\NewProject" instead of "Templates".
-  * Internal template improvements.  
+  * Internal template improvements.
 * Removed deprecated FslNewDemoProject.
 * Updated GLM from 0.9.7.6 to 0.9.8.4
 * Updated GLI from 0.8.1.0 to 0.8.2.0
@@ -390,7 +419,7 @@
 * DevIL updated from 1.7.8 to 1.8.0 on windows.
 * Android ArmeAbi is no longer supported as its C++ library doesn't contain std::exception_ptr
 * Visual Studio 2015 is now the default environment under windows.
-* Visual Studio projects now utilize the full package name instead of the short package name. 
+* Visual Studio projects now utilize the full package name instead of the short package name.
   So apps are called GLES2.S06_Texturing. This causes less conflicts when using sub packages.
 * Example of building and running a command on a GLES2 project, this will take a screenshot after five frames and exit, it will also uses
   a fixed update time to ensure reproducible output.
@@ -398,7 +427,7 @@
   On Windows the environment variables can be specified to control the GLES2 emulator:
     %FSLBUILD_VARIANT_FSL_GLES_NAME% = the name of the GLES2 emulator (equal to what can be specified to .StartProject.bat)
     %FSLBUILD_FEATURE_OPENGLES2% = Extra parameters for .StartProject.bat.
-  Can be used to control the 
+  Can be used to control the
 * FslBuild added EarlyAccess tag to all API's that are currently released in early access mode.
 * FslBuild added argument:
   --RequireFeatures The list of features that are required for a executable to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.
@@ -429,7 +458,7 @@
   * Run A command for all executables with access to various build information
     (EXE) = the full path to the executable.
     (EXE_NAME) = name of the executable.
-    (EXE_PATH) = the executables dir. 
+    (EXE_PATH) = the executables dir.
     (PACKAGE_PATH) = full path to package
     (CONTENT_PATH) = full path to package content directory
   For example on windows to take a screenshot of all executables supporting a set of features:
@@ -450,10 +479,10 @@
   * FslGraphics/RawCubeBitmapEx   -> FslGraphics/Bitmap/RawCubeBitmapEx
 * FslBuildCheck can now do some code style sanity checks and even repair a bit of the common mistakes.
   --ScanSource = Scan source and check for common issues.
-  --Repair     = If used in combination with --ScanSource the tool will attempt to fix common mistakes, 
+  --Repair     = If used in combination with --ScanSource the tool will attempt to fix common mistakes,
                  beware this modifies your source files so use it at your own risk!
   --DryRun     = No files will be created.
-* PixelFormat was updated to support all vulkan formats. 
+* PixelFormat was updated to support all vulkan formats.
   The formats was also made more explicit in their description which unfortunately meant the old formats had to be renamed.
 
     | Old name          | New name                   | Is supported by Vulkan |
@@ -471,7 +500,7 @@
   Beware the new name listed here is just a suggestion that will match well with how
   GLES2+3 treated the data.
 
-* Environment variable FSLDEMOAPP_PREFERRED_WINDOW_RESOLUTION can now be set to the preferred window resolution. 
+* Environment variable FSLDEMOAPP_PREFERRED_WINDOW_RESOLUTION can now be set to the preferred window resolution.
   It will be used if no --Window parameter is set, it also accepts the same values as --Window does.
 * Renamed FslConfigCheck to FslBuildCheck and allowed it to utilize the FslBuildGen package.
   Introduced FslBuildContent which will be the new content pipeline for building Content.
@@ -514,7 +543,7 @@
   * TimeStepMode::Enum was changed to TimeStepMode.
   * Texture2DFilterHint::Enum was changed to Texture2DFilterHint.
   * VertexElementFormat::Enum was changed to VertexElementFormat.
-  * VertexElementUsage::Enum was changed to VertexElementUsage.  
+  * VertexElementUsage::Enum was changed to VertexElementUsage.
   * WindowMode::Enum was changed to WindowMode
 * The build system was updated.
   * All build.sh type scripts was replaced by the FslBuild.py script.

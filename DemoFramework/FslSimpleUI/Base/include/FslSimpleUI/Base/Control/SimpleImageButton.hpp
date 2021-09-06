@@ -36,10 +36,11 @@
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
+#include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 
 namespace Fsl
 {
-  class ImageSprite;
+  class ISizedSprite;
 
   namespace UI
   {
@@ -53,7 +54,7 @@ namespace Fsl
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      std::shared_ptr<ImageSprite> m_content;
+      SizedSpriteMesh m_content;
       ItemScalePolicy m_scalePolicy;
       Color m_upColor{DefaultColor::Button::Up};
       Color m_downColor{DefaultColor::Button::Down};
@@ -63,12 +64,12 @@ namespace Fsl
     public:
       explicit SimpleImageButton(const std::shared_ptr<WindowContext>& context);
 
-      const std::shared_ptr<ImageSprite>& GetContent() const
+      const std::shared_ptr<ISizedSprite>& GetContent() const
       {
-        return m_content;
+        return m_content.GetSprite();
       }
-      void SetContent(const std::shared_ptr<ImageSprite>& value);
-      void SetContent(std::shared_ptr<ImageSprite>&& value);
+      void SetContent(const std::shared_ptr<ISizedSprite>& value);
+      void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
       ItemScalePolicy GetScalePolicy() const
       {

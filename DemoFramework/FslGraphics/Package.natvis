@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="Fsl::VertexSpan&lt;*&gt;">
+    <DisplayString>{{data={pVertices,[VertexCount]} size={VertexCount} }}</DisplayString>
+    <Expand>
+        <Item Name="[size]" ExcludeView="simple">VertexCount</Item>
+        <ArrayItems>
+          <Size>VertexCount</Size>
+          <ValuePointer>pVertices</ValuePointer>
+        </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>

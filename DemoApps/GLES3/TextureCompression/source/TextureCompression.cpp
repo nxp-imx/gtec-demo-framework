@@ -38,8 +38,10 @@
 #include <FslGraphics/Log/FmtPixelFormat.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
+#include <FslGraphics/Sprite/BasicImageSprite.hpp>
+#include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
@@ -97,10 +99,21 @@ namespace Fsl
 
     struct CreateContext
     {
-      std::shared_ptr<IContentManager> ContentManager;
-      std::shared_ptr<IGraphicsService> GraphicsService;
+      IContentManager& ContentManager;
+      ICustomSpriteResourceManager& CustomSpriteResourceManager;
+      IGraphicsService& GraphicsService;
       std::shared_ptr<UI::WindowContext> WindowContext;
       TextureCapabilities TextureCaps;
+
+      CreateContext(IContentManager& rContentManager, ICustomSpriteResourceManager& rCustomSpriteResourceManager, IGraphicsService& rGraphicsService,
+                    std::shared_ptr<UI::WindowContext> windowContext, const TextureCapabilities& textureCaps)
+        : ContentManager(rContentManager)
+        , CustomSpriteResourceManager(rCustomSpriteResourceManager)
+        , GraphicsService(rGraphicsService)
+        , WindowContext(std::move(windowContext))
+        , TextureCaps(textureCaps)
+      {
+      }
     };
 
     TextureCapabilities GetTextureCapabilities()
@@ -141,7 +154,11 @@ namespace Fsl
     {
       constexpr UI::DpLayoutSize1D forcedSizeDp(320);
 
-      Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+      Texture2D sourceTexture(context.GraphicsService.GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+
+      std::shared_ptr<BasicImageSprite> spriteTex =
+        context.CustomSpriteResourceManager.CreateCustomTextureSprite(sourceTexture.GetNative(), BlendState::AlphaBlend);
+
 
       auto label = std::make_shared<UI::Label>(context.WindowContext);
       label->SetAlignmentX(UI::ItemAlignment::Center);
@@ -151,12 +168,11 @@ namespace Fsl
       label->SetContent(caption);
       label->SetWidth(forcedSizeDp);
 
-      auto tex = std::make_shared<UI::Texture2DImage>(context.WindowContext);
+      auto tex = std::make_shared<UI::Image>(context.WindowContext);
       tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
-      tex->SetContent(sourceTexture);
+      tex->SetContent(spriteTex);
       tex->SetAlignmentX(UI::ItemAlignment::Center);
       tex->SetAlignmentY(UI::ItemAlignment::Center);
-      tex->SetBlendState(BlendState::AlphaBlend);
 
       auto stack = std::make_shared<UI::StackLayout>(context.WindowContext);
       stack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
@@ -238,7 +254,7 @@ namespace Fsl
       // If we are loading a compressed texture the 'contentManager' wont modify it and
       // the KTX loader does not report the origin correctly and always returns 'UpperLeft',
       // so we 'request' that origin then override it below since we know the textures are stored with LowerLeft origin
-      auto texture = context.ContentManager->ReadTexture(newPath, switchPF, BitmapOrigin::UpperLeft);
+      auto texture = context.ContentManager.ReadTexture(newPath, switchPF, BitmapOrigin::UpperLeft);
       texture.OverrideOrigin(BitmapOrigin::LowerLeft);
 
       try
@@ -363,18 +379,16 @@ namespace Fsl
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
 
-    CreateContext createContext;
-    createContext.ContentManager = GetContentManager();
-    createContext.GraphicsService = serviceProvider.Get<IGraphicsService>();
-    // Next up we prepare the actual UI
-    createContext.WindowContext = m_uiExtension->GetContext();
+    auto contentManager = GetContentManager();
+    auto graphicsService = serviceProvider.Get<IGraphicsService>();
 
-    createContext.TextureCaps = GetTextureCapabilities();
+    CreateContext createContext(*contentManager, m_uiExtension->GetCustomSpriteResourceManager(), *graphicsService, m_uiExtension->GetContext(),
+                                GetTextureCapabilities());
 
     FSLLOG3_INFO("Creating UI");
 
     auto texDefault =
-      createContext.ContentManager->ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+      createContext.ContentManager.ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
 
     std::deque<std::shared_ptr<UI::BaseWindow>> textures;
 

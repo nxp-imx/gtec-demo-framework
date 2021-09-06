@@ -35,6 +35,7 @@
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/IEvent.hpp>
 #include <FslDemoApp/Base/Service/Exceptions.hpp>
@@ -42,6 +43,16 @@
 #include <algorithm>
 #include <cassert>
 #include <utility>
+
+#if 0
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define VERBOSE_LOG(X) FSLLOG3_VERBOSE(X)
+#else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define VERBOSE_LOG(X) \
+  {                    \
+  }
+#endif
 
 namespace Fsl
 {
@@ -275,6 +286,13 @@ namespace Fsl
   {
     FSLLOG3_VERBOSE("ADemopApp::ADemopApp()");
 
+    if (demoAppConfig.CustomConfig.MaxFramesInFlight <= 0u)
+    {
+      throw std::invalid_argument("MaxFramesInFlight can not be <= 0");
+    }
+
+    m_renderConfig = RenderConfig(demoAppConfig.CustomConfig.MaxFramesInFlight);
+
     m_contentManger = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     m_persistentDataManager = demoAppConfig.DemoServiceProvider.Get<IPersistentDataManager>();
     m_demoAppControl = demoAppConfig.DemoServiceProvider.Get<IDemoAppControl>();
@@ -311,7 +329,6 @@ namespace Fsl
     m_extensions.erase(itr);
   }
 
-
   void ADemoApp::_PostConstruct()
   {
     FSLLOG3_VERBOSE("ADemoApp::_PostConstruct()");
@@ -341,6 +358,8 @@ namespace Fsl
 
   void ADemoApp::_OnEvent(IEvent* const pEvent)
   {
+    VERBOSE_LOG("ADemoApp::_OnEvent()");
+
     // Done this way to prevent common mistakes where people forget to call the base class
     const EventType eventType = pEvent->GetEventType();
 
@@ -429,9 +448,15 @@ namespace Fsl
     ConfigurationChanged(windowMetrics);
   }
 
+  void ADemoApp::_Begin()
+  {
+    VERBOSE_LOG("ADemoApp::_Begin()");
+    OnFrameSequenceBegin();
+  }
 
   void ADemoApp::_PreUpdate(const DemoTime& demoTime)
   {
+    VERBOSE_LOG("ADemoApp::_PreUpdate()");
     // Call all registered extensions
     CallExtensions(m_extensions, PredMethodPreUpdate(demoTime));
 
@@ -441,6 +466,7 @@ namespace Fsl
 
   void ADemoApp::_FixedUpdate(const DemoTime& demoTime)
   {
+    VERBOSE_LOG("ADemoApp::_FixedUpdate()");
     // Call all registered extensions
     CallExtensions(m_extensions, PredMethodFixedUpdate(demoTime));
 
@@ -451,6 +477,7 @@ namespace Fsl
 
   void ADemoApp::_Update(const DemoTime& demoTime)
   {
+    VERBOSE_LOG("ADemoApp::_Update()");
     // Call all registered extensions
     CallExtensions(m_extensions, PredMethodUpdate(demoTime));
 
@@ -461,6 +488,7 @@ namespace Fsl
 
   void ADemoApp::_PostUpdate(const DemoTime& demoTime)
   {
+    VERBOSE_LOG("ADemoApp::_PostUpdate()");
     // Done this way to prevent common mistakes where people forget to call the base class
     PostUpdate(demoTime);
 
@@ -470,29 +498,50 @@ namespace Fsl
     CallExtensions(m_extensions, PredMethodPostUpdate(demoTime));
   }
 
-
-  AppDrawResult ADemoApp::_TryPrepareDraw(const DemoTime& demoTime)
+  AppDrawResult ADemoApp::_TryPrepareDraw(const FrameInfo& frameInfo)
   {
-    return TryPrepareDraw(demoTime);
+    VERBOSE_LOG("ADemoApp::_TryPrepareDraw()");
+    return TryPrepareDraw(frameInfo);
   }
 
 
-  void ADemoApp::_Draw(const DemoTime& demoTime)
+  void ADemoApp::_BeginDraw(const FrameInfo& frameInfo)
   {
+    VERBOSE_LOG("ADemoApp::_BeginDraw()");
+    BeginDraw(frameInfo);
+  }
+
+  void ADemoApp::_Draw(const FrameInfo& frameInfo)
+  {
+    VERBOSE_LOG("ADemoApp::_Draw()");
     // Call all registered extensions
     // CallExtensions(m_extensions, PredMethodDraw());
 
     // Done this way to prevent common mistakes where people forget to call the base class
-    Draw(demoTime);
+    Draw(frameInfo);
+
+    // Backwards compatibility while we phase out the old draw method
+    Draw(frameInfo.Time);
   }
 
-
-  AppDrawResult ADemoApp::_TrySwapBuffers(const DemoTime& demoTime)
+  void ADemoApp::_EndDraw(const FrameInfo& frameInfo)
   {
-    // Done this way to prevent common mistakes where people forget to call the base class
-    return TrySwapBuffers(demoTime);
+    VERBOSE_LOG("ADemoApp::_EndDraw()");
+    EndDraw(frameInfo);
   }
 
+  AppDrawResult ADemoApp::_TrySwapBuffers(const FrameInfo& frameInfo)
+  {
+    VERBOSE_LOG("ADemoApp::_TrySwapBuffers()");
+    // Done this way to prevent common mistakes where people forget to call the base class
+    return TrySwapBuffers(frameInfo);
+  }
+
+  void ADemoApp::_End()
+  {
+    VERBOSE_LOG("ADemoApp::_End()");
+    OnFrameSequenceEnd();
+  }
 
   PxSize2D ADemoApp::GetWindowSizePx() const
   {

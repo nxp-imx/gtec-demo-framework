@@ -59,8 +59,8 @@ namespace Fsl
       assert(rawSrc.IndexCount == rawDst.IndexCount);
       assert(rawSrc.VertexCount == rawDst.VertexCount);
 
-      VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, rDst.GetVertexDeclaration(), rawSrc.pVertices,
-                                      rawSrc.VertexStride * rawSrc.VertexCount, src.GetVertexDeclaration(), rawSrc.VertexCount, pDstDefaultValues,
+      VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, rDst.AsVertexDeclarationSpan(), rawSrc.pVertices,
+                                      rawSrc.VertexStride * rawSrc.VertexCount, src.AsVertexDeclarationSpan(), rawSrc.VertexCount, pDstDefaultValues,
                                       cbDstDefaultValues);
       IndexConverter::GenericConvert(rawDst.pIndices, rawDst.IndexStride * rawDst.IndexCount, rawDst.IndexStride, rawSrc.pIndices,
                                      rawSrc.IndexStride * rawSrc.IndexCount, rawSrc.IndexStride, rawSrc.IndexCount);

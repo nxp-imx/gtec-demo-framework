@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/BasicTypes.hpp>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -59,7 +58,7 @@ namespace Fsl
           Reset();
 
           // Claim ownership here
-          m_context = std::move(other.m_device);
+          m_context = std::move(other.m_context);
         }
         return *this;
       }
@@ -67,7 +66,7 @@ namespace Fsl
       //! @brief Move constructor
       //! Transfer ownership from other to this
       CustomContext(CustomContext&& other) noexcept
-        : m_context(std::move(other.m_device))
+        : m_context(std::move(other.m_context))
       {
       }
 

@@ -34,14 +34,16 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -567,16 +569,15 @@ namespace Fsl
   void SRGBFramebuffer::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                    const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
     // Upload the changes
-    m_resources.MainFrameResources[frameIndex].VertUboBufferL.Upload(0, &m_vertexUboDataL, sizeof(VertexUboData));
-    m_resources.MainFrameResources[frameIndex].VertUboBufferR.Upload(0, &m_vertexUboDataR, sizeof(VertexUboData));
-    m_resources.MainFrameResources[frameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUboData));
+    m_resources.MainFrameResources[currentFrameIndex].VertUboBufferL.Upload(0, &m_vertexUboDataL, sizeof(VertexUboData));
+    m_resources.MainFrameResources[currentFrameIndex].VertUboBufferR.Upload(0, &m_vertexUboDataR, sizeof(VertexUboData));
+    m_resources.MainFrameResources[currentFrameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUboData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -591,20 +592,20 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawScenes(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+        DrawScenes(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
 
         // Calling this last allows the UI to draw on top of everything.
         // Beware that the UI drawing methods might alter the OpenGL state!
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -846,7 +847,7 @@ namespace Fsl
 
     std::array<VertexElementUsage, 3> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Normal,
                                                          VertexElementUsage::TextureCoordinate};
-    m_resources.Mesh.VertexBuffer.Reset(m_bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+    m_resources.Mesh.VertexBuffer.Reset(m_bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
 
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.VertexAttributeDescription, shaderBindOrder,
                                                                     m_resources.Mesh.VertexBuffer);
@@ -864,7 +865,8 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
     // Create a label to write stuff into when a button is pressed
 

@@ -201,7 +201,7 @@ namespace Fsl
     }
 
     m_indexBuffers.Resize(1, GL_UNSIGNED_SHORT);
-    m_vertexBuffers.Resize(1, vertex_type::GetVertexDeclaration());
+    m_vertexBuffers.Resize(1, vertex_type::AsVertexDeclarationSpan());
     m_vertexBuffers.Reset(0, mesh.GetVertexArray(), GL_STATIC_DRAW);
     m_indexBuffers.Reset(0, mesh.GetIndexArray().data(), mesh.GetIndexCount(), GL_STATIC_DRAW);
   }

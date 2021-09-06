@@ -33,13 +33,13 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
-#include <FslBase/SpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
-#include <FslUtil/Vulkan1_0/VUTextureUtil.hpp>
 #include <Shared/SdfFonts/AppHelper.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
@@ -349,11 +349,15 @@ namespace Fsl
     const uint32_t maxFramesInFlight = GetRenderConfig().MaxFramesInFlight;
 
     const int32_t line0YPx = 0;
-    m_resources.Normal = PrepareExample(maxFramesInFlight, m_resources.BufferManager, *contentManager, line0YPx, LocalConfig::NormalFontPath,
-                                        LocalConfig::NormalFontAtlasTexturePath, LocalConfig::TextLine0, m_positionsScratchpad);
+    const uint32_t densityDpi = config.WindowMetrics.DensityDpi;
+    const SpriteNativeAreaCalc& spriteNativeAreaCalc = m_shared.GetUIDemoAppExtension()->GetSpriteNativeAreaCalc();
+    m_resources.Normal =
+      PrepareExample(maxFramesInFlight, m_resources.BufferManager, *contentManager, line0YPx, LocalConfig::NormalFontPath,
+                     LocalConfig::NormalFontAtlasTexturePath, LocalConfig::TextLine0, spriteNativeAreaCalc, densityDpi, m_positionsScratchpad);
     const int32_t line1YPx = m_resources.Normal.Font.Font.LineSpacingPx();
-    m_resources.Sdf = PrepareExample(maxFramesInFlight, m_resources.BufferManager, *contentManager, line1YPx, LocalConfig::SdfFontPath,
-                                     LocalConfig::SdfFontAtlasTexturePath, LocalConfig::TextLine0, m_positionsScratchpad);
+    m_resources.Sdf =
+      PrepareExample(maxFramesInFlight, m_resources.BufferManager, *contentManager, line1YPx, LocalConfig::SdfFontPath,
+                     LocalConfig::SdfFontAtlasTexturePath, LocalConfig::TextLine0, spriteNativeAreaCalc, densityDpi, m_positionsScratchpad);
 
     m_resources.VertShader.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextVertShader));
     m_resources.FragShaderText.Reset(m_device.Get(), 0, contentManager->ReadBytes(LocalConfig::TextFragShader));
@@ -424,11 +428,10 @@ namespace Fsl
 
   void SdfFonts::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -443,16 +446,16 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         DrawNow(hCmdBuffer, currentFrameIndex);
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
   VkRenderPass SdfFonts::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
@@ -615,14 +618,16 @@ namespace Fsl
   SdfFonts::ExampleRecord SdfFonts::PrepareExample(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
                                                    const IContentManager& contentManager, const int32_t lineYPx, const IO::Path& bitmapFontPath,
                                                    const IO::Path& fontAtlasTexturePath, const StringViewLite& strView,
-                                                   std::vector<FontGlyphPosition>& rPositionsScratchpad)
+                                                   const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
+                                                   std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad)
   {
     FSLLOG3_INFO("Preparing example");
     ExampleRecord result;
 
     FSLLOG3_INFO("- Loading font");
-    result.Font.Font = AppHelper::ReadFont(contentManager, bitmapFontPath);
     result.Font.Texture = ReadTexture(m_device, m_deviceQueue, contentManager, fontAtlasTexturePath);
+    result.Font.Font = AppHelper::ReadFont(spriteNativeAreaCalc, TypeConverter::To<PxExtent2D>(result.Font.Texture.GetSize()), contentManager,
+                                           bitmapFontPath, densityDpi);
 
     FSLLOG3_INFO("- Generating mesh");
     const BitmapFontConfig fontConfig(1.0f);
@@ -634,9 +639,9 @@ namespace Fsl
 
   SdfFonts::MeshRecord SdfFonts::GenerateMesh(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
                                               const PxPoint2& dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
-                                              const StringViewLite& strView, std::vector<FontGlyphPosition>& rPositionsScratchpad)
+                                              const StringViewLite& strView, std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad)
   {
-    const TextureAtlasBitmapFont& font = fontRecord.Font;
+    const TextureAtlasSpriteFont& font = fontRecord.Font;
     const PxSize2D fontTextureSize = fontRecord.Texture.GetSize();
 
     std::vector<VertexPositionTexture> vertices(strView.size() * 4);
@@ -648,16 +653,14 @@ namespace Fsl
     }
 
     // Extract the render rules
-    const bool gotRules = font.ExtractRenderRules(rPositionsScratchpad, strView);
+    auto scratchpadSpan = SpanUtil::AsSpan(rPositionsScratchpad);
+    const bool gotRules = font.ExtractRenderRules(scratchpadSpan, strView);
 
     auto dstVertexSpan = SpanUtil::AsSpan(vertices);
     auto dstIndexSpan = SpanUtil::AsSpan(indices);
-    const auto positionsSpan = gotRules ? ReadOnlySpanUtil::AsSpan(rPositionsScratchpad).subspan(0, strView.size())
-                                        : ReadOnlySpanUtil::AsSpan(rPositionsScratchpad).subspan(0, 0);
+    const auto positionsSpan = scratchpadSpan.subspan(0, gotRules ? strView.size() : 0);
 
-    AppHelper::GenerateVertices(
-      dstVertexSpan, dstPositionPx, positionsSpan, LocalConfig::DefaultZPos, fontTextureSize,
-      [](const PxRectangleU& srcRect, const PxSize2D& textureSize) { return Vulkan::VUTextureUtil::CalcTextureArea(srcRect, textureSize); });
+    AppHelper::GenerateVertices(dstVertexSpan, dstPositionPx, positionsSpan, LocalConfig::DefaultZPos, fontTextureSize);
     AppHelper::GenerateIndices(dstIndexSpan, positionsSpan);
 
     return {dstPositionPx, fontConfig, DynamicMesh(bufferManager, vertices, dstIndexSpan, maxFramesInFlight)};
@@ -665,7 +668,7 @@ namespace Fsl
 
   void SdfFonts::RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const uint32_t currentFrameIndex, const PxPoint2& dstPositionPx,
                                         const FontRecord& fontRecord, const BitmapFontConfig fontConfig, const StringViewLite& strView,
-                                        std::vector<FontGlyphPosition>& rPositionsScratchpad)
+                                        std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad)
   {
     if (rMeshRecord.Offset == dstPositionPx && rMeshRecord.FontConfig == fontConfig)
     {
@@ -674,22 +677,20 @@ namespace Fsl
     rMeshRecord.Offset = dstPositionPx;
     rMeshRecord.FontConfig = fontConfig;
 
-    const TextureAtlasBitmapFont& font = fontRecord.Font;
+    const TextureAtlasSpriteFont& font = fontRecord.Font;
     const PxSize2D fontTextureSize = fontRecord.Texture.GetSize();
 
     if (strView.size() > rPositionsScratchpad.size())
     {
       rPositionsScratchpad.resize(strView.size());
     }
-    const bool gotRules = font.ExtractRenderRules(rPositionsScratchpad, strView, fontConfig);
-    const auto positionsSpan = gotRules ? ReadOnlySpanUtil::AsSpan(rPositionsScratchpad).subspan(0, strView.size())
-                                        : ReadOnlySpanUtil::AsSpan(rPositionsScratchpad).subspan(0, 0);
+    auto scratchpadSpan = SpanUtil::AsSpan(rPositionsScratchpad);
+    const bool gotRules = font.ExtractRenderRules(scratchpadSpan, strView, fontConfig);
+    const auto positionsSpan = scratchpadSpan.subspan(0, gotRules ? strView.size() : 0);
 
     auto dstVertexSpan = rMeshRecord.Mesh.BeginWrite(currentFrameIndex);
     {
-      AppHelper::GenerateVertices(
-        dstVertexSpan, dstPositionPx, positionsSpan, LocalConfig::DefaultZPos, fontTextureSize,
-        [](const PxRectangleU& srcRect, const PxSize2D& textureSize) { return Vulkan::VUTextureUtil::CalcTextureArea(srcRect, textureSize); });
+      AppHelper::GenerateVertices(dstVertexSpan, dstPositionPx, positionsSpan, LocalConfig::DefaultZPos, fontTextureSize);
     }
     rMeshRecord.Mesh.EndWrite();
   }

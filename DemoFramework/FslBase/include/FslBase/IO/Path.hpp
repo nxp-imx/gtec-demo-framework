@@ -179,12 +179,12 @@ namespace Fsl
       const UTF8String& AsUTF8String() const
       {
         return m_content;
-      };
+      }
 
       const std::string& ToUTF8String() const
       {
         return m_content.ToUTF8String();
-      };
+      }
 
       std::string ToAsciiString() const;
 

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequest.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanDeviceSetup.hpp>
 #include <vulkan/vulkan.h>
@@ -41,12 +41,15 @@ namespace Fsl
 {
   namespace Vulkan
   {
+    class IVulkanDeviceCreationCustomizer;
+
     class VulkanDeviceSetupUtil
     {
     public:
       static VulkanDeviceSetup CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
                                            const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
-                                           const ReadOnlySpan<const char*>& extensions);
+                                           const ReadOnlySpan<const char*>& extensions,
+                                           IVulkanDeviceCreationCustomizer* const pDeviceCreationCustomizer = nullptr);
     };
   }
 }

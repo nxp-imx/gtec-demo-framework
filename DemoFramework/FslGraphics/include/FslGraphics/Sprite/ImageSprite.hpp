@@ -36,6 +36,7 @@
 
 namespace Fsl
 {
+  class SpriteNativeAreaCalc;
   class StringViewLite;
 
   class ImageSprite final : public IImageSprite
@@ -45,11 +46,19 @@ namespace Fsl
   public:
     ImageSprite() = default;
 
-    ImageSprite(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx, const PxRectangleU& imageTrimmedRectanglePx,
-                const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
+    ImageSprite(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx,
+                const PxRectangleU16& imageTrimmedRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
 
-    void SetContent(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx, const PxRectangleU& imageTrimmedRectanglePx,
-                    const uint32_t imageDpi, const StringViewLite& debugName, const uint32_t densityDpi);
+    void SetContent(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                    const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx, const uint32_t imageDpi,
+                    const StringViewLite& debugName, const uint32_t densityDpi);
+
+
+    PxSize2D GetRenderSizePx() const final
+    {
+      return m_info.RenderInfo.ScaledSizePx;
+    }
+
 
     const ImageSpriteInfo& GetInfo() const
     {
@@ -66,7 +75,11 @@ namespace Fsl
       return m_info.RenderInfo;
     }
 
-    const SpriteMaterialInfo& GetMaterialInfo() const final;
+    uint32_t GetMaterialCount() const final
+    {
+      return 1u;
+    }
+    const SpriteMaterialInfo& GetMaterialInfo(const uint32_t index) const final;
     void Resize(const uint32_t densityDpi) final;
 
 

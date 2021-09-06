@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_SPRITE_FONT_SPRITEFONTINFO_HPP
 #define FSLGRAPHICS_SPRITE_FONT_SPRITEFONTINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,10 @@ namespace Fsl
 
     uint32_t ImageDpi{};
 
+    bool IsSdfBased{false};
+
+    float SdfScale{1.0f};
+
     // ---- Values below can be modified due to 'resize'
 
     BitmapFontConfig FontConfig;
@@ -72,15 +76,15 @@ namespace Fsl
 
     SpriteFontInfo() = default;
     SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const uint16_t lineSpacingPx, const uint16_t baseLinePx, const uint32_t imageDpi,
-                   const bool enableKerning, const StringViewLite& debugName);
+                   const bool enableKerning, const bool isSdfBased, const float sdfScale, const StringViewLite& debugName);
 
 
     bool operator==(const SpriteFontInfo& rhs) const
     {
       return MaterialInfo == rhs.MaterialInfo && AtlasTextureExtentPx == rhs.AtlasTextureExtentPx &&
              AtlasTextureExtentDp == rhs.AtlasTextureExtentDp && LineSpacingPx == rhs.LineSpacingPx && BaseLinePx == rhs.BaseLinePx &&
-             ImageDpi == rhs.ImageDpi && FontConfig == rhs.FontConfig && ScaledLineSpacingPx == rhs.ScaledLineSpacingPx &&
-             ScaledBaseLinePx == rhs.ScaledBaseLinePx;
+             ImageDpi == rhs.ImageDpi && IsSdfBased && rhs.IsSdfBased && SdfScale == rhs.SdfScale && FontConfig == rhs.FontConfig &&
+             ScaledLineSpacingPx == rhs.ScaledLineSpacingPx && ScaledBaseLinePx == rhs.ScaledBaseLinePx;
     }
 
     bool operator!=(const SpriteFontInfo& rhs) const

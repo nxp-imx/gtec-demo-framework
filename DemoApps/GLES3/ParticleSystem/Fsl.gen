@@ -6,6 +6,6 @@
     <Dependency Name="FslGraphics3D.BasicScene"/>
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
   </Executable>
 </FslBuildGen>

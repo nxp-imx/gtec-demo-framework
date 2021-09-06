@@ -42,10 +42,12 @@ namespace Fsl
     {
       constexpr TransitionTimeSpan HoverOverlayTime(120, TransitionTimeUnit::Milliseconds);
       constexpr TransitionTimeSpan ColorChangeTime(120, TransitionTimeUnit::Milliseconds);
+      constexpr TransitionTimeSpan SlideTime(240, TransitionTimeUnit::Milliseconds);
 
 
       constexpr TransitionType HoverOverlayTransitionType = TransitionType::Smooth;
       constexpr TransitionType ColorChangeTransitionType = TransitionType::Smooth;
+      constexpr TransitionType SlideTransitionType = TransitionType::Smooth;
     }
   }
 }

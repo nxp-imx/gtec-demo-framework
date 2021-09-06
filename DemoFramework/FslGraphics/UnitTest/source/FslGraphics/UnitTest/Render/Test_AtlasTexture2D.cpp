@@ -87,7 +87,7 @@ TEST(TestRender_AtlasTexture2D, Construct)
 
   const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
+  const AtlasTextureInfo atlasTexInfo(PxRectangleU32(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   AtlasTexture2D texture(atlasTex, atlasTexInfo);
 
@@ -122,7 +122,7 @@ TEST(TestRender_AtlasTexture2D, Reset_Existing)
 
   const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
+  const AtlasTextureInfo atlasTexInfo(PxRectangleU32(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   AtlasTexture2D texture(atlasTex, atlasTexInfo);
 
@@ -148,7 +148,7 @@ TEST(TestRender_AtlasTexture2D, Reset_FromEmptyToNew)
 
   const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
+  const AtlasTextureInfo atlasTexInfo(PxRectangleU32(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   texture.Reset(atlasTex, atlasTexInfo);
 
@@ -169,13 +169,13 @@ TEST(TestRender_AtlasTexture2D, Reset_FromExistingToNew)
 
   const Bitmap atlasBitmap1(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex1(nativeGraphics, atlasBitmap1, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo1(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
+  const AtlasTextureInfo atlasTexInfo1(PxRectangleU32(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   AtlasTexture2D texture(atlasTex1, atlasTexInfo1);
 
   const Bitmap atlasBitmap2(PxExtent2D(64, 64), PixelFormat::R8G8B8_UNORM);
   const Texture2D atlasTex2(nativeGraphics, atlasBitmap2, Texture2DFilterHint::Nearest);
-  const AtlasTextureInfo atlasTexInfo2(PxRectangleU(32, 32, 2, 2), PxThicknessU(32, 32, 30, 30), TEST_DP);
+  const AtlasTextureInfo atlasTexInfo2(PxRectangleU32(32, 32, 2, 2), PxThicknessU(32, 32, 30, 30), TEST_DP);
   texture.Reset(atlasTex2, atlasTexInfo2);
 
   const PxSize2D size2Px(TypeConverter::UncheckedTo<PxSize2D>(atlasTexInfo2.ExtentPx));

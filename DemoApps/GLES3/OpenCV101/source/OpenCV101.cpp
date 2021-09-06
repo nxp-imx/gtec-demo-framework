@@ -49,7 +49,6 @@ namespace Fsl
 
   OpenCV101::OpenCV101(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
   {
     double alpha = 0.5;
     double beta = 0.0;

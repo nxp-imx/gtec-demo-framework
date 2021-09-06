@@ -182,7 +182,7 @@ namespace Fsl
     constexpr auto testScale = 0.25f;
     const auto matTest = Matrix::CreatePerspective(3.2f * testScale, 2.4f * testScale, 1 * testScale, 3 * testScale);
 
-    m_lineBuilder.AddGridXZ(Rect(-40.0f, -40.0f, 80.0f, 80.0f), 0.0f, 79, Color(0.5f, 0.5f, 0.5f, 1.0f));
+    m_lineBuilder.AddGridXZ(Rect(-40.0f, -40.0f, 80.0f, 80.0f), 0.0f, 79 + 1, Color(0.5f, 0.5f, 0.5f, 1.0f));
 
     // Default axis coordinates at 0,0,0
     m_lineBuilder.AddAxis(Vector3(0, 0, 0), 2.5f);
@@ -241,7 +241,7 @@ namespace Fsl
     auto matRot = Matrix::CreateTranslation(-2.0f, 0.0f, 0.0f) * Matrix::CreateRotationX(m_radians1) * Matrix::CreateRotationY(m_radians2) *
                   Matrix::CreateRotationZ(m_radians3) * Matrix::CreateScale(0.25f) * Matrix::CreateTranslation(-1.0f, 0.0f, 0.0f);
 
-    m_lineBuilder.AddGridXZ(Rect(-2.0f, -2.0f, 4.0f, 4.0f), 0.0f, 3, Color(0.5f, 0.5f, 0.5f, 1.0f), matRot);
+    m_lineBuilder.AddGridXZ(Rect(-2.0f, -2.0f, 4.0f, 4.0f), 0.0f, 3 + 1, Color(0.5f, 0.5f, 0.5f, 1.0f), matRot);
 
     m_lineBuilder.Add(Ray(Vector3(1.5f, 0.5f, 0.5f), Vector3::Forward()), Color::Brown(), matRot);
     m_lineBuilder.Add(BoundingBox(Vector3(0.0f, 0.0f, 0.0f), Vector3(0.25f, 0.25f, 0.25f)), Color::Orange(), matRot);

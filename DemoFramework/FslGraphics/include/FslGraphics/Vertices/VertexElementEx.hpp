@@ -44,9 +44,10 @@ namespace Fsl
     VertexElementUsage Usage{VertexElementUsage::Color};
     uint32_t UsageIndex{0};
 
-    constexpr VertexElementEx() = default;
+    constexpr VertexElementEx() noexcept = default;
 
-    constexpr VertexElementEx(const uint32_t offset, const VertexElementFormat& format, const VertexElementUsage usage, const uint32_t usageIndex)
+    constexpr VertexElementEx(const uint32_t offset, const VertexElementFormat& format, const VertexElementUsage usage,
+                              const uint32_t usageIndex) noexcept
       : Offset(offset)
       , Format(format)
       , Usage(usage)
@@ -54,12 +55,12 @@ namespace Fsl
     {
     }
 
-    constexpr bool operator==(const VertexElementEx& rhs) const
+    constexpr bool operator==(const VertexElementEx& rhs) const noexcept
     {
       return Offset == rhs.Offset && Format == rhs.Format && Usage == rhs.Usage && UsageIndex == rhs.UsageIndex;
     }
 
-    constexpr bool operator!=(const VertexElementEx& rhs) const
+    constexpr bool operator!=(const VertexElementEx& rhs) const noexcept
     {
       return !(*this == rhs);
     }

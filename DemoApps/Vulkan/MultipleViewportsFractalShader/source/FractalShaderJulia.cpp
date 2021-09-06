@@ -34,6 +34,7 @@
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <Shared/FractalShader/BasicOptionParser.hpp>
@@ -287,7 +288,7 @@ namespace Fsl
     };
 
     std::array<VertexElementUsage, 2> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
-    m_resources.Mesh.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+    m_resources.Mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
 
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.AttributeDescription, shaderBindOrder,
                                                                     m_resources.Mesh.VertexBuffer);

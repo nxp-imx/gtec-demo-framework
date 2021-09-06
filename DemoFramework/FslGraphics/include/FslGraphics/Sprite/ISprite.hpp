@@ -43,7 +43,8 @@ namespace Fsl
     ISprite() = default;
     virtual ~ISprite() = default;
 
-    virtual const SpriteMaterialInfo& GetMaterialInfo() const = 0;
+    virtual uint32_t GetMaterialCount() const = 0;
+    virtual const SpriteMaterialInfo& GetMaterialInfo(const uint32_t index) const = 0;
     virtual void Resize(const uint32_t densityDpi) = 0;
   };
 }

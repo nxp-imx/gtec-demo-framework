@@ -32,14 +32,24 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/ADemoApp.hpp>
+#include <memory>
 
 namespace Fsl
 {
+  class IGraphicsServiceHost;
+
   class DemoAppGLES3 : public ADemoApp
   {
+    std::shared_ptr<IGraphicsServiceHost> m_graphicsServiceHost;
+
   public:
     explicit DemoAppGLES3(const DemoAppConfig& demoAppConfig);
     ~DemoAppGLES3() override;
+
+    void _PostConstruct() override;
+    void _PreDestruct() override;
+    void _BeginDraw(const FrameInfo& frameInfo) override;
+    void _EndDraw(const FrameInfo& frameInfo) override;
   };
 }
 

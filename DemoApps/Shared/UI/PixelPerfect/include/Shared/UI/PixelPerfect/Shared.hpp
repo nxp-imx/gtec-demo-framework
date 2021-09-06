@@ -39,8 +39,9 @@
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <memory>
 
 namespace Fsl
@@ -80,7 +81,7 @@ namespace Fsl
     std::shared_ptr<IGraphicsService> m_graphics;
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
     std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_slider;
-    std::shared_ptr<UI::LabelNineSliceButton> m_btnDefault;
+    std::shared_ptr<UI::BackgroundLabelButton> m_btnDefault;
 
     TestGraphicsAtlas m_testAtlas;
     TestTextures m_testTextures;

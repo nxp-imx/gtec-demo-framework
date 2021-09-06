@@ -42,7 +42,7 @@ namespace Fsl
     ~##PACKAGE_SHORT_NAME##() override;
   protected:
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
   };
 }
 

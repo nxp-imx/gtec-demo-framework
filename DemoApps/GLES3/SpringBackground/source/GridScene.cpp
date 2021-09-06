@@ -29,16 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "GridScene.hpp"
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslBase/Math/MathHelper.hpp>
-#include "GridScene.hpp"
-#include "GridRender/GridRenderVBGeometry1.hpp"
 #include <GLES3/gl3.h>
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include "GridRender/GridRenderVBGeometry1.hpp"
 
 namespace Fsl
 {
@@ -48,6 +49,7 @@ namespace Fsl
   // Geometry Wars had 60.000 points in its spring grid :)
   GridScene::GridScene(const DemoAppConfig& config, const AtlasTexture2D& texFill, const Point2& gridResolution)
     : m_screenSize(static_cast<float>(config.ScreenResolution.X), static_cast<float>(config.ScreenResolution.Y))
+    , m_renderSystem(config.DemoServiceProvider.Get<IGraphicsService>()->GetBasicRenderSystem())
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_texFill(texFill)
     , m_grid(Rect(0, 0, m_screenSize.X, m_screenSize.Y), gridResolution)
@@ -154,8 +156,9 @@ namespace Fsl
     assert(m_activeRenderQueueIndex >= 0 && m_activeRenderQueueIndex <= static_cast<int32_t>(m_renderDeque.size()));
     auto* pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
     assert(pActiveGridRender != nullptr);
+    assert(m_renderSystem);
 
-    GridRenderDrawContext gridDrawContext(m_batch.get(), m_texFill, m_screenSize);
+    GridRenderDrawContext gridDrawContext(*m_renderSystem, m_batch.get(), m_texFill, m_screenSize);
 
     m_batch->Begin(BlendState::Additive);
     m_grid.Draw(gridDrawContext, *pActiveGridRender);

@@ -4,6 +4,7 @@
   <ExternalLibrary Name="OpenCL1_2" CreationYear="2016">
     <Requirement Name="OpenCL1.2" Type="feature" Extends="OpenCL" Version="1.2"/>
     <Define Name="FSL_FEATURE_OPENCL1_2" Access="Public"/> 
+    <Define Name="CL_TARGET_OPENCL_VERSION" Value="120" Access="Public"/>
     <Dependency Name="OpenCL"/>
   </ExternalLibrary>
 </FslBuildGen>

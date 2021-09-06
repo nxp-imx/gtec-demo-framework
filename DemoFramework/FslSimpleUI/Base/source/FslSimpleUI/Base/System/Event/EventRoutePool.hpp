@@ -53,7 +53,7 @@ namespace Fsl
       ~EventRoutePool();
 
       //! @brief Allocate a object from the pool (its recommended to utilize the ScopedEventRoute helper object for this)
-      std::shared_ptr<EventRoute> Allocate(const WindowFlags& flags);
+      std::shared_ptr<EventRoute> Allocate(const WindowFlags flags);
       void Release(const std::shared_ptr<EventRoute>& route);
     };
   }

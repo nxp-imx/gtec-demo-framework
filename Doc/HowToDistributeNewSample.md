@@ -19,7 +19,7 @@ To release the new app:
     1. Tell the recipient to download the demo-framework release used to develop the sample from github.
     2. Ask them to read the setup guide for their platform.
     3. Send the packed sample and tell the recipient which path to place the packed sample at inside the downloaded demo-framework repository (same location as it was developed in. For example: ```DemoApps/Vulkan/NewSample```.
-    4. Ask them to use the “To Compile and install an existing sample application” section of the setup guide to build and install the sample. For example to build and install a wayland build:
+    4. Ask them to use the "To Compile and install an existing sample application" section of the setup guide to build and install the sample. For example to build and install a wayland build:
 
         ```bash
         cd DemoApps/Vulkan/NewSample

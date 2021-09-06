@@ -71,6 +71,17 @@ namespace Fsl
     virtual void SetTimeStepMode(const TimeStepMode timeStepMode) = 0;
     virtual TimeStepMode GetTimeStepMode() const = 0;
 
+    //! @brief This is the max used number send to BeginFrame as a frame index and it will be (1 >= returnedValue <= GetRenderLoopMaxFramesInFlight())
+    virtual uint32_t GetRenderLoopFrameCounter() const = 0;
+
+    //! @brief This is the max used number send to BeginFrame as a frame index
+    virtual void SetRenderLoopFrameCounter(const uint32_t frameCount) = 0;
+
+    //! @brief This is the max allowed number send to BeginFrame as a frame index
+    //!        This number is the fixed upper bound used by the app and will not change while the app is running.
+    //! @return the Value will always be >= 1
+    virtual uint32_t GetRenderLoopMaxFramesInFlight() const = 0;
+
     //! @brief Enable enable/disable mouse capture
     //! @return true if the set succeeded, false if it failed
     //! @note  When mouse capture is enabled the mouse pointer is also hidden automatically.

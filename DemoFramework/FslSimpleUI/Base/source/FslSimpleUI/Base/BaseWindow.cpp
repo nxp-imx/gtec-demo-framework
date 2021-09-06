@@ -35,7 +35,7 @@
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Transition/TransitionTimeSpan.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslSimpleUI/Base/ItemAlignmentUtil.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
@@ -56,20 +56,6 @@ namespace Fsl
   {
     namespace
     {
-      inline int32_t CalcAlignmentPx(const ItemAlignment alignment, const int32_t deltaPx)
-      {
-        switch (alignment)
-        {
-        case ItemAlignment::Center:
-          return deltaPx / 2;
-        case ItemAlignment::Far:
-          return deltaPx;
-        case ItemAlignment::Near:
-        default:
-          return 0;
-        }
-      }
-
       template <typename T, typename Y>
       inline std::shared_ptr<T> SafeDynamicPointerCast(const std::shared_ptr<Y>& ptr)
       {
@@ -83,11 +69,12 @@ namespace Fsl
     }
 
 
-    BaseWindow::BaseWindow(const std::shared_ptr<BaseWindowContext>& context)
+    BaseWindow::BaseWindow(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags initialFlags)
       : m_context(context)
       , m_sizeDp(-1, -1)
       , m_alignmentX(ItemAlignment::Near)
       , m_alignmentY(ItemAlignment::Near)
+      , m_flags(initialFlags)
     {
       if (!context)
       {
@@ -167,9 +154,9 @@ namespace Fsl
       SetAnimationUpdate(UpdateAnimationState(false));
     }
 
-    void BaseWindow::WinUpdate(const DemoTime& demoTime)
+    void BaseWindow::WinUpdate(const TransitionTimeSpan& timespan)
     {
-      UpdateAnimation(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+      UpdateAnimation(timespan);
       SetAnimationUpdate(UpdateAnimationState(false));
     }
 
@@ -182,35 +169,44 @@ namespace Fsl
         MarkLayoutArrangeBegin();
         try
         {
-          const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+          if (m_flags.GetVisibility() != ItemVisibility::Collapsed)
+          {
+            const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
-          const PxThickness marginThicknessPx = unitConverter.ToPxThickness(m_marginDp);
-          const PxSize2D marginPx(marginThicknessPx.Sum());
+            const PxThickness marginThicknessPx = unitConverter.ToPxThickness(m_marginDp);
+            const PxSize2D marginPx(marginThicknessPx.Sum());
 
-          const PxSize2D spacePx(m_alignmentX != ItemAlignment::Stretch ? m_layoutCache.DesiredSizePx.Width() : finalRectPx.Width(),
-                                 m_alignmentY != ItemAlignment::Stretch ? m_layoutCache.DesiredSizePx.Height() : finalRectPx.Height());
+            const PxSize2D spacePx(m_alignmentX != ItemAlignment::Stretch ? m_layoutCache.DesiredSizePx.Width() : finalRectPx.Width(),
+                                   m_alignmentY != ItemAlignment::Stretch ? m_layoutCache.DesiredSizePx.Height() : finalRectPx.Height());
 
-          // Calculate the actual available space.
-          const PxSize2D arrangeSizePx(PxSize2D::Subtract(spacePx, marginPx));
+            // Calculate the actual available space.
+            const PxSize2D arrangeSizePx(PxSize2D::Subtract(spacePx, marginPx));
 
-          const PxSize2D renderSizePx = ArrangeOverride(arrangeSizePx);
+            const PxSize2D renderSizePx = ArrangeOverride(arrangeSizePx);
 
-          // validate the result (even though PxLayoutSize promises to be >= 0)
-          assert(renderSizePx.Width() >= 0);
-          assert(renderSizePx.Height() >= 0);
+            // validate the result (even though PxLayoutSize promises to be >= 0)
+            assert(renderSizePx.Width() >= 0);
+            assert(renderSizePx.Height() >= 0);
 
-          // Calc alignment
-          const PxSize2D actualAvailableSizePx(finalRectPx.Width() - marginPx.Width(), finalRectPx.Height() - marginPx.Height());
-          const PxPoint2 deltaPx(actualAvailableSizePx.Width() - renderSizePx.Width(), actualAvailableSizePx.Height() - renderSizePx.Height());
-          const int32_t alignmentOffsetXPx = CalcAlignmentPx(m_alignmentX, deltaPx.X);
-          const int32_t alignmentOffsetYPx = CalcAlignmentPx(m_alignmentY, deltaPx.Y);
+            // Calc alignment
+            const PxSize2D actualAvailableSizePx(finalRectPx.Width() - marginPx.Width(), finalRectPx.Height() - marginPx.Height());
+            const PxPoint2 deltaPx(actualAvailableSizePx.Width() - renderSizePx.Width(), actualAvailableSizePx.Height() - renderSizePx.Height());
+            const int32_t alignmentOffsetXPx = ItemAlignmentUtil::CalcAlignmentPx(m_alignmentX, deltaPx.X);
+            const int32_t alignmentOffsetYPx = ItemAlignmentUtil::CalcAlignmentPx(m_alignmentY, deltaPx.Y);
 
-          const PxPoint2 posPx(finalRectPx.X() + marginThicknessPx.Left() + alignmentOffsetXPx,
-                               finalRectPx.Y() + marginThicknessPx.Top() + alignmentOffsetYPx);
+            const PxPoint2 posPx(finalRectPx.X() + marginThicknessPx.Left() + alignmentOffsetXPx,
+                                 finalRectPx.Y() + marginThicknessPx.Top() + alignmentOffsetYPx);
 
-          m_layoutCache.ContentRectPx = PxRectangle(posPx.X, posPx.Y, renderSizePx.Width(), renderSizePx.Height());
-          m_layoutCache.ClippedContentRectPx = PxRectangle::Intersect(m_layoutCache.ContentRectPx, finalRectPx);
-          m_layoutCache.RenderSizePx = renderSizePx;
+            m_layoutCache.ContentRectPx = PxRectangle(posPx.X, posPx.Y, renderSizePx.Width(), renderSizePx.Height());
+            m_layoutCache.ClippedContentRectPx = PxRectangle::Intersect(m_layoutCache.ContentRectPx, finalRectPx);
+            m_layoutCache.RenderSizePx = renderSizePx;
+          }
+          else
+          {
+            m_layoutCache.ContentRectPx = {};
+            m_layoutCache.ClippedContentRectPx = {};
+            m_layoutCache.RenderSizePx = {};
+          }
           MarkLayoutArrangeEnd();
         }
         catch (...)
@@ -232,31 +228,37 @@ namespace Fsl
         MarkLayoutMeasureBegin();
         try
         {
-          const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-
-          const PxThickness marginThicknessPx = unitConverter.ToPxThickness(m_marginDp);
-          const PxSize2D marginSizePx(marginThicknessPx.Sum());
-
-          // calc local available size by removing required margin (the subtract has build in clamping so it cant become negative
-          const PxAvailableSize localAvailableSpacePx(PxAvailableSize::Subtract(availableSizePx, marginSizePx));
-
-          // Calc the minimum desired content size.
-          PxSize2D minContentSizePx = MeasureOverride(localAvailableSpacePx);
-
-          // Apply fixed width and height if set
-          if (m_sizeDp.HasWidthValue())
+          if (m_flags.GetVisibility() != ItemVisibility::Collapsed)
           {
-            minContentSizePx.SetWidth(unitConverter.DpToPxInt32(m_sizeDp.Width()), OptimizationCheckFlag::NoCheck);
+            const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+
+            const PxThickness marginThicknessPx = unitConverter.ToPxThickness(m_marginDp);
+            const PxSize2D marginSizePx(marginThicknessPx.Sum());
+
+            // calc local available size by removing required margin (the subtract has build in clamping so it cant become negative
+            const PxAvailableSize localAvailableSpacePx(PxAvailableSize::Subtract(availableSizePx, marginSizePx));
+
+            // Calc the minimum desired content size.
+            PxSize2D minContentSizePx = MeasureOverride(localAvailableSpacePx);
+
+            // Apply fixed width and height if set
+            if (m_sizeDp.HasWidthValue())
+            {
+              minContentSizePx.SetWidth(unitConverter.DpToPxInt32(m_sizeDp.Width()), OptimizationCheckFlag::NoCheck);
+            }
+            if (m_sizeDp.HasHeightValue())
+            {
+              minContentSizePx.SetHeight(unitConverter.DpToPxInt32(m_sizeDp.Height()), OptimizationCheckFlag::NoCheck);
+            }
+
+            // Reapply margin to the desired space (Add ensures it wont be negative)
+            PxSize2D desiredSizePx(PxSize2D::Add(minContentSizePx, marginSizePx));
+            m_layoutCache.DesiredSizePx = desiredSizePx;
           }
-          if (m_sizeDp.HasHeightValue())
+          else
           {
-            minContentSizePx.SetHeight(unitConverter.DpToPxInt32(m_sizeDp.Height()), OptimizationCheckFlag::NoCheck);
+            m_layoutCache.DesiredSizePx = {};
           }
-
-          // Reapply margin to the desired space (Add ensures it wont be negative)
-          PxSize2D desiredSizePx(PxSize2D::Add(minContentSizePx, marginSizePx));
-
-          m_layoutCache.DesiredSizePx = desiredSizePx;
           MarkLayoutMeasureEnd();
         }
         catch (...)
@@ -298,7 +300,7 @@ namespace Fsl
     }
 
 
-    void BaseWindow::SetAlignmentX(const ItemAlignment& value)
+    void BaseWindow::SetAlignmentX(const ItemAlignment value)
     {
       if (value != m_alignmentX)
       {
@@ -308,7 +310,7 @@ namespace Fsl
     }
 
 
-    void BaseWindow::SetAlignmentY(const ItemAlignment& value)
+    void BaseWindow::SetAlignmentY(const ItemAlignment value)
     {
       if (value != m_alignmentY)
       {
@@ -316,6 +318,32 @@ namespace Fsl
         PropertyUpdated(PropertyType::Alignment);
       }
     }
+
+
+    void BaseWindow::SetBaseColor(const Color color)
+    {
+      if (color != m_baseColor)
+      {
+        m_baseColor = color;
+        m_cachedBaseColor = m_baseColor * m_parentBaseColor;
+        PropertyUpdated(PropertyType::BaseColor);
+      }
+    }
+
+
+    void BaseWindow::SetVisibility(const ItemVisibility value)
+    {
+      if (m_flags.GetVisibility() != value)
+      {
+        m_flags.SetVisibility(value);
+        PropertyUpdated(PropertyType::Layout);
+
+        // Inform the window manager about the change
+        auto uiContext = GetContext()->TheUIContext.Get();
+        uiContext->WindowManager->TrySetWindowVisibility(this, value);
+      }
+    }
+
 
     PxPoint2 BaseWindow::PointFromScreen(const PxPoint2& screenPointPx) const
     {
@@ -340,6 +368,18 @@ namespace Fsl
       PxPoint2 screenPoint = windowManager->PointToScreen(this, pointPx);
       return windowManager->PointFromScreen(pToWin, screenPoint);
     }
+
+
+    void BaseWindow::SYS_SetParentBaseColor(const Color color)
+    {
+      if (color != m_parentBaseColor)
+      {
+        m_parentBaseColor = color;
+        m_cachedBaseColor = m_baseColor * m_parentBaseColor;
+        PropertyUpdated(PropertyType::BaseColor);
+      }
+    }
+
 
     bool BaseWindow::IsReadyToSendEvents()
     {
@@ -380,7 +420,7 @@ namespace Fsl
     }
 
 
-    void BaseWindow::Enable(const WindowFlags& flags)
+    void BaseWindow::Enable(const WindowFlags flags)
     {
       if (!m_flags.IsEnabled(flags))
       {
@@ -392,7 +432,7 @@ namespace Fsl
     }
 
 
-    void BaseWindow::Disable(const WindowFlags& flags)
+    void BaseWindow::Disable(const WindowFlags flags)
     {
       if (m_flags.IsEnabled(flags))
       {

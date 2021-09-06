@@ -33,6 +33,8 @@
 
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslSimpleUI/Base/Render/UIRenderSystem.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBufferEx.hpp>
 
 
 namespace Fsl
@@ -41,6 +43,7 @@ namespace Fsl
   {
     class BaseWindowContext;
     class ModuleCallbackRegistry;
+    class RenderSystem;
     class RootWindow;
     class WindowEventPool;
     class WindowEventQueueEx;
@@ -54,6 +57,7 @@ class TestFixtureFslSimpleUIUITree : public TestFixtureFslBase
 {
 protected:
   std::shared_ptr<Fsl::UI::ModuleCallbackRegistry> m_moduleCallbackRegistry;
+  Fsl::UI::UIRenderSystem m_renderSystem;
   std::shared_ptr<Fsl::UI::WindowEventPool> m_eventPool;
   std::shared_ptr<Fsl::UI::WindowEventQueueEx> m_eventQueue;
   std::shared_ptr<Fsl::UI::UITree> m_tree;
@@ -61,6 +65,7 @@ protected:
   std::shared_ptr<Fsl::UI::UIContext> m_uiContext;
   std::shared_ptr<Fsl::UI::BaseWindowContext> m_windowContext;
   std::shared_ptr<Fsl::UI::RootWindow> m_rootWindow;
+  Fsl::UI::DrawCommandBufferEx m_buffer;
 
 public:
   TestFixtureFslSimpleUIUITree();

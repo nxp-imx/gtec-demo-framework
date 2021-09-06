@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <cassert>
 #include <cstddef>
 #include <stdexcept>
@@ -166,6 +167,11 @@ namespace Fsl
       return m_entries;
     }
 
+    size_type capacity() const noexcept
+    {
+      return m_data.size();
+    }
+
     void clear() noexcept
     {
       while (m_entries > 0u)
@@ -246,6 +252,89 @@ namespace Fsl
       --m_entries;
       assert(m_frontIndex < m_data.size());
       assert(m_entries <= m_data.size());
+    }
+
+    void grow(const size_type growCapacityBy)
+    {
+      if (growCapacityBy <= 0)
+      {
+        return;
+      }
+
+      const size_type oldCapacity = m_data.size();
+      const size_type newCapacity = oldCapacity + growCapacityBy;
+
+      const size_type entriesFromFrontToEnd = (oldCapacity - m_frontIndex);
+      m_data.resize(newCapacity);
+      if (m_entries > entriesFromFrontToEnd)
+      {
+        // The current entries crosses the old buffer end point so we will need to move it
+        const size_type entriesToMove = m_entries - entriesFromFrontToEnd;
+        const size_type moveFromFrontToEndCount = std::min(growCapacityBy, entriesToMove);
+        {    // move from front of the buffer to the newly allocated area
+          for (size_type i = 0; i < moveFromFrontToEndCount; ++i)
+          {
+            std::swap(m_data[i], m_data[oldCapacity + i]);
+          }
+        }
+        if (entriesToMove > moveFromFrontToEndCount)
+        {
+          // There are still entries left that need to be moved
+          const size_type entriesLeft = entriesToMove - moveFromFrontToEndCount;
+          for (size_type i = 0; i < entriesLeft; ++i)
+          {
+            std::swap(m_data[i], m_data[moveFromFrontToEndCount + i]);
+          }
+        }
+      }
+    }
+
+    void resize_pop_front(const size_type newSize)
+    {
+      if (newSize < m_data.size())
+      {
+        // pop the front entry until we reached the new max size
+        while (size() > newSize)
+        {
+          pop_front();
+        }
+
+        if (m_frontIndex <= newSize && m_entries <= (newSize - m_frontIndex))
+        {
+          // We can get away with resizing the current buffer as there is no overlap on the new end boundary
+          m_data.resize(newSize);
+        }
+        else
+        {
+          // copy to a new buffer, then release the old one
+          std::vector<value_type> tmp(newSize);
+          for (std::size_t i = 0; i < size(); ++i)
+          {
+            tmp[i] = (*this)[i];
+          }
+          m_data = std::move(tmp);
+          m_frontIndex = 0;
+        }
+      }
+      else
+      {
+        grow(newSize - m_data.size());
+      }
+    }
+
+    constexpr uint32_t segment_count() const noexcept
+    {
+      return m_entries <= (m_data.size() - m_frontIndex) ? 1u : 2u;
+    }
+
+    ReadOnlySpan<T> AsReadOnlySpan(const uint32_t segmentIndex) const
+    {
+      assert(segmentIndex < segment_count());
+      const auto maxEntriesFirstSegment = (m_data.size() - m_frontIndex);
+      return segmentIndex == 0
+               ? ReadOnlySpan<T>(m_data.data() + m_frontIndex, (m_entries >= maxEntriesFirstSegment ? maxEntriesFirstSegment : m_entries),
+                                 OptimizationCheckFlag::NoCheck)
+               : ReadOnlySpan<T>(m_data.data(), m_entries - maxEntriesFirstSegment, OptimizationCheckFlag::NoCheck);
     }
   };
 }

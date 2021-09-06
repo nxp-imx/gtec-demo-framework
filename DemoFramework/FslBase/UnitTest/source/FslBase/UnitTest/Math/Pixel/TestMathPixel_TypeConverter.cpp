@@ -72,9 +72,20 @@ TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangle2D)
   EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Bottom()), res.Bottom());
 }
 
-TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangleU)
+TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangleU16)
 {
-  const PxRectangleU value(1, 2, 3, 4);
+  const PxRectangleU16 value(1, 2, 3, 4);
+  const auto res = TypeConverter::UncheckedTo<PxClipRectangle>(value);
+
+  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Left()), res.Left());
+  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Top()), res.Top());
+  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Right()), res.Right());
+  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Bottom()), res.Bottom());
+}
+
+TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangleU32)
+{
+  const PxRectangleU32 value(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxClipRectangle>(value);
 
   EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Left()), res.Left());
@@ -96,9 +107,20 @@ TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangle2D)
   EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Bottom()), res.Bottom());
 }
 
-TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangleU)
+TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangleU16)
 {
-  const PxRectangleU value(1, 2, 3, 4);
+  const PxRectangleU16 value(1, 2, 3, 4);
+  const auto res = TypeConverter::UncheckedTo<PxAreaRectangleF>(value);
+
+  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Left()), res.Left());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Top()), res.Top());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Right()), res.Right());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Bottom()), res.Bottom());
+}
+
+TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangleU32)
+{
+  const PxRectangleU32 value(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxAreaRectangleF>(value);
 
   EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Left()), res.Left());

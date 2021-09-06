@@ -51,8 +51,10 @@ TEST(Test_AtlasNineSlicePatchInfo, Construct)
 {
   constexpr PxThicknessU nineSlicePx(1, 2, 3, 4);
   constexpr PxThicknessU contentMarginPx(5, 6, 7, 8);
-  constexpr AtlasNineSlicePatchInfo value(nineSlicePx, contentMarginPx);
+  constexpr AtlasNineSliceFlags flags{AtlasNineSliceFlags::Transparent};
+  constexpr AtlasNineSlicePatchInfo value(nineSlicePx, contentMarginPx, flags);
 
   EXPECT_EQ(nineSlicePx, value.NineSlicePx);
   EXPECT_EQ(contentMarginPx, value.ContentMarginPx);
+  EXPECT_EQ(flags, value.Flags);
 }

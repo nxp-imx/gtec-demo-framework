@@ -53,6 +53,7 @@ namespace Fsl
     , m_demoHostCaps(m_demoSetup.Host.Factory->GetCaps())
     , m_eventQueue(new NativeWindowEventQueue())
     , m_state(State::Idle)
+    , m_basic2DPreallocEnabled(demoHostManagerOptionParser->IsBasic2DPreallocEnabled())
     , m_exitAfterFrame(demoHostManagerOptionParser->GetExitAfterFrame())
     , m_exitAfterDuration(demoHostManagerOptionParser->GetDurationExitConfig())
     , m_exitTime(std::chrono::microseconds(m_timer.GetTime()) + std::chrono::microseconds(m_exitAfterDuration.Duration))
@@ -64,7 +65,7 @@ namespace Fsl
     m_hostInfoControl = serviceProvider.Get<IHostInfoControl>();
 
     HostConfig hostConfig(demoHostManagerOptionParser->IsAppFirewallEnabled(), demoHostManagerOptionParser->IsContentMonitorEnabled(),
-                          demoHostManagerOptionParser->IsStatsEnabled(), demoHostManagerOptionParser->GetAppStatsFlags());
+                          demoHostManagerOptionParser->IsStatsEnabled(), m_basic2DPreallocEnabled, demoHostManagerOptionParser->GetAppStatsFlags());
     m_hostInfoControl->SetConfig(hostConfig);
 
     // Set the config we are using for the app host so it can be retrieved from IHostInfo
@@ -80,13 +81,14 @@ namespace Fsl
     FSLLOG3_VERBOSE("DemoHostManager: Starting demoAppManager");
 
     // Lets prepare the app manager.
+    auto customAppConfig = demoSetup.App.AppSetup.CustomAppConfig;
     const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetWindowMetrics(),
-                                      serviceProvider, demoSetup.App.AppSetup.CustomAppConfig);
-    m_demoAppManager =
-      std::make_shared<DemoAppManager>(demoSetup.App.AppSetup, demoAppConfig, hostConfig.StatOverlay, demoHostManagerOptionParser->GetLogStatsMode(),
-                                       demoHostManagerOptionParser->GetAppStatsFlags(), hostConfig.AppFirewall, hostConfig.ContentMonitor,
-                                       demoHostManagerOptionParser->IsBasic2DPreallocEnabled(), demoHostManagerOptionParser->GetForceUpdateTime(),
-                                       !m_demoHostCaps.IsEnabled(DemoHostCaps::Flags::AppRenderedSystemOverlay));
+                                      serviceProvider, customAppConfig);
+
+    m_demoAppManager = std::make_shared<DemoAppManager>(
+      demoSetup.App.AppSetup, demoAppConfig, hostConfig.StatOverlay, demoHostManagerOptionParser->GetLogStatsMode(),
+      demoHostManagerOptionParser->GetAppStatsFlags(), hostConfig.AppFirewall, hostConfig.ContentMonitor,
+      demoHostManagerOptionParser->GetForceUpdateTime(), !m_demoHostCaps.IsEnabled(DemoHostCaps::Flags::AppRenderedSystemOverlay));
 
     FSLLOG3_VERBOSE("DemoHostManager: Processing messages");
 
@@ -103,9 +105,9 @@ namespace Fsl
     m_demoAppManager.reset();
 
     // Kill the graphics service resources if present
-    if (m_graphicsService)
+    if (!m_demoHostCaps.IsEnabled(DemoHostCaps::Flags::HostControlGraphicsServiceApi) && m_graphicsService)
     {
-      m_graphicsService->Reset();
+      m_graphicsService->ClearActiveApi();
     }
 
     // then the demo host
@@ -202,6 +204,7 @@ namespace Fsl
         if (swapBuffersResult != SwapBuffersResult::AppControlled)
         {
           //  The swap buffer operation is not app controlled, so use a quick exit.
+          m_demoAppManager->EndFrameSequence();
           return swapBuffersResult;
         }
         // the swap is app controlled so delegate it to the app
@@ -214,6 +217,7 @@ namespace Fsl
     {
     case AppDrawResult::Completed:
       // everything is ok
+      m_demoAppManager->EndFrameSequence();
       return SwapBuffersResult::Completed;
     case AppDrawResult::Retry:
       FSLLOG3_WARNING("RetryDraw limit exceeded -> failing");
@@ -272,14 +276,17 @@ namespace Fsl
       m_demoAppManager->Suspend(true);
     }
 
-    if (m_graphicsService)
+    if (!m_demoHostCaps.IsEnabled(DemoHostCaps::Flags::HostControlGraphicsServiceApi) && m_graphicsService)
     {
-      m_graphicsService->Reset();
+      m_graphicsService->ClearActiveApi();
     }
+
     m_demoHost.reset();
 
     const uint32_t verbosityLevel = m_demoSetup.VerbosityLevel;
-    const DemoHostConfig demoHostConfig(m_demoSetup.Host.OptionParser, m_eventQueue, m_demoSetup.App, m_demoSetup.ServiceProvider, verbosityLevel);
+    const DemoHostConfig demoHostConfig(m_demoSetup.Host.OptionParser, m_eventQueue, m_demoSetup.App, m_demoSetup.ServiceProvider,
+                                        m_basic2DPreallocEnabled, verbosityLevel);
+
     m_demoHost = m_demoSetup.Host.Factory->Allocate(demoHostConfig);
     // Allow a bit of post construction processing
     m_demoHost->OnConstructed();
@@ -288,10 +295,10 @@ namespace Fsl
     m_hostInfoControl->SetIsConsoleBasedHost(m_demoHost->IsConsoleBaseHost());
     const auto activeAPI = m_demoHost->GetActiveAPI();
     m_hostInfoControl->SetActiveAPI(activeAPI);
-    if (m_graphicsService)
+    if (!m_demoHostCaps.IsEnabled(DemoHostCaps::Flags::HostControlGraphicsServiceApi) && m_graphicsService)
     {
-      m_graphicsService->Configure(activeAPI);
-      FSLLOG3_VERBOSE("DemoHostManager: Graphics service configured");
+      m_graphicsService->SetActiveApi(activeAPI);
+      FSLLOG3_VERBOSE("DemoHostManager: Graphics service API configured");
     }
 
     if (m_demoAppManager)

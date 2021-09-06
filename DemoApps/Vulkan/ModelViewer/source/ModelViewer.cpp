@@ -37,6 +37,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
@@ -415,7 +416,7 @@ namespace Fsl
     ModelMesh FillMesh(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const MeshUtil::SingleMesh& mesh)
     {
       ModelMesh modelMesh;
-      modelMesh.VertexBuffer.Reset(bufferManager, mesh.Vertices, Vulkan::VMBufferUsage::STATIC);
+      modelMesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(mesh.Vertices), Vulkan::VMBufferUsage::STATIC);
       modelMesh.IndexBuffer.Reset(bufferManager, mesh.Indices, Vulkan::VMBufferUsage::STATIC);
 
       constexpr std::array<VertexElementUsage, 5> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Color,
@@ -625,8 +626,6 @@ namespace Fsl
 
   void ModelViewer::Update(const DemoTime& demoTime)
   {
-    const auto windowSizePx = GetWindowSizePx();
-
     m_renderConfig.Rotation.X += m_renderConfig.RotationSpeed.X * demoTime.DeltaTime;
     m_renderConfig.Rotation.Y += m_renderConfig.RotationSpeed.Y * demoTime.DeltaTime;
     m_renderConfig.Rotation.Z += m_renderConfig.RotationSpeed.Z * demoTime.DeltaTime;
@@ -639,9 +638,7 @@ namespace Fsl
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     // The ordering in the monogame based Matrix library is the reverse of glm (so perspective * clip instead of clip * perspective)
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
-                         vulkanClipMatrix;
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 1000.0f) * vulkanClipMatrix;
 
     // Update Vertex UBO
     m_uboData.MatWorldView = m_matrixWorld * m_matrixView;
@@ -655,14 +652,13 @@ namespace Fsl
 
   void ModelViewer::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t frameIndex = drawContext.CurrentFrameIndex;
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
     // Upload the changes
-    m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
+    m_resources.MainFrameResources[currentFrameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -678,15 +674,15 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        DrawMeshes(m_resources.MainFrameResources[frameIndex], hCmdBuffer);
+        DrawMeshes(m_resources.MainFrameResources[currentFrameIndex], hCmdBuffer);
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 

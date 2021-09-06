@@ -456,7 +456,7 @@ namespace Fsl
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers)
     {
-      throw std::invalid_argument("out of bounds");
+      throw std::invalid_argument("Texture::GetTextureBlob: out of bounds");
     }
 
     const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
@@ -553,7 +553,7 @@ namespace Fsl
     if (level >= m_textureInfo.Levels || face0 >= m_textureInfo.Faces || layer0 >= m_textureInfo.Layers || face1 >= m_textureInfo.Faces ||
         layer1 >= m_textureInfo.Layers)
     {
-      throw std::invalid_argument("out of bounds");
+      throw std::invalid_argument("Texture::SwapCompatibleBlobs: out of bounds");
     }
 
     const std::size_t index0 = m_textureInfo.GetBlockIndex(level, face0, layer0);

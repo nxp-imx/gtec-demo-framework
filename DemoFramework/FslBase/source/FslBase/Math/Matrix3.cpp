@@ -30,11 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Matrix3.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3Fields.hpp>
-#include <cassert>
-#include <cmath>
 
 namespace Fsl
 {

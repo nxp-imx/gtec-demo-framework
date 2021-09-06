@@ -36,11 +36,14 @@
 
 namespace Fsl
 {
+  class BasicImageSprite;
+  class IBasicRenderSystem;
   class ImageSprite;
 
   namespace UISpriteToTextureUtil
   {
-    extern AtlasTexture2D ExtractFillTexture(const std::shared_ptr<ImageSprite>& fillSprite);
+    extern AtlasTexture2D ExtractFillTexture(const IBasicRenderSystem& renderSystem, const std::shared_ptr<BasicImageSprite>& fillSprite);
+    extern AtlasTexture2D ExtractFillTexture(const IBasicRenderSystem& renderSystem, const std::shared_ptr<ImageSprite>& fillSprite);
   }
 }
 

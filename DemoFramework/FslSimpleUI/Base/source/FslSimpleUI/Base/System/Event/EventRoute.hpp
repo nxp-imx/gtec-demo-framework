@@ -58,13 +58,13 @@ namespace Fsl
       EventRoute& operator=(const EventRoute&) = delete;
 
       EventRoute();
-      explicit EventRoute(const WindowFlags& flags);
+      explicit EventRoute(const WindowFlags flags);
       ~EventRoute();
 
-      void Initialize(const WindowFlags& flags);
+      void Initialize(const WindowFlags flags);
       void Shutdown();
 
-      const WindowFlags& GetFlags() const
+      WindowFlags GetFlags() const noexcept
       {
         return m_flags;
       }
@@ -96,7 +96,7 @@ namespace Fsl
         EventRoute& m_rRoute;
 
       public:
-        StackScopedInit(EventRoute& rRoute, const WindowFlags& flags)
+        StackScopedInit(EventRoute& rRoute, const WindowFlags flags)
           : m_rRoute(rRoute)
         {
           m_rRoute.Initialize(flags);

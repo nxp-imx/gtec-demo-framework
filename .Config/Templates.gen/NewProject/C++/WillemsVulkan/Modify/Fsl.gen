@@ -3,6 +3,6 @@
   <Executable Name="##PACKAGE_NAME##" NoInclude="true" CreationYear="##PACKAGE_CREATION_YEAR##">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.VulkanWillemsDemoAppExperimental"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.DepthZeroToOne"/>
   </Executable>
 </FslBuildGen>

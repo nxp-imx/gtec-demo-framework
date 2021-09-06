@@ -58,7 +58,15 @@ namespace Fsl
 
     inline void Set(std::string& rStr, const StringViewLite& strView)
     {
-      rStr.assign(strView.data(), strView.size());
+      if (!strView.empty())
+      {
+        rStr.assign(strView.data(), strView.size());
+      }
+      else
+      {
+        rStr.clear();
+      }
+      // rStr.assign(strView.data(), strView.size());
     }
   }
 

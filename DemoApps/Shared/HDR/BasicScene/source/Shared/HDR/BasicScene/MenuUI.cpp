@@ -31,10 +31,11 @@
 
 #include <Shared/HDR/BasicScene/MenuUI.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
 
 namespace Fsl
@@ -467,7 +468,8 @@ namespace Fsl
 
   std::shared_ptr<UI::BaseWindow> MenuUI::CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context)
   {
-    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
     m_checkboxLDR = factory.CreateSwitch(m_menuTextLDR);
     m_checkboxLDR->SetAlignmentX(UI::ItemAlignment::Near);
@@ -481,7 +483,7 @@ namespace Fsl
     labelExposure->SetAlignmentX(UI::ItemAlignment::Near);
     labelExposure->SetAlignmentY(UI::ItemAlignment::Center);
 
-    m_exposureSlider = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::Exposure);
+    m_exposureSlider = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::Exposure);
     m_exposureSlider->SetAlignmentX(UI::ItemAlignment::Stretch);
 
     auto layout = std::make_shared<UI::GridLayout>(context);

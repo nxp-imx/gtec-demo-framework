@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <HeaderLibrary Name="FslDemoService.Graphics.Control" CreationYear="2018">
+    <Dependency Name="FslGraphics"/>
     <Dependency Name="FslDemoApp.Shared"/>
     <Platform Name="Windows" ProjectId="FA6231E1-BD3D-4101-A772-F732DC0CBD6E"/>
   </HeaderLibrary>

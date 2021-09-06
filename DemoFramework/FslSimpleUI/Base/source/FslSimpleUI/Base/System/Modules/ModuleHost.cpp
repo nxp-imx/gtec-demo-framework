@@ -46,12 +46,14 @@ namespace Fsl
   {
     ModuleHost::ModuleHost(std::shared_ptr<ModuleCallbackRegistry> moduleCallbackRegistry, std::shared_ptr<ITreeContextInfo> treeContextInfo,
                            const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater,
-                           std::shared_ptr<IEventHandler> eventHandler, std::shared_ptr<WindowEventPool> windowEventPool,
-                           const std::shared_ptr<WindowEventSender>& eventSender, const std::shared_ptr<SimpleEventSender>& simpleEventSender)
+                           std::shared_ptr<ITreeNodeBasicInfo> basicInfo, std::shared_ptr<IEventHandler> eventHandler,
+                           std::shared_ptr<WindowEventPool> windowEventPool, const std::shared_ptr<WindowEventSender>& eventSender,
+                           const std::shared_ptr<SimpleEventSender>& simpleEventSender)
       : m_moduleCallbackRegistry(std::move(moduleCallbackRegistry))
       , m_treeContextInfo(std::move(treeContextInfo))
       , m_windowEventPool(std::move(windowEventPool))
       , m_targetLocater(clickTargetLocater)
+      , m_basicInfo(std::move(basicInfo))
       , m_eventRouter(new EventRouter(rootNode, clickTargetLocater))
       , m_eventHandler(std::move(eventHandler))
       , m_eventSender(eventSender)
@@ -71,6 +73,12 @@ namespace Fsl
     std::shared_ptr<ITreeNodeClickInputTargetLocater> ModuleHost::GetTargetLocater() const
     {
       return m_targetLocater;
+    }
+
+
+    std::shared_ptr<ITreeNodeBasicInfo> ModuleHost::GetBasicInfo() const
+    {
+      return m_basicInfo;
     }
 
     std::shared_ptr<WindowEventPool> ModuleHost::GetWindowEventPool() const

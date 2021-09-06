@@ -39,15 +39,15 @@ namespace Fsl
   {
     uint8_t Value{0};
 
-    GamepadTriggerState() = default;
+    constexpr GamepadTriggerState() noexcept = default;
 
 
-    bool operator==(const GamepadTriggerState& rhs) const
+    constexpr bool operator==(const GamepadTriggerState& rhs) const noexcept
     {
       return Value == rhs.Value;
     }
 
-    bool operator!=(const GamepadTriggerState& rhs) const
+    constexpr bool operator!=(const GamepadTriggerState& rhs) const noexcept
     {
       return Value != rhs.Value;
     }

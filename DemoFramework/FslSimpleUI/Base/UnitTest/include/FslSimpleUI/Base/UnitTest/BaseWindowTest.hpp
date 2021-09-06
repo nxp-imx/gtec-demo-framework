@@ -68,14 +68,14 @@ namespace Fsl
         return m_callId;
       }
 
-      explicit BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags());
+      explicit BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags());
 
       void WinInit() override;
       bool WinMarkLayoutAsDirty() override;
-      const PxRectangle& WinGetContentPxRectangle() const override;
+      // const PxRectangle& WinGetContentRectanglePx() const override;
       void WinHandleEvent(const RoutedEvent& routedEvent) override;
-      void WinUpdate(const DemoTime& demoTime) override;
-      void WinResolve(const DemoTime& demoTime) override;
+      void WinUpdate(const TransitionTimeSpan& timeSpan) override;
+      void WinResolve(const TransitionTimeSpan& timeSpan) override;
       void WinDraw(const UIDrawContext& context) override;
 
     protected:

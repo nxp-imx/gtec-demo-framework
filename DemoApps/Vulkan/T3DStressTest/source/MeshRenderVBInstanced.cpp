@@ -151,7 +151,7 @@ namespace Fsl
     VertexBufferInfo<3> BuildVB(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const Procedural::BasicMesh& mesh)
     {
       VertexBufferInfo<3> info;
-      info.VertexBuffer.Reset(bufferManager, mesh.GetVertexArray(), Vulkan::VMBufferUsage::STATIC);
+      info.VertexBuffer.Reset(bufferManager, mesh.AsReadOnlyFlexVertexSpan(), Vulkan::VMBufferUsage::STATIC);
 
       // Generate attribute description by matching shader layout with the vertex declarations
       constexpr std::array<VertexElementUsage, 3> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::Normal,

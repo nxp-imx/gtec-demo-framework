@@ -38,6 +38,7 @@
 namespace Fsl
 {
   class IEvent;
+  struct FrameInfo;
 
   class IDemoApp
   {
@@ -51,16 +52,22 @@ namespace Fsl
     virtual void _PostConstruct() = 0;
     //! brief Called just before the app is destroyed (this is a good place for shutdown code that can throw exceptions)
     virtual void _PreDestruct() = 0;
+    //! Called as the first function in the 'frame processing' execution order (beware event processing might be called before this).
+    //! Beware even though the name might indicate that _End() will be called too this might not be the case
+    virtual void _Begin() = 0;
     virtual void _OnEvent(IEvent* const pEvent) = 0;
     virtual void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) = 0;
     virtual void _PreUpdate(const DemoTime& demoTime) = 0;
     virtual void _FixedUpdate(const DemoTime& demoTime) = 0;
     virtual void _Update(const DemoTime& demoTime) = 0;
     virtual void _PostUpdate(const DemoTime& demoTime) = 0;
-    virtual AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) = 0;
-    virtual void _Draw(const DemoTime& demoTime) = 0;
+    virtual AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) = 0;
+    virtual void _BeginDraw(const FrameInfo& frameInfo) = 0;
+    virtual void _Draw(const FrameInfo& frameInfo) = 0;
+    virtual void _EndDraw(const FrameInfo& frameInfo) = 0;
     // @brief If the demo host says the swap buffers is app controlled then this will be called to execute the swap buffers.
-    virtual AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) = 0;
+    virtual AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) = 0;
+    virtual void _End() = 0;
   };
 }
 

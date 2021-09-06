@@ -126,9 +126,10 @@ namespace Fsl
     //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
     //         The channel order is just a hint and the image service is free to ignore it.
     //! @return true if the bitmap was loaded, false otherwise
-    virtual bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                         const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-                         const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT = 0;
+    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath,
+                                                     const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
+                                                     const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
+                                                     const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const = 0;
 
 
     //! @brief Save the bitmap to a file of ImageFormat type and
@@ -139,8 +140,9 @@ namespace Fsl
     //! @param desiredPixelFormat the desired pixel format of the bitmap before saving. If its PixelFormat::Undefined the bitmap pixelformat is used.
     //! @return true if the bitmap was saved, false otherwise
     //! @note If the target file exists its overwritten
-    virtual bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat = ImageFormat::Undefined,
-                          const PixelFormat desiredPixelFormat = PixelFormat::Undefined) FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT = 0;
+    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap,
+                                                      const ImageFormat imageFormat = ImageFormat::Undefined,
+                                                      const PixelFormat desiredPixelFormat = PixelFormat::Undefined) = 0;
 
     //! @brief Save the bitmap to a file of ImageFormat type using the specified pixel format.
     //!        Use this for exact control of what is saved.
@@ -151,8 +153,8 @@ namespace Fsl
     //! @param desiredPixelFormat the desired pixel format of the bitmap before saving. If its PixelFormat::Undefined the bitmap pixelformat is used.
     //! @return true if the bitmap was saved, false otherwise
     //! @note If the target file exists its overwritten
-    virtual bool TryWriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
-                                    const PixelFormat desiredPixelFormat = PixelFormat::Undefined) FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT = 0;
+    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryWriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+                                                                const PixelFormat desiredPixelFormat = PixelFormat::Undefined) = 0;
   };
 }
 

@@ -38,8 +38,9 @@
 
 namespace Fsl
 {
-  class IBasic2D;
   class Bitmap;
+  class IBasic2D;
+  class IBasicRenderSystem;
   class INativeBatch2D;
   class INativeGraphics;
 
@@ -69,6 +70,9 @@ namespace Fsl
 
     //! @brief Acquire the native graphics interface if its present (throws a exception if it's not)
     virtual std::shared_ptr<INativeGraphics> GetNativeGraphics() = 0;
+
+    //! @brief Acquire the native graphics interface if its present (throws a exception if it's not)
+    virtual std::shared_ptr<IBasicRenderSystem> GetBasicRenderSystem() = 0;
   };
 }
 

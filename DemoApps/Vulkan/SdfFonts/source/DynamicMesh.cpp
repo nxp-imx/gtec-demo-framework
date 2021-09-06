@@ -31,9 +31,11 @@
 
 #include "DynamicMesh.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/ReadOnlySpanUtil.hpp>
-#include <FslBase/SpanUtil.hpp>
+#include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <cassert>
 #include <limits>
@@ -74,7 +76,7 @@ namespace Fsl
   DynamicMesh::DynamicMesh(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, std::vector<VertexPositionTexture> vertices,
                            const ReadOnlySpan<uint16_t>& indices, const uint32_t maxFramesInFlight)
     : m_vertices(std::move(vertices))
-    , m_vb(bufferManager, ReadOnlySpanUtil::AsSpan(m_vertices), m_vertices.size() * maxFramesInFlight, Vulkan::VMBufferUsage::DYNAMIC)
+    , m_vb(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(m_vertices), m_vertices.size() * maxFramesInFlight, Vulkan::VMBufferUsage::DYNAMIC)
     , m_ib(bufferManager, indices, Vulkan::VMBufferUsage::STATIC)
     , m_activeSpanRange(0, UncheckedNumericCast<uint32_t>(m_vertices.size()))
     , m_maxFramesInFlight(maxFramesInFlight)
@@ -106,7 +108,7 @@ namespace Fsl
 
   void DynamicMesh::EndWrite()
   {
-    m_vb.SetData(m_activeSpanRange.Start, ReadOnlySpanUtil::AsSpan(m_vertices));
+    m_vb.SetData(m_activeSpanRange.Start, ReadOnlyFlexSpanUtil::AsSpan(m_vertices));
   }
 
 

@@ -81,7 +81,7 @@ namespace Fsl
     public:
       void _PostConstruct() override;
       void _Update(const DemoTime& demoTime) override;
-      void _Draw(const DemoTime& demoTime) override;
+      void _Draw(const FrameInfo& frameInfo) override;
 
     protected:
       void OnKeyEvent(const KeyEvent& event) override;

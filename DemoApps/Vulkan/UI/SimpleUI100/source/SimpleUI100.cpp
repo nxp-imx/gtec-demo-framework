@@ -33,14 +33,15 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
@@ -61,12 +62,13 @@ namespace Fsl
     ISpriteResourceManager& spriteResourceManager = m_uiExtension->GetSpriteResourceManager();
     auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
 
-    UI::Theme::BasicThemeFactory factory(context, spriteResourceManager, defaultMaterialId);
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
-    auto spriteBack = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_previous_white_24dp");
-    auto spriteNext = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_next_white_24dp");
-    auto spritePlay = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_play_arrow_white_24dp");
-    auto spriteStop = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_stop_white_24dp");
+    auto spriteBack = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_previous_white_48dp");
+    auto spriteNext = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_skip_next_white_48dp");
+    auto spritePlay = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_play_arrow_white_48dp");
+    auto spriteStop = spriteResourceManager.CreateImageSprite(defaultMaterialId, "Icon/Av/ic_stop_white_48dp");
 
     // Allocate the four player buttons
     m_btnBack = factory.CreateImageButton(UI::Theme::ImageButtonType::Normal, spriteBack);
@@ -130,10 +132,10 @@ namespace Fsl
 
   void SimpleUI100::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
       clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
@@ -148,18 +150,18 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         // Calling this last allows the UI to draw on top of everything.
         // Beware that the UI drawing methods might alter the OpenGL state!
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 

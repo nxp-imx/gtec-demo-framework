@@ -36,13 +36,15 @@
 #include <FslBase/Transition/TransitionVector2.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
+#include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 #include <memory>
 #include <string>
 #include <utility>
 
 namespace Fsl
 {
-  class ImageSprite;
+  class ISizedSprite;
   class SpriteFont;
 
   namespace UI
@@ -53,33 +55,34 @@ namespace Fsl
     {
       struct FontRecord
       {
-        std::shared_ptr<SpriteFont> Font;
+        SpriteFontMesh Mesh;
         Color CheckedColor{DefaultColor::Palette::Font};
         Color UncheckedColor{DefaultColor::Palette::Font};
         Color DisabledColor{DefaultColor::Palette::FontDisabled};
         TransitionColor CurrentColor;
 
-        FontRecord() = default;
-        explicit FontRecord(std::shared_ptr<SpriteFont> font, TransitionCache& rTransitionCache, const TransitionTimeSpan& time,
-                            const TransitionType type)
-          : Font(std::move(font))
+        explicit FontRecord(const std::shared_ptr<IMeshManager>& meshManager, const std::shared_ptr<SpriteFont>& font,
+                            TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
+          : Mesh(meshManager)
           , CurrentColor(rTransitionCache, time, type)
         {
+          Mesh.SetSprite(font);
         }
       };
 
       struct GraphicsRecord
       {
-        std::shared_ptr<ImageSprite> Sprite;
+        SizedSpriteMesh Mesh;
         Color CheckedColor{DefaultColor::ToggleButton::CursorChecked};
         Color UncheckedColor{DefaultColor::ToggleButton::CursorChecked};
         Color CheckedDisabledColor{DefaultColor::ToggleButton::CursorCheckedDisabled};
         Color UncheckedDisabledColor{DefaultColor::ToggleButton::CursorUncheckedDisabled};
         TransitionColor CurrentColor;
 
-        GraphicsRecord() = default;
-        explicit GraphicsRecord(TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
-          : CurrentColor(rTransitionCache, time, type)
+        explicit GraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TransitionTimeSpan& time,
+                                const TransitionType type)
+          : Mesh(meshManager)
+          , CurrentColor(rTransitionCache, time, type)
         {
         }
       };
@@ -100,16 +103,17 @@ namespace Fsl
       {
         bool IsHovering{false};
         bool IsConstrainToGraphics{false};
-        std::shared_ptr<ImageSprite> Sprite;
+        SizedSpriteMesh Mesh;
         HoverStateRecord Checked{DefaultColor::ToggleButton::HoverOverlayChecked};
         HoverStateRecord Unchecked{DefaultColor::ToggleButton::HoverOverlayUnchecked};
         TransitionColor CurrentColor;
         TransitionVector2 CurrentPositionDp;
         PxPoint2 LastScreenPositionPx;
 
-        HoverOverlayRecord(TransitionCache& rTransitionCache, const TransitionTimeSpan& timeColor, const TransitionType typeColor,
-                           const TransitionTimeSpan& timePosition, const TransitionType typePosition)
-          : CurrentColor(rTransitionCache, timeColor, typeColor)
+        HoverOverlayRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TransitionTimeSpan& timeColor,
+                           const TransitionType typeColor, const TransitionTimeSpan& timePosition, const TransitionType typePosition)
+          : Mesh(meshManager)
+          , CurrentColor(rTransitionCache, timeColor, typeColor)
           , CurrentPositionDp(rTransitionCache, timePosition, typePosition)
         {
         }
@@ -119,11 +123,11 @@ namespace Fsl
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      std::string m_text;
       FontRecord m_font;
       GraphicsRecord m_cursor;
       GraphicsRecord m_background;
       HoverOverlayRecord m_hoverOverlay;
+      SpriteFontMeasureInfo m_cachedFontMeasureInfo;
 
       ItemAlignment m_imageAlignment{ItemAlignment::Near};
       bool m_isChecked{false};
@@ -142,13 +146,14 @@ namespace Fsl
 
       const std::shared_ptr<SpriteFont>& GetFont() const
       {
-        return m_font.Font;
+        return m_font.Mesh.GetSprite();
       }
+
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
       const std::string& GetText() const
       {
-        return m_text;
+        return m_font.Mesh.GetText();
       }
 
       void SetText(const StringViewLite& strView);
@@ -196,11 +201,12 @@ namespace Fsl
 
       void SetCursorUncheckedPosition(const DpPoint& valueDp);
 
-      const std::shared_ptr<ImageSprite>& SetHoverOverlaySprite() const
+      const std::shared_ptr<ISizedSprite>& SetHoverOverlaySprite() const
       {
-        return m_hoverOverlay.Sprite;
+        return m_hoverOverlay.Mesh.GetSprite();
       }
-      void SetHoverOverlaySprite(const std::shared_ptr<ImageSprite>& value);
+
+      void SetHoverOverlaySprite(const std::shared_ptr<ISizedSprite>& value);
 
 
       Color GetCursorCheckedColor() const
@@ -269,17 +275,17 @@ namespace Fsl
       }
       void SetFontDisabledColor(const Color& value);
 
-      const std::shared_ptr<ImageSprite>& GetCheckedTexture() const
+      const std::shared_ptr<ISizedSprite>& GetCheckedTexture() const
       {
-        return m_cursor.Sprite;
+        return m_cursor.Mesh.GetSprite();
       }
-      void SetCheckedSprite(const std::shared_ptr<ImageSprite>& value);
+      void SetCheckedSprite(const std::shared_ptr<ISizedSprite>& value);
 
-      const std::shared_ptr<ImageSprite>& GetUncheckedTexture() const
+      const std::shared_ptr<ISizedSprite>& GetUncheckedTexture() const
       {
-        return m_background.Sprite;
+        return m_background.Mesh.GetSprite();
       }
-      void SetUncheckedSprite(const std::shared_ptr<ImageSprite>& value);
+      void SetUncheckedSprite(const std::shared_ptr<ISizedSprite>& value);
 
       bool IsChecked() const
       {

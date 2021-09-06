@@ -29,8 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <algorithm>
 #include <cassert>
@@ -149,6 +150,20 @@ namespace Fsl
   VertexDeclaration::VertexDeclaration() = default;
 
 
+  VertexDeclaration::VertexDeclaration(VertexDeclarationSpan span)
+    : m_elements(span.Count())
+    , m_vertexStride(span.VertexStride())
+  {
+    // if (span.Count() > std::numeric_limits<uint32_t>::max())
+    //{
+    //  throw NotSupportedException("We only support 32bit of elements");
+    //}
+    CopyElements(m_elements, span.DirectAccess(), static_cast<uint32_t>(span.Count()));
+    // We do not need to verify elements as the span has been validated
+    // VerifyElements(m_elements, m_vertexStride);
+  }
+
+
   VertexDeclaration::VertexDeclaration(const VertexElementEx* const pElements, const std::size_t elementCount, const uint32_t vertexStride)
     : m_elements(elementCount)
     , m_vertexStride(vertexStride)
@@ -232,6 +247,11 @@ namespace Fsl
       }
     }
     throw NotFoundException("Could not locate a vertex element of the requested type");
+  }
+
+  VertexDeclarationSpan VertexDeclaration::AsSpan() const
+  {
+    return VertexDeclarationSpan(ReadOnlySpanUtil::AsSpan(m_elements), m_vertexStride, OptimizationCheckFlag::NoCheck);
   }
 
 

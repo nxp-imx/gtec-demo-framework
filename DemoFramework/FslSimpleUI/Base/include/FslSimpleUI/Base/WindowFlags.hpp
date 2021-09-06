@@ -32,19 +32,29 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslSimpleUI/Base/ItemVisibility.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
+    static_assert(static_cast<uint32_t>(ItemVisibility::Visible) == 0, "ItemVisibility enum expectation not met");
+    static_assert(static_cast<uint32_t>(ItemVisibility::Hidden) == 1, "ItemVisibility enum expectation not met");
+    static_assert(static_cast<uint32_t>(ItemVisibility::Collapsed) == 2, "ItemVisibility enum expectation not met");
+
     struct WindowFlags
     {
     private:
       uint32_t m_value{0};
 
     public:
-      static const int BitsReserved = 8;
-      static const uint32_t MASK = (1 << BitsReserved) - 1;
+      static constexpr int FlagBitsReserved = 8;
+      static constexpr int VisibilityBitsReserved = 2;
+      static constexpr int VisibilityShift = FlagBitsReserved;
+      static constexpr const uint32_t VisibilityMask = (0x1 | 0x2) << VisibilityShift;
+
+      static constexpr int BitsReserved = FlagBitsReserved + VisibilityBitsReserved;
+      static constexpr const uint32_t MASK = (1 << BitsReserved) - 1;
 
       enum Enum
       {
@@ -57,53 +67,68 @@ namespace Fsl
         MouseOver = 0x20,
         //! enable the WinResolve callback (called before the window layout cycle is started to help resolve complex state issues)
         ResolveEnabled = 0x40,
+        //! enable the WinPostLayout callback (called after layout has been resolved)
+        PostLayoutEnabled = 0x80,
 
-        All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled,
+        All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled | PostLayoutEnabled,
+        InputAll = ClickInput | MouseOver
       };
 
 
-      WindowFlags() = default;
+      constexpr WindowFlags() noexcept = default;
 
 
-      WindowFlags(const Enum flags)    // NOLINT(google-explicit-constructor)
+      constexpr WindowFlags(const Enum flags) noexcept    // NOLINT(google-explicit-constructor)
         : m_value(flags)
       {
       }
 
 
-      explicit WindowFlags(const uint32_t flags)
+      constexpr explicit WindowFlags(const uint32_t flags) noexcept
         : m_value(flags)
       {
       }
 
-      inline uint32_t GetValue() const
+      constexpr inline uint32_t GetValue() const noexcept
       {
         return m_value;
       }
 
-      inline bool IsEnabled(Enum flag) const
+      constexpr inline bool IsEnabled(Enum flag) const noexcept
       {
         return (m_value & static_cast<uint32_t>(flag)) != 0;
       }
 
-      inline bool IsOnlyFlagEnabled(Enum flag) const
+      constexpr inline bool IsOnlyFlagEnabled(Enum flag) const noexcept
       {
         return (m_value == static_cast<uint32_t>(flag));
       }
 
-      inline void Enable(Enum flag)
+      constexpr inline void Enable(Enum flag) noexcept
       {
         m_value |= static_cast<uint32_t>(flag);
       }
 
-      inline void Disable(Enum flag)
+      constexpr inline void Disable(Enum flag) noexcept
       {
         m_value &= ~static_cast<uint32_t>(flag);
       }
 
-      inline void Set(Enum flag, const bool enabled)
+      constexpr inline void Set(Enum flag, const bool enabled) noexcept
       {
         m_value = enabled ? (m_value | static_cast<uint32_t>(flag)) : (m_value & ~static_cast<uint32_t>(flag));
+      }
+
+
+      constexpr inline ItemVisibility GetVisibility() const noexcept
+      {
+        return static_cast<ItemVisibility>((m_value & WindowFlags::VisibilityMask) >> WindowFlags::VisibilityShift);
+      }
+
+      constexpr inline void SetVisibility(const ItemVisibility visibility) noexcept
+      {
+        m_value = (m_value & (~WindowFlags::VisibilityMask)) |
+                  ((static_cast<uint32_t>(visibility) << WindowFlags::VisibilityShift) & WindowFlags::VisibilityMask);
       }
     };
   }

@@ -1,0 +1,66 @@
+@startuml NativeRender Class Diagram
+scale 1
+
+' FslGraphics
+interface INativeRender
+interface INativeTexture2D
+interface INativeBuffer
+interface INativeIndexBuffer
+interface INativeVertexBuffer
+
+INativeBuffer <|-- INativeIndexBuffer
+INativeBuffer <|-- INativeVertexBuffer
+
+namespace FslUtil.GLES2 {
+    class GLBatch2D
+    class GLBatch2DQuadRenderer
+    class GLTexture
+    class GLTextureInfo
+
+    class NativeRender
+    class NativeIndexBuffer
+    class NativeVertexBuffer
+    class NativeTexture2D
+
+    GLTexture .. GLTextureInfo : uses
+
+    .INativeRender <|-- NativeRender
+    .INativeIndexBuffer <|-- NativeIndexBuffer
+    .INativeVertexBuffer <|-- NativeVertexBuffer
+    .INativeTexture2D <|-- NativeTexture2D
+
+    NativeRender o-- NativeIndexBuffer
+    NativeRender o-- NativeVertexBuffer
+
+    NativeIndexBuffer *-- GLIndexBuffer
+    NativeVertexBuffer *-- GLVertexBuffer
+    NativeTexture2D *-- GLTexture
+}
+
+namespace FslUtil.GLES3 {
+    class GLBatch2D
+    class GLBatch2DQuadRenderer
+    class GLTexture
+    class GLTextureInfo
+    class NativeRender
+    class NativeIndexBuffer
+    class NativeVertexBuffer
+    class NativeTexture2D
+
+    GLTexture .. GLTextureInfo : uses
+
+    .INativeRender <|-- NativeRender
+    .INativeIndexBuffer <|-- NativeIndexBuffer
+    .INativeVertexBuffer <|-- NativeVertexBuffer
+    .INativeTexture2D <|-- NativeTexture2D
+
+    NativeRender o-- NativeIndexBuffer
+    NativeRender o-- NativeVertexBuffer
+
+    NativeIndexBuffer *-- GLIndexBuffer
+    NativeVertexBuffer *-- GLVertexBuffer
+    NativeTexture2D *-- GLTexture
+}
+
+
+@enduml

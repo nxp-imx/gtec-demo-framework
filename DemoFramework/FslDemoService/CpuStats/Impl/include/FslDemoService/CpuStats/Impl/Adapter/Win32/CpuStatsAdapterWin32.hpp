@@ -1,6 +1,6 @@
 #ifndef FSLDEMOSERVICE_CPUSTATS_IMPL_ADAPTER_WIN32_CPUSTATSADAPTERWIN32_HPP
 #define FSLDEMOSERVICE_CPUSTATS_IMPL_ADAPTER_WIN32_CPUSTATSADAPTERWIN32_HPP
-#ifdef _WIN32
+#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
 /****************************************************************************************************************************************************
  * Copyright 2019 NXP
  * All rights reserved.

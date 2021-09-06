@@ -378,43 +378,43 @@ namespace Fsl
 
         // TOP_LEFT CORNER: xa, ya, xb, yb
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYA, dstXB, dstYB);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color, BatchEffect::Rotate90Clockwise);
 
         // TOP: xb, ya, xc, yb
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYA, dstXC, dstYB);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color, BatchEffect::Rotate90Clockwise);
 
         // TOP_RIGHT CORNER: xc, ya, xd, yb
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYA, dstXD, dstYB);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(0, 0, srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(0, 0, srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
 
         // LEFT SIDE: xa, yb, xb, yc
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYB, dstXB, dstYC);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(srcLeftWidth, srcBottomStart, srcCenterWidth, srcBottomHeight), color,
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcLeftWidth, srcBottomStart, srcCenterWidth, srcBottomHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // CENTER: xb, yb, xc, yc
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYB, dstXC, dstYC);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(srcLeftWidth, srcTopHeight, srcCenterWidth, srcCenterHeight), color,
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcLeftWidth, srcTopHeight, srcCenterWidth, srcCenterHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // RIGHT SIDE: xc, yb, xd, yc
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYB, dstXD, dstYC);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
 
         // BOTTOM_LEFT CORNER: xa, yc, xb, yd
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYC, dstXB, dstYD);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(srcRightStart, srcBottomStart, srcRightWidth, srcBottomHeight), color,
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcRightStart, srcBottomStart, srcRightWidth, srcBottomHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // BOTTOM: xb, yc, xc, yd
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYC, dstXC, dstYD);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(srcRightStart, srcTopHeight, srcRightWidth, srcCenterHeight), color,
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcRightStart, srcTopHeight, srcRightWidth, srcCenterHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // BOTTOM_RIGHT CORNER: xc, yc, xd, yd
         finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYC, dstXD, dstYD);
-        batch2D->Draw(texture, finalDstRect, PxRectangleU(srcRightStart, 0, srcRightWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcRightStart, 0, srcRightWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
       }
 
       inline static void WinDrawRotated90CW(const std::shared_ptr<INativeBatch2D>& batch2D, const PxAreaRectangleF& dstRectanglePxf,
@@ -502,44 +502,45 @@ namespace Fsl
 
         // TOP_LEFT CORNER: xa, ya, xb, yb
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYA, dstXB, dstYB);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color,
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // TOP: xb, ya, xc, yb
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYA, dstXC, dstYB);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color,
+                      BatchEffect::Rotate90Clockwise);
 
         // TOP_RIGHT CORNER: xc, ya, xd, yb
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYA, dstXD, dstYB);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(0, 0, srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(0, 0, srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
 
         // LEFT SIDE: xa, yb, xb, yc
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYB, dstXB, dstYC);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(srcLeftWidth, srcBottomStart, srcCenterWidth, srcBottomHeight), color,
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcLeftWidth, srcBottomStart, srcCenterWidth, srcBottomHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // CENTER: xb, yb, xc, yc
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYB, dstXC, dstYC);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(srcLeftWidth, srcTopHeight, srcCenterWidth, srcCenterHeight), color,
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcLeftWidth, srcTopHeight, srcCenterWidth, srcCenterHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // RIGHT SIDE: xc, yb, xd, yc
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYB, dstXD, dstYC);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
 
         // BOTTOM_LEFT CORNER: xa, yc, xb, yd
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYC, dstXB, dstYD);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(srcRightStart, srcBottomStart, srcRightWidth, srcBottomHeight), color,
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcRightStart, srcBottomStart, srcRightWidth, srcBottomHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // BOTTOM: xb, yc, xc, yd
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYC, dstXC, dstYD);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(srcRightStart, srcTopHeight, srcRightWidth, srcCenterHeight), color,
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcRightStart, srcTopHeight, srcRightWidth, srcCenterHeight), color,
                       BatchEffect::Rotate90Clockwise);
 
         // BOTTOM_RIGHT CORNER: xc, yc, xd, yd
         finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYC, dstXD, dstYD);
-        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU(srcRightStart, 0, srcRightWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+        batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcRightStart, 0, srcRightWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
       }
     }
   }

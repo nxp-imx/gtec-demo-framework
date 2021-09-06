@@ -44,14 +44,14 @@ namespace Fsl
       //!        - https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
       //!        - https://vulkan.lunarg.com/doc/sdk/1.1.85.0/windows/tutorial/html/07-init_uniform_buffer.html
       //!        - http://anki3d.org/vulkan-coordinate-system/
-      inline Matrix GetClipMatrixForDepthZeroToOne()
+      inline constexpr Matrix GetClipMatrixForDepthZeroToOne()
       {
         // Vulkan clip space has inverted Y.
         return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
       }
 
       //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
-      inline Matrix GetClipMatrixForDepthMinusOneToOne()
+      inline constexpr Matrix GetClipMatrixForDepthMinusOneToOne()
       {
         // Vulkan clip space has inverted Y and half Z.
         return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
@@ -62,7 +62,7 @@ namespace Fsl
       //!        - https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
       //!        - https://vulkan.lunarg.com/doc/sdk/1.1.85.0/windows/tutorial/html/07-init_uniform_buffer.html
       //!        - http://anki3d.org/vulkan-coordinate-system/
-      inline Matrix GetClipMatrix()
+      inline constexpr Matrix GetClipMatrix()
       {
         // Vulkan clip space has inverted Y.
         return GetClipMatrixForDepthZeroToOne();

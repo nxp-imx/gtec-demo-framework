@@ -40,24 +40,17 @@ from typing import List
 from typing import Set
 import argparse
 import json
-#import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
-#from FslBuildGen import ParseUtil
-#from FslBuildGen import PluginSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
-#from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
-#from FslBuildGen.PackageConfig import PlatformNameString
-#from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
-#from FslBuildGen.Packages.PackageNamespaceName import PackageNamespaceName
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
@@ -126,6 +119,7 @@ def TocEntryLink(line: str) -> str:
     line = line.strip()
     line = line.replace(' ', '-')
     line = line.replace('.', '')
+    line = line.replace(':', '')
     line = line.lower()
     return line
 
@@ -553,6 +547,7 @@ class DefaultValue(object):
     DryRun = False
     ToCDepth = 2
     ExtractArguments = None # type: Optional[str]
+    NoMdScan = False
 
 
 class LocalToolConfig(ToolAppConfig):
@@ -562,6 +557,7 @@ class LocalToolConfig(ToolAppConfig):
         self.DryRun = DefaultValue.DryRun
         self.ToCDepth = DefaultValue.ToCDepth
         self.ExtractArguments = DefaultValue.ExtractArguments
+        self.NoMdScan = DefaultValue.NoMdScan
 
 
 def GetDefaultLocalConfig() -> LocalToolConfig:
@@ -585,6 +581,7 @@ class ToolFlowBuildDoc(AToolAppFlow):
         localToolConfig.DryRun = args.DryRun
         localToolConfig.ToCDepth = int(args.ToCDepth)
         localToolConfig.ExtractArguments = args.ExtractArguments
+        localToolConfig.NoMdScan = args.NoMdScan
 
         self.Process(currentDirPath, toolConfig, localToolConfig)
 
@@ -618,7 +615,8 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
+        minimalConfig = toolConfig.GetMinimalConfig(generator.CMakeConfig)
+        theFiles = MainFlow.DoGetFiles(config, minimalConfig, currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
@@ -650,6 +648,28 @@ class ToolFlowBuildDoc(AToolAppFlow):
             elif config.Verbosity > 2:
                 config.LogPrintWarning("No README.md found in {0}".format(rootDir.ResolvedPath))
 
+            if not localToolConfig.NoMdScan:
+                mdFiles = IOUtil.FindFileByExtension(rootDir.ResolvedPath, ".md", minimalConfig.IgnoreDirectories)
+                for filename in mdFiles:
+                    if filename != readmePath:
+                        config.LogPrintVerbose(1, "Processing file '{0}'".format(filename))
+                        self.ProcessMDFile(config, filename, localToolConfig)
+
+    def ProcessMDFile(self, config: Config, filename: str, localToolConfig: LocalToolConfig) -> None:
+        packageReadMeLines = TryLoadReadMe(config, filename)
+        if packageReadMeLines is not None and self.HasLineThatContain(packageReadMeLines, "#AG_TOC_BEGIN#"):
+            packageReadMeLinesNew = TryInsertTableOfContents(config, packageReadMeLines, localToolConfig.ToCDepth, filename)
+            if packageReadMeLinesNew is not None:
+                packageReadMeLines = packageReadMeLinesNew
+
+            SaveReadMe(config, filename, packageReadMeLines)
+
+
+    def HasLineThatContain(self, lines: List[str], strFind: str) -> bool:
+        for entry in lines:
+            if strFind in entry:
+                return True
+        return False
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
     #def __init__(self) -> None:
@@ -678,6 +698,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--DryRun', action='store_true', help='No files will be created')
         parser.add_argument('--ToCDepth', default=str(DefaultValue.ToCDepth), help='The headline depth to include, defaults to {0} (1-4)'.format(DefaultValue.ToCDepth))
         parser.add_argument('--ExtractArguments', default=DefaultValue.ExtractArguments, help='Build the app and execute it to extract the command line arguments ("*" for all or "." for current dirs package)')
+        parser.add_argument('--NoMdScan', action='store_true', help='Dont scan for all "md" files and generate a table of content')
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

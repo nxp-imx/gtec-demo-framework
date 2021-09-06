@@ -3,6 +3,6 @@
   <Executable Name="Vulkan.ComputeParticles" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.VulkanWillemsDemoAppExperimental"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.DepthZeroToOne"/>
   </Executable>
 </FslBuildGen>

@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
 #include <FslSimpleUI/Base/UnitTest/TestUITree_Window.hpp>
@@ -84,7 +83,7 @@ TEST_F(TestUITree_Window, Window_Update)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(DemoTime(0, 0));
+  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
 
   auto callCount = window->GetCallCount();
 
@@ -92,7 +91,7 @@ TEST_F(TestUITree_Window, Window_Update)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -100,7 +99,7 @@ TEST_F(TestUITree_Window, Window_Update_UpdateEnabled)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::UpdateEnabled);
   m_tree->Add(window);
-  m_tree->Update(DemoTime(0, 0));
+  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
 
   auto callCount = window->GetCallCount();
 
@@ -109,8 +108,7 @@ TEST_F(TestUITree_Window, Window_Update_UpdateEnabled)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount,
-                  WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::WinUpdate | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -119,7 +117,7 @@ TEST_F(TestUITree_Window, Window_Resolve)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(DemoTime(0, 0));
+  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
 
   auto callCount = window->GetCallCount();
 
@@ -127,7 +125,7 @@ TEST_F(TestUITree_Window, Window_Resolve)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -136,7 +134,7 @@ TEST_F(TestUITree_Window, Window_Resolve_ResolveEnabled)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::ResolveEnabled);
   m_tree->Add(window);
-  m_tree->Update(DemoTime(0, 0));
+  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
 
   auto callCount = window->GetCallCount();
 
@@ -145,26 +143,25 @@ TEST_F(TestUITree_Window, Window_Resolve_ResolveEnabled)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount,
-                  WindowMethod::WinGetContentPxRectangle | WindowMethod::WinResolve | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::WinResolve | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(DemoTime(0, 0));
+  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
 
   auto callCount = window->GetCallCount();
 
   // ASSERT_EQ(1u, callCount.WinGetContentRect);
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
-  const auto ignoreFlags = WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
+  const auto ignoreFlags = WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
   CheckZeroExcept(callCount, ignoreFlags);
 
 
-  m_tree->Update(DemoTime(0, 0));
+  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
 
   // Check that the layout was cached
   callCount = window->GetCallCount();
@@ -179,12 +176,12 @@ TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
 TEST_F(TestUITree_Window, Window_Draw)
 {
   // Update must be called before draw
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
 
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(demoTime);
-  m_tree->Draw();
+  m_tree->Update(timeSpan);
+  m_tree->Draw(this->m_buffer);
 
   auto callCount = window->GetCallCount();
 
@@ -194,19 +191,19 @@ TEST_F(TestUITree_Window, Window_Draw)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
 TEST_F(TestUITree_Window, Window_Draw_DrawEnabled)
 {
   // Update must be called before draw
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
 
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::DrawEnabled);
   m_tree->Add(window);
-  m_tree->Update(demoTime);
-  m_tree->Draw();
+  m_tree->Update(timeSpan);
+  m_tree->Draw(this->m_buffer);
 
   auto callCount = window->GetCallCount();
 
@@ -216,20 +213,19 @@ TEST_F(TestUITree_Window, Window_Draw_DrawEnabled)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount,
-                  WindowMethod::WinGetContentPxRectangle | WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
 TEST_F(TestUITree_Window, Window_Draw2x_DrawEnabled)
 {
   // Update must be called before draw
-  const DemoTime demoTime(0, 0);
+  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
 
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::DrawEnabled);
   m_tree->Add(window);
-  m_tree->Update(demoTime);
-  m_tree->Draw();
+  m_tree->Update(timeSpan);
+  m_tree->Draw(this->m_buffer);
 
   auto callCount = window->GetCallCount();
 
@@ -239,11 +235,10 @@ TEST_F(TestUITree_Window, Window_Draw2x_DrawEnabled)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  const auto ignoreFlags =
-    WindowMethod::WinGetContentPxRectangle | WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
+  const auto ignoreFlags = WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
   CheckZeroExcept(callCount, ignoreFlags);
 
-  m_tree->Draw();
+  m_tree->Draw(this->m_buffer);
 
   callCount = window->GetCallCount();
 

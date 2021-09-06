@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
+#include <FslGraphics/NativeTextureAreaUtil.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <cassert>
@@ -47,18 +47,13 @@ namespace Fsl
     namespace VUTextureUtil
     {
       //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU& srcRect, const PxExtent2D& textureSize)
+      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxExtent2D& textureSize)
       {
-        assert(static_cast<float>(textureSize.Width) >= 0.0f);
-        assert(static_cast<float>(textureSize.Height) >= 0.0f);
-        return {srcRect.Left() == 0 ? 0.0f : srcRect.Left() / static_cast<float>(textureSize.Width),
-                srcRect.Top() == 0 ? 0.0f : srcRect.Top() / static_cast<float>(textureSize.Height),
-                srcRect.Right() == textureSize.Width ? 1.0f : srcRect.Right() / static_cast<float>(textureSize.Width),
-                srcRect.Bottom() == textureSize.Height ? 1.0f : srcRect.Bottom() / static_cast<float>(textureSize.Height)};
+        return NativeTextureAreaUtil::CalcNativeTextureArea(srcRect, textureSize);
       }
 
       //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU& srcRect, const PxSize2D& textureSize)
+      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxSize2D& textureSize)
       {
         assert(static_cast<float>(textureSize.Width()) >= 0.0f);
         assert(static_cast<float>(textureSize.Height()) >= 0.0f);

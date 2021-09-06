@@ -37,11 +37,12 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
-#include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
@@ -410,7 +411,7 @@ namespace Fsl
       std::array<VertexElementUsage, 4> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Normal, VertexElementUsage::Tangent,
                                                            VertexElementUsage::TextureCoordinate};
 
-      m_resources.Mesh.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
+      m_resources.Mesh.VertexBuffer.Reset(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
       m_resources.Mesh.IndexBuffer.Reset(bufferManager, indices, Vulkan::VMBufferUsage::STATIC);
 
       Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.VertexAttributeDescription, shaderBindOrder,

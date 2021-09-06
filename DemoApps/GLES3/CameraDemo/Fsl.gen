@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.CameraDemo" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.Core"/>
     <Dependency Name="Shared.Camera.Platform"/>
   </Executable>
 </FslBuildGen>

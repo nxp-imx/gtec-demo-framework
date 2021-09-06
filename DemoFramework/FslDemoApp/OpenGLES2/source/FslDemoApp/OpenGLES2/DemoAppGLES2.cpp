@@ -30,19 +30,53 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsBeginFrameInfo.hpp>
+#include <FslDemoService/Graphics/Control/GraphicsDependentCreateInfo.hpp>
+#include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>
 #include <GLES2/gl2.h>
 
 namespace Fsl
 {
   DemoAppGLES2::DemoAppGLES2(const DemoAppConfig& demoAppConfig)
     : ADemoApp(demoAppConfig)
+    , m_graphicsServiceHost(demoAppConfig.DemoServiceProvider.Get<IGraphicsServiceHost>())
   {
   }
-
 
   DemoAppGLES2::~DemoAppGLES2()
   {
     // Many DemoApps forget this and it can get problems on restart, so doing it here to be nice (the app doesn't care as its being killed).
     glUseProgram(0);
+  }
+
+  void DemoAppGLES2::_PostConstruct()
+  {
+    ADemoApp::_PostConstruct();
+    assert(m_graphicsServiceHost);
+
+    GraphicsDependentCreateInfo createInfo(GetScreenExtent(), nullptr);
+    m_graphicsServiceHost->CreateDependentResources(createInfo);
+  }
+
+  void DemoAppGLES2::_PreDestruct()
+  {
+    assert(m_graphicsServiceHost);
+    m_graphicsServiceHost->DestroyDependentResources();
+
+    ADemoApp::_PreDestruct();
+  }
+
+  void DemoAppGLES2::_BeginDraw(const FrameInfo& frameInfo)
+  {
+    ADemoApp::_BeginDraw(frameInfo);
+    GraphicsBeginFrameInfo graphicsFrameInfo(frameInfo.FrameIndex);
+    m_graphicsServiceHost->BeginFrame(graphicsFrameInfo);
+  }
+
+  void DemoAppGLES2::_EndDraw(const FrameInfo& frameInfo)
+  {
+    ADemoApp::_EndDraw(frameInfo);
+    m_graphicsServiceHost->EndFrame();
   }
 }

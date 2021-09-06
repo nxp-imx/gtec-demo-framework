@@ -32,6 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Collections/HandleVectorConfig.hpp>
+#include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <cassert>
 #include <cstddef>
@@ -40,12 +42,6 @@
 
 namespace Fsl
 {
-  namespace HandleVectorConfig
-  {
-    constexpr int32_t InvalidHandle = -1;
-    constexpr const std::size_t GrowBy = 128;
-  }
-
   //! A vector that provides a unique handle for the added entry
   //! The lookup of the element via the handle is a o(1) operation. Its just direct lookup via the handle to get the actual index.
   //! Removing elements by handle is also a o(1) operation.
@@ -54,10 +50,12 @@ namespace Fsl
   {
   public:
     using value_type = T;
-    using size_type = std::size_t;
+    using size_type = uint32_t;
     using difference_type = std::ptrdiff_t;
     using reference = value_type&;
     using const_reference = const value_type&;
+    using const_pointer = const value_type*;
+    using pointer = value_type*;
 
     using index_type = size_type;
     using handle_type = int32_t;
@@ -85,6 +83,8 @@ namespace Fsl
     size_type m_count{};
 
   public:
+    static constexpr const auto ElementByteSize = sizeof(Record);
+
     HandleVector(const HandleVector&) = default;
     HandleVector& operator=(const HandleVector&) = default;
     HandleVector(HandleVector&&) noexcept = default;
@@ -105,6 +105,21 @@ namespace Fsl
         m_data[i] = Record(UncheckedNumericCast<index_type>(i), UncheckedNumericCast<handle_type>(i));
       }
       m_count = 0;
+    }
+
+    TypedFlexSpan<T> AsSpan()
+    {
+      return TypedFlexSpan<T>(&m_data[0].Element, m_count, sizeof(Record));
+    }
+
+    ReadOnlyTypedFlexSpan<T> AsSpan() const
+    {
+      return ReadOnlyTypedFlexSpan<T>(&m_data[0].Element, m_count, sizeof(Record));
+    }
+
+    constexpr bool Empty() const noexcept
+    {
+      return m_count <= 0;
     }
 
     //! @brief Free all entries
@@ -130,27 +145,31 @@ namespace Fsl
       {
         return;
       }
+      constexpr size_type growBy = 200;
+      const auto finalCapacity = ((capacity / growBy) + ((capacity % growBy) > 0 ? 1 : 0)) * growBy;
 
       // Resize the array
-      auto oldCapacity = m_data.size();
-      m_data.resize(capacity);
+      auto oldCapacity = UncheckedNumericCast<size_type>(m_data.size());
+      m_data.resize(finalCapacity);
 
       // Update the lookup values
-      for (index_type i = oldCapacity; i < m_data.size(); ++i)
+      const auto dataSize = UncheckedNumericCast<size_type>(m_data.size());
+      for (index_type i = oldCapacity; i < dataSize; ++i)
       {
         m_data[i] = Record(UncheckedNumericCast<index_type>(i), UncheckedNumericCast<handle_type>(i));
       }
     }
 
+
     //! Convert a handle to a index
-    index_type HandleToIndex(const handle_type handle) const
+    constexpr index_type FastHandleToIndex(const handle_type handle) const noexcept
     {
       assert(IsValidHandle(handle));
       return m_data[handle].HandleToIndex;
     }
 
     //! @brief Convert a index to the corresponding handle
-    handle_type IndexToHandle(const index_type index) const
+    constexpr handle_type FastIndexToHandle(const index_type index) const noexcept
     {
       assert(IsValidIndex(index));
       return m_data[index].Handle;
@@ -164,7 +183,7 @@ namespace Fsl
       if (m_count >= m_data.size())
       {
         // Ensure we have enough capacity
-        Reserve(m_data.size() + HandleVectorConfig::GrowBy);
+        Reserve(UncheckedNumericCast<size_type>(m_data.size() + HandleVectorConfig::GrowBy));
       }
 
       // get a free handle, then add the item to the array
@@ -187,7 +206,7 @@ namespace Fsl
       if (m_count >= m_data.size())
       {
         // Ensure we have enough capacity
-        Reserve(m_data.size() + HandleVectorConfig::GrowBy);
+        Reserve(UncheckedNumericCast<size_type>(m_data.size() + HandleVectorConfig::GrowBy));
       }
 
       // get a free handle, then add the item to the array
@@ -204,8 +223,8 @@ namespace Fsl
     }
 
     //! @brief Insert the item at the given index
-    //! @param index The zero-based index at which item should be inserted
-    /// <param name="element">The object to insert. The value can be null for reference types
+    //! @param handle The item handle to insert after
+    //! @param element The object to insert. The value can be null for reference types
     handle_type Insert(const handle_type handle, const_reference element)
     {
       if (!IsValidHandle(handle))
@@ -218,8 +237,8 @@ namespace Fsl
     }
 
     //! @brief Insert the item at the given index
-    //! @param index The zero-based index at which item should be inserted
-    /// <param name="element">The object to insert. The value can be null for reference types
+    //! @param handle The item handle to insert after
+    //! @param element The object to insert. The value can be null for reference types
     handle_type Insert(const handle_type handle, value_type&& element)
     {
       if (!IsValidHandle(handle))
@@ -236,7 +255,7 @@ namespace Fsl
     //! @param element The object to insert. The value can be null for reference types
     handle_type InsertAt(const index_type index, const_reference element)
     {
-      if (index < 0 || index > Count())
+      if (/*index < 0 ||*/ index > Count())
       {
         throw IndexOutOfRangeException();
       }
@@ -259,13 +278,13 @@ namespace Fsl
 
 
     //! @brief Remove the item with the given handle from the list.
-    bool Remove(const handle_type handle)
+    bool Remove(const handle_type handle) noexcept
     {
       if (IsValidHandle(handle))
       {
         assert(Count() > 0);
         const index_type index = m_data[handle].HandleToIndex;
-        RemoveAt(index);
+        FastRemoveAt(index);
         return true;
       }
       return false;
@@ -279,28 +298,7 @@ namespace Fsl
       {
         throw IndexOutOfRangeException();
       }
-
-      assert(m_count > 0u);
-      --m_count;
-
-      const handle_type removedHandle = m_data[index].Handle;
-
-      // Move all the previous handles one step to the left
-      for (auto i = UncheckedNumericCast<std::size_t>(index); i < m_count; ++i)
-      {
-        auto& rEntry0 = m_data[i];
-        auto& rEntry1 = m_data[i + 1];
-        assert((i + 1) == m_data[rEntry1.Handle].HandleToIndex);
-        rEntry0.Handle = rEntry1.Handle;
-        rEntry0.Element = std::move(rEntry1.Element);
-        // Patch the handle to index lookup table so we know the new index of element with a given handle
-        m_data[rEntry1.Handle].HandleToIndex = i;
-      }
-
-      // Update the element at the end
-      m_data[m_count].Handle = removedHandle;
-      m_data[m_count].Element = {};
-      m_data[removedHandle].HandleToIndex = m_count;
+      FastRemoveAt(index);
     }
 
     //! @brief Remove a range of elements from the vector
@@ -357,8 +355,8 @@ namespace Fsl
     }
 
     //! @brief Remove the item with the given handle from the list.
-    //!        This fast remove will swap the removed element with the last element.
-    void RemoveFast(const handle_type handle)
+    //!        This remove will swap the removed element with the last element.
+    void RemoveBySwap(const handle_type handle)
     {
       if (!IsValidHandle(handle))
       {
@@ -366,13 +364,13 @@ namespace Fsl
       }
 
       assert(Count() > 0);
-      index_type index = m_data[handle].HandleToIndex;
-      RemoveFastAt(index);
+      const index_type index = m_data[handle].HandleToIndex;
+      RemoveBySwapAt(index);
     }
 
     //! Remove the item at the given index from the list.
-    //! This fast remove will swap the removed element with the last element.
-    void RemoveFastAt(const index_type index)
+    //! This  remove will swap the removed element with the last element.
+    void RemoveBySwapAt(const index_type index)
     {
       if (!IsValidIndex(index))
       {
@@ -396,6 +394,18 @@ namespace Fsl
     }
 
     //! Get the entry
+    const_pointer TryGet(const handle_type handle) const
+    {
+      return IsValidHandle(handle) ? &m_data[m_data[handle].HandleToIndex].Element : nullptr;
+    }
+
+    //! Get the entry
+    pointer TryGet(const handle_type handle)
+    {
+      return IsValidHandle(handle) ? &m_data[m_data[handle].HandleToIndex].Element : nullptr;
+    }
+
+    //! Get the entry
     const_reference Get(const handle_type handle) const
     {
       if (!IsValidHandle(handle))
@@ -403,6 +413,14 @@ namespace Fsl
         throw std::invalid_argument("invalid handle");
       }
 
+      const index_type index = m_data[handle].HandleToIndex;
+      return m_data[index].Element;
+    }
+
+    //! Get the entry
+    const_reference FastGet(const handle_type handle) const noexcept
+    {
+      assert(IsValidHandle(handle));
       const index_type index = m_data[handle].HandleToIndex;
       return m_data[index].Element;
     }
@@ -418,6 +436,15 @@ namespace Fsl
       const index_type index = m_data[handle].HandleToIndex;
       return m_data[index].Element;
     }
+
+    //! Get the entry
+    reference FastGet(const handle_type handle) noexcept
+    {
+      assert(IsValidHandle(handle));
+      const index_type index = m_data[handle].HandleToIndex;
+      return m_data[index].Element;
+    }
+
 
     //! Get the entry and the index of the entry
     const_reference Get(const handle_type handle, index_type& rIndex) const
@@ -516,7 +543,7 @@ namespace Fsl
         throw std::invalid_argument("invalid handle");
       }
 
-      SwapAt(HandleToIndex(handle0), HandleToIndex(handle1));
+      SwapAt(FastHandleToIndex(handle0), FastHandleToIndex(handle1));
     }
 
     //! @brief Swap the records at the given indices
@@ -569,7 +596,7 @@ namespace Fsl
         throw std::invalid_argument("invalid handle");
       }
 
-      MoveAtFromTo(HandleToIndex(hFrom), HandleToIndex(hTo));
+      MoveAtFromTo(FastHandleToIndex(hFrom), FastHandleToIndex(hTo));
     }
 
     //! @brief Move the element at fromIndex to toIndex.
@@ -638,43 +665,45 @@ namespace Fsl
     }
 
     //! @brief Direct access to the elements
-    const_reference operator[](const index_type index) const
+    const_reference operator[](const index_type index) const noexcept
     {
       assert(IsValidIndex(index));
       return m_data[index].Element;
     }
 
     /// Direct access to the elements
-    reference operator[](const index_type index)
+    reference operator[](const index_type index) noexcept
     {
       assert(IsValidIndex(index));
       return m_data[index].Element;
     }
 
     //! @brief the current element count
-    size_type Count() const
+    size_type Count() const noexcept
     {
       return m_count;
     }
 
     //! @brief The current capacity of the vector
-    size_type Capacity() const
+    size_type Capacity() const noexcept
     {
-      return m_data.size();
+      return UncheckedNumericCast<size_type>(m_data.size());
     }
 
     //! @brief Check if the given handle is valid.
     //! @return True if the supplied handle is valid
-    constexpr bool IsValidHandle(const handle_type handle) const
+    constexpr bool IsValidHandle(const handle_type handle) const noexcept
     {
       return (handle >= 0 && static_cast<std::size_t>(handle) < m_data.size() && m_data[handle].HandleToIndex < m_count);
     }
 
     //! @brief Check if the given index is valid.
     //! @return True if the supplied handle is valid
-    constexpr bool IsValidIndex(const index_type index) const
+    constexpr bool IsValidIndex(const index_type index) const noexcept
     {
-      return (index >= 0u && index < m_count);
+      // Index is unsigned so we can simplify this
+      // return (index >= 0u && index < m_count);
+      return index < m_count;
     }
 
     bool DEBUG_IsValid() const
@@ -731,17 +760,44 @@ namespace Fsl
       }
     }
 
+    //! @brief  Onlycall this if you are 100% sure the index is valid
+    void FastRemoveAt(const index_type index) noexcept
+    {
+      assert(IsValidIndex(index));
+      assert(m_count > 0u);
+      --m_count;
+
+      const handle_type removedHandle = m_data[index].Handle;
+
+      // Move all the previous handles one step to the left
+      for (size_type i = index; i < m_count; ++i)
+      {
+        auto& rEntry0 = m_data[i];
+        auto& rEntry1 = m_data[i + 1];
+        assert((i + 1) == m_data[rEntry1.Handle].HandleToIndex);
+        rEntry0.Handle = rEntry1.Handle;
+        rEntry0.Element = std::move(rEntry1.Element);
+        // Patch the handle to index lookup table so we know the new index of element with a given handle
+        m_data[rEntry1.Handle].HandleToIndex = i;
+      }
+
+      // Update the element at the end
+      m_data[m_count].Handle = removedHandle;
+      m_data[m_count].Element = {};
+      m_data[removedHandle].HandleToIndex = m_count;
+    }
+
 
   private:
     handle_type DoInsertAt(const index_type index, const_reference element)
     {
       assert(Count() >= 0 && Count() <= Capacity());
-      assert(index >= 0 && index <= Count());
+      assert(/*index >= 0 &&*/ index <= Count());
 
       if (m_count >= m_data.size())
       {
         // Ensure we have enough capacity
-        Reserve(m_data.size() + HandleVectorConfig::GrowBy);
+        Reserve(UncheckedNumericCast<uint32_t>(m_data.size() + HandleVectorConfig::GrowBy));
       }
 
       // get a free handle, then move all elements to make room

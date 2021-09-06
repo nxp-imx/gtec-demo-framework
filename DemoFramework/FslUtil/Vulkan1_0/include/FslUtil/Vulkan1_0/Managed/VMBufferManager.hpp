@@ -35,6 +35,7 @@
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
+#include <FslBase/Span/ReadOnlyFlexSpan.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
@@ -61,37 +62,32 @@ namespace Fsl
       VMBufferManager(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkQueue queue, const uint32_t queueFamilyIndex);
 
       //! @param elementStride the size of one element in bytes
-      VUBufferMemory CreateBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementStride,
-                                  const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
+      VUBufferMemory CreateBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
       {
-        return CreateBuffer(pVertices, elementCount, elementCount, elementStride, bufferUsageFlags, usage);
+        return CreateBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags, usage);
       }
 
-      VUBufferMemory CreateBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
-                                  const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage);
+      VUBufferMemory CreateBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags,
+                                  const VMBufferUsage usage);
 
-      VUBufferMemory CreateDynamicBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementStride,
-                                         const VkBufferUsageFlags bufferUsageFlags)
+      VUBufferMemory CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags)
       {
-        return CreateDynamicBuffer(pVertices, elementCount, elementCount, elementStride, bufferUsageFlags);
+        return CreateDynamicBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags);
       }
 
-      VUBufferMemory CreateDynamicBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
-                                         const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags);
+      VUBufferMemory CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags);
 
 
       //! @brief Create a dynamic buffer with the given element capacity
       VUBufferMemory CreateDynamicBuffer(const std::size_t elementCapacity, const std::size_t elementStride,
                                          const VkBufferUsageFlags bufferUsageFlags);
 
-      VUBufferMemory CreateStaticBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementStride,
-                                        const VkBufferUsageFlags bufferUsageFlags)
+      VUBufferMemory CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags)
       {
-        return CreateStaticBuffer(pVertices, elementCount, elementCount, elementStride, bufferUsageFlags);
+        return CreateStaticBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags);
       }
 
-      VUBufferMemory CreateStaticBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
-                                        const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags);
+      VUBufferMemory CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags);
 
     private:
       void CopyBuffer(VUBufferMemory& rDst, const VUBufferMemory& src);

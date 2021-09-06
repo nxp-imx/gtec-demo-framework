@@ -31,21 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslGraphics/NativeTextureArea.hpp>
-
 namespace Fsl
 {
-  struct PxRectangleU;
-
   //! @brief A simple immutable render material
   class ISpriteMaterial
   {
   public:
     ISpriteMaterial() = default;
     virtual ~ISpriteMaterial() = default;
-
-    virtual NativeTextureArea CalcNativeTextureArea(const PxRectangleU& imageRectanglePx) const = 0;
   };
 }
 

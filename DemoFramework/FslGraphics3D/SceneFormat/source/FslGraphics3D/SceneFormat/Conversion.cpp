@@ -177,9 +177,9 @@ namespace Fsl
     }
 
 
-    SFVertexDeclaration Conversion::Convert(const VertexDeclaration& vertexDeclaration)
+    SFVertexDeclaration Conversion::Convert(VertexDeclarationSpan vertexDeclaration)
     {
-      const auto count = static_cast<size_t>(vertexDeclaration.Count());
+      const auto count = static_cast<std::size_t>(vertexDeclaration.Count());
 
       // Sort the elements based on the offset (low -> high)
       SFVertexDeclaration decl(count);

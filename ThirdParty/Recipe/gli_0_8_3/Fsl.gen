@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="Recipe.gli_0_8_3" CreationYear="2020">
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.Core"/>  <!-- this library does not use any of the GL/Vulkan depth code, so we just pick the core package -->
     <!--Define Name="FSL_FEATURE_GLI" Access="Public"/-->
 	<!--
     <Platform Name="Android">

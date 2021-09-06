@@ -38,24 +38,31 @@ namespace Fsl
 {
   namespace UI
   {
-    struct UIDrawContext
-    {
-      UIDrawContext() = default;
+    class DrawCommandBuffer;
 
-      explicit UIDrawContext(const PxAreaRectangleF& targetRect)
-        : TargetRect(targetRect)
-        , ClippedTargetRect(targetRect)
+    struct UIDrawContext final
+    {
+      UIDrawContext() noexcept = delete;
+
+      constexpr UIDrawContext(DrawCommandBuffer& drawCommandBuffer, const PxAreaRectangleF& targetRect, const PxAreaRectangleF& clippedTargetRect,
+                              const bool clipToParentEnabled) noexcept
+        : CommandBuffer(drawCommandBuffer)
+        , TargetRect(targetRect)
+        , ClippedTargetRect(clippedTargetRect)
+        , ClipToParentEnabled(clipToParentEnabled)
       {
       }
 
+      DrawCommandBuffer& CommandBuffer;
+
       //! @brief The target rect that the draw should occur to
-      PxAreaRectangleF TargetRect;
+      const PxAreaRectangleF TargetRect;
 
       //! @brief The target rect clipped against the parent
-      PxAreaRectangleF ClippedTargetRect;
+      const PxAreaRectangleF ClippedTargetRect;
 
       //! @brief If clip to parent is enabled
-      bool ClipToParentEnabled{false};
+      const bool ClipToParentEnabled{false};
     };
   }
 }

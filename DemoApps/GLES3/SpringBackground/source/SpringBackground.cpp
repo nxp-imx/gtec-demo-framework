@@ -35,12 +35,13 @@
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "SpringBackground.hpp"
@@ -329,7 +330,8 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto& factory = *uiControlFactory;
 
     auto layoutMenu = std::make_shared<UI::StackLayout>(context);
     auto menuBar = factory.CreateBottomBar(layoutMenu, UI::Theme::BarType::Transparent);

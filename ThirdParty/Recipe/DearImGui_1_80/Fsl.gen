@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.DearImGui_1_80" CreationYear="2021">
+    <Default.Platform.Supported Value="false"/>
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="DearImGui" Version="1.80" Find="True">
+        <Pipeline>
+          <Download URL="https://github.com/ocornut/imgui/archive/v1.80.tar.gz" To="DearImGui_v1.80.tar.gz" Hash="d7e4e1c7233409018437a646680316040e6977b9a635c02da93d172baad94ce9"/> 
+          <Unpack File="DearImGui_v1.80.tar.gz" OutputPath="_build">
+            <Copy From="{DST_PATH}/imgui-1.80/imconfig.h" To="{OUTPUT_PATH}/include/imconfig.h"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui.h" To="{OUTPUT_PATH}/include/imgui.h"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui_internal.h" To="{OUTPUT_PATH}/include/imgui_internal.h"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imstb_rectpack.h" To="{OUTPUT_PATH}/include/imstb_rectpack.h"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imstb_textedit.h" To="{OUTPUT_PATH}/include/imstb_textedit.h"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imstb_truetype.h" To="{OUTPUT_PATH}/include/imstb_truetype.h"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui.cpp" To="{OUTPUT_PATH}/source/imgui.cpp"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui_demo.cpp" To="{OUTPUT_PATH}/source/imgui_demo.cpp"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui_draw.cpp" To="{OUTPUT_PATH}/source/imgui_draw.cpp"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui_tables.cpp" To="{OUTPUT_PATH}/source/imgui_tables.cpp"/>
+            <Copy From="{DST_PATH}/imgui-1.80/imgui_widgets.cpp" To="{OUTPUT_PATH}/source/imgui_widgets.cpp"/>
+            <!-- Copy our custom imgui cmake build script -->
+            <Copy From="{RECIPE_PATH}/CMakeLists.txt" To="{OUTPUT_PATH}/CMakeLists.txt"/>
+          </Unpack>
+          
+          <CMakeBuild Project="DearImGui" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name=""/>
+          <!--AddLib Name="lib/DearImGui.lib" DebugName="lib/DearImGui_d.lib"/-->
+          <AddLib Name="lib/DearImGui.lib"/>
+          <Path Name="include/imconfig.h" Method="IsFile"/>
+          <Path Name="include/imgui.h" Method="IsFile"/>
+          <Path Name="include/imgui_internal.h" Method="IsFile"/>
+          <Path Name="include/imstb_rectpack.h" Method="IsFile"/>
+          <Path Name="include/imstb_textedit.h" Method="IsFile"/>
+          <Path Name="include/imstb_truetype.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

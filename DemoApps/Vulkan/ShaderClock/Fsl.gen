@@ -3,6 +3,6 @@
   <Executable Name="Vulkan.ShaderClock" NoInclude="true" CreationYear="2020">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
   </Executable>
 </FslBuildGen>

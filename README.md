@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.7.1
+# DemoFramework 5.8.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -32,7 +32,7 @@ since the exact same demo/benchmark code run on all of them.
 
 * Android NDK
 * Linux with various windowing systems (Yocto).
-* Ubuntu 18.04
+* Ubuntu 20.04
 * Windows 7+
 
 ## Table of contents
@@ -59,16 +59,21 @@ since the exact same demo/benchmark code run on all of them.
   * [Console](#console)
   * [G2D](#g2d)
   * [GLES2](#gles2)
+  * [GLES2.System](#gles2system)
   * [GLES2.UI](#gles2ui)
   * [GLES3](#gles3)
+  * [GLES3.System](#gles3system)
   * [GLES3.UI](#gles3ui)
   * [OpenCL](#opencl)
   * [OpenCV](#opencv)
   * [OpenVG](#openvg)
+  * [OpenVG.System](#openvgsystem)
   * [OpenVX](#openvx)
   * [Vulkan](#vulkan)
+  * [Vulkan.System](#vulkansystem)
   * [Vulkan.UI](#vulkanui)
   * [Window](#window)
+  * [Window.System](#windowsystem)
 <!-- #AG_TOC_END# -->
 
 # Introduction
@@ -106,7 +111,7 @@ uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
 See the setup guides for your platform:
 
 * [Android](Doc/Setup_guide_android_sdk+ndk_on_windows.md)
-* [Ubuntu 18.04](Doc/Setup_guide_ubuntu18.04.md)
+* [Ubuntu 20.04](Doc/Setup_guide_ubuntu20.04.md)
 * [Windows](Doc/Setup_guide_windows.md)
 * [Yocto](Doc/Setup_guide_yocto.md)
 
@@ -114,13 +119,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 
 ## Reasoning
 
-While writing this we currently have thirty-four OpenGL ES 2 samples, sixty-four OpenGL ES 3.x samples,
-fifty-four Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-three OpenVX sample and five other samples. Which is *175 sample applications*.
+While writing this we currently have thirty-six OpenGL ES 2 samples, sixty-seven OpenGL ES 3.x samples,
+fifty-six Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and five other samples. Which is *182 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 175 * 4 = *700 build files* for the samples alone.
-Maintaining 700 or even just 175 build files would be an extremely time consuming and error prone process.
+maintain 182 * 4 = *728 build files* for the samples alone.
+Maintaining 728 or even just 184 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -313,7 +318,7 @@ void FixedUpdate(const DemoTime& demoTime)
 // OPTIONAL: Variable time step update method.
 void Update(const DemoTime& demoTime)
 // Put the rendering calls here
-void Draw(const DemoTime& demoTime)
+void Draw(const FrameInfo& frameInfo)
 ```
 
 When the constructor is invoked, the Demo Host API will already be setup and ready for use,
@@ -362,6 +367,10 @@ The methods will be called in this order
 * Update
 * Draw
 After the draw call, a swap will occur.
+
+<a href="Doc/ClassDiagrams/Images/AppExecutionOrder.svg">
+<img src="Doc/ClassDiagrams/Images/AppExecutionOrder.svg">
+</a>
 
 ## Content loading
 
@@ -602,27 +611,6 @@ Please check the Shader.frag file within the Content folder to actually see how 
 The video data is obtained using gstreamer and using the DirectVIVMap extension mapped to a GPU buffer to be used as a texture for the fragment shader to DeBayer.
 
 
-### [DFGraphicsBasic2D](DemoApps/GLES2/DFGraphicsBasic2D)
-
-<a href="DemoApps/GLES2/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/GLES2/DFGraphicsBasic2D/Example.jpg" height="108px" title="GLES2.DFGraphicsBasic2D"></a>
-
-Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
-The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points in batches.
-
-The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graphs.
-
-
-### [DFNativeBatch2D](DemoApps/GLES2/DFNativeBatch2D)
-
-<a href="DemoApps/GLES2/DFNativeBatch2D/Example.jpg"><img src="DemoApps/GLES2/DFNativeBatch2D/Example.jpg" height="108px" title="GLES2.DFNativeBatch2D"></a>
-
-Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
-The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
-
-The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
-It is however not a optimized way of rendering things.
-
-
 ### [DirectMultiSamplingVideoYUV](DemoApps/GLES2/DirectMultiSamplingVideoYUV)
 This sample shows how to use Gstreamer and OpenGL ES to display a YUV video on a texture by doing the YUV to RGB conversion on a shader and also use the DirectVIV extensions to avoid copying data from the Video Buffer to the GL Texture.
 
@@ -649,15 +637,6 @@ to render each fragment while generating the julia set.
 It uses no textures, has no overdraw and has a minimal bandwidth requirement.
 
 Use the commandline arguments to select the scene and quality.
-
-
-### [InputEvents](DemoApps/GLES2/InputEvents)
-
-<a href="DemoApps/GLES2/InputEvents/Example.jpg"><img src="DemoApps/GLES2/InputEvents/Example.jpg" height="108px" title="GLES2.InputEvents"></a>
-
-Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
-
-This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
 
 
 ### [LineBuilder101](DemoApps/GLES2/LineBuilder101)
@@ -826,14 +805,63 @@ This example shows how to use the DirectVIV extension to use an existing buffer 
 
 
 
-## GLES2.UI
+## GLES2.System
 
-### [DevNativeTexture2D](DemoApps/GLES2/UI/DevNativeTexture2D)
+### [DevBasicRender](DemoApps/GLES2/System/DevBasicRender)
 
-<a href="DemoApps/GLES2/UI/DevNativeTexture2D/Example.jpg"><img src="DemoApps/GLES2/UI/DevNativeTexture2D/Example.jpg" height="108px" title="GLES2.UI.DevNativeTexture2D"></a>
+<a href="DemoApps/GLES2/System/DevBasicRender/Example.jpg"><img src="DemoApps/GLES2/System/DevBasicRender/Example.jpg" height="108px" title="GLES2.System.DevBasicRender"></a>
+
+Development project for the IBasicRenderSystem.
+
+
+### [DevNativeTexture2D](DemoApps/GLES2/System/DevNativeTexture2D)
+
+<a href="DemoApps/GLES2/System/DevNativeTexture2D/Example.jpg"><img src="DemoApps/GLES2/System/DevNativeTexture2D/Example.jpg" height="108px" title="GLES2.System.DevNativeTexture2D"></a>
 
 Development project for the Vulkan NativeTexture2D and DynamicNativeTexture2D implementation.
 Makes it easy to provoke certain NativeTexture2D/DynamicNativeTexture2D scenarios.
+
+
+### [DFGraphicsBasic2D](DemoApps/GLES2/System/DFGraphicsBasic2D)
+
+<a href="DemoApps/GLES2/System/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/GLES2/System/DFGraphicsBasic2D/Example.jpg" height="108px" title="GLES2.System.DFGraphicsBasic2D"></a>
+
+Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
+The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points in batches.
+
+The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graphs.
+
+
+### [DFNativeBatch2D](DemoApps/GLES2/System/DFNativeBatch2D)
+
+<a href="DemoApps/GLES2/System/DFNativeBatch2D/Example.jpg"><img src="DemoApps/GLES2/System/DFNativeBatch2D/Example.jpg" height="108px" title="GLES2.System.DFNativeBatch2D"></a>
+
+Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
+The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
+
+The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
+It is however not a optimized way of rendering things.
+
+
+### [InputEvents](DemoApps/GLES2/System/InputEvents)
+
+<a href="DemoApps/GLES2/System/InputEvents/Example.jpg"><img src="DemoApps/GLES2/System/InputEvents/Example.jpg" height="108px" title="GLES2.System.InputEvents"></a>
+
+Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
+
+This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
+
+
+
+## GLES2.UI
+
+### [Benchmark](DemoApps/GLES2/UI/Benchmark)
+
+<a href="DemoApps/GLES2/UI/Benchmark/Example.jpg"><img src="DemoApps/GLES2/UI/Benchmark/Example.jpg" height="108px" title="GLES2.UI.Benchmark"></a>
+
+UI benchmark that can be used to benchmark various ways of rendering a UI. This allows you to see what works best on the given hardware.
+
+This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
 
 
 ### [DpiScale](DemoApps/GLES2/UI/DpiScale)
@@ -942,27 +970,6 @@ As with the E* samples, look for the OSTEP tags to see how they are created and 
 
 This sample is basically a exact copy of E1_2_VAOs but it uses the DemoFramework utility classes to
 make the code simpler.
-
-
-### [DFGraphicsBasic2D](DemoApps/GLES3/DFGraphicsBasic2D)
-
-<a href="DemoApps/GLES3/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/GLES3/DFGraphicsBasic2D/Example.jpg" height="108px" title="GLES3.DFGraphicsBasic2D"></a>
-
-Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
-The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
-
-The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
-
-
-### [DFNativeBatch2D](DemoApps/GLES3/DFNativeBatch2D)
-
-<a href="DemoApps/GLES3/DFNativeBatch2D/Example.jpg"><img src="DemoApps/GLES3/DFNativeBatch2D/Example.jpg" height="108px" title="GLES3.DFNativeBatch2D"></a>
-
-Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
-The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
-
-The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
-It is however not a optimized way of rendering things.
 
 
 ### [DFNativeBatchCamera](DemoApps/GLES3/DFNativeBatchCamera)
@@ -1445,14 +1452,54 @@ It's inspired by: [Coding Math: Episode 36 - Verlet Integration Part I+IV](https
 
 
 
-## GLES3.UI
+## GLES3.System
 
-### [DevNativeTexture2D](DemoApps/GLES3/UI/DevNativeTexture2D)
+### [DevBasicRender](DemoApps/GLES3/System/DevBasicRender)
 
-<a href="DemoApps/GLES3/UI/DevNativeTexture2D/Example.jpg"><img src="DemoApps/GLES3/UI/DevNativeTexture2D/Example.jpg" height="108px" title="GLES3.UI.DevNativeTexture2D"></a>
+<a href="DemoApps/GLES3/System/DevBasicRender/Example.jpg"><img src="DemoApps/GLES3/System/DevBasicRender/Example.jpg" height="108px" title="GLES3.System.DevBasicRender"></a>
+
+Development project for the IBasicRenderSystem.
+
+
+### [DevNativeTexture2D](DemoApps/GLES3/System/DevNativeTexture2D)
+
+<a href="DemoApps/GLES3/System/DevNativeTexture2D/Example.jpg"><img src="DemoApps/GLES3/System/DevNativeTexture2D/Example.jpg" height="108px" title="GLES3.System.DevNativeTexture2D"></a>
 
 Development project for the Vulkan NativeTexture2D and DynamicNativeTexture2D implementation.
 Makes it easy to provoke certain NativeTexture2D/DynamicNativeTexture2D scenarios.
+
+
+### [DFGraphicsBasic2D](DemoApps/GLES3/System/DFGraphicsBasic2D)
+
+<a href="DemoApps/GLES3/System/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/GLES3/System/DFGraphicsBasic2D/Example.jpg" height="108px" title="GLES3.System.DFGraphicsBasic2D"></a>
+
+Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
+The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
+
+The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
+
+
+### [DFNativeBatch2D](DemoApps/GLES3/System/DFNativeBatch2D)
+
+<a href="DemoApps/GLES3/System/DFNativeBatch2D/Example.jpg"><img src="DemoApps/GLES3/System/DFNativeBatch2D/Example.jpg" height="108px" title="GLES3.System.DFNativeBatch2D"></a>
+
+Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
+The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
+
+The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
+It is however not a optimized way of rendering things.
+
+
+
+## GLES3.UI
+
+### [Benchmark](DemoApps/GLES3/UI/Benchmark)
+
+<a href="DemoApps/GLES3/UI/Benchmark/Example.jpg"><img src="DemoApps/GLES3/UI/Benchmark/Example.jpg" height="108px" title="GLES3.UI.Benchmark"></a>
+
+UI benchmark that can be used to benchmark various ways of rendering a UI. This allows you to see what works best on the given hardware.
+
+This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
 
 
 ### [DpiScale](DemoApps/GLES3/UI/DpiScale)
@@ -1565,16 +1612,6 @@ This sample also shows that you can transform those images as the paths in previ
 .
 
 
-### [DFGraphicsBasic2D](DemoApps/OpenVG/DFGraphicsBasic2D)
-
-<a href="DemoApps/OpenVG/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/OpenVG/DFGraphicsBasic2D/Example.jpg" height="108px" title="OpenVG.DFGraphicsBasic2D"></a>
-
-Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
-The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
-
-The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
-
-
 ### [Example1](DemoApps/OpenVG/Example1)
 
 <a href="DemoApps/OpenVG/Example1/Example.jpg"><img src="DemoApps/OpenVG/Example1/Example.jpg" height="108px" title="OpenVG.Example1"></a>
@@ -1633,6 +1670,19 @@ This will often showcase the worst case power consumption.
 
 
 
+## OpenVG.System
+
+### [DFGraphicsBasic2D](DemoApps/OpenVG/System/DFGraphicsBasic2D)
+
+<a href="DemoApps/OpenVG/System/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/OpenVG/System/DFGraphicsBasic2D/Example.jpg" height="108px" title="OpenVG.System.DFGraphicsBasic2D"></a>
+
+Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
+The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
+
+The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
+
+
+
 ## OpenVX
 
 ### [SoftISP](DemoApps/OpenVX/SoftISP)
@@ -1681,27 +1731,6 @@ Demonstrates the use of memory barriers for synchronizing vertex buffer access b
 
 Based on a example called [ComputeParticles](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
 Recreated as a DemoFramework freestyle window sample in 2016.
-
-
-### [DFGraphicsBasic2D](DemoApps/Vulkan/DFGraphicsBasic2D)
-
-<a href="DemoApps/Vulkan/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/Vulkan/DFGraphicsBasic2D/Example.jpg" height="108px" title="Vulkan.DFGraphicsBasic2D"></a>
-
-Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
-The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
-
-The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
-
-
-### [DFNativeBatch2D](DemoApps/Vulkan/DFNativeBatch2D)
-
-<a href="DemoApps/Vulkan/DFNativeBatch2D/Example.jpg"><img src="DemoApps/Vulkan/DFNativeBatch2D/Example.jpg" height="108px" title="Vulkan.DFNativeBatch2D"></a>
-
-Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
-The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
-
-The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
-It is however not a optimized way of rendering things.
 
 
 ### [DisplacementMapping](DemoApps/Vulkan/DisplacementMapping)
@@ -1782,6 +1811,13 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 A simple example that shows how to generate mipmaps at runtime.
 
 
+### [GpuTimestamp](DemoApps/Vulkan/GpuTimestamp)
+
+<a href="DemoApps/Vulkan/GpuTimestamp/Example.jpg"><img src="DemoApps/Vulkan/GpuTimestamp/Example.jpg" height="108px" title="Vulkan.GpuTimestamp"></a>
+
+Simple example that showcase the vkCmdWriteTimestamp functionality on supported devices.
+
+
 ### [HDR01_BasicToneMapping](DemoApps/Vulkan/HDR01_BasicToneMapping)
 
 <a href="DemoApps/Vulkan/HDR01_BasicToneMapping/Example.jpg"><img src="DemoApps/Vulkan/HDR01_BasicToneMapping/Example.jpg" height="108px" title="Vulkan.HDR01_BasicToneMapping"></a>
@@ -1822,15 +1858,6 @@ Demonstrates how to enable HDRFramebuffer mode if available.
 The render a test scene using a pattern that makes it easy to detect if the display actually enabled HDR mode.
 
 This sample outputs to a HDR screen if supported.
-
-
-### [InputEvents](DemoApps/Vulkan/InputEvents)
-
-<a href="DemoApps/Vulkan/InputEvents/Example.jpg"><img src="DemoApps/Vulkan/InputEvents/Example.jpg" height="108px" title="Vulkan.InputEvents"></a>
-
-Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
-
-This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
 
 
 ### [LineBuilder101](DemoApps/Vulkan/LineBuilder101)
@@ -1998,6 +2025,13 @@ Simple example that showcase the device extension VK_KHR_shader_clock.
 Render a simple skybox using a cubemap.
 
 
+### [SpatialHashGrid2D](DemoApps/Vulkan/SpatialHashGrid2D)
+
+<a href="DemoApps/Vulkan/SpatialHashGrid2D/Example.jpg"><img src="DemoApps/Vulkan/SpatialHashGrid2D/Example.jpg" height="108px" title="Vulkan.SpatialHashGrid2D"></a>
+
+A simple example of how to a spatial hash grid works in 2d.
+
+
 ### [SRGBFramebuffer](DemoApps/Vulkan/SRGBFramebuffer)
 
 <a href="DemoApps/Vulkan/SRGBFramebuffer/Example.jpg"><img src="DemoApps/Vulkan/SRGBFramebuffer/Example.jpg" height="108px" title="Vulkan.SRGBFramebuffer"></a>
@@ -2113,23 +2147,72 @@ This is a easy way to quickly query the hardware capabilities as reported by vul
 
 
 
-## Vulkan.UI
+## Vulkan.System
 
-### [DevBatch](DemoApps/Vulkan/UI/DevBatch)
+### [DevBasicRender](DemoApps/Vulkan/System/DevBasicRender)
 
-<a href="DemoApps/Vulkan/UI/DevBatch/Example.jpg"><img src="DemoApps/Vulkan/UI/DevBatch/Example.jpg" height="108px" title="Vulkan.UI.DevBatch"></a>
+<a href="DemoApps/Vulkan/System/DevBasicRender/Example.jpg"><img src="DemoApps/Vulkan/System/DevBasicRender/Example.jpg" height="108px" title="Vulkan.System.DevBasicRender"></a>
+
+Development project for the IBasicRenderSystem.
+
+
+### [DevBatch](DemoApps/Vulkan/System/DevBatch)
+
+<a href="DemoApps/Vulkan/System/DevBatch/Example.jpg"><img src="DemoApps/Vulkan/System/DevBatch/Example.jpg" height="108px" title="Vulkan.System.DevBatch"></a>
 
 Development project for the basic quad batch implementation that is used to implement the native batch for Vulkan.
 The NativeBatch implementation is what allows the UI library to work with Vulkan.
 .
 
 
-### [DevNativeTexture2D](DemoApps/Vulkan/UI/DevNativeTexture2D)
+### [DevNativeTexture2D](DemoApps/Vulkan/System/DevNativeTexture2D)
 
-<a href="DemoApps/Vulkan/UI/DevNativeTexture2D/Example.jpg"><img src="DemoApps/Vulkan/UI/DevNativeTexture2D/Example.jpg" height="108px" title="Vulkan.UI.DevNativeTexture2D"></a>
+<a href="DemoApps/Vulkan/System/DevNativeTexture2D/Example.jpg"><img src="DemoApps/Vulkan/System/DevNativeTexture2D/Example.jpg" height="108px" title="Vulkan.System.DevNativeTexture2D"></a>
 
 Development project for the Vulkan NativeTexture2D and DynamicNativeTexture2D implementation.
 Makes it easy to provoke certain NativeTexture2D/DynamicNativeTexture2D scenarios.
+
+
+### [DFGraphicsBasic2D](DemoApps/Vulkan/System/DFGraphicsBasic2D)
+
+<a href="DemoApps/Vulkan/System/DFGraphicsBasic2D/Example.jpg"><img src="DemoApps/Vulkan/System/DFGraphicsBasic2D/Example.jpg" height="108px" title="Vulkan.System.DFGraphicsBasic2D"></a>
+
+Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
+The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
+
+The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
+
+
+### [DFNativeBatch2D](DemoApps/Vulkan/System/DFNativeBatch2D)
+
+<a href="DemoApps/Vulkan/System/DFNativeBatch2D/Example.jpg"><img src="DemoApps/Vulkan/System/DFNativeBatch2D/Example.jpg" height="108px" title="Vulkan.System.DFNativeBatch2D"></a>
+
+Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
+The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
+
+The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
+It is however not a optimized way of rendering things.
+
+
+### [InputEvents](DemoApps/Vulkan/System/InputEvents)
+
+<a href="DemoApps/Vulkan/System/InputEvents/Example.jpg"><img src="DemoApps/Vulkan/System/InputEvents/Example.jpg" height="108px" title="Vulkan.System.InputEvents"></a>
+
+Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
+
+This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
+
+
+
+## Vulkan.UI
+
+### [Benchmark](DemoApps/Vulkan/UI/Benchmark)
+
+<a href="DemoApps/Vulkan/UI/Benchmark/Example.jpg"><img src="DemoApps/Vulkan/UI/Benchmark/Example.jpg" height="108px" title="Vulkan.UI.Benchmark"></a>
+
+UI benchmark that can be used to benchmark various ways of rendering a UI. This allows you to see what works best on the given hardware.
+
+This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
 
 
 ### [DpiScale](DemoApps/Vulkan/UI/DpiScale)
@@ -2185,12 +2268,6 @@ Showcase all controls that is part of the Basic UI theme.
 
 ## Window
 
-### [InputEvents](DemoApps/Window/InputEvents)
-Demonstrates how to receive various input events and logs information about them to the log.
-
-This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
-
-
 ### [VulkanTriangle](DemoApps/Window/VulkanTriangle)
 
 <a href="DemoApps/Window/VulkanTriangle/Example.jpg"><img src="DemoApps/Window/VulkanTriangle/Example.jpg" height="108px" title="Window.VulkanTriangle"></a>
@@ -2207,6 +2284,15 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 Just shows how to create a native window using the FslNativeWindow library.
 
 This can be used to develop support for a new platform.
+
+
+
+## Window.System
+
+### [InputEvents](DemoApps/Window/System/InputEvents)
+Demonstrates how to receive various input events and logs information about them to the log.
+
+This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
 
 
 <!-- #AG_DEMOAPPS_END# -->

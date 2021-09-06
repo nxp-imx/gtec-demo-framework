@@ -115,6 +115,75 @@ namespace Fsl
       return false;
     }
 
+    //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
+    inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeTextureArea& rSrcTexArea, const PxAreaRectangleF& clipRect)
+    {
+      if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
+          clipRect.Top() < rToClipRect.Bottom())
+      {
+        float dx = rToClipRect.Right() - rToClipRect.Left();
+        float dy = rToClipRect.Bottom() - rToClipRect.Top();
+        float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
+        float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
+        if (dx <= 0.0f || dy <= 0.0f)
+        {
+          // The rect was clipped to zero in one direction
+          return false;
+        }
+
+        auto clippedLeft = rToClipRect.Left();
+        auto clippedRight = rToClipRect.Right();
+        auto clippedTop = rToClipRect.Top();
+        auto clippedBottom = rToClipRect.Bottom();
+
+        auto clippedSrcLeft = rSrcTexArea.X0;
+        auto clippedSrcRight = rSrcTexArea.X1;
+        auto clippedSrcTop = rSrcTexArea.Y0;
+        auto clippedSrcBottom = rSrcTexArea.Y1;
+
+        if (clippedLeft < clipRect.Left())
+        {
+          float dxClip = clipRect.Left() - clippedLeft;
+          float len = dxClip / dx;
+
+          clippedSrcLeft += (dsx * len);
+          clippedLeft = clipRect.Left();
+        }
+        if (clippedRight > clipRect.Right())
+        {
+          float dxClip = clippedRight - clipRect.Right();
+          float len = dxClip / dx;
+          clippedSrcRight -= (dsx * len);
+          clippedRight = clipRect.Right();
+        }
+
+        if (clippedTop < clipRect.Top())
+        {
+          float dyClip = clipRect.Top() - clippedTop;
+          float len = dyClip / dy;
+
+          clippedSrcTop += (dsy * len);
+          clippedTop = clipRect.Top();
+        }
+        if (clippedBottom > clipRect.Bottom())
+        {
+          float dyClip = clippedBottom - clipRect.Bottom();
+          float len = dyClip / dy;
+          clippedSrcBottom -= (dsy * len);
+          clippedBottom = clipRect.Bottom();
+        }
+
+        assert(clippedLeft >= rToClipRect.Left());
+        assert(clippedTop >= rToClipRect.Top());
+        assert(clippedRight <= rToClipRect.Right());
+        assert(clippedBottom <= rToClipRect.Bottom());
+
+        rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
+        rSrcTexArea = NativeTextureArea(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
+        return true;
+      }
+      return false;
+    }
 
     //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
     inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, PxAreaRectangleF& rSrcTexRect, const PxClipRectangle& clipRect)

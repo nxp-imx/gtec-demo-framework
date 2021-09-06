@@ -33,6 +33,7 @@
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <memory>
 #include <utility>
@@ -41,22 +42,24 @@ namespace Fsl
 {
   namespace
   {
-    constexpr inline PxExtent2D CalcExtent(const PxThicknessU& imageTrimMarginPx, const PxRectangleU& imageTrimmedRectanglePx)
+    constexpr inline PxExtent2D CalcExtent(const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx)
     {
       return imageTrimMarginPx.Sum() + imageTrimmedRectanglePx.GetExtent();
     }
   }
 
-  ImageSpriteInfo::ImageSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxThicknessU& imageTrimMarginPx,
-                                   const PxRectangleU& imageTrimmedRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName)
+  ImageSpriteInfo::ImageSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                   const PxThicknessU& imageTrimMarginPx, const PxRectangleU16& imageTrimmedRectanglePx, const uint32_t imageDpi,
+                                   const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , ImageInfo(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageTrimMarginPx, imageTrimmedRectanglePx,
                 SpriteUnitConverter::CalcImageDpExtent(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageDpi))
     , ImageDpi(imageDpi)
-    , RenderInfo(spriteMaterialInfo.CalcNativeTextureArea(imageTrimmedRectanglePx, debugName),
+    , RenderInfo(spriteNativeAreaCalc.CalcNativeTextureArea(imageTrimmedRectanglePx, spriteMaterialInfo.ExtentPx),
                  PxTrimmedImage(TypeConverter::To<PxSize2D>(ImageInfo.ExtentPx), TypeConverter::To<PxThicknessF>(imageTrimMarginPx),
                                 TypeConverter::To<PxSize2DF>(ImageInfo.TrimmedRectanglePx.GetExtent())))
   {
+    FSL_PARAM_NOT_USED(debugName);
     if (!spriteMaterialInfo.IsValid())
     {
       throw std::invalid_argument("spriteMaterialInfo must be valid");

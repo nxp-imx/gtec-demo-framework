@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <algorithm>
 #include <cstdlib>
 #include <utility>
 
@@ -41,6 +42,7 @@ namespace Fsl
     , Factory(std::move(rFactory))
 
   {
+    CustomAppConfig.MaxFramesInFlight = std::max(CustomAppConfig.MaxFramesInFlight, 1u);
   }
 
   DemoAppSetup::DemoAppSetup(std::string applicationName, CustomDemoAppConfig customAppConfig, std::shared_ptr<IDemoAppFactory> rFactory,
@@ -50,5 +52,6 @@ namespace Fsl
     , Factory(std::move(rFactory))
     , OptionParser(std::move(rOptionParser))
   {
+    CustomAppConfig.MaxFramesInFlight = std::max(CustomAppConfig.MaxFramesInFlight, 1u);
   }
 }

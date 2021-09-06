@@ -36,7 +36,7 @@
 namespace Fsl
 {
   MeshRenderVB::MeshRenderVB(const Procedural::BasicMesh& mesh)
-    : m_vb(mesh.GetVertices(), mesh.GetVertexCount(), Procedural::BasicMesh::vertex_type::GetVertexDeclaration(), GL_STATIC_DRAW)
+    : m_vb(mesh.GetVertices(), mesh.GetVertexCount(), Procedural::BasicMesh::vertex_type::AsVertexDeclarationSpan(), GL_STATIC_DRAW)
     , m_ib(mesh.GetIndices(), mesh.GetIndexCount(), GL_STATIC_DRAW)
     , m_primitiveType(GLES3::GLUtil::Convert(mesh.GetPrimitiveType()))
   {

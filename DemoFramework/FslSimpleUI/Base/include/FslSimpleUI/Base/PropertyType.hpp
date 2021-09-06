@@ -37,16 +37,18 @@ namespace Fsl
   {
     enum class PropertyType
     {
-      // Content updates modifies layout calculations
+      //! Content updates modifies layout calculations
       Content = 0x01,
-      // Layout updates modifies layout calculations
+      //! Layout updates modifies layout calculations
       Layout = 0x02,
-      // Alignment does not modify layout calculations
+      //! Alignment does not modify layout calculations
       Alignment = 0x04,
-      // Scale Policy does not modify layout calculations
+      //! Scale Policy does not modify layout calculations
       ScalePolicy = 0x08,
-      // Other does not modify layout calculations
-      Other = 0x10,
+      //! BaseColor does not modify layout calculations
+      BaseColor = 0x10,
+      //! Other does not modify layout calculations
+      Other = 0x20,
     };
   }
 }

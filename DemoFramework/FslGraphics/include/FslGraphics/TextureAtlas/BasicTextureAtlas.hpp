@@ -32,8 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
+#include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSlicePatchInfo.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
@@ -59,9 +60,10 @@ namespace Fsl
 
     void Reset(const uint32_t capacity);
 
-    void SetEntry(const uint32_t index, const PxRectangleU& rectanglePx, const PxThicknessU& trimPx, const uint32_t dpi, IO::Path path);
+    void SetEntry(const uint32_t index, const PxRectangleU32& rectanglePx, const PxThicknessU& trimPx, const uint32_t dpi, IO::Path path);
 
-    void AddNineSlice(const uint32_t textureIndex, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx);
+    void AddNineSlice(const uint32_t textureIndex, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx,
+                      const AtlasNineSliceFlags flags);
   };
 }
 

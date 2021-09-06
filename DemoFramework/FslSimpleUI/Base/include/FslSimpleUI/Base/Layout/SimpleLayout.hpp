@@ -58,6 +58,7 @@ namespace Fsl
       void AddChild(const std::shared_ptr<BaseWindow>& window) override
       {
         m_children.Add(window);
+        window->SYS_SetParentBaseColor(GetFinalBaseColor());
       }
 
       void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
@@ -76,6 +77,8 @@ namespace Fsl
       }
 
     protected:
+      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
+
       inline bool empty() const noexcept
       {
         return m_children.empty();

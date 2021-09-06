@@ -71,7 +71,7 @@ namespace Fsl
       ProgramEx(const cl_context context, const cl_device_id deviceId, const std::string& program);
 
       //! @brief returns the managed handle and releases the ownership.
-      cl_program Release() FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+      FSL_FUNC_WARN_UNUSED_RESULT cl_program Release()
       {
         return m_program.Release();
       }

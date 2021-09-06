@@ -39,17 +39,22 @@
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Span.hpp>
+#include <FslBase/Span/Span.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
+#include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
-#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -79,22 +84,24 @@ namespace Fsl
   Shared::Shared(const DemoAppConfig& config)
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "BasicUI/UIAtlas/UIAtlas_160dpi"))
+    , m_graphicsService(config.DemoServiceProvider.Get<IGraphicsService>())
+    , m_renderSystem(m_graphicsService->GetBasicRenderSystem())
   {
     FSLLOG3_INFO("windowMetrics.ExactDpi: {}", config.WindowMetrics.ExactDpi);
     FSLLOG3_INFO("windowMetrics.DensityDpi: {}", config.WindowMetrics.DensityDpi);
     FSLLOG3_INFO("windowMetrics.DensityScaleFactor: {}", config.WindowMetrics.DensityScaleFactor);
 
-    auto nativeGraphics = config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeGraphics();
+    auto nativeGraphics = m_graphicsService->GetNativeGraphics();
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     FSLLOG3_INFO("Preparing UI");
     {    // Build a simple UI
       auto windowContext = m_uiExtension->GetContext();
-      UI::Theme::BasicThemeFactory uiFactory(windowContext, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+      auto uiFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
 
-      m_fillSprite = uiFactory.GetFillSprite();
+      m_fillSprite = uiFactory->GetResources().GetBasicFillSprite();
 
-      m_uiRecord = CreateUI(windowContext, uiFactory, config.WindowMetrics.DensityDpi);
+      m_uiRecord = CreateUI(windowContext, *uiFactory, config.WindowMetrics.DensityDpi);
       // Register the root layout with the window manager
       m_uiExtension->GetWindowManager()->Add(m_uiRecord.MainLayout);
     }
@@ -162,7 +169,8 @@ namespace Fsl
 
   void Shared::OnConfigurationChanged(const DemoWindowMetrics& /*windowMetrics*/)
   {
-    m_fillTexture = UISpriteToTextureUtil::ExtractFillTexture(m_fillSprite);
+    assert(m_renderSystem);
+    m_fillTexture = UISpriteToTextureUtil::ExtractFillTexture(*m_renderSystem, m_fillSprite);
   }
 
   void Shared::Update(const DemoTime& /*demoTime*/)
@@ -209,22 +217,23 @@ namespace Fsl
 
 
   void Shared::DrawBoundingBoxes(INativeBatch2D& nativeBatch, const PxPoint2& dstPositionPx, const StringViewLite& strView,
-                                 const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
-                                 std::vector<FontGlyphPosition>& rPositionsScratchpad)
+                                 const TextureAtlasSpriteFont& font, const BitmapFontConfig& fontConfig,
+                                 std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad)
   {
     if (strView.size() > rPositionsScratchpad.size())
     {
       rPositionsScratchpad.resize(strView.size());
     }
-    if (font.ExtractRenderRules(rPositionsScratchpad, strView, fontConfig))
+    auto scratchpadSpan = SpanUtil::AsSpan(rPositionsScratchpad);
+    if (font.ExtractRenderRules(scratchpadSpan, strView, fontConfig))
     {
-      Span<FontGlyphPosition> positionSpan(rPositionsScratchpad.data(), strView.size());
+      Span<SpriteFontGlyphPosition> positionSpan(scratchpadSpan.subspan(0, strView.size()));
 
+      const PxVector2 dstPositionPxf = TypeConverter::To<PxVector2>(dstPositionPx);
       for (std::size_t i = 0; i < positionSpan.size(); ++i)
       {
-        auto dstRectPx = TypeConverter::UncheckedTo<PxRectangle>(positionSpan[i].DstRectPx);
-        dstRectPx.Add(dstPositionPx);
-        nativeBatch.DebugDrawRectangle(m_fillTexture, dstRectPx, Color(0x80, 0, 0, 0xFF));
+        auto dstRectPxf = PxAreaRectangleF::AddLocation(dstPositionPxf, positionSpan[i].DstRectPxf);
+        nativeBatch.DebugDrawRectangle(m_fillTexture, dstRectPxf, Color(0x80, 0, 0, 0xFF));
       }
     }
   }
@@ -261,7 +270,7 @@ namespace Fsl
     }
   }
 
-  Shared::UIRecord Shared::CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::BasicThemeFactory& rUIFactory,
+  Shared::UIRecord Shared::CreateUI(const std::shared_ptr<UI::WindowContext>& context, UI::Theme::IThemeControlFactory& rUIFactory,
                                     const uint32_t /*densityDpi*/)
   {
     UIRecord record;

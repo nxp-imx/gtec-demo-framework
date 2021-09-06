@@ -110,11 +110,6 @@ namespace Fsl
       return m_stride;
     }
 
-    //! The number of bytes that can be stored in m_pContent
-    [[deprecated("use one of the other overloads instead")]] uint32_t GetBufferLength() const
-    {
-      return GetByteSize();
-    }
 
     //! The number of bytes that can be stored in m_pContent
     constexpr uint32_t GetByteSize() const

@@ -60,13 +60,13 @@ namespace Fsl
 
     struct ProfilerRecord
     {
-      int32_t UpdateTime{0};
-      int32_t DrawTime{0};
-      int32_t TotalTime{0};
+      int64_t UpdateTime{0};
+      int64_t DrawTime{0};
+      int64_t TotalTime{0};
 
       ProfilerRecord() = default;
 
-      ProfilerRecord(const int32_t updateTime, const int32_t drawTime, const int32_t totalTime)
+      ProfilerRecord(const int64_t updateTime, const int64_t drawTime, const int64_t totalTime)
         : UpdateTime(updateTime)
         , DrawTime(drawTime)
         , TotalTime(totalTime)

@@ -45,6 +45,8 @@ namespace Fsl
   class BasicNineSliceSprite;
   class BasicImageSprite;
   class NineSliceSprite;
+  class OptimizedBasicNineSliceSprite;
+  class OptimizedNineSliceSprite;
   struct SpriteMaterialId;
   class SpriteFont;
   struct SpriteFontConfig;
@@ -87,6 +89,25 @@ namespace Fsl
     //! Create a nine slice sprite based on the given material id (platform independent)
     virtual std::shared_ptr<NineSliceSprite> CreateNineSliceSprite(const SpriteMaterialId& spriteMaterialId, const IO::Path& atlasPathName) = 0;
 
+    //! Create a basic nine slice sprite based on the given material id (platform independent)
+    virtual std::shared_ptr<OptimizedBasicNineSliceSprite> CreateOptimizedBasicNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                               const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                               const IO::PathView& atlasPathName) = 0;
+
+    //! Create a basic nine slice sprite based on the given material id (platform independent)
+    virtual std::shared_ptr<OptimizedBasicNineSliceSprite> CreateOptimizedBasicNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                               const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                               const IO::Path& atlasPathName) = 0;
+
+    //! Create a nine slice sprite based on the given material id (platform independent)
+    virtual std::shared_ptr<OptimizedNineSliceSprite> CreateOptimizedNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                     const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                     const IO::PathView& atlasPathName) = 0;
+
+    //! Create a nine slice sprite based on the given material id (platform independent)
+    virtual std::shared_ptr<OptimizedNineSliceSprite> CreateOptimizedNineSliceSprite(const SpriteMaterialId& opaqueSpriteMaterialId,
+                                                                                     const SpriteMaterialId& transparentSpriteMaterialId,
+                                                                                     const IO::Path& atlasPathName) = 0;
 
     //! Create a sprite font based on the given material id (platform independent)
     virtual std::shared_ptr<SpriteFont> CreateLegacySpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName,
@@ -101,6 +122,16 @@ namespace Fsl
     //! Create a sprite font based on the given material id (platform independent)
     virtual std::shared_ptr<SpriteFont> CreateSpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::Path& fontName,
                                                          const SpriteFontConfig& spriteFontConfig) = 0;
+
+    //! Create a sprite font based on the given material id (platform independent)
+    virtual std::shared_ptr<SpriteFont> TryCreateSpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName,
+                                                            const SpriteFontConfig& spriteFontConfig) = 0;
+    //! Create a sprite font based on the given material id (platform independent)
+    virtual std::shared_ptr<SpriteFont> TryCreateSpriteFont(const SpriteMaterialId& spriteMaterialId, const IO::Path& fontName,
+                                                            const SpriteFontConfig& spriteFontConfig) = 0;
+
+    virtual void PatchSpriteFont(std::shared_ptr<SpriteFont> font, const SpriteMaterialId& spriteMaterialId, const IO::PathView& fontName) = 0;
+    virtual void PatchSpriteFont(std::shared_ptr<SpriteFont> font, const SpriteMaterialId& spriteMaterialId, const IO::Path& fontName) = 0;
   };
 }
 

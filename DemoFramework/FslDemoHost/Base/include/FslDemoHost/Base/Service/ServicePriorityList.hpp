@@ -39,6 +39,7 @@ namespace Fsl
   class ServicePriorityList
   {
   public:
+    static Priority AppInfoService();
     static Priority AsyncImageService();
     static Priority BitmapConverterService();
     static Priority ContentMonitor();

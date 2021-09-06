@@ -37,7 +37,7 @@
 #include <FslUtil/OpenGLES2/GLVertexAttribLink.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElement.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElements.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <GLES2/gl2.h>
 #include <array>
 #include <vector>
@@ -81,7 +81,7 @@ namespace Fsl
       GLVertexBufferArray() = default;
 
       //! @brief Create a array of the given capacity
-      GLVertexBufferArray(const std::size_t capacity, const VertexDeclaration& vertexDeclaration);
+      GLVertexBufferArray(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration);
 
       void Reset() noexcept override
       {
@@ -90,13 +90,13 @@ namespace Fsl
       }
 
       //! @brief Resize the array
-      void Resize(const std::size_t capacity, const VertexDeclaration& vertexDeclaration);
+      void Resize(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration);
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount,
-                 const VertexDeclaration& vertexDeclaration, const GLenum usage);
+      void Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration,
+                 const GLenum usage);
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
@@ -104,7 +104,7 @@ namespace Fsl
       template <typename T>
       void Reset(const std::size_t arrayIndex, const T* const pVertices, const std::size_t elementCount, const GLenum usage)
       {
-        Reset(arrayIndex, pVertices, elementCount, T::GetVertexDeclaration(), usage);
+        Reset(arrayIndex, pVertices, elementCount, T::AsVertexDeclarationSpan(), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
@@ -113,7 +113,7 @@ namespace Fsl
       template <typename T>
       void Reset(const std::size_t arrayIndex, const std::vector<T>& vertices, const GLenum usage)
       {
-        Reset(arrayIndex, vertices.data(), vertices.size(), T::GetVertexDeclaration(), usage);
+        Reset(arrayIndex, vertices.data(), vertices.size(), T::AsVertexDeclarationSpan(), usage);
       }
 
       //! @brief Enable all attrib arrays binding them in order to index 0 to the last VertexElement.
@@ -137,7 +137,7 @@ namespace Fsl
       //  m_vertexElements.EnableAttribArrays(pAttributeIndices, count);
       //}
 
-      //! @brief Disable all attrib arrays in the supplied index list.
+      ////! @brief Disable all attrib arrays in the supplied index list.
       // void DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
       //{
       //  m_vertexElements.DisableAttribArrays(pAttributeIndices, count);

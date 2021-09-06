@@ -382,7 +382,7 @@ namespace Fsl
       VertexPositionTexture(Vector3(x1, y1, zPos), Vector2(y1, v1)),
     };
 
-    auto vertexDecl = VertexPositionTexture::GetVertexDeclaration();
+    constexpr auto vertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
     std::vector<GLES3::GLVertexAttribLink> attribLink(2);
     attribLink[0] =
       GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));

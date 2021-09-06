@@ -44,8 +44,8 @@ namespace Fsl
       std::function<void()> HookWinInit;
       std::function<void()> HookWinMarkLayoutAsDirty;
       std::function<void(const RoutedEvent&)> HookWinHandleEvent;
-      std::function<void(const DemoTime&)> HookWinUpdate;
-      std::function<void(const DemoTime&)> HookWinResolve;
+      std::function<void(const TransitionTimeSpan&)> HookWinUpdate;
+      std::function<void(const TransitionTimeSpan&)> HookWinResolve;
       std::function<void(const UIDrawContext&)> HookWinDraw;
       std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInputPreview;
       std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInput;
@@ -79,19 +79,19 @@ namespace Fsl
         }
       }
 
-      void WinUpdate(const DemoTime& demoTime)
+      void WinUpdate(const TransitionTimeSpan& timeSpan)
       {
         if (HookWinUpdate)
         {
-          HookWinUpdate(demoTime);
+          HookWinUpdate(timeSpan);
         }
       }
 
-      void WinResolve(const DemoTime& demoTime)
+      void WinResolve(const TransitionTimeSpan& timeSpan)
       {
         if (HookWinResolve)
         {
-          HookWinResolve(demoTime);
+          HookWinResolve(timeSpan);
         }
       }
 

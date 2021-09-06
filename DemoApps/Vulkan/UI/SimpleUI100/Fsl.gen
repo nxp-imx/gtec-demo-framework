@@ -3,6 +3,6 @@
   <Executable Name="Vulkan.UI.SimpleUI100" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
   </Executable>
 </FslBuildGen>

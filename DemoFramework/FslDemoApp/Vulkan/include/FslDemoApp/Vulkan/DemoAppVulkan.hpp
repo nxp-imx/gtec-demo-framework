@@ -43,15 +43,15 @@
 
 namespace Fsl
 {
-  namespace Vulkan
-  {
-    class NativeGraphicsService;
-  }
+  class IGraphicsServiceHost;
+  class IHostInfo;
 
   class DemoAppVulkan : public ADemoApp
   {
+    std::shared_ptr<IHostInfo> m_hostInfo;
+
   protected:
-    std::shared_ptr<Vulkan::NativeGraphicsService> m_nativeGraphicsService;
+    std::shared_ptr<IGraphicsServiceHost> m_graphicsServiceHost;
     VulkanLaunchOptions m_launchOptions;
     VkSurfaceKHR m_surface = VK_NULL_HANDLE;
     Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
@@ -67,9 +67,9 @@ namespace Fsl
     void OnDestroy() override;
 
 
-    AppDrawResult TrySwapBuffers(const DemoTime& demoTime) override
+    AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) override
     {
-      FSL_PARAM_NOT_USED(demoTime);
+      FSL_PARAM_NOT_USED(frameInfo);
       return AppDrawResult::Completed;
     }
 

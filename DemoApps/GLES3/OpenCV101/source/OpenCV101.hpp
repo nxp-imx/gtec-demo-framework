@@ -34,14 +34,11 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 
 namespace Fsl
 {
   class OpenCV101 : public DemoAppGLES3
   {
-    std::shared_ptr<GLES3::NativeBatch2D> m_batch;
-
   public:
     explicit OpenCV101(const DemoAppConfig& config);
     ~OpenCV101() override;

@@ -36,7 +36,7 @@ from typing import cast
 import os
 
 if os.name == 'nt':
-    import winreg # type: ignore
+    import winreg
 
 class WindowsRegistryHelper(object):
     @staticmethod

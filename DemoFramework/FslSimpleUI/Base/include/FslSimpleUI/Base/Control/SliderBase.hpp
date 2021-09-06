@@ -160,7 +160,7 @@ namespace Fsl
         return false;
       }
 
-      bool AddValue(const value_type& value)
+      bool AddValue(const value_type value)
       {
         const auto range = m_logic.Max() - m_logic.Min();
         if (value <= range && m_logic.GetValue() <= (m_logic.Max() - value))
@@ -170,7 +170,7 @@ namespace Fsl
         return SetValue(m_logic.Max());
       }
 
-      bool SubValue(const value_type& value)
+      bool SubValue(const value_type value)
       {
         const auto range = m_logic.Max() - m_logic.Min();
         if (value <= range && m_logic.GetValue() >= (m_logic.Min() + value))
@@ -180,7 +180,7 @@ namespace Fsl
         return SetValue(m_logic.Min());
       }
 
-      bool SetRange(const value_type& min, const value_type& max)
+      bool SetRange(const value_type min, const value_type max)
       {
         if (m_logic.SetRange(min, max))
         {

@@ -464,7 +464,7 @@ class ToolFlowBuildNew(AToolAppFlow):
             PlatformUtil.CheckBuildPlatform(generator.PlatformName)
             config.LogPrint("Active platform: {0}".format(generator.PlatformName))
             generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
-            packages = ParsePackages(generatorContext, config, toolConfig.GetMinimalConfig(), currentDir, packageFilters)
+            packages = ParsePackages(generatorContext, config, toolConfig.GetMinimalConfig(generator.CMakeConfig), currentDir, packageFilters)
 
         # Reserve the name of all packages
         if not packages is None:
@@ -493,7 +493,7 @@ class ToolFlowBuildNew(AToolAppFlow):
             projectConfig = Config(self.Log, toolConfig, PluginSharedValues.TYPE_DEFAULT,
                                    localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
 
-            theFiles = MainFlow.DoGetFiles(projectConfig, toolConfig.GetMinimalConfig(), configVariant.ProjectPath)
+            theFiles = MainFlow.DoGetFiles(projectConfig, toolConfig.GetMinimalConfig(generator.CMakeConfig), configVariant.ProjectPath)
             buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
             platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                      localToolConfig.Generator, buildVariantConfig,

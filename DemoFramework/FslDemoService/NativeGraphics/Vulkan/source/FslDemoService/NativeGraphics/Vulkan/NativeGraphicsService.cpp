@@ -30,17 +30,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
-#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsSwapchainInfo.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginFrameInfo.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeDependentCreateInfo.hpp>
+#include <FslDemoService/NativeGraphics/Base/NativeGraphicsDeviceCreateInfo.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeBatch2D.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/BasicNativeBeginCustomVulkanFrameInfo.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/BasicNativeDependentCustomVulkanCreateInfo.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsCustomVulkanDeviceCreateInfo.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsDevice.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsSwapchainInfo.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslGraphics3D/BasicRender/BasicRenderSystemCreateInfo.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchShaders.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
-#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
-#include <FslUtil/Vulkan1_0/Native/NativeTextureManager.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/ScreenshotUtil.hpp>
 #include <memory>
 #include "NativeGraphicsBasic2D.hpp"
@@ -49,12 +57,8 @@ namespace Fsl
 {
   namespace Vulkan
   {
-    namespace
-    {
-    }
-
     NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
-      : ThreadLocalService(serviceProvider)
+      : ANativeGraphicsService(serviceProvider)
     {
     }
 
@@ -78,7 +82,7 @@ namespace Fsl
         return;
       }
       FSLLOG3_WARNING_IF(m_state != State::Initialized, "A required shutdown method was not called.");
-      VulkanDeviceShutdown();
+      DestroyDevice();
 
       assert(m_state == State::Initialized);
       PerformGarbageCollection();
@@ -92,24 +96,37 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsService::VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex)
+    void NativeGraphicsService::CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo)
     {
       FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDeviceInit");
       if (m_state != State::Initialized)
       {
         throw UsageErrorException("Expected state to be Initialized");
       }
+      const auto* pVulkanCreateInfo = dynamic_cast<const NativeGraphicsCustomVulkanDeviceCreateInfo*>(createInfo.pCustomCreateInfo);
+      if (pVulkanCreateInfo == nullptr)
+      {
+        throw UsageErrorException("Missing NativeGraphicsCustomDeviceCreateInfo");
+      }
 
       try
       {
         m_state = State::DeviceInitialized;
 
-        m_resources.Device = device.Get();
-        m_resources.Queue = queue;
-        m_resources.QueueFamilyIndex = queueFamilyIndex;
-        m_resources.PhysicalDevice = device.GetPhysicalDevice();
-        m_resources.ImageCreator = std::make_shared<VulkanImageCreator>(device, queue, queueFamilyIndex);
-        m_resources.TextureManager = std::make_shared<NativeTextureManager>(m_resources.ImageCreator);
+        m_resources.MaxFramesInFlight = createInfo.MaxFramesInFlight;
+        m_resources.Device = pVulkanCreateInfo->Device.Get();
+        m_resources.Queue = pVulkanCreateInfo->Queue;
+        m_resources.QueueFamilyIndex = pVulkanCreateInfo->QueueFamilyIndex;
+        m_resources.PhysicalDevice = pVulkanCreateInfo->Device.GetPhysicalDevice();
+        m_resources.ImageCreator =
+          std::make_shared<VulkanImageCreator>(pVulkanCreateInfo->Device, pVulkanCreateInfo->Queue, pVulkanCreateInfo->QueueFamilyIndex);
+        m_resources.BufferManager = std::make_shared<VMBufferManager>(pVulkanCreateInfo->Device.GetPhysicalDevice(), pVulkanCreateInfo->Device.Get(),
+                                                                      pVulkanCreateInfo->Queue, pVulkanCreateInfo->QueueFamilyIndex);
+        m_resources.NativeDevice =
+          std::make_shared<NativeGraphicsDevice>(pVulkanCreateInfo->Device, pVulkanCreateInfo->Queue, pVulkanCreateInfo->QueueFamilyIndex,
+                                                 m_resources.BufferManager, m_resources.ImageCreator, createInfo.MaxFramesInFlight);
+
+        ANativeGraphicsService::CreateDevice(createInfo);
 
         auto basic2D = m_basic2D.lock();
         if (basic2D)
@@ -124,7 +141,7 @@ namespace Fsl
           auto quadBatch = itr->lock();
           if (quadBatch)
           {
-            quadBatch->CreateDeviceResources(device.GetPhysicalDevice(), device.Get());
+            quadBatch->CreateDeviceResources(pVulkanCreateInfo->Device.GetPhysicalDevice(), pVulkanCreateInfo->Device.Get());
             ++itr;
           }
           else
@@ -135,23 +152,29 @@ namespace Fsl
       }
       catch (const std::exception&)
       {
-        VulkanDeviceShutdown();
+        DestroyDevice();
         throw;
       }
     }
 
 
-    void NativeGraphicsService::VulkanDeviceShutdown() noexcept
+    void NativeGraphicsService::DestroyDevice() noexcept
     {
-      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDeviceShutdown");
       if (m_state < State::DeviceInitialized)
       {
         return;
       }
+      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDeviceShutdown");
 
-      VulkanDestroyDependentResources();
+      if (m_state >= State::DependentResourcesInitialized)
+      {
+        DestroyDependentResources();
+      }
+
       assert(m_state == State::DeviceInitialized);
       m_state = State::Initialized;
+
+      ANativeGraphicsService::DestroyDevice();
 
       auto basic2D = m_basic2D.lock();
       if (basic2D)
@@ -174,36 +197,45 @@ namespace Fsl
           itr = m_quadBatches.erase(itr);
         }
       }
+      if (m_resources.NativeDevice)
+      {
+        // We mark the NativeDevice as disposed to make it easier to find use after all pointers ought to have been freed issues
+        FSLLOG3_VERBOSE6("Marking the NativeDevice as disposed");
+        m_resources.NativeDevice->Dispose();
+      }
       m_resources = {};
       m_swapchainInfo.reset();
     }
 
-    void NativeGraphicsService::VulkanCreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass,
-                                                               const uint32_t subpass, const PxExtent2D& screenExtentPx)
+    //! @sets the swapchain info, this class will only keep a weak pointer to the information.
+    void NativeGraphicsService::CreateDependentResources(const BasicNativeDependentCreateInfo& createInfo)
     {
-      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanCreateDependentResources");
+      FSLLOG3_VERBOSE("NativeGraphicsService::CreateDependentResources()");
       if (m_state != State::DeviceInitialized)
       {
         throw UsageErrorException("Expected state to be DeviceInitialized");
       }
-      if (renderPass == VK_NULL_HANDLE)
+
+      const auto* pVulkanCreateInfo = dynamic_cast<const BasicNativeDependentCustomVulkanCreateInfo*>(createInfo.pCustomCreateInfo);
+      if (pVulkanCreateInfo == nullptr)
+      {
+        throw UsageErrorException("Missing NativeGraphicsCustomVulkanDependentCreateInfo");
+      }
+
+
+      if (pVulkanCreateInfo->MainRenderPass == VK_NULL_HANDLE)
       {
         throw std::invalid_argument("renderPass");
       }
+      // assert(createInfo.FramesInFlightCount <= m_resources.MaxFramesInFlight);
 
       assert(m_state == State::DeviceInitialized);
       try
       {
-        if (m_resources.TextureManager)
-        {
-          m_resources.TextureManager->VulkanCreateDependentResources(commandBufferCount);
-        }
-
         m_state = State::DependentResourcesInitialized;
-        m_dependentResources.CommandBufferCount = commandBufferCount;
-        m_dependentResources.RenderPass = renderPass;
-        m_dependentResources.Subpass = subpass;
-        m_dependentResources.ScreenExtentPx = screenExtentPx;
+        m_dependentResources.RenderPass = pVulkanCreateInfo->MainRenderPass;
+        m_dependentResources.Subpass = pVulkanCreateInfo->SubpassSystemUI;
+        m_dependentResources.ScreenExtentPx = createInfo.ExtentPx;
 
         // Destroy resources on any existing quad batches
         auto itr = m_quadBatches.begin();
@@ -212,7 +244,8 @@ namespace Fsl
           auto quadBatch = itr->lock();
           if (quadBatch)
           {
-            quadBatch->CreateDependentResources(commandBufferCount, renderPass, subpass, screenExtentPx);
+            quadBatch->CreateDependentResources(m_resources.MaxFramesInFlight, m_dependentResources.RenderPass, m_dependentResources.Subpass,
+                                                m_dependentResources.ScreenExtentPx);
             ++itr;
           }
           else
@@ -220,36 +253,31 @@ namespace Fsl
             itr = m_quadBatches.erase(itr);
           }
         }
+
+        ANativeGraphicsService::CreateDependentResources(createInfo);
+
+        m_swapchainInfo = pVulkanCreateInfo->SwapchainInfo;
       }
       catch (const std::exception&)
       {
-        VulkanDestroyDependentResources();
+        DestroyDependentResources();
         throw;
       }
     }
 
-    void NativeGraphicsService::OnVulkanSwapchainEvent(const VulkanSwapchainEvent theEvent)
+    void NativeGraphicsService::DestroyDependentResources() noexcept
     {
-      FSLLOG3_VERBOSE("NativeGraphicsService::OnVulkanSwapchainEvent");
       if (m_state < State::DependentResourcesInitialized)
       {
         return;
       }
-      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanSwapChainEvent({})", static_cast<int>(theEvent));
-      if (m_resources.TextureManager)
-      {
-        m_resources.TextureManager->OnVulkanSwapchainEvent(theEvent);
-      }
-    }
+      FSLLOG3_VERBOSE("NativeGraphicsService::DestroyDependentResources");
 
-    void NativeGraphicsService::VulkanDestroyDependentResources() noexcept
-    {
-      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDestroyDependentResources");
-      if (m_state < State::DependentResourcesInitialized)
-      {
-        return;
-      }
+      m_swapchainInfo.reset();
+
       assert(m_state == State::DependentResourcesInitialized);
+      ANativeGraphicsService::DestroyDependentResources();
+
       m_state = State::DeviceInitialized;
       m_dependentResources = {};
 
@@ -269,29 +297,22 @@ namespace Fsl
         }
       }
 
-      if (m_resources.TextureManager)
-      {
-        m_resources.TextureManager->VulkanDestroyDependentResources();
-      }
-
       m_swapchainInfo.reset();
     }
 
-    void NativeGraphicsService::VulkanPreProcessFrame(const uint32_t /*commandBufferIndex*/)
-    {
-      if (m_resources.TextureManager)
-      {
-        m_resources.TextureManager->CollectGarbage();
-      }
-    }
 
-
-    void NativeGraphicsService::VulkanBeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex)
+    void NativeGraphicsService::BeginFrame(const BasicNativeBeginFrameInfo& frameInfo)
     {
       if (m_state != State::DependentResourcesInitialized)
       {
-        throw UsageErrorException("VulkanBeginFrame");
+        throw UsageErrorException("BeginFrame");
       }
+      const auto* pVulkanInfo = dynamic_cast<const BasicNativeBeginCustomVulkanFrameInfo*>(frameInfo.pCustomInfo);
+      if (pVulkanInfo == nullptr)
+      {
+        throw UsageErrorException("Missing NativeGraphicsCustomVulkanDependentCreateInfo");
+      }
+
 
       auto itr = m_quadBatches.begin();
       while (itr != m_quadBatches.end())
@@ -299,7 +320,7 @@ namespace Fsl
         auto quadBatch = itr->lock();
         if (quadBatch)
         {
-          quadBatch->BeginFrame(commandBuffer, commandBufferIndex);
+          quadBatch->BeginFrame(pVulkanInfo->CommandBuffer, frameInfo.FrameIndex);
           ++itr;
         }
         else
@@ -307,15 +328,18 @@ namespace Fsl
           itr = m_quadBatches.erase(itr);
         }
       }
+      ANativeGraphicsService::BeginFrame(frameInfo);
     }
 
 
-    void NativeGraphicsService::VulkanEndFrame()
+    void NativeGraphicsService::EndFrame()
     {
       if (m_state != State::DependentResourcesInitialized)
       {
-        throw UsageErrorException("VulkanEndFrame");
+        throw UsageErrorException("EndFrame");
       }
+
+      ANativeGraphicsService::EndFrame();
 
       auto itr = m_quadBatches.begin();
       while (itr != m_quadBatches.end())
@@ -334,39 +358,9 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsService::SetSwapchainInfoLink(const std::weak_ptr<NativeGraphicsSwapchainInfo>& swapchainInfo)
+    bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
     {
-      m_swapchainInfo = swapchainInfo;
-    }
-
-
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags textureFlags)
-    {
-      if (m_state < State::DeviceInitialized)
-      {
-        throw UsageErrorException("The internal state is incorrect");
-      }
-      assert(m_resources.TextureManager);
-      return m_resources.TextureManager->CreateTexture2D(texture, filterHint, textureFlags);
-    }
-
-
-    std::shared_ptr<IDynamicNativeTexture2D>
-      NativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
-    {
-      if (m_state < State::DeviceInitialized)
-      {
-        throw UsageErrorException("The internal state is incorrect");
-      }
-      assert(m_resources.TextureManager);
-      return m_resources.TextureManager->CreateDynamicTexture2D(texture, filterHint, textureFlags);
-    }
-
-
-    bool NativeGraphicsService::IsSupported(const DemoHostFeature& /*activeAPI*/) const
-    {
-      return true;
+      return activeAPI.Name == DemoHostFeatureName::Vulkan;
     }
 
 
@@ -406,8 +400,14 @@ namespace Fsl
     {
       PerformGarbageCollection();
 
+      auto basicRenderSystem = GetBasicRenderSystem();
       auto quadBatch = CreateQuadBatch();
-      return std::make_shared<NativeBatch2D>(quadBatch, currentExtent);
+      return std::make_shared<NativeBatch2D>(basicRenderSystem, m_resources.NativeDevice, quadBatch, currentExtent);
+    }
+
+    std::shared_ptr<Graphics3D::INativeDevice> NativeGraphicsService::GetNativeDevice()
+    {
+      return m_resources.NativeDevice;
     }
 
 
@@ -444,7 +444,7 @@ namespace Fsl
       }
       if (m_state >= State::DependentResourcesInitialized)
       {
-        quadBatch->CreateDependentResources(m_dependentResources.CommandBufferCount, m_dependentResources.RenderPass, m_dependentResources.Subpass,
+        quadBatch->CreateDependentResources(m_resources.MaxFramesInFlight, m_dependentResources.RenderPass, m_dependentResources.Subpass,
                                             m_dependentResources.ScreenExtentPx);
       }
 

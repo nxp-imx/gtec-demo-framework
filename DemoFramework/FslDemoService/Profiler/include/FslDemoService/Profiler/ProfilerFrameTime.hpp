@@ -38,13 +38,13 @@ namespace Fsl
   //! @brief Contain timing information in microseconds
   struct ProfilerFrameTime
   {
-    int32_t UpdateTime{0};
-    int32_t DrawTime{0};
-    int32_t TotalTime{0};
+    int64_t UpdateTime{0};
+    int64_t DrawTime{0};
+    int64_t TotalTime{0};
 
     ProfilerFrameTime() = default;
 
-    ProfilerFrameTime(const int32_t updateTime, const int32_t drawTime, const int32_t totalTime)
+    ProfilerFrameTime(const int64_t updateTime, const int64_t drawTime, const int64_t totalTime)
       : UpdateTime(updateTime)
       , DrawTime(drawTime)
       , TotalTime(totalTime)

@@ -38,6 +38,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <algorithm>
@@ -45,18 +46,6 @@
 #include <limits>
 #include <fstream>
 #include <vector>
-
-// Nasty hack for dealing with UTF8 file names on windows,
-// since its the only supported platform that doesn't allow UTF8 strings
-// but instead provides its own 'hack' for opening wstring's
-#ifdef _WIN32
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
-#else
-// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define PATH_GET_NAME(X) X.ToUTF8String()
-#endif
 
 namespace Fsl
 {
@@ -237,7 +226,7 @@ namespace Fsl
 
   void BinaryFontBasicKerningLoader::Load(BasicFontKerning& rTextureAtlas, const IO::Path& strFilename)
   {
-    std::ifstream file(PATH_GET_NAME(strFilename), std::ios::in | std::ios::binary);
+    std::ifstream file(PlatformPathTransform::ToSystemPath(strFilename), std::ios::in | std::ios::binary);
     if (file.good())
     {
       Load(rTextureAtlas, file);

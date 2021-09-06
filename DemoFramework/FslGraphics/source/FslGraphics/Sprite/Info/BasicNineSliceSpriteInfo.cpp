@@ -32,45 +32,26 @@
 #include <FslGraphics/Sprite/Info/BasicNineSliceSpriteInfo.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <FslGraphics/Sprite/Info/NineSliceSpriteInfoUtil.hpp>
 #include <memory>
 #include <utility>
 
 namespace Fsl
 {
-  namespace
-  {
-    NativeNineSliceTextureArea CalcNativeNineSliceTextureArea(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx,
-                                                              const PxThicknessU& nineSlicePx, const StringViewLite& debugName)
-    {
-      if (nineSlicePx.SumX() > imageRectanglePx.Width || nineSlicePx.SumY() > imageRectanglePx.Height)
-      {
-        throw std::invalid_argument("not a valid nine slice texture");
-      }
-
-      // We calculate everything in integers so we are doing pixel perfect slicing
-      const PxRectangleU imageRectangleInnerPx(imageRectanglePx.X + nineSlicePx.Left, imageRectanglePx.Y + nineSlicePx.Top,
-                                               imageRectanglePx.Width - nineSlicePx.SumX(), imageRectanglePx.Height - nineSlicePx.SumY());
-
-      // then we calculate the texture coordinates of the inner and outer rectangle
-      const NativeTextureArea areaOuter = spriteMaterialInfo.CalcNativeTextureArea(imageRectanglePx, debugName);
-      const NativeTextureArea areaInner = spriteMaterialInfo.CalcNativeTextureArea(imageRectangleInnerPx, debugName);
-
-      return {areaOuter.X0, areaOuter.Y0, areaInner.X0, areaInner.Y0, areaInner.X1, areaInner.Y1, areaOuter.X1, areaOuter.Y1};
-    }
-  }
-
-  BasicNineSliceSpriteInfo::BasicNineSliceSpriteInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxRectangleU& imageRectanglePx,
-                                                     const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx, const uint32_t imageDpi,
-                                                     const StringViewLite& debugName)
+  BasicNineSliceSpriteInfo::BasicNineSliceSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
+                                                     const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx,
+                                                     const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , ImageInfo(imageRectanglePx.GetExtent(), imageRectanglePx, nineSlicePx, contentMarginPx,
                 SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi),
                 SpriteUnitConverter::CalcDpThicknessU(nineSlicePx, imageDpi), SpriteUnitConverter::CalcDpThicknessU(contentMarginPx, imageDpi))
     , ImageDpi(imageDpi)
-    , RenderInfo(CalcNativeNineSliceTextureArea(spriteMaterialInfo, imageRectanglePx, nineSlicePx, debugName),
-                 TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()), TypeConverter::To<PxThickness>(nineSlicePx),
-                 TypeConverter::To<PxThickness>(ImageInfo.ContentMarginPx))
+    , RenderInfo(
+        NineSliceSpriteInfoUtil::CalcNativeNineSliceTextureArea(spriteNativeAreaCalc, spriteMaterialInfo, imageRectanglePx, nineSlicePx, debugName),
+        TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()), TypeConverter::To<PxThickness>(nineSlicePx),
+        TypeConverter::To<PxThickness>(ImageInfo.ContentMarginPx))
   {
     if (!spriteMaterialInfo.IsValid())
     {

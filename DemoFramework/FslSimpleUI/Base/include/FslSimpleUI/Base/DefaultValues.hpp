@@ -52,8 +52,8 @@ namespace Fsl
         constexpr const Color Up = Palette::Primary;
         constexpr const Color Down = Color(0xB0B0B0B0);
         constexpr const Color BackgroundHoverUp = Palette::Primary;
-        constexpr const Color BackgroundHoverOverlayUp = Color::Premultiply(Palette::Primary, 0.12f);
-        constexpr const Color BackgroundHoverOverlayDown = Color::Premultiply(Palette::Primary, 0.08f);
+        constexpr const Color BackgroundHoverOverlayUp = Color::SetA(Palette::Primary, 0.12f);
+        constexpr const Color BackgroundHoverOverlayDown = Color::SetA(Palette::Primary, 0.08f);
         constexpr const Color BackgroundUp = Palette::Primary;
         constexpr const Color BackgroundDown = Down;
         constexpr const Color BackgroundDisabled = Palette::PrimaryDisabled;
@@ -65,33 +65,33 @@ namespace Fsl
       namespace ToggleButton
       {
         constexpr const Color CursorChecked = Palette::Primary;
-        constexpr const Color CursorCheckedDisabled = Color::Transparent();
+        constexpr const Color CursorCheckedDisabled = Color::ClearA(CursorChecked);
         constexpr const Color CursorUnchecked = Palette::Primary;
-        constexpr const Color CursorUncheckedDisabled = Color::Transparent();
+        constexpr const Color CursorUncheckedDisabled = Color::ClearA(CursorUnchecked);
         constexpr const Color BackgroundEnabled = Palette::Primary;
         constexpr const Color BackgroundDisabled = Palette::PrimaryDisabled;
-        constexpr const Color HoverOverlayChecked = Color::Premultiply(CursorChecked, 0.4f);
-        constexpr const Color HoverOverlayUnchecked = Color::Premultiply(CursorUnchecked, 0.4f);
+        constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
+        constexpr const Color HoverOverlayUnchecked = Color::SetA(CursorUnchecked, 0.4f);
       }
 
 
       namespace CheckBox
       {
         constexpr const Color CursorChecked = Palette::Primary;
-        constexpr const Color CursorCheckedDisabled = Color::Premultiply(CursorChecked, 0.4f);
-        constexpr const Color CursorUnchecked = Color::Transparent();
-        constexpr const Color CursorUncheckedDisabled = Color::Transparent();
+        constexpr const Color CursorCheckedDisabled = Color::SetA(CursorChecked, 0.4f);
+        constexpr const Color CursorUnchecked = Color::ClearA(CursorChecked);
+        constexpr const Color CursorUncheckedDisabled = Color::ClearA(CursorCheckedDisabled);
         constexpr const Color BackgroundChecked = Palette::Primary;
         constexpr const Color BackgroundCheckedDisabled = Palette::PrimaryDisabled;
         constexpr const Color BackgroundUnchecked = Palette::Primary;
         constexpr const Color BackgroundUncheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color HoverOverlayChecked = Color::Premultiply(CursorChecked, 0.4f);
-        constexpr const Color HoverOverlayUnchecked = Color::Premultiply(BackgroundUnchecked, 0.4f);
+        constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
+        constexpr const Color HoverOverlayUnchecked = Color::SetA(BackgroundUnchecked, 0.4f);
       }
 
       namespace Slider
       {
-        constexpr const Color HoverOverlay = Color::Premultiply(Palette::Primary, 0.4f);
+        constexpr const Color HoverOverlay = Color::SetA(Palette::Primary, 0.4f);
       }
 
       namespace Switch
@@ -104,8 +104,8 @@ namespace Fsl
         constexpr const Color BackgroundCheckedDisabled = Palette::PrimaryDisabled;
         constexpr const Color BackgroundUnchecked = Palette::Primary;
         constexpr const Color BackgroundUncheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color HoverOverlayChecked = Color::Premultiply(CursorChecked, 0.4f);
-        constexpr const Color HoverOverlayUnchecked = Color::Premultiply(BackgroundUnchecked, 0.4f);
+        constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
+        constexpr const Color HoverOverlayUnchecked = Color::SetA(BackgroundUnchecked, 0.4f);
       }
     }
   }

@@ -30,9 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/Span.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/VirtualGamepadState.hpp>
@@ -90,13 +92,16 @@ namespace Fsl
     }
 
 
-    void HandleGamepadConfigurationEvent(const NativeWindowEvent& event, std::vector<GamepadState>& rGamepads)
+    uint32_t HandleGamepadConfigurationEvent(const NativeWindowEvent& event, std::vector<GamepadState>& rGamepads, const bool /*wasConfigured*/)
     {
       uint32_t maxDevices = 0;
       NativeWindowEventHelper::DecodeGamepadConfiguration(event, maxDevices);
 
-      rGamepads.clear();
-      rGamepads.resize(maxDevices);
+      if (maxDevices >= rGamepads.size())
+      {
+        rGamepads.resize(maxDevices);
+      }
+      return maxDevices;
     }
 
     float Normalize(const int16_t value)
@@ -110,21 +115,21 @@ namespace Fsl
     }
 
 
-    void HandleGamepadStateEvent(const NativeWindowEvent& event, std::vector<GamepadState>& rGamepads, const GamepadDeadZoneType deadZoneType,
+    void HandleGamepadStateEvent(const NativeWindowEvent& event, Span<GamepadState> gamepads, const GamepadDeadZoneType deadZoneType,
                                  const bool isConfigured)
     {
       VirtualGamepadState gamepadState;
       NativeWindowEventHelper::DecodeVirtualGamepadStateEvent(event, gamepadState);
 
-      if (gamepadState.DeviceId >= rGamepads.size())
+      if (gamepadState.DeviceId >= gamepads.size())
       {
         FSLLOG3_DEBUG_WARNING_IF(!isConfigured, "GamepadsService: event received before the service was configured, ignored");
         FSLLOG3_DEBUG_WARNING_IF(isConfigured, "GamepadsService: event from a invalid deviceId: {}, event ignored", gamepadState.DeviceId);
         return;
       }
 
-      auto oldState = rGamepads[gamepadState.DeviceId];
-      auto& rNewState = rGamepads[gamepadState.DeviceId];
+      auto oldState = gamepads[gamepadState.DeviceId];
+      auto& rNewState = gamepads[gamepadState.DeviceId];
 
       // FSLLOG3_INFO("R" << rNewState.IsConnected << ", " << (int)rNewState.Buttons << ", " << (int)rNewState.LeftTrigger << ", " <<
       // (int)rNewState.RightTrigger << ", " << rNewState.LeftThumbX << ", " << rNewState.LeftThumbY << ", " << rNewState.RightThumbX << ", " <<
@@ -168,7 +173,7 @@ namespace Fsl
     }
 
 
-    void CheckInputKeyStateEvent(const NativeWindowEvent& event, const std::size_t maxDevices, const bool isConfigured)
+    void CheckInputKeyStateEvent(const NativeWindowEvent& event, const uint32_t maxDevices, const bool isConfigured)
     {
       VirtualKey::Enum virtualKey = VirtualKey::Undefined;
       bool isPressed = false;
@@ -201,13 +206,14 @@ namespace Fsl
 
   uint32_t GamepadsState::GetCount() const
   {
-    return static_cast<uint32_t>(m_gamepads.size());
+    assert(m_gamepadCount <= m_gamepads.size());
+    return m_gamepadCount;
   }
 
 
   GamepadState GamepadsState::GetState(const uint32_t gamepadIndex) const
   {
-    if (gamepadIndex >= m_gamepads.size())
+    if (gamepadIndex >= m_gamepadCount)
     {
       throw std::invalid_argument("gamepadIndex out of bounds");
     }
@@ -220,19 +226,14 @@ namespace Fsl
     switch (event.Type)
     {
     case NativeWindowEventType::GamepadConfiguration:
-      if (m_isConfigured)
-      {
-        FSLLOG3_DEBUG_WARNING("Gamepad service is already configured, new config ignored");
-        return;
-      }
-      HandleGamepadConfigurationEvent(event, m_gamepads);
+      m_gamepadCount = HandleGamepadConfigurationEvent(event, m_gamepads, m_isConfigured);
       m_isConfigured = true;
       break;
     case NativeWindowEventType::GamepadState:
-      HandleGamepadStateEvent(event, m_gamepads, m_deadZoneType, m_isConfigured);
+      HandleGamepadStateEvent(event, SpanUtil::AsSpan(m_gamepads.data(), m_gamepadCount), m_deadZoneType, m_isConfigured);
       break;
     case NativeWindowEventType::InputKey:
-      CheckInputKeyStateEvent(event, m_gamepads.size(), m_isConfigured);
+      CheckInputKeyStateEvent(event, m_gamepadCount, m_isConfigured);
       break;
     default:
       break;

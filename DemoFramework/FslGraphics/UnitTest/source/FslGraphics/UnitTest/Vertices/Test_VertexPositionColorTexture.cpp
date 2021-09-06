@@ -39,6 +39,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -54,7 +55,7 @@ TEST(TestVertices_VertexPositionColorTexture, Construct_Default)
   const VertexPositionColorTexture vertex;
 
   EXPECT_EQ(Vector3(), vertex.Position);
-  EXPECT_EQ(Vector4(), vertex.Color);
+  EXPECT_EQ(Color(), vertex.Color);
   EXPECT_EQ(Vector2(), vertex.TextureCoordinate);
 }
 
@@ -67,7 +68,7 @@ TEST(TestVertices_VertexPositionColorTexture, Construct)
   const VertexPositionColorTexture vertex(pos, color, texCoord);
 
   EXPECT_EQ(pos, vertex.Position);
-  EXPECT_EQ(color.ToVector4(), vertex.Color);
+  EXPECT_EQ(color, vertex.Color);
   EXPECT_EQ(texCoord, vertex.TextureCoordinate);
 }
 
@@ -75,10 +76,86 @@ TEST(TestVertices_VertexPositionColorTexture, Construct)
 TEST(TestVertices_VertexPositionColorTexture, GetVertexDeclaration)
 {
   const VertexElementEx expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
   const VertexElementEx expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
                                   VertexElementUsage::TextureCoordinate, 0u);
-  const auto vertexDecl = VertexPositionColorTexture::GetVertexDeclaration();
+  const auto vertexDecl = VertexDeclaration(VertexPositionColorTexture::AsVertexDeclarationSpan());
+
+  EXPECT_EQ(sizeof(VertexPositionColorTexture), vertexDecl.VertexStride());
+  ASSERT_EQ(3u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Position, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(expected1, vertexDecl.VertexElementGet(VertexElementUsage::Color, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0u), 2);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::TextureCoordinate, 0u), 2);
+  EXPECT_EQ(expected2, vertexDecl.VertexElementGet(VertexElementUsage::TextureCoordinate, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+  EXPECT_EQ(expected1, vertexDecl.At(1u));
+  EXPECT_EQ(expected2, vertexDecl.At(2u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexPositionColorTexture, GetVertexDeclarationArray)
+{
+  const VertexElementEx expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
+  const VertexElementEx expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                  VertexElementUsage::TextureCoordinate, 0u);
+  const auto vertexDecl = VertexPositionColorTexture::GetVertexDeclarationArray();
+
+  EXPECT_EQ(sizeof(VertexPositionColorTexture), vertexDecl.VertexStride());
+  ASSERT_EQ(3u, vertexDecl.Count());
+  EXPECT_NE(nullptr, vertexDecl.DirectAccess());
+
+  // Get by element usage
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Position, 0u), 0);
+  EXPECT_EQ(expected0, vertexDecl.VertexElementGet(VertexElementUsage::Position, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::Color, 0u), 1);
+  EXPECT_EQ(expected1, vertexDecl.VertexElementGet(VertexElementUsage::Color, 0u));
+
+  EXPECT_EQ(vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0u), 2);
+  EXPECT_EQ(vertexDecl.VertexElementIndexOf(VertexElementUsage::TextureCoordinate, 0u), 2);
+  EXPECT_EQ(expected2, vertexDecl.VertexElementGet(VertexElementUsage::TextureCoordinate, 0u));
+
+  // By index
+  EXPECT_EQ(expected0, vertexDecl.At(0u));
+  EXPECT_EQ(expected1, vertexDecl.At(1u));
+  EXPECT_EQ(expected2, vertexDecl.At(2u));
+
+  // Direct access should produce the same as At
+  for (uint32_t i = 0; i < vertexDecl.Count(); ++i)
+  {
+    EXPECT_EQ(vertexDecl.At(i), vertexDecl.DirectAccess()[i]);
+  }
+}
+
+
+TEST(TestVertices_VertexPositionColorTexture, AsVertexDeclarationSpan)
+{
+  const VertexElementEx expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
+  const VertexElementEx expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                  VertexElementUsage::TextureCoordinate, 0u);
+  const auto vertexDecl = VertexPositionColorTexture::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionColorTexture), vertexDecl.VertexStride());
   ASSERT_EQ(3u, vertexDecl.Count());

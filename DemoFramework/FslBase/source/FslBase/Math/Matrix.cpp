@@ -211,12 +211,10 @@ namespace Fsl
                                const Vector3* pCameraForwardVector, Matrix& rResult)
   {
     Vector3 vector;
-    Vector3 vector2;
-    Vector3 vector3;
     vector.X = objectPosition.X - cameraPosition.X;
     vector.Y = objectPosition.Y - cameraPosition.Y;
     vector.Z = objectPosition.Z - cameraPosition.Z;
-    float num = vector.LengthSquared();
+    const float num = vector.LengthSquared();
     if (num < 0.0001f)
     {
       vector = pCameraForwardVector != nullptr ? -(*pCameraForwardVector) : Vector3::Forward();
@@ -226,9 +224,9 @@ namespace Fsl
       vector = vector * (1.0f / (std::sqrt(num)));
     }
 
-    vector3 = Vector3::Cross(cameraUpVector, vector);
+    Vector3 vector3 = Vector3::Cross(cameraUpVector, vector);
     vector3.Normalize();
-    vector2 = Vector3::Cross(vector, vector3);
+    const Vector3 vector2 = Vector3::Cross(vector, vector3);
     rResult.m[_M11] = vector3.X;
     rResult.m[_M12] = vector3.Y;
     rResult.m[_M13] = vector3.Z;

@@ -38,11 +38,26 @@ namespace Fsl
 {
   namespace ValueCompression
   {
+    namespace Details
+    {
+      // The max size of a encoded uint32_t
+      constexpr const uint32_t MaxByteSizeInt32 = 5;
+      constexpr const uint32_t MaxByteSizeUInt32 = 5;
+      constexpr const uint32_t MaxByteSizeInt64 = 9;
+      constexpr const uint32_t MaxByteSizeUInt64 = 9;
+    }
+
     //! @brief Read a int32 from pSrc at starting at index
     extern int32_t ReadSimpleInt32(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
 
     //! @brief Read a uint32 from pSrc at starting at index
     extern uint32_t ReadSimpleUInt32(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+
+    //! @brief Read a int64 from pSrc at starting at index
+    extern int64_t ReadSimpleInt64(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+
+    //! @brief Read a uint64 from pSrc at starting at index
+    extern uint64_t ReadSimpleUInt64(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
 
     //! @brief Read a int32 from pSrc at starting at index
     //! @return the number of bytes that was read
@@ -51,6 +66,14 @@ namespace Fsl
     //! @brief Read a uint32 from pSrc at starting at index
     //! @return the number of bytes that was read
     extern std::size_t ReadSimple(uint32_t& rResult, const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+
+    //! @brief Read a int64 from pSrc at starting at index
+    //! @return the number of bytes that was read
+    extern std::size_t ReadSimple(int64_t& rResult, const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+
+    //! @brief Read a uint64 from pSrc at starting at index
+    //! @return the number of bytes that was read
+    extern std::size_t ReadSimple(uint64_t& rResult, const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
 
     //! @brief Encodes a integer into a variable length encoding where the length can be determined from the first byte.
     //         The encoding favors small values.
@@ -61,6 +84,16 @@ namespace Fsl
     //         The encoding favors small values.
     /// @return the number of bytes written
     extern std::size_t WriteSimple(uint8_t* const pDst, const std::size_t dstLength, const std::size_t index, const uint32_t value);
+
+    //! @brief Encodes a integer into a variable length encoding where the length can be determined from the first byte.
+    //         The encoding favors small values.
+    /// @return the number of bytes written
+    extern std::size_t WriteSimple(uint8_t* const pDst, const std::size_t dstLength, const std::size_t index, const int64_t value);
+
+    //! @brief Encodes a integer into a variable length encoding where the length can be determined from the first byte.
+    //         The encoding favors small values.
+    /// @return the number of bytes written
+    extern std::size_t WriteSimple(uint8_t* const pDst, const std::size_t dstLength, const std::size_t index, const uint64_t value);
   };
 }
 

@@ -44,7 +44,7 @@ namespace Fsl
   namespace GLES3
   {
     GLLineDraw::GLLineDraw(const uint32_t initialLineCapacity)
-      : LineVertexBuffer(nullptr, initialLineCapacity * 2u, VertexPositionColor::GetVertexDeclaration(), GL_DYNAMIC_DRAW)
+      : LineVertexBuffer(nullptr, initialLineCapacity * 2u, VertexPositionColor::AsVertexDeclarationSpan(), GL_DYNAMIC_DRAW)
     {
     }
 
@@ -72,7 +72,7 @@ namespace Fsl
         FSLLOG3_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: {} to {}", LineVertexBuffer.GetCapacity(), newCapacity);
         // Dump the existing buffer and then create a new one
         LineVertexBuffer.Reset();
-        LineVertexBuffer.Reset(nullptr, newCapacity, VertexPositionColor::GetVertexDeclaration(), GL_DYNAMIC_DRAW);
+        LineVertexBuffer.Reset(nullptr, newCapacity, VertexPositionColor::AsVertexDeclarationSpan(), GL_DYNAMIC_DRAW);
       }
 
       // Enable the attrib arrays

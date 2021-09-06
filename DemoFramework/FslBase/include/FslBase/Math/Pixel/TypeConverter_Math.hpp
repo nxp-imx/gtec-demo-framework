@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Offset2D.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Rect.hpp>
@@ -44,6 +45,14 @@ namespace Fsl
 {
   namespace TypeConverter
   {
+    // --- PxVector2
+
+    template <>
+    constexpr inline PxVector2 To<PxVector2, Vector2>(const Vector2& value)
+    {
+      return {value.X, value.Y};
+    }
+
     // --- Vector2
 
     template <>
@@ -62,6 +71,15 @@ namespace Fsl
     {
       static_assert(std::is_same<Extent2D::value_type, PxExtent2D::value_type>::value, "we expect the types to be equal");
       return {value.Width, value.Height};
+    }
+
+    // --- Offset2D
+
+    template <>
+    constexpr inline Offset2D UncheckedTo<Offset2D, PxPoint2>(const PxPoint2& value) noexcept
+    {
+      static_assert(std::is_same<Offset2D::value_type, Offset2D::value_type>::value, "we expect the types to be equal");
+      return {value.X, value.Y};
     }
 
     // --- Point2
@@ -157,18 +175,32 @@ namespace Fsl
                                                  UncheckedChangeTo<PxRectangle::value_type>(value.Bottom()), OptimizationCheckFlag::NoCheck);
     }
 
-    // -- PxRectangleU
+    // -- PxRectangleU16
 
     //! @brief Convert a rectangle to a PxRectangle (if the value.Location is negative it will be clipped against zero)
     template <>
-    constexpr inline PxRectangleU UncheckedTo<PxRectangleU, Rectangle>(const Rectangle& value) noexcept
+    constexpr inline PxRectangleU16 UncheckedTo<PxRectangleU16, Rectangle>(const Rectangle& value) noexcept
     {
       // This should always be the case for a Rectangle (so we only assert check it)
       assert(value.Left() <= value.Right() && value.Top() <= value.Bottom());
-      return PxRectangleU::FromLeftTopRightBottom(UncheckedNumericCast<PxRectangleU::value_type>(value.Left()),
-                                                  UncheckedNumericCast<PxRectangleU::value_type>(value.Top()),
-                                                  UncheckedNumericCast<PxRectangleU::value_type>(value.Right()),
-                                                  UncheckedNumericCast<PxRectangleU::value_type>(value.Bottom()), OptimizationCheckFlag::NoCheck);
+      return PxRectangleU16::FromLeftTopRightBottom(UncheckedNumericCast<PxRectangleU16::value_type>(value.Left()),
+                                                    UncheckedNumericCast<PxRectangleU16::value_type>(value.Top()),
+                                                    UncheckedNumericCast<PxRectangleU16::value_type>(value.Right()),
+                                                    UncheckedNumericCast<PxRectangleU16::value_type>(value.Bottom()), OptimizationCheckFlag::NoCheck);
+    }
+
+    // -- PxRectangleU32
+
+    //! @brief Convert a rectangle to a PxRectangle (if the value.Location is negative it will be clipped against zero)
+    template <>
+    constexpr inline PxRectangleU32 UncheckedTo<PxRectangleU32, Rectangle>(const Rectangle& value) noexcept
+    {
+      // This should always be the case for a Rectangle (so we only assert check it)
+      assert(value.Left() <= value.Right() && value.Top() <= value.Bottom());
+      return PxRectangleU32::FromLeftTopRightBottom(UncheckedNumericCast<PxRectangleU32::value_type>(value.Left()),
+                                                    UncheckedNumericCast<PxRectangleU32::value_type>(value.Top()),
+                                                    UncheckedNumericCast<PxRectangleU32::value_type>(value.Right()),
+                                                    UncheckedNumericCast<PxRectangleU32::value_type>(value.Bottom()), OptimizationCheckFlag::NoCheck);
     }
 
     // --- PxSize2D

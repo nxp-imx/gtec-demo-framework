@@ -71,11 +71,6 @@ namespace Fsl
       }
     }
 
-    constexpr static uint32_t GetBytesPerElement(const VertexElementFormat format)
-    {
-      return ProcessResult(TryGetBytesPerElement(format));
-    }
-
     constexpr static int32_t TryGetElementCount(const VertexElementFormat format)
     {
       switch (format)
@@ -105,6 +100,11 @@ namespace Fsl
       default:
         return -1;
       }
+    }
+
+    constexpr static uint32_t GetBytesPerElement(const VertexElementFormat format)
+    {
+      return ProcessResult(TryGetBytesPerElement(format));
     }
 
     constexpr static uint32_t GetElementCount(const VertexElementFormat format)

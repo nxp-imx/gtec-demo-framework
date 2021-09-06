@@ -36,18 +36,19 @@
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BitmapFontConfig.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/Render/Batch2DUtil.hpp>
 #include <FslGraphics/Render/GenericBatch2D_fwd.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfoUtil.hpp>
 #include <cassert>
 #include <cstring>
@@ -168,7 +169,7 @@ namespace Fsl
 
     m_batchStrategy.EnsureCapacityFor(1);
     m_batchStrategy.SetTexture(srcTexture);
-    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, color.ToVector4());
+    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, color);
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
@@ -187,7 +188,7 @@ namespace Fsl
 
     m_batchStrategy.EnsureCapacityFor(1);
     m_batchStrategy.SetTexture(srcTexture);
-    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, color);
+    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, Color(color));
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
@@ -206,7 +207,7 @@ namespace Fsl
 
     m_batchStrategy.EnsureCapacityFor(1);
     m_batchStrategy.SetTexture(srcTexture);
-    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, color.ToVector4());
+    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, color);
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
@@ -225,7 +226,7 @@ namespace Fsl
 
     m_batchStrategy.EnsureCapacityFor(1);
     m_batchStrategy.SetTexture(srcTexture);
-    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, color);
+    m_batchStrategy.AddQuad(dstRectanglePxf, srcArea, Color(color));
   }
 
   // ---------- 0 with clip
@@ -251,7 +252,7 @@ namespace Fsl
     {
       m_batchStrategy.EnsureCapacityFor(1);
       m_batchStrategy.SetTexture(srcTexture);
-      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, color.ToVector4());
+      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, color);
     }
   }
 
@@ -276,7 +277,7 @@ namespace Fsl
     {
       m_batchStrategy.EnsureCapacityFor(1);
       m_batchStrategy.SetTexture(srcTexture);
-      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, color);
+      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, Color(color));
     }
   }
 
@@ -301,7 +302,7 @@ namespace Fsl
     {
       m_batchStrategy.EnsureCapacityFor(1);
       m_batchStrategy.SetTexture(srcTexture);
-      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, color.ToVector4());
+      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, color);
     }
   }
 
@@ -326,7 +327,7 @@ namespace Fsl
     {
       m_batchStrategy.EnsureCapacityFor(1);
       m_batchStrategy.SetTexture(srcTexture);
-      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, color);
+      m_batchStrategy.AddQuad(clippedDstRectPxf, clippedSrcArea, Color(color));
     }
   }
 
@@ -344,7 +345,7 @@ namespace Fsl
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf, const Color& color)
   {
-    Draw(srcTexture, dstPositionPxf, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
+    Draw(srcTexture, dstPositionPxf, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
@@ -364,7 +365,7 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxRectangle& dstRectanglePx,
                                                                  const Color& color)
   {
-    Draw(srcTexture, dstRectanglePx, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
+    Draw(srcTexture, dstRectanglePx, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
@@ -384,7 +385,7 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
                                                                  const Color& color)
   {
-    Draw(srcTexture, dstRectanglePxf, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
+    Draw(srcTexture, dstRectanglePxf, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
@@ -406,14 +407,14 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
                                                                  const Color& color, const BatchEffect effect)
   {
-    Draw(srcTexture, dstRectanglePxf, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, effect);
+    Draw(srcTexture, dstRectanglePxf, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, effect);
   }
 
   // ---------- 2
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color)
   {
     Vector2 origin;
     auto srcRectPx = srcRectanglePx;
@@ -429,16 +430,16 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color)
   {
     if (!m_inBegin)
     {
       throw UsageErrorException("Draw can only occur inside a begin/end block");
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (!srcTexture.IsValid() || clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -461,14 +462,14 @@ namespace Fsl
     m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y),
                             Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Height),
                             Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y + clippedSrcRectPx.Height), Vector2(u1, v1),
-                            Vector2(u2, v2), color.ToVector4());
+                            Vector2(u2, v2), color);
   }
 
   // ---------- 2 with clip
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color,
                                                                  const PxClipRectangle& clipRectPx)
   {
     Vector2 origin;
@@ -485,7 +486,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color,
                                                                  const PxClipRectangle& clipRectPx)
   {
     if (!m_inBegin)
@@ -493,9 +494,9 @@ namespace Fsl
       throw UsageErrorException("Draw can only occur inside a begin/end block");
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (!srcTexture.IsValid() || clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -521,13 +522,13 @@ namespace Fsl
 
       m_batchStrategy.SetTexture(srcTexture);
       m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(), Vector2(u1, v1),
-                              Vector2(u2, v2), color.ToVector4());
+                              Vector2(u2, v2), color);
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const BatchEffect effect)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const BatchEffect effect)
   {
     Vector2 origin;
     auto srcRectPx = srcRectanglePx;
@@ -542,16 +543,16 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const BatchEffect effect)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const BatchEffect effect)
   {
     if (!m_inBegin)
     {
       throw UsageErrorException("Draw can only occur inside a begin/end block");
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (!srcTexture.IsValid() || clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -588,26 +589,26 @@ namespace Fsl
       m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y),
                               Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Width),
                               Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y + clippedSrcRectPx.Width),
-                              NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color.ToVector4());
+                              NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color);
       break;
     case BatchEffect::Rotate180Clockwise:
       m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y),
                               Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Height),
                               Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y + clippedSrcRectPx.Height), Vector2(u2, v2),
-                              Vector2(u1, v1), color.ToVector4());
+                              Vector2(u1, v1), color);
       break;
     case BatchEffect::Rotate270Clockwise:
       m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y),
                               Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Width),
                               Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y + clippedSrcRectPx.Width),
-                              NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color.ToVector4());
+                              NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color);
       break;
     case BatchEffect::NoEffect:
     default:
       m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y),
                               Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Height),
                               Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y + clippedSrcRectPx.Height), Vector2(u1, v1),
-                              Vector2(u2, v2), color.ToVector4());
+                              Vector2(u2, v2), color);
       break;
     }
   }
@@ -617,7 +618,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const PxRectangle& dstRectanglePx,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color)
   {
     if (dstRectanglePx.Width() > 0 && dstRectanglePx.Height() > 0)
     {
@@ -629,7 +630,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxRectangle& dstRectanglePx,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color)
   {
     if (!m_inBegin)
     {
@@ -641,9 +642,9 @@ namespace Fsl
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -668,14 +669,14 @@ namespace Fsl
                             Vector2(static_cast<float>(dstRectanglePx.Right()), static_cast<float>(dstRectanglePx.Top())),
                             Vector2(static_cast<float>(dstRectanglePx.Left()), static_cast<float>(dstRectanglePx.Bottom())),
                             Vector2(static_cast<float>(dstRectanglePx.Right()), static_cast<float>(dstRectanglePx.Bottom())), Vector2(u1, v1),
-                            Vector2(u2, v2), color.ToVector4());
+                            Vector2(u2, v2), color);
   }
 
   // ---------- 4
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color)
   {
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
@@ -687,7 +688,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color)
   {
     if (!m_inBegin)
     {
@@ -699,9 +700,9 @@ namespace Fsl
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -727,7 +728,7 @@ namespace Fsl
                             Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Top())),
                             Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Bottom())),
                             Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Bottom())), Vector2(u1, v1),
-                            Vector2(u2, v2), color.ToVector4());
+                            Vector2(u2, v2), color);
   }
 
   // ---------- 4 with clip
@@ -735,7 +736,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color,
                                                                  const PxClipRectangle& clipRectPx)
   {
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
@@ -748,7 +749,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color,
                                                                  const PxClipRectangle& clipRectPx)
   {
     if (!m_inBegin)
@@ -761,9 +762,9 @@ namespace Fsl
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -790,7 +791,7 @@ namespace Fsl
 
       m_batchStrategy.SetTexture(srcTexture);
       m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(), Vector2(u1, v1),
-                              Vector2(u2, v2), color.ToVector4());
+                              Vector2(u2, v2), color);
     }
   }
 
@@ -799,7 +800,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const BatchEffect effect)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const BatchEffect effect)
   {
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
@@ -813,7 +814,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const PxAreaRectangleF& dstRectanglePxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const BatchEffect effect)
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const BatchEffect effect)
   {
     if (!m_inBegin)
     {
@@ -825,9 +826,9 @@ namespace Fsl
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -866,21 +867,21 @@ namespace Fsl
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Top())),
                               Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Bottom())),
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Bottom())),
-                              NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color.ToVector4());
+                              NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color);
       break;
     case BatchEffect::Rotate180Clockwise:
       m_batchStrategy.AddQuad(Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Top())),
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Top())),
                               Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Bottom())),
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Bottom())), Vector2(u2, v2),
-                              Vector2(u1, v1), color.ToVector4());
+                              Vector2(u1, v1), color);
       break;
     case BatchEffect::Rotate270Clockwise:
       m_batchStrategy.AddQuad(Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Top())),
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Top())),
                               Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Bottom())),
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Bottom())),
-                              NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color.ToVector4());
+                              NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color);
       break;
     case BatchEffect::NoEffect:
     default:
@@ -888,7 +889,7 @@ namespace Fsl
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Top())),
                               Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Bottom())),
                               Vector2(static_cast<float>(dstRectanglePxf.Right()), static_cast<float>(dstRectanglePxf.Bottom())), Vector2(u1, v1),
-                              Vector2(u2, v2), color.ToVector4());
+                              Vector2(u2, v2), color);
       break;
     }
   }
@@ -908,7 +909,7 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf, const Color& color,
                                                                  const Vector2& origin, const Vector2& scale)
   {
-    Draw(srcTexture, dstPositionPxf, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, origin, scale);
+    Draw(srcTexture, dstPositionPxf, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, origin, scale);
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
@@ -925,7 +926,7 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf, const Color& color,
                                                                  const Vector2& origin, const Vector2& scale, const BatchEffect effect)
   {
-    Draw(srcTexture, dstPositionPxf, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, origin, scale, effect);
+    Draw(srcTexture, dstPositionPxf, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, origin, scale, effect);
   }
 
   // ---------- 6
@@ -945,14 +946,14 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf, const Color& color,
                                                                  const float rotation, const Vector2& origin, const Vector2& scale)
   {
-    Draw(srcTexture, dstPositionPxf, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, rotation, origin, scale);
+    Draw(srcTexture, dstPositionPxf, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, rotation, origin, scale);
   }
 
   // ---------- 7
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const Vector2& origin,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const Vector2& origin,
                                                                  const Vector2& scale)
   {
     Vector2 originMod = origin;
@@ -968,7 +969,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const Vector2& origin,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const Vector2& origin,
                                                                  const Vector2& scale)
   {
     if (!m_inBegin)
@@ -983,8 +984,8 @@ namespace Fsl
 
     const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
-    const auto clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const auto clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -1009,14 +1010,14 @@ namespace Fsl
 
     m_batchStrategy.SetTexture(srcTexture);
     m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                            Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), color.ToVector4());
+                            Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), color);
   }
 
   // ---------- 7 with clip
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const Vector2& origin,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const Vector2& origin,
                                                                  const Vector2& scale, const PxClipRectangle& clipRectPx)
   {
     Vector2 originMod = origin;
@@ -1032,7 +1033,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const Vector2& origin,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const Vector2& origin,
                                                                  const Vector2& scale, const PxClipRectangle& clipRectPx)
   {
     if (!m_inBegin)
@@ -1047,8 +1048,8 @@ namespace Fsl
 
     const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
-    const auto clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const auto clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -1075,7 +1076,7 @@ namespace Fsl
 
       m_batchStrategy.SetTexture(srcTexture);
       m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(), Vector2(u1, v1),
-                              Vector2(u2, v2), color.ToVector4());
+                              Vector2(u2, v2), color);
     }
   }
 
@@ -1083,7 +1084,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const Vector2& origin,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const Vector2& origin,
                                                                  const Vector2& scale, const BatchEffect effect)
   {
     Vector2 originMod = origin;
@@ -1099,7 +1100,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const Vector2& origin,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const Vector2& origin,
                                                                  const Vector2& scale, const BatchEffect effect)
   {
     if (!m_inBegin)
@@ -1112,8 +1113,8 @@ namespace Fsl
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
-    const auto clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const auto clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -1154,7 +1155,7 @@ namespace Fsl
 
       m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
                               Vector2(dstPos.X + scaledDstHeight, dstPos.Y + scaledDstWidth), NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1),
-                              color.ToVector4());
+                              color);
       break;
     }
     case BatchEffect::Rotate180Clockwise:
@@ -1164,7 +1165,7 @@ namespace Fsl
       const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
       m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                              Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u2, v2), Vector2(u1, v1), color.ToVector4());
+                              Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u2, v2), Vector2(u1, v1), color);
       break;
     }
     case BatchEffect::Rotate270Clockwise:
@@ -1175,7 +1176,7 @@ namespace Fsl
 
       m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
                               Vector2(dstPos.X + scaledDstHeight, dstPos.Y + scaledDstWidth), NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2),
-                              color.ToVector4());
+                              color);
       break;
     }
     case BatchEffect::NoEffect:
@@ -1186,7 +1187,7 @@ namespace Fsl
       const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
       m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                              Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), color.ToVector4());
+                              Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), color);
       break;
     }
     }
@@ -1197,7 +1198,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const float rotation,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const float rotation,
                                                                  const Vector2& origin, const Vector2& scale)
   {
     Vector2 originMod = origin;
@@ -1213,7 +1214,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPositionPxf,
-                                                                 const PxRectangleU& srcRectanglePx, const Color& color, const float rotation,
+                                                                 const PxRectangleU32& srcRectanglePx, const Color& color, const float rotation,
                                                                  const Vector2& origin, const Vector2& scale)
   {
     if (!m_inBegin)
@@ -1232,9 +1233,9 @@ namespace Fsl
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -1285,7 +1286,7 @@ namespace Fsl
     const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
-    m_batchStrategy.AddQuad(vec0, vec1, vec2, vec3, Vector2(u1, v1), Vector2(u2, v2), color.ToVector4());
+    m_batchStrategy.AddQuad(vec0, vec1, vec2, vec3, Vector2(u1, v1), Vector2(u2, v2), color);
   }
 
   // ---------- 9
@@ -1316,14 +1317,14 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2* const pDstPositions,
                                                                  const uint32_t dstPositionsLength, const Color& color)
   {
-    Draw(srcTexture, pDstPositions, dstPositionsLength, PxRectangleU(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
+    Draw(srcTexture, pDstPositions, dstPositionsLength, PxRectangleU32(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
   // ---------- 10
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2* const pDstPositions,
-                                                                 const uint32_t dstPositionsLength, const PxRectangleU& srcRectanglePx,
+                                                                 const uint32_t dstPositionsLength, const PxRectangleU32& srcRectanglePx,
                                                                  const Color& color)
   {
     if (pDstPositions == nullptr)
@@ -1352,7 +1353,7 @@ namespace Fsl
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2* const pDstPositions,
-                                                                 const uint32_t dstPositionsLength, const PxRectangleU& srcRectanglePx,
+                                                                 const uint32_t dstPositionsLength, const PxRectangleU32& srcRectanglePx,
                                                                  const Color& color)
   {
     if (!m_inBegin)
@@ -1362,13 +1363,13 @@ namespace Fsl
     if (!srcTexture.IsValid() || pDstPositions == nullptr || dstPositionsLength <= 0)
     {
       FSLLOG3_WARNING_IF(pDstPositions == nullptr, "It's invalid to specify null for positions");
-      FSLLOG3_WARNING_IF(dstPositionsLength < 0, "Its invalid to specify a negative length");
+      // FSLLOG3_WARNING_IF(dstPositionsLength < 0, "Its invalid to specify a negative length");
       return;
     }
 
-    const PxRectangleU srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
+    const PxRectangleU32 srcTextureRectanglePx(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height);
 
-    const PxRectangleU clippedSrcRectPx = PxRectangleU::Intersect(srcTextureRectanglePx, srcRectanglePx);
+    const PxRectangleU32 clippedSrcRectPx = PxRectangleU32::Intersect(srcTextureRectanglePx, srcRectanglePx);
     if (clippedSrcRectPx.Width <= 0 || clippedSrcRectPx.Height <= 0)
     {
       return;
@@ -1391,7 +1392,6 @@ namespace Fsl
 
     const Vector2* pDstPosition = pDstPositions;
     const Vector2* const pDstPositionEnd = pDstPositions + dstPositionsLength;
-    const Vector4 col = color.ToVector4();
 
     m_batchStrategy.SetTexture(srcTexture);
     while (pDstPosition < pDstPositionEnd)
@@ -1399,7 +1399,7 @@ namespace Fsl
       m_batchStrategy.AddQuad(*pDstPosition, Vector2(pDstPosition->X + clippedSrcRectPx.Width, pDstPosition->Y),
                               Vector2(pDstPosition->X, pDstPosition->Y + clippedSrcRectPx.Height),
                               Vector2(pDstPosition->X + clippedSrcRectPx.Width, pDstPosition->Y + clippedSrcRectPx.Height), Vector2(u1, v1),
-                              Vector2(u2, v2), col);
+                              Vector2(u2, v2), color);
       ++pDstPosition;
     }
   }
@@ -1408,7 +1408,7 @@ namespace Fsl
 
   // DrawString impl1
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const StringViewLite& strView, const Vector2& dstPositionPxf,
                                                                        const Color& color)
   {
@@ -1431,42 +1431,35 @@ namespace Fsl
     }
 
     // Extract the render rules
-    if (!font.ExtractRenderRules(m_glyphScratchpad, strView))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!font.ExtractRenderRules(glyphScratchpadSpan, strView))
     {
       return;
     }
 
-    const Vector4 col = color.ToVector4();
-    const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
-    const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-
     m_batchStrategy.SetTexture(srcTexture);
     for (std::size_t i = 0; i < strView.size(); ++i)
     {
-      const auto& glyph = m_glyphScratchpad[i];
-      if (glyph.SrcRectPx.Width > 0u)
+      const auto& glyph = glyphScratchpadSpan[i];
+      if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
       {
-        auto dstPos = TypeConverter::UncheckedTo<Vector2>(glyph.DstRectPx.Offset) + dstPositionPxf;
+        auto dstPos = TypeConverter::UncheckedTo<Vector2>(glyph.DstRectPxf.Location()) + dstPositionPxf;
 
         // Basic quad vertex format
         // 0-1
         // | |
         // 2-3
 
-        const float u1 = glyph.SrcRectPx.Left() / srcWidth;
-        const float u2 = glyph.SrcRectPx.Right() / srcWidth;
-        const float v1 = TVFormatter::Format(glyph.SrcRectPx.Top() / srcHeight);
-        const float v2 = TVFormatter::Format(glyph.SrcRectPx.Bottom() / srcHeight);
-
-        m_batchStrategy.AddQuad(
-          dstPos, Vector2(dstPos.X + glyph.DstRectPx.Extent.Width, dstPos.Y), Vector2(dstPos.X, dstPos.Y + glyph.DstRectPx.Extent.Height),
-          Vector2(dstPos.X + glyph.DstRectPx.Extent.Width, dstPos.Y + glyph.DstRectPx.Extent.Height), Vector2(u1, v1), Vector2(u2, v2), col);
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + glyph.DstRectPxf.Width(), dstPos.Y),
+                                Vector2(dstPos.X, dstPos.Y + glyph.DstRectPxf.Height()),
+                                Vector2(dstPos.X + glyph.DstRectPxf.Width(), dstPos.Y + glyph.DstRectPxf.Height()),
+                                Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y1), color);
       }
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const char* const psz, const Vector2& dstPositionPxf, const Color& color)
   {
     DrawString(srcTexture, font, StringViewLite(psz), dstPositionPxf, color);
@@ -1474,7 +1467,7 @@ namespace Fsl
 
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const std::string& str, const Vector2& dstPositionPxf, const Color& color)
   {
     DrawString(srcTexture, font, StringViewLiteUtil::AsStringViewLite(str), dstPositionPxf, color);
@@ -1485,7 +1478,7 @@ namespace Fsl
 
   // DrawString impl2
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const StringViewLite& strView, const Vector2& dstPositionPxf,
                                                                        const Color& color, const Vector2& origin, const Vector2& scale)
   {
@@ -1509,44 +1502,38 @@ namespace Fsl
     }
 
     // Extract the render rules
-    if (!font.ExtractRenderRules(m_glyphScratchpad, strView))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!font.ExtractRenderRules(glyphScratchpadSpan, strView))
     {
       return;
     }
 
     const Vector2 dstPosModded(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
-    const Vector4 col = color.ToVector4();
-    const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
-    const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
     m_batchStrategy.SetTexture(srcTexture);
     for (std::size_t i = 0; i < strView.size(); ++i)
     {
-      const auto& glyph = m_glyphScratchpad[i];
-      if (glyph.SrcRectPx.Width > 0)
+      const auto& glyph = glyphScratchpadSpan[i];
+      if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
       {
-        const Vector2 dstPos((static_cast<float>(glyph.DstRectPx.Offset.X) * scale.X) + dstPosModded.X,
-                             (static_cast<float>(glyph.DstRectPx.Offset.Y) * scale.Y) + dstPosModded.Y);
+        const Vector2 dstPos((glyph.DstRectPxf.Left() * scale.X) + dstPosModded.X, (glyph.DstRectPxf.Top() * scale.Y) + dstPosModded.Y);
 
         // Basic quad vertex format
         // 0-1
         // | |
         // 2-3
-        const float scaledDstWidth = static_cast<float>(glyph.DstRectPx.Extent.Width) * scale.X;
-        const float scaledDstHeight = static_cast<float>(glyph.DstRectPx.Extent.Height) * scale.Y;
-        const float u1 = glyph.SrcRectPx.Left() / srcWidth;
-        const float u2 = glyph.SrcRectPx.Right() / srcWidth;
-        const float v1 = TVFormatter::Format(glyph.SrcRectPx.Top() / srcHeight);
-        const float v2 = TVFormatter::Format(glyph.SrcRectPx.Bottom() / srcHeight);
+        const float scaledDstWidth = glyph.DstRectPxf.Width() * scale.X;
+        const float scaledDstHeight = glyph.DstRectPxf.Height() * scale.Y;
 
         m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                                Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), col);
+                                Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0),
+                                Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y1), color);
       }
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const char* const psz, const Vector2& dstPositionPxf, const Color& color,
                                                                        const Vector2& origin, const Vector2& scale)
   {
@@ -1555,7 +1542,7 @@ namespace Fsl
 
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const std::string& str, const Vector2& dstPositionPxf, const Color& color,
                                                                        const Vector2& origin, const Vector2& scale)
   {
@@ -1566,7 +1553,7 @@ namespace Fsl
 
   // DrawString impl3
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const StringViewLite& strView,
                                                                        const Vector2& dstPositionPxf, const Color& color)
   {
@@ -1589,14 +1576,11 @@ namespace Fsl
     }
 
     // Extract the render rules
-    if (!font.ExtractRenderRules(m_glyphScratchpad, strView, fontConfig))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!font.ExtractRenderRules(glyphScratchpadSpan, strView, fontConfig))
     {
       return;
     }
-
-    const Vector4 col = color.ToVector4();
-    const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
-    const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
     if (m_batchStrategy.GetActiveBlendState() == BlendState::Sdf)
     {
@@ -1606,32 +1590,29 @@ namespace Fsl
     m_batchStrategy.SetTexture(srcTexture);
     for (std::size_t i = 0; i < strView.size(); ++i)
     {
-      const FontGlyphPosition& srcGlyph = m_glyphScratchpad[i];
-      if (srcGlyph.SrcRectPx.Width > 0)
+      const SpriteFontGlyphPosition& srcGlyph = glyphScratchpadSpan[i];
+      if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
       {
-        const Vector2 dstPosPxf = TypeConverter::UncheckedTo<Vector2>(srcGlyph.DstRectPx.Offset) + dstPositionPxf;
+        const Vector2 dstPosPxf = TypeConverter::UncheckedTo<Vector2>(srcGlyph.DstRectPxf.Location()) + dstPositionPxf;
 
         // Basic quad vertex format
         // 0-1
         // | |
         // 2-3
 
-        const auto scaledDstWidth = static_cast<float>(srcGlyph.DstRectPx.Extent.Width);
-        const auto scaledDstHeight = static_cast<float>(srcGlyph.DstRectPx.Extent.Height);
-
-        const float u1 = srcGlyph.SrcRectPx.Left() / srcWidth;
-        const float u2 = srcGlyph.SrcRectPx.Right() / srcWidth;
-        const float v1 = TVFormatter::Format(srcGlyph.SrcRectPx.Top() / srcHeight);
-        const float v2 = TVFormatter::Format(srcGlyph.SrcRectPx.Bottom() / srcHeight);
+        const float scaledDstWidth = srcGlyph.DstRectPxf.Width();
+        const float scaledDstHeight = srcGlyph.DstRectPxf.Height();
 
         m_batchStrategy.AddQuad(dstPosPxf, Vector2(dstPosPxf.X + scaledDstWidth, dstPosPxf.Y), Vector2(dstPosPxf.X, dstPosPxf.Y + scaledDstHeight),
-                                Vector2(dstPosPxf.X + scaledDstWidth, dstPosPxf.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), col);
+                                Vector2(dstPosPxf.X + scaledDstWidth, dstPosPxf.Y + scaledDstHeight),
+                                Vector2(srcGlyph.TextureArea.X0, srcGlyph.TextureArea.Y0), Vector2(srcGlyph.TextureArea.X1, srcGlyph.TextureArea.Y1),
+                                color);
       }
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const char* const psz,
                                                                        const Vector2& dstPositionPxf, const Color& color)
   {
@@ -1639,7 +1620,7 @@ namespace Fsl
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const std::string& str,
                                                                        const Vector2& dstPositionPxf, const Color& color)
   {
@@ -1650,7 +1631,7 @@ namespace Fsl
 
   // DrawString impl4
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const StringViewLite& strView,
                                                                        const Vector2& dstPositionPxf, const Color& color,
                                                                        const PxClipRectangle& clipRectPx)
@@ -1674,14 +1655,11 @@ namespace Fsl
     }
 
     // Extract the render rules
-    if (!font.ExtractRenderRules(m_glyphScratchpad, strView, fontConfig))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!font.ExtractRenderRules(glyphScratchpadSpan, strView, fontConfig))
     {
       return;
     }
-
-    const Vector4 col = color.ToVector4();
-    const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
-    const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
     if (m_batchStrategy.GetActiveBlendState() == BlendState::Sdf)
     {
@@ -1689,35 +1667,29 @@ namespace Fsl
     }
 
     m_batchStrategy.SetTexture(srcTexture);
+    PxVector2 dstPositionPxf2 = TypeConverter::To<PxVector2>(dstPositionPxf);
     for (std::size_t i = 0; i < strView.size(); ++i)
     {
-      const FontGlyphPosition& srcGlyph = m_glyphScratchpad[i];
-      if (srcGlyph.SrcRectPx.Width > 0)
+      const SpriteFontGlyphPosition& srcGlyph = glyphScratchpadSpan[i];
+      if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
       {
-        PxAreaRectangleF dstRectPxf(static_cast<float>(srcGlyph.DstRectPx.Offset.X) + dstPositionPxf.X,
-                                    static_cast<float>(srcGlyph.DstRectPx.Offset.Y) + dstPositionPxf.Y,
-                                    static_cast<float>(srcGlyph.DstRectPx.Extent.Width), static_cast<float>(srcGlyph.DstRectPx.Extent.Height));
-        auto srcRectPxf = TypeConverter::UncheckedTo<PxAreaRectangleF>(srcGlyph.SrcRectPx);
-        if (Batch2DUtil::Clip(dstRectPxf, srcRectPxf, clipRectPx))
+        PxAreaRectangleF dstRectPxf(PxAreaRectangleF::AddLocation(dstPositionPxf2, srcGlyph.DstRectPxf));
+        auto srcTextureArea = srcGlyph.TextureArea;
+        if (Batch2DUtil::Clip(dstRectPxf, srcTextureArea, clipRectPx))
         {
-          const float u1 = srcRectPxf.Left() / srcWidth;
-          const float u2 = srcRectPxf.Right() / srcWidth;
-          const float v1 = TVFormatter::Format(srcRectPxf.Top() / srcHeight);
-          const float v2 = TVFormatter::Format(srcRectPxf.Bottom() / srcHeight);
-
           // Basic quad vertex format
           // 0-1
           // | |
           // 2-3
-          m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(), Vector2(u1, v1),
-                                  Vector2(u2, v2), col);
+          m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(),
+                                  Vector2(srcTextureArea.X0, srcTextureArea.Y0), Vector2(srcTextureArea.X1, srcTextureArea.Y1), color);
         }
       }
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const char* const psz,
                                                                        const Vector2& dstPositionPxf, const Color& color,
                                                                        const PxClipRectangle& clipRectPx)
@@ -1726,7 +1698,7 @@ namespace Fsl
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const std::string& str,
                                                                        const Vector2& dstPositionPxf, const Color& color,
                                                                        const PxClipRectangle& clipRectPx)
@@ -1738,7 +1710,7 @@ namespace Fsl
   // ---------- 14
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const StringViewLite& strView,
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale)
@@ -1763,44 +1735,38 @@ namespace Fsl
     }
 
     // Extract the render rules
-    if (!font.ExtractRenderRules(m_glyphScratchpad, strView, fontConfig))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!font.ExtractRenderRules(glyphScratchpadSpan, strView, fontConfig))
     {
       return;
     }
 
     const Vector2 dstPosModded(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
-    const Vector4 col = color.ToVector4();
-    const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
-    const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
     m_batchStrategy.SetTexture(srcTexture);
     for (std::size_t i = 0; i < strView.size(); ++i)
     {
-      const auto& glyph = m_glyphScratchpad[i];
-      if (glyph.SrcRectPx.Width > 0)
+      const auto& glyph = glyphScratchpadSpan[i];
+      if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
       {
-        const Vector2 dstPos((static_cast<float>(glyph.DstRectPx.Offset.X) * scale.X) + dstPosModded.X,
-                             (static_cast<float>(glyph.DstRectPx.Offset.Y) * scale.Y) + dstPosModded.Y);
+        const Vector2 dstPos((glyph.DstRectPxf.Left() * scale.X) + dstPosModded.X, (glyph.DstRectPxf.Top() * scale.Y) + dstPosModded.Y);
 
         // Basic quad vertex format
         // 0-1
         // | |
         // 2-3
-        const float scaledDstWidth = static_cast<float>(glyph.DstRectPx.Extent.Width) * scale.X;
-        const float scaledDstHeight = static_cast<float>(glyph.DstRectPx.Extent.Height) * scale.Y;
-        const float u1 = glyph.SrcRectPx.Left() / srcWidth;
-        const float u2 = glyph.SrcRectPx.Right() / srcWidth;
-        const float v1 = TVFormatter::Format(glyph.SrcRectPx.Top() / srcHeight);
-        const float v2 = TVFormatter::Format(glyph.SrcRectPx.Bottom() / srcHeight);
+        const float scaledDstWidth = glyph.DstRectPxf.Width() * scale.X;
+        const float scaledDstHeight = glyph.DstRectPxf.Height() * scale.Y;
 
         m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                                Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), col);
+                                Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0),
+                                Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y1), color);
       }
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const char* const psz,
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale)
@@ -1809,7 +1775,7 @@ namespace Fsl
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const std::string& str,
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale)
@@ -1820,7 +1786,7 @@ namespace Fsl
   // ---------- 14 with clip
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const StringViewLite& strView,
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale, const PxClipRectangle& clipRectPx)
@@ -1845,47 +1811,38 @@ namespace Fsl
     }
 
     // Extract the render rules
-    if (!font.ExtractRenderRules(m_glyphScratchpad, strView, fontConfig))
+    auto glyphScratchpadSpan = SpanUtil::AsSpan(m_glyphScratchpad);
+    if (!font.ExtractRenderRules(glyphScratchpadSpan, strView, fontConfig))
     {
       return;
     }
 
     const Vector2 dstPosModded(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
-    const Vector4 col = color.ToVector4();
-    const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
-    const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
     m_batchStrategy.SetTexture(srcTexture);
     for (std::size_t i = 0; i < strView.size(); ++i)
     {
-      const auto& srcGlyph = m_glyphScratchpad[i];
-      if (srcGlyph.SrcRectPx.Width > 0)
+      const auto& srcGlyph = glyphScratchpadSpan[i];
+      if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
       {
-        PxAreaRectangleF dstRectPxf((static_cast<float>(srcGlyph.DstRectPx.Offset.X) * scale.X) + dstPosModded.X,
-                                    (static_cast<float>(srcGlyph.DstRectPx.Offset.Y) * scale.Y) + dstPosModded.Y,
-                                    static_cast<float>(srcGlyph.DstRectPx.Extent.Width) * scale.X,
-                                    static_cast<float>(srcGlyph.DstRectPx.Extent.Height) * scale.Y);
-        auto srcRectPxf = TypeConverter::UncheckedTo<PxAreaRectangleF>(srcGlyph.SrcRectPx);
-        if (Batch2DUtil::Clip(dstRectPxf, srcRectPxf, clipRectPx))
+        PxAreaRectangleF dstRectPxf((srcGlyph.DstRectPxf.Left() * scale.X) + dstPosModded.X, (srcGlyph.DstRectPxf.Top() * scale.Y) + dstPosModded.Y,
+                                    srcGlyph.DstRectPxf.Width() * scale.X, srcGlyph.DstRectPxf.Height() * scale.Y);
+        auto srcTextureArea = srcGlyph.TextureArea;
+        if (Batch2DUtil::Clip(dstRectPxf, srcTextureArea, clipRectPx))
         {
-          const float u1 = srcRectPxf.Left() / srcWidth;
-          const float u2 = srcRectPxf.Right() / srcWidth;
-          const float v1 = TVFormatter::Format(srcRectPxf.Top() / srcHeight);
-          const float v2 = TVFormatter::Format(srcRectPxf.Bottom() / srcHeight);
-
           // Basic quad vertex format
           // 0-1
           // | |
           // 2-3
-          m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(), Vector2(u1, v1),
-                                  Vector2(u2, v2), col);
+          m_batchStrategy.AddQuad(dstRectPxf.TopLeft(), dstRectPxf.TopRight(), dstRectPxf.BottomLeft(), dstRectPxf.BottomRight(),
+                                  Vector2(srcTextureArea.X0, srcTextureArea.Y0), Vector2(srcTextureArea.X1, srcTextureArea.Y1), color);
         }
       }
     }
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const char* const psz,
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale, const PxClipRectangle& clipRectPx)
@@ -1894,7 +1851,7 @@ namespace Fsl
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasSpriteFont& font,
                                                                        const BitmapFontConfig& fontConfig, const std::string& str,
                                                                        const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                                                                        const Vector2& scale, const PxClipRectangle& clipRectPx)
@@ -1910,7 +1867,7 @@ namespace Fsl
                                                                                const PxRectangle& dstRectanglePx, const Color& color)
   {
     const auto texSize = srcFillTexture.Info.ExtentPx;
-    const PxRectangleU srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
+    const PxRectangleU32 srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
     PxRectangle finalDstRectanglePx(dstRectanglePx.X(), dstRectanglePx.Y(), dstRectanglePx.Width(), 1);
 
     // Do the drawing
@@ -1931,7 +1888,7 @@ namespace Fsl
                                                                                const Color& color)
   {
     const auto texExtent = srcFillTexture.Extent;
-    const PxRectangleU srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
+    const PxRectangleU32 srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
     PxRectangle finalDstRectanglePx(dstRectanglePx.X(), dstRectanglePx.Y(), dstRectanglePx.Width(), 1);
 
     // Do the drawing
@@ -1951,7 +1908,7 @@ namespace Fsl
                                                                                const PxAreaRectangleF& dstRectanglePxf, const Color& color)
   {
     const auto texSize = srcFillTexture.Info.ExtentPx;
-    const PxRectangleU srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
+    const PxRectangleU32 srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
     PxAreaRectangleF finalDstRectanglePxf(dstRectanglePxf.Left(), dstRectanglePxf.Top(), dstRectanglePxf.Width(), 1);
 
     // Do the drawing
@@ -1972,7 +1929,7 @@ namespace Fsl
                                                                                const PxAreaRectangleF& dstRectanglePxf, const Color& color)
   {
     const auto texExtent = srcFillTexture.Extent;
-    const PxRectangleU srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
+    const PxRectangleU32 srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
     PxAreaRectangleF finalDstRectanglePxf(dstRectanglePxf.Left(), dstRectanglePxf.Top(), dstRectanglePxf.Width(), 1);
 
     // Do the drawing
@@ -1992,7 +1949,7 @@ namespace Fsl
                                                                           const Vector2& dstToPxf, const Color& color)
   {
     const auto texSize = srcFillTexture.Info.ExtentPx;
-    const PxRectangleU srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
+    const PxRectangleU32 srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
 
     Vector2 delta(dstToPxf.X - dstFromPxf.X, dstToPxf.Y - dstFromPxf.Y);
     auto len = delta.Length();
@@ -2008,7 +1965,7 @@ namespace Fsl
                                                                           const Vector2& dstToPxf, const Color& color)
   {
     const auto texExtent = srcFillTexture.Extent;
-    const PxRectangleU srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
+    const PxRectangleU32 srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
 
     Vector2 delta(dstToPxf.X - dstFromPxf.X, dstToPxf.Y - dstFromPxf.Y);
     auto len = delta.Length();
@@ -2091,7 +2048,7 @@ namespace Fsl
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  inline BatchSdfRenderConfig GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::ToBatchSdfRenderConfig(const TextureAtlasBitmapFont& /*font*/,
+  inline BatchSdfRenderConfig GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::ToBatchSdfRenderConfig(const TextureAtlasSpriteFont& /*font*/,
                                                                                                           const BitmapFontConfig& fontConfig)
   {
     return BatchSdfRenderConfig(fontConfig.Scale);

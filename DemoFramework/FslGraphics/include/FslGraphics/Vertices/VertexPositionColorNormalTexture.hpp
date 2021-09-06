@@ -34,13 +34,14 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <array>
+#include <cstddef>
 
 namespace Fsl
 {
-  struct Color;
-  class VertexDeclaration;
-
   struct VertexPositionColorNormalTexture
   {
     Vector3 Position;
@@ -59,10 +60,44 @@ namespace Fsl
     {
     }
 
-    VertexPositionColorNormalTexture(const Vector3& position, const Fsl::Color& color, const Vector3& normal, const Vector2& textureCoordinate);
+    constexpr VertexPositionColorNormalTexture(const Vector3& position, const Fsl::Color& color, const Vector3& normal,
+                                               const Vector2& textureCoordinate) noexcept
+      : Position(position)
+      , Color(color.ToVector4())
+      , Normal(normal)
+      , TextureCoordinate(textureCoordinate)
+    {
+    }
 
-    //! @brief Get the vertex declaration
-    static VertexDeclaration GetVertexDeclaration();
+    constexpr static VertexDeclarationArray<4> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 4> elements = {
+        VertexElementEx(offsetof(VertexPositionColorNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElementEx(offsetof(VertexPositionColorNormalTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                        VertexElementUsage::TextureCoordinate, 0)};
+      return VertexDeclarationArray<4>(elements, sizeof(VertexPositionColorNormalTexture));
+    }
+
+
+    // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
+    //              At least this workaround still gives us compile time validation of the vertex element data
+    static VertexDeclarationSpan AsVertexDeclarationSpan()
+    {
+      constexpr static VertexDeclarationArray<4> decl = GetVertexDeclarationArray();
+      return decl.AsReadOnlySpan();
+    }
+
+    constexpr bool operator==(const VertexPositionColorNormalTexture& rhs) const
+    {
+      return Position == rhs.Position && Color == rhs.Color && Normal == rhs.Normal && TextureCoordinate == rhs.TextureCoordinate;
+    }
+
+    constexpr bool operator!=(const VertexPositionColorNormalTexture& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

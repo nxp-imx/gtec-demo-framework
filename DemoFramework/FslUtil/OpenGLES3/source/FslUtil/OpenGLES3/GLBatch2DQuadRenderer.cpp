@@ -38,7 +38,6 @@
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLBatch2DQuadRenderer.hpp>
-#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <cassert>
 #include <cmath>
 
@@ -298,7 +297,7 @@ namespace Fsl
 
       if (activeInfo.LocSmoothing != GLValues::INVALID_LOCATION)
       {
-        float smoothing = SdfFontUtil::CalcSpread(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
+        float smoothing = SdfFontUtil::CalcSmooth(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
         glUniform1f(activeInfo.LocSmoothing, smoothing);
       }
 

@@ -56,7 +56,8 @@ namespace Fsl
     const auto nativeEglSetup = EGLNativeWindowHelper::ToNativeEGLSetup(pPlatformCustomWindowAllocationParams);
 
     // setup a little lambda method for tweaking the window after its been created.
-    PlatformCallbackNativeWindowAndroidOnWindowCreate onWindowCreated = [nativeEglSetup](ANativeWindow* hDisplay, android_app* pAppState) {
+    PlatformCallbackNativeWindowAndroidOnWindowCreate onWindowCreated = [nativeEglSetup](ANativeWindow* hDisplay, android_app* pAppState)
+    {
       // EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
       // As soon as we picked a EGLConfig, we can safely reconfigure the ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID.
       EGLint format;

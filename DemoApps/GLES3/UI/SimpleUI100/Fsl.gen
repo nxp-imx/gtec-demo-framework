@@ -3,6 +3,6 @@
   <Executable Name="GLES3.UI.SimpleUI100" NoInclude="true" CreationYear="2015">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslSimpleUI.App"/>
-    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Dependency Name="FslSimpleUI.App.Theme"/>
   </Executable>
 </FslBuildGen>

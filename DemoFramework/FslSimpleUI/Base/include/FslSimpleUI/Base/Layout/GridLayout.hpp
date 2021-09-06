@@ -95,6 +95,8 @@ namespace Fsl
         int32_t MeasureSizePx{};
         //! The minimum size of the final cell
         int32_t MinimumSizePx{};
+        //! The minimum arrange size of the final cell
+        int32_t ArrangeMinimumSizePx{};
         //! Used for temporary storing the MinimumSize during measure and also as a cell offset during arrange
         int32_t TempValue{};
 
@@ -108,12 +110,23 @@ namespace Fsl
         }
 
         //! @brief Applies the newMinSize if its larger than the existing min size
-        inline void ApplyMinSize(const int32_t newMinSizePx)
+        inline void ApplyMeasureMinSize(const int32_t newMinSizePx)
         {
           MinimumSizePx = std::max(MinimumSizePx, newMinSizePx);
         }
 
-        inline int32_t CalcMinSize(const int32_t newMinSizePx)
+        inline void ClearArrangeMinSize()
+        {
+          ArrangeMinimumSizePx = MinimumSizePx;
+        }
+
+        inline void SetArrangeMinSize(const int32_t newMinSizePx)
+        {
+          // it is correct that we use MinimumSizePx as the one we validate against
+          ArrangeMinimumSizePx = std::max(MinimumSizePx, newMinSizePx);
+        }
+
+        inline int32_t CalcMeasureMinSize(const int32_t newMinSizePx)
         {
           return std::max(MinimumSizePx, newMinSizePx);
         }
@@ -192,6 +205,7 @@ namespace Fsl
       void MeasureCellGroup3(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex, const PxAvailableSize& availableSizePx);
       static void ResolveStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx);
       PxSize2D FinalizeSizes(const PxSize2D& finalSizePx);
+      static void ResetMinimumSize(std::deque<GridRowColumnDefinitionEx>& rDefinitions);
       static void FinalizeStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx);
       void StoreMinSizeX(const uint32_t groupStartIndex);
       void StoreMinSizeY(const uint32_t groupStartIndex);

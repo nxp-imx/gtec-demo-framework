@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="G2DEmulation" PackageNameBasedIncludePath="false" CreationYear="2015">
+  <Library Name="G2DEmulation" PackageNameBasedIncludePath="false" AllowCheck="false" CreationYear="2015">
     <Default.Platform.Supported Value="false"/>
     <Platform Name="Windows" Supported="true"/>
     <Platform Name="Ubuntu" Supported="true"/>

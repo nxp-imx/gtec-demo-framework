@@ -50,8 +50,8 @@ import android.os.Build;
 public class DemoApplication extends Application {
     public void onCreate(){
         super.onCreate();	
-        Log.w("native-activity", "onCreate");
-        Log.w("native-activity", "Supported ABIS: " + Arrays.toString(Build.SUPPORTED_ABIS));
+        Log.i("native-activity", "onCreate");
+        Log.i("native-activity", "Supported ABIS: " + Arrays.toString(Build.SUPPORTED_ABIS));
         
         final PackageManager pm = getApplicationContext().getPackageManager();
         ApplicationInfo ai;

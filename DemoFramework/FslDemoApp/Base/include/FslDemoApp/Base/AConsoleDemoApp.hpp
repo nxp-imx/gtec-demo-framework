@@ -62,20 +62,24 @@ namespace Fsl
     ~AConsoleDemoApp() override;
     void _PostConstruct() override;
     void _PreDestruct() override;
+    void _Begin() override;
     void _OnEvent(IEvent* const pEvent) override;
     void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
     void _PostUpdate(const DemoTime& demoTime) override;
-    AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) override;
-    void _Draw(const DemoTime& demoTime) override;
-    AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override
+    AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) override;
+    void _BeginDraw(const FrameInfo& frameInfo) override;
+    void _Draw(const FrameInfo& frameInfo) override;
+    void _EndDraw(const FrameInfo& frameInfo) override;
+    AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) override
     {
       // No default implementation, so fail
-      FSL_PARAM_NOT_USED(demoTime);
+      FSL_PARAM_NOT_USED(frameInfo);
       return AppDrawResult::Failed;
     }
+    void _End() override;
 
   protected:
     virtual void Run(){};

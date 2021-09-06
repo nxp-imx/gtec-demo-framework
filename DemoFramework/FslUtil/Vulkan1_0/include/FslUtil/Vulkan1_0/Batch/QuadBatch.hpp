@@ -121,7 +121,7 @@ namespace Fsl
       struct DependentResources
       {
         bool IsValid = false;
-        uint32_t CommandBufferCount = 0;
+        uint32_t MaxFramesInFlight = 0;
         //! Additive
         RapidVulkan::GraphicsPipeline PipelineAdditive;
         //! AlphaBlend
@@ -156,12 +156,12 @@ namespace Fsl
       {
         FrameState CurrentState = FrameState::NotReady;
         VkCommandBuffer CommandBuffer = VK_NULL_HANDLE;
-        uint32_t CommandBufferIndex = 0;
+        uint32_t FrameIndex = 0;
         ActiveBlock Block;
 
         bool CheckIsEmpty() const
         {
-          return CurrentState == FrameState::NotReady && CommandBuffer == VK_NULL_HANDLE && CommandBufferIndex == 0 && Block.CheckIsEmpty();
+          return CurrentState == FrameState::NotReady && CommandBuffer == VK_NULL_HANDLE && FrameIndex == 0 && Block.CheckIsEmpty();
         }
       };
 
@@ -186,15 +186,13 @@ namespace Fsl
       QuadBatch(const QuadBatch&) = delete;
       QuadBatch& operator=(const QuadBatch&) = delete;
 
-      //! @param commandBufferCount the number of different command buffers that will be passed to BeginFrame,
-      //!        this is often equal to the swapchain image count.
       QuadBatch(std::vector<uint8_t> vertexShaderBinary, std::vector<uint8_t> fragmentShaderBinary, std::vector<uint8_t> sdfFragmentShaderBinary,
                 const uint32_t quadCapacityHint, const bool logEnabled = true);
 
       ~QuadBatch();
 
-      //! @param commandBufferIndex the index (must be < commandBufferCount supplied during construction)
-      void BeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex);
+      //! @param frameIndex the index (must be < maxFramesInFlight supplied during construction)
+      void BeginFrame(const VkCommandBuffer commandBuffer, const uint32_t frameIndex);
       void Begin(const PxSize2D& sizePx, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig, const bool restoreState);
       void DrawQuads(const VertexPositionColorTexture* const pVertices, const uint32_t length, const VUTextureInfo& textureInfo);
       void End();
@@ -206,8 +204,6 @@ namespace Fsl
       }
 
       //! @param device the active device
-      //! @param commandBufferCount the number of different command buffers that will be passed to BeginFrame,
-      //!        this is often equal to the swapchain image count.
       void CreateDeviceResources(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device);
 
       //! @brief Destroy all device resources (if there are dependent resources allocated this will destroy those too)
@@ -215,14 +211,16 @@ namespace Fsl
       void DestroyDeviceResources() noexcept;
 
       //! @brief Create all dependent resources
-      void CreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass, const uint32_t subpass,
+      //! @param maxFramesInFlight the number of different command buffers that will be passed to BeginFrame,
+      //!        this is often equal to the swapchain image count.
+      void CreateDependentResources(const uint32_t maxFramesInFlight, const VkRenderPass renderPass, const uint32_t subpass,
                                     const PxExtent2D& screenExtentPx);
 
       //! @brief Destroy all dependent resources
       //! @warning If called while inside a Begin/End or BeginFrame/EndFrame scope the scope will be terminated and a warning will be logged.
       void DestroyDependentResources() noexcept;
 
-      void EnforceCommandBufferCount(const uint32_t commandBufferCount);
+      void EnforceCommandBufferCount(const uint32_t maxFramesInFlight);
 
     private:
       void DoEnd() noexcept;

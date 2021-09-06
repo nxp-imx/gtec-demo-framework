@@ -35,7 +35,7 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 
@@ -43,7 +43,7 @@ namespace Fsl
 {
   using namespace GLES3;
 
-  BasicShader::BasicShader(const std::shared_ptr<IContentManager>& contentManager, const VertexDeclaration& vertexDeclaration)
+  BasicShader::BasicShader(const std::shared_ptr<IContentManager>& contentManager, VertexDeclarationSpan vertexDeclaration)
     : LocWorldView(GLValues::INVALID_LOCATION)
     , LocWorldViewProjection(GLValues::INVALID_LOCATION)
     , LocNormalMatrix(GLValues::INVALID_LOCATION)

@@ -37,7 +37,7 @@ namespace Fsl
 {
   struct SpriteMaterialId
   {
-    uint32_t Value{};
+    uint32_t Value{0};
 
     constexpr SpriteMaterialId() noexcept = default;
 

@@ -232,7 +232,7 @@ namespace Fsl
     m_resources.VertexBuffer.Reset(g_vertices, GL_STATIC_DRAW);
 
     // prepare attribute links
-    auto vertexDecl = VertexPositionTexture::GetVertexDeclaration();
+    constexpr auto vertexDecl = VertexPositionTexture::GetVertexDeclarationArray();
     m_attribLink[0] =
       GLVertexAttribLink(m_resources.Program.GetAttribLocation("g_vPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     m_attribLink[1] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("g_vTexCoord"),

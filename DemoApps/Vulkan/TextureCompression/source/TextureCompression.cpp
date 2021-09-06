@@ -37,8 +37,10 @@
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
+#include <FslGraphics/Sprite/BasicImageSprite.hpp>
+#include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
@@ -60,10 +62,22 @@ namespace Fsl
 
     struct CreateContext
     {
-      Vulkan::VUPhysicalDeviceRecord PhysicalDevice;
-      std::shared_ptr<IContentManager> ContentManager;
-      std::shared_ptr<IGraphicsService> GraphicsService;
+      const Vulkan::VUPhysicalDeviceRecord& PhysicalDevice;
+      IContentManager& ContentManager;
+      ICustomSpriteResourceManager& CustomSpriteResourceManager;
+      IGraphicsService& GraphicsService;
       std::shared_ptr<UI::WindowContext> WindowContext;
+
+      explicit CreateContext(const Vulkan::VUPhysicalDeviceRecord& physicalDevice, IContentManager& contentManager,
+                             ICustomSpriteResourceManager& customSpriteResourceManager, IGraphicsService& graphicsService,
+                             std::shared_ptr<UI::WindowContext> windowContext)
+        : PhysicalDevice(physicalDevice)
+        , ContentManager(contentManager)
+        , CustomSpriteResourceManager(customSpriteResourceManager)
+        , GraphicsService(graphicsService)
+        , WindowContext(std::move(windowContext))
+      {
+      }
     };
 
 
@@ -71,7 +85,11 @@ namespace Fsl
     {
       constexpr UI::DpLayoutSize1D forcedSizeDp(320);
 
-      Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+      Texture2D sourceTexture(context.GraphicsService.GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+
+      std::shared_ptr<BasicImageSprite> spriteTex =
+        context.CustomSpriteResourceManager.CreateCustomTextureSprite(sourceTexture.GetNative(), BlendState::AlphaBlend);
+
 
       auto label = std::make_shared<UI::Label>(context.WindowContext);
       label->SetAlignmentX(UI::ItemAlignment::Center);
@@ -81,12 +99,11 @@ namespace Fsl
       label->SetContent(caption);
       label->SetWidth(forcedSizeDp);
 
-      auto tex = std::make_shared<UI::Texture2DImage>(context.WindowContext);
+      auto tex = std::make_shared<UI::Image>(context.WindowContext);
       tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
-      tex->SetContent(sourceTexture);
+      tex->SetContent(spriteTex);
       tex->SetAlignmentX(UI::ItemAlignment::Center);
       tex->SetAlignmentY(UI::ItemAlignment::Center);
-      tex->SetBlendState(BlendState::AlphaBlend);
 
       auto stack = std::make_shared<UI::StackLayout>(context.WindowContext);
       stack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
@@ -172,7 +189,7 @@ namespace Fsl
       IO::Path newPath = IO::Path::Combine(TEXTURE_PATH, path);
 
       //  If no format feature flags are supported, the format itself is not supported, and images of that format cannot be created.
-      auto texture = context.ContentManager->ReadTexture(newPath, switchPF, BitmapOrigin::UpperLeft);
+      auto texture = context.ContentManager.ReadTexture(newPath, switchPF, BitmapOrigin::UpperLeft);
       try
       {
         rTextures.push_back(CreateTextureControl(context, texture, notSupportedTexture));
@@ -237,10 +254,10 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(demoTime);
 
-    const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
+    const uint32_t currentFrameIndex = drawContext.CurrentFrameIndex;
 
-    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
-    rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentFrameIndex];
+    rCmdBuffers.Begin(currentFrameIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
       clearColorValue.float32[0] = 0.4f;
@@ -260,17 +277,17 @@ namespace Fsl
       renderPassBeginInfo.clearValueCount = 1;
       renderPassBeginInfo.pClearValues = &clearValues;
 
-      rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+      rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         // Calling this last allows the UI to draw on top of everything.
         m_uiExtension->Draw();
 
         // Remember to call this as the last operation in your renderPass
-        AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
+        AddSystemUI(hCmdBuffer, currentFrameIndex);
       }
-      rCmdBuffers.CmdEndRenderPass(currentSwapBufferIndex);
+      rCmdBuffers.CmdEndRenderPass(currentFrameIndex);
     }
-    rCmdBuffers.End(currentSwapBufferIndex);
+    rCmdBuffers.End(currentFrameIndex);
   }
 
 
@@ -295,15 +312,13 @@ namespace Fsl
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
 
-    CreateContext createContext;
-    createContext.PhysicalDevice = m_physicalDevice;
-    createContext.ContentManager = GetContentManager();
-    createContext.GraphicsService = serviceProvider.Get<IGraphicsService>();
-    // Next up we prepare the actual UI
-    createContext.WindowContext = m_uiExtension->GetContext();
+    auto contentManager = GetContentManager();
+    auto graphicsService = serviceProvider.Get<IGraphicsService>();
+    CreateContext createContext(m_physicalDevice, *contentManager, m_uiExtension->GetCustomSpriteResourceManager(), *graphicsService,
+                                m_uiExtension->GetContext());
 
     auto texDefault =
-      createContext.ContentManager->ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft);
+      createContext.ContentManager.ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft);
 
 
     std::deque<std::shared_ptr<UI::BaseWindow>> textures;

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.UI.Benchmark.Persistence" CreationYear="2021">
+    <Dependency Name="FslBase"/>
+    <Dependency Name="nlohmann_json" Access="Private"/>
+    <Dependency Name="nlohmann_json.FslBase" Access="Private"/>
+  </Library>
+</FslBuildGen>

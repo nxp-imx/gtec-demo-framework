@@ -3,7 +3,7 @@
   <Executable Name="Vulkan.DisplacementMapping" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.VulkanWillemsMeshDemoAppExperimental"/>
-    <Dependency Name="glm"/>
+    <Dependency Name="glm.DepthZeroToOne"/>
     <Platform Name="Yocto" Supported="false"/>
   </Executable>
 </FslBuildGen>
