@@ -72,17 +72,17 @@ namespace Fsl
 
     void AddString(const PxVector2 dstPositionPxf, const StringViewLite strView)
     {
-      return m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView);
+      m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView);
     }
 
     void AddString(const PxVector2 dstPositionPxf, const StringViewLite strView, const PxClipRectangle& clipRectPx)
     {
-      return m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPx);
+      m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPx);
     }
 
     void AddString(const PxVector2 dstPositionPxf, const StringViewLite strView, const PxAreaRectangleF& clipRectPxf)
     {
-      return m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPxf);
+      m_rTextBuilder.AddString(m_rBuilder, m_spriteFont, dstPositionPxf, strView, clipRectPxf);
     }
   };
 }

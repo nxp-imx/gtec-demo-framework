@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="nlohmann_json" CreationYear="2021">
-    <Dependency Name="Recipe.nlohmann_json_3_9"/>
+    <Requirement Name="Lib_NlohmannJson" Type="feature"/>
+    <Dependency Name="Recipe.nlohmann_json_3_10"/>
   </ExternalLibrary>
 </FslBuildGen>

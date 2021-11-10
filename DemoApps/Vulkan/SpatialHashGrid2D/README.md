@@ -4,7 +4,7 @@
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->
-A simple example of how to a spatial hash grid works in 2d.
+A simple example of how a spatial hash grid works in 2d.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

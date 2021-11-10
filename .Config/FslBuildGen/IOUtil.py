@@ -40,6 +40,7 @@ import shutil
 import stat
 import sys
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -157,6 +158,8 @@ def RemoveAllContent(pathDir: str, directoryMustExist: bool = True) -> None:
         elif IsDirectory(fullPath):
             shutil.rmtree(fullPath)
 
+def GetEnvironmentVariables() -> Dict[str,str]:
+    return {k:v for k,v in os.environ.items()}
 
 def TryGetEnvironmentVariable(name: str) -> Optional[str]:
     return os.environ.get(name)

@@ -434,6 +434,7 @@ namespace Fsl
       }
       m_deviceResources->Device->BeginCmds();
       m_frame.BeginCommands = true;
+      m_frame.CameraBound = false;
     }
 
     // -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -447,6 +448,7 @@ namespace Fsl
       if (m_frame.BeginCommands)
       {
         m_frame.BeginCommands = false;
+        m_frame.CameraBound = false;
         m_deviceResources->Device->EndCmds();
 
         if (m_frame.CacheState == CachingState::ForceCached)
@@ -473,6 +475,7 @@ namespace Fsl
       }
 
       pDeviceResources->Device->CmdSetCamera(cameraInfo);
+      m_frame.CameraBound = true;
     }
 
 
@@ -520,6 +523,10 @@ namespace Fsl
       {
         throw UsageErrorException("CmdBindIndexBuffer called on disposed object");
       }
+      if (!indexBuffer)
+      {
+        throw std::invalid_argument("CmdBindIndexBuffer called with null pointer");
+      }
 
       // BasicNativeBufferHandle hNative = pDeviceResources->Buffers.TryGetNativeHandle();
       BasicNativeBufferHandle hNative = indexBuffer->TryGetNativeHandle();
@@ -545,6 +552,10 @@ namespace Fsl
       if (pDeviceResources == nullptr)
       {
         throw UsageErrorException("CmdBindVertexBuffer called on disposed object");
+      }
+      if (!vertexBuffer)
+      {
+        throw std::invalid_argument("CmdBindIndexBuffer called with null pointer");
       }
 
       // BasicNativeBufferHandle hNative = pDeviceResources->Buffers.TryGetNativeHandle(vertexBuffer);
@@ -572,6 +583,10 @@ namespace Fsl
       {
         throw UsageErrorException("CmdDraw called on disposed object");
       }
+      if (!m_frame.CameraBound)
+      {
+        throw UsageErrorException("No camera bound");
+      }
 
       pDeviceResources->Device->CmdDraw(vertexCount, firstVertex);
     }
@@ -589,6 +604,10 @@ namespace Fsl
       if (pDeviceResources == nullptr)
       {
         throw UsageErrorException("CmdDrawIndexed called on disposed object");
+      }
+      if (!m_frame.CameraBound)
+      {
+        throw UsageErrorException("No camera bound");
       }
 
       pDeviceResources->Device->CmdDrawIndexed(indexCount, firstIndex);

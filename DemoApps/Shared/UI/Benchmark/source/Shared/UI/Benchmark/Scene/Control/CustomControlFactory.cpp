@@ -180,7 +180,7 @@ namespace Fsl
         }
         else
         {
-          pTarget->SetFormatString("{:.0}ms");
+          pTarget->SetFormatString("{:.2f}ms");
           pTarget->SetContent(static_cast<float>(value / 1000.0));
         }
       }

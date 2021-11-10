@@ -70,7 +70,7 @@ namespace Fsl
       std::ifstream fileStream("KBevent.txt", std::ios::in);
       if (!fileStream.good())
       {
-        FSLLOG3_INFO("Keyboard Event File Could not be oppened");
+        FSLLOG3_INFO("Keyboard Event File Could not be opened");
         return false;
       }
       fileStream.seekg(0, std::ifstream::end);

@@ -272,10 +272,10 @@ class PipelineCommandCMakeBuild(PipelineCommand):
                 if self._IsAndroid:
                     # FIX: Set this depending on package type
                     if not AndroidUtil.UseNDKCMakeToolchain():
-                        optionList = ["-DCMAKE_SYSTEM_VERSION={0}".format(AndroidUtil.GetMinimumSDKVersion()),
+                        optionList = ["-DCMAKE_SYSTEM_VERSION={0}".format(AndroidUtil.GetTargetSDKVersion()),
                                       "-DCMAKE_ANDROID_ARCH_ABI={0}".format(variant)]
                     else:
-                        optionList = ["-DANDROID_PLATFORM=android-{0}".format(AndroidUtil.GetMinimumSDKVersion()),
+                        optionList = ["-DANDROID_PLATFORM=android-{0}".format(AndroidUtil.GetTargetSDKVersion()),
                                       "-DANDROID_ABI={0}".format(variant)]
                     cmakeOptionListCopy += optionList
 

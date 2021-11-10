@@ -8,14 +8,14 @@ pipeline
             label 'ubuntu'
             registryUrl "$DOCKER_PRIVATE_REGISTRY"
             registryCredentialsId 'private-docker-hub-cred'
-            image 'work-internal/graphics-compute-api-test:4.14.98-sumo-GCC7.3'
+            image 'work-internal/graphics-compute-api-test:5.10.52-2.1.0-hardknott'
             args '-v $HOME/PersistentCache:/PersistentCache:rw'
         }
     }
     environment {
         FSL_JENKINS_DF_PLATFORM_NAME     = 'Yocto'    
-        FSL_JENKINS_DF_SDK_NAME          = '4.14.98-sumo-GCC7.3'
-        FSL_JENKINS_DF_VARIANT           = 'X11'
+        FSL_JENKINS_DF_SDK_NAME          = '5.10.52-2.1.0-hardknott'
+        FSL_JENKINS_DF_VARIANT           = 'Wayland'
         FSL_JENKINS_DF_SDK_VARIANT_NAME  = "${FSL_JENKINS_DF_SDK_NAME}-${FSL_JENKINS_DF_VARIANT}"
         FSL_JENKINS_DF_CACHE_DIR         = "DF-${FSL_JENKINS_DF_PLATFORM_NAME}-${FSL_JENKINS_DF_SDK_NAME}"
         FSL_JENKINS_THIRD_PARTY_INSTALL  = "/PersistentCache/${FSL_JENKINS_DF_CACHE_DIR}"

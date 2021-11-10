@@ -47,7 +47,7 @@ namespace Fsl
     {
       throw std::invalid_argument("defaultMaterialInfo must be opaque");
     }
-    m_defaultHandle = BatchMaterialHandle(m_materials.Add(Record()));
+    m_defaultHandle = BatchMaterialHandle(m_materials.Add(Record(defaultMaterialInfo)));
   }
 
 

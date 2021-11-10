@@ -528,6 +528,7 @@ namespace Fsl
           DoEnsureCapacity(m_capacity, m_meshesSpriteFont, hMesh, vertexCapacity, indexCapacity);
           break;
         default:
+          FSLLOG3_ERROR("Handle has unknown/unsupported mesh type");
           break;
         }
         SANITY_CHECK();

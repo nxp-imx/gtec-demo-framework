@@ -2,7 +2,7 @@
 set -o errexit
 
 source $WORKSPACE/.Config/Jenkins/ubuntu/PrepareJenkinsEnvironment.sh
-export FSL_FEATURES=[EarlyAccess,EGL,OpenCL1.2,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVX,OpenVX1.1,Vulkan,GoogleUnitTest]
+export FSL_FEATURES=[EarlyAccess,EGL,OpenCL1.2,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVX,OpenVX1.1,Vulkan,GoogleUnitTest,Lib_NlohmannJson]
 export FSL_CMAKE_GENERATOR=Ninja 
 
 #FslBuild.py -t sdk -vv --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --CMakeGeneratorName $FSL_CMAKE_GENERATOR 

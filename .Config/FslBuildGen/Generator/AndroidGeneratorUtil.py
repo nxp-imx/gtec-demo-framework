@@ -59,7 +59,7 @@ def GetTargetSDKVersion(package: Package) -> AndroidSDKVersion:
 def DetermineMinSDKVersion(package: Package) -> AndroidSDKVersion:
     namesOnly = [entry.Name for entry in package.ResolvedAllUsedFeatures]
     if "Vulkan" in namesOnly:
-        return AndroidSDKVersion(24)
+        return AndroidSDKVersion(max(24, AndroidUtil.GetMinimumSDKVersion()))
     elif "OpenGLES3.1" in namesOnly:
         return AndroidSDKVersion(AndroidUtil.GetMinimumSDKVersion())
     return AndroidSDKVersion(AndroidUtil.GetMinimumSDKVersion())

@@ -725,6 +725,12 @@ namespace Fsl
 
     bool TryGetAngleDisplay(EGLDisplay& rDisplay, EGLNativeDisplayType nativeDisplayType)
     {
+      if (!EGLUtil::HasExtension(EGL_NO_DISPLAY, "EGL_ANGLE_platform_angle_vulkan"))
+      {
+        return false;
+      }
+      FSLLOG3_VERBOSE3("EGL_ANGLE_platform_angle_vulkan: supported");
+
       rDisplay = EGL_NO_DISPLAY;
       auto eglGetPlatformDisplayEXT =
         reinterpret_cast<EGLDisplay(EGLAPIENTRY*)(EGLenum, void*, const EGLint*)>(eglGetProcAddress("eglGetPlatformDisplayEXT"));
@@ -733,12 +739,6 @@ namespace Fsl
         FSLLOG3_WARNING("Failed to get eglGetPlatformDisplayEXT");
         return false;
       }
-
-      if (!EGLUtil::HasExtension(EGL_NO_DISPLAY, "EGL_ANGLE_platform_angle_vulkan"))
-      {
-        return false;
-      }
-      FSLLOG3_VERBOSE3("EGL_ANGLE_platform_angle_vulkan: supported");
 
       // eglGetPlatformDisplayEXT(EGLenum platform, void *native_display, const EGLint *attrib_list)
 

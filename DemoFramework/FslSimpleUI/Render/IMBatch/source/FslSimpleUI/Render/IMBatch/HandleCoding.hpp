@@ -63,7 +63,7 @@ namespace Fsl
 
         inline constexpr int32_t GetOriginalHandle(const MeshHandle handle) noexcept
         {
-          return handle.Value & MaxHandleValue;
+          return handle.Value & MaskHandle;
         }
       }
     }

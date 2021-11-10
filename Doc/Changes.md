@@ -1,5 +1,11 @@
 # Latest version
 
+## Release 5.8.1
+
+* Various minor fixes.
+* Angle compatibility fix.
+* Upgraded FslBuild.
+
 ## Release 5.8.0
 
 * Vulkan.GpuTimestamp sample.

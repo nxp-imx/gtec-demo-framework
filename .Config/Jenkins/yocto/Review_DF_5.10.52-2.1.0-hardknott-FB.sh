@@ -2,7 +2,7 @@
 set -o errexit
 
 # Prepare the sdk
-source /opt/fsl-imx-internal-xwayland/4.14-sumo/environment-setup-aarch64-poky-linux
+source /opt/fsl-imx-internal-xwayland/5.10-hardknott/environment-setup-cortexa35-poky-linux
 
 source $WORKSPACE/.Config/Jenkins/yocto/PrepareJenkinsEnvironment.sh
 

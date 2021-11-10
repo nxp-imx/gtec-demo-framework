@@ -47,7 +47,7 @@ class AndroidUtil(object):
 
     @staticmethod
     def GetMinimumSDKVersion() -> int:
-        return 29
+        return 24
 
     @staticmethod
     def GetSDKPath() -> str:

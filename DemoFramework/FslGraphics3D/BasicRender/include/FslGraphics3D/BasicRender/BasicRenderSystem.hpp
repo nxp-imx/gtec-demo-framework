@@ -128,6 +128,7 @@ namespace Fsl
         bool IsValid{false};
         CachingState CacheState{CachingState::Invalid};
         bool BeginCommands{false};
+        bool CameraBound{false};
 
         FrameRecord() = default;
 

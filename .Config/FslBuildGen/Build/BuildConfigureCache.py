@@ -39,11 +39,13 @@ from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 
 class BuildConfigureCache(object):
-    CURRENT_VERSION = 4
+    CURRENT_VERSION = 5
 
-    def __init__(self, fileHashDict: Dict[str, str], commandList: List[str], platformName: str, fslBuildVersion: str, allowFindPackage: str) -> None:
+    def __init__(self, environmentDict: Dict[str, str], fileHashDict: Dict[str, str], commandList: List[str], platformName: str,
+                 fslBuildVersion: str, allowFindPackage: str) -> None:
         super().__init__()
         self.Version = BuildConfigureCache.CURRENT_VERSION
+        self.EnvironmentDict = environmentDict
         self.FileHashDict = fileHashDict
         self.CommandList = commandList
         self.PlatformName = platformName
@@ -59,6 +61,13 @@ class BuildConfigureCache(object):
             jsonDict = json.loads(strJson)
             if jsonDict["Version"] != BuildConfigureCache.CURRENT_VERSION:
                 raise Exception("Unsupported version")
+
+            jsonEnvironmentDict = jsonDict["EnvironmentDict"]
+            finalEnvironmentDict = {} # type: Dict[str,str]
+            for key, value in jsonEnvironmentDict.items():
+                if not isinstance(key, str) or not isinstance(value, str):
+                    raise Exception("json decode failed")
+                finalEnvironmentDict[key] = value
 
             jsonFileHashDict = jsonDict["FileHashDict"]
             finalDict = {} # type: Dict[str,str]
@@ -77,7 +86,7 @@ class BuildConfigureCache(object):
             platformName = jsonDict["PlatformName"] # type: str
             fslBuildVersion = jsonDict["FslBuildVersion"] # type: str
             allowFindPackage = jsonDict["AllowFindPackage"] # type: str
-            return BuildConfigureCache(finalDict, finalCommandList, platformName, fslBuildVersion, allowFindPackage)
+            return BuildConfigureCache(finalEnvironmentDict, finalDict, finalCommandList, platformName, fslBuildVersion, allowFindPackage)
         except:
             log.DoPrintWarning("Failed to decode cache file '{0}'".format(cacheFilename))
             return None
@@ -91,8 +100,13 @@ class BuildConfigureCache(object):
 
     @staticmethod
     def IsEqual(lhs: 'BuildConfigureCache', rhs: 'BuildConfigureCache') -> bool:
-        if lhs.Version != rhs.Version or len(lhs.FileHashDict) != len(rhs.FileHashDict) or len(lhs.CommandList) != len(rhs.CommandList):
+        if lhs.Version != rhs.Version or len(lhs.EnvironmentDict) != len(rhs.EnvironmentDict) or len(lhs.FileHashDict) != len(rhs.FileHashDict) or len(lhs.CommandList) != len(rhs.CommandList):
             return False
+
+        for key, value in lhs.EnvironmentDict.items():
+            if key not in rhs.EnvironmentDict or value != rhs.EnvironmentDict[key]:
+                return False
+
         for key, value in lhs.FileHashDict.items():
             if key not in rhs.FileHashDict or value != rhs.FileHashDict[key]:
                 return False

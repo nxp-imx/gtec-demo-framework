@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.8.0
+# DemoFramework 5.8.1
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -2029,7 +2029,7 @@ Render a simple skybox using a cubemap.
 
 <a href="DemoApps/Vulkan/SpatialHashGrid2D/Example.jpg"><img src="DemoApps/Vulkan/SpatialHashGrid2D/Example.jpg" height="108px" title="Vulkan.SpatialHashGrid2D"></a>
 
-A simple example of how to a spatial hash grid works in 2d.
+A simple example of how a spatial hash grid works in 2d.
 
 
 ### [SRGBFramebuffer](DemoApps/Vulkan/SRGBFramebuffer)

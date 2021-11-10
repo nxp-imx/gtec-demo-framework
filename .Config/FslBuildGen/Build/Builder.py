@@ -397,12 +397,16 @@ class Builder(object):
         Returns the new cache if its dirty else None if nothing was changed.
         """
         # Generate a hash for all generated files and compare them to the previous "hash"
+
         self.Log.LogPrintVerbose(4, "Checking current configuration")
+
+        currentEnvironmentDict = IOUtil.GetEnvironmentVariables();
+
         generatedFileDictCache = {} # type: Dict[str,str]
         for filename in generatedFileSet:
             generatedFileDictCache[filename] = IOUtil.HashFile(filename)
         allowFindPackageStr = "true" if allowFindPackage else "false"
-        configureCache = BuildConfigureCache(generatedFileDictCache, command, platformName, toolVersionStr, allowFindPackageStr)
+        configureCache = BuildConfigureCache(currentEnvironmentDict, generatedFileDictCache, command, platformName, toolVersionStr, allowFindPackageStr)
 
         isDirty = True
         self.Log.LogPrintVerbose(5, "- Loading previous configuration cache if present")
@@ -447,6 +451,13 @@ class Builder(object):
                 self.Log.LogPrint("Build configuration modifed, running configure")
             else:
                 self.Log.LogPrint("Forced configure")
+
+            # Delete the CMakeCache file if it exist to ensure we find everything again
+            cmakeCacheFilename = IOUtil.Join(currentWorkingDirectory, 'CMakeCache.txt')
+            if IOUtil.Exists(cmakeCacheFilename) and IOUtil.IsFile(cmakeCacheFilename):
+                self.Log.LogPrint("Deleting {0}".format(cmakeCacheFilename))
+                IOUtil.RemoveFile(cmakeCacheFilename)
+
 
             if self.Log.Verbosity >= 1:
                 self.Log.LogPrint("Running build config command '{0}' in '{1}'".format(self.__SafeJoinCommandArguments(configCommand), currentWorkingDirectory))

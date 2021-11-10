@@ -98,7 +98,7 @@ def GetCompilerShortIdFromGeneratorName(generatorName: str) -> str:
     elif generatorName == CMakeGeneratorName.Android:
         # For android we utilize a combination of the SDK and NDK version for the unique 'toolchain' name
         theId = AndroidUtil.GetSDKNDKId()
-        sdkVersion = AndroidUtil.GetMinimumSDKVersion()
+        sdkVersion = AndroidUtil.GetSDKVersion()
         return "V{1}{0}".format(theId, sdkVersion)
 
     generatorName = generatorName.strip()
