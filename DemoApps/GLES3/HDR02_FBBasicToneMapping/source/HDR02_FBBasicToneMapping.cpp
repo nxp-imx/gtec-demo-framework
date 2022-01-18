@@ -160,8 +160,10 @@ namespace Fsl
   }
 
 
-  void HDR02_FBBasicToneMapping::Draw(const DemoTime& /*demoTime*/)
+  void HDR02_FBBasicToneMapping::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const auto windowSizePx = GetWindowSizePx();
 
     glDisable(GL_BLEND);

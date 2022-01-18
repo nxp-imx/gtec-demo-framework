@@ -207,8 +207,10 @@ namespace Fsl
   }
 
 
-  void HDR04_HDRFramebuffer::Draw(const DemoTime& /*demoTime*/)
+  void HDR04_HDRFramebuffer::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const auto widowSizePx = GetWindowSizePx();
 
     glDisable(GL_BLEND);

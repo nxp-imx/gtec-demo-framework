@@ -1,5 +1,26 @@
 # Latest version
 
+## Release 5.9
+
+* Updated FMT to 8.1.1
+* Much more precise frame-timing.
+* Added OnDemandRendering support to the UI/Benchmark app.
+* Initial Visual Studio 2022 support.
+* FslGraphics3D added better span support.
+* FslSimpleUI slider size fitting is now longer delayed by one frame.
+* Exception classes now have 'const char*' constructors which help reduce the final exe-size.
+* GLES2+3 NativeDevice now properly restores the vertex attribs
+* Added a 'license.json' for the example screenshots 'Example.jpg'
+* Added new GLES2, GLES3 & vulkan sample System/OnDemandRendering which showcase the new on demand rendering support. It can also be used to detect frame timing issues.
+* Added new GLES2, GLES3 & vulkan sample System/BasicRenderModelLoader which showcase how to load a mesh and render it using the BasicRender.
+* DemoApps: Added new command line parameter '--Version' which lists the release version and git commit (if available).
+* **Breaking change** FslResourceScan.py was integrated into 'FslBuildCheck --license' so the standalone tool was removed.
+* **Breaking change** Removed the deprecated Draw method.
+* Replace deprecated Draw methods with the new Draw method.
+* **Breaking change** Removed HighResolutionTimer.GetTime() used GetTimestamp() instead.
+* **Breaking change** DemoTime now provides the higher resolution TimeSpan's as time measurements.
+* Deprecated HighResolutionTimer.GetTime() used GetTimestamp() instead.
+
 ## Release 5.8.1
 
 * Various minor fixes.

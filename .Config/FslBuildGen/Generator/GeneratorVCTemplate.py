@@ -103,6 +103,8 @@ class CodeTemplateVC(object):
         self.ProjectReferences_1 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "ProjectReferences_1.txt"))
         self.PackageReferences = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences.txt"))
         self.PackageReferences_1 = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences_1.txt"))
+        self.ExcludePackageDirs = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExcludePackageDirs.txt"))
+        self.ExcludePackageDirsComplexEntry = self.__GenerateExcludePackageDirsCoplexEntry(strTemplateProjectPath)
         self.AssemblyReferenceSimple = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceSimple.txt"))
         self.AssemblyReferenceComplex = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceComplex.txt"))
         self.AssemblyReferenceComplex_Private = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceComplex_Private.txt"))
@@ -156,6 +158,20 @@ class CodeTemplateVC(object):
         snippetOptimizationType = self.SafeReadFile(IOUtil.Join(strVSPath, "{0}_OPTIMIZATION_TYPE_{1}.txt".format(prefix, postfix)), "")
         snippetOptimizationOptions = self.SafeReadFile2(IOUtil.Join(strVSPath, "{0}_OPTIMIZATION_OPTIONS_{1}.txt".format(prefix, postfix)), "")
         rDict[optimizationType] = TemplateOptimizationSetting(optimizationType, snippetOptimizationType, snippetOptimizationOptions)
+
+
+    def __GenerateExcludePackageDirsCoplexEntry(self, strTemplateProjectPath: str) -> List[str]:
+        result = [] # type: List[str]
+        res0 = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExcludePackageDirs_1.txt"))
+        res1 = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExcludePackageDirs_2.txt"))
+        res2 = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExcludePackageDirs_3.txt"))
+        if res0 is not None:
+            result.append(res0)
+        if res1 is not None:
+            result.append(res1)
+        if res2 is not None:
+            result.append(res2)
+        return result
 
 
     def SafeReadFile(self, filename: str, defaultContent: str) -> str:

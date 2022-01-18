@@ -55,6 +55,7 @@ from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 
 class DefaultValue(object):
@@ -114,8 +115,10 @@ class ToolFlowBuildExternal(AToolAppFlow):
         packageFilters = localToolConfig.BuildPackageFilters
 
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         platform = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                  buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                  buildVariantConfig, variableContext.UserSetVariables,
+                                                                                  config.ToolConfig.DefaultPackageLanguage,
                                                                                   config.ToolConfig.CMakeConfiguration,
                                                                                   localToolConfig.GetUserCMakeConfig(), False)
         theFiles = [] # type: List[str]
@@ -123,7 +126,8 @@ class ToolFlowBuildExternal(AToolAppFlow):
             theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platform.CMakeConfig), currentDirPath, localToolConfig.Recursive)
         else:
             self.Log.LogPrintVerbose(1, "Doing a void build")
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platform)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
+                                            platform, variableContext)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #packages = DoExperimentalGetRecipes(generatorContext, config, [])
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)

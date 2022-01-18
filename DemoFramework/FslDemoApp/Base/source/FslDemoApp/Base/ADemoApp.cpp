@@ -249,6 +249,21 @@ namespace Fsl
       }
     };
 
+    struct PredMethodResolve
+    {
+      DemoTime m_param0;
+      explicit PredMethodResolve(const DemoTime& param0)
+        : m_param0(param0)
+      {
+      }
+
+      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
+      {
+        assert(value);
+        value->Resolve(m_param0);
+      }
+    };
+
     // struct PredMethodDraw
     //{
     //  inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
@@ -498,6 +513,18 @@ namespace Fsl
     CallExtensions(m_extensions, PredMethodPostUpdate(demoTime));
   }
 
+  void ADemoApp::_Resolve(const DemoTime& demoTime)
+  {
+    VERBOSE_LOG("ADemoApp::_Resolve()");
+    // Done this way to prevent common mistakes where people forget to call the base class
+    Resolve(demoTime);
+
+    // Here we call the extensions after the app, which allows for example a UI extension to do things after the app has finished
+
+    // Call all registered extensions
+    CallExtensions(m_extensions, PredMethodResolve(demoTime));
+  }
+
   AppDrawResult ADemoApp::_TryPrepareDraw(const FrameInfo& frameInfo)
   {
     VERBOSE_LOG("ADemoApp::_TryPrepareDraw()");
@@ -519,15 +546,22 @@ namespace Fsl
 
     // Done this way to prevent common mistakes where people forget to call the base class
     Draw(frameInfo);
-
-    // Backwards compatibility while we phase out the old draw method
-    Draw(frameInfo.Time);
   }
 
   void ADemoApp::_EndDraw(const FrameInfo& frameInfo)
   {
     VERBOSE_LOG("ADemoApp::_EndDraw()");
     EndDraw(frameInfo);
+  }
+
+  void ADemoApp::_OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    VERBOSE_LOG("ADemoApp::_OnDrawSkipped()");
+    // Call all registered extensions
+    // CallExtensions(m_extensions, PredMethodDraw());
+
+    // Done this way to prevent common mistakes where people forget to call the base class
+    OnDrawSkipped(frameInfo);
   }
 
   AppDrawResult ADemoApp::_TrySwapBuffers(const FrameInfo& frameInfo)

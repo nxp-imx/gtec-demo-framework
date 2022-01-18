@@ -107,7 +107,7 @@ namespace Fsl
     }
 
 
-    bool EventRoute::IsEmpty() const
+    bool EventRoute::IsEmpty() const noexcept
     {
       assert(m_isInitialized);
       return (m_bubbleList.empty() && m_tunnelList.empty());

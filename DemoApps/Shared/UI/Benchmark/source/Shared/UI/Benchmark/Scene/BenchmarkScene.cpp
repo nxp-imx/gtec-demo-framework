@@ -122,6 +122,13 @@ namespace Fsl
   }
 
 
+  bool BenchmarkScene::Resolve(const DemoTime& demoTime)
+  {
+    BasicTestScene::Resolve(demoTime);
+    return m_renderInfo.BasicOptions.UseOnDemandRendering ? m_testAppHost->IsUIIdle() : false;
+  }
+
+
   void BenchmarkScene::Draw(const DemoTime& demoTime)
   {
     if (m_gpuProfiler && m_gpuProfiler->IsEnabled())
@@ -135,6 +142,12 @@ namespace Fsl
     {
       m_gpuProfiler->EndTimestamp();
     }
+  }
+
+
+  void BenchmarkScene::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    BasicTestScene::OnDrawSkipped(frameInfo);
   }
 
 

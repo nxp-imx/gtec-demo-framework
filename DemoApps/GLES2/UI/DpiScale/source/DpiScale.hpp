@@ -48,7 +48,7 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) override;
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
   };
 }
 

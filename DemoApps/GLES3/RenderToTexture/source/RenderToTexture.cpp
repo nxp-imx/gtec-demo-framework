@@ -184,8 +184,9 @@ namespace Fsl
   }
 
 
-  void RenderToTexture::Draw(const DemoTime& /*demoTime*/)
+  void RenderToTexture::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
     if (m_usingExtensions->IsChecked())
     {
       if (m_usingG2D->IsChecked())

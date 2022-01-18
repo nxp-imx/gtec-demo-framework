@@ -61,10 +61,12 @@ namespace Fsl
     virtual void _FixedUpdate(const DemoTime& demoTime) = 0;
     virtual void _Update(const DemoTime& demoTime) = 0;
     virtual void _PostUpdate(const DemoTime& demoTime) = 0;
+    virtual void _Resolve(const DemoTime& demoTime) = 0;
     virtual AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) = 0;
     virtual void _BeginDraw(const FrameInfo& frameInfo) = 0;
     virtual void _Draw(const FrameInfo& frameInfo) = 0;
     virtual void _EndDraw(const FrameInfo& frameInfo) = 0;
+    virtual void _OnDrawSkipped(const FrameInfo& frameInfo) = 0;
     // @brief If the demo host says the swap buffers is app controlled then this will be called to execute the swap buffers.
     virtual AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) = 0;
     virtual void _End() = 0;

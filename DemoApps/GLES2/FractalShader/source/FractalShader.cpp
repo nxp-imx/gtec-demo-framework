@@ -76,8 +76,10 @@ namespace Fsl
   }
 
 
-  void FractalShader::Draw(const DemoTime& /*demoTime*/)
+  void FractalShader::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     m_scene->Draw();
   }
 }

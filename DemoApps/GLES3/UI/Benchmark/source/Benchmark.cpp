@@ -71,6 +71,10 @@ namespace Fsl
     m_shared.Update(demoTime);
   }
 
+  void Benchmark::Resolve(const DemoTime& demoTime)
+  {
+    m_shared.Resolve(demoTime);
+  }
 
   void Benchmark::Draw(const FrameInfo& frameInfo)
   {
@@ -80,6 +84,14 @@ namespace Fsl
 
     m_shared.Draw(frameInfo.Time);
   }
+
+
+  void Benchmark::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    m_shared.OnDrawSkipped(frameInfo);
+    DemoAppGLES3::OnDrawSkipped(frameInfo);
+  }
+
 
   void Benchmark::OnFrameSequenceEnd()
   {

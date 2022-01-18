@@ -43,8 +43,10 @@ namespace Fsl
   namespace UI
   {
     SliderRenderImpl::SliderRenderImpl(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache)
-      : m_background(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled)
-      , m_cursor(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled)
+      : m_background(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled, rTransitionCache,
+                     DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
+      , m_cursor(meshManager, DefaultColor::Palette::Primary, DefaultColor::Palette::PrimaryDisabled, rTransitionCache, DefaultAnim::ColorChangeTime,
+                 DefaultAnim::ColorChangeTransitionType)
       , m_cursorOverlay(meshManager, DefaultColor::Slider::HoverOverlay, rTransitionCache, DefaultAnim::HoverOverlayTime,
                         DefaultAnim::HoverOverlayTransitionType)
     {
@@ -67,90 +69,61 @@ namespace Fsl
     }
 
 
-    SliderPixelSpanInfo SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx,
-                                               const Color finalColor, const LayoutOrientation orientation, const LayoutDirection layoutDirection,
-                                               const bool isEnabled, const int32_t cursorPositionPx, const bool isDragging,
-                                               const SpriteUnitConverter& spriteUnitConverter)
+    void SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor,
+                                const int32_t cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter)
     {
       FSL_PARAM_NOT_USED(isDragging);
 
-      PxThickness backgroundContentMarginPx;
+      if (m_background.Sprite.IsValid())
       {
+        const auto backgroundColor = m_background.CurrentColor.GetValue();
+        if (!m_verticalGraphicsRotationEnabled)
         {
-          if (m_background.Sprite.IsValid())
+          // ImageImpl::Draw(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
+          commandBuffer.Draw(m_background.Sprite.Get(), dstPositionPxf, m_arrangeCache.RenderSizePx, finalColor * backgroundColor);
+        }
+        else
+        {
+          // ImageImpl::DrawRotated90CW(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
+          commandBuffer.DrawRotated90CW(m_background.Sprite.Get(), dstPositionPxf, m_arrangeCache.RenderSizePx, finalColor * backgroundColor);
+        }
+      }
+
+      if (m_cursor.Sprite.IsValid())
+      {
+        const PxSize2D cursorRenderSizePx = m_cursor.Sprite.FastGetRenderSizePx();
+
+        const auto cursorColor = m_cursor.CurrentColor.GetValue();
+        const PxPoint2 cursorOriginPx(spriteUnitConverter.ToPxPoint2(m_cursor.OriginDp));
+
+        if (m_arrangeCache.Orientation == LayoutOrientation::Horizontal)
+        {
+          PxVector2 cursorPositionPxf(dstPositionPxf.X + static_cast<float>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
+
+          // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
+          commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
+
+          // Draw the overlay (if enabled)
+          if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
           {
-            const auto& backgroundColor = (isEnabled ? m_background.EnabledColor : m_background.DisabledColor);
-            backgroundContentMarginPx = m_background.Sprite.GetRenderContentMarginPx();
-            if (!m_verticalGraphicsRotationEnabled)
-            {
-              // ImageImpl::Draw(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
-              commandBuffer.Draw(m_background.Sprite.Get(), dstPositionPxf, renderSizePx, finalColor * backgroundColor);
-            }
-            else
-            {
-              // coverity[swapped_arguments]
-              backgroundContentMarginPx = PxThickness(backgroundContentMarginPx.Bottom(), backgroundContentMarginPx.Left(),
-                                                      backgroundContentMarginPx.Top(), backgroundContentMarginPx.Right());
-              // ImageImpl::DrawRotated90CW(batch, pSprite, dstPositionPxf, renderSizePx, backgroundColor);
-              commandBuffer.DrawRotated90CW(m_background.Sprite.Get(), dstPositionPxf, renderSizePx, finalColor * backgroundColor);
-            }
+            commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
+                               finalColor * m_cursorOverlay.CurrentColor.GetValue());
           }
         }
-
-        SliderPixelSpanInfo spanInfo;
+        else
         {
-          if (m_cursor.Sprite.IsValid())
+          PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(cursorPositionPx - cursorOriginPx.Y));
+
+          // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
+          commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
+
+          // Draw the overlay (if enabled)
+          if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
           {
-            const PxSize2D cursorRenderSizePx = m_cursor.Sprite.FastGetRenderSizePx();
-
-            const auto& cursorColor = (isEnabled ? m_cursor.EnabledColor : m_cursor.DisabledColor);
-            const PxPoint2 cursorSizePx(spriteUnitConverter.ToPxPoint2(m_cursor.SizeDp));
-            const PxPoint2 cursorOriginPx(spriteUnitConverter.ToPxPoint2(m_cursor.OriginDp));
-            const bool reverseDirection = (layoutDirection != LayoutDirection::NearToFar);
-
-            if (orientation == LayoutOrientation::Horizontal)
-            {
-              const int32_t virtualCursorLengthPx = (cursorSizePx.X > 0 ? cursorSizePx.X : cursorRenderSizePx.Width());
-              const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Left();
-
-              spanInfo =
-                SliderPixelSpanInfo(startPx, renderSizePx.Width() - virtualCursorLengthPx - backgroundContentMarginPx.SumX(), reverseDirection);
-
-              PxVector2 cursorPositionPxf(dstPositionPxf.X + static_cast<float>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
-
-              // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
-              commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
-
-              // Draw the overlay (if enabled)
-              if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
-              {
-                commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
-                                   finalColor * m_cursorOverlay.CurrentColor.GetValue());
-              }
-            }
-            else
-            {
-              const int32_t virtualCursorLengthPx = (cursorSizePx.Y > 0 ? cursorSizePx.Y : cursorRenderSizePx.Height());
-              const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Top();
-
-              spanInfo =
-                SliderPixelSpanInfo(startPx, renderSizePx.Height() - virtualCursorLengthPx - backgroundContentMarginPx.SumY(), !reverseDirection);
-
-              PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(cursorPositionPx - cursorOriginPx.Y));
-
-              // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
-              commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
-
-              // Draw the overlay (if enabled)
-              if (m_cursorOverlay.Sprite.IsValid() && m_cursorOverlay.CurrentColor.GetValue().A() > 0)
-              {
-                commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
-                                   finalColor * m_cursorOverlay.CurrentColor.GetValue());
-              }
-            }
+            commandBuffer.Draw(m_cursorOverlay.Sprite.Get(), cursorPositionPxf, m_cursorOverlay.Sprite.FastGetRenderSizePx(),
+                               finalColor * m_cursorOverlay.CurrentColor.GetValue());
           }
         }
-        return spanInfo;
       }
     }
 
@@ -171,22 +144,66 @@ namespace Fsl
       return m_background.Sprite.Measure();
     }
 
+    SliderPixelSpanInfo SliderRenderImpl::Arrange(const PxSize2D finalSizePx, const LayoutOrientation orientation,
+                                                  const LayoutDirection layoutDirection, const SpriteUnitConverter& spriteUnitConverter)
+    {
+      const PxPoint2 cursorSizePx(spriteUnitConverter.ToPxPoint2(m_cursor.SizeDp));
+      const PxSize2D cursorRenderSizePx = m_cursor.Sprite.FastGetRenderSizePx();
+      const bool reverseDirection = (layoutDirection != LayoutDirection::NearToFar);
+
+      PxThickness backgroundContentMarginPx;
+      if (m_background.Sprite.IsValid())
+      {
+        backgroundContentMarginPx = m_background.Sprite.GetRenderContentMarginPx();
+        if (m_verticalGraphicsRotationEnabled)
+        {
+          // coverity[swapped_arguments]
+          backgroundContentMarginPx = PxThickness(backgroundContentMarginPx.Bottom(), backgroundContentMarginPx.Left(),
+                                                  backgroundContentMarginPx.Top(), backgroundContentMarginPx.Right());
+        }
+      }
+
+      SliderPixelSpanInfo spanInfo;
+      if (orientation == LayoutOrientation::Horizontal)
+      {
+        const int32_t virtualCursorLengthPx = (cursorSizePx.X > 0 ? cursorSizePx.X : cursorRenderSizePx.Width());
+        const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Left();
+
+        spanInfo = SliderPixelSpanInfo(startPx, finalSizePx.Width() - virtualCursorLengthPx - backgroundContentMarginPx.SumX(), reverseDirection);
+      }
+      else
+      {
+        const int32_t virtualCursorLengthPx = (cursorSizePx.Y > 0 ? cursorSizePx.Y : cursorRenderSizePx.Height());
+        const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Top();
+
+        spanInfo = SliderPixelSpanInfo(startPx, finalSizePx.Height() - virtualCursorLengthPx - backgroundContentMarginPx.SumY(), !reverseDirection);
+      }
+      m_arrangeCache = ArrangeCache(finalSizePx, orientation, layoutDirection, spanInfo);
+      return spanInfo;
+    }
+
     void SliderRenderImpl::UpdateAnimation(const TransitionTimeSpan& timeSpan)
     {
+      m_background.CurrentColor.Update(timeSpan);
+      m_cursor.CurrentColor.Update(timeSpan);
       m_cursorOverlay.CurrentColor.Update(timeSpan);
     }
 
     bool SliderRenderImpl::UpdateAnimationState(const bool forceCompleteAnimation, const bool isEnabled, const bool isDragging)
     {
       const bool showHoverOverlay = isEnabled && (m_isHovering || isDragging);
+      m_background.CurrentColor.SetValue(isEnabled ? m_background.EnabledColor : m_background.DisabledColor);
+      m_cursor.CurrentColor.SetValue(isEnabled ? m_cursor.EnabledColor : m_cursor.DisabledColor);
       m_cursorOverlay.CurrentColor.SetValue(showHoverOverlay ? m_cursorOverlay.EnabledColor : Color::ClearA(m_cursorOverlay.EnabledColor));
 
       if (forceCompleteAnimation)
       {
+        m_background.CurrentColor.ForceComplete();
+        m_cursor.CurrentColor.ForceComplete();
         m_cursorOverlay.CurrentColor.ForceComplete();
       }
 
-      return !m_cursorOverlay.CurrentColor.IsCompleted();
+      return !m_background.CurrentColor.IsCompleted() || !m_cursor.CurrentColor.IsCompleted() || !m_cursorOverlay.CurrentColor.IsCompleted();
     }
   }
 }

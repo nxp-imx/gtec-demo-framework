@@ -35,12 +35,14 @@ from typing import Optional
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildExternal.DataTypes import RecipeType
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
+from FslBuildGen.Location.PathBuilder import PathBuilder
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Version import Version
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
+from FslBuildGen.BuildExternal.PackageRecipeInstallationUtil import PackageRecipeInstallationUtil
 
 class PackageExperimentalRecipe(object):
-    def __init__(self, log: Log, packageName: str, xmlExperimentalRecipe: XmlExperimentalRecipe, forceDisable: bool) -> None:
+    def __init__(self, log: Log, packageName: str, pathBuilder: PathBuilder,  xmlExperimentalRecipe: XmlExperimentalRecipe, forceDisable: bool) -> None:
         """
         forceDisable will not disable 'the external' recipe type used for build tools
         """
@@ -54,7 +56,8 @@ class PackageExperimentalRecipe(object):
         determinedType = self.__DetermineRecipeType(xmlExperimentalRecipe)
         self.Type = determinedType if not forceDisable or determinedType == RecipeType.External else RecipeType.Disabled
         self.Pipeline = xmlExperimentalRecipe.Pipeline if self.Type == RecipeType.Build else None
-        self.ValidateInstallation = xmlExperimentalRecipe.ValidateInstallation if self.Type != RecipeType.Disabled else None
+
+        self.ValidateInstallation = PackageRecipeInstallationUtil.ToPackageRecipeInstallation(pathBuilder, xmlExperimentalRecipe.ValidateInstallation) if self.Type != RecipeType.Disabled and  xmlExperimentalRecipe.ValidateInstallation is not None else None
         self.IsLocalSourceBuild = False
         if (self.Pipeline is not None and len(self.Pipeline.CommandList) > 0 and
                 self.Pipeline.CommandList[0].CommandType == BuildRecipePipelineCommand.Source):

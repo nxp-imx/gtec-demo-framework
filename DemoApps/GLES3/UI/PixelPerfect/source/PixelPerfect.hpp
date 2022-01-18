@@ -47,7 +47,7 @@ namespace Fsl
   protected:
     void OnKeyEvent(const KeyEvent& event) final;
     void Update(const DemoTime& demoTime) final;
-    void Draw(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
   };
 }
 

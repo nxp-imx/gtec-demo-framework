@@ -47,10 +47,10 @@ Beware "FslBuildCheck --tidy" will most likely not run for yocto builds, it migh
 All graphical resources like images, textures, fonts and meshes need to have a license attached.
 We utilize a custom ```License.json``` file that covers all resources in the same directory, so if you need to have multiple licenses then you need to put them in separate directories.
 
-The ```FslResourceScan.py``` tool can be run in your 'app' directory to scan for common graphical resource files:
+The ```FslBuildCheck.py --license``` tool can be run in your 'app' directory to scan for common graphical resource files:
 
 ```bash
-FslResourceScan.py --list -v .
+FslBuildCheck.py --license --licenseList
 ```
 
 Fix all resource license issues.

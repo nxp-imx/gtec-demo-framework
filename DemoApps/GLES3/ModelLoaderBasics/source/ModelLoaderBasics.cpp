@@ -163,8 +163,10 @@ namespace Fsl
   }
 
 
-  void ModelLoaderBasics::Draw(const DemoTime& /*demoTime*/)
+  void ModelLoaderBasics::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

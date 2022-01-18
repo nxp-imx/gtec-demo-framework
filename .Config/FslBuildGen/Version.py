@@ -102,3 +102,10 @@ class Version(object):
             return Version(values[0], values[1], values[2], values[3])
         except ValueError:
             return None
+
+    @staticmethod
+    def FromString(strValue: str) -> 'Version':
+        result = Version.TryFromString(strValue)
+        if result is None:
+            raise Exception("Version string '{0} was not of the expected '1.2.3.4' format".format(strValue))
+        return result

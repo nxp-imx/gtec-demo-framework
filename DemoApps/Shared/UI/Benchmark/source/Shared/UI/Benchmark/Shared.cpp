@@ -222,7 +222,7 @@ namespace Fsl
   {
     if (m_sceneRecord.Scene)
     {
-      const TransitionTimeSpan transitionTime(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds);
+      const TransitionTimeSpan transitionTime(demoTime.ElapsedTime.Ticks());
 
       m_sceneRecord.Scene->Update(demoTime);
       auto closeRes = m_sceneRecord.Scene->TryGetNextScene();
@@ -249,6 +249,20 @@ namespace Fsl
     }
   }
 
+
+  void Shared::Resolve(const DemoTime& demoTime)
+  {
+    bool isIdle = false;
+    if (m_sceneRecord.Scene)
+    {
+      isIdle = m_sceneRecord.Scene->Resolve(demoTime) && m_overlayColor.IsCompleted();
+    }
+
+    const auto desiredFrameInterval = isIdle ? 60 : 1;
+    m_demoAppControl->SetOnDemandFrameInterval(desiredFrameInterval);
+  }
+
+
   void Shared::Draw(const DemoTime& demoTime)
   {
     if (m_sceneRecord.Scene)
@@ -257,6 +271,16 @@ namespace Fsl
     }
     m_uiExtension->Draw();
   }
+
+
+  void Shared::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    if (m_sceneRecord.Scene)
+    {
+      m_sceneRecord.Scene->OnDrawSkipped(frameInfo);
+    }
+  }
+
 
   void Shared::OnFrameSequenceEnd()
   {

@@ -80,7 +80,7 @@ namespace Fsl
   protected:
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     static void DrawScene(const SkyboxProgram& programInfo, const SkyboxMesh& mesh, const GLES3::GLTexture& texture, const VertexUBOData& uboData);

@@ -33,6 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
@@ -1945,34 +1946,174 @@ namespace Fsl
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const atlas_texture_type& srcFillTexture, const Vector2& dstFromPxf,
-                                                                          const Vector2& dstToPxf, const Color& color)
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const atlas_texture_type& srcFillTexture, const PxPoint2 dstFromPx,
+                                                                          const PxPoint2 dstToPx, const Color color)
   {
     const auto texSize = srcFillTexture.Info.ExtentPx;
     const PxRectangleU32 srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
+    if (dstFromPx.X == dstToPx.X)
+    {
+      // Vertical line
+      if (dstToPx.Y > dstFromPx.Y)
+      {
+        Draw(srcFillTexture, PxRectangle(dstFromPx.X, dstFromPx.Y, 1, dstToPx.Y - dstFromPx.Y), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxRectangle(dstFromPx.X, dstToPx.Y, 1, dstFromPx.Y - dstToPx.Y), srcRectPx, color);
+      }
+      return;
+    }
+    if (dstFromPx.Y == dstToPx.Y)
+    {
+      // Horizontal line
+      if (dstToPx.X > dstFromPx.X)
+      {
+        Draw(srcFillTexture, PxRectangle(dstFromPx.X, dstFromPx.Y, dstToPx.X - dstFromPx.X, 1), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxRectangle(dstToPx.X, dstFromPx.Y, dstFromPx.X - dstToPx.X, 1), srcRectPx, color);
+      }
+      return;
+    }
 
-    Vector2 delta(dstToPxf.X - dstFromPxf.X, dstToPxf.Y - dstFromPxf.Y);
+    Vector2 delta(dstToPx.X - dstFromPx.X, dstToPx.Y - dstFromPx.Y);
     auto len = delta.Length();
     Vector2 scale(len, 1.0f);
     const float rotation = VectorHelper::VectorToAngle(delta);
 
-    Draw(srcFillTexture, dstFromPxf, srcRectPx, color, rotation, Vector2(), scale);
+    Draw(srcFillTexture, Vector2(dstFromPx.X, dstFromPx.Y), srcRectPx, color, rotation, Vector2(), scale);
   }
 
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const texture_type& srcFillTexture, const Vector2& dstFromPxf,
-                                                                          const Vector2& dstToPxf, const Color& color)
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const atlas_texture_type& srcFillTexture, const PxVector2 dstFromPxf,
+                                                                          const PxVector2 dstToPxf, const Color color)
   {
-    const auto texExtent = srcFillTexture.Extent;
-    const PxRectangleU32 srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
+    const auto texSize = srcFillTexture.Info.ExtentPx;
+    const PxRectangleU32 srcRectPx(texSize.Width / 2, texSize.Height / 2, 1, 1);
+
+    if (EqualHelper::IsAlmostEqual(dstFromPxf.X, dstToPxf.X))
+    {
+      // Vertical line
+      if (dstToPxf.Y > dstFromPxf.Y)
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstFromPxf.X, dstFromPxf.Y, 1, dstToPxf.Y - dstFromPxf.Y), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstFromPxf.X, dstToPxf.Y, 1, dstFromPxf.Y - dstToPxf.Y), srcRectPx, color);
+      }
+      return;
+    }
+    if (EqualHelper::IsAlmostEqual(dstFromPxf.Y, dstToPxf.Y))
+    {
+      // Horizontal line
+      if (dstToPxf.X > dstFromPxf.X)
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstFromPxf.X, dstFromPxf.Y, dstToPxf.X - dstFromPxf.X, 1), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstToPxf.X, dstFromPxf.Y, dstFromPxf.X - dstToPxf.X, 1), srcRectPx, color);
+      }
+      return;
+    }
+
 
     Vector2 delta(dstToPxf.X - dstFromPxf.X, dstToPxf.Y - dstFromPxf.Y);
     auto len = delta.Length();
     Vector2 scale(len, 1.0f);
     const float rotation = VectorHelper::VectorToAngle(delta);
 
-    Draw(srcFillTexture, dstFromPxf, srcRectPx, color, rotation, Vector2(), scale);
+    Draw(srcFillTexture, TypeConverter::To<Vector2>(dstFromPxf), srcRectPx, color, rotation, Vector2(), scale);
+  }
+
+
+  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const texture_type& srcFillTexture, const PxPoint2 dstFromPx,
+                                                                          const PxPoint2 dstToPx, const Color color)
+  {
+    const auto texExtent = srcFillTexture.Extent;
+    const PxRectangleU32 srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
+
+    if (dstFromPx.X == dstToPx.X)
+    {
+      // Vertical line
+      if (dstToPx.Y > dstFromPx.Y)
+      {
+        Draw(srcFillTexture, PxRectangle(dstFromPx.X, dstFromPx.Y, 1, dstToPx.Y - dstFromPx.Y), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxRectangle(dstFromPx.X, dstToPx.Y, 1, dstFromPx.Y - dstToPx.Y), srcRectPx, color);
+      }
+      return;
+    }
+    if (dstFromPx.Y == dstToPx.Y)
+    {
+      // Horizontal line
+      if (dstToPx.X > dstFromPx.X)
+      {
+        Draw(srcFillTexture, PxRectangle(dstFromPx.X, dstFromPx.Y, dstToPx.X - dstFromPx.X, 1), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxRectangle(dstToPx.X, dstFromPx.Y, dstFromPx.X - dstToPx.X, 1), srcRectPx, color);
+      }
+      return;
+    }
+
+    Vector2 delta(dstToPx.X - dstFromPx.X, dstToPx.Y - dstFromPx.Y);
+    auto len = delta.Length();
+    Vector2 scale(len, 1.0f);
+    const float rotation = VectorHelper::VectorToAngle(delta);
+
+    Draw(srcFillTexture, Vector2(dstFromPx.X, dstFromPx.Y), srcRectPx, color, rotation, Vector2(), scale);
+  }
+
+
+  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const texture_type& srcFillTexture, const PxVector2 dstFromPxf,
+                                                                          const PxVector2 dstToPxf, const Color color)
+  {
+    const auto texExtent = srcFillTexture.Extent;
+    const PxRectangleU32 srcRectPx(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
+
+    if (EqualHelper::IsAlmostEqual(dstFromPxf.X, dstToPxf.X))
+    {
+      // Vertical line
+      if (dstToPxf.Y > dstFromPxf.Y)
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstFromPxf.X, dstFromPxf.Y, 1, dstToPxf.Y - dstFromPxf.Y), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstFromPxf.X, dstToPxf.Y, 1, dstFromPxf.Y - dstToPxf.Y), srcRectPx, color);
+      }
+      return;
+    }
+    if (EqualHelper::IsAlmostEqual(dstFromPxf.Y, dstToPxf.Y))
+    {
+      // Horizontal line
+      if (dstToPxf.X > dstFromPxf.X)
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstFromPxf.X, dstFromPxf.Y, dstToPxf.X - dstFromPxf.X, 1), srcRectPx, color);
+      }
+      else
+      {
+        Draw(srcFillTexture, PxAreaRectangleF(dstToPxf.X, dstFromPxf.Y, dstFromPxf.X - dstToPxf.X, 1), srcRectPx, color);
+      }
+      return;
+    }
+
+    Vector2 delta(dstToPxf.X - dstFromPxf.X, dstToPxf.Y - dstFromPxf.Y);
+    auto len = delta.Length();
+    Vector2 scale(len, 1.0f);
+    const float rotation = VectorHelper::VectorToAngle(delta);
+
+    Draw(srcFillTexture, TypeConverter::To<Vector2>(dstFromPxf), srcRectPx, color, rotation, Vector2(), scale);
   }
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>

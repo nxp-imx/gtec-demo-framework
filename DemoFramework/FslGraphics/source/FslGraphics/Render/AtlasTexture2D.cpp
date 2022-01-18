@@ -34,6 +34,31 @@
 
 namespace Fsl
 {
+  AtlasTexture2D& AtlasTexture2D::operator=(AtlasTexture2D&& other) noexcept
+  {
+    if (this != &other)
+    {
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      Reset();
+
+      // Claim ownership here
+      m_atlas = std::move(other.m_atlas);
+      m_info = other.m_info;
+
+      other.m_info = {};
+    }
+    return *this;
+  }
+
+  AtlasTexture2D::AtlasTexture2D(AtlasTexture2D&& other) noexcept
+    : m_atlas(std::move(other.m_atlas))
+    , m_info(other.m_info)
+  {
+    // Remove the data from other
+    other.m_info = {};
+  }
+
+
   AtlasTexture2D::AtlasTexture2D(const BaseTexture2D& texAtlas, const AtlasTextureInfo& info)
     : m_atlas(texAtlas)
     , m_info(texAtlas.IsValid() ? info : AtlasTextureInfo())
@@ -56,10 +81,10 @@ namespace Fsl
   }
 
 
-  void AtlasTexture2D::Reset()
+  void AtlasTexture2D::Reset() noexcept
   {
     m_atlas.Reset();
-    m_info = AtlasTextureInfo();
+    m_info = {};
   }
 
 

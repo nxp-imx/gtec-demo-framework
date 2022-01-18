@@ -38,7 +38,6 @@
 namespace Fsl
 {
   class ISpriteMaterial;
-  class StringViewLite;
 
   //! @brief A simple immutable render material
   struct SpriteMaterialInfo

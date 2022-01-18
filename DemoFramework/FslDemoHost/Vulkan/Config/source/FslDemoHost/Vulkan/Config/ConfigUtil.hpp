@@ -36,6 +36,7 @@
 #include <FslDemoHost/Vulkan/Config/FeatureRequest.hpp>
 #include <FslDemoHost/Vulkan/Config/FeatureRequirement.hpp>
 #include <FslDemoHost/Vulkan/Config/OptionUserChoice.hpp>
+#include <algorithm>
 #include <deque>
 #include <vulkan/vulkan.h>
 

@@ -109,7 +109,7 @@ namespace Fsl
   protected:
     void FixedUpdate(const DemoTime& demoTime) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void BuildUI();

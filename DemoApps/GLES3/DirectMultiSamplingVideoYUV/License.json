@@ -1,0 +1,15 @@
+{
+  "ComplexLicense": {
+    "Licenses": [
+      {
+        "Origin": "Freescale",
+        "License": "CC0-1.0"
+      },
+      {
+        "Origin": "NXP",
+        "License": "CC0-1.0"
+      }
+    ],
+    "Comment": "Merged complex license for everything that could be used in a screenshot"
+  }
+}

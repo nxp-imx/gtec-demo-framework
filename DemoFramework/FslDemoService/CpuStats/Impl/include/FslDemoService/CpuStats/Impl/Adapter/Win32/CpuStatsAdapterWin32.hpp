@@ -68,8 +68,8 @@ namespace Fsl
     mutable ProcessTimes m_appSystemLast;
     mutable ProcessTimes m_appProcessLast;
 
-    mutable uint64_t m_lastTryGetCpuUsage{0};
-    mutable uint64_t m_lastTryGetApplicationCpuUsageTime{0};
+    mutable TimeSpan m_lastTryGetCpuUsage;
+    mutable TimeSpan m_lastTryGetApplicationCpuUsageTime;
     mutable float m_appCpuUsagePercentage{0.0f};
 
     // We allow up to 256 cpus

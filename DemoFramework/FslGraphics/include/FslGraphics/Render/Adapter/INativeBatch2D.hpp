@@ -32,6 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
+#include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/BatchEffect.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Render/Stats/Batch2DStats.hpp>
@@ -42,12 +45,10 @@ namespace Fsl
   class AtlasTexture2D;
   class BaseTexture2D;
   struct BitmapFontConfig;
-  struct Color;
   class StringViewLite;
   class INativeTexture2D;
   struct NativeTextureArea;
   struct NativeQuadTextureCoords;
-  struct Point2;
   struct PxAreaRectangleF;
   struct PxClipRectangle;
   struct PxExtent2D;
@@ -693,7 +694,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color) = 0;
+    virtual void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color) = 0;
 
     //! @brief Draw a line using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -701,7 +702,23 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawLine(const BaseTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color) = 0;
+    virtual void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color) = 0;
+
+    //! @brief Draw a line using a fill texture
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
+    //! @param color the color to use.
+    //! @note Do not invalidate the srcTexture before End() is called.
+    //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
+    virtual void DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color) = 0;
+
+    //! @brief Draw a line using a fill texture
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
+    //! @param color the color to use.
+    //! @note Do not invalidate the srcTexture before End() is called.
+    //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
+    virtual void DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color) = 0;
   };
 }
 

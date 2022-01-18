@@ -64,7 +64,7 @@ namespace Fsl
     int32_t m_activeRenderQueueIndex;
 
   public:
-    GridScene(const DemoAppConfig& config, const AtlasTexture2D& texFill, const Point2& gridResolution);
+    GridScene(const DemoAppConfig& config, AtlasTexture2D texFill, const Point2& gridResolution);
     ~GridScene() override;
 
     const char* GetRenderName() const;

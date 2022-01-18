@@ -95,6 +95,10 @@ namespace Fsl
     m_shared.Update(demoTime);
   }
 
+  void Benchmark::Resolve(const DemoTime& demoTime)
+  {
+    m_shared.Resolve(demoTime);
+  }
 
   void Benchmark::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
@@ -139,6 +143,14 @@ namespace Fsl
     }
     rCmdBuffers.End(currentFrameIndex);
   }
+
+
+  void Benchmark::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    m_shared.OnDrawSkipped(frameInfo);
+    VulkanBasic::DemoAppVulkanBasic::OnDrawSkipped(frameInfo);
+  }
+
 
   void Benchmark::OnFrameSequenceEnd()
   {

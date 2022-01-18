@@ -249,7 +249,7 @@ namespace Fsl
   }
 
 
-  void EightLayers::Draw(const DemoTime& demoTime)
+  void EightLayers::Draw(const FrameInfo& frameInfo)
   {
     if (m_useDummyMode)
       return;

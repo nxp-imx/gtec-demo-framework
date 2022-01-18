@@ -29,17 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
 #include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoApp/Base/Service/Events/IEventService.hpp>
 #include <FslDemoApp/Base/Service/ContentMonitor/IContentMonitor.hpp>
-#include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/DemoAppManagerEventListener.hpp>
 #include <FslDemoHost/Base/Service/AppInfo/IAppInfoControlService.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
@@ -68,14 +69,12 @@ namespace Fsl
 
   DemoAppManager::DemoAppManager(DemoAppSetup demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats,
                                  const LogStatsMode logStatsMode, const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall,
-                                 const bool enableContentMonitor, const uint32_t forcedUpdateTime, const bool renderSystemOverlay)
+                                 const bool enableContentMonitor, const TimeSpan& forcedUpdateTime, const bool renderSystemOverlay)
     : m_eventListener(std::make_shared<DemoAppManagerEventListener>())
     , m_demoAppSetup(std::move(demoAppSetup))
     , m_demoAppConfig(demoAppConfig)
     , m_state(DemoState::Running)
-    , m_forcedUpdateTime(forcedUpdateTime)
-    , m_frameTimeConfig(1000000 / 60)
-    , m_maxFrameTime(1000000 / 2)
+    , m_appTiming(m_timer.GetTimestamp(), forcedUpdateTime)
     , m_logStatsMode(logStatsMode)
     , m_logStatsFlags(logStatsFlags)
     , m_enableStats(enableStats)
@@ -85,8 +84,6 @@ namespace Fsl
     {
       m_demoAppProfilerOverlay = std::make_unique<DemoAppProfilerOverlay>(demoAppConfig.DemoServiceProvider, logStatsFlags);
     }
-
-    m_expectedFrameTime = m_frameTimeConfig;
     m_demoAppControl = m_demoAppConfig.DemoServiceProvider.Get<IDemoAppControlEx>();
     m_graphicsService = m_demoAppConfig.DemoServiceProvider.TryGet<IGraphicsServiceControl>();
     m_profilerServiceControl = m_demoAppConfig.DemoServiceProvider.Get<IProfilerServiceControl>();
@@ -109,7 +106,7 @@ namespace Fsl
     // if (!demoAppControl)
     //  throw std::invalid_argument("demoAppControl can not be null");
 
-    ResetTimer();
+    m_demoAppControl->RequestUpdateTimerReset();
   }
 
 
@@ -148,23 +145,23 @@ namespace Fsl
   }
 
 
-  bool DemoAppManager::Process(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp)
+  DemoAppManagerProcessResult DemoAppManager::Process(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp)
   {
     if (ManageExitRequests(true))
     {
-      return false;
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::SkipDraw);
     }
 
     if (m_state == DemoState::Suspended)
     {
-      return true;
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::Draw);
     }
 
     ManageAppState(windowMetrics, isConsoleBasedApp);
 
     if (ManageExitRequests(false))
     {
-      return false;
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::SkipDraw);
     }
 
     m_record.DemoApp->_Begin();
@@ -189,105 +186,48 @@ namespace Fsl
       ResetTimer();
     }
 
-    const TimeStepMode timeStepMode = m_demoAppControl->GetTimeStepMode();
-    ApplyTimeStepMode(timeStepMode);
-
-    // FIX: change the way this works depending on if we have vsync enabled or not!!
-
-    // Standard fixed time-step algorithm
-    // bool bDrawCalled = false;
     {
-      // If we can get a timestamp for when the last 'display buffer swap' occurred we could make this much more precise.
-      const uint64_t timeNow = m_timer.GetTime();
-      m_timeStatsBeforeUpdate = timeNow;
-
-      // Handle forced update time if enabled
-      if (m_forcedUpdateTime != 0)
+      if (m_cachedState.CachedTimeStepMode == TimeStepMode::Step)
       {
-        m_timeThen = timeNow - m_forcedUpdateTime;
-      }
-
-      uint64_t timeDiff = timeNow - m_timeThen;
-      m_timeThen = timeNow;
-
-      switch (timeStepMode)
-      {
-      case TimeStepMode::Paused:
-        timeDiff = 0;
-        m_accumulatedTime = 0;
-        break;
-      case TimeStepMode::Step:
-        timeDiff = m_expectedFrameTime;
-        m_accumulatedTime = 0;
         m_demoAppControl->SetTimeStepMode(TimeStepMode::Paused);
-        break;
-      default:
-        break;
       }
+      const DemoTime currentUpdateTime = m_appTiming.GetUpdateTime();
 
-      if (timeDiff >= m_maxFrameTime)
+      m_stats.TimeBeforeUpdate = m_timer.GetTimestamp();
       {
-        timeDiff = m_expectedFrameTime;
+        m_record.DemoApp->_PreUpdate(currentUpdateTime);
+
+        {    // Run all missing fixed updates
+          Optional<DemoTime> fixedTime = m_appTiming.TryFixedUpdate();
+          while (fixedTime.HasValue())
+          {
+            m_record.DemoApp->_FixedUpdate(fixedTime.Value());
+            fixedTime = m_appTiming.TryFixedUpdate();
+          }
+        }
+
+        if (m_graphicsService)
+        {
+          m_graphicsService->PreUpdate();
+        }
+
+        m_record.DemoApp->_Update(currentUpdateTime);
+        m_record.DemoApp->_PostUpdate(currentUpdateTime);
+        m_record.DemoApp->_Resolve(currentUpdateTime);
       }
-
-      m_accumulatedTime += timeDiff;
-      m_timeDiff = timeDiff;
-      // if (m_accumulatedTime >= m_expectedFrameTime)
-      //  FSLLOG3_INFO("Time between draws: {}", m_accumulatedTime);
-      // else
-      //  FSLLOG3_INFO("Time between draws: {} (Warning drawing same frame)", m_accumulatedTime);
-
-      const uint64_t expectedUpdateCount = m_accumulatedTime / m_expectedFrameTime;
-      switch (timeStepMode)
-      {
-      case TimeStepMode::Slow2X:
-      case TimeStepMode::Slow4X:
-      case TimeStepMode::Fast2X:
-      case TimeStepMode::Fast4X:
-        timeDiff = expectedUpdateCount * m_frameTimeConfig;
-        break;
-      default:
-        break;
-      }
-      m_accumulatedTotalTime += timeDiff;
-      m_currentDemoTimeUpdate = DemoTime(m_accumulatedTotalTime, timeDiff);
-      m_record.DemoApp->_PreUpdate(m_currentDemoTimeUpdate);
-
-      // We use m_frameTimeConfig instead of m_expectedFrameTime because m_expectedFrameTime might be modified
-      // by the TimeStepMode.
-      DemoTime demoTimeFixedUpdate(m_accumulatedTotalTimeFixed, m_frameTimeConfig);
-      int updateCount = 0;
-      while (m_accumulatedTime >= m_expectedFrameTime)
-      {
-        m_accumulatedTotalTimeFixed += m_expectedFrameTime;
-        demoTimeFixedUpdate.TotalTimeInMicroseconds = m_accumulatedTotalTimeFixed;
-
-        m_record.DemoApp->_FixedUpdate(demoTimeFixedUpdate);
-        m_accumulatedTime -= m_expectedFrameTime;
-        ++updateCount;
-      }
-
-      if (m_graphicsService)
-      {
-        m_graphicsService->PreUpdate();
-      }
-
-      m_record.DemoApp->_Update(m_currentDemoTimeUpdate);
-      m_record.DemoApp->_PostUpdate(m_currentDemoTimeUpdate);
-
-      m_timeStatsAfterUpdate = m_timer.GetTime();
+      m_stats.TimeAfterUpdate = m_timer.GetTimestamp();
     }
 
     ManageExitRequests(false);
+    CacheState();
 
     // Let the caller know update has been called
-    return true;
+    return ProcessOnDemandRendering();
   }
-
 
   AppDrawResult DemoAppManager::TryDraw()
   {
-    FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeUpdate);
+    FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeDraw);
 
     auto result = m_record.DemoApp->_TryPrepareDraw(frameInfo);
     if (result != AppDrawResult::Completed)
@@ -308,7 +248,7 @@ namespace Fsl
       throw;
     }
 
-    m_timeStatsAfterDraw = m_timer.GetTime();
+    m_stats.TimeAfterDraw = m_timer.GetTimestamp();
 
     if (m_enableStats && m_state == DemoState::Running && m_demoAppProfilerOverlay)
     {
@@ -321,13 +261,23 @@ namespace Fsl
   }
 
 
+  void DemoAppManager::OnDrawSkipped()
+  {
+    if (m_record.DemoApp)
+    {
+      const FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeDraw);
+      m_record.DemoApp->_OnDrawSkipped(frameInfo);
+    }
+  }
+
+
   AppDrawResult DemoAppManager::TryAppSwapBuffers()
   {
     if (!m_record.DemoApp)
     {
       return AppDrawResult::Completed;
     }
-    FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeUpdate);
+    FrameInfo frameInfo(m_record.FrameIndex, m_currentDemoTimeDraw);
 
     AppDrawResult result = m_record.DemoApp->_TrySwapBuffers(frameInfo);
 
@@ -337,30 +287,14 @@ namespace Fsl
       m_record.FrameIndex %= m_demoAppControl->GetRenderLoopFrameCounter();
       assert(m_record.FrameIndex < m_demoAppSetup.CustomAppConfig.MaxFramesInFlight);
     }
-
-
     return result;
-  }
-
-  void DemoAppManager::EndFrameSequence()
-  {
-    if (m_record.DemoApp)
-    {
-      m_record.DemoApp->_End();
-    }
   }
 
 
   void DemoAppManager::OnActivate()
   {
-    if (m_demoAppControl)
-    {
-      m_demoAppControl->RequestUpdateTimerReset();
-    }
-    else
-    {
-      ResetTimer();
-    }
+    assert(m_demoAppControl);
+    m_demoAppControl->RequestUpdateTimerReset();
   }
 
 
@@ -373,12 +307,23 @@ namespace Fsl
   {
     if (m_state == DemoState::Running)
     {
-      const uint64_t deltaTimeUpdate = m_timeStatsAfterUpdate - m_timeStatsBeforeUpdate;
-      const uint64_t deltaTimeDraw = m_timeStatsAfterDraw - m_timeStatsAfterUpdate;
+      UpdateAppTimers();
 
-      m_profilerServiceControl->AddFrameTimes(deltaTimeUpdate, deltaTimeDraw, m_timeDiff);
+      const auto deltaTimeUpdate = m_stats.TimeAfterUpdate - m_stats.TimeBeforeUpdate;
+      const auto deltaTimeDraw = m_stats.TimeAfterDraw - m_stats.TimeAfterUpdate;
+
+      const auto timeNow = m_timer.GetTimestamp();
+      const auto deltaFrameSwapCompletedTime = timeNow - m_stats.LastFrameSwapCompletedTime;
+      m_stats.LastFrameSwapCompletedTime = timeNow;
+
+      m_profilerServiceControl->AddFrameTimes(TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaTimeUpdate),
+                                              TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaTimeDraw),
+                                              TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaFrameSwapCompletedTime));
 
       const auto averageTime = m_profilerService->GetAverageFrameTime();
+      const auto averageTotalTime = TimeSpanUtil::FromMicroseconds(averageTime.TotalTime);
+      const float frameFps = deltaFrameSwapCompletedTime.Ticks() > 0 ? (float(TimeInfo::TicksPerSecond) / deltaFrameSwapCompletedTime.Ticks()) : 0.0f;
+      const float averageFps = averageTotalTime.Ticks() > 0 ? (float(TimeInfo::TicksPerSecond) / averageTotalTime.Ticks()) : 0.0f;
 
       if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU) && m_cpuStatsService)
       {
@@ -388,10 +333,13 @@ namespace Fsl
         if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::Frame))
         {
           // Flags: Frame | CPU
-          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "All: {} FPS: {} Updates: {} Draw: {} CPU: {}", m_timeDiff,
-                          (1000000.0f / m_timeDiff), deltaTimeUpdate, deltaTimeDraw, cpuUsage);
-          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "Average All: {} FPS: {} Updates: {} Draw: {} CPU: {}", averageTime.TotalTime,
-                          (1000000.0f / averageTime.TotalTime), averageTime.UpdateTime, averageTime.DrawTime, cpuUsage);
+          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "All: {} FPS: {} Updates: {} Draw: {} CPU: {}",
+                          TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaFrameSwapCompletedTime), frameFps,
+                          TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaTimeUpdate), TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaTimeDraw),
+                          cpuUsage);
+          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "Average All: {} FPS: {} Updates: {} Draw: {} CPU: {}",
+                          TimeSpanUtil::ToClampedMicrosecondsUInt64(averageTotalTime), averageFps, averageTime.UpdateTime, averageTime.DrawTime,
+                          cpuUsage);
         }
         else
         {
@@ -403,10 +351,32 @@ namespace Fsl
       else
       {
         // Flags: Frame
-        FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "All: {} FPS: {} Updates: {} Draw: {}", m_timeDiff, (1000000.0f / m_timeDiff),
-                        deltaTimeUpdate, deltaTimeDraw);
-        FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "Average All: {} FPS: {} Updates: {} Draw: {}", averageTime.TotalTime,
-                        (1000000.0f / averageTime.TotalTime), averageTime.UpdateTime, averageTime.DrawTime);
+        FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "All: {} FPS: {} Updates: {} Draw: {}",
+                        TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaFrameSwapCompletedTime), frameFps,
+                        TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaTimeUpdate), TimeSpanUtil::ToClampedMicrosecondsUInt64(deltaTimeDraw));
+        FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "Average All: {} FPS: {} Updates: {} Draw: {}", averageTime.TotalTime, averageFps,
+                        averageTime.UpdateTime, averageTime.DrawTime);
+      }
+    }
+  }
+
+
+  void DemoAppManager::OnDemandDrawSkipped()
+  {
+    if (m_state == DemoState::Running)
+    {
+      UpdateAppTimers();
+    }
+  }
+
+
+  void DemoAppManager::ProcessDone()
+  {
+    if (m_state == DemoState::Running)
+    {
+      if (m_record.DemoApp)
+      {
+        m_record.DemoApp->_End();
       }
     }
   }
@@ -440,6 +410,73 @@ namespace Fsl
     // Free the app
     DoShutdownAppNow();
     return m_demoAppControl->GetExitCode();
+  }
+
+  void DemoAppManager::CacheState()
+  {
+    m_cachedState.CachedTimeStepMode = m_demoAppControl->GetTimeStepMode();
+  }
+
+
+  void DemoAppManager::UpdateAppTimers()
+  {
+    // Apply any changes that might have occurred to the fixed update per seconds setting
+    m_appTiming.SetFixedUpdatesPerSecond(m_demoAppControl->GetFixedUpdatesPerSecond());
+
+    // If we can get a timestamp for when the last 'display buffer swap' occurred we could make this much more precise.
+    m_appTiming.TimeNow(m_timer.GetTimestamp(), m_cachedState.CachedTimeStepMode);
+  }
+
+
+  DemoAppManagerProcessResult DemoAppManager::ProcessOnDemandRendering()
+  {
+    // FSLLOG3_VERBOSE("{}", m_currentDemoTimeUpdate.DeltaTimeInMicroseconds);
+    const uint16_t onDemandFrameInterval = m_demoAppControl->GetOnDemandFrameInterval();
+    if (onDemandFrameInterval <= 1)
+    {
+      m_currentDemoTimeDraw = m_appTiming.GetUpdateTime();
+      m_onDemandRendering = {};
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::Draw);
+    }
+    // FIX: we need to ensure that at least one frame is currently visible, we need more info from the 'owner' as the present could have failed
+    if (onDemandFrameInterval != m_onDemandRendering.LastOnDemandFrameInterval)
+    {
+      double wait = 60.0 / onDemandFrameInterval;
+      double waitTime = wait > 0 ? 1000000.0 / wait : 1000000.0;
+
+      // Render the first frame after its been enabled
+      auto waitTimeInMicroseconds = NumericCast<uint64_t>(static_cast<int64_t>(std::round(waitTime)));
+      m_onDemandRendering = OnDemandRendering{onDemandFrameInterval, waitTimeInMicroseconds, 0};
+      m_currentDemoTimeDraw = m_appTiming.GetUpdateTime();
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::Draw);
+    }
+    if (m_onDemandRendering.ForceRenderNextFrame)
+    {
+      // We do this to ensure that any app changes that might be frame delayed gets rendered (this is nice for a UI that tries to show the active
+      // OnDemandFrameInterval)
+      m_onDemandRendering.ForceRenderNextFrame = false;
+      m_currentDemoTimeDraw = m_appTiming.GetUpdateTime();
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::Draw);
+    }
+
+    m_onDemandRendering.TimeInTicks += m_appTiming.GetUpdateTime().ElapsedTime.Ticks();
+    if (m_onDemandRendering.TimeInTicks >= m_onDemandRendering.WaitTimeInTicks)
+    {
+      // const uint64_t overshoot = m_onDemandRendering.TimeInMicroseconds - m_onDemandRendering.WaitTimeInMicroseconds;
+      // FSLLOG3_INFO("DRAW target time {}, time passed {}, diff: {}, skipped: {}", m_onDemandRendering.WaitTimeInMicroseconds,
+      //             m_onDemandRendering.TimeInMicroseconds, overshoot, m_onDemandRendering.SkipCount);
+      m_currentDemoTimeDraw = m_appTiming.GetUpdateTime();
+      m_onDemandRendering.TimeInTicks = 0;
+      m_onDemandRendering.SkipCount = 0;
+      return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::Draw);
+    }
+
+    constexpr uint64_t defaultFramesPerSecond = 60;
+    const uint64_t waitTimeLeft = m_onDemandRendering.WaitTimeInTicks - m_onDemandRendering.TimeInTicks;
+    const uint64_t defaultFrameTime = 1000000 / defaultFramesPerSecond;
+    const uint64_t sleepTime = defaultFrameTime <= waitTimeLeft ? defaultFrameTime : waitTimeLeft;
+    ++m_onDemandRendering.SkipCount;
+    return DemoAppManagerProcessResult(DemoAppManagerProcessResult::Command::SkipDrawSleep, sleepTime);
   }
 
 
@@ -511,37 +548,17 @@ namespace Fsl
 
   void DemoAppManager::ResetTimer()
   {
-    m_timeThen = m_timer.GetTime() - m_expectedFrameTime;
-    m_accumulatedTime = 0;
+    // Apply any changes that might have occurred to the fixed update per seconds setting
+    m_appTiming.SetFixedUpdatesPerSecond(m_demoAppControl->GetFixedUpdatesPerSecond());
+
+    auto currentTime = m_timer.GetTimestamp();
+    m_appTiming.ResetTimer(currentTime);
+    m_appTiming.AdvanceFixedTimeStep();
+    m_onDemandRendering = {};
+    m_stats = {};
+    m_stats.LastFrameSwapCompletedTime = currentTime;
   }
 
-
-  void DemoAppManager::ApplyTimeStepMode(const TimeStepMode mode)
-  {
-    switch (mode)
-    {
-    case TimeStepMode::Normal:
-    case TimeStepMode::Paused:
-    case TimeStepMode::Step:
-      m_expectedFrameTime = m_frameTimeConfig;
-      break;
-    case TimeStepMode::Slow2X:
-      m_expectedFrameTime = m_frameTimeConfig * 2;
-      break;
-    case TimeStepMode::Slow4X:
-      m_expectedFrameTime = m_frameTimeConfig * 4;
-      break;
-    case TimeStepMode::Fast2X:
-      m_expectedFrameTime = m_frameTimeConfig / 2;
-      break;
-    case TimeStepMode::Fast4X:
-      m_expectedFrameTime = m_frameTimeConfig / 4;
-      break;
-    default:
-      FSLLOG3_WARNING("Unknown timestep mode");
-      break;
-    }
-  }
 
   void DemoAppManager::DoShutdownAppNow()
   {
@@ -558,6 +575,9 @@ namespace Fsl
         throw;
       }
       m_record = {};
+
+      assert(m_demoAppControl);
+      m_demoAppControl->RestoreDefaults();
     }
   }
 }

@@ -43,6 +43,12 @@ namespace Fsl
     int32_t m_stride;
 
   public:
+    UnsupportedStrideException(const char* const psz, const int32_t stride)
+      : GraphicsException(psz)
+      , m_stride(stride)
+    {
+    }
+
     UnsupportedStrideException(const std::string& str, const int32_t stride)
       : GraphicsException(str)
       , m_stride(stride)
@@ -66,6 +72,12 @@ namespace Fsl
     std::size_t m_stride;
 
   public:
+    UnsupportedStrideExceptionEx(const char* const psz, const std::size_t stride)
+      : GraphicsException(psz)
+      , m_stride(stride)
+    {
+    }
+
     UnsupportedStrideExceptionEx(const std::string& str, const std::size_t stride)
       : GraphicsException(str)
       , m_stride(stride)
@@ -90,6 +102,12 @@ namespace Fsl
     int m_alignment;
 
   public:
+    UnsupportedAlignmentException(const char* const psz, const int alignment)
+      : GraphicsException(psz)
+      , m_alignment(alignment)
+    {
+    }
+
     UnsupportedAlignmentException(const std::string& str, const int alignment)
       : GraphicsException(str)
       , m_alignment(alignment)
@@ -114,6 +132,12 @@ namespace Fsl
     PixelFormat m_pixelFormat;
 
   public:
+    UnsupportedPixelFormatException(const char* const psz, const PixelFormat pixelFormat)
+      : GraphicsException(psz)
+      , m_pixelFormat(pixelFormat)
+    {
+    }
+
     UnsupportedPixelFormatException(const std::string& str, const PixelFormat pixelFormat)
       : GraphicsException(str)
       , m_pixelFormat(pixelFormat)
@@ -137,6 +161,12 @@ namespace Fsl
     VertexElementFormat m_vertexElementFormat;
 
   public:
+    UnsupportedVertexElementFormatException(const char* const psz, const VertexElementFormat vertexElementFormat)
+      : GraphicsException(psz)
+      , m_vertexElementFormat(vertexElementFormat)
+    {
+    }
+
     UnsupportedVertexElementFormatException(const std::string& str, const VertexElementFormat vertexElementFormat)
       : GraphicsException(str)
       , m_vertexElementFormat(vertexElementFormat)
@@ -159,6 +189,10 @@ namespace Fsl
   class UnsupportedPrimitiveTypeException : public GraphicsException
   {
   public:
+    explicit UnsupportedPrimitiveTypeException(const char* const psz)
+      : GraphicsException(psz)
+    {
+    }
     explicit UnsupportedPrimitiveTypeException(const std::string& str)
       : GraphicsException(str)
     {
@@ -172,6 +206,13 @@ namespace Fsl
     PixelFormat m_toPixelFormat;
 
   public:
+    UnsupportedPixelFormatConversionException(const char* const psz, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
+      : ConversionException(psz)
+      , m_fromPixelFormat(fromPixelFormat)
+      , m_toPixelFormat(toPixelFormat)
+    {
+    }
+
     UnsupportedPixelFormatConversionException(const std::string& str, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
       : ConversionException(str)
       , m_fromPixelFormat(fromPixelFormat)

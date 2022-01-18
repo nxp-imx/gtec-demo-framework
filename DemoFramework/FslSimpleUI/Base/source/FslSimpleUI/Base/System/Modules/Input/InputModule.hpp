@@ -61,6 +61,8 @@ namespace Fsl
       explicit InputModule(const std::shared_ptr<IModuleHost>& moduleHost);
       ~InputModule();
 
+      bool IsIdle() const noexcept;
+
       //! @brief Notify the input module that the mouse is moving
       bool MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx);
 

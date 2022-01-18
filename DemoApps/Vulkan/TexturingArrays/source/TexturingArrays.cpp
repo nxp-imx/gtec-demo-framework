@@ -146,7 +146,7 @@ namespace Fsl
   }
 
 
-  void TexturingArrays::Draw(const DemoTime& /*demoTime*/)
+  void TexturingArrays::Draw(const FrameInfo& /*frameInfo*/)
   {
     if (!TryPrepareFrame())
     {

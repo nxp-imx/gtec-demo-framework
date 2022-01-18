@@ -94,7 +94,9 @@ class CMakeCompileCommandsRecord(object):
     def __repr__(self) -> str:
         return self.__str__()
 
-
+"""
+This is used to extract information about find_package results.
+"""
 class CMakeCompileCommandsJson(object):
     JSON_KEY_DIRECTORY = 'directory'
     JSON_KEY_COMMAND = 'command'

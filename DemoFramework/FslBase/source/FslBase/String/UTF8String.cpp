@@ -307,12 +307,12 @@ namespace Fsl
       const uint32_t value = static_cast<unsigned char>(*itr);
       if (value <= static_cast<uint32_t>(UTF8_CHAR_MAX))
       {
-        fmt::format_to(buf, "{}", static_cast<char>(value));
+        fmt::format_to(std::back_inserter(buf), "{}", static_cast<char>(value));
         bIsFirst = true;
       }
       else if (bIsFirst)
       {
-        fmt::format_to(buf, "?");
+        fmt::format_to(std::back_inserter(buf), "?");
         bIsFirst = false;
       }
       ++itr;

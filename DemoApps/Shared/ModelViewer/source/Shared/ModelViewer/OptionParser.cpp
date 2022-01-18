@@ -64,11 +64,11 @@ namespace Fsl
     std::string GetHelpString(const TArray& entries)
     {
       fmt::memory_buffer buf;
-      fmt::format_to(buf, "{} ({})", entries[0].first, static_cast<int32_t>(entries[0].second));
+      fmt::format_to(std::back_inserter(buf), "{} ({})", entries[0].first, static_cast<int32_t>(entries[0].second));
 
       for (std::size_t i = 1; i < entries.size(); ++i)
       {
-        fmt::format_to(buf, ", {} ({})", entries[i].first, static_cast<int32_t>(entries[i].second));
+        fmt::format_to(std::back_inserter(buf), ", {} ({})", entries[i].first, static_cast<int32_t>(entries[i].second));
       }
       return fmt::to_string(buf);
     }

@@ -29,6 +29,7 @@ Argument                        |Description                                    
 --ScreenshotNameScheme \<arg>   |Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)                                                                                      |DemoHostManager
 --Stats                         |Display basic frame profiling stats                                                                                                                                 |DemoHostManager
 --StatsFlags \<arg>             |Select the stats to be displayed/logged. Defaults to frame\|cpu. Can be 'frame', 'cpu' or any combination                                                           |DemoHostManager
+--Version                       |Print version information                                                                                                                                           |DemoHostManager
 --Profiler.AverageEntries \<arg>|The number of frames used to calculate the average frame-time. Defaults to: 60                                                                                      |ProfilerService
 --ghelp \<arg>                  |Display option groups: all, demo or host                                                                                                                            |base
 -h, --help                      |Display options                                                                                                                                                     |base

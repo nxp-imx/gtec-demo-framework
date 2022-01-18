@@ -290,8 +290,10 @@ namespace Fsl
   }
 
 
-  void S04_Projection::Draw(const DemoTime& /*demoTime*/)
+  void S04_Projection::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

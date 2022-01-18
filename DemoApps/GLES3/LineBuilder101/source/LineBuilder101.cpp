@@ -31,6 +31,7 @@
 
 #include "LineBuilder101.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
@@ -61,7 +62,7 @@ namespace Fsl
   }
 
 
-  void LineBuilder101::Draw(const DemoTime& demoTime)
+  void LineBuilder101::Draw(const FrameInfo& frameInfo)
   {
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -73,7 +74,7 @@ namespace Fsl
     m_resources.LineDraw.Draw(m_example.GetLineBuilder().GetVertexSpan(), m_resources.LineProgram.Links);
 
     // Allow the example to draw a bit too
-    m_example.Draw(demoTime);
+    m_example.Draw(frameInfo.Time);
   }
 
   LineBuilder101::ProgramInfo LineBuilder101::CreateLineProgram(const std::shared_ptr<IContentManager>& contentManager)

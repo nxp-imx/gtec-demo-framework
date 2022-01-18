@@ -218,6 +218,8 @@ class PackageManager2(object):
         packageFlags = PackageManager2.__ProcessFlags(originalPackage.Flags)
 
         packageLanguage = originalPackage.PackageLanguage
+        generateList = originalPackage.GenerateList
+
         # patch the direct dependencies to match the flavor selection
         directDependencies = PackageManager2.__ToProcessedDependencyList(instance.DirectDependencies)
         directRequirements, directDefines, externalDependencies = PackageManager2.__ExtractInstanceRequirementsAndDefinesAndExtDeps(instance, originalPackage)
@@ -243,7 +245,7 @@ class PackageManager2(object):
         traceContext = originalPackage.TraceContext
 
         return ProcessedFactory.CreatePackage(createContext.Log, createContext.GeneratorInfo, projectContext, nameInfo, companyName, creationYear,
-                                              packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, directDependencies,
+                                              packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, generateList, directDependencies,
                                               directRequirements, directDefines, externalDependencies, path, templateType, buildCustomization,
                                               directExperimentalRecipe, resolvedPlatform, directPlatformSupported, customInfo, traceContext)
 
@@ -329,6 +331,7 @@ class PackageManager2(object):
         packageType = unresolvedPackage.Type
         packageFlags = PackageManager2.__ProcessFlags(unresolvedPackage.Flags)
         packageLanguage = unresolvedPackage.PackageLanguage
+        generateList = unresolvedPackage.GenerateList
         directDependencies = PackageManager2.__ToProcessedDependencyList2(unresolvedPackage.DirectDependencies)
         directRequirements = unresolvedPackage.DirectRequirements
         directDefines = unresolvedPackage.DirectDefines
@@ -343,7 +346,7 @@ class PackageManager2(object):
         traceContext = unresolvedPackage.TraceContext
 
         return ProcessedFactory.CreatePackage(createContext.Log, createContext.GeneratorInfo, packageProjectContext, nameInfo, companyName, creationYear, packageFile,
-                                              sourceFileHash, packageType, packageFlags, packageLanguage, directDependencies,
+                                              sourceFileHash, packageType, packageFlags, packageLanguage, generateList, directDependencies,
                                               directRequirements, directDefines, externalDependencies, path, templateType,
                                               buildCustomization, directExperimentalRecipe, resolvedPlatform, directPlatformSupported,
                                               customInfo, traceContext)

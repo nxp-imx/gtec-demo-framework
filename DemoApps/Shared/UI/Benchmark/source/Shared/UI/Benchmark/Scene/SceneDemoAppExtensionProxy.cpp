@@ -42,7 +42,7 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr uint16_t RecordDeltaTime = 1000000 / 60;
+      constexpr TimeSpan RecordDeltaTime(TimeInfo::TicksPerSecond / 60);
     }
   }
 
@@ -178,8 +178,8 @@ namespace Fsl
 
       if (UseCustomTime())
       {
-        const uint64_t deltaTime = LocalConfig::RecordDeltaTime;
-        const uint64_t totalTime = m_controlledDemoTime.TotalTimeInMicroseconds + deltaTime;
+        constexpr auto deltaTime = LocalConfig::RecordDeltaTime;
+        const auto totalTime = m_controlledDemoTime.TotalTime + deltaTime;
         m_controlledDemoTime = DemoTime(totalTime, deltaTime);
       }
 
@@ -267,6 +267,17 @@ namespace Fsl
       m_playRecord = {};
     }
   }
+
+
+  Optional<DemoTime> SceneDemoAppExtensionProxy::TryGetDemoTime() const
+  {
+    if (UseCustomTime())
+    {
+      return Optional<DemoTime>(m_controlledDemoTime);
+    }
+    return {};
+  }
+
 
   void SceneDemoAppExtensionProxy::StopAll()
   {

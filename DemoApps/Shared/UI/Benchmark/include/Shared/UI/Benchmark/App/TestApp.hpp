@@ -95,6 +95,7 @@ namespace Fsl
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
     void Update(const DemoTime& demoTime) final;
     void Draw() final;
+    void OnDrawSkipped() final;
 
   private:
     void SetDefaultValues();

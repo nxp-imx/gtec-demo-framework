@@ -130,8 +130,9 @@ namespace Fsl
   }
 
 
-  void SimpleUI100::Draw(const DemoTime& /*demoTime*/)
+  void SimpleUI100::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
     glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

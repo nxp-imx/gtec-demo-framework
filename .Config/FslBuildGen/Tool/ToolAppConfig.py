@@ -34,6 +34,7 @@
 from typing import Dict
 from typing import List
 from typing import Optional
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.PackageConfig import PlatformNameString
@@ -83,6 +84,7 @@ class ToolAppConfig(object):
         self.CMakeConfigArgs = DefaultValue.CMakeConfigArgs
         self.CMakeConfigGlobalArgs = DefaultValue.CMakeConfigGlobalArgs
         self.CMakeAllowFindPackage = DefaultValue.CMakeAllowFindPackage
+        self.UserSetVariables = UserSetVariables(dict())
 
 
     def SetToolAppConfigValues(self, toolAppConfig: 'ToolAppConfig') -> None:
@@ -108,6 +110,7 @@ class ToolAppConfig(object):
         self.CMakeConfigArgs = toolAppConfig.CMakeConfigArgs
         self.CMakeConfigGlobalArgs = toolAppConfig.CMakeConfigGlobalArgs
         self.CMakeAllowFindPackage = toolAppConfig.CMakeAllowFindPackage
+        self.UserSetVariables = toolAppConfig.UserSetVariables
 
     def GetUserCMakeConfig(self) -> UserCMakeConfig:
         return UserCMakeConfig(self.CMakeBuildDir, self.CMakeGeneratorName, self.CMakeInstallPrefix, self.CMakeConfigArgs,

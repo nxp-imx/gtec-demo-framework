@@ -62,8 +62,10 @@ namespace Fsl
   }
 
 
-  void S01_SimpleTriangle::Draw(const DemoTime& /*demoTime*/)
+  void S01_SimpleTriangle::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

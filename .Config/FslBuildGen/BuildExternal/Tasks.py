@@ -57,6 +57,7 @@ from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import CMakeTargetType
 #from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.GitUtil import GitUtil
 from FslBuildGen.PackageToolFinder import PackageToolFinder
 from FslBuildGen.PlatformUtil import PlatformUtil
 
@@ -121,9 +122,8 @@ class GitBaseTask(BasicTask):
         super().__init__(generatorContext)
         self.__ConfigureForPlatform(generatorContext)
 
-
     def __ConfigureForPlatform(self, generatorContext: GeneratorContext) -> None:
-        self.GitCommand = PlatformUtil.GetExecutableName('git', generatorContext.Generator.PlatformName)
+        self.GitCommand = GitUtil.GetExecutableName(generatorContext.Generator.PlatformName)
 
 
 class GitCloneTask(GitBaseTask):
@@ -155,17 +155,7 @@ class GitCloneTask(GitBaseTask):
 
 
     def GetCurrentHash(self, path: str) -> str:
-        command = [self.GitCommand, "rev-parse", "HEAD"]
-        strVersion = None
-        proc = subprocess.Popen(command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True, cwd=path)
-        try:
-            (strVersion, err) = proc.communicate()
-            proc.wait()
-            strVersion = strVersion.strip()
-        finally:
-            if proc.stdout is not None:
-                proc.stdout.close()
-        return str(strVersion)
+        return GitUtil.GetCurrentHash(self.GitCommand, path)
 
 
     def __RunGitClone(self, sourcePath: str, targetPath: str, branch: str) -> None:
@@ -488,11 +478,14 @@ class CMakeAndBuildTask(BasicTask):
             if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows:
                 return CMakeBuilderNinja(generatorContext, buildThreads)
             return CMakeBuilderMake(generatorContext, buildThreads)
-        if generatorContext.CMakeConfig.CMakeVersion < CMakeBuilderGeneric.MINIMUM_VERSION:
+        isMSVC = (generatorName == CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeGeneratorName.VisualStudio2017_X64 or
+                  generatorName == CMakeGeneratorName.VisualStudio2019_X64 or generatorName == CMakeGeneratorName.VisualStudio2022_X64)
+        # The generic handler does not really apply proper threaded builds, so we use the old one for MSVC
+        if generatorContext.CMakeConfig.CMakeVersion < CMakeBuilderGeneric.MINIMUM_VERSION or isMSVC:
+            if isMSVC:
+                return CMakeBuilderMSBuild(generatorContext, buildThreads)
             if generatorName == CMakeGeneratorName.Ninja:
                 return CMakeBuilderNinja(generatorContext, buildThreads, False)
             if generatorName == CMakeGeneratorName.UnixMakeFile:
                 return CMakeBuilderMake(generatorContext, buildThreads)
-            if generatorName == CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeGeneratorName.VisualStudio2017_X64 or generatorName == CMakeGeneratorName.VisualStudio2019_X64:
-                return CMakeBuilderMSBuild(generatorContext, buildThreads)
         return CMakeBuilderGeneric(generatorContext, buildThreads)

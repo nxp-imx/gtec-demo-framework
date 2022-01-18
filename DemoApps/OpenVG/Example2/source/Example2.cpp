@@ -162,8 +162,10 @@ namespace Fsl
   }
 
 
-  void Example2::Draw(const DemoTime& demoTime)
+  void Example2::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

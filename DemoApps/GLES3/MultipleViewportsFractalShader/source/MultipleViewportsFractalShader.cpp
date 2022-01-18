@@ -67,8 +67,10 @@ namespace Fsl
   }
 
 
-  void MultipleViewportsFractalShader::Draw(const DemoTime& /*demoTime*/)
+  void MultipleViewportsFractalShader::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     const auto extent = GetScreenExtent();

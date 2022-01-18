@@ -56,9 +56,13 @@ namespace Fsl
 
     void OnFrameSequenceBegin() override;
     void Update(const DemoTime& demoTime) override;
+    bool Resolve(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
+    void OnDrawSkipped(const FrameInfo& frameInfo) override;
 
   protected:
+    DemoTime ApplyCustomDemoTime(const DemoTime& demoTime) const;
+
     const ISceneTestDemoControl& GetDemoControl() const;
     ISceneTestDemoControl& GetDemoControl();
   };

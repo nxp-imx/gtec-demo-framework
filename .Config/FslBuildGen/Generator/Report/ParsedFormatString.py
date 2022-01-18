@@ -45,6 +45,7 @@ from FslBuildGen import Util
 from FslBuildGen.Generator.Report.VariableDict import VariableDict
 from FslBuildGen.Generator.Report.VariableReport import VariableReport
 
+
 class FormatStringUndefinedVariableNameException(Exception):
     def __init__(self, name: str) -> None:
         super().__init__("The variable '{0}' was undefined".format(name))

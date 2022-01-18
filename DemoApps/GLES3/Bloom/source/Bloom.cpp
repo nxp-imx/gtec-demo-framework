@@ -290,9 +290,9 @@ namespace Fsl
   }
 
 
-  void Bloom::Draw(const DemoTime& demoTime)
+  void Bloom::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(frameInfo);
 
     if (!m_scene)
     {

@@ -30,18 +30,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include "Platform/PlatformPerformanceCounter.hpp"
 
 namespace Fsl
 {
   HighResolutionTimer::HighResolutionTimer()
+    : m_nativeTicksPerSecond(PlatformPerformanceCounter::GetPerformanceFrequency())
+    , m_frequency(static_cast<double>(m_nativeTicksPerSecond) / static_cast<double>(TimeInfo::TicksPerSecond))
   {
-    m_frequency = static_cast<double>(PlatformPerformanceCounter::GetPerformanceFrequency()) / 1000000.0;
   }
 
 
-  uint64_t HighResolutionTimer::GetTime() const
+  TimeSpan HighResolutionTimer::GetTimestamp() const noexcept
   {
-    return static_cast<uint64_t>(static_cast<double>(PlatformPerformanceCounter::GetPerformanceCounter()) / m_frequency);
+    return TimeSpan(static_cast<int64_t>(static_cast<double>(PlatformPerformanceCounter::GetPerformanceCounter()) / m_frequency));
+  }
+
+  uint64_t HighResolutionTimer::GetNativeTicks() const noexcept
+  {
+    return PlatformPerformanceCounter::GetPerformanceCounter();
   }
 }

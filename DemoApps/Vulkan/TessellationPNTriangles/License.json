@@ -1,0 +1,16 @@
+{
+  "ComplexLicense": {
+    "Licenses": [
+      {
+        "Origin": "CDmir",
+        "License": "CC0-1.0",
+        "URL": "http://opengameart.org/content/old-deer-male"
+      },
+      {
+        "Origin": "NXP",
+        "License": "CC0-1.0"
+      }
+    ],
+    "Comment": "Merged complex license for everything that could be used in a screenshot"
+  }
+}

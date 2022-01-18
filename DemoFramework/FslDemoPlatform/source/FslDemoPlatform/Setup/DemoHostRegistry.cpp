@@ -78,15 +78,15 @@ namespace Fsl
     {
       fmt::memory_buffer errorMessage;
 
-      fmt::format_to(errorMessage, "There is no host available that supports: ");
+      fmt::format_to(std::back_inserter(errorMessage), "There is no host available that supports: ");
       auto itr = features.begin();
       while (itr != features.end())
       {
-        fmt::format_to(errorMessage, DemoHostFeatureName::ToString(itr->Name));
+        fmt::format_to(std::back_inserter(errorMessage), DemoHostFeatureName::ToString(itr->Name));
         ++itr;
         if (itr != features.end())
         {
-          fmt::format_to(errorMessage, ", ");
+          fmt::format_to(std::back_inserter(errorMessage), ", ");
         }
       }
       throw NotSupportedException(fmt::to_string(errorMessage));

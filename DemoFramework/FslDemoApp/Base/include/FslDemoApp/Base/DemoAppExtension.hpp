@@ -91,6 +91,10 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(demoTime);
     }
+    virtual void Resolve(const DemoTime& demoTime)
+    {
+      FSL_PARAM_NOT_USED(demoTime);
+    }
     //    virtual void Draw() {}
   };
 }

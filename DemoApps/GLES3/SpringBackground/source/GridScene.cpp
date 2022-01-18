@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <utility>
 #include "GridRender/GridRenderVBGeometry1.hpp"
 
 namespace Fsl
@@ -47,11 +48,11 @@ namespace Fsl
 
 
   // Geometry Wars had 60.000 points in its spring grid :)
-  GridScene::GridScene(const DemoAppConfig& config, const AtlasTexture2D& texFill, const Point2& gridResolution)
+  GridScene::GridScene(const DemoAppConfig& config, AtlasTexture2D texFill, const Point2& gridResolution)
     : m_screenSize(static_cast<float>(config.ScreenResolution.X), static_cast<float>(config.ScreenResolution.Y))
     , m_renderSystem(config.DemoServiceProvider.Get<IGraphicsService>()->GetBasicRenderSystem())
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
-    , m_texFill(texFill)
+    , m_texFill(std::move(texFill))
     , m_grid(Rect(0, 0, m_screenSize.X, m_screenSize.Y), gridResolution)
     , m_gridRenderNativeBatchBasic(m_grid.GetGridSize())
     , m_gridRenderNativeBatchCRSpline1(m_grid.GetGridSize())

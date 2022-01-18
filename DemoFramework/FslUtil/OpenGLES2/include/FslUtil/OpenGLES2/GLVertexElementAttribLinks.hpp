@@ -56,6 +56,14 @@ namespace Fsl
       bool IsCompatible(const GLVertexElementAttribLinks& instance) const;
 
       void EnableAttribArrays() const noexcept;
+
+      ReadOnlySpan<GLVertexElementAttribConfig> AsSpan() const;
+
+
+      uint32_t VertexStride() const noexcept
+      {
+        return m_vertexStride;
+      }
     };
   }
 }

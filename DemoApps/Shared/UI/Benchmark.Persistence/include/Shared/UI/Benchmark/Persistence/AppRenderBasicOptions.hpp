@@ -39,12 +39,15 @@ namespace Fsl
     // Settings
     bool NoOpaqueMaterials{false};
     // Options
+    bool UseOnDemandRendering{false};
     bool UseSdfFonts{false};
 
     constexpr AppRenderBasicOptions() noexcept = default;
-    constexpr AppRenderBasicOptions(const bool gpuTimestamps, const bool noOpaqueMaterials, const bool useSdfFonts) noexcept
+    constexpr AppRenderBasicOptions(const bool gpuTimestamps, const bool noOpaqueMaterials, const bool useOnDemandRendering,
+                                    const bool useSdfFonts) noexcept
       : GpuTimestamps(gpuTimestamps)
       , NoOpaqueMaterials(noOpaqueMaterials)
+      , UseOnDemandRendering(useOnDemandRendering)
       , UseSdfFonts(useSdfFonts)
     {
     }

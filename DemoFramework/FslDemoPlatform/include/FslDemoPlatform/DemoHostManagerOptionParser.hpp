@@ -33,6 +33,7 @@
 
 #include <FslBase/ITag.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
 #include <FslDemoPlatform/DurationExitConfig.hpp>
 #include <FslGraphics/ImageFormat.hpp>
@@ -49,7 +50,7 @@ namespace Fsl
     int32_t m_exitAfterFrame{-1};
     DurationExitConfig m_exitAfterDuration;
     TestScreenshotConfig m_screenshotConfig;
-    uint32_t m_forceUpdateTime{0u};
+    TimeSpan m_forceUpdateTime;
     LogStatsMode m_logStatsMode{LogStatsMode::Disabled};
     DemoAppStatsFlags m_statFlags{static_cast<uint32_t>(DemoAppStatsFlags::Frame | DemoAppStatsFlags::CPU)};
     bool m_stats{false};
@@ -82,7 +83,7 @@ namespace Fsl
     }
 
     //! Returns zero if forced timing is disabled
-    uint32_t GetForceUpdateTime() const;
+    TimeSpan GetForceUpdateTime() const noexcept;
 
     //! Get the screenshot config
     TestScreenshotConfig GetScreenshotConfig() const;

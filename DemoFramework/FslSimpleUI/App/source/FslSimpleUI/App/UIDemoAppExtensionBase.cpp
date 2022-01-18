@@ -59,7 +59,7 @@ namespace Fsl
 
     TransitionTimeSpan Convert(const DemoTime& time)
     {
-      return {time.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds};
+      return TransitionTimeSpan(time.ElapsedTime.Ticks());
     }
 
     std::unique_ptr<UI::IRenderSystem> CreateUIRenderSystem(const UI::IRenderSystemFactory& factory, IGraphicsService& graphicsService,

@@ -36,6 +36,7 @@ import shlex
 from FslBuildGen.Log import Log
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.BuildExternal import CMakeHelper
 from FslBuildGen.CMakeUtil import CMakeUtil
 #from FslBuildGen.CMakeUtil import CMakeVersion
@@ -45,8 +46,9 @@ from FslBuildGen.Version import Version
 from FslBuildGen.Tool.UserCMakeConfig import UserCMakeConfig
 
 def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig,
-                              userCMakeConfig: Optional[UserCMakeConfig], cmakeConfiguration: CMakeConfiguration,
-                              defaultCompilerVersion: int, isCheckMode: bool) -> GeneratorCMakeConfig:
+                              userSetVariables: UserSetVariables, userCMakeConfig: Optional[UserCMakeConfig],
+                              cmakeConfiguration: CMakeConfiguration, defaultCompilerVersion: int,
+                              isCheckMode: bool) -> GeneratorCMakeConfig:
     """
     Build the CMake config based on the supplied parameters and the default settings from the toolconfig
     """
@@ -96,5 +98,6 @@ def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str,
     if isCheckMode:
         buildDir = checkDir
 
-    return GeneratorCMakeConfig(toolVersion, platformName, buildVariantConfig, buildDir, buildDirSetByUser, checkDir, generatorName, installPrefix,
-                                cmakeVersion, cmakeConfigGlobalArgs, cmakeConfigAppArgs, allowFindPackage)
+    return GeneratorCMakeConfig(log, toolVersion, platformName, buildVariantConfig, userSetVariables, buildDir, buildDirSetByUser, checkDir,
+                                generatorName, installPrefix, cmakeVersion, cmakeConfigGlobalArgs, cmakeConfigAppArgs,
+                                allowFindPackage)

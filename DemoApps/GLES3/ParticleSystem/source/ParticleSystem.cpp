@@ -135,8 +135,10 @@ namespace Fsl
   }
 
 
-  void ParticleSystem::Draw(const DemoTime& /*demoTime*/)
+  void ParticleSystem::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (!m_scene)
     {
       glClearColor(0.5f, 0.5f, 0.5f, 0.5f);

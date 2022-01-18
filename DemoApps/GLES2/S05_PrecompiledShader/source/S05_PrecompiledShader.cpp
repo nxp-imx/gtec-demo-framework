@@ -115,8 +115,10 @@ namespace Fsl
   }
 
 
-  void S05_PrecompiledShader::Draw(const DemoTime& demoTime)
+  void S05_PrecompiledShader::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     GLfloat vVertices[] = {0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f};
 
     // set viewport

@@ -30,11 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/String/StringUtil.hpp>
-#include <FslBase/String/StringParseUtil.hpp>
+#include <FslBase/Log/Common/FmtVersionInfo2.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/String/StringUtil.hpp>
+#include <FslBase/String/StringParseUtil.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
+#include <FslVersion/FslVersion.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <fmt/format.h>
@@ -60,7 +63,8 @@ namespace Fsl
         ContentMonitor,
         EnableBasic2DPrealloc,
         ScreenshotNameScheme,
-        ForceUpdateTime
+        ForceUpdateTime,
+        Version
       };
     };
 
@@ -146,6 +150,7 @@ namespace Fsl
     rOptions.emplace_back(
       "ForceUpdateTime", OptionArgument::OptionRequired, CommandId::ForceUpdateTime,
       "Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled");
+    rOptions.emplace_back("Version", OptionArgument::OptionNone, CommandId::Version, "Print version information");
   }
 
 
@@ -170,8 +175,12 @@ namespace Fsl
     case CommandId::ScreenshotNamePrefix:
       return ParseScreenshotNamePrefix(strOptArg);
     case CommandId::ForceUpdateTime:
-      StringParseUtil::Parse(m_forceUpdateTime, strOptArg);
+    {
+      uint32_t value = 0;
+      StringParseUtil::Parse(value, strOptArg);
+      m_forceUpdateTime = TimeSpanUtil::FromMicroseconds(value);
       return OptionParseResult::Parsed;
+    }
     case CommandId::LogStats:
       m_logStatsMode = LogStatsMode::Latest;
       return OptionParseResult::Parsed;
@@ -211,6 +220,9 @@ namespace Fsl
       StringParseUtil::Parse(boolValue, strOptArg);
       m_enableBasic2DPrealloc = boolValue;
       return OptionParseResult::Parsed;
+    case CommandId::Version:
+      FSLLOG3_INFO("Release {}, GitCommit '{}'", ReleaseVersion::CurrentVersion(), ReleaseVersion::GetGitCommit());
+      return OptionParseResult::Parsed;
     default:
       break;
     }
@@ -230,7 +242,7 @@ namespace Fsl
   }
 
 
-  uint32_t DemoHostManagerOptionParser::GetForceUpdateTime() const
+  TimeSpan DemoHostManagerOptionParser::GetForceUpdateTime() const noexcept
   {
     return m_forceUpdateTime;
   }

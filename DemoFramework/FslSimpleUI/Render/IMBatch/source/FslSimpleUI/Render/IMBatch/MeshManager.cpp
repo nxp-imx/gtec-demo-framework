@@ -42,6 +42,7 @@
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/Sprite/OptimizedNineSliceSprite.hpp>
 #include <FslGraphics2D/Procedural/Builder/UITextMeshBuilder.hpp>
+#include "Log/FmtRenderDrawSpriteType.hpp"
 #include "MeshManager.hpp"
 #include "HandleCoding.hpp"
 

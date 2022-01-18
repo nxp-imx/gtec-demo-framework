@@ -64,6 +64,7 @@ from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
 from FslBuildGen.BuildConfig.RunHelper import RunHelper
 from FslBuildGen.BuildConfig.SimpleCancellationToken import SimpleCancellationToken
 from FslBuildGen.BuildConfig.TidyBuildGeneratorConfig import TidyBuildGeneratorConfig
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
@@ -88,6 +89,7 @@ from FslBuildGen.Packages.Package import Package
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 class MagicValues(object):
     ClangCompileCommand = "clang"
@@ -510,7 +512,7 @@ class CMakeHelper(object):
     #    return totalProcessedCount
 
     @staticmethod
-    def ExtractBuildConfiguration(log: Log, toolConfig: ToolConfig, platformId: str, sdkConfigTemplatePath: str,
+    def ExtractBuildConfiguration(log: Log, toolConfig: ToolConfig, userSetVariables: UserSetVariables, platformId: str, sdkConfigTemplatePath: str,
                                   performClangTidyConfig: PerformClangTidyConfig, clangExeInfo: ClangExeInfo, clangCppExeInfo: ClangExeInfo,
                                   clangTidyExeInfo: ClangExeInfo, allPackages: List[Package], cmakeConfig: GeneratorCMakeConfig,
                                   localVariantInfo: LocalVariantInfo, numBuildThreads: int,
@@ -518,7 +520,7 @@ class CMakeHelper(object):
                                   clangTidyFixOutputFolder: str) -> Dict[str, ExtractedPackageConfiguration]:
         log.LogPrint("Generating a ninja + clang cmake configuration and extracting build commands")
         # Generate the file dependencies (since clang tidy is unable to do that, we use the clang c++ compiler for it)
-        compilerCommands = CMakeHelper.__GenerateAndRunCMakeFile(log, toolConfig, platformId, sdkConfigTemplatePath,
+        compilerCommands = CMakeHelper.__GenerateAndRunCMakeFile(log, toolConfig, userSetVariables, platformId, sdkConfigTemplatePath,
                                                                  clangTidyFixOutputFolder, allPackages,
                                                                  cmakeConfig, performClangTidyConfig, clangExeInfo, clangCppExeInfo,
                                                                  clangTidyExeInfo, localVariantInfo, numBuildThreads,
@@ -615,7 +617,7 @@ class CMakeHelper(object):
 
 
     @staticmethod
-    def __GenerateAndRunCMakeFile(log: Log, toolConfig: ToolConfig, platformId: str, sdkConfigTemplatePath: str,
+    def __GenerateAndRunCMakeFile(log: Log, toolConfig: ToolConfig, userSetVariables: UserSetVariables, platformId: str, sdkConfigTemplatePath: str,
                                   clangTidyFixOutputFolder: str, allPackageList: List[Package], cmakeConfig: GeneratorCMakeConfig,
                                   performClangTidyConfig: PerformClangTidyConfig,
                                   clangExeInfo: ClangExeInfo, clangCppExeInfo: ClangExeInfo, clangTidyExeInfo: ClangExeInfo,
@@ -639,11 +641,13 @@ class CMakeHelper(object):
 
             cmakeConfigArguments = [cmakeToolchainArgument, cmakeExportCompileCommands]
 
-            cmakeConfig = CMakeHelper.__PatchCMakeConfig(cmakeConfig, cmakeBuildDir, cmakeConfigArguments)
+            cmakeConfig = CMakeHelper.__PatchCMakeConfig(log, userSetVariables, cmakeConfig, cmakeBuildDir, cmakeConfigArguments)
             generatorPlugin = GeneratorPluginTidy(log, platformId, CMakeGeneratorMode.Tidy)
             generatorPlugin.SYS_SetCMakeConfig(cmakeConfig)
 
-            generatorContext = GeneratorContext(log, tidyBuildGeneratorConfig.ErrorHelpManager, tidyBuildGeneratorConfig.RecipeFilterManager, toolConfig.Experimental, generatorPlugin)
+            variableContext = VariableContextHelper.Create(toolConfig, userSetVariables)
+            generatorContext = GeneratorContext(log, tidyBuildGeneratorConfig.ErrorHelpManager, tidyBuildGeneratorConfig.RecipeFilterManager,
+                                                toolConfig.Experimental, generatorPlugin, variableContext)
             config = Config(log, toolConfig, PluginSharedValues.TYPE_DEFAULT, localVariantInfo.ResolvedVariantSettingsDict, False)
             generatorPlugin.Generate(generatorContext, config, allPackageList)
 
@@ -662,7 +666,7 @@ class CMakeHelper(object):
 
 
     @staticmethod
-    def __PatchCMakeConfig(cmakeConfig: GeneratorCMakeConfig, newBuildDir: str, cmakeConfigExtraArguments: List[str]) -> GeneratorCMakeConfig:
+    def __PatchCMakeConfig(log: Log, userSetVariables: UserSetVariables, cmakeConfig: GeneratorCMakeConfig, newBuildDir: str, cmakeConfigExtraArguments: List[str]) -> GeneratorCMakeConfig:
         if cmakeConfig.GeneratorName != "Ninja":
             raise Exception("CMake generator must be set to Ninja")
 
@@ -678,7 +682,7 @@ class CMakeHelper(object):
         additionalGlobalConfigArguments = cmakeConfig.CMakeConfigUserGlobalArguments
         additionalAppConfigArguments = cmakeConfig.CMakeConfigUserAppArguments + cmakeConfigExtraArguments
         allowFindPackage = cmakeConfig.AllowFindPackage
-        return GeneratorCMakeConfig(toolVersion, platformName, buildVariantConfig, buildDir, buildDirSetByUser, checkDir, generatorName,
+        return GeneratorCMakeConfig(log, toolVersion, platformName, buildVariantConfig, userSetVariables, buildDir, buildDirSetByUser, checkDir, generatorName,
                                     installPrefix, cmakeVersion, additionalGlobalConfigArguments, additionalAppConfigArguments, allowFindPackage)
 
 
@@ -712,7 +716,7 @@ class PerformClangTidyHelper(object):
     VAR_CUSTOM_CHECKS = "CUSTOM_CHECKS"
 
     @staticmethod
-    def ProcessAllPackages(log: Log, toolConfig: ToolConfig, platformId: str, sdkConfigTemplatePath: str, pythonScriptRoot: str,
+    def ProcessAllPackages(log: Log, toolConfig: ToolConfig, userSetVariables: UserSetVariables, platformId: str, sdkConfigTemplatePath: str, pythonScriptRoot: str,
                            performClangTidyConfig: PerformClangTidyConfig, clangExeInfo: ClangExeInfo, clangCppExeInfo: ClangExeInfo,
                            clangTidyExeInfo: ClangExeInfo, clangTidyApplyReplacementsExeInfo: ClangExeInfo,
                            ninjaExeInfo: ClangExeInfo, allPackageList: List[Package], packageList: List[Package],
@@ -755,7 +759,7 @@ class PerformClangTidyHelper(object):
         PerformClangTidyHelper.WriteToolVersionFile(log, toolVersionOutputFile, clangExeInfo, clangTidyExeInfo, ninjaExeInfo)
 
         if not useLegacyTidyMethod:
-            buildConfigDict = CMakeHelper.ExtractBuildConfiguration(log, toolConfig, platformId, sdkConfigTemplatePath, performClangTidyConfig, clangExeInfo,
+            buildConfigDict = CMakeHelper.ExtractBuildConfiguration(log, toolConfig, userSetVariables, platformId, sdkConfigTemplatePath, performClangTidyConfig, clangExeInfo,
                                                                     clangCppExeInfo, clangTidyExeInfo, allPackageList, cmakeConfig, localVariantInfo, numBuildThreads,
                                                                     tidyBuildGeneratorConfig, virtualVariantEnvironmentCache, clangTidyFixOutputFolder)
         else:
@@ -1094,7 +1098,7 @@ class PerformClangTidyHelper(object):
 
 class PerformClangTidy(object):
     @staticmethod
-    def Run(log: Log, toolConfig: ToolConfig, platformId: str,
+    def Run(log: Log, toolConfig: ToolConfig, userSetVariables: UserSetVariables, platformId: str,
             topLevelPackage: Package, tidyPackageList: List[Package], userBuildVariantsDict: Dict[str, str],
             pythonScriptRoot: str, generatorContext: GeneratorContext, sdkConfigTemplatePath: str,
             packageRecipeResultManager: PackageRecipeResultManager,
@@ -1157,11 +1161,11 @@ class PerformClangTidy(object):
 
         log.LogPrint("Using legacy tidy method")
         allPackages = topLevelPackage.ResolvedBuildOrder
-        count = PerformClangTidyHelper.ProcessAllPackages(log, toolConfig, platformId, sdkConfigTemplatePath, pythonScriptRoot, performClangTidyConfig,
-                                                            clangExeInfo, clangCppExeInfo, clangTidyExeInfo, clangTidyApplyReplacementsExeInfo,
-                                                            ninjaExeInfo, allPackages, finalPackageList, generatorContext.CMakeConfig,
-                                                            customPackageFileFilter, localVariantInfo, buildThreads, tidyBuildGeneratorConfig,
-                                                            useLegacyTidyMethod)
+        count = PerformClangTidyHelper.ProcessAllPackages(log, toolConfig, userSetVariables, platformId, sdkConfigTemplatePath, pythonScriptRoot,
+                                                          performClangTidyConfig, clangExeInfo, clangCppExeInfo, clangTidyExeInfo,
+                                                          clangTidyApplyReplacementsExeInfo, ninjaExeInfo, allPackages, finalPackageList,
+                                                          generatorContext.CMakeConfig, customPackageFileFilter, localVariantInfo, buildThreads,
+                                                          tidyBuildGeneratorConfig, useLegacyTidyMethod)
 
         if count == 0:
             if customPackageFileFilter is None:

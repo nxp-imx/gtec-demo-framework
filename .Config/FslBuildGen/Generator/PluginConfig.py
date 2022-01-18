@@ -42,6 +42,7 @@ from FslBuildGen import PluginSharedValues
 from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.BuildConfig.BuildUtil import BuildUtil
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
@@ -372,8 +373,9 @@ class ActualPluginConfigContext(PluginConfigContext):
         return self.__GeneratorPlugins
 
     def GetGeneratorPluginById(self, pluginId: str, generatorType: GeneratorType, buildVariantConfig: BuildVariantConfig,
-                               defaultPackageLanguage: PackageLanguage, cmakeConfiguration: CMakeConfiguration,
-                               userCMakeConfig: Optional[UserCMakeConfig], isCheckMode: bool) -> GeneratorPlugin:
+                               userSetVariables: UserSetVariables, defaultPackageLanguage: PackageLanguage,
+                               cmakeConfiguration: CMakeConfiguration, userCMakeConfig: Optional[UserCMakeConfig],
+                               isCheckMode: bool) -> GeneratorPlugin:
         generator = self.__GetGenerator(pluginId, defaultPackageLanguage, generatorType)
         # Patch the generator with the global context variables
         generator.DotEnabled =  self.DotEnabled
@@ -383,8 +385,8 @@ class ActualPluginConfigContext(PluginConfigContext):
         if isinstance(generator, GeneratorPlugin):
             # patch the GeneratorPlugin generators with cmake configuration data
             generator.SYS_SetCMakeConfig(CMakeConfigUtil.BuildGeneratorCMakeConfig(self.__Log, self.__ToolVersion, generator.PlatformName,
-                                                                                   buildVariantConfig, userCMakeConfig, cmakeConfiguration,
-                                                                                   generator.ToolVersion, isCheckMode))
+                                                                                   buildVariantConfig, userSetVariables, userCMakeConfig,
+                                                                                   cmakeConfiguration, generator.ToolVersion, isCheckMode))
         return generator
 
     def EnableGraph(self) -> None:

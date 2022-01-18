@@ -49,7 +49,7 @@ namespace Fsl
       try
       {
         fmt::memory_buffer buf;
-        fmt::format_to(buf, pszFormat, args...);
+        fmt::format_to(std::back_inserter(buf), pszFormat, args...);
         buf.push_back(0);
         WriteLine(logType, buf.data());
       }
@@ -64,7 +64,7 @@ namespace Fsl
       try
       {
         fmt::memory_buffer buf;
-        fmt::format_to(buf, strFormat, args...);
+        fmt::format_to(std::back_inserter(buf), strFormat, args...);
         buf.push_back(0);
         WriteLine(logType, buf.data());
       }
@@ -82,7 +82,7 @@ namespace Fsl
       try
       {
         fmt::memory_buffer buf;
-        fmt::format_to(buf, pszFormat, args...);
+        fmt::format_to(std::back_inserter(buf), pszFormat, args...);
         buf.push_back(0);
         WriteLine(logLocation, logType, buf.data());
       }
@@ -97,7 +97,7 @@ namespace Fsl
       try
       {
         fmt::memory_buffer buf;
-        fmt::format_to(buf, strFormat, args...);
+        fmt::format_to(std::back_inserter(buf), strFormat, args...);
         buf.push_back(0);
         WriteLine(logLocation, logType, buf.data());
       }

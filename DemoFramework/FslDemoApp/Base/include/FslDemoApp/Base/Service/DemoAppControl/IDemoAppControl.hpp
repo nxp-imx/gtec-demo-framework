@@ -43,13 +43,13 @@ namespace Fsl
 
     //! @brief Request a screenshot (this causes a update timer reset to occur as well, to prevent the screenshot from affecting the animation too
     //! much)
-    virtual void RequestScreenshot() = 0;
+    virtual void RequestScreenshot() noexcept = 0;
 
     //! @brief Request that the app restarts.
-    virtual void RequestAppRestart() = 0;
+    virtual void RequestAppRestart() noexcept = 0;
 
     //! @brief Reset the update timers (do this if a lengthy operation has taken place to prevent a lot FixedUpdate catchup calls)
-    virtual void RequestUpdateTimerReset() = 0;
+    virtual void RequestUpdateTimerReset() noexcept = 0;
 
     //! @brief Request that the demo exits with the default exit code.
     virtual void RequestExit() = 0;
@@ -62,17 +62,17 @@ namespace Fsl
     //!        Will ignore the change request if the current exit code isn't defaultExitCode and log a warning
     virtual void ChangeExitCode(const int exitCode) = 0;
 
-    virtual bool HasScreenshotRequest() const = 0;
-    virtual bool HasAppRestartRequest() const = 0;
-    virtual bool HasUpdateTimerResetRequest() const = 0;
-    virtual bool HasExitRequest() const = 0;
-    virtual int GetExitCode() const = 0;
+    virtual bool HasScreenshotRequest() const noexcept = 0;
+    virtual bool HasAppRestartRequest() const noexcept = 0;
+    virtual bool HasUpdateTimerResetRequest() const noexcept = 0;
+    virtual bool HasExitRequest() const noexcept = 0;
+    virtual int GetExitCode() const noexcept = 0;
 
     virtual void SetTimeStepMode(const TimeStepMode timeStepMode) = 0;
-    virtual TimeStepMode GetTimeStepMode() const = 0;
+    virtual TimeStepMode GetTimeStepMode() const noexcept = 0;
 
     //! @brief This is the max used number send to BeginFrame as a frame index and it will be (1 >= returnedValue <= GetRenderLoopMaxFramesInFlight())
-    virtual uint32_t GetRenderLoopFrameCounter() const = 0;
+    virtual uint32_t GetRenderLoopFrameCounter() const noexcept = 0;
 
     //! @brief This is the max used number send to BeginFrame as a frame index
     virtual void SetRenderLoopFrameCounter(const uint32_t frameCount) = 0;
@@ -80,7 +80,7 @@ namespace Fsl
     //! @brief This is the max allowed number send to BeginFrame as a frame index
     //!        This number is the fixed upper bound used by the app and will not change while the app is running.
     //! @return the Value will always be >= 1
-    virtual uint32_t GetRenderLoopMaxFramesInFlight() const = 0;
+    virtual uint32_t GetRenderLoopMaxFramesInFlight() const noexcept = 0;
 
     //! @brief Enable enable/disable mouse capture
     //! @return true if the set succeeded, false if it failed
@@ -93,7 +93,22 @@ namespace Fsl
     virtual void EnableMouseCaptureMode(const bool enabled) = 0;
 
     //! @return true if mouse capture is enabled else false
-    virtual bool GetMouseCaptureMode() = 0;
+    virtual bool GetMouseCaptureMode() const noexcept = 0;
+
+    //! @return the number of fixed updates per second.
+    virtual uint16_t GetFixedUpdatesPerSecond() const noexcept = 0;
+
+    //! @brief Set the number of fixed updates per second
+    //! @param updates per second (will be clamped to >= 1)
+    virtual void SetFixedUpdatesPerSecond(const uint16_t updatesPerSecond) = 0;
+
+    //! @brief Get the on demand frame rate interval (used when the app is idle)
+    //! @return The frame interval which will always be >= 1
+    virtual uint16_t GetOnDemandFrameInterval() const noexcept = 0;
+
+    //! @brief Set the OnDemandRendering frame interval
+    //! @param frameRateInterval the frameRateInterval to use (valid range is >= 1, if less than one it will be set to 1)
+    virtual void SetOnDemandFrameInterval(const uint16_t frameRateInterval) = 0;
   };
 }
 

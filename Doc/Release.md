@@ -1,5 +1,30 @@
 # Releases
 
+## Release 5.9.0
+
+* Samples
+  * Added System.OnDemandRendering which showcase the new on demand rendering support. It can also be used to detect frame timing issues. (GLES2+3, Vulkan)
+  * Added System.BasicRenderModelLoader which showcase how to load a mesh and render it using the BasicRender  (GLES2+3, Vulkan).
+  * Updated UI.Benchmark app with on demand rendering (GLES2+3, Vulkan).
+  * Much more precise frame-timing.
+  * Added new command line parameter '--Version' which lists the release version and git commit (if available).
+  * Added a 'license.json' for the example screenshots 'Example.jpg'
+  * Initial Visual Studio 2022 support.
+* Breaking changes:
+  * FslResourceScan.py was integrated into 'FslBuildCheck --license' so the standalone tool was removed.
+  * Replace deprecated Draw methods with the new Draw method.
+  * Removed HighResolutionTimer.GetTime() use GetTimestamp() instead.
+  * DemoTime now provides the higher resolution TimeSpan's as time measurements.
+* Upgraded dependencies
+  * FMT 8.1.1
+  * RapidVulkan 1.2.189
+
+## Release 5.8.1
+
+* Various minor fixes.
+* Angle compatibility fix.
+* Upgraded FslBuild.
+
 ## Release 5.8.0
 
 * New samples

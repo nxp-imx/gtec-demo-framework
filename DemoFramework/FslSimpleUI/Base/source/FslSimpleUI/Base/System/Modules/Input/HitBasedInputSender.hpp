@@ -56,7 +56,7 @@ namespace Fsl
       explicit HitBasedInputSender(const std::shared_ptr<IModuleHost>& moduleHost);
       ~HitBasedInputSender();
 
-      bool HasActiveClickEvent() const;
+      bool HasActiveClickEvent() const noexcept;
       bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const;
 
       bool SendMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,

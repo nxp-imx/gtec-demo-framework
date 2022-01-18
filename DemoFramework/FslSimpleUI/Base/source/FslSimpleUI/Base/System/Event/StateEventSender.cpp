@@ -80,7 +80,7 @@ namespace Fsl
     StateEventSender::~StateEventSender() = default;
 
 
-    bool StateEventSender::HasActiveEvent() const
+    bool StateEventSender::HasActiveEvent() const noexcept
     {
       return !m_eventRoute.IsEmpty();
     }

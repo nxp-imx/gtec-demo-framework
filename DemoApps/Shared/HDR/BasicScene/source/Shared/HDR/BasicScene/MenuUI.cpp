@@ -248,9 +248,9 @@ namespace Fsl
 
   void MenuUI::Update(const DemoTime& demoTime)
   {
-    SplitX.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+    SplitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alpha1 = m_scene1LabelAlpha.GetValue();
     const float alpha2 = m_scene2LabelAlpha.GetValue();

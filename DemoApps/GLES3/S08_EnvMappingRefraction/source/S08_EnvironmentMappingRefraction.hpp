@@ -63,7 +63,7 @@ namespace Fsl
 
   protected:
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
   };
 }
 

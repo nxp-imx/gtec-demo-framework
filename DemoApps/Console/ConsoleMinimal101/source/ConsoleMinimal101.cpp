@@ -35,11 +35,6 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   ConsoleMinimal101::ConsoleMinimal101(const DemoAppConfig& config)
     : DemoAppConsoleMinimal(config)
   {

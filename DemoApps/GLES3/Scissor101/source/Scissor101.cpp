@@ -238,9 +238,9 @@ namespace Fsl
   }
 
 
-  void Scissor101::Draw(const DemoTime& demoTime)
+  void Scissor101::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(frameInfo);
 
     const auto windowSizePx = GetWindowSizePx();
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);

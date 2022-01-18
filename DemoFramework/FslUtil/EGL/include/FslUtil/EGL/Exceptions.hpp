@@ -44,9 +44,25 @@ namespace Fsl
     int m_lineNumber;
 
   public:
+    explicit EGLGraphicsException(const char*const psz)
+      : GraphicsException(psz)
+      , m_error(0)
+      , m_lineNumber(0)
+    {
+    }
+
+  
     explicit EGLGraphicsException(const std::string& str)
       : GraphicsException(str)
       , m_error(0)
+      , m_lineNumber(0)
+    {
+    }
+
+
+    EGLGraphicsException(const char*const psz, int error)
+      : GraphicsException(psz)
+      , m_error(error)
       , m_lineNumber(0)
     {
     }
@@ -60,10 +76,28 @@ namespace Fsl
     }
 
 
+    EGLGraphicsException(const char*const psz, int error, const char* const pszFilename, const int line)
+      : GraphicsException(psz)
+      , m_error(error)
+      , m_filename(pszFilename)
+      , m_lineNumber(line)
+    {
+    }
+
+
     EGLGraphicsException(const std::string& str, int error, const char* const pszFilename, const int line)
       : GraphicsException(str)
       , m_error(error)
       , m_filename(pszFilename)
+      , m_lineNumber(line)
+    {
+    }
+
+
+    EGLGraphicsException(const char*const psz, int error, std::string filename, const int line)
+      : GraphicsException(psz)
+      , m_error(error)
+      , m_filename(std::move(filename))
       , m_lineNumber(line)
     {
     }

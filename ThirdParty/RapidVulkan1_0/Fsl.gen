@@ -4,7 +4,7 @@
        so that we can do some extra exception message formatting via a custom CPP file -->
   <Library Name="RapidVulkan1_0" NoInclude="true" CreationYear="2017">
     <Dependency Name="FslBase"/>
-    <Dependency Name="Recipe.RapidVulkan_1_2_176"/>
+    <Dependency Name="Recipe.RapidVulkan_1_2_189"/>
     <Dependency Name="VulkanBase"/>
     <Define Name="FSL_DEMOFRAMEWORK" Access="Public"/>
     <Define Name="RAPIDVULKAN_ERRORFORMATTER_EXTERN" Access="Public"/>

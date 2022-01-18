@@ -33,12 +33,14 @@
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/AppDrawResult.hpp>
-#include <FslDemoApp/Base/IDemoApp.hpp>
-#include <FslDemoApp/Base/TimeStepMode.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/Base/IDemoApp.hpp>
+#include <FslDemoApp/Base/TimeStepMode.hpp>
+#include <FslDemoHost/Base/DemoAppManagerProcessResult.hpp>
+#include <FslDemoHost/Base/DemoAppTiming.hpp>
 #include <FslDemoHost/Base/DemoState.hpp>
 #include <FslDemoHost/Base/LogStatsMode.hpp>
 #include <memory>
@@ -53,6 +55,7 @@ namespace Fsl
   class IGraphicsServiceControl;
   class IProfilerService;
   class IProfilerServiceControl;
+  struct TimeSpan;
 
   class DemoAppManager
   {
@@ -67,6 +70,27 @@ namespace Fsl
       {
       }
     };
+    struct OnDemandRendering
+    {
+      uint16_t LastOnDemandFrameInterval{0};
+      uint64_t WaitTimeInTicks{0};
+      uint64_t TimeInTicks{0};
+      uint64_t SkipCount{0};
+      bool ForceRenderNextFrame{true};
+    };
+
+    struct CachedState
+    {
+      TimeStepMode CachedTimeStepMode{TimeStepMode::Normal};
+    };
+
+    struct Stats
+    {
+      TimeSpan TimeBeforeUpdate{0u};
+      TimeSpan TimeAfterUpdate{0u};
+      TimeSpan TimeAfterDraw{0u};
+      TimeSpan LastFrameSwapCompletedTime{0};
+    };
 
     std::unique_ptr<DemoAppProfilerOverlay> m_demoAppProfilerOverlay;
     std::shared_ptr<IDemoAppControlEx> m_demoAppControl;
@@ -78,21 +102,13 @@ namespace Fsl
     DemoAppSetup m_demoAppSetup;
     DemoAppConfig m_demoAppConfig;
     DemoState m_state;
+    CachedState m_cachedState;
     bool m_hasExitRequest{false};
     HighResolutionTimer m_timer;
-    uint32_t m_forcedUpdateTime;
-    uint64_t m_frameTimeConfig;
-    uint64_t m_timeThen{0u};
-    uint64_t m_accumulatedTime{0u};
-    uint64_t m_expectedFrameTime{0u};
-    uint64_t m_maxFrameTime;
-    uint64_t m_timeStatsBeforeUpdate{0u};
-    uint64_t m_timeStatsAfterUpdate{0u};
-    uint64_t m_timeStatsAfterDraw{0u};
-    uint64_t m_accumulatedTotalTimeFixed{0u};
-    uint64_t m_accumulatedTotalTime{0u};
-    uint64_t m_timeDiff = 0;
-    DemoTime m_currentDemoTimeUpdate;
+    DemoAppTiming m_appTiming;
+    DemoTime m_currentDemoTimeDraw;
+    Stats m_stats;
+    OnDemandRendering m_onDemandRendering;
     LogStatsMode m_logStatsMode;
     DemoAppStatsFlags m_logStatsFlags;
     bool m_enableStats;
@@ -103,7 +119,7 @@ namespace Fsl
   public:
     DemoAppManager(DemoAppSetup demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
                    const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall, const bool enableContentMonitor,
-                   const uint32_t forcedUpdateTime, const bool renderSystemOverlay);
+                   const TimeSpan& forcedUpdateTime, const bool renderSystemOverlay);
     virtual ~DemoAppManager();
 
     uint32_t GetFrameIndex() const
@@ -115,8 +131,9 @@ namespace Fsl
 
     DemoState GetState() const;
 
-    bool Process(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp);
+    DemoAppManagerProcessResult Process(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp);
     AppDrawResult TryDraw();
+    void OnDrawSkipped();
 
     //! @note Only called if the app is controlling the swap buffers.
     AppDrawResult TryAppSwapBuffers();
@@ -125,7 +142,8 @@ namespace Fsl
     void OnDeactivate();
     //! @brief Should be called after a buffer swap has been completed
     void OnFrameSwapCompleted();
-    void EndFrameSequence();
+    void OnDemandDrawSkipped();
+    void ProcessDone();
 
     void RequestExit();
     bool HasExitRequest() const;
@@ -133,13 +151,16 @@ namespace Fsl
     int CloseApp();
 
   private:
+    void CacheState();
+    void UpdateAppTimers();
+    DemoAppManagerProcessResult ProcessOnDemandRendering();
+
     //! @brief Manage exit requests
     //! @return true if exit should occur right away
     bool ManageExitRequests(const bool bCheckExternalOnly);
     //! @brief manage the app state
     void ManageAppState(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp);
     void ResetTimer();
-    void ApplyTimeStepMode(const TimeStepMode mode);
 
     void DoShutdownAppNow();
   };

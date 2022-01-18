@@ -33,6 +33,7 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTextureTexture.hpp>
@@ -572,7 +573,7 @@ namespace Fsl
     m_angle.Y = MathHelper::WrapAngle(m_angle.Y);
     m_angle.Z = MathHelper::WrapAngle(m_angle.Z);
 
-    m_effectUboData.Time = static_cast<float>(demoTime.TotalTimeInMicroseconds / 1000000.0);
+    m_effectUboData.Time = TimeSpanUtil::ToSecondsF(demoTime.TotalTime);
 
     // Rotate and translate the model view matrix
     m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;

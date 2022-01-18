@@ -209,8 +209,10 @@ namespace Fsl
   }
 
 
-  void ObjectSelection::Draw(const DemoTime& /*demoTime*/)
+  void ObjectSelection::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);

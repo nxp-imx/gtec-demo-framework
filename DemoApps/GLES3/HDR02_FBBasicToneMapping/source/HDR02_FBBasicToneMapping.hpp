@@ -115,7 +115,7 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) override;
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void UpdateInput(const DemoTime& demoTime);

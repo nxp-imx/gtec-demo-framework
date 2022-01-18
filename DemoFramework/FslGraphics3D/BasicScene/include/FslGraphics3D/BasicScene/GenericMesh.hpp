@@ -32,9 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics3D/BasicScene/GenericMesh_fwd.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/PrimitiveTypeUtil.hpp>
-#include <FslBase/Exceptions.hpp>
 
 namespace Fsl
 {
@@ -193,6 +194,13 @@ namespace Fsl
     ReadOnlyFlexVertexSpan GenericMesh<TVertex, TIndex>::AsReadOnlyFlexVertexSpan() const
     {
       return ReadOnlyFlexVertexSpanUtil::AsSpan(m_vertices);
+    }
+
+
+    template <typename TVertex, typename TIndex>
+    ReadOnlySpan<TIndex> GenericMesh<TVertex, TIndex>::AsReadOnlyIndexSpan() const
+    {
+      return ReadOnlySpanUtil::AsSpan(m_indices);
     }
 
 

@@ -186,6 +186,20 @@ class GeneratorVC(GeneratorBase):
         self.__ValidateProjectIds(packages)
         config.LogPrintVerbose(1, "  Projects generated")
 
+    @staticmethod
+    def AddPackageToRelevantPackagesDict(dirToRelevantPackagesDict: Dict[str, Set[Package]], absolutePath: Optional[str], package: Package) -> None:
+
+        if absolutePath is not None and len(absolutePath) > 0 and not IOUtil.IsDriveRootPath(absolutePath):
+            if absolutePath != package.AbsolutePath:
+                if not absolutePath in dirToRelevantPackagesDict:
+                    dirToRelevantPackagesDict[absolutePath] = set()
+                currentSet = dirToRelevantPackagesDict[absolutePath]
+                if package not in currentSet:
+                    currentSet.add(package)
+            GeneratorVC.AddPackageToRelevantPackagesDict(dirToRelevantPackagesDict, IOUtil.GetDirectoryName(absolutePath), package)
+            
+
+
     def __DetectVS10SDKVersion(self, log: Log, vsVersion: int) -> Optional[str]:
         if vsVersion != VisualStudioVersion.VS2017 and vsVersion != VisualStudioVersion.VS2019:
             return None
@@ -275,6 +289,11 @@ class GeneratorVC(GeneratorBase):
             if len(packageDepVC) > 0:
                 packageDepVC = template.PackageReferences.replace("##SNIPPET##", packageDepVC)
 
+        excludeDirs = self.__GenerateExcludeDirs(template.ExcludePackageDirsComplexEntry, config, package)
+        if template.ExcludePackageDirs is not None and len(excludeDirs) > 0:
+            excludeDirs = template.ExcludePackageDirs.replace("##SNIPPET##", excludeDirs)
+        else:
+            excludeDirs = ""
 
         resolvedBuildAllIncludeFiles = self.__GetPackageResolvedBuildAllIncludeFiles(config.GenFileName, package)
         includeFiles = self.__CreateVisualStudioStyleFileList(template.AddHeaderFile, resolvedBuildAllIncludeFiles)
@@ -301,6 +320,7 @@ class GeneratorVC(GeneratorBase):
         build = build.replace("##ADD_PROJECT_CONFIGURATIONS##", projectionConfigurations)
         build = build.replace("##ADD_PROJECT_REFERENCES##", libDepVC)
         build = build.replace("##ADD_PACKAGE_REFERENCES##", packageDepVC)
+        build = build.replace("##ADD_EXCLUDE_PACKAGE_DIRS##", excludeDirs)
         build = build.replace("##ADD_INCLUDE_FILES##", includeFiles)
         build = build.replace("##ADD_SOURCE_FILES##", sourceFiles)
         build = build.replace("##ADD_CONFIGURATIONS##", variantConfigurations)
@@ -1100,6 +1120,21 @@ class GeneratorVC(GeneratorBase):
                     strContent = strContent.replace("##PACKAGE_DEPENDENCY_PROJECTID##", projectId.lower())
                     strContent = strContent.replace("##PACKAGE_NAME##", entry.Name)
                     res.append(strContent)
+        return "\n".join(res)
+
+    def __GenerateExcludeDirs(self, snippetList: List[str], config: Config, package: Package) -> str:
+        res = []  # type: List[str]
+        if len(snippetList) > 0:
+            if package.AbsolutePath is not None and package.PackageLanguage == PackageLanguage.CSharp:
+                subDirs = IOUtil.GetDirectoriesAt(package.AbsolutePath, True)
+                if len(subDirs) > 0:
+                    for snippet in snippetList:
+                        for subDir in subDirs:
+                            subDirEx = subDir + '/'
+                            if package.AbsoluteSourcePath is None or (not package.AbsoluteSourcePath.startswith(subDirEx) and subDir != package.AbsoluteSourcePath):
+                                subDirName = IOUtil.GetFileName(subDir)
+                                strContent = snippet.replace('##DIR_NAME##', subDirName)
+                                res.append(strContent)
         return "\n".join(res)
 
 

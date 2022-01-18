@@ -322,11 +322,26 @@ class GeneratorCMake(GeneratorBase):
         res = [] # type: List[str]
 
         sortedDirectories = list(resDict.keys())
-        sortedDirectories.sort()
+        if len(sortedDirectories) > 0:
+            sortedDirectories.sort()
 
-        for dirName in sortedDirectories:
-            files = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, resDict[dirName])
-            res.append('source_group("{0}" FILES {1})'.format(dirName, files))
+            packageBaseIncludePathEx = package.BaseIncludePath + '/' if package.BaseIncludePath is not None else None;
+            packageBaseSourcePathEx = package.BaseSourcePath + '/' if package.BaseSourcePath is not None else None;
+
+            for dirName in sortedDirectories:
+                files = CMakeGeneratorUtil.ExpandPathAndJoin(toolConfig, package, resDict[dirName])
+                sourceGroupName = dirName
+                if package.BaseIncludePath is not None:
+                    if dirName == package.BaseIncludePath:
+                        sourceGroupName = "Include Files"
+                    elif dirName.startswith(packageBaseIncludePathEx):
+                        sourceGroupName = "Include Files/" + dirName[len(packageBaseIncludePathEx):]
+                if package.BaseSourcePath is not None:
+                    if dirName == package.BaseSourcePath:
+                        sourceGroupName = "Source Files"
+                    elif dirName.startswith(packageBaseSourcePathEx):
+                        sourceGroupName = "Source Files/" + dirName[len(packageBaseSourcePathEx):]
+                res.append('source_group("{0}" FILES {1})'.format(sourceGroupName, files))
 
         return "\n".join(res)
 
@@ -421,7 +436,7 @@ class GeneratorCMake(GeneratorBase):
         content = content.replace("##PACKAGE_NAME##", packageName)
         content = content.replace("##ALIAS_PACKAGE_NAME##", aliasPackageName)
         content = content.replace("##PROJECT_NAME##", projectContext.ProjectName)
-        content = content.replace("##PROJECT_VERSION##", projectContext.ProjectVersion)
+        content = content.replace("##PROJECT_VERSION##", str(projectContext.ProjectVersion))
         content = content.replace("##SNIPPET_CACHE_VARIANTS##", cacheVariants)
         content = content.replace("##DEFINE_PATH_ENVIRONMENT_AS_VARIABLES##", sectionDefinePathEnvAsVariables)
         content = content.replace("##CMAKE_MINIMUM_VERSION##", cmakeMinimumVersionStr)

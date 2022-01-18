@@ -17,15 +17,18 @@ repeat
             endwhile (false)
             :_Update;
             :_PostUpdate;
+            :_Resolve;
         }
-        if (_TryPrepareDraw) is (Completed) then 
-            partition Draw {
-                :_BeginDraw;
-                :_Draw;
-                :_EndDraw;
-                :_TrySwapBuffers;
-            }
-            :_End;
+        if (OnDemandRendering-SkipDraw) then
+            if (_TryPrepareDraw) is (Completed) then 
+                partition Draw {
+                    :_BeginDraw;
+                    :_Draw;
+                    :_EndDraw;
+                    :_TrySwapBuffers;
+                }
+                :_End;
+            endif
         endif
     }
 repeatwhile (<b>quitRequested) is (false)

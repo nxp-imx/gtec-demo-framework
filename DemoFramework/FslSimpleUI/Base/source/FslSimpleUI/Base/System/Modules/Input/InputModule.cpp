@@ -42,11 +42,6 @@ namespace Fsl
 {
   namespace UI
   {
-    namespace
-    {
-    }
-
-
     InputModule::InputModule(const std::shared_ptr<IModuleHost>& moduleHost)
       : m_targetLocater(moduleHost->GetTargetLocater())
       , m_hitBasedInputSender(std::make_shared<HitBasedInputSender>(moduleHost))
@@ -55,6 +50,12 @@ namespace Fsl
 
 
     InputModule::~InputModule() = default;
+
+
+    bool InputModule::IsIdle() const noexcept
+    {
+      return !m_hitBasedInputSender || !m_hitBasedInputSender->HasActiveClickEvent();
+    }
 
 
     bool InputModule::MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx)

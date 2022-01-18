@@ -33,6 +33,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/BufferedFileParser.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/ProcFileUtil.hpp>
@@ -66,10 +67,10 @@ namespace Fsl
     uint32_t m_cpuCount{0};
     mutable ProcessTimes m_appProcessLast;
 
-    mutable uint64_t m_lastTryGetCpuUsage{0};
+    mutable TimeSpan m_lastTryGetCpuUsage{0};
     mutable std::string m_scratchpad;
 
-    mutable uint64_t m_lastTryGetApplicationCpuUsageTime{0};
+    mutable TimeSpan m_lastTryGetApplicationCpuUsageTime{0};
     mutable float m_appCpuUsagePercentage{0.0f};
 
     mutable clock_t m_lastAppTime;

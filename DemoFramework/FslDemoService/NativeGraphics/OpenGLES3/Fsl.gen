@@ -3,7 +3,7 @@
   <Library Name="FslDemoService.NativeGraphics.OpenGLES3" CreationYear="2017">
     <Dependency Name="FslDemoService.NativeGraphics.BasicRender"/>
     <Dependency Name="FslService.Impl"/>
-    <Dependency Name="FslUtil.OpenGLES3" Access="Private"/>
+    <Dependency Name="FslUtil.OpenGLES3"/>
     <Platform Name="Windows" ProjectId="6C1F663A-864F-4538-ABB6-7B2FF8B406AA"/>
   </Library>
 </FslBuildGen>

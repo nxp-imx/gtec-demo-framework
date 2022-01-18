@@ -90,10 +90,10 @@ namespace Fsl
     std::string GetPresentModesString()
     {
       fmt::memory_buffer buf;
-      fmt::format_to(buf, "{} ({})", g_presentModes[0].StrMode, g_presentModes[0].Mode);
+      fmt::format_to(std::back_inserter(buf), "{} ({})", g_presentModes[0].StrMode, g_presentModes[0].Mode);
       for (std::size_t i = 1; i < g_presentModeCount; ++i)
       {
-        fmt::format_to(buf, ", {} ({})", g_presentModes[i].StrMode, g_presentModes[i].Mode);
+        fmt::format_to(std::back_inserter(buf), ", {} ({})", g_presentModes[i].StrMode, g_presentModes[i].Mode);
       }
       return fmt::to_string(buf);
     }

@@ -54,7 +54,7 @@ namespace Fsl
   }
 
 
-  void DFGraphicsBasic2D::Draw(const DemoTime& demoTime)
+  void DFGraphicsBasic2D::Draw(const FrameInfo& frameInfo)
   {
   }
 }

@@ -36,7 +36,6 @@
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
-#include <Shared/UI/Benchmark/DemoAppExtensionForwarder.hpp>
 #include <memory>
 #include <vector>
 
@@ -44,6 +43,7 @@ namespace Fsl
 {
   class CustomWindowInfoModuleProxy;
   class DemoPerformanceCapture;
+  struct FrameInfo;
   class ICustomWindowInfoModule;
   class IDemoAppControl;
   class ITestAppFactory;
@@ -118,6 +118,7 @@ namespace Fsl
 
     void AppUpdate(const DemoTime& demoTime);
     void AppDraw(const DemoTime& demoTime);
+    void AppOnDrawSkipped(const FrameInfo& frameInfo);
 
     const UIDemoAppMaterialConfig& GetDefaultMaterialConfig() const;
     void SetDefaultMaterialConfig(const UIDemoAppMaterialConfig& config);

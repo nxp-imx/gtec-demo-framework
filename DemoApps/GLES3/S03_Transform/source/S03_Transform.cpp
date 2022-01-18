@@ -99,8 +99,10 @@ namespace Fsl
   }
 
 
-  void S03_Transform::Draw(const DemoTime& /*demoTime*/)
+  void S03_Transform::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

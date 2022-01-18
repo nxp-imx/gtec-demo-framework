@@ -114,7 +114,8 @@ namespace Fsl
   }
 
 
-  void Window101::Draw(const DemoTime& /*demoTime*/)
+  void Window101::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
   }
 }

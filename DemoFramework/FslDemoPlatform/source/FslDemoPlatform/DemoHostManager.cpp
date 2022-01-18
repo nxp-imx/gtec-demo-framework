@@ -31,6 +31,7 @@
 
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
@@ -56,7 +57,8 @@ namespace Fsl
     , m_basic2DPreallocEnabled(demoHostManagerOptionParser->IsBasic2DPreallocEnabled())
     , m_exitAfterFrame(demoHostManagerOptionParser->GetExitAfterFrame())
     , m_exitAfterDuration(demoHostManagerOptionParser->GetDurationExitConfig())
-    , m_exitTime(std::chrono::microseconds(m_timer.GetTime()) + std::chrono::microseconds(m_exitAfterDuration.Duration))
+    , m_exitTime(std::chrono::microseconds(TimeSpanUtil::ToMicrosecondsInt64(m_timer.GetTimestamp())) +
+                 std::chrono::microseconds(m_exitAfterDuration.Duration))
   {
     // Acquire the various services
     ServiceProvider serviceProvider(demoSetup.ServiceProvider);
@@ -146,7 +148,8 @@ namespace Fsl
 
   void DemoHostManager::AppProcess(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedHost)
   {
-    if (m_demoAppManager->Process(windowMetrics, isConsoleBasedHost))
+    const DemoAppManagerProcessResult processResult = m_demoAppManager->Process(windowMetrics, isConsoleBasedHost);
+    if (processResult.Cmd == DemoAppManagerProcessResult::Command::Draw)
     {
       auto swapBuffersResult = AppDrawAndSwapBuffers();
       switch (swapBuffersResult)
@@ -154,6 +157,7 @@ namespace Fsl
       case SwapBuffersResult::Completed:
         m_demoAppManager->OnFrameSwapCompleted();
         m_testService->OnFrameSwapCompleted();
+        m_demoAppManager->ProcessDone();
 
         // Provide support for exiting after a number of successfully rendered frames
         if (m_exitAfterFrame >= 0)
@@ -178,14 +182,23 @@ namespace Fsl
       default:
         throw NotSupportedException("Unsupported state");
       }
-
-      if (m_exitAfterDuration.Enabled)
+      // We only auto exit after at least one frame was rendered
+      if (m_exitAfterDuration.Enabled && std::chrono::microseconds(TimeSpanUtil::ToMicrosecondsInt64(m_timer.GetTimestamp())) >= m_exitTime)
       {
-        if (std::chrono::microseconds(m_timer.GetTime()) >= m_exitTime)
-        {
-          m_demoAppManager->RequestExit();
-        }
+        m_demoAppManager->RequestExit();
       }
+    }
+    else if (processResult.Cmd == DemoAppManagerProcessResult::Command::SkipDrawSleep && processResult.SleepMicroseconds > 0)
+    {
+      m_demoAppManager->OnDrawSkipped();
+
+      // We were asked to skip drawing and sleep
+      // uint64_t startTime = m_timer.GetTime();
+      std::this_thread::sleep_for(std::chrono::duration<uint64_t, std::micro>(processResult.SleepMicroseconds));
+      // uint64_t deltaTime = m_timer.GetTime() - startTime;
+      // FSLLOG3_VERBOSE("Sleep request {} microseconds but sleept {}", processResult.SleepMicroseconds, deltaTime);
+      m_demoAppManager->OnDemandDrawSkipped();
+      m_demoAppManager->ProcessDone();
     }
   }
 
@@ -204,7 +217,6 @@ namespace Fsl
         if (swapBuffersResult != SwapBuffersResult::AppControlled)
         {
           //  The swap buffer operation is not app controlled, so use a quick exit.
-          m_demoAppManager->EndFrameSequence();
           return swapBuffersResult;
         }
         // the swap is app controlled so delegate it to the app
@@ -217,7 +229,6 @@ namespace Fsl
     {
     case AppDrawResult::Completed:
       // everything is ok
-      m_demoAppManager->EndFrameSequence();
       return SwapBuffersResult::Completed;
     case AppDrawResult::Retry:
       FSLLOG3_WARNING("RetryDraw limit exceeded -> failing");

@@ -31,6 +31,7 @@
 
 #include "DFNativeBatchCamera.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/Camera/Platform/PlatformCameraSystem.hpp>
@@ -71,7 +72,7 @@ namespace Fsl
   }
 
 
-  void DFNativeBatchCamera::Draw(const DemoTime& demoTime)
+  void DFNativeBatchCamera::Draw(const FrameInfo& frameInfo)
   {
     // Clear the screen
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
@@ -81,7 +82,7 @@ namespace Fsl
 
     if (m_cameraRender)
     {
-      m_cameraRender->Draw(demoTime, m_nativeBatch, resPx);
+      m_cameraRender->Draw(frameInfo.Time, m_nativeBatch, resPx);
     }
     else if (m_basic2D)
     {

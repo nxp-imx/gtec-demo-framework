@@ -64,11 +64,14 @@ namespace Fsl
         ContentSpriteMesh Sprite;
         Color EnabledColor;
         Color DisabledColor;
+        TransitionColor CurrentColor;
 
-        explicit BackgroundGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor)
+        explicit BackgroundGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor,
+                                          TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
+          , CurrentColor(rTransitionCache, time, type)
         {
         }
       };
@@ -79,11 +82,14 @@ namespace Fsl
         DpSize SizeDp;
         Color EnabledColor;
         Color DisabledColor;
+        TransitionColor CurrentColor;
 
-        explicit CursorGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor)
+        explicit CursorGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor,
+                                      TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
+          , CurrentColor(rTransitionCache, time, type)
         {
         }
       };
@@ -102,12 +108,32 @@ namespace Fsl
         }
       };
 
+      struct ArrangeCache
+      {
+        PxSize2D RenderSizePx;
+        LayoutOrientation Orientation{LayoutOrientation::Vertical};
+        LayoutDirection Direction{LayoutDirection::NearToFar};
+        SliderPixelSpanInfo SpanInfo;
+
+        constexpr ArrangeCache() noexcept = default;
+        constexpr ArrangeCache(const PxSize2D renderSizePx, const LayoutOrientation orientation, const LayoutDirection layoutDirection,
+                               const SliderPixelSpanInfo& spanInfo) noexcept
+          : RenderSizePx(renderSizePx)
+          , Orientation(orientation)
+          , Direction(layoutDirection)
+          , SpanInfo(spanInfo)
+        {
+        }
+      };
+
       BackgroundGraphicsRecord m_background;
       CursorGraphicsRecord m_cursor;
       OverlayGraphicsRecord m_cursorOverlay;
 
       bool m_isHovering{false};
       bool m_verticalGraphicsRotationEnabled{false};
+
+      ArrangeCache m_arrangeCache;
 
     public:
       explicit SliderRenderImpl(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache);
@@ -260,13 +286,14 @@ namespace Fsl
 
       // ------
 
-      SliderPixelSpanInfo Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const PxSize2D& renderSizePx, const Color finalColor,
-                               const LayoutOrientation orientation, const LayoutDirection layoutDirection, const bool isEnabled,
-                               const int32_t cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
+      void Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor, const int32_t cursorPositionPx,
+                const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
 
       void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled);
 
       PxSize2D Measure(const PxAvailableSize& availableSizePx);
+      SliderPixelSpanInfo Arrange(const PxSize2D finalSizePx, const LayoutOrientation orientation, const LayoutDirection layoutDirection,
+                                  const SpriteUnitConverter& spriteUnitConverter);
 
       void UpdateAnimation(const TransitionTimeSpan& timeSpan);
 

@@ -36,15 +36,18 @@ from typing import Optional
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.ToolConfigBasePackage import ToolConfigBasePackage
+from FslBuildGen.Version import Version
 
 class ToolConfigProjectContext(object):
     def __init__(self, projectId: ProjectId,
-                 projectName: str, projectVersion: str, projectDirectory: str, basePackages: List[ToolConfigBasePackage],
+                 projectName: str, projectVersion: Version, projectDirectory: str, gitHash: Optional[str], basePackages: List[ToolConfigBasePackage],
                  parentContext: Optional['ToolConfigProjectContext']) -> None:
         super().__init__()
         self.ProjectId = projectId
         self.ProjectName = projectName
         self.ProjectVersion = projectVersion
         self.Location = ResolvedPath(projectDirectory, projectDirectory)
+        self.GitHash = gitHash
         self.BasePackages = basePackages
         self.ParentContext = parentContext
+

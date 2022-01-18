@@ -166,8 +166,10 @@ namespace Fsl
   }
 
 
-  void MeshInstancing::Draw(const DemoTime& /*demoTime*/)
+  void MeshInstancing::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (!TryPrepareFrame())
     {
       return;

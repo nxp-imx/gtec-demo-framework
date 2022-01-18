@@ -55,11 +55,12 @@ from FslBuildGen.Packages.PackagePlatform import PackagePlatform
 from FslBuildGen.Packages.PackageProjectContext import PackageProjectContext
 from FslBuildGen.Packages.PackageTraceContext import PackageTraceContext
 from FslBuildGen.Packages.Unresolved.UnresolvedFilter import UnresolvedFilter
+from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependency import UnresolvedExternalDependency
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackage
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackageFlags
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackagePaths
-from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependency import UnresolvedExternalDependency
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedPackageVariant
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
@@ -106,11 +107,11 @@ class UnresolvedFactory(object):
     def CreateUnresolvedPackage(createContext: FactoryCreateContext, packageProjectContext: PackageProjectContext,
                                 nameInfo: PackageNameInfo, companyName: CompanyName, creationYear: Optional[str], packageFile: Optional[PackageFile],
                                 sourceFileHash: str, packageType: PackageType, packageFlags: UnresolvedPackageFlags, packageLanguage: PackageLanguage,
-                                directDependencies: List[UnresolvedPackageDependency], directRequirements: List[UnresolvedPackageRequirement],
-                                directDefines: List[UnresolvedPackageDefine], externalDependencies: List[UnresolvedExternalDependency],
-                                path: UnresolvedPackagePaths, templateType: str, buildCustomization: Dict[str, XmlGenFileBuildCustomization],
-                                directExperimentalRecipe: Optional[XmlExperimentalRecipe], resolvedPlatform: PackagePlatform,
-                                directPlatformSupported: bool, customInfo: PackageCustomInfo,
+                                generateList: List[UnresolvedPackageGenerate], directDependencies: List[UnresolvedPackageDependency],
+                                directRequirements: List[UnresolvedPackageRequirement], directDefines: List[UnresolvedPackageDefine],
+                                externalDependencies: List[UnresolvedExternalDependency], path: UnresolvedPackagePaths, templateType: str,
+                                buildCustomization: Dict[str, XmlGenFileBuildCustomization], directExperimentalRecipe: Optional[XmlExperimentalRecipe],
+                                resolvedPlatform: PackagePlatform, directPlatformSupported: bool, customInfo: PackageCustomInfo,
                                 traceContext: PackageTraceContext) -> UnresolvedPackage:
 
         # Add implicit dependencies
@@ -122,7 +123,7 @@ class UnresolvedFactory(object):
         directDependencies = UnresolvedFilter.FilterOnConditions(createContext.Log, createContext.GeneratorInfo, directDependencies, "Dependency")
 
         return UnresolvedPackage(packageProjectContext, nameInfo, companyName, creationYear, packageFile, sourceFileHash, packageType,
-                                 packageFlags, packageLanguage, directDependencies, directRequirements, directDefines, externalDependencies, path,
+                                 packageFlags, packageLanguage, generateList, directDependencies, directRequirements, directDefines, externalDependencies, path,
                                  templateType, buildCustomization, directExperimentalRecipe, resolvedPlatform, directPlatformSupported,
                                  customInfo, traceContext)
 

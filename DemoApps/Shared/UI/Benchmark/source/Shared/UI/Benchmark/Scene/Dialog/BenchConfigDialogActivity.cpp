@@ -235,11 +235,13 @@ namespace Fsl
 
       std::shared_ptr<Switch> switchGpuTimestamps;
       std::shared_ptr<Switch> switchNoOpaqueMaterials;
+      std::shared_ptr<Switch> switchOnDemandRendering;
       std::shared_ptr<Switch> switchUseSdfFonts;
       auto content0 = std::make_shared<StackLayout>(context);
       {
         switchGpuTimestamps = uiFactory.CreateSwitch(TextConfig::GpuTimestamps, settings.BasicOptions.GpuTimestamps);
         switchNoOpaqueMaterials = uiFactory.CreateSwitch(TextConfig::NoOpaqueMaterials, settings.BasicOptions.NoOpaqueMaterials);
+        switchOnDemandRendering = uiFactory.CreateSwitch(TextConfig::OnDemandRendering, settings.BasicOptions.UseOnDemandRendering);
         switchUseSdfFonts = uiFactory.CreateSwitch(TextConfig::UseSdfFonts, settings.BasicOptions.UseSdfFonts);
 
         if (!gpuTimestampsSupported)
@@ -255,6 +257,7 @@ namespace Fsl
         content0->AddChild(uiFactory.CreateLabel(TextConfig::HeaderOptions, Theme::FontType::Header));
         content0->AddChild(switchGpuTimestamps);
         content0->AddChild(switchNoOpaqueMaterials);
+        content0->AddChild(switchOnDemandRendering);
         content0->AddChild(switchUseSdfFonts);
       }
 
@@ -302,7 +305,8 @@ namespace Fsl
       rMainLayout.AddChild(contentStack, 0, 2);
       rMainLayout.AddChild(uiFactory.CreateDivider(LayoutOrientation::Horizontal), 0, 3);
       rMainLayout.AddChild(buttonStack, 0, 4);
-      return {buttonOK, buttonBack, switchGpuTimestamps, switchNoOpaqueMaterials, switchUseSdfFonts, renderMethod, renderOptions};
+      return {buttonOK,          buttonBack,   switchGpuTimestamps, switchNoOpaqueMaterials, switchOnDemandRendering,
+              switchUseSdfFonts, renderMethod, renderOptions};
     }
 
     void BenchConfigDialogActivity::DoScheduleClose(const bool completed)
@@ -369,7 +373,7 @@ namespace Fsl
       }
 
       return {AppRenderBasicOptions(m_mainUI.SwitchGpuTimestamps->IsChecked(), m_mainUI.SwitchNoOpaqueMaterials->IsChecked(),
-                                    m_mainUI.SwitchUseSdfFonts->IsChecked()),
+                                    m_mainUI.switchOnDemandRendering->IsChecked(), m_mainUI.SwitchUseSdfFonts->IsChecked()),
               renderMethod, renderOptions};
     }
   }

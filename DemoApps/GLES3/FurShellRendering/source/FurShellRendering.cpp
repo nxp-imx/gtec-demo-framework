@@ -410,8 +410,10 @@ namespace Fsl
   }
 
 
-  void FurShellRendering::Draw(const DemoTime& /*demoTime*/)
+  void FurShellRendering::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glEnable(GL_CULL_FACE);
     // glDisable(GL_CULL_FACE);
     glFrontFace(GL_CCW);

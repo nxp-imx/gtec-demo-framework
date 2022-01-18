@@ -32,6 +32,8 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include "VerletIntegration101.hpp"
 #include <GLES3/gl3.h>
@@ -115,8 +117,10 @@ namespace Fsl
   }
 
 
-  void VerletIntegration101::Draw(const DemoTime& /*demoTime*/)
+  void VerletIntegration101::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -208,7 +212,7 @@ namespace Fsl
     {
       auto from = particles[itr->PointIndex0].Position;
       auto to = particles[itr->PointIndex1].Position;
-      m_batch->DebugDrawLine(m_texFill, from, to, color);
+      m_batch->DebugDrawLine(m_texFill, TypeConverter::To<PxVector2>(from), TypeConverter::To<PxVector2>(to), color);
     }
   }
 

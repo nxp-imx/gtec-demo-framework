@@ -89,8 +89,10 @@ namespace Fsl
   }
 
 
-  void D1_2_VAOs::Draw(const DemoTime& /*demoTime*/)
+  void D1_2_VAOs::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     PxSize2D sizePx = GetWindowSizePx();
 
     glViewport(0, 0, sizePx.Width(), sizePx.Height());

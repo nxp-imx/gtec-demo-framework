@@ -33,10 +33,10 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES2/Common.hpp>
-#include <FslGraphics/PixelFormat.hpp>
-#include <FslGraphics/PrimitiveType.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/PixelFormat.hpp>
+#include <FslGraphics/PrimitiveType.hpp>
 #include <GLES2/gl2.h>
 #include <string>
 #include <vector>

@@ -38,10 +38,39 @@
 
 namespace Fsl
 {
+  BaseTexture2D& BaseTexture2D::operator=(BaseTexture2D&& other) noexcept
+  {
+    if (this != &other)
+    {
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      Reset();
+
+      // Claim ownership here
+      m_native = std::move(other.m_native);
+      m_extent = other.m_extent;
+      m_pixelFormat = other.m_pixelFormat;
+
+      other.m_extent = {};
+      other.m_pixelFormat = {};
+    }
+    return *this;
+  }
+
+  BaseTexture2D::BaseTexture2D(BaseTexture2D&& other) noexcept
+    : m_native(std::move(other.m_native))
+    , m_extent(other.m_extent)
+    , m_pixelFormat(other.m_pixelFormat)
+  {
+    // Remove the data from other
+    other.m_extent = {};
+    other.m_pixelFormat = {};
+  }
+
+
   BaseTexture2D::~BaseTexture2D() = default;
 
 
-  void BaseTexture2D::Reset()
+  void BaseTexture2D::Reset() noexcept
   {
     m_native.reset();
     m_extent = {};

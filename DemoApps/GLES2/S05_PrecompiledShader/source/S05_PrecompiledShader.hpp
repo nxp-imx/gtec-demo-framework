@@ -51,7 +51,7 @@ namespace Fsl
 
   protected:
     virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    virtual void Draw(const FrameInfo& frameInfo) override;
 
   private:
     GLuint PrepareProgram(const bool useSeparateShaders);

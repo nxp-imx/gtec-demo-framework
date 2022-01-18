@@ -118,7 +118,7 @@ namespace Fsl
     ~RenderToTexture() override;
 
   protected:
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
     void OnKeyEvent(const KeyEvent& event) override;
 
     void PrepareCubeShader();

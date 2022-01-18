@@ -50,15 +50,15 @@ namespace Fsl
 
         if (microseconds < 1000)
         {
-          fmt::format_to(rScratchPad, u8"{}\u03BCs", microseconds);
+          fmt::format_to(std::back_inserter(rScratchPad), u8"{}\u03BCs", microseconds);
         }
         else if (microseconds > 0)
         {
-          fmt::format_to(rScratchPad, "{:.2f}ms ({:.1f}fps)", microseconds / 1000.0, 1000000.0 / microseconds);
+          fmt::format_to(std::back_inserter(rScratchPad), "{:.2f}ms ({:.1f}fps)", microseconds / 1000.0, 1000000.0 / microseconds);
         }
         else
         {
-          fmt::format_to(rScratchPad, "{:.2f}ms", microseconds / 1000.0);
+          fmt::format_to(std::back_inserter(rScratchPad), "{:.2f}ms", microseconds / 1000.0);
         }
         return StringViewLite(rScratchPad.data(), rScratchPad.size());
       }

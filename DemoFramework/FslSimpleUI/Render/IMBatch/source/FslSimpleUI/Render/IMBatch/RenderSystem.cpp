@@ -47,10 +47,12 @@
 #include <FslSimpleUI/Render/Base/Command/CommandDrawAtOffsetAndSize.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSize.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh.hpp>
+#include <FslSimpleUI/Render/Base/Command/Log/FmtDrawCommandType.hpp>
 #include <FslSimpleUI/Render/Base/RenderPerformanceCapture.hpp>
 #include "FlexRenderSystem.hpp"
 #include "HandleCoding.hpp"
 #include "MeshManager.hpp"
+#include "Log/FmtRenderDrawSpriteType.hpp"
 #include "Preprocess/Basic/BasicPreprocessor.hpp"
 #include "Preprocess/SpatialGrid/SpatialGridPreprocessor.hpp"
 #include "RenderDrawCommandType.hpp"
@@ -215,8 +217,6 @@ namespace Fsl
             const PxSize2D& dstSizePx = cmd.GetDstSizePx();
             if (dstSizePx.Width() > 0 && dstSizePx.Height() > 0)
             {
-              const float scaledTrimSumXPxf = renderInfo.ScaledTrimMarginPxf.SumX();
-              const float scaledTrimSumYPxf = renderInfo.ScaledTrimMarginPxf.SumY();
               if (dstSizePx == renderInfo.ScaledSizePx)
               {
                 // Create a unscaled destination rectangle (applying the trim to the offset)
@@ -233,8 +233,8 @@ namespace Fsl
 
                 PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + (renderInfo.ScaledTrimMarginPxf.Left() * finalScalingX),
                                                  dstPositionPxf.Y + (renderInfo.ScaledTrimMarginPxf.Top() * finalScalingY),
-                                                 static_cast<float>(dstSizePx.Width()) - (scaledTrimSumXPxf * finalScalingX),
-                                                 static_cast<float>(dstSizePx.Height()) - (scaledTrimSumYPxf * finalScalingY));
+                                                 static_cast<float>(dstSizePx.Width()) - (renderInfo.ScaledTrimMarginPxf.SumX() * finalScalingX),
+                                                 static_cast<float>(dstSizePx.Height()) - (renderInfo.ScaledTrimMarginPxf.SumY() * finalScalingY));
 
                 builder.AddRect(dstRectanglePxf, renderInfo.TextureArea);
               }
@@ -481,7 +481,7 @@ namespace Fsl
             switch (ToRenderDrawCommandType(HandleCoding::GetType(command.Mesh), command.Type))
             {
             case RenderDrawCommandType::BasicImageSprite_DrawAtOffsetAndSize:
-              AddBasicImageSprite(rBatcher, record, meshManager.FastGetBasicImageSprite(hMesh));
+              AddBasicImageSprite(rBatcher, record, meshManager.UncheckedGetBasicImageSprite(hMesh));
               break;
             case RenderDrawCommandType::BasicImageSprite_DrawCustomBasicImageAtOffsetAndSize:
             {
@@ -489,7 +489,7 @@ namespace Fsl
               const CustomDrawBasicImageInfo& customDrawInfo = commandBuffer.FastGetCustomDrawBasicImageInfo(cmdEx.CustomDrawFunctionIndex());
               if (customDrawInfo.FnDraw != nullptr)
               {
-                AddBasicImageSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.FastGetBasicImageSprite(hMesh));
+                AddBasicImageSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetBasicImageSprite(hMesh));
               }
               break;
             }
@@ -500,21 +500,21 @@ namespace Fsl
                 commandBuffer.FastGetCustomDrawBasicImageBasicMeshInfo(cmdEx.CustomDrawFunctionIndex());
               if (customDrawInfo.FnDraw != nullptr)
               {
-                AddBasicImageSpriteMesh(rBatcher, record, cmdEx, customDrawInfo, meshManager.FastGetBasicImageSprite(hMesh));
+                AddBasicImageSpriteMesh(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetBasicImageSprite(hMesh));
               }
               break;
             }
             case RenderDrawCommandType::BasicNineSliceSprite_DrawAtOffsetAndSize:
-              AddBasicNineSliceSprite(rBatcher, record, CommandDrawAtOffsetAndSize(command), meshManager.FastGetBasicNineSliceSprite(hMesh));
+              AddBasicNineSliceSprite(rBatcher, record, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetBasicNineSliceSprite(hMesh));
               break;
             case RenderDrawCommandType::ImageSprite_DrawAtOffsetAndSize:
-              AddImageSprite(rBatcher, record, CommandDrawAtOffsetAndSize(command), meshManager.FastGetImageSprite(hMesh));
+              AddImageSprite(rBatcher, record, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetImageSprite(hMesh));
               break;
             case RenderDrawCommandType::NineSliceSprite_DrawAtOffsetAndSize:
-              AddNineSliceSprite(rBatcher, record, meshManager.FastGetNineSliceSprite(hMesh));
+              AddNineSliceSprite(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh));
               break;
             case RenderDrawCommandType::NineSliceSprite_DrawRot90CWAtOffsetAndSize:
-              AddNineSliceSpriteRot90(rBatcher, record, meshManager.FastGetNineSliceSprite(hMesh));
+              AddNineSliceSpriteRot90(rBatcher, record, meshManager.UncheckedGetNineSliceSprite(hMesh));
               break;
             case RenderDrawCommandType::NineSliceSprite_DrawCustomNineSliceAtOffsetAndSize:
             {
@@ -522,18 +522,18 @@ namespace Fsl
               const CustomDrawNineSliceInfo& customDrawInfo = commandBuffer.FastGetCustomDrawNineSliceInfo(cmdEx.CustomDrawFunctionIndex());
               if (customDrawInfo.FnDraw != nullptr)
               {
-                AddNineSliceSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.FastGetNineSliceSprite(hMesh));
+                AddNineSliceSprite(rBatcher, record, cmdEx, customDrawInfo, meshManager.UncheckedGetNineSliceSprite(hMesh));
               }
               break;
             }
             case RenderDrawCommandType::OptimizedNineSliceSprite_DrawAtOffsetAndSize:
-              AddOptimizedNineSliceSprite(rBatcher, record, meshManager.FastGetOptimizedNineSliceSprite(hMesh));
+              AddOptimizedNineSliceSprite(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh));
               break;
             case RenderDrawCommandType::OptimizedNineSliceSprite_DrawRot90CWAtOffsetAndSize:
-              AddOptimizedNineSliceSpriteRot90(rBatcher, record, meshManager.FastGetOptimizedNineSliceSprite(hMesh));
+              AddOptimizedNineSliceSpriteRot90(rBatcher, record, meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh));
               break;
             case RenderDrawCommandType::SpriteFont_DrawAtOffsetAndSize:
-              AddSpriteFont(rBatcher, record, rTextMeshBuilder, CommandDrawAtOffsetAndSize(command), meshManager.FastGetSpriteFont(hMesh));
+              AddSpriteFont(rBatcher, record, rTextMeshBuilder, CommandDrawAtOffsetAndSize(command), meshManager.UncheckedGetSpriteFont(hMesh));
               break;
             case RenderDrawCommandType::SpriteFont_DrawCustomTextAtOffsetAndSize:
             {
@@ -541,7 +541,7 @@ namespace Fsl
               const CustomDrawTextInfo& customDrawInfo = commandBuffer.FastGetCustomDrawTextInfo(cmdEx.CustomDrawFunctionIndex());
               if (customDrawInfo.FnDraw != nullptr)
               {
-                AddSpriteFont(rBatcher, record, rTextMeshBuilder, cmdEx, customDrawInfo, meshManager.FastGetSpriteFont(hMesh));
+                AddSpriteFont(rBatcher, record, rTextMeshBuilder, cmdEx, customDrawInfo, meshManager.UncheckedGetSpriteFont(hMesh));
               }
               break;
             }

@@ -122,6 +122,7 @@ namespace Fsl
       StateCache m_currentState;
 
       NativeBatch2DStats m_stats{};
+      BlendState m_cachedBlendState{};
 
     public:
       explicit GLBatch2DQuadRenderer(const int32_t quadCapacityHint);

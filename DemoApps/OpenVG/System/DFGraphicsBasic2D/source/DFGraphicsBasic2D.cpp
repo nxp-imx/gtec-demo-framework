@@ -59,8 +59,10 @@ namespace Fsl
   }
 
 
-  void DFGraphicsBasic2D::Draw(const DemoTime& demoTime)
+  void DFGraphicsBasic2D::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSize = GetWindowSizePx();
     vgClear(0, 0, currentSize.Width(), currentSize.Height());
 

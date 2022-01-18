@@ -66,6 +66,7 @@ from FslBuildGen.Exceptions import DuplicatedConfigRootPath
 from FslBuildGen.Exceptions import DuplicatedNewProjectTemplatesRootPath
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.GitUtil import GitUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Version import Version
 from FslBuildGen.Tool.LowLevelToolConfig import LowLevelToolConfig
@@ -77,6 +78,7 @@ from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
+from FslBuildGen.Version import Version
 from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlDuplicatedCompilerConfigurationException
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedCompilerVersionException
@@ -372,7 +374,7 @@ class ToolConfig(object):
         self.DefaultCompany = projectRootConfig.DefaultCompany
         self.RequirePackageCreationYear = projectRootConfig.RequirePackageCreationYear
         self.ProjectRootConfig = projectRootConfig
-        self.ProjectInfo = self.__GenerateProjectInfo(basicConfig, projectRootConfig)
+        self.ProjectInfo = self.__GenerateProjectInfo(basicConfig, buildPlatformType, projectRootConfig)
         self.BuildDocConfiguration = self.__TryGetBuildDocConfiguration(basedUponXML.BuildDocConfiguration)
         self.CMakeConfiguration = self.__GetCMakeConfiguration(basedUponXML.CMakeConfiguration)
         self.ClangFormatConfiguration = self.__TryGetClangFormatConfiguration(basedUponXML.ClangFormatConfiguration, self.CMakeConfiguration.NinjaRecipePackageName)
@@ -505,13 +507,14 @@ class ToolConfig(object):
         return projectMin if projectMin >= toolMin else toolMin
 
 
-    def __GenerateProjectInfo(self, log: Log, projectRootConfig: XmlProjectRootConfigFile) -> ToolConfigProjectInfo:
+    def __GenerateProjectInfo(self, log: Log, buildPlatformType: BuildPlatformType, projectRootConfig: XmlProjectRootConfigFile) -> ToolConfigProjectInfo:
+        gitExeName = GitUtil.GetPlatformDependentExecutableName(buildPlatformType)
         rootProjectBasePackages = self.__ResolveBasePackages(log, projectRootConfig.XmlBasePackages, projectRootConfig.SourceFileName)
-
+        gitHash = GitUtil.TryGetCurrentHash(gitExeName, projectRootConfig.RootDirectory)
         result = [] #  type: List[ToolConfigProjectContext]
+        projectVersion = Version.FromString(projectRootConfig.ProjectVersion)
         rootProjectContext = ToolConfigProjectContext(projectRootConfig.ProjectId, projectRootConfig.ProjectName,
-                                                      projectRootConfig.ProjectVersion, projectRootConfig.RootDirectory,
-                                                      rootProjectBasePackages, None)
+                                                      projectVersion, projectRootConfig.RootDirectory, gitHash, rootProjectBasePackages, None)
         result.append(rootProjectContext)
         topProjectContext = rootProjectContext
         # FIX: context base packages does not resolve correctly if we have multiple extension projects inheriting
@@ -522,11 +525,12 @@ class ToolConfig(object):
             contextBasePackages = self.__ResolveBasePackages(log, entry.XmlBasePackages, entry.SourceFileName)
             if len(rootProjectBasePackages) > 0:
                 contextBasePackages = rootProjectBasePackages + contextBasePackages
-            extendedProjectContext = ToolConfigProjectContext(entry.ProjectId, entry.ProjectName, entry.ProjectVersion, entry.RootDirectory, contextBasePackages, rootProjectContext)
+            extendedProjectVersion = Version.FromString(entry.ProjectVersion)
+            entryGitHash = GitUtil.TryGetCurrentHash(gitExeName, entry.RootDirectory)
+            extendedProjectContext = ToolConfigProjectContext(entry.ProjectId, entry.ProjectName, extendedProjectVersion, entry.RootDirectory, entryGitHash, contextBasePackages, rootProjectContext)
             result.append(extendedProjectContext)
             topProjectContext = extendedProjectContext
         return ToolConfigProjectInfo(result, topProjectContext)
-
 
     def __ResolveBasePackages(self, log: Log, basePackages: List[XmlConfigFileAddBasePackage], configFileName: str) -> List[ToolConfigBasePackage]:
         uniqueNameIds = set()  # type: Set[str]

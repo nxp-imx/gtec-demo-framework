@@ -241,8 +241,10 @@ namespace Fsl
   }
 
 
-  void DisplacementMapping::Draw(const DemoTime& /*demoTime*/)
+  void DisplacementMapping::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (!TryPrepareFrame())
     {
       return;

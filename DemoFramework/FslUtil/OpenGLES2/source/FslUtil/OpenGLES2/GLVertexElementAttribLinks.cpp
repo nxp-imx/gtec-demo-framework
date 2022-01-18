@@ -78,5 +78,10 @@ namespace Fsl
       }
     }
 
+
+    ReadOnlySpan<GLVertexElementAttribConfig> GLVertexElementAttribLinks::AsSpan() const
+    {
+      return ReadOnlySpanUtil::AsSpan(m_entries);
+    }
   }
 }

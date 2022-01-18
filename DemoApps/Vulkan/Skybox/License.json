@@ -1,0 +1,16 @@
+{
+  "ComplexLicense": {
+    "Licenses": [
+      {
+        "Origin": "NXP",
+        "License": "CC0-1.0"
+      },
+      {
+        "Origin": "Emil Persson",
+        "License": "CC-BY-3.0",
+        "URL": "http://www.humus.name"
+      }
+    ],
+    "Comment": "Merged complex license for everything that could be used in a screenshot"
+  }
+}

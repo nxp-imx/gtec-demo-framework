@@ -58,6 +58,7 @@ from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 class DefaultValue(object):
     DryRun = False
@@ -133,8 +134,10 @@ class ToolFlowBuild(AToolAppFlow):
 
         # Get the platform and see if its supported
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                  localToolConfig.Generator, buildVariantConfig,
+                                                                                                 variableContext.UserSetVariables,
                                                                                                  toolConfig.DefaultPackageLanguage,
                                                                                                  toolConfig.CMakeConfiguration,
                                                                                                  localToolConfig.GetUserCMakeConfig(), False)
@@ -145,11 +148,11 @@ class ToolFlowBuild(AToolAppFlow):
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platformGeneratorPlugin.CMakeConfig), currentDirPath, localToolConfig.Recursive)
 
         generatorContext = GeneratorContext(self.Log, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
-                                            toolConfig.Experimental, platformGeneratorPlugin)
+                                            toolConfig.Experimental, platformGeneratorPlugin, variableContext)
         self.ToolAppContext.PluginConfigContext.SetLegacyGeneratorType(localToolConfig.GenType)
 
         packageFilters = localToolConfig.BuildPackageFilters
-        packages = MainFlow.DoGenerateBuildFilesNoAll(config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, packageFilters)
+        packages = MainFlow.DoGenerateBuildFilesNoAll(config, variableContext, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, packageFilters)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 

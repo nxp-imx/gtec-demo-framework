@@ -37,16 +37,18 @@ from FslBuildGen import PathUtil
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildExternal import CMakeHelper
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.Version import Version
 
 class GeneratorCMakeConfig(object):
     """
     The cmake context for the current platform
     """
-    def __init__(self, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig, buildDir: str, buildDirSetByUser: bool,
-                 checkDir: str, generatorName: str, installPrefix: Optional[str], cmakeVersion: CMakeVersion,
+    def __init__(self, log: Log, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig, userSetVariables: UserSetVariables,
+                 buildDir: str, buildDirSetByUser: bool, checkDir: str, generatorName: str, installPrefix: Optional[str], cmakeVersion: CMakeVersion,
                  additionalGlobalConfigArguments: List[str], additionalAppConfigArguments: List[str], allowFindPackage: bool) -> None:
         super().__init__()
 
@@ -96,3 +98,5 @@ class GeneratorCMakeConfig(object):
         self.GeneratorShortName = generatorShortName
         self.GeneratorRecipeShortName = "{0}_{1}".format(generatorShortName, toolVersion.ToMajorMinorString().replace('.', '_'))
         self.AllowFindPackage = allowFindPackage
+
+        self.VsToolsetVersionStr = CMakeHelper.DetermineVSToolsetVersion(log, finalGeneratorName, platformName, userSetVariables)

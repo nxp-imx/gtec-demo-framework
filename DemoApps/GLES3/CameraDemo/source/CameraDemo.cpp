@@ -31,6 +31,7 @@
 
 #include "CameraDemo.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
@@ -77,7 +78,7 @@ namespace Fsl
   }
 
 
-  void CameraDemo::Draw(const DemoTime& demoTime)
+  void CameraDemo::Draw(const FrameInfo& frameInfo)
   {
     auto currentSizePx = GetWindowSizePx();
 
@@ -89,7 +90,7 @@ namespace Fsl
 
     if (m_cameraRender)
     {
-      m_cameraRender->Draw(demoTime);
+      m_cameraRender->Draw(frameInfo.Time);
     }
     else if (m_basic2D)
     {

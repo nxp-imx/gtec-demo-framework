@@ -280,8 +280,10 @@ namespace Fsl
   }
 
 
-  void EquirectangularToCubemap::Draw(const DemoTime& /*demoTime*/)
+  void EquirectangularToCubemap::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const auto resolution = GetWindowSizePx();
     glViewport(0, 0, resolution.Width(), resolution.Height());
 

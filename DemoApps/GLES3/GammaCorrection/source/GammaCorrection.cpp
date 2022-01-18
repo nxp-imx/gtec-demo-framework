@@ -168,8 +168,10 @@ namespace Fsl
   }
 
 
-  void GammaCorrection::Draw(const DemoTime& /*demoTime*/)
+  void GammaCorrection::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glUseProgram(m_resources.Program.Get());
 
     glDisable(GL_BLEND);
@@ -276,12 +278,12 @@ namespace Fsl
       m_scene4LabelAlpha.SetValue(1.0f);
       break;
     }
-    m_splitX.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_splitY.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_scene3LabelAlpha.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_scene4LabelAlpha.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+    m_splitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitY.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene3LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene4LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alpha1 = m_scene1LabelAlpha.GetValue();
     const float alpha2 = m_scene2LabelAlpha.GetValue();

@@ -38,6 +38,11 @@ namespace Fsl
   class ServiceUnavailableException : public std::runtime_error
   {
   public:
+    explicit ServiceUnavailableException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit ServiceUnavailableException(const std::string& what_arg)
       : std::runtime_error(what_arg)
     {
@@ -48,6 +53,11 @@ namespace Fsl
   class ServiceProviderUnavailableException : public std::runtime_error
   {
   public:
+    explicit ServiceProviderUnavailableException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit ServiceProviderUnavailableException(const std::string& what_arg)
       : std::runtime_error(what_arg)
     {

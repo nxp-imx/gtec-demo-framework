@@ -61,6 +61,29 @@ def TryReadFile(filename: str) -> Optional[str]:
     except IOError:
         return None
 
+def ReadFileUTF8(filename: str, newline: Optional[str] = None) -> str:
+    content = None
+    with io.open(filename, "r", newline=newline, encoding='utf-8') as theFile:
+        content = str(theFile.read())
+    return content
+
+def WriteFileUTF8(filename: str, content: str, newline: Optional[str] = None) -> None:
+    with io.open(filename, "w", newline=newline, encoding='utf-8') as theFile:
+        theFile.write(content)
+
+def WriteFileUTF8IfChanged(filename: str, content: str, newline: Optional[str] = None) -> bool:
+    existingContent = None
+    if os.path.exists(filename):
+        if os.path.isfile(filename):
+            existingContent = ReadFileUTF8(filename)
+        else:
+            raise IOError("'{0}' exist but it's not a file".format(filename))
+
+    if content == existingContent:
+        return False
+    WriteFileUTF8(filename, content, newline=newline)
+    return True
+
 
 def WriteFile(filename: str, content: str, newline: Optional[str] = None) -> None:
     with io.open(filename, "w", newline=newline) as theFile:

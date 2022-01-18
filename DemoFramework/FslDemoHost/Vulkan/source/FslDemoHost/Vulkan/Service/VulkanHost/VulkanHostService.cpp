@@ -62,7 +62,7 @@ namespace Fsl
   }
 
 
-  void VulkanHostService::SetPhysicalDevice(Vulkan::VUPhysicalDeviceRecord value)
+  void VulkanHostService::SetPhysicalDevice(const Vulkan::VUPhysicalDeviceRecord& value)
   {
     m_physicalDevice = value;
   }

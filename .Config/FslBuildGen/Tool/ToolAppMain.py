@@ -33,6 +33,7 @@
 
 from typing import Any
 #from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
 #from typing import Tuple
@@ -46,6 +47,8 @@ from FslBuildGen import ParseUtil
 #from FslBuildGen import PluginSharedValues
 #from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.BuildConfig.BuildVariables import BuildVariables
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.Config import BaseConfig
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.DataTypes import GeneratorType
@@ -70,7 +73,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersion = Version(3, 3, 2, 1)
+CurrentVersion = Version(3, 3, 6, 1)
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -83,6 +86,7 @@ def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bo
     #parser.add_argument('--buildDir', default=None, help='Set the build directory (experimental only supported with cmake)')
     if allowStandaloneMode:
         parser.add_argument('--standalone', action='store_true', help='Allow the tool to run without the SDK present. This is a experimental option.')
+
 
 
 def __EarlyArgumentParser(allowStandaloneMode: bool) -> Optional[LowLevelToolConfig]:
@@ -109,6 +113,7 @@ def __EarlyArgumentParser(allowStandaloneMode: bool) -> Optional[LowLevelToolCon
 
         if args.version:
             print("V{0}".format(CurrentVersion))
+
         return LowLevelToolConfig(verbosityLevel, debugEnabled, allowDevelopmentPlugins, profilerEnabled, standaloneEnabled, currentDir)
     except (Exception) as ex:
         print("ERROR: {0}".format(str(ex)))
@@ -170,10 +175,11 @@ def __GetToolConfigPath(defaultPath: str) -> str:
     return toolConfigPath
 
 
-def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: ToolCommonArgConfig, defaultVSVersion: int) -> ToolAppConfig:
+def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: ToolCommonArgConfig, defaultVSVersion: int, userSetVariables: UserSetVariables) -> ToolAppConfig:
     # Configure the ToolAppConfig part
     toolAppConfig = ToolAppConfig()
     toolAppConfig.DefaultPlatformName = defaultPlatform
+    toolAppConfig.UserSetVariables = userSetVariables
 
     toolAppConfig.AllowDevelopmentPlugins = True if args.dev else False
     if toolCommonArgConfig.AddPlatformArg:
@@ -232,11 +238,30 @@ def __PrepareGeneratorPlugins(pluginConfigContext: PluginConfigContext, lowLevel
     generatorIds = [entry.PlatformId for entry in generatorPlugins]
     return generatorIds
 
+def __ParseUserSetVariables(log: Log, setArguments: Optional[List[str]]) -> UserSetVariables:
+    variableDict = {} # type: Dict[str,str]
+    if setArguments is not None and len(setArguments) > 0:
+        setArguments.sort()
+        sortedList = BuildVariables.GetSetableVariables()
+        sortedList.sort()
+        validArguments = set(sortedList)
+        for entry in setArguments:
+            res = entry.split("=")
+            if len(res) != 2:
+                raise Exception("the set variable '{0}' was not in the expected 'name=value' format".format(entry))
+            key = res[0].strip()
+            value = res[1].strip()
+            if key not in validArguments:
+                raise Exception("the set variable '{0}' is unknown. Valid variables are {1}".format(key, sortedList))
+            if len(value) <= 0:
+                raise Exception("the set variable '{0}' must have a valid value.".format(key))
+            variableDict[key] = value
+            log.LogPrintVerbose(2, "user set '{0}={1}'".format(key, value))
+    return UserSetVariables(variableDict)
 
 def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode: bool) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='FslBuildTools')
     __AddDefaultOptions(parser, allowStandaloneMode)
-
 
     if toolCommonArgConfig.ProcessRemainingArgs:
         parser.add_argument('RemainingArgs', nargs=argparse.REMAINDER)
@@ -273,6 +298,9 @@ def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode
     if toolCommonArgConfig.AllowRecursive:
         parser.add_argument('-r', '--recursive', action='store_true',
                             help='From the current package location we scan all sub directories for packages and process them')
+
+    parser.add_argument('--set', action='append', help='Set a variable overriding all auto detection. Variables: {0}'.format(BuildVariables.GetSetableVariables()))
+
     return parser
 
 def __OnErrorInfo(buildTiming: Optional[BuildTimer], errorHelpManager: ErrorHelpManager) -> None:
@@ -302,6 +330,8 @@ def __RunStandalone(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
         appFlowFactory.AddCustomStandaloneArguments(parser, userTag)
 
         args = parser.parse_args()
+        userSetVariables = __ParseUserSetVariables(log, args.set)
+
 
         if toolCommonArgConfig.ProcessRemainingArgs:
             args.RemainingArgs = __ProcessRemainingArgs(args.RemainingArgs)
@@ -310,7 +340,7 @@ def __RunStandalone(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
 
         currentDir = lowLevelToolConfig.CurrentDir
 
-        toolAppConfig = __CreateToolAppConfig(args, args.platform, toolCommonArgConfig, 0)
+        toolAppConfig = __CreateToolAppConfig(args, args.platform, toolCommonArgConfig, 0, userSetVariables)
         toolAppContext = ToolAppContext(log, errorHelpManager, lowLevelToolConfig, toolAppConfig, pluginConfigContext)
         toolAppFlow = appFlowFactory.Create(toolAppContext)
 
@@ -408,12 +438,13 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
     try:
         defaultVSVersion = toolConfig.GetVisualStudioDefaultVersion()
         #if toolCommonArgConfig.AllowVSVersion:
-        parser.add_argument('--VSVersion', default=str(defaultVSVersion), help='Choose a specific visual studio version (2015,2017), This project defaults to: {0}'.format(defaultVSVersion))
+        parser.add_argument('--VSVersion', default=str(defaultVSVersion), help='Choose a specific visual studio version (2019,2022), This project defaults to: {0}'.format(defaultVSVersion))
 
         userTag = appFlowFactory.CreateUserTag(baseConfig)
         appFlowFactory.AddCustomArguments(parser, toolConfig, userTag)
 
         args = parser.parse_args()
+        userSetVariables = __ParseUserSetVariables(log, args.set)
 
         #if toolCommonArgConfig.AllowVSVersion:
         pluginConfigContext.SetVSVersion(args.VSVersion)
@@ -434,7 +465,7 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
                 if tmpResult is not None:
                     args.Recipes = "[{0}]".format(tmpResult)
 
-        toolAppConfig = __CreateToolAppConfig(args, defaultPlatform, toolCommonArgConfig, defaultVSVersion)
+        toolAppConfig = __CreateToolAppConfig(args, defaultPlatform, toolCommonArgConfig, defaultVSVersion, userSetVariables)
         toolAppContext = ToolAppContext(log, errorHelpManager, lowLevelToolConfig, toolAppConfig, pluginConfigContext)
         toolAppFlow = appFlowFactory.Create(toolAppContext)
         toolAppFlow.ProcessFromCommandLine(args, currentDir, toolConfig, userTag)

@@ -99,7 +99,7 @@ namespace Fsl
   protected:
     void OnKeyEvent(const KeyEvent& event) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void DrawCube(const ProgramInfo& programInfo, const Matrix& matModel);

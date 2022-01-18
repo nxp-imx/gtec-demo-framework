@@ -98,6 +98,7 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) final;
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
     void Update(const DemoTime& demoTime) final;
+    bool Resolve(const DemoTime& demoTime) final;
     void Draw(const DemoTime& demoTime) final;
     void OnFrameSequenceEnd() final;
 

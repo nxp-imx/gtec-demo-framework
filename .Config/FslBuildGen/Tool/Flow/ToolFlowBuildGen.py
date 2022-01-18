@@ -61,6 +61,7 @@ from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 class DefaultValue(object):
     DontBuildRecipes = False
@@ -138,18 +139,22 @@ class ToolFlowBuildGen(AToolAppFlow):
 
 
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                  localToolConfig.Generator, buildVariantConfig,
+                                                                                                 variableContext.UserSetVariables,
                                                                                                  config.ToolConfig.DefaultPackageLanguage,
                                                                                                  config.ToolConfig.CMakeConfiguration,
                                                                                                  localToolConfig.GetUserCMakeConfig(), False)
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
+                                            config.ToolConfig.Experimental, platformGeneratorPlugin, variableContext)
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platformGeneratorPlugin.CMakeConfig), currentDirPath, localToolConfig.Recursive)
 
 
-        packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin,
-                                                 localToolConfig.BuildPackageFilters, writeGraph=localToolConfig.Graph2)
+        packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, variableContext,
+                                                 self.ErrorHelpManager, theFiles, platformGeneratorPlugin, localToolConfig.BuildPackageFilters,
+                                                 writeGraph=localToolConfig.Graph2)
 
         # If the platform was manually switched, then check if the build platform is supported,
         # if its not disable recipe building and log a warning

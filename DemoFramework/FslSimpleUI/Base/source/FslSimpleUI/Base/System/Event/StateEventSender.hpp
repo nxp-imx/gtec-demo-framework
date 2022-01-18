@@ -81,7 +81,7 @@ namespace Fsl
       {
         return m_eventPool;
       }
-      bool HasActiveEvent() const final;
+      bool HasActiveEvent() const noexcept final;
       bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const final;
 
       bool HasHistory() const final;

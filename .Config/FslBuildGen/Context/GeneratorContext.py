@@ -35,8 +35,10 @@ from typing import Dict
 from typing import Optional
 from FslBuildGen import IOUtil
 #from FslBuildGen.BuildExternal import CMakeTypes
+from FslBuildGen.BuildConfig.BuildVariables import BuildVariables
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.Context.PlatformContext import PlatformContext
+from FslBuildGen.Context.VariableContext import VariableContext
 from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
@@ -46,9 +48,10 @@ from FslBuildGen.Log import Log
 from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 
+
 class GeneratorContext(PlatformContext):
     def __init__(self, log: Log, errorHelpManager: ErrorHelpManager, recipeFilterManager: RecipeFilterManager,
-                 experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin) -> None:
+                 experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin, variableContext: VariableContext) -> None:
         if generator.CMakeConfig is None:
             raise Exception("Invalid generator")
 
@@ -69,10 +72,11 @@ class GeneratorContext(PlatformContext):
                 log.LogPrint("Downloads disabled since the project has it disabled by default")
 
         validVariableDict = {}      # type: Dict[str, object]
-        validVariableDict['PlatformName'] = generator.PlatformName
-        validVariableDict['IsCMakeBuild'] = generator.IsCMake
+        validVariableDict[BuildVariables.PlatformName] = generator.PlatformName
+        validVariableDict[BuildVariables.IsCMakeBuild] = generator.IsCMake
+        validVariableDict[BuildVariables.ProjectDefaultTemplate] = variableContext.ValidVariables.ProjectDefaultTemplate
 
-        generatorInfo = GeneratorInfo(generator.IsCMake, generator.CMakeConfig.AllowFindPackage, validVariableDict)
+        generatorInfo = GeneratorInfo(generator.IsCMake, generator.CMakeConfig.AllowFindPackage, validVariableDict, variableContext)
         super().__init__(log, errorHelpManager, generator.PlatformName, generator.PlatformName, generatorInfo, generator.CMakeConfig,
                          recipeBuilderSetup)
 

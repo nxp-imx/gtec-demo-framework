@@ -85,7 +85,7 @@ namespace Fsl
       inline GLTextureInfo TryExtract(const NativeGraphicsDevice* const pNativeDevice, const IBasicRenderSystem* const pBasicRenderSystem,
                                       const SpriteFont& font)
       {
-        assert(font.GetMaterialCount() == 0u);
+        assert(font.GetMaterialCount() == 1u);
         const auto* pBasicSpriteMaterial = dynamic_cast<const BasicSpriteMaterial*>(font.GetMaterialInfo(0u).Material.get());
         if (pBasicSpriteMaterial == nullptr)
         {
@@ -625,14 +625,26 @@ namespace Fsl
 
     // ----------
 
-    void NativeBatch2D::DebugDrawLine(const AtlasTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color)
+    void NativeBatch2D::DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color)
+    {
+      const GLTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
+      GLBatch2D::DebugDrawLine(GLBatch2D::atlas_texture_type(textureInfo, srcFillTexture.GetInfo()), dstFromPx, dstToPx, color);
+    }
+
+
+    void NativeBatch2D::DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color)
     {
       const GLTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
       GLBatch2D::DebugDrawLine(GLBatch2D::atlas_texture_type(textureInfo, srcFillTexture.GetInfo()), dstFromPxf, dstToPxf, color);
     }
 
+    void NativeBatch2D::DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color)
+    {
+      const GLTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
+      GLBatch2D::DebugDrawLine(GLBatch2D::texture_type(textureInfo.Handle, srcFillTexture.GetSize()), dstFromPx, dstToPx, color);
+    }
 
-    void NativeBatch2D::DebugDrawLine(const BaseTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color)
+    void NativeBatch2D::DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color)
     {
       const GLTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
       GLBatch2D::DebugDrawLine(GLBatch2D::texture_type(textureInfo.Handle, srcFillTexture.GetSize()), dstFromPxf, dstToPxf, color);

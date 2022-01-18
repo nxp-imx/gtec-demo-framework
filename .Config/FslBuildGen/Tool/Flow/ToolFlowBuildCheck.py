@@ -43,10 +43,12 @@ from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
+from FslBuildGen.BuildConfig import ScanResourceLicenseFiles
 from FslBuildGen.BuildConfig import ScanSourceFiles
 from FslBuildGen.BuildConfig import Validate
 from FslBuildGen.BuildConfig.FileFinder import FileFinder
 from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFilter
+from FslBuildGen.BuildConfig.LicenseConfig import LicenseConfig
 from FslBuildGen.BuildConfig.PerformClangFormat import PerformClangFormat
 from FslBuildGen.BuildConfig.PerformClangTidy import PerformClangTidy
 from FslBuildGen.BuildConfig.PerformClangTidyConfig import PerformClangTidyConfig
@@ -74,12 +76,16 @@ from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 class DefaultValue(object):
     DryRun = False
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
     Project = None  # type: Optional[str]
     Repair = False
+    LicenseList = False
+    LicenseSaveCSVs = False
+    ScanLicense = False
     ScanSource = False
     ScanDependencies = False
     ClangFormat = False
@@ -102,6 +108,9 @@ class LocalToolConfig(ToolAppConfig):
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
         self.Project = DefaultValue.Project
         self.Repair = DefaultValue.Repair
+        self.LicenseList = DefaultValue.LicenseList
+        self.LicenseSaveCSVs = DefaultValue.LicenseSaveCSVs
+        self.ScanLicense = DefaultValue.ScanLicense
         self.ScanSource = DefaultValue.ScanSource
         self.ScanDependencies = DefaultValue.ScanDependencies
         self.ClangFormat = DefaultValue.ClangFormat
@@ -164,6 +173,9 @@ class ToolFlowBuildCheck(AToolAppFlow):
         localToolConfig.File = args.file
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.Project = args.project
+        localToolConfig.ScanLicense = args.license
+        localToolConfig.LicenseList = args.licenseList
+        localToolConfig.LicenseSaveCSVs = args.licenseSaveCSVs
         localToolConfig.ScanSource = args.scan
         localToolConfig.ScanDependencies = args.scanDeps
         localToolConfig.Repair = args.repair
@@ -224,7 +236,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         applyClangFormat = toolConfig.ClangFormatConfiguration is not None and localToolConfig.ClangFormat
         applyClangTidy = toolConfig.ClangTidyConfiguration is not None and localToolConfig.ClangTidy
 
-        if localToolConfig.IgnoreNotSupported or ((localToolConfig.ScanSource or applyClangFormat) and not applyClangTidy):
+        if localToolConfig.IgnoreNotSupported or ((localToolConfig.ScanLicense or localToolConfig.ScanSource or applyClangFormat) and not applyClangTidy):
             config.IgnoreNotSupported = True
             configToolCheck.IgnoreNotSupported = True
 
@@ -243,12 +255,15 @@ class ToolFlowBuildCheck(AToolAppFlow):
             config.LogPrintVerbose(2, "Forcing the ninja generator for clang tidy")
             cmakeUserConfig.GeneratorName = "Ninja"
 
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   buildVariantConfig, variableContext.UserSetVariables,
+                                                                                   config.ToolConfig.DefaultPackageLanguage,
                                                                                    config.ToolConfig.CMakeConfiguration,
                                                                                    cmakeUserConfig, True)
         PlatformUtil.CheckBuildPlatform(generator.PlatformName)
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
+                                            generator, variableContext)
 
         self.Log.LogPrint("Active platform: {0}".format(generator.PlatformName))
 
@@ -285,10 +300,10 @@ class ToolFlowBuildCheck(AToolAppFlow):
         packageProcess = None   # type: Optional[MainFlow.PackageLoadAndResolveProcess]
         packages = None
         discoverFeatureList = '*' in packageFilters.FeatureNameList
-        if discoverFeatureList or localToolConfig.Project is None or localToolConfig.ScanSource or applyClangFormat or applyClangTidy:
+        if discoverFeatureList or localToolConfig.Project is None or localToolConfig.ScanLicense or localToolConfig.ScanSource or applyClangFormat or applyClangTidy:
             if discoverFeatureList:
                 config.LogPrint("No features specified, so using package to determine them")
-            if localToolConfig.ScanSource or applyClangFormat or applyClangTidy or discoverFeatureList:
+            if localToolConfig.ScanLicense or localToolConfig.ScanSource or applyClangFormat or applyClangTidy or discoverFeatureList:
                 packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
                                                              generatorContext.Platform, toolPackageNames)
                 packageProcess.Resolve(generatorContext, packageFilters, applyClangTidy, False)
@@ -298,7 +313,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
                     packageFilters.FeatureNameList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
 
         customPackageFileFilter = None   # type: Optional[CustomPackageFileFilter]
-        if not localToolConfig.ScanSource and not applyClangFormat and not applyClangTidy:
+        if not localToolConfig.ScanLicense and not localToolConfig.ScanSource and not applyClangFormat and not applyClangTidy:
             Validate.ValidatePlatform(config, localToolConfig.PlatformName, packageFilters.FeatureNameList)
             if packageProcess is None:
                 packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
@@ -316,7 +331,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
         theTopLevelPackage = None  # type: Optional[Package]
         filteredPackageList = [] # type: List[Package]
-        if applyClangTidy or applyClangFormat or localToolConfig.ScanSource:
+        if applyClangTidy or applyClangFormat or localToolConfig.ScanSource or localToolConfig.ScanLicense:
             addExternals = applyClangTidy
             filteredPackageList, theTopLevelPackage = self.__PreparePackages(self.Log, localToolConfig,
                                                                              packageProcess, generatorContext, packageFilters, addExternals,
@@ -336,6 +351,13 @@ class ToolFlowBuildCheck(AToolAppFlow):
         # Scan source after 'format' to ensure we dont warn about stuff that has been fixed
         if localToolConfig.ScanSource:
             self.__ApplyScanSource(self.Log, localToolConfig, config.IsSDKBuild, config.DisableWrite, filteredPackageList, customPackageFileFilter)
+
+        # Finally do the resource license scan if requested
+        if localToolConfig.ScanLicense:
+            licenseConfig = LicenseConfig('License.json', toolConfig.DefaultCompany, 'CC0-1.0', "Example.jpg")
+            self.__ScanResourceLicenses(self.Log, localToolConfig, toolConfig.GetMinimalConfig(generator.CMakeConfig), config.IsSDKBuild,
+                                        config.DisableWrite, closestGenFilePath, filteredPackageList, localToolConfig.LicenseList,
+                                        localToolConfig.LicenseSaveCSVs, licenseConfig)
 
     def __PreparePackages(self, log: Log, localToolConfig: LocalToolConfig,
                           packageProcess: Optional[MainFlow.PackageLoadAndResolveProcess],
@@ -395,10 +417,11 @@ class ToolFlowBuildCheck(AToolAppFlow):
         tidyBuildGeneratorConfig = TidyBuildGeneratorConfig(config.SDKPath, self.ErrorHelpManager,
                                                             localToolConfig.BuildPackageFilters.RecipeFilterManager)
 
-        PerformClangTidy.Run(log, toolConfig, generatorContext.Generator.PlatformId, topLevelPackage, tidyPackageList,
-                             localToolConfig.BuildVariantsDict, pythonScriptRoot, generatorContext, config.SDKConfigTemplatePath,
-                             packageRecipeResultManager, performClangTidyConfig, customPackageFileFilter, clangFormatFilename,
-                             localToolConfig.BuildThreads, localToolConfig.Legacy, tidyBuildGeneratorConfig)
+        PerformClangTidy.Run(log, toolConfig, localToolConfig.UserSetVariables, generatorContext.Generator.PlatformId,
+                             topLevelPackage, tidyPackageList, localToolConfig.BuildVariantsDict, pythonScriptRoot,
+                             generatorContext, config.SDKConfigTemplatePath, packageRecipeResultManager, performClangTidyConfig,
+                             customPackageFileFilter, clangFormatFilename, localToolConfig.BuildThreads, localToolConfig.Legacy,
+                             tidyBuildGeneratorConfig)
 
 
     def __ApplyClangFormat(self, log: Log, toolConfig: ToolConfig, localToolConfig: LocalToolConfig,
@@ -423,6 +446,12 @@ class ToolFlowBuildCheck(AToolAppFlow):
         #thirdpartyExceptionDir = IOUtil.TryToUnixStylePath(currentDirPath) if not isSdkBuild else None
         thirdpartyExceptionDir = None
         ScanSourceFiles.Scan(log, scanPackageList, customPackageFileFilter, localToolConfig.Repair, thirdpartyExceptionDir, CheckType.Normal, disableWrite)
+
+    def __ScanResourceLicenses(self, log: Log, localToolConfig: LocalToolConfig, miniToolConfig: ToolMinimalConfig, isSdkBuild: bool,
+                               disableWrite: bool, directory: str, scanPackageList: List[Package], listLicense: bool, saveCSVs: bool,
+                               licenseConfig: LicenseConfig) -> None:
+        ScanResourceLicenseFiles.Scan(log, miniToolConfig, directory, scanPackageList, localToolConfig.Repair, disableWrite, listLicense, saveCSVs, licenseConfig)
+
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
     #def __init__(self) -> None:
@@ -470,7 +499,10 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--file', default=DefaultValue.File, help='The file to process, supports Unix shell-style wildcards')
         parser.add_argument('--scan', action='store_true', help='Scan source and check for common issues. (Disabled the normal build environment configuration check)')
         parser.add_argument('--scanDeps', action='store_true', help="Scan all package dependencies of the specified package)")
-        parser.add_argument('--repair', action='store_true', help='If used in combination with --ScanSource the tool will attempt to fix common mistakes, beware this modifies your source files so use it at your own risk!.')
+        parser.add_argument('--license', action='store_true', help='Scan all resources for license issues. This scans for all {0} files'.format(ScanResourceLicenseFiles.GetExtensionList()))
+        parser.add_argument('--licenseList', action='store_true', help='List all licenses.')
+        parser.add_argument('--licenseSaveCSVs', action='store_true', help='Save CSVs.')
+        parser.add_argument('--repair', action='store_true', help='Will attempt to fix common mistakes, beware this modifies your source files so use it at your own risk!.')
         parser.add_argument('--dryRun', action='store_true', help='No files will be created')
         parser.add_argument('--ignoreNotSupported', action='store_true', help='try to check things that are marked as not supported, this might not work!')
 

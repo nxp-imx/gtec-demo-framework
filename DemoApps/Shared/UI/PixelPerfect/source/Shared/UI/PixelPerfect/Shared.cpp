@@ -259,20 +259,20 @@ namespace Fsl
       Vector2 dstPos(float(gridX0Correct), float(offsetPx.Y));
 
       m_buffer.clear();
-      fmt::format_to(m_buffer, "0.00-{:.2f}", gridWidth0);
+      fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth0);
 
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
       dstPos.X = float(gridX1Correct);
       m_buffer.clear();
-      fmt::format_to(m_buffer, "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth1);
+      fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth1);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
       dstPos.X = float(gridX2Correct);
       m_buffer.clear();
-      fmt::format_to(m_buffer, "0.00-{:.2f}", gridWidth2);
+      fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth2);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
       dstPos.X = float(gridX3Correct);
       m_buffer.clear();
-      fmt::format_to(m_buffer, "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth3);
+      fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth3);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
     }
     return {gridX4Correct, gridY4Correct};

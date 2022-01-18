@@ -36,6 +36,7 @@ from typing import List
 from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
+from FslBuildGen.BannedCommands import BannedCommands
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import BuildRecipeValidateMethod
@@ -57,34 +58,6 @@ g_validValidCombineCommands = ["CMakeBuild"]
 
 g_CMAKE_PACKAGE_NAME = "Recipe.BuildTool.CMake"
 g_GIT_PACKAGE_NAME = "Recipe.BuildTool.Git"
-
-# making this list is impossible but lets just check for some obvious bad ones
-g_bannedCommands = [
-    'attrib',
-    'bash',
-    'cd',
-    'copy',
-    'cp',
-    'cmd',
-    'chown'
-    'chmod',
-    'cmd',
-    'dd',
-    'del',
-    'delete',
-    'fdisk',
-    'format',
-    'mkfs',
-    'mv',
-    'rd',
-    'reg',
-    'regedit',
-    'remove',
-    'ren',
-    'rm',
-    'wget',
-    ]
-
 
 class XmlRecipeFileDependency(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
@@ -208,7 +181,7 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
             raise Exception("Name length must be greater than zero")
         if not Util.IsValidCommandName(name):
             raise Exception("Name must start with a a-z or A-Z and can only contain a-z,A-Z,0-9,_ and - '{0}'".format(name))
-        if name.lower() in g_bannedCommands:
+        if name.lower() in BannedCommands.Commands:
             raise Exception("The command '{0}' is banned".format(name))
 
     def __ValidateVersionCheck(self) -> None:
@@ -258,9 +231,9 @@ class XmlRecipeValidateCommandAddLib(XmlRecipeValidateCommand):
         if self.Name.endswith('/'):
             raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
         if '\\' in self.DebugName:
-            raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
+            raise Exception("A path can not contain backslash '\\': '{0}'".format(self.DebugName))
         if self.DebugName.endswith('/'):
-            raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
+            raise Exception("A path can not end with a slash '/': '{0}'".format(self.DebugName))
 
 
 class XmlRecipeValidateCommandAddDLL(XmlRecipeValidateCommand):
@@ -274,9 +247,9 @@ class XmlRecipeValidateCommandAddDLL(XmlRecipeValidateCommand):
         if self.Name.endswith('/'):
             raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
         if '\\' in self.DebugName:
-            raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
+            raise Exception("A path can not contain backslash '\\': '{0}'".format(self.DebugName))
         if self.DebugName.endswith('/'):
-            raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
+            raise Exception("A path can not end with a slash '/': '{0}'".format(self.DebugName))
 
 
 class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):

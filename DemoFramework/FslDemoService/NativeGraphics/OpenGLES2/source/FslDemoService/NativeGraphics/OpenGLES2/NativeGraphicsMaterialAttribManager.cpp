@@ -84,12 +84,12 @@ namespace Fsl
                                                                                        const VertexDeclarationSpan& vertexDeclaration,
                                                                                        const ReadOnlySpan<GLVertexAttribLink> attribLinks)
     {
-      const GLVertexElementAttribLinks newLinks(vertexDeclaration, attribLinks);
+      const VertexElementAttribLinks newLinks(vertexDeclaration, attribLinks);
 
       const uint32_t size = rRecords.Count();
       for (uint32_t i = 0; i < size; ++i)
       {
-        if (rRecords[i].VertexElementAttribLinks.IsCompatible(newLinks))
+        if (rRecords[i].AttribLinks.IsCompatible(newLinks))
         {
           ++rRecords[i].RefCount;
           return NativeMaterialAttribHandle(rRecords.FastIndexToHandle(i));

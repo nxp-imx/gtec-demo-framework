@@ -104,6 +104,7 @@ namespace Fsl
       const std::vector<TIndex>& GetIndexArray() const;
 
       ReadOnlyFlexVertexSpan AsReadOnlyFlexVertexSpan() const;
+      ReadOnlySpan<TIndex> AsReadOnlyIndexSpan() const;
 
       //! @brief Get a pointer to the vertices
       //! @note The pointer is only valid until this object is modified.

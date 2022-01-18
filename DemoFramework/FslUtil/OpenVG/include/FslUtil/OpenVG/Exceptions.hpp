@@ -46,9 +46,22 @@ namespace Fsl
       int m_lineNumber;
 
     public:
+      explicit OpenVGException(const char* const psz)
+        : std::runtime_error(psz)
+        , m_lineNumber(0)
+      {
+      }
+
       explicit OpenVGException(const std::string& whatArg)
         : std::runtime_error(whatArg)
         , m_lineNumber(0)
+      {
+      }
+
+      explicit OpenVGException(const char* const psz, std::string fileName, const int lineNumber)
+        : std::runtime_error(psz)
+        , m_fileName(std::move(fileName))
+        , m_lineNumber(lineNumber)
       {
       }
 
@@ -58,7 +71,6 @@ namespace Fsl
         , m_lineNumber(lineNumber)
       {
       }
-
 
       std::string GetFileName() const
       {
@@ -78,8 +90,20 @@ namespace Fsl
       VGErrorCode m_errorCode;
 
     public:
+      explicit OpenVGErrorException(const char* const psz, const VGErrorCode errorCode)
+        : OpenVGException(psz)
+        , m_errorCode(errorCode)
+      {
+      }
+
       explicit OpenVGErrorException(const std::string& whatArg, const VGErrorCode errorCode)
         : OpenVGException(whatArg)
+        , m_errorCode(errorCode)
+      {
+      }
+
+      explicit OpenVGErrorException(const char* const psz, const VGErrorCode errorCode, const std::string& fileName, const int lineNumber)
+        : OpenVGException(psz, fileName, lineNumber)
         , m_errorCode(errorCode)
       {
       }

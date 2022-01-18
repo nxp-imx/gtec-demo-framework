@@ -61,3 +61,15 @@ class PathBuilder(object):
 
         resolvedPath = self.__VariableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePathAsDir(sourcePath, checkExists=checkExists)
         return ResolvedPath(sourcePath, resolvedPath)
+
+
+    def ResolveFilenameWithVariables(self, sourcePath: str) -> str:
+        if sourcePath.find('..') != -1:
+            raise Exception("'..' is now allowed in directory paths ('{0}')".format(sourcePath))
+        if sourcePath.find('\\') != -1:
+            raise Exception("'\\' is now allowed in directory paths ('{0}')".format(sourcePath))
+        if sourcePath.find('$') == -1:
+            return sourcePath
+        resolvedPath = self.__VariableProcessor.ResolveFilenameWithVariables(sourcePath)
+        return resolvedPath
+

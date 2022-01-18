@@ -81,7 +81,9 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) override;
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void Update(const DemoTime& demoTime) override;
+    bool Resolve(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
+    void OnDrawSkipped(const FrameInfo& frameInfo) override;
     void OnFrameSequenceEnd() override;
 
   protected:

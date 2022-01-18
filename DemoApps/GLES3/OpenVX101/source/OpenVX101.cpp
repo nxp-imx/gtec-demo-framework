@@ -195,8 +195,10 @@ namespace Fsl
   }
 
 
-  void OpenVX101::Draw(const DemoTime& /*demoTime*/)
+  void OpenVX101::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     auto resPx = GetWindowSizePx();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

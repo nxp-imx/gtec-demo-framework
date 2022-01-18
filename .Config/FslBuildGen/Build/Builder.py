@@ -60,8 +60,9 @@ from FslBuildGen.Build.Filter import RequirementFilter
 from FslBuildGen.Build.RequirementTree import RequirementTree
 from FslBuildGen.Build.RequirementTreeNode import RequirementTreeNode
 from FslBuildGen.BuildContent import ContentBuilder
-from FslBuildGen.BuildConfig.BuildUtil import BuildUtil
 from FslBuildGen.BuildConfig import Validate
+from FslBuildGen.BuildConfig.BuildUtil import BuildUtil
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.BuildContent.SharedValues import CONFIG_FSLBUILDCONTENT_ENABLED
 from FslBuildGen.BuildExternal import RecipeBuilder
 from FslBuildGen.BuildExternal.BuilderSettings import BuilderSettings
@@ -390,7 +391,7 @@ class Builder(object):
         return buildEnv
 
     def __CheckBuildConfigureModifications(self, cacheFilename: str, generatedFileSet: Set[str],
-                                           command: List[str], platformName: str, toolVersionStr: str,
+                                           userSetVariables: UserSetVariables, command: List[str], platformName: str, toolVersionStr: str,
                                            allowFindPackage: bool, forceDirty: bool) -> Optional[BuildConfigureCache]:
         """
         Generate hashes for all files in the set and compare them to the previously saved hashes
@@ -406,7 +407,7 @@ class Builder(object):
         for filename in generatedFileSet:
             generatedFileDictCache[filename] = IOUtil.HashFile(filename)
         allowFindPackageStr = "true" if allowFindPackage else "false"
-        configureCache = BuildConfigureCache(currentEnvironmentDict, generatedFileDictCache, command, platformName, toolVersionStr, allowFindPackageStr)
+        configureCache = BuildConfigureCache(currentEnvironmentDict, userSetVariables.Dict, generatedFileDictCache, command, platformName, toolVersionStr, allowFindPackageStr)
 
         isDirty = True
         self.Log.LogPrintVerbose(5, "- Loading previous configuration cache if present")
@@ -440,8 +441,8 @@ class Builder(object):
 
             cacheFilename = IOUtil.Join(currentWorkingDirectory, '.FslConfigureCache.json')
 
-            dirtyBuildConfigureCache = self.__CheckBuildConfigureModifications(cacheFilename, report.GeneratedFileSet, configCommand,
-                                                                               buildConfig.PlatformName,
+            dirtyBuildConfigureCache = self.__CheckBuildConfigureModifications(cacheFilename, report.GeneratedFileSet, buildConfig.UserSetVariables,
+                                                                               configCommand, buildConfig.PlatformName,
                                                                                buildConfig.ToolVersion.ToMajorMinorPatchString(), allowFindPackage,
                                                                                forceConfigure)
             if dirtyBuildConfigureCache is None:
@@ -688,7 +689,9 @@ def BuildPackages(log: Log, configBuildDir: str, configSDKPath: str, configSDKCo
     BuildVariantUtil.LogVariantSettings(log, variantSettingsDict)
 
     requestedPackages = [] if requestedPackages is None else requestedPackages
-    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.PlatformName, variantSettingsDict, buildCommand, buildArgs, buildForAllExe, generator, buildThreads)
+    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.PlatformName, variantSettingsDict,
+                                    generatorContext.GeneratorInfo.VariableContext.UserSetVariables,
+                                    buildCommand, buildArgs, buildForAllExe, generator, buildThreads)
 
     builder = Builder(log, configBuildDir, configSDKPath, configSDKConfigTemplatePath, configDisableWrite, configIsDryRun, toolConfig,
                       generatorContext, topLevelPackage, buildConfig, enableContentBuilder, forceClaimInstallArea, requestedPackages, forceConfigure)

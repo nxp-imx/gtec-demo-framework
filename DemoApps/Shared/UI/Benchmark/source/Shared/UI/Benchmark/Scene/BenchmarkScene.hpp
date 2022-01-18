@@ -73,7 +73,9 @@ namespace Fsl
     ~BenchmarkScene() override;
 
     void Update(const DemoTime& demoTime) final;
+    bool Resolve(const DemoTime& demoTime) final;
     void Draw(const DemoTime& demoTime) final;
+    void OnDrawSkipped(const FrameInfo& frameInfo) final;
     void OnFrameSequenceEnd() final;
 
   private:

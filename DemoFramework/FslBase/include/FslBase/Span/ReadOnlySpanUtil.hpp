@@ -103,7 +103,7 @@ namespace Fsl
     template <typename T>
     constexpr inline ReadOnlySpan<T> AsSpan(const std::vector<T>& value, const std::size_t offset, const std::size_t size)
     {
-      if (offset >= value.size())
+      if (offset > value.size())
       {
         throw std::invalid_argument("offset is out of bounds");
       }

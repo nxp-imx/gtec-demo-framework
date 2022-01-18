@@ -32,13 +32,16 @@
 #****************************************************************************************************************************************************
 
 from typing import List
+from typing import Optional
 from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.Packages.PackageProjectContextBasePackage import PackageProjectContextBasePackage
+from FslBuildGen.Version import Version
 
 class PackageProjectContext(object):
-    def __init__(self, projectId: ProjectId, projectName: str, projectVersion: str, basePackages: List[PackageProjectContextBasePackage]) -> None:
+    def __init__(self, projectId: ProjectId, projectName: str, projectVersion: Version, gitHash: Optional[str], basePackages: List[PackageProjectContextBasePackage]) -> None:
         super().__init__()
         self.ProjectId = projectId
         self.ProjectName = projectName
         self.ProjectVersion = projectVersion
+        self.GitHash = gitHash
         self.BasePackages = basePackages

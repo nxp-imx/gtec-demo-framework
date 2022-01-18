@@ -82,6 +82,7 @@ from FslBuildGen.Template.TemplateFileRecordManager import TemplateFileRecordMan
 from FslBuildGen.Template.TemplateFileProcessor import TemplateFileProcessor
 from FslBuildGen.Xml.XmlNewTemplateFile import XmlNewTemplateFile
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 g_templateFileName = "Template.xml"
 
@@ -454,16 +455,19 @@ class ToolFlowBuildNew(AToolAppFlow):
 
         reservedProjectNames = set()  # type: Set[str]
         packages = None  # type: Optional[List[Package]]
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         if not localToolConfig.NoParse:
             # Get the generator and see if its supported on this platform
             buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
             generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                       buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                       buildVariantConfig, variableContext.UserSetVariables,
+                                                                                       config.ToolConfig.DefaultPackageLanguage,
                                                                                        config.ToolConfig.CMakeConfiguration,
                                                                                        localToolConfig.GetUserCMakeConfig(), False)
             PlatformUtil.CheckBuildPlatform(generator.PlatformName)
             config.LogPrint("Active platform: {0}".format(generator.PlatformName))
-            generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+            generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
+                                                generator, variableContext)
             packages = ParsePackages(generatorContext, config, toolConfig.GetMinimalConfig(generator.CMakeConfig), currentDir, packageFilters)
 
         # Reserve the name of all packages
@@ -497,10 +501,12 @@ class ToolFlowBuildNew(AToolAppFlow):
             buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
             platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                      localToolConfig.Generator, buildVariantConfig,
+                                                                                                     variableContext.UserSetVariables,
                                                                                                      config.ToolConfig.DefaultPackageLanguage,
                                                                                                      config.ToolConfig.CMakeConfiguration,
                                                                                                      localToolConfig.GetUserCMakeConfig(), False)
-            MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, projectConfig, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, packageFilters)
+            MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, projectConfig, variableContext,
+                                          self.ErrorHelpManager, theFiles, platformGeneratorPlugin, packageFilters)
 
             if performSanityCheck:
                 self.__PerformSanityCheck(config, currentDir, localConfig.ProjectName, localConfig.Template)

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="FslDemoService.NativeGraphics.OpenGLES3.UnitTest" NoInclude="true" CreationYear="2022">
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3"/>
+    <Dependency Name="FslBase.UnitTest.Helper"/>
+    <!-- Disabled since it gets a runtime error on ubuntu versions less than 21 due to missing .so file -->
+    <Platform Name="Ubuntu" Supported="false"/>
+  </Executable>
+</FslBuildGen>

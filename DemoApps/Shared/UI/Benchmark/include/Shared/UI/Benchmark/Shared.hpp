@@ -54,6 +54,7 @@ namespace Fsl
 
   struct AppSettings;
   class BenchResultManager;
+  struct FrameInfo;
   class IBasicGpuProfiler;
   class IDemoAppControl;
   class InputRecordingManager;
@@ -113,7 +114,9 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event);
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics);
     void Update(const DemoTime& demoTime);
+    void Resolve(const DemoTime& demoTime);
     void Draw(const DemoTime& demoTime);
+    void OnDrawSkipped(const FrameInfo& frameInfo);
     void OnFrameSequenceEnd();
 
   private:

@@ -90,6 +90,7 @@ namespace Fsl
         std::shared_ptr<ButtonBase> ButtonBack;
         std::shared_ptr<Switch> SwitchGpuTimestamps;
         std::shared_ptr<Switch> SwitchNoOpaqueMaterials;
+        std::shared_ptr<Switch> switchOnDemandRendering;
         std::shared_ptr<Switch> SwitchUseSdfFonts;
         RenderMethodUI RenderMethod;
         RenderOptionControls RenderOptions;

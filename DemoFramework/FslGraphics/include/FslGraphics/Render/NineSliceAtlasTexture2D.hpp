@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/NineSlice.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -48,8 +49,8 @@ namespace Fsl
     {
     }
 
-    explicit NineSliceAtlasTexture2D(const AtlasTexture2D& texture, const NineSlice& nineSlice)
-      : Texture(texture)
+    explicit NineSliceAtlasTexture2D(AtlasTexture2D texture, const NineSlice& nineSlice)
+      : Texture(std::move(texture))
       , NSlice(nineSlice)
     {
     }

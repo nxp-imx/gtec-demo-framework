@@ -34,6 +34,9 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Math/Pixel/PxViewport.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/GLVertexAttribStateFunctor.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/VertexAttribStateCache.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/VertexElementAttribLinks.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <GLES2/gl2.h>
 #include <array>
@@ -70,6 +73,7 @@ namespace Fsl
       bool m_hasSavedState{false};
       State m_oldState;
       State m_newState;
+      VertexAttribStateCache<GLVertexAttribStateFunctor> m_attribCache;
 
     public:
       SaveGLState(const SaveGLState&) = delete;
@@ -86,6 +90,7 @@ namespace Fsl
           m_hasSavedState = other.m_hasSavedState;
           m_oldState = other.m_oldState;
           m_newState = other.m_newState;
+          m_attribCache = std::move(other.m_attribCache);
           other.m_hasSavedState = false;
           other.m_oldState = {};
           other.m_newState = {};
@@ -97,6 +102,7 @@ namespace Fsl
         : m_hasSavedState(other.m_hasSavedState)
         , m_oldState(other.m_oldState)
         , m_newState(other.m_newState)
+        , m_attribCache(std::move(other.m_attribCache))
       {
         other.m_hasSavedState = false;
         other.m_oldState = {};
@@ -334,6 +340,11 @@ namespace Fsl
         }
       }
 
+      void ChangeVertexAttribsLinks(const VertexElementAttribLinks& vertexElementAttribLinks)
+      {
+        assert(m_hasSavedState);
+        m_attribCache.ChangeAttribs(vertexElementAttribLinks);
+      }
 
     private:
       inline void RestoreState(const GLenum oldState, const GLboolean oldValue)
@@ -458,6 +469,7 @@ namespace Fsl
           {
             glViewport(m_oldState.Viewport.X, m_oldState.Viewport.Y, m_oldState.Viewport.Width, m_oldState.Viewport.Height);
           }
+          m_attribCache = {};
         }
       }
     };

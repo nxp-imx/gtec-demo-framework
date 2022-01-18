@@ -200,10 +200,10 @@ namespace Fsl
         }
       }
 
-      inline void SetAttribArrays(const NativeGraphicsMaterialFactory::MaterialRecord& materialRecord)
+      inline const VertexElementAttribLinks& GetVertexElementAttribLinks(const NativeGraphicsMaterialFactory::MaterialRecord& materialRecord) const
       {
         assert(materialRecord.IsValid());
-        m_attribManager.ApplyAttribArrays(materialRecord.AttribLinkHandle);
+        return m_attribManager.GetVertexElementAttribLinks(materialRecord.AttribLinkHandle);
       }
 
 

@@ -287,8 +287,10 @@ namespace Fsl
   }
 
 
-  void TessellationSample::Draw(const DemoTime& /*demoTime*/)
+  void TessellationSample::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (m_scene)
     {
       m_scene->Draw(m_drawConfig);

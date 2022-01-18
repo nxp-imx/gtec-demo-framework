@@ -138,7 +138,7 @@ namespace Fsl
       PxSize2D MeasureRenderedValue(const value_type value) const
       {
         fmt::memory_buffer tmpBuffer;
-        fmt::format_to(tmpBuffer, m_format, value);
+        fmt::format_to(std::back_inserter(tmpBuffer), m_format, value);
         return DoMeasureRenderedString(StringViewLite(tmpBuffer.data(), tmpBuffer.size()));
       }
 
@@ -148,7 +148,7 @@ namespace Fsl
         if (!m_cacheIsValid)
         {
           m_buffer.clear();
-          fmt::format_to(m_buffer, m_format, m_content);
+          fmt::format_to(std::back_inserter(m_buffer), m_format, m_content);
           m_cacheIsValid = true;
         }
         return StringViewLite(m_buffer.data(), m_buffer.size());

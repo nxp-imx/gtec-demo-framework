@@ -217,8 +217,10 @@ namespace Fsl
   }
 
 
-  void TessellationPNTriangles::Draw(const DemoTime& /*demoTime*/)
+  void TessellationPNTriangles::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (!TryPrepareFrame())
     {
       return;

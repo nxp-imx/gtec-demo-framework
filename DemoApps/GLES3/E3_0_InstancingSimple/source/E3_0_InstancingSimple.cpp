@@ -283,8 +283,10 @@ namespace Fsl
   }
 
 
-  void E3_0_InstancingSimple::Draw(const DemoTime& /*demoTime*/)
+  void E3_0_InstancingSimple::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     PxSize2D sizePx = GetWindowSizePx();
 
     glViewport(0, 0, sizePx.Width(), sizePx.Height());

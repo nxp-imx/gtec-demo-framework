@@ -263,9 +263,9 @@ namespace Fsl
   }
 
 
-  void S06_Texturing::Draw(const DemoTime& demoTime)
+  void S06_Texturing::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(frameInfo);
 
     // Rotate and translate the model view matrix
     const Matrix matModel =

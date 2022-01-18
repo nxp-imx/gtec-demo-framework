@@ -36,7 +36,11 @@ from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
 from FslBuildGen.AndroidUtil import AndroidUtil
+from FslBuildGen.BuildConfig.BuildVariables import BuildVariables
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.DataTypes import BuildPlatformType
+from FslBuildGen.Log import Log
+from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorName
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
@@ -95,6 +99,8 @@ def GetCompilerShortIdFromGeneratorName(generatorName: str) -> str:
         return "VS2017_X64"
     elif generatorName == CMakeGeneratorName.VisualStudio2019_X64:
         return "VS2019_X64"
+    elif generatorName == CMakeGeneratorName.VisualStudio2022_X64:
+        return "VS2022_X64"
     elif generatorName == CMakeGeneratorName.Android:
         # For android we utilize a combination of the SDK and NDK version for the unique 'toolchain' name
         theId = AndroidUtil.GetSDKNDKId()
@@ -129,13 +135,33 @@ def DeterminePlatformArguments(platformName: str) -> List[str]:
 
 def DetermineGeneratorArguments(cmakeGeneratorName: str, platformName: str) -> List[str]:
     res = DeterminePlatformArguments(platformName)
-    if cmakeGeneratorName != CMakeGeneratorName.VisualStudio2019_X64:
+    if cmakeGeneratorName != CMakeGeneratorName.VisualStudio2019_X64 and cmakeGeneratorName != CMakeGeneratorName.VisualStudio2022_X64:
         return res
     # for now we always use x64
     res.append("-A")
     res.append("x64")
     return res
 
+def DetermineVSToolsetVersion(log: Log, cmakeGeneratorName: str, platformName: str, userSetVariables: UserSetVariables) -> str:
+    buildVariableName = BuildVariables.VS_TOOLSET_VERSION
+    userToolsetVersion = userSetVariables.TryGet(buildVariableName)
+    if userToolsetVersion is not None:
+        log.LogPrint("DetermineVSToolsetVersion using user set '{0}={1}'".format(buildVariableName, userToolsetVersion))
+        return userToolsetVersion
+
+    if not CMakeGeneratorName.IsVisualStudio(cmakeGeneratorName):
+        if platformName == PlatformNameString.WINDOWS:
+            log.LogPrintVerbose(2, "Not a visual studio build so we could do not known VSToolsetVersion, a best guess will be made but if necessary set it manually with '--set {0}=version'".format(buildVariableName))
+            envVersion = IOUtil.TryGetEnvironmentVariable('VCToolsVersion')
+            if envVersion is not None:
+                envVersion = envVersion.strip()
+                res = envVersion.split('.')
+                if len(res) >= 2 and len(res[0]) >= 2 and len(res[1]) > 0:
+                    bestGuess = res[0] + res[1][0]
+                    log.LogPrintVerbose(2, "The VSToolsetVersion is likely to be '{0}' based on the environment variable VCToolsVersion being '{1}'".format(bestGuess, envVersion))
+                    return bestGuess
+        return "ErrorUnknownToolsetVersion"
+    return CMakeGeneratorName.GetToolsetVersionString(cmakeGeneratorName)
 
 def GetNativeBuildThreadArguments(cmakeGeneratorName: str, numBuildThreads: int) -> List[str]:
     if (cmakeGeneratorName == CMakeGeneratorName.UnixMakeFile or
@@ -143,7 +169,8 @@ def GetNativeBuildThreadArguments(cmakeGeneratorName: str, numBuildThreads: int)
         return ['-j', str(numBuildThreads)]
     elif (cmakeGeneratorName == CMakeGeneratorName.VisualStudio2015_X64 or
           cmakeGeneratorName == CMakeGeneratorName.VisualStudio2017_X64 or
-          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2019_X64):
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2019_X64 or
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2022_X64):
         return ['/maxcpucount:{0}'.format(numBuildThreads)]
     return []
 
@@ -157,7 +184,8 @@ def GetGeneratorMultiConfigCapabilities(cmakeGeneratorName: str) -> CMakeGenerat
         return CMakeGeneratorMultiConfigCapability.No
     elif (cmakeGeneratorName == CMakeGeneratorName.VisualStudio2015_X64 or
           cmakeGeneratorName == CMakeGeneratorName.VisualStudio2017_X64 or
-          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2019_X64):
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2019_X64 or
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2022_X64):
         return CMakeGeneratorMultiConfigCapability.Yes
     # Since we dont know, we just return false
     return CMakeGeneratorMultiConfigCapability.Unknown

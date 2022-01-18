@@ -107,8 +107,10 @@ namespace Fsl
   }
 
 
-  void BitmapFont::Draw(const DemoTime& demoTime)
+  void BitmapFont::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

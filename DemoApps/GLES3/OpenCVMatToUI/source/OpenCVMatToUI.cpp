@@ -164,8 +164,10 @@ namespace Fsl
   }
 
 
-  void OpenCVMatToUI::Draw(const DemoTime& /*demoTime*/)
+  void OpenCVMatToUI::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     // Clear the screen using the API (we dont currently have a API independent way to do it)
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

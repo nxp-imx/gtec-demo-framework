@@ -37,6 +37,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
@@ -311,9 +312,9 @@ namespace Fsl
   }
 
 
-  void ModelViewer::Draw(const DemoTime& demoTime)
+  void ModelViewer::Draw(const FrameInfo& frameInfo)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(frameInfo);
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -438,15 +439,15 @@ namespace Fsl
   void ModelViewer::DrawMeshesAndProfile()
   {
     HighResolutionTimer timer;
-    auto startTime = timer.GetTime();
-    uint64_t totalTimeBind = 0;
-    uint64_t totalTimeEnable = 0;
-    uint64_t totalTimeDraw = 0;
+    auto startTime = timer.GetTimestamp();
+    TimeSpan totalTimeBind;
+    TimeSpan totalTimeEnable;
+    TimeSpan totalTimeDraw;
 
     const auto indexBufferType = m_resources.IndexBuffers.GetType();
 
-    uint64_t sequenceTimestampStart = 0;
-    uint64_t sequenceTimestampEnd = 0;
+    TimeSpan sequenceTimestampStart;
+    TimeSpan sequenceTimestampEnd;
     const GLenum drawMode = !m_wireframe ? GL_TRIANGLES : GL_LINES;
     for (int32_t i = 0; i < m_resources.IndexBuffers.Length(); ++i)
     {
@@ -455,37 +456,37 @@ namespace Fsl
       if (indexBuffer.GetCapacity() > 0)
       {
         // Bind and enable the vertex buffer
-        sequenceTimestampStart = timer.GetTime();
+        sequenceTimestampStart = timer.GetTimestamp();
         glBindBuffer(m_resources.VertexBuffers.GetTarget(), vertexBuffer.Get());
         glBindBuffer(m_resources.IndexBuffers.GetTarget(), indexBuffer.Get());
-        sequenceTimestampEnd = timer.GetTime();
+        sequenceTimestampEnd = timer.GetTimestamp();
         totalTimeBind += sequenceTimestampEnd - sequenceTimestampStart;
         sequenceTimestampStart = sequenceTimestampEnd;
 
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
         // m_vertexBuffers.EnableAttribArrays(m_attribLink.data(), m_attribLink.size());
-        sequenceTimestampEnd = timer.GetTime();
+        sequenceTimestampEnd = timer.GetTimestamp();
         totalTimeEnable += sequenceTimestampEnd - sequenceTimestampStart;
         sequenceTimestampStart = sequenceTimestampEnd;
 
         glDrawElements(drawMode, indexBuffer.GetCapacity(), indexBufferType, nullptr);
 
-        sequenceTimestampEnd = timer.GetTime();
+        sequenceTimestampEnd = timer.GetTimestamp();
         totalTimeDraw += sequenceTimestampEnd - sequenceTimestampStart;
         sequenceTimestampStart = sequenceTimestampEnd;
       }
     }
-    auto endTime = timer.GetTime();
+    auto endTime = timer.GetTimestamp();
     auto totalTime = endTime - startTime;
     // FSLLOG3_INFO("DrawCalls: " << m_indexBuffers.Length() << " Time: " << totalTime << " bind: " << totalTimeBind << " enable: " << totalTimeEnable
     // << " draw: " << totalTimeDraw);
 
     {
-      const auto val1 = static_cast<int32_t>(totalTimeBind);
-      const auto val2 = static_cast<int32_t>(totalTimeEnable);
-      const auto val3 = static_cast<int32_t>(totalTimeDraw);
-      const auto val4 = static_cast<int32_t>(totalTime);
+      const auto val1 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeBind));
+      const auto val2 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeEnable));
+      const auto val3 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTimeDraw));
+      const auto val4 = static_cast<int32_t>(TimeSpanUtil::ToClampedMicrosecondsInt32(totalTime));
       m_profilerService->Set(m_hCounterBind, val1);
       m_profilerService->Set(m_hCounterEnable, val2);
       m_profilerService->Set(m_hCounterDraw, val3);

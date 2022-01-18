@@ -68,8 +68,10 @@ namespace Fsl
   }
 
 
-  void ThemeBasicUI::Draw(const DemoTime& /*demoTime*/)
+  void ThemeBasicUI::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     // Clear the screen
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

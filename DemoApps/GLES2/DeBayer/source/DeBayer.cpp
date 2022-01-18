@@ -269,11 +269,14 @@ namespace Fsl
 
   void DeBayer::Update(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
-  void DeBayer::Draw(const DemoTime& demoTime)
+  void DeBayer::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     pthread_mutex_lock(&gstThreadMutex);
     pthread_cond_wait(&gstCON, &gstThreadMutex);
     {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.RapidVulkan_1_2_189" CreationYear="2017">
+    <Dependency Name="VulkanBase"/>
+    <ExperimentalRecipe Name="RapidVulkan" Version="1.2.189" Find="true">
+      <Pipeline>
+        <Download URL="https://github.com/Unarmed1000/RapidVulkan/archive/1.2.189.2.tar.gz" To="RapidVulkan-1.2.189.2.tar.gz" Hash="7b4ba5664502afb18de438bd1db7b18422eab64a9da503c35a3748f1e5e32c9a"/>
+        <Unpack File="RapidVulkan-1.2.189.2.tar.gz" OutputPath="RapidVulkan-1.2.189.2"/>
+        <CMakeBuild Project="RapidVulkan" Target="install" Configuration="release" OutputPath="_Install"/>
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/RapidVulkan/Check.hpp" Method="IsFile"/>
+        <Path Name="include/RapidVulkan/CheckError.hpp" Method="IsFile"/>
+        <Path Name="include/RapidVulkan/Device.hpp" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ExternalLibrary>
+</FslBuildGen>

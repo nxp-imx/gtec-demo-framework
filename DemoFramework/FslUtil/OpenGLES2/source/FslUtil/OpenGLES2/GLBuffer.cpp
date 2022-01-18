@@ -169,7 +169,10 @@ namespace Fsl
       else
       {
         GL_CHECK(glBufferData(target, bufferElementCapacity * buffer.stride(), nullptr, usage));
-        GL_CHECK(glBufferSubData(target, 0, buffer.byte_size(), buffer.data()));
+        if (!buffer.empty())
+        {
+          GL_CHECK(glBufferSubData(target, 0, buffer.byte_size(), buffer.data()));
+        }
       }
       GL_CHECK(glBindBuffer(target, 0));
 

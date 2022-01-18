@@ -32,12 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Attributes.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/OptimizationFlag.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Span/ReadOnlyTypedFlexSpan.hpp>
+#include <FslBase/TypeAlignmentUtil.hpp>
 #include <cassert>
 #include <cstddef>
-#include <stdexcept>
 #include <type_traits>
 
 namespace Fsl
@@ -88,7 +90,9 @@ namespace Fsl
       , m_stride(stride)
     {
       assert(pData != nullptr || count == 0u);
-      assert(stride > 0u || count == 0u);
+      assert(stride >= sizeof(T) || count == 0u);
+      assert(pData == nullptr || TypeAlignmentUtil::UnsafeIsPointerAligned(pData, std::alignment_of<T>::value));
+      assert(count == 0u || TypeAlignmentUtil::IsAligned(stride, std::alignment_of<T>::value));
     }
 
     explicit constexpr TypedFlexSpan(pointer pData, size_type count, size_type stride) noexcept
@@ -96,7 +100,10 @@ namespace Fsl
       , m_length(pData != nullptr && stride > 0 ? count : 0u)
       , m_stride(stride)
     {
+      assert(stride >= sizeof(T) || count == 0u);
       FSLLOG3_DEBUG_INFO_IF((pData == nullptr && count != 0) || stride <= 0u, "forcing count to zero");
+      assert(pData == nullptr || TypeAlignmentUtil::UnsafeIsPointerAligned(pData, std::alignment_of<T>::value));
+      assert(count == 0u || TypeAlignmentUtil ::IsAligned(stride, std::alignment_of<T>::value));
     }
 
 
@@ -229,6 +236,45 @@ namespace Fsl
     // {
     //  return pData != nullptr ? reinterpret_cast<pointer>(static_cast<uint8_t*>(pData) + byteOffset) : nullptr;
     // }
+
+    void Fill(const T& value)
+    {
+      if (!empty())
+      {
+        auto pDst = reinterpret_cast<uint8_t*>(m_pData);
+        auto pDstEnd = reinterpret_cast<uint8_t*>(m_pData) + (m_stride * m_length);
+        while (pDst < pDstEnd)
+        {
+          assert(TypeAlignmentUtil::UnsafeIsPointerAligned(pDst, std::alignment_of<T>::value));
+          *reinterpret_cast<T*>(pDst) = value;
+          pDst += m_stride;
+        }
+      }
+    }
+
+
+    template <typename TSrc, typename TConvSrcToDstFunc>
+    void Copy(const ReadOnlySpan<TSrc> src, TConvSrcToDstFunc fnConvert)
+    {
+      if (!src.empty())
+      {
+        if (src.size() > size())
+        {
+          throw IndexOutOfRangeException("The span could not contain all the entries");
+        }
+
+        auto pDst = reinterpret_cast<uint8_t*>(m_pData);
+        auto pDstEnd = reinterpret_cast<uint8_t*>(m_pData) + (m_stride * m_length);
+        std::size_t i = 0;
+        while (pDst < pDstEnd)
+        {
+          assert(TypeAlignmentUtil::UnsafeIsPointerAligned(pDst, std::alignment_of<T>::value));
+          *reinterpret_cast<T*>(pDst) = fnConvert(src[i]);
+          pDst += m_stride;
+          ++i;
+        }
+      }
+    }
 
   private:
     inline const_pointer GetConstPointer(size_type pos) const noexcept

@@ -180,9 +180,6 @@ namespace Fsl
 
     protected:
       void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
-      void Draw(const DemoTime& /*demoTime*/) final
-      {
-      }
       void Draw(const FrameInfo& frameInfo) final;
       AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) override;
 

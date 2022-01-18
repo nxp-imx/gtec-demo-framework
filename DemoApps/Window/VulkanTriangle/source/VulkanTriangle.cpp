@@ -91,8 +91,10 @@ namespace Fsl
   }
 
 
-  void VulkanTriangle::Draw(const DemoTime& /*demoTime*/)
+  void VulkanTriangle::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     VkResult result = VK_SUCCESS;
     // FIX: hasCurrentExtentChanged missing, is this important?
     // if (surface->hasCurrentExtentChanged(physicalDevice->getPhysicalDevice()))

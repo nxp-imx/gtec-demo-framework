@@ -116,8 +116,10 @@ namespace Fsl
   }
 
 
-  void ComputeParticles::Draw(const DemoTime& /*demoTime*/)
+  void ComputeParticles::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     {    // Do the draw
       // Submit graphics commands
 

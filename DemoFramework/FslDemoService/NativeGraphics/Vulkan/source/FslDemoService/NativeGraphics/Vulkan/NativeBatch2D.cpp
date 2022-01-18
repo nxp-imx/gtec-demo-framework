@@ -615,14 +615,25 @@ namespace Fsl
 
     // ----------
 
-    void NativeBatch2D::DebugDrawLine(const AtlasTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color)
+    void NativeBatch2D::DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color)
+    {
+      const VUTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
+      Batch2D::DebugDrawLine(Batch2D::atlas_texture_type(textureInfo, srcFillTexture.GetInfo()), dstFromPx, dstToPx, color);
+    }
+
+    void NativeBatch2D::DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color)
     {
       const VUTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
       Batch2D::DebugDrawLine(Batch2D::atlas_texture_type(textureInfo, srcFillTexture.GetInfo()), dstFromPxf, dstToPxf, color);
     }
 
+    void NativeBatch2D::DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color)
+    {
+      const VUTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
+      Batch2D::DebugDrawLine(textureInfo, dstFromPx, dstToPx, color);
+    }
 
-    void NativeBatch2D::DebugDrawLine(const BaseTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color)
+    void NativeBatch2D::DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color)
     {
       const VUTextureInfo textureInfo = TryExtract(m_current.NativeDevice.get(), srcFillTexture);
       Batch2D::DebugDrawLine(textureInfo, dstFromPxf, dstToPxf, color);

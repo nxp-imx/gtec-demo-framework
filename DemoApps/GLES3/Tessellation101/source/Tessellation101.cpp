@@ -179,8 +179,10 @@ namespace Fsl
   }
 
 
-  void Tessellation101::Draw(const DemoTime& /*demoTime*/)
+  void Tessellation101::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);

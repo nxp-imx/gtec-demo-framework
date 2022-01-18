@@ -81,11 +81,14 @@ The app 'playground' scene can be controlled using:
 
 Key         | Result
 ------------|---------------------------------------
+T           | Show stats on/off
+C           | Show chart on/off
 F           | Toggle render optimization 'fill buffers' on/off
 B           | Toggle render optimization 'batch' on/off
 R           | Toggle render optimization 'draw reorder' on/off
 D           | Toggle render optimization 'depth buffer' on/off
 M           | Toggle render optimization 'mesh caching' on/off
+O           | Toggle on demand rendering on/off
 S           | Toggle SDF fonts on/off
 E           | Toggle emulate dpi on/off
 Left arrow  | dpi slider decrease
@@ -162,6 +165,7 @@ Argument                        |Description                                    
 --ScreenshotNameScheme \<arg>   |Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)                                                                                                                                                                                                                                             |DemoHostManager
 --Stats                         |Display basic frame profiling stats                                                                                                                                                                                                                                                                                        |DemoHostManager
 --StatsFlags \<arg>             |Select the stats to be displayed/logged. Defaults to frame\|cpu. Can be 'frame', 'cpu' or any combination                                                                                                                                                                                                                  |DemoHostManager
+--Version                       |Print version information                                                                                                                                                                                                                                                                                                  |DemoHostManager
 --Graphics.Profile              |Enable graphics service stats                                                                                                                                                                                                                                                                                              |GraphicsService
 --Profiler.AverageEntries \<arg>|The number of frames used to calculate the average frame-time. Defaults to: 60                                                                                                                                                                                                                                             |ProfilerService
 --ghelp \<arg>                  |Display option groups: all, demo or host                                                                                                                                                                                                                                                                                   |base

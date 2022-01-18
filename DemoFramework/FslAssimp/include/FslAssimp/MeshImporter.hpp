@@ -33,6 +33,9 @@
 
 #include <assimp/mesh.h>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Span/Span.hpp>
+#include <FslBase/Span/TypedFlexSpan.hpp>
+#include <FslGraphics/Color.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
 #include <FslGraphics3D/BasicScene/MeshAllocatorFunc.hpp>
 #include <FslGraphics3D/BasicScene/MeshAllocator.hpp>
@@ -100,95 +103,57 @@ namespace Fsl
 
 
     //! @brief Extract the vertex position from the mesh as Vector3 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex positions from (!= nullptr)
     //! @return the number of vertices that were written
-    static std::size_t FastExtractVertexPosition(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                                 const aiMesh* const pSrcMesh);
+    static std::size_t FastExtractVertexPosition(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh);
 
     //! @brief Extract the vertex position from the mesh as Vector3 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex positions from (!= nullptr)
     //! @return the number of vertices that were written
-    static std::size_t FastExtractVertexPosition(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                                 const aiMesh* const pSrcMesh, const Vector3& positionMod, const Vector3& scale);
+    static std::size_t FastExtractVertexPosition(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh, const Vector3& positionMod,
+                                                 const Vector3& scale);
 
     //! @brief Extract the vertex normal from the mesh as Vector3 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex normals from (!= nullptr)
     //! @return the number of vertices that were written
-    static std::size_t FastExtractVertexNormals(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                                const aiMesh* const pSrcMesh);
+    static std::size_t FastExtractVertexNormals(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh);
 
     //! @brief Extract the vertex tangent from the mesh as Vector3 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex normals from (!= nullptr)
     //! @return the number of vertices that were written
-    static std::size_t FastExtractVertexTangents(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                                 const aiMesh* const pSrcMesh);
+    static std::size_t FastExtractVertexTangents(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh);
 
     //! @brief Extract the vertex bitangent from the mesh as Vector3 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex normals from (!= nullptr)
     //! @return the number of vertices that were written
-    static std::size_t FastExtractVertexBitangents(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                                   const aiMesh* const pSrcMesh);
+    static std::size_t FastExtractVertexBitangents(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh);
 
     //! @brief Extract the vertex texture coordinate from the mesh as Vector2 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex normals from (!= nullptr)
     //! @param srcSetIndex the index of the set to extract
     //! @return the number of vertices that were written
-    static std::size_t FastExtractTextureCoordinates2(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                      const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
+    static std::size_t FastExtractTextureCoordinates2(TypedFlexSpan<Vector2> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
 
     //! @brief Extract the vertex texture coordinate from the mesh as Vector3 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex normals from (!= nullptr)
     //! @param srcSetIndex the index of the set to extract
     //! @return the number of vertices that were written
-    static std::size_t FastExtractTextureCoordinates3(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                      const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
+    static std::size_t FastExtractTextureCoordinates3(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
 
     //! @brief Extract the vertex color from the mesh as Vector4 entries
-    //! @param pDst the destination buffer
-    //! @param cbDst the size of the destination buffer in bytes.
-    //! @param dstStride the number of bytes to move forward to get to the next vertex entry in the destination buffer.
-    //! @param dstEntryOffset how much each entry written to pDst should be offset (its expected that the written entry fit inside the stride that is
-    //! that (offset+sizeof(entry)) <= stride
+    //! @param dst is the dst span
     //! @param pSrcMesh the mesh to extract vertex normals from (!= nullptr)
     //! @param srcSetIndex the index of the set to extract
     //! @return the number of vertices that were written
-    static std::size_t FastExtractColors(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                         const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
+    static std::size_t FastExtractColors(TypedFlexSpan<Vector4> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
+    static std::size_t FastExtractColors(TypedFlexSpan<Color> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex);
 
     //! @brief Extract the indices from the mesh
     //! @param pDst the destination buffer
@@ -204,7 +169,7 @@ namespace Fsl
     //! @param pSrcMesh the mesh to extract indices from (!= nullptr)
     //! @return the number of indices that were written
     //! @note Throws a exception if no indices exist in the mesh
-    static std::size_t FastExtractIndicesUInt8(uint8_t* const pDst, const std::size_t dstCapacity, const aiMesh* const pSrcMesh);
+    static std::size_t FastExtractIndicesUInt8(Span<uint8_t> dstSpan, const aiMesh* const pSrcMesh);
 
     //! @brief Extract the indices from the mesh as UInt16
     //! @param pDst the destination buffer
@@ -212,7 +177,27 @@ namespace Fsl
     //! @param pSrcMesh the mesh to extract indices from (!= nullptr)
     //! @return the number of indices that were written
     //! @note Throws a exception if no indices exist in the mesh
-    static std::size_t FastExtractIndicesUInt16(uint16_t* const pDst, const std::size_t dstCapacity, const aiMesh* const pSrcMesh);
+    static std::size_t FastExtractIndicesUInt16(Span<uint16_t> dstSpan, const aiMesh* const pSrcMesh);
+
+    /// <summary>
+    /// Extract the colors from the mesh, if no colors are present the dst span will be filled with the fillColor instead.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="dst"></param>
+    /// <param name="pSrcMesh"></param>
+    /// <param name="srcSetIndex"></param>
+    /// <param name="fillColor"></param>
+    /// <returns></returns>
+    template <typename T>
+    static std::size_t FastExtractColors(TypedFlexSpan<T> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex, const T fillColor)
+    {
+      if (pSrcMesh->mColors[srcSetIndex] != nullptr)
+      {
+        return FastExtractColors(dst, pSrcMesh, srcSetIndex);
+      }
+      dst.Fill(fillColor);
+      return dst.size();
+    }
 
   private:
     Graphics3D::MeshAllocatorFunc m_meshAllocator;

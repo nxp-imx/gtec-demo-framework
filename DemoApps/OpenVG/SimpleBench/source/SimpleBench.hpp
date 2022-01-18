@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslDemoApp/OpenVG/DemoAppVG.hpp>
 #include <deque>
 #include "IBench.hpp"
@@ -44,7 +45,7 @@ namespace Fsl
     std::deque<std::shared_ptr<IBench>> m_benchmarks;
     std::shared_ptr<IBench> m_current;
     std::size_t m_benchIndex;
-    uint64_t m_taskTime;
+    TimeSpan m_taskTime;
     int32_t m_benchDrawCount;
 
   public:
@@ -53,7 +54,7 @@ namespace Fsl
 
   protected:
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void NextBenchmark();

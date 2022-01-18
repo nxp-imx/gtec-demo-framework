@@ -35,6 +35,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.DataTypes import PackageLanguage
@@ -49,8 +50,8 @@ class PluginConfigContext(object):
         raise Exception("GetGeneratorPlugins not implemented")
 
     def GetGeneratorPluginById(self, pluginId: str, generatorType: GeneratorType, buildVariantConfig: BuildVariantConfig,
-                               defaultPackageLanguage: PackageLanguage, cmakeConfiguration: CMakeConfiguration, userCMakeConfig:
-                               Optional[UserCMakeConfig], isCheckMode: bool) -> GeneratorPlugin:
+                               userSetVariables: UserSetVariables, defaultPackageLanguage: PackageLanguage, cmakeConfiguration: CMakeConfiguration,
+                               userCMakeConfig: Optional[UserCMakeConfig], isCheckMode: bool) -> GeneratorPlugin:
         raise Exception("GetGeneratorPluginById not implemented")
 
     def EnableGraph(self) -> None:

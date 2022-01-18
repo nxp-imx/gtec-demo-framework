@@ -100,7 +100,7 @@ namespace Fsl
     HitBasedInputSender::~HitBasedInputSender() = default;
 
 
-    bool HitBasedInputSender::HasActiveClickEvent() const
+    bool HitBasedInputSender::HasActiveClickEvent() const noexcept
     {
       return m_stateEventSenderClickEvent->HasActiveEvent();
     }

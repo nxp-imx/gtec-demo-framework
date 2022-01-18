@@ -1,0 +1,22 @@
+{
+  "ComplexLicense": {
+    "Licenses": [
+      {
+        "Origin": "Greg Zaal",
+        "License": "CC0-1.0",
+        "Comment": "Dynamic Range: 21 EVs (extremely high), unclipped",
+        "URL": "https://hdrihaven.com/hdri/?h=floral_tent"
+      },
+      {
+        "Origin": "Emil Persson",
+        "License": "CC-BY-3.0",
+        "URL": "http://www.humus.name"
+      },
+      {
+        "Origin": "NXP",
+        "License": "CC0-1.0"
+      }
+    ],
+    "Comment": "Merged complex license for everything that could be used in a screenshot"
+  }
+}

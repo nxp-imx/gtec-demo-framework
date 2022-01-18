@@ -45,6 +45,7 @@ namespace Fsl
     constexpr StringViewLite GpuTimestamps("GPU timestamps");
     constexpr StringViewLite NoOpaqueMaterials("No opaque materials");
     constexpr StringViewLite UseSdfFonts("Use SDF fonts");
+    constexpr StringViewLite OnDemandRendering("On demand");
 
     constexpr StringViewLite Batch("Batch");
     constexpr StringViewLite FillBuffers("Fill buffers");

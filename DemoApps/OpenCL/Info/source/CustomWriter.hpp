@@ -54,8 +54,8 @@ namespace Fsl
       try
       {
         m_buf.clear();
-        fmt::format_to(m_buf, m_indent);
-        fmt::format_to(m_buf, pszFormat, args...);
+        fmt::format_to(std::back_inserter(m_buf), m_indent);
+        fmt::format_to(std::back_inserter(m_buf), pszFormat, args...);
         m_buf.push_back(0);
         Logger::WriteLine(LogType::Info, m_buf.data());
       }

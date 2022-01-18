@@ -1,0 +1,33 @@
+{
+  "ComplexLicense": {
+    "Licenses": [
+      {
+        "Origin": "miklosizoltan",
+        "License": "CC0-1.0",
+        "Comment": "Textures recompressed slightly to make the jpgs smaller",
+        "URL": "http://www.blendswap.com/blends/view/73418"
+      },
+      {
+        "Origin": "3DHaupt",
+        "License": "CC-BY-3.0",
+        "URL": "http://www.blendswap.com/blends/view/67567"
+      },
+      {
+        "Origin": "piacenti",
+        "License": "CC-BY-3.0",
+        "URL": "https://opengameart.org/content/knight-2"
+      },
+      {
+        "Origin": "Assimp",
+        "License": "Modified 3-clause BSD-License",
+        "Comment": "From the official documentation",
+        "URL": "http://www.assimp.org/howtoBasicShapes.html"
+      },
+      {
+        "Origin": "NXP",
+        "License": "CC0-1.0"
+      }
+    ],
+    "Comment": "Merged complex license for everything that could be used in a screenshot"
+  }
+}

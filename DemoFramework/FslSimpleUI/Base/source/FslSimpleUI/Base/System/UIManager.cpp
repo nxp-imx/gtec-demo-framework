@@ -204,7 +204,7 @@ namespace Fsl
 
     bool UIManager::IsIdle() const
     {
-      return !m_tree || m_tree->IsIdle();
+      return (!m_tree || m_tree->IsIdle()) && (!m_inputModule || m_inputModule->IsIdle());
     }
 
     UIStats UIManager::GetStats() const

@@ -82,10 +82,12 @@ namespace Fsl
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
     void _PostUpdate(const DemoTime& demoTime) override;
+    void _Resolve(const DemoTime& demoTime) override;
     AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) override;
     void _BeginDraw(const FrameInfo& frameInfo) override;
     void _Draw(const FrameInfo& frameInfo) override;
     void _EndDraw(const FrameInfo& frameInfo) override;
+    void _OnDrawSkipped(const FrameInfo& frameInfo) override;
 
     AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) override;
     void _End() override;
@@ -172,14 +174,14 @@ namespace Fsl
       FSL_PARAM_NOT_USED(demoTime);
     }
 
+    virtual void Resolve(const DemoTime& demoTime)
+    {
+      FSL_PARAM_NOT_USED(demoTime);
+    }
+
     virtual void BeginDraw(const FrameInfo& frameInfo)
     {
       FSL_PARAM_NOT_USED(frameInfo);
-    }
-
-    virtual void Draw(const DemoTime& demoTime)
-    {
-      FSL_PARAM_NOT_USED(demoTime);
     }
 
     virtual void Draw(const FrameInfo& frameInfo)
@@ -198,6 +200,12 @@ namespace Fsl
       FSL_PARAM_NOT_USED(frameInfo);
       return AppDrawResult::Completed;
     }
+
+    virtual void OnDrawSkipped(const FrameInfo& frameInfo)
+    {
+      FSL_PARAM_NOT_USED(frameInfo);
+    }
+
 
     //! @note This will only be called if the DemoHost delegates SwapBuffers to the app (most dont).
     virtual AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo)

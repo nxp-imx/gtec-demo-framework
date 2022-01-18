@@ -85,6 +85,20 @@ namespace Fsl
       constexpr int32_t SliderDpiTickSlow = 1u;
     }
 
+    namespace LocalStrings
+    {
+      constexpr StringViewLite Meshes("Meshes:");
+      constexpr StringViewLite Batches("Batches:");
+      constexpr StringViewLite VBs("VBs:");
+      constexpr StringViewLite IBs("IBs:");
+      constexpr StringViewLite Vertices("Vertices:");
+      constexpr StringViewLite Indices("Indices:");
+      constexpr StringViewLite Draw("Draw:");
+      constexpr StringViewLite DrawIndexed("DrawIndexed:");
+      constexpr StringViewLite EmulateDpi("Emulate dpi");
+      constexpr StringViewLite SdfFont("SDF font");
+    }
+
     namespace IdleColor
     {
       constexpr Color Idle = Color::Green();
@@ -309,7 +323,10 @@ namespace Fsl
       }
       break;
     case VirtualKey::O:
-      m_uiProfile.OptionsBar.UI.SwitchStats->Toggle();
+      if (m_uiProfile.OptionsBar.SwitchOnDemand->IsEnabled())
+      {
+        m_uiProfile.OptionsBar.SwitchOnDemand->Toggle();
+      }
       break;
     case VirtualKey::M:
       if (m_uiProfile.OptionsBar.RenderOptions.SwitchMeshCaching->IsEnabled())
@@ -328,6 +345,9 @@ namespace Fsl
       {
         m_uiProfile.OptionsBar.SwitchSdfFont->Toggle();
       }
+      break;
+    case VirtualKey::T:
+      m_uiProfile.OptionsBar.UI.SwitchStats->Toggle();
       break;
     case VirtualKey::DownArrow:
       if (m_uiProfile.OptionsBar.SliderEmulatedDpi->IsEnabled())
@@ -365,6 +385,20 @@ namespace Fsl
     SetDpi(NumericCast<int32_t>(windowMetrics.DensityDpi));
   }
 
+
+  bool PlaygroundScene::Resolve(const DemoTime& demoTime)
+  {
+    FSL_PARAM_NOT_USED(demoTime);
+    bool isIdle = false;
+    if (m_uiProfile.OptionsBar.SwitchOnDemand)
+    {
+      const bool allowOnDemand = m_uiProfile.OptionsBar.SwitchOnDemand->IsChecked();
+      isIdle = allowOnDemand ? m_testAppHost->IsUIIdle() && m_uiExtension->IsIdle() : false;
+    }
+    return isIdle;
+  }
+
+
   void PlaygroundScene::Update(const DemoTime& demoTime)
   {
     if (m_frameAnalysisDialog)
@@ -399,7 +433,7 @@ namespace Fsl
     const Color overlayColor = (m_settings->UI.ShowStats) ? Color::White() : Color(0x00FFFFFF);
     m_anim.OverlayColorStatsApp.SetValue(overlayColor);
     m_anim.OverlayColorStats.SetValue(m_settings->Test.ShowStats ? overlayColor : Color(0x00FFFFFF));
-    m_anim.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+    m_anim.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
 
     m_uiProfile.StatsOverlay.MainLayout->SetBaseColor(m_anim.OverlayColorStatsApp.GetValue());
     m_uiProfile.StatsOverlay2.MainLayout->SetBaseColor(m_anim.OverlayColorStats.GetValue());
@@ -438,6 +472,13 @@ namespace Fsl
   {
     m_testAppHost->AppDraw(demoTime);
   }
+
+
+  void PlaygroundScene::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    FSL_PARAM_NOT_USED(frameInfo);
+  }
+
 
   void PlaygroundScene::OnFrameSequenceEnd()
   {
@@ -692,7 +733,8 @@ namespace Fsl
 
     RenderOptionControls renderOptions = RenderOptionControlsFactory::CreateRenderMethodControls(uiFactory);
 
-    auto switchSdfFont = uiFactory.CreateSwitch("SDF font", false);
+    auto switchOnDemand = uiFactory.CreateSwitch(TextConfig::OnDemandRendering, false);
+    auto switchSdfFont = uiFactory.CreateSwitch(LocalStrings::SdfFont, false);
 
     auto switchButtons = CreateUISwitchButtons(uiFactory, context, settings);
     auto switchButtonLayout = std::make_shared<UI::ComplexStackLayout>(context);
@@ -718,7 +760,7 @@ namespace Fsl
       renderMethodUI.Methods.push_back(radioButton);
     }
 
-    auto switchDpi = uiFactory.CreateSwitch("Emulate dpi");
+    auto switchDpi = uiFactory.CreateSwitch(LocalStrings::EmulateDpi);
     auto sliderDpi = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal,
                                                     ConstrainedValue<int32_t>(currentDensityDpi, LocalConfig::DpiMin, LocalConfig::DpiMax));
     if (!switchDpi->IsChecked())
@@ -784,13 +826,14 @@ namespace Fsl
     layout->AddChild(renderOptions.SwitchMeshCaching, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateDivider(UI::LayoutOrientation::Horizontal), UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateLabel(TextConfig::HeaderOptions, UI::Theme::FontType::Header), UI::LayoutLength(UI::LayoutUnitType::Auto));
+    layout->AddChild(switchOnDemand, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(switchSdfFont, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(switchDpi, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(sliderDpi, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(lastRow, UI::LayoutLength(UI::LayoutUnitType::Star));
 
-    return {layout,    switchButtons, renderMethodUI,      renderOptions, switchSdfFont, switchDpi,
-            sliderDpi, buttonConfig,  buttonFrameAnalysis, buttonRecord,  buttonBench,   imageIdle};
+    return {layout,    switchButtons, renderMethodUI,      renderOptions, switchOnDemand, switchSdfFont, switchDpi,
+            sliderDpi, buttonConfig,  buttonFrameAnalysis, buttonRecord,  buttonBench,    imageIdle};
   }
 
   PlaygroundScene::UISwitchButtons PlaygroundScene::CreateUISwitchButtons(UI::Theme::IThemeControlFactory& uiFactory,
@@ -848,14 +891,14 @@ namespace Fsl
   {
     StatsOverlayUI overlay;
 
-    auto lblDesc0 = uiFactory.CreateLabel("Meshes:");
-    auto lblDesc1 = uiFactory.CreateLabel("Batches:");
-    auto lblDesc2 = uiFactory.CreateLabel("VBs:");
-    auto lblDesc3 = uiFactory.CreateLabel("IBs:");
-    auto lblDesc4 = uiFactory.CreateLabel("Vertices:");
-    auto lblDesc5 = uiFactory.CreateLabel("Indices:");
-    auto lblDesc6 = uiFactory.CreateLabel("Draw:");
-    auto lblDesc7 = uiFactory.CreateLabel("DrawIndexed:");
+    auto lblDesc0 = uiFactory.CreateLabel(LocalStrings::Meshes);
+    auto lblDesc1 = uiFactory.CreateLabel(LocalStrings::Batches);
+    auto lblDesc2 = uiFactory.CreateLabel(LocalStrings::VBs);
+    auto lblDesc3 = uiFactory.CreateLabel(LocalStrings::IBs);
+    auto lblDesc4 = uiFactory.CreateLabel(LocalStrings::Vertices);
+    auto lblDesc5 = uiFactory.CreateLabel(LocalStrings::Indices);
+    auto lblDesc6 = uiFactory.CreateLabel(LocalStrings::Draw);
+    auto lblDesc7 = uiFactory.CreateLabel(LocalStrings::DrawIndexed);
 
     auto lbl0 = uiFactory.CreateFmtValueLabel(uint32_t(0));
     auto lbl1 = uiFactory.CreateFmtValueLabel(uint32_t(0));

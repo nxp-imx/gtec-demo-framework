@@ -31,6 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include "SimpleBench.hpp"
 #include <VG/openvg.h>
@@ -103,7 +104,7 @@ namespace Fsl
   }
 
 
-  void SimpleBench::Draw(const DemoTime& demoTime)
+  void SimpleBench::Draw(const FrameInfo& frameInfo)
   {
     constexpr std::array<VGfloat, 4> color = {0.0f, 0.0f, 0.0f, 0.0f};
     vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(color.size()), color.data());
@@ -116,15 +117,15 @@ namespace Fsl
       return;
     }
 
-    const uint64_t beginTime = m_timer.GetTime();
+    const auto beginTime = m_timer.GetTimestamp();
     m_current->Draw(currentSizePx);
-    const uint64_t endTime = m_timer.GetTime();
+    const auto endTime = m_timer.GetTimestamp();
     m_taskTime += endTime - beginTime;
 
     ++m_benchDrawCount;
     if (m_benchDrawCount >= NUM_DRAWS_PER_BENCH)
     {
-      FSLLOG3_INFO("Benchmark {} time: {} microseconds", m_current->GetName(), m_taskTime);
+      FSLLOG3_INFO("Benchmark {} time: {} microseconds", m_current->GetName(), TimeSpanUtil::ToMicrosecondsInt64(m_taskTime));
       NextBenchmark();
     }
   }
@@ -146,7 +147,7 @@ namespace Fsl
     m_current->Restart();
 
     ++m_benchIndex;
-    m_taskTime = 0;
+    m_taskTime = {};
     m_benchDrawCount = 0;
   }
 }

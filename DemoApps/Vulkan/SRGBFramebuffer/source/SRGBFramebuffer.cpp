@@ -700,11 +700,11 @@ namespace Fsl
       m_splitSceneAlphaR.SetValue(1.0f);
       break;
     }
-    m_splitX.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_splitSceneWidthL.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_splitSceneWidthR.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_splitSceneAlphaL.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
-    m_splitSceneAlphaR.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+    m_splitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneWidthL.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneWidthR.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneAlphaL.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneAlphaR.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alphaL = m_splitSceneAlphaL.GetValue();
     const float alphaR = m_splitSceneAlphaR.GetValue();

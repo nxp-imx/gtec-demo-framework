@@ -100,9 +100,9 @@ from FslBuildGen.Xml.XmlGenFileExternalDependency import FakeXmlGenFileExternalD
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 #from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
 #from FslBuildGen.Xml.XmlStuff import XmlGenFileVariantOption
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddHeaders
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddLib
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddDLL
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddHeaders import PackageRecipeValidateCommandAddHeaders
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddLib import PackageRecipeValidateCommandAddLib
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddDLL import PackageRecipeValidateCommandAddDLL
 
 class PackageResolvedInclude(object):
     def __init__(self, path: str, fromPackageAccess: AccessType) -> None:
@@ -175,6 +175,10 @@ class PackageResolver(object):
                 self.__ResolveAllVariants(finalResolveOrder)
                 if markExternalLibFirstUse:
                     self.__MarkExternalLibFirstUse(packageBuilder.TopLevelPackage)
+
+                log.LogPrintVerbose(4, "- generating files")
+                self.__GenerateFiles(log, platformContext, toolConfig, finalResolveOrder)
+
                 # Everything checks out, so we can now start resolving files for the packages
                 log.LogPrintVerbose(4, "- include dirs")
                 self.__ResolveBuildIncludeDirs(log, toolConfig, finalResolveOrder)
@@ -202,7 +206,7 @@ class PackageResolver(object):
                                     resolveInstallPath: bool = True) -> None:
         for package in finalResolveOrder:
             forceDisable = not recipeFilterManager.IsEnabled(package.Name)
-            package.ResolvedDirectExperimentalRecipe = package.TryGetExperimentalRecipe(forceDisable)
+            package.ResolvedDirectExperimentalRecipe = package.TryGetExperimentalRecipe(platformContext.PathBuilder, forceDisable)
             if package.ResolvedDirectExperimentalRecipe is not None:
                 # Resolve the experimental recipe internally
                 self.__ResolveExperimentalRecipeEntry(platformContext, package, package.ResolvedDirectExperimentalRecipe, resolveInstallPath)
@@ -484,6 +488,32 @@ class PackageResolver(object):
         if resolvedDir.Path in rPublicIncludeDirs:
             rPublicIncludeDirs.remove(resolvedDir.Path)
 
+    def __GenerateFiles(self, log: Log, platformContext: PlatformContext, toolConfig: ToolConfig, finalResolveOrder: List[Package]) -> None:
+        for package in finalResolveOrder:
+            for entry in package.ResolvedGenerateList:
+                templateFile = entry.TemplateFile.ResolvedPath
+                targetFile = entry.TargetFile.ResolvedPath
+
+                fileContent = IOUtil.TryReadFile(templateFile)
+                if fileContent is None:
+                    raise Exception("Package '{0}' generate template file '{1}' not found".format(package.Name, templateFile))
+                log.LogPrintVerbose(4, "  - generating '{0}' based on template '{1}'".format(targetFile, templateFile))
+                content = self.__GenerateFile(toolConfig, package, fileContent)
+                IOUtil.WriteFileIfChanged(targetFile, content)
+
+    def __GenerateFile(self, toolConfig: ToolConfig, package: Package, template: str) -> str:
+        releaseVersionMajor = str(package.ProjectContext.ProjectVersion.Major)
+        releaseVersionMinor = str(package.ProjectContext.ProjectVersion.Minor)
+        releaseVersionTweak = str(package.ProjectContext.ProjectVersion.Tweak)
+        releaseVersionPatch = str(package.ProjectContext.ProjectVersion.Patch)
+        gitCommitHash = package.ProjectContext.GitHash if package.ProjectContext.GitHash is not None else "unknown"
+        res = template
+        res = res.replace("##RELEASE_VERSION_MAJOR##", releaseVersionMajor)
+        res = res.replace("##RELEASE_VERSION_MINOR##", releaseVersionMinor)
+        res = res.replace("##RELEASE_VERSION_TWEAK##", releaseVersionTweak)
+        res = res.replace("##RELEASE_VERSION_PATCH##", releaseVersionPatch)
+        res = res.replace("##GIT_COMMIT_HASH##", gitCommitHash)
+        return res
 
     def __ResolveBuildIncludeDirs(self, log: Log, toolConfig: ToolConfig, finalResolveOrder: List[Package]) -> None:
         for package in finalResolveOrder:
@@ -607,7 +637,7 @@ class PackageResolver(object):
         return Util.UTF8ToAscii(path)
 
 
-    def __ResolveAdd(self, package: Package, processedEntry: Any, rAllDict: Dict[str, Any],
+    def __ResolveAdd(self, package: Package, processedEntry: Union[PackageDefine,PackageExternalDependency], rAllDict: Dict[str, Any],
                      rPublicList: List[Any], rPrivateList: List[Any]) -> None:
         if processedEntry.Name in rAllDict:
             raise Exception("Usage error {0} already exist in the list. Entries can not be duplicated, please remove it first.".format(processedEntry.Name))
@@ -636,7 +666,7 @@ class PackageResolver(object):
                                           pathBuilder: PathBuilder,
                                           package: Package,
                                           sourceRecipe: PackageExperimentalRecipe,
-                                          command: XmlRecipeValidateCommandAddHeaders) -> PackageExternalDependency:
+                                          command: PackageRecipeValidateCommandAddHeaders) -> PackageExternalDependency:
         """ Automatically generate a external dependency to header files just as if it had been in the original source.
         """
         if IOUtil.IsAbsolutePath(command.Name):
@@ -662,7 +692,7 @@ class PackageResolver(object):
                                             pathBuilder: PathBuilder,
                                             package: Package,
                                             sourceRecipe: PackageExperimentalRecipe,
-                                            command: XmlRecipeValidateCommandAddLib) -> PackageExternalDependency:
+                                            command: PackageRecipeValidateCommandAddLib) -> PackageExternalDependency:
         """ Automatically generate a external dependency to the StaticLib just as if it had been in the original source.
         """
         srcLocation = IOUtil.GetDirectoryName(command.Name)
@@ -696,7 +726,7 @@ class PackageResolver(object):
                                       pathBuilder: PathBuilder,
                                       package: Package,
                                       sourceRecipe: PackageExperimentalRecipe,
-                                      command: XmlRecipeValidateCommandAddDLL) -> PackageExternalDependency:
+                                      command: PackageRecipeValidateCommandAddDLL) -> PackageExternalDependency:
         """ Automatically generate a external dependency to the DLL just as if it had been in the original source.
         """
         srcLocation = IOUtil.GetDirectoryName(command.Name)
@@ -743,7 +773,7 @@ class PackageResolver(object):
         allowFindPackage = self.__GeneratorInfo.AllowFindPackage
         for command in commandList:
             if command.CommandType == BuildRecipeValidateCommand.AddHeaders:
-                if not isinstance(command, XmlRecipeValidateCommandAddHeaders):
+                if not isinstance(command, PackageRecipeValidateCommandAddHeaders):
                     raise Exception("Invalid command type")
                 if not isCMakeBuild or not allowFindPackage or not sourceRecipe.AllowFind:
                     processedEntry = self.__CreateExternalHeadersDependency(log, pathBuilder, package, sourceRecipe, command)
@@ -755,7 +785,7 @@ class PackageResolver(object):
                 else:
                     log.LogPrintVerbose(4, "Package {0} recipe '{1}' Skipped AddHeaders as we rely on cmake FindPackage to add the relevant information".format(package.Name, sourceRecipe.FullName))
             elif command.CommandType == BuildRecipeValidateCommand.AddLib:
-                if not isinstance(command, XmlRecipeValidateCommandAddLib):
+                if not isinstance(command, PackageRecipeValidateCommandAddLib):
                     raise Exception("Invalid command type")
                 if not isCMakeBuild or not allowFindPackage or not sourceRecipe.AllowFind:
                     processedEntry = self.__CreateExternalStaticLibDependency(log, pathBuilder, package, sourceRecipe, command)
@@ -770,7 +800,7 @@ class PackageResolver(object):
                 else:
                     log.LogPrintVerbose(4, "Package {0} recipe '{1}' Skipped AddLib as we rely on cmake FindPackage to add the relevant information".format(package.Name, sourceRecipe.FullName))
             elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
-                if not isinstance(command, XmlRecipeValidateCommandAddDLL):
+                if not isinstance(command, PackageRecipeValidateCommandAddDLL):
                     raise Exception("Invalid command type")
                 if not isCMakeBuild or not allowFindPackage or not sourceRecipe.AllowFind:
                     processedEntry = self.__CreateExternalDLLDependency(log, pathBuilder, package, sourceRecipe, command)

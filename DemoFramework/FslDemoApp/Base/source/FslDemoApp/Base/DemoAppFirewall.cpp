@@ -296,6 +296,29 @@ namespace Fsl
   }
 
 
+  void DemoAppFirewall::_Resolve(const DemoTime& demoTime)
+  {
+    if (!m_app)
+    {
+      ADemoApp::_Resolve(demoTime);
+      return;
+    }
+
+    try
+    {
+      m_app->_Resolve(demoTime);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG3_ERROR("App._Resolve threw exception: {}", message);
+      SafeDispose();
+      BuildErrorString("App._Resolve threw exception:", message);
+    }
+  }
+
+
   AppDrawResult DemoAppFirewall::_TryPrepareDraw(const FrameInfo& frameInfo)
   {
     if (!m_app)
@@ -396,6 +419,29 @@ namespace Fsl
       FSLLOG3_ERROR("App._EndDraw threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._EndDraw threw exception:", message);
+    }
+  }
+
+
+  void DemoAppFirewall::_OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    if (!m_app)
+    {
+      ADemoApp::_OnDrawSkipped(frameInfo);
+      return;
+    }
+
+    try
+    {
+      m_app->_OnDrawSkipped(frameInfo);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG3_ERROR("App._OnDrawSkipped threw exception: {}", message);
+      SafeDispose();
+      BuildErrorString("App._OnDrawSkipped threw exception:", message);
     }
   }
 

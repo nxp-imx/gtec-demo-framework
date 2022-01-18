@@ -38,10 +38,20 @@
 #include <FslDemoHost/Base/Service/DemoPlatformControl/IDemoPlatformControl.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Base/INativeWindow.hpp>
+#include <algorithm>
 #include <cassert>
 
 namespace Fsl
 {
+  namespace
+  {
+    namespace LocalConfig
+    {
+      constexpr TimeStepMode DefaultTimestepMode = TimeStepMode::Normal;
+      constexpr uint16_t DefaultFixedUpdatesPerSecond = 60;
+    }
+  }
+
   DemoAppControlService::DemoAppControlService(const ServiceProvider& serviceProvider, const int defaultExitCode)
     : ThreadLocalService(serviceProvider)
     , m_eventPoster(serviceProvider.Get<IEventPoster>())
@@ -53,8 +63,9 @@ namespace Fsl
     , m_hasUpdateTimerResetRequest(true)
     , m_hasExitRequest(false)
     , m_exitCode(defaultExitCode)
-    , m_timestepMode(TimeStepMode::Normal)
+    , m_timestepMode(LocalConfig::DefaultTimestepMode)
     , m_captureModeEnabled(false)
+    , m_fixedUpdatesPerSecond(LocalConfig::DefaultFixedUpdatesPerSecond)
   {
   }
 
@@ -62,21 +73,21 @@ namespace Fsl
   DemoAppControlService::~DemoAppControlService() = default;
 
 
-  void DemoAppControlService::RequestScreenshot()
+  void DemoAppControlService::RequestScreenshot() noexcept
   {
     m_hasScreenshotRequest = true;
     RequestUpdateTimerReset();
   }
 
 
-  void DemoAppControlService::RequestAppRestart()
+  void DemoAppControlService::RequestAppRestart() noexcept
   {
     m_hasAppRestartResetRequest = true;
     RequestUpdateTimerReset();
   }
 
 
-  void DemoAppControlService::RequestUpdateTimerReset()
+  void DemoAppControlService::RequestUpdateTimerReset() noexcept
   {
     m_hasUpdateTimerResetRequest = true;
   }
@@ -114,25 +125,25 @@ namespace Fsl
   }
 
 
-  bool DemoAppControlService::HasScreenshotRequest() const
+  bool DemoAppControlService::HasScreenshotRequest() const noexcept
   {
     return m_hasScreenshotRequest;
   }
 
 
-  bool DemoAppControlService::HasAppRestartRequest() const
+  bool DemoAppControlService::HasAppRestartRequest() const noexcept
   {
     return m_hasAppRestartResetRequest;
   }
 
 
-  bool DemoAppControlService::HasUpdateTimerResetRequest() const
+  bool DemoAppControlService::HasUpdateTimerResetRequest() const noexcept
   {
     return m_hasUpdateTimerResetRequest;
   }
 
 
-  bool DemoAppControlService::HasExitRequest() const
+  bool DemoAppControlService::HasExitRequest() const noexcept
   {
     // If no exit request is active then check the signal handlers exit flag to see if a externally triggered exit
     // has been requested
@@ -144,7 +155,7 @@ namespace Fsl
   }
 
 
-  int DemoAppControlService::GetExitCode() const
+  int DemoAppControlService::GetExitCode() const noexcept
   {
     return m_exitCode;
   }
@@ -171,12 +182,7 @@ namespace Fsl
   }
 
 
-  TimeStepMode DemoAppControlService::GetTimeStepMode() const
-  {
-    return m_timestepMode;
-  }
-
-  uint32_t DemoAppControlService::GetRenderLoopFrameCounter() const
+  uint32_t DemoAppControlService::GetRenderLoopFrameCounter() const noexcept
   {
     return m_renderLoopFrameCounter > 0 ? m_renderLoopFrameCounter : m_renderLoopMaxFramesInFlight;
   }
@@ -187,7 +193,7 @@ namespace Fsl
     m_renderLoopFrameCounter = std::min(frameCount, m_renderLoopMaxFramesInFlight);
   }
 
-  uint32_t DemoAppControlService::GetRenderLoopMaxFramesInFlight() const
+  uint32_t DemoAppControlService::GetRenderLoopMaxFramesInFlight() const noexcept
   {
     return m_renderLoopMaxFramesInFlight;
   }
@@ -235,25 +241,62 @@ namespace Fsl
   }
 
 
-  bool DemoAppControlService::GetMouseCaptureMode()
+  bool DemoAppControlService::GetMouseCaptureMode() const noexcept
   {
     return m_captureModeEnabled;
   }
 
 
-  void DemoAppControlService::ClearScreenshotRequestRequest()
+  uint16_t DemoAppControlService::GetFixedUpdatesPerSecond() const noexcept
+  {
+    return m_fixedUpdatesPerSecond;
+  }
+
+
+  void DemoAppControlService::SetFixedUpdatesPerSecond(const uint16_t updatesPerSecond)
+  {
+    FSLLOG3_DEBUG_WARNING_IF(updatesPerSecond <= 0, "fixed updates per second forced to a minimum one");
+
+    const auto cappedFixedUpdatesPerSecond = std::max(updatesPerSecond, uint16_t(1));
+    if (cappedFixedUpdatesPerSecond != m_fixedUpdatesPerSecond)
+    {
+      FSLLOG3_VERBOSE3("SetFixedUpdatesPerSecond to {}", cappedFixedUpdatesPerSecond);
+      m_fixedUpdatesPerSecond = cappedFixedUpdatesPerSecond;
+    }
+  }
+
+
+  uint16_t DemoAppControlService::GetOnDemandFrameInterval() const noexcept
+  {
+    return m_onDemandRendering.FrameInterval;
+  }
+
+
+  void DemoAppControlService::SetOnDemandFrameInterval(const uint16_t frameRateInterval)
+  {
+    FSLLOG3_DEBUG_WARNING_IF(frameRateInterval <= 0, "frameRateInterval forced to a minimum one");
+    const uint16_t cappedFrameInterval = std::max(frameRateInterval, uint16_t(1));
+    if (cappedFrameInterval != m_onDemandRendering.FrameInterval)
+    {
+      FSLLOG3_VERBOSE6("SetOnDemandFrameInterval to {}", frameRateInterval);
+      m_onDemandRendering.FrameInterval = frameRateInterval;
+    }
+  }
+
+
+  void DemoAppControlService::ClearScreenshotRequestRequest() noexcept
   {
     m_hasScreenshotRequest = false;
   }
 
 
-  void DemoAppControlService::ClearAppRestartRequestRequest()
+  void DemoAppControlService::ClearAppRestartRequestRequest() noexcept
   {
     m_hasAppRestartResetRequest = false;
   }
 
 
-  void DemoAppControlService::ClearUpdateTimerResetRequest()
+  void DemoAppControlService::ClearUpdateTimerResetRequest() noexcept
   {
     m_hasUpdateTimerResetRequest = false;
   }
@@ -263,6 +306,19 @@ namespace Fsl
     FSLLOG3_WARNING_IF(maxFramesInFlight <= 0u, "SetRenderLoopMaxFramesInFlight: Forcing maxFramesInFlight to be at least one")
     m_renderLoopMaxFramesInFlight = std::max(maxFramesInFlight, 1u);
     m_renderLoopFrameCounter = std::min(m_renderLoopFrameCounter, m_renderLoopMaxFramesInFlight);
+  }
+
+
+  void DemoAppControlService::RestoreDefaults()
+  {
+    FSLLOG3_VERBOSE("Restoring default settings");
+    m_onDemandRendering = {};
+    SetFixedUpdatesPerSecond(LocalConfig::DefaultFixedUpdatesPerSecond);
+    SetTimeStepMode(LocalConfig::DefaultTimestepMode);
+    if (m_captureModeEnabled)
+    {
+      TryEnableMouseCaptureMode(false);
+    }
   }
 
 

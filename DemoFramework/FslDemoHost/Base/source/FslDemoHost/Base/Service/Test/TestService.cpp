@@ -130,7 +130,8 @@ namespace Fsl
             // If we are auto saving images then the user screenshots get a different name
             ++m_userScreenshotCount;
             fmt::memory_buffer buf;
-            fmt::format_to(buf, "UserScreenshot-{:010}{}", m_userScreenshotCount, ImageFormatUtil::GetDefaultExtension(m_config.Format));
+            fmt::format_to(std::back_inserter(buf), "UserScreenshot-{:010}{}", m_userScreenshotCount,
+                           ImageFormatUtil::GetDefaultExtension(m_config.Format));
 
             IO::Path dstFilename(fmt::to_string(buf));
             m_persistentDataManager->Write(dstFilename, m_screenshot, m_config.Format);
@@ -148,15 +149,17 @@ namespace Fsl
     if (m_config.NamingScheme == TestScreenshotNameScheme::Sequential)
     {
       ++m_screenshotNameCounter;
-      fmt::format_to(buf, "{}-{:010}{}", m_config.FilenamePrefix, m_screenshotNameCounter, ImageFormatUtil::GetDefaultExtension(m_config.Format));
+      fmt::format_to(std::back_inserter(buf), "{}-{:010}{}", m_config.FilenamePrefix, m_screenshotNameCounter,
+                     ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
     else if (m_config.NamingScheme == TestScreenshotNameScheme::FrameNumber)
     {
-      fmt::format_to(buf, "{}-{:010}{}", m_config.FilenamePrefix, m_frameCounter, ImageFormatUtil::GetDefaultExtension(m_config.Format));
+      fmt::format_to(std::back_inserter(buf), "{}-{:010}{}", m_config.FilenamePrefix, m_frameCounter,
+                     ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
     else
     {
-      fmt::format_to(buf, "{}{}", m_config.FilenamePrefix, ImageFormatUtil::GetDefaultExtension(m_config.Format));
+      fmt::format_to(std::back_inserter(buf), "{}{}", m_config.FilenamePrefix, ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
 
     IO::Path dstFilename(fmt::to_string(buf));

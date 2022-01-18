@@ -46,18 +46,20 @@ namespace Fsl
 {
   namespace PlatformPerformanceCounter
   {
-    inline uint64_t GetPerformanceFrequency()
+    inline uint64_t GetPerformanceFrequency() noexcept
     {
 #ifdef _WIN32
       LARGE_INTEGER value;
       QueryPerformanceFrequency(&value);
       return value.QuadPart;
+#elif defined(__linux__) || defined(__QNXNTO__)
+      return 1000000u;
 #else
       return 1000000u;
 #endif
     }
 
-    inline uint64_t GetPerformanceCounter()
+    inline uint64_t GetPerformanceCounter() noexcept
     {
 #ifdef _WIN32
       {
@@ -77,7 +79,7 @@ namespace Fsl
       }
 #else
       {
-        FSLLOG3_WARNING("HighResolutionTimer::GetTime() not implemented");
+        FSLLOG3_WARNING("PlatformPerformanceCounter::GetPerformanceCounter() not implemented");
         return 0;
       }
 #endif

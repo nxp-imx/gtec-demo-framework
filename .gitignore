@@ -16,6 +16,8 @@
 /.Config/FslBuildGen/BuildContent/Processor/__pycache__
 /.Config/FslBuildGen/BuildContent/Sync/*.pyc
 /.Config/FslBuildGen/BuildContent/Sync/__pycache__
+/.Config/FslBuildGen/BuildExternal/Commands/*.pyc
+/.Config/FslBuildGen/BuildExternal/Commands/__pycache__
 /.Config/FslBuildGen/BuildExternal/State/*.pyc
 /.Config/FslBuildGen/BuildExternal/State/__pycache__
 /.Config/FslBuildGen/BuildExternal/*.pyc

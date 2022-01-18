@@ -53,7 +53,7 @@ namespace Fsl
       virtual const std::shared_ptr<WindowEventPool>& GetEventPool() const = 0;
 
       //! @brief Check if there is a active event in the event sender
-      virtual bool HasActiveEvent() const = 0;
+      virtual bool HasActiveEvent() const noexcept = 0;
       //! @brief Check if there is a active event in the event sender (that is not the given target)
       virtual bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const = 0;
 

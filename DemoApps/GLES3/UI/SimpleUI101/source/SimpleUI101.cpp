@@ -46,8 +46,10 @@ namespace Fsl
   }
 
 
-  void SimpleUI101::Draw(const DemoTime& /*demoTime*/)
+  void SimpleUI101::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     m_shared.Draw();

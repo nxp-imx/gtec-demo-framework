@@ -1,0 +1,14 @@
+/.vs/
+/FslVersion.VC.VC.opendb
+/FslVersion.VC.db
+/FslVersion.manifest
+/FslVersion.opensdf
+/FslVersion.sdf
+/FslVersion.sln
+/FslVersion.v12.sdf
+/FslVersion.v12.suo
+/FslVersion.vcxproj
+/FslVersion.vcxproj.filters
+/FslVersion.vcxproj.user
+/build/
+/source/FslVersion/ReleaseVersionTag.hpp

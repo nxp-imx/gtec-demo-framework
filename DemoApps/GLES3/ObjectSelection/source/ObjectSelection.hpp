@@ -181,7 +181,7 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) override;
 
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState);

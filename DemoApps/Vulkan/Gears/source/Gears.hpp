@@ -53,7 +53,7 @@ namespace Fsl
     void BuildCommandBuffers() override;
     void OnViewChanged() override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void PrepareVertices();

@@ -42,7 +42,7 @@ namespace Fsl
   class IDemoAppFactory;
   class KeyEvent;
 
-  class DemoAppFirewall : public ADemoApp
+  class DemoAppFirewall final : public ADemoApp
   {
     std::shared_ptr<IDemoApp> m_app;
     std::string m_errorString;
@@ -51,7 +51,7 @@ namespace Fsl
 
   public:
     DemoAppFirewall(const DemoAppConfig& demoAppConfig, const std::shared_ptr<IDemoAppFactory>& appFactory, const bool isConsoleBasedApp);
-    ~DemoAppFirewall() override;
+    ~DemoAppFirewall() final;
 
     // Check if the app is allocated
     bool IsAllocated() const
@@ -59,21 +59,23 @@ namespace Fsl
       return m_app != nullptr;
     }
 
-    void _PostConstruct() override;
-    void _PreDestruct() override;
-    void _Begin() override;
-    void _OnEvent(IEvent* const pEvent) override;
-    void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
-    void _PreUpdate(const DemoTime& demoTime) override;
-    void _FixedUpdate(const DemoTime& demoTime) override;
-    void _Update(const DemoTime& demoTime) override;
-    void _PostUpdate(const DemoTime& demoTime) override;
-    AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) override;
-    void _BeginDraw(const FrameInfo& frameInfo) override;
-    void _Draw(const FrameInfo& frameInfo) override;
-    void _EndDraw(const FrameInfo& frameInfo) override;
-    AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) override;
-    void _End() override;
+    void _PostConstruct() final;
+    void _PreDestruct() final;
+    void _Begin() final;
+    void _OnEvent(IEvent* const pEvent) final;
+    void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void _PreUpdate(const DemoTime& demoTime) final;
+    void _FixedUpdate(const DemoTime& demoTime) final;
+    void _Update(const DemoTime& demoTime) final;
+    void _PostUpdate(const DemoTime& demoTime) final;
+    void _Resolve(const DemoTime& demoTime) final;
+    AppDrawResult _TryPrepareDraw(const FrameInfo& frameInfo) final;
+    void _BeginDraw(const FrameInfo& frameInfo) final;
+    void _Draw(const FrameInfo& frameInfo) final;
+    void _EndDraw(const FrameInfo& frameInfo) final;
+    void _OnDrawSkipped(const FrameInfo& frameInfo) final;
+    AppDrawResult _TrySwapBuffers(const FrameInfo& frameInfo) final;
+    void _End() final;
 
   private:
     void SafeDispose();

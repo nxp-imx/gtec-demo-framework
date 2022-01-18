@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="FslUtil.OpenGLES3.UnitTest" NoInclude="true" CreationYear="2022">
+    <Dependency Name="FslBase.UnitTest.Helper"/>
+    <Dependency Name="FslUtil.OpenGLES3"/>
+    <Dependency Name="FslUnitTest"/>
+    <!-- Disabled since it gets a runtime error on ubuntu 20 clang build due to missing .so file -->
+    <Platform Name="Ubuntu" Supported="false"/>
+  </Executable>
+</FslBuildGen>

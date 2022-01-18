@@ -67,7 +67,7 @@ namespace Fsl
 
   protected:
     virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    virtual void Draw(const FrameInfo& frameInfo) override;
     int Load420Texture(int texWidth, int texHeight, int format);
     void LoadFrame();
   };

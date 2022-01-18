@@ -284,7 +284,7 @@ def BuildFindDirectExternalDependencies(log: Log, package: Package, templatePack
 
 
 def GetVersion(package: Package) -> str:
-    return package.ProjectContext.ProjectVersion
+    return str(package.ProjectContext.ProjectVersion)
 
 
 def _FindPackageDirectDependencyPackage(package: Package, templatePackageDependencyFindPackage: str) -> str:

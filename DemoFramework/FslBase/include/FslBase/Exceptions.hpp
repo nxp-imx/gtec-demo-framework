@@ -43,6 +43,10 @@ namespace Fsl
       : std::logic_error("UsageErrorException")
     {
     }
+    explicit UsageErrorException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
+    {
+    }
 
     explicit UsageErrorException(const std::string& whatArg)
       : std::logic_error(whatArg)
@@ -53,6 +57,10 @@ namespace Fsl
   class InternalErrorException : public std::runtime_error
   {
   public:
+    explicit InternalErrorException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit InternalErrorException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -62,6 +70,10 @@ namespace Fsl
   class UnknownTypeException : public std::runtime_error
   {
   public:
+    explicit UnknownTypeException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit UnknownTypeException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -72,6 +84,10 @@ namespace Fsl
   class NotFoundException : public std::runtime_error
   {
   public:
+    explicit NotFoundException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit NotFoundException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -82,6 +98,10 @@ namespace Fsl
   class DirectoryNotFoundException : public NotFoundException
   {
   public:
+    explicit DirectoryNotFoundException(const char* const pszWhatArg)
+      : NotFoundException(pszWhatArg)
+    {
+    }
     explicit DirectoryNotFoundException(const std::string& whatArg)
       : NotFoundException(whatArg)
     {
@@ -92,6 +112,11 @@ namespace Fsl
   class InitFailedException : public std::runtime_error
   {
   public:
+    explicit InitFailedException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit InitFailedException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -106,6 +131,10 @@ namespace Fsl
       : std::logic_error("Not implemented")
     {
     }
+    explicit NotImplementedException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
+    {
+    }
 
     explicit NotImplementedException(const std::string& whatArg)
       : std::logic_error(whatArg)
@@ -118,6 +147,10 @@ namespace Fsl
   public:
     NotSupportedException()
       : std::logic_error("Not supported")
+    {
+    }
+    explicit NotSupportedException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
     {
     }
 
@@ -135,6 +168,10 @@ namespace Fsl
       : std::logic_error("Index out of range")
     {
     }
+    explicit IndexOutOfRangeException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
+    {
+    }
 
     explicit IndexOutOfRangeException(const std::string& whatArg)
       : std::logic_error(whatArg)
@@ -146,6 +183,10 @@ namespace Fsl
   class GraphicsException : public std::runtime_error
   {
   public:
+    explicit GraphicsException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit GraphicsException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -156,6 +197,10 @@ namespace Fsl
   class IOException : public std::runtime_error
   {
   public:
+    explicit IOException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit IOException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -169,9 +214,25 @@ namespace Fsl
       : std::logic_error("ConversionException")
     {
     }
-
+    explicit ConversionException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
+    {
+    }
     explicit ConversionException(const std::string& whatArg)
       : std::logic_error(whatArg)
+    {
+    }
+  };
+
+  class UnderflowException : public ConversionException
+  {
+  public:
+    explicit UnderflowException(const char* const pszWhatArg)
+      : ConversionException(pszWhatArg)
+    {
+    }
+    explicit UnderflowException(const std::string& whatArg)
+      : ConversionException(whatArg)
     {
     }
   };
@@ -180,6 +241,10 @@ namespace Fsl
   class OverflowException : public ConversionException
   {
   public:
+    explicit OverflowException(const char* const pszWhatArg)
+      : ConversionException(pszWhatArg)
+    {
+    }
     explicit OverflowException(const std::string& whatArg)
       : ConversionException(whatArg)
     {
@@ -189,6 +254,11 @@ namespace Fsl
   class FormatException : public std::runtime_error
   {
   public:
+    explicit FormatException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit FormatException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -199,6 +269,11 @@ namespace Fsl
   class InvalidUTF8StringException : public std::runtime_error
   {
   public:
+    explicit InvalidUTF8StringException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit InvalidUTF8StringException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -209,6 +284,11 @@ namespace Fsl
   class InvalidFormatException : public std::runtime_error
   {
   public:
+    explicit InvalidFormatException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit InvalidFormatException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -221,6 +301,11 @@ namespace Fsl
   public:
     PathFormatErrorException()
       : std::logic_error("PathFormatErrorException")
+    {
+    }
+
+    explicit PathFormatErrorException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
     {
     }
 

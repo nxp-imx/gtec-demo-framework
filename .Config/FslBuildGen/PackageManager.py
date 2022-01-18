@@ -71,6 +71,7 @@ from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigBasePackage import ToolConfigBasePackage
 from FslBuildGen.ToolConfigPackageProjectContextUtil import ToolConfigPackageProjectContextUtil
+from FslBuildGen.Version import Version
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 from FslBuildGen.Xml.XmlStuff import FakeXmlGenFilePlatform
 from FslBuildGen.Xml.XmlStuff import LocalPackageDefaultValues
@@ -157,7 +158,7 @@ class PackageManager(object):
             if genFile.Type != PackageType.TopLevel:
                 raise UsageErrorException("Package '{0}' did not contain a valid location".format(genFile.Name))
             # The top level package is not associated with a project context
-            topLevelProjectContext = PackageProjectContext(ProjectId("__TopLevel__"), "__TopLevel__", "0.0.0.0", [])
+            topLevelProjectContext = PackageProjectContext(ProjectId("__TopLevel__"), "__TopLevel__", Version(0,0,0,0), None, [])
             self.__ProjectContextCache.Add(topLevelProjectContext)
             return topLevelProjectContext
         projectContext = ToolConfigPackageProjectContextUtil.FindProjectContext(toolConfig.ProjectInfo.Contexts,
@@ -166,7 +167,7 @@ class PackageManager(object):
         packageProjectContext = self.__ProjectContextCache.TryGet(projectContext.ProjectName)
         if packageProjectContext is None:
             packageProjectContext = PackageProjectContext(projectContext.ProjectId, projectContext.ProjectName, projectContext.ProjectVersion,
-                                                          basePackages)
+                                                          projectContext.GitHash, basePackages)
             self.__ProjectContextCache.Add(packageProjectContext)
         return packageProjectContext
 

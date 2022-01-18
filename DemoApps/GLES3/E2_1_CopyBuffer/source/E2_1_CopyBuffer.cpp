@@ -61,8 +61,10 @@ namespace Fsl
   }
 
 
-  void E2_1_CopyBuffer::Draw(const DemoTime& /*demoTime*/)
+  void E2_1_CopyBuffer::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     PxSize2D sizePx = GetWindowSizePx();
 
     glViewport(0, 0, sizePx.Width(), sizePx.Height());

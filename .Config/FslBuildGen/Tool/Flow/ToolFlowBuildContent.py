@@ -63,6 +63,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 class DefaultValue(object):
     Output = None  # type: Optional[str]
@@ -117,12 +118,15 @@ class ToolFlowBuildContent(AToolAppFlow):
 
         # Get the platform and see if its supported
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   buildVariantConfig, variableContext.UserSetVariables,
+                                                                                   config.ToolConfig.DefaultPackageLanguage,
                                                                                    config.ToolConfig.CMakeConfiguration,
                                                                                    localToolConfig.GetUserCMakeConfig(), False)
         PlatformUtil.CheckBuildPlatform(generator.PlatformName)
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
+                                            config.ToolConfig.Experimental, generator, variableContext)
 
         self.Log.LogPrint("Active platform: {0}".format(generator.PlatformName))
 

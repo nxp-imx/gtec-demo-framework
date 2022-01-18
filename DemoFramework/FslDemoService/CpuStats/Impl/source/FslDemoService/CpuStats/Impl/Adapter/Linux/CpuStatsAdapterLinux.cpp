@@ -34,21 +34,24 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/File.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <unistd.h>
 
 namespace Fsl
 {
   namespace
   {
+    namespace LocalConfig
+    {
+      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+      constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+    }
+
+
     uint32_t DoGetCpuCount()
     {
       return static_cast<uint32_t>(sysconf(_SC_NPROCESSORS_ONLN));
     }
-
-    // microseconds
-    const uint64_t MIN_INTERVAL_CORE_CPU_USAGE = 250 * 1000;
-    // microseconds
-    const uint64_t MIN_INTERVAL_APPLICATION_CPU_USAGE = 250 * 1000;
   }
 
   CpuStatsAdapterLinux::CpuStatsAdapterLinux(const bool coreParserEnabled)
@@ -63,10 +66,10 @@ namespace Fsl
     }
 
     TryParseCpuLoadNow();
-    auto currentTime = m_timer.GetTime();
-    m_lastAppTime = currentTime;
-    m_lastTryGetCpuUsage = currentTime - MIN_INTERVAL_CORE_CPU_USAGE;
-    m_lastTryGetApplicationCpuUsageTime = m_timer.GetTime() - MIN_INTERVAL_APPLICATION_CPU_USAGE;
+    const TimeSpan currentTime = m_timer.GetTimestamp();
+    m_lastAppTime = 0;
+    m_lastTryGetCpuUsage = currentTime - LocalConfig::MinIntervalCoreCpuUsage;
+    m_lastTryGetApplicationCpuUsageTime = m_timer.GetTimestamp() - LocalConfig::MinIntervalApplicationCpuUsage;
   }
 
 
@@ -87,9 +90,9 @@ namespace Fsl
     }
 
     // Ensure that we only cache the counters after the desired time has passed
-    auto currentTime = m_timer.GetTime();
+    auto currentTime = m_timer.GetTimestamp();
     auto deltaTime = currentTime - m_lastTryGetCpuUsage;
-    if (deltaTime >= MIN_INTERVAL_CORE_CPU_USAGE)
+    if (deltaTime >= LocalConfig::MinIntervalCoreCpuUsage)
     {
       m_lastTryGetCpuUsage = currentTime;
       if (!TryParseCpuLoadNow())
@@ -123,9 +126,9 @@ namespace Fsl
   {
     rUsagePercentage = 0.0f;
 
-    auto currentTime = m_timer.GetTime();
+    auto currentTime = m_timer.GetTimestamp();
     auto callDeltaTime = currentTime - m_lastTryGetApplicationCpuUsageTime;
-    if (callDeltaTime < MIN_INTERVAL_APPLICATION_CPU_USAGE)
+    if (callDeltaTime < LocalConfig::MinIntervalApplicationCpuUsage)
     {
       rUsagePercentage = m_appCpuUsagePercentage;
       return true;
@@ -143,7 +146,7 @@ namespace Fsl
 
     auto totalAppTime = (processTimes.KernelTime - m_appProcessLast.KernelTime) + (processTimes.UserTime - m_appProcessLast.UserTime);
 
-    auto deltaTime = currentAppTime - m_lastAppTime;
+    const clock_t deltaTime = currentAppTime - m_lastAppTime;
     if (deltaTime > 0)
     {
       m_appProcessLast = processTimes;

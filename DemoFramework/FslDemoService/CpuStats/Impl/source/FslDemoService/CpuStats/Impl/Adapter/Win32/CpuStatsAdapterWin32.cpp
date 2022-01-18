@@ -33,6 +33,7 @@
 #include <FslDemoService/CpuStats/Impl/Adapter/Win32/CpuStatsAdapterWin32.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
@@ -44,10 +45,12 @@ namespace Fsl
 {
   namespace
   {
-    // microseconds
-    const uint64_t MIN_INTERVAL_CORE_CPU_USAGE = 250 * 1000;
-    // microseconds
-    const uint64_t MIN_INTERVAL_APPLICATION_CPU_USAGE = 250 * 1000;
+    namespace LocalConfig
+    {
+      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+      constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
+    }
+
 
     uint32_t DoGetCpuCount()
     {
@@ -82,7 +85,7 @@ namespace Fsl
       for (uint32_t cpuIndex = 0; cpuIndex < m_cpuCount; ++cpuIndex)
       {
         buf.clear();
-        fmt::format_to(buf, "\\Processor({})\\% Processor Time", cpuIndex);
+        fmt::format_to(std::back_inserter(buf), "\\Processor({})\\% Processor Time", cpuIndex);
         buf.push_back(0);
 
         result = PdhAddEnglishCounterA(m_hQuery, buf.data(), 0, &m_cpuStats[cpuIndex].Counter);
@@ -112,8 +115,8 @@ namespace Fsl
         throw std::runtime_error("TryGetProcessTimes failed");
       }
 
-      m_lastTryGetCpuUsage = m_timer.GetTime() - MIN_INTERVAL_CORE_CPU_USAGE;
-      m_lastTryGetApplicationCpuUsageTime = m_timer.GetTime() - MIN_INTERVAL_APPLICATION_CPU_USAGE;
+      m_lastTryGetCpuUsage = m_timer.GetTimestamp() - LocalConfig::MinIntervalCoreCpuUsage;
+      m_lastTryGetApplicationCpuUsageTime = m_timer.GetTimestamp() - LocalConfig::MinIntervalApplicationCpuUsage;
     }
     catch (const std::exception&)
     {
@@ -147,9 +150,9 @@ namespace Fsl
     }
 
     // Ensure that we only cache the counters after the desired time has passed
-    auto currentTime = m_timer.GetTime();
+    auto currentTime = m_timer.GetTimestamp();
     auto deltaTime = currentTime - m_lastTryGetCpuUsage;
-    if (deltaTime >= MIN_INTERVAL_CORE_CPU_USAGE)
+    if (deltaTime >= LocalConfig::MinIntervalCoreCpuUsage)
     {
       m_lastTryGetCpuUsage = currentTime;
       if (!TryQueryCountersNow())
@@ -168,9 +171,9 @@ namespace Fsl
   {
     rUsagePercentage = 0.0f;
 
-    auto currentTime = m_timer.GetTime();
+    auto currentTime = m_timer.GetTimestamp();
     auto deltaTime = currentTime - m_lastTryGetApplicationCpuUsageTime;
-    if (deltaTime < MIN_INTERVAL_APPLICATION_CPU_USAGE)
+    if (deltaTime < LocalConfig::MinIntervalApplicationCpuUsage)
     {
       rUsagePercentage = m_appCpuUsagePercentage;
       return true;

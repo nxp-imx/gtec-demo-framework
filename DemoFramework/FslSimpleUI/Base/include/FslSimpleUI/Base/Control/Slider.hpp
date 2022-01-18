@@ -210,10 +210,8 @@ namespace Fsl
       {
         SliderBase<T>::WinDraw(context);
 
-        auto spanInfo =
-          m_impl.Draw(context.CommandBuffer, context.TargetRect.Location(), this->RenderSizePx(), this->GetFinalBaseColor(), this->GetOrientation(),
-                      this->GetDirection(), this->IsEnabled(), this->GetCursorPositionPx(), this->IsDragging(), this->m_windowContext->UnitConverter);
-        this->SetSpanInfo(spanInfo);
+        m_impl.Draw(context.CommandBuffer, context.TargetRect.Location(), this->GetFinalBaseColor(), this->GetCursorPositionPx(), this->IsDragging(),
+                    this->m_windowContext->UnitConverter);
       }
 
     protected:
@@ -225,6 +223,13 @@ namespace Fsl
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
       {
         return m_impl.Measure(availableSizePx);
+      }
+
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final
+      {
+        auto spanInfo = m_impl.Arrange(finalSizePx, this->GetOrientation(), this->GetDirection(), this->m_windowContext->UnitConverter);
+        this->SetSpanInfo(spanInfo);
+        return SliderBase<T>::ArrangeOverride(finalSizePx);
       }
 
       void UpdateAnimation(const TransitionTimeSpan& timeSpan) final

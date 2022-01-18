@@ -170,6 +170,7 @@ namespace Fsl
     void GLBatch2DQuadRenderer::Begin(const PxSize2D& sizePx, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig,
                                       const bool restoreState)
     {
+      m_cachedBlendState = blendState;
       auto& activeInfo = (blendState != BlendState::Sdf ? m_normalInfo : m_sdfInfo);
 
       FSL_PARAM_NOT_USED(restoreState);
@@ -193,14 +194,16 @@ namespace Fsl
         // store the attrib state before we modify it
         for (uint32_t i = 0; i < activeInfo.AttribLink.size(); ++i)
         {
-          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &m_oldState.Attrib[i].Enabled);
-          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_oldState.Attrib[i].Size);
-          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &m_oldState.Attrib[i].Type);
+          const auto attribIndex = activeInfo.AttribLink[i].AttribIndex;
+          m_oldState.Attrib[i] = {};
+          glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &m_oldState.Attrib[i].Enabled);
+          glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_oldState.Attrib[i].Size);
+          glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_TYPE, &m_oldState.Attrib[i].Type);
           GLint normalized = 0;
-          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
+          glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
           m_oldState.Attrib[i].Normalized = (normalized != GL_FALSE ? GL_TRUE : GL_FALSE);
-          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_oldState.Attrib[i].Stride);
-          glGetVertexAttribPointerv(activeInfo.AttribLink[i].AttribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_oldState.Attrib[i].Pointer);
+          glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_oldState.Attrib[i].Stride);
+          glGetVertexAttribPointerv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_oldState.Attrib[i].Pointer);
         }
       }
 
@@ -335,17 +338,22 @@ namespace Fsl
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_oldState.IndexBuffer);
 
       // restore the attrib state
-      for (int i = 0; i < 3; ++i)
       {
-        glVertexAttribPointer(i, m_oldState.Attrib[i].Size, m_oldState.Attrib[i].Type, m_oldState.Attrib[i].Normalized, m_oldState.Attrib[i].Stride,
-                              m_oldState.Attrib[i].Pointer);
-        if (m_oldState.Attrib[i].Enabled != 0)
+        auto& activeInfo = (m_cachedBlendState != BlendState::Sdf ? m_normalInfo : m_sdfInfo);
+
+        for (int i = 0; i < 3; ++i)
         {
-          glEnableVertexAttribArray(i);
-        }
-        else
-        {
-          glDisableVertexAttribArray(i);
+          const auto attribIndex = activeInfo.AttribLink[i].AttribIndex;
+          glVertexAttribPointer(attribIndex, m_oldState.Attrib[i].Size, m_oldState.Attrib[i].Type, m_oldState.Attrib[i].Normalized,
+                                m_oldState.Attrib[i].Stride, m_oldState.Attrib[i].Pointer);
+          if (m_oldState.Attrib[i].Enabled != 0)
+          {
+            glEnableVertexAttribArray(attribIndex);
+          }
+          else
+          {
+            glDisableVertexAttribArray(attribIndex);
+          }
         }
       }
       m_stats = {};

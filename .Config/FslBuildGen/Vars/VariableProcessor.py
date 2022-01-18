@@ -48,12 +48,18 @@ from FslBuildGen.Exceptions import IncompleteVariableFoundException
 from FslBuildGen.Exceptions import VariableInMiddleOfStringException
 from FslBuildGen.Exceptions import VariableNotDefinedException
 from FslBuildGen.Log import Log
+from FslBuildGen.Generator.Report.ParsedFormatString import ParsedFormatString
+from FslBuildGen.Generator.Report.StringVariableDict import StringVariableDict
 from FslBuildGen.Vars.VariableEnvironment import VariableEnvironment
 
 class VariableProcessor(object):
     def __init__(self, log: Log, variableEnvironment: Optional[VariableEnvironment] = None) -> None:
         super().__init__()
-        self.Variables = VariableEnvironment(log) if variableEnvironment is None else variableEnvironment
+        self.__Variables = VariableEnvironment(log) if variableEnvironment is None else variableEnvironment
+        self.__StringVariableDict = StringVariableDict()
+        for key, value in self.__Variables.Dict.items():
+            self.__StringVariableDict.Add(key, value)
+
 
     def TrySplitLeadingEnvironmentVariablesNameAndPath(self, entry: str, tag: Optional[object] = None) -> Union[Tuple[str, str], Tuple[None, None]]:
         if entry.startswith("$("):
@@ -150,6 +156,14 @@ class VariableProcessor(object):
             raise EnvironmentError("'{0}' could not be made absolute '{1}".format(pathName, resultPath))
         return resultPath
 
+    def ResolveFilenameWithVariables(self, pathName: str) -> str:
+        parsedStr = ParsedFormatString(pathName, self.__StringVariableDict)
+        for var1 in parsedStr.VarCommandList:
+            parsedStr.SplitList[var1.SplitIndex] = var1.Report.Options[0]
+        for var2 in parsedStr.EnvCommandList:
+            parsedStr.SplitList[var2.SplitIndex] = var2.Value
+        return "".join(parsedStr.SplitList)
+
 
     def __DoBasicPathResolve(self, pathName: str, defaultResult: str, tag: Optional[object] = None) -> str:
         """ Resolve a path
@@ -164,9 +178,9 @@ class VariableProcessor(object):
         else:
             variableName = self.__TryExtractLeadingVariableName(pathName, True, tag)
             if variableName is not None:
-                if not variableName in self.Variables.Dict:
-                    raise VariableNotDefinedException(variableName, cast(Dict[str, Optional[object]], self.Variables.Dict))
+                if not variableName in self.__Variables.Dict:
+                    raise VariableNotDefinedException(variableName, cast(Dict[str, Optional[object]], self.__Variables.Dict))
                 strReplace = "${{{0}}}".format(variableName)
-                result = pathName.replace(strReplace, self.Variables.Dict[variableName])
+                result = pathName.replace(strReplace, self.__Variables.Dict[variableName])
 
         return IOUtil.NormalizePath(result if result is not None else defaultResult)

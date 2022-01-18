@@ -38,6 +38,7 @@
 #include <FslSimpleUI/Render/Base/Command/EncodedCommand.hpp>
 #include <vector>
 #include "../../HandleCoding.hpp"
+#include "../../Log/FmtRenderDrawSpriteType.hpp"
 #include "../../MeshManager.hpp"
 #include "../PreprocessConfig.hpp"
 #include "../PreprocessResult.hpp"
@@ -87,7 +88,7 @@ namespace Fsl
               break;
             case RenderDrawSpriteType::BasicImageSprite:
             {
-              const auto& meshRecord = meshManager.FastGetBasicImageSprite(hMesh);
+              const auto& meshRecord = meshManager.UncheckedGetBasicImageSprite(hMesh);
               assert(dstTransparentIndex < capacity);
               pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
                                                                  PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
@@ -99,7 +100,7 @@ namespace Fsl
             }
             case RenderDrawSpriteType::BasicNineSliceSprite:
             {
-              const auto& meshRecord = meshManager.FastGetBasicNineSliceSprite(hMesh);
+              const auto& meshRecord = meshManager.UncheckedGetBasicNineSliceSprite(hMesh);
               assert(dstTransparentIndex < capacity);
               pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
                                                                  PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
@@ -114,7 +115,7 @@ namespace Fsl
             //  break;
             case RenderDrawSpriteType::ImageSprite:
             {
-              const auto& meshRecord = meshManager.FastGetImageSprite(hMesh);
+              const auto& meshRecord = meshManager.UncheckedGetImageSprite(hMesh);
               assert(dstTransparentIndex < capacity);
               pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
                                                                  PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
@@ -126,7 +127,7 @@ namespace Fsl
             }
             case RenderDrawSpriteType::NineSliceSprite:
             {
-              const auto& meshRecord = meshManager.FastGetNineSliceSprite(hMesh);
+              const auto& meshRecord = meshManager.UncheckedGetNineSliceSprite(hMesh);
               assert(meshRecord.Sprite);
               const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
               const auto materialId = materialLookup.GetMaterialIndex(meshRecord.MaterialHandle);
@@ -148,7 +149,7 @@ namespace Fsl
             }
             case RenderDrawSpriteType::SpriteFont:
             {
-              const auto& meshRecord = meshManager.FastGetSpriteFont(hMesh);
+              const auto& meshRecord = meshManager.UncheckedGetSpriteFont(hMesh);
               assert(dstTransparentIndex < capacity);
               pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
                                                                  PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
@@ -160,7 +161,7 @@ namespace Fsl
             }
             case RenderDrawSpriteType::OptimizedNineSliceSprite:
             {
-              const auto& meshRecord = meshManager.FastGetOptimizedNineSliceSprite(hMesh);
+              const auto& meshRecord = meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh);
               assert(meshRecord.Transparency != MeshTransparencyFlags::NoFlags);
               assert(meshRecord.Sprite);
               const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;

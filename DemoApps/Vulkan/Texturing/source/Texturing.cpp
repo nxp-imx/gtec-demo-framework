@@ -265,8 +265,10 @@ namespace Fsl
   }
 
 
-  void Texturing::Draw(const DemoTime& /*demoTime*/)
+  void Texturing::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (!TryPrepareFrame())
     {
       return;

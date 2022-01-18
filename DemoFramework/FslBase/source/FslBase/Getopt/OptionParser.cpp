@@ -104,22 +104,22 @@ namespace Fsl
         else
         {
           fmt::memory_buffer buf;
-          fmt::format_to(buf, "Option already defined: ");
+          fmt::format_to(std::back_inserter(buf), "Option already defined: ");
           if (!option.ShortName.empty())
           {
-            fmt::format_to(buf, "'{}'", option.ShortName);
+            fmt::format_to(std::back_inserter(buf), "'{}'", option.ShortName);
           }
           if (!option.Name.empty())
           {
             if (!option.ShortName.empty())
             {
-              fmt::format_to(buf, "' ");
+              fmt::format_to(std::back_inserter(buf), "' ");
             }
             else
             {
-              fmt::format_to(buf, "'");
+              fmt::format_to(std::back_inserter(buf), "'");
             }
-            fmt::format_to(buf, "{}'", option.Name);
+            fmt::format_to(std::back_inserter(buf), "{}'", option.Name);
           }
           throw UsageErrorException(fmt::to_string(buf));
         }
@@ -225,12 +225,12 @@ namespace Fsl
         itrFound = std::find(itrFrom, itrTo, '\n');
         while (itrFrom != itrFound)
         {
-          fmt::format_to(buf, "{}", *itrFrom);
+          fmt::format_to(std::back_inserter(buf), "{}", *itrFrom);
           ++itrFrom;
         }
         if (itrFound != itrTo)
         {
-          fmt::format_to(buf, strFormat, "");
+          fmt::format_to(std::back_inserter(buf), strFormat, "");
           ++itrFound;
           itrFrom = itrFound;
         }
@@ -288,7 +288,7 @@ namespace Fsl
       // Add the caption if supplied
       if (!strHelpCaption.empty())
       {
-        fmt::format_to(buf, "{}\n", strHelpCaption);
+        fmt::format_to(std::back_inserter(buf), "{}\n", strHelpCaption);
       }
 
       auto itr = options.begin();
@@ -302,7 +302,7 @@ namespace Fsl
           // 4 due to the "  --"
           // 3 due to the " = "
           std::string strDesc(GetFormattedDescription(itr->SourceOption.Description, 4 + 3 + maxNameLength));
-          fmt::format_to(buf, strFormat, GetFormattedName(itr->SourceOption), strDesc);
+          fmt::format_to(std::back_inserter(buf), strFormat, GetFormattedName(itr->SourceOption), strDesc);
         }
         ++itr;
       }
@@ -379,7 +379,7 @@ namespace Fsl
         FSLLOG3_INFO("Saving command line arguments to the json file: '{}'", strOptionParam);
 
         fmt::memory_buffer buf;
-        fmt::format_to(buf,
+        fmt::format_to(std::back_inserter(buf),
                        "{{\n"
                        "  \"arguments\":\n"
                        "  [\n");
@@ -406,7 +406,7 @@ namespace Fsl
           //  SafeJsonString(entry.SourceOption.HasArg), SafeJsonString(entry.SourceOption.IsPositional), SafeJsonString(entry.SourceOption.Name),
           //  SafeJsonString(entry.SourceOption.ShortName), SafeJsonString(entry.SourceOption.Type),
           //  SafeJsonString(GetFormattedName(entry.SourceOption)), SafeJsonString(entry.Source->Name));
-          fmt::format_to(buf,
+          fmt::format_to(std::back_inserter(buf),
                          "    {{\n"
                          R"(      "CmdId": "{0}",)"
                          "\n"
@@ -435,15 +435,15 @@ namespace Fsl
                          SafeJsonString(GetFormattedName(entry.SourceOption)), SafeJsonString(entry.Source->Name));
           if (index < entries)
           {
-            fmt::format_to(buf, "    }},\n");
+            fmt::format_to(std::back_inserter(buf), "    }},\n");
           }
           else
           {
-            fmt::format_to(buf, "    }}\n");
+            fmt::format_to(std::back_inserter(buf), "    }}\n");
           }
         }
 
-        fmt::format_to(buf,
+        fmt::format_to(std::back_inserter(buf),
                        "  ]\n"
                        "}}\n");
 

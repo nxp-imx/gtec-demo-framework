@@ -111,6 +111,11 @@ namespace Fsl
     FSL_PARAM_NOT_USED(demoTime);
   }
 
+  void AConsoleDemoApp::_Resolve(const DemoTime& demoTime)
+  {
+    FSL_PARAM_NOT_USED(demoTime);
+  }
+
 
   AppDrawResult AConsoleDemoApp::_TryPrepareDraw(const FrameInfo& frameInfo)
   {
@@ -137,6 +142,12 @@ namespace Fsl
   }
 
   void AConsoleDemoApp::_EndDraw(const FrameInfo& frameInfo)
+  {
+    FSL_PARAM_NOT_USED(frameInfo);
+  }
+
+
+  void AConsoleDemoApp::_OnDrawSkipped(const FrameInfo& frameInfo)
   {
     FSL_PARAM_NOT_USED(frameInfo);
   }

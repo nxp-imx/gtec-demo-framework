@@ -120,6 +120,7 @@ class EvaluateLocalNodeVisitor(ast.NodeVisitor):
                 isinstance(node, ast.UnaryOp) or
                 isinstance(node, ast.Not) or
                 isinstance(node, ast.NotEq) or
+                isinstance(node, ast.Eq) or
                 isinstance(node, ast.Or) or
                 isinstance(node, ast.And) or
                 isinstance(node, ast.Name) or

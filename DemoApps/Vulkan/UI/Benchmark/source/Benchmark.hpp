@@ -60,7 +60,9 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) final;
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
     void Update(const DemoTime& demoTime) final;
+    void Resolve(const DemoTime& demoTime) final;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
+    void OnDrawSkipped(const FrameInfo& frameInfo) final;
 
     void OnFrameSequenceEnd() final;
 

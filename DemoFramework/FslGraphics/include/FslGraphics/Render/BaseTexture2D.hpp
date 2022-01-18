@@ -48,6 +48,16 @@ namespace Fsl
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
 
   public:
+    // move assignment operator
+    BaseTexture2D& operator=(BaseTexture2D&& other) noexcept;
+    // move constructor
+    BaseTexture2D(BaseTexture2D&& other) noexcept;
+
+    // Request that the compiler generates a copy constructor and assignment operator
+    BaseTexture2D(const BaseTexture2D&) = default;
+    BaseTexture2D& operator=(const BaseTexture2D&) = default;
+
+
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
     BaseTexture2D() = default;
 
@@ -60,7 +70,7 @@ namespace Fsl
     }
 
     //! @brief If a texture is allocated this will releases it.
-    void Reset();
+    void Reset() noexcept;
 
     //! @brief Get the texture size.
     PxExtent2D GetExtent() const

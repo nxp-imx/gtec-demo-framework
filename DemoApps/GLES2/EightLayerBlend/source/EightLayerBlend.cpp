@@ -131,8 +131,10 @@ namespace Fsl
   }
 
 
-  void EightLayerBlend::Draw(const DemoTime& /*demoTime*/)
+  void EightLayerBlend::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const GLuint hProgram = m_program.Get();
 
     glDisable(GL_BLEND);

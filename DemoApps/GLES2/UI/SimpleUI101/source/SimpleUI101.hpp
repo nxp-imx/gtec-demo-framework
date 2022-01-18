@@ -45,7 +45,7 @@ namespace Fsl
     explicit SimpleUI101(const DemoAppConfig& config);
 
   protected:
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
   };
 }
 

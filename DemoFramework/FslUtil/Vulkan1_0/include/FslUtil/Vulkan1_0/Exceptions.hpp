@@ -43,11 +43,18 @@ namespace Fsl
       VkFormat m_pixelFormat;
 
     public:
+      UnsupportedVulkanPixelFormatException(const char* const psz, const VkFormat pixelFormat)
+        : RapidVulkan::VulkanException(psz)
+        , m_pixelFormat(pixelFormat)
+      {
+      }
+
       UnsupportedVulkanPixelFormatException(const std::string& str, const VkFormat pixelFormat)
         : RapidVulkan::VulkanException(str)
         , m_pixelFormat(pixelFormat)
       {
       }
+
 
       explicit UnsupportedVulkanPixelFormatException(const VkFormat pixelFormat)
         : RapidVulkan::VulkanException("Unsupported pixel format")

@@ -85,8 +85,10 @@ namespace Fsl
   }
 
 
-  void InputEvents::Draw(const DemoTime& /*demoTime*/)
+  void InputEvents::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     m_logger.Draw(GetWindowSizePx());
   }
 

@@ -470,8 +470,10 @@ namespace Fsl
   }
 
 
-  void VGStressTest::Draw(const DemoTime& demoTime)
+  void VGStressTest::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     bool bypassRender = false;
     if (m_toggleMinMax)
     {

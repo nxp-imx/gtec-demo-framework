@@ -36,6 +36,7 @@ from typing import List
 from typing import Optional
 #from typing import Union
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
+from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.Build.DataTypes import CommandType
 #from FslBuildGen.DataTypes import BuildVariantConfig
 #from FslBuildGen.ExtensionListManager import ExtensionListManager
@@ -51,6 +52,7 @@ class BuildConfigRecord(object):
                  toolVersion: Version,
                  platformName: str,
                  variantSettingsDict: Dict[str, str],
+                 userSetVariables: UserSetVariables,
                  buildCommand: CommandType,
                  buildArgs: List[str],
                  runCommand: Optional[str],
@@ -60,6 +62,7 @@ class BuildConfigRecord(object):
         self.ToolVersion = toolVersion
         self.PlatformName = platformName
         self.VariantSettingsDict = variantSettingsDict
+        self.UserSetVariables = userSetVariables
         self.BuildCommand = buildCommand
         self.BuildArgs = buildArgs
         self.RunCommand = runCommand

@@ -82,6 +82,7 @@ from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
 from FslBuildGen.Xml.XmlGenFileDependency import XmlGenFileDependency
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
 from FslBuildGen.Xml.XmlGenFileFindPackage import FakeXmlGenFileFindPackage
+from FslBuildGen.Xml.XmlGenFileGenerate import XmlGenFileGenerate
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
 from FslBuildGen.Xml.XmlStuff import DefaultValueName
 from FslBuildGen.Xml.XmlStuff import LocalPackageDefaultValues
@@ -105,6 +106,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.PackageLocation = None  # type: Optional[ToolConfigPackageLocation]
         self.Type = PackageType.Library
         self.IsVirtual = False
+        self.GenerateList = [] # type: List[XmlGenFileGenerate]
         self.DirectDependencies = []  # type: List[XmlGenFileDependency]
         self.DirectRequirements = []  # type: List[XmlGenFileRequirement]
         self.DirectDefines = []
@@ -132,6 +134,7 @@ class XmlGenFile(XmlCommonFslBuild):
 
 
     def Load(self, config: Config, packageTemplateLoader: PackageTemplateLoader, packageFile: PackageFile) -> None:
+        log = config # type: Log
         filename = packageFile.AbsoluteFilePath
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate gen file %s", filename)
@@ -178,6 +181,7 @@ class XmlGenFile(XmlCommonFslBuild):
 
         self.BaseLoad(elem)
 
+        self.GenerateList = self.__GetGenerateList(log, elem)
         requirements = self._GetXMLRequirements(elem)
         allowRecipes = self.__DoesTypeAllowRecipes(theType)
 
@@ -291,6 +295,13 @@ class XmlGenFile(XmlCommonFslBuild):
             xmlPlatform.SYS_SetName(name)
             expandedPlatformList.append(xmlPlatform)
         return expandedPlatformList
+
+    def __GetGenerateList(self, log: Log, xmlElement: ET.Element) -> List[XmlGenFileGenerate]:
+        res = []  # type: List[XmlGenFileGenerate]
+        foundElements = xmlElement.findall("Generate")
+        for element in foundElements:
+            res.append(XmlGenFileGenerate(log, element))
+        return res
 
 
     def __GetXMLPlatforms(self, requirementTypes: List[str], elem: ET.Element, ownerPackageName: str,

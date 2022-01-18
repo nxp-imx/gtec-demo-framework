@@ -148,8 +148,10 @@ namespace Fsl
   }
 
 
-  void AssimpDoubleTexture::Draw(const DemoTime& /*demoTime*/)
+  void AssimpDoubleTexture::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(m_program3D.Get());
 

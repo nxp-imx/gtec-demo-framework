@@ -33,6 +33,7 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
@@ -164,7 +165,7 @@ namespace Fsl
   }
 
 
-  void HDR03_SkyboxToneMapping::Draw(const DemoTime& demoTime)
+  void HDR03_SkyboxToneMapping::Draw(const FrameInfo& frameInfo)
   {
     const auto windowSizePx = GetWindowSizePx();
 
@@ -198,7 +199,7 @@ namespace Fsl
 
     glDisable(GL_SCISSOR_TEST);
 
-    m_menuUI.Draw(demoTime);
+    m_menuUI.Draw(frameInfo.Time);
   }
 
 

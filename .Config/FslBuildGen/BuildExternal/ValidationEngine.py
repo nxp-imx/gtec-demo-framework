@@ -53,16 +53,17 @@ from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.Version import Version
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeInstallation
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddHeaders
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddLib
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddDLL
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddTool
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandEnvironmentVariable
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindFileInPath
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindExecutableFileInPath
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning
-from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandPath
+from FslBuildGen.BuildExternal.PackageRecipeInstallation import PackageRecipeInstallation
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddHeaders import PackageRecipeValidateCommandAddHeaders
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddHeaders import PackageRecipeValidateCommandAddHeaders
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddLib import PackageRecipeValidateCommandAddLib
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddDLL import PackageRecipeValidateCommandAddDLL
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandAddTool import PackageRecipeValidateCommandAddTool
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandEnvironmentVariable import PackageRecipeValidateCommandEnvironmentVariable
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandFindFileInPath import PackageRecipeValidateCommandFindFileInPath
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandFindExecutableFileInPath import PackageRecipeValidateCommandFindExecutableFileInPath
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning import PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning
+from FslBuildGen.BuildExternal.Commands.PackageRecipeValidateCommandPath import PackageRecipeValidateCommandPath
 
 class InstallationStatus(Enum):
     NotInstalled = 0
@@ -209,39 +210,39 @@ class ValidationEngine(object):
             self.__Log.PopIndent()
 
     def __DoValidate(self, rErrorRecordList: List[ErrorRecord], installationPath: Optional[str],
-                     validateInstallation: XmlRecipeInstallation, packageRecipeResult: PackageRecipeResult) -> None:
+                     validateInstallation: PackageRecipeInstallation, packageRecipeResult: PackageRecipeResult) -> None:
         for command in validateInstallation.CommandList:
             result = False
             if command.CommandType == BuildRecipeValidateCommand.EnvironmentVariable:
-                if not isinstance(command, XmlRecipeValidateCommandEnvironmentVariable):
+                if not isinstance(command, PackageRecipeValidateCommandEnvironmentVariable):
                     raise Exception("Invalid command")
                 result = self.__ValidateEnvironmentVariable(rErrorRecordList, command)
             elif command.CommandType == BuildRecipeValidateCommand.Path:
-                if not isinstance(command, XmlRecipeValidateCommandPath):
+                if not isinstance(command, PackageRecipeValidateCommandPath):
                     raise Exception("Invalid command")
                 result = self.__ValidatePath(rErrorRecordList, installationPath, command)
             elif command.CommandType == BuildRecipeValidateCommand.FindFileInPath:
-                if not isinstance(command, XmlRecipeValidateCommandFindFileInPath):
+                if not isinstance(command, PackageRecipeValidateCommandFindFileInPath):
                     raise Exception("Invalid command")
                 result = self.__ValidateFindFileInPath(rErrorRecordList, installationPath, command)
             elif command.CommandType == BuildRecipeValidateCommand.FindExecutableFileInPath:
-                if not isinstance(command, XmlRecipeValidateCommandFindExecutableFileInPath):
+                if not isinstance(command, PackageRecipeValidateCommandFindExecutableFileInPath):
                     raise Exception("Invalid command")
                 result = self.__ValidateFindExecutableFileInPath(rErrorRecordList, installationPath, command, packageRecipeResult)
             elif command.CommandType == BuildRecipeValidateCommand.AddHeaders:
-                if not isinstance(command, XmlRecipeValidateCommandAddHeaders):
+                if not isinstance(command, PackageRecipeValidateCommandAddHeaders):
                     raise Exception("Invalid command")
                 result = self.__ValidateAddHeaders(rErrorRecordList, installationPath, command)
             elif command.CommandType == BuildRecipeValidateCommand.AddLib:
-                if not isinstance(command, XmlRecipeValidateCommandAddLib):
+                if not isinstance(command, PackageRecipeValidateCommandAddLib):
                     raise Exception("Invalid command")
                 result = self.__ValidateAddLib(rErrorRecordList, installationPath, command)
             elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
-                if not isinstance(command, XmlRecipeValidateCommandAddDLL):
+                if not isinstance(command, PackageRecipeValidateCommandAddDLL):
                     raise Exception("Invalid command")
                 result = self.__ValidateAddDLL(rErrorRecordList, installationPath, command)
             elif command.CommandType == BuildRecipeValidateCommand.AddTool:
-                if not isinstance(command, XmlRecipeValidateCommandAddTool):
+                if not isinstance(command, PackageRecipeValidateCommandAddTool):
                     raise Exception("Invalid command")
                 result = self.__ValidateAddTool(rErrorRecordList, installationPath, command, packageRecipeResult)
             else:
@@ -250,7 +251,7 @@ class ValidationEngine(object):
                 rErrorRecordList.append(ErrorRecord(ErrorClassification.Help, "  {0}".format(command.Help)))
 
 
-    def __ValidateEnvironmentVariable(self, rErrorRecordList: List[ErrorRecord], command: XmlRecipeValidateCommandEnvironmentVariable) -> bool:
+    def __ValidateEnvironmentVariable(self, rErrorRecordList: List[ErrorRecord], command: PackageRecipeValidateCommandEnvironmentVariable) -> bool:
         result, value = self.__DoValidateEnvironmentVariable(rErrorRecordList, command)
         if self.__Log.Verbosity >= 1:
             self.__Log.LogPrint("Validating environment variable '{0}' '{1}': {2}".format(command.Name, BuildRecipeValidateMethod.TryToString(command.Method, True), result))
@@ -261,7 +262,7 @@ class ValidationEngine(object):
 
     def __ValidatePath(self, rErrorRecordList: List[ErrorRecord],
                        installationPath: Optional[str],
-                       command: XmlRecipeValidateCommandPath) -> bool:
+                       command: PackageRecipeValidateCommandPath) -> bool:
         result, value = self.__DoValidatePath(rErrorRecordList, installationPath, command)
         if self.__Log.Verbosity >= 1:
             self.__Log.LogPrint("Validating path '{0}' '{1}': {2}".format(command.Name, BuildRecipeValidateMethod.TryToString(command.Method, True), result))
@@ -272,7 +273,7 @@ class ValidationEngine(object):
 
     def __ValidateFindFileInPath(self, rErrorRecordList: List[ErrorRecord],
                                  installationPath: Optional[str],
-                                 command: XmlRecipeValidateCommandFindFileInPath) -> bool:
+                                 command: PackageRecipeValidateCommandFindFileInPath) -> bool:
         result, value = self.__TryFindFileInPath(rErrorRecordList, installationPath, command.Name, command.ExpectedPath)
         if self.__Log.Verbosity >= 1:
             if command.ExpectedPath is None:
@@ -295,7 +296,7 @@ class ValidationEngine(object):
 
 
     def __CheckOnErrorWarning(self, foundVersionList: List[int], versionRegEx: str,
-                              warning: XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning) -> None:
+                              warning: PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning) -> None:
         startVersionList = Util.ParseVersionString(warning.StartVersion, maxValues=4)
         if len(startVersionList) > len(foundVersionList):
             self.__Log.DoPrintWarning("The regex '{0}' did not capture the enough version number elements to compare against the start version '{1}'".format(versionRegEx, warning.StartVersion))
@@ -312,12 +313,12 @@ class ValidationEngine(object):
             self.__ErrorHelpManager.AddOnErrorWarningHint(warning.Help)
 
     def __CheckOnErrorWarnings(self, foundVersionList: List[int], versionRegEx: str,
-                               addOnErrorWarning: List[XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> None:
+                               addOnErrorWarning: List[PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> None:
         for warning in addOnErrorWarning:
             self.__CheckOnErrorWarning(foundVersionList, versionRegEx, warning)
 
     def __TryValidateCommandVersion(self, cmd: str, versionCommand: str, versionRegEx: str, minVersion: Optional[str],
-                                    addOnErrorWarning: List[XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> List[int]:
+                                    addOnErrorWarning: List[PackageRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> List[int]:
         output = ""
         try:
             runCmd = [cmd, versionCommand]
@@ -362,7 +363,7 @@ class ValidationEngine(object):
 
     def __ValidateFindExecutableFileInPath(self, rErrorRecordList: List[ErrorRecord],
                                            installationPath: Optional[str],
-                                           command: XmlRecipeValidateCommandFindExecutableFileInPath,
+                                           command: PackageRecipeValidateCommandFindExecutableFileInPath,
                                            packageRecipeResult: PackageRecipeResult) -> bool:
         # Patch filename with the platform dependent name
         alternatives = [command.Name]
@@ -427,7 +428,7 @@ class ValidationEngine(object):
 
     def __ValidateAddHeaders(self, rErrorRecordList: List[ErrorRecord],
                              installationPath: Optional[str],
-                             command: XmlRecipeValidateCommandAddHeaders) -> bool:
+                             command: PackageRecipeValidateCommandAddHeaders) -> bool:
         result, value = self.__DoValidateAddHeaders(rErrorRecordList, installationPath, command)
         if self.__Log.Verbosity >= 1:
             self.__Log.LogPrint("Validating AddHeaders '{0}': {1}".format(command.Name, result))
@@ -438,7 +439,7 @@ class ValidationEngine(object):
 
     def __ValidateAddLib(self, rErrorRecordList: List[ErrorRecord],
                          installationPath: Optional[str],
-                         command: XmlRecipeValidateCommandAddLib) -> bool:
+                         command: PackageRecipeValidateCommandAddLib) -> bool:
         result, value = self.__DoValidateFile(rErrorRecordList, installationPath, command.Name, False)
         if self.__Log.Verbosity >= 1:
             self.__Log.LogPrint("Validating AddLib '{0}': {1}".format(command.Name, result))
@@ -456,7 +457,7 @@ class ValidationEngine(object):
 
     def __ValidateAddDLL(self, rErrorRecordList: List[ErrorRecord],
                          installationPath: Optional[str],
-                         command: XmlRecipeValidateCommandAddDLL) -> bool:
+                         command: PackageRecipeValidateCommandAddDLL) -> bool:
         result, value = self.__DoValidateFile(rErrorRecordList, installationPath, command.Name, False)
         if self.__Log.Verbosity >= 1:
             self.__Log.LogPrint("Validating AddDLL '{0}': {1}".format(command.Name, result))
@@ -475,7 +476,7 @@ class ValidationEngine(object):
 
     def __ValidateAddTool(self, rErrorRecordList: List[ErrorRecord],
                           installationPath: Optional[str],
-                          command: XmlRecipeValidateCommandAddTool,
+                          command: PackageRecipeValidateCommandAddTool,
                           packageRecipeResult: PackageRecipeResult) -> bool:
         toolName = PlatformUtil.GetPlatformDependentExecuteableName(command.Name, PlatformUtil.DetectBuildPlatformType())
         result, value = self.__DoValidateFile(rErrorRecordList, installationPath, toolName, False)
@@ -497,7 +498,7 @@ class ValidationEngine(object):
 
 
     def __DoValidateEnvironmentVariable(self, rErrorRecordList: List[ErrorRecord],
-                                        command: XmlRecipeValidateCommandEnvironmentVariable) -> Tuple[bool, Optional[str]]:
+                                        command: PackageRecipeValidateCommandEnvironmentVariable) -> Tuple[bool, Optional[str]]:
         value = os.environ.get(command.Name)
         if not value:
             rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "Environment variable '{0}' is not defined, please define it as required.".format(command.Name)))
@@ -532,7 +533,7 @@ class ValidationEngine(object):
 
     def __DoValidatePath(self, rErrorRecordList: List[ErrorRecord],
                          installationPath: Optional[str],
-                         command: XmlRecipeValidateCommandPath) -> Tuple[bool, Optional[str]]:
+                         command: PackageRecipeValidateCommandPath) -> Tuple[bool, Optional[str]]:
         if self.__Log.Verbosity >= 4:
             self.__Log.LogPrint("ValidatePath '{0}'".format(command.Name))
 
@@ -594,7 +595,7 @@ class ValidationEngine(object):
 
     def __DoValidateAddHeaders(self, rErrorRecordList: List[ErrorRecord],
                                installationPath: Optional[str],
-                               command: XmlRecipeValidateCommandAddHeaders) -> Tuple[bool, Optional[str]]:
+                               command: PackageRecipeValidateCommandAddHeaders) -> Tuple[bool, Optional[str]]:
         if self.__Log.Verbosity >= 4:
             self.__Log.LogPrint("ValidateAddHeaders '{0}'".format(command.Name))
 

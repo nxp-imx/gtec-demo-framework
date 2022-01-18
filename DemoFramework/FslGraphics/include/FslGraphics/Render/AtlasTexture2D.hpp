@@ -43,6 +43,16 @@ namespace Fsl
     AtlasTextureInfo m_info;
 
   public:
+    // move assignment operator
+    AtlasTexture2D& operator=(AtlasTexture2D&& other) noexcept;
+    // move constructor
+    AtlasTexture2D(AtlasTexture2D&& other) noexcept;
+
+    // Request that the compiler generates a copy constructor and assignment operator
+    AtlasTexture2D(const AtlasTexture2D&) = default;
+    AtlasTexture2D& operator=(const AtlasTexture2D&) = default;
+
+
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
     AtlasTexture2D() = default;
 
@@ -91,7 +101,7 @@ namespace Fsl
       return m_atlas;
     }
 
-    void Reset();
+    void Reset() noexcept;
     void Reset(const BaseTexture2D& texAtlas, const AtlasTextureInfo& info);
 
     bool operator==(const AtlasTexture2D& rhs) const

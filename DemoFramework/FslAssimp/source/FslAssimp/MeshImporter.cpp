@@ -31,11 +31,14 @@
 
 #include <FslAssimp/MeshImporter.hpp>
 #include <FslAssimp/MeshHelper.hpp>
-#include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Span/TypedFlexSpanUtil.hpp>
+#include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <cassert>
 #include <utility>
 
@@ -48,9 +51,8 @@ namespace Fsl
     //! @brief extract indices as the requested type.
     //! @note Throws if the index doesn't fit the TIndex type
     template <typename TIndex>
-    std::size_t DoFastExtractIndices(TIndex* const pDst, const std::size_t dstCapacity, const aiMesh* const pSrcMesh)
+    std::size_t DoFastExtractIndices(Span<TIndex> dstSpan, const aiMesh* const pSrcMesh)
     {
-      assert(pDst != nullptr);
       assert(pSrcMesh != nullptr);
 
       const aiFace* pSrc = pSrcMesh->mFaces;
@@ -72,12 +74,12 @@ namespace Fsl
         auto* const srcIndices = pSrc[faceIndex].mIndices;
         for (std::size_t i = 0; i < 3; ++i)
         {
-          if (dstIndexCount >= dstCapacity)
+          if (dstIndexCount >= dstSpan.length())
           {
             throw IndexOutOfRangeException("The supplied buffer could not contain all the indices");
           }
 
-          pDst[dstIndexCount] = static_cast<TIndex>(srcIndices[i]);
+          dstSpan[dstIndexCount] = static_cast<TIndex>(srcIndices[i]);
           ++dstIndexCount;
         }
       }
@@ -85,97 +87,25 @@ namespace Fsl
     }
 
 
-    void DoFastExtractVector2(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                              const aiVector3D* const pSrc, const std::size_t numSrcEntries)
+    void DoFastExtractVector2(TypedFlexSpan<Vector2> dst, const ReadOnlySpan<aiVector3D> src)
     {
-      assert(pDst != nullptr);
-      assert((dstEntryOffset + sizeof(Vector2)) <= dstStride);
-
-      if (pSrc == nullptr)
-      {
-        throw NotSupportedException("The mesh did not contain the requested entry");
-      }
-
-      if ((numSrcEntries * dstStride) > cbDst)
-      {
-        throw IndexOutOfRangeException("The buffer could not contain all the entries");
-      }
-
-      uint8_t* pDstBuffer = static_cast<uint8_t*>(pDst) + dstEntryOffset;
-      for (std::size_t i = 0; i < numSrcEntries; ++i)
-      {
-        *reinterpret_cast<Vector2*>(pDstBuffer) = Vector2(pSrc[i].x, pSrc[i].y);
-        pDstBuffer += dstStride;
-      }
+      dst.Copy(src, [](const aiVector3D& srcVal) { return Vector2(srcVal.x, srcVal.y); });
     }
 
-    void DoFastExtractVector3(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                              const aiVector3D* const pSrc, const std::size_t numSrcEntries)
+    void DoFastExtractVector3(TypedFlexSpan<Vector3> dst, const ReadOnlySpan<aiVector3D> src)
     {
-      assert(pDst != nullptr);
-      assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
-
-      if (pSrc == nullptr)
-      {
-        throw NotSupportedException("The mesh did not contain the requested entry");
-      }
-
-      if ((numSrcEntries * dstStride) > cbDst)
-      {
-        throw IndexOutOfRangeException("The buffer could not contain all the entries");
-      }
-
-      uint8_t* pDstBuffer = static_cast<uint8_t*>(pDst) + dstEntryOffset;
-      for (std::size_t i = 0; i < numSrcEntries; ++i)
-      {
-        *reinterpret_cast<Vector3*>(pDstBuffer) = Vector3(pSrc[i].x, pSrc[i].y, pSrc[i].z);
-        pDstBuffer += dstStride;
-      }
+      dst.Copy(src, [](const aiVector3D& srcVal) { return Vector3(srcVal.x, srcVal.y, srcVal.z); });
     }
 
 
-    void DoFastExtractVector4(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                              const aiColor4D* const pSrc, const std::size_t numSrcEntries)
+    void DoFastExtractColors(TypedFlexSpan<Vector4> dst, const ReadOnlySpan<aiColor4D> src)
     {
-      assert(pDst != nullptr);
-      assert((dstEntryOffset + sizeof(Vector4)) <= dstStride);
-
-      if (pSrc == nullptr)
-      {
-        throw NotSupportedException("The mesh did not contain the requested entry");
-      }
-
-      if ((numSrcEntries * dstStride) > cbDst)
-      {
-        throw IndexOutOfRangeException("The buffer could not contain all the entries");
-      }
-
-      uint8_t* pDstBuffer = static_cast<uint8_t*>(pDst) + dstEntryOffset;
-      for (std::size_t i = 0; i < numSrcEntries; ++i)
-      {
-        *reinterpret_cast<Vector4*>(pDstBuffer) = Vector4(pSrc[i].r, pSrc[i].g, pSrc[i].b, pSrc[i].a);
-        pDstBuffer += dstStride;
-      }
+      dst.Copy(src, [](const aiColor4D& srcVal) { return Vector4(srcVal.r, srcVal.g, srcVal.b, srcVal.a); });
     }
 
-
-    void FillVector4(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset, const Vector4& val,
-                     std::size_t numEntries)
+    void DoFastExtractColors(TypedFlexSpan<Color> dst, const ReadOnlySpan<aiColor4D> src)
     {
-      assert(pDst != nullptr);
-      assert((dstEntryOffset + sizeof(Vector4)) <= dstStride);
-
-      if ((numEntries * dstStride) > cbDst)
-      {
-        throw IndexOutOfRangeException("The buffer could not contain all the entries");
-      }
-
-      uint8_t* pDstBuffer = static_cast<uint8_t*>(pDst) + dstEntryOffset;
-      for (std::size_t i = 0; i < numEntries; ++i)
-      {
-        *reinterpret_cast<Vector4*>(pDstBuffer) = val;
-        pDstBuffer += dstStride;
-      }
+      dst.Copy(src, [](const aiColor4D& srcVal) { return Color(srcVal.r, srcVal.g, srcVal.b, srcVal.a); });
     }
 
 
@@ -191,11 +121,9 @@ namespace Fsl
         {
           throw NotSupportedException("We only support vertex positions of the type Vector3");
         }
-        auto* pDst = static_cast<uint8_t*>(dstRawMeshContent.pVertices);
-
-        const std::size_t cbDstBuffer = (dstRawMeshContent.VertexCount * dstRawMeshContent.VertexStride);
-        MeshImporter::FastExtractVertexPosition(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, static_cast<size_t>(vertexElement.Offset),
-                                                pSrcMesh, positionMod, scale);
+        TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                      vertexElement.Offset, dstRawMeshContent.VertexStride);
+        MeshImporter::FastExtractVertexPosition(dstSpan, pSrcMesh, positionMod, scale);
       }
     }
 
@@ -212,11 +140,10 @@ namespace Fsl
         {
           throw NotSupportedException("We only support vertex normals of the type Vector3");
         }
-        auto* pDst = static_cast<uint8_t*>(dstRawMeshContent.pVertices);
 
-        const std::size_t cbDstBuffer = (dstRawMeshContent.VertexCount * dstRawMeshContent.VertexStride);
-        MeshImporter::FastExtractVertexNormals(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, static_cast<size_t>(vertexElement.Offset),
-                                               pSrcMesh);
+        TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                      vertexElement.Offset, dstRawMeshContent.VertexStride);
+        MeshImporter::FastExtractVertexNormals(dstSpan, pSrcMesh);
       }
     }
 
@@ -233,11 +160,9 @@ namespace Fsl
         {
           throw NotSupportedException("We only support vertex tangents of the type Vector3");
         }
-        auto* pDst = static_cast<uint8_t*>(dstRawMeshContent.pVertices);
-
-        const std::size_t cbDstBuffer = (dstRawMeshContent.VertexCount * dstRawMeshContent.VertexStride);
-        MeshImporter::FastExtractVertexTangents(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, static_cast<size_t>(vertexElement.Offset),
-                                                pSrcMesh);
+        TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                      vertexElement.Offset, dstRawMeshContent.VertexStride);
+        MeshImporter::FastExtractVertexTangents(dstSpan, pSrcMesh);
       }
     }
 
@@ -254,11 +179,10 @@ namespace Fsl
         {
           throw NotSupportedException("We only support vertex bitangents of the type Vector3");
         }
-        auto* pDst = static_cast<uint8_t*>(dstRawMeshContent.pVertices);
 
-        const std::size_t cbDstBuffer = (dstRawMeshContent.VertexCount * dstRawMeshContent.VertexStride);
-        MeshImporter::FastExtractVertexBitangents(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, static_cast<size_t>(vertexElement.Offset),
-                                                  pSrcMesh);
+        TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                      vertexElement.Offset, dstRawMeshContent.VertexStride);
+        MeshImporter::FastExtractVertexBitangents(dstSpan, pSrcMesh);
       }
     }
 
@@ -273,17 +197,22 @@ namespace Fsl
         if (pSrcMesh->mTextureCoords[usageIndex] != nullptr && indexTexture >= 0)
         {
           VertexElementEx vertexElement = dstVertexDeclaration.At(indexTexture);
-          auto* pDst = static_cast<uint8_t*>(dstRawMeshContent.pVertices);
-          const std::size_t cbDstBuffer = (dstRawMeshContent.VertexCount * dstRawMeshContent.VertexStride);
-          const auto dstEntryOffset = static_cast<size_t>(vertexElement.Offset);
           switch (vertexElement.Format)
           {
           case VertexElementFormat::Vector2:
-            MeshImporter::FastExtractTextureCoordinates2(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, dstEntryOffset, pSrcMesh, usageIndex);
+          {
+            TypedFlexSpan<Vector2> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector2>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                          vertexElement.Offset, dstRawMeshContent.VertexStride);
+            MeshImporter::FastExtractTextureCoordinates2(dstSpan, pSrcMesh, usageIndex);
             break;
+          }
           case VertexElementFormat::Vector3:
-            MeshImporter::FastExtractTextureCoordinates3(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, dstEntryOffset, pSrcMesh, usageIndex);
+          {
+            TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                          vertexElement.Offset, dstRawMeshContent.VertexStride);
+            MeshImporter::FastExtractTextureCoordinates3(dstSpan, pSrcMesh, usageIndex);
             break;
+          }
           default:
             throw NotSupportedException("We only support vertex texture coordinates of the type Vector2 or Vector3");
           }
@@ -300,22 +229,30 @@ namespace Fsl
         if (indexColor >= 0)
         {
           VertexElementEx vertexElement = dstVertexDeclaration.At(indexColor);
-          if (vertexElement.Format != VertexElementFormat::Vector4)
+          if (pSrcMesh->mNumVertices > dstRawMeshContent.VertexCount)
           {
-            throw NotSupportedException("We only support vertex colors of the type Vector4");
+            throw IndexOutOfRangeException("The buffer could not contain all the entries");
           }
 
-          auto* pDst = static_cast<uint8_t*>(dstRawMeshContent.pVertices);
-          const std::size_t cbDstBuffer = (dstRawMeshContent.VertexCount * dstRawMeshContent.VertexStride);
-          if (pSrcMesh->mColors[usageIndex] != nullptr)
+          if (vertexElement.Format == VertexElementFormat::Vector4)
           {
-            MeshImporter::FastExtractColors(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, static_cast<size_t>(vertexElement.Offset), pSrcMesh,
-                                            usageIndex);
+            TypedFlexSpan<Vector4> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector4>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                          vertexElement.Offset, dstRawMeshContent.VertexStride)
+                                               .subspan(0, pSrcMesh->mNumVertices);
+
+            MeshImporter::FastExtractColors(dstSpan, pSrcMesh, usageIndex, Vector4::One());
+          }
+          else if (vertexElement.Format == VertexElementFormat::X8Y8Z8W8_UNORM)
+          {
+            TypedFlexSpan<Color> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Color>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
+                                                                                      vertexElement.Offset, dstRawMeshContent.VertexStride)
+                                             .subspan(0, pSrcMesh->mNumVertices);
+
+            MeshImporter::FastExtractColors(dstSpan, pSrcMesh, usageIndex, Color::White());
           }
           else
           {
-            FillVector4(pDst, cbDstBuffer, dstRawMeshContent.VertexStride, static_cast<size_t>(vertexElement.Offset), Vector4::One(),
-                        pSrcMesh->mNumVertices);
+            throw NotSupportedException("We only support vertex colors of the type: Vector4, X8Y8Z8W8_UNORM");
           }
         }
       }
@@ -414,123 +351,105 @@ namespace Fsl
   }
 
 
-  std::size_t MeshImporter::FastExtractVertexPosition(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                      const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh)
+  std::size_t MeshImporter::FastExtractVertexPosition(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh)
   {
     assert(pSrcMesh != nullptr);
-    assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mVertices, numSrcEntries);
+    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mVertices, numSrcEntries));
     return numSrcEntries;
   }
 
 
-  std::size_t MeshImporter::FastExtractVertexPosition(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                      const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh, const Vector3& positionMod,
+  std::size_t MeshImporter::FastExtractVertexPosition(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh, const Vector3& positionMod,
                                                       const Vector3& scale)
   {
-    assert(pDst != nullptr);
     assert(pSrcMesh != nullptr);
-    assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
 
-    const aiVector3D* pSrc = pSrcMesh->mVertices;
-    const std::size_t srcEntries = pSrcMesh->mNumVertices;
+    const auto src = ReadOnlySpanUtil::AsSpan(pSrcMesh->mVertices, pSrcMesh->mNumVertices);
 
-    if (pSrc == nullptr)
-    {
-      throw NotSupportedException("The mesh did not contain any vertex positions");
-    }
-    if ((srcEntries * dstStride) > cbDst)
-    {
-      throw IndexOutOfRangeException("The buffer could not contain all the vertex positions");
-    }
+    dst.Copy(src, [positionMod, scale](const aiVector3D& srcVal) {
+      return Vector3((srcVal.x + positionMod.X) * scale.X, (srcVal.y + positionMod.Y) * scale.Y, (srcVal.z + positionMod.Z) * scale.Z);
+    });
 
-    uint8_t* pDstBuffer = static_cast<uint8_t*>(pDst) + dstEntryOffset;
-    for (std::size_t i = 0; i < srcEntries; ++i)
-    {
-      *reinterpret_cast<Vector3*>(pDstBuffer) =
-        Vector3((pSrc[i].x + positionMod.X) * scale.X, (pSrc[i].y + positionMod.Y) * scale.Y, (pSrc[i].z + positionMod.Z) * scale.Z);
-      pDstBuffer += dstStride;
-    }
-    return srcEntries;
+    return src.size();
   }
 
 
-  std::size_t MeshImporter::FastExtractVertexNormals(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                     const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh)
+  std::size_t MeshImporter::FastExtractVertexNormals(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh)
   {
     assert(pSrcMesh != nullptr);
-    assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mNormals, numSrcEntries);
+    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mNormals, numSrcEntries));
     return numSrcEntries;
   }
 
 
-  std::size_t MeshImporter::FastExtractVertexTangents(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                      const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh)
+  std::size_t MeshImporter::FastExtractVertexTangents(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh)
   {
     assert(pSrcMesh != nullptr);
-    assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mTangents, numSrcEntries);
+    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mTangents, numSrcEntries));
     return numSrcEntries;
   }
 
 
-  std::size_t MeshImporter::FastExtractVertexBitangents(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                        const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh)
+  std::size_t MeshImporter::FastExtractVertexBitangents(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh)
   {
     assert(pSrcMesh != nullptr);
-    assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mBitangents, numSrcEntries);
+    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mBitangents, numSrcEntries));
     return numSrcEntries;
   }
 
 
-  std::size_t MeshImporter::FastExtractTextureCoordinates2(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                           const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
+  std::size_t MeshImporter::FastExtractTextureCoordinates2(TypedFlexSpan<Vector2> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
   {
     assert(pSrcMesh != nullptr);
     assert(srcSetIndex >= 0);
     assert(srcSetIndex < AI_MAX_NUMBER_OF_TEXTURECOORDS);
-    assert((dstEntryOffset + sizeof(Vector2)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector2(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries);
+    DoFastExtractVector2(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
 
-  std::size_t MeshImporter::FastExtractTextureCoordinates3(void* pDst, const std::size_t cbDst, const std::size_t dstStride,
-                                                           const std::size_t dstEntryOffset, const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
+  std::size_t MeshImporter::FastExtractTextureCoordinates3(TypedFlexSpan<Vector3> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
   {
     assert(pSrcMesh != nullptr);
     assert(srcSetIndex >= 0);
     assert(srcSetIndex < AI_MAX_NUMBER_OF_TEXTURECOORDS);
-    assert((dstEntryOffset + sizeof(Vector3)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector3(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries);
+    DoFastExtractVector3(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mTextureCoords[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
 
-  std::size_t MeshImporter::FastExtractColors(void* pDst, const std::size_t cbDst, const std::size_t dstStride, const std::size_t dstEntryOffset,
-                                              const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
+  std::size_t MeshImporter::FastExtractColors(TypedFlexSpan<Vector4> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
   {
     assert(pSrcMesh != nullptr);
     assert(srcSetIndex >= 0);
     assert(srcSetIndex < AI_MAX_NUMBER_OF_COLOR_SETS);
-    assert((dstEntryOffset + sizeof(Vector4)) <= dstStride);
 
     const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
-    DoFastExtractVector4(pDst, cbDst, dstStride, dstEntryOffset, pSrcMesh->mColors[srcSetIndex], numSrcEntries);
+    DoFastExtractColors(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mColors[srcSetIndex], numSrcEntries));
+    return numSrcEntries;
+  }
+
+
+  std::size_t MeshImporter::FastExtractColors(TypedFlexSpan<Color> dst, const aiMesh* const pSrcMesh, const int32_t srcSetIndex)
+  {
+    assert(pSrcMesh != nullptr);
+    assert(srcSetIndex >= 0);
+    assert(srcSetIndex < AI_MAX_NUMBER_OF_COLOR_SETS);
+
+    const std::size_t numSrcEntries = pSrcMesh->mNumVertices;
+    DoFastExtractColors(dst, ReadOnlySpanUtil::AsSpan(pSrcMesh->mColors[srcSetIndex], numSrcEntries));
     return numSrcEntries;
   }
 
@@ -541,22 +460,22 @@ namespace Fsl
     switch (cbDstIndexEntry)
     {
     case 1:
-      return FastExtractIndicesUInt8(static_cast<uint8_t*>(pDst), dstCapacity, pSrcMesh);
+      return FastExtractIndicesUInt8(SpanUtil::AsSpan(static_cast<uint8_t*>(pDst), dstCapacity), pSrcMesh);
     case 2:
-      return FastExtractIndicesUInt16(static_cast<uint16_t*>(pDst), dstCapacity, pSrcMesh);
+      return FastExtractIndicesUInt16(SpanUtil::AsSpan(static_cast<uint16_t*>(pDst), dstCapacity), pSrcMesh);
     default:
       throw NotSupportedException("The index size is not supported");
     }
   }
 
 
-  std::size_t MeshImporter::FastExtractIndicesUInt8(uint8_t* const pDst, const std::size_t dstCapacity, const aiMesh* const pSrcMesh)
+  std::size_t MeshImporter::FastExtractIndicesUInt8(Span<uint8_t> dstSpan, const aiMesh* const pSrcMesh)
   {
-    return DoFastExtractIndices(pDst, dstCapacity, pSrcMesh);
+    return DoFastExtractIndices(dstSpan, pSrcMesh);
   }
 
-  std::size_t MeshImporter::FastExtractIndicesUInt16(uint16_t* const pDst, const std::size_t dstCapacity, const aiMesh* const pSrcMesh)
+  std::size_t MeshImporter::FastExtractIndicesUInt16(Span<uint16_t> dstSpan, const aiMesh* const pSrcMesh)
   {
-    return DoFastExtractIndices(pDst, dstCapacity, pSrcMesh);
+    return DoFastExtractIndices(dstSpan, pSrcMesh);
   }
 }

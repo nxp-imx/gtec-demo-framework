@@ -245,7 +245,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_NAME##", packageName)
         buildCMakeFile = buildCMakeFile.replace("##ALIAS_PACKAGE_NAME##", aliasPackageName)
         buildCMakeFile = buildCMakeFile.replace("##PROJECT_NAME##", package.ProjectContext.ProjectName)
-        buildCMakeFile = buildCMakeFile.replace("##PROJECT_VERSION##", package.ProjectContext.ProjectVersion)
+        buildCMakeFile = buildCMakeFile.replace("##PROJECT_VERSION##", str(package.ProjectContext.ProjectVersion))
 
         if not config.DisableWrite:
             # We store all cmake build files in their own dir inside the 'android' exe-project's folder

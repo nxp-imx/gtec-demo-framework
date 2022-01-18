@@ -62,6 +62,7 @@ namespace Fsl
     virtual void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics) = 0;
     virtual void Update(const DemoTime& demoTime) = 0;
     virtual void Draw() = 0;
+    virtual void OnDrawSkipped() = 0;
   };
 }
 

@@ -482,8 +482,10 @@ namespace Fsl
       void DebugDrawRectangle(const AtlasTexture2D& srcFillTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color) final;
       void DebugDrawRectangle(const BaseTexture2D& srcFillTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color) final;
       // ----------
-      void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color) final;
-      void DebugDrawLine(const BaseTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color) final;
+      void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color) final;
+      void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color) final;
+      void DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color) final;
+      void DebugDrawLine(const BaseTexture2D& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color) final;
     };
   }
 }

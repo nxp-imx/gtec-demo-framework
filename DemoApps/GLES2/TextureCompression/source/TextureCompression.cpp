@@ -437,8 +437,10 @@ namespace Fsl
   }
 
 
-  void TextureCompression::Draw(const DemoTime& /*demoTime*/)
+  void TextureCompression::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

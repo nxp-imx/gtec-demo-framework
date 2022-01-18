@@ -327,7 +327,7 @@ namespace Fsl
 
   void MenuUI::UpdateSceneTransition(const DemoTime& demoTime)
   {
-    const auto timespan = TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds);
+    const auto timespan = TransitionTimeSpan(demoTime.ElapsedTime.Ticks());
     for (auto& rRecord : m_render)
     {
       rRecord.SplitX.Update(timespan);

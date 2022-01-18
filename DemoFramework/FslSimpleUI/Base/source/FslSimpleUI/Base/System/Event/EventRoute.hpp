@@ -70,7 +70,7 @@ namespace Fsl
       }
 
       //! @brief Check if the route is empty
-      bool IsEmpty() const;
+      bool IsEmpty() const noexcept;
 
       //! @brief Send the event along the route
       void Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent);

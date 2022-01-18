@@ -60,6 +60,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackage
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackageFlags
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackagePaths
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedPackageVariant
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariantOption import UnresolvedPackageVariantOption
@@ -68,6 +69,7 @@ from FslBuildGen.Xml.Flavor.XmlGenFileFlavorOption import XmlGenFileFlavorOption
 from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
 from FslBuildGen.Xml.XmlGenFileExternalDependencyPackageManager import XmlGenFileExternalDependencyPackageManager
+from FslBuildGen.Xml.XmlGenFileGenerate import XmlGenFileGenerate
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
 from FslBuildGen.Xml.XmlStuff import XmlGenFilePlatform
 from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
@@ -165,6 +167,8 @@ class XmlConvert(object):
                                               xmlValue.PackageNameBasedIncludePath, xmlValue.PlatformDefaultSupportedValue,
                                               xmlValue.EnableExtendedSourceExtensions)
         packageLanguage = xmlValue.PackageLanguage
+
+        generateList = XmlConvert.ToUnresolvedPackageGenerateList(xmlValue.GenerateList)
         directDependencies = XmlConvert.ToUnresolvedPackageDependencyList(xmlValue.DirectDependencies, allowInternalNames)
         directRequirements = XmlConvert.ToUnresolvedPackageRequirementList(xmlValue.DirectRequirements)
         directDefines = XmlConvert.ToUnresolvedPackageDefineList(xmlValue.DirectDefines)
@@ -184,7 +188,7 @@ class XmlConvert(object):
 
 
         return UnresolvedFactory.CreateUnresolvedPackage(createContext, packageProjectContext, nameInfo, companyName, creationYear, packageFile,
-                                                         sourceFileHash, packageType, packageFlags, packageLanguage, directDependencies,
+                                                         sourceFileHash, packageType, packageFlags, packageLanguage, generateList, directDependencies,
                                                          directRequirements, directDefines, externalDependencies, path, templateType,
                                                          buildCustomization, directExperimentalRecipe, resolvedPlatform,
                                                          resolvedPlatformDirectSupported, packageCustomInfo, packageTraceContext)
@@ -209,6 +213,13 @@ class XmlConvert(object):
     def ToUnresolvedPackageDependencyList(xmlList: List[XmlGenFileDependency], allowInternalNames: bool) -> List[UnresolvedPackageDependency]:
         return [XmlConvert.ToUnresolvedPackageDependency(xmlEntry, allowInternalNames) for xmlEntry in xmlList]
 
+    @staticmethod
+    def ToUnresolvedPackageGenerateList(xmlList: List[XmlGenFileGenerate]) -> List[UnresolvedPackageGenerate]:
+        return [XmlConvert.ToUnresolvedPackageGenerate(xmlEntry) for xmlEntry in xmlList]
+
+    @staticmethod
+    def ToUnresolvedPackageGenerate(entry: XmlGenFileGenerate) -> UnresolvedPackageGenerate:
+        return UnresolvedPackageGenerate(entry.TemplateFile, entry.TargetFile)
 
     @staticmethod
     def __TryGetExperimentalRecipe(genFile: XmlGenFile, platformObject: PackagePlatform) -> Optional[XmlExperimentalRecipe]:

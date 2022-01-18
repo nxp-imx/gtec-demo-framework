@@ -227,8 +227,10 @@ namespace Fsl
   }
 
 
-  void TexturingCubeMap::Draw(const DemoTime& /*demoTime*/)
+  void TexturingCubeMap::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (!TryPrepareFrame())
     {
       return;

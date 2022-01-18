@@ -47,9 +47,9 @@ namespace Fsl
       GLboolean Normalized{GL_FALSE};
       const GLvoid* Pointer{nullptr};
 
-      constexpr GLVertexElementAttribConfig() = default;
+      constexpr GLVertexElementAttribConfig() noexcept = default;
       constexpr GLVertexElementAttribConfig(const GLuint attribIndex, const GLint size, const GLenum type, const GLboolean normalized,
-                                            const GLvoid* const pointer)
+                                            const GLvoid* const pointer) noexcept
         : AttribIndex(attribIndex)
         , Size(size)
         , Type(type)

@@ -116,7 +116,7 @@ namespace Fsl
     void OnMouseMoveEvent(const MouseMoveEvent& event) override;
     void OnMouseWheelEvent(const MouseWheelEvent& event) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
     void BuildUI(UI::Theme::IThemeControlFactory& factory);
     void UpdateCaption();

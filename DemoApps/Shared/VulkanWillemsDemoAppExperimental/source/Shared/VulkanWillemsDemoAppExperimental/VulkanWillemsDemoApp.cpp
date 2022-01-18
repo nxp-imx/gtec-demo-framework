@@ -16,6 +16,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
@@ -104,7 +105,7 @@ namespace Fsl
         }
       }
 
-      m_fpsTimer += static_cast<float>(demoTime.DeltaTimeInMicroseconds);
+      m_fpsTimer += TimeSpanUtil::ToMicrosecondsF(demoTime.ElapsedTime);
       if (m_fpsTimer > 1000.0f)
       {
         // FIX:

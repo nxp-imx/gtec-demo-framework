@@ -45,6 +45,7 @@ namespace Fsl
 
   struct DemoWindowMetrics;
   struct DemoTime;
+  struct FrameInfo;
   class KeyEvent;
 
   class IScene
@@ -62,7 +63,9 @@ namespace Fsl
     virtual void OnKeyEvent(const KeyEvent& event) = 0;
     virtual void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics) = 0;
     virtual void Update(const DemoTime& demoTime) = 0;
+    virtual bool Resolve(const DemoTime& demoTime) = 0;
     virtual void Draw(const DemoTime& demoTime) = 0;
+    virtual void OnDrawSkipped(const FrameInfo& frameInfo) = 0;
     virtual void OnFrameSequenceEnd() = 0;
   };
 }

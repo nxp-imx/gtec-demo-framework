@@ -6,6 +6,7 @@
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoHost.Base"/>
     <Dependency Name="FslDemoService.CpuStats.Impl" Access="Private"/>
+    <Dependency Name="FslVersion" Access="Private"/>
     <Platform Name="Android">
       <Dependency Name="FslNativeWindow.Platform"/>
       <Dependency Name="Platform.Android.Glue" Access="Private"/>

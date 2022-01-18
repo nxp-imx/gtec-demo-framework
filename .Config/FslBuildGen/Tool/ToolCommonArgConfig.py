@@ -43,6 +43,7 @@ class ToolCommonArgConfig(object):
         self.AllowForceClaimInstallArea = False
         self.AllowRecursive = False
         #self.AllowVSVersion = True
+        # Allow override of variables
         self.SupportBuildTime = False
         # Dont use this if you have positional arguments!
         self.ProcessRemainingArgs = False

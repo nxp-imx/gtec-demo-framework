@@ -123,8 +123,10 @@ namespace Fsl
   }
 
 
-  void E4_0_PRestart::Draw(const DemoTime& /*demoTime*/)
+  void E4_0_PRestart::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     PxSize2D sizePx = GetWindowSizePx();
     glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

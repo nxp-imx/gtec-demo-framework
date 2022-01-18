@@ -761,7 +761,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    void DebugDrawLine(const atlas_texture_type& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color);
+    void DebugDrawLine(const atlas_texture_type& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color);
 
     //! @brief Draw a line using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -769,7 +769,23 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    void DebugDrawLine(const texture_type& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color);
+    void DebugDrawLine(const atlas_texture_type& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color);
+
+    //! @brief Draw a line using a fill texture
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
+    //! @param color the color to use.
+    //! @note Do not invalidate the srcTexture before End() is called.
+    //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
+    void DebugDrawLine(const texture_type& srcFillTexture, const PxPoint2 dstFromPx, const PxPoint2 dstToPx, const Color color);
+
+    //! @brief Draw a line using a fill texture
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
+    //! @param color the color to use.
+    //! @note Do not invalidate the srcTexture before End() is called.
+    //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
+    void DebugDrawLine(const texture_type& srcFillTexture, const PxVector2 dstFromPxf, const PxVector2 dstToPxf, const Color color);
 
     Batch2DStats GetStats() const;
 

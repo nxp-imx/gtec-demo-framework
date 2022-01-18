@@ -45,14 +45,13 @@ namespace
   using TestSystem_HighResolutionTimer = TestFixtureFslBase;
 }
 
-
-TEST(TestSystem_HighResolutionTimer, Construct)
+TEST(TestSystem_HighResolutionTimer, GetTimestamp)
 {
   HighResolutionTimer timer;
 
-  auto startTime = timer.GetTime();
+  auto startTime = timer.GetTimestamp();
   Thread::SleepMilliseconds(5);
-  auto endTime = timer.GetTime();
+  auto endTime = timer.GetTimestamp();
 
-  EXPECT_GE(endTime - startTime, 0u);
+  EXPECT_GE(endTime - startTime, TimeSpan(0));
 }

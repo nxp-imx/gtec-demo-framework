@@ -50,7 +50,7 @@ namespace Fsl
       constexpr SliderPixelSpanInfo() noexcept = default;
 
       //! @brief Create a pixel span info
-      constexpr explicit SliderPixelSpanInfo(const int32_t startPx, const int32_t lengthPx, const bool reverseDirection = false)
+      constexpr explicit SliderPixelSpanInfo(const int32_t startPx, const int32_t lengthPx, const bool reverseDirection = false) noexcept
         : m_startPx(startPx)
         , m_lengthPx(lengthPx)
         , m_reverseDirection(reverseDirection)

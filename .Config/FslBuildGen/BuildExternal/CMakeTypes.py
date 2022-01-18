@@ -41,6 +41,7 @@ class CMakeGeneratorName(object):
     VisualStudio2015_X64 = "Visual Studio 14 2015 Win64"
     VisualStudio2017_X64 = "Visual Studio 15 2017 Win64"
     VisualStudio2019_X64 = "Visual Studio 16 2019"    # this needs a "-A x64" option to generate x64 code
+    VisualStudio2022_X64 = "Visual Studio 17 2022"    # this needs a "-A x64" option to generate x64 code
     Ninja = "Ninja"
     Android = "AndroidDummy"
 
@@ -52,12 +53,30 @@ class CMakeGeneratorName(object):
             return CMakeGeneratorName.VisualStudio2017_X64
         elif version == VisualStudioVersion.VS2019:
             return CMakeGeneratorName.VisualStudio2019_X64
+        elif version == VisualStudioVersion.VS2022:
+            return CMakeGeneratorName.VisualStudio2022_X64
         raise Exception("Unsupported visual studio version: {0}".format(version))
 
     @staticmethod
     def IsVisualStudio(name: str) -> bool:
         return (name == CMakeGeneratorName.VisualStudio2015_X64 or name == CMakeGeneratorName.VisualStudio2017_X64 or
-                name == CMakeGeneratorName.VisualStudio2019_X64)
+                name == CMakeGeneratorName.VisualStudio2019_X64 or name == CMakeGeneratorName.VisualStudio2022_X64)
+
+    @staticmethod
+    def GetToolsetVersionString(name: str) -> str:
+        # from
+        # https://devblogs.microsoft.com/cppblog/side-by-side-minor-version-msvc-toolsets-in-visual-studio-2019/
+        if name == CMakeGeneratorName.VisualStudio2015_X64:
+            return "140"
+        if name == CMakeGeneratorName.VisualStudio2017_X64:
+            return "141"
+        if name == CMakeGeneratorName.VisualStudio2019_X64:
+            return "142"
+        if name == CMakeGeneratorName.VisualStudio2022_X64:
+            return "143"
+        return ""
+
+
 
 class CMakeGeneratorMultiConfigCapability(Enum):
     No = 0

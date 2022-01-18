@@ -54,7 +54,7 @@ TEST(TestLog_String_FmtStringViewLite, Fmt)
   {
     buf.append(value.data(), value.data() + value.size());
   }
-  // fmt::format_to(buf2, buf);
+  // fmt::format_to(std::back_inserter(buf2), buf);
 
   StringViewLite str("hello");
 

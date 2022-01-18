@@ -33,10 +33,11 @@
 
 #include <Shared/UI/Benchmark/Persistence/AppRenderBasicOptions.hpp>
 #include <nlohmann/json.hpp>
+#include "TempJsonMacros.hpp"
 
 namespace Fsl
 {
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AppRenderBasicOptions, GpuTimestamps, NoOpaqueMaterials, UseSdfFonts)
+  TEMP_NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppRenderBasicOptions, GpuTimestamps, NoOpaqueMaterials, UseOnDemandRendering, UseSdfFonts)
 }
 
 #endif

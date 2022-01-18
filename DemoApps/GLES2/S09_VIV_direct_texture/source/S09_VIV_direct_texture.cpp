@@ -188,8 +188,10 @@ namespace Fsl
   }
 
 
-  void S09_VIV_direct_texture::Draw(const DemoTime& demoTime)
+  void S09_VIV_direct_texture::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

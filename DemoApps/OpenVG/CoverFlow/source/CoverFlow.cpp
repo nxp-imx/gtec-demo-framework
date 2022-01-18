@@ -263,8 +263,10 @@ namespace Fsl
   }
 
 
-  void CoverFlow::Draw(const DemoTime& demoTime)
+  void CoverFlow::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     int j = 0;
     const PxSize2D currentSizePx = GetWindowSizePx();
     vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());

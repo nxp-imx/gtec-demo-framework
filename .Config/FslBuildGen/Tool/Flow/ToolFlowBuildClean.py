@@ -60,6 +60,7 @@ from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
 #from FslBuildGen.Info import InfoSaver
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 class DefaultValue(object):
     IgnoreNotSupported = False
@@ -117,13 +118,16 @@ class ToolFlowBuildInfo(AToolAppFlow):
         packageFilters = localToolConfig.BuildPackageFilters
 
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   buildVariantConfig, variableContext.UserSetVariables,
+                                                                                   config.ToolConfig.DefaultPackageLanguage,
                                                                                    config.ToolConfig.CMakeConfiguration,
                                                                                    localToolConfig.GetUserCMakeConfig(), False)
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
+                                            generator, variableContext)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)

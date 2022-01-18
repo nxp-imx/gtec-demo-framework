@@ -40,9 +40,8 @@ namespace Fsl
 {
   namespace GLES2
   {
-    // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glTexParameter.xml
-
     // Texture filter wrapping
+    // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glTexParameter.xml
     struct GLTextureParameters
     {
       GLenum MinFilter{GL_NEAREST};

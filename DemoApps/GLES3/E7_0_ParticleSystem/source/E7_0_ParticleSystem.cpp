@@ -150,8 +150,10 @@ namespace Fsl
   }
 
 
-  void E7_0_ParticleSystem::Draw(const DemoTime& /*demoTime*/)
+  void E7_0_ParticleSystem::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     PxSize2D sizePx = GetWindowSizePx();
 
     glViewport(0, 0, sizePx.Width(), sizePx.Height());

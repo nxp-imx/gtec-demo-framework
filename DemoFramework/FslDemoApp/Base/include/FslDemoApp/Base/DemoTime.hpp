@@ -32,21 +32,29 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 
 namespace Fsl
 {
   struct DemoTime
   {
-    //! @brief The total time that passed since the app was started in microseconds.
-    //! @note This may not actually track the wall clock for various reasons.
-    uint64_t TotalTimeInMicroseconds{0};
+    //! Total time since the start of the game (can wrap to zero if we reach the limits, but since its a lot of years its unlikely to occur)
+    TimeSpan TotalTime;
 
-    uint64_t DeltaTimeInMicroseconds{0};
+    //! Time since the last 'update' call
+    TimeSpan ElapsedTime;
+
+
     float DeltaTime{0.0f};
 
-    DemoTime() = default;
+    constexpr DemoTime() noexcept = default;
 
-    DemoTime(const uint64_t& totalTimeInMicroseconds, const uint64_t& deltaTimeMicroseconds);
+    constexpr DemoTime(const TimeSpan totalTime, const TimeSpan elapsedTime) noexcept
+      : TotalTime(totalTime)
+      , ElapsedTime(elapsedTime)
+      , DeltaTime(static_cast<float>(static_cast<double>(elapsedTime.Ticks()) / double(TimeInfo::TicksPerSecond)))
+    {
+    }
   };
 }
 

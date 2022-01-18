@@ -32,6 +32,7 @@
 #include "BoxEmitter.hpp"
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <algorithm>
 #include <cassert>
@@ -82,7 +83,7 @@ namespace Fsl
       return;
     }
 
-    m_emitCounter.Update(demoTime.DeltaTimeInMicroseconds / 1000, m_particlesPerSecond);
+    m_emitCounter.Update(TimeSpanUtil::ToClampedMillisecondsUInt64(demoTime.ElapsedTime), m_particlesPerSecond);
     std::size_t particleCount = 0;
     if (m_emitCounter.Count() > 0)
     {

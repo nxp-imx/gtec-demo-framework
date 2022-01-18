@@ -157,12 +157,22 @@ namespace Fsl
     }
   }
 
+
   void TestAppHost::AppDraw(const DemoTime& demoTime)
   {
     FSL_PARAM_NOT_USED(demoTime);
     if (m_appRecord.TestApp)
     {
       m_appRecord.TestApp->Draw();
+    }
+  }
+
+  void TestAppHost::AppOnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    FSL_PARAM_NOT_USED(frameInfo);
+    if (m_appRecord.TestApp)
+    {
+      m_appRecord.TestApp->OnDrawSkipped();
     }
   }
 

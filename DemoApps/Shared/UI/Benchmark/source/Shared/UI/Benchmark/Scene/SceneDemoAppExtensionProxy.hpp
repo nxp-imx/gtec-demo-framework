@@ -103,6 +103,7 @@ namespace Fsl
     void PlayBegin() final;
     void PlayEnd() final;
 
+    Optional<DemoTime> TryGetDemoTime() const;
 
   private:
     void StopAll();

@@ -201,6 +201,11 @@ namespace Fsl
   }
 
 
+  void TestApp::OnDrawSkipped()
+  {
+  }
+
+
   void TestApp::SetDefaultValues()
   {
   }

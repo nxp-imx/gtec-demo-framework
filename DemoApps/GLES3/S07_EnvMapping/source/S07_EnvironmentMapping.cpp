@@ -100,8 +100,10 @@ namespace Fsl
   }
 
 
-  void S07_EnvironmentMapping::Draw(const DemoTime& /*demoTime*/)
+  void S07_EnvironmentMapping::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     // If enabled, cull polygons based on their winding in window coordinates
     glEnable(GL_CULL_FACE);
 

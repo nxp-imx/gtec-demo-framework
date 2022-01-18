@@ -294,8 +294,10 @@ namespace Fsl
   }
 
 
-  void SpringBackground::Draw(const DemoTime& /*demoTime*/)
+  void SpringBackground::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     if (m_config.Bloom)
     {
       m_bloomRender.Draw(*m_gridScene);

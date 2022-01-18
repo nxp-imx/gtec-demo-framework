@@ -534,14 +534,14 @@ namespace Fsl
       constexpr auto baseLineColor = Color(0xFF404040);
 
       m_nativeBatch->Begin();
-      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, Vector2(baseLine0Px.X, baseLine0Px.Y),
-                                   Vector2(baseLine0Px.X + currentSizePx.Width(), baseLine0Px.Y), baseLineColor);
-      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, Vector2(baseLine1Px.X, baseLine1Px.Y),
-                                   Vector2(baseLine1Px.X + currentSizePx.Width(), baseLine1Px.Y), baseLineColor);
-      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, Vector2(baseLine2Px.X, baseLine2Px.Y),
-                                   Vector2(baseLine2Px.X + currentSizePx.Width(), baseLine2Px.Y), baseLineColor);
-      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, Vector2(baseLine3Px.X, baseLine3Px.Y),
-                                   Vector2(baseLine3Px.X + currentSizePx.Width(), baseLine3Px.Y), baseLineColor);
+      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine0Px, PxPoint2(baseLine0Px.X + currentSizePx.Width(), baseLine0Px.Y),
+                                   baseLineColor);
+      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine1Px, PxPoint2(baseLine1Px.X + currentSizePx.Width(), baseLine1Px.Y),
+                                   baseLineColor);
+      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine2Px, PxPoint2(baseLine2Px.X + currentSizePx.Width(), baseLine2Px.Y),
+                                   baseLineColor);
+      m_nativeBatch->DebugDrawLine(m_resources.FillTexture, baseLine3Px, PxPoint2(baseLine3Px.X + currentSizePx.Width(), baseLine3Px.Y),
+                                   baseLineColor);
 
       m_nativeBatch->End();
     }

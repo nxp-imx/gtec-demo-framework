@@ -100,6 +100,20 @@ namespace Fsl
     FSL_PARAM_NOT_USED(demoTime);
   }
 
+
+  void BasicScene::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    FSL_PARAM_NOT_USED(frameInfo);
+  }
+
+
+  bool BasicScene::Resolve(const DemoTime& demoTime)
+  {
+    FSL_PARAM_NOT_USED(demoTime);
+    return false;
+  }
+
+
   void BasicScene::OnFrameSequenceEnd()
   {
   }

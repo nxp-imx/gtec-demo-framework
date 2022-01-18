@@ -61,6 +61,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 from FslBuildGen.Tool.Flow import ToolFlowBuild
+from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 
 JsonDictType = Dict[str, Any]
@@ -605,8 +606,10 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
         # Get the generator and see if its supported
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
-                                                                                   buildVariantConfig, config.ToolConfig.DefaultPackageLanguage,
+                                                                                   buildVariantConfig, variableContext.UserSetVariables,
+                                                                                   config.ToolConfig.DefaultPackageLanguage,
                                                                                    config.ToolConfig.CMakeConfiguration,
                                                                                    localToolConfig.GetUserCMakeConfig(), False)
         PlatformUtil.CheckBuildPlatform(generator.PlatformName)
@@ -617,7 +620,8 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
         minimalConfig = toolConfig.GetMinimalConfig(generator.CMakeConfig)
         theFiles = MainFlow.DoGetFiles(config, minimalConfig, currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
+                                            generator, variableContext)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
         #featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]

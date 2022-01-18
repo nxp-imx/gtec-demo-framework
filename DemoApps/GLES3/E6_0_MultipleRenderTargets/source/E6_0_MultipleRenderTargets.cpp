@@ -52,8 +52,10 @@ namespace Fsl
   }
 
 
-  void E6_0_MultipleRenderTargets::Draw(const DemoTime& /*demoTime*/)
+  void E6_0_MultipleRenderTargets::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     PxSize2D sizePx = GetWindowSizePx();
 
     GLint defaultFramebuffer = 0;

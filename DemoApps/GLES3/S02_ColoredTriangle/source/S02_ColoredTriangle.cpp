@@ -69,8 +69,10 @@ namespace Fsl
   }
 
 
-  void S02_ColoredTriangle::Draw(const DemoTime& /*demoTime*/)
+  void S02_ColoredTriangle::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     const PxSize2D currentSizePx = GetWindowSizePx();
     glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 

@@ -139,7 +139,7 @@ namespace Fsl
     void OnViewChanged() override;
     void BuildCommandBuffers() override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void Draw(const FrameInfo& frameInfo) override;
 
   private:
     void LoadMeshes();

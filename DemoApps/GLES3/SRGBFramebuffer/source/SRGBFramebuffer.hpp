@@ -113,7 +113,7 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event) final;
     void OnMouseButtonEvent(const MouseButtonEvent& event) final;
     void Update(const DemoTime& demoTime) final;
-    void Draw(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     void UpdateInput(const DemoTime& demoTime);

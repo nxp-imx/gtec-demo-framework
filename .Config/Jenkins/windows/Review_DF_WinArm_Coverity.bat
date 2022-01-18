@@ -10,15 +10,20 @@ if %errorlevel% neq 0 (
 )
 
 
+if not defined FSL_VS_TOOLSET_VERSION (
+set FSL_VS_TOOLSET_VERSION=142
+echo FSL_VS_TOOLSET_VERSION was not set so using a default value of '%FSL_VS_TOOLSET_VERSION%'
+)
+
 echo ******************************
 echo *** Coverity build cleanup ***
 echo ******************************
 
 if not defined FSL_CI_CMAKEOUT (
-  FslBuild.py -t sdk -vv --BuildTime --UseFeatures %FSL_CI_FEATURES% -c clean
+  FslBuild.py -t sdk  --debug -vv --BuildTime --set VS_TOOLSET_VERSION=%FSL_VS_TOOLSET_VERSION% --UseFeatures %FSL_CI_FEATURES% -c clean
 ) else (
   ECHO CMakeBuildDir='%FSL_CI_CMAKEOUT%'
-  FslBuild.py -t sdk -vv --BuildTime --UseFeatures %FSL_CI_FEATURES% -c clean --CMakeGeneratorName Ninja --CMakeBuildDir %FSL_CI_CMAKEOUT%
+  FslBuild.py -t sdk  --debug -vv --BuildTime --set VS_TOOLSET_VERSION=%FSL_VS_TOOLSET_VERSION% --UseFeatures %FSL_CI_FEATURES% -c clean --CMakeGeneratorName Ninja --CMakeBuildDir %FSL_CI_CMAKEOUT%
 )
 
 if %errorlevel% neq 0 (
@@ -42,9 +47,9 @@ if %errorlevel% neq 0 (
   exit /b %errorlevel%
 )
 if not defined FSL_CI_CMAKEOUT (
-  cov-build --dir %FSL_COVERITY_DIR% cmd.exe /c "FslBuild.py -t sdk -vv --BuildTime --UseFeatures %FSL_CI_FEATURES% %FSL_CI_BUILD_PARAM%"
+  cov-build --dir %FSL_COVERITY_DIR% cmd.exe /c "FslBuild.py -t sdk --debug -vv --BuildTime --set VS_TOOLSET_VERSION=%FSL_VS_TOOLSET_VERSION% --UseFeatures %FSL_CI_FEATURES% %FSL_CI_BUILD_PARAM%"
 ) else (
-  cov-build --dir %FSL_COVERITY_DIR% cmd.exe /c "FslBuild.py -t sdk -vv --BuildTime --UseFeatures %FSL_CI_FEATURES% %FSL_CI_BUILD_PARAM% --CMakeGeneratorName Ninja --CMakeBuildDir %FSL_CI_CMAKEOUT%"
+  cov-build --dir %FSL_COVERITY_DIR% cmd.exe /c "FslBuild.py -t sdk --debug -vv --BuildTime --set VS_TOOLSET_VERSION=%FSL_VS_TOOLSET_VERSION% --UseFeatures %FSL_CI_FEATURES% %FSL_CI_BUILD_PARAM% --CMakeGeneratorName Ninja --CMakeBuildDir %FSL_CI_CMAKEOUT%"
 )
 
 if %errorlevel% neq 0 (

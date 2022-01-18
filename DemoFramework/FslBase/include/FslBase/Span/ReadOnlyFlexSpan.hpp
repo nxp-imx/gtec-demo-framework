@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Attributes.hpp>
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <cassert>

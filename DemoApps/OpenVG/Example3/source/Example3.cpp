@@ -252,8 +252,10 @@ namespace Fsl
   }
 
 
-  void Example3::Draw(const DemoTime& demoTime)
+  void Example3::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     std::array<VGfloat, 4> afClearColour0 = {0.6f, 0.8f, 1.0f, 1.0f};
     std::array<VGfloat, 4> afClearColour1 = {0.0f, 0.0f, 0.0f, 1.0f};
     if (1 == m_scissors_direction)

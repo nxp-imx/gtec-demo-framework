@@ -43,7 +43,6 @@
 namespace Fsl
 {
   // Optimization list
-  // - Better handling of VertexBuffer attribs
   // - Dont set the camera matrix if it wasn't modified
   // - Dont set push constants if they were not modified
 
@@ -537,7 +536,8 @@ namespace Fsl
         const NativeGraphicsMaterialFactory::MaterialRecord* pMaterialRecord = m_materialFactory.TryGetMaterial(m_frame.Commands.MaterialHandle);
         if (pMaterialRecord != nullptr)
         {
-          m_materialFactory.SetAttribArrays(*pMaterialRecord);
+          const VertexElementAttribLinks& vertexElementAttribLinks = m_materialFactory.GetVertexElementAttribLinks(*pMaterialRecord);
+          m_frame.Cache.SavedState.ChangeVertexAttribsLinks(vertexElementAttribLinks);
         }
       }
 
@@ -569,7 +569,8 @@ namespace Fsl
         const NativeGraphicsMaterialFactory::MaterialRecord* pMaterialRecord = m_materialFactory.TryGetMaterial(m_frame.Commands.MaterialHandle);
         if (pMaterialRecord != nullptr)
         {
-          m_materialFactory.SetAttribArrays(*pMaterialRecord);
+          const VertexElementAttribLinks& vertexElementAttribLinks = m_materialFactory.GetVertexElementAttribLinks(*pMaterialRecord);
+          m_frame.Cache.SavedState.ChangeVertexAttribsLinks(vertexElementAttribLinks);
         }
       }
 

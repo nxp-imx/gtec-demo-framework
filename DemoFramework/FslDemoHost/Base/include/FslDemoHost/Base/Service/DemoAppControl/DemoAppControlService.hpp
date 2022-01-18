@@ -46,6 +46,17 @@ namespace Fsl
     : public ThreadLocalService
     , public IDemoAppControlEx
   {
+    struct OnDemandRenderingConfig
+    {
+      uint16_t FrameInterval{1};
+
+      OnDemandRenderingConfig() noexcept = default;
+      explicit OnDemandRenderingConfig(const uint16_t frameInterval) noexcept
+        : FrameInterval(frameInterval >= 1 ? frameInterval : 1)
+      {
+      }
+    };
+
     std::shared_ptr<IEventPoster> m_eventPoster;
     std::shared_ptr<IDemoPlatformControl> m_platformControl;
     std::shared_ptr<IWindowHostInfo> m_windowHostInfo;
@@ -59,6 +70,8 @@ namespace Fsl
     bool m_captureModeEnabled;
     uint32_t m_renderLoopMaxFramesInFlight{1};
     uint32_t m_renderLoopFrameCounter{0};
+    uint16_t m_fixedUpdatesPerSecond{1};
+    OnDemandRenderingConfig m_onDemandRendering;
 
   public:
     DemoAppControlService(const ServiceProvider& serviceProvider, const int defaultExitCode);
@@ -66,31 +79,39 @@ namespace Fsl
 
 
     // From IDemoAppControl
-    void RequestScreenshot() final;
-    void RequestAppRestart() final;
-    void RequestUpdateTimerReset() final;
+    void RequestScreenshot() noexcept final;
+    void RequestAppRestart() noexcept final;
+    void RequestUpdateTimerReset() noexcept final;
     void RequestExit() final;
     void RequestExit(const int exitCode) final;
     void ChangeExitCode(const int exitCode) final;
-    bool HasScreenshotRequest() const final;
-    bool HasAppRestartRequest() const final;
-    bool HasUpdateTimerResetRequest() const final;
-    bool HasExitRequest() const final;
-    int GetExitCode() const final;
+    bool HasScreenshotRequest() const noexcept final;
+    bool HasAppRestartRequest() const noexcept final;
+    bool HasUpdateTimerResetRequest() const noexcept final;
+    bool HasExitRequest() const noexcept final;
+    int GetExitCode() const noexcept final;
     void SetTimeStepMode(const TimeStepMode timeStepMode) final;
-    TimeStepMode GetTimeStepMode() const final;
-    uint32_t GetRenderLoopFrameCounter() const final;
+    TimeStepMode GetTimeStepMode() const noexcept final
+    {
+      return m_timestepMode;
+    }
+    uint32_t GetRenderLoopFrameCounter() const noexcept final;
     void SetRenderLoopFrameCounter(const uint32_t frameCount) final;
-    uint32_t GetRenderLoopMaxFramesInFlight() const final;
+    uint32_t GetRenderLoopMaxFramesInFlight() const noexcept final;
     bool TryEnableMouseCaptureMode(const bool enabled) final;
     void EnableMouseCaptureMode(const bool enabled) final;
-    bool GetMouseCaptureMode() final;
+    bool GetMouseCaptureMode() const noexcept final;
+    uint16_t GetFixedUpdatesPerSecond() const noexcept final;
+    void SetFixedUpdatesPerSecond(const uint16_t updatesPerSecond) final;
+    uint16_t GetOnDemandFrameInterval() const noexcept final;
+    void SetOnDemandFrameInterval(const uint16_t frameRateInterval) final;
 
     // From IDemoAppControlServiceEx
-    void ClearScreenshotRequestRequest() final;
-    void ClearAppRestartRequestRequest() final;
-    void ClearUpdateTimerResetRequest() final;
+    void ClearScreenshotRequestRequest() noexcept final;
+    void ClearAppRestartRequestRequest() noexcept final;
+    void ClearUpdateTimerResetRequest() noexcept final;
     void SetRenderLoopMaxFramesInFlight(const uint32_t maxFramesInFlight) final;
+    void RestoreDefaults() final;
 
   private:
     void DoRequestExit(const int exitCode);

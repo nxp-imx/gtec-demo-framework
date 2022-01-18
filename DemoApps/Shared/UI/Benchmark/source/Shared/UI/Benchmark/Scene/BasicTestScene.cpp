@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "BasicTestScene.hpp"
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <Shared/UI/Benchmark/App/TestAppHost.hpp>
 #include <Shared/UI/Benchmark/UIModule/ICustomWindowInfoModule.hpp>
@@ -67,14 +68,44 @@ namespace Fsl
 
   void BasicTestScene::Update(const DemoTime& demoTime)
   {
-    BasicScene::Update(demoTime);
-    m_testAppHost->AppUpdate(demoTime);
+    const DemoTime customDemoTime = ApplyCustomDemoTime(demoTime);
+    BasicScene::Update(customDemoTime);
+    m_testAppHost->AppUpdate(customDemoTime);
   }
+
+
+  bool BasicTestScene::Resolve(const DemoTime& demoTime)
+  {
+    const DemoTime customDemoTime = ApplyCustomDemoTime(demoTime);
+    return BasicScene::Resolve(customDemoTime);
+  }
+
 
   void BasicTestScene::Draw(const DemoTime& demoTime)
   {
-    BasicScene::Draw(demoTime);
-    m_testAppHost->AppDraw(demoTime);
+    const DemoTime customDemoTime = ApplyCustomDemoTime(demoTime);
+    BasicScene::Draw(customDemoTime);
+    m_testAppHost->AppDraw(customDemoTime);
+  }
+
+
+  void BasicTestScene::OnDrawSkipped(const FrameInfo& frameInfo)
+  {
+    const DemoTime customDemoTime = ApplyCustomDemoTime(frameInfo.Time);
+    FrameInfo customFrameInfo(frameInfo.FrameIndex, customDemoTime);
+    BasicScene::OnDrawSkipped(customFrameInfo);
+    m_testAppHost->AppOnDrawSkipped(customFrameInfo);
+  }
+
+
+  DemoTime BasicTestScene::ApplyCustomDemoTime(const DemoTime& demoTime) const
+  {
+    if (m_testAppHostExtensionProxy)
+    {
+      auto time = m_testAppHostExtensionProxy->TryGetDemoTime();
+      return time.ValueOr(demoTime);
+    }
+    return demoTime;
   }
 
 

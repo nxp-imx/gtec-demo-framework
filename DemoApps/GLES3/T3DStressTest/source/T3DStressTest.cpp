@@ -245,8 +245,10 @@ namespace Fsl
   }
 
 
-  void T3DStressTest::Draw(const DemoTime& /*demoTime*/)
+  void T3DStressTest::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
     //  glEnable(GL_FRONT_AND_BACK);

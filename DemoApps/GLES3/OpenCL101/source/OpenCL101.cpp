@@ -67,7 +67,8 @@ namespace Fsl
   }
 
 
-  void OpenCL101::Draw(const DemoTime& /*demoTime*/)
+  void OpenCL101::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
   }
 }

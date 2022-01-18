@@ -205,13 +205,20 @@ namespace Fsl
 
     m_anim.ColorButtonBack.SetValue(m_state == State::Ready || m_state == State::Playing ? Color::White() : Color::TransparentWhite());
     m_anim.ColorButtonRecord.SetValue(m_state == State::Recording ? Color::Red() : Color::White());
-    m_anim.Update(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+    m_anim.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
 
     m_ui.ButtonRecord->SetBaseColor(m_anim.ColorButtonRecord.GetValue());
     m_ui.ButtonBack->SetBaseColor(m_anim.ColorButtonBack.GetValue());
 
     m_ui.FrameCount->SetContent(m_state == State::Playing ? playFrameIndex : frameCount);
   }
+
+
+  bool RecordScene::Resolve(const DemoTime& demoTime)
+  {
+    return BasicTestScene::Resolve(demoTime);
+  }
+
 
   void RecordScene::Draw(const DemoTime& demoTime)
   {

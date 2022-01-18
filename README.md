@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.8.1
+# DemoFramework 5.9.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -119,13 +119,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 
 ## Reasoning
 
-While writing this we currently have thirty-six OpenGL ES 2 samples, sixty-seven OpenGL ES 3.x samples,
-fifty-six Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-three OpenVX sample and five other samples. Which is *182 sample applications*.
+While writing this we currently have thirty-eight OpenGL ES 2 samples, sixty-eight OpenGL ES 3.x samples,
+sixty-one Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and five other samples. Which is *190 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 182 * 4 = *728 build files* for the samples alone.
-Maintaining 728 or even just 184 build files would be an extremely time consuming and error prone process.
+maintain 190 * 4 = *760 build files* for the samples alone.
+Maintaining 760 or even just 190 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -261,7 +261,7 @@ Create the FlyingPigsApp sample app directory using the GLES2 template.
 ### FslBuildCheck.py
 
 Package build environment checker. Based on what features the package uses this will try to detect setup errors.
-It also has the capability to scan the source for common mistakes.
+It also has the capability to scan the source for common mistakes and it can check if the proper License.json file is provided for screenshots.
 
 ```bash
 FslBuildCheck.py
@@ -282,17 +282,6 @@ A new **work in progress* tool that helps keep the README.md files similar and t
 ```bash
 FslBuildDoc.py
 ```
-
-### FslResourceScan.py
-
-This is a stand alone tool used to scan for 'graphics' files like textures and models and determine if a there is a 'License.json'
-file accompanying them
-
-```bash
-FslResourceScan.py . -v --list
-```
-
-Scan the current directory and all it subdirectories for graphics files and license issues, then list all licenses found.
 
 # Demo application details
 
@@ -807,6 +796,13 @@ This example shows how to use the DirectVIV extension to use an existing buffer 
 
 ## GLES2.System
 
+### [BasicRenderModelLoader](DemoApps/GLES2/System/BasicRenderModelLoader)
+
+<a href="DemoApps/GLES2/System/BasicRenderModelLoader/Example.jpg"><img src="DemoApps/GLES2/System/BasicRenderModelLoader/Example.jpg" height="108px" title="GLES2.System.BasicRenderModelLoader"></a>
+
+Quick example that showcase how to mix rendering using the basic rendering API and the FslSimpleUI.
+
+
 ### [DevBasicRender](DemoApps/GLES2/System/DevBasicRender)
 
 <a href="DemoApps/GLES2/System/DevBasicRender/Example.jpg"><img src="DemoApps/GLES2/System/DevBasicRender/Example.jpg" height="108px" title="GLES2.System.DevBasicRender"></a>
@@ -850,6 +846,16 @@ It is however not a optimized way of rendering things.
 Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
 
 This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
+
+
+### [OnDemandRendering](DemoApps/GLES2/System/OnDemandRendering)
+
+<a href="DemoApps/GLES2/System/OnDemandRendering/Example.jpg"><img src="DemoApps/GLES2/System/OnDemandRendering/Example.jpg" height="108px" title="GLES2.System.OnDemandRendering"></a>
+
+Development project for on demand rendering and demonstrates how to implement it.
+It also has some basic 'janky timing' detection animations.
+
+This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
 
 
 
@@ -1454,6 +1460,13 @@ It's inspired by: [Coding Math: Episode 36 - Verlet Integration Part I+IV](https
 
 ## GLES3.System
 
+### [BasicRenderModelLoader](DemoApps/GLES3/System/BasicRenderModelLoader)
+
+<a href="DemoApps/GLES3/System/BasicRenderModelLoader/Example.jpg"><img src="DemoApps/GLES3/System/BasicRenderModelLoader/Example.jpg" height="108px" title="GLES3.System.BasicRenderModelLoader"></a>
+
+Quick example that showcase how to mix rendering using the basic rendering API and the FslSimpleUI.
+
+
 ### [DevBasicRender](DemoApps/GLES3/System/DevBasicRender)
 
 <a href="DemoApps/GLES3/System/DevBasicRender/Example.jpg"><img src="DemoApps/GLES3/System/DevBasicRender/Example.jpg" height="108px" title="GLES3.System.DevBasicRender"></a>
@@ -1488,6 +1501,16 @@ The native batch functionality works across various 3D backends and also allows 
 
 The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
 It is however not a optimized way of rendering things.
+
+
+### [OnDemandRendering](DemoApps/GLES3/System/OnDemandRendering)
+
+<a href="DemoApps/GLES3/System/OnDemandRendering/Example.jpg"><img src="DemoApps/GLES3/System/OnDemandRendering/Example.jpg" height="108px" title="GLES3.System.OnDemandRendering"></a>
+
+Development project for on demand rendering and demonstrates how to implement it.
+It also has some basic 'janky timing' detection animations.
+
+This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
 
 
 
@@ -2149,6 +2172,13 @@ This is a easy way to quickly query the hardware capabilities as reported by vul
 
 ## Vulkan.System
 
+### [BasicRenderModelLoader](DemoApps/Vulkan/System/BasicRenderModelLoader)
+
+<a href="DemoApps/Vulkan/System/BasicRenderModelLoader/Example.jpg"><img src="DemoApps/Vulkan/System/BasicRenderModelLoader/Example.jpg" height="108px" title="Vulkan.System.BasicRenderModelLoader"></a>
+
+Quick example that showcase how to mix rendering using the basic rendering API and the FslSimpleUI.
+
+
 ### [DevBasicRender](DemoApps/Vulkan/System/DevBasicRender)
 
 <a href="DemoApps/Vulkan/System/DevBasicRender/Example.jpg"><img src="DemoApps/Vulkan/System/DevBasicRender/Example.jpg" height="108px" title="Vulkan.System.DevBasicRender"></a>
@@ -2201,6 +2231,16 @@ It is however not a optimized way of rendering things.
 Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
 
 This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
+
+
+### [OnDemandRendering](DemoApps/Vulkan/System/OnDemandRendering)
+
+<a href="DemoApps/Vulkan/System/OnDemandRendering/Example.jpg"><img src="DemoApps/Vulkan/System/OnDemandRendering/Example.jpg" height="108px" title="Vulkan.System.OnDemandRendering"></a>
+
+Development project for on demand rendering and demonstrates how to implement it.
+It also has some basic 'janky timing' detection animations.
+
+This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
 
 
 

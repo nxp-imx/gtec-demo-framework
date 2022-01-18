@@ -34,9 +34,9 @@
 #include <FslBase/Collections/HandleVector.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeMaterialAttribHandle.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/VertexElementAttribLinks.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <FslUtil/OpenGLES2/GLVertexAttribLink.hpp>
-#include <FslUtil/OpenGLES2/GLVertexElementAttribLinks.hpp>
 #include <array>
 
 namespace Fsl
@@ -50,13 +50,13 @@ namespace Fsl
       struct AttribConfigRecord
       {
         uint32_t RefCount{0};
-        GLVertexElementAttribLinks VertexElementAttribLinks;
+        VertexElementAttribLinks AttribLinks;
 
         AttribConfigRecord() = default;
 
         AttribConfigRecord(const VertexDeclarationSpan& vertexDeclaration, const ReadOnlySpan<GLVertexAttribLink>& attribLinks)
           : RefCount(1)
-          , VertexElementAttribLinks(vertexDeclaration, attribLinks)
+          , AttribLinks(vertexDeclaration, attribLinks)
         {
         }
       };
@@ -71,10 +71,9 @@ namespace Fsl
 
       bool ReleaseConfig(const NativeMaterialAttribHandle handle);
 
-      void ApplyAttribArrays(const NativeMaterialAttribHandle handle)
+      const VertexElementAttribLinks& GetVertexElementAttribLinks(const NativeMaterialAttribHandle handle) const
       {
-        AttribConfigRecord& record = m_records.Get(handle.Value);
-        record.VertexElementAttribLinks.EnableAttribArrays();
+        return m_records.Get(handle.Value).AttribLinks;
       }
 
     private:

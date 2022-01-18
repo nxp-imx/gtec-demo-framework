@@ -286,7 +286,7 @@ namespace Fsl
   }
 
 
-  void DirectMultiSamplingVideoYUV::Draw(const DemoTime& demoTime)
+  void DirectMultiSamplingVideoYUV::Draw(const FrameInfo& frameInfo)
   {
     pthread_mutex_lock(&gstThreadMutex);
     pthread_cond_wait(&gstCON, &gstThreadMutex);

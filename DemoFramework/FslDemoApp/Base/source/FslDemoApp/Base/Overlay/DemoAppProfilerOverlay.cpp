@@ -129,15 +129,15 @@ namespace Fsl
         {
           if (showFPS && showMilliseconds)
           {
-            fmt::format_to(m_scracthpad, "{:5.1f}FPS {:4.1f}ms", frameTime.GetFramePerSecond(), frameTime.TotalTime / 1000.0f);
+            fmt::format_to(std::back_inserter(m_scracthpad), "{:5.1f}FPS {:4.1f}ms", frameTime.GetFramePerSecond(), frameTime.TotalTime / 1000.0f);
           }
           else if (showFPS)
           {
-            fmt::format_to(m_scracthpad, "{:5.1f}FPS", frameTime.GetFramePerSecond());
+            fmt::format_to(std::back_inserter(m_scracthpad), "{:5.1f}FPS", frameTime.GetFramePerSecond());
           }
           else if (showMilliseconds)
           {
-            fmt::format_to(m_scracthpad, "{:4.1f}ms", frameTime.TotalTime / 1000.0f);
+            fmt::format_to(std::back_inserter(m_scracthpad), "{:4.1f}ms", frameTime.TotalTime / 1000.0f);
           }
         }
         if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU) && m_cpuStatsService)
@@ -146,7 +146,7 @@ namespace Fsl
           if (m_cpuStatsService->TryGetApplicationCpuUsage(cpuUsage))
           {
             m_graphCPU.Add(static_cast<int32_t>(std::round(cpuUsage * 10.0f)));
-            fmt::format_to(m_scracthpad, "{}{:5.1f}cpu", m_scracthpad.size() > 0 ? " " : "", cpuUsage);
+            fmt::format_to(std::back_inserter(m_scracthpad), "{}{:5.1f}cpu", m_scracthpad.size() > 0 ? " " : "", cpuUsage);
           }
         }
 
@@ -163,7 +163,7 @@ namespace Fsl
           while (itr != m_customCounters.end())
           {
             m_scracthpad.clear();
-            fmt::format_to(m_scracthpad, itr->FormatString.data(), m_profilerService->Get(itr->Handle));
+            fmt::format_to(std::back_inserter(m_scracthpad), itr->FormatString.data(), m_profilerService->Get(itr->Handle));
             if (m_scracthpad.size() > 0u)
             {
               basic2D->DrawString(StringViewLite(m_scracthpad.data(), m_scracthpad.size()), dstPos);

@@ -38,6 +38,10 @@ namespace Fsl
   class ServiceRegistryUnavailableException : public std::runtime_error
   {
   public:
+    explicit ServiceRegistryUnavailableException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit ServiceRegistryUnavailableException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -48,6 +52,10 @@ namespace Fsl
   class ServiceInterfaceHasMultipleProvidersException : public std::runtime_error
   {
   public:
+    explicit ServiceInterfaceHasMultipleProvidersException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit ServiceInterfaceHasMultipleProvidersException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -58,6 +66,10 @@ namespace Fsl
   class UnknownServiceException : public std::runtime_error
   {
   public:
+    explicit UnknownServiceException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
     explicit UnknownServiceException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -68,6 +80,11 @@ namespace Fsl
   class InvalidServiceFactoryException : public std::runtime_error
   {
   public:
+    explicit InvalidServiceFactoryException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit InvalidServiceFactoryException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {
@@ -78,6 +95,11 @@ namespace Fsl
   class ServiceInterfaceRegisteredAsDifferentTypeException : public std::runtime_error
   {
   public:
+    explicit ServiceInterfaceRegisteredAsDifferentTypeException(const char* const pszWhatArg)
+      : std::runtime_error(pszWhatArg)
+    {
+    }
+
     explicit ServiceInterfaceRegisteredAsDifferentTypeException(const std::string& whatArg)
       : std::runtime_error(whatArg)
     {

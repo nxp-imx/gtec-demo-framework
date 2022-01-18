@@ -316,37 +316,37 @@ namespace Fsl
         }
 
 
-        const BasicImageSpriteMeshRecord& FastGetBasicImageSprite(const int32_t handle) const noexcept
+        const BasicImageSpriteMeshRecord& UncheckedGetBasicImageSprite(const int32_t handle) const noexcept
         {
           return m_meshesBasicImageSprite.FastGet(handle);
         }
 
-        const BasicNineSliceSpriteMeshRecord& FastGetBasicNineSliceSprite(const int32_t handle) const noexcept
+        const BasicNineSliceSpriteMeshRecord& UncheckedGetBasicNineSliceSprite(const int32_t handle) const noexcept
         {
           return m_meshesBasicNineSliceSprite.FastGet(handle);
         }
 
-        const ImageSpriteMeshRecord& FastGetImageSprite(const int32_t handle) const noexcept
+        const ImageSpriteMeshRecord& UncheckedGetImageSprite(const int32_t handle) const noexcept
         {
           return m_meshesImageSprite.FastGet(handle);
         }
 
-        const NineSliceSpriteMeshRecord& FastGetNineSliceSprite(const int32_t handle) const noexcept
+        const NineSliceSpriteMeshRecord& UncheckedGetNineSliceSprite(const int32_t handle) const noexcept
         {
           return m_meshesNineSliceSprite.FastGet(handle);
         }
 
-        const OptimizedNineSliceSpriteMeshRecord& FastGetOptimizedNineSliceSprite(const int32_t handle) const noexcept
+        const OptimizedNineSliceSpriteMeshRecord& UncheckedGetOptimizedNineSliceSprite(const int32_t handle) const noexcept
         {
           return m_meshesOptimizedNineSliceSprite.FastGet(handle);
         }
 
-        const SpriteFontMeshRecord& FastGetSpriteFont(const int32_t handle) const noexcept
+        const SpriteFontMeshRecord& UncheckedGetSpriteFont(const int32_t handle) const noexcept
         {
           return m_meshesSpriteFont.FastGet(handle);
         }
 
-        // const MeshRecord& FastGet(const int32_t handle) const noexcept
+        // const MeshRecord& UncheckedGet(const int32_t handle) const noexcept
         //{
         //  return m_meshes.FastGet(handle);
         //}

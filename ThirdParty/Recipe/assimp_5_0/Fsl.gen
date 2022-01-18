@@ -55,8 +55,8 @@
         </Pipeline>
         <Installation>
           <AddHeaders Name="include"/>
-          <AddLib Name="lib/assimp-vc142-mt.lib"/>
-          <AddDLL Name="bin/assimp-vc142-mt.dll"/>
+          <AddLib Name="lib/assimp-vc${VS_TOOLSET_VERSION}-mt.lib"/>
+          <AddDLL Name="bin/assimp-vc${VS_TOOLSET_VERSION}-mt.dll"/>
           <Path Name="include/assimp/Importer.hpp" Method="IsFile"/>
           <Path Name="include/assimp/mesh.h" Method="IsFile"/>
           <Path Name="include/assimp/scene.h" Method="IsFile"/>

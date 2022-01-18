@@ -138,8 +138,10 @@ namespace Fsl
   }
 
 
-  void Gears::Draw(const DemoTime& /*demoTime*/)
+  void Gears::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     vkDeviceWaitIdle(m_device.Get());
     {
       if (!TryPrepareFrame())

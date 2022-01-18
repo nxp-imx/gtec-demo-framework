@@ -69,8 +69,9 @@ namespace Fsl
   }
 
 
-  void Blur::Draw(const DemoTime& /*demoTime*/)
+  void Blur::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
     m_scene->Draw();
   }
 }
