@@ -180,14 +180,15 @@ namespace Fsl
     private:
       static inline VertexAttribState ToVertexAttribState(const GLVertexElementAttribConfig& entry, const GLint vertexStride) noexcept
       {
-        return {GL_TRUE, {entry.Size, UncheckedNumericCast<GLint>(entry.Type), entry.Normalized != GL_FALSE, vertexStride, entry.Pointer}};
+        return {true, {entry.Size, UncheckedNumericCast<GLint>(entry.Type), entry.Normalized != GL_FALSE, vertexStride, entry.Pointer}};
       }
 
 
       static inline void SetAttribIfChanged(const GLuint attribIndex, const VertexAttribState& currentState,
                                             const VertexAttribState& newState) noexcept
       {
-        if (currentState.Basic != newState.Basic)
+        // When a buffer is new buffer is bound its not enough to check that the state was not changed
+        // if (currentState.Basic != newState.Basic)
         {
           TVertexAttribStateFunctor::SetBasicAttrib(attribIndex, newState.Basic);
         }
@@ -223,7 +224,6 @@ namespace Fsl
       {
         assert(cacheIndex < m_count);
         auto& rEntry = m_vertexAttribs[cacheIndex];
-        if (rEntry.CurrentState != vertexAttribState)
         {
           // Update the current state to the newly supplied one
           SetAttribIfChanged(rEntry.AttribIndex, rEntry.CurrentState, vertexAttribState);
