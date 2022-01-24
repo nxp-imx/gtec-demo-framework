@@ -65,8 +65,12 @@ namespace Fsl
       char baseBuffer[20] = "/dev/input/";
 
       // Grep the available input devices to look for a Keyboard
-      system("grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+' > KBevent.txt");
-      system("sync");
+      int res = system("grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+' > KBevent.txt");
+      FSLLOG3_WARNING_IF(res != 0, "grep failed with {}", res);
+
+      res = system("sync");
+      FSLLOG3_WARNING_IF(res != 0, "sync failed with {}", res);
+
       std::ifstream fileStream("KBevent.txt", std::ios::in);
       if (!fileStream.good())
       {

@@ -465,11 +465,18 @@ namespace Fsl
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(display->zDelta, display->mousePosition));
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 
     const wl_pointer_listener pointer_listener = {
       PointerHandleEnter, PointerHandleLeave, PointerHandleMotion, PointerHandleButton, PointerHandleAxis,
     };
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     void KeyboardHandleKeymap(void* data, wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size)
     {
@@ -636,10 +643,18 @@ namespace Fsl
     {
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 
     const wl_keyboard_listener keyboard_listener = {
       KeyboardHandleKeymap, KeyboardHandleEnter, KeyboardHandleLeave, KeyboardHandleKey, KeyboardHandleModifiers,
     };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     static void print_global_info(void* data)
     {
@@ -848,13 +863,13 @@ namespace Fsl
       wl_list_insert(&display->outputs, &output->global_link);
     }
 
-    static void print_infos(struct wl_list* infos)
-    {
-      struct global_info* info;
-      assert(infos != nullptr);
+    // static void print_infos(struct wl_list* infos)
+    // {
+    //   struct global_info* info;
+    //   assert(infos != nullptr);
 
-      wl_list_for_each(info, infos, link) info->print(info);
-    }
+    //   wl_list_for_each(info, infos, link) info->print(info);
+    // }
 
     static void destroy_info(void* data)
     {
@@ -904,10 +919,18 @@ namespace Fsl
       }
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
     const wl_seat_listener seat_listener = {
       SeatHandleCapabilities,
     };
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     void RegistryHandleGlobal(void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
     {

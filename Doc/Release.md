@@ -1,5 +1,9 @@
 # Releases
 
+## Release 5.9.2
+
+* Fixed OpenVX.Stereo compilation issue with new versions of OpenCV.
+
 ## Release 5.9.1
 
 * Bug fix: GLES2+GLES3 BasicRender state cache was too aggressive.

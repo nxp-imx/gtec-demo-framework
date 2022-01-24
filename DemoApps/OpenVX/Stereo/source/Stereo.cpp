@@ -317,8 +317,8 @@ namespace Fsl
       resize(imgrRGB, imgrRGB, m_mSize1);
     }
 
-    cvtColor(imgrRGB, m_mImgr1, CV_BGR2GRAY);
-    cvtColor(imglRGB, m_mImgl1, CV_BGR2GRAY);
+    cvtColor(imgrRGB, m_mImgr1, cv::COLOR_BGRA2GRAY);
+    cvtColor(imglRGB, m_mImgl1, cv::COLOR_BGRA2GRAY);
 
     /*********************************************************************************************
     * Prepare different resolutions using gaussian pyramid (using OpenCV),

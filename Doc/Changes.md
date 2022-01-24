@@ -1,5 +1,13 @@
 # Latest version
 
+## Release 5.9.2
+
+* Fixed OpenVX.Stereo compilation issue with new versions of OpenCV.
+
+## Release 5.9.1
+
+* Bug fix: GLES2+GLES3 BasicRender state cache was too aggressive.
+
 ## Release 5.9
 
 * Updated FMT to 8.1.1
