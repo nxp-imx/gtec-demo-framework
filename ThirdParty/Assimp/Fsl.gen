@@ -5,7 +5,7 @@
     <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_ENABLE_ASSIMP" Access="Public"/> 
     <Platform Name="Android;QNX;Ubuntu;Windows" Supported="true">
-      <Dependency Name="Recipe.assimp_5_0"/>
+      <Dependency Name="Recipe.assimp_5_2"/>
     </Platform>  
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="assimp" Type="StaticLib"/>

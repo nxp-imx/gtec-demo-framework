@@ -40,7 +40,12 @@
 namespace Fsl
 {
   struct PxPoint2;
-  struct TransitionTimeSpan;
+  struct TimeSpan;
+
+  namespace DataBinding
+  {
+    class DataBindingService;
+  }
 
   namespace UI
   {
@@ -87,8 +92,10 @@ namespace Fsl
       UIManager(const UIManager&) = delete;
       UIManager& operator=(const UIManager&) = delete;
 
-      explicit UIManager(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics);
-      explicit UIManager(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
+      explicit UIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService, std::unique_ptr<IRenderSystem> renderSystem,
+                         const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics);
+      explicit UIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService, std::unique_ptr<IRenderSystem> renderSystem,
+                         const bool useYFlipTextureCoordinates, const BasicWindowMetrics& windowMetrics,
                          ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> externalModuleFactories);
       ~UIManager();
 
@@ -114,8 +121,8 @@ namespace Fsl
       void ProcessEvents();
 
       void Resized(const BasicWindowMetrics& windowMetrics);
-      void FixedUpdate(const TransitionTimeSpan& timespan);
-      void Update(const TransitionTimeSpan& timespan);
+      void FixedUpdate(const TimeSpan& timespan);
+      void Update(const TimeSpan& timespan);
       void PreDraw();
       void Draw(RenderPerformanceCapture* const pPerformanceCapture);
       void PostDraw();

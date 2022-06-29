@@ -54,6 +54,8 @@ class GitUtil(object):
             (strVersion, err) = proc.communicate()
             proc.wait()
             strVersion = strVersion.strip()
+            if len(strVersion) != 40 or '\n' in strVersion or '\r' in strVersion or '\t' in strVersion:
+                strVersion = None
         finally:
             if proc.stdout is not None:
                 proc.stdout.close()

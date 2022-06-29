@@ -71,15 +71,15 @@ namespace Fsl
         std::promise<bool> Promise;
 
         explicit ActivityRecord(std::shared_ptr<FakeActivity> activity, const Color color, TransitionCache& rTransitionCache,
-                                const TransitionTimeSpan timespan)
+                                const TimeSpan transitionTimeSpan)
           : Activity(std::move(activity))
-          , BaseColor(rTransitionCache, timespan, TransitionType::Smooth)
+          , BaseColor(rTransitionCache, transitionTimeSpan, TransitionType::Smooth)
         {
           BaseColor.SetActualValue(Color::TransparentWhite());
           BaseColor.SetValue(color);
         }
 
-        void Update(const TransitionTimeSpan& deltaTime)
+        void Update(const TimeSpan& deltaTime)
         {
           BaseColor.Update(deltaTime);
         }
@@ -120,7 +120,7 @@ namespace Fsl
       void OnKeyEvent(const KeyEvent& event);
 
     protected:
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) override;
+      void UpdateAnimation(const TimeSpan& timeSpan) override;
       bool UpdateAnimationState(const bool forceCompleteAnimation) override;
     };
   }

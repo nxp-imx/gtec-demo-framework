@@ -72,10 +72,12 @@ namespace Fsl
       assert(static_cast<float>(m_extentPx.Height) >= 0.0f);
       assert(imageRectanglePx.Right() <= m_extentPx.Width);
       assert(imageRectanglePx.Bottom() <= m_extentPx.Height);
-      return {imageRectanglePx.Left() == 0 ? 0.0f : imageRectanglePx.Left() / static_cast<float>(m_extentPx.Width),
-              imageRectanglePx.Top() == 0 ? 0.0f : imageRectanglePx.Top() / static_cast<float>(m_extentPx.Height),
-              imageRectanglePx.Right() >= m_extentPx.Width ? 1.0f : imageRectanglePx.Right() / static_cast<float>(m_extentPx.Width),
-              imageRectanglePx.Bottom() >= m_extentPx.Height ? 1.0f : imageRectanglePx.Bottom() / static_cast<float>(m_extentPx.Height)};
+      return {imageRectanglePx.Left() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Left()) / static_cast<float>(m_extentPx.Width),
+              imageRectanglePx.Top() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Top()) / static_cast<float>(m_extentPx.Height),
+              imageRectanglePx.Right() >= m_extentPx.Width ? 1.0f
+                                                           : static_cast<float>(imageRectanglePx.Right()) / static_cast<float>(m_extentPx.Width),
+              imageRectanglePx.Bottom() >= m_extentPx.Height ? 1.0f
+                                                             : static_cast<float>(imageRectanglePx.Bottom()) / static_cast<float>(m_extentPx.Height)};
     }
   };
 }

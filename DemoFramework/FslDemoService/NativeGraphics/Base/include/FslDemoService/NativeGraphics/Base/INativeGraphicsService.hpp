@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Rectangle.hpp>
-#include <FslGraphics/PixelFormat.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Rectangle.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 
 namespace Fsl

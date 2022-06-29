@@ -214,6 +214,6 @@ namespace Fsl
         return *itrFind;
       }
     }
-    return ServiceLaunchRecord();
+    return {};
   }
 }

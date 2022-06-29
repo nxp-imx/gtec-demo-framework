@@ -34,6 +34,7 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
+#include <FslBase/NumericCast.hpp>
 
 namespace Fsl
 {
@@ -49,9 +50,11 @@ namespace Fsl
 
     //! @param srcRect the untrimmed rect
     //! @param trimmedRect he trimmed rect
-    constexpr AtlasTextureInfo(const PxRectangleU32& trimmedRectPx, const PxThicknessU& trimPx, const uint32_t dpi) noexcept
-      : ExtentPx(trimmedRectPx.Width + trimPx.SumX(), trimmedRectPx.Height + trimPx.SumY())
-      , OffsetPx(trimmedRectPx.X - trimPx.Left, trimmedRectPx.Y - trimPx.Top)
+    constexpr AtlasTextureInfo(const PxRectangleU32& trimmedRectPx, const PxThicknessU& trimPx, const uint32_t dpi)
+      : ExtentPx(NumericCast<PxPoint2::value_type>(trimmedRectPx.Width) + trimPx.SumX(),
+                 NumericCast<PxPoint2::value_type>(trimmedRectPx.Height) + trimPx.SumY())
+      , OffsetPx(NumericCast<PxPoint2::value_type>(trimmedRectPx.X) - NumericCast<PxPoint2::value_type>(trimPx.Left),
+                 NumericCast<PxPoint2::value_type>(trimmedRectPx.Y) - NumericCast<PxPoint2::value_type>(trimPx.Top))
       , TrimmedRectPx(trimmedRectPx)
       , TrimMarginPx(trimPx)
       , Dpi(dpi)

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_RENDEROPTIONFLAGS_HPP
 #define FSLSIMPLEUI_RENDER_BASE_RENDEROPTIONFLAGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,55 +33,53 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class RenderOptionFlags : uint32_t
   {
-    enum class RenderOptionFlags : uint32_t
-    {
-      NoFlags = 0x00,
-      Batch = 0x01,
-      FillBuffers = 0x02,
-      DepthBuffer = 0x04,
-      DrawReorder = 0x08,
-      MeshCaching = 0x10,
-    };
+    NoFlags = 0x00,
+    Batch = 0x01,
+    FillBuffers = 0x02,
+    DepthBuffer = 0x04,
+    DrawReorder = 0x08,
+    MeshCaching = 0x10,
+    PreferFastReorder = 0x20,
+  };
 
-    constexpr inline RenderOptionFlags operator|(const RenderOptionFlags lhs, const RenderOptionFlags rhs) noexcept
-    {
-      return static_cast<RenderOptionFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-    }
-
-    constexpr inline RenderOptionFlags operator&(const RenderOptionFlags lhs, const RenderOptionFlags rhs) noexcept
-    {
-      return static_cast<RenderOptionFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-    }
-
-
-    namespace RenderOptionFlagsUtil
-    {
-      constexpr inline bool IsEnabled(const RenderOptionFlags srcFlag, RenderOptionFlags flag) noexcept
-      {
-        return (srcFlag & flag) == flag;
-      }
-
-      constexpr inline void Enable(RenderOptionFlags& rDstFlag, RenderOptionFlags flag) noexcept
-      {
-        rDstFlag = rDstFlag | flag;
-      }
-
-
-      constexpr inline void Disable(RenderOptionFlags& rDstFlag, RenderOptionFlags flag) noexcept
-      {
-        rDstFlag = rDstFlag & (RenderOptionFlags(~static_cast<uint32_t>(flag)));
-      }
-
-      constexpr inline void Set(RenderOptionFlags& rDstFlag, RenderOptionFlags flag, const bool enabled) noexcept
-      {
-        rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (RenderOptionFlags(~static_cast<uint32_t>(flag))));
-      }
-    };
+  constexpr inline RenderOptionFlags operator|(const RenderOptionFlags lhs, const RenderOptionFlags rhs) noexcept
+  {
+    return static_cast<RenderOptionFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
+
+  constexpr inline RenderOptionFlags operator&(const RenderOptionFlags lhs, const RenderOptionFlags rhs) noexcept
+  {
+    return static_cast<RenderOptionFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+
+  namespace RenderOptionFlagsUtil
+  {
+    constexpr inline bool IsEnabled(const RenderOptionFlags srcFlag, RenderOptionFlags flag) noexcept
+    {
+      return (srcFlag & flag) == flag;
+    }
+
+    constexpr inline void Enable(RenderOptionFlags& rDstFlag, RenderOptionFlags flag) noexcept
+    {
+      rDstFlag = rDstFlag | flag;
+    }
+
+
+    constexpr inline void Disable(RenderOptionFlags& rDstFlag, RenderOptionFlags flag) noexcept
+    {
+      rDstFlag = rDstFlag & (static_cast<RenderOptionFlags>(~static_cast<uint32_t>(flag)));
+    }
+
+    constexpr inline void Set(RenderOptionFlags& rDstFlag, RenderOptionFlags flag, const bool enabled) noexcept
+    {
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<RenderOptionFlags>(~static_cast<uint32_t>(flag))));
+    }
+  };
 }
 
 #endif

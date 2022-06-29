@@ -6,11 +6,11 @@
  * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
  */
 
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanTextOverlay.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <RapidVulkan/Check.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanTextOverlay.hpp>
 #include <array>
 #include <cassert>
 #include <cstring>

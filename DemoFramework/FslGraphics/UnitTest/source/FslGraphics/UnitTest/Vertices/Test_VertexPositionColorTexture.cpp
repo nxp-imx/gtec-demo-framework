@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -75,10 +75,10 @@ TEST(TestVertices_VertexPositionColorTexture, Construct)
 
 TEST(TestVertices_VertexPositionColorTexture, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
+  const VertexElement expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexDeclaration(VertexPositionColorTexture::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexPositionColorTexture), vertexDecl.VertexStride());
@@ -113,10 +113,10 @@ TEST(TestVertices_VertexPositionColorTexture, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPositionColorTexture, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
+  const VertexElement expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexPositionColorTexture::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexPositionColorTexture), vertexDecl.VertexStride());
@@ -151,10 +151,10 @@ TEST(TestVertices_VertexPositionColorTexture, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexPositionColorTexture, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionColorTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionColorTexture, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0u);
+  const VertexElement expected2(offsetof(VertexPositionColorTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexPositionColorTexture::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionColorTexture), vertexDecl.VertexStride());

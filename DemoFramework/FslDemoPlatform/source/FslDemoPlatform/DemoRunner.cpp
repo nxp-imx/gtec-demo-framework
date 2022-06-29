@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/ExceptionMessageFormatter.hpp>
-#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
@@ -42,18 +42,18 @@
 #include <FslDemoHost/Base/IDemoHost.hpp>
 #include <FslDemoHost/Base/IDemoHostFactory.hpp>
 #include <FslDemoHost/Base/Service/Options/IOptionsServiceControl.hpp>
-#include <FslDemoPlatform/DemoRunner.hpp>
 #include <FslDemoPlatform/DemoHostManager.hpp>
+#include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
+#include <FslDemoPlatform/DemoRunner.hpp>
 #include <FslDemoPlatform/Setup/DemoBasicSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoSetupManager.hpp>
-#include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <FslService/Impl/ServiceFramework.hpp>
 #include <FslService/Impl/ServiceOptionParserDeque.hpp>
 #include <FslService/Impl/Threading/IServiceHostLooper.hpp>
+#include <array>
 #include <cassert>
 #include <csignal>
 #include <cstdlib>
-#include <array>
 #include <cstring>
 #include <deque>
 #include <memory>
@@ -282,7 +282,7 @@ namespace Fsl
 
       auto serviceLooper = serviceFramework->GetServiceHostLooper();
       // Run the demo
-      auto returnValue = demoHostManager->Run(serviceLooper);
+      auto returnValue = demoHostManager->Run(serviceLooper, demoRunnerConfig.MainLoopCallbackFunction);
 
       // Kill the threads and give the looper one last chance to process messages
       serviceFramework.reset();

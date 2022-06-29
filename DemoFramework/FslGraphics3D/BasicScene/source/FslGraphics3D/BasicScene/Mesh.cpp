@@ -29,126 +29,123 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/PrimitiveTypeUtil.hpp>
+#include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  Mesh::Mesh()
+    : m_vertexCount(0)
+    , m_indexCount(0)
+    , m_primitiveType(PrimitiveType::TriangleList)
+    , m_primitiveCount(0)
+    , m_materialIndex(0)
+    , m_isValid(false)
   {
-    Mesh::Mesh()
-      : m_vertexCount(0)
-      , m_indexCount(0)
-      , m_primitiveType(PrimitiveType::TriangleList)
-      , m_primitiveCount(0)
-      , m_materialIndex(0)
-      , m_isValid(false)
+  }
+
+
+  Mesh::Mesh(const int32_t vertexCount, const int32_t indexCount, const PrimitiveType primitiveType)
+    : m_vertexCount(static_cast<uint32_t>(vertexCount))
+    , m_indexCount(static_cast<uint32_t>(indexCount))
+    , m_primitiveType(primitiveType)
+    , m_primitiveCount(0)
+    , m_materialIndex(0)
+    , m_isValid(true)
+  {
+    if (vertexCount < 0 || indexCount < 0)
     {
+      throw std::invalid_argument("vertexCount and indexCount can not be less than zero");
     }
 
+    m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
+  }
 
-    Mesh::Mesh(const int32_t vertexCount, const int32_t indexCount, const PrimitiveType primitiveType)
-      : m_vertexCount(static_cast<uint32_t>(vertexCount))
-      , m_indexCount(static_cast<uint32_t>(indexCount))
-      , m_primitiveType(primitiveType)
-      , m_primitiveCount(0)
-      , m_materialIndex(0)
-      , m_isValid(true)
+
+  Mesh::Mesh(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType)
+    : m_vertexCount(static_cast<uint32_t>(vertexCount))
+    , m_indexCount(static_cast<uint32_t>(indexCount))
+    , m_primitiveType(primitiveType)
+    , m_primitiveCount(0)
+    , m_materialIndex(0)
+    , m_isValid(true)
+  {
+    if (vertexCount > std::numeric_limits<uint32_t>::max() || indexCount > std::numeric_limits<uint32_t>::max())
     {
-      if (vertexCount < 0 || indexCount < 0)
-      {
-        throw std::invalid_argument("vertexCount and indexCount can not be less than zero");
-      }
+      throw NotSupportedException("We only support 'count 32bit' elements");
+    }
+    m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
+  }
 
-      m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
+
+  void Mesh::Reset()
+  {
+    m_vertexCount = 0;
+    m_indexCount = 0;
+    m_primitiveType = PrimitiveType::TriangleList;
+    m_primitiveCount = 0;
+    m_name.Clear();
+    m_materialIndex = 0;
+    m_isValid = false;
+  }
+
+
+  void Mesh::Reset(const int32_t vertexCount, const int32_t indexCount, const PrimitiveType primitiveType)
+  {
+    if (vertexCount < 0 || indexCount < 0)
+    {
+      throw std::invalid_argument("vertexCount and indexCount can not be less than zero");
     }
 
+    m_vertexCount = vertexCount;
+    m_indexCount = indexCount;
+    m_primitiveType = primitiveType;
+    m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
+    m_name.Clear();
+    m_materialIndex = 0;
+    m_isValid = true;
+  }
 
-    Mesh::Mesh(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType)
-      : m_vertexCount(static_cast<uint32_t>(vertexCount))
-      , m_indexCount(static_cast<uint32_t>(indexCount))
-      , m_primitiveType(primitiveType)
-      , m_primitiveCount(0)
-      , m_materialIndex(0)
-      , m_isValid(true)
+
+  void Mesh::Reset(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType)
+  {
+    if (vertexCount > std::numeric_limits<uint32_t>::max() || indexCount > std::numeric_limits<uint32_t>::max())
     {
-      if (vertexCount > std::numeric_limits<uint32_t>::max() || indexCount > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("We only support 'count 32bit' elements");
-      }
-      m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
+      throw NotSupportedException("We only support 'count 32bit' elements");
     }
 
-
-    void Mesh::Reset()
-    {
-      m_vertexCount = 0;
-      m_indexCount = 0;
-      m_primitiveType = PrimitiveType::TriangleList;
-      m_primitiveCount = 0;
-      m_name.Clear();
-      m_materialIndex = 0;
-      m_isValid = false;
-    }
+    m_vertexCount = static_cast<uint32_t>(vertexCount);
+    m_indexCount = static_cast<uint32_t>(indexCount);
+    m_primitiveType = primitiveType;
+    m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
+    m_name.Clear();
+    m_materialIndex = 0;
+    m_isValid = true;
+  }
 
 
-    void Mesh::Reset(const int32_t vertexCount, const int32_t indexCount, const PrimitiveType primitiveType)
-    {
-      if (vertexCount < 0 || indexCount < 0)
-      {
-        throw std::invalid_argument("vertexCount and indexCount can not be less than zero");
-      }
-
-      m_vertexCount = vertexCount;
-      m_indexCount = indexCount;
-      m_primitiveType = primitiveType;
-      m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
-      m_name.Clear();
-      m_materialIndex = 0;
-      m_isValid = true;
-    }
+  void Mesh::SetMaterialIndex(const uint32_t materialIndex)
+  {
+    m_materialIndex = materialIndex;
+  }
 
 
-    void Mesh::Reset(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType)
-    {
-      if (vertexCount > std::numeric_limits<uint32_t>::max() || indexCount > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("We only support 'count 32bit' elements");
-      }
-
-      m_vertexCount = static_cast<uint32_t>(vertexCount);
-      m_indexCount = static_cast<uint32_t>(indexCount);
-      m_primitiveType = primitiveType;
-      m_primitiveCount = PrimitiveTypeUtil::CalcPrimitiveCount(m_indexCount, primitiveType);
-      m_name.Clear();
-      m_materialIndex = 0;
-      m_isValid = true;
-    }
+  const UTF8String& Mesh::GetName() const
+  {
+    return m_name;
+  }
 
 
-    void Mesh::SetMaterialIndex(const uint32_t materialIndex)
-    {
-      m_materialIndex = materialIndex;
-    }
+  void Mesh::SetName(const UTF8String& name)
+  {
+    m_name = name;
+  }
 
 
-    const UTF8String& Mesh::GetName() const
-    {
-      return m_name;
-    }
-
-
-    void Mesh::SetName(const UTF8String& name)
-    {
-      m_name = name;
-    }
-
-
-    bool Mesh::IsValid() const
-    {
-      return m_isValid;
-    }
+  bool Mesh::IsValid() const
+  {
+    return m_isValid;
   }
 }

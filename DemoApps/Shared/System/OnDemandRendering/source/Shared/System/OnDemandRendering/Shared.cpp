@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/OnDemandRendering/Shared.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/NumericCast.hpp>
@@ -43,18 +42,20 @@
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
+#include <FslSimpleUI/Controls/Charts/Common/ChartGridLinesFps.hpp>
+#include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
-#include <Shared/System/OnDemandRendering/Chart/AreaChartData.hpp>
-#include <Shared/System/OnDemandRendering/Chart/AreaChartCountData.hpp>
+#include <Shared/System/OnDemandRendering/Chart/CustomChartGridLines.hpp>
+#include <Shared/System/OnDemandRendering/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -120,14 +121,22 @@ namespace Fsl
     , m_nativeBatch(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D())
     , m_renderSystem(config.DemoServiceProvider.Get<IGraphicsService>()->GetBasicRenderSystem())
     , m_defaults(m_demoAppControl->GetFixedUpdatesPerSecond(), m_demoAppControl->GetOnDemandFrameInterval())
-    , m_dataUpdate(std::make_shared<UI::AreaChartData>(config.WindowMetrics.ExtentPx.Width, LocalConfig::MaxProfileDataEntries))
+    , m_dataUpdate(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), config.WindowMetrics.ExtentPx.Width,
+                                                   LocalConfig::MaxProfileDataEntries, UI::ChartData::Constraints(0, {})))
     , m_dataUpdateAverage(LocalConfig::AverageEntries)
-    , m_dataDraw(std::make_shared<UI::AreaChartData>(config.WindowMetrics.ExtentPx.Width, LocalConfig::MaxProfileDataEntries))
+    , m_dataDraw(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), config.WindowMetrics.ExtentPx.Width,
+                                                 LocalConfig::MaxProfileDataEntries, UI::ChartData::Constraints(0, {})))
     , m_dataDrawAverage(LocalConfig::AverageEntries)
-    , m_dataFixedUpdate(std::make_shared<UI::AreaChartCountData>(config.WindowMetrics.ExtentPx.Width, LocalConfig::MaxProfileDataEntries))
+    , m_dataFixedUpdate(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), config.WindowMetrics.ExtentPx.Width,
+                                                        LocalConfig::MaxProfileDataEntries, UI::ChartData::Constraints(0, 2)))
     , m_dataFixedUpdateAverage(LocalConfig::AverageEntries)
     , m_onDemandRendering(LocalConfig::SwitchOnDemandDefault, LocalConfig::DefaultFrameInterval, m_defaults.OnDemandFrameInterval)
   {
+    m_dataUpdate->SetChannelMetaData(0, LocalConfig::ChartColor);
+    m_dataDraw->SetChannelMetaData(0, LocalConfig::ChartColor);
+    m_dataFixedUpdate->SetChannelMetaData(0, LocalConfig::ChartColor);
+
+
     auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
     const auto hasCpuUsage = static_cast<bool>(m_cpuStatsService);
 
@@ -284,16 +293,16 @@ namespace Fsl
   {
     {
       // Fixed update call count
-      UI::ChartComplexDataEntry entry;
+      UI::ChartDataEntry entry;
       entry.Values[0] = m_fixedUpdateCount;
       m_dataFixedUpdate->Append(entry);
       m_dataFixedUpdateAverage.Append(entry);
       m_fixedUpdateCount = 0;
     }
     {    // Update
-      UI::ChartComplexDataEntry entry;
+      UI::ChartDataEntry entry;
       auto updateTime = TimeSpanUtil::ToClampedMicrosecondsUInt64(demoTime.ElapsedTime);
-      entry.Values[0] = UncheckedNumericCast<uint32_t>(MathHelper::Clamp(updateTime, uint64_t(0), uint64_t(0xFFFFFFFF)));
+      entry.Values[0] = UncheckedNumericCast<uint32_t>(MathHelper::Clamp(updateTime, static_cast<uint64_t>(0), static_cast<uint64_t>(0xFFFFFFFF)));
       m_dataUpdate->Append(entry);
       m_dataUpdateAverage.Append(entry);
       {
@@ -361,9 +370,9 @@ namespace Fsl
 
 
     {    // Draw
-      UI::ChartComplexDataEntry entry;
+      UI::ChartDataEntry entry;
       auto drawTime = TimeSpanUtil::ToClampedMicrosecondsUInt64(demoTime.ElapsedTime);
-      entry.Values[0] = UncheckedNumericCast<uint32_t>(MathHelper::Clamp(drawTime, uint64_t(0), uint64_t(0xFFFFFFFF)));
+      entry.Values[0] = UncheckedNumericCast<uint32_t>(MathHelper::Clamp(drawTime, static_cast<uint64_t>(0), static_cast<uint64_t>(0xFFFFFFFF)));
       m_dataDraw->Append(entry);
       m_dataDrawAverage.Append(entry);
     }
@@ -436,8 +445,8 @@ namespace Fsl
         const int32_t smallBox2Position = record1.Box2Position;
         const int32_t smallBox3Position = record1.Box3Position;
 
-        const uint32_t lineStart = smallStartPos;
-        const uint32_t lineEnd = lineStart + (smallBoxYAdd * 3) + smallDemoBlockSize;
+        const int32_t lineStart = smallStartPos;
+        const int32_t lineEnd = lineStart + (smallBoxYAdd * 3) + smallDemoBlockSize;
         for (std::size_t i = 0; i < timingRecords.size(); ++i)
         {
           const auto& entry = timingRecords[i];
@@ -467,8 +476,8 @@ namespace Fsl
         const int32_t slowBox3Position = record2.Box3Position;
 
         yPos = smallStartPos2;
-        uint32_t lineStart = yPos;
-        const uint32_t lineEnd = lineStart + (smallBoxYAdd * 3) + smallDemoBlockSize;
+        int32_t lineStart = yPos;
+        const int32_t lineEnd = lineStart + (smallBoxYAdd * 3) + smallDemoBlockSize;
         {
           const int32_t lineX1 = slowBox0Position - 1;
           const int32_t lineX2 = slowBox0Position + smallDemoBlockSize;
@@ -586,10 +595,9 @@ namespace Fsl
   }
 
 
-  Shared::UIRecord Shared::CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::IChartComplexDataWindow>& dataUpdate,
-                                    const std::shared_ptr<UI::IChartComplexDataWindow>& dataDraw,
-                                    const std::shared_ptr<UI::IChartComplexDataWindow>& dataFixedUpdate, const uint16_t fixedUpdatesPerSecond,
-                                    const OnDemandState& onDemandRendering, const bool hasCpuStats)
+  Shared::UIRecord Shared::CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::AChartData>& dataUpdate,
+                                    const std::shared_ptr<UI::AChartData>& dataDraw, const std::shared_ptr<UI::AChartData>& dataFixedUpdate,
+                                    const uint16_t fixedUpdatesPerSecond, const OnDemandState& onDemandRendering, const bool hasCpuStats)
   {
     auto context = uiFactory.GetContext();
 
@@ -627,16 +635,19 @@ namespace Fsl
     auto updateFmtLabel = uiFactory.CreateFmtValueLabel(0.0f, u8"{:.0f}\u03BCs");
     updateFmtLabel->SetAlignmentX(UI::ItemAlignment::Far);
     updateFmtLabel->SetAlignmentY(UI::ItemAlignment::Far);
+
+    auto gridLines = std::make_shared<UI::ChartGridLinesFps>();
     auto updateChart = std::make_shared<UI::AreaChart>(context);
     {
       updateChart->SetAlignmentX(UI::ItemAlignment::Stretch);
       updateChart->SetAlignmentY(UI::ItemAlignment::Stretch);
       updateChart->SetOpaqueFillSprite(uiFactory.GetResources().GetBasicFillSprite(true));
       updateChart->SetTransparentFillSprite(uiFactory.GetResources().GetBasicFillSprite(false));
-      updateChart->SetData(dataUpdate);
+      updateChart->SetGridLines(gridLines);
+      updateChart->SetDataView(dataUpdate);
       updateChart->SetFont(uiFactory.GetResources().GetDefaultSpriteFont());
       updateChart->SetLabelBackground(uiFactory.GetResources().GetToolTipNineSliceSprite());
-      updateChart->SetEntryColor(0, LocalConfig::ChartColor);
+      updateChart->SetRenderPolicy(UI::ChartRenderPolicy::FillAvailable);
     }
 
     auto drawLabel = uiFactory.CreateLabel("Draw delta-time");
@@ -649,10 +660,11 @@ namespace Fsl
       drawChart->SetAlignmentY(UI::ItemAlignment::Stretch);
       drawChart->SetOpaqueFillSprite(uiFactory.GetResources().GetBasicFillSprite(true));
       drawChart->SetTransparentFillSprite(uiFactory.GetResources().GetBasicFillSprite(false));
-      drawChart->SetData(dataDraw);
+      drawChart->SetGridLines(gridLines);
+      drawChart->SetDataView(dataDraw);
       drawChart->SetFont(uiFactory.GetResources().GetDefaultSpriteFont());
       drawChart->SetLabelBackground(uiFactory.GetResources().GetToolTipNineSliceSprite());
-      drawChart->SetEntryColor(0, LocalConfig::ChartColor);
+      drawChart->SetRenderPolicy(UI::ChartRenderPolicy::FillAvailable);
     }
 
     auto fixedUpdateLabel = uiFactory.CreateLabel("Fixed update count");
@@ -665,10 +677,11 @@ namespace Fsl
       fixedUpdateChart->SetAlignmentY(UI::ItemAlignment::Stretch);
       fixedUpdateChart->SetOpaqueFillSprite(uiFactory.GetResources().GetBasicFillSprite(true));
       fixedUpdateChart->SetTransparentFillSprite(uiFactory.GetResources().GetBasicFillSprite(false));
-      fixedUpdateChart->SetData(dataFixedUpdate);
+      fixedUpdateChart->SetGridLines(gridLines);
+      fixedUpdateChart->SetDataView(dataFixedUpdate);
       fixedUpdateChart->SetFont(uiFactory.GetResources().GetDefaultSpriteFont());
       fixedUpdateChart->SetLabelBackground(uiFactory.GetResources().GetToolTipNineSliceSprite());
-      fixedUpdateChart->SetEntryColor(0, LocalConfig::ChartColor);
+      fixedUpdateChart->SetRenderPolicy(UI::ChartRenderPolicy::FillAvailable);
     }
 
     auto play = CreatePlayUI(uiFactory, context);
@@ -808,7 +821,7 @@ namespace Fsl
 
     auto lbl0 = uiFactory.CreateFmtValueLabel(0.0f, "{:.1f}");
     auto lbl1 = uiFactory.CreateFmtValueLabel(0.0f, "{:.1f}");
-    auto lbl2 = uiFactory.CreateFmtValueLabel(uint32_t(0));
+    auto lbl2 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
     lbl0->SetAlignmentX(UI::ItemAlignment::Far);
     lbl1->SetAlignmentX(UI::ItemAlignment::Far);
     lbl2->SetAlignmentX(UI::ItemAlignment::Far);

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,73 +29,70 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/ContainerTypeConvert.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::ContainerTypeConvert
 {
-  namespace ContainerTypeConvert
+  Texture Convert(Bitmap&& bitmap)
   {
-    Texture Convert(Bitmap&& bitmap)
+    if (!bitmap.IsValid())
     {
-      if (!bitmap.IsValid())
-      {
-        return Texture();
-      }
-
-      // Extract all relevant information about the bitmap
-      RawBitmap rawBitmap;
-      {
-        Bitmap::ScopedDirectAccess access(bitmap, rawBitmap);
-      }
-      // Beware the rawBitmap pointers are not valid anymore
-
-      std::vector<uint8_t> contentVector;
-      bitmap.ReleaseInto(contentVector);
-      // Bitmap has now been reset, so dont use it
-
-      return Texture(std::move(contentVector), rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin());
+      return {};
     }
 
-
-    Bitmap Convert(Texture&& texture)
+    // Extract all relevant information about the bitmap
+    RawBitmap rawBitmap;
     {
-      if (!texture.IsValid())
-      {
-        return Bitmap();
-      }
-      if (texture.GetLevels() != 1 || texture.GetFaces() != 1 || texture.GetLayers() != 1)
-      {
-        throw std::invalid_argument("the texture did not contain one image");
-      }
-      if (texture.GetTextureType() != TextureType::Tex1D && texture.GetTextureType() != TextureType::Tex2D)
-      {
-        throw std::invalid_argument("the texture did not contain one image");
-      }
-
-      const auto pixelFormat = texture.GetPixelFormat();
-      if (PixelFormatUtil::IsCompressed(pixelFormat))
-      {
-        throw std::invalid_argument("the texture can not be compressed");
-      }
-
-      const auto stride = texture.GetStride();
-      if (stride > std::numeric_limits<uint32_t>::max())
-      {
-        throw std::invalid_argument("the texture stride is not supported");
-      }
-
-      const auto origin = texture.GetBitmapOrigin();
-      const auto extent = texture.GetExtent();
-
-      std::vector<uint8_t> contentVector;
-      texture.ReleaseInto(contentVector);
-      // Texture has now been reset, so dont use it
-
-      return Bitmap(std::move(contentVector), PxExtent2D(extent.Width, extent.Height), pixelFormat, static_cast<uint32_t>(stride), origin);
+      Bitmap::ScopedDirectAccess access(bitmap, rawBitmap);
     }
+    // Beware the rawBitmap pointers are not valid anymore
+
+    std::vector<uint8_t> contentVector;
+    bitmap.ReleaseInto(contentVector);
+    // Bitmap has now been reset, so dont use it
+
+    return {std::move(contentVector), rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin()};
+  }
+
+
+  Bitmap Convert(Texture&& texture)
+  {
+    if (!texture.IsValid())
+    {
+      return {};
+    }
+    if (texture.GetLevels() != 1 || texture.GetFaces() != 1 || texture.GetLayers() != 1)
+    {
+      throw std::invalid_argument("the texture did not contain one image");
+    }
+    if (texture.GetTextureType() != TextureType::Tex1D && texture.GetTextureType() != TextureType::Tex2D)
+    {
+      throw std::invalid_argument("the texture did not contain one image");
+    }
+
+    const auto pixelFormat = texture.GetPixelFormat();
+    if (PixelFormatUtil::IsCompressed(pixelFormat))
+    {
+      throw std::invalid_argument("the texture can not be compressed");
+    }
+
+    const auto stride = texture.GetStride();
+    if (stride > std::numeric_limits<uint32_t>::max())
+    {
+      throw std::invalid_argument("the texture stride is not supported");
+    }
+
+    const auto origin = texture.GetBitmapOrigin();
+    const auto extent = texture.GetExtent();
+
+    std::vector<uint8_t> contentVector;
+    texture.ReleaseInto(contentVector);
+    // Texture has now been reset, so dont use it
+
+    return {std::move(contentVector), PxExtent2D(extent.Width, extent.Height), pixelFormat, static_cast<uint32_t>(stride), origin};
   }
 }

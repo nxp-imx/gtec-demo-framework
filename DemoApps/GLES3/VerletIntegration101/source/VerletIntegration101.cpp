@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslBase/Math/VectorHelper.hpp>
+#include "VerletIntegration101.hpp"
 #include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/Math/VectorHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include "VerletIntegration101.hpp"
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
 #include <iostream>
 
@@ -73,8 +73,8 @@ namespace Fsl
 
 
     auto screenResolution = config.ScreenResolution;
-    const auto safeX = static_cast<int32_t>(screenResolution.X * 0.10f);
-    const auto safeY = static_cast<int32_t>(screenResolution.Y * 0.10f);
+    const auto safeX = static_cast<int32_t>(static_cast<float>(screenResolution.X) * 0.10f);
+    const auto safeY = static_cast<int32_t>(static_cast<float>(screenResolution.Y) * 0.10f);
     m_boundaryRect = PxRectangle(safeX, safeY, screenResolution.X - (2 * safeX), screenResolution.Y - (2 * safeY));
 
     auto offsetX = static_cast<float>(safeX);
@@ -220,7 +220,7 @@ namespace Fsl
   void VerletIntegration101::DrawParticles(const std::deque<Particle>& particles)
   {
     const Vector2 scale(0.2f, 0.2f);
-    const Vector2 origin(m_texBall.GetSize().Width() * 0.5f, m_texBall.GetSize().Height() * 0.5f);
+    const Vector2 origin(static_cast<float>(m_texBall.GetSize().Width()) * 0.5f, static_cast<float>(m_texBall.GetSize().Height()) * 0.5f);
     const auto color = Color::White();
 
     for (auto itr = particles.begin(); itr != particles.end(); ++itr)

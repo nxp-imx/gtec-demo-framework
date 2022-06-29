@@ -33,19 +33,10 @@
 
 #include "../RenderDrawSpriteType.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch::Debug
 {
-  namespace UI
-  {
-    namespace RenderIMBatch
-    {
-      namespace Debug
-      {
-        const char* TryToString(const RenderDrawSpriteType& value);
-        const char* ToString(const RenderDrawSpriteType& value);
-      }
-    }
-  }
+  const char* TryToString(const RenderDrawSpriteType& value);
+  const char* ToString(const RenderDrawSpriteType& value);
 }
 
 #endif

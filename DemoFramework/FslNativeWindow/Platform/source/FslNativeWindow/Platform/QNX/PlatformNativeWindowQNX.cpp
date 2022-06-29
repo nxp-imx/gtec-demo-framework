@@ -30,16 +30,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/QNX/PlatformNativeWindowQNX.hpp>
-#include <FslNativeWindow/Platform/QNX/PlatformNativeWindowSystemQNX.hpp>
-#include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
-#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
-#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
+#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
+#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <FslNativeWindow/Platform/QNX/PlatformNativeWindowQNX.hpp>
+#include <FslNativeWindow/Platform/QNX/PlatformNativeWindowSystemQNX.hpp>
 #include <iostream>
 
 #if 0

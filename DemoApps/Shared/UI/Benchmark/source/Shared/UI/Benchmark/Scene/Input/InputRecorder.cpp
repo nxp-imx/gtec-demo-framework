@@ -31,8 +31,8 @@
 
 #include "InputRecorder.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/Pixel/FmtPxRectangle.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxRectangle.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>

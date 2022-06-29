@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/IBasicGpuProfiler.hpp>
 #include <RapidVulkan/QueryPool.hpp>
+#include <Shared/UI/Benchmark/IBasicGpuProfiler.hpp>
 
 namespace Fsl
 {

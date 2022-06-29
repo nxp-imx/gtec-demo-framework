@@ -37,36 +37,33 @@
 #include <string>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class StringArrayCopy
   {
-    class StringArrayCopy
+    std::vector<std::string> m_stringArray;
+    std::vector<const char*> m_stringPointers;
+
+  public:
+    StringArrayCopy(const StringArrayCopy&) = delete;
+    StringArrayCopy& operator=(const StringArrayCopy&) = delete;
+
+    StringArrayCopy& operator=(StringArrayCopy&& other) noexcept;
+    StringArrayCopy(StringArrayCopy&& other) noexcept;
+
+    StringArrayCopy();
+    StringArrayCopy(const char* const* ppStrings, const uint32_t entries);
+
+    const char* const* data() const
     {
-      std::vector<std::string> m_stringArray;
-      std::vector<const char*> m_stringPointers;
+      return m_stringPointers.data();
+    }
 
-    public:
-      StringArrayCopy(const StringArrayCopy&) = delete;
-      StringArrayCopy& operator=(const StringArrayCopy&) = delete;
-
-      StringArrayCopy& operator=(StringArrayCopy&& other) noexcept;
-      StringArrayCopy(StringArrayCopy&& other) noexcept;
-
-      StringArrayCopy();
-      StringArrayCopy(const char* const* ppStrings, const uint32_t entries);
-
-      const char* const* data() const
-      {
-        return m_stringPointers.data();
-      }
-
-      std::size_t size() const
-      {
-        return m_stringPointers.size();
-      }
-    };
-  }
+    std::size_t size() const
+    {
+      return m_stringPointers.size();
+    }
+  };
 }
 
 #endif

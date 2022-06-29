@@ -318,7 +318,7 @@ namespace Fsl
 
     // Select Our Texture
     glActiveTexture(GL_TEXTURE0);
-    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer.GetGLCapacity());
 
     // Cleanup
     vertexBuffer.DisableAttribArrays();
@@ -342,7 +342,7 @@ namespace Fsl
     // Load the texture (we use a scope here, so the bitmap objects is thrown away as soon as we dont need it)
     Texture texture = contentManager->ReadTexture("Texturing.png", PixelFormat::R8G8B8_UNORM);
     GLTextureParameters params(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-    return GLTexture(texture, params, TextureFlags::GenerateMipMaps);
+    return {texture, params, TextureFlags::GenerateMipMaps};
   }
 
 

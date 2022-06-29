@@ -29,13 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/LabelBase.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslSimpleUI/Base/Control/LabelBase.hpp>
 #include <FslSimpleUI/Base/ItemAlignmentUtil.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
@@ -44,115 +47,164 @@
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  using TClass = LabelBase;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyFontColor = TFactory::Create<Color, TClass, &TClass::GetFontColor, &TClass::SetFontColor>("FontColor");
+  TDef TClass::PropertyFontDisabledColor =
+    TFactory::Create<Color, TClass, &TClass::GetFontDisabledColor, &TClass::SetFontDisabledColor>("FontDisabledColor");
+  TDef TClass::PropertyContentAlignmentX =
+    TFactory::Create<ItemAlignment, TClass, &TClass::GetContentAlignmentX, &TClass::SetContentAlignmentX>("ContentAlignmentX");
+  TDef TClass::PropertyContentAlignmentY =
+    TFactory::Create<ItemAlignment, TClass, &TClass::GetContentAlignmentY, &TClass::SetContentAlignmentY>("ContentAlignmentY");
+}
+
+namespace Fsl::UI
+{
+  LabelBase::LabelBase(const std::shared_ptr<WindowContext>& context)
+    : BaseWindow(context)
+    , m_windowContext(context)
+    , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
   {
-    LabelBase::LabelBase(const std::shared_ptr<WindowContext>& context)
-      : BaseWindow(context)
-      , m_windowContext(context)
-      , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
+    Enable(WindowFlags(WindowFlags::DrawEnabled));
+  }
+
+  bool LabelBase::SetEnabled(const bool enabled)
+  {
+    const bool modified = enabled != m_enabled;
+    if (modified)
     {
-      Enable(WindowFlags(WindowFlags::DrawEnabled));
+      m_enabled = enabled;
+      PropertyUpdated(PropertyType::Other);
     }
+    return modified;
+  }
 
-    bool LabelBase::SetEnabled(const bool enabled)
+
+  bool LabelBase::SetContentAlignmentX(const ItemAlignment value)
+  {
+    const bool changed = m_propertyContentAlignmentX.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      const bool modified = enabled != m_enabled;
-      if (modified)
-      {
-        m_enabled = enabled;
-        PropertyUpdated(PropertyType::Other);
-      }
-      return modified;
+      PropertyUpdated(PropertyType::Alignment);
     }
+    return changed;
+  }
 
 
-    void LabelBase::SetContentAlignmentX(const ItemAlignment& value)
+  bool LabelBase::SetContentAlignmentY(const ItemAlignment value)
+  {
+    const bool changed = m_propertyContentAlignmentY.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      if (value != m_contentAlignmentX)
-      {
-        m_contentAlignmentX = value;
-        PropertyUpdated(PropertyType::Alignment);
-      }
+      PropertyUpdated(PropertyType::Alignment);
     }
+    return changed;
+  }
 
 
-    void LabelBase::SetContentAlignmentY(const ItemAlignment& value)
+  void LabelBase::SetFont(const std::shared_ptr<SpriteFont>& value)
+  {
+    if (m_font.SetSprite(value))
     {
-      if (value != m_contentAlignmentY)
-      {
-        m_contentAlignmentY = value;
-        PropertyUpdated(PropertyType::Alignment);
-      }
+      PropertyUpdated(PropertyType::Content);
     }
+  }
 
-
-    void LabelBase::SetFont(const std::shared_ptr<SpriteFont>& value)
+  bool LabelBase::SetFontColor(const Color value)
+  {
+    const bool changed = m_propertyFontColor.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      if (m_font.SetSprite(value))
-      {
-        PropertyUpdated(PropertyType::Content);
-      }
+      PropertyUpdated(PropertyType::Other);
     }
+    return changed;
+  }
 
-    void LabelBase::SetFontColor(const Color& color)
+  bool LabelBase::SetFontDisabledColor(const Color value)
+  {
+    const bool changed = m_propertyFontDisabledColor.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      if (color != m_fontColor)
-      {
-        m_fontColor = color;
-        PropertyUpdated(PropertyType::Other);
-      }
+      PropertyUpdated(PropertyType::Other);
     }
+    return changed;
+  }
 
-    void LabelBase::SetFontDisabledColor(const Color& color)
+  void LabelBase::WinDraw(const UIDrawContext& context)
+  {
+    BaseWindow::WinDraw(context);
+
+    if (!m_font.IsValid() || m_font.GetText().empty())
     {
-      if (color != m_fontDisabledColor)
-      {
-        m_fontDisabledColor = color;
-        PropertyUpdated(PropertyType::Other);
-      }
-    }
-
-    void LabelBase::WinDraw(const UIDrawContext& context)
-    {
-      BaseWindow::WinDraw(context);
-
-      if (!m_font.IsValid() || m_font.GetText().empty())
-      {
-        return;
-      }
-
-
-      PxSize2D stringSizePx = m_font.Measure();
-      auto dstPosPxf = context.TargetRect.TopLeft();
-
-      auto renderSizePx = RenderSizePx();
-      // NOLINTNEXTLINE(bugprone-integer-division)
-      dstPosPxf.X += static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_contentAlignmentX, renderSizePx.Width() - stringSizePx.Width()));
-      // NOLINTNEXTLINE(bugprone-integer-division)
-      dstPosPxf.Y += static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_contentAlignmentY, renderSizePx.Height() - stringSizePx.Height()));
-
-      const auto& color = m_enabled ? m_fontColor : m_fontDisabledColor;
-      context.CommandBuffer.Draw(m_font.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
+      return;
     }
 
 
-    PxSize2D LabelBase::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      return finalSizePx;
-    }
+    PxSize2D stringSizePx = m_font.Measure();
+    auto dstPosPxf = context.TargetRect.TopLeft();
+
+    auto renderSizePx = RenderSizePx();
+    dstPosPxf.X +=
+      static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentX.Get(), renderSizePx.Width() - stringSizePx.Width()));
+    dstPosPxf.Y +=
+      static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentY.Get(), renderSizePx.Height() - stringSizePx.Height()));
+
+    const auto color = m_enabled ? m_propertyFontColor.Get() : m_propertyFontDisabledColor.Get();
+    context.CommandBuffer.Draw(m_font.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
+  }
 
 
-    PxSize2D LabelBase::MeasureOverride(const PxAvailableSize& availableSizePx)
-    {
-      FSL_PARAM_NOT_USED(availableSizePx);
-      const auto content = DoGetContent();
-      m_font.SetText(content);
+  PxSize2D LabelBase::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    return finalSizePx;
+  }
 
-      auto measureRes = m_font.ComplexMeasure();
-      m_cachedMeasureMinimalFontSizePx = measureRes.MinimalSizePx;
-      return measureRes.MeasureSizePx;
-    }
+
+  PxSize2D LabelBase::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    FSL_PARAM_NOT_USED(availableSizePx);
+    const auto content = DoGetContent();
+    m_font.SetText(content);
+
+    auto measureRes = m_font.ComplexMeasure();
+    m_cachedMeasureMinimalFontSizePx = measureRes.MinimalSizePx;
+    return measureRes.MeasureSizePx;
+  }
+
+
+  DataBinding::DataBindingInstanceHandle LabelBase::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
+      DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
+    return res.IsValid() ? res : BaseWindow::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult LabelBase::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                    const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
+                                                                  DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor),
+                                                                  DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
+                                                                  DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : BaseWindow::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void LabelBase::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    BaseWindow::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyFontColor);
+    rProperties.push_back(PropertyFontDisabledColor);
+    rProperties.push_back(PropertyContentAlignmentX);
+    rProperties.push_back(PropertyContentAlignmentY);
   }
 }

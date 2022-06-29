@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "E3_0_InstancingSimple.hpp"
 #include <array>
+#include "E3_0_InstancingSimple.hpp"
 
 namespace Fsl
 {

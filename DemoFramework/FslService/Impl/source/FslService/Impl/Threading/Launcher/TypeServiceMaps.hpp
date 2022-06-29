@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <utility>
+#include "ServiceDeque.hpp"
 #include "TypeServiceMap.hpp"
 #include "TypeServiceMapEx.hpp"
-#include "ServiceDeque.hpp"
 
 namespace Fsl
 {

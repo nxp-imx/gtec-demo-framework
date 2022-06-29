@@ -30,10 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "MeshRenderBasic.hpp"
-#include "Shader/ShaderBase.hpp"
-#include <cassert>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <cassert>
+#include "Shader/ShaderBase.hpp"
 
 namespace Fsl
 {
@@ -48,18 +49,18 @@ namespace Fsl
     , m_indices(mesh.GetIndexCount())
     , m_primitiveType(GLUtil::Convert(mesh.GetPrimitiveType()))
   {
-    const int indexCount = mesh.GetIndexCount();
+    const uint32_t indexCount = mesh.GetIndexCount();
     const uint16_t* pSrcIndices = mesh.GetIndices();
     const VertexPositionNormalTexture* const src = mesh.GetVertices();
-    const int vertexCount = mesh.GetVertexCount();
-    for (int i = 0; i < vertexCount; ++i)
+    const uint32_t vertexCount = mesh.GetVertexCount();
+    for (uint32_t i = 0; i < vertexCount; ++i)
     {
       m_vertices[i] = src[i].Position;
       m_normals[i] = src[i].Normal;
       m_textureCoords[i] = src[i].TextureCoordinate;
     }
 
-    for (int i = 0; i < indexCount; ++i)
+    for (uint32_t i = 0; i < indexCount; ++i)
     {
       m_indices[i] = static_cast<unsigned short>(pSrcIndices[i]);
     }
@@ -94,12 +95,12 @@ namespace Fsl
 
   void MeshRenderBasic::Draw()
   {
-    glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_indices.data());
+    glDrawElements(m_primitiveType, UncheckedNumericCast<GLsizei>(m_indexCount), GL_UNSIGNED_SHORT, m_indices.data());
   }
 
   void MeshRenderBasic::DrawInstanced(const int layerCount)
   {
-    glDrawElementsInstanced(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_indices.data(), layerCount);
+    glDrawElementsInstanced(m_primitiveType, UncheckedNumericCast<GLsizei>(m_indexCount), GL_UNSIGNED_SHORT, m_indices.data(), layerCount);
   }
 
   void MeshRenderBasic::Unbind()

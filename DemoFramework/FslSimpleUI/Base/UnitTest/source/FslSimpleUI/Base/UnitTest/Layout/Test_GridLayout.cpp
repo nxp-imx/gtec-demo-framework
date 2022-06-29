@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/UnitTest/Helper/Common.hpp>
-#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
-#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
 #include <FslBase/Log/Math/LogVector2.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
@@ -1341,7 +1341,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_Stretch_OneStarByAutoT
 
   const int32_t availableStarHeight =
     m_defaultSizePx.Height() - 1;    // to ensure that any rounding of the available space for stars will cause issues
-  const auto halfAvailableStarHeight = static_cast<int32_t>(std::round(availableStarHeight / 2.0f));
+  const auto halfAvailableStarHeight = static_cast<int32_t>(std::round(static_cast<float>(availableStarHeight) / 2.0f));
   // const int32_t minWidthCell0 = std::max(std::max(controlDesiredSize0Px.Width(), controlDesiredSize1Px.Width()), controlDesiredSize2Px.Width());
 
   // Since we have two star rows we expect the space to be equally divided

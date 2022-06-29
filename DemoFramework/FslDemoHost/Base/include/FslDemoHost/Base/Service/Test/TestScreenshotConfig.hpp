@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics/ImageFormat.hpp>
 #include <FslDemoHost/Base/Service/Test/TestScreenshotNameScheme.hpp>
+#include <FslGraphics/ImageFormat.hpp>
 #include <string>
 #include <utility>
 

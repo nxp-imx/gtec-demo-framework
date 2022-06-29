@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_VERTICES_READONLYFLEXVERTEXSPANUTIL_VECTOR_HPP
 #define FSLGRAPHICS_VERTICES_READONLYFLEXVERTEXSPANUTIL_VECTOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,51 +37,48 @@
 #include <exception>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::ReadOnlyFlexVertexSpanUtil
 {
-  namespace ReadOnlyFlexVertexSpanUtil
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+  // std::vector<T>
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+  template <typename T>
+  constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value, VertexDeclarationSpan vertexDeclaration)
   {
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-    // std::vector<T>
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-    template <typename T>
-    constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value, VertexDeclarationSpan vertexDeclaration)
+    if (sizeof(T) != vertexDeclaration.VertexStride())
     {
-      if (sizeof(T) != vertexDeclaration.VertexStride())
-      {
-        throw std::invalid_argument("elements are not compatible with the vertex declaration");
-      }
-      return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration);
+      throw std::invalid_argument("elements are not compatible with the vertex declaration");
     }
+    return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration);
+  }
 
-    template <typename T>
-    constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value, VertexDeclarationSpan vertexDeclaration,
-                                                   const OptimizationCheckFlag flag) noexcept
-    {
-      assert(sizeof(T) == vertexDeclaration.VertexStride());
-      return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration, flag);
-    }
+  template <typename T>
+  constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value, VertexDeclarationSpan vertexDeclaration,
+                                                 const OptimizationCheckFlag flag) noexcept
+  {
+    assert(sizeof(T) == vertexDeclaration.VertexStride());
+    return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration, flag);
+  }
 
-    template <typename T>
-    constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value)
+  template <typename T>
+  constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value)
+  {
+    const VertexDeclarationSpan vertexDeclaration(T::AsVertexDeclarationSpan());
+    if (sizeof(T) != vertexDeclaration.VertexStride())
     {
-      const VertexDeclarationSpan vertexDeclaration(T::AsVertexDeclarationSpan());
-      if (sizeof(T) != vertexDeclaration.VertexStride())
-      {
-        throw std::invalid_argument("elements are not compatible with the vertex declaration");
-      }
-      return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration);
+      throw std::invalid_argument("elements are not compatible with the vertex declaration");
     }
+    return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration);
+  }
 
-    template <typename T>
-    constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value, const OptimizationCheckFlag flag) noexcept
-    {
-      const VertexDeclarationSpan vertexDeclaration(T::AsVertexDeclarationSpan());
-      assert(sizeof(T) == vertexDeclaration.VertexStride());
-      return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration, flag);
-    }
+  template <typename T>
+  constexpr inline ReadOnlyFlexVertexSpan AsSpan(const std::vector<T>& value, const OptimizationCheckFlag flag)
+  {
+    const VertexDeclarationSpan vertexDeclaration(T::AsVertexDeclarationSpan());
+    assert(sizeof(T) == vertexDeclaration.VertexStride());
+    return ReadOnlyFlexVertexSpan(value.data(), value.size(), vertexDeclaration, flag);
   }
 }
 

@@ -32,204 +32,170 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Attributes.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <FslUtil/OpenGLES3/GLBindAttribLocation.hpp>
 #include <FslUtil/OpenGLES3/GLShader.hpp>
-#include <FslBase/Attributes.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES2/gl2.h>
-#include <deque>
 #include <functional>
 #include <string>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLProgram
   {
-    class GLProgram
+    GLuint m_handle;
+
+  public:
+    GLProgram(const GLProgram&) = delete;
+    GLProgram& operator=(const GLProgram&) = delete;
+
+    //! @brief Move assignment operator
+    GLProgram& operator=(GLProgram&& other) noexcept
     {
-      GLuint m_handle;
-
-    public:
-      GLProgram(const GLProgram&) = delete;
-      GLProgram& operator=(const GLProgram&) = delete;
-
-      //! @brief Move assignment operator
-      GLProgram& operator=(GLProgram&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          m_handle = other.m_handle;
-
-          // Remove the data from other
-          other.m_handle = GLValues::INVALID_HANDLE;
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLProgram(GLProgram&& other) noexcept
-        : m_handle(other.m_handle)
-      {
+        // Claim ownership here
+        m_handle = other.m_handle;
+
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
       }
+      return *this;
+    }
 
-      //! @brief Create a uninitialized program, use Reset to configure it
-      GLProgram();
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLProgram(GLProgram&& other) noexcept
+      : m_handle(other.m_handle)
+    {
+      // Remove the data from other
+      other.m_handle = GLValues::INVALID_HANDLE;
+    }
 
-      //! @brief Let this GLProgram object assume control over the given program handle.
-      explicit GLProgram(const GLuint handle);
+    //! @brief Create a uninitialized program, use Reset to configure it
+    GLProgram();
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader, const std::deque<std::string>& attributes);
+    //! @brief Let this GLProgram object assume control over the given program handle.
+    explicit GLProgram(const GLuint handle);
 
-      //! @brief Create a program from the supplied vertex, fragment shader.
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader);
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const std::string& strAttribute);
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const char* const* const pAttributes);
+    //! @brief Create a program from the supplied vertex, fragment shader.
+    GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const std::deque<std::string>& attributes);
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader, const std::deque<std::string>& attributes,
-                const std::function<void(GLuint)>& postCompilePreLinkCallback);
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
+    GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes,
+              const std::function<void(GLuint)>& postCompilePreLinkCallback);
 
-      //! @brief Create a program from the supplied vertex, fragment shader.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader,
-                const std::function<void(GLuint)>& postCompilePreLinkCallback);
+    //! @brief Create a program from the supplied vertex, fragment shader.
+    //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
+    GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader,
+              const std::function<void(GLuint)>& postCompilePreLinkCallback);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const std::string& strAttribute,
-                const std::function<void(GLuint)>& postCompilePreLinkCallback);
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
+    GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes,
+              const std::function<void(GLuint)>& postCompilePreLinkCallback);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const char* const* const pAttributes,
-                const std::function<void(GLuint)>& postCompilePreLinkCallback);
+    ~GLProgram();
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      GLProgram(const std::string& strVertexShader, const std::string& strFragmentShader, const std::deque<std::string>& attributes,
-                const std::function<void(GLuint)>& postCompilePreLinkCallback);
+    //! @brief Check if this contains a valid gl handle.
+    bool IsValid() const noexcept
+    {
+      return m_handle != GLValues::INVALID_HANDLE;
+    }
 
-      ~GLProgram();
+    //! @brief Reset to a uninitialized state.
+    void Reset() noexcept;
 
-      //! @brief Check if this contains a valid gl handle.
-      bool IsValid() const
+    //! @brief Let this GLProgram object assume control over the given program handle.
+    void Reset(const GLuint handle);
+
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    void Reset(const GLShader& vertexShader, const GLShader& fragmentShader);
+
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    void Reset(const GLShader& vertexShader, const GLShader& fragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes);
+
+    //! @brief Create a program from the supplied vertex, fragment shader.
+    void Reset(const std::string& strVertexShader, const std::string& strFragmentShader);
+
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes);
+
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
+    void Reset(const GLShader& vertexShader, const GLShader& fragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes,
+               const std::function<void(GLuint)>& postCompilePreLinkCallback);
+
+    //! @brief Create a program from the supplied vertex, fragment shader.
+    //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
+    void Reset(const std::string& strVertexShader, const std::string& strFragmentShader,
+               const std::function<void(GLuint)>& postCompilePreLinkCallback);
+
+    //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
+    //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
+    void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const ReadOnlySpan<GLBindAttribLocation> attributes,
+               const std::function<void(GLuint)>& postCompilePreLinkCallback);
+
+    //! @brief Get the handle to the shader program
+    GLuint Get() const noexcept
+    {
+      return m_handle;
+    }
+
+    //! @brief Get the uniform location or throw a exception if not found
+    GLint GetUniformLocation(const char* const pszName) const
+    {
+      const auto result = glGetUniformLocation(m_handle, pszName);
+      if (result != -1)
       {
-        return m_handle != GLValues::INVALID_HANDLE;
+        return result;
       }
+      throw GraphicsException(std::string("Failed to get uniform location: ") + (pszName != nullptr ? pszName : "nullptr"));
+    }
 
-      //! @brief Reset to a uninitialized state.
-      void Reset() noexcept;
+    //! @brief Try to get the uniform location
+    GLint TryGetUniformLocation(const char* const pszName) const noexcept
+    {
+      return glGetUniformLocation(m_handle, pszName);
+    }
 
-      //! @brief Let this GLProgram object assume control over the given program handle.
-      void Reset(const GLuint handle);
 
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      void Reset(const GLShader& vertexShader, const GLShader& fragmentShader, const std::deque<std::string>& attributes);
-
-      //! @brief Create a program from the supplied vertex, fragment shader.
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const std::string& strAttribute);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const char* const* const pAttributes);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const std::deque<std::string>& attributes);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      void Reset(const GLShader& vertexShader, const GLShader& fragmentShader, const std::deque<std::string>& attributes,
-                 const std::function<void(GLuint)>& postCompilePreLinkCallback);
-
-      //! @brief Create a program from the supplied vertex, fragment shader.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader,
-                 const std::function<void(GLuint)>& postCompilePreLinkCallback);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const std::string& strAttribute,
-                 const std::function<void(GLuint)>& postCompilePreLinkCallback);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const char* const* const pAttributes,
-                 const std::function<void(GLuint)>& postCompilePreLinkCallback);
-
-      //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
-      //! @param postCompilePreLinkCallback allows you to execute functionality after the compile step but before the link occurs
-      void Reset(const std::string& strVertexShader, const std::string& strFragmentShader, const std::deque<std::string>& attributes,
-                 const std::function<void(GLuint)>& postCompilePreLinkCallback);
-
-      //! @brief Get the handle to the shader program
-      GLuint Get() const
+    GLint GetAttribLocation(const char* const pszName) const
+    {
+      const auto result = glGetAttribLocation(m_handle, pszName);
+      if (result != -1)
       {
-        return m_handle;
+        return result;
       }
-
-      //! @brief Get the handle to the shader program
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return m_handle;
-      }
-
-      //! @brief Get the uniform location or throw a exception if not found
-      GLint GetUniformLocation(const char* const pszName) const
-      {
-        const auto result = glGetUniformLocation(m_handle, pszName);
-        if (result != -1)
-        {
-          return result;
-        }
-        throw GraphicsException(std::string("Failed to get uniform location: ") + (pszName != nullptr ? pszName : "nullptr"));
-      }
-
-      //! @brief Try to get the uniform location
-      GLint TryGetUniformLocation(const char* const pszName) const
-      {
-        return glGetUniformLocation(m_handle, pszName);
-      }
+      throw GraphicsException(std::string("Failed to get attrib location: ") + (pszName != nullptr ? pszName : "nullptr"));
+    }
 
 
-      GLint GetAttribLocation(const char* const pszName) const
-      {
-        const auto result = glGetAttribLocation(m_handle, pszName);
-        if (result != -1)
-        {
-          return result;
-        }
-        throw GraphicsException(std::string("Failed to get attrib location: ") + (pszName != nullptr ? pszName : "nullptr"));
-      }
-
-
-      GLint TryGetAttribLocation(const char* const pszName) const
-      {
-        return glGetAttribLocation(m_handle, pszName);
-      }
-    };
-  }
+    GLint TryGetAttribLocation(const char* const pszName) const noexcept
+    {
+      return glGetAttribLocation(m_handle, pszName);
+    }
+  };
 }
 
 #endif

@@ -34,48 +34,51 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslSimpleUI/Base/PropertyType.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct PropertyTypeFlags
   {
-    struct PropertyTypeFlags
+    static const int BitsReserved = 16;
+    static const uint16_t MASK_PropertyTypeFlags = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::ContentDraw) |
+                                                   static_cast<uint16_t>(PropertyType::Layout) | static_cast<uint16_t>(PropertyType::Alignment) |
+                                                   static_cast<uint16_t>(PropertyType::ScalePolicy) | static_cast<uint16_t>(PropertyType::BaseColor) |
+                                                   static_cast<uint16_t>(PropertyType::Other);
+    static const uint16_t MASK_LayoutRelatedMask = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout);
+    static const uint16_t MASK_Content = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::ContentDraw);
+
+    uint16_t Value{0};
+
+    constexpr PropertyTypeFlags() noexcept = default;
+
+
+    constexpr PropertyTypeFlags(PropertyType type) noexcept    // NOLINT(google-explicit-constructor)
+      : Value(static_cast<uint16_t>(type))
     {
-      static const int BitsReserved = 16;
-      static const uint16_t MASK_PropertyTypeFlags = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout) |
-                                                     static_cast<uint16_t>(PropertyType::Alignment) |
-                                                     static_cast<uint16_t>(PropertyType::ScalePolicy) |
-                                                     static_cast<uint16_t>(PropertyType::BaseColor) | static_cast<uint16_t>(PropertyType::Other);
-      static const uint16_t MASK_LayoutRelatedMask = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout);
-
-      uint16_t Value{0};
-
-      constexpr PropertyTypeFlags() noexcept = default;
+    }
 
 
-      constexpr PropertyTypeFlags(PropertyType type) noexcept    // NOLINT(google-explicit-constructor)
-        : Value(static_cast<uint16_t>(type))
-      {
-      }
+    constexpr bool IsFlagged(const PropertyType type) const noexcept
+    {
+      return (Value & static_cast<uint16_t>(type)) == static_cast<uint16_t>(type);
+    }
 
+    //! @brief check if parts or all of the flags are enabled
+    constexpr bool IsPartiallyEnabled(const PropertyType type) const noexcept
+    {
+      return (Value & static_cast<uint16_t>(type)) != 0;
+    }
 
-      constexpr bool IsFlagged(const PropertyType type) const noexcept
-      {
-        return (Value & static_cast<uint16_t>(type)) == static_cast<uint16_t>(type);
-      }
+    constexpr bool IsLayoutRelated() const noexcept
+    {
+      return (Value & MASK_LayoutRelatedMask) != 0;
+    }
 
-
-      constexpr bool IsLayoutRelated() const noexcept
-      {
-        return (Value & MASK_LayoutRelatedMask) != 0;
-      }
-
-      //! @brief Gets the value ensuring all non PropertyTypeFlags are set to zero.
-      constexpr uint16_t GetSafeValue() const noexcept
-      {
-        return (Value & MASK_PropertyTypeFlags);
-      }
-    };
-  }
+    //! @brief Gets the value ensuring all non PropertyTypeFlags are set to zero.
+    constexpr uint16_t GetSafeValue() const noexcept
+    {
+      return (Value & MASK_PropertyTypeFlags);
+    }
+  };
 }
 
 #endif

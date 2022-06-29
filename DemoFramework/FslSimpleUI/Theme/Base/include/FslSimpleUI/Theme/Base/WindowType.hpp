@@ -32,21 +32,15 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class WindowType
   {
-    namespace Theme
-    {
-      enum class WindowType
-      {
-        Normal,
-        Transparent,
-        DialogNormal,
-        DialogTransparent
-      };
-    }
-  }
+    Normal,
+    Transparent,
+    DialogNormal,
+    DialogTransparent
+  };
 }
 
 #endif

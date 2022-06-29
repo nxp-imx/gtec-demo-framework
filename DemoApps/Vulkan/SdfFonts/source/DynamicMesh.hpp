@@ -35,11 +35,11 @@
 #include <FslBase/Span/Span.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
-#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <memory>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace Fsl
 {

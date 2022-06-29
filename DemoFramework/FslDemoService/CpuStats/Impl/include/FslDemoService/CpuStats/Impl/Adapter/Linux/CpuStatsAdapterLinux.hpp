@@ -37,9 +37,9 @@
 #include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/BufferedFileParser.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/ProcFileUtil.hpp>
+#include <sys/times.h>
 #include <array>
 #include <string>
-#include <sys/times.h>
 
 namespace Fsl
 {

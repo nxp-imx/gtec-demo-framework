@@ -44,7 +44,7 @@ namespace Fsl
 
     std::string GetName() const final
     {
-      return std::string("GraphicsServiceOptionParser");
+      return {"GraphicsServiceOptionParser"};
     }
 
     void OnArgumentSetup(std::deque<Option>& rOptions) final;

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,149 +29,146 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  VUDevice& VUDevice::operator=(VUDevice&& other) noexcept
   {
-    VUDevice& VUDevice::operator=(VUDevice&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_physicalDevice = other.m_physicalDevice;
-        m_device = std::move(other.m_device);
-
-        // Remove the data from other
-        other.m_physicalDevice = VUPhysicalDeviceRecord();
+        Reset();
       }
-      return *this;
-    }
 
+      // Claim ownership here
+      m_physicalDevice = other.m_physicalDevice;
+      m_device = std::move(other.m_device);
 
-    VUDevice::VUDevice(VUDevice&& other) noexcept
-      : m_physicalDevice(other.m_physicalDevice)
-      , m_device(std::move(other.m_device))
-    {
       // Remove the data from other
       other.m_physicalDevice = VUPhysicalDeviceRecord();
     }
+    return *this;
+  }
 
 
-    VUDevice::VUDevice() = default;
+  VUDevice::VUDevice(VUDevice&& other) noexcept
+    : m_physicalDevice(other.m_physicalDevice)
+    , m_device(std::move(other.m_device))
+  {
+    // Remove the data from other
+    other.m_physicalDevice = VUPhysicalDeviceRecord();
+  }
 
 
-    VUDevice::VUDevice(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device)
-      : VUDevice()
+  VUDevice::VUDevice() = default;
+
+
+  VUDevice::VUDevice(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device)
+    : VUDevice()
+  {
+    Reset(physicalDevice, std::move(device));
+  }
+
+
+  VUDevice::VUDevice(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo)
+    : VUDevice()
+  {
+    Reset(physicalDevice, createInfo);
+  }
+
+
+  void VUDevice::Reset() noexcept
+  {
+    if (!IsValid())
     {
-      Reset(physicalDevice, std::move(device));
+      return;
     }
 
+    assert(m_device.IsValid());
 
-    VUDevice::VUDevice(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo)
-      : VUDevice()
+    m_physicalDevice = VUPhysicalDeviceRecord();
+    m_device.Reset();
+  }
+
+
+  void VUDevice::Reset(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device)
+  {
+    if (device.IsValid())
     {
-      Reset(physicalDevice, createInfo);
+      throw std::invalid_argument("the device must be valid");
     }
 
-
-    void VUDevice::Reset() noexcept
+    if (IsValid())
     {
-      if (!IsValid())
-      {
-        return;
-      }
+      Reset();
+    }
 
-      assert(m_device.IsValid());
-
-      m_physicalDevice = VUPhysicalDeviceRecord();
+    try
+    {
+      m_physicalDevice = VUPhysicalDeviceRecord(physicalDevice);
+      m_device = std::move(device);
+    }
+    catch (const std::exception&)
+    {
+      m_physicalDevice.Reset();
       m_device.Reset();
+      throw;
+    }
+  }
+
+
+  void VUDevice::Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo)
+  {
+    // Free any currently allocated resource
+    if (IsValid())
+    {
+      Reset();
     }
 
-
-    void VUDevice::Reset(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device)
+    try
     {
-      if (device.IsValid())
-      {
-        throw std::invalid_argument("the device must be valid");
-      }
+      m_physicalDevice = VUPhysicalDeviceRecord(physicalDevice);
+      m_device.Reset(physicalDevice, createInfo);
+    }
+    catch (const std::exception&)
+    {
+      m_physicalDevice.Reset();
+      m_device.Reset();
+      throw;
+    }
+  }
 
-      if (IsValid())
-      {
-        Reset();
-      }
 
-      try
-      {
-        m_physicalDevice = VUPhysicalDeviceRecord(physicalDevice);
-        m_device = std::move(device);
-      }
-      catch (const std::exception&)
-      {
-        m_physicalDevice.Reset();
-        m_device.Reset();
-        throw;
-      }
+  void VUDevice::Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateFlags flags, const uint32_t queueCreateInfoCount,
+                       VkDeviceQueueCreateInfo* const pQueueCreateInfos, const uint32_t enabledLayerCount, const char* const* ppEnabledLayerNames,
+                       const uint32_t enabledExtensionCount, const char* const* ppEnabledExtensionNames,
+                       VkPhysicalDeviceFeatures* const pEnabledFeatures)
+  {
+    // Free any currently allocated resource
+    if (IsValid())
+    {
+      Reset();
     }
 
-
-    void VUDevice::Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo)
+    try
     {
-      // Free any currently allocated resource
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_physicalDevice = VUPhysicalDeviceRecord(physicalDevice);
-        m_device.Reset(physicalDevice, createInfo);
-      }
-      catch (const std::exception&)
-      {
-        m_physicalDevice.Reset();
-        m_device.Reset();
-        throw;
-      }
+      m_physicalDevice = VUPhysicalDeviceRecord(physicalDevice);
+      m_device.Reset(physicalDevice, flags, queueCreateInfoCount, pQueueCreateInfos, enabledLayerCount, ppEnabledLayerNames, enabledExtensionCount,
+                     ppEnabledExtensionNames, pEnabledFeatures);
     }
-
-
-    void VUDevice::Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateFlags flags, const uint32_t queueCreateInfoCount,
-                         VkDeviceQueueCreateInfo* const pQueueCreateInfos, const uint32_t enabledLayerCount, const char* const* ppEnabledLayerNames,
-                         const uint32_t enabledExtensionCount, const char* const* ppEnabledExtensionNames,
-                         VkPhysicalDeviceFeatures* const pEnabledFeatures)
+    catch (const std::exception&)
     {
-      // Free any currently allocated resource
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_physicalDevice = VUPhysicalDeviceRecord(physicalDevice);
-        m_device.Reset(physicalDevice, flags, queueCreateInfoCount, pQueueCreateInfos, enabledLayerCount, ppEnabledLayerNames, enabledExtensionCount,
-                       ppEnabledExtensionNames, pEnabledFeatures);
-      }
-      catch (const std::exception&)
-      {
-        m_physicalDevice.Reset();
-        m_device.Reset();
-        throw;
-      }
+      m_physicalDevice.Reset();
+      m_device.Reset();
+      throw;
     }
   }
 }

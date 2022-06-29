@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Gamepad/IGamepads.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
 namespace Fsl
 {

@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_BASIC_ADAPTER_BASICNATIVEMATERIALCREATEINFO_HPP
 #define FSLGRAPHICS_RENDER_BASIC_ADAPTER_BASICNATIVEMATERIALCREATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeShaderHandle.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeTextureHandle.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclarationSpan.hpp>
@@ -44,25 +45,32 @@ namespace Fsl
     BasicMaterialInfo MaterialInfo;
     BasicMaterialVariableDeclarationSpan MaterialDeclaration;
     VertexDeclarationSpan VertexDeclaration;
+    BasicNativeShaderHandle VertexShaderHandle;
+    BasicNativeShaderHandle FragmentShaderHandle;
 
     constexpr BasicNativeMaterialCreateInfo() noexcept = default;
 
     constexpr BasicNativeMaterialCreateInfo(const BasicMaterialInfo& materialInfo, BasicMaterialVariableDeclarationSpan materialDeclaration,
-                                            VertexDeclarationSpan vertexDeclaration) noexcept
+                                            VertexDeclarationSpan vertexDeclaration, const BasicNativeShaderHandle vertexShaderHandle,
+                                            const BasicNativeShaderHandle fragmentShaderHandle) noexcept
       : MaterialInfo(materialInfo)
       , MaterialDeclaration(materialDeclaration)
       , VertexDeclaration(vertexDeclaration)
+      , VertexShaderHandle(vertexShaderHandle)
+      , FragmentShaderHandle(fragmentShaderHandle)
     {
     }
 
-    constexpr bool IsValid() const
+    constexpr bool IsValid() const noexcept
     {
-      return !MaterialDeclaration.empty() && !VertexDeclaration.Empty();
+      return !MaterialDeclaration.empty() && !VertexDeclaration.Empty() && VertexShaderHandle.IsValid() && FragmentShaderHandle.IsValid();
     }
 
-    constexpr bool IsCompatible(const BasicMaterialInfo& materialInfo, const VertexDeclarationSpan& vertexDecl) const
+    constexpr bool IsCompatible(const BasicMaterialInfo& materialInfo, const VertexDeclarationSpan& vertexDecl,
+                                const BasicNativeShaderHandle vertexShaderHandle, const BasicNativeShaderHandle fragmentShaderHandle) const noexcept
     {
-      return MaterialInfo == materialInfo && VertexDeclaration == vertexDecl;
+      return MaterialInfo == materialInfo && VertexDeclaration == vertexDecl && VertexShaderHandle == vertexShaderHandle &&
+             FragmentShaderHandle == fragmentShaderHandle;
     }
   };
 }

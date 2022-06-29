@@ -29,74 +29,71 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/SafeType/ApplicationInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/ApplicationInfoCopy.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief Move assignment operator
+  ApplicationInfoCopy& ApplicationInfoCopy::operator=(ApplicationInfoCopy&& other) noexcept
   {
-    //! @brief Move assignment operator
-    ApplicationInfoCopy& ApplicationInfoCopy::operator=(ApplicationInfoCopy&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        m_value = other.m_value;
-        m_applicationName = std::move(other.m_applicationName);
-        m_engineName = std::move(other.m_engineName);
+      // Claim ownership here
+      m_value = other.m_value;
+      m_applicationName = std::move(other.m_applicationName);
+      m_engineName = std::move(other.m_engineName);
 
-        // Remove the data from other
-        other.m_value = VkApplicationInfo{};
-
-        PatchPointers();
-      }
-      return *this;
-    }
-
-    //! @brief Move constructor
-    //! Transfer ownership from other to this
-    ApplicationInfoCopy::ApplicationInfoCopy(ApplicationInfoCopy&& other) noexcept
-      : m_value(other.m_value)
-      , m_applicationName(std::move(other.m_applicationName))
-      , m_engineName(std::move(other.m_engineName))
-    {
       // Remove the data from other
       other.m_value = VkApplicationInfo{};
 
       PatchPointers();
     }
+    return *this;
+  }
+
+  //! @brief Move constructor
+  //! Transfer ownership from other to this
+  ApplicationInfoCopy::ApplicationInfoCopy(ApplicationInfoCopy&& other) noexcept
+    : m_value(other.m_value)
+    , m_applicationName(std::move(other.m_applicationName))
+    , m_engineName(std::move(other.m_engineName))
+  {
+    // Remove the data from other
+    other.m_value = VkApplicationInfo{};
+
+    PatchPointers();
+  }
 
 
-    ApplicationInfoCopy::ApplicationInfoCopy()
-      : m_value{}
+  ApplicationInfoCopy::ApplicationInfoCopy()
+    : m_value{}
 
-    {
-    }
+  {
+  }
 
-    ApplicationInfoCopy::ApplicationInfoCopy(const VkApplicationInfo& value)
-      : m_value(value)
-      , m_applicationName(value.pApplicationName != nullptr ? value.pApplicationName : "<nullptr>")
-      , m_engineName(value.pEngineName != nullptr ? value.pEngineName : "<nullptr>")
-    {
-      // Now use the safe copied values instead
-      PatchPointers();
-      m_value.pNext = nullptr;
-      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "ApplicationInfoCopy always stores a nullptr for pNext");
-    }
-
-
-    ApplicationInfoCopy::ApplicationInfoCopy(const VkApplicationInfo* const pValue)
-      : ApplicationInfoCopy(pValue != nullptr ? *pValue : VkApplicationInfo{})
-    {
-    }
+  ApplicationInfoCopy::ApplicationInfoCopy(const VkApplicationInfo& value)
+    : m_value(value)
+    , m_applicationName(value.pApplicationName != nullptr ? value.pApplicationName : "<nullptr>")
+    , m_engineName(value.pEngineName != nullptr ? value.pEngineName : "<nullptr>")
+  {
+    // Now use the safe copied values instead
+    PatchPointers();
+    m_value.pNext = nullptr;
+    FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "ApplicationInfoCopy always stores a nullptr for pNext");
+  }
 
 
-    void ApplicationInfoCopy::PatchPointers()
-    {
-      m_value.pApplicationName = m_value.pApplicationName != nullptr ? m_applicationName.c_str() : nullptr;
-      m_value.pEngineName = m_value.pEngineName != nullptr ? m_engineName.c_str() : nullptr;
-    }
+  ApplicationInfoCopy::ApplicationInfoCopy(const VkApplicationInfo* const pValue)
+    : ApplicationInfoCopy(pValue != nullptr ? *pValue : VkApplicationInfo{})
+  {
+  }
+
+
+  void ApplicationInfoCopy::PatchPointers()
+  {
+    m_value.pApplicationName = m_value.pApplicationName != nullptr ? m_applicationName.c_str() : nullptr;
+    m_value.pEngineName = m_value.pEngineName != nullptr ? m_engineName.c_str() : nullptr;
   }
 }

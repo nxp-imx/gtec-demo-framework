@@ -31,33 +31,30 @@
 
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WindowContentChangedEvent::WindowContentChangedEvent()
+    : WindowEvent(EventTypeId::ContentChanged, EventDescription(EventRoutingStrategy::Bubble, WindowFlags()))
+    , m_contentId(0)
+    , m_param1(0)
+    , m_param2(0)
   {
-    WindowContentChangedEvent::WindowContentChangedEvent()
-      : WindowEvent(EventTypeId::ContentChanged, EventDescription(EventRoutingStrategy::Bubble, WindowFlags()))
-      , m_contentId(0)
-      , m_param1(0)
-      , m_param2(0)
-    {
-    }
+  }
 
 
-    uint32_t WindowContentChangedEvent::GetContentId() const
-    {
-      return m_contentId;
-    }
+  uint32_t WindowContentChangedEvent::GetContentId() const
+  {
+    return m_contentId;
+  }
 
 
-    int32_t WindowContentChangedEvent::GetParam1() const
-    {
-      return m_param1;
-    }
+  int32_t WindowContentChangedEvent::GetParam1() const
+  {
+    return m_param1;
+  }
 
-    int32_t WindowContentChangedEvent::GetParam2() const
-    {
-      return m_param2;
-    }
+  int32_t WindowContentChangedEvent::GetParam2() const
+  {
+    return m_param2;
   }
 }

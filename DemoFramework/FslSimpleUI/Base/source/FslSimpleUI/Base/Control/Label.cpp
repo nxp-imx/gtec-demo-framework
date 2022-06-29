@@ -29,53 +29,94 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <cassert>
 #include <cstring>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  using TClass = Label;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyContent = TFactory::Create<StringViewLite, TClass, &TClass::GetContent, &TClass::SetContent>("Content");
+}
+
+namespace Fsl::UI
+{
+  Label::Label(const std::shared_ptr<WindowContext>& context)
+    : LabelBase(context)
   {
-    Label::Label(const std::shared_ptr<WindowContext>& context)
-      : LabelBase(context)
+  }
+
+
+  StringViewLite Label::GetContent() const
+  {
+    return m_propertyContent.Get();
+  }
+
+
+  bool Label::SetContent(const StringViewLite value)
+  {
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
+    if (changed)
     {
+      PropertyUpdated(PropertyType::Content);
     }
+    return changed;
+  }
 
 
-    void Label::SetContent(const StringViewLite& value)
+  bool Label::SetContent(const std::string& value)
+  {
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      if (value != m_content)
-      {
-        m_content = StringViewLiteUtil::ToString(value);
-        PropertyUpdated(PropertyType::Content);
-      }
+      PropertyUpdated(PropertyType::Content);
     }
+    return changed;
+  }
 
 
-    void Label::SetContent(const std::string& value)
+  bool Label::SetContent(std::string&& value)
+  {
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), std::move(value));
+    if (changed)
     {
-      if (value != m_content)
-      {
-        m_content = value;
-        PropertyUpdated(PropertyType::Content);
-      }
+      PropertyUpdated(PropertyType::Content);
     }
+    return changed;
+  }
 
 
-    void Label::SetContent(std::string&& value)
-    {
-      if (value != m_content)
-      {
-        m_content = std::move(value);
-        PropertyUpdated(PropertyType::Content);
-      }
-    }
+  DataBinding::DataBindingInstanceHandle Label::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+    return res.IsValid() ? res : LabelBase::TryGetPropertyHandleNow(sourceDef);
+  }
 
+
+  DataBinding::PropertySetBindingResult Label::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : LabelBase::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void Label::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    LabelBase::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyContent);
   }
 }

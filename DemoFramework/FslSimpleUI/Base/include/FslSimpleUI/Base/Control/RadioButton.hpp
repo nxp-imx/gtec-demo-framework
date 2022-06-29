@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_RADIOBUTTON_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_RADIOBUTTON_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,36 +34,33 @@
 #include <FslSimpleUI/Base/Control/ToggleButton.hpp>
 #include <string>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class RadioGroup;
+  class WindowContext;
+
+  class RadioButton final : public ToggleButton
   {
-    class RadioGroup;
-    class WindowContext;
+    std::shared_ptr<RadioGroup> m_radioGroup;
 
-    class RadioButton final : public ToggleButton
+  public:
+    explicit RadioButton(const std::shared_ptr<WindowContext>& context)
+      : ToggleButton(context)
     {
-      std::shared_ptr<RadioGroup> m_radioGroup;
+    }
 
-    public:
-      explicit RadioButton(const std::shared_ptr<WindowContext>& context)
-        : ToggleButton(context)
-      {
-      }
+    const std::shared_ptr<RadioGroup>& GetRadioGroup() const
+    {
+      return m_radioGroup;
+    }
 
-      const std::shared_ptr<RadioGroup>& GetRadioGroup() const
-      {
-        return m_radioGroup;
-      }
+    bool SetRadioGroup(const std::shared_ptr<RadioGroup>& radioGroup);
 
-      bool SetRadioGroup(const std::shared_ptr<RadioGroup>& radioGroup);
+    void SetIsChecked(const bool value) final;
 
-      void SetIsChecked(const bool value) final;
-
-    private:
-      void ForceUnchecked();
-    };
-  }
+  private:
+    void ForceUnchecked();
+  };
 }
 
 #endif

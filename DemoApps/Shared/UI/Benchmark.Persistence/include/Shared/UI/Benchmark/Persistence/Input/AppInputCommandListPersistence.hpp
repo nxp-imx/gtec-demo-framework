@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandList.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -43,7 +43,7 @@ namespace Fsl
 
   namespace AppInputCommandListPersistence
   {
-    Optional<AppInputCommandList> TryLoad(const IO::Path& path);
+    std::optional<AppInputCommandList> TryLoad(const IO::Path& path);
     void Save(const IO::Path& path, const AppInputCommandList& commandList);
   }
 }

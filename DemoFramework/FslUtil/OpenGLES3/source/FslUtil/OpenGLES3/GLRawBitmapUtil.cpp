@@ -29,11 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/GLRawBitmapUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslUtil/OpenGLES3/GLCompressedFormat.hpp>
+#include <FslUtil/OpenGLES3/GLRawBitmapUtil.hpp>
 #include <array>
 #include <cassert>
 
@@ -475,7 +476,7 @@ namespace Fsl
     {
       if (stride < width)
       {
-        throw UnsupportedStrideException(stride);
+        throw UnsupportedStrideException(UncheckedNumericCast<int32_t>(stride));
       }
 
       if (!exactMatch)

@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUBUFFER_HPP
 #define FSLUTIL_VULKAN1_0_VUBUFFER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,134 +36,131 @@
 #include <RapidVulkan/Buffer.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // Extends the Buffer class with 'VkBufferCreateInfo' and 'VkAccessFlags' so its available for query at a later time.
+  // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
+  class VUBuffer
   {
-    // Extends the Buffer class with 'VkBufferCreateInfo' and 'VkAccessFlags' so its available for query at a later time.
-    // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
-    class VUBuffer
+    RapidVulkan::Buffer m_buffer;
+    VkDeviceSize m_size{0};
+    VkBufferUsageFlags m_usage{0};
+    VkAccessFlags m_accessMask{0};
+
+  public:
+    VUBuffer(const VUBuffer&) = delete;
+    VUBuffer& operator=(const VUBuffer&) = delete;
+
+    // move assignment operator
+    VUBuffer& operator=(VUBuffer&& other) noexcept
     {
-      RapidVulkan::Buffer m_buffer;
-      VkDeviceSize m_size{0};
-      VkBufferUsageFlags m_usage{0};
-      VkAccessFlags m_accessMask{0};
-
-    public:
-      VUBuffer(const VUBuffer&) = delete;
-      VUBuffer& operator=(const VUBuffer&) = delete;
-
-      // move assignment operator
-      VUBuffer& operator=(VUBuffer&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          Reset();
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
 
-          // Claim ownership here
-          m_buffer = std::move(other.m_buffer);
-          // m_createInfo = std::move(other.m_createInfo);
-          m_size = other.m_size;
-          m_usage = other.m_usage;
-          m_accessMask = other.m_accessMask;
+        // Claim ownership here
+        m_buffer = std::move(other.m_buffer);
+        // m_createInfo = std::move(other.m_createInfo);
+        m_size = other.m_size;
+        m_usage = other.m_usage;
+        m_accessMask = other.m_accessMask;
 
-          // Remove the data from other
-          other.m_accessMask = 0;
-          other.m_size = 0;
-          other.m_usage = 0;
-        }
-        return *this;
-      }
-
-      // move constructor
-      VUBuffer(VUBuffer&& other) noexcept
-        : m_buffer(std::move(other.m_buffer))
-        , m_size(other.m_size)
-        , m_usage(other.m_usage)
-        , m_accessMask(other.m_accessMask)
-      {
         // Remove the data from other
         other.m_accessMask = 0;
         other.m_size = 0;
         other.m_usage = 0;
       }
+      return *this;
+    }
+
+    // move constructor
+    VUBuffer(VUBuffer&& other) noexcept
+      : m_buffer(std::move(other.m_buffer))
+      , m_size(other.m_size)
+      , m_usage(other.m_usage)
+      , m_accessMask(other.m_accessMask)
+    {
+      // Remove the data from other
+      other.m_accessMask = 0;
+      other.m_size = 0;
+      other.m_usage = 0;
+    }
 
 
-      VUBuffer() = default;
+    VUBuffer() = default;
 
 
-      //! @brief Create a new buffer.
-      VUBuffer(const VkDevice device, const VkBufferCreateFlags flags, const VkDeviceSize size, const VkBufferUsageFlags usage,
+    //! @brief Create a new buffer.
+    VUBuffer(const VkDevice device, const VkBufferCreateFlags flags, const VkDeviceSize size, const VkBufferUsageFlags usage,
+             const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* const pQueueFamilyIndices);
+
+    //! @brief Create a new buffer.
+    VUBuffer(const VkDevice device, const VkBufferCreateInfo& createInfo);
+
+    ~VUBuffer() noexcept
+    {
+      Reset();
+    }
+
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
+
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkBufferCreateFlags flags, const VkDeviceSize size, const VkBufferUsageFlags usage,
                const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* const pQueueFamilyIndices);
 
-      //! @brief Create a new buffer.
-      VUBuffer(const VkDevice device, const VkBufferCreateInfo& createInfo);
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkBufferCreateInfo& createInfo);
 
-      ~VUBuffer() noexcept
-      {
-        Reset();
-      }
+    //! @brief Get the device associated with this object
+    VkDevice GetDevice() const
+    {
+      return m_buffer.GetDevice();
+    }
 
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
+    //! @brief Get the buffer handle associated with this object
+    VkBuffer Get() const
+    {
+      return m_buffer.Get();
+    }
 
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkBufferCreateFlags flags, const VkDeviceSize size, const VkBufferUsageFlags usage,
-                 const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* const pQueueFamilyIndices);
+    //! @brief Get a pointer to the associated resource handle
+    const VkBuffer* GetPointer() const
+    {
+      return m_buffer.GetPointer();
+    }
 
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkBufferCreateInfo& createInfo);
-
-      //! @brief Get the device associated with this object
-      VkDevice GetDevice() const
-      {
-        return m_buffer.GetDevice();
-      }
-
-      //! @brief Get the buffer handle associated with this object
-      VkBuffer Get() const
-      {
-        return m_buffer.Get();
-      }
-
-      //! @brief Get a pointer to the associated resource handle
-      const VkBuffer* GetPointer() const
-      {
-        return m_buffer.GetPointer();
-      }
-
-      //! @brief Check if this buffer object is valid
-      bool IsValid() const
-      {
-        return m_buffer.IsValid();
-      }
+    //! @brief Check if this buffer object is valid
+    bool IsValid() const
+    {
+      return m_buffer.IsValid();
+    }
 
 
-      VkMemoryRequirements GetBufferMemoryRequirements() const
-      {
-        return m_buffer.GetBufferMemoryRequirements();
-      }
+    VkMemoryRequirements GetBufferMemoryRequirements() const
+    {
+      return m_buffer.GetBufferMemoryRequirements();
+    }
 
 
-      VkAccessFlags GetAccessMask() const
-      {
-        return m_accessMask;
-      }
+    VkAccessFlags GetAccessMask() const
+    {
+      return m_accessMask;
+    }
 
 
-      VkDeviceSize GetSize() const
-      {
-        return m_size;
-      }
+    VkDeviceSize GetSize() const
+    {
+      return m_size;
+    }
 
 
-      VkBufferUsageFlags GetUsage() const
-      {
-        return m_usage;
-      }
-    };
-  }
+    VkBufferUsageFlags GetUsage() const
+    {
+      return m_usage;
+    }
+  };
 }
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,76 +29,73 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
 #include <cassert>
 #include <utility>
 
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  DialogActivity::DialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                 std::shared_ptr<BaseWindow> window, const Theme::WindowType windowType, const ItemAlignment windowAlignmentX,
+                                 const ItemAlignment windowAlignmentY)
+    : FakeActivity(themeControlFactory->GetContext(), std::move(activityStack),
+                   themeControlFactory->CreateBackgroundWindow(windowType, window, windowAlignmentX, windowAlignmentY))
+    , m_controlFactory(themeControlFactory)
+    , m_window(std::move(window))
   {
-    DialogActivity::DialogActivity(std::weak_ptr<IActivityStack> activityStack,
-                                   const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory, std::shared_ptr<BaseWindow> window,
-                                   const Theme::WindowType windowType, const ItemAlignment windowAlignmentX, const ItemAlignment windowAlignmentY)
-      : FakeActivity(themeControlFactory->GetContext(), std::move(activityStack),
-                     themeControlFactory->CreateBackgroundWindow(windowType, window, windowAlignmentX, windowAlignmentY))
-      , m_controlFactory(themeControlFactory)
-      , m_window(std::move(window))
+    if (!m_window)
     {
-      if (!m_window)
-      {
-        throw std::invalid_argument("window can not be null");
-      }
+      throw std::invalid_argument("window can not be null");
     }
+  }
 
-    BaseWindow& DialogActivity::GetWindow() const
+  BaseWindow& DialogActivity::GetWindow() const
+  {
+    assert(m_window);
+    return *m_window;
+  }
+
+
+  std::shared_ptr<Theme::IThemeControlFactory> DialogActivity::GetThemeControlFactory() const
+  {
+    auto factory = m_controlFactory.lock();
+    if (factory)
     {
-      assert(m_window);
-      return *m_window;
+      return factory;
     }
+    throw UsageErrorException("Control factory has been disposed");
+  }
 
 
-    std::shared_ptr<Theme::IThemeControlFactory> DialogActivity::GetThemeControlFactory() const
+  void DialogActivity::SetBackgroundColor(const Color color)
+  {
+    std::shared_ptr<BaseWindow> content = DoGetContent();
+    if (content)
     {
-      auto factory = m_controlFactory.lock();
-      if (factory)
-      {
-        return factory;
-      }
-      throw UsageErrorException("Control factory has been disposed");
+      content->SetBaseColor(color);
     }
+  }
 
 
-    void DialogActivity::SetBackgroundColor(const Color color)
+  void DialogActivity::SetWindowAlignmentX(const ItemAlignment alignment)
+  {
+    std::shared_ptr<BaseWindow> content = DoGetContent();
+    if (content)
     {
-      std::shared_ptr<BaseWindow> content = DoGetContent();
-      if (content)
-      {
-        content->SetBaseColor(color);
-      }
+      content->SetAlignmentX(alignment);
     }
+  }
 
-
-    void DialogActivity::SetWindowAlignmentX(const ItemAlignment alignment)
+  void DialogActivity::SetWindowAlignmentY(const ItemAlignment alignment)
+  {
+    std::shared_ptr<BaseWindow> content = DoGetContent();
+    if (content)
     {
-      std::shared_ptr<BaseWindow> content = DoGetContent();
-      if (content)
-      {
-        content->SetAlignmentX(alignment);
-      }
-    }
-
-    void DialogActivity::SetWindowAlignmentY(const ItemAlignment alignment)
-    {
-      std::shared_ptr<BaseWindow> content = DoGetContent();
-      if (content)
-      {
-        content->SetAlignmentY(alignment);
-      }
+      content->SetAlignmentY(alignment);
     }
   }
 }

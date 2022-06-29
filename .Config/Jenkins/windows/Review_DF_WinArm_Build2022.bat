@@ -5,7 +5,7 @@ if %errorlevel% neq 0 (
 )
 
 echo Build start
-FslBuild.py --VSVersion 2022 -t sdk -vv --BuildTime --UseFeatures %FSL_CI_FEATURES%
+FslBuild.py --noGitHash --VSVersion 2022 -t sdk -vv --BuildTime --UseFeatures %FSL_CI_FEATURES%
 if %errorlevel% neq 0 (
   exit /b %errorlevel%
 )

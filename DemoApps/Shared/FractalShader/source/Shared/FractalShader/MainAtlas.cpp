@@ -50,7 +50,7 @@ namespace Fsl
 
   StringViewLite MainAtlas::GetName() const
   {
-    return StringViewLite("TextureAtlas/MainAtlas.png");
+    return {"TextureAtlas/MainAtlas.png"};
   }
 
 

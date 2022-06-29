@@ -1,0 +1,58 @@
+@startuml FslDemoService.DataBinding new
+scale 1
+
+class DataBindingService
+class ScopedPropertySourceAccess
+class ScopedPropertyListenerAccess
+class UIControl
+class DataSource
+
+
+
+DataSource o-- DataBindingService
+DataSource *-- ScopedPropertySourceAccess
+
+UIControl o-- DataBindingService
+UIControl *-- ScopedPropertyListenerAccess 
+
+
+DataBindingService o--Instance1
+DataBindingService o--Instance2
+DataBindingService o--Binding
+
+Instance1 .. ScopedPropertySourceAccess
+Instance2 .. ScopedPropertyListenerAccess
+
+
+interface IGet
+interface ISet
+interface "ITypedGet<T>" as ITypedGet_T
+interface "ITypedSet<T>" as ITypedSet_T
+
+IGet  <|-- ITypedGet_T 
+ISet  <|-- ITypedSet_T 
+
+class BindingObject
+
+BindingObject o-- IGet
+BindingObject o-- ISet
+
+'void Set(ISet set, IGet get)
+'{
+'  pTypedGet = dynamic_cast<ITypedGet<int>();
+'  pTypedSet = dynamic_cast<ITypedSet<int>();
+'  pTypedSet(pTypedGet)
+'}
+
+class BindingObject2
+class "BindingObject2<T>" as BindingObject2_T
+
+BindingObject2 o-- BindingObject2_T
+
+'void Set()
+'{
+'  m_pSet(m_pGet)
+'}
+
+
+@enduml

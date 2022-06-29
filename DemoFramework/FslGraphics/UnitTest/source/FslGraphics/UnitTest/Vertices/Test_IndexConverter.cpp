@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <FslUnitTest/Test/TestArray.hpp>
 #include <array>
 

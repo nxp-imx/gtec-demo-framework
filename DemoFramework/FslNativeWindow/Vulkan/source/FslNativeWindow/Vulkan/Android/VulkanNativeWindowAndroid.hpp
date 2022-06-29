@@ -34,7 +34,6 @@
 
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroid.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
-
 #include "../VulkanNativeWindow.hpp"
 
 namespace Fsl

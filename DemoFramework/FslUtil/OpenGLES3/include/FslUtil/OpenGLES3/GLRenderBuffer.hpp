@@ -32,110 +32,107 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslBase/Attributes.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLRenderBuffer
   {
-    class GLRenderBuffer
+    GLuint m_handle;
+    GLenum m_format{0};
+    PxSize2D m_size;
+
+  public:
+    GLRenderBuffer(const GLRenderBuffer&) = delete;
+    GLRenderBuffer& operator=(const GLRenderBuffer&) = delete;
+
+    //! @brief Move assignment operator
+    GLRenderBuffer& operator=(GLRenderBuffer&& other) noexcept
     {
-      GLuint m_handle;
-      GLenum m_format{0};
-      PxSize2D m_size;
-
-    public:
-      GLRenderBuffer(const GLRenderBuffer&) = delete;
-      GLRenderBuffer& operator=(const GLRenderBuffer&) = delete;
-
-      //! @brief Move assignment operator
-      GLRenderBuffer& operator=(GLRenderBuffer&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          m_handle = other.m_handle;
-          m_format = other.m_format;
-          m_size = other.m_size;
-
-          // Remove the data from other
-          other.m_handle = GLValues::INVALID_HANDLE;
-          other.m_format = 0;
-          other.m_size = {};
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLRenderBuffer(GLRenderBuffer&& other) noexcept
-        : m_handle(other.m_handle)
-        , m_format(other.m_format)
-        , m_size(other.m_size)
-      {
+        // Claim ownership here
+        m_handle = other.m_handle;
+        m_format = other.m_format;
+        m_size = other.m_size;
+
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
         other.m_format = 0;
         other.m_size = {};
       }
+      return *this;
+    }
 
-      //! @brief Create a uninitialized buffer
-      GLRenderBuffer();
-      GLRenderBuffer(const PxSize2D& size, const GLenum format);
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLRenderBuffer(GLRenderBuffer&& other) noexcept
+      : m_handle(other.m_handle)
+      , m_format(other.m_format)
+      , m_size(other.m_size)
+    {
+      // Remove the data from other
+      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_format = 0;
+      other.m_size = {};
+    }
 
-      ~GLRenderBuffer();
+    //! @brief Create a uninitialized buffer
+    GLRenderBuffer();
+    GLRenderBuffer(const PxSize2D& size, const GLenum format);
 
-      //! @brief If a buffer is allocated this will releases it.
-      void Reset() noexcept;
+    ~GLRenderBuffer();
 
-      //! @brief Release the existing buffer and replace it with the new one
-      //! @param size the size of the buffer
-      //! @param format the format of the buffer (for example GL_RGBA4, GL_RGB565, GL_RGB5_A1, GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
-      void Reset(const PxSize2D& size, const GLenum format);
+    //! @brief If a buffer is allocated this will releases it.
+    void Reset() noexcept;
 
-      //! @brief Check if this buffer contains a valid gl handle.
-      bool IsValid() const
-      {
-        return m_handle != GLValues::INVALID_HANDLE;
-      }
+    //! @brief Release the existing buffer and replace it with the new one
+    //! @param size the size of the buffer
+    //! @param format the format of the buffer (for example GL_RGBA4, GL_RGB565, GL_RGB5_A1, GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
+    void Reset(const PxSize2D& size, const GLenum format);
 
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      GLuint Get() const
-      {
-        return m_handle;
-      }
+    //! @brief Check if this buffer contains a valid gl handle.
+    bool IsValid() const
+    {
+      return m_handle != GLValues::INVALID_HANDLE;
+    }
 
-      //! @brief Get the gl handle associated with the buffer *DEPRECATED*.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return Get();
-      }
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    GLuint Get() const
+    {
+      return m_handle;
+    }
 
-      //! @brief Get the format of the buffer
-      GLenum GetFormat() const
-      {
-        return m_format;
-      }
+    //! @brief Get the gl handle associated with the buffer *DEPRECATED*.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
+    {
+      return Get();
+    }
 
-      //! @brief Get size of the buffer
-      PxSize2D GetSize() const
-      {
-        return m_size;
-      }
-    };
-  }
+    //! @brief Get the format of the buffer
+    GLenum GetFormat() const
+    {
+      return m_format;
+    }
+
+    //! @brief Get size of the buffer
+    PxSize2D GetSize() const
+    {
+      return m_size;
+    }
+  };
 }
 
 #endif

@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S09_VIV_direct_texture.hpp"
 #include <array>
+#include "S09_VIV_direct_texture.hpp"
 
 namespace Fsl
 {

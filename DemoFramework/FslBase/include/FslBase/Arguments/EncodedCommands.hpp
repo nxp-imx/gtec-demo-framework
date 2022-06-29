@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_ENCODEDCOMMANDS_HPP
 #define FSLBASE_ARGUMENTS_ENCODEDCOMMANDS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,136 +34,133 @@
 #include <FslBase/Arguments/EncodedCommand.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  // The various argument types (these are basically just here for type safety)
+  class SwitchArgument : public EncodedCommand
   {
-    // The various argument types (these are basically just here for type safety)
-    class SwitchArgument : public EncodedCommand
+  public:
+    constexpr SwitchArgument() noexcept = default;
+
+    constexpr explicit SwitchArgument(const uint32_t commandId) noexcept
+      : EncodedCommand(CommandType::Switch, commandId, StringViewLite())
     {
-    public:
-      constexpr SwitchArgument() noexcept = default;
+    }
 
-      constexpr explicit SwitchArgument(const uint32_t commandId) noexcept
-        : EncodedCommand(CommandType::Switch, commandId, StringViewLite())
-      {
-      }
-
-      explicit SwitchArgument(const EncodedCommand& argument)
-        : EncodedCommand(argument)
-      {
-        assert(argument.Type == CommandType::Switch);
-      }
-    };
-
-
-    class MultiSwitchArgument : public EncodedCommand
+    explicit SwitchArgument(const EncodedCommand& argument)
+      : EncodedCommand(argument)
     {
-    public:
-      constexpr MultiSwitchArgument() noexcept = default;
-
-      constexpr MultiSwitchArgument(const uint32_t commandId, const uint32_t count) noexcept
-        : EncodedCommand(CommandType::MultiSwitch, commandId, StringViewLite(), count)
-      {
-      }
-
-      explicit MultiSwitchArgument(const EncodedCommand& argument)
-        : EncodedCommand(argument)
-      {
-        assert(argument.Type == CommandType::MultiSwitch);
-      }
-    };
+      assert(argument.Type == CommandType::Switch);
+    }
+  };
 
 
-    class ValueArgument : public EncodedCommand
+  class MultiSwitchArgument : public EncodedCommand
+  {
+  public:
+    constexpr MultiSwitchArgument() noexcept = default;
+
+    constexpr MultiSwitchArgument(const uint32_t commandId, const uint32_t count) noexcept
+      : EncodedCommand(CommandType::MultiSwitch, commandId, StringViewLite(), count)
     {
-    public:
-      constexpr ValueArgument() noexcept = default;
+    }
 
-      constexpr explicit ValueArgument(const uint32_t commandId) noexcept
-        : EncodedCommand(CommandType::Value, commandId, StringViewLite())
-      {
-      }
-
-      explicit ValueArgument(const EncodedCommand& argument)
-        : EncodedCommand(argument)
-      {
-        assert(argument.Type == CommandType::Value);
-      }
-    };
-
-
-    class MultiValueArgument : public EncodedCommand
+    explicit MultiSwitchArgument(const EncodedCommand& argument)
+      : EncodedCommand(argument)
     {
-    public:
-      constexpr MultiValueArgument() noexcept = default;
-
-      constexpr explicit MultiValueArgument(const uint32_t commandId) noexcept
-        : EncodedCommand(CommandType::MultiValue, commandId, StringViewLite())
-      {
-      }
-
-      explicit MultiValueArgument(const EncodedCommand& argument)
-        : EncodedCommand(argument)
-      {
-        assert(argument.Type == CommandType::MultiValue);
-      }
-    };
+      assert(argument.Type == CommandType::MultiSwitch);
+    }
+  };
 
 
-    class PositionalArgument : public EncodedCommand
+  class ValueArgument : public EncodedCommand
+  {
+  public:
+    constexpr ValueArgument() noexcept = default;
+
+    constexpr explicit ValueArgument(const uint32_t commandId) noexcept
+      : EncodedCommand(CommandType::Value, commandId, StringViewLite())
     {
-    public:
-      constexpr PositionalArgument() noexcept = default;
+    }
 
-      constexpr PositionalArgument(const CommandType commandType, const uint32_t commandId, const StringViewLite strOptArg) noexcept
-        : EncodedCommand(commandType, commandId, strOptArg)
-      {
-        assert((static_cast<uint32_t>(commandType) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u);
-      }
-
-      explicit PositionalArgument(const EncodedCommand& argument)
-        : EncodedCommand(argument)
-      {
-        assert((static_cast<uint32_t>(argument.Id) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u);
-      }
-    };
-
-    class PositionalValueArgument : public PositionalArgument
+    explicit ValueArgument(const EncodedCommand& argument)
+      : EncodedCommand(argument)
     {
-    public:
-      constexpr PositionalValueArgument() noexcept = default;
-
-      constexpr PositionalValueArgument(const uint32_t commandId, const StringViewLite strOptArg) noexcept
-        : PositionalArgument(CommandType::PositionalValue, commandId, strOptArg)
-      {
-      }
-
-      explicit PositionalValueArgument(const EncodedCommand& argument)
-        : PositionalArgument(argument)
-      {
-        assert(argument.Type == CommandType::PositionalValue);
-      }
-    };
+      assert(argument.Type == CommandType::Value);
+    }
+  };
 
 
-    class UnhandledArgument : public EncodedCommand
+  class MultiValueArgument : public EncodedCommand
+  {
+  public:
+    constexpr MultiValueArgument() noexcept = default;
+
+    constexpr explicit MultiValueArgument(const uint32_t commandId) noexcept
+      : EncodedCommand(CommandType::MultiValue, commandId, StringViewLite())
     {
-    public:
-      constexpr UnhandledArgument() noexcept = default;
+    }
 
-      constexpr UnhandledArgument(const uint32_t commandId, const StringViewLite str) noexcept
-        : EncodedCommand(CommandType::Unhandled, commandId, str)
-      {
-      }
+    explicit MultiValueArgument(const EncodedCommand& argument)
+      : EncodedCommand(argument)
+    {
+      assert(argument.Type == CommandType::MultiValue);
+    }
+  };
 
-      explicit UnhandledArgument(const EncodedCommand& argument)
-        : EncodedCommand(argument)
-      {
-        assert(argument.Type == CommandType::Unhandled);
-      }
-    };
-  }
+
+  class PositionalArgument : public EncodedCommand
+  {
+  public:
+    constexpr PositionalArgument() noexcept = default;
+
+    constexpr PositionalArgument(const CommandType commandType, const uint32_t commandId, const StringViewLite strOptArg) noexcept
+      : EncodedCommand(commandType, commandId, strOptArg)
+    {
+      assert((static_cast<uint32_t>(commandType) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u);
+    }
+
+    explicit PositionalArgument(const EncodedCommand& argument)
+      : EncodedCommand(argument)
+    {
+      assert((static_cast<uint32_t>(argument.Id) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u);
+    }
+  };
+
+  class PositionalValueArgument : public PositionalArgument
+  {
+  public:
+    constexpr PositionalValueArgument() noexcept = default;
+
+    constexpr PositionalValueArgument(const uint32_t commandId, const StringViewLite strOptArg) noexcept
+      : PositionalArgument(CommandType::PositionalValue, commandId, strOptArg)
+    {
+    }
+
+    explicit PositionalValueArgument(const EncodedCommand& argument)
+      : PositionalArgument(argument)
+    {
+      assert(argument.Type == CommandType::PositionalValue);
+    }
+  };
+
+
+  class UnhandledArgument : public EncodedCommand
+  {
+  public:
+    constexpr UnhandledArgument() noexcept = default;
+
+    constexpr UnhandledArgument(const uint32_t commandId, const StringViewLite str) noexcept
+      : EncodedCommand(CommandType::Unhandled, commandId, str)
+    {
+    }
+
+    explicit UnhandledArgument(const EncodedCommand& argument)
+      : EncodedCommand(argument)
+    {
+      assert(argument.Type == CommandType::Unhandled);
+    }
+  };
 }
 
 #endif

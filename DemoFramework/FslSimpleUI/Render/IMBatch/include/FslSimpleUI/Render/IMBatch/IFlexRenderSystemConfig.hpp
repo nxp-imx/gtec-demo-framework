@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_IFLEXRENDERSYSTEMCONFIG_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_IFLEXRENDERSYSTEMCONFIG_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,27 +33,21 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  struct FlexRenderSystemConfig;
+
+  class IFlexRenderSystemConfig
   {
-    namespace RenderIMBatch
-    {
-      struct FlexRenderSystemConfig;
+  public:
+    virtual ~IFlexRenderSystemConfig() = default;
 
-      class IFlexRenderSystemConfig
-      {
-      public:
-        virtual ~IFlexRenderSystemConfig() = default;
+    virtual const FlexRenderSystemConfig& GetConfig() const = 0;
+    virtual void SetConfig(const FlexRenderSystemConfig& config) = 0;
 
-        virtual const FlexRenderSystemConfig& GetConfig() const = 0;
-        virtual void SetConfig(const FlexRenderSystemConfig& config) = 0;
-
-        virtual uint32_t GetMaxDrawCalls() const = 0;
-        virtual void SetMaxDrawCalls(const uint32_t maxDrawCalls) = 0;
-      };
-    }
-  }
+    virtual uint32_t GetMaxDrawCalls() const = 0;
+    virtual void SetMaxDrawCalls(const uint32_t maxDrawCalls) = 0;
+  };
 }
 
 #endif

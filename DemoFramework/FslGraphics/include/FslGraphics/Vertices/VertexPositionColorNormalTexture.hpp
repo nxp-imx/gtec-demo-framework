@@ -71,13 +71,13 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<4> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 4> elements = {
-        VertexElementEx(offsetof(VertexPositionColorNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                        VertexElementUsage::TextureCoordinate, 0)};
-      return VertexDeclarationArray<4>(elements, sizeof(VertexPositionColorNormalTexture));
+      constexpr BasicVertexDeclarationArray<4> elements = {
+        VertexElement(offsetof(VertexPositionColorNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                      VertexElementUsage::TextureCoordinate, 0)};
+      return {elements, sizeof(VertexPositionColorNormalTexture)};
     }
 
 
@@ -89,12 +89,12 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionColorNormalTexture& rhs) const
+    constexpr bool operator==(const VertexPositionColorNormalTexture& rhs) const noexcept
     {
       return Position == rhs.Position && Color == rhs.Color && Normal == rhs.Normal && TextureCoordinate == rhs.TextureCoordinate;
     }
 
-    constexpr bool operator!=(const VertexPositionColorNormalTexture& rhs) const
+    constexpr bool operator!=(const VertexPositionColorNormalTexture& rhs) const noexcept
     {
       return !(*this == rhs);
     }

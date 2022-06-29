@@ -32,11 +32,11 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES2/Common.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES2/CheckError.hpp>
+#include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslUtil/OpenGLES2/DebugStrings.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define GL_CHECK_FOR_ERROR() Fsl::GLES2::CheckError(glGetError(), __FILE__, __LINE__)
@@ -80,12 +80,5 @@
     }                                                                                                                                              \
   }
 
-
-namespace Fsl
-{
-  namespace GLES2
-  {
-  }
-}
 
 #endif

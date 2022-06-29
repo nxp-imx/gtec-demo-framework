@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_MESHTRANSPARENCYFLAGS_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_MESHTRANSPARENCYFLAGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,56 +33,50 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  enum class MeshTransparencyFlags : uint32_t
   {
-    namespace RenderIMBatch
-    {
-      enum class MeshTransparencyFlags : uint32_t
-      {
-        NoFlags = 0x00,
-        Opaque = 0x01,
-        Transparent = 0x2,
-        Mixed = Opaque | Transparent
-      };
+    NoFlags = 0x00,
+    Opaque = 0x01,
+    Transparent = 0x2,
+    Mixed = Opaque | Transparent
+  };
 
-      constexpr inline MeshTransparencyFlags operator|(const MeshTransparencyFlags lhs, const MeshTransparencyFlags rhs) noexcept
-      {
-        return static_cast<MeshTransparencyFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-      }
-
-      constexpr inline MeshTransparencyFlags operator&(const MeshTransparencyFlags lhs, const MeshTransparencyFlags rhs) noexcept
-      {
-        return static_cast<MeshTransparencyFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-      }
-
-
-      namespace MeshTransparencyFlagsUtil
-      {
-        constexpr inline bool IsEnabled(const MeshTransparencyFlags srcFlag, MeshTransparencyFlags flag) noexcept
-        {
-          return (srcFlag & flag) == flag;
-        }
-
-        constexpr inline void Enable(MeshTransparencyFlags& rDstFlag, MeshTransparencyFlags flag) noexcept
-        {
-          rDstFlag = rDstFlag | flag;
-        }
-
-
-        constexpr inline void Disable(MeshTransparencyFlags& rDstFlag, MeshTransparencyFlags flag) noexcept
-        {
-          rDstFlag = rDstFlag & (MeshTransparencyFlags(~static_cast<uint32_t>(flag)));
-        }
-
-        constexpr inline void Set(MeshTransparencyFlags& rDstFlag, MeshTransparencyFlags flag, const bool enabled) noexcept
-        {
-          rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (MeshTransparencyFlags(~static_cast<uint32_t>(flag))));
-        }
-      };
-    }
+  constexpr inline MeshTransparencyFlags operator|(const MeshTransparencyFlags lhs, const MeshTransparencyFlags rhs) noexcept
+  {
+    return static_cast<MeshTransparencyFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
+
+  constexpr inline MeshTransparencyFlags operator&(const MeshTransparencyFlags lhs, const MeshTransparencyFlags rhs) noexcept
+  {
+    return static_cast<MeshTransparencyFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+
+  namespace MeshTransparencyFlagsUtil
+  {
+    constexpr inline bool IsEnabled(const MeshTransparencyFlags srcFlag, MeshTransparencyFlags flag) noexcept
+    {
+      return (srcFlag & flag) == flag;
+    }
+
+    constexpr inline void Enable(MeshTransparencyFlags& rDstFlag, MeshTransparencyFlags flag) noexcept
+    {
+      rDstFlag = rDstFlag | flag;
+    }
+
+
+    constexpr inline void Disable(MeshTransparencyFlags& rDstFlag, MeshTransparencyFlags flag) noexcept
+    {
+      rDstFlag = rDstFlag & (static_cast<MeshTransparencyFlags>(~static_cast<uint32_t>(flag)));
+    }
+
+    constexpr inline void Set(MeshTransparencyFlags& rDstFlag, MeshTransparencyFlags flag, const bool enabled) noexcept
+    {
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<MeshTransparencyFlags>(~static_cast<uint32_t>(flag))));
+    }
+  };
 }
 
 #endif

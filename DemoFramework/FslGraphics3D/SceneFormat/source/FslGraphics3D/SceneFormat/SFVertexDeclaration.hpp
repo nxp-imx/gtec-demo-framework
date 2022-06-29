@@ -31,50 +31,47 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "SFVertexElement.hpp"
 #include <vector>
+#include "SFVertexElement.hpp"
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  struct SFVertexDeclaration
   {
-    struct SFVertexDeclaration
+    std::vector<SFVertexElement> Elements;
+
+    SFVertexDeclaration()
+
+      = default;
+
+
+    explicit SFVertexDeclaration(const std::size_t capacity)
+      : Elements(capacity)
     {
-      std::vector<SFVertexElement> Elements;
-
-      SFVertexDeclaration()
-
-        = default;
+    }
 
 
-      explicit SFVertexDeclaration(const std::size_t capacity)
-        : Elements(capacity)
+    bool operator==(const SFVertexDeclaration& rhs) const
+    {
+      if (Elements.size() != rhs.Elements.size())
       {
+        return false;
       }
-
-
-      bool operator==(const SFVertexDeclaration& rhs) const
+      for (std::size_t i = 0; i < Elements.size(); ++i)
       {
-        if (Elements.size() != rhs.Elements.size())
+        if (Elements[i] != rhs.Elements[i])
         {
           return false;
         }
-        for (std::size_t i = 0; i < Elements.size(); ++i)
-        {
-          if (Elements[i] != rhs.Elements[i])
-          {
-            return false;
-          }
-        }
-        return true;
       }
+      return true;
+    }
 
-      bool operator!=(const SFVertexDeclaration& rhs) const
-      {
-        return !(*this == rhs);
-      }
-    };
-  }
+    bool operator!=(const SFVertexDeclaration& rhs) const
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

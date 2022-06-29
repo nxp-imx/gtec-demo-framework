@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/Procedural/BasicMesh_fwd.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh_fwd.hpp>
 
 // This file just brings in all the headers necessary for people to utilize the methods on the typedef defined in the _fwd file
 

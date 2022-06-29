@@ -34,21 +34,18 @@
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginCustomFrameInfo.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class BasicNativeBeginCustomVulkanFrameInfo : public BasicNativeBeginCustomFrameInfo
   {
-    class BasicNativeBeginCustomVulkanFrameInfo : public BasicNativeBeginCustomFrameInfo
-    {
-    public:
-      const VkCommandBuffer CommandBuffer;
+  public:
+    const VkCommandBuffer CommandBuffer;
 
-      explicit BasicNativeBeginCustomVulkanFrameInfo(const VkCommandBuffer commandBuffer)
-        : CommandBuffer(commandBuffer)
-      {
-      }
-    };
-  }
+    explicit BasicNativeBeginCustomVulkanFrameInfo(const VkCommandBuffer commandBuffer)
+      : CommandBuffer(commandBuffer)
+    {
+    }
+  };
 }
 
 #endif

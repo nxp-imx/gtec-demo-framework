@@ -40,7 +40,7 @@ namespace Fsl
   {
     inline UIDemoAppExtensionCreateInfo ChangeTo(const DemoAppConfig& config, const UIDemoAppRenderCreateInfo& renderCreateInfo)
     {
-      return UIDemoAppExtensionCreateInfo(config.DemoServiceProvider, config.WindowMetrics, renderCreateInfo);
+      return {config.DemoServiceProvider, config.WindowMetrics, renderCreateInfo};
     }
   };
 }

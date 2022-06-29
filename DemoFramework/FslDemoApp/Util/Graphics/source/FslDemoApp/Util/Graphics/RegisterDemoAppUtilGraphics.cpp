@@ -29,9 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Util/Graphics/Service/ImageConverterLibrary/ImageConverterLibraryBasicService.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceImpl.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceProxy.hpp>
 #include <FslDemoHost/Base/Service/BitmapConverter/BitmapConverterService.hpp>
@@ -39,13 +40,12 @@
 #include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
-#include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslDemoHost/Base/Service/Texture/TextureService.hpp>
-#include <FslService/Impl/ServiceType/Async/AsynchronousServiceProxyFactoryTemplate.hpp>
-#include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplFactoryTemplate.hpp>
+#include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplFactoryTemplate.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceProxyFactoryTemplate.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include <FslDemoApp/Util/Graphics/Service/ImageConverterLibrary/ImageConverterLibraryBasicService.hpp>
 
 #ifdef FSL_ENABLE_DEVIL
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryServiceDevILFactory.hpp>

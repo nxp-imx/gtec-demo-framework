@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/BitmapFontConverter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Font/BitmapFontConverter.hpp>
 #include <FslGraphics/Font/IFontBasicKerning.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
@@ -83,10 +83,10 @@ namespace Fsl
 
       uint32_t CountGlyphs(const IFontBasicKerning& basicFontKerning)
       {
-        const auto rangeCount = NumericCast<uint32_t>(basicFontKerning.RangeCount());
+        const auto rangeCount = NumericCast<int32_t>(basicFontKerning.RangeCount());
 
         uint32_t totalGlyphs = 0;
-        for (uint32_t i = 0; i < rangeCount; ++i)
+        for (int32_t i = 0; i < rangeCount; ++i)
         {
           auto range = basicFontKerning.GetRange(i);
           totalGlyphs += range.Length;
@@ -108,7 +108,7 @@ namespace Fsl
         uint16_t defaultDpi = 0u;
         assert(rAtlasChars.size() == UncheckedNumericCast<std::size_t>(basicFontKerning.Count()));
 
-        const int32_t atlasEntries = textureAtlas.Count();
+        const auto atlasEntries = NumericCast<int32_t>(textureAtlas.Count());
 
         const IO::Path fontPath(basicFontKerning.GetPathName() + LocalPath::Slash);
         const auto fontPathLength = fontPath.GetByteSize();
@@ -210,8 +210,10 @@ namespace Fsl
               const auto atlasRect = atlasChars[atlasCharIndex].TextureInfo.TrimmedRectPx;
               assert(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left <= uint32_t(std::numeric_limits<int16_t>::max() / 2));
               assert(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top <= uint32_t(std::numeric_limits<int16_t>::max() / 2));
-              basicKerning.OffsetXPx += uint16_t(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left);
-              basicKerning.OffsetYPx += uint16_t(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top);
+              basicKerning.OffsetXPx =
+                NumericCast<int16_t>(basicKerning.OffsetXPx + NumericCast<int32_t>(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left));
+              basicKerning.OffsetYPx =
+                NumericCast<int16_t>(basicKerning.OffsetYPx + NumericCast<int32_t>(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top));
 
               rFontChars[dstGlyphIndex] =
                 BitmapFontChar(rangeGlyphId, atlasRect, PxPoint2(basicKerning.OffsetXPx, basicKerning.OffsetYPx), basicKerning.LayoutWidthPx);

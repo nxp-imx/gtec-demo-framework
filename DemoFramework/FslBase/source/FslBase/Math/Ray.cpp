@@ -25,12 +25,12 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Ray.cs.
 
-#include <FslBase/Math/Ray.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Plane.hpp>
+#include <FslBase/Math/Ray.hpp>
 #include <cassert>
 #include <cmath>
 #include <cstddef>

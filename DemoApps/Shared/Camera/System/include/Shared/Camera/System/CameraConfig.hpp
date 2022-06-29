@@ -36,19 +36,16 @@
 #include <FslGraphics/PixelFormat.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  struct CameraConfig
   {
-    struct CameraConfig
-    {
-      CameraType Type;
-      PxExtent2D Extent;
-      PixelFormat NativePixelFormat;
-      uint32_t NativeStride;
+    CameraType Type;
+    PxExtent2D Extent;
+    PixelFormat NativePixelFormat;
+    uint32_t NativeStride;
 
-      CameraConfig(const CameraType cameraType, const PxExtent2D& extent, const PixelFormat nativePixelFormat, const uint32_t nativeStride);
-    };
-  }
+    CameraConfig(const CameraType cameraType, const PxExtent2D& extent, const PixelFormat nativePixelFormat, const uint32_t nativeStride);
+  };
 }
 #endif

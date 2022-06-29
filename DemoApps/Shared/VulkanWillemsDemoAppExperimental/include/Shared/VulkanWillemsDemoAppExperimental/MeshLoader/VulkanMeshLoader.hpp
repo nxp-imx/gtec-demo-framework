@@ -23,14 +23,14 @@
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshCreateInfo.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VertexLayout.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VertexSize.hpp>
-#include <cstdlib>
-#include <memory>
-#include <limits>
-#include <string>
-#include <vector>
-#include <vulkan/vulkan.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <vulkan/vulkan.h>
+#include <cstdlib>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace Fsl
 {

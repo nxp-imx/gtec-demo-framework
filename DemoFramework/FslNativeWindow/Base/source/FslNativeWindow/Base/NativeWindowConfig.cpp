@@ -84,25 +84,25 @@ namespace Fsl
   }
 
 
-  Optional<uint32_t> NativeWindowConfig::GetForcedDensityDpi() const
+  std::optional<uint32_t> NativeWindowConfig::GetForcedDensityDpi() const
   {
     return m_forcedDensityDpi;
   }
 
 
-  void NativeWindowConfig::SetForcedDensityDpi(const Optional<uint32_t>& densityDpi)
+  void NativeWindowConfig::SetForcedDensityDpi(const std::optional<uint32_t>& densityDpi)
   {
     m_forcedDensityDpi = densityDpi;
   }
 
 
-  Optional<Point2U> NativeWindowConfig::GetForcedActualDpi() const
+  std::optional<Point2U> NativeWindowConfig::GetForcedActualDpi() const
   {
     return m_forcedActualDpi;
   }
 
 
-  void NativeWindowConfig::SetForcedActualDpi(const Optional<Point2U>& actualDpi)
+  void NativeWindowConfig::SetForcedActualDpi(const std::optional<Point2U>& actualDpi)
   {
     m_forcedActualDpi = actualDpi;
   }

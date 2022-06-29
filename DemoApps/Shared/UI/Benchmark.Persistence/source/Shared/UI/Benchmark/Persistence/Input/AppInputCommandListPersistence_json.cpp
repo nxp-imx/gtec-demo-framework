@@ -30,15 +30,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 #include <nlohmann/json.hpp>
-#include "Json/JsonAppInputCommandList.hpp"
 #include "../JsonConfig.hpp"
 #include "../JsonHelper.hpp"
+#include "Json/JsonAppInputCommandList.hpp"
 
 namespace Fsl
 {
@@ -84,12 +84,12 @@ namespace Fsl
       }
     }
 
-    Optional<AppInputCommandList> TryLoad(const IO::Path& path)
+    std::optional<AppInputCommandList> TryLoad(const IO::Path& path)
     {
       try
       {
         std::string content;
-        return IO::File::TryReadAllText(content, path) ? Parse(content) : Optional<AppInputCommandList>();
+        return IO::File::TryReadAllText(content, path) ? Parse(content) : std::optional<AppInputCommandList>();
       }
       catch (std::exception& ex)
       {

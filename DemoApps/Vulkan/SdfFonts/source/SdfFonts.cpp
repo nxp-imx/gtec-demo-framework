@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,18 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include "SdfFonts.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
-#include <Shared/SdfFonts/AppHelper.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <Shared/SdfFonts/AppHelper.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl
@@ -117,7 +117,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
@@ -133,7 +133,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     VkDescriptorSet CreateDescriptorSet(const RapidVulkan::DescriptorPool& descriptorPool,
@@ -191,7 +191,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
       pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     RapidVulkan::GraphicsPipeline CreatePipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
@@ -321,7 +321,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
     Vulkan::VUTexture ReadTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
@@ -509,7 +509,9 @@ namespace Fsl
     const PxPoint2 line0Px(contentOffset.X, contentOffset.Y + 0);
     const PxPoint2 line1Px(contentOffset.X, line0Px.Y + m_resources.Normal.Font.Font.LineSpacingPx());
     const PxPoint2 line2Px(contentOffset.X, line1Px.Y + m_resources.Sdf.Font.Font.LineSpacingPx());
-    const PxPoint2 line3Px(contentOffset.X, line2Px.Y + int32_t(std::round(m_resources.Normal.Font.Font.LineSpacingPx() * fontDrawConfig.FontScale)));
+    const PxPoint2 line3Px(
+      contentOffset.X,
+      line2Px.Y + static_cast<int32_t>(std::round(static_cast<float>(m_resources.Normal.Font.Font.LineSpacingPx()) * fontDrawConfig.FontScale)));
 
     const bool enableKerning = m_shared.GetKerningEnabled();
     const BitmapFontConfig fontConfigNormal(1.0f, enableKerning);
@@ -526,8 +528,11 @@ namespace Fsl
 
     const auto baseLine0Px = line0Px + PxPoint2(0, m_resources.Normal.Font.Font.BaseLinePx());
     const auto baseLine1Px = line1Px + PxPoint2(0, m_resources.Sdf.Font.Font.BaseLinePx());
-    const auto baseLine2Px = line2Px + PxPoint2(0, int32_t(std::round(m_resources.Normal.Font.Font.BaseLinePx() * fontDrawConfig.FontScale)));
-    const auto baseLine3Px = line3Px + PxPoint2(0, int32_t(std::round(m_resources.Sdf.Font.Font.BaseLinePx() * fontDrawConfig.FontScale)));
+    const auto baseLine2Px =
+      line2Px +
+      PxPoint2(0, static_cast<int32_t>(std::round(static_cast<float>(m_resources.Normal.Font.Font.BaseLinePx()) * fontDrawConfig.FontScale)));
+    const auto baseLine3Px =
+      line3Px + PxPoint2(0, static_cast<int32_t>(std::round(static_cast<float>(m_resources.Sdf.Font.Font.BaseLinePx()) * fontDrawConfig.FontScale)));
 
     // Draw baselines
     {
@@ -591,11 +596,13 @@ namespace Fsl
                               const Vulkan::VUTexture& /*texture*/, const RapidVulkan::GraphicsPipeline& pipeline,
                               const VkDescriptorSet descriptorSet, const FontDrawConfig& fontDrawConfig)
   {
+    const auto fontSdfSpread = static_cast<float>(fontDrawConfig.FontSdfSpread);
+
     m_pushConstants.OutlineDistance = (fontDrawConfig.OutlineDistance > 0.0f ? 0.5f * fontDrawConfig.OutlineDistance : 0.0f);
-    m_pushConstants.Smoothing = 0.25f / (fontDrawConfig.FontSdfSpread * fontDrawConfig.FontScale);
+    m_pushConstants.Smoothing = 0.25f / (fontSdfSpread * fontDrawConfig.FontScale);
     {
-      auto maxOffsetX = float(fontDrawConfig.FontSdfSpread) / float(m_resources.Sdf.Font.Texture.GetSize().Width());
-      auto maxOffsetY = float(fontDrawConfig.FontSdfSpread) / float(m_resources.Sdf.Font.Texture.GetSize().Height());
+      auto maxOffsetX = fontSdfSpread / static_cast<float>(m_resources.Sdf.Font.Texture.GetSize().Width());
+      auto maxOffsetY = fontSdfSpread / static_cast<float>(m_resources.Sdf.Font.Texture.GetSize().Height());
       m_pushConstants.ShadowOffsetX = fontDrawConfig.ShadowOffset.X != 0.0f ? maxOffsetX * fontDrawConfig.ShadowOffset.X : 0.0f;
       m_pushConstants.ShadowOffsetY = fontDrawConfig.ShadowOffset.Y != 0.0f ? maxOffsetY * fontDrawConfig.ShadowOffset.Y : 0.0f;
     }

@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangleU16.hpp>
@@ -37,6 +36,7 @@
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Log/LogNativeTextureArea.hpp>
+#include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/SpriteDpConfig.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
@@ -59,7 +59,7 @@ TEST(TestSprite_BasicImageSprite, Construct_Default)
   EXPECT_FALSE(info.MaterialInfo.IsValid());
   EXPECT_EQ(PxExtent2D(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(PxRectangleU16(), info.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D(), info.ImageInfo.ExtentDp);
   EXPECT_EQ(SpriteDpConfig::BaseDpi, info.ImageDpi);
   EXPECT_EQ(NativeTextureArea(), info.RenderInfo.TextureArea);
   EXPECT_EQ(PxSize2D(), info.RenderInfo.ScaledSizePx);
@@ -76,7 +76,7 @@ TEST(TestSprite_BasicImageSprite, Construct_Default_SetContent)
     EXPECT_FALSE(info.MaterialInfo.IsValid());
     EXPECT_EQ(PxExtent2D(), info.ImageInfo.ExtentPx);
     EXPECT_EQ(PxRectangleU16(), info.ImageInfo.RectanglePx);
-    EXPECT_EQ(DpExtent(), info.ImageInfo.ExtentDp);
+    EXPECT_EQ(DpExtent2D(), info.ImageInfo.ExtentDp);
     EXPECT_EQ(SpriteDpConfig::BaseDpi, info.ImageDpi);
     EXPECT_EQ(NativeTextureArea(), info.RenderInfo.TextureArea);
     EXPECT_EQ(PxSize2D(), info.RenderInfo.ScaledSizePx);
@@ -98,7 +98,7 @@ TEST(TestSprite_BasicImageSprite, Construct_Default_SetContent)
     EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
     EXPECT_EQ(imageRectanglePx.GetExtent(), info.ImageInfo.ExtentPx);
     EXPECT_EQ(imageRectanglePx, info.ImageInfo.RectanglePx);
-    EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
+    EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
     EXPECT_EQ(imageDpi, info.ImageDpi);
     EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
     EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()), info.RenderInfo.ScaledSizePx);
@@ -137,7 +137,7 @@ TEST(TestSprite_BasicImageSprite, Construct_1x_1x)
   EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageRectanglePx, info.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()), info.RenderInfo.ScaledSizePx);
@@ -164,7 +164,7 @@ TEST(TestSprite_BasicImageSprite, Construct_1x_2x)
   EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageRectanglePx, info.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent() * 2u), info.RenderInfo.ScaledSizePx);
@@ -189,7 +189,7 @@ TEST(TestSprite_BasicImageSprite, Construct_2x_1x)
   EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageRectanglePx, info.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width / 2u, imageRectanglePx.GetExtent().Height / 2u), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width / 2u, imageRectanglePx.GetExtent().Height / 2u), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent() / 2u), info.RenderInfo.ScaledSizePx);
@@ -215,7 +215,7 @@ TEST(TestSprite_BasicImageSprite, Construct_2x_2x)
   EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageRectanglePx, info.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width / 2u, imageRectanglePx.GetExtent().Height / 2u), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width / 2u, imageRectanglePx.GetExtent().Height / 2u), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()), info.RenderInfo.ScaledSizePx);
@@ -251,7 +251,7 @@ TEST(TestSprite_BasicImageSprite, Resize_2x)
   EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageRectanglePx, info.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent() * 2u), info.RenderInfo.ScaledSizePx);

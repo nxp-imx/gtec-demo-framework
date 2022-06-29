@@ -29,26 +29,26 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Camera/Adapter/Mipi8X/CameraAdapterMipi8X.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <Shared/Camera/Adapter/Mipi8X/CameraAdapterMipi8X.hpp>
 
 // Required UNIX HEADERS
+#include <fcntl.h>
 #include <linux/videodev2.h>
 #include <malloc.h>
 #include <pthread.h>
-#include <cstring>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <cassert>
+#include <csignal>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
-#include <csignal>
-#include <sys/mman.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <cassert>
+#include <cstring>
 #include <ios>
 #include <stdexcept>
 

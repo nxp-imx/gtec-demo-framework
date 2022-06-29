@@ -4,11 +4,11 @@
  * Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
  */
 
-#include <FslBase/Math/Vector3.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "D1_1_VBOs.hpp"
+#include <FslBase/Math/Vector3.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
 #include <array>
 #include <iostream>

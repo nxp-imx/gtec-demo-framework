@@ -43,7 +43,7 @@ g_cachedNDKVersionString = None # type: Optional[str]
 class AndroidUtil(object):
     @staticmethod
     def GetTargetSDKVersion() -> int:
-        return 29
+        return 30
 
     @staticmethod
     def GetMinimumSDKVersion() -> int:
@@ -51,7 +51,10 @@ class AndroidUtil(object):
 
     @staticmethod
     def GetSDKPath() -> str:
-        return IOUtil.GetEnvironmentVariableForDirectory("ANDROID_HOME")
+        try:
+            return IOUtil.GetEnvironmentVariableForDirectory("ANDROID_SDK_ROOT")
+        except EnvironmentError as exc:
+            return IOUtil.GetEnvironmentVariableForDirectory("ANDROID_HOME")
 
     @staticmethod
     def GetNDKPath() -> str:

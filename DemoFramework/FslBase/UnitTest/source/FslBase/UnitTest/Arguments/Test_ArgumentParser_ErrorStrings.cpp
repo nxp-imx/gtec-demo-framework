@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/TestFixture.hpp>
 #include <FslBase/Arguments/ArgumentParser.hpp>
 #include <FslBase/Arguments/ArgumentParserErrorStrings.hpp>
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslUnitTest/TestFixture.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <cassert>

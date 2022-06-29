@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Point2.hpp>
 
 namespace Fsl
 {
@@ -83,7 +83,7 @@ namespace Fsl
     bool UseOptimalSigma{false};
 
     Config()
-      : CRMFlags(0xFFFFFFFF & ~(1 << int(RenderMode::ReferenceOnePass)))
+      : CRMFlags(0xFFFFFFFF & ~(1 << static_cast<int>(RenderMode::ReferenceOnePass)))
     {
     }
 

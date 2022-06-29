@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MODULE_IEXTERNALMODULEFACTORY_HPP
 #define FSLSIMPLEUI_BASE_MODULE_IEXTERNALMODULEFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,24 +34,21 @@
 #include <FslSimpleUI/Base/Module/ExternalModuleId.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class AExternalModule;
+  struct ExternalModuleCreateInfo;
+
+  class IExternalModuleFactory
   {
-    class AExternalModule;
-    struct ExternalModuleCreateInfo;
+  public:
+    virtual ~IExternalModuleFactory() = default;
 
-    class IExternalModuleFactory
-    {
-    public:
-      virtual ~IExternalModuleFactory() = default;
+    virtual ExternalModuleId GetId() const = 0;
 
-      virtual ExternalModuleId GetId() const = 0;
-
-      //! @brief Get the click target locater
-      virtual std::shared_ptr<AExternalModule> CreateModule(const ExternalModuleCreateInfo& createInfo) = 0;
-    };
-  }
+    //! @brief Get the click target locater
+    virtual std::shared_ptr<AExternalModule> CreateModule(const ExternalModuleCreateInfo& createInfo) = 0;
+  };
 }
 
 #endif

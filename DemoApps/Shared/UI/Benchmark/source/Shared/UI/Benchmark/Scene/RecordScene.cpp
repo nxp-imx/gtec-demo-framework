@@ -44,9 +44,9 @@
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <Shared/UI/Benchmark/App/TestAppHost.hpp>
+#include "ISceneTestDemoControl.hpp"
 #include "Input/InputRecorder.hpp"
 #include "Input/InputRecordingManager.hpp"
-#include "ISceneTestDemoControl.hpp"
 #include "SceneCreateInfo.hpp"
 #include "TestHostForwarderTweak.hpp"
 
@@ -205,7 +205,7 @@ namespace Fsl
 
     m_anim.ColorButtonBack.SetValue(m_state == State::Ready || m_state == State::Playing ? Color::White() : Color::TransparentWhite());
     m_anim.ColorButtonRecord.SetValue(m_state == State::Recording ? Color::Red() : Color::White());
-    m_anim.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_anim.Update(demoTime.ElapsedTime);
 
     m_ui.ButtonRecord->SetBaseColor(m_anim.ColorButtonRecord.GetValue());
     m_ui.ButtonBack->SetBaseColor(m_anim.ColorButtonBack.GetValue());
@@ -270,23 +270,23 @@ namespace Fsl
 
 
     auto frameLabel = controlFactory.CreateLabel("Frame:");
-    auto frameCount = controlFactory.CreateFmtValueLabel(uint32_t(0), "{}");
+    auto frameCount = controlFactory.CreateFmtValueLabel(static_cast<uint32_t>(0), "{}");
     frameCount->SetAlignmentX(UI::ItemAlignment::Far);
 
     auto infoLayout = std::make_shared<UI::ComplexStackLayout>(context);
-    infoLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    infoLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     infoLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
     infoLayout->AddChild(frameLabel, UI::LayoutLength(UI::LayoutUnitType::Auto));
     infoLayout->AddChild(frameCount, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
 
     auto layout = std::make_shared<UI::UniformStackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    layout->SetOrientation(UI::LayoutOrientation::Horizontal);
     layout->AddChild(buttonRecord);
     layout->AddChild(buttonStop);
     layout->AddChild(buttonPlay);
 
     auto stackLayout = std::make_shared<UI::StackLayout>(context);
-    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    stackLayout->SetOrientation(UI::LayoutOrientation::Vertical);
     stackLayout->AddChild(infoLayout);
     stackLayout->AddChild(layout);
 
@@ -374,12 +374,12 @@ namespace Fsl
 
   bool RecordScene::TryLoad()
   {
-    const Optional<AppInputCommandList> res = m_inputRecordingManager->TryGetRecording();
-    if (res.HasValue())
+    const std::optional<AppInputCommandList> res = m_inputRecordingManager->TryGetRecording();
+    if (res.has_value())
     {
-      GetDemoControl().SetRecording(res.Value().AsSpan(), res.Value().GetFrameCount());
+      GetDemoControl().SetRecording(res.value().AsSpan(), res.value().GetFrameCount());
     }
-    return res.HasValue();
+    return res.has_value();
   }
 
 

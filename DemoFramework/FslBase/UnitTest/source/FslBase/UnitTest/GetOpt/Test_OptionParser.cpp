@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
@@ -50,7 +50,7 @@ namespace
   public:
     std::string GetName() const override
     {
-      return std::string("dummy");
+      return {"dummy"};
     }
 
     void ArgumentSetup(std::deque<Option>& /*rOptions*/) override

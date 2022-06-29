@@ -34,13 +34,10 @@
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/VersionInfo2.hpp>
 
-namespace Fsl
+namespace Fsl::ReleaseVersionTag
 {
-  namespace ReleaseVersionTag
-  {
-    constexpr VersionInfo2 Release(##RELEASE_VERSION_MAJOR##, ##RELEASE_VERSION_MINOR##, ##RELEASE_VERSION_TWEAK##, ##RELEASE_VERSION_PATCH##);
-    constexpr StringViewLite Commit("##GIT_COMMIT_HASH##");
-  }
+  constexpr VersionInfo2 Release(##RELEASE_VERSION_MAJOR##, ##RELEASE_VERSION_MINOR##, ##RELEASE_VERSION_TWEAK##, ##RELEASE_VERSION_PATCH##);
+  constexpr StringViewLite Commit("##GIT_COMMIT_HASH##");
 }
 
 #endif

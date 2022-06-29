@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSSWAPCHAININFO_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSSWAPCHAININFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,28 +33,25 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct NativeGraphicsSwapchainInfo
   {
-    struct NativeGraphicsSwapchainInfo
+    VkImage FrameImage{VK_NULL_HANDLE};
+    //! The current image format;
+    //! If SwapchainCurrentImage == VK_NULL_HANDLE this will be VK_FORMAT_UNDEFINED
+    VkFormat ImageFormat{VK_FORMAT_UNDEFINED};
+
+    VkImageUsageFlags ImageUsageFlags{0u};
+
+    constexpr NativeGraphicsSwapchainInfo() noexcept = default;
+
+    constexpr NativeGraphicsSwapchainInfo(const VkImage frameImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags) noexcept
+      : FrameImage(frameImage)
+      , ImageFormat(imageFormat)
+      , ImageUsageFlags(imageUsageFlags)
     {
-      VkImage FrameImage{VK_NULL_HANDLE};
-      //! The current image format;
-      //! If SwapchainCurrentImage == VK_NULL_HANDLE this will be VK_FORMAT_UNDEFINED
-      VkFormat ImageFormat{VK_FORMAT_UNDEFINED};
-
-      VkImageUsageFlags ImageUsageFlags{0u};
-
-      constexpr NativeGraphicsSwapchainInfo() noexcept = default;
-
-      constexpr NativeGraphicsSwapchainInfo(const VkImage frameImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags) noexcept
-        : FrameImage(frameImage)
-        , ImageFormat(imageFormat)
-        , ImageUsageFlags(imageUsageFlags)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 #endif

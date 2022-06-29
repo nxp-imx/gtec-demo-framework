@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Logic/SliderResultFlags.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslSimpleUI/Base/Control/Logic/SliderResultFlags.hpp>
 
 using namespace Fsl;
 

@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.4.1 FATAL_ERROR)
+cmake_minimum_required(VERSION ##CMAKE_MINIMUM_VERSION## FATAL_ERROR)
+
+project(DemoFramework)
 
 ##CMAKE_DEFINE_PACKAGE_ROOT_VARIABLES##
 

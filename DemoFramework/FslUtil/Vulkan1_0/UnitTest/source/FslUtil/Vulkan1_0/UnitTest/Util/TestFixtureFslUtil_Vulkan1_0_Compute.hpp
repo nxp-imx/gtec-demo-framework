@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <RapidVulkan/Instance.hpp>
 #include <fmt/format.h>
 #include <iostream>
@@ -108,7 +108,7 @@ private:
     catch (const std::exception& ex)
     {
       m_reason = ex.what();
-      return RapidVulkan::Instance();
+      return {};
     }
   }
 
@@ -130,7 +130,7 @@ private:
     deviceCreateInfo.queueCreateInfoCount = 1;
     deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
 
-    return Fsl::Vulkan::VUDevice(physicalDevice, deviceCreateInfo);
+    return {physicalDevice, deviceCreateInfo};
   }
 
   static VkPhysicalDevice FindDevice(const VkInstance instance)

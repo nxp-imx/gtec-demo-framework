@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Font/SpriteFontInfo.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFontInfo.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <fmt/format.h>
 #include <memory>
 #include <utility>
-#include <fmt/format.h>
 
 namespace Fsl
 {
@@ -45,7 +45,7 @@ namespace Fsl
                                  const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , AtlasTextureExtentPx(spriteMaterialInfo.ExtentPx)
-    , AtlasTextureExtentDp(SpriteUnitConverter::CalcImageDpExtent(AtlasTextureExtentPx, imageDpi))
+    , AtlasTextureExtentDp(SpriteUnitConverter::CalcImageDpExtent2D(AtlasTextureExtentPx, imageDpi))
     , LineSpacingPx(lineSpacingPx)
     , BaseLinePx(baseLinePx)
     , ImageDpi(imageDpi)

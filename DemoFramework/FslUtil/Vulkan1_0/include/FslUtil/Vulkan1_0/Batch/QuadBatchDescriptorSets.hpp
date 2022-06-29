@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_BATCH_QUADBATCHDESCRIPTORSETS_HPP
 #define FSLUTIL_VULKAN1_0_BATCH_QUADBATCHDESCRIPTORSETS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,117 +35,114 @@
 #include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <deque>
-#include <vector>
 #include <utility>
+#include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! Simple command buffer allocator
+  //! It uses a basic bucket allocation scheme.
+  class QuadBatchDescriptorSets
   {
-    //! Simple command buffer allocator
-    //! It uses a basic bucket allocation scheme.
-    class QuadBatchDescriptorSets
+    class Bucket
     {
-      class Bucket
-      {
-        VkDescriptorSetLayout m_descriptorSetLayout;
-        RapidVulkan::DescriptorPool m_descriptorPool;
-        std::vector<VkDescriptorSet> m_descriptorSets;
-        uint32_t m_entries;
-        uint32_t m_index;
-
-      public:
-        Bucket(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout, const uint32_t size);
-        void Clear();
-        VkDescriptorSet NextFree();
-      };
-
-      VkDevice m_device;
-      VkDescriptorSetLayout m_descriptorSetLayoutTexture;
-
-      std::deque<Bucket> m_buckets;
-
-      std::vector<VkDescriptorSet> m_activeSets;
-      uint32_t m_activeCount;
+      VkDescriptorSetLayout m_descriptorSetLayout;
+      RapidVulkan::DescriptorPool m_descriptorPool;
+      std::vector<VkDescriptorSet> m_descriptorSets;
+      uint32_t m_entries;
+      uint32_t m_index;
 
     public:
-      QuadBatchDescriptorSets(const QuadBatchDescriptorSets&) = delete;
-      QuadBatchDescriptorSets& operator=(const QuadBatchDescriptorSets&) = delete;
+      Bucket(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout, const uint32_t size);
+      void Clear();
+      VkDescriptorSet NextFree();
+    };
 
-      //! @brief Move assignment operator
-      QuadBatchDescriptorSets& operator=(QuadBatchDescriptorSets&& other) noexcept
+    VkDevice m_device;
+    VkDescriptorSetLayout m_descriptorSetLayoutTexture;
+
+    std::deque<Bucket> m_buckets;
+
+    std::vector<VkDescriptorSet> m_activeSets;
+    uint32_t m_activeCount;
+
+  public:
+    QuadBatchDescriptorSets(const QuadBatchDescriptorSets&) = delete;
+    QuadBatchDescriptorSets& operator=(const QuadBatchDescriptorSets&) = delete;
+
+    //! @brief Move assignment operator
+    QuadBatchDescriptorSets& operator=(QuadBatchDescriptorSets&& other) noexcept
+    {
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          m_device = other.m_device;
-          m_descriptorSetLayoutTexture = other.m_descriptorSetLayoutTexture;
-          m_buckets = std::move(other.m_buckets);
-          m_activeSets = std::move(other.m_activeSets);
-          m_activeCount = other.m_activeCount;
-
-          // Remove the data from other
-          other.m_device = VK_NULL_HANDLE;
-          other.m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
-          other.m_activeCount = 0;
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      QuadBatchDescriptorSets(QuadBatchDescriptorSets&& other) noexcept
-        : m_device(other.m_device)
-        , m_descriptorSetLayoutTexture(other.m_descriptorSetLayoutTexture)
-        , m_buckets(std::move(other.m_buckets))
-        , m_activeSets(std::move(other.m_activeSets))
-        , m_activeCount(other.m_activeCount)
-      {
+        // Claim ownership here
+        m_device = other.m_device;
+        m_descriptorSetLayoutTexture = other.m_descriptorSetLayoutTexture;
+        m_buckets = std::move(other.m_buckets);
+        m_activeSets = std::move(other.m_activeSets);
+        m_activeCount = other.m_activeCount;
+
         // Remove the data from other
         other.m_device = VK_NULL_HANDLE;
         other.m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
         other.m_activeCount = 0;
       }
+      return *this;
+    }
 
-      QuadBatchDescriptorSets();
-      QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout);
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    QuadBatchDescriptorSets(QuadBatchDescriptorSets&& other) noexcept
+      : m_device(other.m_device)
+      , m_descriptorSetLayoutTexture(other.m_descriptorSetLayoutTexture)
+      , m_buckets(std::move(other.m_buckets))
+      , m_activeSets(std::move(other.m_activeSets))
+      , m_activeCount(other.m_activeCount)
+    {
+      // Remove the data from other
+      other.m_device = VK_NULL_HANDLE;
+      other.m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
+      other.m_activeCount = 0;
+    }
 
-      void Reset() noexcept;
-      void Reset(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout);
+    QuadBatchDescriptorSets();
+    QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout);
 
-      bool IsValid() const
-      {
-        return m_device != VK_NULL_HANDLE;
-      }
+    void Reset() noexcept;
+    void Reset(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout);
+
+    bool IsValid() const
+    {
+      return m_device != VK_NULL_HANDLE;
+    }
 
 
-      VkDescriptorSetLayout GetLayout() const
-      {
-        return m_descriptorSetLayoutTexture;
-      }
+    VkDescriptorSetLayout GetLayout() const
+    {
+      return m_descriptorSetLayoutTexture;
+    }
 
-      void Clear();
+    void Clear();
 
-      //! @brief Get the next free
-      VkDescriptorSet NextFree();
+    //! @brief Get the next free
+    VkDescriptorSet NextFree();
 
-      uint32_t GetActiveCount() const
-      {
-        return m_activeCount;
-      }
+    uint32_t GetActiveCount() const
+    {
+      return m_activeCount;
+    }
 
-      const VkDescriptorSet* GetActivePointer() const
-      {
-        return m_activeSets.data();
-      }
-    };
-  }
+    const VkDescriptorSet* GetActivePointer() const
+    {
+      return m_activeSets.data();
+    }
+  };
 }
 
 #endif

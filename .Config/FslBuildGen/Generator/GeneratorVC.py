@@ -48,6 +48,7 @@ from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 #from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.DataTypes import GrpcServices
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import SpecialFiles
@@ -55,6 +56,7 @@ from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.DataTypes import VisualStudioVersion
 from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Exceptions import UnsupportedException
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Generator import GitIgnoreHelper
 from FslBuildGen.Generator.ExceptionsVC import PackageDuplicatedWindowsVisualStudioProjectIdException
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
@@ -197,11 +199,11 @@ class GeneratorVC(GeneratorBase):
                 if package not in currentSet:
                     currentSet.add(package)
             GeneratorVC.AddPackageToRelevantPackagesDict(dirToRelevantPackagesDict, IOUtil.GetDirectoryName(absolutePath), package)
-            
+
 
 
     def __DetectVS10SDKVersion(self, log: Log, vsVersion: int) -> Optional[str]:
-        if vsVersion != VisualStudioVersion.VS2017 and vsVersion != VisualStudioVersion.VS2019:
+        if vsVersion != VisualStudioVersion.VS2017 and vsVersion != VisualStudioVersion.VS2019 and vsVersion != VisualStudioVersion.VS2022:
             return None
         windows10SDKVersion = GeneratorVCUtil.TryGetWindows10SDKVersion(log)
         if windows10SDKVersion is not None:
@@ -285,7 +287,9 @@ class GeneratorVC(GeneratorBase):
 
         packageDepVC = ""
         if template.PackageReferences is not None and template.PackageReferences_1 is not None:
-            packageDepVC = self.__GenerateVCPackageReferences(template.PackageReferences_1, config, package, template.ProjectExtension)
+            packageDepVC = self.__GenerateVCPackageReferences(template.PackageReferences_1, template.PackageReferences_2,
+                                                              template.PackageReferencesPrivateAssets, template.PackageReferencesIncludeAssets,
+                                                              config, package, template.ProjectExtension)
             if len(packageDepVC) > 0:
                 packageDepVC = template.PackageReferences.replace("##SNIPPET##", packageDepVC)
 
@@ -315,11 +319,14 @@ class GeneratorVC(GeneratorBase):
         featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
         strFeatureList = ",".join(featureList)
 
+        customGenerateSection = self.__GenerateCustomGenerateSections(template.GrpcProtoFilesGroup, template.GrpcProtoFilesGroupEntry,
+                                                                      template.GrpcProtoFilesGroupEntryGrpcService, config, package)
 
         build = template.Master
         build = build.replace("##ADD_PROJECT_CONFIGURATIONS##", projectionConfigurations)
         build = build.replace("##ADD_PROJECT_REFERENCES##", libDepVC)
         build = build.replace("##ADD_PACKAGE_REFERENCES##", packageDepVC)
+        build = build.replace("##ADD_GENERATE_SECTION##", customGenerateSection)
         build = build.replace("##ADD_EXCLUDE_PACKAGE_DIRS##", excludeDirs)
         build = build.replace("##ADD_INCLUDE_FILES##", includeFiles)
         build = build.replace("##ADD_SOURCE_FILES##", sourceFiles)
@@ -1122,7 +1129,26 @@ class GeneratorVC(GeneratorBase):
                     res.append(strContent)
         return "\n".join(res)
 
+
+    def __GenerateCustomGenerateSections(self, snippetGroup: str, snippetEntry: str, snippetGrpcService: str, config: Config, package: Package) -> str:
+        result = ""
+        if len(package.ResolvedGenerateGrpcProtoFileList) > 0:
+            res = []  # type: List[str]
+            if package.PackageLanguage == PackageLanguage.CSharp:
+                for entry in package.ResolvedGenerateGrpcProtoFileList:
+                    strEntry = snippetEntry
+                    strEntry = strEntry.replace("##INCLUDE##", entry.Include.SourcePath)
+                    grpcService = ""
+                    if entry.GrpcServices is not None:
+                        grpcService = " " + snippetGrpcService.replace("##VALUE##", GrpcServices.ToString(entry.GrpcServices))
+                    strEntry = strEntry.replace("##GRPC_SERVICES##", grpcService)
+                    res.append(strEntry)
+            allEntries = "\n".join(res)
+            result = "\n" + snippetGroup.replace("##SNIPPET##", allEntries)
+        return result
+
     def __GenerateExcludeDirs(self, snippetList: List[str], config: Config, package: Package) -> str:
+        whitelistSet = self.__GenerateExcludeDirsWhitelist(package)
         res = []  # type: List[str]
         if len(snippetList) > 0:
             if package.AbsolutePath is not None and package.PackageLanguage == PackageLanguage.CSharp:
@@ -1133,12 +1159,27 @@ class GeneratorVC(GeneratorBase):
                             subDirEx = subDir + '/'
                             if package.AbsoluteSourcePath is None or (not package.AbsoluteSourcePath.startswith(subDirEx) and subDir != package.AbsoluteSourcePath):
                                 subDirName = IOUtil.GetFileName(subDir)
-                                strContent = snippet.replace('##DIR_NAME##', subDirName)
-                                res.append(strContent)
+                                if subDirName not in whitelistSet:
+                                    strContent = snippet.replace('##DIR_NAME##', subDirName)
+                                    res.append(strContent)
         return "\n".join(res)
 
+    def __GenerateExcludeDirsWhitelist(self, package: Package) -> Set[str]:
+        result = set() # type: Set[str]
+        result.add('Properties')
+        if package.AbsolutePath is not None:
+            packageAbsolutePath = package.AbsolutePath + '/'
+            for entry in package.ResolvedGenerateGrpcProtoFileList:
+                if entry.Include.ResolvedPath.startswith(packageAbsolutePath):
+                    includePath = entry.Include.ResolvedPath[len(packageAbsolutePath):]
+                    findIndex = includePath.find('/')
+                    if findIndex > 0:
+                        includePath = includePath[:findIndex]
+                        result.add(includePath)
+        return result
 
-    def __GenerateVCPackageReferences(self, snippet: str, config: Config, package: Package, projectExtension: str) -> str:
+    def __GenerateVCPackageReferences(self, snippet: str, complexSnippet: str, snippetPrivateAssets: str, snippetIncludeAssets: str,
+                                      config: Config, package: Package, projectExtension: str) -> str:
         packageReferences = self.__GetExternalDependenciesByType(package, ExternalDependencyType.PackageReference)
         if len(packageReferences) <= 0:
             return ""
@@ -1150,7 +1191,22 @@ class GeneratorVC(GeneratorBase):
                 raise Exception("PackageReference name can not be null")
             if entry.Version is None:
                 raise Exception("PackageReference version can not be null")
-            strContent = snippet.replace("##PACKAGE_NAME##", entry.Name)
+            if entry.PackageManager is not None:
+                if entry.PackageManager.Name != VSPackageManager.NuGet:
+                    raise Exception("Unsupported package manager '{0}' expected '{1}'".format(entry.PackageManager.Name, VSPackageManager.NuGet))
+                strContent = complexSnippet.replace("##PACKAGE_NAME##", entry.Name)
+                strPrivateAssets = ""
+                strIncludeAssets = ""
+                if entry.PackageManager.PrivateAssets is not None:
+                    strPrivateAssets = '\n' + snippetPrivateAssets
+                    strPrivateAssets = strPrivateAssets.replace("##VALUE##", entry.PackageManager.PrivateAssets)
+                if entry.PackageManager.IncludeAssets is not None:
+                    strIncludeAssets = '\n' + snippetIncludeAssets
+                    strIncludeAssets = strIncludeAssets.replace("##VALUE##", entry.PackageManager.IncludeAssets)
+                strContent = strContent.replace("##PRIVATE_ASSETS##", strPrivateAssets)
+                strContent = strContent.replace("##INCLUDE_ASSETS##", strIncludeAssets)
+            else:
+                strContent = snippet.replace("##PACKAGE_NAME##", entry.Name)
             strContent = strContent.replace("##PACKAGE_VERSION##", str(entry.Version))
             res.append(strContent)
         return "\n".join(res)

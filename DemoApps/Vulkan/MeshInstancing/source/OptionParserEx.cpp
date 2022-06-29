@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,12 @@
 
 #include "OptionParserEx.hpp"
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -84,33 +85,33 @@ namespace Fsl
       StringParseUtil::Parse(m_instanceCount, strOptArg);
       return OptionParseResult::Parsed;
     case CommandId::Preset:
-    {
-      if (strOptArg == nullptr)
       {
-        return OptionParseResult::Failed;
+        if (strOptArg == nullptr)
+        {
+          return OptionParseResult::Failed;
+        }
+        if (strOptArg == "low")
+        {
+          m_instanceCount = INSTANCE_COUNT_LOW;
+        }
+        else if (strOptArg == "medium")
+        {
+          m_instanceCount = INSTANCE_COUNT_MEDIUM;
+        }
+        else if (strOptArg == "high")
+        {
+          m_instanceCount = INSTANCE_COUNT_HIGH;
+        }
+        else if (strOptArg == "ultra")
+        {
+          m_instanceCount = INSTANCE_COUNT_ULTRA;
+        }
+        else
+        {
+          return OptionParseResult::Failed;
+        }
+        return OptionParseResult::Parsed;
       }
-      if (strOptArg == "low")
-      {
-        m_instanceCount = INSTANCE_COUNT_LOW;
-      }
-      else if (strOptArg == "medium")
-      {
-        m_instanceCount = INSTANCE_COUNT_MEDIUM;
-      }
-      else if (strOptArg == "high")
-      {
-        m_instanceCount = INSTANCE_COUNT_HIGH;
-      }
-      else if (strOptArg == "ultra")
-      {
-        m_instanceCount = INSTANCE_COUNT_ULTRA;
-      }
-      else
-      {
-        return OptionParseResult::Failed;
-      }
-      return OptionParseResult::Parsed;
-    }
     default:
       return ADemoOptionParser::OnParse(cmdId, strOptArg);
     }
@@ -127,7 +128,7 @@ namespace Fsl
     }
     if ((m_instanceCount % 16) != 0)
     {
-      const int32_t newCount = ((m_instanceCount / 16) + 1) * 16;
+      const int32_t newCount = ((NumericCast<int32_t>(m_instanceCount) / 16) + 1) * 16;
       FSLLOG3_WARNING("InstanceCount was forced to {} instead of: {}", newCount, m_instanceCount);
       m_instanceCount = newCount;
     }

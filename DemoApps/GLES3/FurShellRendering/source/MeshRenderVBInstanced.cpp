@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "MeshRenderVBInstanced.hpp"
-#include "Shader/ShaderBase.hpp"
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include "Shader/ShaderBase.hpp"
 
 namespace Fsl
 {
@@ -67,7 +67,7 @@ namespace Fsl
 
   void MeshRenderVBInstanced::Draw()
   {
-    glDrawElementsInstanced(m_primitiveType, m_ib.GetCapacity(), m_ib.GetType(), nullptr, m_instanceCount);
+    glDrawElementsInstanced(m_primitiveType, m_ib.GetGLCapacity(), m_ib.GetType(), nullptr, m_instanceCount);
   }
 
   void MeshRenderVBInstanced::Unbind()

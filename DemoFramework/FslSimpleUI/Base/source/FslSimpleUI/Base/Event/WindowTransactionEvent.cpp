@@ -31,62 +31,59 @@
 
 #include <FslSimpleUI/Base/Event/WindowTransactionEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  int32_t WindowTransactionEvent::GetSourceId() const
   {
-    int32_t WindowTransactionEvent::GetSourceId() const
-    {
-      return m_sourceId;
-    }
+    return m_sourceId;
+  }
 
 
-    int32_t WindowTransactionEvent::GetSourceSubId() const
-    {
-      return m_sourceSubId;
-    }
+  int32_t WindowTransactionEvent::GetSourceSubId() const
+  {
+    return m_sourceSubId;
+  }
 
 
-    EventTransactionState WindowTransactionEvent::GetState() const
-    {
-      return m_state;
-    }
+  EventTransactionState WindowTransactionEvent::GetState() const
+  {
+    return m_state;
+  }
 
 
-    bool WindowTransactionEvent::IsRepeat() const
-    {
-      return m_isRepeat;
-    }
+  bool WindowTransactionEvent::IsRepeat() const
+  {
+    return m_isRepeat;
+  }
 
 
-    WindowTransactionEvent::WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription)
-      : WindowEvent(typeId, eventDescription)
-      , m_sourceId(0)
-      , m_sourceSubId(0)
-      , m_state(EventTransactionState::End)
-      , m_isRepeat(false)
-    {
-    }
+  WindowTransactionEvent::WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription)
+    : WindowEvent(typeId, eventDescription)
+    , m_sourceId(0)
+    , m_sourceSubId(0)
+    , m_state(EventTransactionState::End)
+    , m_isRepeat(false)
+  {
+  }
 
 
-    void WindowTransactionEvent::SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
-                                                 const bool isRepeat)
-    {
-      WindowEvent::SYS_DoConstruct();
-      m_sourceId = sourceId;
-      m_sourceSubId = sourceSubId;
-      m_state = state;
-      m_isRepeat = isRepeat;
-    }
+  void WindowTransactionEvent::SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
+                                               const bool isRepeat)
+  {
+    WindowEvent::SYS_DoConstruct();
+    m_sourceId = sourceId;
+    m_sourceSubId = sourceSubId;
+    m_state = state;
+    m_isRepeat = isRepeat;
+  }
 
 
-    void WindowTransactionEvent::SYS_Destruct()
-    {
-      m_sourceId = 0;
-      m_sourceSubId = 0;
-      m_state = EventTransactionState::End;
-      m_isRepeat = false;
-      WindowEvent::SYS_Destruct();
-    }
+  void WindowTransactionEvent::SYS_Destruct()
+  {
+    m_sourceId = 0;
+    m_sourceSubId = 0;
+    m_state = EventTransactionState::End;
+    m_isRepeat = false;
+    WindowEvent::SYS_Destruct();
   }
 }

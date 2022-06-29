@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
-#include <FslBase/Math/Point2U.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Point2U.hpp>
 #include <FslNativeWindow/Base/INativeWindow.hpp>
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationParams.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <memory>
+#include <optional>
 
 namespace Fsl
 {
@@ -49,8 +49,8 @@ namespace Fsl
   {
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
 
-    Optional<Point2U> m_forcedActualDpi;
-    Optional<uint32_t> m_forcedDensityDpi;
+    std::optional<Point2U> m_forcedActualDpi;
+    std::optional<uint32_t> m_forcedDensityDpi;
     NativeWindowCapabilityFlags m_capabilityFlags;
 
     mutable bool m_loggedOnceGetWindowMetrics{false};

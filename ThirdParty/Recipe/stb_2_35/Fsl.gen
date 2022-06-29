@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <ExternalLibrary Name="Recipe.stb_2_35" CreationYear="2017">
-    <ExperimentalRecipe Name="stb" Version="2.35.0.1">
+    <ExperimentalRecipe Name="stb" Version="2.35.0.2">
       <Pipeline>
-        <GitClone URL="https://github.com/nothings/stb" Hash="f54acd4e13430c5122cab4ca657705c84aa61b08"/>
+        <GitClone URL="https://github.com/nothings/stb" Hash="af1a5bc352164740c1cc1354942b1c6b72eacb8a"/>
         <Copy>
           <Delete Path=".git"/>
           <Delete Path=".github"/>

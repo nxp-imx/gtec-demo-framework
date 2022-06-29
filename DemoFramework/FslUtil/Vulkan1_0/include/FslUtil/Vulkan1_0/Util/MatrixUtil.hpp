@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_UTIL_MATRIXUTIL_HPP
 #define FSLUTIL_VULKAN1_0_UTIL_MATRIXUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,41 +33,35 @@
 
 #include <FslBase/Math/Matrix.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan::MatrixUtil
 {
-  namespace Vulkan
+  //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
+  //! @note  If you are using the Matrix::CreateProjection methods this are the one you want.
+  //!        - https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
+  //!        - https://vulkan.lunarg.com/doc/sdk/1.1.85.0/windows/tutorial/html/07-init_uniform_buffer.html
+  //!        - http://anki3d.org/vulkan-coordinate-system/
+  inline constexpr Matrix GetClipMatrixForDepthZeroToOne()
   {
-    namespace MatrixUtil
-    {
-      //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
-      //! @note  If you are using the Matrix::CreateProjection methods this are the one you want.
-      //!        - https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-      //!        - https://vulkan.lunarg.com/doc/sdk/1.1.85.0/windows/tutorial/html/07-init_uniform_buffer.html
-      //!        - http://anki3d.org/vulkan-coordinate-system/
-      inline constexpr Matrix GetClipMatrixForDepthZeroToOne()
-      {
-        // Vulkan clip space has inverted Y.
-        return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-      }
+    // Vulkan clip space has inverted Y.
+    return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+  }
 
-      //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
-      inline constexpr Matrix GetClipMatrixForDepthMinusOneToOne()
-      {
-        // Vulkan clip space has inverted Y and half Z.
-        return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
-      }
+  //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
+  inline constexpr Matrix GetClipMatrixForDepthMinusOneToOne()
+  {
+    // Vulkan clip space has inverted Y and half Z.
+    return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f};
+  }
 
-      //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
-      //! @note  If you are using the Matrix::CreateProjection methods this are the one you want.
-      //!        - https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-      //!        - https://vulkan.lunarg.com/doc/sdk/1.1.85.0/windows/tutorial/html/07-init_uniform_buffer.html
-      //!        - http://anki3d.org/vulkan-coordinate-system/
-      inline constexpr Matrix GetClipMatrix()
-      {
-        // Vulkan clip space has inverted Y.
-        return GetClipMatrixForDepthZeroToOne();
-      }
-    }
+  //! @brief Get a matrix that can be used to convert a projection matrix to be compatible with Vulkan
+  //! @note  If you are using the Matrix::CreateProjection methods this are the one you want.
+  //!        - https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
+  //!        - https://vulkan.lunarg.com/doc/sdk/1.1.85.0/windows/tutorial/html/07-init_uniform_buffer.html
+  //!        - http://anki3d.org/vulkan-coordinate-system/
+  inline constexpr Matrix GetClipMatrix()
+  {
+    // Vulkan clip space has inverted Y.
+    return GetClipMatrixForDepthZeroToOne();
   }
 }
 

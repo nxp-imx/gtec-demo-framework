@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 
+#include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
-#include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
 
 namespace Fsl
 {

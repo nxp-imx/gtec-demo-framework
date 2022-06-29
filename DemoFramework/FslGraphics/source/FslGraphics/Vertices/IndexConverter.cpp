@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <cassert>
 #include <cstring>
 

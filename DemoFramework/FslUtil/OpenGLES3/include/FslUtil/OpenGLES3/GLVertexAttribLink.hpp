@@ -32,41 +32,38 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Vertices/VertexElementUsage.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct GLVertexAttribLink
   {
-    struct GLVertexAttribLink
+    // The shader location
+    GLint AttribIndex{0};
+    // The vertex location based on the vertex declaration
+    uint32_t VertexElementIndex{0};
+
+    constexpr GLVertexAttribLink() noexcept = default;
+
+    constexpr GLVertexAttribLink(const GLint attribIndex, const uint32_t vertexElementIndex) noexcept
+      : AttribIndex(attribIndex)
+      , VertexElementIndex(vertexElementIndex)
     {
-      // The shader location
-      GLint AttribIndex{0};
-      // The vertex location based on the vertex declaration
-      uint32_t VertexElementIndex{0};
+    }
 
-      constexpr GLVertexAttribLink() noexcept = default;
+    constexpr bool operator==(const GLVertexAttribLink& rhs) const noexcept
+    {
+      return AttribIndex == rhs.AttribIndex && VertexElementIndex == rhs.VertexElementIndex;
+    }
 
-      constexpr GLVertexAttribLink(const GLint attribIndex, const uint32_t vertexElementIndex) noexcept
-        : AttribIndex(attribIndex)
-        , VertexElementIndex(vertexElementIndex)
-      {
-      }
-
-      constexpr bool operator==(const GLVertexAttribLink& rhs) const noexcept
-      {
-        return AttribIndex == rhs.AttribIndex && VertexElementIndex == rhs.VertexElementIndex;
-      }
-
-      constexpr bool operator!=(const GLVertexAttribLink& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-    };
-  }
+    constexpr bool operator!=(const GLVertexAttribLink& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

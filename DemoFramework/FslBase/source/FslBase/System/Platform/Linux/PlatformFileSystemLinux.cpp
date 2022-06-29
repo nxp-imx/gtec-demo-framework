@@ -1,4 +1,4 @@
-#ifdef __linux__
+#if defined(__linux__) || defined(FSL_PLATFORM_EMSCRIPTEN)
 /****************************************************************************************************************************************************
  * Copyright (c) 2015 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -30,16 +30,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/PathDeque.hpp>
-#include <fmt/format.h>
-#include <cstring>
+#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <dirent.h>
-#include <cerrno>
-#include <utility>
+#include <fmt/format.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <cerrno>
+#include <cstring>
+#include <utility>
 
 namespace Fsl
 {

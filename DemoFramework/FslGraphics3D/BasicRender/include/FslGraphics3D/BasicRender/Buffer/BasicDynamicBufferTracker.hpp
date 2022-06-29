@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_BUFFER_BASICDYNAMICBUFFERTRACKER_HPP
 #define FSLGRAPHICS3D_BASICRENDER_BUFFER_BASICDYNAMICBUFFERTRACKER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,91 +40,88 @@
 #include <FslGraphics3D/BasicRender/Buffer/BasicDynamicBufferLink.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class BasicDynamicBufferTracker final
+    : public ABasicBufferTracker
+    , public IBasicDynamicBuffer
   {
-    class BasicDynamicBufferTracker final
-      : public ABasicBufferTracker
-      , public IBasicDynamicBuffer
+    std::shared_ptr<BasicDynamicBufferLink> m_link;
+    BasicBufferType m_type;
+
+  public:
+    explicit BasicDynamicBufferTracker(std::shared_ptr<BasicDynamicBufferLink> link)
+      : m_link(std::move(link))
     {
-      std::shared_ptr<BasicDynamicBufferLink> m_link;
-      BasicBufferType m_type;
-
-    public:
-      explicit BasicDynamicBufferTracker(std::shared_ptr<BasicDynamicBufferLink> link)
-        : m_link(std::move(link))
+      if (!m_link)
       {
-        if (!m_link)
-        {
-          throw std::invalid_argument("BasicDynamicBufferLink can not be null");
-        }
-        m_type = m_link->GetType();
+        throw std::invalid_argument("BasicDynamicBufferLink can not be null");
       }
+      m_type = m_link->GetType();
+    }
 
-      ~BasicDynamicBufferTracker() final = default;
+    ~BasicDynamicBufferTracker() final = default;
 
 
-      void Dispose() noexcept
+    void Dispose() noexcept
+    {
+      m_link.reset();
+    }
+
+    // IBasicDynamicBuffer
+    BasicBufferType GetType() const noexcept final
+    {
+      return m_type;
+    }
+
+    BasicNativeBufferHandle TryGetNativeHandle() const noexcept final
+    {
+      const BasicDynamicBufferLink* const pLink = m_link.get();
+      return pLink != nullptr ? pLink->TryGetNativeHandle() : BasicNativeBufferHandle();
+    }
+
+    uint32_t Capacity() const noexcept final
+    {
+      const BasicDynamicBufferLink* const pLink = m_link.get();
+      return pLink != nullptr ? pLink->Capacity() : 0u;
+    }
+
+    void SetData(const ReadOnlySpan<uint16_t> indexSpan) final
+    {
+      BasicDynamicBufferLink* const pLink = m_link.get();
+      if (pLink != nullptr)
       {
-        m_link.reset();
+        pLink->SetData(ReadOnlyFlexSpanUtil::AsSpan(indexSpan));
       }
-
-      // IBasicDynamicBuffer
-      BasicBufferType GetType() const noexcept final
+      else
       {
-        return m_type;
+        throw UsageErrorException("SetData called on disposed object");
       }
+    }
 
-      BasicNativeBufferHandle TryGetNativeHandle() const noexcept final
+    void SetData(const ReadOnlyFlexVertexSpan& vertexSpan) final
+    {
+      BasicDynamicBufferLink* const pLink = m_link.get();
+      if (pLink != nullptr)
       {
-        const BasicDynamicBufferLink* const pLink = m_link.get();
-        return pLink != nullptr ? pLink->TryGetNativeHandle() : BasicNativeBufferHandle();
+        pLink->SetData(ReadOnlyFlexSpan(vertexSpan.data(), vertexSpan.size(), vertexSpan.stride(), OptimizationCheckFlag::NoCheck));
       }
-
-      uint32_t Capacity() const noexcept final
+      else
       {
-        const BasicDynamicBufferLink* const pLink = m_link.get();
-        return pLink != nullptr ? pLink->Capacity() : 0u;
+        throw UsageErrorException("SetData called on disposed object");
       }
+    }
 
-      void SetData(const ReadOnlySpan<uint16_t> indexSpan) final
+
+    void SetData(ReadOnlyFlexSpan bufferData) final
+    {
+      if (!m_link)
       {
-        BasicDynamicBufferLink* const pLink = m_link.get();
-        if (pLink != nullptr)
-        {
-          pLink->SetData(ReadOnlyFlexSpanUtil::AsSpan(indexSpan));
-        }
-        else
-        {
-          throw UsageErrorException("SetData called on disposed object");
-        }
+        throw UsageErrorException("BasicDynamicBuffer has been marked as disposed");
       }
-
-      void SetData(const ReadOnlyFlexVertexSpan& vertexSpan) final
-      {
-        BasicDynamicBufferLink* const pLink = m_link.get();
-        if (pLink != nullptr)
-        {
-          pLink->SetData(ReadOnlyFlexSpan(vertexSpan.data(), vertexSpan.size(), vertexSpan.stride(), OptimizationCheckFlag::NoCheck));
-        }
-        else
-        {
-          throw UsageErrorException("SetData called on disposed object");
-        }
-      }
-
-
-      void SetData(ReadOnlyFlexSpan bufferData)
-      {
-        if (!m_link)
-        {
-          throw UsageErrorException("BasicDynamicBuffer has been marked as disposed");
-        }
-        m_link->SetData(bufferData);
-      }
-    };
-  }
+      m_link->SetData(bufferData);
+    }
+  };
 }
 
 #endif

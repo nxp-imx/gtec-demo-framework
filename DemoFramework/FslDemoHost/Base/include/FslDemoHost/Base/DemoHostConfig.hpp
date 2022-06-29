@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoHost/Base/IDemoHost.hpp>
 #include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <memory>
 
 namespace Fsl
 {

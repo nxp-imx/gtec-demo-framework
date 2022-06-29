@@ -34,16 +34,13 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslSimpleUI/App/Resource/EncodedAvailableDpi.hpp>
 
-namespace Fsl
+namespace Fsl::SimpleUIApp
 {
-  namespace SimpleUIApp
+  struct AnalyzedPath
   {
-    struct AnalyzedPath
-    {
-      IO::Path SrcPath;
-      EncodedAvailableDpi AvailableDpi;
-    };
-  }
+    IO::Path SrcPath;
+    EncodedAvailableDpi AvailableDpi;
+  };
 }
 
 #endif

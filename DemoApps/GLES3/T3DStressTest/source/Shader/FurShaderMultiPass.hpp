@@ -42,7 +42,8 @@ namespace Fsl
     GLint m_locCurrentLayer;
 
   public:
-    FurShaderMultiPass(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount);
+    FurShaderMultiPass(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath, const bool useHighPrecision,
+                       const int lightCount);
 
     void SetCurrentLayer(const float layer);
   };

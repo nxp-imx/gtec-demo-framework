@@ -26,14 +26,14 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - PlaneTest.cs.
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Plane.hpp>
+#include <FslBase/Log/Math/LogPlane.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Plane.hpp>
 #include <FslBase/Math/Quaternion.hpp>
-#include <FslBase/Log/Math/LogPlane.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
-#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslBase/UnitTest/Helper/Test/Math/TestPlane.hpp>
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
 #include <vector>

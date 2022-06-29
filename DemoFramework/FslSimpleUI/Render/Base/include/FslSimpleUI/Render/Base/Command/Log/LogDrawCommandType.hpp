@@ -34,14 +34,11 @@
 #include <FslSimpleUI/Render/Base/Command/Debug/DebugDrawCommandType.hpp>
 #include <ostream>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  inline std::ostream& operator<<(std::ostream& o, const DrawCommandType& value)
   {
-    inline std::ostream& operator<<(std::ostream& o, const DrawCommandType& value)
-    {
-      return o << Debug::ToString(value) << " (" << static_cast<uint32_t>(value) << ')';
-    }
+    return o << Debug::ToString(value) << " (" << static_cast<uint32_t>(value) << ')';
   }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,98 +29,95 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUImage.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/VUImage.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 #include <cstring>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  VUImage::VUImage(const VkDevice device, const VkImageCreateInfo& createInfo)
+    : VUImage()
   {
-    VUImage::VUImage(const VkDevice device, const VkImageCreateInfo& createInfo)
-      : VUImage()
+    Reset(device, createInfo);
+  }
+
+
+  VUImage::VUImage(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format,
+                   const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples,
+                   const VkImageTiling tiling, const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
+                   const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout)
+    : VUImage()
+  {
+    Reset(device, flags, imageType, format, extent, mipLevels, arrayLayers, samples, tiling, usage, sharingMode, queueFamilyIndexCount,
+          queueFamilyIndices, initialLayout);
+  }
+
+
+  void VUImage::Reset() noexcept
+  {
+    if (!m_image.IsValid())
     {
-      Reset(device, createInfo);
+      return;
     }
 
+    m_image.Reset();
+    m_flags = 0;
+    m_format = VK_FORMAT_UNDEFINED;
+    m_extent = {};
+    m_mipLevels = 0;
+    m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+  }
 
-    VUImage::VUImage(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format,
-                     const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples,
-                     const VkImageTiling tiling, const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
-                     const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout)
-      : VUImage()
+
+  void VUImage::Reset(const VkDevice device, const VkImageCreateInfo& createInfo)
+  {
+    if (IsValid())
     {
-      Reset(device, flags, imageType, format, extent, mipLevels, arrayLayers, samples, tiling, usage, sharingMode, queueFamilyIndexCount,
-            queueFamilyIndices, initialLayout);
+      Reset();
     }
 
-
-    void VUImage::Reset() noexcept
+    try
     {
-      if (!m_image.IsValid())
-      {
-        return;
-      }
-
+      m_image.Reset(device, createInfo);
+    }
+    catch (const std::exception&)
+    {
       m_image.Reset();
-      m_flags = 0;
-      m_format = VK_FORMAT_UNDEFINED;
-      m_extent = {};
-      m_mipLevels = 0;
-      m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+      throw;
     }
 
-
-    void VUImage::Reset(const VkDevice device, const VkImageCreateInfo& createInfo)
-    {
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_image.Reset(device, createInfo);
-      }
-      catch (const std::exception&)
-      {
-        m_image.Reset();
-        throw;
-      }
-
-      m_flags = createInfo.flags;
-      m_format = createInfo.format;
-      m_extent = createInfo.extent;
-      m_mipLevels = createInfo.mipLevels;
-      m_layout = createInfo.initialLayout;
-    }
+    m_flags = createInfo.flags;
+    m_format = createInfo.format;
+    m_extent = createInfo.extent;
+    m_mipLevels = createInfo.mipLevels;
+    m_layout = createInfo.initialLayout;
+  }
 
 
-    void VUImage::Reset(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format,
-                        const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples,
-                        const VkImageTiling tiling, const VkImageUsageFlags usage, const VkSharingMode sharingMode,
-                        const uint32_t queueFamilyIndexCount, const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout)
-    {
-      VkImageCreateInfo createInfo{};
-      createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-      createInfo.flags = flags;
-      createInfo.imageType = imageType;
-      createInfo.format = format;
-      createInfo.extent = extent;
-      createInfo.mipLevels = mipLevels;
-      createInfo.arrayLayers = arrayLayers;
-      createInfo.samples = samples;
-      createInfo.tiling = tiling;
-      createInfo.usage = usage;
-      createInfo.sharingMode = sharingMode;
-      createInfo.queueFamilyIndexCount = queueFamilyIndexCount;
-      createInfo.pQueueFamilyIndices = queueFamilyIndices;
-      createInfo.initialLayout = initialLayout;
+  void VUImage::Reset(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format,
+                      const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples,
+                      const VkImageTiling tiling, const VkImageUsageFlags usage, const VkSharingMode sharingMode,
+                      const uint32_t queueFamilyIndexCount, const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout)
+  {
+    VkImageCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    createInfo.flags = flags;
+    createInfo.imageType = imageType;
+    createInfo.format = format;
+    createInfo.extent = extent;
+    createInfo.mipLevels = mipLevels;
+    createInfo.arrayLayers = arrayLayers;
+    createInfo.samples = samples;
+    createInfo.tiling = tiling;
+    createInfo.usage = usage;
+    createInfo.sharingMode = sharingMode;
+    createInfo.queueFamilyIndexCount = queueFamilyIndexCount;
+    createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    createInfo.initialLayout = initialLayout;
 
-      Reset(device, createInfo);
-    }
+    Reset(device, createInfo);
   }
 }

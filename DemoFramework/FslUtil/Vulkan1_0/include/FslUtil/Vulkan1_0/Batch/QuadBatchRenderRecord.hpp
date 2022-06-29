@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_BATCH_QUADBATCHRENDERRECORD_HPP
 #define FSLUTIL_VULKAN1_0_BATCH_QUADBATCHRENDERRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,77 +34,74 @@
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchDescriptorSets.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchVertexBuffers.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! Contains things associated with a command buffer
+  class QuadBatchRenderRecord
   {
-    //! Contains things associated with a command buffer
-    class QuadBatchRenderRecord
+  public:
+    QuadBatchRenderRecord(const QuadBatchRenderRecord&) = delete;
+    QuadBatchRenderRecord& operator=(const QuadBatchRenderRecord&) = delete;
+
+    QuadBatchDescriptorSets TextureDescriptorSets;
+    QuadBatchVertexBuffers VertexBuffers;
+
+    //! @brief Move assignment operator
+    QuadBatchRenderRecord& operator=(QuadBatchRenderRecord&& other) noexcept
     {
-    public:
-      QuadBatchRenderRecord(const QuadBatchRenderRecord&) = delete;
-      QuadBatchRenderRecord& operator=(const QuadBatchRenderRecord&) = delete;
-
-      QuadBatchDescriptorSets TextureDescriptorSets;
-      QuadBatchVertexBuffers VertexBuffers;
-
-      //! @brief Move assignment operator
-      QuadBatchRenderRecord& operator=(QuadBatchRenderRecord&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          TextureDescriptorSets = std::move(other.TextureDescriptorSets);
-          VertexBuffers = std::move(other.VertexBuffers);
-
-          // Remove the data from other
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      QuadBatchRenderRecord(QuadBatchRenderRecord&& other) noexcept
-        : TextureDescriptorSets(std::move(other.TextureDescriptorSets))
-        , VertexBuffers(std::move(other.VertexBuffers))
-      {
+        // Claim ownership here
+        TextureDescriptorSets = std::move(other.TextureDescriptorSets);
+        VertexBuffers = std::move(other.VertexBuffers);
+
         // Remove the data from other
       }
+      return *this;
+    }
 
-      QuadBatchRenderRecord() = default;
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    QuadBatchRenderRecord(QuadBatchRenderRecord&& other) noexcept
+      : TextureDescriptorSets(std::move(other.TextureDescriptorSets))
+      , VertexBuffers(std::move(other.VertexBuffers))
+    {
+      // Remove the data from other
+    }
 
-      bool IsValid() const
-      {
-        return TextureDescriptorSets.IsValid() && VertexBuffers.IsValid();
-      }
+    QuadBatchRenderRecord() = default;
 
-      void Reset()
-      {
-        TextureDescriptorSets.Reset();
-        VertexBuffers.Reset();
-      }
+    bool IsValid() const
+    {
+      return TextureDescriptorSets.IsValid() && VertexBuffers.IsValid();
+    }
 
-      void Reset(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout,
-                 const uint32_t minimumVertexCountRequest)
-      {
-        Reset();
-        TextureDescriptorSets.Reset(device, descriptorSetLayout);
-        VertexBuffers.Reset(physicalDevice, device, minimumVertexCountRequest);
-      }
+    void Reset()
+    {
+      TextureDescriptorSets.Reset();
+      VertexBuffers.Reset();
+    }
 
-      void Clear()
-      {
-        TextureDescriptorSets.Clear();
-        VertexBuffers.Clear();
-      }
-    };
-  }
+    void Reset(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout,
+               const uint32_t minimumVertexCountRequest)
+    {
+      Reset();
+      TextureDescriptorSets.Reset(device, descriptorSetLayout);
+      VertexBuffers.Reset(physicalDevice, device, minimumVertexCountRequest);
+    }
+
+    void Clear()
+    {
+      TextureDescriptorSets.Clear();
+      VertexBuffers.Clear();
+    }
+  };
 }
 
 #endif

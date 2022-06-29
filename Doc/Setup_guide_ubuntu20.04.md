@@ -31,7 +31,7 @@
     ```
 
   **Beware we now use ninja-build as the default build system instead of make!**
-* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* [CMake 3.16 or newer](https://cmake.org/download/)
 
     ```bash
     sudo apt-get install cmake

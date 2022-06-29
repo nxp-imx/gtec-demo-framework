@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
+#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslGraphics/PixelFormat.hpp>
-#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <vector>
 

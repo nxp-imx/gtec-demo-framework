@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandList.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandList.hpp>
 #include <utility>
 
 namespace Fsl

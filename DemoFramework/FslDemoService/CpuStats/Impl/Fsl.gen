@@ -5,7 +5,7 @@
     <Dependency Name="FslDemoService.CpuStats"/>
     <Dependency Name="fmt"/>
     <Platform Name="Windows" ProjectId="B523AA11-FDA7-47B2-9C2B-90BD7C088BA7">
-    <Dependency Name="Platform.Windows.PerfCounters" Access="Private"/>
+      <Dependency Name="Platform.Windows.PerfCounters" Access="Private"/>
     </Platform>
   </Library>
 </FslBuildGen>

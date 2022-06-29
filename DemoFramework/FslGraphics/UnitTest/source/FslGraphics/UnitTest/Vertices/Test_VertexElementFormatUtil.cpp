@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -39,6 +38,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 
 using namespace Fsl;
 

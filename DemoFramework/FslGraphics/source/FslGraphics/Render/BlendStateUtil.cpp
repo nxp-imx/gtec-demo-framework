@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/BlendState.hpp>
-#include <FslGraphics/Log/Render/FmtBlendState.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Log/Render/FmtBlendState.hpp>
+#include <FslGraphics/Render/BlendState.hpp>
 
 namespace Fsl
 {

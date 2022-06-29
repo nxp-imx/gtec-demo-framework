@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_BASEWINDOWTEST_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_BASEWINDOWTEST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,63 +32,60 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslSimpleUI/Base/UnitTest/WindowCallIdManager.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowCallCount.hpp>
-#include <FslSimpleUI/Base/UnitTest/WindowCallbacks.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowCallId.hpp>
+#include <FslSimpleUI/Base/UnitTest/WindowCallIdManager.hpp>
+#include <FslSimpleUI/Base/UnitTest/WindowCallbacks.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowMethod.hpp>
 #include <functional>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class BaseWindowTest : public BaseWindow
   {
-    class BaseWindowTest : public BaseWindow
+    std::shared_ptr<WindowCallIdManager> m_callIdManager;
+    mutable WindowCallCount m_callCount{};
+    mutable WindowCallId m_callId;
+
+  public:
+    WindowCallbacks Callbacks;
+
+    void SetCallIdManager(const std::shared_ptr<WindowCallIdManager>& callIdManager)
     {
-      std::shared_ptr<WindowCallIdManager> m_callIdManager;
-      mutable WindowCallCount m_callCount{};
-      mutable WindowCallId m_callId;
+      m_callIdManager = callIdManager;
+    }
 
-    public:
-      WindowCallbacks Callbacks;
+    WindowCallCount GetCallCount() const
+    {
+      return m_callCount;
+    }
 
-      void SetCallIdManager(const std::shared_ptr<WindowCallIdManager>& callIdManager)
-      {
-        m_callIdManager = callIdManager;
-      }
+    // Get the latest call id for all methods
+    WindowCallId GetCallId() const
+    {
+      return m_callId;
+    }
 
-      WindowCallCount GetCallCount() const
-      {
-        return m_callCount;
-      }
+    explicit BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags());
 
-      // Get the latest call id for all methods
-      WindowCallId GetCallId() const
-      {
-        return m_callId;
-      }
+    void WinInit() override;
+    bool WinMarkLayoutAsDirty() override;
+    // const PxRectangle& WinGetContentRectanglePx() const override;
+    void WinHandleEvent(const RoutedEvent& routedEvent) override;
+    void WinUpdate(const TimeSpan& timeSpan) override;
+    void WinResolve(const TimeSpan& timeSpan) override;
+    void WinDraw(const UIDrawContext& context) override;
 
-      explicit BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags());
+  protected:
+    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
 
-      void WinInit() override;
-      bool WinMarkLayoutAsDirty() override;
-      // const PxRectangle& WinGetContentRectanglePx() const override;
-      void WinHandleEvent(const RoutedEvent& routedEvent) override;
-      void WinUpdate(const TransitionTimeSpan& timeSpan) override;
-      void WinResolve(const TransitionTimeSpan& timeSpan) override;
-      void WinDraw(const UIDrawContext& context) override;
-
-    protected:
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
-
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
-    };
-  }
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+    void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
+  };
 }
 
 #endif

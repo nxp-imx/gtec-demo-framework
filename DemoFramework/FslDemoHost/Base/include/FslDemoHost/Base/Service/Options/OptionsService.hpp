@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Options/IOptions.hpp>
 #include <FslDemoHost/Base/Service/Options/IOptionsServiceControl.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <map>
 
 namespace Fsl

@@ -34,11 +34,12 @@
 
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
-#include <pdh.h>
-#include <array>
+#include <memory>
 
 namespace Fsl
 {
+  class PerformanceCounterQueryWin32;
+
   class CpuStatsAdapterWin32 final : public ICpuStatsAdapter
   {
     struct ProcessTimes
@@ -55,25 +56,16 @@ namespace Fsl
     };
 
 
-    struct CpuStats
-    {
-      bool Initialized{false};
-      PDH_HCOUNTER Counter{};
-      float Value{0.0f};
-    };
-
-    PDH_HQUERY m_hQuery{};
     //! the number of cpus
     uint32_t m_cpuCount{0};
+    std::unique_ptr<PerformanceCounterQueryWin32> m_counters;
+
     mutable ProcessTimes m_appSystemLast;
     mutable ProcessTimes m_appProcessLast;
 
-    mutable TimeSpan m_lastTryGetCpuUsage;
     mutable TimeSpan m_lastTryGetApplicationCpuUsageTime;
     mutable float m_appCpuUsagePercentage{0.0f};
 
-    // We allow up to 256 cpus
-    mutable std::array<CpuStats, 256> m_cpuStats;
 
     HighResolutionTimer m_timer;
 

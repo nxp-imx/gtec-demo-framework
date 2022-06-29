@@ -33,13 +33,10 @@
 
 #include <FslGraphics/StrideRequirement.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
-  {
-    const char* TryToString(const StrideRequirement& value);
-    const char* ToString(const StrideRequirement& value);
-  }
+  const char* TryToString(const StrideRequirement& value);
+  const char* ToString(const StrideRequirement& value);
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_DEFAULTVALUES_HPP
 #define FSLSIMPLEUI_BASE_DEFAULTVALUES_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,81 +33,75 @@
 
 #include <FslGraphics/Color.hpp>
 
-namespace Fsl
+namespace Fsl::UI::DefaultColor
 {
-  namespace UI
+  namespace Palette
   {
-    namespace DefaultColor
-    {
-      namespace Palette
-      {
-        constexpr const Color Primary = Color::White();
-        constexpr const Color PrimaryDisabled = Color(0xFFB0B0B0);
-        constexpr const Color Font = Color::White();
-        constexpr const Color FontDisabled = PrimaryDisabled;
-      }
+    constexpr const Color Primary = Color::White();
+    constexpr const Color PrimaryDisabled = Color(0xFFB0B0B0);
+    constexpr const Color Font = Color::White();
+    constexpr const Color FontDisabled = PrimaryDisabled;
+  }
 
-      namespace Button
-      {
-        constexpr const Color Up = Palette::Primary;
-        constexpr const Color Down = Color(0xB0B0B0B0);
-        constexpr const Color BackgroundHoverUp = Palette::Primary;
-        constexpr const Color BackgroundHoverOverlayUp = Color::SetA(Palette::Primary, 0.12f);
-        constexpr const Color BackgroundHoverOverlayDown = Color::SetA(Palette::Primary, 0.08f);
-        constexpr const Color BackgroundUp = Palette::Primary;
-        constexpr const Color BackgroundDown = Down;
-        constexpr const Color BackgroundDisabled = Palette::PrimaryDisabled;
-        constexpr const Color FontUp = Palette::Font;
-        constexpr const Color FontDown = Down;
-        constexpr const Color FontDisabled = Palette::FontDisabled;
-      }
+  namespace Button
+  {
+    constexpr const Color Up = Palette::Primary;
+    constexpr const Color Down = Color(0xB0B0B0B0);
+    constexpr const Color BackgroundHoverUp = Palette::Primary;
+    constexpr const Color BackgroundHoverOverlayUp = Color::SetA(Palette::Primary, 0.12f);
+    constexpr const Color BackgroundHoverOverlayDown = Color::SetA(Palette::Primary, 0.08f);
+    constexpr const Color BackgroundUp = Palette::Primary;
+    constexpr const Color BackgroundDown = Down;
+    constexpr const Color BackgroundDisabled = Palette::PrimaryDisabled;
+    constexpr const Color FontUp = Palette::Font;
+    constexpr const Color FontDown = Down;
+    constexpr const Color FontDisabled = Palette::FontDisabled;
+  }
 
-      namespace ToggleButton
-      {
-        constexpr const Color CursorChecked = Palette::Primary;
-        constexpr const Color CursorCheckedDisabled = Color::ClearA(CursorChecked);
-        constexpr const Color CursorUnchecked = Palette::Primary;
-        constexpr const Color CursorUncheckedDisabled = Color::ClearA(CursorUnchecked);
-        constexpr const Color BackgroundEnabled = Palette::Primary;
-        constexpr const Color BackgroundDisabled = Palette::PrimaryDisabled;
-        constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
-        constexpr const Color HoverOverlayUnchecked = Color::SetA(CursorUnchecked, 0.4f);
-      }
+  namespace ToggleButton
+  {
+    constexpr const Color CursorChecked = Palette::Primary;
+    constexpr const Color CursorCheckedDisabled = Color::ClearA(CursorChecked);
+    constexpr const Color CursorUnchecked = Palette::Primary;
+    constexpr const Color CursorUncheckedDisabled = Color::ClearA(CursorUnchecked);
+    constexpr const Color BackgroundEnabled = Palette::Primary;
+    constexpr const Color BackgroundDisabled = Palette::PrimaryDisabled;
+    constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
+    constexpr const Color HoverOverlayUnchecked = Color::SetA(CursorUnchecked, 0.4f);
+  }
 
 
-      namespace CheckBox
-      {
-        constexpr const Color CursorChecked = Palette::Primary;
-        constexpr const Color CursorCheckedDisabled = Color::SetA(CursorChecked, 0.4f);
-        constexpr const Color CursorUnchecked = Color::ClearA(CursorChecked);
-        constexpr const Color CursorUncheckedDisabled = Color::ClearA(CursorCheckedDisabled);
-        constexpr const Color BackgroundChecked = Palette::Primary;
-        constexpr const Color BackgroundCheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color BackgroundUnchecked = Palette::Primary;
-        constexpr const Color BackgroundUncheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
-        constexpr const Color HoverOverlayUnchecked = Color::SetA(BackgroundUnchecked, 0.4f);
-      }
+  namespace CheckBox
+  {
+    constexpr const Color CursorChecked = Palette::Primary;
+    constexpr const Color CursorCheckedDisabled = Color::SetA(CursorChecked, 0.4f);
+    constexpr const Color CursorUnchecked = Color::ClearA(CursorChecked);
+    constexpr const Color CursorUncheckedDisabled = Color::ClearA(CursorCheckedDisabled);
+    constexpr const Color BackgroundChecked = Palette::Primary;
+    constexpr const Color BackgroundCheckedDisabled = Palette::PrimaryDisabled;
+    constexpr const Color BackgroundUnchecked = Palette::Primary;
+    constexpr const Color BackgroundUncheckedDisabled = Palette::PrimaryDisabled;
+    constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
+    constexpr const Color HoverOverlayUnchecked = Color::SetA(BackgroundUnchecked, 0.4f);
+  }
 
-      namespace Slider
-      {
-        constexpr const Color HoverOverlay = Color::SetA(Palette::Primary, 0.4f);
-      }
+  namespace Slider
+  {
+    constexpr const Color HoverOverlay = Color::SetA(Palette::Primary, 0.4f);
+  }
 
-      namespace Switch
-      {
-        constexpr const Color CursorChecked = Palette::Primary;
-        constexpr const Color CursorCheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color CursorUnchecked = Palette::Primary;
-        constexpr const Color CursorUncheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color BackgroundChecked = Palette::Primary;
-        constexpr const Color BackgroundCheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color BackgroundUnchecked = Palette::Primary;
-        constexpr const Color BackgroundUncheckedDisabled = Palette::PrimaryDisabled;
-        constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
-        constexpr const Color HoverOverlayUnchecked = Color::SetA(BackgroundUnchecked, 0.4f);
-      }
-    }
+  namespace Switch
+  {
+    constexpr const Color CursorChecked = Palette::Primary;
+    constexpr const Color CursorCheckedDisabled = Palette::PrimaryDisabled;
+    constexpr const Color CursorUnchecked = Palette::Primary;
+    constexpr const Color CursorUncheckedDisabled = Palette::PrimaryDisabled;
+    constexpr const Color BackgroundChecked = Palette::Primary;
+    constexpr const Color BackgroundCheckedDisabled = Palette::PrimaryDisabled;
+    constexpr const Color BackgroundUnchecked = Palette::Primary;
+    constexpr const Color BackgroundUncheckedDisabled = Palette::PrimaryDisabled;
+    constexpr const Color HoverOverlayChecked = Color::SetA(CursorChecked, 0.4f);
+    constexpr const Color HoverOverlayUnchecked = Color::SetA(BackgroundUnchecked, 0.4f);
   }
 }
 

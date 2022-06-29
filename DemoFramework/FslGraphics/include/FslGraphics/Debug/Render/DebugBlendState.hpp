@@ -33,13 +33,10 @@
 
 #include <FslGraphics/Render/BlendState.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
-  {
-    const char* TryToString(const BlendState& value);
-    const char* ToString(const BlendState& value);
-  }
+  const char* TryToString(const BlendState& value);
+  const char* ToString(const BlendState& value);
 }
 
 #endif

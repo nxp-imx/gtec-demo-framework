@@ -36,45 +36,42 @@
 #include <GLES2/gl2.h>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  // Texture filter wrapping
+  // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glTexParameter.xml
+  struct GLTextureParameters
   {
-    // Texture filter wrapping
-    // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glTexParameter.xml
-    struct GLTextureParameters
+    GLenum MinFilter{GL_NEAREST};
+    GLenum MagFilter{GL_NEAREST};
+    GLenum WrapS{GL_REPEAT};
+    GLenum WrapT{GL_REPEAT};
+
+    //! @brief Set it to the default values -> MinFilter: GL_NEAREST, MagFilter = GL_NEAREST, WrapS = GL_REPEAT, WrapT = GL_REPEAT
+    constexpr GLTextureParameters() = default;
+
+
+    constexpr GLTextureParameters(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT)
+      : MinFilter(minFilter)
+      , MagFilter(magFilter)
+      , WrapS(wrapS)
+      , WrapT(wrapT)
     {
-      GLenum MinFilter{GL_NEAREST};
-      GLenum MagFilter{GL_NEAREST};
-      GLenum WrapS{GL_REPEAT};
-      GLenum WrapT{GL_REPEAT};
-
-      //! @brief Set it to the default values -> MinFilter: GL_NEAREST, MagFilter = GL_NEAREST, WrapS = GL_REPEAT, WrapT = GL_REPEAT
-      constexpr GLTextureParameters() = default;
+      assert(IsValid());
+    }
 
 
-      constexpr GLTextureParameters(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT)
-        : MinFilter(minFilter)
-        , MagFilter(magFilter)
-        , WrapS(wrapS)
-        , WrapT(wrapT)
-      {
-        assert(IsValid());
-      }
-
-
-      //! @brief Check if the content is considered valid
-      constexpr bool IsValid() const
-      {
-        const bool b1 = (MinFilter == GL_NEAREST || MinFilter == GL_LINEAR || MinFilter == GL_NEAREST_MIPMAP_NEAREST ||
-                         MinFilter == GL_LINEAR_MIPMAP_NEAREST || MinFilter == GL_NEAREST_MIPMAP_LINEAR || MinFilter == GL_LINEAR_MIPMAP_LINEAR);
-        const bool b2 = (MagFilter == GL_NEAREST || MagFilter == GL_LINEAR);
-        const bool b3 = (WrapS == GL_CLAMP_TO_EDGE || WrapS == GL_MIRRORED_REPEAT || WrapS == GL_REPEAT || WrapS == GL_CLAMP_TO_EDGE);
-        const bool b4 = (WrapT == GL_CLAMP_TO_EDGE || WrapT == GL_MIRRORED_REPEAT || WrapT == GL_REPEAT || WrapT == GL_CLAMP_TO_EDGE);
-        return b1 && b2 && b3 && b4;
-      }
-    };
-  }
+    //! @brief Check if the content is considered valid
+    constexpr bool IsValid() const
+    {
+      const bool b1 = (MinFilter == GL_NEAREST || MinFilter == GL_LINEAR || MinFilter == GL_NEAREST_MIPMAP_NEAREST ||
+                       MinFilter == GL_LINEAR_MIPMAP_NEAREST || MinFilter == GL_NEAREST_MIPMAP_LINEAR || MinFilter == GL_LINEAR_MIPMAP_LINEAR);
+      const bool b2 = (MagFilter == GL_NEAREST || MagFilter == GL_LINEAR);
+      const bool b3 = (WrapS == GL_CLAMP_TO_EDGE || WrapS == GL_MIRRORED_REPEAT || WrapS == GL_REPEAT || WrapS == GL_CLAMP_TO_EDGE);
+      const bool b4 = (WrapT == GL_CLAMP_TO_EDGE || WrapT == GL_MIRRORED_REPEAT || WrapT == GL_REPEAT || WrapT == GL_CLAMP_TO_EDGE);
+      return b1 && b2 && b3 && b4;
+    }
+  };
 }
 
 #endif

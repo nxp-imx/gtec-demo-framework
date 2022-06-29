@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_DP_TYPECONVERTER_MATH_HPP
 #define FSLBASE_MATH_DP_TYPECONVERTER_MATH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,39 +31,41 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPoint.hpp>
-#include <FslBase/Math/Dp/DpPointF.hpp>
+#include <FslBase/Math/Dp/DpPoint2.hpp>
+#include <FslBase/Math/Dp/DpPoint2F.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/TypeConverter.hpp>
 #include <cassert>
 #include <cmath>
 
-namespace Fsl
+namespace Fsl::TypeConverter
 {
-  namespace TypeConverter
+  // The in this file are responsible for converting
+  // DP     -> normal
+  // normal -> DP
+
+
+  // --- DpPoint2F
+
+  template <>
+  constexpr inline DpPoint2F To<DpPoint2F, Vector2>(const Vector2& value)
   {
-    // --- DpPointF
-
-    template <>
-    constexpr inline DpPointF To<DpPointF, Vector2>(const Vector2& value)
-    {
-      return {value.X, value.Y};
-    }
+    return DpPoint2F::Create(value.X, value.Y);
+  }
 
 
-    // --- Vector2
+  // --- Vector2
 
-    template <>
-    constexpr inline Vector2 To<Vector2, DpPoint>(const DpPoint& value)
-    {
-      return {static_cast<float>(value.X), static_cast<float>(value.Y)};
-    }
+  template <>
+  constexpr inline Vector2 To<Vector2, DpPoint2>(const DpPoint2& value)
+  {
+    return {static_cast<float>(value.X.Value), static_cast<float>(value.Y.Value)};
+  }
 
-    template <>
-    constexpr inline Vector2 To<Vector2, DpPointF>(const DpPointF& value)
-    {
-      return {value.X, value.Y};
-    }
+  template <>
+  constexpr inline Vector2 To<Vector2, DpPoint2F>(const DpPoint2F& value)
+  {
+    return {value.X.Value, value.Y.Value};
   }
 }
 

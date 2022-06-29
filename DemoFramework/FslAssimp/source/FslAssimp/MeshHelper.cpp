@@ -30,10 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslAssimp/MeshHelper.hpp>
-
 #include <assimp/Importer.hpp>    //OO version Header!
 #include <assimp/postprocess.h>
-
 #include <algorithm>
 #include <limits>
 

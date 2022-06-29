@@ -31,24 +31,24 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFB.hpp>
-#include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
+#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
-#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <pthread.h>
-#include <iostream>
-#include <linux/input.h>
-#include <unistd.h>
+#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
+#include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFB.hpp>
 #include <fcntl.h>
+#include <linux/input.h>
+#include <pthread.h>
+#include <unistd.h>
 #include <cstring>
 #include <fstream>
+#include <iostream>
 
 namespace Fsl
 {

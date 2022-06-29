@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/Path.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
-#include <FslBase/IO/Path.hpp>
 #include <memory>
 
 namespace Fsl

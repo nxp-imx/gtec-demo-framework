@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 #include "RenderToTexture.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -46,12 +47,12 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr const uint32_t TextureWidth = 1024;
-      constexpr const uint32_t TextureHeight = 1024;
-      const GLuint RpVertexLoc = 0;
-      const GLuint RpColorLoc = 1;
-      const GLuint MpVertexLoc = 0;
-      const GLuint MpTexCoordLoc = 1;
+      constexpr uint32_t TextureWidth = 1024;
+      constexpr uint32_t TextureHeight = 1024;
+      constexpr GLuint RpVertexLoc = 0;
+      constexpr GLuint RpColorLoc = 1;
+      constexpr GLuint MpVertexLoc = 0;
+      constexpr GLuint MpTexCoordLoc = 1;
     }
     // Triangle Vertex Data
     constexpr const std::array<float, 18> g_triangleVertexPositions{0.0f,   100.0f, 0.0f, -100.0f, -100.0f, 0.0f, 100.0f, -100.0f, 0.0f,
@@ -63,7 +64,8 @@ namespace Fsl
     };
 
 
-    const std::array<const char*, 3> g_rpShaderAttributeArray{"g_vPosition", "g_vColor", nullptr};
+    constexpr std::array<GLES3::GLBindAttribLocation, 2> g_rpShaderAttributeArray{
+      GLES3::GLBindAttribLocation(LocalConfig::RpVertexLoc, "g_vPosition"), GLES3::GLBindAttribLocation(LocalConfig::RpColorLoc, "g_vColor")};
 
     // Cube Vertex Data
     const std::array<float, 72> g_cubeVertexPositions{
@@ -81,7 +83,8 @@ namespace Fsl
                                                12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
 
-    const std::array<const char*, 3> g_mpShaderAttributeArray{"g_vPosition", "g_vTexCoord", nullptr};
+    constexpr std::array<GLES3::GLBindAttribLocation, 2> g_mpShaderAttributeArray{
+      GLES3::GLBindAttribLocation(LocalConfig::MpVertexLoc, "g_vPosition"), GLES3::GLBindAttribLocation(LocalConfig::MpTexCoordLoc, "g_vTexCoord")};
   }
 
   RenderToTexture::RenderToTexture(const DemoAppConfig& config)
@@ -213,7 +216,7 @@ namespace Fsl
   {
     auto contentManager = GetContentManager();
     m_mainProgram.Reset(contentManager->ReadAllText("finalPass.vert"), contentManager->ReadAllText("finalPass.frag"),
-                        g_mpShaderAttributeArray.data());
+                        ReadOnlySpanUtil::AsSpan(g_mpShaderAttributeArray));
 
     m_MVPLoc = m_mainProgram.GetUniformLocation("g_matMVP");
     m_samplerLoc = m_mainProgram.GetUniformLocation("g_texSampler");
@@ -319,7 +322,7 @@ namespace Fsl
   {
     auto contentManager = GetContentManager();
     m_renderPassProgram.Reset(contentManager->ReadAllText("renderPass.vert"), contentManager->ReadAllText("renderPass.frag"),
-                              g_rpShaderAttributeArray.data());
+                              ReadOnlySpanUtil::AsSpan(g_rpShaderAttributeArray));
 
     m_rpMVPLoc = m_renderPassProgram.GetUniformLocation("g_matMVP");
   }
@@ -335,8 +338,8 @@ namespace Fsl
     m_rpModel = glm::mat4(1.0f);
     m_rpModel = glm::rotate(m_rpModel, glm::radians(m_angle), glm::vec3(0.0f, 1.0f, 0.0f));
     m_rpView = glm::lookAt(glm::vec3(0.0f, 0.0f, -400.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_rpProj =
-      glm::perspective(glm::radians(39.6f), static_cast<float>(LocalConfig::TextureWidth) / float(LocalConfig::TextureHeight), 0.1f, 1000.0f);
+    m_rpProj = glm::perspective(glm::radians(39.6f), static_cast<float>(LocalConfig::TextureWidth) / static_cast<float>(LocalConfig::TextureHeight),
+                                0.1f, 1000.0f);
     m_rpMVP = m_rpProj * m_rpView * m_rpModel;
 
     glUniformMatrix4fv(m_rpMVPLoc, 1, 0, glm::value_ptr(m_rpMVP));

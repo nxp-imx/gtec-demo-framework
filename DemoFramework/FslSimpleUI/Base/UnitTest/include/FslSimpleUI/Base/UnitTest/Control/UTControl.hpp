@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_CONTROL_FSLSIMPLEUI_BASE_UNITTEST_UTCONTROL_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_CONTROL_FSLSIMPLEUI_BASE_UNITTEST_UTCONTROL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,34 +33,31 @@
 
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class UTControl : public BaseWindow
   {
-    class UTControl : public BaseWindow
+  public:
+    PxAvailableSize TestLastMeasureOverrideAvailableSize;
+    PxSize2D TestLastArrangeOverrideFinalSize;
+
+    explicit UTControl(const std::shared_ptr<BaseWindowContext>& context)
+      : BaseWindow(context)
     {
-    public:
-      PxAvailableSize TestLastMeasureOverrideAvailableSize;
-      PxSize2D TestLastArrangeOverrideFinalSize;
+    }
 
-      explicit UTControl(const std::shared_ptr<BaseWindowContext>& context)
-        : BaseWindow(context)
-      {
-      }
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
+    {
+      TestLastMeasureOverrideAvailableSize = availableSizePx;
+      return BaseWindow::MeasureOverride(availableSizePx);
+    }
 
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
-      {
-        TestLastMeasureOverrideAvailableSize = availableSizePx;
-        return BaseWindow::MeasureOverride(availableSizePx);
-      }
-
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
-      {
-        TestLastArrangeOverrideFinalSize = finalSizePx;
-        return BaseWindow::ArrangeOverride(finalSizePx);
-      }
-    };
-  }
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
+    {
+      TestLastArrangeOverrideFinalSize = finalSizePx;
+      return BaseWindow::ArrangeOverride(finalSizePx);
+    }
+  };
 }
 
 #endif

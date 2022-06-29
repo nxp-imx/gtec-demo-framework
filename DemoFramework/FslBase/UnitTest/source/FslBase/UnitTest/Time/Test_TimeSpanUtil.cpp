@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,19 +44,19 @@ namespace
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt32)
 {
-  TimeSpan value = TimeSpanUtil::FromMicroseconds(uint32_t(1));
+  TimeSpan value = TimeSpanUtil::FromMicroseconds(static_cast<uint32_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMicrosecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt32_Min)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<uint32_t>::min());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<uint32_t>::min());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMicroseconds(std::numeric_limits<uint32_t>::min()));
 }
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt32_Max)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<uint32_t>::max());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<uint32_t>::max());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMicroseconds(std::numeric_limits<uint32_t>::max()));
 }
 
@@ -64,25 +64,25 @@ TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt32_Max)
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int32_Positive)
 {
-  TimeSpan value = TimeSpanUtil::FromMicroseconds(int32_t(1));
+  TimeSpan value = TimeSpanUtil::FromMicroseconds(static_cast<int32_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMicrosecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int32_Negative)
 {
-  TimeSpan value = TimeSpanUtil::FromMicroseconds(int32_t(-1));
+  TimeSpan value = TimeSpanUtil::FromMicroseconds(static_cast<int32_t>(-1));
   EXPECT_EQ(-TimeInfo::TicksPerMicrosecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int32_Min)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<int32_t>::min());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<int32_t>::min());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMicroseconds(std::numeric_limits<int32_t>::min()));
 }
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int32_Max)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<int32_t>::max());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMicrosecond) * std::numeric_limits<int32_t>::max());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMicroseconds(std::numeric_limits<int32_t>::max()));
 }
 
@@ -90,13 +90,13 @@ TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int32_Max)
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int64_Positive)
 {
-  TimeSpan value = TimeSpanUtil::FromMicroseconds(int64_t(1));
+  TimeSpan value = TimeSpanUtil::FromMicroseconds(static_cast<int64_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMicrosecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int64_Negative)
 {
-  TimeSpan value = TimeSpanUtil::FromMicroseconds(int64_t(-1));
+  TimeSpan value = TimeSpanUtil::FromMicroseconds(static_cast<int64_t>(-1));
   EXPECT_EQ(-TimeInfo::TicksPerMicrosecond, value.Ticks());
 }
 
@@ -156,7 +156,7 @@ TEST(TestTime_TimeSpanUtil, FromMicroseconds_Int64_Underflow1)
 
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt64)
 {
-  TimeSpan value = TimeSpanUtil::FromMicroseconds(uint64_t(1));
+  TimeSpan value = TimeSpanUtil::FromMicroseconds(static_cast<uint64_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMicrosecond, value.Ticks());
 }
 
@@ -206,19 +206,19 @@ TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt64_Overflow1)
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_UInt32)
 {
-  TimeSpan value = TimeSpanUtil::FromMilliseconds(uint32_t(1));
+  TimeSpan value = TimeSpanUtil::FromMilliseconds(static_cast<uint32_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMillisecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_UInt32_Min)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMillisecond) * std::numeric_limits<uint32_t>::min());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMillisecond) * std::numeric_limits<uint32_t>::min());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMilliseconds(std::numeric_limits<uint32_t>::min()));
 }
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_UInt32_Max)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMillisecond) * std::numeric_limits<uint32_t>::max());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMillisecond) * std::numeric_limits<uint32_t>::max());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMilliseconds(std::numeric_limits<uint32_t>::max()));
 }
 
@@ -226,25 +226,25 @@ TEST(TestTime_TimeSpanUtil, FromMilliseconds_UInt32_Max)
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int32_Positive)
 {
-  TimeSpan value = TimeSpanUtil::FromMilliseconds(int32_t(1));
+  TimeSpan value = TimeSpanUtil::FromMilliseconds(static_cast<int32_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMillisecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int32_Negative)
 {
-  TimeSpan value = TimeSpanUtil::FromMilliseconds(int32_t(-1));
+  TimeSpan value = TimeSpanUtil::FromMilliseconds(static_cast<int32_t>(-1));
   EXPECT_EQ(-TimeInfo::TicksPerMillisecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int32_Min)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMillisecond) * std::numeric_limits<int32_t>::min());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMillisecond) * std::numeric_limits<int32_t>::min());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMilliseconds(std::numeric_limits<int32_t>::min()));
 }
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int32_Max)
 {
-  constexpr TimeSpan expectedValue(int64_t(TimeInfo::TicksPerMillisecond) * std::numeric_limits<int32_t>::max());
+  constexpr TimeSpan expectedValue(static_cast<int64_t>(TimeInfo::TicksPerMillisecond) * std::numeric_limits<int32_t>::max());
   EXPECT_EQ(expectedValue, TimeSpanUtil::FromMilliseconds(std::numeric_limits<int32_t>::max()));
 }
 
@@ -252,13 +252,13 @@ TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int32_Max)
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int64_Positive)
 {
-  TimeSpan value = TimeSpanUtil::FromMilliseconds(int64_t(1));
+  TimeSpan value = TimeSpanUtil::FromMilliseconds(static_cast<int64_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMillisecond, value.Ticks());
 }
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int64_Negative)
 {
-  TimeSpan value = TimeSpanUtil::FromMilliseconds(int64_t(-1));
+  TimeSpan value = TimeSpanUtil::FromMilliseconds(static_cast<int64_t>(-1));
   EXPECT_EQ(-TimeInfo::TicksPerMillisecond, value.Ticks());
 }
 
@@ -317,7 +317,7 @@ TEST(TestTime_TimeSpanUtil, FromMilliseconds_Int64_Underflow1)
 
 TEST(TestTime_TimeSpanUtil, FromMilliseconds_UInt64)
 {
-  TimeSpan value = TimeSpanUtil::FromMilliseconds(uint64_t(1));
+  TimeSpan value = TimeSpanUtil::FromMilliseconds(static_cast<uint64_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerMillisecond, value.Ticks());
 }
 
@@ -340,7 +340,7 @@ TEST(TestTime_TimeSpanUtil, FromMilliseconds_UInt64_Overflow1)
 
 TEST(TestTime_TimeSpanUtil, FromSeconds_UInt64)
 {
-  TimeSpan value = TimeSpanUtil::FromSeconds(uint64_t(1));
+  TimeSpan value = TimeSpanUtil::FromSeconds(static_cast<uint64_t>(1));
   EXPECT_EQ(TimeInfo::TicksPerSecond, value.Ticks());
 }
 

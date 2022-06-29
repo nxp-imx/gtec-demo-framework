@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkData.hpp>
 #include <array>
+#include <optional>
 
 namespace Fsl
 {
@@ -50,17 +50,17 @@ namespace Fsl
     IO::Path m_persistentDataPath;
     std::array<DataSet, 2> m_entries;
 
-    Optional<AppBenchmarkData> m_forceViewData;
-    Optional<AppBenchmarkData> m_forceCompareData;
+    std::optional<AppBenchmarkData> m_forceViewData;
+    std::optional<AppBenchmarkData> m_forceCompareData;
 
   public:
-    explicit BenchResultManager(const ServiceProvider& serviceProvider, const Optional<IO::Path>& forceViewFile,
-                                const Optional<IO::Path>& forceCompareFile, const bool debugMode);
+    explicit BenchResultManager(const ServiceProvider& serviceProvider, const std::optional<IO::Path>& forceViewFile,
+                                const std::optional<IO::Path>& forceCompareFile, const bool debugMode);
     ~BenchResultManager();
 
 
-    Optional<AppBenchmarkData> TryLoad();
-    Optional<AppBenchmarkData> TryLoadCompare();
+    std::optional<AppBenchmarkData> TryLoad();
+    std::optional<AppBenchmarkData> TryLoadCompare();
     bool TrySave(const AppBenchmarkData& benchmarkData);
 
   private:

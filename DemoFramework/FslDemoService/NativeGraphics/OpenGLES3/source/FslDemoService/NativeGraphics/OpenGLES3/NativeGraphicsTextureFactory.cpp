@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,108 +29,105 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsTextureFactory.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsTexture.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsTextureFactory.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  NativeGraphicsTextureFactory::NativeGraphicsTextureFactory()
   {
-    NativeGraphicsTextureFactory::NativeGraphicsTextureFactory()
+    FSLLOG3_VERBOSE3("NativeGraphicsTextureFactory::Construct");
+  }
+
+  NativeGraphicsTextureFactory::~NativeGraphicsTextureFactory() noexcept
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsTextureFactory::Destruct");
+    Dispose();
+  }
+
+
+  Graphics3D::NativeTextureFactoryCaps NativeGraphicsTextureFactory::GetTextureCaps() const
+  {
+    return Graphics3D::NativeTextureFactoryCaps::Dynamic | Graphics3D::NativeTextureFactoryCaps::TextureCoordinatesFlipY;
+  }
+
+  void NativeGraphicsTextureFactory::Dispose() noexcept
+  {
+    if (m_isDisposed)
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsTextureFactory::Construct");
+      return;
     }
-
-    NativeGraphicsTextureFactory::~NativeGraphicsTextureFactory() noexcept
+    FSLLOG3_VERBOSE3("NativeGraphicsTextureFactory::Dispose");
+    m_isDisposed = true;
+    if (m_textures.Count() > 0)
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsTextureFactory::Destruct");
-      Dispose();
-    }
-
-
-    Graphics3D::NativeTextureFactoryCaps NativeGraphicsTextureFactory::GetTextureCaps() const
-    {
-      return Graphics3D::NativeTextureFactoryCaps::Dynamic | Graphics3D::NativeTextureFactoryCaps::TextureCoordinatesFlipY;
-    }
-
-    void NativeGraphicsTextureFactory::Dispose() noexcept
-    {
-      if (m_isDisposed)
+      try
       {
-        return;
+        FSLLOG3_WARNING("NativeGraphicsTextureFactory: There are still {} allocated textures, force freeing them", m_textures.Count());
+        m_textures.Clear();
       }
-      FSLLOG3_VERBOSE3("NativeGraphicsTextureFactory::Dispose");
-      m_isDisposed = true;
-      if (m_textures.Count() > 0)
+      catch (const std::exception& ex)
       {
-        try
-        {
-          FSLLOG3_WARNING("NativeGraphicsTextureFactory: There are still {} allocated textures, force freeing them", m_textures.Count());
-          m_textures.Clear();
-        }
-        catch (const std::exception& ex)
-        {
-          // This is the best we can do since this is not supposed to occur
-          FSLLOG3_ERROR("NativeGraphicsTextureFactory consumed exception during force free: {}", ex.what());
-        }
+        // This is the best we can do since this is not supposed to occur
+        FSLLOG3_ERROR("NativeGraphicsTextureFactory consumed exception during force free: {}", ex.what());
       }
     }
+  }
 
 
-    BasicNativeTextureHandle NativeGraphicsTextureFactory::CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                         const TextureFlags textureFlags, const bool isDynamic)
+  BasicNativeTextureHandle NativeGraphicsTextureFactory::CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                       const TextureFlags textureFlags, const bool isDynamic)
+  {
+    FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::CreateTexture");
+    if (m_isDisposed)
     {
-      FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::CreateTexture");
-      if (m_isDisposed)
-      {
-        throw UsageErrorException("Trying to create texture after dispose");
-      }
-      if (isDynamic)
-      {
-        throw NotSupportedException("Dynamic textures are not supported");
-      }
-
-      auto handle = m_textures.Add(NativeGraphicsTexture(texture, filterHint, textureFlags));
-
-      FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::CreateTexture handle: {}", handle);
-      return BasicNativeTextureHandle(handle);
+      throw UsageErrorException("Trying to create texture after dispose");
+    }
+    if (isDynamic)
+    {
+      throw NotSupportedException("Dynamic textures are not supported");
     }
 
-    bool NativeGraphicsTextureFactory::DestroyTexture(const BasicNativeTextureHandle hTexture)
-    {
-      FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::DestroyTexture({})", hTexture.Value);
-      if (m_isDisposed)
-      {
-        FSLLOG3_ERROR("hTexture is invalid, call ignored");
-        return false;
-      }
-      if (!m_textures.Remove(hTexture.Value))
-      {
-        FSLLOG3_ERROR("tried to free a unknown texture, call ignored");
-        return false;
-      }
-      return true;
-    }
+    auto handle = m_textures.Add(NativeGraphicsTexture(texture, filterHint, textureFlags));
 
-    void NativeGraphicsTextureFactory::SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture,
-                                                      const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+    FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::CreateTexture handle: {}", handle);
+    return BasicNativeTextureHandle(handle);
+  }
+
+  bool NativeGraphicsTextureFactory::DestroyTexture(const BasicNativeTextureHandle hTexture)
+  {
+    FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::DestroyTexture({})", hTexture.Value);
+    if (m_isDisposed)
     {
-      FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::SetTextureData({})", hTexture.Value);
-      if (m_isDisposed)
-      {
-        throw UsageErrorException("Trying to SetTextureData after dispose");
-      }
-      NativeGraphicsTexture& rTexture = m_textures.Get(hTexture.Value);
-      rTexture.SetData(texture, filterHint, textureFlags);
+      FSLLOG3_ERROR("hTexture is invalid, call ignored");
+      return false;
     }
+    if (!m_textures.Remove(hTexture.Value))
+    {
+      FSLLOG3_ERROR("tried to free a unknown texture, call ignored");
+      return false;
+    }
+    return true;
+  }
+
+  void NativeGraphicsTextureFactory::SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture,
+                                                    const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  {
+    FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::SetTextureData({})", hTexture.Value);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Trying to SetTextureData after dispose");
+    }
+    NativeGraphicsTexture& rTexture = m_textures.Get(hTexture.Value);
+    rTexture.SetData(texture, filterHint, textureFlags);
+  }
 
 
-    const IBasicNativeTexture* NativeGraphicsTextureFactory::TryGetTexture(const BasicNativeTextureHandle hTexture) const
-    {
-      return !m_isDisposed ? m_textures.TryGet(hTexture.Value) : nullptr;
-    }
+  const IBasicNativeTexture* NativeGraphicsTextureFactory::TryGetTexture(const BasicNativeTextureHandle hTexture) const
+  {
+    return !m_isDisposed ? m_textures.TryGet(hTexture.Value) : nullptr;
   }
 }

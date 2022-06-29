@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
 #include <FslService/Impl/Registry/ServiceGroupId.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <utility>
 
 
@@ -61,7 +61,7 @@ namespace Fsl
 
     operator BasicMessage() const    // NOLINT(google-explicit-constructor);
     {
-      return BasicMessage(BasicMessageType::ThreadShutdown, static_cast<int32_t>(Id.GetValue()), Exception);
+      return {BasicMessageType::ThreadShutdown, static_cast<int32_t>(Id.GetValue()), Exception};
     }
 
 
@@ -72,7 +72,7 @@ namespace Fsl
         throw std::invalid_argument("message was not of the expected type");
       }
 
-      return ThreadShutdownBasicMessage(ServiceGroupId(static_cast<uint32_t>(message.Param1)), message.Exception);
+      return {ServiceGroupId(static_cast<uint32_t>(message.Param1)), message.Exception};
     }
   };
 }

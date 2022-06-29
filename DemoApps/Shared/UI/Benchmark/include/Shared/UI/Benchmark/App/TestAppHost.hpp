@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_APP_TESTAPPHOST_HPP
 #define SHARED_UI_BENCHMARK_APP_TESTAPPHOST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxViewport.hpp>
-#include <FslDemoApp/Base/DemoAppExtension.hpp>
+#include <FslDemoApp/Base/IDemoAppExtension.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
@@ -58,7 +58,7 @@ namespace Fsl
     class IRenderSystemBase;
   }
 
-  class TestAppHost final : public DemoAppExtension
+  class TestAppHost final : public IDemoAppExtension
   {
     struct ConfigRecord
     {
@@ -98,6 +98,9 @@ namespace Fsl
     TestAppHost(const ServiceProvider& serviceProvider, const DemoWindowMetrics& windowMetrics, const bool useCustomModule = false);
     ~TestAppHost() override;
 
+    Color GetRootColor() const;
+    bool TrySetRootColor(const Color color);
+
     void ClearProfileData();
 
     const DemoPerformanceCapture& GetProfiler() const
@@ -130,7 +133,7 @@ namespace Fsl
     std::shared_ptr<ICustomWindowInfoModule> GetWindowInfoModule() const;
 
 
-    // DemoAppExtension
+    // IDemoAppExtension
     void OnKeyEvent(const KeyEvent& event) final;
     void OnMouseButtonEvent(const MouseButtonEvent& event) final;
     void OnMouseMoveEvent(const MouseMoveEvent& event) final;
@@ -138,10 +141,14 @@ namespace Fsl
     void OnRawMouseMoveEvent(const RawMouseMoveEvent& event) final;
     void OnTimeStateEvent(const TimeStateEvent& event) final;
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
-    void PreUpdate(const DemoTime& demoTime) final;
-    void FixedUpdate(const DemoTime& demoTime) final;
-    void Update(const DemoTime& demoTime) final;
-    void PostUpdate(const DemoTime& demoTime) final;
+    void Begin(const DemoAppExtensionCallOrder callOrder) final;
+    void PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void FixedUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void Resolve(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void OnDrawSkipped(const DemoAppExtensionCallOrder callOrder, const FrameInfo& frameInfo) final;
+    void End(const DemoAppExtensionCallOrder callOrder) final;
   };
 }
 

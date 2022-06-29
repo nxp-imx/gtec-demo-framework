@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_UTIL_VUBUFFERMEMORYUTIL_GLM_HPP
 #define FSLUTIL_VULKAN1_0_UTIL_VUBUFFERMEMORYUTIL_GLM_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,44 +37,38 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/matrix.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan::VUBufferMemoryUtil
 {
-  namespace Vulkan
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::vec2& vec, const VkMemoryMapFlags memoryMapFlags = 0)
   {
-    namespace VUBufferMemoryUtil
-    {
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::vec2& vec, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, glm::value_ptr(vec), sizeof(float) * 2, memoryMapFlags);
-      }
+    rBuffer.Upload(offset, glm::value_ptr(vec), sizeof(float) * 2, memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::vec3& vec, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, glm::value_ptr(vec), sizeof(float) * 3, memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::vec3& vec, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, glm::value_ptr(vec), sizeof(float) * 3, memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::vec4& vec, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, glm::value_ptr(vec), sizeof(float) * 4, memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::vec4& vec, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, glm::value_ptr(vec), sizeof(float) * 4, memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::mat2& mat, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        // Only upload relevant columns and rows.
-        rBuffer.Upload(offset, glm::value_ptr(glm::mat4(mat)), sizeof(float) * 6, memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::mat2& mat, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    // Only upload relevant columns and rows.
+    rBuffer.Upload(offset, glm::value_ptr(glm::mat4(mat)), sizeof(float) * 6, memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::mat3& mat, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        // Only upload relevant columns and rows.
-        rBuffer.Upload(offset, glm::value_ptr(glm::mat4(mat)), sizeof(float) * 11, memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::mat3& mat, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    // Only upload relevant columns and rows.
+    rBuffer.Upload(offset, glm::value_ptr(glm::mat4(mat)), sizeof(float) * 11, memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::mat4& mat, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, glm::value_ptr(mat), sizeof(float) * 16, memoryMapFlags);
-      }
-    }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const glm::mat4& mat, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, glm::value_ptr(mat), sizeof(float) * 16, memoryMapFlags);
   }
 }
 

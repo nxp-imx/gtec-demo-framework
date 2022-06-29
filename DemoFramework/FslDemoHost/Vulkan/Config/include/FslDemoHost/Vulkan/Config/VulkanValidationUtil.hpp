@@ -34,15 +34,12 @@
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  namespace VulkanValidationUtil
   {
-    namespace VulkanValidationUtil
-    {
-      void CheckWindowAndSurfaceExtent(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface, const PxExtent2D& windowExtent);
-    };
-  }
+    void CheckWindowAndSurfaceExtent(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface, const PxExtent2D& windowExtent);
+  };
 }
 
 #endif

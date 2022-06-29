@@ -24,5 +24,8 @@
     <Platform Name="Yocto" Supported="true">
       <Define Name="FSL_PLATFORM_YOCTO" Access="Public"/> 
     </Platform>
+    <Platform Name="Emscripten" Supported="true">
+      <Define Name="FSL_PLATFORM_EMSCRIPTEN" Access="Public"/> 
+    </Platform>
   </ExternalLibrary>
 </FslBuildGen>

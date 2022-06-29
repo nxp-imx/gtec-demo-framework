@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_TEXTURE_BASICSTATICTEXTURETRACKER_HPP
 #define FSLGRAPHICS3D_BASICRENDER_TEXTURE_BASICSTATICTEXTURETRACKER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,50 +39,47 @@
 #include <stdexcept>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class BasicStaticTextureTracker final
+    : public ABasicTextureTracker
+    , public INativeTexture2D
   {
-    class BasicStaticTextureTracker final
-      : public ABasicTextureTracker
-      , public INativeTexture2D
+    BasicTextureHandle m_hTexture;
+    BasicNativeTextureHandle m_handle;
+
+  public:
+    explicit BasicStaticTextureTracker(const BasicTextureHandle hTexture, const PxExtent3D& extentPx, const bool textureCoordinatesFlipY,
+                                       const BasicNativeTextureHandle handle)
+      : ABasicTextureTracker(extentPx, textureCoordinatesFlipY)
+      , m_hTexture(hTexture)
+      , m_handle(handle)
     {
-      BasicTextureHandle m_hTexture;
-      BasicNativeTextureHandle m_handle;
-
-    public:
-      explicit BasicStaticTextureTracker(const BasicTextureHandle hTexture, const PxExtent3D& extentPx, const bool textureCoordinatesFlipY,
-                                         const BasicNativeTextureHandle handle)
-        : ABasicTextureTracker(extentPx, textureCoordinatesFlipY)
-        , m_hTexture(hTexture)
-        , m_handle(handle)
+      assert(m_hTexture.IsValid());
+      if (!handle.IsValid())
       {
-        assert(m_hTexture.IsValid());
-        if (!handle.IsValid())
-        {
-          throw std::invalid_argument("handle must be valid");
-        }
+        throw std::invalid_argument("handle must be valid");
       }
+    }
 
-      ~BasicStaticTextureTracker() final = default;
+    ~BasicStaticTextureTracker() final = default;
 
-      void Dispose()
-      {
-        m_hTexture = {};
-        m_handle = {};
-      }
+    void Dispose()
+    {
+      m_hTexture = {};
+      m_handle = {};
+    }
 
-      BasicNativeTextureHandle TryGetNativeHandle() const noexcept final
-      {
-        return m_handle;
-      }
+    BasicNativeTextureHandle TryGetNativeHandle() const noexcept final
+    {
+      return m_handle;
+    }
 
-      NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const final
-      {
-        return DoCalcNativeTextureArea(imageRectanglePx);
-      }
-    };
-  }
+    NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const final
+    {
+      return DoCalcNativeTextureArea(imageRectanglePx);
+    }
+  };
 }
 
 #endif

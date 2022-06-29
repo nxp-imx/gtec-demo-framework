@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,175 +29,172 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Batch/QuadBatchDescriptorSets.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Batch/QuadBatchDescriptorSets.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 #include <limits>
 
 using namespace RapidVulkan;
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  namespace
   {
-    namespace
+    const uint32_t BUCKET_SIZE = 256;
+    const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
+    const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
+  }
+
+
+  QuadBatchDescriptorSets::Bucket::Bucket(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout, const uint32_t size)
+    : m_descriptorSetLayout(descriptorSetLayout)
+    , m_descriptorSets(size)
+    , m_entries(0)
+    , m_index(0)
+  {
+    VkDescriptorPoolSize poolSize{};
+    poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSize.descriptorCount = size;
+
+    VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
+    descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    descriptorPoolCreateInfo.maxSets = size;
+    descriptorPoolCreateInfo.poolSizeCount = 1;
+    descriptorPoolCreateInfo.pPoolSizes = &poolSize;
+
+    m_descriptorPool.Reset(device, descriptorPoolCreateInfo);
+  }
+
+
+  void QuadBatchDescriptorSets::Bucket::Clear()
+  {
+    m_index = 0;
+  }
+
+
+  VkDescriptorSet QuadBatchDescriptorSets::Bucket::NextFree()
+  {
+    if (m_index >= m_descriptorSets.size())
     {
-      const uint32_t BUCKET_SIZE = 256;
-      const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
-      const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
+      throw VulkanUsageErrorException("Bucket capacity exceeded");
     }
 
-
-    QuadBatchDescriptorSets::Bucket::Bucket(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout, const uint32_t size)
-      : m_descriptorSetLayout(descriptorSetLayout)
-      , m_descriptorSets(size)
-      , m_entries(0)
-      , m_index(0)
+    if (m_index < m_entries)
     {
-      VkDescriptorPoolSize poolSize{};
-      poolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-      poolSize.descriptorCount = size;
-
-      VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
-      descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-      descriptorPoolCreateInfo.maxSets = size;
-      descriptorPoolCreateInfo.poolSizeCount = 1;
-      descriptorPoolCreateInfo.pPoolSizes = &poolSize;
-
-      m_descriptorPool.Reset(device, descriptorPoolCreateInfo);
-    }
-
-
-    void QuadBatchDescriptorSets::Bucket::Clear()
-    {
-      m_index = 0;
-    }
-
-
-    VkDescriptorSet QuadBatchDescriptorSets::Bucket::NextFree()
-    {
-      if (m_index >= m_descriptorSets.size())
-      {
-        throw VulkanUsageErrorException("Bucket capacity exceeded");
-      }
-
-      if (m_index < m_entries)
-      {
-        // Reuse a existing set
-        VkDescriptorSet result = m_descriptorSets[m_index];
-        ++m_index;
-        return result;
-      }
-
-
-      // Allocate a new descriptor set
-      VkDescriptorSetAllocateInfo descriptorSetAllocInfo{};
-      descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-      descriptorSetAllocInfo.descriptorPool = m_descriptorPool.Get();
-      descriptorSetAllocInfo.descriptorSetCount = 1;
-      descriptorSetAllocInfo.pSetLayouts = &m_descriptorSetLayout;
-
-      VkDescriptorSet descriptorSet{};
-      RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_descriptorPool.GetDevice(), &descriptorSetAllocInfo, &descriptorSet));
-
-      m_descriptorSets[m_index] = descriptorSet;
+      // Reuse a existing set
+      VkDescriptorSet result = m_descriptorSets[m_index];
       ++m_index;
-      ++m_entries;
-      return descriptorSet;
+      return result;
     }
 
-    QuadBatchDescriptorSets::QuadBatchDescriptorSets()
-      : m_device(VK_NULL_HANDLE)
-      , m_descriptorSetLayoutTexture(VK_NULL_HANDLE)
-      , m_activeSets(0)
-      , m_activeCount(0)
+
+    // Allocate a new descriptor set
+    VkDescriptorSetAllocateInfo descriptorSetAllocInfo{};
+    descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocInfo.descriptorPool = m_descriptorPool.Get();
+    descriptorSetAllocInfo.descriptorSetCount = 1;
+    descriptorSetAllocInfo.pSetLayouts = &m_descriptorSetLayout;
+
+    VkDescriptorSet descriptorSet{};
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_descriptorPool.GetDevice(), &descriptorSetAllocInfo, &descriptorSet));
+
+    m_descriptorSets[m_index] = descriptorSet;
+    ++m_index;
+    ++m_entries;
+    return descriptorSet;
+  }
+
+  QuadBatchDescriptorSets::QuadBatchDescriptorSets()
+    : m_device(VK_NULL_HANDLE)
+    , m_descriptorSetLayoutTexture(VK_NULL_HANDLE)
+    , m_activeSets(0)
+    , m_activeCount(0)
+  {
+  }
+
+
+  QuadBatchDescriptorSets::QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout /*descriptorSetLayout*/)
+    : QuadBatchDescriptorSets()
+  {
+    Reset(device, m_descriptorSetLayoutTexture);
+  }
+
+  void QuadBatchDescriptorSets::Reset() noexcept
+  {
+    if (!IsValid())
     {
+      return;
     }
 
+    m_device = VK_NULL_HANDLE;
+    m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
+    m_buckets.clear();
+    m_activeSets.clear();
+    m_activeCount = 0;
+  }
 
-    QuadBatchDescriptorSets::QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout /*descriptorSetLayout*/)
-      : QuadBatchDescriptorSets()
+  void QuadBatchDescriptorSets::Reset(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout)
+  {
+    Reset();
+
+    assert(device != VK_NULL_HANDLE);
+    assert(descriptorSetLayout != VK_NULL_HANDLE);
+    try
     {
-      Reset(device, m_descriptorSetLayoutTexture);
+      m_device = device;
+      m_descriptorSetLayoutTexture = descriptorSetLayout;
+      m_activeSets.resize(ARRAY_START_SIZE);
+
+      // Allocate the initial bucket
+      m_buckets.emplace_back(device, m_descriptorSetLayoutTexture, BUCKET_SIZE);
     }
-
-    void QuadBatchDescriptorSets::Reset() noexcept
-    {
-      if (!IsValid())
-      {
-        return;
-      }
-
-      m_device = VK_NULL_HANDLE;
-      m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
-      m_buckets.clear();
-      m_activeSets.clear();
-      m_activeCount = 0;
-    }
-
-    void QuadBatchDescriptorSets::Reset(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout)
+    catch (const std::exception&)
     {
       Reset();
-
-      assert(device != VK_NULL_HANDLE);
-      assert(descriptorSetLayout != VK_NULL_HANDLE);
-      try
-      {
-        m_device = device;
-        m_descriptorSetLayoutTexture = descriptorSetLayout;
-        m_activeSets.resize(ARRAY_START_SIZE);
-
-        // Allocate the initial bucket
-        m_buckets.emplace_back(device, m_descriptorSetLayoutTexture, BUCKET_SIZE);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+      throw;
     }
+  }
 
-    void QuadBatchDescriptorSets::Clear()
+  void QuadBatchDescriptorSets::Clear()
+  {
+    m_activeCount = 0;
+    for (auto& rEntry : m_buckets)
     {
-      m_activeCount = 0;
-      for (auto& rEntry : m_buckets)
-      {
-        rEntry.Clear();
-      }
+      rEntry.Clear();
     }
+  }
 
 
-    VkDescriptorSet QuadBatchDescriptorSets::NextFree()
+  VkDescriptorSet QuadBatchDescriptorSets::NextFree()
+  {
+    if (m_activeCount >= std::numeric_limits<uint32_t>::max())
     {
-      if (m_activeCount >= std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("Maximum number of supported buffers reached");
-      }
-
-      const uint32_t currentIndex = m_activeCount;
-
-      const uint32_t currentBucketIndex = m_activeCount / BUCKET_SIZE;
-
-      // Check if we need to allocate another bucket
-      assert(currentBucketIndex <= m_buckets.size());
-      if (currentBucketIndex >= m_buckets.size())
-      {
-        m_buckets.emplace_back(m_device, m_descriptorSetLayoutTexture, BUCKET_SIZE);
-      }
-
-      // take the next available command buffer
-      const VkDescriptorSet descriptorSet = m_buckets[currentBucketIndex].NextFree();
-
-      ++m_activeCount;
-      // ensure we have enough capacity to hold all active buffers in one array
-      if (m_activeCount >= m_activeSets.size())
-      {
-        m_activeSets.resize(m_activeSets.size() + ARRAY_EXPAND_ENTRIES);
-      }
-
-      m_activeSets[currentIndex] = descriptorSet;
-      return descriptorSet;
+      throw NotSupportedException("Maximum number of supported buffers reached");
     }
+
+    const uint32_t currentIndex = m_activeCount;
+
+    const uint32_t currentBucketIndex = m_activeCount / BUCKET_SIZE;
+
+    // Check if we need to allocate another bucket
+    assert(currentBucketIndex <= m_buckets.size());
+    if (currentBucketIndex >= m_buckets.size())
+    {
+      m_buckets.emplace_back(m_device, m_descriptorSetLayoutTexture, BUCKET_SIZE);
+    }
+
+    // take the next available command buffer
+    const VkDescriptorSet descriptorSet = m_buckets[currentBucketIndex].NextFree();
+
+    ++m_activeCount;
+    // ensure we have enough capacity to hold all active buffers in one array
+    if (m_activeCount >= m_activeSets.size())
+    {
+      m_activeSets.resize(m_activeSets.size() + ARRAY_EXPAND_ENTRIES);
+    }
+
+    m_activeSets[currentIndex] = descriptorSet;
+    return descriptorSet;
   }
 }

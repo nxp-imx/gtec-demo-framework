@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Setup/TemplateIDemoHostFactory.hpp>
-#include <FslDemoHost/Stub/StubDemoHostSetup.hpp>
 #include <FslDemoHost/Stub/StubDemoHost.hpp>
 #include <FslDemoHost/Stub/StubDemoHostOptionParser.hpp>
+#include <FslDemoHost/Stub/StubDemoHostSetup.hpp>
 
 namespace Fsl
 {
@@ -40,6 +40,6 @@ namespace Fsl
   {
     std::shared_ptr<IDemoHostFactory> demoHostFactory(new TemplateIDemoHostFactory<StubDemoHost>());
     std::shared_ptr<ADemoHostOptionParser> optionParser(new StubDemoHostOptionParser());
-    return DemoHostSetup(demoHostFactory, optionParser);
+    return {demoHostFactory, optionParser};
   }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,121 +29,117 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/ContainerTypeConvert.hpp>
-#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslGraphics/ContainerTypeConvert.hpp>
 #include <FslGraphics/Log/FmtPixelFormat.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
+#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
+#include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
 
-namespace Fsl
+namespace Fsl::TestAtlasTextureGenerator
 {
-  namespace TestAtlasTextureGenerator
+  namespace
   {
-    namespace
+    void FillWithTestPattern(Bitmap& rBitmap, const PxRectangleU32& dstRect)
     {
-      void FillWithTestPattern(Bitmap& rBitmap, const PxRectangleU32& dstRect)
+      constexpr const uint32_t colorRed = 0xFFFF0000;
+      constexpr const uint32_t colorBlue = 0xFF0000FF;
+
+      const uint32_t xStart = dstRect.X;
+      const uint32_t xEnd = xStart + dstRect.Width;
+      const uint32_t yStart = dstRect.Y;
+      const uint32_t yEnd = yStart + dstRect.Height;
+
+      uint32_t yMagic = 0;
+      for (uint32_t y = yStart; y < yEnd; ++y)
       {
-        constexpr const uint32_t colorRed = 0xFFFF0000;
-        constexpr const uint32_t colorBlue = 0xFF0000FF;
-
-        const uint32_t xStart = dstRect.X;
-        const uint32_t xEnd = xStart + dstRect.Width;
-        const uint32_t yStart = dstRect.Y;
-        const uint32_t yEnd = yStart + dstRect.Height;
-
-        uint32_t yMagic = 0;
-        for (uint32_t y = yStart; y < yEnd; ++y)
+        uint32_t startCol = yMagic & 1;
+        for (uint32_t x = xStart; x < xEnd; ++x)
         {
-          uint32_t startCol = yMagic & 1;
-          for (uint32_t x = xStart; x < xEnd; ++x)
-          {
-            rBitmap.SetNativePixel(x, y, (startCol & 1) != 0u ? colorRed : colorBlue);
-            ++startCol;
-          }
-          yMagic = ~yMagic;
+          rBitmap.SetNativePixel(x, y, (startCol & 1) != 0u ? colorRed : colorBlue);
+          ++startCol;
         }
+        yMagic = ~yMagic;
       }
     }
+  }
 
-    void PatchWithTestPattern(Bitmap& rBitmap)
+  void PatchWithTestPattern(Bitmap& rBitmap)
+  {
+    const auto extent = rBitmap.GetExtent();
+    if (rBitmap.GetPixelFormat() != PixelFormat::R8G8B8A8_UNORM)
     {
-      const auto extent = rBitmap.GetExtent();
-      if (rBitmap.GetPixelFormat() != PixelFormat::R8G8B8A8_UNORM)
+      FSLLOG3_WARNING("Changing pixel format from {} to PixelFormat::R8G8B8A8_UNORM", rBitmap.GetPixelFormat());
+      const auto origin = rBitmap.GetOrigin();
+      rBitmap.Reset(extent, PixelFormat::R8G8B8A8_UNORM, origin);
+    }
+    rBitmap.Clear();
+
+    FillWithTestPattern(rBitmap, PxRectangleU32(0, 0, rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
+  }
+
+
+  void PatchWithTestPattern(Bitmap& rBitmap, const ITextureAtlas& sourceAtlas)
+  {
+    const auto extent = rBitmap.GetExtent();
+    if (rBitmap.GetPixelFormat() != PixelFormat::R8G8B8A8_UNORM)
+    {
+      FSLLOG3_WARNING("Changing pixel format from {} to PixelFormat::R8G8B8A8_UNORM", rBitmap.GetPixelFormat());
+      const auto origin = rBitmap.GetOrigin();
+      rBitmap.Reset(extent, PixelFormat::R8G8B8A8_UNORM, origin);
+    }
+
+    rBitmap.Clear();
+
+    const auto count = sourceAtlas.Count();
+    for (uint32_t i = 0; i < count; ++i)
+    {
+      const NamedAtlasTexture& rEntry = sourceAtlas.GetEntry(i);
+      if (rEntry.TextureInfo.TrimmedRectPx.Right() > rBitmap.Width() || rEntry.TextureInfo.TrimmedRectPx.Bottom() > rBitmap.Height())
       {
-        FSLLOG3_WARNING("Changing pixel format from {} to PixelFormat::R8G8B8A8_UNORM", rBitmap.GetPixelFormat());
-        const auto origin = rBitmap.GetOrigin();
-        rBitmap.Reset(extent, PixelFormat::R8G8B8A8_UNORM, origin);
+        throw NotSupportedException("rBitmap could not contain the source atlas entries");
       }
-      rBitmap.Clear();
-
-      FillWithTestPattern(rBitmap, PxRectangleU32(0, 0, rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
+      FillWithTestPattern(rBitmap, rEntry.TextureInfo.TrimmedRectPx);
     }
+  }
 
+  void PatchWithTestPattern(Texture& rTexture, const ITextureAtlas& sourceAtlas)
+  {
+    Bitmap tmpBitmap = ContainerTypeConvert::Convert(std::move(rTexture));
+    PatchWithTestPattern(tmpBitmap, sourceAtlas);
+    rTexture = ContainerTypeConvert::Convert(std::move(tmpBitmap));
+  }
 
-    void PatchWithTestPattern(Bitmap& rBitmap, const ITextureAtlas& sourceAtlas)
-    {
-      const auto extent = rBitmap.GetExtent();
-      if (rBitmap.GetPixelFormat() != PixelFormat::R8G8B8A8_UNORM)
-      {
-        FSLLOG3_WARNING("Changing pixel format from {} to PixelFormat::R8G8B8A8_UNORM", rBitmap.GetPixelFormat());
-        const auto origin = rBitmap.GetOrigin();
-        rBitmap.Reset(extent, PixelFormat::R8G8B8A8_UNORM, origin);
-      }
+  void PatchWithTestPattern(Texture& rTexture)
+  {
+    Bitmap tmpBitmap = ContainerTypeConvert::Convert(std::move(rTexture));
+    PatchWithTestPattern(tmpBitmap);
+    rTexture = ContainerTypeConvert::Convert(std::move(tmpBitmap));
+  }
 
-      rBitmap.Clear();
+  Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin, const ITextureAtlas& sourceAtlas)
+  {
+    Bitmap newBitmap(extent, pixelFormat, origin);
+    PatchWithTestPattern(newBitmap, sourceAtlas);
+    return newBitmap;
+  }
 
-      const auto count = sourceAtlas.Count();
-      for (uint32_t i = 0; i < count; ++i)
-      {
-        const NamedAtlasTexture& rEntry = sourceAtlas.GetEntry(i);
-        if (rEntry.TextureInfo.TrimmedRectPx.Right() > rBitmap.Width() || rEntry.TextureInfo.TrimmedRectPx.Bottom() > rBitmap.Height())
-        {
-          throw NotSupportedException("rBitmap could not contain the source atlas entries");
-        }
-        FillWithTestPattern(rBitmap, rEntry.TextureInfo.TrimmedRectPx);
-      }
-    }
+  Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  {
+    Bitmap newBitmap(extent, pixelFormat, origin);
+    PatchWithTestPattern(newBitmap);
+    return newBitmap;
+  }
 
-    void PatchWithTestPattern(Texture& rTexture, const ITextureAtlas& sourceAtlas)
-    {
-      Bitmap tmpBitmap = ContainerTypeConvert::Convert(std::move(rTexture));
-      PatchWithTestPattern(tmpBitmap, sourceAtlas);
-      rTexture = ContainerTypeConvert::Convert(std::move(tmpBitmap));
-    }
-
-    void PatchWithTestPattern(Texture& rTexture)
-    {
-      Bitmap tmpBitmap = ContainerTypeConvert::Convert(std::move(rTexture));
-      PatchWithTestPattern(tmpBitmap);
-      rTexture = ContainerTypeConvert::Convert(std::move(tmpBitmap));
-    }
-
-    Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin,
+  Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin,
                                    const ITextureAtlas& sourceAtlas)
-    {
-      Bitmap newBitmap(extent, pixelFormat, origin);
-      PatchWithTestPattern(newBitmap, sourceAtlas);
-      return newBitmap;
-    }
+  {
+    return ContainerTypeConvert::Convert(CreateTestPatternBitmap(extent, pixelFormat, origin, sourceAtlas));
+  }
 
-    Bitmap CreateTestPatternBitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
-    {
-      Bitmap newBitmap(extent, pixelFormat, origin);
-      PatchWithTestPattern(newBitmap);
-      return newBitmap;
-    }
-
-    Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin,
-                                     const ITextureAtlas& sourceAtlas)
-    {
-      return ContainerTypeConvert::Convert(CreateTestPatternBitmap(extent, pixelFormat, origin, sourceAtlas));
-    }
-
-    Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
-    {
-      return ContainerTypeConvert::Convert(CreateTestPatternBitmap(extent, pixelFormat, origin));
-    }
+  Texture CreateTestPatternTexture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  {
+    return ContainerTypeConvert::Convert(CreateTestPatternBitmap(extent, pixelFormat, origin));
   }
 }

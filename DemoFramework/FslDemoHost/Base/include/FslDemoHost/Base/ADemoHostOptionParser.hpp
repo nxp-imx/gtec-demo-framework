@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
-#include <FslBase/ITag.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
+#include <FslBase/ITag.hpp>
 #include <FslNativeWindow/Base/NativeWindowConfig.hpp>
+#include <memory>
 
 namespace Fsl
 {
@@ -59,7 +59,7 @@ namespace Fsl
 
     std::string GetName() const override
     {
-      return std::string("DemoHostOptionParser");
+      return {"DemoHostOptionParser"};
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;

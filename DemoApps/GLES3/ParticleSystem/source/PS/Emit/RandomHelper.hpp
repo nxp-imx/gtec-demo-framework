@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <random>
 #include <FslGraphics/Color.hpp>
 #include <algorithm>
+#include <random>
 
 namespace Fsl
 {

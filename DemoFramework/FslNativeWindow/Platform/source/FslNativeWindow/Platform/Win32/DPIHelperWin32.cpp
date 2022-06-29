@@ -32,6 +32,7 @@
 
 #include "DPIHelperWin32.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <VersionHelpers.h>
 #include <cassert>
 
@@ -103,7 +104,7 @@ namespace Fsl
       rDPI = Point2();
       return false;
     }
-    rDPI = Point2(dpiX, dpiY);
+    rDPI = Point2(NumericCast<int32_t>(dpiX), NumericCast<int32_t>(dpiY));
     return true;
   }
 }    // namespace Fsl

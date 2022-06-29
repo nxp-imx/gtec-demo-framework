@@ -3,6 +3,9 @@
   <ExternalLibrary Name="WindowSystem" CreationYear="2016">
     <Default.Platform.Supported Value="false"/>
     <Platform Name="Android" Supported="true"/>
+    <Platform Name="Emscripten" Supported="true">
+      <Dependency Name="SDL2"/>
+    </Platform>
     <Platform Name="QNX" Supported="true">
       <ExternalDependency Name="screen" Type="StaticLib"/>
     </Platform>

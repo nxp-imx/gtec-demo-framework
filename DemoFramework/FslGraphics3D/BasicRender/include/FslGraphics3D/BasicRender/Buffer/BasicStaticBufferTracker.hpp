@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_BUFFER_BASICSTATICBUFFERTRACKER_HPP
 #define FSLGRAPHICS3D_BASICRENDER_BUFFER_BASICSTATICBUFFERTRACKER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,55 +36,52 @@
 #include <FslGraphics3D/BasicRender/Buffer/ABasicBufferTracker.hpp>
 #include <stdexcept>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class BasicStaticBufferTracker final
+    : public ABasicBufferTracker
+    , public IBasicStaticBuffer
   {
-    class BasicStaticBufferTracker final
-      : public ABasicBufferTracker
-      , public IBasicStaticBuffer
+    BasicBufferType m_type;
+    BasicNativeBufferHandle m_nativeHandle;
+    uint32_t m_capacity;
+
+  public:
+    explicit BasicStaticBufferTracker(const BasicBufferType type, const BasicNativeBufferHandle nativeHandle, const uint32_t capacity)
+      : m_type(type)
+      , m_nativeHandle(nativeHandle)
+      , m_capacity(capacity)
     {
-      BasicBufferType m_type;
-      BasicNativeBufferHandle m_nativeHandle;
-      uint32_t m_capacity;
-
-    public:
-      explicit BasicStaticBufferTracker(const BasicBufferType type, const BasicNativeBufferHandle nativeHandle, const uint32_t capacity)
-        : m_type(type)
-        , m_nativeHandle(nativeHandle)
-        , m_capacity(capacity)
+      if (!nativeHandle.IsValid())
       {
-        if (!nativeHandle.IsValid())
-        {
-          throw std::invalid_argument("BasicStaticBufferLink can not be null");
-        }
+        throw std::invalid_argument("BasicStaticBufferLink can not be null");
       }
+    }
 
-      ~BasicStaticBufferTracker() final = default;
+    ~BasicStaticBufferTracker() final = default;
 
 
-      void Dispose() noexcept
-      {
-        m_nativeHandle = {};
-      }
+    void Dispose() noexcept
+    {
+      m_nativeHandle = {};
+    }
 
-      // IBasicStaticBuffer
-      BasicBufferType GetType() const noexcept final
-      {
-        return m_type;
-      }
+    // IBasicStaticBuffer
+    BasicBufferType GetType() const noexcept final
+    {
+      return m_type;
+    }
 
-      uint32_t Capacity() const noexcept final
-      {
-        return m_capacity;
-      }
+    uint32_t Capacity() const noexcept final
+    {
+      return m_capacity;
+    }
 
-      BasicNativeBufferHandle TryGetNativeHandle() const noexcept final
-      {
-        return m_nativeHandle;
-      }
-    };
-  }
+    BasicNativeBufferHandle TryGetNativeHandle() const noexcept final
+    {
+      return m_nativeHandle;
+    }
+  };
 }
 
 #endif

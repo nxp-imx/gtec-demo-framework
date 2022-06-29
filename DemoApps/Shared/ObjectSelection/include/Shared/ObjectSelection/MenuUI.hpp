@@ -40,12 +40,9 @@
 
 namespace Fsl
 {
-  namespace UI
+  namespace UI::Theme
   {
-    namespace Theme
-    {
-      class IThemeControlFactory;
-    }
+    class IThemeControlFactory;
   }
 
   class OptionParser;
@@ -73,6 +70,7 @@ namespace Fsl
     bool m_drawAxisAlignedBoundingBox;
     bool m_randomSeedEnabled;
     // bool m_renderFinalBloom;
+
   public:
     explicit MenuUI(const DemoAppConfig& config);
     ~MenuUI() override;

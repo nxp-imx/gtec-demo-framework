@@ -30,20 +30,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/X11/PlatformNativeWindowX11.hpp>
-#include <FslNativeWindow/Platform/X11/PlatformNativeWindowSystemX11.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtPoint2.hpp>
+#include <FslBase/Log/Math/FmtRectangle.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
-#include <FslBase/Log/Math/FmtPoint2.hpp>
-#include <FslBase/Log/Math/FmtRectangle.hpp>
-#include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Vector2.hpp>
+#include <FslNativeWindow/Platform/X11/PlatformNativeWindowSystemX11.hpp>
+#include <FslNativeWindow/Platform/X11/PlatformNativeWindowX11.hpp>
 // #include <X11/extensions/XInput2.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
@@ -478,75 +478,75 @@ namespace Fsl
           break;
         }
       case ButtonPress:
-      {
-        mousePosition.X = event.xbutton.x;
-        mousePosition.Y = event.xbutton.y;
-        if (event.xbutton.button < Button4)
         {
-          // Regular Mouse Buttons
+          mousePosition.X = event.xbutton.x;
+          mousePosition.Y = event.xbutton.y;
+          if (event.xbutton.button < Button4)
+          {
+            // Regular Mouse Buttons
+            mouseButton = MouseToVirtualMouse(event.xbutton.button);
+            if (eventQueue)
+            {
+              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(mouseButton, true, mousePosition));
+            }
+          }
+          else
+          {
+            // Wheel Event
+            if (Button4 == event.xbutton.button)
+            {
+              wheelEvents++;
+            }
+            else if (Button5 == event.xbutton.button)
+            {
+              wheelEvents--;
+            }
+            if (eventQueue)
+            {
+              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(wheelEvents, mousePosition));
+            }
+          }
+          break;
+        }
+      case ButtonRelease:
+        {
+          mousePosition.X = event.xbutton.x;
+          mousePosition.Y = event.xbutton.y;
           mouseButton = MouseToVirtualMouse(event.xbutton.button);
           if (eventQueue)
           {
-            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(mouseButton, true, mousePosition));
+            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(mouseButton, false, mousePosition));
           }
+          break;
         }
-        else
+      case KeyPress:
         {
-          // Wheel Event
-          if (Button4 == event.xbutton.button)
-          {
-            wheelEvents++;
-          }
-          else if (Button5 == event.xbutton.button)
-          {
-            wheelEvents--;
-          }
+          keyCode = KeyToVirtualKey(&event.xkey);
           if (eventQueue)
           {
-            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(wheelEvents, mousePosition));
+            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputKeyEvent(keyCode, true));
           }
+          break;
         }
-        break;
-      }
-      case ButtonRelease:
-      {
-        mousePosition.X = event.xbutton.x;
-        mousePosition.Y = event.xbutton.y;
-        mouseButton = MouseToVirtualMouse(event.xbutton.button);
-        if (eventQueue)
-        {
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(mouseButton, false, mousePosition));
-        }
-        break;
-      }
-      case KeyPress:
-      {
-        keyCode = KeyToVirtualKey(&event.xkey);
-        if (eventQueue)
-        {
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputKeyEvent(keyCode, true));
-        }
-        break;
-      }
       case KeyRelease:
-      {
-        keyCode = KeyToVirtualKey(&event.xkey);
-        if (eventQueue)
         {
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputKeyEvent(keyCode, false));
+          keyCode = KeyToVirtualKey(&event.xkey);
+          if (eventQueue)
+          {
+            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputKeyEvent(keyCode, false));
+          }
+          break;
         }
-        break;
-      }
       case MotionNotify:
-      {
-        mousePosition.X = event.xmotion.x;
-        mousePosition.Y = event.xmotion.y;
-        if (eventQueue)
         {
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(mousePosition));
+          mousePosition.X = event.xmotion.x;
+          mousePosition.Y = event.xmotion.y;
+          if (eventQueue)
+          {
+            eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(mousePosition));
+          }
+          break;
         }
-        break;
-      }
       default:
         if (window && m_extensionRREnabled)
         {

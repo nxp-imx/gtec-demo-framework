@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Math/FmtMatrix.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/FmtMatrix.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

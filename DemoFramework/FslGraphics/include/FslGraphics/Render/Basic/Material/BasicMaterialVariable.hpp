@@ -79,8 +79,9 @@ namespace Fsl
 
     //! @brief overload that allows you to create a BasicMaterialFlexSpan from pointer and count that is noexcept.
     //!        only use this in cases where you are 100% sure that your input is valid
-    explicit constexpr BasicMaterialVariable(const_pointer pData, const size_type dataByteSize, const size_type dataOffset,
-                                             const BasicMaterialVariableElementFormat elementFormat, const OptimizationCheckFlag /*flag*/) noexcept
+    explicit constexpr BasicMaterialVariable(const_pointer pData, [[maybe_unused]] const size_type dataByteSize,
+                                             [[maybe_unused]] const size_type dataOffset, const BasicMaterialVariableElementFormat elementFormat,
+                                             const OptimizationCheckFlag /*flag*/) noexcept
       : Data(pData)
       , ElementFormat(elementFormat)
     {

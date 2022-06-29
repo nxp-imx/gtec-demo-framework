@@ -21,8 +21,8 @@ namespace Fsl
   class S04_Projection : public DemoAppGLES3
   {
     GLES3::GLProgram m_program;
-    GLuint m_hModelViewMatrixLoc;
-    GLuint m_hProjMatrixLoc;
+    GLint m_hModelViewMatrixLoc;
+    GLint m_hProjMatrixLoc;
     Matrix m_matProj;
     Matrix m_matTranslate1;
     Matrix m_matTranslate2;

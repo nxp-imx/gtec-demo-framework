@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,93 +29,248 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/RawMouseMoveEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
 #include <Shared/UI/Benchmark/DemoAppExtensionForwarder.hpp>
-
 
 namespace Fsl
 {
+  namespace
+  {
+    inline void InvokeOnKeyEvent(IDemoAppExtension* pExtension, const KeyEvent& event)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnKeyEvent(event);
+      }
+    }
+
+    inline void InvokeOnMouseButtonEvent(IDemoAppExtension* pExtension, const MouseButtonEvent& event)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnMouseButtonEvent(event);
+      }
+    }
+
+    inline void InvokeOnMouseMoveEvent(IDemoAppExtension* pExtension, const MouseMoveEvent& event)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnMouseMoveEvent(event);
+      }
+    }
+
+    inline void InvokeOnMouseWheelEvent(IDemoAppExtension* pExtension, const MouseWheelEvent& event)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnMouseWheelEvent(event);
+      }
+    }
+
+    inline void InvokeOnRawMouseMoveEvent(IDemoAppExtension* pExtension, const RawMouseMoveEvent& event)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnRawMouseMoveEvent(event);
+      }
+    }
+
+    inline void InvokeOnTimeStateEvent(IDemoAppExtension* pExtension, const TimeStateEvent& event)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnTimeStateEvent(event);
+      }
+    }
+
+    inline void InvokeConfigurationChanged(IDemoAppExtension* pExtension, const DemoWindowMetrics& windowMetrics)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->ConfigurationChanged(windowMetrics);
+      }
+    }
+
+    inline void InvokeBegin(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->Begin(callOrder);
+      }
+    }
+
+    inline void InvokePreUpdate(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->PreUpdate(callOrder, demoTime);
+      }
+    }
+
+    inline void InvokeFixedUpdate(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->FixedUpdate(callOrder, demoTime);
+      }
+    }
+
+    inline void InvokeUpdate(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->Update(callOrder, demoTime);
+      }
+    }
+
+    inline void InvokePostUpdate(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->PostUpdate(callOrder, demoTime);
+      }
+    }
+
+    inline void InvokeResolve(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->Resolve(callOrder, demoTime);
+      }
+    }
+
+    inline void InvokeOnDrawSkipped(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder, const FrameInfo& frameInfo)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->OnDrawSkipped(callOrder, frameInfo);
+      }
+    }
+
+    inline void InvokeEnd(IDemoAppExtension* pExtension, const DemoAppExtensionCallOrder callOrder)
+    {
+      if (pExtension != nullptr)
+      {
+        pExtension->End(callOrder);
+      }
+    }
+  }
+
   void DemoAppExtensionForwarder::OnKeyEvent(const KeyEvent& event)
   {
-    OnKeyEvent(m_extension0.get(), event);
+    InvokeOnKeyEvent(m_extension0.get(), event);
     if (!event.IsHandled())
     {
-      OnKeyEvent(m_extension1.get(), event);
+      InvokeOnKeyEvent(m_extension1.get(), event);
     }
   }
 
   void DemoAppExtensionForwarder::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
-    OnMouseButtonEvent(m_extension0.get(), event);
+    InvokeOnMouseButtonEvent(m_extension0.get(), event);
     if (!event.IsHandled())
     {
-      OnMouseButtonEvent(m_extension1.get(), event);
+      InvokeOnMouseButtonEvent(m_extension1.get(), event);
     }
   }
 
   void DemoAppExtensionForwarder::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    OnMouseMoveEvent(m_extension0.get(), event);
+    InvokeOnMouseMoveEvent(m_extension0.get(), event);
     if (!event.IsHandled())
     {
-      OnMouseMoveEvent(m_extension1.get(), event);
+      InvokeOnMouseMoveEvent(m_extension1.get(), event);
     }
   }
 
   void DemoAppExtensionForwarder::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    OnMouseWheelEvent(m_extension0.get(), event);
+    InvokeOnMouseWheelEvent(m_extension0.get(), event);
     if (!event.IsHandled())
     {
-      OnMouseWheelEvent(m_extension1.get(), event);
+      InvokeOnMouseWheelEvent(m_extension1.get(), event);
     }
   }
 
   void DemoAppExtensionForwarder::OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
   {
-    OnRawMouseMoveEvent(m_extension0.get(), event);
+    InvokeOnRawMouseMoveEvent(m_extension0.get(), event);
     if (!event.IsHandled())
     {
-      OnRawMouseMoveEvent(m_extension1.get(), event);
+      InvokeOnRawMouseMoveEvent(m_extension1.get(), event);
     }
   }
 
   void DemoAppExtensionForwarder::OnTimeStateEvent(const TimeStateEvent& event)
   {
-    OnTimeStateEvent(m_extension0.get(), event);
-    OnTimeStateEvent(m_extension1.get(), event);
+    InvokeOnTimeStateEvent(m_extension0.get(), event);
+    InvokeOnTimeStateEvent(m_extension1.get(), event);
   }
 
   void DemoAppExtensionForwarder::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
-    ConfigurationChanged(m_extension0.get(), windowMetrics);
-    ConfigurationChanged(m_extension1.get(), windowMetrics);
+    InvokeConfigurationChanged(m_extension0.get(), windowMetrics);
+    InvokeConfigurationChanged(m_extension1.get(), windowMetrics);
   }
 
-  void DemoAppExtensionForwarder::PreUpdate(const DemoTime& demoTime)
+
+  void DemoAppExtensionForwarder::Begin(const DemoAppExtensionCallOrder callOrder)
   {
-    PreUpdate(m_extension0.get(), demoTime);
-    PreUpdate(m_extension1.get(), demoTime);
+    InvokeBegin(m_extension0.get(), callOrder);
+    InvokeBegin(m_extension1.get(), callOrder);
   }
 
-  void DemoAppExtensionForwarder::FixedUpdate(const DemoTime& demoTime)
+  void DemoAppExtensionForwarder::PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
-    FixedUpdate(m_extension0.get(), demoTime);
-    FixedUpdate(m_extension1.get(), demoTime);
+    InvokePreUpdate(m_extension0.get(), callOrder, demoTime);
+    InvokePreUpdate(m_extension1.get(), callOrder, demoTime);
   }
 
-  void DemoAppExtensionForwarder::Update(const DemoTime& demoTime)
+  void DemoAppExtensionForwarder::FixedUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
-    Update(m_extension0.get(), demoTime);
-    Update(m_extension1.get(), demoTime);
+    InvokeFixedUpdate(m_extension0.get(), callOrder, demoTime);
+    InvokeFixedUpdate(m_extension1.get(), callOrder, demoTime);
   }
 
-  void DemoAppExtensionForwarder::PostUpdate(const DemoTime& demoTime)
+
+  void DemoAppExtensionForwarder::Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
-    PostUpdate(m_extension0.get(), demoTime);
-    if (m_tweak)
+    InvokeUpdate(m_extension0.get(), callOrder, demoTime);
+    InvokeUpdate(m_extension1.get(), callOrder, demoTime);
+  }
+
+  void DemoAppExtensionForwarder::PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+  {
+    InvokePostUpdate(m_extension0.get(), callOrder, demoTime);
+    if (callOrder == DemoAppExtensionCallOrder::PostApp && m_tweak)
     {
       m_tweak->PostUpdate();
     }
-    PostUpdate(m_extension1.get(), demoTime);
+    InvokePostUpdate(m_extension1.get(), callOrder, demoTime);
+  }
+
+  void DemoAppExtensionForwarder::Resolve(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+  {
+    InvokeResolve(m_extension0.get(), callOrder, demoTime);
+    InvokeResolve(m_extension1.get(), callOrder, demoTime);
+  }
+
+  void DemoAppExtensionForwarder::OnDrawSkipped(const DemoAppExtensionCallOrder callOrder, const FrameInfo& frameInfo)
+  {
+    InvokeOnDrawSkipped(m_extension0.get(), callOrder, frameInfo);
+    InvokeOnDrawSkipped(m_extension1.get(), callOrder, frameInfo);
+  }
+
+
+  void DemoAppExtensionForwarder::End(const DemoAppExtensionCallOrder callOrder)
+  {
+    InvokeEnd(m_extension0.get(), callOrder);
+    InvokeEnd(m_extension1.get(), callOrder);
   }
 }

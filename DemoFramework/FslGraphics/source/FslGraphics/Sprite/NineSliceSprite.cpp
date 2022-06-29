@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <cassert>
 

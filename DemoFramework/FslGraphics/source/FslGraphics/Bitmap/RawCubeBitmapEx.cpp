@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/RawCubeBitmapEx.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Bitmap/RawCubeBitmapEx.hpp>
 
 namespace Fsl
 {

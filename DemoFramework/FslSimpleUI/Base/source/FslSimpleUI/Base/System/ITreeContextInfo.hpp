@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ITreeContextInfo
   {
-    class ITreeContextInfo
-    {
-    public:
-      virtual ~ITreeContextInfo() = default;
+  public:
+    virtual ~ITreeContextInfo() = default;
 
-      virtual bool IsInSystemContext() const = 0;
-    };
-  }
+    virtual bool IsInSystemContext() const = 0;
+  };
 }
 
 #endif

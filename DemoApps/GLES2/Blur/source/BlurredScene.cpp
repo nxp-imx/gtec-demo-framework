@@ -29,8 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include "BlurredScene.hpp"
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
@@ -40,14 +41,13 @@
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <utility>
 #include "GausianHelper.hpp"
-#include "BlurredScene.hpp"
+#include "OptionParser.hpp"
 #include "ReferenceOnePassBlurredDraw.hpp"
 #include "ReferenceTwoPassBlurredDraw.hpp"
 #include "ReferenceTwoPassLinearBlurredDraw.hpp"
-#include "TwoPassLinearScaledBlurredDraw.hpp"
-#include "OptionParser.hpp"
-#include "VBHelper.hpp"
 #include "TextureUtil.hpp"
+#include "TwoPassLinearScaledBlurredDraw.hpp"
+#include "VBHelper.hpp"
 
 namespace Fsl
 {
@@ -139,15 +139,15 @@ namespace Fsl
       const AtlasTextureInfo atlasInfo = m_texDescription.GetInfo();
 
       // texSize.X / tex
-      float x1 = -1.0f - (atlasInfo.OffsetPx.X / res.X);
-      float x2 = x1 + (atlasInfo.TrimmedRectPx.Width / res.X);
-      float y1 = -1.0f - (atlasInfo.OffsetPx.Y / res.Y);
-      float y2 = y1 + (atlasInfo.TrimmedRectPx.Height / res.Y);
+      float x1 = -1.0f - (static_cast<float>(atlasInfo.OffsetPx.X) / res.X);
+      float x2 = x1 + (static_cast<float>(atlasInfo.TrimmedRectPx.Width) / res.X);
+      float y1 = -1.0f - (static_cast<float>(atlasInfo.OffsetPx.Y) / res.Y);
+      float y2 = y1 + (static_cast<float>(atlasInfo.TrimmedRectPx.Height) / res.Y);
 
-      float u1 = atlasInfo.TrimmedRectPx.Left() / atlasSize.X;
-      float v1 = 1.0f - (atlasInfo.TrimmedRectPx.Top() / atlasSize.Y);
-      float u2 = atlasInfo.TrimmedRectPx.Right() / atlasSize.X;
-      float v2 = 1.0f - (atlasInfo.TrimmedRectPx.Bottom() / atlasSize.Y);
+      float u1 = static_cast<float>(atlasInfo.TrimmedRectPx.Left()) / atlasSize.X;
+      float v1 = 1.0f - (static_cast<float>(atlasInfo.TrimmedRectPx.Top()) / atlasSize.Y);
+      float u2 = static_cast<float>(atlasInfo.TrimmedRectPx.Right()) / atlasSize.X;
+      float v2 = 1.0f - (static_cast<float>(atlasInfo.TrimmedRectPx.Bottom()) / atlasSize.Y);
 
       VBHelper::BuildVB(m_vbDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
     }
@@ -164,7 +164,7 @@ namespace Fsl
       {
         m_blurredDraw = m_blurImplementations.front();
         ++m_currentIndex;
-        if (std::size_t(m_currentIndex) >= m_blurImplementations.size())
+        if (static_cast<std::size_t>(m_currentIndex) >= m_blurImplementations.size())
         {
           m_currentIndex = 0;
         }

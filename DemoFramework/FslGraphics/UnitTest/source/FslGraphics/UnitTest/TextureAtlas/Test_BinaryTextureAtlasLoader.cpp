@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
-#include <FslBase/Log/Math/LogRectangle.hpp>
-#include <FslBase/Log/Math/LogPoint2.hpp>
-#include <FslBase/Log/Math/LogThickness.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
+#include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Log/Math/LogRectangle.hpp>
+#include <FslBase/Log/Math/LogThickness.hpp>
 #include <FslBase/Log/String/LogUTF8String.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
+#include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphicsContent.hpp>
 

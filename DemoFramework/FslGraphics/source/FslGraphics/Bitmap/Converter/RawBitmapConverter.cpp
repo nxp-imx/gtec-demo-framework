@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
+#include <FslGraphics/Bitmap/RawBitmapEx.hpp>
+#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <cassert>
 
 namespace Fsl

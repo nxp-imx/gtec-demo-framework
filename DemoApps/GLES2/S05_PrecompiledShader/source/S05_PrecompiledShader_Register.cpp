@@ -31,9 +31,9 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S05_PrecompiledShader.hpp"
-#include "OptionParser.hpp"
 #include <array>
+#include "OptionParser.hpp"
+#include "S05_PrecompiledShader.hpp"
 
 namespace Fsl
 {

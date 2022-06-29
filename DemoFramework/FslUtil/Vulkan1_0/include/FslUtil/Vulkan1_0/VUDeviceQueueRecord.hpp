@@ -35,46 +35,43 @@
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! This is contains information about a vulkan DeviceQueue.
+  //! This is not really a RAII object as it doesn't manage lifetime, hence the postfix Record
+  struct VUDeviceQueueRecord
   {
-    //! This is contains information about a vulkan DeviceQueue.
-    //! This is not really a RAII object as it doesn't manage lifetime, hence the postfix Record
-    struct VUDeviceQueueRecord
+    VkDevice Device{VK_NULL_HANDLE};
+    uint32_t QueueFamilyIndex{0};
+    uint32_t QueueIndex{0};
+    VkQueue Queue{VK_NULL_HANDLE};
+
+    VUDeviceQueueRecord() = default;
+
+    VUDeviceQueueRecord(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex, const VkQueue queue)
+      : Device(device)
+      , QueueFamilyIndex(queueFamilyIndex)
+      , QueueIndex(queueIndex)
+      , Queue(queue)
     {
-      VkDevice Device{VK_NULL_HANDLE};
-      uint32_t QueueFamilyIndex{0};
-      uint32_t QueueIndex{0};
-      VkQueue Queue{VK_NULL_HANDLE};
+    }
 
-      VUDeviceQueueRecord() = default;
-
-      VUDeviceQueueRecord(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex, const VkQueue queue)
-        : Device(device)
-        , QueueFamilyIndex(queueFamilyIndex)
-        , QueueIndex(queueIndex)
-        , Queue(queue)
-      {
-      }
-
-      bool IsValid() const
-      {
-        return Queue != VK_NULL_HANDLE;
-      }
+    bool IsValid() const
+    {
+      return Queue != VK_NULL_HANDLE;
+    }
 
 
-      void Submit(const uint32_t submitCount, const VkSubmitInfo* const pSubmits, const VkFence fence)
-      {
-        RAPIDVULKAN_CHECK(vkQueueSubmit(Queue, submitCount, pSubmits, fence));
-      }
+    void Submit(const uint32_t submitCount, const VkSubmitInfo* const pSubmits, const VkFence fence)
+    {
+      RAPIDVULKAN_CHECK(vkQueueSubmit(Queue, submitCount, pSubmits, fence));
+    }
 
-      void WaitIdle()
-      {
-        RAPIDVULKAN_CHECK(vkQueueWaitIdle(Queue));
-      }
-    };
-  }
+    void WaitIdle()
+    {
+      RAPIDVULKAN_CHECK(vkQueueWaitIdle(Queue));
+    }
+  };
 }
 
 #endif

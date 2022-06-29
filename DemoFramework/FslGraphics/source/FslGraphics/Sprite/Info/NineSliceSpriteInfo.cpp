@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Info/NineSliceSpriteInfo.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Sprite/Info/NineSliceSpriteInfo.hpp>
 #include <FslGraphics/Sprite/Info/NineSliceSpriteInfoUtil.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
@@ -66,7 +66,7 @@ namespace Fsl
     : MaterialInfo(spriteMaterialInfo)
     , ImageInfo(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageTrimMarginPx, imageTrimmedRectanglePx,
                 CalcTrimmedNineSlice(nineSlicePx, imageTrimMarginPx), contentMarginPx,
-                SpriteUnitConverter::CalcImageDpExtent(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageDpi),
+                SpriteUnitConverter::CalcImageDpExtent2D(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageDpi),
                 SpriteUnitConverter::CalcDpThicknessU(nineSlicePx, imageDpi), SpriteUnitConverter::CalcDpThicknessU(contentMarginPx, imageDpi))
     , ImageDpi(imageDpi)
     , RenderInfo(NineSliceSpriteInfoUtil::CalcNativeNineSliceTextureArea(spriteAreaCalc, spriteMaterialInfo, imageTrimmedRectanglePx,

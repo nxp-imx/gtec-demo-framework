@@ -33,8 +33,8 @@
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
-#include <FslUnitTest/Test/TestArray.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslUnitTest/Test/TestArray.hpp>
 #include <array>
 
 using namespace Fsl;

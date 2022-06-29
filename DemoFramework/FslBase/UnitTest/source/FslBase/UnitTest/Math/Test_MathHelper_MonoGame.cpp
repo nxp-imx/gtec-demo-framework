@@ -26,11 +26,11 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - MathHelperTest.cs.
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Math/LogVector2.hpp>
 #include <FslBase/Log/Math/LogVector3.hpp>
 #include <FslBase/Log/Math/LogVector4.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

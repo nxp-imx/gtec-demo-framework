@@ -63,10 +63,10 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<2> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 2> elements = {
-        VertexElementEx(offsetof(VertexPositionColor, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionColor, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0)};
-      return VertexDeclarationArray<2>(elements, sizeof(VertexPositionColor));
+      constexpr BasicVertexDeclarationArray<2> elements = {
+        VertexElement(offsetof(VertexPositionColor, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionColor, Color), VertexElementFormat::X8Y8Z8W8_UNORM, VertexElementUsage::Color, 0)};
+      return {elements, sizeof(VertexPositionColor)};
     }
 
 
@@ -78,12 +78,12 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionColor& rhs) const
+    constexpr bool operator==(const VertexPositionColor& rhs) const noexcept
     {
       return Position == rhs.Position && Color == rhs.Color;
     }
 
-    constexpr bool operator!=(const VertexPositionColor& rhs) const
+    constexpr bool operator!=(const VertexPositionColor& rhs) const noexcept
     {
       return !(*this == rhs);
     }

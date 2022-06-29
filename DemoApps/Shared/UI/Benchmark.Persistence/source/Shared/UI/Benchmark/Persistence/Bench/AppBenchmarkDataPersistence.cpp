@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,104 +29,102 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkDataPersistence.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/File.hpp>
-#include <FslBase/Optional.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringDateUtil.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkData.hpp>
+#include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkDataPersistence.hpp>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include "../JsonConfig.hpp"
 #include "Json/JsonAppBenchmarkCpuData.hpp"
 #include "Json/JsonAppBenchmarkGpuData.hpp"
 #include "Json/JsonAppBenchmarkInfo.hpp"
 #include "Json/JsonAppBenchmarkRenderInfo.hpp"
 
-namespace Fsl
+namespace Fsl::AppBenchmarkDataPersistence
 {
-  namespace AppBenchmarkDataPersistence
+  namespace
   {
-    namespace
+    namespace LocalConfig
     {
-      namespace LocalConfig
-      {
-        const uint32_t CurrentVersion = 1;
-      }
-      namespace LocalSettings
-      {
-        constexpr auto Version = "Version";
-        constexpr auto Info = "Info";
-        constexpr auto CpuData = "CpuData";
-        constexpr auto GpuData = "GpuData";
-        constexpr auto RenderInfo = "RenderInfo";
-        constexpr auto Time = "Time";
-      }
-
-      AppBenchmarkData Parse(const std::string& jsonContent)
-      {
-        auto json = nlohmann::json::parse(jsonContent);
-
-        if (json[LocalSettings::Version].get<uint32_t>() != LocalConfig::CurrentVersion)
-        {
-          throw NotSupportedException("Unsupported version");
-        }
-        auto strTime = json[LocalSettings::Time].get<std::string>();
-
-        Optional<AppBenchmarkGpuData> gpuData = json.contains(LocalSettings::GpuData)
-                                                  ? Optional<AppBenchmarkGpuData>(json[LocalSettings::GpuData].get<AppBenchmarkGpuData>())
-                                                  : Optional<AppBenchmarkGpuData>();
-
-        Optional<AppBenchmarkRenderInfo> renderInfo =
-          json.contains(LocalSettings::RenderInfo) ? Optional<AppBenchmarkRenderInfo>(json[LocalSettings::RenderInfo].get<AppBenchmarkRenderInfo>())
-                                                   : Optional<AppBenchmarkRenderInfo>();
-
-        return AppBenchmarkData(json[LocalSettings::Info].get<AppBenchmarkInfo>(), json[LocalSettings::CpuData].get<AppBenchmarkCpuData>(),
-                                std::move(gpuData), renderInfo, StringDateUtil::Parse(StringViewLiteUtil::AsStringViewLite(strTime)));
-      }
-
-      std::string Encode(const AppBenchmarkData& data)
-      {
-        nlohmann::json json;
-        json[LocalSettings::Version] = LocalConfig::CurrentVersion;
-        json[LocalSettings::Info] = data.Info;
-        json[LocalSettings::CpuData] = data.CpuData;
-        if (data.GpuData.HasValue())
-        {
-          json[LocalSettings::GpuData] = data.GpuData.Value();
-        }
-        if (data.RenderInfo.HasValue())
-        {
-          json[LocalSettings::RenderInfo] = data.RenderInfo.Value();
-        }
-        json[LocalSettings::Time] = StringDateUtil::ToString(data.Time);
-
-        // Pretty print JSON document to string
-        return json.dump(JsonConfig::Indent);
-      }
+      const uint32_t CurrentVersion = 1;
+    }
+    namespace LocalSettings
+    {
+      constexpr auto Version = "Version";
+      constexpr auto Info = "Info";
+      constexpr auto CpuData = "CpuData";
+      constexpr auto GpuData = "GpuData";
+      constexpr auto RenderInfo = "RenderInfo";
+      constexpr auto Time = "Time";
     }
 
-    Optional<AppBenchmarkData> TryLoad(const IO::Path& path)
+    AppBenchmarkData Parse(const std::string& jsonContent)
     {
-      try
+      auto json = nlohmann::json::parse(jsonContent);
+
+      if (json[LocalSettings::Version].get<uint32_t>() != LocalConfig::CurrentVersion)
       {
-        std::string content;
-        return IO::File::TryReadAllText(content, path) ? Parse(content) : Optional<AppBenchmarkData>();
+        throw NotSupportedException("Unsupported version");
       }
-      catch (std::exception& ex)
-      {
-        FSLLOG3_DEBUG_WARNING("Exception: {}", ex.what());
-        FSL_PARAM_NOT_USED(ex);
-        return {};
-      }
+      auto strTime = json[LocalSettings::Time].get<std::string>();
+
+      std::optional<AppBenchmarkGpuData> gpuData = json.contains(LocalSettings::GpuData)
+                                                     ? std::optional<AppBenchmarkGpuData>(json[LocalSettings::GpuData].get<AppBenchmarkGpuData>())
+                                                     : std::optional<AppBenchmarkGpuData>();
+
+      std::optional<AppBenchmarkRenderInfo> renderInfo =
+        json.contains(LocalSettings::RenderInfo)
+          ? std::optional<AppBenchmarkRenderInfo>(json[LocalSettings::RenderInfo].get<AppBenchmarkRenderInfo>())
+          : std::optional<AppBenchmarkRenderInfo>();
+
+      return AppBenchmarkData(json[LocalSettings::Info].get<AppBenchmarkInfo>(), json[LocalSettings::CpuData].get<AppBenchmarkCpuData>(),
+                              std::move(gpuData), renderInfo, StringDateUtil::Parse(StringViewLiteUtil::AsStringViewLite(strTime)));
     }
 
-    void Save(const IO::Path& path, const AppBenchmarkData& data)
+    std::string Encode(const AppBenchmarkData& data)
     {
-      // Since this data contains a timestamp it is likely to have been changed on write.
-      std::string strNewJson = Encode(data);
-      IO::File::WriteAllText(path, strNewJson);
+      nlohmann::json json;
+      json[LocalSettings::Version] = LocalConfig::CurrentVersion;
+      json[LocalSettings::Info] = data.Info;
+      json[LocalSettings::CpuData] = data.CpuData;
+      if (data.GpuData.has_value())
+      {
+        json[LocalSettings::GpuData] = data.GpuData.value();
+      }
+      if (data.RenderInfo.has_value())
+      {
+        json[LocalSettings::RenderInfo] = data.RenderInfo.value();
+      }
+      json[LocalSettings::Time] = StringDateUtil::ToString(data.Time);
+
+      // Pretty print JSON document to string
+      return json.dump(JsonConfig::Indent);
     }
+  }
+
+  std::optional<AppBenchmarkData> TryLoad(const IO::Path& path)
+  {
+    try
+    {
+      std::string content;
+      return IO::File::TryReadAllText(content, path) ? Parse(content) : std::optional<AppBenchmarkData>();
+    }
+    catch (std::exception& ex)
+    {
+      FSLLOG3_DEBUG_WARNING("Exception: {}", ex.what());
+      FSL_PARAM_NOT_USED(ex);
+      return {};
+    }
+  }
+
+  void Save(const IO::Path& path, const AppBenchmarkData& data)
+  {
+    // Since this data contains a timestamp it is likely to have been changed on write.
+    std::string strNewJson = Encode(data);
+    IO::File::WriteAllText(path, strNewJson);
   }
 }

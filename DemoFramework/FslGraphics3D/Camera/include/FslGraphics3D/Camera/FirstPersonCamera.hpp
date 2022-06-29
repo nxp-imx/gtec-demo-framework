@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_CAMERA_FIRSTPERSONCAMERA_HPP
 #define FSLGRAPHICS3D_CAMERA_FIRSTPERSONCAMERA_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,49 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/Camera/BasicFirstPersonCamera.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslGraphics3D/Camera/BasicFirstPersonCamera.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class FirstPersonCamera
   {
-    class FirstPersonCamera
+    BasicFirstPersonCamera m_base;
+    float m_sensitivity;
+
+    bool m_hasOldPosition;
+    PxPoint2 m_oldPosition;
+
+  public:
+    FirstPersonCamera();
+    ~FirstPersonCamera() = default;
+
+    //! @brief Get the current view matrix for the camera
+    Matrix GetViewMatrix() const
     {
-      BasicFirstPersonCamera m_base;
-      float m_sensitivity;
+      return m_base.GetViewMatrix();
+    }
 
-      bool m_hasOldPosition;
-      PxPoint2 m_oldPosition;
+    Vector3 GetPosition() const
+    {
+      return m_base.GetPosition();
+    }
 
-    public:
-      FirstPersonCamera();
-      ~FirstPersonCamera() = default;
+    void SetPosition(const Vector3& position);
+    void SetPosition(const Vector3& position, const Vector3& target, const Vector3& up);
 
-      //! @brief Get the current view matrix for the camera
-      Matrix GetViewMatrix() const
-      {
-        return m_base.GetViewMatrix();
-      }
+    void MoveForward(const float amount);
+    void MoveBackwards(const float amount);
+    void MoveLeft(const float amount);
+    void MoveRight(const float amount);
 
-      Vector3 GetPosition() const
-      {
-        return m_base.GetPosition();
-      }
+    void Rotate(const Vector2& amount);
+    void RotateByRadians(const Vector2& amount);
 
-      void SetPosition(const Vector3& position);
-      void SetPosition(const Vector3& position, const Vector3& target, const Vector3& up);
-
-      void MoveForward(const float amount);
-      void MoveBackwards(const float amount);
-      void MoveLeft(const float amount);
-      void MoveRight(const float amount);
-
-      void Rotate(const Vector2& amount);
-      void RotateByRadians(const Vector2& amount);
-
-      //! @brief
-      //! @note If rotateCamera is true the camera rotation will be updated else only the internal position will be touched
-      void RotateViaPosition(const bool rotateCamera, const PxPoint2& currentPosition);
-    };
-  }
+    //! @brief
+    //! @note If rotateCamera is true the camera rotation will be updated else only the internal position will be touched
+    void RotateViaPosition(const bool rotateCamera, const PxPoint2& currentPosition);
+  };
 }
 
 #endif

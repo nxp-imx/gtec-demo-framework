@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/TestFixture.hpp>
 #include <FslBase/Arguments/ArgumentParser.hpp>
+#include <FslUnitTest/TestFixture.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <limits>

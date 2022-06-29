@@ -33,228 +33,225 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include "EventRouter.hpp"
-#include "StateEvent.hpp"
-#include "../ITreeContextInfo.hpp"
 #include <cassert>
 #include <utility>
+#include "../ITreeContextInfo.hpp"
+#include "EventRouter.hpp"
+#include "StateEvent.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  StateEventSender::StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
+                                     std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler,
+                                     const WindowFlags windowFlags, FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent)
+    : m_treeContextInfo(std::move(treeContextInfo))
+    , m_eventRouter(std::move(eventRouter))
+    , m_eventPool(std::move(eventPool))
+    , m_eventHandler(std::move(eventHandler))
+    , m_fnCreateTargetWindowDeathEvent(std::move(fnCreateTargetWindowDeathEvent))
+    , m_eventRoute(windowFlags)
+    , m_state(State::Normal)
   {
-    StateEventSender::StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
-                                       std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler,
-                                       const WindowFlags windowFlags, FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent)
-      : m_treeContextInfo(std::move(treeContextInfo))
-      , m_eventRouter(std::move(eventRouter))
-      , m_eventPool(std::move(eventPool))
-      , m_eventHandler(std::move(eventHandler))
-      , m_fnCreateTargetWindowDeathEvent(std::move(fnCreateTargetWindowDeathEvent))
-      , m_eventRoute(windowFlags)
-      , m_state(State::Normal)
+    if (!m_treeContextInfo)
     {
-      if (!m_treeContextInfo)
-      {
-        throw std::invalid_argument("treeContextInfo can not be null");
-      }
-      if (!m_eventRouter)
-      {
-        throw std::invalid_argument("eventRouter can not be null");
-      }
-      if (!m_eventPool)
-      {
-        throw std::invalid_argument("eventPool can not be null");
-      }
-      if (!m_eventHandler)
-      {
-        throw std::invalid_argument("eventHandler can not be null");
-      }
-      if (!m_fnCreateTargetWindowDeathEvent)
-      {
-        throw std::invalid_argument("fnCreateTargetWindowDeathEvent can not be null");
-      }
+      throw std::invalid_argument("treeContextInfo can not be null");
     }
-
-
-    StateEventSender::~StateEventSender() = default;
-
-
-    bool StateEventSender::HasActiveEvent() const noexcept
+    if (!m_eventRouter)
     {
-      return !m_eventRoute.IsEmpty();
+      throw std::invalid_argument("eventRouter can not be null");
     }
-
-
-    bool StateEventSender::HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const
+    if (!m_eventPool)
     {
-      return !m_eventRoute.IsEmpty() && m_eventRoute.GetTarget() != target;
+      throw std::invalid_argument("eventPool can not be null");
     }
-
-    bool StateEventSender::HasHistory() const
+    if (!m_eventHandler)
     {
-      return m_history.UseHistory();
+      throw std::invalid_argument("eventHandler can not be null");
     }
-
-
-    SendResult StateEventSender::Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target)
+    if (!m_fnCreateTargetWindowDeathEvent)
     {
-      return Send(theEvent, target, false, PxPoint2());
+      throw std::invalid_argument("fnCreateTargetWindowDeathEvent can not be null");
     }
+  }
 
 
-    SendResult StateEventSender::Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx)
+  StateEventSender::~StateEventSender() = default;
+
+
+  bool StateEventSender::HasActiveEvent() const noexcept
+  {
+    return !m_eventRoute.IsEmpty();
+  }
+
+
+  bool StateEventSender::HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const
+  {
+    return !m_eventRoute.IsEmpty() && m_eventRoute.GetTarget() != target;
+  }
+
+  bool StateEventSender::HasHistory() const
+  {
+    return m_history.UseHistory();
+  }
+
+
+  SendResult StateEventSender::Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target)
+  {
+    return Send(theEvent, target, false, PxPoint2());
+  }
+
+
+  SendResult StateEventSender::Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx)
+  {
+    return Send(theEvent, std::shared_ptr<TreeNode>(), true, hitPositionPx);
+  }
+
+
+  void StateEventSender::ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node)
+  {
+    assert(m_state == State::Normal);
+
+    if (m_history.UseHistory() && !m_eventRoute.IsEmpty())
     {
-      return Send(theEvent, std::shared_ptr<TreeNode>(), true, hitPositionPx);
-    }
-
-
-    void StateEventSender::ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node)
-    {
-      assert(m_state == State::Normal);
-
-      if (m_history.UseHistory() && !m_eventRoute.IsEmpty())
+      const auto routeTarget = m_eventRoute.GetTarget();
+      m_eventRoute.RemoveNode(node);
+      // If the node that is being removed is the target of the event history
+      // then create a fake end event and send it right away and we then keep
+      // capturing and ignoring events until the real end event arrive.
+      if (routeTarget == node)
       {
-        const auto routeTarget = m_eventRoute.GetTarget();
-        m_eventRoute.RemoveNode(node);
-        // If the node that is being removed is the target of the event history
-        // then create a fake end event and send it right away and we then keep
-        // capturing and ignoring events until the real end event arrive.
-        if (routeTarget == node)
+        StateEvent lastEvent;
+        {    // Callback to get a custom event for 'target window death'
+          ScopedStateChange scopedChange(*this, State::RemovingNode);
+          lastEvent = m_fnCreateTargetWindowDeathEvent(m_lastEventInfo, m_eventPool);
+          FSLLOG3_WARNING_IF(!lastEvent.Info().IsCancel(), "The WindowDeathEvent is expected to be a cancel event");
+        }
+
+        if (lastEvent.Content())
         {
-          StateEvent lastEvent;
-          {    // Callback to get a custom event for 'target window death'
-            ScopedStateChange scopedChange(*this, State::RemovingNode);
-            lastEvent = m_fnCreateTargetWindowDeathEvent(m_lastEventInfo, m_eventPool);
-            FSLLOG3_WARNING_IF(!lastEvent.Info().IsCancel(), "The WindowDeathEvent is expected to be a cancel event");
-          }
-
-          if (lastEvent.Content())
+          try
           {
-            try
-            {
-              FSLLOG3_VERBOSE5("StateEventSender: TargetDied sending cancel event to history");
+            FSLLOG3_VERBOSE5("StateEventSender: TargetDied sending cancel event to history");
 
-              // We lock the history so that it wont get freed by the fake 'up'
-              // This ensures that the StateEvent captures the rest of the real event series.
-              m_history.Lock();
-              SendViaHistory(lastEvent);
-              m_history.Unlock();
-              m_history.MarkReceiverAsDead();
-            }
-            catch (...)
-            {
-              m_history.Unlock();
-              m_history.MarkReceiverAsDead();
-            }
+            // We lock the history so that it wont get freed by the fake 'up'
+            // This ensures that the StateEvent captures the rest of the real event series.
+            m_history.Lock();
+            SendViaHistory(lastEvent);
+            m_history.Unlock();
+            m_history.MarkReceiverAsDead();
+          }
+          catch (...)
+          {
+            m_history.Unlock();
+            m_history.MarkReceiverAsDead();
           }
         }
-        //! Doing this could lead to issues with receiving end before begin, but we detect that and ignore it
-        if (m_eventRoute.IsEmpty())
-        {
-          m_history.End();
-        }
       }
-    }
-
-
-    SendResult StateEventSender::Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased,
-                                      const PxPoint2& hitPositionPx)
-    {
-      // This check ensures that we don't end up in some weird re-entrancy situations
-      if (!m_treeContextInfo->IsInSystemContext())
+      //! Doing this could lead to issues with receiving end before begin, but we detect that and ignore it
+      if (m_eventRoute.IsEmpty())
       {
-        throw UsageErrorException("Method called from a invalid context.");
-      }
-
-      assert(m_state == State::Normal);
-      // Validate the event according to the received input.
-      if ((theEvent.Info().IsBegin() && !theEvent.Info().IsRepeat()) && m_history.UseHistory())
-      {
-        FSLLOG3_ERROR("Received double begin that isn't a repeat, ignoring it.");
-        return SendResult::Error;
-      }
-      if (!m_history.UseHistory() &&
-          ((theEvent.Info().IsBegin() && theEvent.Info().IsRepeat()) || theEvent.Info().IsCancel() || theEvent.Info().IsEnd()))
-      {
-        FSLLOG3_ERROR_IF(theEvent.Info().IsBegin(), "Received begin repeat without a initial press, ignoring it.");
-        FSLLOG3_ERROR_IF(theEvent.Info().IsCancel(), "Received cancel without a initial press, ignoring it.");
-        FSLLOG3_ERROR_IF(theEvent.Info().IsEnd(), "Received end without a initial press, ignoring it.");
-        return SendResult::Error;
-      }
-
-      // This warning indicates that we have multiple sources (multi touch/keyboard) which currently is unsupported by our routing system.
-      FSLLOG3_WARNING_IF(m_history.UseHistory() && m_history.LastSourceId() != theEvent.Info().SourceId(),
-                         "Received a related input event from a different source than the initial one (multi touch/keyboard is unsupported).");
-
-      SendResult sendResult = SendResult::Error;
-
-      // If we don't have a history -> locate the window that is being hit
-      // else if the receiver isn't dead send it through the windows in exactly the same order.
-      // else ignore the event (since a fake up event has been sent).
-      m_lastEventInfo = theEvent.Info();
-      if (!m_history.UseHistory())
-      {
-        BuildEventRoute(theEvent, target, isHitBased, hitPositionPx);
-        assert(HasHistory());
-      }
-
-      if (!m_history.IsReceiverDead())
-      {
-        sendResult = SendToEventRoute(theEvent);
-      }
-
-      // Clear the history on release
-      if ((theEvent.Info().IsEnd() || theEvent.Info().IsCancel()) && !m_history.IsLocked())
-      {
-        m_eventRoute.Clear();
         m_history.End();
-        m_lastEventInfo.Clear();
-      }
-      return sendResult;
-    }
-
-
-    SendResult StateEventSender::SendViaHistory(const StateEvent& theEvent)
-    {
-      assert(m_history.UseHistory());
-      return Send(theEvent, std::shared_ptr<TreeNode>(), false, PxPoint2());
-    }
-
-
-    void StateEventSender::BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased,
-                                           const PxPoint2& hitPositionPx)
-    {
-      // Since we verified the event according to our history we can assume that if the history is invalid
-      // this must be a pressed event which we need to create a history record for
-      assert(theEvent.Info().IsBegin());
-      assert(!theEvent.Info().IsRepeat());
-
-      // start a new history
-      ScopedStateChange scopedChange(*this, State::BuildingHistory);
-      m_history.Begin(theEvent.Info().SourceId(), theEvent.Info().SourceSubId());
-
-      if (isHitBased)
-      {
-        m_eventRouter->CreateRoute(m_eventRoute, theEvent.Content()->GetDescription().RoutingStrategy, hitPositionPx);
-      }
-      else
-      {
-        m_eventRouter->CreateRoute(m_eventRoute, theEvent.Content()->GetDescription().RoutingStrategy, target);
       }
     }
+  }
 
 
-    SendResult StateEventSender::SendToEventRoute(const StateEvent& theEvent)
+  SendResult StateEventSender::Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased,
+                                    const PxPoint2& hitPositionPx)
+  {
+    // This check ensures that we don't end up in some weird re-entrancy situations
+    if (!m_treeContextInfo->IsInSystemContext())
     {
-      assert(m_history.UseHistory());
-
-      m_eventRoute.Send(m_eventHandler.get(), theEvent.Content());
-
-      // FIX: Let our owner know that we completed sending a event
-      // m_creator.OnSendCompleted(this, theEvent);
-
-      return (theEvent.Content()->IsHandled() ? SendResult::Handled : SendResult::Unhandled);
+      throw UsageErrorException("Method called from a invalid context.");
     }
+
+    assert(m_state == State::Normal);
+    // Validate the event according to the received input.
+    if ((theEvent.Info().IsBegin() && !theEvent.Info().IsRepeat()) && m_history.UseHistory())
+    {
+      FSLLOG3_ERROR("Received double begin that isn't a repeat, ignoring it.");
+      return SendResult::Error;
+    }
+    if (!m_history.UseHistory() &&
+        ((theEvent.Info().IsBegin() && theEvent.Info().IsRepeat()) || theEvent.Info().IsCancel() || theEvent.Info().IsEnd()))
+    {
+      FSLLOG3_ERROR_IF(theEvent.Info().IsBegin(), "Received begin repeat without a initial press, ignoring it.");
+      FSLLOG3_ERROR_IF(theEvent.Info().IsCancel(), "Received cancel without a initial press, ignoring it.");
+      FSLLOG3_ERROR_IF(theEvent.Info().IsEnd(), "Received end without a initial press, ignoring it.");
+      return SendResult::Error;
+    }
+
+    // This warning indicates that we have multiple sources (multi touch/keyboard) which currently is unsupported by our routing system.
+    FSLLOG3_WARNING_IF(m_history.UseHistory() && m_history.LastSourceId() != theEvent.Info().SourceId(),
+                       "Received a related input event from a different source than the initial one (multi touch/keyboard is unsupported).");
+
+    SendResult sendResult = SendResult::Error;
+
+    // If we don't have a history -> locate the window that is being hit
+    // else if the receiver isn't dead send it through the windows in exactly the same order.
+    // else ignore the event (since a fake up event has been sent).
+    m_lastEventInfo = theEvent.Info();
+    if (!m_history.UseHistory())
+    {
+      BuildEventRoute(theEvent, target, isHitBased, hitPositionPx);
+      assert(HasHistory());
+    }
+
+    if (!m_history.IsReceiverDead())
+    {
+      sendResult = SendToEventRoute(theEvent);
+    }
+
+    // Clear the history on release
+    if ((theEvent.Info().IsEnd() || theEvent.Info().IsCancel()) && !m_history.IsLocked())
+    {
+      m_eventRoute.Clear();
+      m_history.End();
+      m_lastEventInfo.Clear();
+    }
+    return sendResult;
+  }
+
+
+  SendResult StateEventSender::SendViaHistory(const StateEvent& theEvent)
+  {
+    assert(m_history.UseHistory());
+    return Send(theEvent, std::shared_ptr<TreeNode>(), false, PxPoint2());
+  }
+
+
+  void StateEventSender::BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased,
+                                         const PxPoint2& hitPositionPx)
+  {
+    // Since we verified the event according to our history we can assume that if the history is invalid
+    // this must be a pressed event which we need to create a history record for
+    assert(theEvent.Info().IsBegin());
+    assert(!theEvent.Info().IsRepeat());
+
+    // start a new history
+    ScopedStateChange scopedChange(*this, State::BuildingHistory);
+    m_history.Begin(theEvent.Info().SourceId(), theEvent.Info().SourceSubId());
+
+    if (isHitBased)
+    {
+      m_eventRouter->CreateRoute(m_eventRoute, theEvent.Content()->GetDescription().RoutingStrategy, hitPositionPx);
+    }
+    else
+    {
+      m_eventRouter->CreateRoute(m_eventRoute, theEvent.Content()->GetDescription().RoutingStrategy, target);
+    }
+  }
+
+
+  SendResult StateEventSender::SendToEventRoute(const StateEvent& theEvent)
+  {
+    assert(m_history.UseHistory());
+
+    m_eventRoute.Send(m_eventHandler.get(), theEvent.Content());
+
+    // FIX: Let our owner know that we completed sending a event
+    // m_creator.OnSendCompleted(this, theEvent);
+
+    return (theEvent.Content()->IsHandled() ? SendResult::Handled : SendResult::Unhandled);
   }
 }

@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
-#include <FslService/Consumer/IBasicService.hpp>
 #include <FslService/Consumer/BasicServiceDeque.hpp>
+#include <FslService/Consumer/IBasicService.hpp>
+#include <memory>
 
 namespace Fsl
 {

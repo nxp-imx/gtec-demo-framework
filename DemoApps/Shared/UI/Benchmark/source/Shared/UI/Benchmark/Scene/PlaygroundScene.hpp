@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_PLAYGROUNDSCENE_HPP
 #define SHARED_UI_BENCHMARK_SCENE_PLAYGROUNDSCENE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,18 +43,18 @@
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Controls/Charts/Common/AverageData.hpp>
+#include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
 #include <FslSimpleUI/Render/Base/RenderOptionFlags.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemInfo.hpp>
-#include <Shared/UI/Benchmark/Chart/AreaChartData.hpp>
-#include <Shared/UI/Benchmark/Chart/AverageData.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppRenderMethod.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
 #include <Shared/UI/Benchmark/RenderMethodInfo.hpp>
 #include <Shared/UI/Benchmark/Scene/Control/RenderOptionControls.hpp>
+#include <future>
+#include <memory>
 #include "Control/CpuDetailedLegendRecord.hpp"
 #include "IScene.hpp"
-#include <memory>
-#include <future>
 
 namespace Fsl
 {
@@ -67,6 +67,7 @@ namespace Fsl
   namespace UI
   {
     class ActivityStack;
+    class ColorDialogActivity;
     class FrameAnalysisDialogActivity;
     struct RenderSystemStats;
     class SlidingPanel;
@@ -84,6 +85,7 @@ namespace Fsl
       Playground,
       SettingsSubActivity,
       FrameAnalysisSubActivity,
+      ColorSubActivity,
       BenchConfigSubActivity,
       Closing
     };
@@ -92,11 +94,6 @@ namespace Fsl
     {
       std::array<std::shared_ptr<UI::FmtValueLabel<uint32_t>>, 8> Entries;
       std::shared_ptr<UI::Background> MainLayout;
-    };
-
-    struct RenderMethodUI
-    {
-      std::vector<std::shared_ptr<UI::RadioButton>> Methods;
     };
 
     struct UISwitchButtons
@@ -109,7 +106,6 @@ namespace Fsl
     {
       std::shared_ptr<UI::Layout> Layout;
       UISwitchButtons UI;
-      RenderMethodUI RenderMethod;
       RenderOptionControls RenderOptions;
       // UI options
       std::shared_ptr<UI::Switch> SwitchOnDemand;
@@ -149,13 +145,13 @@ namespace Fsl
       TransitionColor OverlayColorStatsApp;
       TransitionColor OverlayColorStats;
 
-      explicit AnimRecord(TransitionCache& rTransitionCache, const TransitionTimeSpan timespan)
-        : OverlayColorStatsApp(rTransitionCache, timespan, TransitionType::Smooth)
-        , OverlayColorStats(rTransitionCache, timespan, TransitionType::Smooth)
+      explicit AnimRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTimeSpan)
+        : OverlayColorStatsApp(rTransitionCache, transitionTimeSpan, TransitionType::Smooth)
+        , OverlayColorStats(rTransitionCache, transitionTimeSpan, TransitionType::Smooth)
       {
       }
 
-      void Update(const TransitionTimeSpan& deltaTime)
+      void Update(const TimeSpan& deltaTime)
       {
         OverlayColorStatsApp.Update(deltaTime);
         OverlayColorStats.Update(deltaTime);
@@ -179,9 +175,8 @@ namespace Fsl
     bool m_gpuProfilerSupported{false};
 
     std::vector<RenderMethodInfo> m_renderRecords;
-    uint32_t m_activeRenderIndex{0};
 
-    std::shared_ptr<UI::AreaChartData> m_data;
+    std::shared_ptr<UI::ChartData> m_data;
     UI::AverageData m_dataAverage;
 
     ProfileUI m_uiProfile;
@@ -195,12 +190,13 @@ namespace Fsl
     InputState m_inputState{InputState::Playground};
 
     std::shared_ptr<UI::FrameAnalysisDialogActivity> m_frameAnalysisDialog;
+    std::shared_ptr<UI::ColorDialogActivity> m_colorDialog;
 
     std::shared_ptr<AppTestSettings> m_settingsResult;
     std::shared_ptr<AppBenchSettings> m_benchResult;
     std::future<bool> m_configDialogPromise;
 
-    Optional<NextSceneRecord> m_nextSceneRecord;
+    std::optional<NextSceneRecord> m_nextSceneRecord;
 
   public:
     explicit PlaygroundScene(const SceneCreateInfo& createInfo);
@@ -212,7 +208,7 @@ namespace Fsl
     //}
 
 
-    Optional<NextSceneRecord> TryGetNextScene() const final
+    std::optional<NextSceneRecord> TryGetNextScene() const final
     {
       return m_nextSceneRecord;
     }
@@ -231,7 +227,13 @@ namespace Fsl
   private:
     void UpdateSettingsSubActivityState();
     void UpdateFrameAnalysisSubActivityState();
+    void UpdateColorSubActivityState();
     void UpdateBenchConfigSubActivityState();
+
+    void ShowBenchmarkConfig();
+    void ShowColorDialog();
+    void ShowFrameAnalysisDialogActivity();
+    void ShowSettings();
 
     void SetDefaultValues();
     void ClearGraph();
@@ -243,16 +245,16 @@ namespace Fsl
 
     void RestartTestApp(const bool storeSettingsBeforeRestart);
 
+    void ApplyRenderSettings();
+
     static ProfileUI CreateProfileUI(UI::Theme::IThemeControlFactory& uiFactory, const uint16_t currentDensityDpi,
-                                     const std::shared_ptr<UI::AreaChartData>& data, const ReadOnlySpan<RenderMethodInfo> renderRecordSpan,
-                                     const uint32_t activeRenderIndex, const AppUISettings& settings);
+                                     const std::shared_ptr<UI::ChartData>& data, const AppUISettings& settings);
     static OptionBarUI CreateOptionBarUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context,
-                                         const uint16_t currentDensityDpi, const ReadOnlySpan<RenderMethodInfo> renderRecordSpan,
-                                         const uint32_t activeRenderIndex, const AppUISettings& settings);
+                                         const uint16_t currentDensityDpi, const AppUISettings& settings);
     static UISwitchButtons CreateUISwitchButtons(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context,
                                                  const AppUISettings& settings);
     static BottomBarUI CreateBottomBar(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context,
-                                       const std::shared_ptr<UI::AreaChartData>& data);
+                                       const std::shared_ptr<UI::ChartData>& data);
     static StatsOverlayUI CreateStatsOverlayUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context);
 
     void SetDpi(const uint16_t densityDpi);

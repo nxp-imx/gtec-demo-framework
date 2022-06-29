@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <assimp/Importer.hpp>    //OO version Header!
-#include <assimp/postprocess.h>
+#include <FslAssimp/MeshImporter.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslAssimp/MeshImporter.hpp>
 #include <FslGraphics3D/BasicScene/SceneAllocator.hpp>
 #include <FslGraphics3D/BasicScene/SceneAllocatorFunc.hpp>
+#include <assimp/Importer.hpp>    //OO version Header!
+#include <assimp/postprocess.h>
 #include <memory>
 
 namespace Fsl

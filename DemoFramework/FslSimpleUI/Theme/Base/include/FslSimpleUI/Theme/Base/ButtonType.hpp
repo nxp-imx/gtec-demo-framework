@@ -32,20 +32,14 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class ButtonType
   {
-    namespace Theme
-    {
-      enum class ButtonType
-      {
-        Text,
-        Outlined,
-        Contained
-      };
-    }
-  }
+    Text,
+    Outlined,
+    Contained
+  };
 }
 
 #endif

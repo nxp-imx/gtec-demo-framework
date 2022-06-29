@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Texture/TextureMipMapUtil.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
@@ -37,6 +36,7 @@
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/RawTextureHelper.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
+#include <FslGraphics/Texture/TextureMipMapUtil.hpp>
 
 namespace Fsl
 {

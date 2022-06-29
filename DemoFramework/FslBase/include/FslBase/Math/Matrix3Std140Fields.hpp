@@ -31,20 +31,17 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Matrix3Std140Fields
 {
-  namespace Matrix3Std140Fields
-  {
-    constexpr unsigned int _M11(4 * 0 + 0);
-    constexpr unsigned int _M12(4 * 0 + 1);
-    constexpr unsigned int _M13(4 * 0 + 2);
-    constexpr unsigned int _M21(4 * 1 + 0);
-    constexpr unsigned int _M22(4 * 1 + 1);
-    constexpr unsigned int _M23(4 * 1 + 2);
-    constexpr unsigned int _M31(4 * 2 + 0);
-    constexpr unsigned int _M32(4 * 2 + 1);
-    constexpr unsigned int _M33(4 * 2 + 2);
-  }
+  constexpr unsigned int _M11(4 * 0 + 0);
+  constexpr unsigned int _M12(4 * 0 + 1);
+  constexpr unsigned int _M13(4 * 0 + 2);
+  constexpr unsigned int _M21(4 * 1 + 0);
+  constexpr unsigned int _M22(4 * 1 + 1);
+  constexpr unsigned int _M23(4 * 1 + 2);
+  constexpr unsigned int _M31(4 * 2 + 0);
+  constexpr unsigned int _M32(4 * 2 + 1);
+  constexpr unsigned int _M33(4 * 2 + 2);
 }
 
 #endif

@@ -29,41 +29,38 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/RawMeshContent.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics3D/BasicScene/RawMeshContent.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  RawMeshContent::RawMeshContent()
+    : pVertices(nullptr)
+    , pIndices(nullptr)
+    , IndexCount(0)
+    , IndexStride(0)
+    , VertexCount(0)
+    , VertexStride(0)
+    , ThePrimitiveType(PrimitiveType::LineList)
   {
-    RawMeshContent::RawMeshContent()
-      : pVertices(nullptr)
-      , pIndices(nullptr)
-      , IndexCount(0)
-      , IndexStride(0)
-      , VertexCount(0)
-      , VertexStride(0)
-      , ThePrimitiveType(PrimitiveType::LineList)
-    {
-    }
+  }
 
 
-    RawMeshContent::RawMeshContent(const void* const pTheVertices, const std::size_t vertexCount, const std::size_t vertexStride,
-                                   const void* const pTheIndices, const std::size_t indexCount, const std::size_t indexStride,
-                                   const PrimitiveType primitiveType)
-      : pVertices(pTheVertices)
-      , pIndices(pTheIndices)
-      , IndexCount(indexCount)
-      , IndexStride(indexStride)
-      , VertexCount(vertexCount)
-      , VertexStride(vertexStride)
-      , ThePrimitiveType(primitiveType)
+  RawMeshContent::RawMeshContent(const void* const pTheVertices, const std::size_t vertexCount, const std::size_t vertexStride,
+                                 const void* const pTheIndices, const std::size_t indexCount, const std::size_t indexStride,
+                                 const PrimitiveType primitiveType)
+    : pVertices(pTheVertices)
+    , pIndices(pTheIndices)
+    , IndexCount(indexCount)
+    , IndexStride(indexStride)
+    , VertexCount(vertexCount)
+    , VertexStride(vertexStride)
+    , ThePrimitiveType(primitiveType)
+  {
+    if (pVertices == nullptr || pIndices == nullptr)
     {
-      if (pVertices == nullptr || pIndices == nullptr)
-      {
-        throw std::invalid_argument("null pointers not valid");
-      }
+      throw std::invalid_argument("null pointers not valid");
     }
   }
 }

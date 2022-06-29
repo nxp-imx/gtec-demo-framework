@@ -19,7 +19,7 @@ echo *****************************
 source $WORKSPACE/.Config/Jenkins/ubuntu/PrepareJenkinsEnvironment.sh
 
 if [ ! -n "${FSL_CI_FEATURES+1}" ]; then
-export FSL_CI_FEATURES=[EarlyAccess,EGL,GoogleUnitTest,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenGLES3.2,OpenVX,OpenVX1.1,Vulkan,Lib_NlohmannJson]
+export FSL_CI_FEATURES=[EarlyAccess,EGL,GoogleUnitTest,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenGLES3.2,OpenVX,OpenVX1.2,Vulkan,Lib_NlohmannJson]
 fi
 
 
@@ -28,7 +28,7 @@ echo *** Build clean ***
 echo *******************
 echo Cleaning up build to ensure coverity gets executed on all files.
 
-FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES -c clean
+FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES -c clean
 
 echo ******************************************
 echo *** Coverity: Removing previous builds ***
@@ -58,8 +58,8 @@ echo ************************
 echo *** Coverity: Build  ***
 echo ************************
 
-cov-build --dir $FSL_COVERITY_DIR FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
-rem cov-build --dir $FSL_COVERITY_DIR FslBuild.py -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigGlobalArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+cov-build --dir $FSL_COVERITY_DIR FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+rem cov-build --dir $FSL_COVERITY_DIR FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigGlobalArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 
 echo **************************
 echo *** Coverity: Analyze  ***

@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_MANAGED_VMINDEXBUFFER_HPP
 #define FSLUTIL_VULKAN1_0_MANAGED_VMINDEXBUFFER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,13 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpan.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpanUtil_Vector.hpp>
-#include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
@@ -47,276 +47,273 @@
 #include <utility>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! A managed index buffer is a high level 'index buffer' implementation giving easy access to common use cases.
+  class VMIndexBuffer
   {
-    //! A managed index buffer is a high level 'index buffer' implementation giving easy access to common use cases.
-    class VMIndexBuffer
+    std::shared_ptr<VMBufferManager> m_bufferManager;
+    Vulkan::VUBufferMemory m_indexBuffer;
+    uint32_t m_indexCount = 0;
+    uint32_t m_elementStride = 0;
+    VMBufferUsage m_usage = VMBufferUsage::STATIC;
+
+  public:
+    VMIndexBuffer(const VMIndexBuffer&) = delete;
+    VMIndexBuffer& operator=(const VMIndexBuffer&) = delete;
+
+    // move assignment operator
+    VMIndexBuffer& operator=(VMIndexBuffer&& other) noexcept
     {
-      std::shared_ptr<VMBufferManager> m_bufferManager;
-      Vulkan::VUBufferMemory m_indexBuffer;
-      uint32_t m_indexCount = 0;
-      uint32_t m_elementStride = 0;
-      VMBufferUsage m_usage = VMBufferUsage::STATIC;
-
-    public:
-      VMIndexBuffer(const VMIndexBuffer&) = delete;
-      VMIndexBuffer& operator=(const VMIndexBuffer&) = delete;
-
-      // move assignment operator
-      VMIndexBuffer& operator=(VMIndexBuffer&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          Reset();
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
 
-          // Claim ownership here
-          m_bufferManager = std::move(other.m_bufferManager);
-          m_indexBuffer = std::move(other.m_indexBuffer);
-          m_indexCount = other.m_indexCount;
-          m_elementStride = other.m_elementStride;
-          m_usage = other.m_usage;
+        // Claim ownership here
+        m_bufferManager = std::move(other.m_bufferManager);
+        m_indexBuffer = std::move(other.m_indexBuffer);
+        m_indexCount = other.m_indexCount;
+        m_elementStride = other.m_elementStride;
+        m_usage = other.m_usage;
 
-          // Remove the data from other
-          other.m_indexCount = 0;
-          other.m_elementStride = 0;
-          other.m_usage = VMBufferUsage::STATIC;
-        }
-        return *this;
-      }
-
-      // move constructor
-      VMIndexBuffer(VMIndexBuffer&& other) noexcept
-        : m_bufferManager(std::move(other.m_bufferManager))
-        , m_indexBuffer(std::move(other.m_indexBuffer))
-        , m_indexCount(other.m_indexCount)
-        , m_elementStride(other.m_elementStride)
-        , m_usage(other.m_usage)
-      {
         // Remove the data from other
         other.m_indexCount = 0;
         other.m_elementStride = 0;
         other.m_usage = VMBufferUsage::STATIC;
       }
+      return *this;
+    }
 
-      //! @brief Create a uninitialized index buffer
-      VMIndexBuffer() = default;
+    // move constructor
+    VMIndexBuffer(VMIndexBuffer&& other) noexcept
+      : m_bufferManager(std::move(other.m_bufferManager))
+      , m_indexBuffer(std::move(other.m_indexBuffer))
+      , m_indexCount(other.m_indexCount)
+      , m_elementStride(other.m_elementStride)
+      , m_usage(other.m_usage)
+    {
+      // Remove the data from other
+      other.m_indexCount = 0;
+      other.m_elementStride = 0;
+      other.m_usage = VMBufferUsage::STATIC;
+    }
 
-      //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage)
-        : VMIndexBuffer()
+    //! @brief Create a uninitialized index buffer
+    VMIndexBuffer() = default;
+
+    //! @brief Create a initialized index buffer
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, indexSpan, usage);
+    }
+
+    //! @brief Create a initialized index buffer
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint16_t> indices, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
+
+    //! @brief Create a initialized index buffer
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint32_t> indices, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
+
+    //! @brief Create a initialized dynamic index buffer to a given capacity
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, elementCapacity, elementStride);
+    }
+
+    //! @brief Create a initialized index buffer
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& indices, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
+
+    //! @brief Create a initialized index buffer
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& indices, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
+
+    //! @brief Create a initialized index buffer
+    template <std::size_t TSize>
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& indices, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
+
+    //! @brief Create a initialized index buffer
+    template <std::size_t TSize>
+    VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& indices, const VMBufferUsage usage)
+      : VMIndexBuffer()
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
+
+    ~VMIndexBuffer() noexcept = default;
+
+    inline void Reset() noexcept
+    {
+      if (!m_indexBuffer.IsValid())
       {
-        Reset(bufferManager, indexSpan, usage);
+        return;
       }
 
-      //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint16_t> indices, const VMBufferUsage usage)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
+      m_usage = VMBufferUsage::STATIC;
+      m_elementStride = 0;
+      m_indexCount = 0;
+      m_indexBuffer.Reset();
+      m_bufferManager.reset();
+    }
 
-      //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint32_t> indices, const VMBufferUsage usage)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
+    //! @brief Reset the buffer to a dynamic buffer of the given capacity
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride);
 
-      //! @brief Create a initialized dynamic index buffer to a given capacity
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, elementCapacity, elementStride);
-      }
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage);
 
-      //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& indices, const VMBufferUsage usage)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint16_t> indices, const VMBufferUsage usage)
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
 
-      //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& indices, const VMBufferUsage usage)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint32_t> indices, const VMBufferUsage usage)
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
 
-      //! @brief Create a initialized index buffer
-      template <std::size_t TSize>
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& indices, const VMBufferUsage usage)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& indices, const VMBufferUsage usage)
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
 
-      //! @brief Create a initialized index buffer
-      template <std::size_t TSize>
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& indices, const VMBufferUsage usage)
-        : VMIndexBuffer()
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& indices, const VMBufferUsage usage)
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
 
-      ~VMIndexBuffer() noexcept = default;
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    template <std::size_t TSize>
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& indices, const VMBufferUsage usage)
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
 
-      inline void Reset() noexcept
-      {
-        if (!m_indexBuffer.IsValid())
-        {
-          return;
-        }
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    template <std::size_t TSize>
+    void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& indices, const VMBufferUsage usage)
+    {
+      Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
+    }
 
-        m_usage = VMBufferUsage::STATIC;
-        m_elementStride = 0;
-        m_indexCount = 0;
-        m_indexBuffer.Reset();
-        m_bufferManager.reset();
-      }
+    void SetData(ReadOnlyFlexSpan indexSpan);
 
-      //! @brief Reset the buffer to a dynamic buffer of the given capacity
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride);
+    void SetData(const ReadOnlySpan<uint16_t> indices)
+    {
+      SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
+    }
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage);
-
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint16_t> indices, const VMBufferUsage usage)
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
-
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint32_t> indices, const VMBufferUsage usage)
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
-
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& indices, const VMBufferUsage usage)
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
-
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& indices, const VMBufferUsage usage)
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
-
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      template <std::size_t TSize>
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& indices, const VMBufferUsage usage)
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
-
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      template <std::size_t TSize>
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& indices, const VMBufferUsage usage)
-      {
-        Reset(bufferManager, ReadOnlyFlexSpanUtil::AsSpan(indices), usage);
-      }
-
-      void SetData(ReadOnlyFlexSpan indexSpan);
-
-      void SetData(const ReadOnlySpan<uint16_t> indices)
-      {
-        SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
-      }
-
-      void SetData(const ReadOnlySpan<uint32_t> indices)
-      {
-        SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
-      }
+    void SetData(const ReadOnlySpan<uint32_t> indices)
+    {
+      SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
+    }
 
 
-      void SetData(const std::vector<uint16_t>& indices)
-      {
-        SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
-      }
+    void SetData(const std::vector<uint16_t>& indices)
+    {
+      SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
+    }
 
 
-      void SetData(const std::vector<uint32_t>& indices)
-      {
-        SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
-      }
+    void SetData(const std::vector<uint32_t>& indices)
+    {
+      SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
+    }
 
 
-      template <std::size_t TSize>
-      void SetData(const std::array<uint16_t, TSize>& indices)
-      {
-        SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
-      }
+    template <std::size_t TSize>
+    void SetData(const std::array<uint16_t, TSize>& indices)
+    {
+      SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
+    }
 
 
-      template <std::size_t TSize>
-      void SetData(const std::array<uint32_t, TSize>& indices)
-      {
-        SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
-      }
+    template <std::size_t TSize>
+    void SetData(const std::array<uint32_t, TSize>& indices)
+    {
+      SetData(ReadOnlyFlexSpanUtil::AsSpan(indices));
+    }
 
 
-      bool IsValid() const
-      {
-        return m_indexBuffer.IsValid();
-      }
+    bool IsValid() const
+    {
+      return m_indexBuffer.IsValid();
+    }
 
-      uint32_t GetIndexCount() const
-      {
-        return m_indexCount;
-      }
+    uint32_t GetIndexCount() const
+    {
+      return m_indexCount;
+    }
 
-      //! @brief Get the element stride (size of one element in bytes)
-      uint32_t GetElementStride() const
-      {
-        return m_elementStride;
-      }
+    //! @brief Get the element stride (size of one element in bytes)
+    uint32_t GetElementStride() const
+    {
+      return m_elementStride;
+    }
 
-      //! @brief Get the associated 'Device'
-      VkDevice GetDevice() const
-      {
-        return m_indexBuffer.GetDevice();
-      }
+    //! @brief Get the associated 'Device'
+    VkDevice GetDevice() const
+    {
+      return m_indexBuffer.GetDevice();
+    }
 
-      //! @brief Get the associated 'buffer'
-      VkBuffer GetBuffer() const
-      {
-        return m_indexBuffer.GetBuffer();
-      }
+    //! @brief Get the associated 'buffer'
+    VkBuffer GetBuffer() const
+    {
+      return m_indexBuffer.GetBuffer();
+    }
 
-      const VkBuffer* GetBufferPointer() const
-      {
-        return m_indexBuffer.GetBufferPointer();
-      }
+    const VkBuffer* GetBufferPointer() const
+    {
+      return m_indexBuffer.GetBufferPointer();
+    }
 
-      VkIndexType GetIndexType() const
-      {
-        assert(m_elementStride == 2 || m_elementStride == 4);
-        return m_elementStride == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
-      }
-    };
-  }
+    VkIndexType GetIndexType() const
+    {
+      assert(m_elementStride == 2 || m_elementStride == 4);
+      return m_elementStride == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
+    }
+  };
 }
 
 #endif

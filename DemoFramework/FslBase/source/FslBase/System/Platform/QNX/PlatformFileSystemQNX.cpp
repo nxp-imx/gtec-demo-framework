@@ -30,13 +30,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/PathDeque.hpp>
-#include <sys/types.h>
-#include <cstring>
+#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <cstring>
 
 namespace Fsl
 {

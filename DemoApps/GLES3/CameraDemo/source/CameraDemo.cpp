@@ -47,7 +47,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 // value_ptr
 #include <glm/gtc/type_ptr.hpp>
-
 #include <memory>
 
 namespace Fsl

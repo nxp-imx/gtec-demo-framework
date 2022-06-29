@@ -1,7 +1,7 @@
 #ifndef FSLDEMOAPP_VULKAN_BASIC_FRAMEBUFFERCREATECONTEXT_HPP
 #define FSLDEMOAPP_VULKAN_BASIC_FRAMEBUFFERCREATECONTEXT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,30 +34,27 @@
 #include <FslBase/BasicTypes.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::VulkanBasic
 {
-  namespace VulkanBasic
+  struct FrameBufferCreateContext
   {
-    struct FrameBufferCreateContext
+    VkImageView SwapchainImageView = VK_NULL_HANDLE;
+    VkExtent2D SwapChainImageExtent{};
+    VkRenderPass RenderPass = VK_NULL_HANDLE;
+    //! If this is a null handle there is no depth buffer image view
+    VkImageView DepthBufferImageView = VK_NULL_HANDLE;
+
+    FrameBufferCreateContext() = default;
+
+    FrameBufferCreateContext(const VkImageView swapchainImageView, const VkExtent2D& swapChainImageExtent, const VkRenderPass renderPass,
+                             const VkImageView depthBufferImageView)
+      : SwapchainImageView(swapchainImageView)
+      , SwapChainImageExtent(swapChainImageExtent)
+      , RenderPass(renderPass)
+      , DepthBufferImageView(depthBufferImageView)
     {
-      VkImageView SwapchainImageView = VK_NULL_HANDLE;
-      VkExtent2D SwapChainImageExtent{};
-      VkRenderPass RenderPass = VK_NULL_HANDLE;
-      //! If this is a null handle there is no depth buffer image view
-      VkImageView DepthBufferImageView = VK_NULL_HANDLE;
-
-      FrameBufferCreateContext() = default;
-
-      FrameBufferCreateContext(const VkImageView swapchainImageView, const VkExtent2D& swapChainImageExtent, const VkRenderPass renderPass,
-                               const VkImageView depthBufferImageView)
-        : SwapchainImageView(swapchainImageView)
-        , SwapChainImageExtent(swapChainImageExtent)
-        , RenderPass(renderPass)
-        , DepthBufferImageView(depthBufferImageView)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

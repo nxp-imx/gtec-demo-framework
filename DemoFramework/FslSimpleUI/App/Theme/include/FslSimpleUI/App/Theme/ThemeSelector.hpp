@@ -37,20 +37,17 @@ namespace Fsl
 {
   class UIDemoAppExtensionLite;
 
-  namespace UI
+  namespace UI::Theme
   {
-    namespace Theme
-    {
-      class IThemeFactory;
-      class IThemeControlFactory;
+    class IThemeFactory;
+    class IThemeControlFactory;
 
-      namespace ThemeSelector
-      {
-        std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette = true,
-                                                                   const bool disableOpaqueMaterials = false);
-        std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette = true,
-                                                     const bool disableOpaqueMaterials = false);
-      }
+    namespace ThemeSelector
+    {
+      std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette = true,
+                                                                 const bool disableOpaqueMaterials = false);
+      std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette = true,
+                                                   const bool disableOpaqueMaterials = false);
     }
   }
 }

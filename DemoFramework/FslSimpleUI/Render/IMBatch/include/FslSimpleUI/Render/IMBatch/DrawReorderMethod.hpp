@@ -31,20 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  enum class DrawReorderMethod
   {
-    namespace RenderIMBatch
-    {
-      enum class DrawReorderMethod
-      {
-        Disabled,
-        Linear,
-        LinearConstrained,
-      };
-    }
-  }
+    Disabled,
+    LinearConstrained,
+    SpatialGrid,
+  };
 }
 
 #endif

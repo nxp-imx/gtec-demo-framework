@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_DIALOG_BENCHCONFIGDIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_SCENE_DIALOG_BENCHCONFIGDIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,94 +39,91 @@
 #include <Shared/UI/Benchmark/RenderMethodInfo.hpp>
 #include <Shared/UI/Benchmark/Scene/Control/RenderOptionControls.hpp>
 #include <memory>
-#include <vector>
 #include <utility>
+#include <vector>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ButtonBase;
+  class GridLayout;
+  class RadioButton;
+  class Switch;
+
+  class BenchConfigDialogActivity final : public DialogActivity
   {
-    class ButtonBase;
-    class GridLayout;
-    class RadioButton;
-    class Switch;
-
-    class BenchConfigDialogActivity final : public DialogActivity
+    enum class State
     {
-      enum class State
-      {
-        Ready,
-        Closing,
-      };
-
-      struct RenderMethodRecord
-      {
-        AppRenderMethod RenderMethod{AppRenderMethod::FlexImBatch};
-        std::shared_ptr<UI::RadioButton> RadioButton;
-        RenderMethodRecord() = default;
-        RenderMethodRecord(const AppRenderMethod renderMethod, std::shared_ptr<UI::RadioButton> radioButton)
-          : RenderMethod(renderMethod)
-          , RadioButton(std::move(radioButton))
-        {
-        }
-      };
-
-      struct RenderMethodUI
-      {
-        std::vector<RenderMethodRecord> Methods;
-
-        RenderMethodUI() = default;
-        explicit RenderMethodUI(const std::size_t capacity)
-          : Methods(capacity)
-        {
-        }
-
-        void FinishAnimation();
-      };
-
-      struct MainUI
-      {
-        std::shared_ptr<ButtonBase> ButtonOK;
-        std::shared_ptr<ButtonBase> ButtonBack;
-        std::shared_ptr<Switch> SwitchGpuTimestamps;
-        std::shared_ptr<Switch> SwitchNoOpaqueMaterials;
-        std::shared_ptr<Switch> switchOnDemandRendering;
-        std::shared_ptr<Switch> SwitchUseSdfFonts;
-        RenderMethodUI RenderMethod;
-        RenderOptionControls RenderOptions;
-
-        void FinishAnimation();
-      };
-
-      State m_state{State::Ready};
-
-      std::vector<RenderMethodInfo> m_renderMethods;
-      uint32_t m_activeRenderIndex{0};
-
-      MainUI m_mainUI;
-
-      std::shared_ptr<AppBenchSettings> m_settings;
-
-    public:
-      // Since we dont have a proper activity concept with async return values we use the shared settings object for now
-      BenchConfigDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                const bool gpuTimestampsSupported, const ReadOnlySpan<RenderMethodInfo> renderMethods,
-                                std::shared_ptr<AppBenchSettings> settings);
-
-
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
-      void OnKeyEvent(const KeyEvent& theEvent) final;
-
-    private:
-      static MainUI CreateMainUI(Theme::IThemeControlFactory& uiFactory, GridLayout& rMainLayout, const bool gpuTimestampsSupported,
-                                 const ReadOnlySpan<RenderMethodInfo> renderMethods, const uint32_t activeRenderIndex,
-                                 const AppBenchSettings& settings);
-      void DoScheduleClose(const bool completed);
-      void SetSettings(const AppBenchSettings& settings, const uint32_t activeRenderIndex);
-      AppBenchSettings RetrieveSettings();
+      Ready,
+      Closing,
     };
-  }
+
+    struct RenderMethodRecord
+    {
+      AppRenderMethod RenderMethod{AppRenderMethod::FlexImBatch};
+      std::shared_ptr<UI::RadioButton> RadioButton;
+      RenderMethodRecord() = default;
+      RenderMethodRecord(const AppRenderMethod renderMethod, std::shared_ptr<UI::RadioButton> radioButton)
+        : RenderMethod(renderMethod)
+        , RadioButton(std::move(radioButton))
+      {
+      }
+    };
+
+    struct RenderMethodUI
+    {
+      std::vector<RenderMethodRecord> Methods;
+
+      RenderMethodUI() = default;
+      explicit RenderMethodUI(const std::size_t capacity)
+        : Methods(capacity)
+      {
+      }
+
+      void FinishAnimation();
+    };
+
+    struct MainUI
+    {
+      std::shared_ptr<ButtonBase> ButtonOK;
+      std::shared_ptr<ButtonBase> ButtonBack;
+      std::shared_ptr<Switch> SwitchGpuTimestamps;
+      std::shared_ptr<Switch> SwitchNoOpaqueMaterials;
+      std::shared_ptr<Switch> switchOnDemandRendering;
+      std::shared_ptr<Switch> SwitchUseSdfFonts;
+      RenderMethodUI RenderMethod;
+      RenderOptionControls RenderOptions;
+
+      void FinishAnimation();
+    };
+
+    State m_state{State::Ready};
+
+    std::vector<RenderMethodInfo> m_renderMethods;
+    uint32_t m_activeRenderIndex{0};
+
+    MainUI m_mainUI;
+
+    std::shared_ptr<AppBenchSettings> m_settings;
+
+  public:
+    // Since we dont have a proper activity concept with async return values we use the shared settings object for now
+    BenchConfigDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                              const bool gpuTimestampsSupported, const ReadOnlySpan<RenderMethodInfo> renderMethods,
+                              std::shared_ptr<AppBenchSettings> settings);
+
+
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnKeyEvent(const KeyEvent& theEvent) final;
+
+  private:
+    static MainUI CreateMainUI(Theme::IThemeControlFactory& uiFactory, GridLayout& rMainLayout, const bool gpuTimestampsSupported,
+                               const ReadOnlySpan<RenderMethodInfo> renderMethods, const uint32_t activeRenderIndex,
+                               const AppBenchSettings& settings);
+    void DoScheduleClose(const bool completed);
+    void SetSettings(const AppBenchSettings& settings, const uint32_t activeRenderIndex);
+    AppBenchSettings RetrieveSettings();
+  };
 }
 
 

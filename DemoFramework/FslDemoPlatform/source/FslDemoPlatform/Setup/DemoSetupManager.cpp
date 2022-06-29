@@ -29,11 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoPlatform/Setup/DemoSetupManager.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
-#include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
-#include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
+#include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
 #include <FslDemoHost/Base/Service/AppInfo/AppInfoService.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorService.hpp>
@@ -45,18 +43,20 @@
 #include <FslDemoHost/Base/Service/Mouse/MouseService.hpp>
 #include <FslDemoHost/Base/Service/NativeWindowEvents/NativeWindowEventsService.hpp>
 #include <FslDemoHost/Base/Service/Options/OptionsService.hpp>
+#include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceFactory.hpp>
-#include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/Test/TestService.hpp>
 #include <FslDemoPlatform/Service/DemoPlatformControl/DemoPlatformControl.hpp>
-#include <FslService/Impl/ServiceOptionParserDeque.hpp>
+#include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
+#include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
+#include <FslDemoPlatform/Setup/DemoSetupManager.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
+#include <FslService/Impl/ServiceOptionParserDeque.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include "../Configuration/PlatformConfig.hpp"
-#include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
 #include <cassert>
+#include "../Configuration/PlatformConfig.hpp"
 
 
 namespace Fsl
@@ -122,6 +122,6 @@ namespace Fsl
 
     DemoHostSetup hostSetup = hostRegistry.GetSetup(*(appSetup.DemoHostFeatures));
 
-    return DemoBasicSetup(hostSetup, appSetup, verbosityLevel);
+    return {hostSetup, appSetup, verbosityLevel};
   }
 }

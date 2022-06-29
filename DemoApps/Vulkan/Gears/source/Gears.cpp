@@ -13,18 +13,18 @@
 
 
 #include "Gears.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <RapidVulkan/Check.hpp>
-#include <array>
-#include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <array>
+#include <cstring>
 #include <memory>
 
 namespace Fsl

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/DemoAppTiming.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoHost/Base/DemoAppTiming.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -49,12 +49,13 @@ namespace Fsl
 
   bool DemoAppTiming::Config::SetFixedUpdatesPerSecond(const uint16_t fixedUpdatesPerSecond) noexcept
   {
-    const uint16_t cappedFixedUpdatesPerSecond = std::max(fixedUpdatesPerSecond, uint16_t(1));
+    const uint16_t cappedFixedUpdatesPerSecond = std::max(fixedUpdatesPerSecond, static_cast<uint16_t>(1));
     const bool wasChanged = cappedFixedUpdatesPerSecond != FixedUpdatesPerSecond;
     if (wasChanged)
     {
       FixedUpdatesPerSecond = cappedFixedUpdatesPerSecond;
-      ExpectedFixedFrameTime = TimeSpan(static_cast<int64_t>(std::round(double(TimeInfo::TicksPerSecond) / double(FixedUpdatesPerSecond))));
+      ExpectedFixedFrameTime =
+        TimeSpan(static_cast<int64_t>(std::round(static_cast<double>(TimeInfo::TicksPerSecond) / static_cast<double>(FixedUpdatesPerSecond))));
     }
     return wasChanged;
   }
@@ -107,7 +108,7 @@ namespace Fsl
   }
 
 
-  Optional<DemoTime> DemoAppTiming::TryFixedUpdate()
+  std::optional<DemoTime> DemoAppTiming::TryFixedUpdate()
   {
     if (m_timing.FixedTime.CurrentAccumulatedTime >= m_timing.FixedTime.ExpectedFrameTime)
     {
@@ -208,11 +209,11 @@ namespace Fsl
     case TimeStepMode::Slow4X:
     case TimeStepMode::Fast2X:
     case TimeStepMode::Fast4X:
-    {
-      // When in timestep mode we apply a fixed amount of time steps
-      const uint64_t expectedUpdateCount = m_timing.FixedTime.CurrentAccumulatedTime.Ticks() / m_timing.FixedTime.ExpectedFrameTime.Ticks();
-      return UncheckedNumericCast<int32_t>(expectedUpdateCount) * m_config.ExpectedFixedFrameTime;
-    }
+      {
+        // When in timestep mode we apply a fixed amount of time steps
+        const uint64_t expectedUpdateCount = m_timing.FixedTime.CurrentAccumulatedTime.Ticks() / m_timing.FixedTime.ExpectedFrameTime.Ticks();
+        return UncheckedNumericCast<int32_t>(expectedUpdateCount) * m_config.ExpectedFixedFrameTime;
+      }
     default:
       return timeDiff;
     }

@@ -30,52 +30,49 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslUtil/OpenVG/VGUtil.hpp>
 #include "NativeGraphicsBasic2D.hpp"
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
+    : ANativeGraphicsServiceNo3D(serviceProvider)
   {
-    NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
-      : ANativeGraphicsServiceNo3D(serviceProvider)
+  }
+
+
+  NativeGraphicsService::~NativeGraphicsService() = default;
+
+
+  bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
+  {
+    if (activeAPI.Name != DemoHostFeatureName::OpenVG)
     {
+      return false;
     }
 
-
-    NativeGraphicsService::~NativeGraphicsService() = default;
-
-
-    bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
-    {
-      if (activeAPI.Name != DemoHostFeatureName::OpenVG)
-      {
-        return false;
-      }
-
-      int major = 0;
-      int minor = 0;
-      DemoHostFeatureUtil::DecodeOpenVGVersion(activeAPI.Version, major, minor);
-      return major == 1;
-    }
+    int major = 0;
+    int minor = 0;
+    DemoHostFeatureUtil::DecodeOpenVGVersion(activeAPI.Version, major, minor);
+    return major == 1;
+  }
 
 
-    void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
-    {
-      OpenVG::VGUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectangle);
-    }
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+  {
+    OpenVG::VGUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectangle);
+  }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
-    {
-      return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx));
-    }
+  std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
+  {
+    return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx));
   }
 }
 #endif

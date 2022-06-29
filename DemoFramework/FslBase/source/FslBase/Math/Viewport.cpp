@@ -40,10 +40,10 @@ purpose and non-infringement.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Viewport.cs.
 
-#include <FslBase/Math/Viewport.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslBase/Math/Viewport.hpp>
 #include <cmath>
 #include <limits>
 
@@ -74,8 +74,8 @@ namespace Fsl
       vector.Y = vector.Y / a;
       vector.Z = vector.Z / a;
     }
-    vector.X = (((vector.X + 1.0f) * 0.5f) * Width) + X;
-    vector.Y = (((-vector.Y + 1.0f) * 0.5f) * Height) + Y;
+    vector.X = (((vector.X + 1.0f) * 0.5f) * static_cast<float>(Width)) + static_cast<float>(X);
+    vector.Y = (((-vector.Y + 1.0f) * 0.5f) * static_cast<float>(Height)) + static_cast<float>(Y);
     vector.Z = (vector.Z * (MaxDepth - MinDepth)) + MinDepth;
     return vector;
   }
@@ -84,8 +84,9 @@ namespace Fsl
   {
     Matrix matrix = Matrix::Invert(Matrix::Multiply(Matrix::Multiply(world, view), projection));
 
-    const Vector3 source1((((source.X - X) / static_cast<float>(Width)) * 2.0f) - 1.0f,
-                          -((((source.Y - Y) / static_cast<float>(Height)) * 2.0f) - 1.0f), (source.Z - MinDepth) / (MaxDepth - MinDepth));
+    const Vector3 source1((((source.X - static_cast<float>(X)) / static_cast<float>(Width)) * 2.0f) - 1.0f,
+                          -((((source.Y - static_cast<float>(Y)) / static_cast<float>(Height)) * 2.0f) - 1.0f),
+                          (source.Z - MinDepth) / (MaxDepth - MinDepth));
 
 
     Vector3 vector = Vector3::Transform(source1, matrix);

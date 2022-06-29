@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Font/BasicFlatHashTable.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <fmt/format.h>
 

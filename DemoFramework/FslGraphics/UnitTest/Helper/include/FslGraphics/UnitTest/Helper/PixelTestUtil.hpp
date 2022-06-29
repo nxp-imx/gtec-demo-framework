@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_UNITTEST_HELPER_PIXELTESTUTIL_HPP
 #define FSLGRAPHICS_UNITTEST_HELPER_PIXELTESTUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,132 +33,129 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::PixelTestUtil
 {
-  namespace PixelTestUtil
+  // Test utils for R8G8B8 pixels
+  struct R8G8B8
   {
-    // Test utils for R8G8B8 pixels
-    struct R8G8B8
+    struct PixelUInt8
     {
-      struct PixelUInt8
+      uint8_t R{0};
+      uint8_t G{0};
+      uint8_t B{0};
+
+      constexpr PixelUInt8() = default;
+
+      constexpr PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b)
+        : R(r)
+        , G(g)
+        , B(b)
       {
-        uint8_t R{0};
-        uint8_t G{0};
-        uint8_t B{0};
+      }
 
-        constexpr PixelUInt8() = default;
-
-        constexpr PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b)
-          : R(r)
-          , G(g)
-          , B(b)
-        {
-        }
-
-        constexpr bool operator==(const PixelUInt8& rhs) const
-        {
-          return R == rhs.R && G == rhs.G && B == rhs.B;
-        }
-
-        constexpr bool operator!=(const PixelUInt8& rhs) const
-        {
-          return !(*this == rhs);
-        }
-      };
-
-
-      struct DefaultColorTemplate
+      constexpr bool operator==(const PixelUInt8& rhs) const
       {
-        static constexpr PixelUInt8 R()
-        {
-          return {0xFF, 0x00, 0x00};
-        }
-        static constexpr PixelUInt8 G()
-        {
-          return {0x00, 0xFF, 0x00};
-        }
-        static constexpr PixelUInt8 B()
-        {
-          return {0x00, 0x00, 0xFF};
-        }
-        static constexpr PixelUInt8 Black()
-        {
-          return {0x00, 0x00, 0x00};
-        }
-        static constexpr PixelUInt8 White()
-        {
-          return {0xFF, 0xFF, 0xFF};
-        }
-      };
+        return R == rhs.R && G == rhs.G && B == rhs.B;
+      }
+
+      constexpr bool operator!=(const PixelUInt8& rhs) const
+      {
+        return !(*this == rhs);
+      }
     };
 
 
-    // Test utils for B8G8R8 pixels
-    using B8G8R8 = R8G8B8;
-
-
-    // Test utils for R8G8B8A8 pixels
-    struct R8G8B8A8
+    struct DefaultColorTemplate
     {
-      struct PixelUInt8
+      static constexpr PixelUInt8 R()
       {
-        uint8_t R{0};
-        uint8_t G{0};
-        uint8_t B{0};
-        uint8_t A{0};
-
-        constexpr PixelUInt8() = default;
-
-        constexpr PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
-          : R(r)
-          , G(g)
-          , B(b)
-          , A(a)
-        {
-        }
-
-        constexpr bool operator==(const PixelUInt8& rhs) const
-        {
-          return R == rhs.R && G == rhs.G && B == rhs.B && A == rhs.A;
-        }
-
-        constexpr bool operator!=(const PixelUInt8& rhs) const
-        {
-          return !(*this == rhs);
-        }
-      };
-
-      struct DefaultColorTemplate
+        return {0xFF, 0x00, 0x00};
+      }
+      static constexpr PixelUInt8 G()
       {
-        static constexpr PixelUInt8 R()
-        {
-          return {0xFF, 0x00, 0x00, 0x40};
-        }
-        static constexpr PixelUInt8 G()
-        {
-          return {0x00, 0xFF, 0x00, 0x40};
-        }
+        return {0x00, 0xFF, 0x00};
+      }
+      static constexpr PixelUInt8 B()
+      {
+        return {0x00, 0x00, 0xFF};
+      }
+      static constexpr PixelUInt8 Black()
+      {
+        return {0x00, 0x00, 0x00};
+      }
+      static constexpr PixelUInt8 White()
+      {
+        return {0xFF, 0xFF, 0xFF};
+      }
+    };
+  };
 
-        static constexpr PixelUInt8 B()
-        {
-          return {0x00, 0x00, 0xFF, 0x40};
-        }
 
-        static constexpr PixelUInt8 Black()
-        {
-          return {0x00, 0x00, 0x00, 0x40};
-        }
+  // Test utils for B8G8R8 pixels
+  using B8G8R8 = R8G8B8;
 
-        static constexpr PixelUInt8 White()
-        {
-          return {0xFF, 0xFF, 0xFF, 0x40};
-        }
-      };
+
+  // Test utils for R8G8B8A8 pixels
+  struct R8G8B8A8
+  {
+    struct PixelUInt8
+    {
+      uint8_t R{0};
+      uint8_t G{0};
+      uint8_t B{0};
+      uint8_t A{0};
+
+      constexpr PixelUInt8() = default;
+
+      constexpr PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+        : R(r)
+        , G(g)
+        , B(b)
+        , A(a)
+      {
+      }
+
+      constexpr bool operator==(const PixelUInt8& rhs) const
+      {
+        return R == rhs.R && G == rhs.G && B == rhs.B && A == rhs.A;
+      }
+
+      constexpr bool operator!=(const PixelUInt8& rhs) const
+      {
+        return !(*this == rhs);
+      }
     };
 
-    // Test utils for B8G8R8A8 pixels
-    using B8G8R8A8 = R8G8B8A8;
-  }
+    struct DefaultColorTemplate
+    {
+      static constexpr PixelUInt8 R()
+      {
+        return {0xFF, 0x00, 0x00, 0x40};
+      }
+      static constexpr PixelUInt8 G()
+      {
+        return {0x00, 0xFF, 0x00, 0x40};
+      }
+
+      static constexpr PixelUInt8 B()
+      {
+        return {0x00, 0x00, 0xFF, 0x40};
+      }
+
+      static constexpr PixelUInt8 Black()
+      {
+        return {0x00, 0x00, 0x00, 0x40};
+      }
+
+      static constexpr PixelUInt8 White()
+      {
+        return {0xFF, 0xFF, 0xFF, 0x40};
+      }
+    };
+  };
+
+  // Test utils for B8G8R8A8 pixels
+  using B8G8R8A8 = R8G8B8A8;
 }
 
 #endif

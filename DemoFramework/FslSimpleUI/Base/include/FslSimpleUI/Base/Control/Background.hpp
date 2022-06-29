@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_BACKGROUND_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_BACKGROUND_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,38 +35,35 @@
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowContext;
+
+  class Background final : public ContentControl
   {
-    class WindowContext;
+  protected:
+    const std::shared_ptr<WindowContext> m_windowContext;
 
-    class Background final : public ContentControl
+  private:
+    ContentSpriteMesh m_background;
+    Color m_backgroundColor{DefaultColor::Palette::Primary};
+
+  public:
+    explicit Background(const std::shared_ptr<WindowContext>& context);
+
+    const std::shared_ptr<IContentSprite>& GetBackground() const
     {
-    protected:
-      const std::shared_ptr<WindowContext> m_windowContext;
+      return m_background.GetSprite();
+    }
+    void SetBackground(const std::shared_ptr<IContentSprite>& value);
+    void SetBackgroundColor(const Color& value);
 
-    private:
-      ContentSpriteMesh m_background;
-      Color m_backgroundColor{DefaultColor::Palette::Primary};
+    void WinDraw(const UIDrawContext& context) final;
 
-    public:
-      explicit Background(const std::shared_ptr<WindowContext>& context);
-
-      const std::shared_ptr<IContentSprite>& GetBackground() const
-      {
-        return m_background.GetSprite();
-      }
-      void SetBackground(const std::shared_ptr<IContentSprite>& value);
-      void SetBackgroundColor(const Color& value);
-
-      void WinDraw(const UIDrawContext& context) final;
-
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
-    };
-  }
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+  };
 }
 
 #endif

@@ -30,23 +30,23 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleVertexDescription.hpp"
-#include "../Particle.hpp"
 #include <array>
 #include <cstddef>
+#include "../Particle.hpp"
 
 namespace Fsl
 {
   VertexDeclarationArray<7> ParticleVertexDescription::GetVertexDeclarationArray()
   {
-    constexpr std::array<VertexElementEx, 7> elements = {
-      VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-      VertexElementEx(offsetof(Particle, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Color, 0),
-      VertexElementEx(offsetof(Particle, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 0),
-      VertexElementEx(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
-      VertexElementEx(offsetof(Particle, StartEnergy), VertexElementFormat::Single, VertexElementUsage::Custom, 2),
-      VertexElementEx(offsetof(Particle, StartSize), VertexElementFormat::Single, VertexElementUsage::Custom, 3),
-      VertexElementEx(offsetof(Particle, EndSize), VertexElementFormat::Single, VertexElementUsage::Custom, 4),
+    constexpr std::array<VertexElement, 7> elements = {
+      VertexElement(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+      VertexElement(offsetof(Particle, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Color, 0),
+      VertexElement(offsetof(Particle, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 0),
+      VertexElement(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
+      VertexElement(offsetof(Particle, StartEnergy), VertexElementFormat::Single, VertexElementUsage::Custom, 2),
+      VertexElement(offsetof(Particle, StartSize), VertexElementFormat::Single, VertexElementUsage::Custom, 3),
+      VertexElement(offsetof(Particle, EndSize), VertexElementFormat::Single, VertexElementUsage::Custom, 4),
     };
-    return VertexDeclarationArray<7>(elements, sizeof(Particle));
+    return {elements, sizeof(Particle)};
   }
 }

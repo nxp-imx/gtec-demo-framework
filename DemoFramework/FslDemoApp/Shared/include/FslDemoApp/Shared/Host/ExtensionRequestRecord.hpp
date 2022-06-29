@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Shared/Host/ExtensionType.hpp>
 #include <FslDemoApp/Shared/Host/ExtensionPrecense.hpp>
+#include <FslDemoApp/Shared/Host/ExtensionType.hpp>
 #include <string>
 #include <utility>
 

@@ -33,8 +33,9 @@
 
 from typing import Optional
 from typing import List
-from FslBuildGen import PathUtil
 from FslBuildGen import IOUtil
+from FslBuildGen import PackageConfig
+from FslBuildGen import PathUtil
 from FslBuildGen.BuildExternal import CMakeHelper
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
 from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
@@ -48,8 +49,9 @@ class GeneratorCMakeConfig(object):
     The cmake context for the current platform
     """
     def __init__(self, log: Log, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig, userSetVariables: UserSetVariables,
-                 buildDir: str, buildDirSetByUser: bool, checkDir: str, generatorName: str, installPrefix: Optional[str], cmakeVersion: CMakeVersion,
-                 additionalGlobalConfigArguments: List[str], additionalAppConfigArguments: List[str], allowFindPackage: bool) -> None:
+                 buildDir: str, buildDirSetByUser: bool, buildDirId: Optional[int], checkDir: str, generatorName: str, installPrefix: Optional[str],
+                 cmakeVersion: CMakeVersion, additionalGlobalConfigArguments: List[str], additionalAppConfigArguments: List[str],
+                 allowFindPackage: bool) -> None:
         super().__init__()
 
         PathUtil.ValidateIsNormalizedPath(buildDir, "BuildDir")
@@ -65,10 +67,13 @@ class GeneratorCMakeConfig(object):
             buildDir = IOUtil.Join(buildDir, generatorShortName)
             if CMakeHelper.GetGeneratorMultiConfigCapabilities(finalGeneratorName) == CMakeGeneratorMultiConfigCapability.No:
                 buildDir = IOUtil.Join(buildDir, BuildVariantConfig.ToString(buildVariantConfig))
+            if buildDirId is not None:
+                buildDir += "_{}".format(buildDirId)
 
         self.ToolVersion = toolVersion
         self.PlatformName = platformName
         self.BuildDir = buildDir
+        self.BuildDirId = buildDirId
         self.CacheDir = IOUtil.Join(buildDir, '_fsl')
         # If this is true the user specified the directory
         self.BuildDirSetByUser = buildDirSetByUser
@@ -80,7 +85,16 @@ class GeneratorCMakeConfig(object):
         self.InstallPrefix = installPrefix
         self.CMakeVersion = cmakeVersion
 
-        self.CMakeCommand = CMakeHelper.DetermineCMakeCommand(platformName)
+        platformCMakeCommand = CMakeHelper.DetermineCMakeCommand(platformName)
+        #self.CMakeConfigureCommand = platformCMakeCommand
+        self.CMakeCommand = platformCMakeCommand
+
+        emscriptenConfig = CMakeHelper.DetermineEmscriptenCommands()
+        self.EmscriptenEnabled = platformName == PackageConfig.PlatformNameString.EMSCRIPTEN
+        self.EmscriptenConfigureCommand = emscriptenConfig.ConfigureCommand
+        self.EmscriptenBuildCommand = emscriptenConfig.BuildCommand
+        self.EmscriptenRunCommand = emscriptenConfig.RunCommand
+
         # The tool arguments
         self.CMakeInternalArguments = CMakeHelper.DetermineGeneratorArguments(finalGeneratorName, platformName)
 

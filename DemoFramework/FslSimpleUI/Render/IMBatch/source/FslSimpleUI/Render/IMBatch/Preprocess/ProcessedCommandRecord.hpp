@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_PROCESSEDCOMMANDRECORD_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_PROCESSEDCOMMANDRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,37 +37,31 @@
 #include <FslGraphics2D/Procedural/Batcher/BatchMaterialId.hpp>
 #include "ProcessedCommandFlags.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  struct ProcessedCommandRecord
   {
-    namespace RenderIMBatch
+    BatchMaterialId MaterialId;
+    PxAreaRectangleF DstAreaRectanglePxf;
+    Color FinalColor;
+    uint32_t OriginalCommandIndex{0};
+    uint32_t LegacyCommandSpanIndex{0};    // remove this field ASAP
+    ProcessedCommandFlags Flags{ProcessedCommandFlags::NoFlags};
+
+    constexpr ProcessedCommandRecord() noexcept = default;
+
+    constexpr ProcessedCommandRecord(const BatchMaterialId materialId, const PxAreaRectangleF& dstAreaRectanglePxf, const Color finalColor,
+                                     const uint32_t originalCommandIndex, const uint32_t legacyCommandSpanIndex,
+                                     const ProcessedCommandFlags flags = ProcessedCommandFlags::NoFlags) noexcept
+      : MaterialId(materialId)
+      , DstAreaRectanglePxf(dstAreaRectanglePxf)
+      , FinalColor(finalColor)
+      , OriginalCommandIndex(originalCommandIndex)
+      , LegacyCommandSpanIndex(legacyCommandSpanIndex)
+      , Flags(flags)
     {
-      struct ProcessedCommandRecord
-      {
-        BatchMaterialId MaterialId;
-        PxAreaRectangleF DstAreaRectanglePxf;
-        Color FinalColor;
-        uint32_t OriginalCommandIndex{0};
-        uint32_t LegacyCommandSpanIndex{0};    // remove this field ASAP
-        ProcessedCommandFlags Flags{ProcessedCommandFlags::NoFlags};
-
-        constexpr ProcessedCommandRecord() noexcept = default;
-
-        constexpr ProcessedCommandRecord(const BatchMaterialId materialId, const PxAreaRectangleF& dstAreaRectanglePxf, const Color finalColor,
-                                         const uint32_t originalCommandIndex, const uint32_t legacyCommandSpanIndex,
-                                         const ProcessedCommandFlags flags = ProcessedCommandFlags::NoFlags) noexcept
-          : MaterialId(materialId)
-          , DstAreaRectanglePxf(dstAreaRectanglePxf)
-          , FinalColor(finalColor)
-          , OriginalCommandIndex(originalCommandIndex)
-          , LegacyCommandSpanIndex(legacyCommandSpanIndex)
-          , Flags(flags)
-        {
-        }
-      };
     }
-  }
+  };
 }
 
 #endif

@@ -31,31 +31,28 @@
 
 #include <FslSimpleUI/Base/Event/WindowInputEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  bool WindowInputEvent::IsBegin() const
   {
-    bool WindowInputEvent::IsBegin() const
-    {
-      return GetState() == EventTransactionState::Begin;
-    }
+    return GetState() == EventTransactionState::Begin;
+  }
 
 
-    WindowInputEvent::WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription)
-      : WindowTransactionEvent(typeId, eventDescription)
-    {
-    }
+  WindowInputEvent::WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription)
+    : WindowTransactionEvent(typeId, eventDescription)
+  {
+  }
 
 
-    void WindowInputEvent::SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat)
-    {
-      WindowTransactionEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
-    }
+  void WindowInputEvent::SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat)
+  {
+    WindowTransactionEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
+  }
 
 
-    void WindowInputEvent::SYS_Destruct()
-    {
-      WindowTransactionEvent::SYS_Destruct();
-    }
+  void WindowInputEvent::SYS_Destruct()
+  {
+    WindowTransactionEvent::SYS_Destruct();
   }
 }

@@ -33,12 +33,12 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 // Normal includes that dont conflict
-#include "OpenCV101.hpp"
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <GLES2/gl2.h>
 #include <iostream>
+#include "OpenCV101.hpp"
 
 namespace Fsl
 {

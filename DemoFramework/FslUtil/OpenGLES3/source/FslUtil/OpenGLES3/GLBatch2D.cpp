@@ -30,9 +30,8 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
-
 #include <FslGraphics/Render/GenericBatch2D.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLBatch2D.hpp>
 
 namespace Fsl

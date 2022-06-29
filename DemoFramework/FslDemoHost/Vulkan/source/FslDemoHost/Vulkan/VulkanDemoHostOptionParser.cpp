@@ -195,18 +195,18 @@ namespace Fsl
       m_apiDump = OptionUserChoice::On;
       return OptionParseResult::Parsed;
     case CommandId::VkPresentMode:
-    {
-      VkPresentModeKHR presentMode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-      if (TryParse(presentMode, strOptArg))
       {
-        m_launchOptions.OverridePresentMode = true;
-        m_launchOptions.PresentMode = presentMode;
-        return OptionParseResult::Parsed;
-      }
+        VkPresentModeKHR presentMode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
+        if (TryParse(presentMode, strOptArg))
+        {
+          m_launchOptions.OverridePresentMode = true;
+          m_launchOptions.PresentMode = presentMode;
+          return OptionParseResult::Parsed;
+        }
 
-      FSLLOG3_INFO("Known presentMode value or strings: {}", GetPresentModesString());
-      return OptionParseResult::Failed;
-    }
+        FSLLOG3_INFO("Known presentMode value or strings: {}", GetPresentModesString());
+        return OptionParseResult::Failed;
+      }
     case CommandId::LogExtensions:
       m_logExtensions = true;
       m_launchOptions.LogDeviceExtensions = true;

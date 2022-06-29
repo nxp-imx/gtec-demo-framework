@@ -31,27 +31,24 @@
 
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WindowSelectEvent::WindowSelectEvent()
+    : WindowEvent(EventTypeId::Select, EventDescription(EventRoutingStrategy::Bubble, WindowFlags()))
+    , m_contentId(0)
+
   {
-    WindowSelectEvent::WindowSelectEvent()
-      : WindowEvent(EventTypeId::Select, EventDescription(EventRoutingStrategy::Bubble, WindowFlags()))
-      , m_contentId(0)
-
-    {
-    }
+  }
 
 
-    uint32_t WindowSelectEvent::GetContentId() const
-    {
-      return m_contentId;
-    }
+  uint32_t WindowSelectEvent::GetContentId() const
+  {
+    return m_contentId;
+  }
 
 
-    const std::shared_ptr<ITag>& WindowSelectEvent::GetPayload() const
-    {
-      return m_payload;
-    }
+  const std::shared_ptr<ITag>& WindowSelectEvent::GetPayload() const
+  {
+    return m_payload;
   }
 }

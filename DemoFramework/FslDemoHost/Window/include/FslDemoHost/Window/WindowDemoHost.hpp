@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <deque>
-#include <vector>
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <deque>
+#include <vector>
 
 namespace Fsl
 {

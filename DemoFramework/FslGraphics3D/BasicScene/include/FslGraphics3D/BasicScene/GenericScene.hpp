@@ -34,74 +34,71 @@
 #include <FslGraphics3D/BasicScene/GenericScene_fwd.hpp>
 #include <FslGraphics3D/BasicScene/MeshAllocator.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  // The class is defined in GenericScene_fwd.hpp and this file contains the implementation of the 'templated' functions of GenericScene.
+  // This allows us to use templates without 'spreading' dependencies to files that don't need it by allowing them to only include the _fwd file
+
+  template <typename TMesh>
+  GenericScene<TMesh>::GenericScene()
+    : Scene(MeshAllocator::Allocate<TMesh>)
+    , Meshes()
   {
-    // The class is defined in GenericScene_fwd.hpp and this file contains the implementation of the 'templated' functions of GenericScene.
-    // This allows us to use templates without 'spreading' dependencies to files that don't need it by allowing them to only include the _fwd file
+  }
 
-    template <typename TMesh>
-    GenericScene<TMesh>::GenericScene()
-      : Scene(MeshAllocator::Allocate<TMesh>)
-      , Meshes()
+
+  template <typename TMesh>
+  GenericScene<TMesh>::GenericScene(const std::size_t numMeshes)
+    : Scene(MeshAllocator::Allocate<TMesh>)
+    , Meshes()    // We dont initialize to capacity here since the deque doesnt play nice with that
+  {
+    FSL_PARAM_NOT_USED(numMeshes);
+  }
+
+
+  template <typename TMesh>
+  GenericScene<TMesh>::GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t /*numMeshes*/)
+    : Scene(meshAllocator)
+    , Meshes()    // We dont initialize to capacity here since the deque doesnt play nice with that
+  {
+  }
+
+
+  template <typename TMesh>
+  void GenericScene<TMesh>::AddMesh(const std::shared_ptr<TMesh>& mesh)
+  {
+    if (!mesh)
     {
+      throw std::invalid_argument("mesh can not be null");
     }
 
+    Meshes.push_back(mesh);
+  }
 
-    template <typename TMesh>
-    GenericScene<TMesh>::GenericScene(const std::size_t numMeshes)
-      : Scene(MeshAllocator::Allocate<TMesh>)
-      , Meshes()    // We dont initialize to capacity here since the deque doesnt play nice with that
+
+  template <typename TMesh>
+  int32_t GenericScene<TMesh>::GetMeshCount() const
+  {
+    return static_cast<int32_t>(Meshes.size());
+  }
+
+
+  template <typename TMesh>
+  std::shared_ptr<Mesh> GenericScene<TMesh>::GetMeshAt(const int32_t index) const
+  {
+    return Meshes[index];
+  }
+
+
+  template <typename TMesh>
+  void GenericScene<TMesh>::AddMesh(const std::shared_ptr<Mesh>& mesh)
+  {
+    std::shared_ptr<TMesh> meshEx = std::dynamic_pointer_cast<TMesh>(mesh);
+    if (!meshEx)
     {
-      FSL_PARAM_NOT_USED(numMeshes);
+      throw std::runtime_error("The mesh was not of the expected type");
     }
-
-
-    template <typename TMesh>
-    GenericScene<TMesh>::GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t /*numMeshes*/)
-      : Scene(meshAllocator)
-      , Meshes()    // We dont initialize to capacity here since the deque doesnt play nice with that
-    {
-    }
-
-
-    template <typename TMesh>
-    void GenericScene<TMesh>::AddMesh(const std::shared_ptr<TMesh>& mesh)
-    {
-      if (!mesh)
-      {
-        throw std::invalid_argument("mesh can not be null");
-      }
-
-      Meshes.push_back(mesh);
-    }
-
-
-    template <typename TMesh>
-    int32_t GenericScene<TMesh>::GetMeshCount() const
-    {
-      return static_cast<int32_t>(Meshes.size());
-    }
-
-
-    template <typename TMesh>
-    std::shared_ptr<Mesh> GenericScene<TMesh>::GetMeshAt(const int32_t index) const
-    {
-      return Meshes[index];
-    }
-
-
-    template <typename TMesh>
-    void GenericScene<TMesh>::AddMesh(const std::shared_ptr<Mesh>& mesh)
-    {
-      std::shared_ptr<TMesh> meshEx = std::dynamic_pointer_cast<TMesh>(mesh);
-      if (!meshEx)
-      {
-        throw std::runtime_error("The mesh was not of the expected type");
-      }
-      AddMesh(meshEx);
-    }
+    AddMesh(meshEx);
   }
 }
 

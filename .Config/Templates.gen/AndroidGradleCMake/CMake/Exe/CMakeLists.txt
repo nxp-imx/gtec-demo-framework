@@ -1,5 +1,5 @@
-# stop if cmake version below 3.6.0
-cmake_minimum_required(VERSION 3.6.0 FATAL_ERROR)
+# stop if cmake version below ##CMAKE_MINIMUM_VERSION##
+cmake_minimum_required(VERSION ##CMAKE_MINIMUM_VERSION## FATAL_ERROR)
 
 # project name
 project(##PACKAGE_NAME##)

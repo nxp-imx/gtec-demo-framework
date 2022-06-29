@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,16 @@
  ****************************************************************************************************************************************************/
 
 #include "ModelViewer.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslAssimp/SceneImporter.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
@@ -104,8 +104,8 @@ namespace Fsl
     {
       if (pTextureService != nullptr)
       {
-        Optional<Texture> result = pTextureService->TryGenerateMipMaps(bitmap, TextureMipMapFilter::Box);
-        if (result.HasValue())
+        std::optional<Texture> result = pTextureService->TryGenerateMipMaps(bitmap, TextureMipMapFilter::Box);
+        if (result.has_value())
         {
           return CreateTexture(device, deviceQueue, *result, filter, addressMode);
         }
@@ -165,7 +165,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
@@ -183,7 +183,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     Vulkan::VUBufferMemory CreateUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -281,7 +281,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -410,7 +410,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
     ModelMesh FillMesh(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const MeshUtil::SingleMesh& mesh)
@@ -577,18 +577,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -620,7 +620,7 @@ namespace Fsl
   void ModelViewer::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
     VulkanBasic::DemoAppVulkanBasic::OnMouseWheelEvent(event);
-    m_camera.AddZoom(event.GetDelta() * -0.001f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
 

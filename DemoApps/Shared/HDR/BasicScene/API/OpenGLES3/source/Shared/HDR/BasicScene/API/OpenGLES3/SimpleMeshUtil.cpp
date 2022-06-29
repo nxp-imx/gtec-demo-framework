@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <Shared/HDR/BasicScene/ModelVertices.hpp>
 #include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMeshUtil.hpp>
+#include <Shared/HDR/BasicScene/ModelVertices.hpp>
 #include <array>
 
 namespace Fsl
@@ -59,7 +59,7 @@ namespace Fsl
     }
     vertexArray.Unbind();
 
-    return SimpleMesh(std::move(vertexBuffer), std::move(vertexArray));
+    return {std::move(vertexBuffer), std::move(vertexArray)};
   }
 
 
@@ -80,6 +80,6 @@ namespace Fsl
       vertexBuffer.EnableAttribArrays(attribLink);
     }
     vertexArray.Unbind();
-    return SimpleMesh(std::move(vertexBuffer), std::move(vertexArray));
+    return {std::move(vertexBuffer), std::move(vertexArray)};
   }
 }

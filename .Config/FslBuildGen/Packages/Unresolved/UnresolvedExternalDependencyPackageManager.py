@@ -34,8 +34,11 @@
 from typing import Optional
 
 class UnresolvedExternalDependencyPackageManager(object):
-    def __init__(self, name: str, version: Optional[str], packageTargetFramework: Optional[str]) -> None:
+    def __init__(self, name: str, version: Optional[str], packageTargetFramework: Optional[str], privateAssets: Optional[str],
+                 includeAssets: Optional[str]) -> None:
         super().__init__()
         self.Name = name
         self.Version = version
         self.PackageTargetFramework = packageTargetFramework
+        self.PrivateAssets = privateAssets
+        self.IncludeAssets = includeAssets

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Console/Setup/RegisterDemoApp.hpp>
-#include "VulkanComputeMandelbrot.hpp"
 #include "OptionParser.hpp"
+#include "VulkanComputeMandelbrot.hpp"
 
 namespace Fsl
 {

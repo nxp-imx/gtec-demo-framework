@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_STUB_RENDERSYSTEM_HPP
 #define FSLSIMPLEUI_RENDER_STUB_RENDERSYSTEM_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,54 +31,48 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBufferEx.hpp>
+#include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI::RenderStub
 {
-  namespace UI
+  class MeshManager;
+
+  class RenderSystem final : public IRenderSystem
   {
-    namespace RenderStub
+    DrawCommandBufferEx m_commandBuffer;
+    std::shared_ptr<MeshManager> m_meshManager;
+
+  public:
+    RenderSystem();
+    ~RenderSystem() override;
+
+    VertexDeclarationSpan AsVertexDeclarationSpan() const final
     {
-      class MeshManager;
-
-      class RenderSystem final : public IRenderSystem
-      {
-        DrawCommandBufferEx m_commandBuffer;
-        std::shared_ptr<MeshManager> m_meshManager;
-
-      public:
-        RenderSystem();
-        ~RenderSystem() override;
-
-        VertexDeclarationSpan AsVertexDeclarationSpan() const final
-        {
-          return GetVertexDeclarationSpan();
-        }
-
-        void OnConfigurationChanged(const BasicWindowMetrics& windowMetrics) final
-        {
-          FSL_PARAM_NOT_USED(windowMetrics);
-        }
-
-        std::shared_ptr<IMeshManager> GetMeshManager() const final;
-        DrawCommandBuffer& AcquireDrawCommandBuffer() final;
-        void ReleaseDrawCommandBuffer() final;
-
-        void PreDraw() final{};
-        void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
-        void PostDraw() final{};
-
-        RenderSystemStats GetStats() const final
-        {
-          return {};
-        }
-
-        static VertexDeclarationSpan GetVertexDeclarationSpan();
-      };
+      return GetVertexDeclarationSpan();
     }
-  }
+
+    void OnConfigurationChanged(const BasicWindowMetrics& windowMetrics) final
+    {
+      FSL_PARAM_NOT_USED(windowMetrics);
+    }
+
+    std::shared_ptr<IMeshManager> GetMeshManager() const final;
+    DrawCommandBuffer& AcquireDrawCommandBuffer() final;
+    void ReleaseDrawCommandBuffer() final;
+
+    void PreDraw() final{};
+    void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
+    void PostDraw() final{};
+
+    RenderSystemStats GetStats() const final
+    {
+      return {};
+    }
+
+    static VertexDeclarationSpan GetVertexDeclarationSpan();
+  };
 }
 
 #endif

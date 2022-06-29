@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/RectangleU.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogRectangleU.hpp>
+#include <FslBase/Math/RectangleU.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>

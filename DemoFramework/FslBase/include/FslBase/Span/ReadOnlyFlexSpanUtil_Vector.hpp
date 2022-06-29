@@ -37,15 +37,12 @@
 #include <exception>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::ReadOnlyFlexSpanUtil
 {
-  namespace ReadOnlyFlexSpanUtil
+  template <typename T>
+  inline ReadOnlyFlexSpan AsSpan(const std::vector<T>& value) noexcept
   {
-    template <typename T>
-    inline ReadOnlyFlexSpan AsSpan(const std::vector<T>& value) noexcept
-    {
-      return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
-    }
+    return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
   }
 }
 

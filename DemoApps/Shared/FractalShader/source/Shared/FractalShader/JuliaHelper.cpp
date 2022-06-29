@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <Shared/FractalShader/JuliaHelper.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/MathHelper.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <algorithm>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
+#include <Shared/FractalShader/JuliaHelper.hpp>
+#include <algorithm>
 #include "MainAtlas.hpp"
 
 namespace Fsl
@@ -281,8 +281,8 @@ namespace Fsl
       Vector2 pos = m_location;
       pos.X *= (static_cast<float>(val) * 0.5f);
       pos.Y *= (static_cast<float>(val) * 0.5f);
-      pos.X += (screenResolution.X * 0.5f);
-      pos.Y += (screenResolution.Y * 0.5f);
+      pos.X += (static_cast<float>(screenResolution.X) * 0.5f);
+      pos.Y += (static_cast<float>(screenResolution.Y) * 0.5f);
       m_basic2D->Begin();
       m_basic2D->DrawPoints(&pos, 1, Color::Cyan());
       m_basic2D->End();

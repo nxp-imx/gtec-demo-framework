@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/Registry/ServiceTypeEx.hpp>
 #include <FslService/Impl/Registry/RegisteredAsynchronousServiceDeque.hpp>
+#include <FslService/Impl/Registry/ServiceTypeEx.hpp>
 #include <FslService/Impl/ServiceOptionParserDeque.hpp>
 #include <memory>
 

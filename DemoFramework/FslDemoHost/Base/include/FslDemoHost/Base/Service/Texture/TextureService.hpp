@@ -45,10 +45,10 @@ namespace Fsl
     explicit TextureService(const ServiceProvider& serviceProvider);
     ~TextureService() final;
 
-    Optional<Texture> TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) final;
-    Optional<Texture> TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) final;
-    Optional<Texture> TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) final;
-    Optional<Texture> TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) final;
+    std::optional<Texture> TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) final;
+    std::optional<Texture> TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) final;
+    std::optional<Texture> TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) final;
+    std::optional<Texture> TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) final;
     Texture GenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) final;
     Texture GenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) final;
     Texture GenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) final;

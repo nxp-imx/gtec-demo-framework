@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <Shared/UI/Benchmark/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "Benchmark.hpp"
 #include <array>
+#include "Benchmark.hpp"
 
 namespace Fsl
 {

@@ -57,13 +57,13 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 3> elements = {
-        VertexElementEx(offsetof(VertexPositionNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
-        VertexElementEx(offsetof(VertexPositionNormalTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
-                        0)};
+      constexpr BasicVertexDeclarationArray<3> elements = {
+        VertexElement(offsetof(VertexPositionNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElement(offsetof(VertexPositionNormalTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
+                      0)};
 
-      return VertexDeclarationArray<3>(elements, sizeof(VertexPositionNormalTexture));
+      return {elements, sizeof(VertexPositionNormalTexture)};
     }
 
 
@@ -75,12 +75,12 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionNormalTexture& rhs) const
+    constexpr bool operator==(const VertexPositionNormalTexture& rhs) const noexcept
     {
       return Position == rhs.Position && Normal == rhs.Normal && TextureCoordinate == rhs.TextureCoordinate;
     }
 
-    constexpr bool operator!=(const VertexPositionNormalTexture& rhs) const
+    constexpr bool operator!=(const VertexPositionNormalTexture& rhs) const noexcept
     {
       return !(*this == rhs);
     }

@@ -33,20 +33,20 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
-#include <GLES3/gl31.h>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES2/gl2ext.h>
-#include "ParticleGPU.hpp"
+#include <GLES3/gl31.h>
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
 #include <random>
 #include <vector>
+#include "ParticleGPU.hpp"
 
 namespace Fsl
 {
@@ -240,7 +240,7 @@ namespace Fsl
 
     glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, m_transformFeedbackQuery);
     glBeginTransformFeedback(GL_POINTS);
-    glDrawArrays(GL_POINTS, 0, m_primitiveCount);
+    glDrawArrays(GL_POINTS, 0, UncheckedNumericCast<GLsizei>(m_primitiveCount));
     glEndTransformFeedback();
     glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
@@ -284,7 +284,7 @@ namespace Fsl
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
     m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink);
 
-    glDrawArrays(GL_POINTS, 0, m_primitiveCount);
+    glDrawArrays(GL_POINTS, 0, UncheckedNumericCast<GLsizei>(m_primitiveCount));
 
     m_pCurrentVertexBuffer->DisableAttribArrays();
     m_pipeline.BindClear();

@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_INTERFACE_ICAMERASYSTEMADAPTER_HPP
 #define SHARED_CAMERA_ADAPTER_INTERFACE_ICAMERASYSTEMADAPTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,28 +32,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraAdapterAllocateInfo.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
+#include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  class ICameraSystemAdapter
   {
-    class ICameraSystemAdapter
-    {
-    public:
-      virtual ~ICameraSystemAdapter() = default;
+  public:
+    virtual ~ICameraSystemAdapter() = default;
 
-      //! @brief Get the camera type
-      virtual CameraType GetCameraType() const = 0;
+    //! @brief Get the camera type
+    virtual CameraType GetCameraType() const = 0;
 
-      //! @brief Get the number of cameras supported by this system
-      virtual uint32_t GetCameraCount() const = 0;
+    //! @brief Get the number of cameras supported by this system
+    virtual uint32_t GetCameraCount() const = 0;
 
-      virtual std::shared_ptr<ICameraAdapter> Allocate(const CameraAdapterAllocateInfo& allocateInfo) = 0;
-    };
-  }
+    virtual std::shared_ptr<ICameraAdapter> Allocate(const CameraAdapterAllocateInfo& allocateInfo) = 0;
+  };
 }
 #endif

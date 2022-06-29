@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,73 +29,73 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslSimpleUI/Render/IMBatch/DefaultRenderSystemFactory.hpp>
 #include <FslSimpleUI/Render/IMBatch/RenderSystemFactory.hpp>
 #include "FlexRenderSystem.hpp"
 #include "RenderSystem.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  namespace
   {
-    namespace RenderIMBatch
+    namespace NormalRenderOptionFlags
     {
-      namespace
-      {
-        namespace NormalRenderOptionFlags
-        {
-          constexpr auto AvailableOptions = RenderOptionFlags::NoFlags;
-          constexpr auto Settings = RenderOptionFlags::Batch | RenderOptionFlags::FillBuffers | RenderOptionFlags::DrawReorder;
-        }
-
-
-        namespace FlexRenderOptionFlags
-        {
-          constexpr auto AvailableOptions =
-            RenderOptionFlags::Batch | RenderOptionFlags::FillBuffers | RenderOptionFlags::DepthBuffer | RenderOptionFlags::DrawReorder;
-          constexpr auto Settings =
-            RenderOptionFlags::Batch | RenderOptionFlags::FillBuffers | RenderOptionFlags::DepthBuffer | RenderOptionFlags::DrawReorder;
-        }
-      }
-
-
-      RenderSystemInfo RenderSystemFactory::GetInfo() const
-      {
-        return GetRenderInfo(m_renderSystemType);
-      }
-
-
-      std::unique_ptr<IRenderSystem> RenderSystemFactory::Create(const RenderSystemCreateInfo& createInfo) const
-      {
-        switch (m_renderSystemType)
-        {
-        case RenderSystemType::Normal:
-          return std::make_unique<RenderSystem>(createInfo);
-        case RenderSystemType::Flex:
-          return std::make_unique<FlexRenderSystem>(createInfo);
-        default:
-          throw NotSupportedException("Unsupported render system type");
-        }
-      }
-
-
-      VertexDeclarationSpan RenderSystemFactory::GetVertexDeclarationSpan() const
-      {
-        return RenderSystem::GetVertexDeclarationSpan();
-      }
-
-
-      RenderSystemInfo RenderSystemFactory::GetRenderInfo(const RenderSystemType renderSystemType)
-      {
-        switch (renderSystemType)
-        {
-        case RenderSystemType::Normal:
-          return {NormalRenderOptionFlags::AvailableOptions, NormalRenderOptionFlags::Settings, NormalRenderOptionFlags::Settings};
-        case RenderSystemType::Flex:
-          return {FlexRenderOptionFlags::AvailableOptions, FlexRenderOptionFlags::Settings, FlexRenderOptionFlags::Settings};
-        default:
-          throw NotSupportedException("Unsupported render system type");
-        }
-      }
+      constexpr auto AvailableOptions = RenderOptionFlags::NoFlags;
+      constexpr auto Settings = RenderOptionFlags::Batch | RenderOptionFlags::FillBuffers | RenderOptionFlags::DrawReorder;
     }
+
+
+    namespace FlexRenderOptionFlags
+    {
+      constexpr auto AvailableOptions = RenderOptionFlags::Batch | RenderOptionFlags::FillBuffers | RenderOptionFlags::DepthBuffer |
+                                        RenderOptionFlags::DrawReorder | RenderOptionFlags::PreferFastReorder;
+      constexpr auto Settings = RenderOptionFlags::Batch | RenderOptionFlags::FillBuffers | RenderOptionFlags::DepthBuffer |
+                                RenderOptionFlags::DrawReorder | RenderOptionFlags::PreferFastReorder;
+    }
+  }
+
+
+  RenderSystemInfo RenderSystemFactory::GetInfo() const
+  {
+    return GetRenderInfo(m_renderSystemType);
+  }
+
+
+  std::unique_ptr<IRenderSystem> RenderSystemFactory::Create(const RenderSystemCreateInfo& createInfo) const
+  {
+    switch (m_renderSystemType)
+    {
+    case RenderSystemType::Default:
+      {
+        DefaultRenderSystemFactory factory;
+        return factory.Create(createInfo);
+      }
+    case RenderSystemType::Normal:
+      return std::make_unique<RenderSystem>(createInfo);
+    case RenderSystemType::Flex:
+      return std::make_unique<FlexRenderSystem>(createInfo);
+    }
+    throw NotSupportedException("Unsupported render system type");
+  }
+
+
+  VertexDeclarationSpan RenderSystemFactory::GetVertexDeclarationSpan() const
+  {
+    return RenderSystem::GetVertexDeclarationSpan();
+  }
+
+
+  RenderSystemInfo RenderSystemFactory::GetRenderInfo(const RenderSystemType renderSystemType)
+  {
+    switch (renderSystemType)
+    {
+    case RenderSystemType::Default:
+      return DefaultRenderSystemFactory::GetRenderInfo();
+    case RenderSystemType::Normal:
+      return {NormalRenderOptionFlags::AvailableOptions, NormalRenderOptionFlags::Settings, NormalRenderOptionFlags::Settings};
+    case RenderSystemType::Flex:
+      return {FlexRenderOptionFlags::AvailableOptions, FlexRenderOptionFlags::Settings, FlexRenderOptionFlags::Settings};
+    }
+    throw NotSupportedException("Unsupported render system type");
   }
 }

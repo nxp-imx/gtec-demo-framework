@@ -32,53 +32,49 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLRenderBuffer.hpp>
-
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLRenderBuffer::GLRenderBuffer()
+    : m_handle(GLValues::INVALID_HANDLE)
   {
-    GLRenderBuffer::GLRenderBuffer()
-      : m_handle(GLValues::INVALID_HANDLE)
+  }
+
+
+  GLRenderBuffer::GLRenderBuffer(const PxSize2D& size, const GLenum format)
+    : m_handle(GLValues::INVALID_HANDLE)
+  {
+    Reset(size, format);
+  }
+
+
+  GLRenderBuffer::~GLRenderBuffer()
+  {
+    Reset();
+  }
+
+
+  void GLRenderBuffer::Reset() noexcept
+  {
+    if (m_handle != GLValues::INVALID_HANDLE)
     {
+      glDeleteRenderbuffers(1, &m_handle);
+      m_handle = GLValues::INVALID_HANDLE;
     }
+  }
 
 
-    GLRenderBuffer::GLRenderBuffer(const PxSize2D& size, const GLenum format)
-      : m_handle(GLValues::INVALID_HANDLE)
-    {
-      Reset(size, format);
-    }
-
-
-    GLRenderBuffer::~GLRenderBuffer()
+  void GLRenderBuffer::Reset(const PxSize2D& size, const GLenum format)
+  {
+    if (m_handle != GLValues::INVALID_HANDLE)
     {
       Reset();
     }
 
-
-    void GLRenderBuffer::Reset() noexcept
-    {
-      if (m_handle != GLValues::INVALID_HANDLE)
-      {
-        glDeleteRenderbuffers(1, &m_handle);
-        m_handle = GLValues::INVALID_HANDLE;
-      }
-    }
-
-
-    void GLRenderBuffer::Reset(const PxSize2D& size, const GLenum format)
-    {
-      if (m_handle != GLValues::INVALID_HANDLE)
-      {
-        Reset();
-      }
-
-      // Create a renderbuffer and allocate storage for it
-      GL_CHECK(glGenRenderbuffers(1, &m_handle));
-      GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_handle));
-      GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.Width(), size.Height()));
-    }
+    // Create a renderbuffer and allocate storage for it
+    GL_CHECK(glGenRenderbuffers(1, &m_handle));
+    GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_handle));
+    GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.Width(), size.Height()));
   }
 }

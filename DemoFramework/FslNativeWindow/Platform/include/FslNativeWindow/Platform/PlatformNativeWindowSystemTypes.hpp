@@ -37,7 +37,43 @@
 // - PlatformNativeDisplayType
 // - PlatformNativeWindowType
 
-#if defined(_WIN32)
+
+#if defined(FSL_PLATFORM_EMSCRIPTEN)
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
+namespace Fsl
+{
+#ifdef SDL_VIDEO_DRIVER_WINDOWS
+  using PlatformNativeDisplayType = HINSTANCE;
+  using PlatformNativeWindowType = HWND;
+#elif defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
+  // FIX: use the correct types here
+  using PlatformNativeDisplayType = void*;
+  using PlatformNativeWindowType = void*;
+#else
+#error Unsupported SDL platform
+#endif
+
+  struct PlatformNativeWindowSystemParams
+  {
+    // Its important that the default constructor exist as this is what we use for as a default parameter value
+    PlatformNativeWindowSystemParams() = default;
+  };
+
+  struct PlatformNativeWindowParams
+  {
+    PlatformNativeDisplayType PlatformDisplay;
+    int WindowFlags{0};
+
+    explicit PlatformNativeWindowParams(const PlatformNativeDisplayType platformDisplay, const int windowFlags)
+      : PlatformDisplay(platformDisplay)
+      , WindowFlags()
+    {
+    }
+  };
+}    // namespace Fsl
+
+#elif defined(FSL_PLATFORM_WINDOWS)
 #include <windows.h>
 #include <memory>
 #include <utility>
@@ -66,8 +102,8 @@ namespace Fsl
   };
 }    // namespace Fsl
 #elif defined(__ANDROID__)
-#include <android_native_app_glue.h>
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroidCallbacks.hpp>
+#include <android_native_app_glue.h>
 
 namespace Fsl
 {
@@ -153,8 +189,8 @@ namespace Fsl
   };
 }    // namespace Fsl
 #elif defined(FSL_WINDOWSYSTEM_WAYLAND)
-#include <wayland-client.h>
 #include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWaylandCallbacks.hpp>
+#include <wayland-client.h>
 namespace Fsl
 {
   // wl_display

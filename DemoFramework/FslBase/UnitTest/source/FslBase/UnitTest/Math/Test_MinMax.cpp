@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/MinMax.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxPoint2.hpp>
+#include <FslBase/Math/MinMax.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <limits>
 

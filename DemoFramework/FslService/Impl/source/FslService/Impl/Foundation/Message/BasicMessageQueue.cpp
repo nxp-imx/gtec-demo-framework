@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
 
 namespace Fsl
 {

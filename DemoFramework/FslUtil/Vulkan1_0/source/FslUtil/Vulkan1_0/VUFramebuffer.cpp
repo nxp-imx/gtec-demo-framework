@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,178 +33,175 @@
 #include <array>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  VUFramebuffer& VUFramebuffer::operator=(VUFramebuffer&& other) noexcept
   {
-    VUFramebuffer& VUFramebuffer::operator=(VUFramebuffer&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_texture = std::move(other.m_texture);
-        m_framebuffer = std::move(other.m_framebuffer);
-
-        // Remove the data from other
+        Reset();
       }
-      return *this;
-    }
 
+      // Claim ownership here
+      m_texture = std::move(other.m_texture);
+      m_framebuffer = std::move(other.m_framebuffer);
 
-    VUFramebuffer::VUFramebuffer(VUFramebuffer&& other) noexcept
-      : m_texture(std::move(other.m_texture))
-      , m_framebuffer(std::move(other.m_framebuffer))
-    {
       // Remove the data from other
     }
+    return *this;
+  }
 
 
-    VUFramebuffer::VUFramebuffer() = default;
+  VUFramebuffer::VUFramebuffer(VUFramebuffer&& other) noexcept
+    : m_texture(std::move(other.m_texture))
+    , m_framebuffer(std::move(other.m_framebuffer))
+  {
+    // Remove the data from other
+  }
 
 
-    VUFramebuffer::VUFramebuffer(VUTexture&& texture, RapidVulkan::Framebuffer&& framebuffer)
-      : VUFramebuffer()
+  VUFramebuffer::VUFramebuffer() = default;
+
+
+  VUFramebuffer::VUFramebuffer(VUTexture&& texture, RapidVulkan::Framebuffer&& framebuffer)
+    : VUFramebuffer()
+  {
+    Reset(std::move(texture), std::move(framebuffer));
+  }
+
+  VUFramebuffer::VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
+                               const std::string& name)
+    : VUFramebuffer()
+  {
+    Reset(device, extent, format, renderPass, name);
+  }
+
+  VUFramebuffer::VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
+                               const VkImageView depthImageView, const std::string& name)
+    : VUFramebuffer()
+  {
+    Reset(device, extent, format, renderPass, depthImageView, name);
+  }
+
+
+  void VUFramebuffer::Reset() noexcept
+  {
+    if (!IsValid())
     {
-      Reset(std::move(texture), std::move(framebuffer));
+      return;
     }
 
-    VUFramebuffer::VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
-                                 const std::string& name)
-      : VUFramebuffer()
+    assert(m_texture.IsValid());
+    assert(m_framebuffer.IsValid());
+
+    DoReset();
+  }
+
+
+  void VUFramebuffer::Reset(VUTexture&& texture, RapidVulkan::Framebuffer&& framebuffer)
+  {
+    if (IsValid())
     {
-      Reset(device, extent, format, renderPass, name);
+      Reset();
+    }
+    if (!texture.IsValid())
+    {
+      throw std::invalid_argument("texture");
+    }
+    if (!framebuffer.IsValid())
+    {
+      throw std::invalid_argument("framebuffer");
     }
 
-    VUFramebuffer::VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
-                                 const VkImageView depthImageView, const std::string& name)
-      : VUFramebuffer()
+    try
     {
-      Reset(device, extent, format, renderPass, depthImageView, name);
+      m_texture = std::move(texture);
+      m_framebuffer = std::move(framebuffer);
     }
-
-
-    void VUFramebuffer::Reset() noexcept
+    catch (const std::exception&)
     {
-      if (!IsValid())
-      {
-        return;
-      }
-
-      assert(m_texture.IsValid());
-      assert(m_framebuffer.IsValid());
-
       DoReset();
+      throw;
     }
+  }
 
+  void VUFramebuffer::Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
+                            const std::string& name)
+  {
+    Reset(device, extent, format, renderPass, VK_NULL_HANDLE, name);
+  }
 
-    void VUFramebuffer::Reset(VUTexture&& texture, RapidVulkan::Framebuffer&& framebuffer)
+  void VUFramebuffer::Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
+                            const VkImageView depthImageView, const std::string& name)
+  {
+    if (IsValid())
     {
-      if (IsValid())
-      {
-        Reset();
-      }
-      if (!texture.IsValid())
-      {
-        throw std::invalid_argument("texture");
-      }
-      if (!framebuffer.IsValid())
-      {
-        throw std::invalid_argument("framebuffer");
-      }
-
-      try
-      {
-        m_texture = std::move(texture);
-        m_framebuffer = std::move(framebuffer);
-      }
-      catch (const std::exception&)
-      {
-        DoReset();
-        throw;
-      }
+      Reset();
     }
-
-    void VUFramebuffer::Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
-                              const std::string& name)
+    try
     {
-      Reset(device, extent, format, renderPass, VK_NULL_HANDLE, name);
-    }
+      VkImageCreateInfo imageCreateInfo{};
+      imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+      imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+      imageCreateInfo.format = format;
+      imageCreateInfo.extent = {extent.width, extent.height, 1};
+      imageCreateInfo.mipLevels = 1;
+      imageCreateInfo.arrayLayers = 1;
+      imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+      imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+      imageCreateInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+      imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+      imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    void VUFramebuffer::Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
-                              const VkImageView depthImageView, const std::string& name)
+      VkImageSubresourceRange subresourceRange{};
+      subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      subresourceRange.baseMipLevel = 0;
+      subresourceRange.levelCount = 1;
+      subresourceRange.baseArrayLayer = 0;
+      subresourceRange.layerCount = 1;
+
+      Vulkan::VUImageMemoryView imageMemoryView(device, imageCreateInfo, subresourceRange, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, name);
+
+      VkSamplerCreateInfo samplerCreateInfo{};
+      samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+      samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
+      samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
+      samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+      samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+      samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+      samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+      samplerCreateInfo.mipLodBias = 0.0f;
+      samplerCreateInfo.anisotropyEnable = VK_FALSE;
+      samplerCreateInfo.maxAnisotropy = 1.0f;
+      samplerCreateInfo.compareEnable = VK_FALSE;
+      samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
+      samplerCreateInfo.minLod = 0.0f;
+      samplerCreateInfo.maxLod = 1.0f;
+      samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+
+      m_texture.Reset(std::move(imageMemoryView), samplerCreateInfo);
+      // We know the renderPass is configured to transform the image to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL layout before we need to sample it
+      // So we store that in the image for now (even though it will only be true at the point in time the attachment is used via a sampler)
+      m_texture.SetImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+      // finally setup the framebuffer
+      std::array<VkImageView, 2> imageViews = {m_texture.ImageView().Get(), depthImageView};
+      const uint32_t attachmentCount = depthImageView != VK_NULL_HANDLE ? 2 : 1;
+      m_framebuffer.Reset(device.Get(), 0, renderPass, attachmentCount, imageViews.data(), extent.width, extent.height, 1);
+    }
+    catch (const std::exception&)
     {
-      if (IsValid())
-      {
-        Reset();
-      }
-      try
-      {
-        VkImageCreateInfo imageCreateInfo{};
-        imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-        imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageCreateInfo.format = format;
-        imageCreateInfo.extent = {extent.width, extent.height, 1};
-        imageCreateInfo.mipLevels = 1;
-        imageCreateInfo.arrayLayers = 1;
-        imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-        imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-        imageCreateInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-        VkImageSubresourceRange subresourceRange{};
-        subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = 1;
-        subresourceRange.baseArrayLayer = 0;
-        subresourceRange.layerCount = 1;
-
-        Vulkan::VUImageMemoryView imageMemoryView(device, imageCreateInfo, subresourceRange, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, name);
-
-        VkSamplerCreateInfo samplerCreateInfo{};
-        samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-        samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-        samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.anisotropyEnable = VK_FALSE;
-        samplerCreateInfo.maxAnisotropy = 1.0f;
-        samplerCreateInfo.compareEnable = VK_FALSE;
-        samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 1.0f;
-        samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
-
-        m_texture.Reset(std::move(imageMemoryView), samplerCreateInfo);
-        // We know the renderPass is configured to transform the image to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL layout before we need to sample it
-        // So we store that in the image for now (even though it will only be true at the point in time the attachment is used via a sampler)
-        m_texture.SetImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-        // finally setup the framebuffer
-        std::array<VkImageView, 2> imageViews = {m_texture.ImageView().Get(), depthImageView};
-        const uint32_t attachmentCount = depthImageView != VK_NULL_HANDLE ? 2 : 1;
-        m_framebuffer.Reset(device.Get(), 0, renderPass, attachmentCount, imageViews.data(), extent.width, extent.height, 1);
-      }
-      catch (const std::exception&)
-      {
-        DoReset();
-        throw;
-      }
+      DoReset();
+      throw;
     }
+  }
 
-    void VUFramebuffer::DoReset() noexcept
-    {
-      m_texture.Reset();
-      m_framebuffer.Reset();
-    }
+  void VUFramebuffer::DoReset() noexcept
+  {
+    m_texture.Reset();
+    m_framebuffer.Reset();
   }
 }

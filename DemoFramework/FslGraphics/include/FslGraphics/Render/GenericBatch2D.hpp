@@ -1149,48 +1149,48 @@ namespace Fsl
     switch (effect & BatchEffect::RotateMask)
     {
     case BatchEffect::Rotate90Clockwise:
-    {
-      const float scaledDstWidth = clippedSrcRectPx.Width * scale.Y;
-      const float scaledDstHeight = clippedSrcRectPx.Height * scale.X;
-      const Vector2 dstPos(dstPositionPxf.X - (origin.Y * scale.X), dstPositionPxf.Y - (origin.X * scale.Y));
+      {
+        const float scaledDstWidth = clippedSrcRectPx.Width * scale.Y;
+        const float scaledDstHeight = clippedSrcRectPx.Height * scale.X;
+        const Vector2 dstPos(dstPositionPxf.X - (origin.Y * scale.X), dstPositionPxf.Y - (origin.X * scale.Y));
 
-      m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
-                              Vector2(dstPos.X + scaledDstHeight, dstPos.Y + scaledDstWidth), NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1),
-                              color);
-      break;
-    }
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
+                                Vector2(dstPos.X + scaledDstHeight, dstPos.Y + scaledDstWidth),
+                                NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color);
+        break;
+      }
     case BatchEffect::Rotate180Clockwise:
-    {
-      const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
-      const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
-      const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
+      {
+        const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
+        const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
+        const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
-      m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                              Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u2, v2), Vector2(u1, v1), color);
-      break;
-    }
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
+                                Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u2, v2), Vector2(u1, v1), color);
+        break;
+      }
     case BatchEffect::Rotate270Clockwise:
-    {
-      const float scaledDstWidth = clippedSrcRectPx.Width * scale.Y;
-      const float scaledDstHeight = clippedSrcRectPx.Height * scale.X;
-      const Vector2 dstPos(dstPositionPxf.X - (origin.Y * scale.X), dstPositionPxf.Y - (origin.X * scale.Y));
+      {
+        const float scaledDstWidth = clippedSrcRectPx.Width * scale.Y;
+        const float scaledDstHeight = clippedSrcRectPx.Height * scale.X;
+        const Vector2 dstPos(dstPositionPxf.X - (origin.Y * scale.X), dstPositionPxf.Y - (origin.X * scale.Y));
 
-      m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
-                              Vector2(dstPos.X + scaledDstHeight, dstPos.Y + scaledDstWidth), NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2),
-                              color);
-      break;
-    }
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
+                                Vector2(dstPos.X + scaledDstHeight, dstPos.Y + scaledDstWidth),
+                                NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color);
+        break;
+      }
     case BatchEffect::NoEffect:
     default:
-    {
-      const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
-      const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
-      const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
+      {
+        const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
+        const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
+        const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
-      m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
-                              Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), color);
-      break;
-    }
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
+                                Vector2(dstPos.X + scaledDstWidth, dstPos.Y + scaledDstHeight), Vector2(u1, v1), Vector2(u2, v2), color);
+        break;
+      }
     }
   }
 

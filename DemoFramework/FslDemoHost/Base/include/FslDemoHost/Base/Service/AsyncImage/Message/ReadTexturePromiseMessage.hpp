@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_BASE_SERVICE_ASYNCIMAGE_MESSAGE_READTEXTUREPROMISEMESSAGE_HPP
 #define FSLDEMOHOST_BASE_SERVICE_ASYNCIMAGE_MESSAGE_READTEXTUREPROMISEMESSAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,37 +31,34 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Async/Message/AsyncPromiseMessage.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
-#include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslGraphics/Texture/Texture.hpp>
+#include <FslService/Impl/ServiceType/Async/Message/AsyncPromiseMessage.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::AsyncImageMessages
 {
-  namespace AsyncImageMessages
+  struct ReadTexturePromiseMessage : public AsyncPromiseMessage<Texture>
   {
-    struct ReadTexturePromiseMessage : public AsyncPromiseMessage<Texture>
+    IO::Path AbsolutePath;
+    PixelFormat DesiredPixelFormat{PixelFormat::Undefined};
+    BitmapOrigin DesiredOrigin{BitmapOrigin::Undefined};
+    PixelChannelOrder PreferredChannelOrderHint{PixelChannelOrder::Undefined};
+
+    ReadTexturePromiseMessage() = default;
+
+    ReadTexturePromiseMessage(IO::Path absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                              const PixelChannelOrder preferredChannelOrder)
+      : AbsolutePath(std::move(absolutePath))
+      , DesiredPixelFormat(desiredPixelFormat)
+      , DesiredOrigin(desiredOrigin)
+      , PreferredChannelOrderHint(preferredChannelOrder)
     {
-      IO::Path AbsolutePath;
-      PixelFormat DesiredPixelFormat{PixelFormat::Undefined};
-      BitmapOrigin DesiredOrigin{BitmapOrigin::Undefined};
-      PixelChannelOrder PreferredChannelOrderHint{PixelChannelOrder::Undefined};
-
-      ReadTexturePromiseMessage() = default;
-
-      ReadTexturePromiseMessage(IO::Path absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
-                                const PixelChannelOrder preferredChannelOrder)
-        : AbsolutePath(std::move(absolutePath))
-        , DesiredPixelFormat(desiredPixelFormat)
-        , DesiredOrigin(desiredOrigin)
-        , PreferredChannelOrderHint(preferredChannelOrder)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

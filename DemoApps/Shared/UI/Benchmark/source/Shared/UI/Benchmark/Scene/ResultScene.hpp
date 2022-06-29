@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_RESULTSCENE_HPP
 #define SHARED_UI_BENCHMARK_SCENE_RESULTSCENE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,23 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "BasicScene.hpp"
-#include <FslBase/Optional.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkData.hpp>
-#include "Control/CpuDetailedLegendRecord.hpp"
 #include <memory>
+#include <optional>
 #include <vector>
+#include "BasicScene.hpp"
+#include "Control/CpuDetailedLegendRecord.hpp"
 
 namespace Fsl
 {
   namespace UI
   {
     class ActivityStack;
-    class AreaChartData;
     class ButtonBase;
     class BaseWindow;
+    class ChartData;
     class RadioButton;
   }
 
@@ -79,7 +79,7 @@ namespace Fsl
     {
       CpuDetailedLegendRecord CpuLegend;
       std::shared_ptr<UI::BaseWindow> Chart;
-      std::shared_ptr<UI::AreaChartData> ChartData;
+      std::shared_ptr<UI::ChartData> ChartData;
 
       void SetBaseAlpha(const float alpha)
       {
@@ -99,7 +99,7 @@ namespace Fsl
     {
       GpuLegendRecord GpuLegend;
       std::shared_ptr<UI::BaseWindow> Chart;
-      std::shared_ptr<UI::AreaChartData> ChartData;
+      std::shared_ptr<UI::ChartData> ChartData;
 
       void SetBaseAlpha(const float alpha)
       {
@@ -158,8 +158,8 @@ namespace Fsl
     CurrentState m_state{CurrentState::Ready};
     std::shared_ptr<BenchResultManager> m_benchResultManager;
     UIRecord m_ui;
-    Optional<AppBenchmarkData> m_benchNewResult;
-    Optional<AppBenchmarkData> m_benchOldResult;
+    std::optional<AppBenchmarkData> m_benchNewResult;
+    std::optional<AppBenchmarkData> m_benchOldResult;
 
   public:
     explicit ResultScene(const SceneCreateInfo& createInfo, std::shared_ptr<BenchResultManager> benchResultManager);
@@ -176,11 +176,11 @@ namespace Fsl
 
   private:
     static UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const AppBenchmarkData& sourceDataNew,
-                             const Optional<AppBenchmarkData>& sourceDataOld);
+                             const std::optional<AppBenchmarkData>& sourceDataOld);
     static UIReportTabs CreateReportUI(UI::Theme::IThemeControlFactory& uiFactory, const AppBenchmarkData& sourceDataNew,
-                                       const Optional<AppBenchmarkData>& sourceDataOld);
+                                       const std::optional<AppBenchmarkData>& sourceDataOld);
     static UIReport CreateReportTabUI(UI::Theme::IThemeControlFactory& uiFactory, const AppBenchmarkData& sourceDataNew,
-                                      const Optional<AppBenchmarkData>& sourceDataOld, const ReportType reportType);
+                                      const std::optional<AppBenchmarkData>& sourceDataOld, const ReportType reportType);
     static UICpuReport CreateCpuReport(UI::Theme::IThemeControlFactory& uiFactory, const AppBenchmarkData& source);
     static UIGpuReport CreateGpuReport(UI::Theme::IThemeControlFactory& uiFactory, const AppBenchmarkData& source);
 

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxTrimmedNineSlice.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

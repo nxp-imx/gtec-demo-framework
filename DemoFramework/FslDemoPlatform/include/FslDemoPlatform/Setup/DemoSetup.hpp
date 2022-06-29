@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
-#include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
 #include <FslBase/ExceptionMessageFormatter.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
 
 namespace Fsl
 {

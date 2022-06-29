@@ -53,7 +53,7 @@ namespace Fsl
 
     inline std::string ToString(const StringViewLite& strView)
     {
-      return std::string(strView.data(), strView.size());
+      return {strView.data(), strView.size()};
     }
 
     inline void Set(std::string& rStr, const StringViewLite& strView)

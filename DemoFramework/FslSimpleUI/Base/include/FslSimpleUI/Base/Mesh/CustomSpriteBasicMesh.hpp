@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MESH_CUSTOMSPRITEBASICMESH_HPP
 #define FSLSIMPLEUI_BASE_MESH_CUSTOMSPRITEBASICMESH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,189 +36,186 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
-#include <FslSimpleUI/Render/Base/IMeshManager.hpp>
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
+#include <FslSimpleUI/Render/Base/IMeshManager.hpp>
 #include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  template <typename TSprite>
+  class CustomSpriteBasicMesh
   {
-    template <typename TSprite>
-    class CustomSpriteBasicMesh
+    using element_type = TSprite;
+    using reference = element_type&;
+    using const_reference = const element_type&;
+
+    std::weak_ptr<IMeshManager> m_meshManager;
+    std::shared_ptr<element_type> m_sprite;
+    uint32_t m_vertexCapacity{};
+    MeshHandle m_hMesh;
+
+  public:
+    explicit CustomSpriteBasicMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity)
+      : m_meshManager(meshManager)
+      , m_sprite()
+      , m_vertexCapacity(vertexCapacity)
     {
-      using element_type = TSprite;
-      using reference = element_type&;
-      using const_reference = const element_type&;
+    }
 
-      std::weak_ptr<IMeshManager> m_meshManager;
-      std::shared_ptr<element_type> m_sprite;
-      uint32_t m_vertexCapacity{};
-      MeshHandle m_hMesh;
+    CustomSpriteBasicMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity,
+                          const std::shared_ptr<element_type>& sprite)
+      : CustomSpriteBasicMesh(meshManager, vertexCapacity)
+    {
+      SetSprite(sprite);
+    }
 
-    public:
-      explicit CustomSpriteBasicMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity)
-        : m_meshManager(meshManager)
-        , m_sprite()
-        , m_vertexCapacity(vertexCapacity)
+
+    ~CustomSpriteBasicMesh() noexcept
+    {
+      DestroyMesh();
+    }
+
+    bool IsValid() const noexcept
+    {
+      return m_hMesh.IsValid();
+    }
+
+
+    MeshHandle Get() const noexcept
+    {
+      return m_hMesh;
+    }
+
+    const std::shared_ptr<element_type>& GetSprite() const
+    {
+      return m_sprite;
+    }
+
+    reference GetSpriteObject() const
+    {
+      assert(m_sprite);
+      return *m_sprite;
+    }
+
+
+    bool SetSprite(std::shared_ptr<element_type>&& sprite)
+    {
+      if (sprite == m_sprite)
       {
+        return false;
       }
 
-      CustomSpriteBasicMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity,
-                            const std::shared_ptr<element_type>& sprite)
-        : CustomSpriteBasicMesh(meshManager, vertexCapacity)
+      // Update the sprite
+      m_sprite = std::move(sprite);
+      if (!m_sprite)
       {
-        SetSprite(sprite);
-      }
-
-
-      ~CustomSpriteBasicMesh() noexcept
-      {
+        // No sprite -> destroys the mesh (if any exist)
         DestroyMesh();
       }
-
-      bool IsValid() const noexcept
+      else
       {
-        return m_hMesh.IsValid();
-      }
-
-
-      MeshHandle Get() const noexcept
-      {
-        return m_hMesh;
-      }
-
-      const std::shared_ptr<element_type>& GetSprite() const
-      {
-        return m_sprite;
-      }
-
-      reference GetSpriteObject() const
-      {
-        assert(m_sprite);
-        return *m_sprite;
-      }
-
-
-      bool SetSprite(std::shared_ptr<element_type>&& sprite)
-      {
-        if (sprite == m_sprite)
+        auto meshManager = m_meshManager.lock();
+        if (!meshManager)
         {
-          return false;
+          throw UsageErrorException("MeshManager is no longer valid");
         }
 
-        // Update the sprite
-        m_sprite = std::move(sprite);
-        if (!m_sprite)
+        // The sprite is valid
+        if (m_hMesh.IsValid())
         {
-          // No sprite -> destroys the mesh (if any exist)
-          DestroyMesh();
+          // We have a mesh, so we just update the sprite associate with it
+          m_hMesh = meshManager->SetBasicMeshSprite(m_hMesh, m_sprite);
         }
         else
         {
-          auto meshManager = m_meshManager.lock();
-          if (!meshManager)
-          {
-            throw UsageErrorException("MeshManager is no longer valid");
-          }
-
-          // The sprite is valid
-          if (m_hMesh.IsValid())
-          {
-            // We have a mesh, so we just update the sprite associate with it
-            m_hMesh = meshManager->SetBasicMeshSprite(m_hMesh, m_sprite);
-          }
-          else
-          {
-            // We do not have a mesh
-            m_hMesh = meshManager->CreateBasicMesh(m_sprite, m_vertexCapacity);
-          }
+          // We do not have a mesh
+          m_hMesh = meshManager->CreateBasicMesh(m_sprite, m_vertexCapacity);
         }
-        return true;
+      }
+      return true;
+    }
+
+    bool SetSprite(const std::shared_ptr<element_type>& sprite)
+    {
+      if (sprite == m_sprite)
+      {
+        return false;
       }
 
-      bool SetSprite(const std::shared_ptr<element_type>& sprite)
+      // Update the sprite
+      m_sprite = sprite;
+      if (!sprite)
       {
-        if (sprite == m_sprite)
+        // No sprite -> destroys the mesh (if any exist)
+        DestroyMesh();
+      }
+      else
+      {
+        auto meshManager = m_meshManager.lock();
+        if (!meshManager)
         {
-          return false;
+          throw UsageErrorException("MeshManager is no longer valid");
         }
 
-        // Update the sprite
-        m_sprite = sprite;
-        if (!sprite)
+        // The sprite is valid
+        if (m_hMesh.IsValid())
         {
-          // No sprite -> destroys the mesh (if any exist)
-          DestroyMesh();
+          // We have a mesh, so we just update the sprite associate with it
+          m_hMesh = meshManager->SetBasicMeshSprite(m_hMesh, sprite);
         }
         else
         {
-          auto meshManager = m_meshManager.lock();
-          if (!meshManager)
-          {
-            throw UsageErrorException("MeshManager is no longer valid");
-          }
-
-          // The sprite is valid
-          if (m_hMesh.IsValid())
-          {
-            // We have a mesh, so we just update the sprite associate with it
-            m_hMesh = meshManager->SetBasicMeshSprite(m_hMesh, sprite);
-          }
-          else
-          {
-            // We do not have a mesh
-            m_hMesh = meshManager->CreateBasicMesh(sprite, m_vertexCapacity);
-          }
-        }
-        return true;
-      }
-
-      void EnsureCapacity(const uint32_t vertexCapacity)
-      {
-        if (vertexCapacity > m_vertexCapacity)
-        {
-          m_vertexCapacity = vertexCapacity;
-          if (m_hMesh.IsValid())
-          {
-            auto meshManager = m_meshManager.lock();
-            if (!meshManager)
-            {
-              throw UsageErrorException("MeshManager is no longer valid");
-            }
-            meshManager->EnsureCapacity(m_hMesh, m_vertexCapacity, 0u);
-          }
+          // We do not have a mesh
+          m_hMesh = meshManager->CreateBasicMesh(sprite, m_vertexCapacity);
         }
       }
+      return true;
+    }
 
-    protected:
-      std::weak_ptr<IMeshManager> GetMeshManager() const
+    void EnsureCapacity(const uint32_t vertexCapacity)
+    {
+      if (vertexCapacity > m_vertexCapacity)
       {
-        return m_meshManager;
-      }
-
-    private:
-      void DestroyMesh() noexcept
-      {
+        m_vertexCapacity = vertexCapacity;
         if (m_hMesh.IsValid())
         {
           auto meshManager = m_meshManager.lock();
-          if (meshManager)
+          if (!meshManager)
           {
-            meshManager->DestroyMesh(m_hMesh);
+            throw UsageErrorException("MeshManager is no longer valid");
           }
-          else
-          {
-            FSLLOG3_WARNING("MeshManager no longer valid, can not destroy mesh");
-          }
-          m_hMesh = MeshHandle::Invalid();
+          meshManager->EnsureCapacity(m_hMesh, m_vertexCapacity, 0u);
         }
       }
-    };
-  }
+    }
+
+  protected:
+    std::weak_ptr<IMeshManager> GetMeshManager() const
+    {
+      return m_meshManager;
+    }
+
+  private:
+    void DestroyMesh() noexcept
+    {
+      if (m_hMesh.IsValid())
+      {
+        auto meshManager = m_meshManager.lock();
+        if (meshManager)
+        {
+          meshManager->DestroyMesh(m_hMesh);
+        }
+        else
+        {
+          FSLLOG3_WARNING("MeshManager no longer valid, can not destroy mesh");
+        }
+        m_hMesh = MeshHandle::Invalid();
+      }
+    }
+  };
 }
 
 #endif

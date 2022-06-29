@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class SlideDirection
   {
-    enum class SlideDirection
-    {
-      Left,
-      Right,
-      Up,
-      Down
-    };
-  }
+    Left,
+    Right,
+    Up,
+    Down
+  };
 }
 
 #endif

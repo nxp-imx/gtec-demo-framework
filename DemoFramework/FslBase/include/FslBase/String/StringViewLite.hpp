@@ -1,7 +1,7 @@
 #ifndef FSLBASE_STRING_STRINGVIEWLITE_HPP
 #define FSLBASE_STRING_STRINGVIEWLITE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Attributes.hpp>
+#include <FslBase/Iterator/PointerConstIterator.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <cassert>
 #include <cstddef>
+#include <cstring>
 #include <stdexcept>
+#include <string_view>
 
 namespace Fsl
 {
@@ -51,7 +54,10 @@ namespace Fsl
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    static constexpr const size_type npos = size_type(-1);
+    using const_iterator = PointerConstIterator<char>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+    static constexpr const size_type npos = static_cast<size_type>(-1);
 
   protected:
     const char* m_pStr{nullptr};
@@ -77,10 +83,17 @@ namespace Fsl
       assert(pStr != nullptr || count == 0u);
     }
 
-    constexpr StringViewLite(const const_pointer psz)    // NOLINT(google-explicit-constructor)
+    constexpr StringViewLite(const const_pointer psz) noexcept    // NOLINT(google-explicit-constructor)
       : m_pStr(psz)
       , m_length(CalcLength(psz))
     {
+    }
+
+    explicit constexpr StringViewLite(const std::string_view strView) noexcept
+      : m_pStr(strView.data())
+      , m_length(strView.size())
+    {
+      assert(m_pStr != nullptr || m_length == 0u);
     }
 
     constexpr const_pointer data() const noexcept
@@ -120,26 +133,26 @@ namespace Fsl
       return m_length;
     }
 
-    constexpr const_reference back() const
+    constexpr const_reference back() const noexcept
     {
       assert(!empty());
       return m_pStr[m_length - 1];
     }
 
-    constexpr const_reference front() const
+    constexpr const_reference front() const noexcept
     {
       assert(!empty());
       return m_pStr[0];
     }
 
-    constexpr void remove_prefix(size_type n)
+    constexpr void remove_prefix(size_type n) noexcept
     {
       assert(n <= m_length);
       m_pStr += n;
       m_length -= n;
     }
 
-    constexpr void remove_suffix(size_type n)
+    constexpr void remove_suffix(size_type n) noexcept
     {
       assert(n <= m_length);
       m_length -= n;
@@ -157,69 +170,74 @@ namespace Fsl
       return StringViewLite(m_pStr + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
     }
 
-    // constexpr int compare(StringViewLite value) const noexcept
-    int compare(StringViewLite value) const noexcept;
+    constexpr int compare(std::string_view value) const noexcept
+    {
+      return AsStringView().compare(value);
+    }
 
-    // constexpr int compare(size_type pos1, size_type count1, basic_string_view v) const;
+    constexpr int compare(StringViewLite value) const noexcept
+    {
+      // min of m_length and value.m_length
+      const auto countCompare = m_length <= value.m_length ? m_length : value.m_length;
+      const auto result = (countCompare == 0 ? 0 : CompareN(m_pStr, value.m_pStr, countCompare));
+
+      return (result == 0 ? (static_cast<int>(m_length > value.m_length) - static_cast<int>(m_length < value.m_length)) : (result < 0 ? -1 : 1));
+    }
+
     int compare(size_type pos1, size_type count1, StringViewLite v) const
     {
       return substr(pos1, count1).compare(v);
     }
 
-    // constexpr int compare(size_type pos1, size_type count1, StringViewLite v, size_type pos2, size_type count2) const
     int compare(size_type pos1, size_type count1, StringViewLite v, size_type pos2, size_type count2) const
     {
       return substr(pos1, count1).compare(v.substr(pos2, count2));
     }
 
-    // constexpr int compare(const char* const psz) const
-    int compare(const value_type* const psz) const
+    constexpr int compare(const value_type* const psz) const noexcept
     {
       return compare(StringViewLite(psz));
     }
 
-    // constexpr int compare(size_type pos1, size_type count1, const char*const psz) const;
-    int compare(size_type pos1, size_type count1, const char* const psz) const
+    constexpr int compare(size_type pos1, size_type count1, const char* const psz) const
     {
       return substr(pos1, count1).compare(StringViewLite(psz));
     }
 
-    // constexpr int compare(size_type pos1, size_type count1, const char*const psz, size_type count2) const;
-    int compare(size_type pos1, size_type count1, const char* const psz, size_type count2) const
+    constexpr int compare(size_type pos1, size_type count1, const char* const psz, size_type count2) const
     {
       return substr(pos1, count1).compare(StringViewLite(psz, count2));
     }
 
-    // constexpr bool starts_with(StringViewLite value) const noexcept;
-    bool starts_with(StringViewLite value) const noexcept;
+    constexpr bool starts_with(StringViewLite value) const noexcept
+    {
+      return m_length >= value.m_length ? (SafeCompareN(m_pStr, value.m_pStr, value.m_length) == 0) : false;
+    }
 
     constexpr bool starts_with(char ch) const noexcept
     {
       return (m_length > 0u && m_pStr[0] == ch);
     }
 
-    // constexpr bool starts_with(const char* const psz) const;
-    bool starts_with(const char* const psz) const
+    constexpr bool starts_with(const char* const psz) const noexcept
     {
       return starts_with(StringViewLite(psz));
     }
 
-    // constexpr bool ends_with(StringViewLite value) const noexcept;
-    bool ends_with(StringViewLite value) const noexcept;
+    constexpr bool ends_with(StringViewLite value) const noexcept
+    {
+      return m_length >= value.m_length ? (SafeCompareN(m_pStr + (m_length - value.m_length), value.m_pStr, value.m_length) == 0) : false;
+    }
 
     constexpr bool ends_with(char ch) const noexcept
     {
       return (m_length > 0u && m_pStr[m_length - 1u] == ch);
     }
 
-    // constexpr bool ends_with(const char*const psz) const;
-    bool ends_with(const char* const psz) const
+    constexpr bool ends_with(const char* const psz) const noexcept
     {
       return ends_with(StringViewLite(psz));
     }
-
-    // constexpr size_type find(basic_string_view v, size_type pos = 0) const noexcept
-    // size_type find(StringViewLite value, const size_type pos = 0) const noexcept;
 
     constexpr size_type find(const value_type ch, size_type pos = 0) const noexcept
     {
@@ -229,9 +247,6 @@ namespace Fsl
       }
       return (pos < m_length ? pos : npos);
     }
-
-    // constexpr size_type rfind(basic_string_view v, size_type pos = npos) const noexcept;
-    // constexpr size_type rfind(CharT c, size_type pos = npos) const noexcept;
 
     constexpr size_type rfind(value_type ch, size_type pos = npos) const noexcept
     {
@@ -247,12 +262,63 @@ namespace Fsl
       return npos;
     }
 
-    // constexpr size_type rfind(const CharT* s, size_type pos, size_type count) const;
-    // constexpr size_type rfind(const CharT* s, size_type pos = npos) const;
+    constexpr const_iterator begin() const noexcept
+    {
+#ifdef NDEBUG
+      return const_iterator(m_pStr);
+#else
+      return {m_pStr, m_pStr, m_length};
+#endif
+    }
 
+    constexpr const_iterator end() const noexcept
+    {
+#ifdef NDEBUG
+      return const_iterator(m_pStr + m_length);
+#else
+      return {m_pStr + m_length, m_pStr, m_length};
+#endif
+    }
+
+    constexpr const_iterator cbegin() const noexcept
+    {
+      return begin();
+    }
+
+    constexpr const_iterator cend() const noexcept
+    {
+      return end();
+    }
+
+
+    constexpr const_reverse_iterator rbegin() const noexcept
+    {
+      return const_reverse_iterator(end());
+    }
+
+
+    constexpr const_reverse_iterator rend() const noexcept
+    {
+      return const_reverse_iterator(begin());
+    }
+
+    constexpr const_reverse_iterator crbegin() const noexcept
+    {
+      return rbegin();
+    }
+
+    constexpr const_reverse_iterator crend() const noexcept
+    {
+      return rend();
+    }
+
+    constexpr std::string_view AsStringView() const noexcept
+    {
+      return {m_pStr, m_length};
+    }
 
   private:
-    static constexpr inline size_type CalcLength(const char* const pszStart)
+    static constexpr inline size_type CalcLength(const char* const pszStart) noexcept
     {
       if (pszStart != nullptr)
       {
@@ -265,102 +331,213 @@ namespace Fsl
       }
       return 0u;
     }
+
+    static constexpr int CompareN(const_pointer pLhs, const_pointer pRhs, const std::size_t compareCount) noexcept
+    {
+      assert(pLhs != nullptr);
+      assert(pRhs != nullptr);
+      // NOLINTNEXTLINE(readability-simplify-boolean-expr)
+      if constexpr (true)
+      {
+        const const_pointer pLhsEnd = pLhs + compareCount;
+        while (pLhs < pLhsEnd)
+        {
+          if (*pLhs != *pRhs)
+          {
+            return *pLhs < *pRhs ? -1 : 1;
+          }
+          ++pLhs;
+          ++pRhs;
+        }
+        return 0;
+      }
+      return std::memcmp(pLhs, pRhs, compareCount);
+    }
+
+    static constexpr int SafeCompareN(const_pointer pLhs, const_pointer pRhs, const std::size_t compareCount) noexcept
+    {
+      // NOLINTNEXTLINE(readability-simplify-boolean-expr)
+      if constexpr (true)
+      {
+        if (pLhs == nullptr)
+        {
+          assert(compareCount == 0u);
+          return 0;
+        }
+        if (pRhs == nullptr)
+        {
+          assert(compareCount == 0u);
+          return 0;
+        }
+
+        const const_pointer pLhsEnd = pLhs + compareCount;
+        while (pLhs < pLhsEnd)
+        {
+          if (*pLhs != *pRhs)
+          {
+            return *pLhs < *pRhs ? -1 : 1;
+          }
+          ++pLhs;
+          ++pRhs;
+        }
+        return 0;
+      }
+      return compareCount == 0 ? std::memcmp(pLhs, pRhs, compareCount) : 0;
+    }
   };
 
   // Operator ==
 
-  inline bool operator==(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator==(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
   {
     return lhs.compare(rhs) == 0;
   }
 
-  inline bool operator==(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  inline constexpr bool operator==(const StringViewLite& lhs, const char* const pszRhs) noexcept
   {
     return lhs.compare(pszRhs) == 0;
   }
 
-  inline bool operator==(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator==(const char* const pszLhs, const StringViewLite& rhs) noexcept
   {
     return rhs == pszLhs;
   }
 
+  inline constexpr bool operator==(const StringViewLite& lhs, const std::string_view rhs) noexcept
+  {
+    return lhs.compare(rhs) == 0;
+  }
+
+  inline constexpr bool operator==(const std::string_view lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs.compare(lhs) == 0;
+  }
+
   // Operator !=
 
-  inline bool operator!=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator!=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
   {
     return !(lhs == rhs);
   }
-  inline bool operator!=(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  inline constexpr bool operator!=(const StringViewLite& lhs, const char* const pszRhs) noexcept
   {
     return !(lhs == pszRhs);
   }
-  inline bool operator!=(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator!=(const char* const pszLhs, const StringViewLite& rhs) noexcept
   {
     return rhs != pszLhs;
   }
 
+  inline constexpr bool operator!=(const StringViewLite& lhs, const std::string_view rhs) noexcept
+  {
+    return !(lhs == rhs);
+  }
+
+  inline constexpr bool operator!=(const std::string_view lhs, const StringViewLite& rhs) noexcept
+  {
+    return !(lhs == rhs);
+  }
+
+
   // Operator <
 
-  inline bool operator<(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator<(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
   {
     return lhs.compare(rhs) < 0;
   }
 
-  inline bool operator<(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  inline constexpr bool operator<(const StringViewLite& lhs, const char* const pszRhs) noexcept
   {
     return lhs < StringViewLite(pszRhs);
   }
-  inline bool operator<(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator<(const char* const pszLhs, const StringViewLite& rhs) noexcept
   {
     return StringViewLite(pszLhs) < rhs;
   }
 
+  inline constexpr bool operator<(const StringViewLite& lhs, const std::string_view rhs) noexcept
+  {
+    return lhs.compare(rhs) < 0;
+  }
+
+  inline constexpr bool operator<(const std::string_view lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs.compare(lhs) > 0;
+  }
+
   // Operator <=
 
-  inline bool operator<=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator<=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
   {
     return lhs.compare(rhs) <= 0;
   }
 
-  inline bool operator<=(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  inline constexpr bool operator<=(const StringViewLite& lhs, const char* const pszRhs) noexcept
   {
     return lhs <= StringViewLite(pszRhs);
   }
-  inline bool operator<=(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator<=(const char* const pszLhs, const StringViewLite& rhs) noexcept
   {
     return StringViewLite(pszLhs) <= rhs;
   }
 
+  inline constexpr bool operator<=(const StringViewLite& lhs, const std::string_view rhs) noexcept
+  {
+    return lhs.compare(rhs) <= 0;
+  }
+
+  inline constexpr bool operator<=(const std::string_view lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs.compare(lhs) >= 0;
+  }
+
   // Operator >
 
-  inline bool operator>(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator>(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
   {
     return rhs < lhs;
   }
-  inline bool operator>(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  inline constexpr bool operator>(const StringViewLite& lhs, const char* const pszRhs) noexcept
   {
     return lhs > StringViewLite(pszRhs);
   }
-  inline bool operator>(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator>(const char* const pszLhs, const StringViewLite& rhs) noexcept
   {
     return StringViewLite(pszLhs) > rhs;
   }
 
+  inline constexpr bool operator>(const StringViewLite& lhs, const std::string_view rhs) noexcept
+  {
+    return rhs < lhs;
+  }
+
+  inline constexpr bool operator>(const std::string_view lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs < lhs;
+  }
+
   // Operator >=
 
-  inline bool operator>=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator>=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
   {
     return rhs <= lhs;
   }
-  inline bool operator>=(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  inline constexpr bool operator>=(const StringViewLite& lhs, const char* const pszRhs) noexcept
   {
     return lhs >= StringViewLite(pszRhs);
   }
-  inline bool operator>=(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  inline constexpr bool operator>=(const char* const pszLhs, const StringViewLite& rhs) noexcept
   {
     return StringViewLite(pszLhs) >= rhs;
   }
-
+  inline constexpr bool operator>=(const StringViewLite& lhs, const std::string_view rhs) noexcept
+  {
+    return rhs <= lhs;
+  }
+  inline constexpr bool operator>=(const std::string_view lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs <= lhs;
+  }
 }
 
 #endif

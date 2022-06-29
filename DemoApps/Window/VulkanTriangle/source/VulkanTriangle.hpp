@@ -33,11 +33,11 @@
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/Device.hpp>
-#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/Framebuffer.hpp>
-#include <RapidVulkan/Instance.hpp>
-#include <RapidVulkan/ImageView.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/RenderPass.hpp>
 #include <RapidVulkan/Semaphore.hpp>

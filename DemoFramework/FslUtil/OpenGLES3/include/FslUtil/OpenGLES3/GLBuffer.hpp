@@ -32,68 +32,48 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpan.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
-#include <cstdlib>
 #include <GLES3/gl3.h>
+#include <cstdlib>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLBuffer
   {
-    class GLBuffer
+    GLuint m_handle{GLValues::INVALID_HANDLE};
+    GLenum m_target{0};
+    uint32_t m_capacity{0};
+    uint32_t m_elementStride{0};
+    GLenum m_usage{0};
+
+  public:
+    GLBuffer(const GLBuffer&) = delete;
+    GLBuffer& operator=(const GLBuffer&) = delete;
+
+    //! @brief Move assignment operator
+    GLBuffer& operator=(GLBuffer&& other) noexcept
     {
-      GLuint m_handle{GLValues::INVALID_HANDLE};
-      GLenum m_target{0};
-      uint32_t m_capacity{0};
-      uint32_t m_elementStride{0};
-      GLenum m_usage{0};
-
-    public:
-      GLBuffer(const GLBuffer&) = delete;
-      GLBuffer& operator=(const GLBuffer&) = delete;
-
-      //! @brief Move assignment operator
-      GLBuffer& operator=(GLBuffer&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          m_handle = other.m_handle;
-          m_target = other.m_target;
-          m_capacity = other.m_capacity;
-          m_elementStride = other.m_elementStride;
-          m_usage = other.m_usage;
-
-          // Remove the data from other
-          other.m_handle = GLValues::INVALID_HANDLE;
-          other.m_target = 0;
-          other.m_capacity = 0;
-          other.m_elementStride = 0;
-          other.m_usage = 0;
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLBuffer(GLBuffer&& other) noexcept
-        : m_handle(other.m_handle)
-        , m_target(other.m_target)
-        , m_capacity(other.m_capacity)
-        , m_elementStride(other.m_elementStride)
-        , m_usage(other.m_usage)
-      {
+        // Claim ownership here
+        m_handle = other.m_handle;
+        m_target = other.m_target;
+        m_capacity = other.m_capacity;
+        m_elementStride = other.m_elementStride;
+        m_usage = other.m_usage;
+
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
         other.m_target = 0;
@@ -101,132 +81,185 @@ namespace Fsl
         other.m_elementStride = 0;
         other.m_usage = 0;
       }
+      return *this;
+    }
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLBuffer(GLBuffer&& other) noexcept
+      : m_handle(other.m_handle)
+      , m_target(other.m_target)
+      , m_capacity(other.m_capacity)
+      , m_elementStride(other.m_elementStride)
+      , m_usage(other.m_usage)
+    {
+      // Remove the data from other
+      other.m_handle = GLValues::INVALID_HANDLE;
+      other.m_target = 0;
+      other.m_capacity = 0;
+      other.m_elementStride = 0;
+      other.m_usage = 0;
+    }
 
 
-      //! @brief Create a uninitialized buffer
-      GLBuffer() noexcept = default;
+    //! @brief Create a uninitialized buffer
+    GLBuffer() noexcept = default;
 
-      //! @brief Create a initialized buffer
-      //! @param elementStride the size of one element in bytes
-      GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage)
-        : GLBuffer(target, ReadOnlyFlexSpanUtil::AsSpan(pEntries, pEntries != nullptr ? elementCount : 0u, elementStride), elementCount, usage)
-      {
-      }
+    //! @brief Create a initialized buffer
+    //! @param elementStride the size of one element in bytes
+    GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage)
+      : GLBuffer(target, ReadOnlyFlexSpanUtil::AsSpan(pEntries, pEntries != nullptr ? elementCount : 0u, elementStride), elementCount, usage)
+    {
+    }
 
-      GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage);
-      GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage);
+    GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage);
+    GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage);
 
-      virtual ~GLBuffer();
+    template <typename T>
+    GLBuffer(const GLenum target, const ReadOnlySpan<T> buffer, const GLenum usage)
+      : GLBuffer(target, ReadOnlyFlexSpanUtil::AsSpan(buffer), usage)
+    {
+    }
 
-      //! @brief If a buffer is allocated this will releases it.
-      virtual void Reset() noexcept;
+    template <typename T>
+    GLBuffer(const GLenum target, const ReadOnlySpan<T> buffer, const std::size_t bufferElementCapacity, const GLenum usage)
+      : GLBuffer(target, ReadOnlyFlexSpanUtil::AsSpan(buffer), bufferElementCapacity, usage)
+    {
+    }
 
-      //! @brief Check if this buffer contains a valid gl handle.
-      bool IsValid() const noexcept
-      {
-        return m_handle != GLValues::INVALID_HANDLE;
-      }
+    virtual ~GLBuffer();
 
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      GLuint Get() const noexcept
-      {
-        return m_handle;
-      }
+    //! @brief If a buffer is allocated this will releases it.
+    virtual void Reset() noexcept;
 
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return m_handle;
-      }
+    //! @brief Check if this buffer contains a valid gl handle.
+    bool IsValid() const noexcept
+    {
+      return m_handle != GLValues::INVALID_HANDLE;
+    }
 
-      //! @brief Get the buffer target
-      GLenum GetTarget() const noexcept
-      {
-        return m_target;
-      }
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    GLuint Get() const noexcept
+    {
+      return m_handle;
+    }
 
-      //! @brief Get the capacity
-      uint32_t GetCapacity() const noexcept
-      {
-        return m_capacity;
-      }
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
+    {
+      return m_handle;
+    }
 
-      //! @brief Get the element stride (size of one element in bytes)
-      uint32_t GetElementStride() const noexcept
-      {
-        return m_elementStride;
-      }
+    //! @brief Get the buffer target
+    GLenum GetTarget() const noexcept
+    {
+      return m_target;
+    }
 
-      //! @brief Get the buffer usage
-      GLenum GetUsage() const noexcept
-      {
-        return m_usage;
-      }
+    //! @brief Get the capacity
+    uint32_t GetCapacity() const noexcept
+    {
+      return m_capacity;
+    }
 
-      //! @brief Update the given area of the buffer
-      //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
-      //! @param dstIndex the dst index where the data will be written.
-      //! @param bufferData the elements that should be written.
-      //! @note   This method does not check for glErrors since its intended for use during rendering.
-      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
-      //! @throws std::invalid_argument if the bufferData span stride is incompatible with the buffer.
-      //! @throws UsageErrorException if the object isn't valid
-      void SetData(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData);
+    //! @brief Get the GL capacity
+    GLsizei GetGLCapacity() const noexcept
+    {
+      return UncheckedNumericCast<GLsizei>(m_capacity);
+    }
 
-      //! @brief Update the given area of the buffer
-      //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
-      //!        This does not unbind the GLBuffer after modification
-      //! @param dstIndex the dst index where the data will be written.
-      //! @param bufferData the elements that should be written.
-      //! @note   This method does not check for glErrors since its intended for use during rendering.
-      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
-      //! @throws std::invalid_argument if the bufferData span stride is incompatible with the buffer.
-      //! @throws UsageErrorException if the object isn't valid
-      void SetDataEx(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData);
+    //! @brief Get the element stride (size of one element in bytes)
+    uint32_t GetElementStride() const noexcept
+    {
+      return m_elementStride;
+    }
 
-      //! @brief Update the given area of the buffer
-      //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
-      //! @param dstIndex the dst index where the data will be written.
-      //! @param pElements the elements that should be written.
-      //! @param elementCount the number of elements to write.
-      //! @note   This method does not check for glErrors since its intended for use during rendering.
-      //! @throws std::invalid_argument if pElements == nullptr
-      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
-      //! @throws UsageErrorException if the object isn't valid
-      void SetData(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
-      {
-        SetData(dstIndex, ReadOnlyFlexSpanUtil::AsSpan(pElements, elementCount, m_elementStride));
-      }
+    //! @brief Get the buffer usage
+    GLenum GetUsage() const noexcept
+    {
+      return m_usage;
+    }
 
-      //! @brief Update the given area of the buffer (Unlike SetData this call assumes that the buffer is already bound to the correct target)
-      //! @param dstIndex the dst index where the data will be written.
-      //! @param pElements the elements that should be written.
-      //! @param elementCount the number of elements to write.
-      //! @note   This method does not check for glErrors since its intended for use during rendering.
-      //! @throws std::invalid_argument if pElements == nullptr
-      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
-      //! @throws UsageErrorException if the object isn't valid
-      void SetDataFast(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
+    template <typename T>
+    void SetData(const std::size_t dstIndex, const ReadOnlySpan<T> bufferData)
+    {
+      SetData(dstIndex, ReadOnlyFlexSpanUtil::AsSpan(bufferData));
+    }
 
-    protected:
-      //! @brief Fill the buffer with the given entries
-      //! @param pElements a pointer to the data that will be copied (or null to just initialize it to the given size but no copy is done)
-      //! @param elementStride the size of one element in bytes
-      void Reset(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage)
-      {
-        Reset(target, ReadOnlyFlexSpanUtil::AsSpan(pEntries, pEntries != nullptr ? elementCount : 0u, elementStride), usage);
-      }
+    template <typename T>
+    void SetDataEx(const std::size_t dstIndex, const ReadOnlySpan<T> bufferData)
+    {
+      SetDataEx(dstIndex, ReadOnlyFlexSpanUtil::AsSpan(bufferData));
+    }
 
-      void Reset(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage)
-      {
-        Reset(target, buffer, buffer.size(), usage);
-      }
+    //! @brief Update the given area of the buffer
+    //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
+    //! @param dstIndex the dst index where the data will be written.
+    //! @param bufferData the elements that should be written.
+    //! @note   This method does not check for glErrors since its intended for use during rendering.
+    //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+    //! @throws std::invalid_argument if the bufferData span stride is incompatible with the buffer.
+    //! @throws UsageErrorException if the object isn't valid
+    void SetData(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData);
 
-      void Reset(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage);
-    };
-  }
+    //! @brief Update the given area of the buffer
+    //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
+    //!        This does not unbind the GLBuffer after modification
+    //! @param dstIndex the dst index where the data will be written.
+    //! @param bufferData the elements that should be written.
+    //! @note   This method does not check for glErrors since its intended for use during rendering.
+    //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+    //! @throws std::invalid_argument if the bufferData span stride is incompatible with the buffer.
+    //! @throws UsageErrorException if the object isn't valid
+    void SetDataEx(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData);
+
+    //! @brief Update the given area of the buffer
+    //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
+    //! @param dstIndex the dst index where the data will be written.
+    //! @param pElements the elements that should be written.
+    //! @param elementCount the number of elements to write.
+    //! @note   This method does not check for glErrors since its intended for use during rendering.
+    //! @throws std::invalid_argument if pElements == nullptr
+    //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+    //! @throws UsageErrorException if the object isn't valid
+    void SetData(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
+    {
+      SetData(dstIndex, ReadOnlyFlexSpanUtil::AsSpan(pElements, elementCount, m_elementStride));
+    }
+
+    //! @brief Update the given area of the buffer (Unlike SetData this call assumes that the buffer is already bound to the correct target)
+    //! @param dstIndex the dst index where the data will be written.
+    //! @param pElements the elements that should be written.
+    //! @param elementCount the number of elements to write.
+    //! @note   This method does not check for glErrors since its intended for use during rendering.
+    //! @throws std::invalid_argument if pElements == nullptr
+    //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+    //! @throws UsageErrorException if the object isn't valid
+    void SetDataFast(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
+
+  protected:
+    //! @brief Fill the buffer with the given entries
+    //! @param pElements a pointer to the data that will be copied (or null to just initialize it to the given size but no copy is done)
+    //! @param elementStride the size of one element in bytes
+    void DoReset(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride,
+                 const GLenum usage);
+
+    template <typename T>
+    void DoReset(const GLenum target, const ReadOnlySpan<T> buffer, const GLenum usage)
+    {
+      DoReset(target, ReadOnlyFlexSpanUtil::AsSpan(buffer), usage);
+    }
+
+
+    void DoReset(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage)
+    {
+      DoReset(target, buffer, buffer.size(), usage);
+    }
+
+    void DoReset(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage);
+  };
 }
 
 #endif

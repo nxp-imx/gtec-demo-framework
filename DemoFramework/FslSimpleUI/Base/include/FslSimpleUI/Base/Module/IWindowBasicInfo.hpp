@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -49,7 +49,7 @@ namespace Fsl
 
       //! @brief Get the window rectangle in screenspace.
       virtual PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
-      virtual Optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
+      virtual std::optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
     };
   }
 }

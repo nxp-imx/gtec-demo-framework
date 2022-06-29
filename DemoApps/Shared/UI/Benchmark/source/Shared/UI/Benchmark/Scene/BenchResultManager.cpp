@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,12 @@
 #include "BenchResultManager.hpp"
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkDataPersistence.hpp>
 #include <limits>
+//#include "AppBenchmarkDataToTextFile.hpp"
 
 namespace Fsl
 {
@@ -54,28 +55,28 @@ namespace Fsl
     {
       // Try to load the custom recording first
       auto res = AppBenchmarkDataPersistence::TryLoad(persistentDataFile);
-      if (res.HasValue())
+      if (res.has_value())
       {
         FSLLOG3_VERBOSE("Benchmark result loaded from '{}'", persistentDataFile);
-        return res.Value();
+        return res.value();
       }
       return {};
     }
 
-    Optional<AppBenchmarkData> TryLoadForceData(const Optional<IO::Path>& forceCompareFile)
+    std::optional<AppBenchmarkData> TryLoadForceData(const std::optional<IO::Path>& forceCompareFile)
     {
-      if (forceCompareFile.HasValue())
+      if (forceCompareFile.has_value())
       {
-        Optional<AppBenchmarkData> res = AppBenchmarkDataPersistence::TryLoad(forceCompareFile.Value());
-        FSLLOG3_WARNING_IF(!res.HasValue(), "Failed to load the requested result file: '{}'", forceCompareFile.Value());
+        std::optional<AppBenchmarkData> res = AppBenchmarkDataPersistence::TryLoad(forceCompareFile.value());
+        FSLLOG3_WARNING_IF(!res.has_value(), "Failed to load the requested result file: '{}'", forceCompareFile.value());
         return res;
       }
       return {};
     }
   }
 
-  BenchResultManager::BenchResultManager(const ServiceProvider& serviceProvider, const Optional<IO::Path>& forceViewFile,
-                                         const Optional<IO::Path>& forceCompareFile, const bool debugMode)
+  BenchResultManager::BenchResultManager(const ServiceProvider& serviceProvider, const std::optional<IO::Path>& forceViewFile,
+                                         const std::optional<IO::Path>& forceCompareFile, const bool debugMode)
     : m_persistentDataPath(serviceProvider.Get<IPersistentDataManager>()->GetPersistentDataPath())
     , m_entries{CreateDataSet(m_persistentDataPath.AsPathView(), !debugMode ? LocalConfig::Filename0 : LocalConfig::FilenameDbg0),
                 CreateDataSet(m_persistentDataPath.AsPathView(), !debugMode ? LocalConfig::Filename1 : LocalConfig::FilenameDbg1)}
@@ -88,37 +89,40 @@ namespace Fsl
   BenchResultManager::~BenchResultManager() = default;
 
 
-  Optional<AppBenchmarkData> BenchResultManager::TryLoad()
+  std::optional<AppBenchmarkData> BenchResultManager::TryLoad()
   {
-    if (m_forceViewData.HasValue())
+    if (m_forceViewData.has_value())
     {
       return m_forceViewData;
     }
 
     const auto& entry = m_entries[DetermineNewestIndex()];
-    return !entry.Data.IsEmpty() ? Optional<AppBenchmarkData>(entry.Data) : Optional<AppBenchmarkData>();
+    return !entry.Data.IsEmpty() ? std::optional<AppBenchmarkData>(entry.Data) : std::optional<AppBenchmarkData>();
   }
 
 
-  Optional<AppBenchmarkData> BenchResultManager::TryLoadCompare()
+  std::optional<AppBenchmarkData> BenchResultManager::TryLoadCompare()
   {
     if (m_entries.size() != 2u)
     {
       throw InternalErrorException("Assumption not met");
     }
-    if (m_forceCompareData.HasValue())
+    if (m_forceCompareData.has_value())
     {
       return m_forceCompareData;
     }
     const auto index = DetermineNewestIndex();
     const auto compareIndex = index == 0 ? 1u : 0u;
     const auto& entry = m_entries[compareIndex];
-    return !entry.Data.IsEmpty() ? Optional<AppBenchmarkData>(entry.Data) : Optional<AppBenchmarkData>();
+    return !entry.Data.IsEmpty() ? std::optional<AppBenchmarkData>(entry.Data) : std::optional<AppBenchmarkData>();
   }
 
 
   bool BenchResultManager::TrySave(const AppBenchmarkData& benchmarkData)
   {
+    // Dump data in a debug friendly format
+    // AppBenchmarkDataToTextFile::Save("dump.txt", benchmarkData);
+
     try
     {
       auto& rEntry = m_entries[DetermineSaveIndex()];

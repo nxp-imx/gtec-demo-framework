@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
-#include "FractalShader.hpp"
 #include <Shared/FractalShader/OptionParser.hpp>
+#include "FractalShader.hpp"
 
 namespace Fsl
 {

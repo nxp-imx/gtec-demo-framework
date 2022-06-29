@@ -29,88 +29,82 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBufferInfo.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBufferInfo.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
+  MeshBufferInfo& MeshBufferInfo::operator=(MeshBufferInfo&& other) noexcept
   {
-    namespace MeshLoader
+    if (this != &other)
     {
-      MeshBufferInfo& MeshBufferInfo::operator=(MeshBufferInfo&& other) noexcept
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        if (this != &other)
-        {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          Buffer = std::move(other.Buffer);
-          Memory = std::move(other.Memory);
-          Size = other.Size;
-
-          // Remove the data from other
-          other.Size = 0;
-        }
-        return *this;
+        Reset();
       }
 
+      // Claim ownership here
+      Buffer = std::move(other.Buffer);
+      Memory = std::move(other.Memory);
+      Size = other.Size;
 
-      MeshBufferInfo::MeshBufferInfo(MeshBufferInfo&& other) noexcept
-        : Buffer(std::move(other.Buffer))
-        , Memory(std::move(other.Memory))
-        , Size(other.Size)
-      {
-        // Remove the data from other
-        other.Size = 0;
-      }
-
-
-      MeshBufferInfo::MeshBufferInfo(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& memory, const std::size_t size)
-        : Buffer(std::move(buffer))
-        , Memory(std::move(memory))
-        , Size(size)
-      {
-        const bool hasOneValid = Buffer.IsValid() || Memory.IsValid();
-        if (Buffer.IsValid() != hasOneValid || Memory.IsValid() != hasOneValid)
-        {
-          throw std::invalid_argument("Either all objects has to be valid or none must be");
-        }
-
-        if (Buffer.GetDevice() != Memory.GetDevice())
-        {
-          throw std::invalid_argument("All objects must belong to the same device");
-        }
-      }
-
-
-      MeshBufferInfo::MeshBufferInfo()
-        : Size(0)
-      {
-      }
-
-
-      void MeshBufferInfo::Reset() noexcept
-      {
-        if (!IsValid())
-        {
-          return;
-        }
-
-        assert(Buffer.IsValid());
-        assert(Memory.IsValid());
-        Buffer.Reset();
-        Memory.Reset();
-        Size = 0;
-      }
+      // Remove the data from other
+      other.Size = 0;
     }
+    return *this;
+  }
+
+
+  MeshBufferInfo::MeshBufferInfo(MeshBufferInfo&& other) noexcept
+    : Buffer(std::move(other.Buffer))
+    , Memory(std::move(other.Memory))
+    , Size(other.Size)
+  {
+    // Remove the data from other
+    other.Size = 0;
+  }
+
+
+  MeshBufferInfo::MeshBufferInfo(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& memory, const std::size_t size)
+    : Buffer(std::move(buffer))
+    , Memory(std::move(memory))
+    , Size(size)
+  {
+    const bool hasOneValid = Buffer.IsValid() || Memory.IsValid();
+    if (Buffer.IsValid() != hasOneValid || Memory.IsValid() != hasOneValid)
+    {
+      throw std::invalid_argument("Either all objects has to be valid or none must be");
+    }
+
+    if (Buffer.GetDevice() != Memory.GetDevice())
+    {
+      throw std::invalid_argument("All objects must belong to the same device");
+    }
+  }
+
+
+  MeshBufferInfo::MeshBufferInfo()
+    : Size(0)
+  {
+  }
+
+
+  void MeshBufferInfo::Reset() noexcept
+  {
+    if (!IsValid())
+    {
+      return;
+    }
+
+    assert(Buffer.IsValid());
+    assert(Memory.IsValid());
+    Buffer.Reset();
+    Memory.Reset();
+    Size = 0;
   }
 }

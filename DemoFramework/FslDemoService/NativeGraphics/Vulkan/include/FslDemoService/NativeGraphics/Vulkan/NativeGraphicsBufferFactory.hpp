@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSBUFFERFACTORY_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSBUFFERFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,41 +37,38 @@
 #include <FslGraphics3D/BasicRender/Adapter/INativeBufferFactory.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class VMBufferManager;
+
+  class NativeGraphicsBufferFactory
   {
-    class VMBufferManager;
+    std::shared_ptr<VMBufferManager> m_bufferManager;
 
-    class NativeGraphicsBufferFactory
+    HandleVector<NativeGraphicsBufferRecord> m_buffers;
+
+    bool m_isDisposed{false};
+
+  public:
+    explicit NativeGraphicsBufferFactory(std::shared_ptr<VMBufferManager> bufferManager);
+    ~NativeGraphicsBufferFactory() noexcept;
+
+    void Dispose() noexcept;
+
+    Graphics3D::NativeBufferFactoryCaps GetBufferCaps() const;
+
+    BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
+                                         const bool isDynamic);
+
+    bool DestroyBuffer(const BasicNativeBufferHandle hBuffer);
+
+    void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData);
+
+    const VMBuffer& GetBuffer(const BasicNativeBufferHandle buffer)
     {
-      std::shared_ptr<VMBufferManager> m_bufferManager;
-
-      HandleVector<NativeGraphicsBufferRecord> m_buffers;
-
-      bool m_isDisposed{false};
-
-    public:
-      explicit NativeGraphicsBufferFactory(std::shared_ptr<VMBufferManager> bufferManager);
-      ~NativeGraphicsBufferFactory() noexcept;
-
-      void Dispose() noexcept;
-
-      Graphics3D::NativeBufferFactoryCaps GetBufferCaps() const;
-
-      BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
-                                           const bool isDynamic);
-
-      bool DestroyBuffer(const BasicNativeBufferHandle hBuffer);
-
-      void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData);
-
-      const VMBuffer& GetBuffer(const BasicNativeBufferHandle buffer)
-      {
-        return m_buffers.Get(buffer.Value).GetBuffer();
-      }
-    };
-  }
+      return m_buffers.Get(buffer.Value).GetBuffer();
+    }
+  };
 }
 
 #endif

@@ -18,14 +18,14 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VulkanMeshLoader.hpp>
 #include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-#include <assimp/cimport.h>
-#include <memory>
-#include <vector>
-#include <vulkan/vulkan.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <vulkan/vulkan.h>
+#include <memory>
+#include <vector>
 
 namespace Fsl
 {

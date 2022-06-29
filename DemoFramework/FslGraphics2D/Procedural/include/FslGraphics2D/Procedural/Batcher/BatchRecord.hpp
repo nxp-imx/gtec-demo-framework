@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics2D/Procedural/Batcher/BatchInfo.hpp>
 #include <FslBase/Math/SpanRange.hpp>
+#include <FslGraphics2D/Procedural/Batcher/BatchInfo.hpp>
 
 namespace Fsl
 {

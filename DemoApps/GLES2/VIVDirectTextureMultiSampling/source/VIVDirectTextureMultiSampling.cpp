@@ -31,15 +31,18 @@
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES 1
 #endif
+
+#include "VIVDirectTextureMultiSampling.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "VIVDirectTextureMultiSampling.hpp"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include <iostream>
+#include <array>
 #include <cmath>
 #include <cstring>
+#include <iostream>
 #include <vector>
 
 namespace Fsl
@@ -52,10 +55,11 @@ namespace Fsl
 
     GLfloat g_transformMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-    const char* const g_pszShaderAttributeArray[] = {"vPosition", "my_Texcoor", nullptr};
+    constexpr std::array<GLES2::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES2::GLBindAttribLocation(0, "vPosition"),
+                                                                                   GLES2::GLBindAttribLocation(1, "my_Texcoor")};
 
-    const int WIDTH = 160;
-    const int HEIGHT = 120;
+    constexpr int WIDTH = 160;
+    constexpr int HEIGHT = 120;
   }
 
 
@@ -82,7 +86,7 @@ namespace Fsl
   {
     GLuint gTexObj = 0;
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
     const GLuint hProgram = m_program.Get();
     // Grab location of shader attributes.
     GL_CHECK(m_locVertices = glGetAttribLocation(hProgram, "my_Vertex"));

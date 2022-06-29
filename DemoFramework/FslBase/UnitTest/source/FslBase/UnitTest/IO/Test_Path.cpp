@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/IO/Path.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
 #include <FslBase/Log/String/LogUTF8String.hpp>

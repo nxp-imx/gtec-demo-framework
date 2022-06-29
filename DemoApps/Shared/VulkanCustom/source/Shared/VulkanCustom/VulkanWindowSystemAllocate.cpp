@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanCustom/VulkanWindowSystemAllocate.hpp>
 #include <Shared/VulkanCustom/VulkanWindowSystem.hpp>
+#include <Shared/VulkanCustom/VulkanWindowSystemAllocate.hpp>
 
 namespace Fsl
 {

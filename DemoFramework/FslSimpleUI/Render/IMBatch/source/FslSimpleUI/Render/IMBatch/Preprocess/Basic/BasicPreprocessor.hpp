@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_BASIC_BASICPREPROCESSOR_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_BASIC_BASICPREPROCESSOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,51 +44,45 @@
 #include "PreprocessUtil.hpp"
 #include "PreprocessUtil_ForceTransparent.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  class BasicPreprocessor
   {
-    namespace RenderIMBatch
+    bool m_allowDepthBuffer;
+    PreprocessResult m_result;
+
+  public:
+    explicit BasicPreprocessor(const bool allowDepthBuffer)
+      : m_allowDepthBuffer(allowDepthBuffer)
     {
-      class BasicPreprocessor
-      {
-        bool m_allowDepthBuffer;
-        PreprocessResult m_result;
-
-      public:
-        explicit BasicPreprocessor(const bool allowDepthBuffer)
-          : m_allowDepthBuffer(allowDepthBuffer)
-        {
-        }
-
-        inline void Process(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords, ReadOnlySpan<EncodedCommand> commandSpan,
-                            const MeshManager& meshManager)
-        {
-          if (m_allowDepthBuffer)
-          {
-            // When we have a depth buffer we split the opaque and transparent commands
-            m_result = PreprocessUtil::Preprocess(rProcessedCommandRecords, commandSpan, meshManager);
-          }
-          else
-          {
-            // When we have no depth buffer we force process all entries into the same render queue
-            // to preserve the draw order
-            m_result = PreprocessUtil::PreprocessForceTransparent(rProcessedCommandRecords, commandSpan, meshManager);
-          }
-          assert(m_allowDepthBuffer || GetOpaqueSpan(rProcessedCommandRecords).empty());
-        }
-
-        inline Span<ProcessedCommandRecord> GetOpaqueSpan(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords) const
-        {
-          return SpanUtil::AsSubSpan(rProcessedCommandRecords, m_result.OpaqueStartIndex, m_result.OpaqueCount);
-        }
-
-        inline Span<ProcessedCommandRecord> GetTransparentSpan(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords) const
-        {
-          return SpanUtil::AsSubSpan(rProcessedCommandRecords, m_result.TransparentStartIndex, m_result.TransparentCount);
-        }
-      };
     }
-  }
+
+    inline void Process(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords, ReadOnlySpan<EncodedCommand> commandSpan,
+                        const MeshManager& meshManager)
+    {
+      if (m_allowDepthBuffer)
+      {
+        // When we have a depth buffer we split the opaque and transparent commands
+        m_result = PreprocessUtil::Preprocess(rProcessedCommandRecords, commandSpan, meshManager);
+      }
+      else
+      {
+        // When we have no depth buffer we force process all entries into the same render queue
+        // to preserve the draw order
+        m_result = PreprocessUtil::PreprocessForceTransparent(rProcessedCommandRecords, commandSpan, meshManager);
+      }
+      assert(m_allowDepthBuffer || GetOpaqueSpan(rProcessedCommandRecords).empty());
+    }
+
+    inline Span<ProcessedCommandRecord> GetOpaqueSpan(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords) const
+    {
+      return SpanUtil::AsSubSpan(rProcessedCommandRecords, m_result.OpaqueStartIndex, m_result.OpaqueCount);
+    }
+
+    inline Span<ProcessedCommandRecord> GetTransparentSpan(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords) const
+    {
+      return SpanUtil::AsSubSpan(rProcessedCommandRecords, m_result.TransparentStartIndex, m_result.TransparentCount);
+    }
+  };
 }
 #endif

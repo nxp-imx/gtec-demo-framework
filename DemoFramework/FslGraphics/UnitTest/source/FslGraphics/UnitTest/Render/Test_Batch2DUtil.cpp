@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Batch2DUtil.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxAreaRectangleF.hpp>
+#include <FslGraphics/Render/Batch2DUtil.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <algorithm>
@@ -125,7 +125,7 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        PxAreaRectangleF rectA(float(x), float(y), 4, 3);
+        PxAreaRectangleF rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
         auto resA = rectA;
         auto resSrcA = srcRect;
         auto resB = rectB;

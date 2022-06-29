@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Logic/SliderConstrainedValue.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslSimpleUI/Base/Control/Logic/SliderConstrainedValue.hpp>
 
 using namespace Fsl;
 
@@ -256,7 +256,7 @@ TEST(TestControlLogic_SliderConstrainedValue, Construct_ValueMinMaxTickFrequency
   const double min = 10;
   const double max = 20;
   const double tickFrequency = 5;
-  UI::SliderConstrainedValue<float> value(val, min, max, tickFrequency);
+  UI::SliderConstrainedValue<double> value(val, min, max, tickFrequency);
 
   EXPECT_EQ(min, value.Min());
   EXPECT_EQ(max, value.Max());

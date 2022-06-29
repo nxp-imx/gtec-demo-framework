@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_UTIL_INSTANCEUTIL_HPP
 #define FSLUTIL_VULKAN1_0_UTIL_INSTANCEUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,48 +37,45 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class InstanceCreateInfoCopy;
+
+  namespace InstanceUtil
   {
-    class InstanceCreateInfoCopy;
+    bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames);
+    bool IsInstanceExtensionsAvailable(const uint32_t extensionCount, const char* const* enabledExtensionNames,
+                                       const char* const pszLayerName = nullptr);
 
-    namespace InstanceUtil
+    //! @param pInstanceCreateInfoCopy if not null then this will be filled with a copy of the instance create info.
+    RapidVulkan::Instance CreateInstance(const std::string& applicationName, const uint32_t applicationVersion, const uint32_t apiVersion,
+                                         const VkInstanceCreateFlags flags, const uint32_t enabledLayerCount,
+                                         const char* const* ppszEnabledLayerNames, const uint32_t enabledExtensionCount,
+                                         const char* const* ppszEnabledExtensionNames, InstanceCreateInfoCopy* pInstanceCreateInfoCopy = nullptr);
+
+
+    //! @param pInstanceCreateInfoCopy if not null then this will be filled with a copy of the instance create info.
+    inline RapidVulkan::Instance CreateInstance(const std::string& applicationName, const uint32_t applicationVersion, const uint32_t apiVersion,
+                                                const VkInstanceCreateFlags flags, const std::vector<const char*>& enabledLayerNames,
+                                                const std::vector<const char*>& enabledExtensionNames,
+                                                InstanceCreateInfoCopy* pInstanceCreateInfoCopy = nullptr)
     {
-      bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames);
-      bool IsInstanceExtensionsAvailable(const uint32_t extensionCount, const char* const* enabledExtensionNames,
-                                         const char* const pszLayerName = nullptr);
-
-      //! @param pInstanceCreateInfoCopy if not null then this will be filled with a copy of the instance create info.
-      RapidVulkan::Instance CreateInstance(const std::string& applicationName, const uint32_t applicationVersion, const uint32_t apiVersion,
-                                           const VkInstanceCreateFlags flags, const uint32_t enabledLayerCount,
-                                           const char* const* ppszEnabledLayerNames, const uint32_t enabledExtensionCount,
-                                           const char* const* ppszEnabledExtensionNames, InstanceCreateInfoCopy* pInstanceCreateInfoCopy = nullptr);
-
-
-      //! @param pInstanceCreateInfoCopy if not null then this will be filled with a copy of the instance create info.
-      inline RapidVulkan::Instance CreateInstance(const std::string& applicationName, const uint32_t applicationVersion, const uint32_t apiVersion,
-                                                  const VkInstanceCreateFlags flags, const std::vector<const char*>& enabledLayerNames,
-                                                  const std::vector<const char*>& enabledExtensionNames,
-                                                  InstanceCreateInfoCopy* pInstanceCreateInfoCopy = nullptr)
-      {
-        return CreateInstance(applicationName, applicationVersion, apiVersion, flags, static_cast<uint32_t>(enabledLayerNames.size()),
-                              enabledLayerNames.data(), static_cast<uint32_t>(enabledExtensionNames.size()), enabledExtensionNames.data(),
-                              pInstanceCreateInfoCopy);
-      }
-
-
-      VkPhysicalDevice GetPhysicalDevice(const VkInstance instance, const uint32_t index);
-
-      //! @brief Enumerate the instance layer properties
-      std::vector<VkLayerProperties> EnumerateInstanceLayerProperties();
-
-      //! @brief Enumerate
-      std::vector<VkExtensionProperties> EnumerateInstanceExtensionProperties(const char* const pszLayerName = nullptr);
-
-      //! @brief Enumerate the physical devices
-      std::vector<VkPhysicalDevice> EnumeratePhysicalDevices(const VkInstance instance);
+      return CreateInstance(applicationName, applicationVersion, apiVersion, flags, static_cast<uint32_t>(enabledLayerNames.size()),
+                            enabledLayerNames.data(), static_cast<uint32_t>(enabledExtensionNames.size()), enabledExtensionNames.data(),
+                            pInstanceCreateInfoCopy);
     }
+
+
+    VkPhysicalDevice GetPhysicalDevice(const VkInstance instance, const uint32_t index);
+
+    //! @brief Enumerate the instance layer properties
+    std::vector<VkLayerProperties> EnumerateInstanceLayerProperties();
+
+    //! @brief Enumerate
+    std::vector<VkExtensionProperties> EnumerateInstanceExtensionProperties(const char* const pszLayerName = nullptr);
+
+    //! @brief Enumerate the physical devices
+    std::vector<VkPhysicalDevice> EnumeratePhysicalDevices(const VkInstance instance);
   }
 }
 

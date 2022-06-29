@@ -38,37 +38,34 @@
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <array>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLBatch2DQuadRenderer;
+
+  class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
   {
-    class GLBatch2DQuadRenderer;
+    GLBatch2D m_batch2D;
+    GLTexture m_fontTexture;
+    PxExtent2D m_pxCurrentExtent;
+    PxSize2D m_fontSize;
+    PxRectangle m_fillPixelRect;
+    bool m_inBegin;
+    std::array<PxRectangle, 128 - 33> m_charRects{};
 
-    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
-    {
-      GLBatch2D m_batch2D;
-      GLTexture m_fontTexture;
-      PxExtent2D m_pxCurrentExtent;
-      PxSize2D m_fontSize;
-      PxRectangle m_fillPixelRect;
-      bool m_inBegin;
-      std::array<PxRectangle, 128 - 33> m_charRects{};
+  public:
+    NativeGraphicsBasic2D(const std::shared_ptr<GLBatch2DQuadRenderer>& batchQuadRender, const PxExtent2D& extentPx);
+    ~NativeGraphicsBasic2D() final;
 
-    public:
-      NativeGraphicsBasic2D(const std::shared_ptr<GLBatch2DQuadRenderer>& batchQuadRender, const PxExtent2D& extentPx);
-      ~NativeGraphicsBasic2D() final;
+    // From INativeGraphicsBasic2D
+    void SetScreenExtent(const PxExtent2D& extentPx) final;
+    void Begin() final;
+    void End() final;
+    void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
+    void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+    PxSize2D FontSize() const final;
 
-      // From INativeGraphicsBasic2D
-      void SetScreenExtent(const PxExtent2D& extentPx) final;
-      void Begin() final;
-      void End() final;
-      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
-      PxSize2D FontSize() const final;
-
-    private:
-    };
-  }
+  private:
+  };
 }
 
 #endif

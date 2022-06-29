@@ -32,11 +32,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationFunction.hpp>
-#include <functional>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <functional>
 
 namespace Fsl
 {

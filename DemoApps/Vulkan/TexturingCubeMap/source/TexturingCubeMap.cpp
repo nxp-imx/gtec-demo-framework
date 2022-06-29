@@ -11,13 +11,13 @@
 
 
 #include "TexturingCubeMap.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Memory.hpp>
@@ -528,8 +528,15 @@ namespace Fsl
     descriptor.imageView = texImageView.Get();
     descriptor.imageLayout = texImageLayout;
 
-    return Willems::VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView),
-                                  texExtent, texCube.GetLevels(), 1, descriptor);
+    return {std::move(texSampler),
+            std::move(texImage),
+            texImageLayout,
+            std::move(texMemory),
+            std::move(texImageView),
+            texExtent,
+            texCube.GetLevels(),
+            1,
+            descriptor};
   }
 
 
@@ -777,7 +784,7 @@ namespace Fsl
     {
       m_uboVS.LodBias = 0.0f;
     }
-    if (m_uboVS.LodBias > m_cubeMap.GetLevels())
+    if (m_uboVS.LodBias > static_cast<float>(m_cubeMap.GetLevels()))
     {
       m_uboVS.LodBias = static_cast<float>(m_cubeMap.GetLevels());
     }

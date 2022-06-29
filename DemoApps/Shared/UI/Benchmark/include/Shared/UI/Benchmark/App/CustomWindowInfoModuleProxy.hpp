@@ -68,7 +68,7 @@ namespace Fsl
       return m_impl ? m_impl->GetWindowRectanglePx(windowId) : PxRectangle();
     }
 
-    Optional<PxRectangle> TryGetWindowRectanglePx(const CustomWindowId windowId) const final
+    std::optional<PxRectangle> TryGetWindowRectanglePx(const CustomWindowId windowId) const final
     {
       return m_impl ? m_impl->TryGetWindowRectanglePx(windowId) : PxRectangle();
     }

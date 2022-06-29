@@ -31,9 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslService/Consumer/ProviderId.hpp>
 #include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <utility>
 
 namespace Fsl
@@ -65,7 +66,7 @@ namespace Fsl
 
     operator BasicMessage() const    // NOLINT(google-explicit-constructor);
     {
-      return BasicMessage(BasicMessageType::FireAndForgetMessage, static_cast<uint32_t>(TargetId.Get()), Content, MessagePool);
+      return {BasicMessageType::FireAndForgetMessage, UncheckedNumericCast<int32_t>(TargetId.Get()), Content, MessagePool};
     }
 
 
@@ -76,7 +77,7 @@ namespace Fsl
         throw std::invalid_argument("message was not of the expected type");
       }
 
-      return FireAndForgetBasicMessage(ProviderId(static_cast<uint32_t>(message.Param1)), message.Content, message.MessagePool);
+      return {ProviderId(UncheckedNumericCast<uint32_t>(message.Param1)), message.Content, message.MessagePool};
     }
   };
 }

@@ -41,9 +41,9 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/ModelViewer/MeshUtil.hpp>
@@ -246,18 +246,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -289,7 +289,7 @@ namespace Fsl
   void ModelViewer::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
     DemoAppGLES3::OnMouseWheelEvent(event);
-    m_camera.AddZoom(event.GetDelta() * -0.001f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
 
@@ -430,7 +430,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
 
-        glDrawElements(drawMode, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(drawMode, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
       }
     }
   }
@@ -470,7 +470,7 @@ namespace Fsl
         totalTimeEnable += sequenceTimestampEnd - sequenceTimestampStart;
         sequenceTimestampStart = sequenceTimestampEnd;
 
-        glDrawElements(drawMode, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(drawMode, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
 
         sequenceTimestampEnd = timer.GetTimestamp();
         totalTimeDraw += sequenceTimestampEnd - sequenceTimestampStart;
@@ -539,7 +539,7 @@ namespace Fsl
           // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
           m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
 
-          glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+          glDrawElements(GL_TRIANGLES, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
         }
       }
     }

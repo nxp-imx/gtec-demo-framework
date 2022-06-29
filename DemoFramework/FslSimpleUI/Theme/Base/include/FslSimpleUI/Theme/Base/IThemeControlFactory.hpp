@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASE_ITHEMECONTROLFACTORY_HPP
 #define FSLSIMPLEUI_THEME_BASE_ITHEMECONTROLFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 #include <FslBase/Math/Dp/DpThicknessF.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
-#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Theme/Base/BarType.hpp>
 #include <FslSimpleUI/Theme/Base/ButtonType.hpp>
 #include <FslSimpleUI/Theme/Base/ElementType.hpp>
@@ -80,7 +80,7 @@ namespace Fsl
       public:
         virtual ~IThemeControlFactory() = default;
 
-        virtual std::shared_ptr<WindowContext> GetContext() const = 0;
+        virtual const std::shared_ptr<WindowContext>& GetContext() const = 0;
         virtual const IThemeResources& GetResources() const = 0;
         virtual Color GetThemePrimaryDarkColor() const = 0;
         virtual DpThicknessF GetDefaultMarginDp(const ElementType elementType) const = 0;
@@ -170,11 +170,19 @@ namespace Fsl
 
         // ----- CreateBackgroundWindow
 
+        virtual std::shared_ptr<Background> CreateBackgroundWindow(const WindowType windowType) = 0;
         virtual std::shared_ptr<Background> CreateBackgroundWindow(const WindowType windowType, const std::shared_ptr<BaseWindow>& content) = 0;
         virtual std::shared_ptr<Background> CreateBackgroundWindow(const WindowType windowType, const std::shared_ptr<BaseWindow>& content,
                                                                    const UI::ItemAlignment alignment) = 0;
         virtual std::shared_ptr<Background> CreateBackgroundWindow(const WindowType windowType, const std::shared_ptr<BaseWindow>& content,
                                                                    const UI::ItemAlignment alignmentX, const UI::ItemAlignment alignmentY) = 0;
+
+        // ----- CreateFmtValueLabel<uint8_t>
+        virtual std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, const StringViewLite& strViewFormat) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, std::string&& strFormat) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, const char* const pszFormat) = 0;
+        virtual std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, const std::string& strFormat) = 0;
 
         // ----- CreateFmtValueLabel<int32_t>
         virtual std::shared_ptr<FmtValueLabel<int32_t>> CreateFmtValueLabel(const int32_t value) = 0;
@@ -200,6 +208,13 @@ namespace Fsl
 
         // CreateFloatingButton
         virtual std::shared_ptr<ButtonBase> CreateFloatingButton(const FloatingButtonType type) = 0;
+
+        // ----- CreateSlider<uint8_t>
+
+        //! @brief Create a slider.
+        //! @note  It will default to stretch in the layout direction.
+        virtual std::shared_ptr<Slider<uint8_t>> CreateSlider(const LayoutOrientation orientation, const ConstrainedValue<uint8_t>& value,
+                                                              const SliderConfig& config = {}) = 0;
 
         // ----- CreateSlider<int32_t>
 

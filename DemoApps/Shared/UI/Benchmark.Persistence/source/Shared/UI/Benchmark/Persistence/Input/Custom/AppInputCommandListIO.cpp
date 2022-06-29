@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,223 +46,220 @@
 #include <limits>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::AppInputCommandListIO
 {
-  namespace AppInputCommandListIO
+  namespace
   {
-    namespace
+    namespace Header
     {
-      namespace Header
+      constexpr const uint32_t Version1 = 1;
+
+      // LCN, since this is written as little endian it becomes NCL in the file
+      constexpr const uint32_t Magic = 0x004C434E;
+      constexpr const uint32_t MinVersion = Version1;
+      constexpr const uint32_t MaxVersion = Version1;
+
+      constexpr const uint32_t HeaderOffsetMagic = 0;
+      constexpr const uint32_t HeaderOffsetVersion = 4;
+      constexpr const uint32_t HeaderOffsetContentSize = 8;
+      constexpr const uint32_t SizeOfHeader = 4 * 3;
+    }
+
+    ReadOnlySpan<uint8_t> ReadAndValidateHeader(const ReadOnlySpan<uint8_t>& header, uint32_t& rVersion)
+    {
+      auto magic = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetMagic);
+      auto version = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetVersion);
+      auto contentSize = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetContentSize);
+      if (magic != Header::Magic)
       {
-        constexpr const uint32_t Version1 = 1;
-
-        // LCN, since this is written as little endian it becomes NCL in the file
-        constexpr const uint32_t Magic = 0x004C434E;
-        constexpr const uint32_t MinVersion = Version1;
-        constexpr const uint32_t MaxVersion = Version1;
-
-        constexpr const uint32_t HeaderOffsetMagic = 0;
-        constexpr const uint32_t HeaderOffsetVersion = 4;
-        constexpr const uint32_t HeaderOffsetContentSize = 8;
-        constexpr const uint32_t SizeOfHeader = 4 * 3;
+        throw FormatException("invalid header");
       }
-
-      ReadOnlySpan<uint8_t> ReadAndValidateHeader(const ReadOnlySpan<uint8_t>& header, uint32_t& rVersion)
+      if (version < Header::MinVersion || version > Header::MaxVersion)
       {
-        auto magic = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetMagic);
-        auto version = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetVersion);
-        auto contentSize = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetContentSize);
-        if (magic != Header::Magic)
-        {
-          throw FormatException("invalid header");
-        }
-        if (version < Header::MinVersion || version > Header::MaxVersion)
-        {
-          throw FormatException(fmt::format("unsupported AppInputCommandList version {} the currently supported version range is {} to {}", version,
-                                            Header::MinVersion, Header::MaxVersion));
-        }
-        auto remainingSpan = header.subspan(Header::SizeOfHeader);
-        if (contentSize != remainingSpan.size())
-        {
-          throw FormatException("content is not of the expected size");
-        }
-        rVersion = version;
-        return remainingSpan;
+        throw FormatException(fmt::format("unsupported AppInputCommandList version {} the currently supported version range is {} to {}", version,
+                                          Header::MinVersion, Header::MaxVersion));
       }
-
-      constexpr std::size_t CalcInputCommandRecordMaxSize() noexcept
+      auto remainingSpan = header.subspan(Header::SizeOfHeader);
+      if (contentSize != remainingSpan.size())
       {
-        std::size_t size = 0;
-        size += ValueCompression::Details::MaxByteSizeUInt32;       // uint32_t FrameIndex       - uint32_t
-        size += ValueCompression::Details::MaxByteSizeUInt32;       // InputCommandId CommandId  - uint32_t
-        size += sizeof(uint64_t);                                   // CustomWindowId WindowId   - uint64_t
-        size += ValueCompression::Details::MaxByteSizeInt32 * 4;    // PxRectangle WindowRectPx  - 4x int32_t
-        size += ValueCompression::Details::MaxByteSizeInt32 * 4;    // PxPoint2 MousePosition    - 2x int32_t
-        return size;
+        throw FormatException("content is not of the expected size");
       }
+      rVersion = version;
+      return remainingSpan;
+    }
 
-      std::size_t CalcMaxSize(const AppInputCommandList& content)
+    constexpr std::size_t CalcInputCommandRecordMaxSize() noexcept
+    {
+      std::size_t size = 0;
+      size += ValueCompression::Details::MaxByteSizeUInt32;       // uint32_t FrameIndex       - uint32_t
+      size += ValueCompression::Details::MaxByteSizeUInt32;       // InputCommandId CommandId  - uint32_t
+      size += sizeof(uint64_t);                                   // CustomWindowId WindowId   - uint64_t
+      size += ValueCompression::Details::MaxByteSizeInt32 * 4;    // PxRectangle WindowRectPx  - 4x int32_t
+      size += ValueCompression::Details::MaxByteSizeInt32 * 4;    // PxPoint2 MousePosition    - 2x int32_t
+      return size;
+    }
+
+    std::size_t CalcMaxSize(const AppInputCommandList& content)
+    {
+      std::size_t size = Header::SizeOfHeader;
+      size += ValueCompression::Details::MaxByteSizeUInt32;                 // uint32_t FrameCount - uint32_t
+      size += ValueCompression::Details::MaxByteSizeUInt32;                 // uint32_t CommandCount - uint32_t
+      size += CalcInputCommandRecordMaxSize() * content.GetFrameCount();    // Commands
+      return size;
+    }
+
+    constexpr Span<uint8_t> WriteHeader(Span<uint8_t> span)
+    {
+      assert(span.size() >= Header::SizeOfHeader);
+      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetMagic, Header::Magic);
+      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetVersion, Header::Version1);
+      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetContentSize, 0);
+      return span.subspan(Header::SizeOfHeader);
+    }
+
+    Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxRectangle& value)
+    {
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Left());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Top());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Width());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Height());
+      return dstSpan;
+    }
+
+    PxRectangle ReadPxRectangle(ReadOnlySpan<uint8_t>& rSrcSpan)
+    {
+      return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan),
+              ValueCompression::ReadSimpleInt32(rSrcSpan)};
+    }
+
+    Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxPoint2& value)
+    {
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.X);
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Y);
+      return dstSpan;
+    }
+
+    PxPoint2 ReadPxPoint2(ReadOnlySpan<uint8_t>& rSrcSpan)
+    {
+      return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan)};
+    }
+
+    Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxSize2D& value)
+    {
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Width());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Height());
+      return dstSpan;
+    }
+
+    PxSize2D ReadPxSize2D(ReadOnlySpan<uint8_t>& rSrcSpan)
+    {
+      return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan)};
+    }
+
+
+    InputCommandId ReadInputCommandId(ReadOnlySpan<uint8_t>& rSrcSpan)
+    {
+      const auto commandId = static_cast<InputCommandId>(ValueCompression::ReadSimpleUInt32(rSrcSpan));
+      switch (static_cast<InputCommandId>(commandId))
       {
-        std::size_t size = Header::SizeOfHeader;
-        size += ValueCompression::Details::MaxByteSizeUInt32;                 // uint32_t FrameCount - uint32_t
-        size += ValueCompression::Details::MaxByteSizeUInt32;                 // uint32_t CommandCount - uint32_t
-        size += CalcInputCommandRecordMaxSize() * content.GetFrameCount();    // Commands
-        return size;
-      }
-
-      constexpr Span<uint8_t> WriteHeader(Span<uint8_t> span)
-      {
-        assert(span.size() >= Header::SizeOfHeader);
-        ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetMagic, Header::Magic);
-        ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetVersion, Header::Version1);
-        ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetContentSize, 0);
-        return span.subspan(Header::SizeOfHeader);
-      }
-
-      Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxRectangle& value)
-      {
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Left());
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Top());
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Width());
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Height());
-        return dstSpan;
-      }
-
-      PxRectangle ReadPxRectangle(ReadOnlySpan<uint8_t>& rSrcSpan)
-      {
-        return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan),
-                ValueCompression::ReadSimpleInt32(rSrcSpan)};
-      }
-
-      Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxPoint2& value)
-      {
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.X);
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Y);
-        return dstSpan;
-      }
-
-      PxPoint2 ReadPxPoint2(ReadOnlySpan<uint8_t>& rSrcSpan)
-      {
-        return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan)};
-      }
-
-      Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxSize2D& value)
-      {
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Width());
-        dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Height());
-        return dstSpan;
-      }
-
-      PxSize2D ReadPxSize2D(ReadOnlySpan<uint8_t>& rSrcSpan)
-      {
-        return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan)};
-      }
-
-
-      InputCommandId ReadInputCommandId(ReadOnlySpan<uint8_t>& rSrcSpan)
-      {
-        const auto commandId = static_cast<InputCommandId>(ValueCompression::ReadSimpleUInt32(rSrcSpan));
-        switch (static_cast<InputCommandId>(commandId))
-        {
-        case InputCommandId::Invalid:
-        case InputCommandId::MouseDown:
-        case InputCommandId::MouseUp:
-        case InputCommandId::MouseDownMove:
-        case InputCommandId::MouseMove:
-        case InputCommandId::MouseMoveClear:
-          return commandId;
-        default:
-          throw InvalidFormatException("invalid format, unsupported command id");
-        }
-      }
-
-
-      Span<uint8_t> WriteInputCommandRecord(Span<uint8_t> dstSpan, const InputCommandRecord& record)
-      {
-        dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, record.FrameIndex);
-        dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, static_cast<uint32_t>(record.CommandId));
-        dstSpan = ValueCompression::WriteSimpleUInt64(dstSpan, record.WindowId.Value);
-        dstSpan = Write(dstSpan, record.WindowRectPx);
-        dstSpan = Write(dstSpan, record.MousePositionPx);
-        return dstSpan;
-      }
-
-      InputCommandRecord ReadInputCommandRecord(ReadOnlySpan<uint8_t>& rSrcSpan)
-      {
-        const uint32_t frameIndex = ValueCompression::ReadSimpleUInt32(rSrcSpan);
-        const InputCommandId commandId = ReadInputCommandId(rSrcSpan);
-        const uint64_t windowId = ValueCompression::ReadSimpleUInt64(rSrcSpan);
-        const PxRectangle windowRectPx = ReadPxRectangle(rSrcSpan);
-        const PxPoint2 mousePositionPx = ReadPxPoint2(rSrcSpan);
-        return {frameIndex, commandId, CustomWindowId(windowId), windowRectPx, mousePositionPx};
-      }
-
-
-      AppInputCommandList ReadAppInputCommandList(ReadOnlySpan<uint8_t>& rSrcSpan)
-      {
-        const PxSize2D recordResolution = ReadPxSize2D(rSrcSpan);
-        const uint32_t recordDensityDpi = ValueCompression::ReadSimpleUInt32(rSrcSpan);
-        const uint32_t frameCount = ValueCompression::ReadSimpleUInt32(rSrcSpan);
-        const uint32_t commandListCount = ValueCompression::ReadSimpleUInt32(rSrcSpan);
-        std::vector<InputCommandRecord> commandList(commandListCount);
-        for (uint32_t i = 0; i < commandListCount; ++i)
-        {
-          commandList[i] = ReadInputCommandRecord(rSrcSpan);
-        }
-        return AppInputCommandList(recordResolution, recordDensityDpi, std ::move(commandList), frameCount);
+      case InputCommandId::Invalid:
+      case InputCommandId::MouseDown:
+      case InputCommandId::MouseUp:
+      case InputCommandId::MouseDownMove:
+      case InputCommandId::MouseMove:
+      case InputCommandId::MouseMoveClear:
+        return commandId;
+      default:
+        throw InvalidFormatException("invalid format, unsupported command id");
       }
     }
 
-    std::vector<uint8_t> Encode(const AppInputCommandList& content)
+
+    Span<uint8_t> WriteInputCommandRecord(Span<uint8_t> dstSpan, const InputCommandRecord& record)
     {
-      std::vector<uint8_t> encodedContent(CalcMaxSize(content));
-      auto dstSpan = SpanUtil::AsSpan(encodedContent);
-      dstSpan = WriteHeader(dstSpan);
-
-      {    // Write the content
-        const ReadOnlySpan<InputCommandRecord> commandListSpan = content.AsSpan();
-        if (commandListSpan.size() >= std::numeric_limits<uint32_t>::max())
-        {
-          throw NotSupportedException("Max command list size exceeded");
-        }
-
-        // Record resolution
-        dstSpan = Write(dstSpan, content.GetRecordResolution());
-        // Record density dpi
-        dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, content.GetRecordDensityDpi());
-        // Frame count
-        dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, content.GetFrameCount());
-        // Command list entries
-        const auto commandListCount = UncheckedNumericCast<uint32_t>(commandListSpan.size());
-        dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, commandListCount);
-        for (uint32_t i = 0; i < commandListCount; ++i)
-        {
-          dstSpan = WriteInputCommandRecord(dstSpan, commandListSpan[i]);
-        }
-      }
-
-      // Calc the actual size
-      const auto finalSize = dstSpan.data() - encodedContent.data();
-
-      {    // Patch the header content size
-        const auto contentSize = NumericCast<uint32_t>(finalSize - Header::SizeOfHeader);
-        ByteArrayUtil::WriteUInt32LE(encodedContent.data(), encodedContent.size(), Header::HeaderOffsetContentSize, contentSize);
-      }
-
-      encodedContent.resize(finalSize);
-      return encodedContent;
+      dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, record.FrameIndex);
+      dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, static_cast<uint32_t>(record.CommandId));
+      dstSpan = ValueCompression::WriteSimpleUInt64(dstSpan, record.WindowId.Value);
+      dstSpan = Write(dstSpan, record.WindowRectPx);
+      dstSpan = Write(dstSpan, record.MousePositionPx);
+      return dstSpan;
     }
 
-    AppInputCommandList Decode(const ReadOnlySpan<uint8_t>& content)
+    InputCommandRecord ReadInputCommandRecord(ReadOnlySpan<uint8_t>& rSrcSpan)
     {
-      uint32_t currentVersion{0};
-      auto remainingContent = ReadAndValidateHeader(content, currentVersion);
-      AppInputCommandList commandList = ReadAppInputCommandList(remainingContent);
-      if (!remainingContent.empty())
+      const uint32_t frameIndex = ValueCompression::ReadSimpleUInt32(rSrcSpan);
+      const InputCommandId commandId = ReadInputCommandId(rSrcSpan);
+      const uint64_t windowId = ValueCompression::ReadSimpleUInt64(rSrcSpan);
+      const PxRectangle windowRectPx = ReadPxRectangle(rSrcSpan);
+      const PxPoint2 mousePositionPx = ReadPxPoint2(rSrcSpan);
+      return {frameIndex, commandId, CustomWindowId(windowId), windowRectPx, mousePositionPx};
+    }
+
+
+    AppInputCommandList ReadAppInputCommandList(ReadOnlySpan<uint8_t>& rSrcSpan)
+    {
+      const PxSize2D recordResolution = ReadPxSize2D(rSrcSpan);
+      const uint32_t recordDensityDpi = ValueCompression::ReadSimpleUInt32(rSrcSpan);
+      const uint32_t frameCount = ValueCompression::ReadSimpleUInt32(rSrcSpan);
+      const uint32_t commandListCount = ValueCompression::ReadSimpleUInt32(rSrcSpan);
+      std::vector<InputCommandRecord> commandList(commandListCount);
+      for (uint32_t i = 0; i < commandListCount; ++i)
       {
-        throw InvalidFormatException("All content was not consumed");
+        commandList[i] = ReadInputCommandRecord(rSrcSpan);
       }
-      return commandList;
+      return {recordResolution, recordDensityDpi, std ::move(commandList), frameCount};
     }
+  }
+
+  std::vector<uint8_t> Encode(const AppInputCommandList& content)
+  {
+    std::vector<uint8_t> encodedContent(CalcMaxSize(content));
+    auto dstSpan = SpanUtil::AsSpan(encodedContent);
+    dstSpan = WriteHeader(dstSpan);
+
+    {    // Write the content
+      const ReadOnlySpan<InputCommandRecord> commandListSpan = content.AsSpan();
+      if (commandListSpan.size() >= std::numeric_limits<uint32_t>::max())
+      {
+        throw NotSupportedException("Max command list size exceeded");
+      }
+
+      // Record resolution
+      dstSpan = Write(dstSpan, content.GetRecordResolution());
+      // Record density dpi
+      dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, content.GetRecordDensityDpi());
+      // Frame count
+      dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, content.GetFrameCount());
+      // Command list entries
+      const auto commandListCount = UncheckedNumericCast<uint32_t>(commandListSpan.size());
+      dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, commandListCount);
+      for (uint32_t i = 0; i < commandListCount; ++i)
+      {
+        dstSpan = WriteInputCommandRecord(dstSpan, commandListSpan[i]);
+      }
+    }
+
+    // Calc the actual size
+    const auto finalSize = dstSpan.data() - encodedContent.data();
+
+    {    // Patch the header content size
+      const auto contentSize = NumericCast<uint32_t>(finalSize - Header::SizeOfHeader);
+      ByteArrayUtil::WriteUInt32LE(encodedContent.data(), encodedContent.size(), Header::HeaderOffsetContentSize, contentSize);
+    }
+
+    encodedContent.resize(finalSize);
+    return encodedContent;
+  }
+
+  AppInputCommandList Decode(const ReadOnlySpan<uint8_t>& content)
+  {
+    uint32_t currentVersion{0};
+    auto remainingContent = ReadAndValidateHeader(content, currentVersion);
+    AppInputCommandList commandList = ReadAppInputCommandList(remainingContent);
+    if (!remainingContent.empty())
+    {
+      throw InvalidFormatException("All content was not consumed");
+    }
+    return commandList;
   }
 }

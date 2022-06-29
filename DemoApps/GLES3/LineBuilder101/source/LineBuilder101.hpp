@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/Draw/GLLineDraw.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
-#include <FslUtil/OpenGLES3/Draw/GLLineDraw.hpp>
 #include <Shared/LineBuilder101/LineBuilderExample.hpp>
 #include <array>
 

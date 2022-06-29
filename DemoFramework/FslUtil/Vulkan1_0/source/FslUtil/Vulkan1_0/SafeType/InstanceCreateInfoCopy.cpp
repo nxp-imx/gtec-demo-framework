@@ -29,70 +29,67 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief Move assignment operator
+  InstanceCreateInfoCopy& InstanceCreateInfoCopy::operator=(InstanceCreateInfoCopy&& other) noexcept
   {
-    //! @brief Move assignment operator
-    InstanceCreateInfoCopy& InstanceCreateInfoCopy::operator=(InstanceCreateInfoCopy&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        m_applicationInfo = std::move(other.m_applicationInfo);
-        m_value = other.m_value;
-        m_enabledLayerNames = std::move(other.m_enabledLayerNames);
-        m_enabledExtensionNames = std::move(other.m_enabledExtensionNames);
+      // Claim ownership here
+      m_applicationInfo = std::move(other.m_applicationInfo);
+      m_value = other.m_value;
+      m_enabledLayerNames = std::move(other.m_enabledLayerNames);
+      m_enabledExtensionNames = std::move(other.m_enabledExtensionNames);
 
-        // Remove the data from other
-        other.m_value = VkInstanceCreateInfo{};
-        PatchPointers();
-      }
-      return *this;
-    }
-
-    //! @brief Move constructor
-    //! Transfer ownership from other to this
-    InstanceCreateInfoCopy::InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other) noexcept
-      : m_applicationInfo(std::move(other.m_applicationInfo))
-      , m_value(other.m_value)
-      , m_enabledLayerNames(std::move(other.m_enabledLayerNames))
-      , m_enabledExtensionNames(std::move(other.m_enabledExtensionNames))
-    {
       // Remove the data from other
       other.m_value = VkInstanceCreateInfo{};
       PatchPointers();
     }
+    return *this;
+  }
+
+  //! @brief Move constructor
+  //! Transfer ownership from other to this
+  InstanceCreateInfoCopy::InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other) noexcept
+    : m_applicationInfo(std::move(other.m_applicationInfo))
+    , m_value(other.m_value)
+    , m_enabledLayerNames(std::move(other.m_enabledLayerNames))
+    , m_enabledExtensionNames(std::move(other.m_enabledExtensionNames))
+  {
+    // Remove the data from other
+    other.m_value = VkInstanceCreateInfo{};
+    PatchPointers();
+  }
 
 
-    InstanceCreateInfoCopy::InstanceCreateInfoCopy()
-      : m_value{}
+  InstanceCreateInfoCopy::InstanceCreateInfoCopy()
+    : m_value{}
 
-    {
-    }
-
-
-    InstanceCreateInfoCopy::InstanceCreateInfoCopy(const VkInstanceCreateInfo& value)
-      : m_applicationInfo(value.pApplicationInfo)
-      , m_value(value)
-      , m_enabledLayerNames(value.ppEnabledLayerNames, value.enabledLayerCount)
-      , m_enabledExtensionNames(value.ppEnabledExtensionNames, value.enabledExtensionCount)
-    {
-      // Now use the safe copied values instead
-      PatchPointers();
-      m_value.pNext = nullptr;
-      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "InstanceCreateInfoCopy always stores a nullptr for pNext");
-    }
+  {
+  }
 
 
-    void InstanceCreateInfoCopy::PatchPointers() noexcept
-    {
-      m_value.ppEnabledLayerNames = m_value.ppEnabledLayerNames != nullptr ? m_enabledLayerNames.data() : nullptr;
-      m_value.ppEnabledExtensionNames = m_value.ppEnabledExtensionNames != nullptr ? m_enabledExtensionNames.data() : nullptr;
-    }
+  InstanceCreateInfoCopy::InstanceCreateInfoCopy(const VkInstanceCreateInfo& value)
+    : m_applicationInfo(value.pApplicationInfo)
+    , m_value(value)
+    , m_enabledLayerNames(value.ppEnabledLayerNames, value.enabledLayerCount)
+    , m_enabledExtensionNames(value.ppEnabledExtensionNames, value.enabledExtensionCount)
+  {
+    // Now use the safe copied values instead
+    PatchPointers();
+    m_value.pNext = nullptr;
+    FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "InstanceCreateInfoCopy always stores a nullptr for pNext");
+  }
+
+
+  void InstanceCreateInfoCopy::PatchPointers() noexcept
+  {
+    m_value.ppEnabledLayerNames = m_value.ppEnabledLayerNames != nullptr ? m_enabledLayerNames.data() : nullptr;
+    m_value.ppEnabledExtensionNames = m_value.ppEnabledExtensionNames != nullptr ? m_enabledExtensionNames.data() : nullptr;
   }
 }

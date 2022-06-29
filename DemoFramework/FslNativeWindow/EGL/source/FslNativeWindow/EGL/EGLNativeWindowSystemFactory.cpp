@@ -32,7 +32,13 @@
 #include <FslNativeWindow/EGL/EGLNativeWindowSystemFactory.hpp>
 #include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 
-#if defined(_WIN32)
+#if defined(FSL_PLATFORM_EMSCRIPTEN)
+#include "SDL/EGLNativeWindowSystemSDL.hpp"
+namespace Fsl
+{
+  using EGLNATIVEWINDOWSYSTEM = EGLNativeWindowSystemSDL;
+}
+#elif defined(_WIN32)
 #include "Win32/EGLNativeWindowSystemWin32.hpp"
 namespace Fsl
 {

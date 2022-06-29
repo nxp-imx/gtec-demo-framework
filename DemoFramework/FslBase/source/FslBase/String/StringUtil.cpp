@@ -35,137 +35,105 @@
 #include <iterator>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::StringUtil
 {
-  namespace StringUtil
+  bool Contains(const std::string& src, const std::string& str)
   {
-    bool Contains(const std::string& src, const std::string& str)
+    if (!str.empty())
     {
-      if (!str.empty())
-      {
-        return std::search(src.begin(), src.end(), str.begin(), str.end()) != src.end();
-      }
-      return true;
+      return std::search(src.begin(), src.end(), str.begin(), str.end()) != src.end();
     }
-
-    int32_t IndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex)
-    {
-      if (fromIndex >= 0 && static_cast<std::size_t>(fromIndex) <= source.size())
-      {
-        const std::size_t index = source.find(ch, static_cast<StringViewLite::size_type>(fromIndex));
-        assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
-        return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
-      }
-      return -1;
-    }
-
-    int32_t LastIndexOf(const StringViewLite& source, const char ch)
-    {
-      const std::size_t index = source.rfind(ch);
-      assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
-      return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
-    }
-
-    int32_t LastIndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex)
-    {
-      if (fromIndex >= 0 && static_cast<std::size_t>(fromIndex) <= source.size())
-      {
-        const std::size_t index = source.rfind(ch, static_cast<std::size_t>(fromIndex));
-        assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
-        return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
-      }
-      return -1;
-    }
-
-    void Replace(std::string& rSrc, const char from, const char to)
-    {
-      std::replace(rSrc.begin(), rSrc.end(), from, to);
-    }
-
-
-    void Replace(std::string& rStr, const std::string& oldValue, const std::string& newValue)
-    {
-      if (oldValue.empty())
-      {
-        return;
-      }
-
-      for (std::size_t pos = 0;; pos += newValue.length())
-      {
-        pos = rStr.find(oldValue, pos);
-        if (pos == std::string::npos)
-        {
-          break;
-        }
-        rStr.erase(pos, oldValue.length());
-        rStr.insert(pos, newValue);
-      }
-    }
-
-    // std::string Replace(const std::string& str, const std::string& oldValue, const std::string& newValue)
-    //{
-    //}
-
-    std::vector<StringViewLite> Split(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
-    {
-      std::vector<StringViewLite> result;
-      if (str.empty())
-      {
-        return result;
-      }
-
-      StringViewLite::size_type pos = 0;
-      StringViewLite::size_type lastPos = 0;
-      const auto length = str.length();
-
-      while (lastPos < (length + 1))
-      {
-        pos = str.find(delimiterChar, lastPos);
-        if (pos == StringViewLite::npos)
-        {
-          pos = length;
-        }
-
-        if (pos != lastPos || !removeEmpty)
-        {
-          result.emplace_back(str.substr(lastPos, pos - lastPos));
-        }
-
-        lastPos = pos + 1;
-      }
-      return result;
-    }
-
-
-    std::vector<std::string> StringSplit(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
-    {
-      std::vector<std::string> result;
-      if (str.empty())
-      {
-        return result;
-      }
-
-      StringViewLite::size_type pos = 0;
-      StringViewLite::size_type lastPos = 0;
-      const auto length = str.length();
-
-      while (lastPos < (length + 1))
-      {
-        pos = str.find(delimiterChar, lastPos);
-        if (pos == StringViewLite::npos)
-        {
-          pos = length;
-        }
-
-        if (pos != lastPos || !removeEmpty)
-        {
-          result.emplace_back(str.data() + lastPos, pos - lastPos);
-        }
-
-        lastPos = pos + 1;
-      }
-      return result;
-    }
-
+    return true;
   }
+
+  void Replace(std::string& rSrc, const char from, const char to)
+  {
+    std::replace(rSrc.begin(), rSrc.end(), from, to);
+  }
+
+
+  void Replace(std::string& rStr, const std::string& oldValue, const std::string& newValue)
+  {
+    if (oldValue.empty())
+    {
+      return;
+    }
+
+    for (std::size_t pos = 0;; pos += newValue.length())
+    {
+      pos = rStr.find(oldValue, pos);
+      if (pos == std::string::npos)
+      {
+        break;
+      }
+      rStr.erase(pos, oldValue.length());
+      rStr.insert(pos, newValue);
+    }
+  }
+
+  // std::string Replace(const std::string& str, const std::string& oldValue, const std::string& newValue)
+  //{
+  //}
+
+  std::vector<StringViewLite> Split(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
+  {
+    std::vector<StringViewLite> result;
+    if (str.empty())
+    {
+      return result;
+    }
+
+    StringViewLite::size_type pos = 0;
+    StringViewLite::size_type lastPos = 0;
+    const auto length = str.length();
+
+    while (lastPos < (length + 1))
+    {
+      pos = str.find(delimiterChar, lastPos);
+      if (pos == StringViewLite::npos)
+      {
+        pos = length;
+      }
+
+      if (pos != lastPos || !removeEmpty)
+      {
+        result.emplace_back(str.substr(lastPos, pos - lastPos));
+      }
+
+      lastPos = pos + 1;
+    }
+    return result;
+  }
+
+
+  std::vector<std::string> StringSplit(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
+  {
+    std::vector<std::string> result;
+    if (str.empty())
+    {
+      return result;
+    }
+
+    StringViewLite::size_type pos = 0;
+    StringViewLite::size_type lastPos = 0;
+    const auto length = str.length();
+
+    while (lastPos < (length + 1))
+    {
+      pos = str.find(delimiterChar, lastPos);
+      if (pos == StringViewLite::npos)
+      {
+        pos = length;
+      }
+
+      if (pos != lastPos || !removeEmpty)
+      {
+        result.emplace_back(str.data() + lastPos, pos - lastPos);
+      }
+
+      lastPos = pos + 1;
+    }
+    return result;
+  }
+
 }

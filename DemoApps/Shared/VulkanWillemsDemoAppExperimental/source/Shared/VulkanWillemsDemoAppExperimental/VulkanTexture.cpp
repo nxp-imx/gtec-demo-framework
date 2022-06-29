@@ -29,59 +29,35 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanTexture.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanTexture.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  VulkanTexture& VulkanTexture::operator=(VulkanTexture&& other) noexcept
   {
-    VulkanTexture& VulkanTexture::operator=(VulkanTexture&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_sampler = std::move(other.m_sampler);
-        m_image = std::move(other.m_image);
-        m_imageLayout = other.m_imageLayout;
-        m_deviceMemory = std::move(other.m_deviceMemory);
-        m_view = std::move(other.m_view);
-        m_extent = other.m_extent;
-        m_mipLevels = other.m_mipLevels;
-        m_layerCount = other.m_layerCount;
-        m_descriptor = other.m_descriptor;
-
-        // Remove the data from other
-        other.m_imageLayout = VkImageLayout{};
-        other.m_extent = PxExtent3D();
-        other.m_mipLevels = 0;
-        other.m_layerCount = 0;
-        other.m_descriptor = VkDescriptorImageInfo{};
+        Reset();
       }
-      return *this;
-    }
 
+      // Claim ownership here
+      m_sampler = std::move(other.m_sampler);
+      m_image = std::move(other.m_image);
+      m_imageLayout = other.m_imageLayout;
+      m_deviceMemory = std::move(other.m_deviceMemory);
+      m_view = std::move(other.m_view);
+      m_extent = other.m_extent;
+      m_mipLevels = other.m_mipLevels;
+      m_layerCount = other.m_layerCount;
+      m_descriptor = other.m_descriptor;
 
-    VulkanTexture::VulkanTexture(VulkanTexture&& other) noexcept
-      : m_sampler(std::move(other.m_sampler))
-      , m_image(std::move(other.m_image))
-      , m_imageLayout(other.m_imageLayout)
-      , m_deviceMemory(std::move(other.m_deviceMemory))
-      , m_view(std::move(other.m_view))
-      , m_extent(other.m_extent)
-      , m_mipLevels(other.m_mipLevels)
-      , m_layerCount(other.m_layerCount)
-      , m_descriptor(other.m_descriptor)
-    {
       // Remove the data from other
       other.m_imageLayout = VkImageLayout{};
       other.m_extent = PxExtent3D();
@@ -89,100 +65,120 @@ namespace Fsl
       other.m_layerCount = 0;
       other.m_descriptor = VkDescriptorImageInfo{};
     }
+    return *this;
+  }
 
 
-    VulkanTexture::VulkanTexture(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
-                                 RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const PxExtent3D& extent,
-                                 const uint32_t mipLevels, const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
-      : VulkanTexture()
+  VulkanTexture::VulkanTexture(VulkanTexture&& other) noexcept
+    : m_sampler(std::move(other.m_sampler))
+    , m_image(std::move(other.m_image))
+    , m_imageLayout(other.m_imageLayout)
+    , m_deviceMemory(std::move(other.m_deviceMemory))
+    , m_view(std::move(other.m_view))
+    , m_extent(other.m_extent)
+    , m_mipLevels(other.m_mipLevels)
+    , m_layerCount(other.m_layerCount)
+    , m_descriptor(other.m_descriptor)
+  {
+    // Remove the data from other
+    other.m_imageLayout = VkImageLayout{};
+    other.m_extent = PxExtent3D();
+    other.m_mipLevels = 0;
+    other.m_layerCount = 0;
+    other.m_descriptor = VkDescriptorImageInfo{};
+  }
+
+
+  VulkanTexture::VulkanTexture(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
+                               RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const PxExtent3D& extent, const uint32_t mipLevels,
+                               const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
+    : VulkanTexture()
+  {
+    Reset(std::move(sampler), std::move(image), imageLayout, std::move(deviceMemory), std::move(view), extent, mipLevels, layerCount, descriptor);
+  }
+
+
+  VulkanTexture::VulkanTexture()
+    : m_imageLayout{}
+    , m_mipLevels(0)
+    , m_layerCount(0)
+    , m_descriptor{}
+  {
+  }
+
+
+  void VulkanTexture::Reset() noexcept
+  {
+    if (!IsValid())
     {
-      Reset(std::move(sampler), std::move(image), imageLayout, std::move(deviceMemory), std::move(view), extent, mipLevels, layerCount, descriptor);
+      return;
     }
 
+    assert(m_sampler.IsValid());
+    assert(m_image.IsValid());
+    assert(m_deviceMemory.IsValid());
+    assert(m_view.IsValid());
 
-    VulkanTexture::VulkanTexture()
-      : m_imageLayout{}
-      , m_mipLevels(0)
-      , m_layerCount(0)
-      , m_descriptor{}
+    m_sampler.Reset();
+    m_image.Reset();
+    m_imageLayout = VkImageLayout{};
+    m_deviceMemory.Reset();
+    m_view.Reset();
+    m_extent = PxExtent3D();
+    m_mipLevels = 0;
+    m_layerCount = 0;
+    m_descriptor = VkDescriptorImageInfo{};
+  }
+
+
+  void VulkanTexture::Reset(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
+                            RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const PxExtent3D& extent, const uint32_t mipLevels,
+                            const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
+  {
+    if (IsValid())
     {
+      Reset();
     }
 
-
-    void VulkanTexture::Reset() noexcept
+    const bool hasOneValid = sampler.IsValid() || image.IsValid() || deviceMemory.IsValid() || view.IsValid();
+    if (sampler.IsValid() != hasOneValid || image.IsValid() != hasOneValid || deviceMemory.IsValid() != hasOneValid || view.IsValid() != hasOneValid)
     {
-      if (!IsValid())
-      {
-        return;
-      }
-
-      assert(m_sampler.IsValid());
-      assert(m_image.IsValid());
-      assert(m_deviceMemory.IsValid());
-      assert(m_view.IsValid());
-
-      m_sampler.Reset();
-      m_image.Reset();
-      m_imageLayout = VkImageLayout{};
-      m_deviceMemory.Reset();
-      m_view.Reset();
-      m_extent = PxExtent3D();
-      m_mipLevels = 0;
-      m_layerCount = 0;
-      m_descriptor = VkDescriptorImageInfo{};
+      throw std::invalid_argument("Either all objects has to be valid or none must be");
     }
 
+    // Everything must belong to the same device
+    assert(sampler.GetDevice() == image.GetDevice());
+    assert(image.GetDevice() == deviceMemory.GetDevice());
+    assert(deviceMemory.GetDevice() == view.GetDevice());
 
-    void VulkanTexture::Reset(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
-                              RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const PxExtent3D& extent, const uint32_t mipLevels,
-                              const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
+    m_sampler = std::move(sampler);
+    m_image = std::move(image);
+    m_imageLayout = imageLayout;
+    m_deviceMemory = std::move(deviceMemory);
+    m_view = std::move(view);
+    m_extent = extent;
+    m_mipLevels = mipLevels;
+    m_layerCount = layerCount;
+    m_descriptor = descriptor;
+  }
+
+
+  void VulkanTexture::SetSampler(RapidVulkan::Sampler&& sampler)
+  {
+    if (!IsValid())
     {
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      const bool hasOneValid = sampler.IsValid() || image.IsValid() || deviceMemory.IsValid() || view.IsValid();
-      if (sampler.IsValid() != hasOneValid || image.IsValid() != hasOneValid || deviceMemory.IsValid() != hasOneValid ||
-          view.IsValid() != hasOneValid)
-      {
-        throw std::invalid_argument("Either all objects has to be valid or none must be");
-      }
-
-      // Everything must belong to the same device
-      assert(sampler.GetDevice() == image.GetDevice());
-      assert(image.GetDevice() == deviceMemory.GetDevice());
-      assert(deviceMemory.GetDevice() == view.GetDevice());
-
-      m_sampler = std::move(sampler);
-      m_image = std::move(image);
-      m_imageLayout = imageLayout;
-      m_deviceMemory = std::move(deviceMemory);
-      m_view = std::move(view);
-      m_extent = extent;
-      m_mipLevels = mipLevels;
-      m_layerCount = layerCount;
-      m_descriptor = descriptor;
+      throw UsageErrorException("Can not set a sampler on a invalid texture");
+    }
+    if (!sampler.IsValid())
+    {
+      throw std::invalid_argument("The sampler must be valid");
+    }
+    if (sampler.GetDevice() != m_sampler.GetDevice())
+    {
+      throw UsageErrorException("Sampler must belong to the same device as the texture");
     }
 
-
-    void VulkanTexture::SetSampler(RapidVulkan::Sampler&& sampler)
-    {
-      if (!IsValid())
-      {
-        throw UsageErrorException("Can not set a sampler on a invalid texture");
-      }
-      if (!sampler.IsValid())
-      {
-        throw std::invalid_argument("The sampler must be valid");
-      }
-      if (sampler.GetDevice() != m_sampler.GetDevice())
-      {
-        throw UsageErrorException("Sampler must belong to the same device as the texture");
-      }
-
-      m_sampler = std::move(sampler);
-      m_descriptor.sampler = m_sampler.Get();
-    }
+    m_sampler = std::move(sampler);
+    m_descriptor.sampler = m_sampler.Get();
   }
 }

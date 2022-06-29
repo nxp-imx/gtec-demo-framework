@@ -29,40 +29,37 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWillemsDemoAppExperimental/DepthStencil.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/DepthStencil.hpp>
 #include <utility>
 
 using namespace RapidVulkan;
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  //! @brief Move assignment operator
+  DepthStencil& DepthStencil::operator=(DepthStencil&& other) noexcept
   {
-    //! @brief Move assignment operator
-    DepthStencil& DepthStencil::operator=(DepthStencil&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        Image = std::move(other.Image);
-        Mem = std::move(other.Mem);
-        View = std::move(other.View);
+      // Claim ownership here
+      Image = std::move(other.Image);
+      Mem = std::move(other.Mem);
+      View = std::move(other.View);
 
-        // Remove the data from other
-      }
-      return *this;
+      // Remove the data from other
     }
-
-
-    DepthStencil::DepthStencil(DepthStencil&& other) noexcept
-      : Image(std::move(other.Image))
-      , Mem(std::move(other.Mem))
-      , View(std::move(other.View))
-    {
-    }
-
-
-    DepthStencil::DepthStencil() = default;
+    return *this;
   }
+
+
+  DepthStencil::DepthStencil(DepthStencil&& other) noexcept
+    : Image(std::move(other.Image))
+    , Mem(std::move(other.Mem))
+    , View(std::move(other.View))
+  {
+  }
+
+
+  DepthStencil::DepthStencil() = default;
 }

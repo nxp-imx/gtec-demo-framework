@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/TestFixtureFslUtil_Vulkan1_0.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
@@ -37,10 +38,9 @@
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <RapidVulkan/Device.hpp>
-#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <array>
 #include "TestFixtureFslUtil_Vulkan1_0_Compute.hpp"
 

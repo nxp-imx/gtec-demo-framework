@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "StateEvent.hpp"
 #include <functional>
+#include "StateEvent.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
-  {
-    struct StateEventInfo;
-    class WindowEventPool;
+  struct StateEventInfo;
+  class WindowEventPool;
 
-    using FunctionCreateTargetWindowDeathEvent = std::function<StateEvent(const StateEventInfo&, const std::shared_ptr<WindowEventPool>&)>;
-  }
+  using FunctionCreateTargetWindowDeathEvent = std::function<StateEvent(const StateEventInfo&, const std::shared_ptr<WindowEventPool>&)>;
 }
 
 #endif

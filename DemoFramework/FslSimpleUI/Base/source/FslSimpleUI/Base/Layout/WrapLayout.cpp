@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,273 +29,272 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
 #include <cmath>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WrapLayout::WrapLayout(const std::shared_ptr<BaseWindowContext>& context)
+    : ComplexLayout<WrapLayoutWindowRecord>(context)
+    , m_orientation(LayoutOrientation::Vertical)
   {
-    WrapLayout::WrapLayout(const std::shared_ptr<BaseWindowContext>& context)
-      : ComplexLayout<WrapLayoutWindowRecord>(context)
-      , m_orientation(LayoutOrientation::Vertical)
+  }
+
+  void WrapLayout::SetOrientation(const LayoutOrientation& value)
+  {
+    if (value != m_orientation)
     {
+      m_orientation = value;
+      PropertyUpdated(PropertyType::Layout);
+    }
+  }
+
+  bool WrapLayout::SetSpacing(const DpPoint2F valueDp)
+  {
+    const bool changed = valueDp != m_spacingDp;
+    if (changed)
+    {
+      m_spacingDp = valueDp;
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+  PxSize2D WrapLayout::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    if (empty())
+    {
+      return Layout::ArrangeOverride(finalSizePx);
     }
 
-    void WrapLayout::SetLayoutOrientation(const LayoutOrientation& value)
+    for (auto itr = begin(); itr != end(); ++itr)
     {
-      if (value != m_orientation)
-      {
-        m_orientation = value;
-        PropertyUpdated(PropertyType::Layout);
-      }
+      const auto desiredPx = itr->Window->DesiredSizePx();
+      itr->Window->Arrange(PxRectangle(itr->PositionPx, desiredPx));
+    }
+    return finalSizePx;
+  }
+
+
+  PxSize2D WrapLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    if (empty())
+    {
+      return Layout::MeasureOverride(availableSizePx);
     }
 
-    void WrapLayout::SetSpacing(const DpPointF& valueDp)
+    const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+
+    PxSize2D minSizePx;
+    if (m_orientation == LayoutOrientation::Horizontal)
     {
-      if (valueDp != m_spacingDp)
+      // If we are supplied with infinity we behave like a stack panel
+      if (!availableSizePx.IsInfinityWidth())
       {
-        m_spacingDp = valueDp;
-        PropertyUpdated(PropertyType::Layout);
-      }
-    }
-
-    PxSize2D WrapLayout::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      if (empty())
-      {
-        return Layout::ArrangeOverride(finalSizePx);
-      }
-
-      for (auto itr = begin(); itr != end(); ++itr)
-      {
-        const auto desiredPx = itr->Window->DesiredSizePx();
-        itr->Window->Arrange(PxRectangle(itr->PositionPx, desiredPx));
-      }
-      return finalSizePx;
-    }
-
-
-    PxSize2D WrapLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
-    {
-      if (empty())
-      {
-        return Layout::MeasureOverride(availableSizePx);
-      }
-
-      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-
-      PxSize2D minSizePx;
-      if (m_orientation == LayoutOrientation::Horizontal)
-      {
-        // If we are supplied with infinity we behave like a stack panel
-        if (!availableSizePx.IsInfinityWidth())
-        {
-          auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
-          minSizePx = MeasureHorizontalWrapLayout(begin(), end(), spacingPx, availableSizePx);
-        }
-        else
-        {
-          auto spacingPx = unitConverter.DpToPxInt32(m_spacingDp.X);
-          minSizePx = MeasureHorizontalStackLayout(begin(), end(), spacingPx, availableSizePx);
-        }
+        auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
+        minSizePx = MeasureHorizontalWrapLayout(begin(), end(), spacingPx, availableSizePx);
       }
       else
       {
-        // If we are supplied with infinity we behave like a stack panel
-        if (!availableSizePx.IsInfinityHeight())
-        {
-          auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
-          minSizePx = MeasureVerticalWrapLayout(begin(), end(), spacingPx, availableSizePx);
-        }
-        else
-        {
-          auto spacingPx = unitConverter.DpToPxInt32(m_spacingDp.Y);
-          minSizePx = MeasureVerticalStackLayout(begin(), end(), spacingPx, availableSizePx);
-        }
+        auto spacingPx = unitConverter.ToPxValue(m_spacingDp.X);
+        minSizePx = MeasureHorizontalStackLayout(begin(), end(), spacingPx, availableSizePx);
       }
-
-      return minSizePx;
     }
-
-
-    PxSize2D WrapLayout::MeasureHorizontalStackLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                      const collection_type::queue_type::iterator& itrEnd, const int32_t spacingXPx,
-                                                      const PxAvailableSize& availableSizePx)
+    else
     {
-      assert(itrBegin != itrEnd);
-      PxPoint2 minSizePx;
-      int32_t posPx = 0;
-      for (auto itr = itrBegin; itr != itrEnd; ++itr)
+      // If we are supplied with infinity we behave like a stack panel
+      if (!availableSizePx.IsInfinityHeight())
       {
-        itr->Window->Measure(availableSizePx);
-        PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
-        if (desiredSizePx.Height() > minSizePx.Y)
-        {
-          minSizePx.Y = desiredSizePx.Height();
-        }
-
-        itr->PositionPx = PxPoint2(posPx, 0);
-        posPx += desiredSizePx.Width() + spacingXPx;
+        auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
+        minSizePx = MeasureVerticalWrapLayout(begin(), end(), spacingPx, availableSizePx);
       }
-      minSizePx.X = posPx - spacingXPx;
-      return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
+      else
+      {
+        auto spacingPx = unitConverter.ToPxValue(m_spacingDp.Y);
+        minSizePx = MeasureVerticalStackLayout(begin(), end(), spacingPx, availableSizePx);
+      }
     }
 
+    return minSizePx;
+  }
 
-    PxSize2D WrapLayout::MeasureVerticalStackLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                    const collection_type::queue_type::iterator& itrEnd, const int32_t spacingYPx,
+
+  PxSize2D WrapLayout::MeasureHorizontalStackLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                    const collection_type::queue_type::iterator& itrEnd, const PxValue spacingXPx,
                                                     const PxAvailableSize& availableSizePx)
+  {
+    assert(itrBegin != itrEnd);
+    PxPoint2 minSizePx;
+    int32_t posPx = 0;
+    for (auto itr = itrBegin; itr != itrEnd; ++itr)
     {
-      assert(itrBegin != itrEnd);
-
-      PxPoint2 minSizePx;
-      int32_t posPx = 0;
-      for (auto itr = itrBegin; itr != itrEnd; ++itr)
-      {
-        itr->Window->Measure(availableSizePx);
-        auto desiredSizePx = itr->Window->DesiredSizePx();
-        itr->PositionPx = PxPoint2(0, posPx);
-        if (desiredSizePx.Width() > minSizePx.X)
-        {
-          minSizePx.X = desiredSizePx.Width();
-        }
-        posPx += desiredSizePx.Height() + spacingYPx;
-      }
-      minSizePx.Y = posPx - spacingYPx;
-      return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
-    }
-
-
-    PxSize2D WrapLayout::MeasureHorizontalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                     const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
-                                                     const PxAvailableSize& availableSizePx)
-    {
-      assert(itrBegin != itrEnd);
-      // Process the first element to simplify the loop
-      auto itr = itrBegin;
       itr->Window->Measure(availableSizePx);
-      itr->PositionPx = {};
-
       PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
-      int32_t rowWidthPx = desiredSizePx.Width();
-      int32_t rowHeightPx = desiredSizePx.Height();
-      int32_t maxRowWidthPx = rowWidthPx;
-      PxPoint2 posPx(desiredSizePx.Width(), 0);
-
-      ++itr;
-      while (itr != itrEnd)
+      if (desiredSizePx.Height() > minSizePx.Y)
       {
-        itr->Window->Measure(availableSizePx);
-        desiredSizePx = itr->Window->DesiredSizePx();
-
-        // Check if we need to force a line switch
-        rowWidthPx += spacingPx.X + desiredSizePx.Width();
-        if (rowWidthPx > availableSizePx.Width())
-        {
-          // ok we exceeded the available space so we wrap and
-          // insert the current item as the first item in the new row
-          if (posPx.X > maxRowWidthPx)
-          {
-            maxRowWidthPx = posPx.X;
-          }
-
-          posPx.Y += spacingPx.Y + rowHeightPx;
-          rowHeightPx = desiredSizePx.Height();
-          rowWidthPx = desiredSizePx.Width();
-          itr->PositionPx = PxPoint2(0, posPx.Y);
-        }
-        else if (desiredSizePx.Height() > rowHeightPx)
-        {
-          // Keep track of the largest desired height we encounter
-          rowHeightPx = desiredSizePx.Height();
-          itr->PositionPx = PxPoint2(posPx.X + spacingPx.X, posPx.Y);
-        }
-        else
-        {
-          itr->PositionPx = PxPoint2(posPx.X + spacingPx.X, posPx.Y);
-        }
-        posPx.X = rowWidthPx;
-
-        ++itr;
+        minSizePx.Y = desiredSizePx.Height();
       }
-      if (rowWidthPx > maxRowWidthPx)
-      {
-        maxRowWidthPx = rowWidthPx;
-      }
-      posPx.Y += rowHeightPx;
 
-      return {maxRowWidthPx, posPx.Y};
+      itr->PositionPx = PxPoint2(posPx, 0);
+      posPx += desiredSizePx.Width() + spacingXPx.Value;
     }
+    minSizePx.X = posPx - spacingXPx.Value;
+    return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
+  }
 
 
-    PxSize2D WrapLayout::MeasureVerticalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
+  PxSize2D WrapLayout::MeasureVerticalStackLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                  const collection_type::queue_type::iterator& itrEnd, const PxValue spacingYPx,
+                                                  const PxAvailableSize& availableSizePx)
+  {
+    assert(itrBegin != itrEnd);
+
+    PxPoint2 minSizePx;
+    int32_t posPx = 0;
+    for (auto itr = itrBegin; itr != itrEnd; ++itr)
+    {
+      itr->Window->Measure(availableSizePx);
+      auto desiredSizePx = itr->Window->DesiredSizePx();
+      itr->PositionPx = PxPoint2(0, posPx);
+      if (desiredSizePx.Width() > minSizePx.X)
+      {
+        minSizePx.X = desiredSizePx.Width();
+      }
+      posPx += desiredSizePx.Height() + spacingYPx.Value;
+    }
+    minSizePx.Y = posPx - spacingYPx.Value;
+    return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
+  }
+
+
+  PxSize2D WrapLayout::MeasureHorizontalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
                                                    const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
                                                    const PxAvailableSize& availableSizePx)
+  {
+    assert(itrBegin != itrEnd);
+    // Process the first element to simplify the loop
+    auto itr = itrBegin;
+    itr->Window->Measure(availableSizePx);
+    itr->PositionPx = {};
+
+    PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
+    int32_t rowWidthPx = desiredSizePx.Width();
+    int32_t rowHeightPx = desiredSizePx.Height();
+    int32_t maxRowWidthPx = rowWidthPx;
+    PxPoint2 posPx(desiredSizePx.Width(), 0);
+
+    ++itr;
+    while (itr != itrEnd)
     {
-      assert(itrBegin != itrEnd);
-
-      // Process the first element to simplify the loop
-      auto itr = itrBegin;
       itr->Window->Measure(availableSizePx);
-      itr->PositionPx = {};
+      desiredSizePx = itr->Window->DesiredSizePx();
 
-      PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
-      int32_t rowWidthPx = desiredSizePx.Width();
-      int32_t rowHeightPx = desiredSizePx.Height();
-      int32_t maxRowHeightPx = rowHeightPx;
+      // Check if we need to force a line switch
+      rowWidthPx += spacingPx.X + desiredSizePx.Width();
+      if (rowWidthPx > availableSizePx.Width())
+      {
+        // ok we exceeded the available space so we wrap and
+        // insert the current item as the first item in the new row
+        if (posPx.X > maxRowWidthPx)
+        {
+          maxRowWidthPx = posPx.X;
+        }
 
-      PxPoint2 posPx(0, desiredSizePx.Height());
+        posPx.Y += spacingPx.Y + rowHeightPx;
+        rowHeightPx = desiredSizePx.Height();
+        rowWidthPx = desiredSizePx.Width();
+        itr->PositionPx = PxPoint2(0, posPx.Y);
+      }
+      else if (desiredSizePx.Height() > rowHeightPx)
+      {
+        // Keep track of the largest desired height we encounter
+        rowHeightPx = desiredSizePx.Height();
+        itr->PositionPx = PxPoint2(posPx.X + spacingPx.X, posPx.Y);
+      }
+      else
+      {
+        itr->PositionPx = PxPoint2(posPx.X + spacingPx.X, posPx.Y);
+      }
+      posPx.X = rowWidthPx;
 
       ++itr;
-      while (itr != itrEnd)
-      {
-        itr->Window->Measure(availableSizePx);
-        desiredSizePx = itr->Window->DesiredSizePx();
-
-        // Check if we need to force a line switch
-        rowHeightPx += spacingPx.Y + desiredSizePx.Height();
-        if (rowHeightPx > availableSizePx.Height())
-        {
-          // ok we exceeded the available space so we wrap and
-          // insert the current item as the first item in the new row
-          if (posPx.Y > maxRowHeightPx)
-          {
-            maxRowHeightPx = posPx.Y;
-          }
-
-          posPx.X += spacingPx.X + rowWidthPx;
-          rowWidthPx = desiredSizePx.Width();
-          rowHeightPx = desiredSizePx.Height();
-          itr->PositionPx = PxPoint2(posPx.X, 0);
-        }
-        else if (desiredSizePx.Width() > rowWidthPx)
-        {
-          // Keep track of the largest desired width we encounter
-          rowWidthPx = desiredSizePx.Width();
-          itr->PositionPx = PxPoint2(posPx.X, posPx.Y + spacingPx.Y);
-        }
-        else
-        {
-          itr->PositionPx = PxPoint2(posPx.X, posPx.Y + spacingPx.Y);
-        }
-        posPx.Y = rowHeightPx;
-
-        ++itr;
-      }
-      if (rowHeightPx > maxRowHeightPx)
-      {
-        maxRowHeightPx = rowHeightPx;
-      }
-      posPx.X += rowWidthPx;
-
-      return {posPx.X, maxRowHeightPx};
     }
+    if (rowWidthPx > maxRowWidthPx)
+    {
+      maxRowWidthPx = rowWidthPx;
+    }
+    posPx.Y += rowHeightPx;
+
+    return {maxRowWidthPx, posPx.Y};
+  }
+
+
+  PxSize2D WrapLayout::MeasureVerticalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                 const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
+                                                 const PxAvailableSize& availableSizePx)
+  {
+    assert(itrBegin != itrEnd);
+
+    // Process the first element to simplify the loop
+    auto itr = itrBegin;
+    itr->Window->Measure(availableSizePx);
+    itr->PositionPx = {};
+
+    PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
+    int32_t rowWidthPx = desiredSizePx.Width();
+    int32_t rowHeightPx = desiredSizePx.Height();
+    int32_t maxRowHeightPx = rowHeightPx;
+
+    PxPoint2 posPx(0, desiredSizePx.Height());
+
+    ++itr;
+    while (itr != itrEnd)
+    {
+      itr->Window->Measure(availableSizePx);
+      desiredSizePx = itr->Window->DesiredSizePx();
+
+      // Check if we need to force a line switch
+      rowHeightPx += spacingPx.Y + desiredSizePx.Height();
+      if (rowHeightPx > availableSizePx.Height())
+      {
+        // ok we exceeded the available space so we wrap and
+        // insert the current item as the first item in the new row
+        if (posPx.Y > maxRowHeightPx)
+        {
+          maxRowHeightPx = posPx.Y;
+        }
+
+        posPx.X += spacingPx.X + rowWidthPx;
+        rowWidthPx = desiredSizePx.Width();
+        rowHeightPx = desiredSizePx.Height();
+        itr->PositionPx = PxPoint2(posPx.X, 0);
+      }
+      else if (desiredSizePx.Width() > rowWidthPx)
+      {
+        // Keep track of the largest desired width we encounter
+        rowWidthPx = desiredSizePx.Width();
+        itr->PositionPx = PxPoint2(posPx.X, posPx.Y + spacingPx.Y);
+      }
+      else
+      {
+        itr->PositionPx = PxPoint2(posPx.X, posPx.Y + spacingPx.Y);
+      }
+      posPx.Y = rowHeightPx;
+
+      ++itr;
+    }
+    if (rowHeightPx > maxRowHeightPx)
+    {
+      maxRowHeightPx = rowHeightPx;
+    }
+    posPx.X += rowWidthPx;
+
+    return {posPx.X, maxRowHeightPx};
   }
 }

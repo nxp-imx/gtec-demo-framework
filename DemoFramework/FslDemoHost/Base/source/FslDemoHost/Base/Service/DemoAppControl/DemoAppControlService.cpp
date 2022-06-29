@@ -33,9 +33,9 @@
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
-#include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlService.hpp>
 #include <FslDemoHost/Base/Service/DemoPlatformControl/IDemoPlatformControl.hpp>
+#include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <algorithm>
@@ -257,7 +257,7 @@ namespace Fsl
   {
     FSLLOG3_DEBUG_WARNING_IF(updatesPerSecond <= 0, "fixed updates per second forced to a minimum one");
 
-    const auto cappedFixedUpdatesPerSecond = std::max(updatesPerSecond, uint16_t(1));
+    const auto cappedFixedUpdatesPerSecond = std::max(updatesPerSecond, static_cast<uint16_t>(1));
     if (cappedFixedUpdatesPerSecond != m_fixedUpdatesPerSecond)
     {
       FSLLOG3_VERBOSE3("SetFixedUpdatesPerSecond to {}", cappedFixedUpdatesPerSecond);
@@ -275,7 +275,7 @@ namespace Fsl
   void DemoAppControlService::SetOnDemandFrameInterval(const uint16_t frameRateInterval)
   {
     FSLLOG3_DEBUG_WARNING_IF(frameRateInterval <= 0, "frameRateInterval forced to a minimum one");
-    const uint16_t cappedFrameInterval = std::max(frameRateInterval, uint16_t(1));
+    const uint16_t cappedFrameInterval = std::max(frameRateInterval, static_cast<uint16_t>(1));
     if (cappedFrameInterval != m_onDemandRendering.FrameInterval)
     {
       FSLLOG3_VERBOSE6("SetOnDemandFrameInterval to {}", frameRateInterval);

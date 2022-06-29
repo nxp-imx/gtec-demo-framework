@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_UNIFORMWRAPLAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_UNIFORMWRAPLAYOUT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,68 +31,67 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPointF.hpp>
-#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
+#include <FslBase/Math/Dp/DpPoint2F.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
+#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class UniformWrapLayout : public SimpleLayout
   {
-    class UniformWrapLayout : public SimpleLayout
+    struct MeasureResult
     {
-      struct MeasureResult
+      PxSize2D MeasuredSizePx;
+      PxSize2D ElementUniformSizePx;
+
+      MeasureResult() = default;
+      MeasureResult(const PxSize2D& measuredSizePx, const PxSize2D& elementUniformSizePx)
+        : MeasuredSizePx(measuredSizePx)
+        , ElementUniformSizePx(elementUniformSizePx)
       {
-        PxSize2D MeasuredSizePx;
-        PxSize2D ElementUniformSizePx;
-
-        MeasureResult() = default;
-        MeasureResult(const PxSize2D& measuredSizePx, const PxSize2D& elementUniformSizePx)
-          : MeasuredSizePx(measuredSizePx)
-          , ElementUniformSizePx(elementUniformSizePx)
-        {
-        }
-      };
-
-      LayoutOrientation m_orientation;
-      DpPointF m_spacingDp;
-      PxSize2D m_elementUniformSizePx;
-
-    public:
-      explicit UniformWrapLayout(const std::shared_ptr<BaseWindowContext>& context);
-
-      LayoutOrientation GetLayoutOrientation() const
-      {
-        return m_orientation;
       }
-
-      void SetLayoutOrientation(const LayoutOrientation& value);
-
-      DpPointF GetSpacing() const
-      {
-        return m_spacingDp;
-      }
-
-      void SetSpacing(const DpPointF& valueDp);
-
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-
-      static MeasureResult MeasureHorizontalStackLayout(const collection_type::queue_type::const_iterator& itrBegin,
-                                                        const collection_type::queue_type::const_iterator& itrEnd, const int32_t spacingXPx,
-                                                        const PxAvailableSize& availableSizePx);
-      static MeasureResult MeasureVerticalStackLayout(const collection_type::queue_type::const_iterator& itrBegin,
-                                                      const collection_type::queue_type::const_iterator& itrEnd, const int32_t spacingYPx,
-                                                      const PxAvailableSize& availableSizePx);
-      static MeasureResult MeasureHorizontalWrapLayout(const collection_type::queue_type::const_iterator& itrBegin,
-                                                       const collection_type::queue_type::const_iterator& itrEnd, const PxPoint2& spacingPx,
-                                                       const PxAvailableSize& availableSizePx);
-      static MeasureResult MeasureVerticalWrapLayout(const collection_type::queue_type::const_iterator& itrBegin,
-                                                     const collection_type::queue_type::const_iterator& itrEnd, const PxPoint2& spacingPx,
-                                                     const PxAvailableSize& availableSizePx);
     };
-  }
+
+    LayoutOrientation m_orientation;
+    DpPoint2F m_spacingDp;
+    PxSize2D m_elementUniformSizePx;
+
+  public:
+    explicit UniformWrapLayout(const std::shared_ptr<BaseWindowContext>& context);
+
+    LayoutOrientation GetLayoutOrientation() const
+    {
+      return m_orientation;
+    }
+
+    void SetOrientation(const LayoutOrientation& value);
+
+    DpPoint2F GetSpacing() const
+    {
+      return m_spacingDp;
+    }
+
+    bool SetSpacing(const DpPoint2F valueDp);
+
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+
+    static MeasureResult MeasureHorizontalStackLayout(const collection_type::queue_type::const_iterator& itrBegin,
+                                                      const collection_type::queue_type::const_iterator& itrEnd, const PxValue spacingXPx,
+                                                      const PxAvailableSize& availableSizePx);
+    static MeasureResult MeasureVerticalStackLayout(const collection_type::queue_type::const_iterator& itrBegin,
+                                                    const collection_type::queue_type::const_iterator& itrEnd, const PxValue spacingYPx,
+                                                    const PxAvailableSize& availableSizePx);
+    static MeasureResult MeasureHorizontalWrapLayout(const collection_type::queue_type::const_iterator& itrBegin,
+                                                     const collection_type::queue_type::const_iterator& itrEnd, const PxPoint2 spacingPx,
+                                                     const PxAvailableSize& availableSizePx);
+    static MeasureResult MeasureVerticalWrapLayout(const collection_type::queue_type::const_iterator& itrBegin,
+                                                   const collection_type::queue_type::const_iterator& itrEnd, const PxPoint2 spacingPx,
+                                                   const PxAvailableSize& availableSizePx);
+  };
 }
 
 #endif

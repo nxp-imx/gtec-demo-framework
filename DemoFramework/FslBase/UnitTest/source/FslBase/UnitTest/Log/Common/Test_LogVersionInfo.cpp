@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Common/LogVersionInfo.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Common/LogVersionInfo.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <sstream>
 

@@ -38,7 +38,15 @@
 // - PlatformNativeWindowSystemImpl
 // / PlatformNativeWindowImpl
 
-#if defined(_WIN32)
+#if defined(FSL_PLATFORM_EMSCRIPTEN)
+namespace Fsl
+{
+  class PlatformNativeWindowSDL;
+  class PlatformNativeWindowSystemSDL;
+  using PlatformNativeWindowImpl = PlatformNativeWindowSDL;
+  using PlatformNativeWindowSystemImpl = PlatformNativeWindowSystemSDL;
+}    // namespace Fsl
+#elif defined(FSL_PLATFORM_WINDOWS)
 namespace Fsl
 {
   class PlatformNativeWindowWin32;

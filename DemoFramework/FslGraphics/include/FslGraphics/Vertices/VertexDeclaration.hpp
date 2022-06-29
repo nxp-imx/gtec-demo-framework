@@ -32,15 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Attributes.hpp>
-#include <FslGraphics/Vertices/VertexElementEx.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
+#include <FslGraphics/Vertices/VertexElement.hpp>
 #include <vector>
 
 namespace Fsl
 {
   class VertexDeclaration
   {
-    std::vector<VertexElementEx> m_elements;
+    std::vector<VertexElement> m_elements;
     uint32_t m_vertexStride{0};
 
   public:
@@ -60,43 +60,43 @@ namespace Fsl
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
-    VertexDeclaration(const VertexElementEx* const pElements, const std::size_t elementCount, const uint32_t vertexStride);
+    VertexDeclaration(const VertexElement* const pElements, const std::size_t elementCount, const uint32_t vertexStride);
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
-    void Reset(const VertexElementEx* const pElements, const std::size_t elementCount, const uint32_t vertexStride);
+    void Reset(const VertexElement* const pElements, const std::size_t elementCount, const uint32_t vertexStride);
 
     //! @brief Get the vertex stride
-    uint32_t VertexStride() const
+    uint32_t VertexStride() const noexcept
     {
       return m_vertexStride;
     }
 
     //! @brief Get the number of elements
-    uint32_t Count() const;
+    uint32_t Count() const noexcept;
 
 
-    VertexElementEx At(const std::size_t index) const
+    VertexElement At(const std::size_t index) const
     {
       return m_elements[index];
     }
 
     //! @brief Get direct access to the elements
-    const VertexElementEx* DirectAccess() const;
+    const VertexElement* DirectAccess() const noexcept;
 
     //! @brief Get the element index of for the given usage and usageIndex (if not found a NotFoundException is thrown)
     int32_t VertexElementGetIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const;
 
     //! @brief Find the element index of for the given usage and usageIndex (if not found <0 is returned)
-    int32_t VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const;
+    int32_t VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const noexcept;
 
     //! @brief Get the element for the given usage and usageIndex (if not found a NotFoundException is thrown)
-    VertexElementEx VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const;
+    VertexElement VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const;
 
-    VertexDeclarationSpan AsSpan() const;
+    VertexDeclarationSpan AsSpan() const noexcept;
 
-    bool operator==(const VertexDeclaration& rhs) const;
-    bool operator!=(const VertexDeclaration& rhs) const;
+    bool operator==(const VertexDeclaration& rhs) const noexcept;
+    bool operator!=(const VertexDeclaration& rhs) const noexcept;
   };
 }
 

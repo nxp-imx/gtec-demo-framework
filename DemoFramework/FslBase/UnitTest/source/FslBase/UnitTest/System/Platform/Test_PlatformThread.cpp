@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Platform/PlatformThread.hpp>
-#include <FslBase/System/IThreadContext.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/System/IThreadContext.hpp>
+#include <FslBase/System/Platform/PlatformThread.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>

@@ -1,6 +1,6 @@
 #ifndef FSLNATIVEWINDOW_PLATFORM_WIN32_PLATFORMNATIVEWINDOWSYSTEMWIN32_HPP
 #define FSLNATIVEWINDOW_PLATFORM_WIN32_PLATFORMNATIVEWINDOWSYSTEMWIN32_HPP
-#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
+#if defined(_WIN32) && (defined(FSL_PLATFORM_WINDOWS) && !defined(FSL_PLATFORM_EMSCRIPTEN))
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -32,8 +32,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationFunction.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <functional>
 #include <memory>
 #include <vector>

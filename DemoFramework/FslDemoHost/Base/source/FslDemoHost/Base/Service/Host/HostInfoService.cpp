@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/Host/HostInfoService.hpp>
 #include <FslBase/ITag.hpp>
+#include <FslDemoHost/Base/Service/Host/HostInfoService.hpp>
 
 namespace Fsl
 {

@@ -36,9 +36,9 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
-#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
-#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSet.hpp>

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/ReadOnlyFlexSpan.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslGraphics/Render/Basic/IBasicStaticBuffer.hpp>
 
@@ -43,6 +44,7 @@ namespace Fsl
   public:
     virtual void SetData(const ReadOnlySpan<uint16_t> indexSpan) = 0;
     virtual void SetData(const ReadOnlyFlexVertexSpan& vertexSpan) = 0;
+    virtual void SetData(const ReadOnlyFlexSpan vertexSpan) = 0;
   };
 }
 

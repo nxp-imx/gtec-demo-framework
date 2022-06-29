@@ -67,7 +67,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     Vulkan::VUBufferMemory CreateVertexShaderUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -145,7 +145,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     VertexBufferInfo<3> BuildVB(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const Procedural::BasicMesh& mesh)
@@ -328,7 +328,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
     inline VkPrimitiveTopology GetTopology(const Fsl::PrimitiveType primitiveType)
@@ -533,7 +533,7 @@ namespace Fsl
       throw std::invalid_argument("instanceCount must be >= 1");
     }
     m_instanceCount = instanceCount;
-    m_uboData.InstanceMul = 1.0f / instanceCount;
+    m_uboData.InstanceMul = 1.0f / static_cast<float>(instanceCount);
   }
 
 

@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
+#include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <deque>
 #include <memory>
-#include <FslBase/Exceptions.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
-#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 
 namespace Fsl
 {

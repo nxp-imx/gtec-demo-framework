@@ -12,12 +12,12 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "ComputeParticles.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/ToString.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
 #include <array>
 #include <cstddef>
 #include <cstring>
@@ -346,8 +346,9 @@ namespace Fsl
       const auto screenExtent = GetScreenExtent();
       if (screenExtent.Width > 0 && screenExtent.Height > 0)
       {
-        const float normalizedMx = (m_mousePos.x - static_cast<float>(screenExtent.Width / 2.0f)) / static_cast<float>(screenExtent.Width / 2.0f);
-        const float normalizedMy = (m_mousePos.y - static_cast<float>(screenExtent.Height / 2.0f)) / static_cast<float>(screenExtent.Height / 2.0f);
+        const float normalizedMx = (m_mousePos.x - (static_cast<float>(screenExtent.Width) / 2.0f)) / (static_cast<float>(screenExtent.Width) / 2.0f);
+        const float normalizedMy =
+          (m_mousePos.y - (static_cast<float>(screenExtent.Height) / 2.0f)) / (static_cast<float>(screenExtent.Height) / 2.0f);
         m_compute.Ubo.DestX = normalizedMx;
         m_compute.Ubo.DestY = normalizedMy;
       }

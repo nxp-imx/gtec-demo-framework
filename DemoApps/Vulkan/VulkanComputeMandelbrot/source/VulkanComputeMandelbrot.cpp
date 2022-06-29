@@ -25,20 +25,20 @@
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample08)
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
 
+#include "VulkanComputeMandelbrot.hpp"
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
 #include <RapidVulkan/Check.hpp>
-#include "OptionParser.hpp"
-#include "VulkanComputeMandelbrot.hpp"
-#include "SaveHelper.hpp"
 #include <array>
 #include <thread>
+#include "OptionParser.hpp"
+#include "SaveHelper.hpp"
 
 namespace Fsl
 {
@@ -487,7 +487,7 @@ namespace Fsl
                                         m_physicalDevice.Properties.limits.nonCoherentAtomSize);
 
     RAPIDVULKAN_CHECK(vkBindBufferMemory(device, buffer.Get(), deviceMemory.Get(), 0));
-    return DeviceBuffer(std::move(buffer), std::move(deviceMemory));
+    return {std::move(buffer), std::move(deviceMemory)};
   }
 
 
@@ -512,6 +512,6 @@ namespace Fsl
     RAPIDVULKAN_CHECK(vkBindImageMemory(device, image.Get(), deviceMemory.Get(), 0));
 
     // move the local stack based objects into the Texture class
-    return DeviceTexture(std::move(image), std::move(deviceMemory), imageFormat);
+    return {std::move(image), std::move(deviceMemory), imageFormat};
   }
 }

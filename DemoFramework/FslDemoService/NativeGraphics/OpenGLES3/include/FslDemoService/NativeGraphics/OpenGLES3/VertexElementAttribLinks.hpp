@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES3/VertexAttribConfig.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/VertexAttribConfig.hpp>
 #include <FslUtil/OpenGLES3/GLVertexAttribLink.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElementAttribConfig.hpp>
 #include <array>

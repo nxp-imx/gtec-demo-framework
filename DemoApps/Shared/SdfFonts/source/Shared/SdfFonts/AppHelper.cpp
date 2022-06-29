@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,71 +29,68 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/SdfFonts/AppHelper.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
+#include <Shared/SdfFonts/AppHelper.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::AppHelper
 {
-  namespace AppHelper
+  TextureAtlasSpriteFont ReadFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,
+                                  const IContentManager& contentManager, const IO::Path& pathBitmapFont, const uint32_t densityDpi)
   {
-    TextureAtlasSpriteFont ReadFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,
-                                    const IContentManager& contentManager, const IO::Path& pathBitmapFont, const uint32_t densityDpi)
-    {
-      BitmapFont bitmapFont;
-      contentManager.Read(bitmapFont, pathBitmapFont);
-      return TextureAtlasSpriteFont(spriteNativeAreaCalc, textureExtentPx, bitmapFont, densityDpi);
-    }
+    BitmapFont bitmapFont;
+    contentManager.Read(bitmapFont, pathBitmapFont);
+    return TextureAtlasSpriteFont(spriteNativeAreaCalc, textureExtentPx, bitmapFont, densityDpi);
+  }
 
-    void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx,
-                          const ReadOnlySpan<SpriteFontGlyphPosition>& positions, float zPos, const PxSize2D& /*fontTextureSize*/)
+  void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx,
+                        const ReadOnlySpan<SpriteFontGlyphPosition>& positions, float zPos, const PxSize2D& /*fontTextureSize*/)
+  {
+    uint32_t dstVertexIndex = 0;
+    for (std::size_t i = 0; i < positions.size(); ++i)
     {
-      uint32_t dstVertexIndex = 0;
-      for (std::size_t i = 0; i < positions.size(); ++i)
+      const auto& glyph = positions[i];
+      if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
       {
-        const auto& glyph = positions[i];
-        if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
-        {
-          const auto dstX0 = float(dstPositionPx.X) + glyph.DstRectPxf.Left();
-          const auto dstY0 = float(dstPositionPx.Y) + glyph.DstRectPxf.Top();
-          const auto dstX1 = float(dstPositionPx.X) + glyph.DstRectPxf.Right();
-          const auto dstY1 = float(dstPositionPx.Y) + glyph.DstRectPxf.Bottom();
+        const auto dstX0 = static_cast<float>(dstPositionPx.X) + glyph.DstRectPxf.Left();
+        const auto dstY0 = static_cast<float>(dstPositionPx.Y) + glyph.DstRectPxf.Top();
+        const auto dstX1 = static_cast<float>(dstPositionPx.X) + glyph.DstRectPxf.Right();
+        const auto dstY1 = static_cast<float>(dstPositionPx.Y) + glyph.DstRectPxf.Bottom();
 
-          dstVertices[dstVertexIndex + 0] = VertexPositionTexture(Vector3(dstX0, dstY0, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0));
-          dstVertices[dstVertexIndex + 1] = VertexPositionTexture(Vector3(dstX1, dstY0, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y0));
-          dstVertices[dstVertexIndex + 2] = VertexPositionTexture(Vector3(dstX0, dstY1, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y1));
-          dstVertices[dstVertexIndex + 3] = VertexPositionTexture(Vector3(dstX1, dstY1, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y1));
+        dstVertices[dstVertexIndex + 0] = VertexPositionTexture(Vector3(dstX0, dstY0, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0));
+        dstVertices[dstVertexIndex + 1] = VertexPositionTexture(Vector3(dstX1, dstY0, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y0));
+        dstVertices[dstVertexIndex + 2] = VertexPositionTexture(Vector3(dstX0, dstY1, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y1));
+        dstVertices[dstVertexIndex + 3] = VertexPositionTexture(Vector3(dstX1, dstY1, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y1));
 
-          dstVertexIndex += 4;
-        }
+        dstVertexIndex += 4;
       }
     }
+  }
 
-    void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<SpriteFontGlyphPosition>& positions)
+  void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<SpriteFontGlyphPosition>& positions)
+  {
+    uint32_t dstVertexIndex = 0;
+    uint32_t dstIBIndex = 0;
+    for (std::size_t i = 0; i < positions.size(); ++i)
     {
-      uint32_t dstVertexIndex = 0;
-      uint32_t dstIBIndex = 0;
-      for (std::size_t i = 0; i < positions.size(); ++i)
+      const auto& glyph = positions[i];
+      if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
       {
-        const auto& glyph = positions[i];
-        if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
-        {
-          // A B
-          // |\|
-          // C D
-          dstIndices[dstIBIndex + 0] = dstVertexIndex;
-          dstIndices[dstIBIndex + 1] = dstVertexIndex + 2;
-          dstIndices[dstIBIndex + 2] = dstVertexIndex + 3;
-          dstIndices[dstIBIndex + 3] = dstVertexIndex + 3;
-          dstIndices[dstIBIndex + 4] = dstVertexIndex + 1;
-          dstIndices[dstIBIndex + 5] = dstVertexIndex;
+        // A B
+        // |\|
+        // C D
+        dstIndices[dstIBIndex + 0] = dstVertexIndex;
+        dstIndices[dstIBIndex + 1] = dstVertexIndex + 2;
+        dstIndices[dstIBIndex + 2] = dstVertexIndex + 3;
+        dstIndices[dstIBIndex + 3] = dstVertexIndex + 3;
+        dstIndices[dstIBIndex + 4] = dstVertexIndex + 1;
+        dstIndices[dstIBIndex + 5] = dstVertexIndex;
 
-          dstVertexIndex += 4;
-          dstIBIndex += 6;
-        }
+        dstVertexIndex += 4;
+        dstIBIndex += 6;
       }
     }
   }

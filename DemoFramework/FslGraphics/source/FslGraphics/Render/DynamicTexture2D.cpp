@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/DynamicTexture2D.hpp>
-#include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
-#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
-#include <FslGraphics/Texture/RawTextureHelper.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
+#include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslGraphics/Render/DynamicTexture2D.hpp>
+#include <FslGraphics/Texture/RawTextureHelper.hpp>
 #include <utility>
 
 namespace Fsl

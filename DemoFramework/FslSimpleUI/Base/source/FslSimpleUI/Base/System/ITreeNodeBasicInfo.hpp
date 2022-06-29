@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_SYSTEM_ITREENODEBASICINFO_HPP
 #define FSLSIMPLEUI_BASE_SYSTEM_ITREENODEBASICINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,28 +32,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
-#include <FslBase/Optional.hpp>
+#include <optional>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowId;
+  class TreeNode;
+
+  class ITreeNodeBasicInfo
   {
-    class IWindowId;
-    class TreeNode;
+  public:
+    virtual ~ITreeNodeBasicInfo() = default;
 
-    class ITreeNodeBasicInfo
-    {
-    public:
-      virtual ~ITreeNodeBasicInfo() = default;
+    //! @brief Locate the rectangle associated with the given window id
+    //! @throws NotFoundException if the window can't be found
+    virtual PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
 
-      //! @brief Locate the rectangle associated with the given window id
-      //! @throws NotFoundException if the window can't be found
-      virtual PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
-
-      //! @brief Try to Locate the rectangle associated with the given window id
-      virtual Optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
-    };
-  }
+    //! @brief Try to Locate the rectangle associated with the given window id
+    virtual std::optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const = 0;
+  };
 }
 
 #endif

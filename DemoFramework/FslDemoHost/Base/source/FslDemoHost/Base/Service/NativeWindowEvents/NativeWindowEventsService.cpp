@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/NativeWindowEvents/NativeWindowEventsService.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslDemoHost/Base/Service/NativeWindowEvents/NativeWindowEventsService.hpp>
 
 namespace Fsl
 {

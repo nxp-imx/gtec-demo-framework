@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <array>
 
 namespace Fsl

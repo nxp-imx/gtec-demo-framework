@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_NATIVEGRAPHICSTEXTUREFACTORY_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_NATIVEGRAPHICSTEXTUREFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,38 +39,35 @@
 #include <FslGraphics3D/BasicRender/Adapter/NativeTextureFactoryCaps.hpp>
 #include <FslUtil/OpenGLES2/GLTextureInfo.hpp>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  class NativeGraphicsTextureFactory
   {
-    class NativeGraphicsTextureFactory
+    HandleVector<NativeGraphicsTexture> m_textures;
+    bool m_isDisposed{false};
+
+  public:
+    explicit NativeGraphicsTextureFactory();
+    ~NativeGraphicsTextureFactory() noexcept;
+
+    void Dispose() noexcept;
+
+    GLTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
     {
-      HandleVector<NativeGraphicsTexture> m_textures;
-      bool m_isDisposed{false};
+      const NativeGraphicsTexture* const pTexture = m_textures.TryGet(hTexture.Value);
+      return pTexture != nullptr ? pTexture->ToTextureInfo() : GLTextureInfo();
+    }
 
-    public:
-      explicit NativeGraphicsTextureFactory();
-      ~NativeGraphicsTextureFactory() noexcept;
+    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const;
+    BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
+                                           const bool isDynamic);
+    bool DestroyTexture(const BasicNativeTextureHandle hTexture);
 
-      void Dispose() noexcept;
+    void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
+                        const TextureFlags textureFlags);
 
-      GLTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
-      {
-        const NativeGraphicsTexture* const pTexture = m_textures.TryGet(hTexture.Value);
-        return pTexture != nullptr ? pTexture->ToTextureInfo() : GLTextureInfo();
-      }
-
-      Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const;
-      BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
-                                             const bool isDynamic);
-      bool DestroyTexture(const BasicNativeTextureHandle hTexture);
-
-      void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                          const TextureFlags textureFlags);
-
-      const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const;
-    };
-  }
+    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const;
+  };
 }
 
 #endif

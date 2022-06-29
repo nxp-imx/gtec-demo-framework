@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/CpuStats/Impl/CpuStatsService.hpp>
-#include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
+#include <FslDemoService/CpuStats/Impl/CpuStatsService.hpp>
 #include <algorithm>
 
 namespace Fsl
@@ -89,7 +89,7 @@ namespace Fsl
     rUsagePercentage = 0.0f;
     if (!m_adapter)
     {
-      FSLLOG3_DEBUG_INFO("not available");
+      FSLLOG3_DEBUG_VERBOSE6("not available");
       return false;
     }
     if (cpuIndex >= m_cpuCount)
@@ -111,7 +111,7 @@ namespace Fsl
     rUsagePercentage = 0.0f;
     if (!m_adapter)
     {
-      FSLLOG3_DEBUG_INFO("not available");
+      FSLLOG3_DEBUG_VERBOSE6("not available");
       return false;
     }
     return m_adapter->TryGetApplicationCpuUsage(rUsagePercentage);
@@ -128,7 +128,7 @@ namespace Fsl
     rRamUsage = 0u;
     if (!m_adapter)
     {
-      FSLLOG3_DEBUG_INFO("not available");
+      FSLLOG3_DEBUG_VERBOSE6("not available");
       return false;
     }
     return m_adapter->TryGetApplicationRamUsage(rRamUsage);

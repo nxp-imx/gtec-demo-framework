@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "GammaCorrection.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -64,17 +64,17 @@ namespace Fsl
       if (features.textureCompressionASTC_LDR != VK_FALSE)
       {
         FSLLOG3_INFO("Using ASTC texture");
-        return IO::Path("Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx");
+        return {"Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx"};
       }
       if (features.textureCompressionETC2 != VK_FALSE)
       {
         FSLLOG3_INFO("Using ETC2 texture");
-        return IO::Path("Textures/WoodFloor/Floor_ETC2_RGB.ktx");
+        return {"Textures/WoodFloor/Floor_ETC2_RGB.ktx"};
       }
       if (features.textureCompressionBC != VK_FALSE)
       {
         FSLLOG3_INFO("Using BC1 texture");
-        return IO::Path("Textures/WoodFloor/Floor_BC1_rgb.ktx");
+        return {"Textures/WoodFloor/Floor_BC1_rgb.ktx"};
       }
       throw NotSupportedException("No supported texture compression found");
     }
@@ -127,7 +127,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -146,7 +146,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 
@@ -236,7 +236,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -371,7 +371,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -387,12 +387,12 @@ namespace Fsl
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_state(State::Split4)
-    , m_splitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitY(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene1LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene2LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene3LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene4LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , m_splitX(m_transitionCache, TimeSpan::FromMicroseconds(400), TransitionType::Smooth)
+    , m_splitY(m_transitionCache, TimeSpan::FromMicroseconds(400), TransitionType::Smooth)
+    , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_scene3LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
+    , m_scene4LabelAlpha(m_transitionCache, TimeSpan::FromMicroseconds(200), TransitionType::Smooth)
   {
     m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
 
@@ -469,19 +469,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -669,12 +669,12 @@ namespace Fsl
       m_scene4LabelAlpha.SetValue(1.0f);
       break;
     }
-    m_splitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitY.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene3LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene4LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitX.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitY.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene1LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene2LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene3LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene4LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alpha1 = m_scene1LabelAlpha.GetValue();
     const float alpha2 = m_scene2LabelAlpha.GetValue();
@@ -694,8 +694,8 @@ namespace Fsl
     const VkDeviceSize offsets = 0;
     vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
-    const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * windowSizePx.Width()));
-    const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * windowSizePx.Height()));
+    const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.Width())));
+    const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * static_cast<float>(windowSizePx.Height())));
     const int32_t remainderX = windowSizePx.Width() - splitX;
     const int32_t remainderY = windowSizePx.Height() - splitY;
 

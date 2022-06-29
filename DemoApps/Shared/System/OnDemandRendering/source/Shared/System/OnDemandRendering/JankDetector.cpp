@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/OnDemandRendering/JankDetector.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <Shared/System/OnDemandRendering/JankDetector.hpp>
 #include <algorithm>
 #include <cmath>
 
@@ -63,7 +63,7 @@ namespace Fsl
   {
     m_cachedWindowMetrics = windowMetrics;
     // Ensure that we have enough timing entries
-    const std::size_t desiredCapacity = windowMetrics.GetSizePx().Width() * std::size_t(2);
+    const std::size_t desiredCapacity = windowMetrics.GetSizePx().Width() * static_cast<std::size_t>(2);
     m_timing.EnsureCapacity(desiredCapacity);
     ResetAnim();
   }
@@ -71,7 +71,7 @@ namespace Fsl
   void JankDetector::FixedUpdate(const DemoTime& demoTime, const bool animationEnabled, const uint32_t refreshRate)
   {
     FSLLOG3_WARNING_IF(refreshRate < 1, "RefreshRate must be > 0, forcing it to 1");
-    const uint32_t cappedRefreshRate = std::max(refreshRate, uint32_t(1));
+    const uint32_t cappedRefreshRate = std::max(refreshRate, static_cast<uint32_t>(1));
     if (animationEnabled)
     {
       if (!m_animationRecords.IsEnabled)
@@ -80,7 +80,7 @@ namespace Fsl
         m_animationRecords = {};
         m_animationRecords.IsEnabled = true;
         m_animationRecords.Anim0.SpeedPerSecond = static_cast<float>(m_cachedWindowMetrics.GetSizePx().Width() * 2);
-        m_animationRecords.Anim0.FixedSpeedPerFrame = m_animationRecords.Anim0.SpeedPerSecond / cappedRefreshRate;
+        m_animationRecords.Anim0.FixedSpeedPerFrame = m_animationRecords.Anim0.SpeedPerSecond / static_cast<float>(cappedRefreshRate);
 
         m_animationRecords.Anim1.SpeedPerSecond = static_cast<float>(cappedRefreshRate) * LocalConfig::SmallBlockResolution1;
         m_animationRecords.Anim1.FixedSpeedPerFrame = LocalConfig::SmallBlockResolution1;

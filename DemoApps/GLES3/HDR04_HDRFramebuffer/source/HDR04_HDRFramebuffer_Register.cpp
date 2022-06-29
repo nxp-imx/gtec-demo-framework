@@ -36,10 +36,10 @@
 #include <FslUtil/EGL/EGLUtil.hpp>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+#include <array>
 #include "HDR04_HDRFramebuffer.hpp"
 #include "OptionParserEx.hpp"
 #include "SharedData.hpp"
-#include <array>
 
 // If our EGL header don't have these magic values defined we define em here since we dont use them unless the extension is detected.
 // The values are defined here:

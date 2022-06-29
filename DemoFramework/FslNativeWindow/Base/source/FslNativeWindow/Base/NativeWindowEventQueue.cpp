@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
 #include <FslBase/Collections/Concurrent/ConcurrentQueue.hpp>
+#include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
 
 namespace Fsl
 {

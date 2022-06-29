@@ -32,24 +32,20 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES2/Common.hpp>
-
 #include <FslGraphics/Render/GenericBatch2D_fwd.hpp>
+#include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslUtil/OpenGLES2/GLBatch2DQuadRenderer.hpp>
 #include <FslUtil/OpenGLES2/GLTextureInfo.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  class GLBatch2D : public GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>
   {
-    class GLBatch2D : public GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>
-    {
-    public:
-      explicit GLBatch2D(const PxExtent2D& extentPx);
-      GLBatch2D(const std::shared_ptr<GLBatch2DQuadRenderer>& quadRenderer, const PxExtent2D& extentPx);
-    };
-  }
+  public:
+    explicit GLBatch2D(const PxExtent2D& extentPx);
+    GLBatch2D(const std::shared_ptr<GLBatch2DQuadRenderer>& quadRenderer, const PxExtent2D& extentPx);
+  };
 }
 
 #endif

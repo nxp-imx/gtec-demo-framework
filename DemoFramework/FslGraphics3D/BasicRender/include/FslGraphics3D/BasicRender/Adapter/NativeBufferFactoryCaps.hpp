@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_ADAPTER_NATIVEBUFFERFACTORYCAPS_HPP
 #define FSLGRAPHICS3D_BASICRENDER_ADAPTER_NATIVEBUFFERFACTORYCAPS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,54 +33,51 @@
 
 #include <cstdint>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  enum class NativeBufferFactoryCaps : uint32_t
   {
-    enum class NativeBufferFactoryCaps : uint32_t
-    {
-      // A empty flag
-      NotDefined = 0x00,
+    // A empty flag
+    NotDefined = 0x00,
 
-      // The factory supports the creation of dynamic buffers where you can call SetData on them.
-      Dynamic = 0x01,
-    };
+    // The factory supports the creation of dynamic buffers where you can call SetData on them.
+    Dynamic = 0x01,
+  };
 
-    constexpr inline NativeBufferFactoryCaps operator|(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs)
-    {
-      return static_cast<NativeBufferFactoryCaps>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-    }
-
-    constexpr inline NativeBufferFactoryCaps operator&(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs)
-    {
-      return static_cast<NativeBufferFactoryCaps>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-    }
-
-
-    namespace NativeBufferFactoryCapsUtil
-    {
-      inline bool IsEnabled(const NativeBufferFactoryCaps srcFlag, NativeBufferFactoryCaps flag)
-      {
-        return (srcFlag & flag) == flag;
-      }
-
-      inline void Enable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag)
-      {
-        rDstFlag = rDstFlag | flag;
-      }
-
-
-      inline void Disable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag)
-      {
-        rDstFlag = rDstFlag & (NativeBufferFactoryCaps(~static_cast<uint32_t>(flag)));
-      }
-
-      inline void Set(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag, const bool enabled)
-      {
-        rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (NativeBufferFactoryCaps(~static_cast<uint32_t>(flag))));
-      }
-    };
+  constexpr inline NativeBufferFactoryCaps operator|(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs)
+  {
+    return static_cast<NativeBufferFactoryCaps>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
+
+  constexpr inline NativeBufferFactoryCaps operator&(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs)
+  {
+    return static_cast<NativeBufferFactoryCaps>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+
+  namespace NativeBufferFactoryCapsUtil
+  {
+    inline bool IsEnabled(const NativeBufferFactoryCaps srcFlag, NativeBufferFactoryCaps flag)
+    {
+      return (srcFlag & flag) == flag;
+    }
+
+    inline void Enable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag)
+    {
+      rDstFlag = rDstFlag | flag;
+    }
+
+
+    inline void Disable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag)
+    {
+      rDstFlag = rDstFlag & (static_cast<NativeBufferFactoryCaps>(~static_cast<uint32_t>(flag)));
+    }
+
+    inline void Set(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag, const bool enabled)
+    {
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<NativeBufferFactoryCaps>(~static_cast<uint32_t>(flag))));
+    }
+  };
 }
 
 #endif

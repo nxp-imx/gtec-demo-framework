@@ -29,39 +29,37 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenVG/VGUtil.hpp>
-#include <FslUtil/OpenVG/VGCheck.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
-#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
-#include <cassert>
+#include <FslGraphics/Exceptions.hpp>
+#include <FslUtil/OpenVG/VGCheck.hpp>
+#include <FslUtil/OpenVG/VGUtil.hpp>
 #include <VG/openvg.h>
+#include <cassert>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  void VGUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle)
   {
-    void VGUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat, const Rectangle& srcRectangle)
+    // We don't need to clear as we are going to overwrite everything anyway
+    // We utilize PixelFormat::R8G8B8A8_UINT here since that is what vgReadPixels is filling it with
+    // that also allows the convert method to detect if the the supplied pixelFormat is different and then
+    // convert as necessary
+    rBitmap.Reset(PxExtent2D(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
+                  BitmapClearMethod::DontClear);
+
     {
-      // We don't need to clear as we are going to overwrite everything anyway
-      // We utilize PixelFormat::R8G8B8A8_UINT here since that is what vgReadPixels is filling it with
-      // that also allows the convert method to detect if the the supplied pixelFormat is different and then
-      // convert as necessary
-      rBitmap.Reset(PxExtent2D(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
-                    BitmapClearMethod::DontClear);
-
-      {
-        RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
-        vgReadPixels(rawBitmap.Content(), rawBitmap.Stride(), VG_sABGR_8888, srcRectangle.X(), srcRectangle.Y(), srcRectangle.Width(),
-                     srcRectangle.Height());
-        FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
-        RawBitmapUtil::FlipHorizontal(rawBitmap);
-      }
-
-      // Convert if necessary (convert will do nothing if the format is already correct)
-      BitmapUtil::Convert(rBitmap, pixelFormat);
+      RawBitmapEx rawBitmap;
+      Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
+      vgReadPixels(rawBitmap.Content(), UncheckedNumericCast<VGint>(rawBitmap.Stride()), VG_sABGR_8888, srcRectangle.X(), srcRectangle.Y(),
+                   srcRectangle.Width(), srcRectangle.Height());
+      FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
+      RawBitmapUtil::FlipHorizontal(rawBitmap);
     }
+
+    // Convert if necessary (convert will do nothing if the format is already correct)
+    BitmapUtil::Convert(rBitmap, pixelFormat);
   }
 }

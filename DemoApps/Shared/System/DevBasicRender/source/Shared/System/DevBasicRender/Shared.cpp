@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/DevBasicRender/Shared.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
-#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
-#include <FslGraphics/Render/Basic/Material/BasicMaterialCreateInfo.hpp>
 #include <FslGraphics/Render/Basic/IBasicDynamicBuffer.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Render/Basic/Material/BasicMaterialCreateInfo.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
+#include <Shared/System/DevBasicRender/Shared.hpp>
 
 namespace Fsl
 {
@@ -175,9 +175,11 @@ namespace Fsl
     const std::array<uint16_t, 6> g_quad1Indices = {0, 1, 2, 1, 3, 2};
   }
 
-  Shared::Shared(const DemoAppConfig& config, IContentManager& contentManager)
+  Shared::Shared(const DemoAppConfig& config, const std::shared_ptr<IContentManager>& theContentManager)
     : m_render(config.DemoServiceProvider.Get<IGraphicsService>()->GetBasicRenderSystem())
   {
+    const auto& contentManager = *theContentManager;
+
     constexpr IO::PathView pathLogo("Textures/GPUSdk/SquareLogo512x512.jpg");
     constexpr IO::PathView pathOpaqueR("Textures/TestText/Opaque/R.png");
     constexpr IO::PathView pathOpaqueG("Textures/TestText/Opaque/G.png");
@@ -299,6 +301,9 @@ namespace Fsl
     m_angle.X -= 0.60f * time.DeltaTime;
     m_angle.Y -= 0.50f * time.DeltaTime;
     m_angle.Z -= 0.40f * time.DeltaTime;
+    m_angle.X = MathHelper::WrapAngle(m_angle.X);
+    m_angle.Y = MathHelper::WrapAngle(m_angle.Y);
+    m_angle.Z = MathHelper::WrapAngle(m_angle.Z);
 
     // Rotate and translate the model view matrix
     m_matrices.Model =

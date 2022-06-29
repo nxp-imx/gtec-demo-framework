@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_MATERIAL_BASICNATIVEMATERIALMANAGER_HPP
 #define FSLGRAPHICS3D_BASICRENDER_MATERIAL_BASICNATIVEMATERIALMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslBase/Collections/HandleVector.hpp>
+#include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeMaterialCreateInfo.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeMaterialHandle.hpp>
 #include <FslGraphics3D/BasicRender/Material/BasicMaterialRecord.hpp>
@@ -40,63 +40,63 @@
 #include <memory>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class IBasicShaderLookup;
+  class INativeMaterialFactory;
+
+  class BasicNativeMaterialManager
   {
-    class INativeMaterialFactory;
-
-    class BasicNativeMaterialManager
+    struct DeferredRemoveRecord
     {
-      struct DeferredRemoveRecord
+      uint32_t DeferCount{0};
+      BasicNativeMaterialHandle NativeHandle;
+
+      constexpr DeferredRemoveRecord() noexcept = default;
+      constexpr DeferredRemoveRecord(uint32_t deferCount, BasicNativeMaterialHandle nativeHandle) noexcept
+        : DeferCount(deferCount)
+        , NativeHandle(nativeHandle)
       {
-        uint32_t DeferCount{0};
-        BasicNativeMaterialHandle NativeHandle;
-
-        constexpr DeferredRemoveRecord() noexcept = default;
-        constexpr DeferredRemoveRecord(uint32_t deferCount, BasicNativeMaterialHandle nativeHandle) noexcept
-          : DeferCount(deferCount)
-          , NativeHandle(nativeHandle)
-        {
-        }
-      };
-
-      std::shared_ptr<INativeMaterialFactory> m_factory;
-      uint32_t m_maxFramesInFlight{0};
-
-      std::vector<BasicNativeMaterialCreateInfo> m_materialCreationScratchpad;
-      std::vector<BasicNativeMaterialHandle> m_nativeMaterialsScratchpad;
-      std::vector<DeferredRemoveRecord> m_deferredRemove;
-
-      HandleVector<BasicNativeMaterialHandle> m_nativeTextures;
-
-    public:
-      ~BasicNativeMaterialManager();
-
-      bool IsValid() const
-      {
-        return m_factory != nullptr;
       }
-
-      void Init(const std::shared_ptr<INativeMaterialFactory>& factory, const uint32_t capacity, const uint32_t maxFramesInFlight);
-      void Shutdown();
-      void PreUpdate();
-
-      void CreateMaterials(TypedFlexSpan<BasicNativeMaterialRecord> dst, ReadOnlyTypedFlexSpan<BasicMaterialDetailsRecord> src);
-      BasicNativeMaterialRecord CreateMaterial(const BasicMaterialDetailsRecord& src);
-
-      bool ScheduleRemove(const InternalMaterialHandle handle);
-
-
-    private:
-      void CollectGarbage(const bool force);
-
-      // void ProcessDeferredRemove();
-      // bool Remove(const BasicNativeMaterialHandle& handle);
-      void EnsureCapacity(const std::size_t minCapacity);
     };
 
-  }
+    const IBasicShaderLookup& m_shaderLookup;
+    std::shared_ptr<INativeMaterialFactory> m_factory;
+    uint32_t m_maxFramesInFlight{0};
+
+    std::vector<BasicNativeMaterialCreateInfo> m_materialCreationScratchpad;
+    std::vector<BasicNativeMaterialHandle> m_nativeMaterialsScratchpad;
+    std::vector<DeferredRemoveRecord> m_deferredRemove;
+
+    HandleVector<BasicNativeMaterialHandle> m_nativeTextures;
+
+  public:
+    explicit BasicNativeMaterialManager(const IBasicShaderLookup& m_shaderLookup);
+    ~BasicNativeMaterialManager();
+
+    bool IsValid() const
+    {
+      return m_factory != nullptr;
+    }
+
+    void Init(const std::shared_ptr<INativeMaterialFactory>& factory, const uint32_t capacity, const uint32_t maxFramesInFlight);
+    void Shutdown();
+    void PreUpdate();
+
+    void CreateMaterials(TypedFlexSpan<BasicNativeMaterialRecord> dst, ReadOnlyTypedFlexSpan<BasicMaterialDetailsRecord> src);
+    BasicNativeMaterialRecord CreateMaterial(const BasicMaterialDetailsRecord& src);
+
+    bool ScheduleRemove(const InternalMaterialHandle handle);
+
+
+  private:
+    void CollectGarbage(const bool force);
+
+    // void ProcessDeferredRemove();
+    // bool Remove(const BasicNativeMaterialHandle& handle);
+    void EnsureCapacity(const std::size_t minCapacity);
+  };
+
 }
 
 #endif

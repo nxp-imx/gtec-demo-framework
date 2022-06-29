@@ -137,7 +137,7 @@ namespace Fsl
   void RenderCube::DrawCube()
   {
     const auto& vertexBuffer = m_vertexBufferInfo.VertexBuffer;
-    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, vertexBuffer.GetGLCapacity());
   }
 
   void RenderCube::EndDraw()

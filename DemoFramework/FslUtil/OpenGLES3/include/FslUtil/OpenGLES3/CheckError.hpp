@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_OPENGLES3_CHECKERROR_HPP
 #define FSLUTIL_OPENGLES3_CHECKERROR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,95 +31,93 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <GLES3/gl3.h>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  inline void CheckError(const GLenum errorCode)
   {
-    inline void CheckError(const GLenum errorCode)
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        throw GLESGraphicsException("", errorCode);
-      }
+      throw GLESGraphicsException("", UncheckedNumericCast<int32_t>(errorCode));
     }
+  }
 
-    inline void CheckError(const GLenum errorCode, const char* const pszMessage)
+  inline void CheckError(const GLenum errorCode, const char* const pszMessage)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        assert(pszMessage != nullptr);
-        throw GLESGraphicsException(pszMessage, errorCode);
-      }
+      assert(pszMessage != nullptr);
+      throw GLESGraphicsException(pszMessage, UncheckedNumericCast<int32_t>(errorCode));
     }
+  }
 
 
-    inline void CheckError(const GLenum errorCode, const std::string& message)
+  inline void CheckError(const GLenum errorCode, const std::string& message)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        throw GLESGraphicsException(message, errorCode);
-      }
+      throw GLESGraphicsException(message, UncheckedNumericCast<int32_t>(errorCode));
     }
+  }
 
 
-    inline void CheckError(const GLenum errorCode, const char* const pszFilename, const int lineNumber)
+  inline void CheckError(const GLenum errorCode, const char* const pszFilename, const int32_t lineNumber)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        assert(pszFilename != nullptr);
-        throw GLESGraphicsException("", errorCode, pszFilename, lineNumber);
-      }
+      assert(pszFilename != nullptr);
+      throw GLESGraphicsException("", UncheckedNumericCast<int32_t>(errorCode), pszFilename, lineNumber);
     }
+  }
 
 
-    inline void CheckError(const GLenum errorCode, const std::string& filename, const int lineNumber)
+  inline void CheckError(const GLenum errorCode, const std::string& filename, const int32_t lineNumber)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        throw GLESGraphicsException("", errorCode, filename, lineNumber);
-      }
+      throw GLESGraphicsException("", UncheckedNumericCast<int32_t>(errorCode), filename, lineNumber);
     }
+  }
 
 
-    inline void CheckError(const GLenum errorCode, const char* const pszMessage, const char* const pszFilename, const int lineNumber)
+  inline void CheckError(const GLenum errorCode, const char* const pszMessage, const char* const pszFilename, const int32_t lineNumber)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        assert(pszMessage != nullptr);
-        assert(pszFilename != nullptr);
-        throw GLESGraphicsException(pszMessage, errorCode, pszFilename, lineNumber);
-      }
+      assert(pszMessage != nullptr);
+      assert(pszFilename != nullptr);
+      throw GLESGraphicsException(pszMessage, UncheckedNumericCast<int32_t>(errorCode), pszFilename, lineNumber);
     }
+  }
 
-    inline void CheckError(const GLenum errorCode, const char* const pszMessage, const std::string& filename, const int lineNumber)
+  inline void CheckError(const GLenum errorCode, const char* const pszMessage, const std::string& filename, const int32_t lineNumber)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        assert(pszMessage != nullptr);
-        throw GLESGraphicsException(pszMessage, errorCode, filename, lineNumber);
-      }
+      assert(pszMessage != nullptr);
+      throw GLESGraphicsException(pszMessage, UncheckedNumericCast<int32_t>(errorCode), filename, lineNumber);
     }
+  }
 
 
-    inline void CheckError(const GLenum errorCode, const std::string& message, const char* const pszFilename, const int lineNumber)
+  inline void CheckError(const GLenum errorCode, const std::string& message, const char* const pszFilename, const int32_t lineNumber)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        assert(pszFilename != nullptr);
-        throw GLESGraphicsException(message, errorCode, pszFilename, lineNumber);
-      }
+      assert(pszFilename != nullptr);
+      throw GLESGraphicsException(message, UncheckedNumericCast<int32_t>(errorCode), pszFilename, lineNumber);
     }
+  }
 
-    inline void CheckError(const GLenum errorCode, const std::string& message, const std::string& filename, const int lineNumber)
+  inline void CheckError(const GLenum errorCode, const std::string& message, const std::string& filename, const int32_t lineNumber)
+  {
+    if (errorCode != GL_NO_ERROR)
     {
-      if (errorCode != GL_NO_ERROR)
-      {
-        throw GLESGraphicsException(message, errorCode, filename, lineNumber);
-      }
+      throw GLESGraphicsException(message, UncheckedNumericCast<int32_t>(errorCode), filename, lineNumber);
     }
   }
 }

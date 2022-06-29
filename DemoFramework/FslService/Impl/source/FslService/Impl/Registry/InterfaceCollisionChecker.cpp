@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/Registry/InterfaceCollisionChecker.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
-#include <FslService/Impl/Exceptions.hpp>
 #include <map>
 
 namespace Fsl

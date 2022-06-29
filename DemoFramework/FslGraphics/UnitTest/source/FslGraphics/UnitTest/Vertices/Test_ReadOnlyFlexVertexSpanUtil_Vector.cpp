@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpanUtil.hpp>
-#include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
+#include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <vector>
 
 using namespace Fsl;

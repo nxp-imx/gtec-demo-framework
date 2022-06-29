@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.9.2
+# DemoFramework 6.0.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -57,6 +57,7 @@ since the exact same demo/benchmark code run on all of them.
   * [Demo single stepping / pause](#demo-single-stepping-/-pause)
 * [Demo applications](#demo-applications)
   * [Console](#console)
+  * [FslResearch](#fslresearch)
   * [G2D](#g2d)
   * [GLES2](#gles2)
   * [GLES2.System](#gles2system)
@@ -80,7 +81,7 @@ since the exact same demo/benchmark code run on all of them.
 
 ## Technical overview
 
-* Written in a limited subset of [C++ 14](https://en.wikipedia.org/wiki/C%2B%2B14) and
+* Written in a limited subset of [C++ 17](https://en.wikipedia.org/wiki/C%2B%2B17) and
 uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization) to manage resources.
 * Uses a limited subset of [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) to make it easier to port.
 * No copyleft restrictions from GPL / L-GPL licenses.
@@ -549,6 +550,11 @@ This minimal app does not pull in any of the graphics libraries.
 
 
 
+## FslResearch
+
+### [SpatialGrid2D](DemoFramework/FslResearch/SpatialGrid2D)
+
+
 ## G2D
 
 ### [DFGraphicsBasic2D](DemoApps/G2D/DFGraphicsBasic2D)
@@ -810,6 +816,13 @@ Quick example that showcase how to mix rendering using the basic rendering API a
 Development project for the IBasicRenderSystem.
 
 
+### [DevBasicRenderCustomShader](DemoApps/GLES2/System/DevBasicRenderCustomShader)
+
+<a href="DemoApps/GLES2/System/DevBasicRenderCustomShader/Example.jpg"><img src="DemoApps/GLES2/System/DevBasicRenderCustomShader/Example.jpg" height="108px" title="GLES2.System.DevBasicRenderCustomShader"></a>
+
+Development project for custom shaders for the IBasicRenderSystem.
+
+
 ### [DevNativeTexture2D](DemoApps/GLES2/System/DevNativeTexture2D)
 
 <a href="DemoApps/GLES2/System/DevNativeTexture2D/Example.jpg"><img src="DemoApps/GLES2/System/DevNativeTexture2D/Example.jpg" height="108px" title="GLES2.System.DevNativeTexture2D"></a>
@@ -861,6 +874,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 
 ## GLES2.UI
 
+### [BasicDataBinding](DemoApps/GLES2/UI/BasicDataBinding)
+
+<a href="DemoApps/GLES2/UI/BasicDataBinding/Example.jpg"><img src="DemoApps/GLES2/UI/BasicDataBinding/Example.jpg" height="108px" title="GLES2.UI.BasicDataBinding"></a>
+
+Simple example of UI data binding
+
+
 ### [Benchmark](DemoApps/GLES2/UI/Benchmark)
 
 <a href="DemoApps/GLES2/UI/Benchmark/Example.jpg"><img src="DemoApps/GLES2/UI/Benchmark/Example.jpg" height="108px" title="GLES2.UI.Benchmark"></a>
@@ -868,6 +888,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 UI benchmark that can be used to benchmark various ways of rendering a UI. This allows you to see what works best on the given hardware.
 
 This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
+
+
+### [Charts](DemoApps/GLES2/UI/Charts)
+
+<a href="DemoApps/GLES2/UI/Charts/Example.jpg"><img src="DemoApps/GLES2/UI/Charts/Example.jpg" height="108px" title="GLES2.UI.Charts"></a>
+
+Simple example of UI chart rendering.
 
 
 ### [DpiScale](DemoApps/GLES2/UI/DpiScale)
@@ -1150,6 +1177,13 @@ A simple example of dynamic line rendering using the LineBuilder helper class.
 The line builder has 'Add' methods for most FslBase.Math classes like BoundingBox, BoundingSphere, BoundingFrustrum, Ray, etc.
 
 
+### [ModelInstancing](DemoApps/GLES3/ModelInstancing)
+
+<a href="DemoApps/GLES3/ModelInstancing/Example.jpg"><img src="DemoApps/GLES3/ModelInstancing/Example.jpg" height="108px" title="GLES3.ModelInstancing"></a>
+
+Shows the use of instancing for rendering many copies of the same mesh.
+
+
 ### [ModelLoaderBasics](DemoApps/GLES3/ModelLoaderBasics)
 
 <a href="DemoApps/GLES3/ModelLoaderBasics/Example.jpg"><img src="DemoApps/GLES3/ModelLoaderBasics/Example.jpg" height="108px" title="GLES3.ModelLoaderBasics"></a>
@@ -1389,6 +1423,13 @@ It also showcases two simple SDF effects:
 Render a simple skybox using a cubemap.
 
 
+### [SpatialHashGrid2D](DemoApps/GLES3/SpatialHashGrid2D)
+
+<a href="DemoApps/GLES3/SpatialHashGrid2D/Example.jpg"><img src="DemoApps/GLES3/SpatialHashGrid2D/Example.jpg" height="108px" title="GLES3.SpatialHashGrid2D"></a>
+
+A simple example of how a spatial hash grid works in 2d.
+
+
 ### [SpringBackground](DemoApps/GLES3/SpringBackground)
 
 <a href="DemoApps/GLES3/SpringBackground/Example.jpg"><img src="DemoApps/GLES3/SpringBackground/Example.jpg" height="108px" title="GLES3.SpringBackground"></a>
@@ -1474,6 +1515,13 @@ Quick example that showcase how to mix rendering using the basic rendering API a
 Development project for the IBasicRenderSystem.
 
 
+### [DevBasicRenderCustomShader](DemoApps/GLES3/System/DevBasicRenderCustomShader)
+
+<a href="DemoApps/GLES3/System/DevBasicRenderCustomShader/Example.jpg"><img src="DemoApps/GLES3/System/DevBasicRenderCustomShader/Example.jpg" height="108px" title="GLES3.System.DevBasicRenderCustomShader"></a>
+
+Development project for custom shaders for the IBasicRenderSystem.
+
+
 ### [DevNativeTexture2D](DemoApps/GLES3/System/DevNativeTexture2D)
 
 <a href="DemoApps/GLES3/System/DevNativeTexture2D/Example.jpg"><img src="DemoApps/GLES3/System/DevNativeTexture2D/Example.jpg" height="108px" title="GLES3.System.DevNativeTexture2D"></a>
@@ -1516,6 +1564,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 
 ## GLES3.UI
 
+### [BasicDataBinding](DemoApps/GLES3/UI/BasicDataBinding)
+
+<a href="DemoApps/GLES3/UI/BasicDataBinding/Example.jpg"><img src="DemoApps/GLES3/UI/BasicDataBinding/Example.jpg" height="108px" title="GLES3.UI.BasicDataBinding"></a>
+
+Simple example of UI data binding
+
+
 ### [Benchmark](DemoApps/GLES3/UI/Benchmark)
 
 <a href="DemoApps/GLES3/UI/Benchmark/Example.jpg"><img src="DemoApps/GLES3/UI/Benchmark/Example.jpg" height="108px" title="GLES3.UI.Benchmark"></a>
@@ -1523,6 +1578,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 UI benchmark that can be used to benchmark various ways of rendering a UI. This allows you to see what works best on the given hardware.
 
 This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
+
+
+### [Charts](DemoApps/GLES3/UI/Charts)
+
+<a href="DemoApps/GLES3/UI/Charts/Example.jpg"><img src="DemoApps/GLES3/UI/Charts/Example.jpg" height="108px" title="GLES3.UI.Charts"></a>
+
+Simple example of UI chart rendering.
 
 
 ### [DpiScale](DemoApps/GLES3/UI/DpiScale)
@@ -1904,6 +1966,13 @@ Based on a example called [Mesh instancing](https://github.com/SaschaWillems/Vul
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
+### [ModelInstancing](DemoApps/Vulkan/ModelInstancing)
+
+<a href="DemoApps/Vulkan/ModelInstancing/Example.jpg"><img src="DemoApps/Vulkan/ModelInstancing/Example.jpg" height="108px" title="Vulkan.ModelInstancing"></a>
+
+Shows the use of instancing for rendering many copies of the same mesh.
+
+
 ### [ModelLoaderBasics](DemoApps/Vulkan/ModelLoaderBasics)
 
 <a href="DemoApps/Vulkan/ModelLoaderBasics/Example.jpg"><img src="DemoApps/Vulkan/ModelLoaderBasics/Example.jpg" height="108px" title="Vulkan.ModelLoaderBasics"></a>
@@ -2186,6 +2255,13 @@ Quick example that showcase how to mix rendering using the basic rendering API a
 Development project for the IBasicRenderSystem.
 
 
+### [DevBasicRenderCustomShader](DemoApps/Vulkan/System/DevBasicRenderCustomShader)
+
+<a href="DemoApps/Vulkan/System/DevBasicRenderCustomShader/Example.jpg"><img src="DemoApps/Vulkan/System/DevBasicRenderCustomShader/Example.jpg" height="108px" title="Vulkan.System.DevBasicRenderCustomShader"></a>
+
+Development project for custom shaders for the IBasicRenderSystem.
+
+
 ### [DevBatch](DemoApps/Vulkan/System/DevBatch)
 
 <a href="DemoApps/Vulkan/System/DevBatch/Example.jpg"><img src="DemoApps/Vulkan/System/DevBatch/Example.jpg" height="108px" title="Vulkan.System.DevBatch"></a>
@@ -2246,6 +2322,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 
 ## Vulkan.UI
 
+### [BasicDataBinding](DemoApps/Vulkan/UI/BasicDataBinding)
+
+<a href="DemoApps/Vulkan/UI/BasicDataBinding/Example.jpg"><img src="DemoApps/Vulkan/UI/BasicDataBinding/Example.jpg" height="108px" title="Vulkan.UI.BasicDataBinding"></a>
+
+Simple example of UI data binding
+
+
 ### [Benchmark](DemoApps/Vulkan/UI/Benchmark)
 
 <a href="DemoApps/Vulkan/UI/Benchmark/Example.jpg"><img src="DemoApps/Vulkan/UI/Benchmark/Example.jpg" height="108px" title="Vulkan.UI.Benchmark"></a>
@@ -2253,6 +2336,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 UI benchmark that can be used to benchmark various ways of rendering a UI. This allows you to see what works best on the given hardware.
 
 This application has been designed for a **1920x1080dp** screen and will provide a sub-optimal experience for resolutions lower than that.
+
+
+### [Charts](DemoApps/Vulkan/UI/Charts)
+
+<a href="DemoApps/Vulkan/UI/Charts/Example.jpg"><img src="DemoApps/Vulkan/UI/Charts/Example.jpg" height="108px" title="Vulkan.UI.Charts"></a>
+
+Simple example of UI chart rendering.
 
 
 ### [DpiScale](DemoApps/Vulkan/UI/DpiScale)

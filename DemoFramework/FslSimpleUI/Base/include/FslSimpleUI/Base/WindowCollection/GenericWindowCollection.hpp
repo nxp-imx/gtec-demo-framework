@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_WINDOWCOLLECTION_GENERICWINDOWCOLLECTION_HPP
 #define FSLSIMPLEUI_BASE_WINDOWCOLLECTION_GENERICWINDOWCOLLECTION_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,167 +36,163 @@
 #include <algorithm>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct GenericWindowCollectionRecordBase
   {
-    struct GenericWindowCollectionRecordBase
+    std::shared_ptr<BaseWindow> Window;
+
+    explicit GenericWindowCollectionRecordBase(std::shared_ptr<BaseWindow> window)
+      : Window(std::move(window))
     {
-      std::shared_ptr<BaseWindow> Window;
+    }
+  };
 
-      explicit GenericWindowCollectionRecordBase(std::shared_ptr<BaseWindow> window)
-        : Window(std::move(window))
-      {
-      }
-    };
+  //! @brief
+  //! @warning When using this class remember to use WinInit on the owner and call SYS_WinInit
+  template <typename TRecord>
+  class GenericWindowCollection : public WindowCollectionBase
+  {
+    std::deque<TRecord> m_entries;
 
-    //! @brief
-    //! @warning When using this class remember to use WinInit on the owner and call SYS_WinInit
-    template <typename TRecord>
-    class GenericWindowCollection : public WindowCollectionBase
+  public:
+    using record_type = TRecord;
+    using queue_type = std::deque<record_type>;
+    using size_type = typename queue_type::size_type;
+
+    // Make this object non-copyable
+    GenericWindowCollection(const GenericWindowCollection&) = delete;
+    GenericWindowCollection& operator=(const GenericWindowCollection&) = delete;
+
+    GenericWindowCollection()
+      : WindowCollectionBase()
+      , m_entries()
     {
-      std::deque<TRecord> m_entries;
+    }
 
-    public:
-      using record_type = TRecord;
-      using queue_type = std::deque<record_type>;
-      using size_type = typename queue_type::size_type;
+    //! @brief Should be called during WinInit of the 'owner' class
+    void SYS_WinInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager)
+    {
+      DoInit(pOwner, windowManager);
 
-      // Make this object non-copyable
-      GenericWindowCollection(const GenericWindowCollection&) = delete;
-      GenericWindowCollection& operator=(const GenericWindowCollection&) = delete;
-
-      GenericWindowCollection()
-        : WindowCollectionBase()
-        , m_entries()
+      for (auto itr = m_entries.begin(); itr != m_entries.end(); ++itr)
       {
+        DoAdd(itr->Window);
       }
 
-      //! @brief Should be called during WinInit of the 'owner' class
-      void SYS_WinInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager)
-      {
-        DoInit(pOwner, windowManager);
+      DoMarkLayoutDirty();
+    }
 
+    void Clear()
+    {
+      // Remove the entry if found, else quick exit
+      if (m_entries.empty())
+      {
+        return;
+      }
+
+
+      if (IsInitialized())
+      {
         for (auto itr = m_entries.begin(); itr != m_entries.end(); ++itr)
         {
-          DoAdd(itr->Window);
+          DoScheduleClose(itr->Window);
         }
-
         DoMarkLayoutDirty();
       }
+      m_entries.clear();
+    }
 
-      void Clear()
+    void Add(const std::shared_ptr<BaseWindow>& window)
+    {
+      if (IsInitialized())
       {
-        // Remove the entry if found, else quick exit
-        if (m_entries.empty())
+        DoAdd(window);
+      }
+      else
+      {
+        // Since we ain't registered with the window manager at this point we need to do basic validation ourself
+        if (!window)
         {
-          return;
+          throw std::invalid_argument("window can not be null");
         }
 
 
-        if (IsInitialized())
+        if (std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; }) != m_entries.end())
         {
-          for (auto itr = m_entries.begin(); itr != m_entries.end(); ++itr)
-          {
-            DoScheduleClose(itr->Window);
-          }
-          DoMarkLayoutDirty();
-        }
-        m_entries.clear();
-      }
-
-      void Add(const std::shared_ptr<BaseWindow>& window)
-      {
-        if (IsInitialized())
-        {
-          DoAdd(window);
-        }
-        else
-        {
-          // Since we ain't registered with the window manager at this point we need to do basic validation ourself
-          if (!window)
-          {
-            throw std::invalid_argument("window can not be null");
-          }
-
-
-          if (std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; }) !=
-              m_entries.end())
-          {
-            throw UsageErrorException("Can not add a window twice");
-          }
-        }
-
-        // We rely on the window managers checks for null and duplicated add's
-        m_entries.push_back(TRecord(window));
-
-        if (IsInitialized())
-        {
-          DoMarkLayoutDirty();
+          throw UsageErrorException("Can not add a window twice");
         }
       }
 
+      // We rely on the window managers checks for null and duplicated add's
+      m_entries.push_back(TRecord(window));
 
-      void Remove(const std::shared_ptr<BaseWindow>& window)
+      if (IsInitialized())
       {
-        // Remove the entry if found, else quick exit
-        auto itr = std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; });
-        if (itr == m_entries.end())
-        {
-          return;
-        }
-        m_entries.erase(itr);
-
-        // Schedule a remove from the window manager
-        if (IsInitialized())
-        {
-          DoScheduleClose(window);
-          DoMarkLayoutDirty();
-        }
+        DoMarkLayoutDirty();
       }
+    }
 
-      bool Contains(const std::shared_ptr<BaseWindow>& window) const
+
+    void Remove(const std::shared_ptr<BaseWindow>& window)
+    {
+      // Remove the entry if found, else quick exit
+      auto itr = std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; });
+      if (itr == m_entries.end())
       {
-        return (std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; }) !=
-                m_entries.end());
+        return;
       }
+      m_entries.erase(itr);
 
-      const std::shared_ptr<BaseWindow>& ChildAt(const uint32_t index) const
+      // Schedule a remove from the window manager
+      if (IsInitialized())
       {
-        return m_entries[index].Window;
+        DoScheduleClose(window);
+        DoMarkLayoutDirty();
       }
+    }
 
-      inline bool empty() const noexcept
-      {
-        return m_entries.empty();
-      }
+    bool Contains(const std::shared_ptr<BaseWindow>& window) const
+    {
+      return (std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; }) !=
+              m_entries.end());
+    }
 
-      inline typename queue_type::size_type size() const noexcept
-      {
-        return m_entries.size();
-      }
+    const std::shared_ptr<BaseWindow>& ChildAt(const uint32_t index) const
+    {
+      return m_entries[index].Window;
+    }
 
-      inline typename queue_type::const_iterator begin() const noexcept
-      {
-        return m_entries.begin();
-      }
+    inline bool empty() const noexcept
+    {
+      return m_entries.empty();
+    }
 
-      inline typename queue_type::iterator begin() noexcept
-      {
-        return m_entries.begin();
-      }
+    inline typename queue_type::size_type size() const noexcept
+    {
+      return m_entries.size();
+    }
 
-      inline typename queue_type::const_iterator end() const noexcept
-      {
-        return m_entries.end();
-      }
+    inline typename queue_type::const_iterator begin() const noexcept
+    {
+      return m_entries.begin();
+    }
 
-      inline typename queue_type::iterator end() noexcept
-      {
-        return m_entries.end();
-      }
-    };
-  }
+    inline typename queue_type::iterator begin() noexcept
+    {
+      return m_entries.begin();
+    }
+
+    inline typename queue_type::const_iterator end() const noexcept
+    {
+      return m_entries.end();
+    }
+
+    inline typename queue_type::iterator end() noexcept
+    {
+      return m_entries.end();
+    }
+  };
 }
 
 #endif

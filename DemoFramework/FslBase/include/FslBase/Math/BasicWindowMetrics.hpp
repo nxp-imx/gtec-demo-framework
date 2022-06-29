@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -45,7 +45,7 @@ namespace Fsl
     PxExtent2D ExtentPx;
 
     //! The size of the window in dp
-    Vector2 DpSize;
+    Vector2 SizeDp;
 
     //! the exact physical DPI (as reported by the native window)
     //! Only need this if you really really need the exact DPI.
@@ -66,10 +66,11 @@ namespace Fsl
     constexpr BasicWindowMetrics() = default;
     constexpr BasicWindowMetrics(const PxExtent2D& extentPx, const Vector2& exactDpi, const uint32_t densityDpi)
       : ExtentPx(extentPx)
-      , DpSize(extentPx.Width * (160.0f / densityDpi), extentPx.Height * (160.0f / densityDpi))
+      , SizeDp(static_cast<float>(extentPx.Width) * (160.0f / static_cast<float>(densityDpi)),
+               static_cast<float>(extentPx.Height) * (160.0f / static_cast<float>(densityDpi)))
       , ExactDpi(exactDpi)
       , DensityDpi(densityDpi)
-      , DensityScaleFactor(densityDpi / 160.0f)
+      , DensityScaleFactor(static_cast<float>(densityDpi) / 160.0f)
     {
       assert(densityDpi > 0);
     }
@@ -90,7 +91,7 @@ namespace Fsl
 
     constexpr bool operator==(const BasicWindowMetrics& rhs) const
     {
-      return ExtentPx == rhs.ExtentPx && DpSize == rhs.DpSize && ExactDpi == rhs.ExactDpi && DensityDpi == rhs.DensityDpi &&
+      return ExtentPx == rhs.ExtentPx && SizeDp == rhs.SizeDp && ExactDpi == rhs.ExactDpi && DensityDpi == rhs.DensityDpi &&
              DensityScaleFactor == rhs.DensityScaleFactor;
     }
 

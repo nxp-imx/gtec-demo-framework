@@ -33,8 +33,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
+#include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 
 namespace Fsl
 {

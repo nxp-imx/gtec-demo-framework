@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/Sprite/Material/ISpriteMaterial.hpp>
+#include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <utility>
 
 namespace Fsl

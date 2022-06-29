@@ -48,7 +48,7 @@ namespace Fsl
     inline constexpr bool IsAligned(const T value, const std::size_t alignment) noexcept
     {
       assert(IsPowerOfTwo(alignment));
-      return (value & (T(alignment) - 1)) == 0;
+      return (value & (static_cast<T>(alignment) - 1)) == 0;
     }
 
     template <class T>

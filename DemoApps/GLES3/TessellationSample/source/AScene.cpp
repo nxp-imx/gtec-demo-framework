@@ -30,21 +30,20 @@
  ****************************************************************************************************************************************************/
 
 #include "AScene.hpp"
-#include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <cassert>
 #include <limits>
 
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
-
+#include <GLES3/gl31.h>
 #include "OptionParser.hpp"
 
 namespace Fsl
@@ -103,18 +102,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -142,7 +141,7 @@ namespace Fsl
 
   void AScene::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    m_camera.AddZoom(event.GetDelta() * -0.1f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.1f);
   }
 
 
@@ -151,8 +150,8 @@ namespace Fsl
     m_cameraConfig.World = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     // m_cameraConfig.View = Matrix::CreateTranslation(0.0f, 0.0f, -2.0f);
     m_cameraConfig.View = m_camera.GetViewMatrix();
-    m_cameraConfig.Projection =
-      Matrix::CreatePerspectiveFieldOfView(m_fieldOfView, m_screenResolution.X / static_cast<float>(m_screenResolution.Y), 1, 1000.0f);
+    m_cameraConfig.Projection = Matrix::CreatePerspectiveFieldOfView(
+      m_fieldOfView, static_cast<float>(m_screenResolution.X) / static_cast<float>(m_screenResolution.Y), 1, 1000.0f);
 
     m_cameraConfig.WorldView = m_cameraConfig.World * m_cameraConfig.View;
     m_cameraConfig.WorldViewProjection = m_cameraConfig.WorldView * m_cameraConfig.Projection;
@@ -231,7 +230,7 @@ namespace Fsl
         m_vertexBuffers.EnableAttribArrays(rTess.AttribLink.data(), rTess.AttribLink.size());
 
         // Draw the patch
-        glDrawElements(GL_PATCHES_EXT, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(GL_PATCHES_EXT, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
 
         m_vertexBuffers.DisableAttribArrays();
       }
@@ -306,7 +305,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_vertexBuffers.SetVertexAttribPointers(m_basicShader.AttribLink.data(), m_basicShader.AttribLink.size());
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
       }
     }
   }

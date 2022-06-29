@@ -101,9 +101,9 @@ namespace Fsl
     std::sort(m_chars.begin(), m_chars.end(), [](const BitmapFontChar& lhs, const BitmapFontChar& rhs) { return lhs.Id < rhs.Id; });
 
     // Sort the kernings
-    std::sort(m_kernings.begin(), m_kernings.end(), [](const BitmapFontKerning& lhs, const BitmapFontKerning& rhs) {
-      return lhs.First < rhs.First || (lhs.First == rhs.First && lhs.Second < rhs.Second);
-    });
+    std::sort(m_kernings.begin(), m_kernings.end(),
+              [](const BitmapFontKerning& lhs, const BitmapFontKerning& rhs)
+              { return lhs.First < rhs.First || (lhs.First == rhs.First && lhs.Second < rhs.Second); });
 
     // These checks expect the vectors to be sorted
     Validate(m_chars);

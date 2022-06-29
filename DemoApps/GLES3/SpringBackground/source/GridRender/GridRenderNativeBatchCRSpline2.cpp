@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "GridRenderNativeBatchCRSpline2.hpp"
-#include <FslBase/Math/VectorHelper.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
+#include <FslBase/Math/VectorHelper.hpp>
 #include <cassert>
 #include "../TextureUtil.hpp"
 

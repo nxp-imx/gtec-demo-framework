@@ -26,17 +26,17 @@
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample02)
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <FslBase/Log/Log3Fmt.hpp>
+#include "VulkanTriangle.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
-#include "VulkanTriangle.hpp"
 #include <vulkan/vulkan.h>
 #include <array>
 #include <cstring>

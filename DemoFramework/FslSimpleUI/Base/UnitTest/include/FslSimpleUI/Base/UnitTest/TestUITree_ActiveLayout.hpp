@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "TestUITree_Window.hpp"
 #include <FslSimpleUI/Base/UnitTest/Layout/FillLayoutWindowTest.hpp>
+#include "TestUITree_Window.hpp"
 
 class TestUITree_ActiveLayout : public TestUITree_Window
 {

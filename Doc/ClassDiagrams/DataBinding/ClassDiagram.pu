@@ -1,0 +1,99 @@
+@startuml FslDemoService.DataBinding new
+scale 1
+
+namespace DataBinding {
+    interface IObservableObject
+    interface IObjectObserver
+
+    class DataBindingInstanceHandle
+    class DependencyPropertyDefinition
+    class ScopedDependencyObject
+    class "TypedDependencyProperty<T>" as TypedDependencyProperty_T
+    class "TypedObserverDependencyProperty<T>" as TypedObserverDependencyProperty_T
+
+    interface IPropertyMethods {
+        std::type_index GetType() const
+        bool Set(const IPropertyMethods* const pGet)
+    }
+    interface IDependencyPropertyMethods
+    class ObserverDependencyPropertyMethods
+    class "TypedDependencyPropertyMethods<T>" as TypedDependencyPropertyMethods_T
+
+    interface IPropertyMethodsDefinition
+    class "TypedDependencyPropertyMethodsDefinition<T>" as TypedDependencyPropertyMethodsDefinition_T
+
+
+    IPropertyMethodsDefinition <|-- TypedDependencyPropertyMethodsDefinition_T
+    DependencyPropertyDefinition *-- IPropertyMethodsDefinition
+
+
+    class DataBindingService
+    class DataBindingService_Record {
+        vector Target 
+        sourceRecord Source 
+        IPropertyMethods Methods
+    }
+    class DataBindingService_SourceRecord
+    class "vector<DataBindingService_Record>" as vector_DataBindingService_Record
+    class "vector<DataBindingInstanceHandle>" as vector_DataBindingInstanceHandle
+
+
+    DataBindingService_Record *-- DataBindingService_SourceRecord
+    vector_DataBindingService_Record *-- DataBindingService_Record
+    DataBindingService *-- vector_DataBindingService_Record
+
+    DataBindingService_SourceRecord *-- DataBindingInstanceHandle
+    DataBindingService_Record *-- vector_DataBindingInstanceHandle
+    vector_DataBindingInstanceHandle o-- DataBindingInstanceHandle
+    DataBindingService_Record o-- IPropertyMethods
+
+
+
+    IPropertyMethods <|-- IDependencyPropertyMethods
+    IPropertyMethods <|-- ObserverDependencyPropertyMethods
+    ObserverDependencyPropertyMethods o.. IObjectObserver
+    IDependencyPropertyMethods <|-- TypedDependencyPropertyMethods_T
+
+    ScopedDependencyObject o-- DataBindingService
+    ScopedDependencyObject *-- DataBindingInstanceHandle
+
+    TypedDependencyProperty_T *-- DataBindingInstanceHandle
+    TypedDependencyProperty_T o.. DataBindingService
+    TypedDependencyProperty_T .. TypedDependencyPropertyMethods_T
+    TypedDependencyProperty_T o.. TypedDependencyPropertyMethodsDefinition_T
+
+    TypedObserverDependencyProperty_T *-- DataBindingInstanceHandle
+    TypedObserverDependencyProperty_T o.. DataBindingService
+    TypedObserverDependencyProperty_T .. TypedDependencyPropertyMethods_T
+    TypedObserverDependencyProperty_T o.. TypedDependencyPropertyMethodsDefinition_T
+
+
+    TypedDependencyPropertyMethods_T o-- TypedDependencyPropertyMethodsDefinition_T
+    TypedObserverDependencyProperty_T .. ObserverDependencyPropertyMethods
+
+    ScopedDataSourceObject o-- DataBindingService
+    ScopedDataSourceObject *-- DataBindingInstanceHandle
+}
+
+
+class ExampleDependencyObject
+class ExampleDependencyObject2
+class ExampleObservableDataSource
+
+ExampleDependencyObject *-- DataBinding.ScopedDependencyObject
+ExampleDependencyObject *-- DataBinding.TypedDependencyProperty_T
+ExampleDependencyObject *.. DataBinding.DependencyPropertyDefinition
+
+ExampleDependencyObject .. DataBinding.TypedDependencyPropertyMethodsDefinition_T
+
+DataBinding.IObjectObserver <|-- ExampleDependencyObject2
+ExampleDependencyObject2 *-- DataBinding.ScopedDependencyObject
+ExampleDependencyObject2 *-- DataBinding.TypedObserverDependencyProperty_T
+ExampleDependencyObject2 *.. DataBinding.DependencyPropertyDefinition
+
+
+DataBinding.IObservableObject <|-- ExampleObservableDataSource
+ExampleObservableDataSource *-- DataBinding.ScopedDataSourceObject
+
+
+@enduml

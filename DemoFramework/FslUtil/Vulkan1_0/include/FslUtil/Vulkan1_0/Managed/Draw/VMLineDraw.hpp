@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_MANAGED_DRAW_VMLINEDRAW_HPP
 #define FSLUTIL_VULKAN1_0_MANAGED_DRAW_VMLINEDRAW_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,78 +44,75 @@
 #include <array>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class VMLineDraw
   {
-    class VMLineDraw
+    //! Resources that are duplicated per command buffer to ensure that it wont be 'in-use' while we update it
+    struct FrameResources
     {
-      //! Resources that are duplicated per command buffer to ensure that it wont be 'in-use' while we update it
-      struct FrameResources
-      {
-        Vulkan::VUBufferMemory VertUboBuffer;
-        VkDescriptorSet DescriptorSet;
-        Vulkan::VMVertexBuffer LineVertBuffer;
-      };
-
-      struct Resources
-      {
-        bool IsValid{false};
-        std::shared_ptr<VMBufferManager> BufferManager;
-        RapidVulkan::DescriptorSetLayout MainDescriptorSetLayout;
-        RapidVulkan::DescriptorPool MainDescriptorPool;
-        RapidVulkan::PipelineLayout MainPipelineLayout;
-        std::vector<FrameResources> MainFrameResources;
-      };
-
-      struct DependentResources
-      {
-        bool IsValid{false};
-        RapidVulkan::GraphicsPipeline PipelineRender;
-      };
-
-      Resources m_resources;
-      DependentResources m_dependentResources;
-
-    public:
-      VMLineDraw() = default;
-      VMLineDraw(const VUDevice& device, const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t maxFrames,
-                 const std::size_t sizeOfVertexUBOData, const uint32_t initialLineCapacity);
-
-      void Reset() noexcept;
-      void Reset(const VUDevice& device, const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t maxFrames,
-                 const std::size_t sizeOfVertexUBOData, const uint32_t initialLineCapacity);
-
-      void BuildResources(const VkExtent2D& extent, const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
-                          const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor = false);
-      void FreeResources() noexcept;
-
-      void UpdateVertexUBO(const void* pVertexUBOData, const std::size_t& sizeOfVertexUBOData, const uint32_t frameIndex);
-
-      void Draw(const VkCommandBuffer commandBuffer, const VertexPositionColor* pVertices, const std::size_t vertexCount, const uint32_t frameIndex);
-
-      void Draw(const VkCommandBuffer commandBuffer, const VertexSpan<VertexPositionColor>& vertexSpan, const uint32_t frameIndex)
-      {
-        Draw(commandBuffer, vertexSpan.pVertices, vertexSpan.VertexCount, frameIndex);
-      }
-
-      template <std::size_t TSize>
-      void Draw(const VkCommandBuffer commandBuffer, const std::array<VertexPositionColor, TSize>& vertices, const uint32_t frameIndex)
-      {
-        Draw(commandBuffer, vertices.data(), vertices.size(), frameIndex);
-      }
-
-      void Draw(const VkCommandBuffer commandBuffer, const std::vector<VertexPositionColor>& vertices, const uint32_t frameIndex)
-      {
-        Draw(commandBuffer, vertices.data(), vertices.size(), frameIndex);
-      }
-
-      bool IsValid() const
-      {
-        return m_resources.IsValid;
-      }
+      Vulkan::VUBufferMemory VertUboBuffer;
+      VkDescriptorSet DescriptorSet;
+      Vulkan::VMVertexBuffer LineVertBuffer;
     };
-  }
+
+    struct Resources
+    {
+      bool IsValid{false};
+      std::shared_ptr<VMBufferManager> BufferManager;
+      RapidVulkan::DescriptorSetLayout MainDescriptorSetLayout;
+      RapidVulkan::DescriptorPool MainDescriptorPool;
+      RapidVulkan::PipelineLayout MainPipelineLayout;
+      std::vector<FrameResources> MainFrameResources;
+    };
+
+    struct DependentResources
+    {
+      bool IsValid{false};
+      RapidVulkan::GraphicsPipeline PipelineRender;
+    };
+
+    Resources m_resources;
+    DependentResources m_dependentResources;
+
+  public:
+    VMLineDraw() = default;
+    VMLineDraw(const VUDevice& device, const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t maxFrames,
+               const std::size_t sizeOfVertexUBOData, const uint32_t initialLineCapacity);
+
+    void Reset() noexcept;
+    void Reset(const VUDevice& device, const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t maxFrames,
+               const std::size_t sizeOfVertexUBOData, const uint32_t initialLineCapacity);
+
+    void BuildResources(const VkExtent2D& extent, const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
+                        const VkRenderPass renderPass, const uint32_t subpass, const bool dynamicScissor = false);
+    void FreeResources() noexcept;
+
+    void UpdateVertexUBO(const void* pVertexUBOData, const std::size_t& sizeOfVertexUBOData, const uint32_t frameIndex);
+
+    void Draw(const VkCommandBuffer commandBuffer, const VertexPositionColor* pVertices, const std::size_t vertexCount, const uint32_t frameIndex);
+
+    void Draw(const VkCommandBuffer commandBuffer, const VertexSpan<VertexPositionColor>& vertexSpan, const uint32_t frameIndex)
+    {
+      Draw(commandBuffer, vertexSpan.pVertices, vertexSpan.VertexCount, frameIndex);
+    }
+
+    template <std::size_t TSize>
+    void Draw(const VkCommandBuffer commandBuffer, const std::array<VertexPositionColor, TSize>& vertices, const uint32_t frameIndex)
+    {
+      Draw(commandBuffer, vertices.data(), vertices.size(), frameIndex);
+    }
+
+    void Draw(const VkCommandBuffer commandBuffer, const std::vector<VertexPositionColor>& vertices, const uint32_t frameIndex)
+    {
+      Draw(commandBuffer, vertices.data(), vertices.size(), frameIndex);
+    }
+
+    bool IsValid() const
+    {
+      return m_resources.IsValid;
+    }
+  };
 }
 
 #endif

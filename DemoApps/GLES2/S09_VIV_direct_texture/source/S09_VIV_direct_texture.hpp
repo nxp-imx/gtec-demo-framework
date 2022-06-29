@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Matrix.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
-#include <FslBase/Math/Matrix.hpp>
 
 namespace Fsl
 {

@@ -33,22 +33,22 @@
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
-#include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/ImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include "GridScene.hpp"
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <deque>
+#include "Bloom/BloomRender.hpp"
 #include "Grid.hpp"
 #include "GridRender/GridRenderNativeBatchBasic.hpp"
 #include "GridRender/GridRenderNativeBatchCRSpline1.hpp"
 #include "GridRender/GridRenderNativeBatchCRSpline2.hpp"
 #include "GridRender/GridRenderNativeBatchCRSpline3.hpp"
-#include "Bloom/BloomRender.hpp"
-#include <deque>
+#include "GridScene.hpp"
 
 namespace Fsl
 {

@@ -33,83 +33,80 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class StateEventSenderHistory
   {
-    class StateEventSenderHistory
+    int32_t m_lastSourceId{0};
+    int32_t m_lastSourceSubId{0};
+    bool m_useHistory{false};
+    bool m_historyCompleted{false};
+    bool m_locked{false};
+    bool m_isReceiverDead{false};
+
+  public:
+    StateEventSenderHistory() = default;
+
+
+    void Begin(const int32_t sourceId, const int32_t sourceSubId)
     {
-      int32_t m_lastSourceId{0};
-      int32_t m_lastSourceSubId{0};
-      bool m_useHistory{false};
-      bool m_historyCompleted{false};
-      bool m_locked{false};
-      bool m_isReceiverDead{false};
+      if (!m_locked)
+      {
+        m_lastSourceId = sourceId;
+        m_lastSourceSubId = sourceSubId;
+        m_useHistory = true;
+        m_historyCompleted = false;
+        m_isReceiverDead = false;
+      }
+    }
 
-    public:
-      StateEventSenderHistory() = default;
+    void End()
+    {
+      if (!m_locked)
+      {
+        m_lastSourceId = 0;
+        m_useHistory = false;
+        m_historyCompleted = true;
+      }
+    }
 
-
-      void Begin(const int32_t sourceId, const int32_t sourceSubId)
-      {
-        if (!m_locked)
-        {
-          m_lastSourceId = sourceId;
-          m_lastSourceSubId = sourceSubId;
-          m_useHistory = true;
-          m_historyCompleted = false;
-          m_isReceiverDead = false;
-        }
-      }
-
-      void End()
-      {
-        if (!m_locked)
-        {
-          m_lastSourceId = 0;
-          m_useHistory = false;
-          m_historyCompleted = true;
-        }
-      }
-
-      void Lock()
-      {
-        m_locked = true;
-      }
-      void Unlock()
-      {
-        m_locked = false;
-      }
-      void MarkReceiverAsDead()
-      {
-        m_isReceiverDead = true;
-      }
-      bool IsLocked() const
-      {
-        return m_locked;
-      }
-      bool IsReceiverDead() const
-      {
-        return m_isReceiverDead;
-      }
-      bool UseHistory() const
-      {
-        return m_useHistory;
-      }
-      bool IsCompleted() const
-      {
-        return m_historyCompleted;
-      }
-      int32_t LastSourceId() const
-      {
-        return m_lastSourceId;
-      }
-      int32_t LastSourceSubId() const
-      {
-        return m_lastSourceSubId;
-      }
-    };
-  }
+    void Lock()
+    {
+      m_locked = true;
+    }
+    void Unlock()
+    {
+      m_locked = false;
+    }
+    void MarkReceiverAsDead()
+    {
+      m_isReceiverDead = true;
+    }
+    bool IsLocked() const
+    {
+      return m_locked;
+    }
+    bool IsReceiverDead() const
+    {
+      return m_isReceiverDead;
+    }
+    bool UseHistory() const
+    {
+      return m_useHistory;
+    }
+    bool IsCompleted() const
+    {
+      return m_historyCompleted;
+    }
+    int32_t LastSourceId() const
+    {
+      return m_lastSourceId;
+    }
+    int32_t LastSourceSubId() const
+    {
+      return m_lastSourceSubId;
+    }
+  };
 }
 
 #endif

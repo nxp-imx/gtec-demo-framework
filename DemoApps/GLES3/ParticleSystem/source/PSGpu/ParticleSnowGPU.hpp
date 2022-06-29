@@ -55,12 +55,12 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 3> elements = {
-        VertexElementEx(offsetof(ParticleSnowGPU, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(ParticleSnowGPU, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Custom, 0),
-        VertexElementEx(offsetof(ParticleSnowGPU, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
+      constexpr std::array<VertexElement, 3> elements = {
+        VertexElement(offsetof(ParticleSnowGPU, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(ParticleSnowGPU, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Custom, 0),
+        VertexElement(offsetof(ParticleSnowGPU, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
       };
-      return VertexDeclarationArray<3>(elements, sizeof(ParticleSnowGPU));
+      return {elements, sizeof(ParticleSnowGPU)};
     }
 
 

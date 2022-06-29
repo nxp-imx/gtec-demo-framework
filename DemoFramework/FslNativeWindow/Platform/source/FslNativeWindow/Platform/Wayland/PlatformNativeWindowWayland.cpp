@@ -23,23 +23,22 @@
 
 // Wayland code adapted for the DemoFramework by Freescale 2014
 
-#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowSystemWayland.hpp>
-#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWayland.hpp>
-#include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
-#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
-#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <wayland-client.h>
-#include <wayland-cursor.h>
-
-#include <algorithm>
+#include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
+#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
+#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowSystemWayland.hpp>
+#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWayland.hpp>
 #include <linux/input.h>
 #include <string.h>
+#include <wayland-client.h>
+#include <wayland-cursor.h>
+#include <algorithm>
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
 #include <ilm/ivi-application-client-protocol.h>
 #include <sys/types.h>

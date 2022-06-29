@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S07_EnvironmentMapping.hpp"
 #include <array>
+#include "S07_EnvironmentMapping.hpp"
 
 namespace Fsl
 {

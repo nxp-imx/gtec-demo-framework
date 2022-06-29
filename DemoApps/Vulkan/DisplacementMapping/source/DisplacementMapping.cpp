@@ -30,13 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include "DisplacementMapping.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <algorithm>
@@ -181,7 +181,7 @@ namespace Fsl
           {
             vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Wireframe.Get());
             vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Object.GetIndexCount(), 1, 0, 0, 0);
-            scissor.offset.x = screenExtent.width / 2;
+            scissor.offset.x = UncheckedNumericCast<int32_t>(screenExtent.width) / 2;
             vkCmdSetScissor(m_drawCmdBuffers[i], 0, 1, &scissor);
           }
 

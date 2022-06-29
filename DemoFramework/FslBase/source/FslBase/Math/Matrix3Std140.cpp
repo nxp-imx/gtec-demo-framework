@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Matrix3Std140.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Matrix3Std140.hpp>
 #include <FslBase/Math/Matrix3Std140Fields.hpp>
 #include <cassert>
 #include <cmath>

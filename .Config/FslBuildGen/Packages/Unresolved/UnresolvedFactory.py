@@ -61,6 +61,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackageF
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackagePaths
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerateGrpcProtoFile import UnresolvedPackageGenerateGrpcProtoFile
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedPackageVariant
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
@@ -107,7 +108,9 @@ class UnresolvedFactory(object):
     def CreateUnresolvedPackage(createContext: FactoryCreateContext, packageProjectContext: PackageProjectContext,
                                 nameInfo: PackageNameInfo, companyName: CompanyName, creationYear: Optional[str], packageFile: Optional[PackageFile],
                                 sourceFileHash: str, packageType: PackageType, packageFlags: UnresolvedPackageFlags, packageLanguage: PackageLanguage,
-                                generateList: List[UnresolvedPackageGenerate], directDependencies: List[UnresolvedPackageDependency],
+                                generateList: List[UnresolvedPackageGenerate],
+                                generateGrpcProtofileList: List[UnresolvedPackageGenerateGrpcProtoFile],
+                                directDependencies: List[UnresolvedPackageDependency],
                                 directRequirements: List[UnresolvedPackageRequirement], directDefines: List[UnresolvedPackageDefine],
                                 externalDependencies: List[UnresolvedExternalDependency], path: UnresolvedPackagePaths, templateType: str,
                                 buildCustomization: Dict[str, XmlGenFileBuildCustomization], directExperimentalRecipe: Optional[XmlExperimentalRecipe],
@@ -123,9 +126,9 @@ class UnresolvedFactory(object):
         directDependencies = UnresolvedFilter.FilterOnConditions(createContext.Log, createContext.GeneratorInfo, directDependencies, "Dependency")
 
         return UnresolvedPackage(packageProjectContext, nameInfo, companyName, creationYear, packageFile, sourceFileHash, packageType,
-                                 packageFlags, packageLanguage, generateList, directDependencies, directRequirements, directDefines, externalDependencies, path,
-                                 templateType, buildCustomization, directExperimentalRecipe, resolvedPlatform, directPlatformSupported,
-                                 customInfo, traceContext)
+                                 packageFlags, packageLanguage, generateList, generateGrpcProtofileList, directDependencies, directRequirements,
+                                 directDefines, externalDependencies, path, templateType, buildCustomization, directExperimentalRecipe,
+                                 resolvedPlatform, directPlatformSupported, customInfo, traceContext)
 
 
     @staticmethod

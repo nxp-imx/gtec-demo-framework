@@ -31,18 +31,15 @@
 
 #include <FslBase/Log/Logger1.hpp>
 
-namespace Fsl
+namespace Fsl::Logger
 {
-  namespace Logger
+  void WriteLine(const LogType logType, const std::string& str) noexcept
   {
-    void WriteLine(const LogType logType, const std::string& str) noexcept
-    {
-      WriteLine(logType, str.c_str());
-    }
+    WriteLine(logType, str.c_str());
+  }
 
-    void WriteLine(const LogLocation& location, const LogType logType, const std::string& str) noexcept
-    {
-      WriteLine(location, logType, str.c_str());
-    }
+  void WriteLine(const LogLocation& location, const LogType logType, const std::string& str) noexcept
+  {
+    WriteLine(location, logType, str.c_str());
   }
 }

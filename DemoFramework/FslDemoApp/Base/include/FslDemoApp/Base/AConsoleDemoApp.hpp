@@ -35,13 +35,13 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/IDemoApp.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
+#include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <memory>
 
 namespace Fsl

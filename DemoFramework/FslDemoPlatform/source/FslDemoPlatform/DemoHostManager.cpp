@@ -37,13 +37,13 @@
 #include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/IDemoHostFactory.hpp>
 #include <FslDemoHost/Base/Service/Host/IHostInfoControl.hpp>
-#include <FslDemoHost/Base/Service/Test/ITestService.hpp>
 #include <FslDemoHost/Base/Service/NativeWindowEvents/INativeWindowEventSender.hpp>
+#include <FslDemoHost/Base/Service/Test/ITestService.hpp>
 #include <FslDemoPlatform/DemoHostManager.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
-#include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
+#include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <cassert>
 #include <thread>
 
@@ -117,7 +117,7 @@ namespace Fsl
   }
 
 
-  int DemoHostManager::Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper)
+  int DemoHostManager::Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper, FNMainLoopCallback mainLoopCallbackFunction)
   {
     FSLLOG3_VERBOSE("DemoHostManager: Running");
     auto windowMetrics = m_demoHost->GetWindowMetrics();
@@ -142,9 +142,14 @@ namespace Fsl
           AppProcess(windowMetrics, isConsoleBasedHost);
         }
       }
+      if (mainLoopCallbackFunction != nullptr)
+      {
+        mainLoopCallbackFunction();
+      }
     }
     return m_demoAppManager->CloseApp();
   }
+
 
   void DemoHostManager::AppProcess(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedHost)
   {

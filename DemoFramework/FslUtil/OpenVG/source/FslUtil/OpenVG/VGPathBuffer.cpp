@@ -30,201 +30,198 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenVG/Common.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
 #include <FslUtil/OpenVG/VGPathBuffer.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  namespace
   {
-    namespace
+    VGPath CreatePath(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments)
     {
-      VGPath CreatePath(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments)
+      const float bias = 0.0f;
+      const float scale = 1.0f;
+      VGPath hPath = VG_INVALID_HANDLE;
+      try
       {
-        const float bias = 0.0f;
-        const float scale = 1.0f;
-        VGPath hPath = VG_INVALID_HANDLE;
-        try
+        hPath = vgCreatePath(VG_PATH_FORMAT_STANDARD, VG_PATH_DATATYPE_F, scale, bias, static_cast<VGint>(segments.size()),
+                             static_cast<VGint>(vertices.size()), VG_PATH_CAPABILITY_ALL);
+        FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
+        vgAppendPathData(hPath, static_cast<VGint>(segments.size()), &segments[0], &vertices[0]);
+        FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
+      }
+      catch (const std::exception&)
+      {
+        if (hPath != VG_INVALID_HANDLE)
         {
-          hPath = vgCreatePath(VG_PATH_FORMAT_STANDARD, VG_PATH_DATATYPE_F, scale, bias, static_cast<VGint>(segments.size()),
-                               static_cast<VGint>(vertices.size()), VG_PATH_CAPABILITY_ALL);
-          FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
-          vgAppendPathData(hPath, static_cast<VGint>(segments.size()), &segments[0], &vertices[0]);
-          FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
+          vgDestroyPath(hPath);
         }
-        catch (const std::exception&)
-        {
-          if (hPath != VG_INVALID_HANDLE)
-          {
-            vgDestroyPath(hPath);
-          }
-          throw;
-        }
-        return hPath;
-      }
-    }
-
-
-    VGPathBuffer::VGPathBuffer()
-      : m_path(VG_INVALID_HANDLE)
-
-    {
-    }
-
-
-    VGPathBuffer::VGPathBuffer(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments)
-      : VGPathBuffer()
-    {
-      try
-      {
-        Reset(vertices, segments);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
         throw;
       }
+      return hPath;
     }
+  }
 
 
-    VGPathBuffer::VGPathBuffer(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments)
-      : VGPathBuffer()
+  VGPathBuffer::VGPathBuffer()
+    : m_path(VG_INVALID_HANDLE)
+
+  {
+  }
+
+
+  VGPathBuffer::VGPathBuffer(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments)
+    : VGPathBuffer()
+  {
+    try
     {
-      try
-      {
-        Reset(vertices, segments);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+      Reset(vertices, segments);
     }
-
-
-    VGPathBuffer::VGPathBuffer(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
-                               const std::vector<VGubyte>& segments)
-      : VGPathBuffer()
-    {
-      try
-      {
-        Reset(vertices, startVertex, vertexCount, segments);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
-    }
-
-
-    VGPathBuffer::VGPathBuffer(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
-                               const std::vector<VGubyte>& segments)
-      : VGPathBuffer()
-    {
-      try
-      {
-        Reset(vertices, startVertex, vertexCount, segments);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
-    }
-
-    VGPathBuffer::~VGPathBuffer()
+    catch (const std::exception&)
     {
       Reset();
+      throw;
     }
+  }
 
 
-    void VGPathBuffer::Reset()
+  VGPathBuffer::VGPathBuffer(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments)
+    : VGPathBuffer()
+  {
+    try
     {
-      if (m_path != VG_INVALID_HANDLE)
-      {
-        vgDestroyPath(m_path);
-        m_path = VG_INVALID_HANDLE;
-      }
+      Reset(vertices, segments);
     }
-
-
-    void VGPathBuffer::Reset(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments)
+    catch (const std::exception&)
     {
-      if (vertices.size() > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("Vertex count overflowed a uint32_t");
-      }
-
-      Reset(vertices, 0, static_cast<uint32_t>(vertices.size()), segments);
+      Reset();
+      throw;
     }
+  }
 
 
-    void VGPathBuffer::Reset(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments)
-    {
-      if (vertices.size() > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("Vertex count overflowed a uint32_t");
-      }
-
-      Reset(vertices, 0, static_cast<uint32_t>(vertices.size()), segments);
-    }
-
-
-    void VGPathBuffer::Reset(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
+  VGPathBuffer::VGPathBuffer(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
                              const std::vector<VGubyte>& segments)
+    : VGPathBuffer()
+  {
+    try
     {
-      assert((startVertex + vertexCount) <= vertices.size());
-
-      if (m_path != VG_INVALID_HANDLE)
-      {
-        vgDestroyPath(m_path);
-        m_path = VG_INVALID_HANDLE;
-      }
-
-      m_vertices.resize(vertexCount);
-      std::copy(vertices.begin() + startVertex, vertices.begin() + (startVertex + vertexCount), m_vertices.begin());
-
-      m_segments = segments;
-
-      m_path = CreatePath(m_vertices, m_segments);
+      Reset(vertices, startVertex, vertexCount, segments);
     }
+    catch (const std::exception&)
+    {
+      Reset();
+      throw;
+    }
+  }
 
 
-    void VGPathBuffer::Reset(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
+  VGPathBuffer::VGPathBuffer(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
                              const std::vector<VGubyte>& segments)
+    : VGPathBuffer()
+  {
+    try
     {
-      assert((startVertex + vertexCount) <= static_cast<int>(vertices.size()));
+      Reset(vertices, startVertex, vertexCount, segments);
+    }
+    catch (const std::exception&)
+    {
+      Reset();
+      throw;
+    }
+  }
 
-      if (m_path != VG_INVALID_HANDLE)
-      {
-        vgDestroyPath(m_path);
-        m_path = VG_INVALID_HANDLE;
-      }
+  VGPathBuffer::~VGPathBuffer()
+  {
+    Reset();
+  }
 
-      m_vertices.resize(vertexCount * 2);
-      uint32_t dstIdx = 0;
-      for (uint32_t i = 0; i < vertexCount; ++i)
-      {
-        m_vertices[dstIdx + 0] = vertices[startVertex + i].X;
-        m_vertices[dstIdx + 1] = vertices[startVertex + i].Y;
-        dstIdx += 2;
-      }
 
-      m_segments = segments;
+  void VGPathBuffer::Reset()
+  {
+    if (m_path != VG_INVALID_HANDLE)
+    {
+      vgDestroyPath(m_path);
+      m_path = VG_INVALID_HANDLE;
+    }
+  }
 
-      m_path = CreatePath(m_vertices, m_segments);
+
+  void VGPathBuffer::Reset(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments)
+  {
+    if (vertices.size() > std::numeric_limits<uint32_t>::max())
+    {
+      throw NotSupportedException("Vertex count overflowed a uint32_t");
     }
 
+    Reset(vertices, 0, static_cast<uint32_t>(vertices.size()), segments);
+  }
 
-    VGPath VGPathBuffer::GetHandle() const
+
+  void VGPathBuffer::Reset(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments)
+  {
+    if (vertices.size() > std::numeric_limits<uint32_t>::max())
     {
-      return m_path;
+      throw NotSupportedException("Vertex count overflowed a uint32_t");
     }
+
+    Reset(vertices, 0, static_cast<uint32_t>(vertices.size()), segments);
+  }
+
+
+  void VGPathBuffer::Reset(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
+                           const std::vector<VGubyte>& segments)
+  {
+    assert((startVertex + vertexCount) <= vertices.size());
+
+    if (m_path != VG_INVALID_HANDLE)
+    {
+      vgDestroyPath(m_path);
+      m_path = VG_INVALID_HANDLE;
+    }
+
+    m_vertices.resize(vertexCount);
+    std::copy(vertices.begin() + startVertex, vertices.begin() + (startVertex + vertexCount), m_vertices.begin());
+
+    m_segments = segments;
+
+    m_path = CreatePath(m_vertices, m_segments);
+  }
+
+
+  void VGPathBuffer::Reset(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
+                           const std::vector<VGubyte>& segments)
+  {
+    assert((startVertex + vertexCount) <= static_cast<int>(vertices.size()));
+
+    if (m_path != VG_INVALID_HANDLE)
+    {
+      vgDestroyPath(m_path);
+      m_path = VG_INVALID_HANDLE;
+    }
+
+    m_vertices.resize(vertexCount * 2);
+    uint32_t dstIdx = 0;
+    for (uint32_t i = 0; i < vertexCount; ++i)
+    {
+      m_vertices[dstIdx + 0] = vertices[startVertex + i].X;
+      m_vertices[dstIdx + 1] = vertices[startVertex + i].Y;
+      dstIdx += 2;
+    }
+
+    m_segments = segments;
+
+    m_path = CreatePath(m_vertices, m_segments);
+  }
+
+
+  VGPath VGPathBuffer::GetHandle() const
+  {
+    return m_path;
   }
 }

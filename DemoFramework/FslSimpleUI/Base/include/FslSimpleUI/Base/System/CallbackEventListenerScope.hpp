@@ -33,26 +33,23 @@
 
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class CallbackEventListener;
+
+
+  //! @brief This 'magic' object is safe for use inside the same thread.
+  //!        The pattern could call a destoyed object if used in multithreaded scenarios, so dont do that!
+  class CallbackEventListenerScope
   {
-    class CallbackEventListener;
+    std::shared_ptr<CallbackEventListener> m_listener;
 
+  public:
+    explicit CallbackEventListenerScope(IEventListener* const pForwardTo);
+    ~CallbackEventListenerScope();
 
-    //! @brief This 'magic' object is safe for use inside the same thread.
-    //!        The pattern could call a destoyed object if used in multithreaded scenarios, so dont do that!
-    class CallbackEventListenerScope
-    {
-      std::shared_ptr<CallbackEventListener> m_listener;
-
-    public:
-      explicit CallbackEventListenerScope(IEventListener* const pForwardTo);
-      ~CallbackEventListenerScope();
-
-      std::shared_ptr<IEventListener> GetListener() const;
-    };
-  }
+    std::shared_ptr<IEventListener> GetListener() const;
+  };
 }
 
 #endif

@@ -34,35 +34,32 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  struct RawMeshContentEx
   {
-    struct RawMeshContentEx
+    void* pVertices;
+    void* pIndices;
+    uint32_t IndexCount;
+    uint32_t IndexStride;
+    uint32_t VertexCount;
+    uint32_t VertexStride;
+    PrimitiveType ThePrimitiveType;
+
+    RawMeshContentEx();
+    RawMeshContentEx(void* const pTheVertices, const uint32_t vertexCount, const uint32_t vertexStride, void* const pTheIndices,
+                     const uint32_t indexCount, const uint32_t indexStride, const PrimitiveType primitiveType);
+
+    uint32_t VertexArrayByteSize() const
     {
-      void* pVertices;
-      void* pIndices;
-      uint32_t IndexCount;
-      uint32_t IndexStride;
-      uint32_t VertexCount;
-      uint32_t VertexStride;
-      PrimitiveType ThePrimitiveType;
+      return VertexStride * VertexCount;
+    }
 
-      RawMeshContentEx();
-      RawMeshContentEx(void* const pTheVertices, const uint32_t vertexCount, const uint32_t vertexStride, void* const pTheIndices,
-                       const uint32_t indexCount, const uint32_t indexStride, const PrimitiveType primitiveType);
-
-      uint32_t VertexArrayByteSize() const
-      {
-        return VertexStride * VertexCount;
-      }
-
-      uint32_t IndexArrayByteSize() const
-      {
-        return IndexStride * IndexCount;
-      }
-    };
-  }
+    uint32_t IndexArrayByteSize() const
+    {
+      return IndexStride * IndexCount;
+    }
+  };
 }
 
 #endif

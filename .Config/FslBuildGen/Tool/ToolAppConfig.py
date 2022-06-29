@@ -56,6 +56,7 @@ class DefaultValue(object):
     RemainingArgs = []  # type: List[str]
     BuildThreads = BuildThreads.Auto  # Not set
     CMakeBuildDir = None # type: Optional[str]
+    CMakeBuildDirId = None # type: Optional[int]
     CMakeInstallPrefix = None # type: Optional[str]
     CMakeGeneratorName = None # type: Optional[str]
     CMakeConfigArgs = None # type: Optional[str]               # applied to app cmake config only
@@ -79,6 +80,7 @@ class ToolAppConfig(object):
         self.Recursive = False
 
         self.CMakeBuildDir = DefaultValue.CMakeBuildDir
+        self.CMakeBuildDirId = DefaultValue.CMakeBuildDirId
         self.CMakeInstallPrefix = DefaultValue.CMakeInstallPrefix
         self.CMakeGeneratorName = DefaultValue.CMakeGeneratorName
         self.CMakeConfigArgs = DefaultValue.CMakeConfigArgs
@@ -105,6 +107,7 @@ class ToolAppConfig(object):
         self.Recursive = toolAppConfig.Recursive
 
         self.CMakeBuildDir = toolAppConfig.CMakeBuildDir
+        self.CMakeBuildDirId = toolAppConfig.CMakeBuildDirId
         self.CMakeInstallPrefix = toolAppConfig.CMakeInstallPrefix
         self.CMakeGeneratorName = toolAppConfig.CMakeGeneratorName
         self.CMakeConfigArgs = toolAppConfig.CMakeConfigArgs
@@ -113,5 +116,5 @@ class ToolAppConfig(object):
         self.UserSetVariables = toolAppConfig.UserSetVariables
 
     def GetUserCMakeConfig(self) -> UserCMakeConfig:
-        return UserCMakeConfig(self.CMakeBuildDir, self.CMakeGeneratorName, self.CMakeInstallPrefix, self.CMakeConfigArgs,
+        return UserCMakeConfig(self.CMakeBuildDir, self.CMakeBuildDirId, self.CMakeGeneratorName, self.CMakeInstallPrefix, self.CMakeConfigArgs,
                                self.CMakeConfigGlobalArgs, self.CMakeAllowFindPackage)

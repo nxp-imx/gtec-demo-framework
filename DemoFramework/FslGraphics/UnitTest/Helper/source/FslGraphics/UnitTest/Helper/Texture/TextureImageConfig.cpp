@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,177 +29,174 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/UnitTest/Helper/Texture/TextureImageConfig.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
+#include <FslGraphics/UnitTest/Helper/Texture/TextureImageConfig.hpp>
 
 
-namespace Fsl
+namespace Fsl::TextureImageConfig
 {
-  namespace TextureImageConfig
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+  // R8G8B8
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+
+  R8G8B8::pixel_t R8G8B8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
   {
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-    // R8G8B8
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-    R8G8B8::pixel_t R8G8B8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+    if (!image.IsValid())
     {
-      if (!image.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (image.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      pixel_t pixel;
-      pixel.R = image.GetUInt8(0, 0, 0, (x * 3) + 0, y, 0, ignoreOrigin);
-      pixel.G = image.GetUInt8(0, 0, 0, (x * 3) + 1, y, 0, ignoreOrigin);
-      pixel.B = image.GetUInt8(0, 0, 0, (x * 3) + 2, y, 0, ignoreOrigin);
-      return pixel;
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (image.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
+    pixel_t pixel;
+    pixel.R = image.GetUInt8(0, 0, 0, (x * 3) + 0, y, 0, ignoreOrigin);
+    pixel.G = image.GetUInt8(0, 0, 0, (x * 3) + 1, y, 0, ignoreOrigin);
+    pixel.B = image.GetUInt8(0, 0, 0, (x * 3) + 2, y, 0, ignoreOrigin);
+    return pixel;
+  }
 
-    void R8G8B8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+
+  void R8G8B8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+  {
+    if (!rImage.IsValid())
     {
-      if (!rImage.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      rImage.SetUInt8(0, 0, 0, (x * 3) + 0, y, 0, pixel.R, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 3) + 1, y, 0, pixel.G, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 3) + 2, y, 0, pixel.B, ignoreOrigin);
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-    // B8G8R8
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
+    rImage.SetUInt8(0, 0, 0, (x * 3) + 0, y, 0, pixel.R, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 3) + 1, y, 0, pixel.G, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 3) + 2, y, 0, pixel.B, ignoreOrigin);
+  }
+
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+  // B8G8R8
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-    B8G8R8::pixel_t B8G8R8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+  B8G8R8::pixel_t B8G8R8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+  {
+    if (!image.IsValid())
     {
-      if (!image.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (image.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      pixel_t pixel;
-      pixel.B = image.GetUInt8(0, 0, 0, (x * 3) + 0, y, 0, ignoreOrigin);
-      pixel.G = image.GetUInt8(0, 0, 0, (x * 3) + 1, y, 0, ignoreOrigin);
-      pixel.R = image.GetUInt8(0, 0, 0, (x * 3) + 2, y, 0, ignoreOrigin);
-      return pixel;
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (image.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
+    pixel_t pixel;
+    pixel.B = image.GetUInt8(0, 0, 0, (x * 3) + 0, y, 0, ignoreOrigin);
+    pixel.G = image.GetUInt8(0, 0, 0, (x * 3) + 1, y, 0, ignoreOrigin);
+    pixel.R = image.GetUInt8(0, 0, 0, (x * 3) + 2, y, 0, ignoreOrigin);
+    return pixel;
+  }
 
-    void B8G8R8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+
+  void B8G8R8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+  {
+    if (!rImage.IsValid())
     {
-      if (!rImage.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      rImage.SetUInt8(0, 0, 0, (x * 3) + 0, y, 0, pixel.B, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 3) + 1, y, 0, pixel.G, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 3) + 2, y, 0, pixel.R, ignoreOrigin);
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
+    rImage.SetUInt8(0, 0, 0, (x * 3) + 0, y, 0, pixel.B, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 3) + 1, y, 0, pixel.G, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 3) + 2, y, 0, pixel.R, ignoreOrigin);
+  }
 
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-    // R8G8B8A8
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-    R8G8B8A8::pixel_t R8G8B8A8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+  // R8G8B8A8
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+  R8G8B8A8::pixel_t R8G8B8A8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+  {
+    if (!image.IsValid())
     {
-      if (!image.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (image.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      pixel_t pixel;
-      pixel.R = image.GetUInt8(0, 0, 0, (x * 4) + 0, y, 0, ignoreOrigin);
-      pixel.G = image.GetUInt8(0, 0, 0, (x * 4) + 1, y, 0, ignoreOrigin);
-      pixel.B = image.GetUInt8(0, 0, 0, (x * 4) + 2, y, 0, ignoreOrigin);
-      pixel.A = image.GetUInt8(0, 0, 0, (x * 4) + 3, y, 0, ignoreOrigin);
-      return pixel;
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (image.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
+    pixel_t pixel;
+    pixel.R = image.GetUInt8(0, 0, 0, (x * 4) + 0, y, 0, ignoreOrigin);
+    pixel.G = image.GetUInt8(0, 0, 0, (x * 4) + 1, y, 0, ignoreOrigin);
+    pixel.B = image.GetUInt8(0, 0, 0, (x * 4) + 2, y, 0, ignoreOrigin);
+    pixel.A = image.GetUInt8(0, 0, 0, (x * 4) + 3, y, 0, ignoreOrigin);
+    return pixel;
+  }
 
-    void R8G8B8A8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+
+  void R8G8B8A8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+  {
+    if (!rImage.IsValid())
     {
-      if (!rImage.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 0, y, 0, pixel.R, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 1, y, 0, pixel.G, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 2, y, 0, pixel.B, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 3, y, 0, pixel.A, ignoreOrigin);
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 0, y, 0, pixel.R, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 1, y, 0, pixel.G, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 2, y, 0, pixel.B, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 3, y, 0, pixel.A, ignoreOrigin);
+  }
 
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
-    // B8G8R8A8
-    // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-    B8G8R8A8::pixel_t B8G8R8A8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+  // B8G8R8A8
+  // -----------------------------------------------------------------------------------------------------------------------------------------------
+
+  B8G8R8A8::pixel_t B8G8R8A8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+  {
+    if (!image.IsValid())
     {
-      if (!image.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (image.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      pixel_t pixel;
-      pixel.B = image.GetUInt8(0, 0, 0, (x * 4) + 0, y, 0, ignoreOrigin);
-      pixel.G = image.GetUInt8(0, 0, 0, (x * 4) + 1, y, 0, ignoreOrigin);
-      pixel.R = image.GetUInt8(0, 0, 0, (x * 4) + 2, y, 0, ignoreOrigin);
-      pixel.A = image.GetUInt8(0, 0, 0, (x * 4) + 3, y, 0, ignoreOrigin);
-      return pixel;
+      throw std::invalid_argument("texture is not valid");
+    }
+    if (image.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
     }
 
+    pixel_t pixel;
+    pixel.B = image.GetUInt8(0, 0, 0, (x * 4) + 0, y, 0, ignoreOrigin);
+    pixel.G = image.GetUInt8(0, 0, 0, (x * 4) + 1, y, 0, ignoreOrigin);
+    pixel.R = image.GetUInt8(0, 0, 0, (x * 4) + 2, y, 0, ignoreOrigin);
+    pixel.A = image.GetUInt8(0, 0, 0, (x * 4) + 3, y, 0, ignoreOrigin);
+    return pixel;
+  }
 
-    void B8G8R8A8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+
+  void B8G8R8A8::SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin)
+  {
+    if (!rImage.IsValid())
     {
-      if (!rImage.IsValid())
-      {
-        throw std::invalid_argument("texture is not valid");
-      }
-      if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
-      {
-        throw std::invalid_argument("texture is not of the expected PixelFormat");
-      }
-
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 0, y, 0, pixel.B, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 1, y, 0, pixel.G, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 2, y, 0, pixel.R, ignoreOrigin);
-      rImage.SetUInt8(0, 0, 0, (x * 4) + 3, y, 0, pixel.A, ignoreOrigin);
+      throw std::invalid_argument("texture is not valid");
     }
+    if (rImage.GetPixelFormatLayout() != ActivePixelLayout)
+    {
+      throw std::invalid_argument("texture is not of the expected PixelFormat");
+    }
+
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 0, y, 0, pixel.B, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 1, y, 0, pixel.G, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 2, y, 0, pixel.R, ignoreOrigin);
+    rImage.SetUInt8(0, 0, 0, (x * 4) + 3, y, 0, pixel.A, ignoreOrigin);
   }
 }

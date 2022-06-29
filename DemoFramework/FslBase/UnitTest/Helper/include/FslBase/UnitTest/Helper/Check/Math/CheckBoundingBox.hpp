@@ -34,19 +34,16 @@
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckVector3.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const BoundingBox& lhs, const BoundingBox& rhs)
   {
-    inline bool AlmostEqual(const BoundingBox& lhs, const BoundingBox& rhs)
-    {
-      return AlmostEqual(lhs.Min, rhs.Min) && AlmostEqual(lhs.Max, rhs.Max);
-    }
+    return AlmostEqual(lhs.Min, rhs.Min) && AlmostEqual(lhs.Max, rhs.Max);
+  }
 
-    inline bool IsNear(const BoundingBox& lhs, const BoundingBox& rhs, const float absError)
-    {
-      return IsNear(lhs.Min, rhs.Min, absError) && IsNear(lhs.Max, rhs.Max, absError);
-    }
+  inline bool IsNear(const BoundingBox& lhs, const BoundingBox& rhs, const float absError)
+  {
+    return IsNear(lhs.Min, rhs.Min, absError) && IsNear(lhs.Max, rhs.Max, absError);
   }
 }
 

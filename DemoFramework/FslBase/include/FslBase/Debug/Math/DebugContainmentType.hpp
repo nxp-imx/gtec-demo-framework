@@ -33,13 +33,10 @@
 
 #include <FslBase/Math/ContainmentType.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
-  {
-    const char* TryToString(const ContainmentType& value);
-    const char* ToString(const ContainmentType& value);
-  }
+  const char* TryToString(const ContainmentType& value);
+  const char* ToString(const ContainmentType& value);
 }
 
 #endif

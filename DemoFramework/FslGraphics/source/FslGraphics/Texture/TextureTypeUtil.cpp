@@ -29,18 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Texture/TextureTypeUtil.hpp>
-#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslGraphics/Texture/TextureTypeUtil.hpp>
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::TextureTypeUtil
 {
-  namespace TextureTypeUtil
+  uint32_t GetFaceCount(const TextureType textureType)
   {
-    uint32_t GetFaceCount(const TextureType textureType)
-    {
-      return (textureType != TextureType::TexCube && textureType != TextureType::TexCubeArray) ? 1 : 6;
-    }
+    return (textureType != TextureType::TexCube && textureType != TextureType::TexCubeArray) ? 1 : 6;
   }
 }

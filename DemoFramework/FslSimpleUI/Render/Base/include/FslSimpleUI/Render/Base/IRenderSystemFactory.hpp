@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_IRENDERSYSTEMFACTORY_HPP
 #define FSLSIMPLEUI_RENDER_BASE_IRENDERSYSTEMFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,25 +35,22 @@
 #include <FslSimpleUI/Render/Base/RenderSystemInfo.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct RenderSystemCreateInfo;
+
+  class IRenderSystem;
+
+  class IRenderSystemFactory
   {
-    struct RenderSystemCreateInfo;
+  public:
+    virtual ~IRenderSystemFactory() = default;
 
-    class IRenderSystem;
+    virtual RenderSystemInfo GetInfo() const = 0;
 
-    class IRenderSystemFactory
-    {
-    public:
-      virtual ~IRenderSystemFactory() = default;
-
-      virtual RenderSystemInfo GetInfo() const = 0;
-
-      virtual std::unique_ptr<IRenderSystem> Create(const RenderSystemCreateInfo& createInfo) const = 0;
-      virtual VertexDeclarationSpan GetVertexDeclarationSpan() const = 0;
-    };
-  }
+    virtual std::unique_ptr<IRenderSystem> Create(const RenderSystemCreateInfo& createInfo) const = 0;
+    virtual VertexDeclarationSpan GetVertexDeclarationSpan() const = 0;
+  };
 }
 
 #endif

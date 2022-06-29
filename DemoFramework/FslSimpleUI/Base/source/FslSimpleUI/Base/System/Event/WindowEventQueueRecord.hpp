@@ -35,46 +35,43 @@
 #include <utility>
 #include "WindowEventQueueRecordType.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class TreeNode;
+  class WindowEvent;
+
+  struct WindowEventQueueRecord
   {
-    class TreeNode;
-    class WindowEvent;
+    WindowEventQueueRecordType Type;
+    std::shared_ptr<TreeNode> Node1;
+    std::shared_ptr<TreeNode> Node2;
+    std::shared_ptr<WindowEvent> Event;
 
-    struct WindowEventQueueRecord
+
+    WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> node)
+      : Type(type)
+      , Node1(std::move(node))
     {
-      WindowEventQueueRecordType Type;
-      std::shared_ptr<TreeNode> Node1;
-      std::shared_ptr<TreeNode> Node2;
-      std::shared_ptr<WindowEvent> Event;
+    }
 
 
-      WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> node)
-        : Type(type)
-        , Node1(std::move(node))
-      {
-      }
+    WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> node1, std::shared_ptr<TreeNode> node2)
+      : Type(type)
+      , Node1(std::move(node1))
+      , Node2(std::move(node2))
+    {
+    }
 
 
-      WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> node1, std::shared_ptr<TreeNode> node2)
-        : Type(type)
-        , Node1(std::move(node1))
-        , Node2(std::move(node2))
-      {
-      }
-
-
-      WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> source, std::shared_ptr<TreeNode> target,
-                             std::shared_ptr<WindowEvent> theEvent)
-        : Type(type)
-        , Node1(std::move(source))
-        , Node2(std::move(target))
-        , Event(std::move(theEvent))
-      {
-      }
-    };
-  }
+    WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> source, std::shared_ptr<TreeNode> target,
+                           std::shared_ptr<WindowEvent> theEvent)
+      : Type(type)
+      , Node1(std::move(source))
+      , Node2(std::move(target))
+      , Event(std::move(theEvent))
+    {
+    }
+  };
 }
 
 #endif

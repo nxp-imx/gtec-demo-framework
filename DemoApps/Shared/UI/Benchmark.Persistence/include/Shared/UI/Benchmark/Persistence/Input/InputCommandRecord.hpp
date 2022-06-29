@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
-#include <Shared/UI/Benchmark/Persistence/Window/CustomWindowId.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/InputCommandId.hpp>
+#include <Shared/UI/Benchmark/Persistence/Window/CustomWindowId.hpp>
 
 namespace Fsl
 {

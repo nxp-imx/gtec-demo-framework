@@ -29,77 +29,74 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/SafeType/DeviceCreateInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/DeviceCreateInfoCopy.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief Move assignment operator
+  DeviceCreateInfoCopy& DeviceCreateInfoCopy::operator=(DeviceCreateInfoCopy&& other) noexcept
   {
-    //! @brief Move assignment operator
-    DeviceCreateInfoCopy& DeviceCreateInfoCopy::operator=(DeviceCreateInfoCopy&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        m_value = other.m_value;
-        m_queueCreateInfos = std::move(other.m_queueCreateInfos);
-        m_enabledLayerNames = std::move(other.m_enabledLayerNames);
-        m_enabledExtensionNames = std::move(other.m_enabledExtensionNames);
-        m_enabledFeatures = other.m_enabledFeatures;
+      // Claim ownership here
+      m_value = other.m_value;
+      m_queueCreateInfos = std::move(other.m_queueCreateInfos);
+      m_enabledLayerNames = std::move(other.m_enabledLayerNames);
+      m_enabledExtensionNames = std::move(other.m_enabledExtensionNames);
+      m_enabledFeatures = other.m_enabledFeatures;
 
-        // Remove the data from other
-        other.m_value = VkDeviceCreateInfo{};
-        PatchPointers();
-      }
-      return *this;
-    }
-
-    //! @brief Move constructor
-    //! Transfer ownership from other to this
-    DeviceCreateInfoCopy::DeviceCreateInfoCopy(DeviceCreateInfoCopy&& other) noexcept
-      : m_value(other.m_value)
-      , m_queueCreateInfos(std::move(other.m_queueCreateInfos))
-      , m_enabledLayerNames(std::move(other.m_enabledLayerNames))
-      , m_enabledExtensionNames(std::move(other.m_enabledExtensionNames))
-      , m_enabledFeatures(other.m_enabledFeatures)
-    {
       // Remove the data from other
       other.m_value = VkDeviceCreateInfo{};
       PatchPointers();
     }
+    return *this;
+  }
+
+  //! @brief Move constructor
+  //! Transfer ownership from other to this
+  DeviceCreateInfoCopy::DeviceCreateInfoCopy(DeviceCreateInfoCopy&& other) noexcept
+    : m_value(other.m_value)
+    , m_queueCreateInfos(std::move(other.m_queueCreateInfos))
+    , m_enabledLayerNames(std::move(other.m_enabledLayerNames))
+    , m_enabledExtensionNames(std::move(other.m_enabledExtensionNames))
+    , m_enabledFeatures(other.m_enabledFeatures)
+  {
+    // Remove the data from other
+    other.m_value = VkDeviceCreateInfo{};
+    PatchPointers();
+  }
 
 
-    DeviceCreateInfoCopy::DeviceCreateInfoCopy()
-      : m_value()
-      , m_enabledFeatures()
+  DeviceCreateInfoCopy::DeviceCreateInfoCopy()
+    : m_value()
+    , m_enabledFeatures()
+  {
+  }
+
+
+  DeviceCreateInfoCopy::DeviceCreateInfoCopy(const VkDeviceCreateInfo& value)
+    : m_value(value)
+    , m_queueCreateInfos(value.pQueueCreateInfos, value.queueCreateInfoCount)
+    , m_enabledLayerNames(value.ppEnabledLayerNames, value.enabledLayerCount)
+    , m_enabledExtensionNames(value.ppEnabledExtensionNames, value.enabledExtensionCount)
+    , m_enabledFeatures(value.pEnabledFeatures != nullptr ? *value.pEnabledFeatures : VkPhysicalDeviceFeatures{})
+  {
+    // Now use the safe copied values instead
+    PatchPointers();
+    m_value.pNext = nullptr;
+    if (Fsl::LogConfig::GetLogLevel() >= LogType::Verbose)
     {
+      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "DeviceCreateInfoCopy always stores a nullptr for pNext");
     }
+  }
 
 
-    DeviceCreateInfoCopy::DeviceCreateInfoCopy(const VkDeviceCreateInfo& value)
-      : m_value(value)
-      , m_queueCreateInfos(value.pQueueCreateInfos, value.queueCreateInfoCount)
-      , m_enabledLayerNames(value.ppEnabledLayerNames, value.enabledLayerCount)
-      , m_enabledExtensionNames(value.ppEnabledExtensionNames, value.enabledExtensionCount)
-      , m_enabledFeatures(value.pEnabledFeatures != nullptr ? *value.pEnabledFeatures : VkPhysicalDeviceFeatures{})
-    {
-      // Now use the safe copied values instead
-      PatchPointers();
-      m_value.pNext = nullptr;
-      if (Fsl::LogConfig::GetLogLevel() >= LogType::Verbose)
-      {
-        FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "DeviceCreateInfoCopy always stores a nullptr for pNext");
-      }
-    }
-
-
-    void DeviceCreateInfoCopy::PatchPointers() noexcept
-    {
-      m_value.ppEnabledLayerNames = m_value.ppEnabledLayerNames != nullptr ? m_enabledLayerNames.data() : nullptr;
-      m_value.ppEnabledExtensionNames = m_value.ppEnabledExtensionNames != nullptr ? m_enabledExtensionNames.data() : nullptr;
-      m_value.pEnabledFeatures = (m_value.pEnabledFeatures != nullptr ? &m_enabledFeatures : nullptr);
-    }
+  void DeviceCreateInfoCopy::PatchPointers() noexcept
+  {
+    m_value.ppEnabledLayerNames = m_value.ppEnabledLayerNames != nullptr ? m_enabledLayerNames.data() : nullptr;
+    m_value.ppEnabledExtensionNames = m_value.ppEnabledExtensionNames != nullptr ? m_enabledExtensionNames.data() : nullptr;
+    m_value.pEnabledFeatures = (m_value.pEnabledFeatures != nullptr ? &m_enabledFeatures : nullptr);
   }
 }

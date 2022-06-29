@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "gtest/gtest.h"
 #include <FslUnitTest/CurrentExePath.hpp>
+#include "gtest/gtest.h"
 
 GTEST_API_ int main(int argc, char** argv)
 {

@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_SYSTEM_CAMERASYSTEM_HPP
 #define SHARED_CAMERA_SYSTEM_CAMERASYSTEM_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,24 +35,21 @@
 #include <Shared/Camera/System/Camera.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  class ICameraSystemAdapter;
+  class CameraSystem
   {
-    class ICameraSystemAdapter;
-    class CameraSystem
-    {
-      std::vector<std::shared_ptr<ICameraSystemAdapter>> m_cameraAdapterSystems;
+    std::vector<std::shared_ptr<ICameraSystemAdapter>> m_cameraAdapterSystems;
 
-    public:
-      explicit CameraSystem(const std::vector<std::shared_ptr<ICameraSystemAdapter>>& cameraAdapterSystems);
-      ~CameraSystem();
+  public:
+    explicit CameraSystem(const std::vector<std::shared_ptr<ICameraSystemAdapter>>& cameraAdapterSystems);
+    ~CameraSystem();
 
-      Camera Create();
-      Camera Create(const PxExtent2D& cameraExtent);
-      Camera Create(const CameraType cameraType, const PxExtent2D& cameraExtent);
-    };
-  }
+    Camera Create();
+    Camera Create(const PxExtent2D& cameraExtent);
+    Camera Create(const CameraType cameraType, const PxExtent2D& cameraExtent);
+  };
 }
 
 #endif

@@ -33,9 +33,9 @@
 
 #include <FslDemoApp/OpenVX/DemoAppOpenVX.hpp>
 #include <RapidOpenVX/Context.hpp>
+#include <RapidOpenVX/Distribution.hpp>
 #include <RapidOpenVX/Graph.hpp>
 #include <RapidOpenVX/Image.hpp>
-#include <RapidOpenVX/Distribution.hpp>
 #include <VX/vx.h>
 #include <VX/vx_ext_program.h>
 #include <VX/vx_helper.h>

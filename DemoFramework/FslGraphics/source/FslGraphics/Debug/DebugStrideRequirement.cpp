@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,35 +31,32 @@
 
 #include <FslGraphics/Debug/DebugStrideRequirement.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
+  const char* TryToString(const StrideRequirement& value)
   {
-    const char* TryToString(const StrideRequirement& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case StrideRequirement::Minimum:
-        return "StrideRequirement::Minimum";
-      case StrideRequirement::MinimumAlign16Bit:
-        return "StrideRequirement::MinimumAlign16Bit";
-      case StrideRequirement::MinimumAlign32Bit:
-        return "StrideRequirement::MinimumAlign32Bit";
-      case StrideRequirement::Align16Bit:
-        return "StrideRequirement::Align16Bit";
-      case StrideRequirement::Align32Bit:
-        return "StrideRequirement::Align32Bit";
-      case StrideRequirement::Any:
-        return "StrideRequirement::Any";
-      default:
-        return nullptr;
-      }
+    case StrideRequirement::Minimum:
+      return "StrideRequirement::Minimum";
+    case StrideRequirement::MinimumAlign16Bit:
+      return "StrideRequirement::MinimumAlign16Bit";
+    case StrideRequirement::MinimumAlign32Bit:
+      return "StrideRequirement::MinimumAlign32Bit";
+    case StrideRequirement::Align16Bit:
+      return "StrideRequirement::Align16Bit";
+    case StrideRequirement::Align32Bit:
+      return "StrideRequirement::Align32Bit";
+    case StrideRequirement::Any:
+      return "StrideRequirement::Any";
+    default:
+      return nullptr;
     }
+  }
 
-    const char* ToString(const StrideRequirement& value)
-    {
-      const auto* const psz = TryToString(value);
-      return psz != nullptr ? psz : "Unknown";
-    }
+  const char* ToString(const StrideRequirement& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

@@ -33,41 +33,35 @@
 
 #include <FslSimpleUI/Render/Base/Command/DrawCommandType.hpp>
 
-namespace Fsl
+namespace Fsl::UI::Debug
 {
-  namespace UI
+  inline const char* TryToString(const DrawCommandType& value)
   {
-      namespace Debug
-      {
-        inline const char* TryToString(const DrawCommandType& value)
-        {
-          switch (value)
-          {
-          case DrawCommandType::Nop:
-            return "DrawCommandType::Nop";
-          case DrawCommandType::DrawAtOffsetAndSize:
-            return "DrawCommandType::DrawAtOffsetAndSize";
-          case DrawCommandType::DrawCustomBasicImageAtOffsetAndSize:
-            return "DrawCommandType::DrawCustomBasicImageAtOffsetAndSize";
-          case DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh:
-            return "DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh";
-          case DrawCommandType::DrawCustomNineSliceAtOffsetAndSize:
-            return "DrawCommandType::DrawCustomNineSliceAtOffsetAndSize";
-          case DrawCommandType::DrawCustomTextAtOffsetAndSize:
-            return "DrawCommandType::DrawCustomTextAtOffsetAndSize";
-          case DrawCommandType::DrawRot90CWAtOffsetAndSize:
-            return "DrawCommandType::DrawRot90CWAtOffsetAndSize";
-          default:
-            return nullptr;
-          }
-        }
+    switch (value)
+    {
+    case DrawCommandType::Nop:
+      return "DrawCommandType::Nop";
+    case DrawCommandType::DrawAtOffsetAndSize:
+      return "DrawCommandType::DrawAtOffsetAndSize";
+    case DrawCommandType::DrawCustomBasicImageAtOffsetAndSize:
+      return "DrawCommandType::DrawCustomBasicImageAtOffsetAndSize";
+    case DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh:
+      return "DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh";
+    case DrawCommandType::DrawCustomNineSliceAtOffsetAndSize:
+      return "DrawCommandType::DrawCustomNineSliceAtOffsetAndSize";
+    case DrawCommandType::DrawCustomTextAtOffsetAndSize:
+      return "DrawCommandType::DrawCustomTextAtOffsetAndSize";
+    case DrawCommandType::DrawRot90CWAtOffsetAndSize:
+      return "DrawCommandType::DrawRot90CWAtOffsetAndSize";
+    default:
+      return nullptr;
+    }
+  }
 
-        inline const char* ToString(const DrawCommandType& value)
-        {
-          const auto* const psz = TryToString(value);
-          return psz != nullptr ? psz : "Unknown";
-        }
-      }
+  inline const char* ToString(const DrawCommandType& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }
 

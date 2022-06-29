@@ -31,14 +31,15 @@
 
 #include "S09_VIV_direct_texture.hpp"
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <string.h>
 #include <array>
 #include <cmath>
-#include <string.h>
 #include <vector>
 
 #ifndef GL_VIV_direct_texture
@@ -93,13 +94,14 @@ namespace Fsl
       "}\n";
 
 
-    const std::array<const char*, 3> g_shaderAttributeArray = {"my_Vertex", "my_Texcoor", nullptr};
+    constexpr std::array<GLES2::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES2::GLBindAttribLocation(0, "my_Vertex"),
+                                                                                   GLES2::GLBindAttribLocation(1, "my_Texcoor")};
 
   }
 
   S09_VIV_direct_texture::S09_VIV_direct_texture(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_program(g_pszVertexShader, g_pszFragmentShader, g_shaderAttributeArray.data())
+    , m_program(g_pszVertexShader, g_pszFragmentShader, ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray))
     , m_matTransform()
     , m_angle(0.0)
     , m_raw_video()

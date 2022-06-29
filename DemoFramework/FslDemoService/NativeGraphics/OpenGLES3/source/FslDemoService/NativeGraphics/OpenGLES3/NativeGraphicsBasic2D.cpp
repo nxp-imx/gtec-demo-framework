@@ -30,8 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Color.hpp>
@@ -48,7 +49,7 @@ namespace Fsl
 
     inline bool IsValidChar(const int ch)
     {
-      return (ch >= int(MIN_VALUE) && ch <= int(MAX_VALUE));
+      return (ch >= static_cast<int>(MIN_VALUE) && ch <= static_cast<int>(MAX_VALUE));
     }
   }
 
@@ -73,7 +74,7 @@ namespace Fsl
         assert(EmbeddedFont8x8::MinCharacter() <= firstChar);
         assert(EmbeddedFont8x8::MaxCharacter() >= lastChar);
 
-        const int32_t imageWidth = fontBitmap.Width();
+        const auto imageWidth = UncheckedNumericCast<int32_t>(fontBitmap.Width());
         PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
         fontSize.AddWidth(2);
         fontSize.AddHeight(2);
@@ -100,7 +101,8 @@ namespace Fsl
           fontBitmap.SetNativePixel(x, y, 0xFFFFFFFF);
         }
       }
-      m_fillPixelRect = PxRectangle(fontBitmap.Width() - 4, fontBitmap.Height() - 4, 1, 1);
+      m_fillPixelRect =
+        PxRectangle(UncheckedNumericCast<int32_t>(fontBitmap.Width()) - 4, UncheckedNumericCast<int32_t>(fontBitmap.Height()) - 4, 1, 1);
 
       // Because GLES requires upside down textures.
       BitmapUtil::FlipHorizontal(fontBitmap);
@@ -165,10 +167,10 @@ namespace Fsl
       const char* pSrc = strView.data();
       const char* const pSrcEnd = pSrc + strView.size();
 
-      const int32_t charWidth = m_fontSize.Width();
+      const auto charWidth = static_cast<float>(m_fontSize.Width());
 
       // Handle leading 'non drawable chars' by skipping them
-      while (pSrc < pSrcEnd && !IsValidChar(int(*pSrc)))
+      while (pSrc < pSrcEnd && !IsValidChar(static_cast<int>(*pSrc)))
       {
         dstPos.X += charWidth;
         ++pSrc;
@@ -177,7 +179,7 @@ namespace Fsl
       // Build the 'glyph' list and x-adjust
       while (pSrc < pSrcEnd)
       {
-        if (IsValidChar(int(*pSrc)))
+        if (IsValidChar(static_cast<int>(*pSrc)))
         {
           m_batch2D.Draw(m_fontTexture, dstPos, m_charRects[*pSrc - MIN_VALUE], colorWhite);
         }

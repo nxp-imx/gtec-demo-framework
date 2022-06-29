@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <cassert>
 #include <utility>

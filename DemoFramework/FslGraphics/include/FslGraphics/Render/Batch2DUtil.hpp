@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_BATCH2DUTIL_HPP
 #define FSLGRAPHICS_RENDER_BATCH2DUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,374 +37,385 @@
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Batch2DUtil
 {
-  namespace Batch2DUtil
+  //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
+  inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, PxAreaRectangleF& rSrcTexRect, const PxAreaRectangleF& clipRect)
   {
-    //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
-    inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, PxAreaRectangleF& rSrcTexRect, const PxAreaRectangleF& clipRect)
+    if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
+        clipRect.Top() < rToClipRect.Bottom())
     {
-      if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
-          clipRect.Top() < rToClipRect.Bottom())
+      float dx = rToClipRect.Right() - rToClipRect.Left();
+      float dy = rToClipRect.Bottom() - rToClipRect.Top();
+      float dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
+      float dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
+      if (dx <= 0.0f || dy <= 0.0f)
       {
-        float dx = rToClipRect.Right() - rToClipRect.Left();
-        float dy = rToClipRect.Bottom() - rToClipRect.Top();
-        float dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
-        float dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
-        if (dx <= 0.0f || dy <= 0.0f)
-        {
-          // The rect was clipped to zero in one direction
-          return false;
-        }
-
-        auto clippedLeft = rToClipRect.Left();
-        auto clippedRight = rToClipRect.Right();
-        auto clippedTop = rToClipRect.Top();
-        auto clippedBottom = rToClipRect.Bottom();
-
-        auto clippedSrcLeft = rSrcTexRect.Left();
-        auto clippedSrcRight = rSrcTexRect.Right();
-        auto clippedSrcTop = rSrcTexRect.Top();
-        auto clippedSrcBottom = rSrcTexRect.Bottom();
-
-        if (clippedLeft < clipRect.Left())
-        {
-          float dxClip = clipRect.Left() - clippedLeft;
-          float len = dxClip / dx;
-
-          clippedSrcLeft += (dsx * len);
-          clippedLeft = clipRect.Left();
-        }
-        if (clippedRight > clipRect.Right())
-        {
-          float dxClip = clippedRight - clipRect.Right();
-          float len = dxClip / dx;
-          clippedSrcRight -= (dsx * len);
-          clippedRight = clipRect.Right();
-        }
-
-        if (clippedTop < clipRect.Top())
-        {
-          float dyClip = clipRect.Top() - clippedTop;
-          float len = dyClip / dy;
-
-          clippedSrcTop += (dsy * len);
-          clippedTop = clipRect.Top();
-        }
-        if (clippedBottom > clipRect.Bottom())
-        {
-          float dyClip = clippedBottom - clipRect.Bottom();
-          float len = dyClip / dy;
-          clippedSrcBottom -= (dsy * len);
-          clippedBottom = clipRect.Bottom();
-        }
-
-        assert(clippedLeft >= rToClipRect.Left());
-        assert(clippedTop >= rToClipRect.Top());
-        assert(clippedRight <= rToClipRect.Right());
-        assert(clippedBottom <= rToClipRect.Bottom());
-        assert(clippedSrcLeft >= rSrcTexRect.Left());
-        assert(clippedSrcTop >= rSrcTexRect.Top());
-        assert(clippedSrcRight <= rSrcTexRect.Right());
-        assert(clippedSrcBottom <= rSrcTexRect.Bottom());
-
-        rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
-        rSrcTexRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
-        return true;
+        // The rect was clipped to zero in one direction
+        return false;
       }
-      return false;
-    }
 
-    //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
-    inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeTextureArea& rSrcTexArea, const PxAreaRectangleF& clipRect)
-    {
-      if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
-          clipRect.Top() < rToClipRect.Bottom())
+      auto clippedLeft = rToClipRect.Left();
+      auto clippedRight = rToClipRect.Right();
+      auto clippedTop = rToClipRect.Top();
+      auto clippedBottom = rToClipRect.Bottom();
+
+      auto clippedSrcLeft = rSrcTexRect.Left();
+      auto clippedSrcRight = rSrcTexRect.Right();
+      auto clippedSrcTop = rSrcTexRect.Top();
+      auto clippedSrcBottom = rSrcTexRect.Bottom();
+
+      if (clippedLeft < clipRect.Left())
       {
-        float dx = rToClipRect.Right() - rToClipRect.Left();
-        float dy = rToClipRect.Bottom() - rToClipRect.Top();
-        float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
-        float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
-        if (dx <= 0.0f || dy <= 0.0f)
-        {
-          // The rect was clipped to zero in one direction
-          return false;
-        }
+        float dxClip = clipRect.Left() - clippedLeft;
+        float len = dxClip / dx;
 
-        auto clippedLeft = rToClipRect.Left();
-        auto clippedRight = rToClipRect.Right();
-        auto clippedTop = rToClipRect.Top();
-        auto clippedBottom = rToClipRect.Bottom();
-
-        auto clippedSrcLeft = rSrcTexArea.X0;
-        auto clippedSrcRight = rSrcTexArea.X1;
-        auto clippedSrcTop = rSrcTexArea.Y0;
-        auto clippedSrcBottom = rSrcTexArea.Y1;
-
-        if (clippedLeft < clipRect.Left())
-        {
-          float dxClip = clipRect.Left() - clippedLeft;
-          float len = dxClip / dx;
-
-          clippedSrcLeft += (dsx * len);
-          clippedLeft = clipRect.Left();
-        }
-        if (clippedRight > clipRect.Right())
-        {
-          float dxClip = clippedRight - clipRect.Right();
-          float len = dxClip / dx;
-          clippedSrcRight -= (dsx * len);
-          clippedRight = clipRect.Right();
-        }
-
-        if (clippedTop < clipRect.Top())
-        {
-          float dyClip = clipRect.Top() - clippedTop;
-          float len = dyClip / dy;
-
-          clippedSrcTop += (dsy * len);
-          clippedTop = clipRect.Top();
-        }
-        if (clippedBottom > clipRect.Bottom())
-        {
-          float dyClip = clippedBottom - clipRect.Bottom();
-          float len = dyClip / dy;
-          clippedSrcBottom -= (dsy * len);
-          clippedBottom = clipRect.Bottom();
-        }
-
-        assert(clippedLeft >= rToClipRect.Left());
-        assert(clippedTop >= rToClipRect.Top());
-        assert(clippedRight <= rToClipRect.Right());
-        assert(clippedBottom <= rToClipRect.Bottom());
-
-        rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
-        rSrcTexArea = NativeTextureArea(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
-        return true;
+        clippedSrcLeft += (dsx * len);
+        clippedLeft = clipRect.Left();
       }
-      return false;
-    }
-
-    //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
-    inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, PxAreaRectangleF& rSrcTexRect, const PxClipRectangle& clipRect)
-    {
-      if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
-          clipRect.Top() < rToClipRect.Bottom())
+      if (clippedRight > clipRect.Right())
       {
-        float dx = rToClipRect.Right() - rToClipRect.Left();
-        float dy = rToClipRect.Bottom() - rToClipRect.Top();
-        float dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
-        float dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
-        if (dx <= 0.0f || dy <= 0.0f)
-        {
-          // The rect was clipped to zero in one direction
-          return false;
-        }
-
-        auto clippedLeft = rToClipRect.Left();
-        auto clippedRight = rToClipRect.Right();
-        auto clippedTop = rToClipRect.Top();
-        auto clippedBottom = rToClipRect.Bottom();
-
-        auto clippedSrcLeft = rSrcTexRect.Left();
-        auto clippedSrcRight = rSrcTexRect.Right();
-        auto clippedSrcTop = rSrcTexRect.Top();
-        auto clippedSrcBottom = rSrcTexRect.Bottom();
-
-        if (clippedLeft < clipRect.Left())
-        {
-          float dxClip = clipRect.Left() - clippedLeft;
-          float len = dxClip / dx;
-
-          clippedSrcLeft += (dsx * len);
-          clippedLeft = float(clipRect.Left());
-        }
-        if (clippedRight > clipRect.Right())
-        {
-          float dxClip = clippedRight - clipRect.Right();
-          float len = dxClip / dx;
-          clippedSrcRight -= (dsx * len);
-          clippedRight = float(clipRect.Right());
-        }
-
-        if (clippedTop < clipRect.Top())
-        {
-          float dyClip = clipRect.Top() - clippedTop;
-          float len = dyClip / dy;
-
-          clippedSrcTop += (dsy * len);
-          clippedTop = float(clipRect.Top());
-        }
-        if (clippedBottom > clipRect.Bottom())
-        {
-          float dyClip = clippedBottom - clipRect.Bottom();
-          float len = dyClip / dy;
-          clippedSrcBottom -= (dsy * len);
-          clippedBottom = float(clipRect.Bottom());
-        }
-
-        assert(clippedLeft >= rToClipRect.Left());
-        assert(clippedTop >= rToClipRect.Top());
-        assert(clippedRight <= rToClipRect.Right());
-        assert(clippedBottom <= rToClipRect.Bottom());
-        assert(clippedSrcLeft >= rSrcTexRect.Left());
-        assert(clippedSrcTop >= rSrcTexRect.Top());
-        assert(clippedSrcRight <= rSrcTexRect.Right());
-        assert(clippedSrcBottom <= rSrcTexRect.Bottom());
-
-        rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
-        rSrcTexRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
-        return true;
+        float dxClip = clippedRight - clipRect.Right();
+        float len = dxClip / dx;
+        clippedSrcRight -= (dsx * len);
+        clippedRight = clipRect.Right();
       }
-      return false;
-    }
 
-
-    //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
-    inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeTextureArea& rSrcTexArea, const PxClipRectangle& clipRect)
-    {
-      if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
-          clipRect.Top() < rToClipRect.Bottom())
+      if (clippedTop < clipRect.Top())
       {
-        float dx = rToClipRect.Right() - rToClipRect.Left();
-        float dy = rToClipRect.Bottom() - rToClipRect.Top();
-        float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
-        float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
-        if (dx <= 0.0f || dy <= 0.0f)
-        {
-          // The rect was clipped to zero in one direction
-          return false;
-        }
+        float dyClip = clipRect.Top() - clippedTop;
+        float len = dyClip / dy;
 
-        auto clippedLeft = rToClipRect.Left();
-        auto clippedRight = rToClipRect.Right();
-        auto clippedTop = rToClipRect.Top();
-        auto clippedBottom = rToClipRect.Bottom();
-
-        auto clippedSrcX1 = rSrcTexArea.X0;
-        auto clippedSrcX2 = rSrcTexArea.X1;
-        auto clippedSrcY1 = rSrcTexArea.Y0;
-        auto clippedSrcY2 = rSrcTexArea.Y1;
-
-        if (clippedLeft < clipRect.Left())
-        {
-          float dxClip = clipRect.Left() - clippedLeft;
-          float len = dxClip / dx;
-
-          clippedSrcX1 += (dsx * len);
-          clippedLeft = float(clipRect.Left());
-        }
-        if (clippedRight > clipRect.Right())
-        {
-          float dxClip = clippedRight - clipRect.Right();
-          float len = dxClip / dx;
-          clippedSrcX2 -= (dsx * len);
-          clippedRight = float(clipRect.Right());
-        }
-
-        if (clippedTop < clipRect.Top())
-        {
-          float dyClip = clipRect.Top() - clippedTop;
-          float len = dyClip / dy;
-
-          clippedSrcY1 += (dsy * len);
-          clippedTop = float(clipRect.Top());
-        }
-        if (clippedBottom > clipRect.Bottom())
-        {
-          float dyClip = clippedBottom - clipRect.Bottom();
-          float len = dyClip / dy;
-          clippedSrcY2 -= (dsy * len);
-          clippedBottom = float(clipRect.Bottom());
-        }
-
-        assert(clippedLeft >= rToClipRect.Left());
-        assert(clippedTop >= rToClipRect.Top());
-        assert(clippedRight <= rToClipRect.Right());
-        assert(clippedBottom <= rToClipRect.Bottom());
-
-        rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
-        rSrcTexArea = NativeTextureArea(clippedSrcX1, clippedSrcY1, clippedSrcX2, clippedSrcY2);
-        return true;
+        clippedSrcTop += (dsy * len);
+        clippedTop = clipRect.Top();
       }
-      return false;
-    }
-
-    //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
-    inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeQuadTextureCoords& rSrcTexArea, const PxClipRectangle& clipRect)
-    {
-      if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
-          clipRect.Top() < rToClipRect.Bottom())
+      if (clippedBottom > clipRect.Bottom())
       {
-        float dx = rToClipRect.Right() - rToClipRect.Left();
-        float dy = rToClipRect.Bottom() - rToClipRect.Top();
-        const Vector2 ds0 = rSrcTexArea.TopRight - rSrcTexArea.TopLeft;
-        const Vector2 ds1 = rSrcTexArea.BottomRight - rSrcTexArea.BottomLeft;
-        if (dx <= 0.0f || dy <= 0.0f)
-        {
-          // The rect was clipped to zero in one direction
-          return false;
-        }
-
-        auto clippedLeft = rToClipRect.Left();
-        auto clippedRight = rToClipRect.Right();
-        auto clippedTop = rToClipRect.Top();
-        auto clippedBottom = rToClipRect.Bottom();
-
-        auto clippedSrc0 = rSrcTexArea.TopLeft;
-        auto clippedSrc1 = rSrcTexArea.TopRight;
-        auto clippedSrc2 = rSrcTexArea.BottomLeft;
-        auto clippedSrc3 = rSrcTexArea.BottomRight;
-
-        if (clippedLeft < clipRect.Left())
-        {
-          float dxClip = clipRect.Left() - clippedLeft;
-          float len = dxClip / dx;
-
-          clippedSrc0.X += (ds0.X * len);
-          clippedSrc2.X += (ds1.X * len);
-          clippedLeft = float(clipRect.Left());
-        }
-        if (clippedRight > clipRect.Right())
-        {
-          float dxClip = clippedRight - clipRect.Right();
-          float len = dxClip / dx;
-          clippedSrc1.X -= (ds0.X * len);
-          clippedSrc3.X -= (ds1.X * len);
-          clippedRight = float(clipRect.Right());
-        }
-
-        if (clippedTop < clipRect.Top())
-        {
-          float dyClip = clipRect.Top() - clippedTop;
-          float len = dyClip / dy;
-
-          clippedSrc0.Y += (ds0.Y * len);
-          clippedSrc2.Y += (ds1.Y * len);
-          clippedTop = float(clipRect.Top());
-        }
-        if (clippedBottom > clipRect.Bottom())
-        {
-          float dyClip = clippedBottom - clipRect.Bottom();
-          float len = dyClip / dy;
-          clippedSrc1.Y -= (ds0.Y * len);
-          clippedSrc3.Y -= (ds1.Y * len);
-          clippedBottom = float(clipRect.Bottom());
-        }
-
-        assert(clippedLeft >= rToClipRect.Left());
-        assert(clippedTop >= rToClipRect.Top());
-        assert(clippedRight <= rToClipRect.Right());
-        assert(clippedBottom <= rToClipRect.Bottom());
-
-        rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
-        rSrcTexArea = NativeQuadTextureCoords(clippedSrc0, clippedSrc1, clippedSrc2, clippedSrc3);
-        return true;
+        float dyClip = clippedBottom - clipRect.Bottom();
+        float len = dyClip / dy;
+        clippedSrcBottom -= (dsy * len);
+        clippedBottom = clipRect.Bottom();
       }
-      return false;
-    }
 
+      assert(clippedLeft >= rToClipRect.Left());
+      assert(clippedTop >= rToClipRect.Top());
+      assert(clippedRight <= rToClipRect.Right());
+      assert(clippedBottom <= rToClipRect.Bottom());
+      assert(clippedSrcLeft >= rSrcTexRect.Left());
+      assert(clippedSrcTop >= rSrcTexRect.Top());
+      assert(clippedSrcRight <= rSrcTexRect.Right());
+      assert(clippedSrcBottom <= rSrcTexRect.Bottom());
+
+      rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
+      rSrcTexRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
+      return true;
+    }
+    return false;
   }
+
+  //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
+  inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeTextureArea& rSrcTexArea, const PxAreaRectangleF& clipRect)
+  {
+    if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
+        clipRect.Top() < rToClipRect.Bottom())
+    {
+      float dx = rToClipRect.Right() - rToClipRect.Left();
+      float dy = rToClipRect.Bottom() - rToClipRect.Top();
+      float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
+      float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
+      if (dx <= 0.0f || dy <= 0.0f)
+      {
+        // The rect was clipped to zero in one direction
+        return false;
+      }
+
+      auto clippedLeft = rToClipRect.Left();
+      auto clippedRight = rToClipRect.Right();
+      auto clippedTop = rToClipRect.Top();
+      auto clippedBottom = rToClipRect.Bottom();
+
+      auto clippedSrcLeft = rSrcTexArea.X0;
+      auto clippedSrcRight = rSrcTexArea.X1;
+      auto clippedSrcTop = rSrcTexArea.Y0;
+      auto clippedSrcBottom = rSrcTexArea.Y1;
+
+      if (clippedLeft < clipRect.Left())
+      {
+        float dxClip = clipRect.Left() - clippedLeft;
+        float len = dxClip / dx;
+
+        clippedSrcLeft += (dsx * len);
+        clippedLeft = clipRect.Left();
+      }
+      if (clippedRight > clipRect.Right())
+      {
+        float dxClip = clippedRight - clipRect.Right();
+        float len = dxClip / dx;
+        clippedSrcRight -= (dsx * len);
+        clippedRight = clipRect.Right();
+      }
+
+      if (clippedTop < clipRect.Top())
+      {
+        float dyClip = clipRect.Top() - clippedTop;
+        float len = dyClip / dy;
+
+        clippedSrcTop += (dsy * len);
+        clippedTop = clipRect.Top();
+      }
+      if (clippedBottom > clipRect.Bottom())
+      {
+        float dyClip = clippedBottom - clipRect.Bottom();
+        float len = dyClip / dy;
+        clippedSrcBottom -= (dsy * len);
+        clippedBottom = clipRect.Bottom();
+      }
+
+      assert(clippedLeft >= rToClipRect.Left());
+      assert(clippedTop >= rToClipRect.Top());
+      assert(clippedRight <= rToClipRect.Right());
+      assert(clippedBottom <= rToClipRect.Bottom());
+
+      rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
+      rSrcTexArea = NativeTextureArea(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
+      return true;
+    }
+    return false;
+  }
+
+  //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
+  inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, PxAreaRectangleF& rSrcTexRect, const PxClipRectangle& clipRect)
+  {
+    const auto clipRectLeft = static_cast<float>(clipRect.Left());
+    const auto clipRectTop = static_cast<float>(clipRect.Top());
+    const auto clipRectRight = static_cast<float>(clipRect.Right());
+    const auto clipRectBottom = static_cast<float>(clipRect.Bottom());
+    if (rToClipRect.Left() < clipRectRight && clipRectLeft < rToClipRect.Right() && rToClipRect.Top() < clipRectBottom &&
+        clipRectTop < rToClipRect.Bottom())
+    {
+      float dx = rToClipRect.Right() - rToClipRect.Left();
+      float dy = rToClipRect.Bottom() - rToClipRect.Top();
+      float dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
+      float dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
+      if (dx <= 0.0f || dy <= 0.0f)
+      {
+        // The rect was clipped to zero in one direction
+        return false;
+      }
+
+      auto clippedLeft = rToClipRect.Left();
+      auto clippedRight = rToClipRect.Right();
+      auto clippedTop = rToClipRect.Top();
+      auto clippedBottom = rToClipRect.Bottom();
+
+      auto clippedSrcLeft = rSrcTexRect.Left();
+      auto clippedSrcRight = rSrcTexRect.Right();
+      auto clippedSrcTop = rSrcTexRect.Top();
+      auto clippedSrcBottom = rSrcTexRect.Bottom();
+
+      if (clippedLeft < clipRectLeft)
+      {
+        float dxClip = clipRectLeft - clippedLeft;
+        float len = dxClip / dx;
+
+        clippedSrcLeft += (dsx * len);
+        clippedLeft = clipRectLeft;
+      }
+      if (clippedRight > clipRectRight)
+      {
+        float dxClip = clippedRight - clipRectRight;
+        float len = dxClip / dx;
+        clippedSrcRight -= (dsx * len);
+        clippedRight = clipRectRight;
+      }
+
+      if (clippedTop < clipRectTop)
+      {
+        float dyClip = clipRectTop - clippedTop;
+        float len = dyClip / dy;
+
+        clippedSrcTop += (dsy * len);
+        clippedTop = clipRectTop;
+      }
+      if (clippedBottom > clipRectBottom)
+      {
+        float dyClip = clippedBottom - clipRectBottom;
+        float len = dyClip / dy;
+        clippedSrcBottom -= (dsy * len);
+        clippedBottom = clipRectBottom;
+      }
+
+      assert(clippedLeft >= rToClipRect.Left());
+      assert(clippedTop >= rToClipRect.Top());
+      assert(clippedRight <= rToClipRect.Right());
+      assert(clippedBottom <= rToClipRect.Bottom());
+      assert(clippedSrcLeft >= rSrcTexRect.Left());
+      assert(clippedSrcTop >= rSrcTexRect.Top());
+      assert(clippedSrcRight <= rSrcTexRect.Right());
+      assert(clippedSrcBottom <= rSrcTexRect.Bottom());
+
+      rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
+      rSrcTexRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedSrcLeft, clippedSrcTop, clippedSrcRight, clippedSrcBottom);
+      return true;
+    }
+    return false;
+  }
+
+
+  //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
+  inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeTextureArea& rSrcTexArea, const PxClipRectangle& clipRect)
+  {
+    const auto clipRectLeft = static_cast<float>(clipRect.Left());
+    const auto clipRectTop = static_cast<float>(clipRect.Top());
+    const auto clipRectRight = static_cast<float>(clipRect.Right());
+    const auto clipRectBottom = static_cast<float>(clipRect.Bottom());
+
+    if (rToClipRect.Left() < clipRectRight && clipRectLeft < rToClipRect.Right() && rToClipRect.Top() < clipRectBottom &&
+        clipRectTop < rToClipRect.Bottom())
+    {
+      float dx = rToClipRect.Right() - rToClipRect.Left();
+      float dy = rToClipRect.Bottom() - rToClipRect.Top();
+      float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
+      float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
+      if (dx <= 0.0f || dy <= 0.0f)
+      {
+        // The rect was clipped to zero in one direction
+        return false;
+      }
+
+      auto clippedLeft = rToClipRect.Left();
+      auto clippedRight = rToClipRect.Right();
+      auto clippedTop = rToClipRect.Top();
+      auto clippedBottom = rToClipRect.Bottom();
+
+      auto clippedSrcX1 = rSrcTexArea.X0;
+      auto clippedSrcX2 = rSrcTexArea.X1;
+      auto clippedSrcY1 = rSrcTexArea.Y0;
+      auto clippedSrcY2 = rSrcTexArea.Y1;
+
+      if (clippedLeft < clipRectLeft)
+      {
+        float dxClip = clipRectLeft - clippedLeft;
+        float len = dxClip / dx;
+
+        clippedSrcX1 += (dsx * len);
+        clippedLeft = clipRectLeft;
+      }
+      if (clippedRight > clipRectRight)
+      {
+        float dxClip = clippedRight - clipRectRight;
+        float len = dxClip / dx;
+        clippedSrcX2 -= (dsx * len);
+        clippedRight = clipRectRight;
+      }
+
+      if (clippedTop < clipRectTop)
+      {
+        float dyClip = clipRectTop - clippedTop;
+        float len = dyClip / dy;
+
+        clippedSrcY1 += (dsy * len);
+        clippedTop = clipRectTop;
+      }
+      if (clippedBottom > clipRectBottom)
+      {
+        float dyClip = clippedBottom - clipRectBottom;
+        float len = dyClip / dy;
+        clippedSrcY2 -= (dsy * len);
+        clippedBottom = clipRectBottom;
+      }
+
+      assert(clippedLeft >= rToClipRect.Left());
+      assert(clippedTop >= rToClipRect.Top());
+      assert(clippedRight <= rToClipRect.Right());
+      assert(clippedBottom <= rToClipRect.Bottom());
+
+      rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
+      rSrcTexArea = NativeTextureArea(clippedSrcX1, clippedSrcY1, clippedSrcX2, clippedSrcY2);
+      return true;
+    }
+    return false;
+  }
+
+  //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
+  inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeQuadTextureCoords& rSrcTexArea, const PxClipRectangle& clipRect)
+  {
+    const auto clipRectLeft = static_cast<float>(clipRect.Left());
+    const auto clipRectTop = static_cast<float>(clipRect.Top());
+    const auto clipRectRight = static_cast<float>(clipRect.Right());
+    const auto clipRectBottom = static_cast<float>(clipRect.Bottom());
+
+    if (rToClipRect.Left() < clipRectRight && clipRectLeft < rToClipRect.Right() && rToClipRect.Top() < clipRectBottom &&
+        clipRectTop < rToClipRect.Bottom())
+    {
+      float dx = rToClipRect.Right() - rToClipRect.Left();
+      float dy = rToClipRect.Bottom() - rToClipRect.Top();
+      const Vector2 ds0 = rSrcTexArea.TopRight - rSrcTexArea.TopLeft;
+      const Vector2 ds1 = rSrcTexArea.BottomRight - rSrcTexArea.BottomLeft;
+      if (dx <= 0.0f || dy <= 0.0f)
+      {
+        // The rect was clipped to zero in one direction
+        return false;
+      }
+
+      auto clippedLeft = rToClipRect.Left();
+      auto clippedRight = rToClipRect.Right();
+      auto clippedTop = rToClipRect.Top();
+      auto clippedBottom = rToClipRect.Bottom();
+
+      auto clippedSrc0 = rSrcTexArea.TopLeft;
+      auto clippedSrc1 = rSrcTexArea.TopRight;
+      auto clippedSrc2 = rSrcTexArea.BottomLeft;
+      auto clippedSrc3 = rSrcTexArea.BottomRight;
+
+      if (clippedLeft < clipRectLeft)
+      {
+        float dxClip = clipRectLeft - clippedLeft;
+        float len = dxClip / dx;
+
+        clippedSrc0.X += (ds0.X * len);
+        clippedSrc2.X += (ds1.X * len);
+        clippedLeft = clipRectLeft;
+      }
+      if (clippedRight > clipRectRight)
+      {
+        float dxClip = clippedRight - clipRectRight;
+        float len = dxClip / dx;
+        clippedSrc1.X -= (ds0.X * len);
+        clippedSrc3.X -= (ds1.X * len);
+        clippedRight = clipRectRight;
+      }
+
+      if (clippedTop < clipRectTop)
+      {
+        float dyClip = clipRectTop - clippedTop;
+        float len = dyClip / dy;
+
+        clippedSrc0.Y += (ds0.Y * len);
+        clippedSrc2.Y += (ds1.Y * len);
+        clippedTop = clipRectTop;
+      }
+      if (clippedBottom > clipRectBottom)
+      {
+        float dyClip = clippedBottom - clipRectBottom;
+        float len = dyClip / dy;
+        clippedSrc1.Y -= (ds0.Y * len);
+        clippedSrc3.Y -= (ds1.Y * len);
+        clippedBottom = clipRectBottom;
+      }
+
+      assert(clippedLeft >= rToClipRect.Left());
+      assert(clippedTop >= rToClipRect.Top());
+      assert(clippedRight <= rToClipRect.Right());
+      assert(clippedBottom <= rToClipRect.Bottom());
+
+      rToClipRect = PxAreaRectangleF::FromLeftTopRightBottom(clippedLeft, clippedTop, clippedRight, clippedBottom);
+      rSrcTexArea = NativeQuadTextureCoords(clippedSrc0, clippedSrc1, clippedSrc2, clippedSrc3);
+      return true;
+    }
+    return false;
+  }
+
 }
 
 #endif

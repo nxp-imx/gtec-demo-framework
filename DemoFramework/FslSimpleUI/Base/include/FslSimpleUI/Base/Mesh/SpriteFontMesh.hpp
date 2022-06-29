@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MESH_SPRITEFONTMESH_HPP
 #define FSLSIMPLEUI_BASE_MESH_SPRITEFONTMESH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,59 +36,56 @@
 #include <FslSimpleUI/Base/Mesh/SpriteMesh.hpp>
 #include <string>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct SpriteFontMeasureInfo
   {
-    struct SpriteFontMeasureInfo
+    PxSize2D MinimalSizePx;
+    PxSize2D MeasureSizePx;
+  };
+
+  class SpriteFontMesh : public SpriteMesh<SpriteFont>
+  {
+    std::string m_text;
+
+  public:
+    explicit SpriteFontMesh(const std::shared_ptr<IMeshManager>& meshManager)
+      : SpriteMesh(meshManager)
     {
-      PxSize2D MinimalSizePx;
-      PxSize2D MeasureSizePx;
-    };
+    }
 
-    class SpriteFontMesh : public SpriteMesh<SpriteFont>
+    SpriteFontMesh(const std::shared_ptr<IMeshManager>& meshManager, const std::shared_ptr<SpriteFont>& sprite)
+      : SpriteFontMesh(meshManager)
     {
-      std::string m_text;
+      SetSprite(sprite);
+    }
 
-    public:
-      explicit SpriteFontMesh(const std::shared_ptr<IMeshManager>& meshManager)
-        : SpriteMesh(meshManager)
-      {
-      }
+    // StringViewLite GetText() const;
 
-      SpriteFontMesh(const std::shared_ptr<IMeshManager>& meshManager, const std::shared_ptr<SpriteFont>& sprite)
-        : SpriteFontMesh(meshManager)
-      {
-        SetSprite(sprite);
-      }
+    const std::string& GetText() const
+    {
+      return m_text;
+    }
 
-      // StringViewLite GetText() const;
+    bool SetText(const char* const psz)
+    {
+      return SetText(StringViewLite(psz));
+    }
 
-      const std::string& GetText() const
-      {
-        return m_text;
-      }
+    bool SetText(const std::string& str);
+    bool SetText(std::string&& str);
 
-      bool SetText(const char* const psz)
-      {
-        return SetText(StringViewLite(psz));
-      }
+    bool SetText(StringViewLite str);
 
-      bool SetText(const std::string& str);
-      bool SetText(std::string&& str);
+    PxSize2D MinimalMeasure() const;
+    PxSize2D Measure() const;
+    SpriteFontMeasureInfo ComplexMeasure() const;
 
-      bool SetText(StringViewLite str);
+    // Custom measure
 
-      PxSize2D MinimalMeasure() const;
-      PxSize2D Measure() const;
-      SpriteFontMeasureInfo ComplexMeasure() const;
-
-      // Custom measure
-
-      PxSize2D Measure(const std::string& str) const;
-      PxSize2D Measure(StringViewLite str) const;
-    };
-  }
+    PxSize2D Measure(const std::string& str) const;
+    PxSize2D Measure(StringViewLite str) const;
+  };
 }
 
 #endif

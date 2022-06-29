@@ -31,8 +31,8 @@
 
 // OpenVX 1.1 project
 #include "Stereo.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidOpenVX/Check.hpp>
 
 

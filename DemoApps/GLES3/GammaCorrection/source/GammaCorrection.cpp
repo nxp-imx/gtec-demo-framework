@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,8 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -63,12 +63,12 @@ namespace Fsl
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_state(State::Split4)
-    , m_splitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitY(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene1LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene2LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene3LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene4LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , m_splitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitY(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene3LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene4LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
     m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
 
@@ -127,19 +127,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -278,12 +278,12 @@ namespace Fsl
       m_scene4LabelAlpha.SetValue(1.0f);
       break;
     }
-    m_splitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitY.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene3LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene4LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitX.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitY.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene1LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene2LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene3LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene4LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alpha1 = m_scene1LabelAlpha.GetValue();
     const float alpha2 = m_scene2LabelAlpha.GetValue();
@@ -319,8 +319,8 @@ namespace Fsl
     // Bind the vertex array
     m_resources.VertexArray.Bind();
 
-    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * windowSizePx.Width()));
-    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * windowSizePx.Height()));
+    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.Width())));
+    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * static_cast<float>(windowSizePx.Height())));
     const GLint remainderX = windowSizePx.Width() - splitX;
     const GLint remainderY = windowSizePx.Height() - splitY;
 

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALWINDOWBASICINFO_HPP
 #define FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALWINDOWBASICINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,42 +32,39 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Module/IWindowBasicInfo.hpp>
-#include "../../ITreeNodeBasicInfo.hpp"
-#include "../../TreeNode.hpp"
 #include <memory>
 #include <utility>
+#include "../../ITreeNodeBasicInfo.hpp"
+#include "../../TreeNode.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ExternalWindowBasicInfo final : public IWindowBasicInfo
   {
-    class ExternalWindowBasicInfo final : public IWindowBasicInfo
+    std::shared_ptr<ITreeNodeBasicInfo> m_info;
+
+  public:
+    explicit ExternalWindowBasicInfo(std::shared_ptr<ITreeNodeBasicInfo> info)
+      : m_info(std::move(info))
     {
-      std::shared_ptr<ITreeNodeBasicInfo> m_info;
+    }
 
-    public:
-      explicit ExternalWindowBasicInfo(std::shared_ptr<ITreeNodeBasicInfo> info)
-        : m_info(std::move(info))
-      {
-      }
+    void Dispose() noexcept
+    {
+      m_info.reset();
+    }
 
-      void Dispose() noexcept
-      {
-        m_info.reset();
-      }
+    // From IWindowBasicInfo
+    PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const final
+    {
+      return m_info ? m_info->GetWindowRectanglePx(pWindowId) : throw UsageErrorException("ExternalWindowBasicInfo has been disposed");
+    }
 
-      // From IWindowBasicInfo
-      PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const final
-      {
-        return m_info ? m_info->GetWindowRectanglePx(pWindowId) : throw UsageErrorException("ExternalWindowBasicInfo has been disposed");
-      }
-
-      Optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const final
-      {
-        return m_info ? m_info->TryGetWindowRectanglePx(pWindowId) : PxRectangle();
-      }
-    };
-  }
+    std::optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const final
+    {
+      return m_info ? m_info->TryGetWindowRectanglePx(pWindowId) : PxRectangle();
+    }
+  };
 }
 
 #endif

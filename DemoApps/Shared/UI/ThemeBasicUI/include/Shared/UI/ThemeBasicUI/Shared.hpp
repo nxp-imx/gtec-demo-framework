@@ -51,12 +51,9 @@
 
 namespace Fsl
 {
-  namespace UI
+  namespace UI::Theme
   {
-    namespace Theme
-    {
-      class IThemeControlFactory;
-    }
+    class IThemeControlFactory;
   }
 
   struct Resources
@@ -74,7 +71,7 @@ namespace Fsl
 
     void UpdateDensity(const float newDensity)
     {
-      ResolutionDensityScale = newDensity / Density;
+      ResolutionDensityScale = newDensity / static_cast<float>(Density);
       FontConfig.Scale = ResolutionDensityScale;
     }
   };

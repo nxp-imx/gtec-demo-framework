@@ -32,39 +32,36 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
-#include "StateEventInfo.hpp"
 #include <memory>
 #include <utility>
+#include "StateEventInfo.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct StateEvent
   {
-    struct StateEvent
+  private:
+    std::shared_ptr<WindowEvent> m_content;
+    StateEventInfo m_info;
+
+  public:
+    StateEvent() = default;
+
+    StateEvent(std::shared_ptr<WindowEvent> content, const StateEventInfo& info)
+      : m_content(std::move(content))
+      , m_info(info)
     {
-    private:
-      std::shared_ptr<WindowEvent> m_content;
-      StateEventInfo m_info;
+    }
 
-    public:
-      StateEvent() = default;
-
-      StateEvent(std::shared_ptr<WindowEvent> content, const StateEventInfo& info)
-        : m_content(std::move(content))
-        , m_info(info)
-      {
-      }
-
-      std::shared_ptr<WindowEvent> Content() const
-      {
-        return m_content;
-      }
-      StateEventInfo Info() const
-      {
-        return m_info;
-      }
-    };
-  }
+    std::shared_ptr<WindowEvent> Content() const
+    {
+      return m_content;
+    }
+    StateEventInfo Info() const
+    {
+      return m_info;
+    }
+  };
 }
 
 #endif

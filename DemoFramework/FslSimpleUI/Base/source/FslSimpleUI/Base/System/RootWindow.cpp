@@ -32,8 +32,8 @@
 #include "RootWindow.hpp"
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/LayoutHelperPxfConverter.hpp>
@@ -44,83 +44,80 @@
 #include <iterator>
 
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  RootWindow::RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi)
+    : BaseWindow(context, WindowFlags::WinInit)
+    , m_resolutionPx(TypeConverter::UncheckedTo<PxSize2D>(extentPx))
+    , m_densityDpi(densityDpi)
   {
-    RootWindow::RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi)
-      : BaseWindow(context, WindowFlags::WinInit)
-      , m_resolutionPx(TypeConverter::UncheckedTo<PxSize2D>(extentPx))
-      , m_densityDpi(densityDpi)
+    // The root window gets created at time where the context isn't ready
+    // So it should do its stuff during WinInit instead as it will always be called on the root window.
+  }
+
+
+  RootWindow::~RootWindow() = default;
+
+
+  void RootWindow::WinInit()
+  {
+    Enable(WindowFlags::ClickInput);
+
+    Measure(LayoutHelperPxfConverter::ToPxAvailableSize(m_resolutionPx));
+    Arrange(PxRectangle(0, 0, m_resolutionPx.Width(), m_resolutionPx.Height()));
+  }
+
+
+  bool RootWindow::SetScreenResolution(const PxExtent2D& valuePx, const uint32_t densityDpi)
+  {
+    auto sizePx = TypeConverter::UncheckedTo<PxSize2D>(valuePx);
+    if (sizePx == m_resolutionPx && densityDpi == m_densityDpi)
     {
-      // The root window gets created at time where the context isn't ready
-      // So it should do its stuff during WinInit instead as it will always be called on the root window.
+      return false;
     }
+    m_resolutionPx = sizePx;
+    m_densityDpi = densityDpi;
+    PropertyUpdated(PropertyType::Layout);
+    return true;
+  }
 
 
-    RootWindow::~RootWindow() = default;
+  void RootWindow::RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
+  {
+    m_eventListenerManager.RegisterEventListener(eventListener);
+  }
 
 
-    void RootWindow::WinInit()
-    {
-      Enable(WindowFlags::ClickInput);
-
-      Measure(LayoutHelperPxfConverter::ToPxAvailableSize(m_resolutionPx));
-      Arrange(PxRectangle(0, 0, m_resolutionPx.Width(), m_resolutionPx.Height()));
-    }
+  void RootWindow::UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
+  {
+    m_eventListenerManager.UnregisterEventListener(eventListener);
+  }
 
 
-    bool RootWindow::SetScreenResolution(const PxExtent2D& valuePx, const uint32_t densityDpi)
-    {
-      auto sizePx = TypeConverter::UncheckedTo<PxSize2D>(valuePx);
-      if (sizePx == m_resolutionPx && densityDpi == m_densityDpi)
-      {
-        return false;
-      }
-      m_resolutionPx = sizePx;
-      m_densityDpi = densityDpi;
-      PropertyUpdated(PropertyType::Layout);
-      return true;
-    }
+  void RootWindow::OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  {
+    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInputPreview(args, theEvent); };
+    m_eventListenerManager.Call(lambda);
+  }
 
 
-    void RootWindow::RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
-    {
-      m_eventListenerManager.RegisterEventListener(eventListener);
-    }
+  void RootWindow::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  {
+    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInput(args, theEvent); };
+    m_eventListenerManager.Call(lambda);
+  }
 
 
-    void RootWindow::UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
-    {
-      m_eventListenerManager.UnregisterEventListener(eventListener);
-    }
+  void RootWindow::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  {
+    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnSelect(args, theEvent); };
+    m_eventListenerManager.Call(lambda);
+  }
 
 
-    void RootWindow::OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
-    {
-      auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInputPreview(args, theEvent); };
-      m_eventListenerManager.Call(lambda);
-    }
-
-
-    void RootWindow::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
-    {
-      auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnClickInput(args, theEvent); };
-      m_eventListenerManager.Call(lambda);
-    }
-
-
-    void RootWindow::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
-    {
-      auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnSelect(args, theEvent); };
-      m_eventListenerManager.Call(lambda);
-    }
-
-
-    void RootWindow::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
-    {
-      auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnContentChanged(args, theEvent); };
-      m_eventListenerManager.Call(lambda);
-    }
+  void RootWindow::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  {
+    auto lambda = [&args, &theEvent](std::shared_ptr<IEventListener>& listener) { listener->OnContentChanged(args, theEvent); };
+    m_eventListenerManager.Call(lambda);
   }
 }

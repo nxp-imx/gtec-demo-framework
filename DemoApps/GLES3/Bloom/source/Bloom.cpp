@@ -33,19 +33,20 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/Bloom/GaussianShaderBuilder.hpp>
 #include <GLES3/gl3.h>
 #include <iostream>
 #include "RenderScene.hpp"
-#include "WhiteRectScene.hpp"
 #include "VBHelper.hpp"
+#include "WhiteRectScene.hpp"
 
 
 namespace Fsl
@@ -53,27 +54,27 @@ namespace Fsl
   using namespace GLES3;
   using namespace Graphics3D;
 
-  namespace LocalConfig
-  {
-    const constexpr float DefaultZoom = 10;
-    const constexpr float DefaultXRotation = MathHelper::TO_RADS * 20.0f;
-    constexpr const GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-  }
-
   namespace
   {
-    constexpr const int SIZE_MOD = 2;
-    constexpr const int SIZE_16 = 16 * SIZE_MOD;
-    constexpr const int SIZE_32 = 32 * SIZE_MOD;
-    constexpr const int SIZE_64 = 64 * SIZE_MOD;
-    constexpr const int SIZE_128 = 128 * SIZE_MOD;
-    constexpr const int SIZE_256 = 256 * SIZE_MOD;
+    namespace LocalConfig
+    {
+      constexpr float DefaultZoom = 10;
+      constexpr float DefaultXRotation = MathHelper::TO_RADS * 20.0f;
+      constexpr const GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    }
 
+    constexpr int SIZE_MOD = 2;
+    constexpr int SIZE_16 = 16 * SIZE_MOD;
+    constexpr int SIZE_32 = 32 * SIZE_MOD;
+    constexpr int SIZE_64 = 64 * SIZE_MOD;
+    constexpr int SIZE_128 = 128 * SIZE_MOD;
+    constexpr int SIZE_256 = 256 * SIZE_MOD;
 
-    constexpr const std::array<const char*, 3> g_shaderAttributeArray = {"VertexPosition", "VertexTexCoord", nullptr};
-
+    constexpr std::array<GLBindAttribLocation, 2> g_shaderAttributeArray = {GLBindAttribLocation(0, "VertexPosition"),
+                                                                            GLBindAttribLocation(1, "VertexTexCoord")};
     const GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
   }
+
 
   // Bloom as described here
   // The idea is not to create the most accurate bloom, but something that is fairly fast.
@@ -126,9 +127,10 @@ namespace Fsl
 
     m_strShaderVertPass = contentManager->ReadAllText("Shaders/Pass.vert");
 
-    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BrightPass.frag"), g_shaderAttributeArray.data());
-    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/CopyPass.frag"), g_shaderAttributeArray.data());
-    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BloomPass.frag"), g_shaderAttributeArray.data());
+    constexpr auto shaderAttributeSpan = ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray);
+    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BrightPass.frag"), shaderAttributeSpan);
+    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/CopyPass.frag"), shaderAttributeSpan);
+    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BloomPass.frag"), shaderAttributeSpan);
 
     // Prepare the blur shader
     SetBlurShader(BlurShaderType::Gaussian5X5);
@@ -214,18 +216,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -265,7 +267,7 @@ namespace Fsl
       return;
     }
 
-    m_camera.AddZoom(event.GetDelta() * -0.001f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
   void Bloom::Update(const DemoTime& demoTime)
@@ -422,19 +424,19 @@ namespace Fsl
     // Draw some debug overlays
     if (m_menuUI.IsShowBuffersEnabled())
     {
-      float dstX = 0;
+      int32_t dstX = 0;
       m_batch->Begin(BlendState::Opaque);
       m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Color::White());
       dstX += m_fbRender256.GetSize().Width();
-      m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur256A.GetSize().Width();
-      m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur128A.GetSize().Width();
-      m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur64A.GetSize().Width();
-      m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur32A.GetSize().Width();
-      m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0), Color::White());
       // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
     }
@@ -454,7 +456,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurHTexSize >= 0)
     {
-      glUniform1f(m_locBlurHTexSize, 1.0f / src.GetSize().Width());
+      glUniform1f(m_locBlurHTexSize, 1.0f / static_cast<float>(src.GetSize().Width()));
     }
     PostProcess(dst, src);
   }
@@ -466,7 +468,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurVTexSize >= 0)
     {
-      glUniform1f(m_locBlurVTexSize, 1.0f / src.GetSize().Height());
+      glUniform1f(m_locBlurVTexSize, 1.0f / static_cast<float>(src.GetSize().Height()));
     }
     PostProcess(dst, src);
   }
@@ -500,34 +502,35 @@ namespace Fsl
   void Bloom::SetBlurShader(const BlurShaderType shaderType)
   {
     const float gaussianBlurKernelWeightMod = m_menuUI.GetKernelWeightMod();
+    constexpr auto shaderAttributeSpan = ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray);
 
     auto contentManager = GetContentManager();
     switch (shaderType)
     {
     case BlurShaderType::Custom:
-      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), g_shaderAttributeArray.data());
-      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), g_shaderAttributeArray.data());
+      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), shaderAttributeSpan);
+      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), shaderAttributeSpan);
       break;
     case BlurShaderType::Gaussian9X9:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9HPass.frag"), gaussianBlurKernelWeightMod),
-        g_shaderAttributeArray.data());
+        shaderAttributeSpan);
       m_programBlurVPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9VPass.frag"), gaussianBlurKernelWeightMod),
-        g_shaderAttributeArray.data());
+        shaderAttributeSpan);
       break;
     case BlurShaderType::Gaussian5X5:
     default:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5HPass.frag"), gaussianBlurKernelWeightMod),
-        g_shaderAttributeArray.data());
+        shaderAttributeSpan);
       m_programBlurVPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5VPass.frag"), gaussianBlurKernelWeightMod),
-        g_shaderAttributeArray.data());
+        shaderAttributeSpan);
       break;
     }
 

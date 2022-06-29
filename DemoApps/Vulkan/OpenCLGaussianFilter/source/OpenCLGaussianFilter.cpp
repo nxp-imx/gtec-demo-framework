@@ -30,18 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenCLGaussianFilter.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Math/TypeConverter.hpp>
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/TypeConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenCL1_2/ContextEx.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
-#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <RapidOpenCL1/Buffer.hpp>
@@ -277,7 +277,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -296,7 +296,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 
@@ -376,7 +376,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -504,7 +504,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -646,7 +646,7 @@ namespace Fsl
 
   void OpenCLGaussianFilter::PrepareMatrices(const Point2& currentSize)
   {
-    const float aspectRatio = currentSize.X / float(currentSize.Y);
+    const float aspectRatio = static_cast<float>(currentSize.X) / static_cast<float>(currentSize.Y);
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt

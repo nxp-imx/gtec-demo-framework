@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "E7_0_ParticleSystem.hpp"
 #include <array>
+#include "E7_0_ParticleSystem.hpp"
 
 namespace Fsl
 {

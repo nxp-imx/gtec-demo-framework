@@ -1,7 +1,7 @@
 #ifndef FSLDEMOAPP_VULKAN_BASIC_DRAWCONTEXT_HPP
 #define FSLDEMOAPP_VULKAN_BASIC_DRAWCONTEXT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,26 +34,23 @@
 #include <FslBase/BasicTypes.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::VulkanBasic
 {
-  namespace VulkanBasic
+  struct DrawContext
   {
-    struct DrawContext
+    VkExtent2D SwapchainImageExtent{};
+    VkFramebuffer Framebuffer{VK_NULL_HANDLE};
+    uint32_t CurrentFrameIndex{0};
+
+    constexpr DrawContext() noexcept = default;
+
+    constexpr DrawContext(const VkExtent2D& swapchainImageExtent, const VkFramebuffer framebuffer, const uint32_t currentFrameIndex) noexcept
+      : SwapchainImageExtent(swapchainImageExtent)
+      , Framebuffer(framebuffer)
+      , CurrentFrameIndex(currentFrameIndex)
     {
-      VkExtent2D SwapchainImageExtent{};
-      VkFramebuffer Framebuffer{VK_NULL_HANDLE};
-      uint32_t CurrentFrameIndex{0};
-
-      constexpr DrawContext() noexcept = default;
-
-      constexpr DrawContext(const VkExtent2D& swapchainImageExtent, const VkFramebuffer framebuffer, const uint32_t currentFrameIndex) noexcept
-        : SwapchainImageExtent(swapchainImageExtent)
-        , Framebuffer(framebuffer)
-        , CurrentFrameIndex(currentFrameIndex)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

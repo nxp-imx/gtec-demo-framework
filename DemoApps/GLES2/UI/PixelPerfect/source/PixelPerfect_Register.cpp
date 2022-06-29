@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "PixelPerfect.hpp"
 #include <array>
+#include "PixelPerfect.hpp"
 
 namespace Fsl
 {

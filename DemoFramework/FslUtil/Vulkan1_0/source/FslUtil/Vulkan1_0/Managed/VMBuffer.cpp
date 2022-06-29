@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,100 +29,97 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Managed/VMBuffer.hpp>
-#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMBuffer.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  void VMBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan span, const std::size_t elementCapacity,
+                       const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
   {
-    void VMBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan span, const std::size_t elementCapacity,
-                         const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
+    if (!bufferManager)
     {
-      if (!bufferManager)
-      {
-        throw std::invalid_argument("bufferManager can not be null");
-      }
-      if (span.size() > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("element counts larger than a uint32_t is not supported");
-      }
-      if (span.stride() == 0 && !span.empty())
-      {
-        throw NotSupportedException("elementStride must be greater than zero");
-      }
-      if (span.size() > elementCapacity)
-      {
-        throw NotSupportedException("span does not fit in the elementCapacity");
-      }
+      throw std::invalid_argument("bufferManager can not be null");
+    }
+    if (span.size() > std::numeric_limits<uint32_t>::max())
+    {
+      throw NotSupportedException("element counts larger than a uint32_t is not supported");
+    }
+    if (span.stride() == 0 && !span.empty())
+    {
+      throw NotSupportedException("elementStride must be greater than zero");
+    }
+    if (span.size() > elementCapacity)
+    {
+      throw NotSupportedException("span does not fit in the elementCapacity");
+    }
 
+    Reset();
+
+    try
+    {
+      m_buffer = bufferManager->CreateBuffer(span, elementCapacity, bufferUsageFlags, usage);
+      m_bufferManager = bufferManager;
+      m_elementCapacity = UncheckedNumericCast<uint32_t>(elementCapacity);
+      m_elementStride = UncheckedNumericCast<uint32_t>(span.stride());
+      m_usage = usage;
+    }
+    catch (const std::exception&)
+    {
       Reset();
+      throw;
+    }
+  }
 
-      try
-      {
-        m_buffer = bufferManager->CreateBuffer(span, elementCapacity, bufferUsageFlags, usage);
-        m_bufferManager = bufferManager;
-        m_elementCapacity = UncheckedNumericCast<uint32_t>(elementCapacity);
-        m_elementStride = UncheckedNumericCast<uint32_t>(span.stride());
-        m_usage = usage;
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+  void VMBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride,
+                       const VkBufferUsageFlags bufferUsageFlags)
+  {
+    if (!bufferManager)
+    {
+      throw std::invalid_argument("bufferManager can not be null");
+    }
+    if (elementCapacity > std::numeric_limits<uint32_t>::max())
+    {
+      throw NotSupportedException("element counts larger than a uint32_t is not supported");
     }
 
-    void VMBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride,
-                         const VkBufferUsageFlags bufferUsageFlags)
-    {
-      if (!bufferManager)
-      {
-        throw std::invalid_argument("bufferManager can not be null");
-      }
-      if (elementCapacity > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("element counts larger than a uint32_t is not supported");
-      }
+    Reset();
 
+    try
+    {
+      m_buffer = bufferManager->CreateDynamicBuffer(elementCapacity, elementStride, bufferUsageFlags);
+      m_bufferManager = bufferManager;
+      m_elementCapacity = UncheckedNumericCast<uint32_t>(elementCapacity);
+      m_elementStride = elementStride;
+      m_usage = VMBufferUsage::DYNAMIC;
+    }
+    catch (const std::exception&)
+    {
       Reset();
-
-      try
-      {
-        m_buffer = bufferManager->CreateDynamicBuffer(elementCapacity, elementStride, bufferUsageFlags);
-        m_bufferManager = bufferManager;
-        m_elementCapacity = UncheckedNumericCast<uint32_t>(elementCapacity);
-        m_elementStride = elementStride;
-        m_usage = VMBufferUsage::DYNAMIC;
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+      throw;
     }
+  }
 
-    void VMBuffer::SetData(const uint32_t dstIndex, ReadOnlyFlexSpan span)
+  void VMBuffer::SetData(const uint32_t dstIndex, ReadOnlyFlexSpan span)
+  {
+    if (dstIndex > m_elementCapacity)
     {
-      if (dstIndex > m_elementCapacity)
-      {
-        throw IndexOutOfRangeException("VMBuffer::SetData: dstIndex is out of bounds");
-      }
-      if (span.size() > (m_elementCapacity - dstIndex))
-      {
-        throw std::invalid_argument("VMBuffer::SetData: out of bounds");
-      }
-      if (span.stride() != m_elementStride)
-      {
-        throw std::invalid_argument("VMBuffer::SetData: elementStride must match the VMBuffer element stride");
-      }
-
-      m_buffer.Upload(dstIndex * m_elementStride, span.data(), span.byte_size());
+      throw IndexOutOfRangeException("VMBuffer::SetData: dstIndex is out of bounds");
     }
+    if (span.size() > (m_elementCapacity - dstIndex))
+    {
+      throw std::invalid_argument("VMBuffer::SetData: out of bounds");
+    }
+    if (span.stride() != m_elementStride)
+    {
+      throw std::invalid_argument("VMBuffer::SetData: elementStride must match the VMBuffer element stride");
+    }
+
+    m_buffer.Upload(dstIndex * m_elementStride, span.data(), span.byte_size());
   }
 }

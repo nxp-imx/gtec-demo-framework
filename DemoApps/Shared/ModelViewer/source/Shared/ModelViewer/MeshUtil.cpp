@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,125 +29,122 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/ModelViewer/MeshUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <Shared/ModelViewer/MeshUtil.hpp>
 #include <algorithm>
 #include <map>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::MeshUtil
 {
-  namespace MeshUtil
+  namespace
   {
-    namespace
+    bool TryAddEdge(std::map<uint16_t, std::vector<uint16_t>>& rEdgeDict, uint16_t i0, uint16_t i1)
     {
-      bool TryAddEdge(std::map<uint16_t, std::vector<uint16_t>>& rEdgeDict, uint16_t i0, uint16_t i1)
+      if (i1 < i0)
       {
-        if (i1 < i0)
-        {
-          std::swap(i0, i1);
-        }
-        auto itrFind = rEdgeDict.find(i0);
-        if (itrFind == rEdgeDict.end())
-        {
-          // first entry
-          std::vector<uint16_t> entries = {i1};
-          rEdgeDict.emplace(i0, std::move(entries));
-          return true;
-        }
+        std::swap(i0, i1);
+      }
+      auto itrFind = rEdgeDict.find(i0);
+      if (itrFind == rEdgeDict.end())
+      {
+        // first entry
+        std::vector<uint16_t> entries = {i1};
+        rEdgeDict.emplace(i0, std::move(entries));
+        return true;
+      }
 
 
-        auto itrFind2 = std::find(itrFind->second.begin(), itrFind->second.end(), i1);
-        if (itrFind2 == itrFind->second.end())
-        {
-          itrFind->second.push_back(i1);
-          return true;
-        }
+      auto itrFind2 = std::find(itrFind->second.begin(), itrFind->second.end(), i1);
+      if (itrFind2 == itrFind->second.end())
+      {
+        itrFind->second.push_back(i1);
+        return true;
+      }
 
-        return false;
+      return false;
+    }
+  }
+
+  SingleMesh ExtractToSingleMesh(const TestScene& scene)
+  {
+    std::size_t vertexCount = 0;
+    std::size_t indexCount = 0;
+    for (const auto& mesh : scene.Meshes)
+    {
+      vertexCount += mesh->GetVertexCount();
+      indexCount += mesh->GetIndexCount();
+    }
+    FSLLOG3_INFO("Total vertex count: {}, Total index count: {}, SubMesh count: {}", vertexCount, indexCount, scene.GetMeshCount());
+
+    // copy the vertices and indices to one large buffer
+    SingleMesh finalMesh(vertexCount, indexCount);
+    {
+      uint32_t vertexOffset = 0u;
+      uint32_t indexOffset = 0u;
+      const auto meshCount = scene.GetMeshCount();
+      for (int32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex)
+      {
+        const auto& mesh = scene.Meshes[meshIndex];
+        const auto meshVertexCount = mesh->GetVertexCount();
+        const auto meshIndexCount = mesh->GetIndexCount();
+        const auto& srcVertices = mesh->GetVertexArray();
+        auto startVertexOffset = vertexOffset;
+        for (std::size_t i = 0; i < meshVertexCount; ++i)
+        {
+          finalMesh.Vertices[vertexOffset] = srcVertices[i];
+          ++vertexOffset;
+        }
+        const auto& srcIndices = mesh->GetIndexArray();
+        for (std::size_t i = 0; i < meshIndexCount; ++i)
+        {
+          finalMesh.Indices[indexOffset] = startVertexOffset + srcIndices[i];
+          ++indexOffset;
+        }
       }
     }
+    return finalMesh;
+  }
 
-    SingleMesh ExtractToSingleMesh(const TestScene& scene)
+  SingleMesh ExtractMeshEdges(const TestScene& scene)
+  {
+    auto mesh = ExtractToSingleMesh(scene);
+
+    FSLLOG3_INFO("Finding unique edges");
+    std::map<uint16_t, std::vector<uint16_t>> edgeDict;
+    uint32_t duplicatedEdgeCount = 0u;
+    for (std::size_t i = 0; i < mesh.Indices.size(); i += 3)
     {
-      std::size_t vertexCount = 0;
-      std::size_t indexCount = 0;
-      for (const auto& mesh : scene.Meshes)
-      {
-        vertexCount += mesh->GetVertexCount();
-        indexCount += mesh->GetIndexCount();
-      }
-      FSLLOG3_INFO("Total vertex count: {}, Total index count: {}, SubMesh count: {}", vertexCount, indexCount, scene.GetMeshCount());
+      auto i0 = mesh.Indices[i];
+      auto i1 = mesh.Indices[i + 1];
+      auto i2 = mesh.Indices[i + 2];
 
-      // copy the vertices and indices to one large buffer
-      SingleMesh finalMesh(vertexCount, indexCount);
-      {
-        uint32_t vertexOffset = 0u;
-        uint32_t indexOffset = 0u;
-        const auto meshCount = scene.GetMeshCount();
-        for (int32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex)
-        {
-          const auto& mesh = scene.Meshes[meshIndex];
-          const auto meshVertexCount = mesh->GetVertexCount();
-          const auto meshIndexCount = mesh->GetIndexCount();
-          const auto& srcVertices = mesh->GetVertexArray();
-          auto startVertexOffset = vertexOffset;
-          for (std::size_t i = 0; i < meshVertexCount; ++i)
-          {
-            finalMesh.Vertices[vertexOffset] = srcVertices[i];
-            ++vertexOffset;
-          }
-          const auto& srcIndices = mesh->GetIndexArray();
-          for (std::size_t i = 0; i < meshIndexCount; ++i)
-          {
-            finalMesh.Indices[indexOffset] = startVertexOffset + srcIndices[i];
-            ++indexOffset;
-          }
-        }
-      }
-      return finalMesh;
+      duplicatedEdgeCount += TryAddEdge(edgeDict, i0, i1) ? 1 : 0;
+      duplicatedEdgeCount += TryAddEdge(edgeDict, i0, i2) ? 1 : 0;
+      duplicatedEdgeCount += TryAddEdge(edgeDict, i1, i2) ? 1 : 0;
     }
 
-    SingleMesh ExtractMeshEdges(const TestScene& scene)
+    std::size_t lineCount = 0u;
+    for (const auto& entry : edgeDict)
     {
-      auto mesh = ExtractToSingleMesh(scene);
+      lineCount += entry.second.size();
+    }
+    FSLLOG3_INFO("Lines: {}, duplicated lines skipped: {}", lineCount, duplicatedEdgeCount);
 
-      FSLLOG3_INFO("Finding unique edges");
-      std::map<uint16_t, std::vector<uint16_t>> edgeDict;
-      uint32_t duplicatedEdgeCount = 0u;
-      for (std::size_t i = 0; i < mesh.Indices.size(); i += 3)
-      {
-        auto i0 = mesh.Indices[i];
-        auto i1 = mesh.Indices[i + 1];
-        auto i2 = mesh.Indices[i + 2];
-
-        duplicatedEdgeCount += TryAddEdge(edgeDict, i0, i1) ? 1 : 0;
-        duplicatedEdgeCount += TryAddEdge(edgeDict, i0, i2) ? 1 : 0;
-        duplicatedEdgeCount += TryAddEdge(edgeDict, i1, i2) ? 1 : 0;
-      }
-
-      std::size_t lineCount = 0u;
+    mesh.Indices.clear();
+    mesh.Indices.resize(lineCount * 2);
+    {
+      std::size_t indexOffset = 0u;
       for (const auto& entry : edgeDict)
       {
-        lineCount += entry.second.size();
-      }
-      FSLLOG3_INFO("Lines: {}, duplicated lines skipped: {}", lineCount, duplicatedEdgeCount);
-
-      mesh.Indices.clear();
-      mesh.Indices.resize(lineCount * 2);
-      {
-        std::size_t indexOffset = 0u;
-        for (const auto& entry : edgeDict)
+        for (const auto dstIndex : entry.second)
         {
-          for (const auto dstIndex : entry.second)
-          {
-            mesh.Indices[indexOffset] = entry.first;
-            mesh.Indices[indexOffset + 1] = dstIndex;
-            indexOffset += 2;
-          }
+          mesh.Indices[indexOffset] = entry.first;
+          mesh.Indices[indexOffset + 1] = dstIndex;
+          indexOffset += 2;
         }
       }
-      return mesh;
     }
+    return mesh;
   }
 }

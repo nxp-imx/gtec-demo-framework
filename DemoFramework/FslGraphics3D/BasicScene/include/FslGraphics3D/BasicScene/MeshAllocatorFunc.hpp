@@ -36,17 +36,14 @@
 #include <functional>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
-  {
-    class Mesh;
+  class Mesh;
 
-    //! const std::size_t vertexCapacity
-    //! const std::size_t indexCapacity
-    //! const PrimitiveType primitiveType
-    using MeshAllocatorFunc = std::function<std::shared_ptr<Mesh>(const std::size_t, const std::size_t, const PrimitiveType)>;
-  }
+  //! const std::size_t vertexCapacity
+  //! const std::size_t indexCapacity
+  //! const PrimitiveType primitiveType
+  using MeshAllocatorFunc = std::function<std::shared_ptr<Mesh>(const std::size_t, const std::size_t, const PrimitiveType)>;
 }
 
 #endif

@@ -35,20 +35,18 @@
 #include <FslGraphics/UnitTest/Helper/PixelTestUtil.hpp>
 #include <ostream>
 
-namespace Fsl
+namespace Fsl::PixelTestUtil
 {
-  namespace PixelTestUtil
+  inline std::ostream& operator<<(std::ostream& o, const R8G8B8::PixelUInt8& value)
   {
-    inline std::ostream& operator<<(std::ostream& o, const R8G8B8::PixelUInt8& value)
-    {
-      return o << "{R=" << uint32_t(value.R) << " G=" << uint32_t(value.G) << " B=" << uint32_t(value.B) << "}";
-    }
+    return o << "{R=" << static_cast<uint32_t>(value.R) << " G=" << static_cast<uint32_t>(value.G) << " B=" << static_cast<uint32_t>(value.B) << "}";
+  }
 
 
-    inline std::ostream& operator<<(std::ostream& o, const R8G8B8A8::PixelUInt8& value)
-    {
-      return o << "{R=" << uint32_t(value.R) << " G=" << uint32_t(value.G) << " B=" << uint32_t(value.B) << " A=" << uint32_t(value.A) << "}";
-    }
+  inline std::ostream& operator<<(std::ostream& o, const R8G8B8A8::PixelUInt8& value)
+  {
+    return o << "{R=" << static_cast<uint32_t>(value.R) << " G=" << static_cast<uint32_t>(value.G) << " B=" << static_cast<uint32_t>(value.B)
+             << " A=" << static_cast<uint32_t>(value.A) << "}";
   }
 }
 

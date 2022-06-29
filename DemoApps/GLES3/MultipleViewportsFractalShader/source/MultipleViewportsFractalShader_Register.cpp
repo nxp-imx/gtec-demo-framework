@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <Shared/FractalShader/BasicOptionParser.hpp>
 #include <EGL/egl.h>
-#include "MultipleViewportsFractalShader.hpp"
 #include <array>
+#include "MultipleViewportsFractalShader.hpp"
 
 namespace Fsl
 {

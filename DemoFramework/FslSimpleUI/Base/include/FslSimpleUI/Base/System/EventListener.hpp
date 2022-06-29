@@ -34,47 +34,44 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class EventListener : public IEventListener
   {
-    class EventListener : public IEventListener
+  public:
+    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
     {
-    public:
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-        FSL_PARAM_NOT_USED(theEvent);
-      }
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-        FSL_PARAM_NOT_USED(theEvent);
-      }
-      void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-        FSL_PARAM_NOT_USED(theEvent);
-      }
+      FSL_PARAM_NOT_USED(args);
+      FSL_PARAM_NOT_USED(theEvent);
+    }
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    {
+      FSL_PARAM_NOT_USED(args);
+      FSL_PARAM_NOT_USED(theEvent);
+    }
+    void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+    {
+      FSL_PARAM_NOT_USED(args);
+      FSL_PARAM_NOT_USED(theEvent);
+    }
 
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-        FSL_PARAM_NOT_USED(theEvent);
-      }
+    void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+    {
+      FSL_PARAM_NOT_USED(args);
+      FSL_PARAM_NOT_USED(theEvent);
+    }
 
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-        FSL_PARAM_NOT_USED(theEvent);
-      }
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-        FSL_PARAM_NOT_USED(theEvent);
-      }
-    };
-  }
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+    {
+      FSL_PARAM_NOT_USED(args);
+      FSL_PARAM_NOT_USED(theEvent);
+    }
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+    {
+      FSL_PARAM_NOT_USED(args);
+      FSL_PARAM_NOT_USED(theEvent);
+    }
+  };
 }
 
 #endif

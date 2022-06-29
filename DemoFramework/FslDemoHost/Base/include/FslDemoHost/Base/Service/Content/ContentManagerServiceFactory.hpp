@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
 #include <FslService/Impl/ServiceType/Local/IThreadLocalSingletonServiceFactory.hpp>
-#include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
 #include <utility>
 
 namespace Fsl
@@ -51,13 +51,13 @@ namespace Fsl
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
-      return std::shared_ptr<AServiceOptionParser>();
+      return {};
     }
 
 
     ServiceCaps::Flags GetFlags() const final
     {
-      return ServiceCaps::Flags(ServiceCaps::Default);
+      return static_cast<ServiceCaps::Flags>(ServiceCaps::Default);
     }
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const final

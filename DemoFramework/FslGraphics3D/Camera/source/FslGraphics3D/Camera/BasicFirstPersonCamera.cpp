@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/Camera/BasicFirstPersonCamera.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics3D/Camera/BasicFirstPersonCamera.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>

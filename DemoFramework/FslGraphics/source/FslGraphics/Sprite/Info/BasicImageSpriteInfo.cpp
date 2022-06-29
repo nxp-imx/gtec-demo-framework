@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/Info/BasicImageSpriteInfo.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <memory>
 #include <utility>
@@ -41,7 +41,7 @@ namespace Fsl
   BasicImageSpriteInfo::BasicImageSpriteInfo(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const SpriteMaterialInfo& spriteMaterialInfo,
                                              const PxRectangleU16& imageRectanglePx, const uint32_t imageDpi, const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
-    , ImageInfo(imageRectanglePx.GetExtent(), imageRectanglePx, SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi))
+    , ImageInfo(imageRectanglePx.GetExtent(), imageRectanglePx, SpriteUnitConverter::CalcImageDpExtent2D(imageRectanglePx.GetExtent(), imageDpi))
     , ImageDpi(imageDpi)
     , RenderInfo(spriteNativeAreaCalc.CalcNativeTextureArea(imageRectanglePx, spriteMaterialInfo.ExtentPx),
                  TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()))

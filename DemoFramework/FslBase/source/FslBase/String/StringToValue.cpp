@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,39 +29,36 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringToValue.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/String/StringToValue.hpp>
 
-namespace Fsl
+namespace Fsl::StringToValue
 {
-  namespace StringToValue
+  bool TryParse(uint64_t& rResult, const StringViewLite& strView)
   {
-    bool TryParse(uint64_t& rResult, const StringViewLite& strView)
+    if (strView.data() == nullptr || strView.empty())
     {
-      if (strView.data() == nullptr || strView.empty())
+      FSLLOG3_DEBUG_WARNING_IF(strView.data() == nullptr && strView.size() != 0u, "strView.data() can not be null");
+      FSLLOG3_DEBUG_WARNING_IF(strView.size() == 0u, "strView.size() == 0");
+      rResult = 0;
+      return false;
+    }
+
+    uint64_t result = 0;
+    const char* pSrc = strView.data();
+    const char* const pSrcEnd = pSrc + strView.size();
+    while (pSrc < pSrcEnd)
+    {
+      if (*pSrc < '0' || *pSrc > '9')
       {
-        FSLLOG3_DEBUG_WARNING_IF(strView.data() == nullptr && strView.size() != 0u, "strView.data() can not be null");
-        FSLLOG3_DEBUG_WARNING_IF(strView.size() == 0u, "strView.size() == 0");
-        rResult = 0;
+        rResult = 0u;
         return false;
       }
 
-      uint64_t result = 0;
-      const char* pSrc = strView.data();
-      const char* const pSrcEnd = pSrc + strView.size();
-      while (pSrc < pSrcEnd)
-      {
-        if (*pSrc < '0' || *pSrc > '9')
-        {
-          rResult = 0u;
-          return false;
-        }
-
-        result = (result << 1) + (result << 3) + (*pSrc - '0');
-        ++pSrc;
-      }
-      rResult = result;
-      return true;
+      result = (result << 1) + (result << 3) + (*pSrc - '0');
+      ++pSrc;
     }
+    rResult = result;
+    return true;
   }
 }

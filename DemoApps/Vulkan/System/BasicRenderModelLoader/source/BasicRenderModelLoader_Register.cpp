@@ -37,8 +37,11 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a Vulkan host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
+
     DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Vulkan::Register<BasicRenderModelLoader>(rSetup, "Vulkan.System.BasicRenderModelLoader", config);
+    DemoAppRegister::Vulkan::Register<BasicRenderModelLoader>(rSetup, "Vulkan.System.BasicRenderModelLoader", config, customDemoAppConfig);
   }
 }

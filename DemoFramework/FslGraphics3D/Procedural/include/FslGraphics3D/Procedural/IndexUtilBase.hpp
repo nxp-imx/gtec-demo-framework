@@ -35,39 +35,36 @@
 #include <FslGraphics/PrimitiveType.hpp>
 #include <cstdlib>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  class IndexUtilBase
   {
-    class IndexUtilBase
-    {
-    public:
-      //! @brief Calculate the minimum index capacity that is required to append the current index count with the srcIndexCount for the given
-      //! primitive type
-      //! @param currentIndexCount the number of indices stored in the buffer we are appending to
-      //! @param srcIndexCount the number of indices that should be appended
-      //! @param primitiveType the primitive type that the indices form
-      //! @return the minimum capacity required to hold the src indices appended to the existing indices.
-      static std::size_t CalcAppendMinimumCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
-                                                   const PrimitiveType primitiveType);
+  public:
+    //! @brief Calculate the minimum index capacity that is required to append the current index count with the srcIndexCount for the given
+    //! primitive type
+    //! @param currentIndexCount the number of indices stored in the buffer we are appending to
+    //! @param srcIndexCount the number of indices that should be appended
+    //! @param primitiveType the primitive type that the indices form
+    //! @return the minimum capacity required to hold the src indices appended to the existing indices.
+    static std::size_t CalcAppendMinimumCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
+                                                 const PrimitiveType primitiveType);
 
-      // @brief Calculate the required capacity for appending the given amount of instances to the current index count.
-      //! @param currentIndexCount the number of indices stored in the buffer we are appending to
-      //! @param srcIndexCount the number of indices that should be appended
-      //! @param instanceCount the number of instances to append
-      //! @param primitiveType the primitive type that the indices form
-      static std::size_t CalcAppendInstancesRequiredCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
-                                                             const std::size_t instanceCount, const PrimitiveType primitiveType);
+    // @brief Calculate the required capacity for appending the given amount of instances to the current index count.
+    //! @param currentIndexCount the number of indices stored in the buffer we are appending to
+    //! @param srcIndexCount the number of indices that should be appended
+    //! @param instanceCount the number of instances to append
+    //! @param primitiveType the primitive type that the indices form
+    static std::size_t CalcAppendInstancesRequiredCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
+                                                           const std::size_t instanceCount, const PrimitiveType primitiveType);
 
-      //! @brief Calculate how many instances of the given size that can fit within index capacity.
-      //! @param currentIndexCount the number of indices stored in the buffer we are appending to
-      //! @param srcIndexCount the number of indices that should be appended
-      //! @param indexCapacity the maximum number of indices that we allow
-      //! @param primitiveType the primitive type that the indices form
-      static std::size_t CalcAppendMaxInstancesThatFit(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
-                                                       const std::size_t indexCapacity, const PrimitiveType primitiveType);
-    };
-  }
+    //! @brief Calculate how many instances of the given size that can fit within index capacity.
+    //! @param currentIndexCount the number of indices stored in the buffer we are appending to
+    //! @param srcIndexCount the number of indices that should be appended
+    //! @param indexCapacity the maximum number of indices that we allow
+    //! @param primitiveType the primitive type that the indices form
+    static std::size_t CalcAppendMaxInstancesThatFit(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
+                                                     const std::size_t indexCapacity, const PrimitiveType primitiveType);
+  };
 }
 
 #endif

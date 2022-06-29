@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
-
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/ImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>

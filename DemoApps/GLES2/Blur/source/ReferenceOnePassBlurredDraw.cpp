@@ -29,16 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "ReferenceOnePassBlurredDraw.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <cassert>
 #include "GausianHelper.hpp"
 #include "VBHelper.hpp"
-#include "ReferenceOnePassBlurredDraw.hpp"
-#include <cassert>
 
 namespace Fsl
 {

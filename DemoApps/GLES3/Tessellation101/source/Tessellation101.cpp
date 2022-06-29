@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "Tessellation101.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
@@ -39,10 +40,9 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
-#include "Tessellation101.hpp"
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
+#include <GLES3/gl31.h>
 #include <array>
 
 namespace Fsl

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_PARSERESULT_HPP
 #define FSLBASE_ARGUMENTS_PARSERESULT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,54 +31,51 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  enum class ParseResult
   {
-    enum class ParseResult
-    {
-      //! A internal error occurred
-      InternalError,
+    //! A internal error occurred
+    InternalError,
 
-      //! The parse completed without issues
-      Completed,
+    //! The parse completed without issues
+    Completed,
 
-      //! The method was called with invalid argument
-      InvalidArguments,
+    //! The method was called with invalid argument
+    InvalidArguments,
 
-      //! Encountered a duplicated switch argument
-      DuplicatedSwitchArgumentError,
+    //! Encountered a duplicated switch argument
+    DuplicatedSwitchArgumentError,
 
-      //! Encountered a duplicated value argument
-      DuplicatedValueArgumentError,
+    //! Encountered a duplicated value argument
+    DuplicatedValueArgumentError,
 
-      //! user supplied "unknown argument" (it did not match any of the supported labeled or unlabeled arguments)
-      UnknownArgumentError,
+    //! user supplied "unknown argument" (it did not match any of the supported labeled or unlabeled arguments)
+    UnknownArgumentError,
 
-      //! user the expected value is missing
-      ArgumentMissingValueError,
+    //! user the expected value is missing
+    ArgumentMissingValueError,
 
-      //! When combining value arguments the 'value argument' must be the last entry in the combination
-      CombinedValueArgumentMustBeLastError,
+    //! When combining value arguments the 'value argument' must be the last entry in the combination
+    CombinedValueArgumentMustBeLastError,
 
-      // user argument formatting error
-      ArgumentFormatError,
+    // user argument formatting error
+    ArgumentFormatError,
 
-      // a required argument was not found
-      RequiredArgumentNotFound,
+    // a required argument was not found
+    RequiredArgumentNotFound,
 
-      // user supplied empty string error
-      ArgumentEmptyError,
+    // user supplied empty string error
+    ArgumentEmptyError,
 
-      // The supplied argument list contained a null entry
-      // ArgumentListContainedNullError,
+    // The supplied argument list contained a null entry
+    // ArgumentListContainedNullError,
 
-      //! the supplied arguments list contains invalid arguments
-      CommandListIsInvalidError,
-      //! there are more arguments in the list than we support (currently trigger if there are more than std::numeric_limit<uint32_t>::max() elements)
-      UnsupportedNumberOfArguments,
-    };
-  }
+    //! the supplied arguments list contains invalid arguments
+    CommandListIsInvalidError,
+    //! there are more arguments in the list than we support (currently trigger if there are more than std::numeric_limit<uint32_t>::max() elements)
+    UnsupportedNumberOfArguments,
+  };
 }
 
 #endif

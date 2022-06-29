@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSCUSTOMVULKANDEVICECREATEINFO_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSCUSTOMVULKANDEVICECREATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,25 +34,22 @@
 #include <FslDemoService/NativeGraphics/Base/NativeGraphicsCustomDeviceCreateInfo.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class NativeGraphicsCustomVulkanDeviceCreateInfo : public NativeGraphicsCustomDeviceCreateInfo
   {
-    class NativeGraphicsCustomVulkanDeviceCreateInfo : public NativeGraphicsCustomDeviceCreateInfo
-    {
-    public:
-      const VUDevice& Device;
-      const VkQueue Queue;
-      const uint32_t QueueFamilyIndex;
+  public:
+    const VUDevice& Device;
+    const VkQueue Queue;
+    const uint32_t QueueFamilyIndex;
 
-      NativeGraphicsCustomVulkanDeviceCreateInfo(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex)
-        : Device(device)
-        , Queue(queue)
-        , QueueFamilyIndex(queueFamilyIndex)
-      {
-      }
-    };
-  }
+    NativeGraphicsCustomVulkanDeviceCreateInfo(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex)
+      : Device(device)
+      , Queue(queue)
+      , QueueFamilyIndex(queueFamilyIndex)
+    {
+    }
+  };
 }
 
 #endif

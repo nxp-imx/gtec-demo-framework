@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkData.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -43,7 +43,7 @@ namespace Fsl
 
   namespace AppBenchmarkDataPersistence
   {
-    Optional<AppBenchmarkData> TryLoad(const IO::Path& path);
+    std::optional<AppBenchmarkData> TryLoad(const IO::Path& path);
     void Save(const IO::Path& path, const AppBenchmarkData& data);
   }
 }

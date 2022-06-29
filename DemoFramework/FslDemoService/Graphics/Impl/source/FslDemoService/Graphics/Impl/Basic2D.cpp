@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoService/Graphics/Impl/Basic2D.hpp>

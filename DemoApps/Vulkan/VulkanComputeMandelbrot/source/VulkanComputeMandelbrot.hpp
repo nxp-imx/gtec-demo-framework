@@ -28,20 +28,20 @@
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
 
 #include <FslDemoApp/Console/DemoAppConsole.hpp>
-#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Buffer.hpp>
-#include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
+#include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/ComputePipeline.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/DescriptorSets.hpp>
-#include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/Device.hpp>
 #include <RapidVulkan/Fence.hpp>
-#include <RapidVulkan/Instance.hpp>
 #include <RapidVulkan/Image.hpp>
 #include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/Instance.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
 #include "DeviceBuffer.hpp"

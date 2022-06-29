@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Time/FmtTimeSpan.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Time/FmtTimeSpan.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,228 +29,241 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Persistence/AppSettingsPersistence.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <Shared/UI/Benchmark/Persistence/AppSettingsPersistence.hpp>
 #include <nlohmann/json.hpp>
-#include "JsonConfig.hpp"
-#include "JsonHelper.hpp"
 #include "Json/JsonAppRenderBasicOptions.hpp"
 #include "Json/JsonAppRenderMethod.hpp"
 #include "Json/JsonAppRenderOptions.hpp"
+#include "JsonConfig.hpp"
+#include "JsonHelper.hpp"
 
-namespace Fsl
+namespace Fsl::AppSettingsPersistence
 {
-  namespace AppSettingsPersistence
+  namespace
   {
-    namespace
+    namespace LocalBenchSettings
     {
-      namespace LocalBenchSettings
-      {
-        constexpr auto BasicOptions = "BasicOptions";
-        constexpr auto RenderMethod = "RenderMethod";
-        constexpr auto RenderOptions = "RenderOptions";
-      }
+      constexpr auto BasicOptions = "BasicOptions";
+      constexpr auto RenderMethod = "RenderMethod";
+      constexpr auto RenderOptions = "RenderOptions";
+    }
 
-      namespace LocalSystemSettings
-      {
-        constexpr auto ShowStats = "ShowStats";
-        constexpr auto ShowIdle = "ShowIdle";
-        constexpr auto NoOpaqueMaterials = "NoOpaqueMaterials";
-      }
+    namespace LocalSystemSettings
+    {
+      constexpr auto ShowStats = "ShowStats";
+      constexpr auto ShowIdle = "ShowIdle";
+      constexpr auto NoOpaqueMaterials = "NoOpaqueMaterials";
+      constexpr auto ActiveRenderIndex = "ActiveRenderIndex";
+    }
 
-      namespace LocalUISettings
-      {
-        constexpr auto ShowStats = "ShowStats";
-        constexpr auto ShowChart = "ShowChart";
-      }
+    namespace LocalUISettings
+    {
+      constexpr auto ShowStats = "ShowStats";
+      constexpr auto ShowChart = "ShowChart";
+    }
 
-      namespace LocalSettings
-      {
-        constexpr auto BenchSettings = "BenchSettings";
-        constexpr auto TestSettings = "TestSettings";
-        constexpr auto UISettings = "UISettings";
-      }
-
-
-      Optional<std::array<AppRenderOptions, 2>> TryParseAppRenderOptions(const nlohmann::json& jsonValue)
-      {
-        try
-        {
-          return jsonValue.get<std::array<AppRenderOptions, 2>>();
-        }
-        catch (const std::exception& ex)
-        {
-          FSLLOG3_WARNING("Parse failed with: {}", ex.what());
-          return {};
-        }
-      }
-
-      Optional<AppBenchSettings> TryParseAppBenchSettings(const nlohmann::json& jsonValue)
-      {
-        if (!jsonValue.contains(LocalBenchSettings::BasicOptions) || !jsonValue.contains(LocalBenchSettings::RenderOptions))
-        {
-          FSLLOG3_DEBUG_WARNING("AppBenchSettings is missing a section");
-          return {};
-        }
-
-        try
-        {
-          Optional<AppRenderBasicOptions> basicOptions = jsonValue.contains(LocalBenchSettings::BasicOptions)
-                                                           ? Optional<AppRenderBasicOptions>(jsonValue[LocalBenchSettings::BasicOptions])
-                                                           : Optional<AppRenderBasicOptions>();
-          Optional<AppRenderMethod> renderMethod = jsonValue.contains(LocalBenchSettings::RenderMethod)
-                                                     ? Optional<AppRenderMethod>(jsonValue[LocalBenchSettings::RenderMethod])
-                                                     : Optional<AppRenderMethod>();
-          Optional<std::array<AppRenderOptions, 2>> renderOptions = TryParseAppRenderOptions(jsonValue[LocalBenchSettings::RenderOptions]);
-          if (!basicOptions.HasValue() || !renderMethod.HasValue() || !renderOptions.HasValue())
-          {
-            FSLLOG3_DEBUG_WARNING_IF(basicOptions.HasValue(), "Failed to parse: '{}'", LocalBenchSettings::BasicOptions);
-            FSLLOG3_DEBUG_WARNING_IF(renderOptions.HasValue(), "Failed to parse: '{}'", LocalBenchSettings::RenderMethod);
-            FSLLOG3_DEBUG_WARNING_IF(renderOptions.HasValue(), "Failed to parse: '{}'", LocalBenchSettings::RenderOptions);
-            return {};
-          }
-          return AppBenchSettings(basicOptions.Value(), renderMethod.Value(), renderOptions.Value());
-        }
-        catch (const std::exception& ex)
-        {
-          FSLLOG3_WARNING("Failed to parse AppBenchSettings: {}", ex.what());
-          return {};
-        }
-      }
-
-
-      Optional<AppTestSettings> TryParseAppTestSettings(const nlohmann::json& jsonValue)
-      {
-        if (!jsonValue.contains(LocalSystemSettings::ShowStats) || !jsonValue.contains(LocalSystemSettings::ShowIdle) ||
-            !jsonValue.contains(LocalSystemSettings::NoOpaqueMaterials))
-        {
-          FSLLOG3_DEBUG_WARNING("AppTestSettings is missing a section");
-          return {};
-        }
-
-        Optional<bool> showStats = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowStats]);
-        Optional<bool> showIdle = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowIdle]);
-        Optional<bool> noOpaqueMaterials = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::NoOpaqueMaterials]);
-        if (!showStats.HasValue() || !showIdle.HasValue() || !noOpaqueMaterials.HasValue())
-        {
-          FSLLOG3_DEBUG_WARNING_IF(showStats.HasValue(), "Failed to parse: '{}'", LocalSystemSettings::ShowStats);
-          FSLLOG3_DEBUG_WARNING_IF(showIdle.HasValue(), "Failed to parse: '{}'", LocalSystemSettings::ShowIdle);
-          FSLLOG3_DEBUG_WARNING_IF(noOpaqueMaterials.HasValue(), "Failed to parse: '{}'", LocalSystemSettings::NoOpaqueMaterials);
-          return {};
-        }
-        return AppTestSettings(showStats.Value(), showIdle.Value(), noOpaqueMaterials.Value());
-      }
-
-
-      Optional<AppUISettings> TryParseAppUISettings(const nlohmann::json& jsonValue)
-      {
-        if (!jsonValue.contains(LocalUISettings::ShowStats) || !jsonValue.contains(LocalUISettings::ShowChart))
-        {
-          FSLLOG3_DEBUG_WARNING("AppUISettings is missing a section");
-          return {};
-        }
-
-        Optional<bool> showStats = JsonHelper::TryParseBool(jsonValue[LocalUISettings::ShowStats]);
-        Optional<bool> showChart = JsonHelper::TryParseBool(jsonValue[LocalUISettings::ShowChart]);
-        if (!showStats.HasValue() || !showChart.HasValue())
-        {
-          FSLLOG3_DEBUG_WARNING_IF(showStats.HasValue(), "Failed to parse: '{}'", LocalUISettings::ShowStats);
-          FSLLOG3_DEBUG_WARNING_IF(showChart.HasValue(), "Failed to parse: '{}'", LocalUISettings::ShowChart);
-          return {};
-        }
-        return AppUISettings(showStats.Value(), showChart.Value());
-      }
-
-
-      Optional<AppSettings> TryParse(const std::string& jsonContent)
-      {
-        auto json = nlohmann::json::parse(jsonContent);
-
-        if (!json.is_object())
-        {
-          FSLLOG3_DEBUG_WARNING("AppSettings file is not a json document");
-          return {};
-        }
-
-        if (!json.contains(LocalSettings::TestSettings) || !json.contains(LocalSettings::UISettings))
-        {
-          FSLLOG3_DEBUG_WARNING("AppSettings file is missing a section");
-          return {};
-        }
-
-        Optional<AppBenchSettings> bench =
-          json.contains(LocalSettings::BenchSettings) ? TryParseAppBenchSettings(json[LocalSettings::BenchSettings]) : Optional<AppBenchSettings>();
-
-        if (!bench.HasValue())
-        {
-          // Falling back to the default settings.
-          bench = Optional<AppBenchSettings>(AppBenchSettings());
-        }
-
-        Optional<AppTestSettings> test = TryParseAppTestSettings(json[LocalSettings::TestSettings]);
-        if (!test.HasValue())
-        {
-          FSLLOG3_DEBUG_WARNING("Failed to parse '{}'", LocalSettings::TestSettings);
-          return {};
-        }
-
-        Optional<AppUISettings> ui = TryParseAppUISettings(json[LocalSettings::UISettings]);
-        if (!ui.HasValue())
-        {
-          FSLLOG3_DEBUG_WARNING("Failed to parse '{}'", LocalSettings::UISettings);
-          return {};
-        }
-
-        return AppSettings(bench.Value(), test.Value(), ui.Value());
-      }
-
-      std::string Encode(const AppSettings& settings)
-      {
-        nlohmann::json json;
-
-        json[LocalSettings::BenchSettings] = {{LocalBenchSettings::BasicOptions, settings.Bench.BasicOptions},
-                                              {LocalBenchSettings::RenderMethod, settings.Bench.RenderMethod},
-                                              {LocalBenchSettings::RenderOptions, settings.Bench.RenderOptions}};
-
-        json[LocalSettings::TestSettings] = {{LocalSystemSettings::ShowStats, settings.Test.ShowStats},
-                                             {LocalSystemSettings::ShowIdle, settings.Test.ShowIdle},
-                                             {LocalSystemSettings::NoOpaqueMaterials, settings.Test.NoOpaqueMaterials}};
-
-        json[LocalSettings::UISettings] = {{LocalUISettings::ShowStats, settings.UI.ShowStats}, {LocalUISettings::ShowChart, settings.UI.ShowChart}};
-
-        // Pretty print JSON document to string
-        return json.dump(JsonConfig::Indent);
-      }
+    namespace LocalSettings
+    {
+      constexpr auto BenchSettings = "BenchSettings";
+      constexpr auto TestSettings = "TestSettings";
+      constexpr auto UISettings = "UISettings";
     }
 
 
-    Optional<AppSettings> TryLoad(const IO::Path& path)
+    std::optional<std::array<AppRenderOptions, 2>> TryParseAppRenderOptions(const nlohmann::json& jsonValue)
     {
       try
       {
-        std::string content;
-        return IO::File::TryReadAllText(content, path) ? TryParse(content) : Optional<AppSettings>();
+        return jsonValue.get<std::array<AppRenderOptions, 2>>();
       }
-      catch (std::exception& ex)
+      catch (const std::exception& ex)
       {
-        FSLLOG3_DEBUG_WARNING("Exception: {}", ex.what());
-        FSL_PARAM_NOT_USED(ex);
+        FSLLOG3_WARNING("Parse failed with: {}", ex.what());
         return {};
       }
     }
 
-    void Save(const IO::Path& path, const AppSettings& settings)
+    std::optional<AppBenchSettings> TryParseAppBenchSettings(const nlohmann::json& jsonValue)
     {
-      std::string strNewJson = Encode(settings);
-      // Only overwrite the file if it was modified
-      std::string existingJsonFile;
-      if (!IO::File::TryReadAllText(existingJsonFile, path) || existingJsonFile != strNewJson)
+      if (!jsonValue.contains(LocalBenchSettings::BasicOptions) || !jsonValue.contains(LocalBenchSettings::RenderOptions))
       {
-        IO::File::WriteAllText(path, strNewJson);
+        FSLLOG3_DEBUG_WARNING("AppBenchSettings is missing a section");
+        return {};
       }
+
+      try
+      {
+        std::optional<AppRenderBasicOptions> basicOptions = jsonValue.contains(LocalBenchSettings::BasicOptions)
+                                                              ? std::optional<AppRenderBasicOptions>(jsonValue[LocalBenchSettings::BasicOptions])
+                                                              : std::optional<AppRenderBasicOptions>();
+        std::optional<AppRenderMethod> renderMethod = jsonValue.contains(LocalBenchSettings::RenderMethod)
+                                                        ? std::optional<AppRenderMethod>(jsonValue[LocalBenchSettings::RenderMethod])
+                                                        : std::optional<AppRenderMethod>();
+        std::optional<std::array<AppRenderOptions, 2>> renderOptions = TryParseAppRenderOptions(jsonValue[LocalBenchSettings::RenderOptions]);
+        if (!basicOptions.has_value() || !renderMethod.has_value() || !renderOptions.has_value())
+        {
+          FSLLOG3_DEBUG_WARNING_IF(basicOptions.has_value(), "Failed to parse: '{}'", LocalBenchSettings::BasicOptions);
+          FSLLOG3_DEBUG_WARNING_IF(renderOptions.has_value(), "Failed to parse: '{}'", LocalBenchSettings::RenderMethod);
+          FSLLOG3_DEBUG_WARNING_IF(renderOptions.has_value(), "Failed to parse: '{}'", LocalBenchSettings::RenderOptions);
+          return {};
+        }
+        return AppBenchSettings(basicOptions.value(), renderMethod.value(), renderOptions.value());
+      }
+      catch (const std::exception& ex)
+      {
+        FSLLOG3_WARNING("Failed to parse AppBenchSettings: {}", ex.what());
+        return {};
+      }
+    }
+
+
+    std::optional<AppTestSettings> TryParseAppTestSettings(const nlohmann::json& jsonValue)
+    {
+      if (!jsonValue.contains(LocalSystemSettings::ShowStats) || !jsonValue.contains(LocalSystemSettings::ShowIdle) ||
+          !jsonValue.contains(LocalSystemSettings::NoOpaqueMaterials))
+      {
+        FSLLOG3_DEBUG_WARNING("AppTestSettings is missing a section");
+        return {};
+      }
+
+      std::optional<uint32_t> activeRenderIndex;
+      if (jsonValue.contains(LocalSystemSettings::ActiveRenderIndex))
+      {
+        activeRenderIndex = JsonHelper::TryParseUInt32(jsonValue[LocalSystemSettings::ActiveRenderIndex]);
+      }
+      else
+      {
+        // Key not present using default value
+        activeRenderIndex = 0;
+      }
+
+
+      std::optional<bool> showStats = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowStats]);
+      std::optional<bool> showIdle = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::ShowIdle]);
+      std::optional<bool> noOpaqueMaterials = JsonHelper::TryParseBool(jsonValue[LocalSystemSettings::NoOpaqueMaterials]);
+      if (!showStats.has_value() || !showIdle.has_value() || !noOpaqueMaterials.has_value() || !activeRenderIndex.has_value())
+      {
+        FSLLOG3_DEBUG_WARNING_IF(showStats.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ShowStats);
+        FSLLOG3_DEBUG_WARNING_IF(showIdle.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ShowIdle);
+        FSLLOG3_DEBUG_WARNING_IF(noOpaqueMaterials.has_value(), "Failed to parse: '{}'", LocalSystemSettings::NoOpaqueMaterials);
+        FSLLOG3_DEBUG_WARNING_IF(activeRenderIndex.has_value(), "Failed to parse: '{}'", LocalSystemSettings::ActiveRenderIndex);
+        return {};
+      }
+      return AppTestSettings(showStats.value(), showIdle.value(), noOpaqueMaterials.value(), activeRenderIndex.value());
+    }
+
+
+    std::optional<AppUISettings> TryParseAppUISettings(const nlohmann::json& jsonValue)
+    {
+      if (!jsonValue.contains(LocalUISettings::ShowStats) || !jsonValue.contains(LocalUISettings::ShowChart))
+      {
+        FSLLOG3_DEBUG_WARNING("AppUISettings is missing a section");
+        return {};
+      }
+
+      std::optional<bool> showStats = JsonHelper::TryParseBool(jsonValue[LocalUISettings::ShowStats]);
+      std::optional<bool> showChart = JsonHelper::TryParseBool(jsonValue[LocalUISettings::ShowChart]);
+      if (!showStats.has_value() || !showChart.has_value())
+      {
+        FSLLOG3_DEBUG_WARNING_IF(showStats.has_value(), "Failed to parse: '{}'", LocalUISettings::ShowStats);
+        FSLLOG3_DEBUG_WARNING_IF(showChart.has_value(), "Failed to parse: '{}'", LocalUISettings::ShowChart);
+        return {};
+      }
+      return AppUISettings(showStats.value(), showChart.value());
+    }
+
+
+    std::optional<AppSettings> TryParse(const std::string& jsonContent)
+    {
+      auto json = nlohmann::json::parse(jsonContent);
+
+      if (!json.is_object())
+      {
+        FSLLOG3_DEBUG_WARNING("AppSettings file is not a json document");
+        return {};
+      }
+
+      if (!json.contains(LocalSettings::TestSettings) || !json.contains(LocalSettings::UISettings))
+      {
+        FSLLOG3_DEBUG_WARNING("AppSettings file is missing a section");
+        return {};
+      }
+
+      std::optional<AppBenchSettings> bench = json.contains(LocalSettings::BenchSettings)
+                                                ? TryParseAppBenchSettings(json[LocalSettings::BenchSettings])
+                                                : std::optional<AppBenchSettings>();
+
+      if (!bench.has_value())
+      {
+        // Falling back to the default settings.
+        bench = std::optional<AppBenchSettings>(AppBenchSettings());
+      }
+
+      std::optional<AppTestSettings> test = TryParseAppTestSettings(json[LocalSettings::TestSettings]);
+      if (!test.has_value())
+      {
+        FSLLOG3_DEBUG_WARNING("Failed to parse '{}'", LocalSettings::TestSettings);
+        return {};
+      }
+
+      std::optional<AppUISettings> ui = TryParseAppUISettings(json[LocalSettings::UISettings]);
+      if (!ui.has_value())
+      {
+        FSLLOG3_DEBUG_WARNING("Failed to parse '{}'", LocalSettings::UISettings);
+        return {};
+      }
+
+      return AppSettings(bench.value(), test.value(), ui.value());
+    }
+
+    std::string Encode(const AppSettings& settings)
+    {
+      nlohmann::json json;
+
+      json[LocalSettings::BenchSettings] = {{LocalBenchSettings::BasicOptions, settings.Bench.BasicOptions},
+                                            {LocalBenchSettings::RenderMethod, settings.Bench.RenderMethod},
+                                            {LocalBenchSettings::RenderOptions, settings.Bench.RenderOptions}};
+
+      json[LocalSettings::TestSettings] = {{LocalSystemSettings::ShowStats, settings.Test.ShowStats},
+                                           {LocalSystemSettings::ShowIdle, settings.Test.ShowIdle},
+                                           {LocalSystemSettings::NoOpaqueMaterials, settings.Test.NoOpaqueMaterials},
+                                           {LocalSystemSettings::ActiveRenderIndex, settings.Test.ActiveRenderIndex}};
+
+      json[LocalSettings::UISettings] = {{LocalUISettings::ShowStats, settings.UI.ShowStats}, {LocalUISettings::ShowChart, settings.UI.ShowChart}};
+
+      // Pretty print JSON document to string
+      return json.dump(JsonConfig::Indent);
+    }
+  }
+
+
+  std::optional<AppSettings> TryLoad(const IO::Path& path)
+  {
+    try
+    {
+      std::string content;
+      return IO::File::TryReadAllText(content, path) ? TryParse(content) : std::optional<AppSettings>();
+    }
+    catch (std::exception& ex)
+    {
+      FSLLOG3_DEBUG_WARNING("Exception: {}", ex.what());
+      FSL_PARAM_NOT_USED(ex);
+      return {};
+    }
+  }
+
+  void Save(const IO::Path& path, const AppSettings& settings)
+  {
+    std::string strNewJson = Encode(settings);
+    // Only overwrite the file if it was modified
+    std::string existingJsonFile;
+    if (!IO::File::TryReadAllText(existingJsonFile, path) || existingJsonFile != strNewJson)
+    {
+      IO::File::WriteAllText(path, strNewJson);
     }
   }
 }

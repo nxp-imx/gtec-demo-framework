@@ -32,9 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/Dp/DpSize1DF.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
-#include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutLength.hpp>
+#include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <deque>
 
 namespace Fsl
@@ -45,14 +47,14 @@ namespace Fsl
   {
     struct ComplexStackLayoutWindowRecord : GenericWindowCollectionRecordBase
     {
-      LayoutUnitType UnitType;
+      LayoutUnitType UnitType{LayoutUnitType::Auto};
       int32_t PositionPx{};
       int32_t SizePx{};
       float LayoutSizeMagic{};
 
       explicit ComplexStackLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
         : GenericWindowCollectionRecordBase(window)
-        , UnitType(LayoutUnitType::Auto)
+
       {
       }
     };
@@ -62,7 +64,7 @@ namespace Fsl
     {
       LayoutOrientation m_orientation;
       std::deque<LayoutLength> m_layoutLength;
-      float m_spacingDp{};
+      DpSize1DF m_spacingDp{};
 
 
     public:
@@ -73,13 +75,13 @@ namespace Fsl
         return m_orientation;
       }
 
-      void SetLayoutOrientation(const LayoutOrientation& value);
+      void SetOrientation(const LayoutOrientation& value);
 
-      float GetSpacing() const
+      DpSize1DF GetSpacing() const
       {
         return m_spacingDp;
       }
-      void SetSpacing(const float& value);
+      bool SetSpacing(const DpSize1DF value);
 
       void ClearLayoutLengths();
       void PushLayoutLength(const LayoutLength& layoutLength);

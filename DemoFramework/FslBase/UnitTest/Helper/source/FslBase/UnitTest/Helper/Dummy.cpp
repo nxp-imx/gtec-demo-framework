@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 namespace Fsl
 {

@@ -14,24 +14,17 @@
 #include <FslBase/BasicTypes.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan::CommandBufferUtil
 {
-  namespace Vulkan
-  {
-    namespace CommandBufferUtil
-    {
-      void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image, const VkImageAspectFlags aspectMask,
-                          const VkImageLayout oldImageLayout, const VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange,
-                          const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                          const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+  void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image, const VkImageAspectFlags aspectMask, const VkImageLayout oldImageLayout,
+                      const VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange,
+                      const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                      const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
 
-      void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image, const VkImageAspectFlags aspectMask,
-                          const VkImageLayout oldImageLayout, const VkImageLayout newImageLayout,
-                          const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                          const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
-    }
-  }
+  void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image, const VkImageAspectFlags aspectMask, const VkImageLayout oldImageLayout,
+                      const VkImageLayout newImageLayout, const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                      const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 }
 
 #endif

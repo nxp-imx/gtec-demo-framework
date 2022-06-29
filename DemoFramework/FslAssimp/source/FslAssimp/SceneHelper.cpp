@@ -31,10 +31,8 @@
 
 #include <FslAssimp/SceneHelper.hpp>
 #include <FslBase/Math/Vector3.hpp>
-
 #include <assimp/Importer.hpp>    //OO version Header!
 #include <assimp/postprocess.h>
-
 #include <algorithm>
 #include <limits>
 

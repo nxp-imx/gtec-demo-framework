@@ -33,15 +33,12 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::PerformanceCounter
 {
-  namespace PerformanceCounter
-  {
-    //! @return performance-counter frequency, in counts per second.
-    extern uint64_t GetPerformanceFrequency();
-    //! @return The current value of the high resolution performance counter (<1us), the time stamp that can be used for time-interval measurements.
-    extern uint64_t GetPerformanceCounter();
-  }
+  //! @return performance-counter frequency, in counts per second.
+  extern uint64_t GetPerformanceFrequency();
+  //! @return The current value of the high resolution performance counter (<1us), the time stamp that can be used for time-interval measurements.
+  extern uint64_t GetPerformanceCounter();
 }
 
 #endif

@@ -31,29 +31,26 @@
 
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WindowInputClickEvent::WindowInputClickEvent()
+    : WindowInputEvent(EventTypeId::InputClick, EventDescription(EventRoutingStrategy::Paired, WindowFlags(WindowFlags::ClickInput)))
+
   {
-    WindowInputClickEvent::WindowInputClickEvent()
-      : WindowInputEvent(EventTypeId::InputClick, EventDescription(EventRoutingStrategy::Paired, WindowFlags(WindowFlags::ClickInput)))
-
-    {
-    }
+  }
 
 
-    void WindowInputClickEvent::SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
-                                              const bool isRepeat, const PxPoint2& screenPositionPx)
-    {
-      WindowInputEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
-      m_screenPositionPx = screenPositionPx;
-    }
+  void WindowInputClickEvent::SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
+                                            const PxPoint2& screenPositionPx)
+  {
+    WindowInputEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
+    m_screenPositionPx = screenPositionPx;
+  }
 
 
-    void WindowInputClickEvent::SYS_Destruct()
-    {
-      m_screenPositionPx = {};
-      WindowInputEvent::SYS_Destruct();
-    }
+  void WindowInputClickEvent::SYS_Destruct()
+  {
+    m_screenPositionPx = {};
+    WindowInputEvent::SYS_Destruct();
   }
 }

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxAreaRectangleF.hpp>
+#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
@@ -480,7 +480,7 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersects_BruteForce)
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        PxAreaRectangleF rectA(float(x), float(y), 4, 3);
+        PxAreaRectangleF rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
         EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
         EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
       }
@@ -523,7 +523,7 @@ TEST(TestMathPixel_PxAreaRectangleF, Intersect_BruteForce)
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        PxAreaRectangleF rectA(float(x), float(y), 4, 3);
+        PxAreaRectangleF rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
         auto res1 = PxAreaRectangleF::Intersect(rectA, rectB);
         auto res2 = PxAreaRectangleF::Intersect(rectB, rectA);
@@ -551,7 +551,7 @@ TEST(TestMathPixel_PxAreaRectangleF, Union_BruteForce)
   {
     for (int32_t x = 0; x < 11; ++x)
     {
-      PxAreaRectangleF rectA(float(x), float(y), 4, 3);
+      PxAreaRectangleF rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
       auto res1 = PxAreaRectangleF::Union(rectA, rectB);
       auto res2 = PxAreaRectangleF::Union(rectB, rectA);

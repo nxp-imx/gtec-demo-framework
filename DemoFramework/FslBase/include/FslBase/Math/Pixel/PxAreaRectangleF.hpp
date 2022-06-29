@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Math/MathHelper_MinMax.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <algorithm>
 #include <cassert>

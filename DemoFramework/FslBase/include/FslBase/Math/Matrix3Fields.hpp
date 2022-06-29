@@ -31,20 +31,17 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Matrix3Fields
 {
-  namespace Matrix3Fields
-  {
-    constexpr unsigned int _M11(3 * 0 + 0);
-    constexpr unsigned int _M12(3 * 0 + 1);
-    constexpr unsigned int _M13(3 * 0 + 2);
-    constexpr unsigned int _M21(3 * 1 + 0);
-    constexpr unsigned int _M22(3 * 1 + 1);
-    constexpr unsigned int _M23(3 * 1 + 2);
-    constexpr unsigned int _M31(3 * 2 + 0);
-    constexpr unsigned int _M32(3 * 2 + 1);
-    constexpr unsigned int _M33(3 * 2 + 2);
-  }
+  constexpr unsigned int _M11(3 * 0 + 0);
+  constexpr unsigned int _M12(3 * 0 + 1);
+  constexpr unsigned int _M13(3 * 0 + 2);
+  constexpr unsigned int _M21(3 * 1 + 0);
+  constexpr unsigned int _M22(3 * 1 + 1);
+  constexpr unsigned int _M23(3 * 1 + 2);
+  constexpr unsigned int _M31(3 * 2 + 0);
+  constexpr unsigned int _M32(3 * 2 + 1);
+  constexpr unsigned int _M33(3 * 2 + 2);
 }
 
 #endif

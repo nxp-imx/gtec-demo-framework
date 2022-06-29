@@ -29,49 +29,46 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanCustom/VulkanWindowSystemHelper.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
+#include <Shared/VulkanCustom/VulkanWindowSystemHelper.hpp>
 
-namespace Fsl
+namespace Fsl::VulkanWindowSystemHelper
 {
-  namespace VulkanWindowSystemHelper
+  std::shared_ptr<VulkanWindowSystem> GetWindowSystem(const std::shared_ptr<IWindowHostInfo>& windowHostInfo)
   {
-    std::shared_ptr<VulkanWindowSystem> GetWindowSystem(const std::shared_ptr<IWindowHostInfo>& windowHostInfo)
+    auto baseActiveWindowSystem = windowHostInfo->GetWindowSystem().lock();
+    if (!baseActiveWindowSystem)
     {
-      auto baseActiveWindowSystem = windowHostInfo->GetWindowSystem().lock();
-      if (!baseActiveWindowSystem)
-      {
-        throw std::runtime_error("Failed to get the active window system");
-      }
-      auto ptr = std::dynamic_pointer_cast<VulkanWindowSystem>(baseActiveWindowSystem);
-      if (!ptr)
-      {
-        throw std::runtime_error("The window system is not of the expected type");
-      }
-      return ptr;
+      throw std::runtime_error("Failed to get the active window system");
+    }
+    auto ptr = std::dynamic_pointer_cast<VulkanWindowSystem>(baseActiveWindowSystem);
+    if (!ptr)
+    {
+      throw std::runtime_error("The window system is not of the expected type");
+    }
+    return ptr;
+  }
+
+
+  std::shared_ptr<IVulkanNativeWindow> GetActiveWindow(const std::shared_ptr<IWindowHostInfo>& windowHostInfo)
+  {
+    auto windows = windowHostInfo->GetWindows();
+    if (windows.size() != 1)
+    {
+      throw NotSupportedException("One active window required");
     }
 
-
-    std::shared_ptr<IVulkanNativeWindow> GetActiveWindow(const std::shared_ptr<IWindowHostInfo>& windowHostInfo)
+    auto baseWindow = windows.front().lock();
+    if (!baseWindow)
     {
-      auto windows = windowHostInfo->GetWindows();
-      if (windows.size() != 1)
-      {
-        throw NotSupportedException("One active window required");
-      }
-
-      auto baseWindow = windows.front().lock();
-      if (!baseWindow)
-      {
-        throw std::runtime_error("Failed to get the active window");
-      }
-
-      auto ptr = std::dynamic_pointer_cast<IVulkanNativeWindow>(baseWindow);
-      if (!ptr)
-      {
-        throw std::runtime_error("The window is not of the expected type");
-      }
-      return ptr;
+      throw std::runtime_error("Failed to get the active window");
     }
+
+    auto ptr = std::dynamic_pointer_cast<IVulkanNativeWindow>(baseWindow);
+    if (!ptr)
+    {
+      throw std::runtime_error("The window is not of the expected type");
+    }
+    return ptr;
   }
 }

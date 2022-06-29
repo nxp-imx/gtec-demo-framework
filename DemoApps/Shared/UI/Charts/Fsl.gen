@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.UI.Charts" CreationYear="2022">
+    <Dependency Name="FslDataBinding.App"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslSimpleUI.App.Theme" Access="Private"/>
+    <Dependency Name="FslSimpleUI.Controls.Charts.Common"/>
+  </Library>
+</FslBuildGen>

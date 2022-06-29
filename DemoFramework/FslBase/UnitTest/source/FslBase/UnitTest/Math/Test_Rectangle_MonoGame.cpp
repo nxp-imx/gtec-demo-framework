@@ -26,8 +26,8 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - RectangleTest.cs.
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
+#include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>

@@ -40,7 +40,7 @@
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
-#include <Shared/System/OnDemandRendering/Chart/AverageData.hpp>
+#include <FslSimpleUI/Controls/Charts/Common/AverageData.hpp>
 #include <Shared/System/OnDemandRendering/JankDetector.hpp>
 #include <memory>
 #include <utility>
@@ -56,9 +56,8 @@ namespace Fsl
 
   namespace UI
   {
-    class AreaChartData;
-    class AreaChartCountData;
-    class IChartComplexDataWindow;
+    class ChartData;
+    class AChartData;
     class Image;
 
     namespace Theme
@@ -171,11 +170,11 @@ namespace Fsl
     std::shared_ptr<IBasicRenderSystem> m_renderSystem;
     DefaultValues m_defaults;
 
-    std::shared_ptr<UI::AreaChartData> m_dataUpdate;
+    std::shared_ptr<UI::ChartData> m_dataUpdate;
     UI::AverageData m_dataUpdateAverage;
-    std::shared_ptr<UI::AreaChartData> m_dataDraw;
+    std::shared_ptr<UI::ChartData> m_dataDraw;
     UI::AverageData m_dataDrawAverage;
-    std::shared_ptr<UI::AreaChartCountData> m_dataFixedUpdate;
+    std::shared_ptr<UI::ChartData> m_dataFixedUpdate;
     UI::AverageData m_dataFixedUpdateAverage;
 
     UIRecord m_ui;
@@ -231,10 +230,9 @@ namespace Fsl
     void SetOnDemandRendering(const bool enabled);
 
     void ClearCharts();
-    static UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::IChartComplexDataWindow>& dataUpdate,
-                             const std::shared_ptr<UI::IChartComplexDataWindow>& dataDraw,
-                             const std::shared_ptr<UI::IChartComplexDataWindow>& dataFixedUpdate, const uint16_t fixedUpdatesPerSecond,
-                             const OnDemandState& onDemandRendering, const bool hasCpuStats);
+    static UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::AChartData>& dataUpdate,
+                             const std::shared_ptr<UI::AChartData>& dataDraw, const std::shared_ptr<UI::AChartData>& dataFixedUpdate,
+                             const uint16_t fixedUpdatesPerSecond, const OnDemandState& onDemandRendering, const bool hasCpuStats);
     static PlayUI CreatePlayUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context);
     static DeltaTimeUI CreateDeltaTimeUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context);
     static StatsOverlayUI CreateStatsOverlayUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context,

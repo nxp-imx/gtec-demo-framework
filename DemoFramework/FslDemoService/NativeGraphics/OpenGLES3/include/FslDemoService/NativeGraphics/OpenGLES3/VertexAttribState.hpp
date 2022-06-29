@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_VERTEXATTRIBSTATE_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_VERTEXATTRIBSTATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,35 +34,32 @@
 #include <FslDemoService/NativeGraphics/OpenGLES3/BasicVertexAttribState.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct VertexAttribState
   {
-    struct VertexAttribState
+    // The actual state of the attrib index
+    bool Enabled{false};
+    BasicVertexAttribState Basic;
+
+    constexpr VertexAttribState() noexcept = default;
+
+    constexpr VertexAttribState(const bool enabled, const BasicVertexAttribState& basic) noexcept
+      : Enabled(enabled)
+      , Basic(basic)
     {
-      // The actual state of the attrib index
-      bool Enabled{false};
-      BasicVertexAttribState Basic;
+    }
 
-      constexpr VertexAttribState() noexcept = default;
+    constexpr bool operator==(const VertexAttribState& rhs) const noexcept
+    {
+      return Enabled == rhs.Enabled && Basic == rhs.Basic;
+    }
 
-      constexpr VertexAttribState(const bool enabled, const BasicVertexAttribState& basic) noexcept
-        : Enabled(enabled)
-        , Basic(basic)
-      {
-      }
-
-      constexpr bool operator==(const VertexAttribState& rhs) const noexcept
-      {
-        return Enabled == rhs.Enabled && Basic == rhs.Basic;
-      }
-
-      constexpr bool operator!=(const VertexAttribState& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-    };
-  }
+    constexpr bool operator!=(const VertexAttribState& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

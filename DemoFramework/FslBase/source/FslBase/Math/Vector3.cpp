@@ -25,12 +25,11 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector3.cs.
 
-#include <cassert>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Quaternion.hpp>
+#include <FslBase/Math/Vector3.hpp>
 #include <cassert>
 #include <cmath>
 #include <cstddef>

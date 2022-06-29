@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEventListener.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <vector>
 
 namespace Fsl

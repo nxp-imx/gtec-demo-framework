@@ -39,21 +39,18 @@
 #include <Shared/Camera/Adapter/Mipi8X/CameraSystemAdapterMipi8X.hpp>
 #endif
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  CameraSystem PlatformCameraSystem::CreateCameraSystem()
   {
-    CameraSystem PlatformCameraSystem::CreateCameraSystem()
-    {
-      std::vector<std::shared_ptr<ICameraSystemAdapter>> cameraSystemAdapters;
+    std::vector<std::shared_ptr<ICameraSystemAdapter>> cameraSystemAdapters;
 
 #ifdef FSL_ENABLE_CAMERA_ADAPTER_MIPI8X
-      cameraSystemAdapters.push_back(std::make_shared<CameraSystemAdapterMipi8X>());
+    cameraSystemAdapters.push_back(std::make_shared<CameraSystemAdapterMipi8X>());
 #endif
 #ifdef FSL_ENABLE_CAMERA_ADAPTER_OPENCV
-      cameraSystemAdapters.push_back(std::make_shared<CameraSystemAdapterOpenCV>());
+    cameraSystemAdapters.push_back(std::make_shared<CameraSystemAdapterOpenCV>());
 #endif
-      return CameraSystem(cameraSystemAdapters);
-    }
+    return CameraSystem(cameraSystemAdapters);
   }
 }

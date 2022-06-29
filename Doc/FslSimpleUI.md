@@ -341,8 +341,13 @@ Some common UI features that were skipped
 * Input gestures
 * A keyboard focus system for controls
 * A game-pad focus system for controls
-* Data-binding
+* Data-binding (this is currently being added)
 * Minimum and maximum control sizes.
+
+New features still being rolled out.
+
+* [Basic data binding support](../DemoFramework/FslDataBinding/Base/README.md).
+* Charts rendering.
 
 ## Sprite system
 

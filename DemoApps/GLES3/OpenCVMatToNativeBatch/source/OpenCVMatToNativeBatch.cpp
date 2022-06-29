@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 // Included first since OpenCV currently has a conflict with the X11 header, so this is a workaround for that
 #include <opencv2/opencv.hpp>
 // Normal includes that dont conflict
-#include "OpenCVMatToNativeBatch.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/Color.hpp>
@@ -44,6 +43,7 @@
 #include <GLES3/gl3.h>
 #include <algorithm>
 #include <cassert>
+#include "OpenCVMatToNativeBatch.hpp"
 
 namespace Fsl
 {
@@ -142,27 +142,28 @@ namespace Fsl
     const int32_t heightCaptionRGB = sizeTexR.Height() + sizeTexG.Height() + sizeTexB.Height() + sizeTextCaption.Height();
     const int32_t yAdjust = (sizeTex1.Height() - heightCaptionRGB) / 2;
 
-    dstPosR.X += sizeTex1.Width();
-    dstPosG.X += sizeTex1.Width();
-    dstPosB.X += sizeTex1.Width();
+    const auto sizeTex1Width = static_cast<float>(sizeTex1.Width());
+    dstPosR.X += sizeTex1Width;
+    dstPosG.X += sizeTex1Width;
+    dstPosB.X += sizeTex1Width;
 
-    dstPosR.Y += float(yAdjust + sizeTextCaption.Height());
-    dstPosG.Y += float(yAdjust + sizeTextCaption.Height() + sizeTexR.Height());
-    dstPosB.Y += float(yAdjust + sizeTextCaption.Height() + sizeTexR.Height() + sizeTexG.Height());
+    dstPosR.Y += static_cast<float>(yAdjust + sizeTextCaption.Height());
+    dstPosG.Y += static_cast<float>(yAdjust + sizeTextCaption.Height() + sizeTexR.Height());
+    dstPosB.Y += static_cast<float>(yAdjust + sizeTextCaption.Height() + sizeTexR.Height() + sizeTexG.Height());
 
     m_nativeBatch->Draw(tex1, dstPos1, Color::White());
     m_nativeBatch->Draw(texR, dstPosR, Color::White());
     m_nativeBatch->Draw(texG, dstPosG, Color::White());
     m_nativeBatch->Draw(texB, dstPosB, Color::White());
 
-    Vector2 dstPosText1(sizeTex1.Width(), dstPosition.Y + yAdjust);
+    Vector2 dstPosText1(sizeTex1.Width(), dstPosition.Y + static_cast<float>(yAdjust));
     Vector2 dstPosTextR = dstPosR;
     Vector2 dstPosTextG = dstPosG;
     Vector2 dstPosTextB = dstPosB;
 
-    dstPosTextR.X += sizeTexR.Width();
-    dstPosTextG.X += sizeTexG.Width();
-    dstPosTextB.X += sizeTexB.Width();
+    dstPosTextR.X += static_cast<float>(sizeTexR.Width());
+    dstPosTextG.X += static_cast<float>(sizeTexG.Width());
+    dstPosTextB.X += static_cast<float>(sizeTexB.Width());
 
     // BEWARE its very bad for render performance to switch blend state before we finish rendering all the Opaque elements,
     // but its simpler in this example, so we reset the state back after we rendered the text

@@ -31,9 +31,9 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "ParticleSystem.hpp"
-#include "OptionParser.hpp"
 #include <array>
+#include "OptionParser.hpp"
+#include "ParticleSystem.hpp"
 
 namespace Fsl
 {

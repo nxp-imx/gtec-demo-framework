@@ -32,12 +32,12 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
-#include <GLES3/gl3.h>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <GLES3/gl3.h>
 
 namespace Fsl
 {

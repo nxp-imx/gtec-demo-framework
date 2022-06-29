@@ -34,35 +34,32 @@
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IModuleCallbackReceiver;
+  class TreeNode;
+
+  class ModuleCallbackRegistry
   {
-    class IModuleCallbackReceiver;
-    class TreeNode;
+    std::deque<std::weak_ptr<IModuleCallbackReceiver>> m_receivers;
 
-    class ModuleCallbackRegistry
-    {
-      std::deque<std::weak_ptr<IModuleCallbackReceiver>> m_receivers;
+  public:
+    ModuleCallbackRegistry();
+    ~ModuleCallbackRegistry();
 
-    public:
-      ModuleCallbackRegistry();
-      ~ModuleCallbackRegistry();
-
-      //! @brief Add a callback receiver, its up to you to ensure you dont add one twice (or you will get two callbacks)
-      void AddCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module);
-      void RemoveCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module);
+    //! @brief Add a callback receiver, its up to you to ensure you dont add one twice (or you will get two callbacks)
+    void AddCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module);
+    void RemoveCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module);
 
 
-      //! @brief Called when a TreeNode is addded
-      //! @note  This should only be called by the UITree!!
-      void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node);
+    //! @brief Called when a TreeNode is addded
+    //! @note  This should only be called by the UITree!!
+    void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node);
 
-      //! @brief Called when a TreeNode is disposed (this call occurs right before we dispose it)
-      //! @note  This should only be called by the UITree!!
-      void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node);
-    };
-  }
+    //! @brief Called when a TreeNode is disposed (this call occurs right before we dispose it)
+    //! @note  This should only be called by the UITree!!
+    void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node);
+  };
 }
 
 #endif

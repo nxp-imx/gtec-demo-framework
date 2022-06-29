@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslService/Consumer/Exceptions.hpp>
 #include <FslService/Consumer/IServiceProvider.hpp>
-#include <FslBase/Log/Log3Core.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 #include <utility>
 
 namespace Fsl

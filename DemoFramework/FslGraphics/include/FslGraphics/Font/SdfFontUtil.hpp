@@ -31,14 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::SdfFontUtil
 {
-  namespace SdfFontUtil
+  constexpr inline float CalcSmooth(const float spread, const float scale)
   {
-    constexpr inline float CalcSmooth(const float spread, const float scale)
-    {
-      return 0.25f / (spread * scale);
-    }
+    return 0.25f / (spread * scale);
   }
 }
 

@@ -34,16 +34,13 @@
 #include <FslBase/Math/MathHelper_MinMax.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::MathHelper
 {
-  namespace MathHelper
+  template <typename TValueType>
+  constexpr inline TValueType Clamp(const TValueType value, const TValueType min, const TValueType max) noexcept
   {
-    template <typename TValueType>
-    constexpr inline TValueType Clamp(const TValueType value, const TValueType min, const TValueType max) noexcept
-    {
-      assert(min <= max);
-      return MathHelper::Min(MathHelper::Max(value, min), max);
-    }
+    assert(min <= max);
+    return MathHelper::Min(MathHelper::Max(value, min), max);
   }
 }
 

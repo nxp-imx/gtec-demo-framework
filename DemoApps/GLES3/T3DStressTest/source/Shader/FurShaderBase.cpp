@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "FurShaderBase.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
@@ -85,9 +85,10 @@ namespace Fsl
 
   }
 
-  FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
-    : ShaderBase(contentManager.ReadAllText(GetVertAndLog(shaderPath, useHighPrecision)),
-                 contentManager.ReadAllText(GetFragAndLog(shaderPath, useHighPrecision, lightCount)))
+  FurShaderBase::FurShaderBase(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath, const bool useHighPrecision,
+                               const int lightCount)
+    : ShaderBase(contentManager->ReadAllText(GetVertAndLog(shaderPath, useHighPrecision)),
+                 contentManager->ReadAllText(GetFragAndLog(shaderPath, useHighPrecision, lightCount)))
     , m_lightCount(lightCount)
     , m_locInstanceDistance(GLValues::INVALID_LOCATION)
     , m_locWorld(GLValues::INVALID_LOCATION)
@@ -104,9 +105,9 @@ namespace Fsl
   }
 
 
-  FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
+  FurShaderBase::FurShaderBase(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
                                const int lightCount)
-    : ShaderBase(contentManager.ReadAllText(vertShaderPath), contentManager.ReadAllText(fragShaderPath))
+    : ShaderBase(contentManager->ReadAllText(vertShaderPath), contentManager->ReadAllText(fragShaderPath))
     , m_lightCount(lightCount)
     , m_locInstanceDistance(GLValues::INVALID_LOCATION)
     , m_locWorld(GLValues::INVALID_LOCATION)
@@ -243,7 +244,7 @@ namespace Fsl
     assert(IsLoaded());
     if (m_locLightCount != GLValues::INVALID_LOCATION)
     {
-      glUniform1f(m_locLightCount, GLfloat(lightCount));
+      glUniform1f(m_locLightCount, static_cast<GLfloat>(lightCount));
     }
   }
 

@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUDEVICE_HPP
 #define FSLUTIL_VULKAN1_0_VUDEVICE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,136 +35,133 @@
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Device.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  class VUDevice
   {
-    //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-    class VUDevice
+    VUPhysicalDeviceRecord m_physicalDevice;
+    RapidVulkan::Device m_device;
+
+  public:
+    VUDevice(const VUDevice&) = delete;
+    VUDevice& operator=(const VUDevice&) = delete;
+
+    //! @brief Move assignment operator
+    VUDevice& operator=(VUDevice&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    VUDevice(VUDevice&& other) noexcept;
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    VUDevice();
+    VUDevice(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device);
+    VUDevice(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo);
+
+    ~VUDevice()
     {
-      VUPhysicalDeviceRecord m_physicalDevice;
-      RapidVulkan::Device m_device;
+      Reset();
+    }
 
-    public:
-      VUDevice(const VUDevice&) = delete;
-      VUDevice& operator=(const VUDevice&) = delete;
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
+    void Reset(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device);
 
-      //! @brief Move assignment operator
-      VUDevice& operator=(VUDevice&& other) noexcept;
+    //! @brief Destroys any owned resources and then creates the requested one
+    //! @note  Function: vkCreateDevice
+    void Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo);
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      VUDevice(VUDevice&& other) noexcept;
+    //! @brief Destroys any owned resources and then creates the requested one
+    //! @note  Function: vkCreateDevice
+    void Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateFlags flags, const uint32_t queueCreateInfoCount,
+               VkDeviceQueueCreateInfo* const pQueueCreateInfos, const uint32_t enabledLayerCount, const char* const* ppEnabledLayerNames,
+               const uint32_t enabledExtensionCount, const char* const* ppEnabledExtensionNames, VkPhysicalDeviceFeatures* const pEnabledFeatures);
 
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      VUDevice();
-      VUDevice(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device);
-      VUDevice(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo);
+    //! @brief Get the physical device
+    const VUPhysicalDeviceRecord& GetPhysicalDevice() const
+    {
+      return m_physicalDevice;
+    }
 
-      ~VUDevice()
-      {
-        Reset();
-      }
+    //! @brief Get the associated 'Device'
+    VkDevice Get() const
+    {
+      return m_device.Get();
+    }
 
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
-      void Reset(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device);
+    //! @brief Get a pointer to the associated resource handle
+    const VkDevice* GetPointer() const
+    {
+      return m_device.GetPointer();
+    }
 
-      //! @brief Destroys any owned resources and then creates the requested one
-      //! @note  Function: vkCreateDevice
-      void Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo);
+    bool IsValid() const
+    {
+      return m_device.IsValid();
+    }
 
-      //! @brief Destroys any owned resources and then creates the requested one
-      //! @note  Function: vkCreateDevice
-      void Reset(const VkPhysicalDevice physicalDevice, const VkDeviceCreateFlags flags, const uint32_t queueCreateInfoCount,
-                 VkDeviceQueueCreateInfo* const pQueueCreateInfos, const uint32_t enabledLayerCount, const char* const* ppEnabledLayerNames,
-                 const uint32_t enabledExtensionCount, const char* const* ppEnabledExtensionNames, VkPhysicalDeviceFeatures* const pEnabledFeatures);
+    //! @note  Function: vkGetDeviceProcAddr
+    PFN_vkVoidFunction GetDeviceProcAddr(const char* pName)
+    {
+      return m_device.GetDeviceProcAddr(pName);
+    }
 
-      //! @brief Get the physical device
-      const VUPhysicalDeviceRecord& GetPhysicalDevice() const
-      {
-        return m_physicalDevice;
-      }
+    //! @note  Function: vkGetDeviceQueue
+    void GetDeviceQueue(const uint32_t queueFamilyIndex, const uint32_t queueIndex, VkQueue* pQueue)
+    {
+      return m_device.GetDeviceQueue(queueFamilyIndex, queueIndex, pQueue);
+    }
 
-      //! @brief Get the associated 'Device'
-      VkDevice Get() const
-      {
-        return m_device.Get();
-      }
+    //! @note  Function: vkDeviceWaitIdle
+    void DeviceWaitIdle()
+    {
+      m_device.DeviceWaitIdle();
+    }
 
-      //! @brief Get a pointer to the associated resource handle
-      const VkDevice* GetPointer() const
-      {
-        return m_device.GetPointer();
-      }
+    //! @note  Function: vkFlushMappedMemoryRanges
+    void FlushMappedMemoryRanges(const uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)
+    {
+      m_device.FlushMappedMemoryRanges(memoryRangeCount, pMemoryRanges);
+    }
 
-      bool IsValid() const
-      {
-        return m_device.IsValid();
-      }
+    //! @note  Function: vkInvalidateMappedMemoryRanges
+    void InvalidateMappedMemoryRanges(const uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)
+    {
+      m_device.InvalidateMappedMemoryRanges(memoryRangeCount, pMemoryRanges);
+    }
 
-      //! @note  Function: vkGetDeviceProcAddr
-      PFN_vkVoidFunction GetDeviceProcAddr(const char* pName)
-      {
-        return m_device.GetDeviceProcAddr(pName);
-      }
+    //! @note  Function: vkResetFences
+    void ResetFences(const uint32_t fenceCount, const VkFence* pFences)
+    {
+      m_device.ResetFences(fenceCount, pFences);
+    }
 
-      //! @note  Function: vkGetDeviceQueue
-      void GetDeviceQueue(const uint32_t queueFamilyIndex, const uint32_t queueIndex, VkQueue* pQueue)
-      {
-        return m_device.GetDeviceQueue(queueFamilyIndex, queueIndex, pQueue);
-      }
+    //! @note  Function: vkWaitForFences
+    void WaitForFences(const uint32_t fenceCount, const VkFence* pFences, const VkBool32 waitAll, const uint64_t timeout)
+    {
+      m_device.WaitForFences(fenceCount, pFences, waitAll, timeout);
+    }
 
-      //! @note  Function: vkDeviceWaitIdle
-      void DeviceWaitIdle()
-      {
-        m_device.DeviceWaitIdle();
-      }
+    //! @note  Function: vkUpdateDescriptorSets
+    void UpdateDescriptorSets(const uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites, const uint32_t descriptorCopyCount,
+                              const VkCopyDescriptorSet* pDescriptorCopies)
+    {
+      m_device.UpdateDescriptorSets(descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
+    }
 
-      //! @note  Function: vkFlushMappedMemoryRanges
-      void FlushMappedMemoryRanges(const uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)
-      {
-        m_device.FlushMappedMemoryRanges(memoryRangeCount, pMemoryRanges);
-      }
+    //! @note  Function: vkDebugMarkerSetObjectTagEXT
+    // void DebugMarkerSetObjectTagEXT(VkDebugMarkerObjectTagInfoEXT * pTagInfo)
+    // {
+    // m_device.DebugMarkerSetObjectTagEXT(pTagInfo);
+    // }
 
-      //! @note  Function: vkInvalidateMappedMemoryRanges
-      void InvalidateMappedMemoryRanges(const uint32_t memoryRangeCount, const VkMappedMemoryRange* pMemoryRanges)
-      {
-        m_device.InvalidateMappedMemoryRanges(memoryRangeCount, pMemoryRanges);
-      }
-
-      //! @note  Function: vkResetFences
-      void ResetFences(const uint32_t fenceCount, const VkFence* pFences)
-      {
-        m_device.ResetFences(fenceCount, pFences);
-      }
-
-      //! @note  Function: vkWaitForFences
-      void WaitForFences(const uint32_t fenceCount, const VkFence* pFences, const VkBool32 waitAll, const uint64_t timeout)
-      {
-        m_device.WaitForFences(fenceCount, pFences, waitAll, timeout);
-      }
-
-      //! @note  Function: vkUpdateDescriptorSets
-      void UpdateDescriptorSets(const uint32_t descriptorWriteCount, const VkWriteDescriptorSet* pDescriptorWrites,
-                                const uint32_t descriptorCopyCount, const VkCopyDescriptorSet* pDescriptorCopies)
-      {
-        m_device.UpdateDescriptorSets(descriptorWriteCount, pDescriptorWrites, descriptorCopyCount, pDescriptorCopies);
-      }
-
-      //! @note  Function: vkDebugMarkerSetObjectTagEXT
-      // void DebugMarkerSetObjectTagEXT(VkDebugMarkerObjectTagInfoEXT * pTagInfo)
-      // {
-      // m_device.DebugMarkerSetObjectTagEXT(pTagInfo);
-      // }
-
-      //! @note  Function: vkDebugMarkerSetObjectNameEXT
-      // void DebugMarkerSetObjectNameEXT(VkDebugMarkerObjectNameInfoEXT * pNameInfo)
-      // {
-      // m_device.DebugMarkerSetObjectNameEXT(pNameInfo);
-      // }
-    };
-  }
+    //! @note  Function: vkDebugMarkerSetObjectNameEXT
+    // void DebugMarkerSetObjectNameEXT(VkDebugMarkerObjectNameInfoEXT * pNameInfo)
+    // {
+    // m_device.DebugMarkerSetObjectNameEXT(pNameInfo);
+    // }
+  };
 }
 
 #endif

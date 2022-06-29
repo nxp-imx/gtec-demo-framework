@@ -34,16 +34,10 @@
 #include <FslBase/BasicTypes.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Willems::Config
 {
-  namespace Willems
-  {
-    namespace Config
-    {
-      const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
-      const VkFlags FLAGS_NONE = 0;
-    }
-  }
+  const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
+  const VkFlags FLAGS_NONE = 0;
 }
 
 #endif

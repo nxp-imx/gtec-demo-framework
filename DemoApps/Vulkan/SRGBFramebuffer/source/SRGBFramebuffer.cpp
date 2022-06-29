@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,17 +66,17 @@ namespace Fsl
       if (features.textureCompressionASTC_LDR != VK_FALSE)
       {
         FSLLOG3_INFO("Using ASTC texture");
-        return IO::Path("Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx");
+        return {"Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx"};
       }
       if (features.textureCompressionETC2 != VK_FALSE)
       {
         FSLLOG3_INFO("Using ETC2 texture");
-        return IO::Path("Textures/WoodFloor/Floor_ETC2_RGB.ktx");
+        return {"Textures/WoodFloor/Floor_ETC2_RGB.ktx"};
       }
       if (features.textureCompressionBC != VK_FALSE)
       {
         FSLLOG3_INFO("Using BC1 texture");
-        return IO::Path("Textures/WoodFloor/Floor_BC1_rgb.ktx");
+        return {"Textures/WoodFloor/Floor_BC1_rgb.ktx"};
       }
       throw NotSupportedException("No supported texture compression found");
     }
@@ -129,7 +129,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -148,7 +148,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 
@@ -238,7 +238,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -373,7 +373,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
 
@@ -397,11 +397,11 @@ namespace Fsl
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_state(State::Split2)
-    , m_splitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneWidthL(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneWidthR(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneAlphaL(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneAlphaR(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , m_splitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthL(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthR(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneAlphaL(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitSceneAlphaR(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
     const auto chosenSurfaceFormat = GetSurfaceFormatInfo();
     bool hasSRGBFramebuffer = (chosenSurfaceFormat.Format == VK_FORMAT_B8G8R8A8_SRGB);
@@ -513,19 +513,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -552,12 +552,12 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    const float aspectL = m_splitSceneWidthL.GetValue() / windowSizePx.Height();
+    const float aspectL = m_splitSceneWidthL.GetValue() / static_cast<float>(windowSizePx.Height());
 
     m_vertexUboDataL.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectL, 0.1f, 100.0f) * vulkanClipMatrix;
     m_vertexUboDataL.MatModelView = matrixWorld * matrixView;
 
-    const float aspectR = m_splitSceneWidthR.GetValue() / windowSizePx.Height();
+    const float aspectR = m_splitSceneWidthR.GetValue() / static_cast<float>(windowSizePx.Height());
     m_vertexUboDataR.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectR, 0.1f, 100.0f) * vulkanClipMatrix;
     m_vertexUboDataR.MatModelView = matrixWorld * matrixView;
 
@@ -700,11 +700,11 @@ namespace Fsl
       m_splitSceneAlphaR.SetValue(1.0f);
       break;
     }
-    m_splitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneWidthL.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneWidthR.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneAlphaL.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneAlphaR.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitX.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneWidthL.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneWidthR.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneAlphaL.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneAlphaR.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alphaL = m_splitSceneAlphaL.GetValue();
     const float alphaR = m_splitSceneAlphaR.GetValue();
@@ -891,7 +891,7 @@ namespace Fsl
     controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
     controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
     controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
-    controls->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    controls->SetOrientation(UI::LayoutOrientation::Horizontal);
     controls->AddChild(leftCB);
     controls->AddChild(label1);
     controls->AddChild(rightCB);

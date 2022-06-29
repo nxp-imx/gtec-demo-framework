@@ -29,19 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/DevNativeTexture2D/Shared.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
@@ -52,6 +51,7 @@
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
+#include <Shared/System/DevNativeTexture2D/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -107,10 +107,10 @@ namespace Fsl
       imageLine->SetRotateImageCW(true);
 
       m_test0 = std::make_shared<UI::WrapLayout>(windowContext);
-      m_test0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      m_test0->SetOrientation(UI::LayoutOrientation::Horizontal);
       m_test0->SetAlignmentX(UI::ItemAlignment::Center);
       m_test1 = std::make_shared<UI::WrapLayout>(windowContext);
-      m_test1->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      m_test1->SetOrientation(UI::LayoutOrientation::Horizontal);
       m_test1->SetAlignmentX(UI::ItemAlignment::Center);
 
       // Create the root layout and add it to the window manager
@@ -218,7 +218,7 @@ namespace Fsl
     image->SetAlignmentX(UI::ItemAlignment::Center);
     image->SetAlignmentY(UI::ItemAlignment::Center);
 
-    return TestRecord(texture, std::move(image));
+    return {texture, std::move(image)};
   }
 
   void Shared::AddFrontTestRecord()
@@ -264,7 +264,7 @@ namespace Fsl
     }
   }
 
-  const Bitmap& Shared::GetDynamicBitmap(int imageIndex)
+  const Bitmap& Shared::GetDynamicBitmap(const uint32_t imageIndex)
   {
     switch (imageIndex)
     {
@@ -296,7 +296,7 @@ namespace Fsl
     image->SetAlignmentX(UI::ItemAlignment::Center);
     image->SetAlignmentY(UI::ItemAlignment::Center);
 
-    return DynamicTestRecord(texture, std::move(image), imageIndex);
+    return {texture, std::move(image), imageIndex};
   }
 
   void Shared::AddDynamicFrontTestRecord()
@@ -383,7 +383,7 @@ namespace Fsl
     buttonClearAll->SetAlignmentX(UI::ItemAlignment::Stretch);
 
     auto stackLayout = std::make_shared<UI::StackLayout>(context);
-    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    stackLayout->SetOrientation(UI::LayoutOrientation::Vertical);
     stackLayout->AddChild(buttonAddFront);
     stackLayout->AddChild(buttonRemoveFront);
     stackLayout->AddChild(buttonAddBack);

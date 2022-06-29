@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALWINDOWCLICKINPUTTARGETLOCATER_HPP
 #define FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALWINDOWCLICKINPUTTARGETLOCATER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,52 +32,49 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Module/IWindowClickInputTargetLocater.hpp>
-#include "../../ITreeNodeClickInputTargetLocater.hpp"
-#include "../../TreeNode.hpp"
 #include <memory>
 #include <utility>
+#include "../../ITreeNodeClickInputTargetLocater.hpp"
+#include "../../TreeNode.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ExternalWindowClickInputTargetLocater final : public IWindowClickInputTargetLocater
   {
-    class ExternalWindowClickInputTargetLocater final : public IWindowClickInputTargetLocater
+    std::shared_ptr<ITreeNodeClickInputTargetLocater> m_targetLocator;
+
+  public:
+    explicit ExternalWindowClickInputTargetLocater(std::shared_ptr<ITreeNodeClickInputTargetLocater> targetLocator)
+      : m_targetLocator(std::move(targetLocator))
     {
-      std::shared_ptr<ITreeNodeClickInputTargetLocater> m_targetLocator;
+    }
 
-    public:
-      explicit ExternalWindowClickInputTargetLocater(std::shared_ptr<ITreeNodeClickInputTargetLocater> targetLocator)
-        : m_targetLocator(std::move(targetLocator))
-      {
-      }
+    void Dispose() noexcept
+    {
+      m_targetLocator.reset();
+    }
 
-      void Dispose() noexcept
+    // From IWindowClickInputTargetLocater
+    std::shared_ptr<IWindowId> TryGetMouseOverWindow(const PxPoint2& hitPositionPx) const final
+    {
+      if (m_targetLocator)
       {
-        m_targetLocator.reset();
+        auto node = m_targetLocator->TryGetMouseOverWindow(hitPositionPx);
+        return node ? node->GetWindow() : std::shared_ptr<IWindowId>();
       }
+      return {};
+    }
 
-      // From IWindowClickInputTargetLocater
-      std::shared_ptr<IWindowId> TryGetMouseOverWindow(const PxPoint2& hitPositionPx) const final
+    std::shared_ptr<IWindowId> TryGetClickInputWindow(const PxPoint2& hitPositionPx) const final
+    {
+      if (m_targetLocator)
       {
-        if (m_targetLocator)
-        {
-          auto node = m_targetLocator->TryGetMouseOverWindow(hitPositionPx);
-          return node ? node->GetWindow() : std::shared_ptr<IWindowId>();
-        }
-        return {};
+        auto node = m_targetLocator->TryGetClickInputWindow(hitPositionPx);
+        return node ? node->GetWindow() : std::shared_ptr<IWindowId>();
       }
-
-      std::shared_ptr<IWindowId> TryGetClickInputWindow(const PxPoint2& hitPositionPx) const final
-      {
-        if (m_targetLocator)
-        {
-          auto node = m_targetLocator->TryGetClickInputWindow(hitPositionPx);
-          return node ? node->GetWindow() : std::shared_ptr<IWindowId>();
-        }
-        return {};
-      }
-    };
-  }
+      return {};
+    }
+  };
 }
 
 #endif

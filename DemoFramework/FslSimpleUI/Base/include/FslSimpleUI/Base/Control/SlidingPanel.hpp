@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDINGPANEL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDINGPANEL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,49 +35,46 @@
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslSimpleUI/Base/SlideDirection.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class SlidingPanel final : public ContentControl
   {
-    class SlidingPanel final : public ContentControl
+    enum class State
     {
-      enum class State
-      {
-        Shown,
-        Hidden
-      };
-
-      TransitionValue m_animation;
-      State m_state{State::Shown};
-      SlideDirection m_slideDirection{SlideDirection::Left};
-
-      PxSize2D m_desiredSizePx;
-
-    public:
-      explicit SlidingPanel(const std::shared_ptr<BaseWindowContext>& context);
-
-      bool IsShown() const
-      {
-        return m_state == State::Shown;
-      }
-
-      bool SetShow(const bool isVisible);
-
-      SlideDirection GetDirection() const
-      {
-        return m_slideDirection;
-      }
-
-      bool SetDirection(const SlideDirection direction);
-
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
-
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final;
-      bool UpdateAnimationState(const bool forceCompleteAnimation) final;
+      Shown,
+      Hidden
     };
-  }
+
+    TransitionValue m_animation;
+    State m_state{State::Shown};
+    SlideDirection m_slideDirection{SlideDirection::Left};
+
+    PxSize2D m_desiredSizePx;
+
+  public:
+    explicit SlidingPanel(const std::shared_ptr<BaseWindowContext>& context);
+
+    bool IsShown() const
+    {
+      return m_state == State::Shown;
+    }
+
+    bool SetShow(const bool isVisible);
+
+    SlideDirection GetDirection() const
+    {
+      return m_slideDirection;
+    }
+
+    bool SetDirection(const SlideDirection direction);
+
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+    void UpdateAnimation(const TimeSpan& timeSpan) final;
+    bool UpdateAnimationState(const bool forceCompleteAnimation) final;
+  };
 }
 
 #endif

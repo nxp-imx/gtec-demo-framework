@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_DIALOG_RESULTDETAILSDIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_SCENE_DIALOG_RESULTDETAILSDIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,43 +31,39 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <FslSimpleUI/Theme/Base/WindowType.hpp>
 #include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkData.hpp>
 #include <memory>
+#include <optional>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ButtonBase;
+  class Switch;
+
+  class ResultDetailsDialogActivity final : public DialogActivity
   {
-    class ButtonBase;
-    class Switch;
-
-    class ResultDetailsDialogActivity final : public DialogActivity
+    enum class State
     {
-      enum class State
-      {
-        Ready,
-        Closing,
-      };
-
-      State m_state{State::Ready};
-      std::shared_ptr<ButtonBase> m_buttonBack;
-
-    public:
-      // Since we dont have a proper activity concept with async return values we use the shared settings object for now
-      ResultDetailsDialogActivity(std::weak_ptr<IActivityStack> activityStack,
-                                  const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory, Optional<AppBenchmarkData> benchNewResult,
-                                  Optional<AppBenchmarkData> benchOldResult);
-
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
-      void OnKeyEvent(const KeyEvent& theEvent) final;
-
-    private:
-      void DoScheduleClose();
+      Ready,
+      Closing,
     };
-  }
+
+    State m_state{State::Ready};
+    std::shared_ptr<ButtonBase> m_buttonBack;
+
+  public:
+    // Since we dont have a proper activity concept with async return values we use the shared settings object for now
+    ResultDetailsDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                std::optional<AppBenchmarkData> benchNewResult, std::optional<AppBenchmarkData> benchOldResult);
+
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnKeyEvent(const KeyEvent& theEvent) final;
+
+  private:
+    void DoScheduleClose();
+  };
 }
 
 

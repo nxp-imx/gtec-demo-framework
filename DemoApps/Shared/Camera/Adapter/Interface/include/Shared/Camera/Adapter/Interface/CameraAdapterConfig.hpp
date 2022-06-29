@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_INTERFACE_CAMERAADAPTERCONFIG_HPP
 #define SHARED_CAMERA_ADAPTER_INTERFACE_CAMERAADAPTERCONFIG_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,30 +37,27 @@
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  struct CameraAdapterConfig
   {
-    struct CameraAdapterConfig
+    PxExtent2D Extent;
+    PixelFormat ActivePixelFormat{PixelFormat::Undefined};
+    uint32_t Stride{0};
+
+    CameraAdapterConfig() = default;
+
+    CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat)
+      : CameraAdapterConfig(extent, activePixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, activePixelFormat))
     {
-      PxExtent2D Extent;
-      PixelFormat ActivePixelFormat{PixelFormat::Undefined};
-      uint32_t Stride{0};
+    }
 
-      CameraAdapterConfig() = default;
-
-      CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat)
-        : CameraAdapterConfig(extent, activePixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, activePixelFormat))
-      {
-      }
-
-      CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat, const uint32_t stride)
-        : Extent(extent)
-        , ActivePixelFormat(activePixelFormat)
-        , Stride(stride)
-      {
-      }
-    };
-  }
+    CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat, const uint32_t stride)
+      : Extent(extent)
+      , ActivePixelFormat(activePixelFormat)
+      , Stride(stride)
+    {
+    }
+  };
 }
 #endif

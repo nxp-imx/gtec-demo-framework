@@ -35,41 +35,38 @@
 #include <list>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  class PathWatcherInternalRecord;
+
+  //! @note Experimental class, might change it is probably also quite slow compared to proper OS change notifications.
+  class PathWatcher
   {
-    class PathWatcherInternalRecord;
+  public:
+    std::list<std::shared_ptr<PathWatcherInternalRecord>> m_paths;
 
-    //! @note Experimental class, might change it is probably also quite slow compared to proper OS change notifications.
-    class PathWatcher
-    {
-    public:
-      std::list<std::shared_ptr<PathWatcherInternalRecord>> m_paths;
+    PathWatcher();
+    ~PathWatcher();
 
-      PathWatcher();
-      ~PathWatcher();
+    //! @brief Add the path to be watched. If the path is already being watched this does nothing.
+    //! @note  If the path doesn't exist it will still be watched.
+    //! @throws std::invalid_argument if the path isn't absolute.
+    //! @throws NotSupportedException if unsupported on this platform
+    void Add(const IO::Path& fullPath);
 
-      //! @brief Add the path to be watched. If the path is already being watched this does nothing.
-      //! @note  If the path doesn't exist it will still be watched.
-      //! @throws std::invalid_argument if the path isn't absolute.
-      //! @throws NotSupportedException if unsupported on this platform
-      void Add(const IO::Path& fullPath);
+    //! @brief Add the path to be watched. If the path is already being watched this does nothing.
+    //! @return true if added, false if path watching isn't supported on this platform or if it was already added
+    //! @note  If the path doesn't exist it will still be watched.
+    //! @throws std::invalid_argument if the path isn't absolute.
+    bool TryAdd(const IO::Path& fullPath);
 
-      //! @brief Add the path to be watched. If the path is already being watched this does nothing.
-      //! @return true if added, false if path watching isn't supported on this platform or if it was already added
-      //! @note  If the path doesn't exist it will still be watched.
-      //! @throws std::invalid_argument if the path isn't absolute.
-      bool TryAdd(const IO::Path& fullPath);
+    //! @brief Remove a path from being watched. If the path is not being watched this does nothing.
+    void Remove(const IO::Path& fullPath);
 
-      //! @brief Remove a path from being watched. If the path is not being watched this does nothing.
-      void Remove(const IO::Path& fullPath);
-
-      //! @brief Perform a check
-      //! @return true if something was changed.
-      bool Check();
-    };
-  }
+    //! @brief Perform a check
+    //! @return true if something was changed.
+    bool Check();
+  };
 }
 
 

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Overlay/DemoAppProfilerGraph.hpp>
 #include <FslBase/Math/Point2.hpp>
+#include <FslDemoApp/Base/Overlay/DemoAppProfilerGraph.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <algorithm>
 #include <cassert>
@@ -60,7 +60,7 @@ namespace Fsl
 
   void DemoAppProfilerGraph::Add(const int64_t latestValue)
   {
-    int64_t cappedValue = std::min(std::max(latestValue - m_minValue, int64_t(0)), m_maxValue - m_minValue);
+    int64_t cappedValue = std::min(std::max(latestValue - m_minValue, static_cast<int64_t>(0)), m_maxValue - m_minValue);
     m_entries.push_back(cappedValue);
   }
 
@@ -70,15 +70,15 @@ namespace Fsl
     int32_t count = 0;
     const float scaleY = static_cast<float>(m_size.Y - 1) / static_cast<float>(m_maxValue - m_minValue);
     float dstX = dstPosition.X;
-    if (m_entries.size() < std::size_t(m_size.X))
+    if (m_entries.size() < static_cast<std::size_t>(m_size.X))
     {
       dstX += static_cast<float>(m_size.X - static_cast<int32_t>(m_entries.size()));
     }
-    const float dstY = dstPosition.Y + m_size.Y - 1;
+    const float dstY = dstPosition.Y + static_cast<float>(m_size.Y) - 1;
     for (std::size_t i = 0; i < m_entries.size(); ++i)
     {
-      m_coords[count].X = dstX + count;
-      m_coords[count].Y = dstY - (m_entries[i] * scaleY);
+      m_coords[count].X = dstX + static_cast<float>(count);
+      m_coords[count].Y = dstY - (static_cast<float>(m_entries[i]) * scaleY);
       ++count;
     }
 

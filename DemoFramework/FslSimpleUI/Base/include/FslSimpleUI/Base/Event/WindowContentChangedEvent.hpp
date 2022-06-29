@@ -35,43 +35,40 @@
 #include <FslBase/ITag.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowContentChangedEvent : public WindowEvent
   {
-    class WindowContentChangedEvent : public WindowEvent
+    uint32_t m_contentId;
+    int32_t m_param1;
+    int32_t m_param2;
+
+  public:
+    WindowContentChangedEvent();
+
+    uint32_t GetContentId() const;
+    int32_t GetParam1() const;
+    int32_t GetParam2() const;
+
+  protected:
+    void SYS_Construct(const uint32_t contentId, const int32_t param1, const int32_t param2)
     {
-      uint32_t m_contentId;
-      int32_t m_param1;
-      int32_t m_param2;
+      WindowEvent::SYS_DoConstruct();
+      m_contentId = contentId;
+      m_param1 = param1;
+      m_param2 = param2;
+    }
 
-    public:
-      WindowContentChangedEvent();
+    void SYS_Destruct() override
+    {
+      m_contentId = 0;
+      m_param1 = 0;
+      m_param2 = 0;
+      WindowEvent::SYS_Destruct();
+    }
 
-      uint32_t GetContentId() const;
-      int32_t GetParam1() const;
-      int32_t GetParam2() const;
-
-    protected:
-      void SYS_Construct(const uint32_t contentId, const int32_t param1, const int32_t param2)
-      {
-        WindowEvent::SYS_DoConstruct();
-        m_contentId = contentId;
-        m_param1 = param1;
-        m_param2 = param2;
-      }
-
-      void SYS_Destruct() override
-      {
-        m_contentId = 0;
-        m_param1 = 0;
-        m_param2 = 0;
-        WindowEvent::SYS_Destruct();
-      }
-
-      friend class WindowEventPool;
-    };
-  }
+    friend class WindowEventPool;
+  };
 }
 
 #endif

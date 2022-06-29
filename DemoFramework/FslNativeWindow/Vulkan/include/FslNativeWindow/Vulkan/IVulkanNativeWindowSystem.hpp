@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslNativeWindow/Base/NativeWindowProcessMessagesArgs.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <memory>
 #include <string>

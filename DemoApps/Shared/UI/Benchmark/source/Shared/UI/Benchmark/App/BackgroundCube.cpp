@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/App/BackgroundCube.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Vector3.hpp>
@@ -41,9 +40,10 @@
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/Render/Basic/IBasicStaticBuffer.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialCreateInfo.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <Shared/UI/Benchmark/App/BackgroundCube.hpp>
 
 namespace Fsl
 {

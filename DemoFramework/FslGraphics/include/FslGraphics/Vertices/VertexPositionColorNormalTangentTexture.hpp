@@ -74,14 +74,14 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<5> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 5> elements = {
-        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
-        VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                        VertexElementUsage::TextureCoordinate, 0)};
-      return VertexDeclarationArray<5>(elements, sizeof(VertexPositionColorNormalTangentTexture));
+      constexpr BasicVertexDeclarationArray<5> elements = {
+        VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
+        VertexElement(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                      VertexElementUsage::TextureCoordinate, 0)};
+      return {elements, sizeof(VertexPositionColorNormalTangentTexture)};
     }
 
 
@@ -93,13 +93,13 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionColorNormalTangentTexture& rhs) const
+    constexpr bool operator==(const VertexPositionColorNormalTangentTexture& rhs) const noexcept
     {
       return Position == rhs.Position && Color == rhs.Color && Normal == rhs.Normal && Tangent == rhs.Tangent &&
              TextureCoordinate == rhs.TextureCoordinate;
     }
 
-    constexpr bool operator!=(const VertexPositionColorNormalTangentTexture& rhs) const
+    constexpr bool operator!=(const VertexPositionColorNormalTangentTexture& rhs) const noexcept
     {
       return !(*this == rhs);
     }

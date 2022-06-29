@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_OPENGLES3_GLTEXTUREIMAGEPARAMETERS_HPP
 #define FSLUTIL_OPENGLES3_GLTEXTUREIMAGEPARAMETERS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,29 +33,25 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES3/Common.hpp>
-
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct GLTextureImageParameters
   {
-    struct GLTextureImageParameters
+    GLint InternalFormat{0};
+    GLenum Format{0};
+    GLenum Type{0};
+
+    constexpr GLTextureImageParameters() = default;
+
+    constexpr GLTextureImageParameters(const GLint internalFormat, const GLenum format, const GLenum type)
+      : InternalFormat(internalFormat)
+      , Format(format)
+      , Type(type)
     {
-      GLint InternalFormat{0};
-      GLenum Format{0};
-      GLenum Type{0};
-
-      constexpr GLTextureImageParameters() = default;
-
-      constexpr GLTextureImageParameters(const GLint internalFormat, const GLenum format, const GLenum type)
-        : InternalFormat(internalFormat)
-        , Format(format)
-        , Type(type)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

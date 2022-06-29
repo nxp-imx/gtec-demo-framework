@@ -60,52 +60,49 @@ namespace Fsl
     }
   };
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::GLES3
   {
-    namespace GLES3
+    extern void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig,
+                         const OpenGLESMinorVersion minorVersion);
+
+    //! Register a demo app without a option parser
+    template <typename TAppClass>
+    void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                  const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
+                  const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
     {
-      extern void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig,
-                           const OpenGLESMinorVersion minorVersion);
-
-      //! Register a demo app without a option parser
-      template <typename TAppClass>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
-                    const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
-                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
-      {
-        auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
-        const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
-        Register(rSetup, demoAppSetup, config, minorVersion);
-      }
+      auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+      const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
+      Register(rSetup, demoAppSetup, config, minorVersion);
+    }
 
 
-      //! Register a demo app with a option parser
-      template <typename TAppClass, typename TOptionParser>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
-                    const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
-                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
-      {
-        auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
-        auto appOptionParser = std::make_shared<TOptionParser>();
-        const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
-        Register(rSetup, demoAppSetup, config, minorVersion);
-      }
+    //! Register a demo app with a option parser
+    template <typename TAppClass, typename TOptionParser>
+    void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                  const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
+                  const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+    {
+      auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+      auto appOptionParser = std::make_shared<TOptionParser>();
+      const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
+      Register(rSetup, demoAppSetup, config, minorVersion);
+    }
 
-      //! Register a demo app with a option parser
-      template <typename TAppClass>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
-                    const CustomDemoAppConfig& customDemoAppConfig)
-      {
-        Register<TAppClass>(rSetup, applicationName, config, OpenGLESMinorVersion(0), customDemoAppConfig);
-      }
+    //! Register a demo app with a option parser
+    template <typename TAppClass>
+    void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                  const CustomDemoAppConfig& customDemoAppConfig)
+    {
+      Register<TAppClass>(rSetup, applicationName, config, OpenGLESMinorVersion(0), customDemoAppConfig);
+    }
 
-      //! Register a demo app with a option parser
-      template <typename TAppClass, typename TOptionParser>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
-                    const CustomDemoAppConfig& customDemoAppConfig)
-      {
-        Register<TAppClass, TOptionParser>(rSetup, applicationName, config, OpenGLESMinorVersion(0), customDemoAppConfig);
-      }
+    //! Register a demo app with a option parser
+    template <typename TAppClass, typename TOptionParser>
+    void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                  const CustomDemoAppConfig& customDemoAppConfig)
+    {
+      Register<TAppClass, TOptionParser>(rSetup, applicationName, config, OpenGLESMinorVersion(0), customDemoAppConfig);
     }
   };
 }

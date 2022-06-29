@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
-#include <FslGraphics/Font/BitmapFontConverter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslGraphics/Font/BitmapFontConverter.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -114,7 +114,7 @@ namespace Fsl
 
     inline int32_t ScaledBaseLinePx(const int32_t baseLinePx, const float fontScale)
     {
-      return std::max(int32_t(std::round(static_cast<float>(baseLinePx) * fontScale)), 0);
+      return std::max(static_cast<int32_t>(std::round(static_cast<float>(baseLinePx) * fontScale)), 0);
     }
 
     inline PxSize2D DoMeasureString(const SpriteFontFastLookup& lookup, const SpriteFontCharInfo& unknownChar, const StringViewLite& strView)
@@ -277,7 +277,7 @@ namespace Fsl
           const CoreFontCharInfo& charInfo = lookup.GetChar(currentChar, unknownChar).CharInfo;
 
           // apply kerning
-          layoutXOffsetPxf += float(lookup.GetKerning(previousChar, currentChar)) * fontScale;
+          layoutXOffsetPxf += static_cast<float>(lookup.GetKerning(previousChar, currentChar)) * fontScale;
 
           // This should match the algorithm in ExtractRenderRules
           if (charInfo.SrcTextureRectPx.Width > 0u && charInfo.SrcTextureRectPx.Height > 0u)
@@ -287,10 +287,12 @@ namespace Fsl
             // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
             const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
             // auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
-            const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
+            const auto scaledYEndPx = static_cast<int32_t>(
+              std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
 
-            const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
-            auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
+            const auto dstXPx = static_cast<int32_t>(std::round(layoutXOffsetPxf + (static_cast<float>(charInfo.OffsetPx.X) * fontScale)));
+            auto dstXEndPx = static_cast<int32_t>(
+              std::round(layoutXOffsetPxf + (static_cast<float>(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
 
             dstXEndPx = dstXEndPx > dstXPx ? dstXEndPx : (dstXEndPx + 1);
             // scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
@@ -301,7 +303,7 @@ namespace Fsl
             renderBottomPx = (currentBottomPx > renderBottomPx ? currentBottomPx : renderBottomPx);
           }
 
-          layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+          layoutXOffsetPxf += static_cast<float>(charInfo.XAdvancePx) * fontScale;
           previousChar = currentChar;
         }
       }
@@ -329,7 +331,7 @@ namespace Fsl
           const CoreFontCharInfo& charInfo = lookup.GetChar(currentChar, unknownChar).CharInfo;
 
           // apply kerning
-          layoutXOffsetPxf += float(lookup.GetKerning(previousChar, currentChar)) * fontScale;
+          layoutXOffsetPxf += static_cast<float>(lookup.GetKerning(previousChar, currentChar)) * fontScale;
 
           // This should match the algorithm in ExtractRenderRules
           {
@@ -337,10 +339,11 @@ namespace Fsl
             // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
             // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
             const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
-            const float scaledYEndPxf = scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale);
+            const float scaledYEndPxf =
+              static_cast<float>(scaledBaseLinePx) + (static_cast<float>(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale);
 
-            const float dstXPxf = layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale);
-            float dstXEndPxf = layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale);
+            const float dstXPxf = layoutXOffsetPxf + (static_cast<float>(charInfo.OffsetPx.X) * fontScale);
+            float dstXEndPxf = layoutXOffsetPxf + (static_cast<float>(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale);
 
             dstXEndPxf = dstXEndPxf > dstXPxf ? dstXEndPxf : (dstXEndPxf + 1);
             // scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
@@ -351,11 +354,11 @@ namespace Fsl
             renderBottomPxf = (currentBottomPxf > renderBottomPxf ? currentBottomPxf : renderBottomPxf);
           }
 
-          layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+          layoutXOffsetPxf += static_cast<float>(charInfo.XAdvancePx) * fontScale;
           previousChar = currentChar;
         }
       }
-      return {int32_t(std::ceil(renderRightPxf)), int32_t(std::ceil(renderBottomPxf))};
+      return {static_cast<int32_t>(std::ceil(renderRightPxf)), static_cast<int32_t>(std::ceil(renderBottomPxf))};
     }
 
 
@@ -391,12 +394,14 @@ namespace Fsl
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontCharInfo.CharInfo.OffsetPx.Y;
         const auto glyphHeight = UncheckedNumericCast<int32_t>(fontCharInfo.CharInfo.SrcTextureRectPx.Height);
-        auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
-        const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
+        auto scaledYStartPx =
+          static_cast<int32_t>(std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYEndPx = static_cast<int32_t>(
+          std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
 
-        const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(fontCharInfo.CharInfo.OffsetPx.X) * fontScale)));
-        auto dstXEndPx = int32_t(
-          std::round(layoutXOffsetPxf + (float(fontCharInfo.CharInfo.OffsetPx.X + fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale)));
+        const auto dstXPx = static_cast<int32_t>(std::round(layoutXOffsetPxf + (static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X) * fontScale)));
+        auto dstXEndPx = static_cast<int32_t>(std::round(
+          layoutXOffsetPxf + (static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X + fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale)));
 
         if (dstXPx >= dstXEndPx)
         {
@@ -411,7 +416,7 @@ namespace Fsl
           SpriteFontGlyphPosition(PxAreaRectangleF::FromLeftTopRightBottom(static_cast<float>(dstXPx), static_cast<float>(scaledYStartPx),
                                                                            static_cast<float>(dstXEndPx), static_cast<float>(scaledYEndPx)),
                                   fontCharInfo.RenderInfo.TextureArea);
-        layoutXOffsetPxf += float(fontCharInfo.CharInfo.XAdvancePx) * fontScale;
+        layoutXOffsetPxf += static_cast<float>(fontCharInfo.CharInfo.XAdvancePx) * fontScale;
         ++dstIndex;
       }
       PadResult(dst, dstIndex, UncheckedNumericCast<uint32_t>(strView.length()));
@@ -419,7 +424,7 @@ namespace Fsl
     }
 
     inline PxSize2D DoMeasureString(const SpriteFontFastLookup& lookup, const SpriteFontCharInfo& unknownChar, const StringViewLite& strView,
-                                    const float& fontScale)
+                                    const float fontScale)
     {
       int32_t renderRightPx = 0;
       int32_t renderBottomPx = 0;
@@ -443,10 +448,12 @@ namespace Fsl
             // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
             const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
             // auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
-            const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
+            const auto scaledYEndPx = static_cast<int32_t>(
+              std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
 
-            const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
-            auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
+            const auto dstXPx = static_cast<int32_t>(std::round(layoutXOffsetPxf + (static_cast<float>(charInfo.OffsetPx.X) * fontScale)));
+            auto dstXEndPx = static_cast<int32_t>(
+              std::round(layoutXOffsetPxf + (static_cast<float>(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
 
             dstXEndPx = dstXEndPx > dstXPx ? dstXEndPx : (dstXEndPx + 1);
             // scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
@@ -457,7 +464,7 @@ namespace Fsl
             renderBottomPx = (currentBottomPx > renderBottomPx ? currentBottomPx : renderBottomPx);
           }
 
-          layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+          layoutXOffsetPxf += static_cast<float>(charInfo.XAdvancePx) * fontScale;
         }
       }
       return {renderRightPx, renderBottomPx};
@@ -492,19 +499,21 @@ namespace Fsl
         const uint32_t currentChar = reader.NextChar();
         const SpriteFontCharInfo& fontCharInfo = lookup.GetChar(currentChar, unknownChar);
         // apply kerning
-        layoutXOffsetPxf += float(lookup.GetKerning(previousChar, currentChar)) * fontScale;
+        layoutXOffsetPxf += static_cast<float>(lookup.GetKerning(previousChar, currentChar)) * fontScale;
 
         // calc distance from original baseline to the startY, then scale it
         // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontCharInfo.CharInfo.OffsetPx.Y;
         const auto glyphHeight = UncheckedNumericCast<int32_t>(fontCharInfo.CharInfo.SrcTextureRectPx.Height);
-        auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
-        const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
+        auto scaledYStartPx =
+          static_cast<int32_t>(std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYEndPx = static_cast<int32_t>(
+          std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
 
-        const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(fontCharInfo.CharInfo.OffsetPx.X) * fontScale)));
-        auto dstXEndPx = int32_t(
-          std::round(layoutXOffsetPxf + (float(fontCharInfo.CharInfo.OffsetPx.X + fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale)));
+        const auto dstXPx = static_cast<int32_t>(std::round(layoutXOffsetPxf + (static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X) * fontScale)));
+        auto dstXEndPx = static_cast<int32_t>(std::round(
+          layoutXOffsetPxf + (static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X + fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale)));
 
 
         if (dstXPx >= dstXEndPx)
@@ -520,7 +529,7 @@ namespace Fsl
           SpriteFontGlyphPosition(PxAreaRectangleF::FromLeftTopRightBottom(static_cast<float>(dstXPx), static_cast<float>(scaledYStartPx),
                                                                            static_cast<float>(dstXEndPx), static_cast<float>(scaledYEndPx)),
                                   fontCharInfo.RenderInfo.TextureArea);
-        layoutXOffsetPxf += float(fontCharInfo.CharInfo.XAdvancePx) * fontScale;
+        layoutXOffsetPxf += static_cast<float>(fontCharInfo.CharInfo.XAdvancePx) * fontScale;
         previousChar = currentChar;
         ++dstIndex;
       }
@@ -566,18 +575,20 @@ namespace Fsl
         const uint32_t currentChar = reader.NextChar();
         const SpriteFontCharInfo& fontCharInfo = lookup.GetChar(currentChar, unknownChar);
         // apply kerning
-        layoutXOffsetPxf += float(lookup.GetKerning(previousChar, currentChar)) * fontScale;
+        layoutXOffsetPxf += static_cast<float>(lookup.GetKerning(previousChar, currentChar)) * fontScale;
 
         // calc distance from original baseline to the startY, then scale it
         // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontCharInfo.CharInfo.OffsetPx.Y;
         const auto glyphHeight = UncheckedNumericCast<int32_t>(fontCharInfo.CharInfo.SrcTextureRectPx.Height);
-        float scaledYStartPxf = scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale);
-        const float scaledYEndPxf = scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale);
+        float scaledYStartPxf = static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale);
+        const float scaledYEndPxf =
+          static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale);
 
-        const float dstXPxf = layoutXOffsetPxf + (float(fontCharInfo.CharInfo.OffsetPx.X) * fontScale);
-        float dstXEndPxf = layoutXOffsetPxf + (float(fontCharInfo.CharInfo.OffsetPx.X + fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale);
+        const float dstXPxf = layoutXOffsetPxf + (static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X) * fontScale);
+        float dstXEndPxf =
+          layoutXOffsetPxf + (static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X + fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale);
 
         if (dstXPxf >= dstXEndPxf)
         {
@@ -590,7 +601,7 @@ namespace Fsl
 
         dst[dstIndex] = SpriteFontGlyphPosition(PxAreaRectangleF::FromLeftTopRightBottom(dstXPxf, scaledYStartPxf, dstXEndPxf, scaledYEndPxf),
                                                 fontCharInfo.RenderInfo.TextureArea);
-        layoutXOffsetPxf += float(fontCharInfo.CharInfo.XAdvancePx) * fontScale;
+        layoutXOffsetPxf += static_cast<float>(fontCharInfo.CharInfo.XAdvancePx) * fontScale;
         previousChar = currentChar;
         ++dstIndex;
       }
@@ -645,7 +656,7 @@ namespace Fsl
 
   int32_t TextureAtlasSpriteFont::LineSpacingPx(const BitmapFontConfig& fontConfig) const
   {
-    return int32_t(std::round(static_cast<float>(m_lookup.GetLineSpacingPx()) * std::max(fontConfig.Scale, 0.0f)));
+    return static_cast<int32_t>(std::round(static_cast<float>(m_lookup.GetLineSpacingPx()) * std::max(fontConfig.Scale, 0.0f)));
   }
 
 

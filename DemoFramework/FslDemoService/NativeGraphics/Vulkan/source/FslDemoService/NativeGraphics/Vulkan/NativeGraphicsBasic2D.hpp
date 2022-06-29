@@ -36,52 +36,49 @@
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslUtil/Vulkan1_0/Batch/Batch2D.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
-#include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
+#include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <array>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
   {
-    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
+    struct Resources
     {
-      struct Resources
-      {
-        bool IsValid = false;
-        std::shared_ptr<VulkanImageCreator> ImageCreator;
-        VUTexture FontTexture;
-      };
-
-      Batch2D m_batch2D;
-      PxExtent2D m_currentExtent;
-      PxSize2D m_fontSize;
-      PxRectangle m_fillPixelRect;
-      bool m_inBegin;
-      std::array<PxRectangle, 128 - 33> m_charRects{};
-
-      Resources m_resources;
-
-    public:
-      NativeGraphicsBasic2D(const std::shared_ptr<QuadBatch>& quadBatch, const PxExtent2D& currentExtentPx);
-      ~NativeGraphicsBasic2D() final;
-
-      // From INativeGraphicsBasic2D
-      void SetScreenExtent(const PxExtent2D& extentPx) final;
-      void Begin() final;
-      void End() final;
-      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
-      PxSize2D FontSize() const final;
-
-      void VulkanDeviceInit(const std::shared_ptr<VulkanImageCreator>& imageCreator);
-      void VulkanDeviceShutdown() noexcept;
-
-    private:
-      VUTexture CreateFontTexture(VulkanImageCreator& rImageCreator);
+      bool IsValid = false;
+      std::shared_ptr<VulkanImageCreator> ImageCreator;
+      VUTexture FontTexture;
     };
-  }
+
+    Batch2D m_batch2D;
+    PxExtent2D m_currentExtent;
+    PxSize2D m_fontSize;
+    PxRectangle m_fillPixelRect;
+    bool m_inBegin;
+    std::array<PxRectangle, 128 - 33> m_charRects{};
+
+    Resources m_resources;
+
+  public:
+    NativeGraphicsBasic2D(const std::shared_ptr<QuadBatch>& quadBatch, const PxExtent2D& currentExtentPx);
+    ~NativeGraphicsBasic2D() final;
+
+    // From INativeGraphicsBasic2D
+    void SetScreenExtent(const PxExtent2D& extentPx) final;
+    void Begin() final;
+    void End() final;
+    void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
+    void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+    PxSize2D FontSize() const final;
+
+    void VulkanDeviceInit(const std::shared_ptr<VulkanImageCreator>& imageCreator);
+    void VulkanDeviceShutdown() noexcept;
+
+  private:
+    VUTexture CreateFontTexture(VulkanImageCreator& rImageCreator);
+  };
 }
 
 #endif

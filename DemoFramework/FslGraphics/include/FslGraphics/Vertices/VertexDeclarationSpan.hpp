@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_VERTICES_VERTEXDECLARATIONSPAN_HPP
 #define FSLGRAPHICS_VERTICES_VERTEXDECLARATIONSPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,8 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslGraphics/Vertices/VertexElementEx.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Vertices/VertexElement.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <array>
 
@@ -43,7 +44,7 @@ namespace Fsl
 {
   class VertexDeclarationSpan
   {
-    ReadOnlySpan<VertexElementEx> m_span;
+    ReadOnlySpan<VertexElement> m_span;
     uint32_t m_vertexStride{0};
 
   public:
@@ -55,7 +56,7 @@ namespace Fsl
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
-    constexpr VertexDeclarationSpan(const VertexElementEx* const pSrcElements, const std::size_t elementCount, const uint32_t vertexStride)
+    constexpr VertexDeclarationSpan(const VertexElement* const pSrcElements, const std::size_t elementCount, const uint32_t vertexStride)
       : m_span(pSrcElements, elementCount)
       , m_vertexStride(vertexStride)
     {
@@ -68,7 +69,7 @@ namespace Fsl
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
-    constexpr VertexDeclarationSpan(const ReadOnlySpan<VertexElementEx>& srcElements, const uint32_t vertexStride)
+    constexpr VertexDeclarationSpan(const ReadOnlySpan<VertexElement>& srcElements, const uint32_t vertexStride)
       : m_span(srcElements)
       , m_vertexStride(vertexStride)
     {
@@ -81,7 +82,7 @@ namespace Fsl
 
     //! @brief Create a vertex declaration based on the given elements.
     //! @note  Beware that the elements will be force sorted according to offset (smallest to largest)
-    constexpr VertexDeclarationSpan(const ReadOnlySpan<VertexElementEx>& srcElements, const uint32_t vertexStride,
+    constexpr VertexDeclarationSpan(const ReadOnlySpan<VertexElement>& srcElements, const uint32_t vertexStride,
                                     const OptimizationCheckFlag /*flag*/) noexcept
       : m_span(srcElements)
       , m_vertexStride(vertexStride)
@@ -91,35 +92,40 @@ namespace Fsl
       assert(IsValidElements(srcElements, m_vertexStride));
     }
 
-    constexpr bool Empty() const
+    constexpr bool Empty() const noexcept
     {
       return m_span.empty();
     }
 
     //! @brief Get the vertex stride
-    constexpr uint32_t VertexStride() const
+    constexpr uint32_t VertexStride() const noexcept
     {
       return m_vertexStride;
     }
 
     //! @brief Get the number of elements
-    constexpr uint32_t Count() const
+    constexpr uint32_t Count() const noexcept
     {
       assert(m_span.size() <= 0xFFFFFFFFu);
       return static_cast<uint32_t>(m_span.size());
     }
 
-    constexpr ReadOnlySpan<VertexElementEx> AsReadOnlySpan() const
+    constexpr ReadOnlySpan<VertexElement> AsReadOnlySpan() const noexcept
     {
       return m_span;
     }
 
-    constexpr const VertexElementEx* DirectAccess() const
+    constexpr const VertexElement* DirectAccess() const noexcept
     {
       return m_span.data();
     }
 
-    constexpr VertexElementEx At(const std::size_t index) const
+    constexpr const VertexElement& operator[](const std::size_t pos) const noexcept
+    {
+      return m_span[pos];
+    }
+
+    constexpr const VertexElement& At(const std::size_t index) const
     {
       return m_span.at(index);
     }
@@ -136,7 +142,7 @@ namespace Fsl
     }
 
     //! @brief Find the element index of for the given usage and usageIndex (if not found <0 is returned)
-    constexpr int32_t VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const
+    constexpr int32_t VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const noexcept
     {
       for (std::size_t i = 0; i < m_span.size(); ++i)
       {
@@ -149,36 +155,36 @@ namespace Fsl
     }
 
     //! @brief Get the element for the given usage and usageIndex (if not found a NotFoundException is thrown)
-    constexpr VertexElementEx VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const
+    constexpr VertexElement VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const
     {
       return m_span[VertexElementGetIndexOf(usage, usageIndex)];
     }
 
-    constexpr bool operator==(const VertexDeclarationSpan& rhs) const
+    constexpr bool operator==(const VertexDeclarationSpan& rhs) const noexcept
     {
       return (m_vertexStride == rhs.m_vertexStride && m_span == rhs.m_span);
     }
 
-    constexpr bool operator!=(const VertexDeclarationSpan& rhs) const
+    constexpr bool operator!=(const VertexDeclarationSpan& rhs) const noexcept
     {
       return !(*this == rhs);
     }
 
 
-    constexpr const VertexElementEx* data() const
+    constexpr const VertexElement* data() const noexcept
     {
       return m_span.data();
     }
 
-    constexpr uint32_t size() const
+    constexpr uint32_t size() const noexcept
     {
       assert(m_span.size() <= 0xFFFFFFFFu);
       return static_cast<uint32_t>(m_span.size());
     }
 
   private:
-    constexpr static bool Contains(const ReadOnlySpan<VertexElementEx>& srcElements, const VertexElementUsage usage, const uint32_t usageIndex,
-                                   const std::size_t ignoreIndex)
+    constexpr static bool Contains(const ReadOnlySpan<VertexElement>& srcElements, const VertexElementUsage usage, const uint32_t usageIndex,
+                                   const std::size_t ignoreIndex) noexcept
     {
       for (std::size_t i = 0; i < srcElements.size(); ++i)
       {
@@ -190,19 +196,19 @@ namespace Fsl
       return false;
     }
 
-    constexpr static void VerifyElements(const ReadOnlySpan<VertexElementEx>& srcElements, const uint32_t vertexStride)
+    constexpr static void VerifyElements(const ReadOnlySpan<VertexElement>& srcElements, const uint32_t vertexStride)
     {
       // We expect the element offsets to be in order: smallest -> largest
       uint32_t maxOffset = 0;
       for (std::size_t i = 0; i < srcElements.size(); ++i)
       {
-        auto offset = srcElements[i].Offset + VertexElementFormatUtil::GetBytesPerElement(srcElements[i].Format);
+        auto offset = srcElements[i].Offset;
         if (offset < maxOffset)
         {
-          throw NotSupportedException("The offsets should be in order: smallest -> largest");
+          throw NotSupportedException("The offsets should be in order 'smallest -> largest' and can not overlap");
         }
 
-        maxOffset = offset;
+        maxOffset = offset + VertexElementFormatUtil::GetBytesPerElement(srcElements[i].Format);
 
         if (Contains(srcElements, srcElements[i].Usage, srcElements[i].UsageIndex, i))
         {
@@ -216,19 +222,25 @@ namespace Fsl
       }
     }
 
-    constexpr static bool IsValidElements(const ReadOnlySpan<VertexElementEx>& srcElements, const uint32_t vertexStride)
+    constexpr static bool IsValidElements(const ReadOnlySpan<VertexElement>& srcElements, const uint32_t vertexStride) noexcept
     {
       // We expect the element offsets to be in order: smallest -> largest
       uint32_t maxOffset = 0;
       for (std::size_t i = 0; i < srcElements.size(); ++i)
       {
-        auto offset = srcElements[i].Offset + VertexElementFormatUtil::GetBytesPerElement(srcElements[i].Format);
+        auto offset = srcElements[i].Offset;
         if (offset < maxOffset)
         {
           return false;
         }
 
-        maxOffset = offset;
+        const int32_t bytesPerElement = VertexElementFormatUtil::TryGetBytesPerElement(srcElements[i].Format);
+        if (bytesPerElement < 0)
+        {
+          return false;
+        }
+
+        maxOffset = offset + UncheckedNumericCast<uint32_t>(bytesPerElement);
 
         if (Contains(srcElements, srcElements[i].Usage, srcElements[i].UsageIndex, i))
         {

@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_INTERFACE_CAMERAADAPTERALLOCATEFLAGS_HPP
 #define SHARED_CAMERA_ADAPTER_INTERFACE_CAMERAADAPTERALLOCATEFLAGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,57 +33,54 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  struct CameraAdapterAllocateFlags
   {
-    struct CameraAdapterAllocateFlags
+    enum Enum
     {
-      enum Enum
-      {
-        // A empty flag
-        NotDefined = 0x00,
+      // A empty flag
+      NotDefined = 0x00,
 
-        // Utilize the custom extent (if not specified then the camera default size will be used)
-        CustomExtent = 0x01,
-      };
-
-      uint32_t Value{0};
-
-      CameraAdapterAllocateFlags() = default;
-
-      explicit CameraAdapterAllocateFlags(const uint32_t flags)
-        : Value(flags)
-      {
-      }
-
-      CameraAdapterAllocateFlags(const Enum flag)    // NOLINT(google-explicit-constructor)
-        : Value(static_cast<uint32_t>(flag))
-      {
-      }
-
-
-      inline bool IsEnabled(Enum flag) const
-      {
-        return (Value & static_cast<uint32_t>(flag)) != 0;
-      }
-
-      inline void Enable(Enum flag)
-      {
-        Value |= static_cast<uint32_t>(flag);
-      }
-
-
-      inline void Disable(Enum flag)
-      {
-        Value &= ~static_cast<uint32_t>(flag);
-      }
-
-      inline void Set(Enum flag, const bool enabled)
-      {
-        Value = enabled ? (Value | static_cast<uint32_t>(flag)) : (Value & ~static_cast<uint32_t>(flag));
-      }
+      // Utilize the custom extent (if not specified then the camera default size will be used)
+      CustomExtent = 0x01,
     };
-  }
+
+    uint32_t Value{0};
+
+    CameraAdapterAllocateFlags() = default;
+
+    explicit CameraAdapterAllocateFlags(const uint32_t flags)
+      : Value(flags)
+    {
+    }
+
+    CameraAdapterAllocateFlags(const Enum flag)    // NOLINT(google-explicit-constructor)
+      : Value(static_cast<uint32_t>(flag))
+    {
+    }
+
+
+    inline bool IsEnabled(Enum flag) const
+    {
+      return (Value & static_cast<uint32_t>(flag)) != 0;
+    }
+
+    inline void Enable(Enum flag)
+    {
+      Value |= static_cast<uint32_t>(flag);
+    }
+
+
+    inline void Disable(Enum flag)
+    {
+      Value &= ~static_cast<uint32_t>(flag);
+    }
+
+    inline void Set(Enum flag, const bool enabled)
+    {
+      Value = enabled ? (Value | static_cast<uint32_t>(flag)) : (Value & ~static_cast<uint32_t>(flag));
+    }
+  };
 }
 #endif

@@ -1,0 +1,26 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi.png",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Models/Knight2/armor.obj",
+          "Models/Knight2/armor_default_color.jpg",
+          "Models/Knight2/License.json",
+          "Models/Knight2/license.txt"
+
+        ]
+      }
+    ]
+  }
+}

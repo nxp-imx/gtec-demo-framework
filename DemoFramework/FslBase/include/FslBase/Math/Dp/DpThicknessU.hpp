@@ -32,13 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Dp/DpExtent.hpp>
+#include <FslBase/Math/Dp/DpExtent2D.hpp>
+#include <FslBase/Math/Dp/DpValueU.hpp>
 
 namespace Fsl
 {
   struct DpThicknessU
   {
-    using value_type = uint32_t;
+    using value_type = DpValueU;
 
     value_type Left{0};
     value_type Top{0};
@@ -65,7 +66,7 @@ namespace Fsl
       return Top + Bottom;
     }
 
-    constexpr DpExtent Sum() const noexcept
+    constexpr DpExtent2D Sum() const noexcept
     {
       return {Left + Right, Top + Bottom};
     }
@@ -77,6 +78,12 @@ namespace Fsl
     constexpr bool operator!=(const DpThicknessU& rhs) const noexcept
     {
       return !(*this == rhs);
+    }
+
+    inline static constexpr DpThicknessU Create(const value_type::value_type left, const value_type::value_type top,
+                                                const value_type::value_type right, const value_type::value_type bottom) noexcept
+    {
+      return {value_type(left), value_type(top), value_type(right), value_type(bottom)};
     }
   };
 }

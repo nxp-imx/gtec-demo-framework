@@ -33,20 +33,17 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct EncodedVulkanVersion
   {
-    struct EncodedVulkanVersion
-    {
-      uint32_t Value;
+    uint32_t Value;
 
-      explicit EncodedVulkanVersion(const uint32_t value)
-      {
-        Value = value;
-      }
-    };
-  }
+    explicit EncodedVulkanVersion(const uint32_t value)
+    {
+      Value = value;
+    }
+  };
 }
 
 #endif

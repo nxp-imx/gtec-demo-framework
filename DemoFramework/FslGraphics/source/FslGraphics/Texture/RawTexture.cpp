@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <cmath>
+#include <FslGraphics/Texture/RawTexture.hpp>
 #include <algorithm>
+#include <cmath>
 
 
 namespace Fsl

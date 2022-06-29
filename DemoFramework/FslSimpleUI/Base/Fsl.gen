@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="FslSimpleUI.Base" CreationYear="2017">
     <Dependency Name="FslBase"/>
+    <Dependency Name="FslDataBinding.Base"/>
     <Dependency Name="FslGraphics"/>
     <Dependency Name="FslSimpleUI.Render.Base"/>
     <!--Dependency Name="FslDemoApp.Base"/-->

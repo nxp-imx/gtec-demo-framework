@@ -33,28 +33,25 @@
 
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class TreeNode;
+  struct RoutedEvent;
+
+  class IEventHandler
   {
-    class TreeNode;
-    struct RoutedEvent;
+  public:
+    virtual ~IEventHandler() = default;
 
-    class IEventHandler
-    {
-    public:
-      virtual ~IEventHandler() = default;
-
-      //! @brief Called to ask the window to handle the event
-      //! @param target the target node
-      //! @param routedEvent the event to send
-      //! @throws UsageErrorException if target is null.
-      //! @throws UsageErrorException if the target isn't part of the tree.
-      //! @throws UsageErrorException if the target isn't in the running state.
-      //! @throws UsageErrorException if this method is called from a unexpected context.
-      virtual void HandleEvent(const std::shared_ptr<TreeNode>& target, const RoutedEvent& routedEvent) = 0;
-    };
-  }
+    //! @brief Called to ask the window to handle the event
+    //! @param target the target node
+    //! @param routedEvent the event to send
+    //! @throws UsageErrorException if target is null.
+    //! @throws UsageErrorException if the target isn't part of the tree.
+    //! @throws UsageErrorException if the target isn't in the running state.
+    //! @throws UsageErrorException if this method is called from a unexpected context.
+    virtual void HandleEvent(const std::shared_ptr<TreeNode>& target, const RoutedEvent& routedEvent) = 0;
+  };
 }
 
 #endif

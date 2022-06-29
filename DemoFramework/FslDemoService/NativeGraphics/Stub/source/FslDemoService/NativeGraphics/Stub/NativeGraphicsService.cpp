@@ -29,45 +29,42 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
-#include "NativeGraphicsBasic2D.hpp"
-#include "DynamicNativeTexture2D.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
-#include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
+#include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include "DynamicNativeTexture2D.hpp"
+#include "NativeGraphicsBasic2D.hpp"
 
-namespace Fsl
+namespace Fsl::Stub
 {
-  namespace Stub
+  NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider, const bool showWarning)
+    : ANativeGraphicsServiceNo3D(serviceProvider)
+    , m_showWarning(showWarning)
   {
-    NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider, const bool showWarning)
-      : ANativeGraphicsServiceNo3D(serviceProvider)
-      , m_showWarning(showWarning)
-    {
-      FSLLOG3_WARNING_IF(m_showWarning, "NativeGraphicsService is a stub");
-    }
+    FSLLOG3_WARNING_IF(m_showWarning, "NativeGraphicsService is a stub");
+  }
 
 
-    NativeGraphicsService::~NativeGraphicsService() = default;
+  NativeGraphicsService::~NativeGraphicsService() = default;
 
 
-    bool NativeGraphicsService::IsSupported(const DemoHostFeature& /*activeAPI*/) const
-    {
-      return true;
-    }
+  bool NativeGraphicsService::IsSupported(const DemoHostFeature& /*activeAPI*/) const
+  {
+    return true;
+  }
 
 
-    void NativeGraphicsService::Capture(Bitmap& /*rBitmap*/, const Rectangle& /*srcRectangle*/)
-    {
-      FSLLOG3_WARNING("Stub::NativeGraphicsService.Capture not implemented");
-    }
+  void NativeGraphicsService::Capture(Bitmap& /*rBitmap*/, const Rectangle& /*srcRectangle*/)
+  {
+    FSLLOG3_WARNING("Stub::NativeGraphicsService.Capture not implemented");
+  }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
-    {
-      return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx, m_showWarning));
-    }
+  std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
+  {
+    return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx, m_showWarning));
   }
 }

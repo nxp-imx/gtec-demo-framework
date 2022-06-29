@@ -1,4 +1,4 @@
 target_compile_features(##PACKAGE_NAME##
   PUBLIC
-    cxx_std_14 # Enable C++14
+    cxx_std_17 # Enable C++17
 )

@@ -102,7 +102,7 @@ namespace Fsl
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
 
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final;
+      void UpdateAnimation(const TimeSpan& timeSpan) final;
       bool UpdateAnimationState(const bool forceCompleteAnimation) final;
     };
   }

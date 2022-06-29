@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <Shared/SdfFonts/Shared.hpp>

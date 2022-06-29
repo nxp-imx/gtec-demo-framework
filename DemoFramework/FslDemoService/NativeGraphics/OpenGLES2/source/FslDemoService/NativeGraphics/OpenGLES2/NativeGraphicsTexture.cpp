@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,45 +29,42 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsTexture.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsTexture.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  namespace
   {
-    namespace
+    inline GLTextureParameters Convert(const Texture2DFilterHint filterHint)
     {
-      inline GLTextureParameters Convert(const Texture2DFilterHint filterHint)
-      {
-        const GLenum filter = (filterHint == Texture2DFilterHint::Nearest ? GL_NEAREST : GL_LINEAR);
-        return {filter, filter, GL_REPEAT, GL_REPEAT};
-      }
+      const GLenum filter = (filterHint == Texture2DFilterHint::Nearest ? GL_NEAREST : GL_LINEAR);
+      return {filter, filter, GL_REPEAT, GL_REPEAT};
     }
-
-    NativeGraphicsTexture::NativeGraphicsTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
-      : m_extentPx(texture.GetExtent())
-      , m_texture(texture, Convert(filterHint), textureFlags)
-    {
-    }
-
-
-    void NativeGraphicsTexture::Destroy()
-    {
-      if (!m_texture.IsValid())
-      {
-        return;
-      }
-      m_texture.Reset();
-    }
-
-    void NativeGraphicsTexture::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
-    {
-      auto params = Convert(filterHint);
-      m_texture.SetData(texture, params, textureFlags);
-    }
-
   }
+
+  NativeGraphicsTexture::NativeGraphicsTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+    : m_extentPx(texture.GetExtent())
+    , m_texture(texture, Convert(filterHint), textureFlags)
+  {
+  }
+
+
+  void NativeGraphicsTexture::Destroy()
+  {
+    if (!m_texture.IsValid())
+    {
+      return;
+    }
+    m_texture.Reset();
+  }
+
+  void NativeGraphicsTexture::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  {
+    auto params = Convert(filterHint);
+    m_texture.SetData(texture, params, textureFlags);
+  }
+
 }

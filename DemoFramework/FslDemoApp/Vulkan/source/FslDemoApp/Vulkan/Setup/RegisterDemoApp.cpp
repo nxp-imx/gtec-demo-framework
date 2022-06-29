@@ -29,17 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
-#include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
 #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
+#include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
 //#include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
@@ -90,19 +90,16 @@ namespace Fsl
     //}
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::Vulkan
   {
-    namespace Vulkan
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigVulkan& demoHostConfig)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigVulkan& demoHostConfig)
-      {
-        // Register a formatter for common Vulkan exceptions (from the libs we utilize)
-        // rSetup.CustomExceptionFormatter.Add(TryFormatException);
+      // Register a formatter for common Vulkan exceptions (from the libs we utilize)
+      // rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-        const DemoHostFeature feature = CommenSetup(rSetup);
-        const auto appHostConfig = std::make_shared<DemoAppHostConfigVulkan>(demoHostConfig);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
-      }
+      const DemoHostFeature feature = CommenSetup(rSetup);
+      const auto appHostConfig = std::make_shared<DemoAppHostConfigVulkan>(demoHostConfig);
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }
   }
 }

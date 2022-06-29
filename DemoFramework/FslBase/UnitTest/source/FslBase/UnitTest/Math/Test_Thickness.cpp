@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Thickness.hpp>
 #include <FslBase/Log/Math/LogThickness.hpp>
+#include <FslBase/Math/Thickness.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>

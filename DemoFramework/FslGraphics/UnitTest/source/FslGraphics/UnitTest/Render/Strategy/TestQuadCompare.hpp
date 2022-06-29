@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/TestFixture.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslGraphics/Vertices/VertexSpan.hpp>
+#include <FslUnitTest/TestFixture.hpp>
 #include "TestQuad.hpp"
 
 namespace Fsl

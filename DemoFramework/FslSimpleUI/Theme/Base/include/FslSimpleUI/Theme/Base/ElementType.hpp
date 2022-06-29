@@ -32,21 +32,15 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class ElementType
   {
-    namespace Theme
-    {
-      enum class ElementType
-      {
-        LeftBar,
-        TopBar,
-        RightBar,
-        BottomBar
-      };
-    }
-  }
+    LeftBar,
+    TopBar,
+    RightBar,
+    BottomBar
+  };
 }
 
 #endif

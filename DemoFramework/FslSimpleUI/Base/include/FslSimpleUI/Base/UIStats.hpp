@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UISTATS_HPP
 #define FSLSIMPLEUI_BASE_UISTATS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,30 +33,27 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct UIStats
   {
-    struct UIStats
-    {
-      uint32_t UpdateCalls{0};
-      uint32_t ResolveCalls{0};
-      uint32_t PostLayoutCalls{0};
-      uint32_t DrawCalls{0};
-      uint32_t WindowCount{0};
+    uint32_t UpdateCalls{0};
+    uint32_t ResolveCalls{0};
+    uint32_t PostLayoutCalls{0};
+    uint32_t DrawCalls{0};
+    uint32_t WindowCount{0};
 
-      constexpr UIStats() noexcept = default;
-      constexpr UIStats(const uint32_t updateCalls, const uint32_t resolveCalls, const uint32_t postLayoutCalls, const uint32_t drawCalls,
-                        const uint32_t windowCount) noexcept
-        : UpdateCalls(updateCalls)
-        , ResolveCalls(resolveCalls)
-        , PostLayoutCalls(postLayoutCalls)
-        , DrawCalls(drawCalls)
-        , WindowCount(windowCount)
-      {
-      }
-    };
-  }
+    constexpr UIStats() noexcept = default;
+    constexpr UIStats(const uint32_t updateCalls, const uint32_t resolveCalls, const uint32_t postLayoutCalls, const uint32_t drawCalls,
+                      const uint32_t windowCount) noexcept
+      : UpdateCalls(updateCalls)
+      , ResolveCalls(resolveCalls)
+      , PostLayoutCalls(postLayoutCalls)
+      , DrawCalls(drawCalls)
+      , WindowCount(windowCount)
+    {
+    }
+  };
 }
 
 #endif

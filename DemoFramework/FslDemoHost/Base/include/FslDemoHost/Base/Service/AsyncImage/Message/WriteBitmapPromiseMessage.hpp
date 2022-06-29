@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_BASE_SERVICE_ASYNCIMAGE_MESSAGE_WRITEBITMAPPROMISEMESSAGE_HPP
 #define FSLDEMOHOST_BASE_SERVICE_ASYNCIMAGE_MESSAGE_WRITEBITMAPPROMISEMESSAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,35 +31,32 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Async/Message/AsyncPromiseMessage.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslService/Impl/ServiceType/Async/Message/AsyncPromiseMessage.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::AsyncImageMessages
 {
-  namespace AsyncImageMessages
+  struct WriteBitmapPromiseMessage : public AsyncPromiseMessage<void>
   {
-    struct WriteBitmapPromiseMessage : public AsyncPromiseMessage<void>
+    IO::Path AbsolutePath;
+    Bitmap TheBitmap;
+    ImageFormat TheImageFormat{ImageFormat::Undefined};
+    PixelFormat DesiredPixelFormat{PixelFormat::Undefined};
+
+    WriteBitmapPromiseMessage() = default;
+
+    WriteBitmapPromiseMessage(IO::Path absolutePath, Bitmap bitmap, const ImageFormat imageFormat, const PixelFormat desiredPixelFormat)
+      : AbsolutePath(std::move(absolutePath))
+      , TheBitmap(std::move(bitmap))
+      , TheImageFormat(imageFormat)
+      , DesiredPixelFormat(desiredPixelFormat)
     {
-      IO::Path AbsolutePath;
-      Bitmap TheBitmap;
-      ImageFormat TheImageFormat{ImageFormat::Undefined};
-      PixelFormat DesiredPixelFormat{PixelFormat::Undefined};
-
-      WriteBitmapPromiseMessage() = default;
-
-      WriteBitmapPromiseMessage(IO::Path absolutePath, Bitmap bitmap, const ImageFormat imageFormat, const PixelFormat desiredPixelFormat)
-        : AbsolutePath(std::move(absolutePath))
-        , TheBitmap(std::move(bitmap))
-        , TheImageFormat(imageFormat)
-        , DesiredPixelFormat(desiredPixelFormat)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

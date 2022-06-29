@@ -67,11 +67,11 @@ namespace Fsl
 
     static constexpr VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 3> g_elements = {
-        VertexElementEx(offsetof(VertexPositionColorFTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionColorFTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
-        VertexElementEx(offsetof(VertexPositionColorFTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
-                        0)};
+      constexpr BasicVertexDeclarationArray<3> g_elements = {
+        VertexElement(offsetof(VertexPositionColorFTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionColorFTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElement(offsetof(VertexPositionColorFTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
+                      0)};
       constexpr VertexDeclarationArray<3> span(g_elements, sizeof(VertexPositionColorFTexture));
       return span;
     }
@@ -87,10 +87,10 @@ namespace Fsl
     // IMPROVEMENT: In C++17 this could be a constexpr since array .data() becomes a constexpr
     // static VertexDeclarationSpan GetVertexDeclarationArray()
     //{
-    //  constexpr static std::array<VertexElementEx, 3> g_elements = {
-    //    VertexElementEx(offsetof(VertexPositionColorFTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-    //    VertexElementEx(offsetof(VertexPositionColorFTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
-    //    VertexElementEx(offsetof(VertexPositionColorFTexture, TextureCoordinate), VertexElementFormat::Vector2,
+    //  constexpr static std::array<VertexElement, 3> g_elements = {
+    //    VertexElement(offsetof(VertexPositionColorFTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+    //    VertexElement(offsetof(VertexPositionColorFTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+    //    VertexElement(offsetof(VertexPositionColorFTexture, TextureCoordinate), VertexElementFormat::Vector2,
     //    VertexElementUsage::TextureCoordinate,
     //                    0)};
     //  // In C++ declare this a constexpr!
@@ -99,12 +99,12 @@ namespace Fsl
     //}
 
 
-    constexpr bool operator==(const VertexPositionColorFTexture& rhs) const
+    constexpr bool operator==(const VertexPositionColorFTexture& rhs) const noexcept
     {
       return Position == rhs.Position && Color == rhs.Color && TextureCoordinate == rhs.TextureCoordinate;
     }
 
-    constexpr bool operator!=(const VertexPositionColorFTexture& rhs) const
+    constexpr bool operator!=(const VertexPositionColorFTexture& rhs) const noexcept
     {
       return !(*this == rhs);
     }

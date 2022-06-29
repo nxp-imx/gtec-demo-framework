@@ -33,8 +33,8 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include "GausianHelper.hpp"
 #include <cassert>
+#include "GausianHelper.hpp"
 
 namespace Fsl
 {

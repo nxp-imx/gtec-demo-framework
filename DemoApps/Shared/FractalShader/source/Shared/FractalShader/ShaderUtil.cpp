@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/FractalShader/ShaderUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
+#include <Shared/FractalShader/ShaderUtil.hpp>
 #include <algorithm>
 #include <cmath>
 #include <sstream>

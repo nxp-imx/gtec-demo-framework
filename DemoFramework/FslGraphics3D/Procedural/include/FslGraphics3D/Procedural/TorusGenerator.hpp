@@ -34,23 +34,20 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/BoxF.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
-#include <FslGraphics/WindingOrder.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslGraphics/WindingOrder.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  class TorusGenerator
   {
-    class TorusGenerator
-    {
-    public:
-      static BasicMesh GenerateList(const int majorSegments, const int minorSegments, const float radius, const float ringRadius,
-                                    const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
-      static BasicMesh GenerateStrip(const int majorSegments, const int minorSegments, const float radius, const float ringRadius,
-                                     const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
-    };
-  }
+  public:
+    static BasicMesh GenerateList(const int majorSegments, const int minorSegments, const float radius, const float ringRadius,
+                                  const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
+    static BasicMesh GenerateStrip(const int majorSegments, const int minorSegments, const float radius, const float ringRadius,
+                                   const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
+  };
 }
 
 #endif

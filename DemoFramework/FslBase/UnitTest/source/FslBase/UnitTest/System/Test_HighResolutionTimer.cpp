@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>

@@ -34,82 +34,78 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
 #include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
-
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLProgramPipeline::GLProgramPipeline()
+    : m_handle(GLValues::INVALID_HANDLE)
   {
-    GLProgramPipeline::GLProgramPipeline()
-      : m_handle(GLValues::INVALID_HANDLE)
+  }
+
+
+  GLProgramPipeline::GLProgramPipeline(bool notUsed)
+    : m_handle(GLValues::INVALID_HANDLE)
+  {
+    Reset(notUsed);
+  }
+
+
+  GLProgramPipeline::GLProgramPipeline(GLuint handle)
+    : m_handle(handle)
+  {
+  }
+
+  GLProgramPipeline::~GLProgramPipeline()
+  {
+    Reset();
+  }
+
+
+  void GLProgramPipeline::Reset() noexcept
+  {
+    if (m_handle != 0)
     {
+      glDeleteProgramPipelines(1, &m_handle);
+      m_handle = GLValues::INVALID_HANDLE;
     }
+  }
 
 
-    GLProgramPipeline::GLProgramPipeline(bool notUsed)
-      : m_handle(GLValues::INVALID_HANDLE)
-    {
-      Reset(notUsed);
-    }
+  void GLProgramPipeline::Reset(bool /*notUsed*/)
+  {
+    Reset();
+    GL_CHECK(glGenProgramPipelines(1, &m_handle));
+  }
 
 
-    GLProgramPipeline::GLProgramPipeline(GLuint handle)
-      : m_handle(handle)
-    {
-    }
-
-    GLProgramPipeline::~GLProgramPipeline()
-    {
-      Reset();
-    }
+  void GLProgramPipeline::Reset(GLuint handle)
+  {
+    Reset();
+    m_handle = handle;
+  }
 
 
-    void GLProgramPipeline::Reset() noexcept
-    {
-      if (m_handle != 0)
-      {
-        glDeleteProgramPipelines(1, &m_handle);
-        m_handle = GLValues::INVALID_HANDLE;
-      }
-    }
+  void GLProgramPipeline::Bind()
+  {
+    glBindProgramPipeline(m_handle);
+  }
 
 
-    void GLProgramPipeline::Reset(bool /*notUsed*/)
-    {
-      Reset();
-      GL_CHECK(glGenProgramPipelines(1, &m_handle));
-    }
+  void GLProgramPipeline::BindClear()    // NOLINT(readability-convert-member-functions-to-static)
+  {
+    glBindProgramPipeline(0);
+  }
 
 
-    void GLProgramPipeline::Reset(GLuint handle)
-    {
-      Reset();
-      m_handle = handle;
-    }
+  void GLProgramPipeline::UseProgramStages(GLShaderProgram& program, const GLbitfield stages, const bool enabled)
+  {
+    assert(m_handle != GLValues::INVALID_HANDLE);
+    assert(program.IsValid());
 
-
-    void GLProgramPipeline::Bind()
-    {
-      glBindProgramPipeline(m_handle);
-    }
-
-
-    void GLProgramPipeline::BindClear()    // NOLINT(readability-convert-member-functions-to-static)
-    {
-      glBindProgramPipeline(0);
-    }
-
-
-    void GLProgramPipeline::UseProgramStages(GLShaderProgram& program, const GLbitfield stages, const bool enabled)
-    {
-      assert(m_handle != GLValues::INVALID_HANDLE);
-      assert(program.IsValid());
-
-      glUseProgramStages(m_handle, stages, enabled ? program.Get() : GLValues::INVALID_HANDLE);
-    }
+    glUseProgramStages(m_handle, stages, enabled ? program.Get() : GLValues::INVALID_HANDLE);
   }
 }

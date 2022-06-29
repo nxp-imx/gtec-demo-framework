@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "IParticleEmitter.hpp"
-#include "EmitCounter.hpp"
-#include "../Particle.hpp"
 #include <random>
 #include <vector>
+#include "../Particle.hpp"
+#include "EmitCounter.hpp"
+#include "IParticleEmitter.hpp"
 
 namespace Fsl
 {

@@ -86,11 +86,13 @@ C           | Show chart on/off
 F           | Toggle render optimization 'fill buffers' on/off
 B           | Toggle render optimization 'batch' on/off
 R           | Toggle render optimization 'draw reorder' on/off
+I           | Toggle render optimization 'prefer fast reorder' on/off (on normally uses a constrained linear reorder, off a spatial grid reorder)
 D           | Toggle render optimization 'depth buffer' on/off
 M           | Toggle render optimization 'mesh caching' on/off
 O           | Toggle on demand rendering on/off
 S           | Toggle SDF fonts on/off
 E           | Toggle emulate dpi on/off
+F2          | Show the 'root' color changer
 Left arrow  | dpi slider decrease
 Right arrow | dpi slider increase
 Up arrow    | dpi slider increase by one

@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_DEMOAPPEXTENSIONFORWARDER_HPP
 #define SHARED_UI_BENCHMARK_DEMOAPPEXTENSIONFORWARDER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/DemoAppExtension.hpp>
+#include <FslDemoApp/Base/IDemoAppExtension.hpp>
 #include <Shared/UI/Benchmark/IForwarderTweak.hpp>
 #include <memory>
 #include <utility>
@@ -39,21 +39,21 @@
 
 namespace Fsl
 {
-  class DemoAppExtensionForwarder final : public DemoAppExtension
+  class DemoAppExtensionForwarder final : public IDemoAppExtension
   {
-    std::shared_ptr<DemoAppExtension> m_extension0;
-    std::shared_ptr<DemoAppExtension> m_extension1;
+    std::shared_ptr<IDemoAppExtension> m_extension0;
+    std::shared_ptr<IDemoAppExtension> m_extension1;
     std::shared_ptr<IForwarderTweak> m_tweak;
 
   public:
     DemoAppExtensionForwarder() = default;
 
-    explicit DemoAppExtensionForwarder(std::shared_ptr<DemoAppExtension> extension0)
+    explicit DemoAppExtensionForwarder(std::shared_ptr<IDemoAppExtension> extension0)
       : m_extension0(std::move(extension0))
     {
     }
 
-    DemoAppExtensionForwarder(std::shared_ptr<DemoAppExtension> extension0, std::shared_ptr<DemoAppExtension> extension1)
+    DemoAppExtensionForwarder(std::shared_ptr<IDemoAppExtension> extension0, std::shared_ptr<IDemoAppExtension> extension1)
       : m_extension0(std::move(extension0))
       , m_extension1(std::move(extension1))
     {
@@ -81,7 +81,7 @@ namespace Fsl
       m_tweak = std::move(tweak);
     }
 
-    void SetExtension0(const std::shared_ptr<DemoAppExtension>& extension)
+    void SetExtension0(const std::shared_ptr<IDemoAppExtension>& extension)
     {
       m_extension0 = extension;
     }
@@ -91,7 +91,7 @@ namespace Fsl
       m_extension1.reset();
     }
 
-    void SetExtension1(const std::shared_ptr<DemoAppExtension>& extension)
+    void SetExtension1(const std::shared_ptr<IDemoAppExtension>& extension)
     {
       m_extension1 = extension;
     }
@@ -103,100 +103,17 @@ namespace Fsl
     void OnRawMouseMoveEvent(const RawMouseMoveEvent& event) final;
     void OnTimeStateEvent(const TimeStateEvent& event) final;
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
-    void PreUpdate(const DemoTime& demoTime) final;
-    void FixedUpdate(const DemoTime& demoTime) final;
-    void Update(const DemoTime& demoTime) final;
-    void PostUpdate(const DemoTime& demoTime) final;
 
-  private:
-    static void OnKeyEvent(DemoAppExtension* pExtension, const KeyEvent& event)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->OnKeyEvent(event);
-      }
-    }
-
-    static void OnMouseButtonEvent(DemoAppExtension* pExtension, const MouseButtonEvent& event)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->OnMouseButtonEvent(event);
-      }
-    }
-
-    static void OnMouseMoveEvent(DemoAppExtension* pExtension, const MouseMoveEvent& event)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->OnMouseMoveEvent(event);
-      }
-    }
-
-    static void OnMouseWheelEvent(DemoAppExtension* pExtension, const MouseWheelEvent& event)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->OnMouseWheelEvent(event);
-      }
-    }
-
-    static void OnRawMouseMoveEvent(DemoAppExtension* pExtension, const RawMouseMoveEvent& event)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->OnRawMouseMoveEvent(event);
-      }
-    }
-
-    static void OnTimeStateEvent(DemoAppExtension* pExtension, const TimeStateEvent& event)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->OnTimeStateEvent(event);
-      }
-    }
-
-    static void ConfigurationChanged(DemoAppExtension* pExtension, const DemoWindowMetrics& windowMetrics)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->ConfigurationChanged(windowMetrics);
-      }
-    }
-
-    static void PreUpdate(DemoAppExtension* pExtension, const DemoTime& demoTime)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->PreUpdate(demoTime);
-      }
-    }
-
-    static void FixedUpdate(DemoAppExtension* pExtension, const DemoTime& demoTime)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->FixedUpdate(demoTime);
-      }
-    }
-
-    static void Update(DemoAppExtension* pExtension, const DemoTime& demoTime)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->Update(demoTime);
-      }
-    }
-
-    static void PostUpdate(DemoAppExtension* pExtension, const DemoTime& demoTime)
-    {
-      if (pExtension != nullptr)
-      {
-        pExtension->PostUpdate(demoTime);
-      }
-    }
+    void Begin(const DemoAppExtensionCallOrder callOrder) final;
+    void PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void FixedUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void Resolve(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) final;
+    void OnDrawSkipped(const DemoAppExtensionCallOrder callOrder, const FrameInfo& frameInfo) final;
+    void End(const DemoAppExtensionCallOrder callOrder) final;
   };
 }
+
 
 #endif

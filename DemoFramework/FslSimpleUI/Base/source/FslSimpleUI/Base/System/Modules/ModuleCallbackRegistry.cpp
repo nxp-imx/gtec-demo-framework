@@ -34,91 +34,88 @@
 #include <algorithm>
 #include <cassert>
 #include <utility>
-#include "IModuleCallbackReceiver.hpp"
 #include "../TreeNode.hpp"
+#include "IModuleCallbackReceiver.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    struct ReceiverComp
     {
-      struct ReceiverComp
+      const std::shared_ptr<IModuleCallbackReceiver> Key;
+      explicit ReceiverComp(std::shared_ptr<IModuleCallbackReceiver> key)
+        : Key(std::move(key))
       {
-        const std::shared_ptr<IModuleCallbackReceiver> Key;
-        explicit ReceiverComp(std::shared_ptr<IModuleCallbackReceiver> key)
-          : Key(std::move(key))
-        {
-        }
-        inline bool operator()(const std::weak_ptr<IModuleCallbackReceiver>& record) const
-        {
-          return record.lock() == Key;
-        }
-      };
-    }
+      }
+      inline bool operator()(const std::weak_ptr<IModuleCallbackReceiver>& record) const
+      {
+        return record.lock() == Key;
+      }
+    };
+  }
 
 
-    ModuleCallbackRegistry::ModuleCallbackRegistry() = default;
+  ModuleCallbackRegistry::ModuleCallbackRegistry() = default;
 
 
-    ModuleCallbackRegistry::~ModuleCallbackRegistry() = default;
+  ModuleCallbackRegistry::~ModuleCallbackRegistry() = default;
 
 
-    void ModuleCallbackRegistry::ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node)
+  void ModuleCallbackRegistry::ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node)
+  {
+    assert(node);
+    auto itr = m_receivers.begin();
+    while (itr != m_receivers.end())
     {
-      assert(node);
-      auto itr = m_receivers.begin();
-      while (itr != m_receivers.end())
+      std::shared_ptr<IModuleCallbackReceiver> receiver = itr->lock();
+      if (receiver)
       {
-        std::shared_ptr<IModuleCallbackReceiver> receiver = itr->lock();
-        if (receiver)
-        {
-          receiver->ModuleOnTreeNodeAdd(node);
-          ++itr;
-        }
-        else
-        {
-          itr = m_receivers.erase(itr);
-        }
+        receiver->ModuleOnTreeNodeAdd(node);
+        ++itr;
+      }
+      else
+      {
+        itr = m_receivers.erase(itr);
       }
     }
+  }
 
 
-    void ModuleCallbackRegistry::ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node)
+  void ModuleCallbackRegistry::ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node)
+  {
+    assert(node);
+    auto itr = m_receivers.begin();
+    while (itr != m_receivers.end())
     {
-      assert(node);
-      auto itr = m_receivers.begin();
-      while (itr != m_receivers.end())
+      std::shared_ptr<IModuleCallbackReceiver> receiver = itr->lock();
+      if (receiver)
       {
-        std::shared_ptr<IModuleCallbackReceiver> receiver = itr->lock();
-        if (receiver)
-        {
-          receiver->ModuleOnTreeNodeDispose(node);
-          ++itr;
-        }
-        else
-        {
-          itr = m_receivers.erase(itr);
-        }
+        receiver->ModuleOnTreeNodeDispose(node);
+        ++itr;
+      }
+      else
+      {
+        itr = m_receivers.erase(itr);
       }
     }
+  }
 
 
-    void ModuleCallbackRegistry::AddCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module)
+  void ModuleCallbackRegistry::AddCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module)
+  {
+    m_receivers.push_back(module);
+  }
+
+
+  void ModuleCallbackRegistry::RemoveCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module)
+  {
+    auto entry = module.lock();
+    auto itr = std::find_if(m_receivers.begin(), m_receivers.end(), ReceiverComp(entry));
+    if (itr == m_receivers.end())
     {
-      m_receivers.push_back(module);
+      return;
     }
-
-
-    void ModuleCallbackRegistry::RemoveCallbackReceiver(const std::weak_ptr<IModuleCallbackReceiver>& module)
-    {
-      auto entry = module.lock();
-      auto itr = std::find_if(m_receivers.begin(), m_receivers.end(), ReceiverComp(entry));
-      if (itr == m_receivers.end())
-      {
-        return;
-      }
-      m_receivers.erase(itr);
-    }
+    m_receivers.erase(itr);
   }
 }

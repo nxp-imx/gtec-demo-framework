@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,27 +31,24 @@
 
 #include <Shared/UI/Benchmark/Persistence/Debug/DebugAppRenderMethod.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
+  const char* TryToString(const AppRenderMethod& value)
   {
-    const char* TryToString(const AppRenderMethod& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case AppRenderMethod::FlexImBatch:
-        return "FlexImBatch";
-      case AppRenderMethod::BasicImBatch:
-        return "BasicImBatch";
-      default:
-        return nullptr;
-      }
+    case AppRenderMethod::FlexImBatch:
+      return "FlexImBatch";
+    case AppRenderMethod::BasicImBatch:
+      return "BasicImBatch";
+    default:
+      return nullptr;
     }
+  }
 
-    const char* ToString(const AppRenderMethod& value)
-    {
-      const auto* const psz = TryToString(value);
-      return psz != nullptr ? psz : "Unknown";
-    }
+  const char* ToString(const AppRenderMethod& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

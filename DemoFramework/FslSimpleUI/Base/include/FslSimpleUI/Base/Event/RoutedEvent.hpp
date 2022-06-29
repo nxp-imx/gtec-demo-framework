@@ -31,30 +31,27 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct RoutedEvent
   {
-    struct RoutedEvent
-    {
-      const std::shared_ptr<WindowEvent> Content;
-      const bool IsTunneling;
+    const std::shared_ptr<WindowEvent> Content;
+    const bool IsTunneling;
 
-      RoutedEvent(const std::shared_ptr<WindowEvent>& theEvent, const bool isTunneling)
-        : Content(theEvent)
-        , IsTunneling(isTunneling)
+    RoutedEvent(const std::shared_ptr<WindowEvent>& theEvent, const bool isTunneling)
+      : Content(theEvent)
+      , IsTunneling(isTunneling)
+    {
+      if (!theEvent)
       {
-        if (!theEvent)
-        {
-          throw std::invalid_argument("event cant be null");
-        }
+        throw std::invalid_argument("event cant be null");
       }
-    };
-  }
+    }
+  };
 }
 
 #endif

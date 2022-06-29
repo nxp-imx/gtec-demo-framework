@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,38 +29,35 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/App/SimpleDialogActivityFactory.hpp>
 #include <Shared/UI/Benchmark/App/SimpleCenterDialogActivity.hpp>
+#include <Shared/UI/Benchmark/App/SimpleDialogActivityFactory.hpp>
 #include <Shared/UI/Benchmark/App/SimpleLeftDialogActivity.hpp>
 #include <Shared/UI/Benchmark/App/SimpleRightDialogActivity.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace SimpleDialogActivityFactory
   {
-    namespace SimpleDialogActivityFactory
+    std::shared_ptr<FakeActivity> CreateLeftDialog(std::weak_ptr<IActivityStack> activityStack,
+                                                   const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                                   const Theme::WindowType windowType)
     {
-      std::shared_ptr<FakeActivity> CreateLeftDialog(std::weak_ptr<IActivityStack> activityStack,
+      return std::make_shared<UI::SimpleLeftDialogActivity>(std::move(activityStack), themeControlFactory, windowType);
+    }
+
+    std::shared_ptr<FakeActivity> CreateCenterDialog(std::weak_ptr<IActivityStack> activityStack,
                                                      const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
                                                      const Theme::WindowType windowType)
-      {
-        return std::make_shared<UI::SimpleLeftDialogActivity>(std::move(activityStack), themeControlFactory, windowType);
-      }
+    {
+      return std::make_shared<UI::SimpleCenterDialogActivity>(std::move(activityStack), themeControlFactory, windowType);
+    }
 
-      std::shared_ptr<FakeActivity> CreateCenterDialog(std::weak_ptr<IActivityStack> activityStack,
-                                                       const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                                       const Theme::WindowType windowType)
-      {
-        return std::make_shared<UI::SimpleCenterDialogActivity>(std::move(activityStack), themeControlFactory, windowType);
-      }
-
-      std::shared_ptr<FakeActivity> CreateRightDialog(std::weak_ptr<IActivityStack> activityStack,
-                                                      const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                                      const Theme::WindowType windowType)
-      {
-        return std::make_shared<UI::SimpleRightDialogActivity>(std::move(activityStack), themeControlFactory, windowType);
-      }
-    };
-  }
+    std::shared_ptr<FakeActivity> CreateRightDialog(std::weak_ptr<IActivityStack> activityStack,
+                                                    const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                                    const Theme::WindowType windowType)
+    {
+      return std::make_shared<UI::SimpleRightDialogActivity>(std::move(activityStack), themeControlFactory, windowType);
+    }
+  };
 }

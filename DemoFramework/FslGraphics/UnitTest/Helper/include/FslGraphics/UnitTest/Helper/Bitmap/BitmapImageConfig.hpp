@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_UNITTEST_HELPER_BITMAP_BITMAPIMAGECONFIG_HPP
 #define FSLGRAPHICS_UNITTEST_HELPER_BITMAP_BITMAPIMAGECONFIG_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,45 +37,42 @@
 #include <FslGraphics/UnitTest/Helper/PixelTestUtil.hpp>
 #include <gtest/gtest.h>
 
-namespace Fsl
+namespace Fsl::BitmapImageConfig
 {
-  namespace BitmapImageConfig
+  template <typename TPixel, typename TColorTemplate, PixelFormat TPixelFormat>
+  struct Base
   {
-    template <typename TPixel, typename TColorTemplate, PixelFormat TPixelFormat>
-    struct Base
+    using image_t = Bitmap;
+    using pixel_t = TPixel;
+    using color_template_t = TColorTemplate;
+
+    static constexpr const PixelFormat ActivePixelFormat = TPixelFormat;
+    static const PixelFormatLayout ActivePixelLayout = PixelFormatUtil::GetPixelFormatLayout(TPixelFormat);
+
+    static image_t MakeImage(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     {
-      using image_t = Bitmap;
-      using pixel_t = TPixel;
-      using color_template_t = TColorTemplate;
+      return Bitmap(extent, pixelFormat, origin);
+    }
 
-      static constexpr const PixelFormat ActivePixelFormat = TPixelFormat;
-      static const PixelFormatLayout ActivePixelLayout = PixelFormatUtil::GetPixelFormatLayout(TPixelFormat);
-
-      static image_t MakeImage(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
-      {
-        return Bitmap(extent, pixelFormat, origin);
-      }
-
-      static PxExtent2D GetExtent(const image_t& image)
-      {
-        return image.GetExtent();
-      }
-    };
-
-
-    struct R8G8B8 : public Base<PixelTestUtil::R8G8B8::PixelUInt8, PixelTestUtil::R8G8B8::DefaultColorTemplate, PixelFormat::R8G8B8_UINT>
+    static PxExtent2D GetExtent(const image_t& image)
     {
-      static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
-      static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
-    };
+      return image.GetExtent();
+    }
+  };
 
 
-    struct R8G8B8A8 : public Base<PixelTestUtil::R8G8B8A8::PixelUInt8, PixelTestUtil::R8G8B8A8::DefaultColorTemplate, PixelFormat::R8G8B8A8_UINT>
-    {
-      static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
-      static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
-    };
-  }
+  struct R8G8B8 : public Base<PixelTestUtil::R8G8B8::PixelUInt8, PixelTestUtil::R8G8B8::DefaultColorTemplate, PixelFormat::R8G8B8_UINT>
+  {
+    static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
+    static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
+  };
+
+
+  struct R8G8B8A8 : public Base<PixelTestUtil::R8G8B8A8::PixelUInt8, PixelTestUtil::R8G8B8A8::DefaultColorTemplate, PixelFormat::R8G8B8A8_UINT>
+  {
+    static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
+    static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
+  };
 }
 
 #endif

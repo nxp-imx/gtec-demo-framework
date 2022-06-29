@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_INTERFACE_ICAMERAADAPTER_HPP
 #define SHARED_CAMERA_ADAPTER_INTERFACE_ICAMERAADAPTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,24 +36,21 @@
 #include <FslGraphics/PixelFormat.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraAdapterConfig.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  class ICameraAdapter
   {
-    class ICameraAdapter
-    {
-    public:
-      virtual ~ICameraAdapter() = default;
+  public:
+    virtual ~ICameraAdapter() = default;
 
-      virtual CameraAdapterConfig GetConfig() const = 0;
+    virtual CameraAdapterConfig GetConfig() const = 0;
 
-      //! @brief Try to render a frame to the rTargetBitmap.
-      //! @param rTargetBitmap a RawBitmapEx that is compatible with this camera
-      //! @param rFrameId the id of the frame. It will only be modified if this method returns true (but it will never be zero),
-      //!                 if the method fails this will be zero.
-      //! @return true if a new frame was rendered, false if it failed to render (if it fails the content written to rTargetBitmap is undefined)
-      virtual bool TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId) = 0;
-    };
-  }
+    //! @brief Try to render a frame to the rTargetBitmap.
+    //! @param rTargetBitmap a RawBitmapEx that is compatible with this camera
+    //! @param rFrameId the id of the frame. It will only be modified if this method returns true (but it will never be zero),
+    //!                 if the method fails this will be zero.
+    //! @return true if a new frame was rendered, false if it failed to render (if it fails the content written to rTargetBitmap is undefined)
+    virtual bool TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId) = 0;
+  };
 }
 #endif

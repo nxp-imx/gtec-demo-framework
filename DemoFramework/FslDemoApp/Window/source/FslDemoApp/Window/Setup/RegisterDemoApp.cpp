@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
@@ -60,16 +60,13 @@ namespace Fsl
     }
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::Window
   {
-    namespace Window
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigWindow& demoHostConfig)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigWindow& demoHostConfig)
-      {
-        const DemoHostFeature feature = CommenSetup(rSetup);
-        const auto appHostConfig = std::make_shared<DemoAppHostConfigWindow>(demoHostConfig);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
-      }
+      const DemoHostFeature feature = CommenSetup(rSetup);
+      const auto appHostConfig = std::make_shared<DemoAppHostConfigWindow>(demoHostConfig);
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }
   }
 }

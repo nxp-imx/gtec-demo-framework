@@ -31,15 +31,15 @@
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Common/FmtVersionInfo2.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
+#include <FslBase/String/StringUtil.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
-#include <FslVersion/FslVersion.hpp>
-#include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
+#include <FslGraphics/ImageFormatUtil.hpp>
+#include <FslVersion/FslVersion.hpp>
 #include <fmt/format.h>
 
 namespace Fsl
@@ -175,35 +175,35 @@ namespace Fsl
     case CommandId::ScreenshotNamePrefix:
       return ParseScreenshotNamePrefix(strOptArg);
     case CommandId::ForceUpdateTime:
-    {
-      uint32_t value = 0;
-      StringParseUtil::Parse(value, strOptArg);
-      m_forceUpdateTime = TimeSpanUtil::FromMicroseconds(value);
-      return OptionParseResult::Parsed;
-    }
+      {
+        uint32_t value = 0;
+        StringParseUtil::Parse(value, strOptArg);
+        m_forceUpdateTime = TimeSpanUtil::FromMicroseconds(value);
+        return OptionParseResult::Parsed;
+      }
     case CommandId::LogStats:
       m_logStatsMode = LogStatsMode::Latest;
       return OptionParseResult::Parsed;
     case CommandId::LogStatsMode:
-    {
-      if (strOptArg == "disabled")
       {
-        m_logStatsMode = LogStatsMode::Disabled;
+        if (strOptArg == "disabled")
+        {
+          m_logStatsMode = LogStatsMode::Disabled;
+        }
+        else if (strOptArg == "latest")
+        {
+          m_logStatsMode = LogStatsMode::Latest;
+        }
+        else if (strOptArg == "average")
+        {
+          m_logStatsMode = LogStatsMode::Average;
+        }
+        else
+        {
+          throw std::invalid_argument(fmt::format("Unknown logStatsMode parameter {}", strOptArg));
+        }
+        return OptionParseResult::Parsed;
       }
-      else if (strOptArg == "latest")
-      {
-        m_logStatsMode = LogStatsMode::Latest;
-      }
-      else if (strOptArg == "average")
-      {
-        m_logStatsMode = LogStatsMode::Average;
-      }
-      else
-      {
-        throw std::invalid_argument(fmt::format("Unknown logStatsMode parameter {}", strOptArg));
-      }
-      return OptionParseResult::Parsed;
-    }
     case CommandId::Stats:
       m_stats = true;
       return OptionParseResult::Parsed;

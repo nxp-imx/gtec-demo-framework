@@ -34,8 +34,8 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <RapidVulkan/Image.hpp>
-#include <vector>
 #include <vulkan/vulkan.h>
+#include <vector>
 
 namespace Fsl
 {

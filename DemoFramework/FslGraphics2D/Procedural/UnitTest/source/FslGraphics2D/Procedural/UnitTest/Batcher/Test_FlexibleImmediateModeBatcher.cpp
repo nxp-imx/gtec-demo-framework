@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics2D/Procedural/Batcher/BatchMaterialId.hpp>
-#include <FslGraphics2D/Procedural/Batcher/FlexibleImmediateModeBatcher.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogVector2.hpp>
 #include <FslBase/Log/Math/LogVector3.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslGraphics/Log/LogColor.hpp>
-#include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
-#include <FslBase/Exceptions.hpp>
+#include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics2D/Procedural/Batcher/BatchMaterialId.hpp>
+#include <FslGraphics2D/Procedural/Batcher/FlexibleImmediateModeBatcher.hpp>
 
 using namespace Fsl;
 
@@ -984,7 +984,7 @@ TEST_F(TestBacher_FlexibleImmediateModeBatcher, MeshBuild_AtOverVertexCapacity_A
     auto meshBuilder = m_batcher.BeginMeshBuild(g_materialInfoTransp0, mesh0VertexCount, mesh0IndexCount, color);
     for (uint32_t i = 0; i < vertices.size(); ++i)
     {
-      auto val = float(i);
+      auto val = static_cast<float>(i);
       vertices[i] = VertexPositionColorTexture(Vector3(val, val * 10.0f, LocalConfig::StartZ), color, Vector2(val * 20.0f, val * 30.0f));
       indices[i] = UncheckedNumericCast<uint16_t>(i);
       meshBuilder.AddVertex(vertices[i].Position.X, vertices[i].Position.Y, vertices[i].TextureCoordinate.X, vertices[i].TextureCoordinate.Y);

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Logic/SliderDragLogic.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslSimpleUI/Base/Control/Logic/SliderDragLogic.hpp>
 
 using namespace Fsl;
 

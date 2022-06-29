@@ -31,9 +31,9 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
+#include <array>
 #include "EquirectangularToCubemap.hpp"
 #include "OptionParser.hpp"
-#include <array>
 
 namespace Fsl
 {

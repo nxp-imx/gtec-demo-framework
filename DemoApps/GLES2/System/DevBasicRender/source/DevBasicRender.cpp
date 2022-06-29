@@ -39,7 +39,7 @@ namespace Fsl
 {
   DevBasicRender::DevBasicRender(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_shared(config, *GetContentManager())
+    , m_shared(config, GetContentManager())
   {
   }
 

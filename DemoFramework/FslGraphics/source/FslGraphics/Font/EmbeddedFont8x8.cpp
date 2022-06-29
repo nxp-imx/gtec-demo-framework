@@ -29,13 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/EmbeddedFont8x8.hpp>
 #include <FslBase/Math/MathHelper_CalcOptimalSize.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
-#include <FslGraphics/Bitmap/RawBitmapEx.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Font/EmbeddedFont8x8.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -154,7 +155,7 @@ namespace Fsl
     }
 
 
-    const int32_t dstStride = rDstBitmap.Stride();
+    const auto dstStride = NumericCast<int32_t>(rDstBitmap.Stride());
     uint8_t* pDst = static_cast<uint8_t*>(rDstBitmap.Content()) + (dstStride * dstPosY);
     const uint8_t* const pDstEnd = pDst + (dstStride * characterSize.Height());
     const int srcIndex = (theCharacter - MinCharacter()) * 8;

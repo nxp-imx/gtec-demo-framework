@@ -32,22 +32,19 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslGraphics/Render/GenericBatch2D_fwd.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class Batch2D : public GenericBatch2D<std::shared_ptr<QuadBatch>, VUTextureInfo, GenericBatch2DFormat::Normal>
   {
-    class Batch2D : public GenericBatch2D<std::shared_ptr<QuadBatch>, VUTextureInfo, GenericBatch2DFormat::Normal>
-    {
-    public:
-      Batch2D(const std::shared_ptr<QuadBatch>& quadRenderer, const PxExtent2D& currentExtent);
-    };
-  }
+  public:
+    Batch2D(const std::shared_ptr<QuadBatch>& quadRenderer, const PxExtent2D& currentExtent);
+  };
 }
 
 #endif

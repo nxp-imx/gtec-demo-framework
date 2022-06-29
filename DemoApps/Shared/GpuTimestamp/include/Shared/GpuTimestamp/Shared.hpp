@@ -38,15 +38,15 @@
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Controls/Charts/Common/AverageData.hpp>
+#include <FslSimpleUI/Controls/Charts/Data/ChartData.hpp>
 #include <Shared/GpuTimestamp/DefaultValues.hpp>
-#include <Shared/GpuTimestamp/Chart/AreaChartData.hpp>
-#include <Shared/GpuTimestamp/Chart/AverageData.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-    class IChartComplexDataWindow;
+    class AChartData;
 
     namespace Theme
     {
@@ -72,7 +72,7 @@ namespace Fsl
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
 
 
-    std::shared_ptr<UI::AreaChartData> m_data;
+    std::shared_ptr<UI::ChartData> m_data;
     UI::AverageData m_dataAverage;
 
     uint16_t m_defaultIterations{DefaultValues::MandelbrotDefaultIterations};
@@ -114,7 +114,7 @@ namespace Fsl
     void SetDefaultValues();
     void ClearGraph();
 
-    UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const uint16_t iterations, const std::shared_ptr<UI::IChartComplexDataWindow>& data,
+    UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const uint16_t iterations, const std::shared_ptr<UI::AChartData>& data,
                       const bool chartSupported);
   };
 }

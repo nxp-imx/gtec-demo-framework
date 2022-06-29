@@ -32,97 +32,94 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslSimpleUI/Base/WindowFlags.hpp>
 #include <FslSimpleUI/Base/ItemVisibility.hpp>
+#include <FslSimpleUI/Base/WindowFlags.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct BaseWindowFlags
   {
-    struct BaseWindowFlags
+    static constexpr const int BitShiftBaseWindowFlags = WindowFlags::BitsReserved;
+    static constexpr const uint32_t MASK_WindowFlags = (1 << WindowFlags::BitsReserved) - 1;
+
+    enum Enum
     {
-      static constexpr const int BitShiftBaseWindowFlags = WindowFlags::BitsReserved;
-      static constexpr const uint32_t MASK_WindowFlags = (1 << WindowFlags::BitsReserved) - 1;
-
-      enum Enum
-      {
-        LayoutDirty = WindowFlags::LayoutDirty,
-        UpdateEnabled = WindowFlags::UpdateEnabled,
-        DrawEnabled = WindowFlags::DrawEnabled,
-        VisibilityMask = WindowFlags::VisibilityMask,
-        InBatchPropertyUpdate = (0x01 << BitShiftBaseWindowFlags),
-        InLayoutArrange = (0x02 << BitShiftBaseWindowFlags),
-        InLayoutMeasure = (0x04 << BitShiftBaseWindowFlags),
-        CachedEventReady = (0x08 << BitShiftBaseWindowFlags)
-      };
-
-      uint32_t Value{0};
-
-      constexpr BaseWindowFlags() noexcept = default;
-
-      explicit constexpr BaseWindowFlags(const uint32_t flags) noexcept
-        : Value(flags)
-      {
-      }
-
-      explicit constexpr BaseWindowFlags(const WindowFlags flags) noexcept
-        : Value(flags.GetValue())
-      {
-      }
-
-      inline constexpr bool IsEnabled(Enum flag) const noexcept
-      {
-        return (Value & static_cast<uint32_t>(flag)) != 0;
-      }
-
-      inline bool IsEnabled(const WindowFlags& flags) const
-      {
-        return (Value & flags.GetValue()) == flags.GetValue();
-      }
-
-      inline constexpr void Enable(Enum flag) noexcept
-      {
-        Value |= static_cast<uint32_t>(flag);
-      }
-
-      inline constexpr void Enable(const WindowFlags flags) noexcept
-      {
-        Value |= flags.GetValue();
-      }
-
-      inline constexpr void Disable(Enum flag) noexcept
-      {
-        Value &= ~static_cast<uint32_t>(flag);
-      }
-
-      inline constexpr void Disable(const WindowFlags flags) noexcept
-      {
-        Value &= ~flags.GetValue();
-      }
-
-      inline constexpr void Set(Enum flag, const bool enabled) noexcept
-      {
-        Value = enabled ? (Value | static_cast<uint32_t>(flag)) : (Value & ~static_cast<uint32_t>(flag));
-      }
-
-      constexpr inline ItemVisibility GetVisibility() const noexcept
-      {
-        return static_cast<ItemVisibility>((Value & WindowFlags::VisibilityMask) >> WindowFlags::VisibilityShift);
-      }
-
-      constexpr inline void SetVisibility(const ItemVisibility visibility) noexcept
-      {
-        Value = (Value & (~WindowFlags::VisibilityMask)) |
-                ((static_cast<uint32_t>(visibility) << WindowFlags::VisibilityShift) & WindowFlags::VisibilityMask);
-      }
-
-      //! Conversion operator for easy conversion to WindowFlags
-      explicit constexpr operator WindowFlags() const noexcept
-      {
-        return WindowFlags(Value & MASK_WindowFlags);
-      }
+      LayoutDirty = WindowFlags::LayoutDirty,
+      UpdateEnabled = WindowFlags::UpdateEnabled,
+      DrawEnabled = WindowFlags::DrawEnabled,
+      VisibilityMask = WindowFlags::VisibilityMask,
+      InBatchPropertyUpdate = (0x01 << BitShiftBaseWindowFlags),
+      InLayoutArrange = (0x02 << BitShiftBaseWindowFlags),
+      InLayoutMeasure = (0x04 << BitShiftBaseWindowFlags),
+      CachedEventReady = (0x08 << BitShiftBaseWindowFlags)
     };
-  }
+
+    uint32_t Value{0};
+
+    constexpr BaseWindowFlags() noexcept = default;
+
+    explicit constexpr BaseWindowFlags(const uint32_t flags) noexcept
+      : Value(flags)
+    {
+    }
+
+    explicit constexpr BaseWindowFlags(const WindowFlags flags) noexcept
+      : Value(flags.GetValue())
+    {
+    }
+
+    inline constexpr bool IsEnabled(Enum flag) const noexcept
+    {
+      return (Value & static_cast<uint32_t>(flag)) != 0;
+    }
+
+    inline bool IsEnabled(const WindowFlags& flags) const
+    {
+      return (Value & flags.GetValue()) == flags.GetValue();
+    }
+
+    inline constexpr void Enable(Enum flag) noexcept
+    {
+      Value |= static_cast<uint32_t>(flag);
+    }
+
+    inline constexpr void Enable(const WindowFlags flags) noexcept
+    {
+      Value |= flags.GetValue();
+    }
+
+    inline constexpr void Disable(Enum flag) noexcept
+    {
+      Value &= ~static_cast<uint32_t>(flag);
+    }
+
+    inline constexpr void Disable(const WindowFlags flags) noexcept
+    {
+      Value &= ~flags.GetValue();
+    }
+
+    inline constexpr void Set(Enum flag, const bool enabled) noexcept
+    {
+      Value = enabled ? (Value | static_cast<uint32_t>(flag)) : (Value & ~static_cast<uint32_t>(flag));
+    }
+
+    constexpr inline ItemVisibility GetVisibility() const noexcept
+    {
+      return static_cast<ItemVisibility>((Value & WindowFlags::VisibilityMask) >> WindowFlags::VisibilityShift);
+    }
+
+    constexpr inline void SetVisibility(const ItemVisibility visibility) noexcept
+    {
+      Value = (Value & (~WindowFlags::VisibilityMask)) |
+              ((static_cast<uint32_t>(visibility) << WindowFlags::VisibilityShift) & WindowFlags::VisibilityMask);
+    }
+
+    //! Conversion operator for easy conversion to WindowFlags
+    explicit constexpr operator WindowFlags() const noexcept
+    {
+      return WindowFlags(Value & MASK_WindowFlags);
+    }
+  };
 }
 
 #endif

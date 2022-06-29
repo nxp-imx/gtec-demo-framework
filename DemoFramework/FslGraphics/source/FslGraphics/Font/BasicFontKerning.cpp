@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <utility>
 
 namespace Fsl

@@ -33,16 +33,18 @@
 #define GL_GLEXT_PROTOTYPES 1
 #endif
 
+#include "DirectMultiSamplingVideoYUV.hpp"
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "DirectMultiSamplingVideoYUV.hpp"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include <iostream>
-#include <gst/gst.h>
-#include <gst/base/gstbasesrc.h>
 #include <gst/app/gstappsink.h>
+#include <gst/base/gstbasesrc.h>
+#include <gst/gst.h>
 #include <gst/gstallocator.h>
+#include <array>
+#include <iostream>
 
 namespace Fsl
 {
@@ -54,7 +56,9 @@ namespace Fsl
 
     GLfloat g_transformMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-    const char* const g_pszShaderAttributeArray[] = {"my_Vertex", "my_Texcoor", nullptr};
+    constexpr std::array<GLES2::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES2::GLBindAttribLocation(0, "my_Vertex"),
+                                                                                   GLES2::GLBindAttribLocation(1, "my_Texcoor")};
+
 
 #define WIDTH 320
 #define HEIGHT 240
@@ -138,17 +142,17 @@ namespace Fsl
         break;
 
       case GST_MESSAGE_ERROR:
-      {
-        gchar* debug;
-        GError* error;
+        {
+          gchar* debug;
+          GError* error;
 
-        gst_message_parse_error(msg, &error, &debug);
-        g_free(debug);
-        g_error_free(error);
+          gst_message_parse_error(msg, &error, &debug);
+          g_free(debug);
+          g_error_free(error);
 
-        g_main_loop_quit(loop);
-        break;
-      }
+          g_main_loop_quit(loop);
+          break;
+        }
       default:
         break;
       }
@@ -211,6 +215,7 @@ namespace Fsl
     }
   }
 
+
   DirectMultiSamplingVideoYUV::DirectMultiSamplingVideoYUV(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_program()
@@ -219,10 +224,9 @@ namespace Fsl
     , m_locVertices(0)
     , m_locTexCoord(0)
     , m_locTransformMat(0)
-
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
 
     const GLuint hProgram = m_program.Get();
 
@@ -288,6 +292,8 @@ namespace Fsl
 
   void DirectMultiSamplingVideoYUV::Draw(const FrameInfo& frameInfo)
   {
+    FSL_PARAM_NOT_USED(frameInfo);
+
     pthread_mutex_lock(&gstThreadMutex);
     pthread_cond_wait(&gstCON, &gstThreadMutex);
     {

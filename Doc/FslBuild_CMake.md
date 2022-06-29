@@ -79,7 +79,7 @@ Add additional command line arguments to the cmake configure step for both norma
 Platform | Generator                                | Status          | AllowFindPackage |
 ---------|------------------------------------------|-----------------|------------------|
 Android  | Not supported (use the normal generator) | Not supported   | true             |
-Windows  | Visual Studio 16 2019 (win64)            | Partial support | true             |
+Windows  | Visual Studio 17 2022 (win64)            | Partial support | true             |
 Ubuntu   | Ninja                                    | Supported       | true             |
 Yocto    | Ninja                                    | Supported       | false            |
 

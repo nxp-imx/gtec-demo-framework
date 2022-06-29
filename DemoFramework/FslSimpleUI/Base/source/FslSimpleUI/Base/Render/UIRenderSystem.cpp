@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,69 +34,66 @@
 #include <stdexcept>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  UIRenderSystem::UIRenderSystem(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates)
+    : m_renderSystem(std::move(renderSystem))
+    , m_useYFlipTextureCoordinates(useYFlipTextureCoordinates)
   {
-    UIRenderSystem::UIRenderSystem(std::unique_ptr<IRenderSystem> renderSystem, const bool useYFlipTextureCoordinates)
-      : m_renderSystem(std::move(renderSystem))
-      , m_useYFlipTextureCoordinates(useYFlipTextureCoordinates)
+    if (!m_renderSystem)
     {
-      if (!m_renderSystem)
-      {
-        throw std::invalid_argument("renderSystem can not be null");
-      }
+      throw std::invalid_argument("renderSystem can not be null");
     }
+  }
 
-    UIRenderSystem::~UIRenderSystem() = default;
-
-
-    void UIRenderSystem::ConfigurationChanged(const BasicWindowMetrics& windowMetrics)
-    {
-      return m_renderSystem->OnConfigurationChanged(windowMetrics);
-    }
+  UIRenderSystem::~UIRenderSystem() = default;
 
 
-    std::shared_ptr<IMeshManager> UIRenderSystem::GetMeshManager() const
-    {
-      return m_renderSystem->GetMeshManager();
-    }
-
-    DrawCommandBuffer& UIRenderSystem::AcquireDrawCommandBuffer()
-    {
-      return m_renderSystem->AcquireDrawCommandBuffer();
-    }
-
-    void UIRenderSystem::ReleaseDrawCommandBuffer()
-    {
-      return m_renderSystem->ReleaseDrawCommandBuffer();
-    }
-
-    void UIRenderSystem::PreDraw()
-    {
-      m_renderSystem->PreDraw();
-    }
-
-    void UIRenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
-    {
-      m_renderSystem->Draw(pPerformanceCapture);
-    }
-
-    void UIRenderSystem::PostDraw()
-    {
-      m_renderSystem->PostDraw();
-    }
+  void UIRenderSystem::ConfigurationChanged(const BasicWindowMetrics& windowMetrics)
+  {
+    return m_renderSystem->OnConfigurationChanged(windowMetrics);
+  }
 
 
-    const UI::IRenderSystemBase& UIRenderSystem::GetRenderSystem() const
-    {
-      assert(m_renderSystem);
-      return *m_renderSystem;
-    }
+  std::shared_ptr<IMeshManager> UIRenderSystem::GetMeshManager() const
+  {
+    return m_renderSystem->GetMeshManager();
+  }
 
-    UI::IRenderSystemBase* UIRenderSystem::TryGetRenderSystem()
-    {
-      return m_renderSystem.get();
-    }
+  DrawCommandBuffer& UIRenderSystem::AcquireDrawCommandBuffer()
+  {
+    return m_renderSystem->AcquireDrawCommandBuffer();
+  }
+
+  void UIRenderSystem::ReleaseDrawCommandBuffer()
+  {
+    return m_renderSystem->ReleaseDrawCommandBuffer();
+  }
+
+  void UIRenderSystem::PreDraw()
+  {
+    m_renderSystem->PreDraw();
+  }
+
+  void UIRenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
+  {
+    m_renderSystem->Draw(pPerformanceCapture);
+  }
+
+  void UIRenderSystem::PostDraw()
+  {
+    m_renderSystem->PostDraw();
+  }
+
+
+  const UI::IRenderSystemBase& UIRenderSystem::GetRenderSystem() const
+  {
+    assert(m_renderSystem);
+    return *m_renderSystem;
+  }
+
+  UI::IRenderSystemBase* UIRenderSystem::TryGetRenderSystem()
+  {
+    return m_renderSystem.get();
   }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,9 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
-#include "SharedData.hpp"
 #include <array>
 #include <cmath>
+#include "SharedData.hpp"
 
 namespace Fsl
 {
@@ -77,11 +77,11 @@ namespace Fsl
     , m_hLightColors(GLValues::INVALID_LOCATION)
     , m_hViewPos(GLValues::INVALID_LOCATION)
     , m_state(State::Split2)
-    , m_splitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneWidthL(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneWidthR(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneAlphaL(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_splitSceneAlphaR(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , m_splitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthL(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneWidthR(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
+    , m_splitSceneAlphaL(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_splitSceneAlphaR(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
     const auto userTagEx = std::dynamic_pointer_cast<SharedData>(config.CustomConfig.AppRegistrationUserTag);
     bool hasSRGBFramebuffer = userTagEx && userTagEx->SRGBFramebufferEnabled;
@@ -175,19 +175,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -210,11 +210,11 @@ namespace Fsl
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
 
-    const float aspectL = m_splitSceneWidthL.GetValue() / windowSizePx.Height();
+    const float aspectL = m_splitSceneWidthL.GetValue() / static_cast<float>(windowSizePx.Height());
     m_matrixProjectionL = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectL, 0.1f, 100.0f);
     m_matrixWorldViewL = matrixWorld * matrixView;
 
-    const float aspectR = m_splitSceneWidthR.GetValue() / windowSizePx.Height();
+    const float aspectR = m_splitSceneWidthR.GetValue() / static_cast<float>(windowSizePx.Height());
     m_matrixProjectionR = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectR, 0.1f, 100.0f);
     m_matrixWorldViewR = matrixWorld * matrixView;
   }
@@ -311,11 +311,11 @@ namespace Fsl
       m_splitSceneAlphaR.SetValue(1.0f);
       break;
     }
-    m_splitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneWidthL.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneWidthR.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneAlphaL.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_splitSceneAlphaR.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitX.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneWidthL.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneWidthR.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneAlphaL.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_splitSceneAlphaR.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alphaL = m_splitSceneAlphaL.GetValue();
     const float alphaR = m_splitSceneAlphaR.GetValue();
@@ -512,7 +512,7 @@ namespace Fsl
     controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
     controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
     controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
-    controls->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    controls->SetOrientation(UI::LayoutOrientation::Horizontal);
     controls->AddChild(leftCB);
     controls->AddChild(label1);
     controls->AddChild(rightCB);

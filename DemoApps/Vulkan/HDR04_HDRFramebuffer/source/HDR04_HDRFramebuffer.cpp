@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "HDR04_HDRFramebuffer.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
-#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
@@ -99,7 +99,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorSetLayout CreateTonemapDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -128,7 +128,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
@@ -148,7 +148,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 
@@ -245,7 +245,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -324,9 +324,14 @@ namespace Fsl
       attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
       attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-      return RapidVulkan::RenderPass(device, 0, UncheckedNumericCast<uint32_t>(attachments.size()), attachments.data(),
-                                     UncheckedNumericCast<uint32_t>(subpassDescription.size()), subpassDescription.data(),
-                                     UncheckedNumericCast<uint32_t>(subpassDependency.size()), subpassDependency.data());
+      return {device,
+              0,
+              UncheckedNumericCast<uint32_t>(attachments.size()),
+              attachments.data(),
+              UncheckedNumericCast<uint32_t>(subpassDescription.size()),
+              subpassDescription.data(),
+              UncheckedNumericCast<uint32_t>(subpassDependency.size()),
+              subpassDependency.data()};
     }
 
 
@@ -504,19 +509,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -647,9 +652,14 @@ namespace Fsl
     std::array<VkImageView, 3> imageViews = {m_dependentResources.RenderAttachment.ImageView().Get(), frameBufferCreateContext.DepthBufferImageView,
                                              frameBufferCreateContext.SwapchainImageView};
 
-    return RapidVulkan::Framebuffer(m_device.Get(), 0, frameBufferCreateContext.RenderPass, UncheckedNumericCast<uint32_t>(imageViews.size()),
-                                    imageViews.data(), frameBufferCreateContext.SwapChainImageExtent.width,
-                                    frameBufferCreateContext.SwapChainImageExtent.height, 1);
+    return {m_device.Get(),
+            0,
+            frameBufferCreateContext.RenderPass,
+            UncheckedNumericCast<uint32_t>(imageViews.size()),
+            imageViews.data(),
+            frameBufferCreateContext.SwapChainImageExtent.width,
+            frameBufferCreateContext.SwapChainImageExtent.height,
+            1};
   }
 
 
@@ -662,7 +672,7 @@ namespace Fsl
       vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    const auto splitX = static_cast<uint32_t>(std::round(m_menuUI.SplitX.GetValue() * res.Width));
+    const auto splitX = static_cast<uint32_t>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(res.Width)));
     const uint32_t remainderX = res.Width >= splitX ? res.Width - splitX : 0u;
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();

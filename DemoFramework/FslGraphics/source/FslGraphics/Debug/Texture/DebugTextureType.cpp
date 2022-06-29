@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,39 +31,36 @@
 
 #include <FslGraphics/Debug/Texture/DebugTextureType.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
+  const char* TryToString(const TextureType& value)
   {
-    const char* TryToString(const TextureType& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case TextureType::Undefined:
-        return "TextureType::Undefined";
-      case TextureType::Tex1D:
-        return "TextureType::Tex1D";
-      case TextureType::Tex2D:
-        return "TextureType::Tex2D";
-      case TextureType::Tex3D:
-        return "TextureType::Tex3D";
-      case TextureType::TexCube:
-        return "TextureType::TexCube";
-      case TextureType::Tex1DArray:
-        return "TextureType::Tex1DArray";
-      case TextureType::Tex2DArray:
-        return "TextureType::Tex2DArray";
-      case TextureType::TexCubeArray:
-        return "TextureType::TexCubeArray";
-      default:
-        return nullptr;
-      }
+    case TextureType::Undefined:
+      return "TextureType::Undefined";
+    case TextureType::Tex1D:
+      return "TextureType::Tex1D";
+    case TextureType::Tex2D:
+      return "TextureType::Tex2D";
+    case TextureType::Tex3D:
+      return "TextureType::Tex3D";
+    case TextureType::TexCube:
+      return "TextureType::TexCube";
+    case TextureType::Tex1DArray:
+      return "TextureType::Tex1DArray";
+    case TextureType::Tex2DArray:
+      return "TextureType::Tex2DArray";
+    case TextureType::TexCubeArray:
+      return "TextureType::TexCubeArray";
+    default:
+      return nullptr;
     }
+  }
 
-    const char* ToString(const TextureType& value)
-    {
-      const auto* const psz = TryToString(value);
-      return psz != nullptr ? psz : "Unknown";
-    }
+  const char* ToString(const TextureType& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

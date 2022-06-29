@@ -14,8 +14,6 @@
 // This class simulates the functionality found in VulkanDevice to make it easier
 // to port samples.
 
-#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
@@ -23,6 +21,8 @@
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
 #include <cassert>
 #include <cstring>
 #include <utility>
@@ -237,7 +237,7 @@ namespace Fsl
       cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
       cmdPoolInfo.queueFamilyIndex = queueFamilyIndex;
       cmdPoolInfo.flags = createFlags;
-      return CommandPool(m_device, cmdPoolInfo);
+      return {m_device, cmdPoolInfo};
     }
 
 

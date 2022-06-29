@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Info/ImageSpriteInfo.hpp>
 #include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Log/LogNativeTextureArea.hpp>
+#include <FslGraphics/Sprite/Info/ImageSpriteInfo.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
@@ -56,7 +56,7 @@ TEST(TestSprite_ImageSpriteInfo, Construct_Default)
   EXPECT_FALSE(value.MaterialInfo.IsValid());
   EXPECT_EQ(PxExtent2D(), value.ImageInfo.ExtentPx);
   EXPECT_EQ(PxRectangleU16(), value.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(), value.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D(), value.ImageInfo.ExtentDp);
   EXPECT_EQ(SpriteDpConfig::BaseDpi, value.ImageDpi);
   EXPECT_EQ(NativeTextureArea(), value.RenderInfo.TextureArea);
   EXPECT_EQ(PxSize2D(), value.RenderInfo.ScaledSizePx);
@@ -96,7 +96,7 @@ TEST(TestSprite_ImageSpriteInfo, Construct)
   EXPECT_EQ(imageTrimMarginPx, value.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, value.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, value.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(imageExtent.Width, imageExtent.Height), value.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), value.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, value.ImageDpi);
   EXPECT_EQ(nativeTextureArea, value.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), value.RenderInfo.ScaledSizePx);
@@ -120,7 +120,7 @@ TEST(TestSprite_ImageSpriteInfo, Construct2X)
   constexpr auto nativeTextureArea = SpriteMaterialImpl::TestCalcNativeTextureArea(textureExtent, imageTrimmedRectanglePx);
   constexpr const auto imageExtent = imageTrimMarginPx.Sum() + imageTrimmedRectanglePx.GetExtent();
 
-  const DpExtent extentDp = SpriteUnitConverter::CalcImageDpExtent(imageExtent, imageDpi);
+  const DpExtent2D extentDp = SpriteUnitConverter::CalcImageDpExtent2D(imageExtent, imageDpi);
 
   EXPECT_EQ(spriteMaterialInfo, value.MaterialInfo);
   EXPECT_EQ(imageTrimMarginPx, value.ImageInfo.TrimMarginPx);
@@ -149,7 +149,7 @@ TEST(TestSprite_ImageSpriteInfo, Construct_NotCompatible)
 
   constexpr auto nativeTextureArea = SpriteMaterialImpl::TestCalcNativeTextureArea(textureExtent, imageTrimmedRectanglePx);
   constexpr const auto imageExtent = imageTrimMarginPx.Sum() + imageTrimmedRectanglePx.GetExtent();
-  const DpExtent extentDp = SpriteUnitConverter::CalcImageDpExtent(imageExtent, imageDpi);
+  const DpExtent2D extentDp = SpriteUnitConverter::CalcImageDpExtent2D(imageExtent, imageDpi);
 
   EXPECT_EQ(spriteMaterialInfo, value.MaterialInfo);
   EXPECT_EQ(imageTrimMarginPx, value.ImageInfo.TrimMarginPx);

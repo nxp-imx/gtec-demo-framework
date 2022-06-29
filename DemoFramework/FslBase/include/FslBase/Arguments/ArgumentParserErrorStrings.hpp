@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_ARGUMENTPARSERERRORSTRINGS_HPP
 #define FSLBASE_ARGUMENTS_ARGUMENTPARSERERRORSTRINGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,28 +39,25 @@
 #include <deque>
 #include <string>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  struct ParseErrorInfo;
+
+  namespace ArgumentParser
   {
-    struct ParseErrorInfo;
-
-    namespace ArgumentParser
+    class ErrorFormatter
     {
-      class ErrorFormatter
-      {
-      public:
-        virtual ~ErrorFormatter() = default;
+    public:
+      virtual ~ErrorFormatter() = default;
 
-        virtual std::string Format(const char* const pszFormat, const StringViewLite strArg0) = 0;
-        virtual std::string Format(const char* const pszFormat, const std::string& str) = 0;
-        virtual std::string Format(const char* const pszFormat, const uint32_t arg0) = 0;
-      };
-
-      std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,
-                                 const std::deque<Command>& commands, ErrorFormatter& formatter);
+      virtual std::string Format(const char* const pszFormat, const StringViewLite strArg0) = 0;
+      virtual std::string Format(const char* const pszFormat, const std::string& str) = 0;
+      virtual std::string Format(const char* const pszFormat, const uint32_t arg0) = 0;
     };
-  }
+
+    std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,
+                               const std::deque<Command>& commands, ErrorFormatter& formatter);
+  };
 }
 
 #endif

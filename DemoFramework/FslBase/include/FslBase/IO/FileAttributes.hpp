@@ -33,38 +33,35 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  struct FileAttributes
   {
-    struct FileAttributes
+    enum Enum
     {
-      enum Enum
-      {
-        Directory = 0x01,
-        File = 0x02,
-      };
-
-      uint32_t Flags{0};
-
-      FileAttributes() = default;
-
-      explicit FileAttributes(const Enum flag)
-        : Flags(static_cast<uint32_t>(flag))
-      {
-      }
-
-      bool HasFlag(const Enum flag) const
-      {
-        return ((Flags & static_cast<uint32_t>(flag)) != 0);
-      }
-
-      void SetFlag(const Enum flag)
-      {
-        Flags |= static_cast<uint32_t>(flag);
-      }
+      Directory = 0x01,
+      File = 0x02,
     };
-  }
+
+    uint32_t Flags{0};
+
+    FileAttributes() = default;
+
+    explicit FileAttributes(const Enum flag)
+      : Flags(static_cast<uint32_t>(flag))
+    {
+    }
+
+    bool HasFlag(const Enum flag) const
+    {
+      return ((Flags & static_cast<uint32_t>(flag)) != 0);
+    }
+
+    void SetFlag(const Enum flag)
+    {
+      Flags |= static_cast<uint32_t>(flag);
+    }
+  };
 }
 
 #endif

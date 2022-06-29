@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSDEVICE_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSDEVICE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,138 +31,143 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
-#include <FslGraphics3D/BasicRender/Adapter/INativeDevice.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsBufferFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsMaterialFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsTextureFactory.hpp>
+#include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
+#include <FslGraphics3D/BasicRender/Adapter/INativeDevice.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
-#include <memory>
 #include <vulkan/vulkan.h>
+#include <memory>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class VMBufferManager;
+  class VulkanImageCreator;
+
+  class NativeGraphicsDevice final : public Graphics3D::INativeDevice
   {
-    class VMBufferManager;
-    class VulkanImageCreator;
-
-    class NativeGraphicsDevice final : public Graphics3D::INativeDevice
+    struct ExtendedCameraInfo
     {
-      struct ExtendedCameraInfo
+      BasicCameraInfo Info;
+      Matrix ModelViewProjection;
+      bool IsValid{false};
+      constexpr ExtendedCameraInfo() noexcept = default;
+      explicit constexpr ExtendedCameraInfo(const BasicCameraInfo& info) noexcept
+        : Info(info.Model, info.View, info.Projection * Vulkan::MatrixUtil::GetClipMatrix())
+        , ModelViewProjection(Info.Model * Info.View * Info.Projection)
+        , IsValid(true)
       {
-        BasicCameraInfo Info;
-        Matrix ModelViewProjection;
-        bool IsValid{false};
-        constexpr ExtendedCameraInfo() noexcept = default;
-        explicit constexpr ExtendedCameraInfo(const BasicCameraInfo& info) noexcept
-          : Info(info.Model, info.View, info.Projection * Vulkan::MatrixUtil::GetClipMatrix())
-          , ModelViewProjection(Info.Model * Info.View * Info.Projection)
-          , IsValid(true)
-        {
-        }
-      };
-
-      struct CommandSection
-      {
-        bool IsActive{false};
-        BasicNativeBufferHandle BoundVertexBufferHandle;
-        BasicNativeBufferHandle BoundIndexBufferHandle;
-        BasicNativeMaterialHandle BoundMaterialHandle;
-        ExtendedCameraInfo CameraInfo;
-        VkPipelineLayout BoundPipelineLayout{VK_NULL_HANDLE};
-        VkDescriptorSet BoundDescriptorSet{VK_NULL_HANDLE};
-        uint32_t CameraChangeId{0};
-
-        CommandSection() = default;
-        explicit CommandSection(const bool isActive)
-          : IsActive(isActive)
-        {
-        }
-      };
-
-      struct Frame
-      {
-        VkCommandBuffer CommandBuffer{VK_NULL_HANDLE};
-        CommandSection Commands;
-
-        Frame() = default;
-        explicit Frame(const VkCommandBuffer commandBuffer)
-          : CommandBuffer(commandBuffer)
-        {
-        }
-
-        bool IsValid() const
-        {
-          return CommandBuffer != VK_NULL_HANDLE;
-        }
-      };
-
-      NativeGraphicsBufferFactory m_bufferFactory;
-      NativeGraphicsTextureFactory m_textureFactory;
-      NativeGraphicsMaterialFactory m_materialFactory;
-      bool m_isDisposed{false};
-      Frame m_frame;
-
-    public:
-      NativeGraphicsDevice(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex,
-                           const std::shared_ptr<VMBufferManager>& bufferManager, const std::shared_ptr<VulkanImageCreator>& imageCreator,
-                           const uint32_t maxFramesInFlight);
-      ~NativeGraphicsDevice() noexcept final;
-
-      void Dispose() noexcept;
-
-      VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const;
-
-      // Graphics3D::INativeBufferFactory
-      Graphics3D::NativeBufferFactoryCaps GetBufferCaps() const final;
-
-      BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
-                                           const bool isDynamic) final;
-      bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) final;
-      void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData) final;
-
-      // Graphics3D::INativeMaterialFactory
-
-      void CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles, ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan) final;
-      bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) final;
-
-      // Graphics3D::INativeTextureFactory
-      Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const final;
-
-      BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
-                                             const bool isDynamic) final;
-
-      bool DestroyTexture(const BasicNativeTextureHandle hTexture) final;
-
-      void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                          const TextureFlags textureFlags) final;
-      const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const final;
-
-      // Graphics3D::INativeDevice
-      void CreateDependentResources(const BasicNativeDependentCreateInfo& createInfo) final;
-      void DestroyDependentResources() final;
-
-      void BeginFrame(const BasicNativeBeginFrameInfo& frameInfo) final;
-      void EndFrame() final;
-
-      void BeginCache() final{};
-      void EndCache() final{};
-
-      void BeginCmds() final;
-      void EndCmds() final;
-
-      void CmdSetCamera(const BasicCameraInfo& cameraInfo) final;
-      void CmdBindIndexBuffer(const BasicNativeBufferHandle indexBuffer) final;
-      void CmdBindMaterial(const BasicNativeMaterialHandle material, const BasicMaterialVariables& materialVariables,
-                           const ReadOnlySpan<BasicNativeTextureHandle> textures) final;
-      void CmdBindVertexBuffer(const BasicNativeBufferHandle vertexBuffer) final;
-
-      void CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) final;
-      void CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) final;
+      }
     };
-  }
+
+    struct CommandSection
+    {
+      bool IsActive{false};
+      BasicNativeBufferHandle BoundVertexBufferHandle;
+      BasicNativeBufferHandle BoundIndexBufferHandle;
+      BasicNativeMaterialHandle BoundMaterialHandle;
+      ExtendedCameraInfo CameraInfo;
+      VkPipelineLayout BoundPipelineLayout{VK_NULL_HANDLE};
+      VkDescriptorSet BoundDescriptorSet{VK_NULL_HANDLE};
+      uint32_t CameraChangeId{0};
+
+      CommandSection() = default;
+      explicit CommandSection(const bool isActive)
+        : IsActive(isActive)
+      {
+      }
+    };
+
+    struct Frame
+    {
+      VkCommandBuffer CommandBuffer{VK_NULL_HANDLE};
+      CommandSection Commands;
+
+      Frame() = default;
+      explicit Frame(const VkCommandBuffer commandBuffer)
+        : CommandBuffer(commandBuffer)
+      {
+      }
+
+      bool IsValid() const
+      {
+        return CommandBuffer != VK_NULL_HANDLE;
+      }
+    };
+
+    NativeGraphicsBufferFactory m_bufferFactory;
+    NativeGraphicsTextureFactory m_textureFactory;
+    NativeGraphicsMaterialFactory m_materialFactory;
+    bool m_isDisposed{false};
+    Frame m_frame;
+
+  public:
+    NativeGraphicsDevice(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex,
+                         const std::shared_ptr<VMBufferManager>& bufferManager, const std::shared_ptr<VulkanImageCreator>& imageCreator,
+                         const uint32_t maxFramesInFlight);
+    ~NativeGraphicsDevice() noexcept final;
+
+    void Dispose() noexcept;
+
+
+    VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const;
+
+    // Graphics3D::INativeBufferFactory
+    Graphics3D::NativeBufferFactoryCaps GetBufferCaps() const final;
+
+    BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
+                                         const bool isDynamic) final;
+    bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) final;
+    void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData) final;
+
+
+    // Graphics3D::INativeShaderFactory
+
+    ReadOnlySpan<BasicNativeShaderCreateInfo> GetPredefinedShaders() const final;
+    BasicNativeShaderHandle CreateShader(const BasicNativeShaderCreateInfo& createInfo) final;
+    bool DestroyShader(const BasicNativeShaderHandle hShader) noexcept final;
+
+    // Graphics3D::INativeMaterialFactory
+
+    void CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles, ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan) final;
+    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) final;
+
+    // Graphics3D::INativeTextureFactory
+    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const final;
+
+    BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
+                                           const bool isDynamic) final;
+
+    bool DestroyTexture(const BasicNativeTextureHandle hTexture) final;
+
+    void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
+                        const TextureFlags textureFlags) final;
+    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const final;
+
+    // Graphics3D::INativeDevice
+    void CreateDependentResources(const BasicNativeDependentCreateInfo& createInfo) final;
+    void DestroyDependentResources() final;
+
+    void BeginFrame(const BasicNativeBeginFrameInfo& frameInfo) final;
+    void EndFrame() final;
+
+    void BeginCache() final{};
+    void EndCache() final{};
+
+    void BeginCmds() final;
+    void EndCmds() final;
+
+    void CmdSetCamera(const BasicCameraInfo& cameraInfo) final;
+    void CmdBindIndexBuffer(const BasicNativeBufferHandle indexBuffer) final;
+    void CmdBindMaterial(const BasicNativeMaterialHandle material, const BasicMaterialVariables& materialVariables,
+                         const ReadOnlySpan<BasicNativeTextureHandle> textures) final;
+    void CmdBindVertexBuffer(const BasicNativeBufferHandle vertexBuffer) final;
+
+    void CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) final;
+    void CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) final;
+  };
 }
 
 #endif

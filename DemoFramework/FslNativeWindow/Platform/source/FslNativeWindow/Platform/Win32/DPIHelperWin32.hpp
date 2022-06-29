@@ -33,10 +33,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
+#include <ShellScalingAPI.h>
+#include <Winuser.h>
 #include <windows.h>
 #include <windowsx.h>
-#include <Winuser.h>
-#include <ShellScalingAPI.h>
 
 namespace Fsl
 {

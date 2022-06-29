@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_TYPECONVERTER_HPP
 #define SHARED_UI_BENCHMARK_SCENE_TYPECONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,21 +35,19 @@
 #include <FslSimpleUI/Render/Base/RenderOptionFlags.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppRenderOptions.hpp>
 
-namespace Fsl
+namespace Fsl::TypeConverter
 {
-  namespace TypeConverter
-  {
-    // --- UI::RenderSystemInfo
+  // --- UI::RenderSystemInfo
 
-    template <>
-    constexpr inline UI::RenderOptionFlags To<UI::RenderOptionFlags, AppRenderOptions>(const AppRenderOptions& value)
-    {
-      return (value.Batch ? UI::RenderOptionFlags::Batch : UI::RenderOptionFlags::NoFlags) |
-             (value.FillBuffers ? UI::RenderOptionFlags::FillBuffers : UI::RenderOptionFlags::NoFlags) |
-             (value.DepthBuffer ? UI::RenderOptionFlags::DepthBuffer : UI::RenderOptionFlags::NoFlags) |
-             (value.DrawReorder ? UI::RenderOptionFlags::DrawReorder : UI::RenderOptionFlags::NoFlags) |
-             (value.MeshCaching ? UI::RenderOptionFlags::MeshCaching : UI::RenderOptionFlags::NoFlags);
-    }
+  template <>
+  constexpr inline UI::RenderOptionFlags To<UI::RenderOptionFlags, AppRenderOptions>(const AppRenderOptions& value)
+  {
+    return (value.Batch ? UI::RenderOptionFlags::Batch : UI::RenderOptionFlags::NoFlags) |
+           (value.FillBuffers ? UI::RenderOptionFlags::FillBuffers : UI::RenderOptionFlags::NoFlags) |
+           (value.DepthBuffer ? UI::RenderOptionFlags::DepthBuffer : UI::RenderOptionFlags::NoFlags) |
+           (value.DrawReorder ? UI::RenderOptionFlags::DrawReorder : UI::RenderOptionFlags::NoFlags) |
+           (value.MeshCaching ? UI::RenderOptionFlags::MeshCaching : UI::RenderOptionFlags::NoFlags) |
+           (value.PreferFastReorder ? UI::RenderOptionFlags::PreferFastReorder : UI::RenderOptionFlags::NoFlags);
   }
 }
 

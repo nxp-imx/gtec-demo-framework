@@ -31,15 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::DemoFramework
 {
-  namespace DemoFramework
-  {
-    bool HasExitRequest();
+  bool HasExitRequest();
 
-    //! @brief Set the exit request flag (this is safe to call from a signal handler)
-    void SetExitRequest();
-  }
+  //! @brief Set the exit request flag (this is safe to call from a signal handler)
+  void SetExitRequest();
 }
 
 #endif

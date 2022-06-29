@@ -4,7 +4,7 @@ if %errorlevel% neq 0 (
 )
 
 pushd "%WORKSPACE%\DemoApps"
-FslBuildNew.py --SanityCheck debug * * -vv --BuildTime --UseFeatures %FSL_CI_FEATURES% --BuildThreads auto
+FslBuildNew.py --noGitHash --SanityCheck debug * * -vv --BuildTime --UseFeatures %FSL_CI_FEATURES% --BuildThreads auto
 popd
 if %errorlevel% neq 0 (
   exit /b %errorlevel%

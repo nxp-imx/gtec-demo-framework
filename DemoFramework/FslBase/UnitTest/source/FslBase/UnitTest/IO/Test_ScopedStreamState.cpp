@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/IO/ScopedStreamState.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/IO/ScopedStreamState.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBaseContent.hpp>
 #include <array>
 #include <limits>

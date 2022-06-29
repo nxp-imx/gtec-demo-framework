@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <fmt/format.h>
 
 namespace fmt
@@ -50,7 +50,7 @@ namespace fmt
     template <typename FormatContext>
     auto format(const Fsl::DemoWindowMetrics& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{PxExtent={} DpSize={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.DpSize,
+      return format_to(ctx.out(), "{{PxExtent={} SizeDp={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
                        value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);
     }
   };

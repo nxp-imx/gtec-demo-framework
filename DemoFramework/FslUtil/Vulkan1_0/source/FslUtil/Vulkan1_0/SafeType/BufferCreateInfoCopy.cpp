@@ -29,81 +29,78 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/SafeType/BufferCreateInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/BufferCreateInfoCopy.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief Move assignment operator
+  BufferCreateInfoCopy& BufferCreateInfoCopy::operator=(BufferCreateInfoCopy&& other) noexcept
   {
-    //! @brief Move assignment operator
-    BufferCreateInfoCopy& BufferCreateInfoCopy::operator=(BufferCreateInfoCopy&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        m_value = other.m_value;
-        m_queueFamilyIndices = std::move(other.m_queueFamilyIndices);
+      // Claim ownership here
+      m_value = other.m_value;
+      m_queueFamilyIndices = std::move(other.m_queueFamilyIndices);
 
-        // Remove the data from other
-        other.m_value = VkBufferCreateInfo{};
-        PatchPointers();
-      }
-      return *this;
-    }
-
-    //! @brief Move constructor
-    //! Transfer ownership from other to this
-    BufferCreateInfoCopy::BufferCreateInfoCopy(BufferCreateInfoCopy&& other) noexcept
-      : m_value(other.m_value)
-      , m_queueFamilyIndices(std::move(other.m_queueFamilyIndices))
-    {
       // Remove the data from other
       other.m_value = VkBufferCreateInfo{};
       PatchPointers();
     }
+    return *this;
+  }
+
+  //! @brief Move constructor
+  //! Transfer ownership from other to this
+  BufferCreateInfoCopy::BufferCreateInfoCopy(BufferCreateInfoCopy&& other) noexcept
+    : m_value(other.m_value)
+    , m_queueFamilyIndices(std::move(other.m_queueFamilyIndices))
+  {
+    // Remove the data from other
+    other.m_value = VkBufferCreateInfo{};
+    PatchPointers();
+  }
 
 
-    BufferCreateInfoCopy::BufferCreateInfoCopy()
-      : m_value{}
+  BufferCreateInfoCopy::BufferCreateInfoCopy()
+    : m_value{}
 
+  {
+  }
+
+
+  BufferCreateInfoCopy::BufferCreateInfoCopy(const VkBufferCreateInfo& value)
+    : m_value(value)
+    , m_queueFamilyIndices(value.queueFamilyIndexCount)
+  {
+    for (std::size_t i = 0; i < m_queueFamilyIndices.size(); ++i)
     {
+      m_queueFamilyIndices[i] = value.pQueueFamilyIndices[i];
     }
 
-
-    BufferCreateInfoCopy::BufferCreateInfoCopy(const VkBufferCreateInfo& value)
-      : m_value(value)
-      , m_queueFamilyIndices(value.queueFamilyIndexCount)
-    {
-      for (std::size_t i = 0; i < m_queueFamilyIndices.size(); ++i)
-      {
-        m_queueFamilyIndices[i] = value.pQueueFamilyIndices[i];
-      }
-
-      // Now use the safe copied values instead
-      PatchPointers();
-      m_value.pNext = nullptr;
-      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "BufferCreateInfoCopy always stores a nullptr for pNext");
-    }
+    // Now use the safe copied values instead
+    PatchPointers();
+    m_value.pNext = nullptr;
+    FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "BufferCreateInfoCopy always stores a nullptr for pNext");
+  }
 
 
-    void BufferCreateInfoCopy::Reset()
-    {
-      *this = BufferCreateInfoCopy();
-    }
+  void BufferCreateInfoCopy::Reset()
+  {
+    *this = BufferCreateInfoCopy();
+  }
 
 
-    void BufferCreateInfoCopy::Reset(const VkBufferCreateInfo& value)
-    {
-      *this = BufferCreateInfoCopy(value);
-    }
+  void BufferCreateInfoCopy::Reset(const VkBufferCreateInfo& value)
+  {
+    *this = BufferCreateInfoCopy(value);
+  }
 
 
-    void BufferCreateInfoCopy::PatchPointers() noexcept
-    {
-      m_value.pQueueFamilyIndices = m_value.pQueueFamilyIndices != nullptr ? m_queueFamilyIndices.data() : nullptr;
-    }
+  void BufferCreateInfoCopy::PatchPointers() noexcept
+  {
+    m_value.pQueueFamilyIndices = m_value.pQueueFamilyIndices != nullptr ? m_queueFamilyIndices.data() : nullptr;
   }
 }

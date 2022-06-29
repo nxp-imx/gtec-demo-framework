@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_TOGGLEBUTTON_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_TOGGLEBUTTON_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPoint.hpp>
+#include <FslBase/Math/Dp/DpPoint2.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/Transition/TransitionVector2.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
+#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <memory>
 #include <string>
 #include <utility>
@@ -62,7 +62,7 @@ namespace Fsl
         TransitionColor CurrentColor;
 
         explicit FontRecord(const std::shared_ptr<IMeshManager>& meshManager, const std::shared_ptr<SpriteFont>& font,
-                            TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
+                            TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
           : Mesh(meshManager)
           , CurrentColor(rTransitionCache, time, type)
         {
@@ -79,7 +79,7 @@ namespace Fsl
         Color UncheckedDisabledColor{DefaultColor::ToggleButton::CursorUncheckedDisabled};
         TransitionColor CurrentColor;
 
-        explicit GraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TransitionTimeSpan& time,
+        explicit GraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TimeSpan& time,
                                 const TransitionType type)
           : Mesh(meshManager)
           , CurrentColor(rTransitionCache, time, type)
@@ -90,7 +90,7 @@ namespace Fsl
       struct HoverStateRecord
       {
         Color PrimaryColor;
-        DpPoint PositionDp;
+        DpPoint2 PositionDp;
 
         HoverStateRecord() = default;
         explicit HoverStateRecord(const Color& primaryColor)
@@ -110,8 +110,8 @@ namespace Fsl
         TransitionVector2 CurrentPositionDp;
         PxPoint2 LastScreenPositionPx;
 
-        HoverOverlayRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TransitionTimeSpan& timeColor,
-                           const TransitionType typeColor, const TransitionTimeSpan& timePosition, const TransitionType typePosition)
+        HoverOverlayRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TimeSpan& timeColor,
+                           const TransitionType typeColor, const TimeSpan& timePosition, const TransitionType typePosition)
           : Mesh(meshManager)
           , CurrentColor(rTransitionCache, timeColor, typeColor)
           , CurrentPositionDp(rTransitionCache, timePosition, typePosition)
@@ -187,19 +187,19 @@ namespace Fsl
       }
       void SetHoverOverlayUncheckedColor(const Color& value);
 
-      DpPoint GetCursorCheckedPosition() const
+      DpPoint2 GetCursorCheckedPosition() const
       {
         return m_hoverOverlay.Checked.PositionDp;
       }
 
-      void SetCursorCheckedPosition(const DpPoint& valueDp);
+      void SetCursorCheckedPosition(const DpPoint2& valueDp);
 
-      DpPoint GetCursorUncheckedPosition() const
+      DpPoint2 GetCursorUncheckedPosition() const
       {
         return m_hoverOverlay.Unchecked.PositionDp;
       }
 
-      void SetCursorUncheckedPosition(const DpPoint& valueDp);
+      void SetCursorUncheckedPosition(const DpPoint2& valueDp);
 
       const std::shared_ptr<ISizedSprite>& SetHoverOverlaySprite() const
       {
@@ -305,7 +305,7 @@ namespace Fsl
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
 
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) override;
+      void UpdateAnimation(const TimeSpan& timeSpan) override;
       bool UpdateAnimationState(const bool forceCompleteAnimation) override;
 
     private:

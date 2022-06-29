@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_VULKAN_CONFIG_FEATUREREQUEST_HPP
 #define FSLDEMOHOST_VULKAN_CONFIG_FEATUREREQUEST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,34 +37,31 @@
 #include <utility>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct FeatureRequest
   {
-    struct FeatureRequest
+    std::string Name;
+    FeatureRequirement Requirement{FeatureRequirement::Invalid};
+
+    std::shared_ptr<std::vector<std::string>> AlternativeNames;
+
+    FeatureRequest() = default;
+
+
+    FeatureRequest(std::string name, const FeatureRequirement requirement)
+      : Name(std::move(name))
+      , Requirement(requirement)
     {
-      std::string Name;
-      FeatureRequirement Requirement{FeatureRequirement::Invalid};
+    }
 
-      std::shared_ptr<std::vector<std::string>> AlternativeNames;
-
-      FeatureRequest() = default;
-
-
-      FeatureRequest(std::string name, const FeatureRequirement requirement)
-        : Name(std::move(name))
-        , Requirement(requirement)
-      {
-      }
-
-      FeatureRequest(std::string name, const FeatureRequirement requirement, std::shared_ptr<std::vector<std::string>> alternativeNames)
-        : Name(std::move(name))
-        , Requirement(requirement)
-        , AlternativeNames(std::move(alternativeNames))
-      {
-      }
-    };
-  }
+    FeatureRequest(std::string name, const FeatureRequirement requirement, std::shared_ptr<std::vector<std::string>> alternativeNames)
+      : Name(std::move(name))
+      , Requirement(requirement)
+      , AlternativeNames(std::move(alternativeNames))
+    {
+    }
+  };
 }
 
 #endif

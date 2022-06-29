@@ -32,21 +32,15 @@
 #include <FslBase/System/PerformanceCounter.hpp>
 #include "Platform/PlatformPerformanceCounter.hpp"
 
-namespace Fsl
+namespace Fsl::PerformanceCounter
 {
-  // This basically just wraps the platform specific code so the platform headers dont leak into other code!
-  // The PlatformPerformanceCounter ought to be inlined and only exist to not duplicate the platform code while not introducing extra performance
-  // penalties
-  namespace PerformanceCounter
+  uint64_t GetPerformanceFrequency()
   {
-    uint64_t GetPerformanceFrequency()
-    {
-      return PlatformPerformanceCounter::GetPerformanceFrequency();
-    }
+    return PlatformPerformanceCounter::GetPerformanceFrequency();
+  }
 
-    uint64_t GetPerformanceCounter()
-    {
-      return PlatformPerformanceCounter::GetPerformanceCounter();
-    }
+  uint64_t GetPerformanceCounter()
+  {
+    return PlatformPerformanceCounter::GetPerformanceCounter();
   }
 }

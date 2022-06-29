@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MESH_CONTENTSPRITEMESH_HPP
 #define FSLSIMPLEUI_BASE_MESH_CONTENTSPRITEMESH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,54 +34,51 @@
 #include <FslGraphics/Sprite/IContentSprite.hpp>
 #include <FslSimpleUI/Base/Mesh/SpriteMesh.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ContentSpriteMesh : public SpriteMesh<IContentSprite>
   {
-    class ContentSpriteMesh : public SpriteMesh<IContentSprite>
+  public:
+    explicit ContentSpriteMesh(const std::shared_ptr<IMeshManager>& meshManager)
+      : SpriteMesh(meshManager)
     {
-    public:
-      explicit ContentSpriteMesh(const std::shared_ptr<IMeshManager>& meshManager)
-        : SpriteMesh(meshManager)
-      {
-      }
+    }
 
-      PxSize2D GetRenderSizePx() const
-      {
-        return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
-      }
+    PxSize2D GetRenderSizePx() const
+    {
+      return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
+    }
 
-      PxThickness GetRenderContentMarginPx() const
-      {
-        return IsValid() ? GetSpriteObject().GetRenderContentMarginPx() : PxThickness();
-      }
+    PxThickness GetRenderContentMarginPx() const
+    {
+      return IsValid() ? GetSpriteObject().GetRenderContentMarginPx() : PxThickness();
+    }
 
-      RenderContentInfo GetRenderContentInfo() const
-      {
-        return IsValid() ? GetSpriteObject().GetRenderContentInfo() : RenderContentInfo();
-      }
+    RenderContentInfo GetRenderContentInfo() const
+    {
+      return IsValid() ? GetSpriteObject().GetRenderContentInfo() : RenderContentInfo();
+    }
 
-      PxSize2D Measure() const
-      {
-        return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
-      }
+    PxSize2D Measure() const
+    {
+      return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
+    }
 
-      PxSize2D Measure(const PxSize2D& finalSizePx) const
-      {
-        return IsValid() ? PxSize2D::Max(finalSizePx, GetSpriteObject().GetRenderSizePx()) : finalSizePx;
-      }
+    PxSize2D Measure(const PxSize2D& finalSizePx) const
+    {
+      return IsValid() ? PxSize2D::Max(finalSizePx, GetSpriteObject().GetRenderSizePx()) : finalSizePx;
+    }
 
-      PxSize2D Measure(const PxSize2D& finalSizePx, const bool rotate90CW) const
+    PxSize2D Measure(const PxSize2D& finalSizePx, const bool rotate90CW) const
+    {
+      PxSize2D spriteSizePx;
+      if (IsValid())
       {
-        PxSize2D spriteSizePx;
-        if (IsValid())
-        {
-          spriteSizePx = !rotate90CW ? GetSpriteObject().GetRenderSizePx() : PxSize2D::Flip(GetSpriteObject().GetRenderSizePx());
-        }
-        return PxSize2D::Max(finalSizePx, spriteSizePx);
+        spriteSizePx = !rotate90CW ? GetSpriteObject().GetRenderSizePx() : PxSize2D::Flip(GetSpriteObject().GetRenderSizePx());
       }
-    };
-  }
+      return PxSize2D::Max(finalSizePx, spriteSizePx);
+    }
+  };
 }
 
 #endif

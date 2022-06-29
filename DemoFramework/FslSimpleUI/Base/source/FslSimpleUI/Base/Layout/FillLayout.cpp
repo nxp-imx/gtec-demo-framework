@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 //#include <FslBase/Log/Log3Fmt.hpp>
 //#include <FslBase/Log/Math/FmtVector2.hpp>
 #include <cmath>
@@ -38,65 +38,62 @@
 // Workaround for issues with std::isinf and std::isnan on qnx
 using namespace std;
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  FillLayout::FillLayout(const std::shared_ptr<BaseWindowContext>& context)
+    : SimpleLayout(context)
   {
-    FillLayout::FillLayout(const std::shared_ptr<BaseWindowContext>& context)
-      : SimpleLayout(context)
+    SetAlignmentX(ItemAlignment::Stretch);
+    SetAlignmentY(ItemAlignment::Stretch);
+  }
+
+
+  PxSize2D FillLayout::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    // FSLLOG3_INFO("Arrange: finalSize: {}", finalSize);
+    for (auto itr = begin(); itr != end(); ++itr)
     {
-      SetAlignmentX(ItemAlignment::Stretch);
-      SetAlignmentY(ItemAlignment::Stretch);
+      itr->Window->Arrange(PxRectangle(0, 0, finalSizePx.Width(), finalSizePx.Height()));
+      // FSLLOG3_INFO("Arrange: RenderSize: {}", itr->Window->RenderSize());
     }
+    return finalSizePx;
+  }
 
 
-    PxSize2D FillLayout::ArrangeOverride(const PxSize2D& finalSizePx)
+  PxSize2D FillLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    if (availableSizePx.ContainsInfinity())
     {
-      // FSLLOG3_INFO("Arrange: finalSize: {}", finalSize);
-      for (auto itr = begin(); itr != end(); ++itr)
-      {
-        itr->Window->Arrange(PxRectangle(0, 0, finalSizePx.Width(), finalSizePx.Height()));
-        // FSLLOG3_INFO("Arrange: RenderSize: {}", itr->Window->RenderSize());
-      }
-      return finalSizePx;
-    }
-
-
-    PxSize2D FillLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
-    {
-      if (availableSizePx.ContainsInfinity())
-      {
-        PxSize2D maxSize;
-        for (auto itr = begin(); itr != end(); ++itr)
-        {
-          itr->Window->Measure(availableSizePx);
-          maxSize = PxSize2D::Max(maxSize, itr->Window->DesiredSizePx());
-        }
-        if (availableSizePx.IsInfinityWidth())
-        {
-          if (availableSizePx.IsInfinityHeight())
-          {
-            return maxSize;
-          }
-          return {maxSize.Width(), availableSizePx.Height()};
-        }
-        // height must be infinity since the width isnt
-        assert(availableSizePx.IsInfinityHeight());
-        return {availableSizePx.Width(), maxSize.Height()};
-      }
-
-      if (!availableSizePx.IsNormal())
-      {
-        throw UsageErrorException("FillLayout got invalid availableSize");
-      }
-
-      // FSLLOG3_INFO("Measure: availableSize: {}", availableSize);
+      PxSize2D maxSize;
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Measure(availableSizePx);
-        // FSLLOG3_INFO("Measure: DesiredSize: {}", itr->Window->DesiredSize());
+        maxSize = PxSize2D::Max(maxSize, itr->Window->DesiredSizePx());
       }
-      return availableSizePx.ToPxSize2D();
+      if (availableSizePx.IsInfinityWidth())
+      {
+        if (availableSizePx.IsInfinityHeight())
+        {
+          return maxSize;
+        }
+        return {maxSize.Width(), availableSizePx.Height()};
+      }
+      // height must be infinity since the width isnt
+      assert(availableSizePx.IsInfinityHeight());
+      return {availableSizePx.Width(), maxSize.Height()};
     }
+
+    if (!availableSizePx.IsNormal())
+    {
+      throw UsageErrorException("FillLayout got invalid availableSize");
+    }
+
+    // FSLLOG3_INFO("Measure: availableSize: {}", availableSize);
+    for (auto itr = begin(); itr != end(); ++itr)
+    {
+      itr->Window->Measure(availableSizePx);
+      // FSLLOG3_INFO("Measure: DesiredSize: {}", itr->Window->DesiredSize());
+    }
+    return availableSizePx.ToPxSize2D();
   }
 }

@@ -11,26 +11,26 @@
 
 
 #include "DynamicTerrainTessellation.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/ToString.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/Sampler.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstring>
 #include <iomanip>
 #include <utility>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace Fsl
 {
@@ -81,11 +81,11 @@ namespace Fsl
         assert(x < Dim);
         assert(y < Dim);
 
-        glm::ivec2 rpos = glm::ivec2(x, y) * glm::ivec2(Scale);
+        glm::ivec2 rpos = glm::ivec2(x, y) * glm::ivec2(UncheckedNumericCast<int>(Scale));
         rpos.x = std::max(0, std::min(rpos.x, static_cast<int>(Dim) - 1));
         rpos.y = std::max(0, std::min(rpos.y, static_cast<int>(Dim) - 1));
-        rpos /= glm::ivec2(Scale);
-        return float(*(HeightData.data() + (rpos.x + (rpos.y * Dim)) * Scale)) / 65535.0f;
+        rpos /= glm::ivec2(UncheckedNumericCast<int>(Scale));
+        return static_cast<float>(*(HeightData.data() + (rpos.x + (rpos.y * Dim)) * Scale)) / 65535.0f;
       }
     };
   }
@@ -458,9 +458,9 @@ namespace Fsl
         {
           const uint32_t index = (x + y * PATCH_SIZE);
           assert(index < vertices.size());
-          pDst[index].pos[0] = (x * wx) + (wx / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wx) / 2.0f);
+          pDst[index].pos[0] = (static_cast<float>(x) * wx) + (wx / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wx) / 2.0f);
           pDst[index].pos[1] = 0.0f;
-          pDst[index].pos[2] = (y * wy) + (wy / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wy) / 2.0f);
+          pDst[index].pos[2] = (static_cast<float>(y) * wy) + (wy / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wy) / 2.0f);
           pDst[index].uv = glm::vec2(static_cast<float>(x) / PATCH_SIZE, static_cast<float>(y) / PATCH_SIZE) * UV_SCALE;
         }
       }

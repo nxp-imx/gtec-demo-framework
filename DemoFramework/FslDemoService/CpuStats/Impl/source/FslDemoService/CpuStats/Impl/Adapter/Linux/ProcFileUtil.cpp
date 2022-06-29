@@ -1,6 +1,6 @@
 #ifdef __linux__
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/CpuStats/Impl/Adapter/Linux/ProcFileUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringToValue.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/Linux/ProcFileUtil.hpp>
 
 namespace Fsl
 {
@@ -81,20 +81,40 @@ namespace Fsl
           parseState = CPUParseState::FindCPU;
           break;
         case CPUParseState::ParseCPULine:
-        {
-          std::size_t written = 0;
-          if (fileParser.TryReadLineUntil(written, file, lineBuffer.data(), lineBuffer.size() - 1, ' ') && written > 0)
           {
-            // zero terminate by appending a zero (which we always reserved room for above)
-            lineBuffer[written] = 0;
-            // FSLLOG3_INFO("parse entry: '{0}'", lineBuffer.data());
-            switch (parseIndex)
+            std::size_t written = 0;
+            if (fileParser.TryReadLineUntil(written, file, lineBuffer.data(), lineBuffer.size() - 1, ' ') && written > 0)
             {
-            case 0:    // CPU
-              if (written > 3)
+              // zero terminate by appending a zero (which we always reserved room for above)
+              lineBuffer[written] = 0;
+              // FSLLOG3_INFO("parse entry: '{0}'", lineBuffer.data());
+              switch (parseIndex)
               {
-                assert(lineBuffer[0] == 'c' && lineBuffer[1] == 'p' && lineBuffer[2] == 'u');
-                if (!StringToValue::TryParse(parsedValues[parseIndex], StringViewLite(lineBuffer.data() + 3, written - 3)))
+              case 0:    // CPU
+                if (written > 3)
+                {
+                  assert(lineBuffer[0] == 'c' && lineBuffer[1] == 'p' && lineBuffer[2] == 'u');
+                  if (!StringToValue::TryParse(parsedValues[parseIndex], StringViewLite(lineBuffer.data() + 3, written - 3)))
+                  {
+                    FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
+                    parseState = CPUParseState::ParseCPULineDone;
+                  }
+                  else
+                  {
+                    ++parseIndex;
+                    parseState = CPUParseState::ParseCPULineSkipSpace;
+                  }
+                }
+                else
+                {
+                  parseState = CPUParseState::FindNextLine;
+                }
+                break;
+              case 1:    // User
+              case 2:    // Nice
+              case 3:    // System
+              case 4:    // Idle
+                if (!StringToValue::TryParse(parsedValues[parseIndex], StringViewLite(lineBuffer.data(), written)))
                 {
                   FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
                   parseState = CPUParseState::ParseCPULineDone;
@@ -102,51 +122,31 @@ namespace Fsl
                 else
                 {
                   ++parseIndex;
-                  parseState = CPUParseState::ParseCPULineSkipSpace;
+                  parseState = parseIndex <= 4 ? CPUParseState::ParseCPULineSkipSpace : CPUParseState::ParseCPULineCompleted;
                 }
+                break;
+              default:
+                parseState = CPUParseState::ParseCPULineCompleted;
+                break;
               }
-              else
-              {
-                parseState = CPUParseState::FindNextLine;
-              }
-              break;
-            case 1:    // User
-            case 2:    // Nice
-            case 3:    // System
-            case 4:    // Idle
-              if (!StringToValue::TryParse(parsedValues[parseIndex], StringViewLite(lineBuffer.data(), written)))
-              {
-                FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
-                parseState = CPUParseState::ParseCPULineDone;
-              }
-              else
-              {
-                ++parseIndex;
-                parseState = parseIndex <= 4 ? CPUParseState::ParseCPULineSkipSpace : CPUParseState::ParseCPULineCompleted;
-              }
-              break;
-            default:
-              parseState = CPUParseState::ParseCPULineCompleted;
-              break;
             }
+            else
+            {
+              FSLLOG3_DEBUG_WARNING("Failed to parse cpu entry");
+              parseState = CPUParseState::ParseCPULineDone;
+            }
+            break;
           }
-          else
-          {
-            FSLLOG3_DEBUG_WARNING("Failed to parse cpu entry");
-            parseState = CPUParseState::ParseCPULineDone;
-          }
-          break;
-        }
         case CPUParseState::ParseCPULineSkipSpace:
           fileParser.TrySkipCharacter(file, ' ');
           parseState = CPUParseState::ParseCPULine;
           break;
         case CPUParseState::ParseCPULineCompleted:
-        {
-          rParsed.emplace_back(CPUInfo{parsedValues[0], parsedValues[1], parsedValues[2], parsedValues[3], parsedValues[4]});
-          parseState = CPUParseState::ParseCPULineDone;
-          break;
-        }
+          {
+            rParsed.emplace_back(CPUInfo{parsedValues[0], parsedValues[1], parsedValues[2], parsedValues[3], parsedValues[4]});
+            parseState = CPUParseState::ParseCPULineDone;
+            break;
+          }
         case CPUParseState::ParseCPULineDone:
           parseState = CPUParseState::FindNextLine;
           parseIndex = 0u;
@@ -191,76 +191,76 @@ namespace Fsl
           parseState = RAMParseState::FindVmRSS;
           break;
         case RAMParseState::ParseVmRSSLine:
-        {
-          std::size_t written = 0;
-          if (fileParser.TryReadLineUntil(written, file, lineBuffer.data(), lineBuffer.size() - 1, ' ', true) && written > 0)
           {
-            // zero terminate by appending a zero (which we always reserved room for above)
-            lineBuffer[written] = 0;
-            // FSLLOG3_INFO("parse entry: '{0}'", lineBuffer.data());
-            switch (parseIndex)
+            std::size_t written = 0;
+            if (fileParser.TryReadLineUntil(written, file, lineBuffer.data(), lineBuffer.size() - 1, ' ', true) && written > 0)
             {
-            case 0:    // VmRSS:
-              if (written > 6)
+              // zero terminate by appending a zero (which we always reserved room for above)
+              lineBuffer[written] = 0;
+              // FSLLOG3_INFO("parse entry: '{0}'", lineBuffer.data());
+              switch (parseIndex)
               {
-                assert(lineBuffer[0] == 'V' && lineBuffer[1] == 'm' && lineBuffer[2] == 'R' && lineBuffer[3] == 'S' && lineBuffer[4] == 'S' &&
-                       lineBuffer[5] == ':');
+              case 0:    // VmRSS:
+                if (written > 6)
+                {
+                  assert(lineBuffer[0] == 'V' && lineBuffer[1] == 'm' && lineBuffer[2] == 'R' && lineBuffer[3] == 'S' && lineBuffer[4] == 'S' &&
+                         lineBuffer[5] == ':');
+                  ++parseIndex;
+                  parseState = RAMParseState::ParseVmRSSLineSkipWhitespaces;
+                }
+                else
+                {
+                  parseState = RAMParseState::FindNextLine;
+                }
+                break;
+              case 1:    // memory
+                if (!StringToValue::TryParse(resultVmRSS, StringViewLite(lineBuffer.data(), written)))
+                {
+                  FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
+                  parseState = RAMParseState::ParseVmRSSLineFailed;
+                }
+                else
+                {
+                  ++parseIndex;
+                  parseState = RAMParseState::ParseVmRSSLineSkipWhitespaces;
+                }
+                break;
+              case 2:    // memory unit type
                 ++parseIndex;
-                parseState = RAMParseState::ParseVmRSSLineSkipWhitespaces;
-              }
-              else
-              {
-                parseState = RAMParseState::FindNextLine;
-              }
-              break;
-            case 1:    // memory
-              if (!StringToValue::TryParse(resultVmRSS, StringViewLite(lineBuffer.data(), written)))
-              {
-                FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
-                parseState = RAMParseState::ParseVmRSSLineFailed;
-              }
-              else
-              {
-                ++parseIndex;
-                parseState = RAMParseState::ParseVmRSSLineSkipWhitespaces;
-              }
-              break;
-            case 2:    // memory unit type
-              ++parseIndex;
-              if (StringViewLite(lineBuffer.data(), written) == "kB")
-              {
-                // Convert to bytes
-                resultVmRSS *= 1000;
+                if (StringViewLite(lineBuffer.data(), written) == "kB")
+                {
+                  // Convert to bytes
+                  resultVmRSS *= 1000;
+                  parseState = RAMParseState::ParseVmRSSLineCompleted;
+                }
+                else
+                {
+                  FSLLOG3_DEBUG_WARNING("VmRSS was not using the expected unit type");
+                  parseState = RAMParseState::ParseVmRSSLineFailed;
+                }
+                break;
+              default:
                 parseState = RAMParseState::ParseVmRSSLineCompleted;
+                break;
               }
-              else
-              {
-                FSLLOG3_DEBUG_WARNING("VmRSS was not using the expected unit type");
-                parseState = RAMParseState::ParseVmRSSLineFailed;
-              }
-              break;
-            default:
-              parseState = RAMParseState::ParseVmRSSLineCompleted;
-              break;
             }
+            else
+            {
+              FSLLOG3_DEBUG_WARNING("Failed to parse VmRSS entry");
+              parseState = RAMParseState::ParseVmRSSLineFailed;
+            }
+            break;
           }
-          else
-          {
-            FSLLOG3_DEBUG_WARNING("Failed to parse VmRSS entry");
-            parseState = RAMParseState::ParseVmRSSLineFailed;
-          }
-          break;
-        }
         case RAMParseState::ParseVmRSSLineSkipWhitespaces:
           fileParser.TrySkipCharacter(file, ' ');
           parseState = RAMParseState::ParseVmRSSLine;
           break;
         case RAMParseState::ParseVmRSSLineCompleted:
-        {
-          rParsed = RAMInfo{resultVmRSS};
-          parseState = RAMParseState::ParseVmRSSLineFailed;
-          return true;
-        }
+          {
+            rParsed = RAMInfo{resultVmRSS};
+            parseState = RAMParseState::ParseVmRSSLineFailed;
+            return true;
+          }
         case RAMParseState::ParseVmRSSLineFailed:
           return false;
         default:

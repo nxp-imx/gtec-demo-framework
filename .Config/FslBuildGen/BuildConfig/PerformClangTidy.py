@@ -675,6 +675,7 @@ class CMakeHelper(object):
         buildVariantConfig = cmakeConfig.BuildVariantConfig
         buildDir = newBuildDir
         buildDirSetByUser = True
+        buildDirId = cmakeConfig.BuildDirId
         checkDir = cmakeConfig.CheckDir
         generatorName = cmakeConfig.GeneratorName
         installPrefix = cmakeConfig.InstallPrefix
@@ -682,7 +683,7 @@ class CMakeHelper(object):
         additionalGlobalConfigArguments = cmakeConfig.CMakeConfigUserGlobalArguments
         additionalAppConfigArguments = cmakeConfig.CMakeConfigUserAppArguments + cmakeConfigExtraArguments
         allowFindPackage = cmakeConfig.AllowFindPackage
-        return GeneratorCMakeConfig(log, toolVersion, platformName, buildVariantConfig, userSetVariables, buildDir, buildDirSetByUser, checkDir, generatorName,
+        return GeneratorCMakeConfig(log, toolVersion, platformName, buildVariantConfig, userSetVariables, buildDir, buildDirSetByUser, buildDirId, checkDir, generatorName,
                                     installPrefix, cmakeVersion, additionalGlobalConfigArguments, additionalAppConfigArguments, allowFindPackage)
 
 
@@ -735,11 +736,11 @@ class PerformClangTidyHelper(object):
         currentWorkingDirectory = BuildUtil.GetBuildDir(toolConfig.ProjectInfo, cmakeConfig.CheckDir)
 
         # default to different folders depending on the options set
-        tidyFolder = "tidy" if performClangTidyConfig.Profile == ClangTidyProfile.Strict else "tidyF"
+        tidyFolder = "t" if performClangTidyConfig.Profile == ClangTidyProfile.Strict else "tF"
         if len(performClangTidyConfig.OverrideChecks) > 0 or len(performClangTidyConfig.PostfixArguments) > 0 or len(performClangTidyConfig.AdditionalUserArguments) > 0:
-            tidyFolder = "tidyC"
+            tidyFolder = "tC"
         if not useLegacyTidyMethod:
-            tidyFolder = "cmake{0}".format(tidyFolder.capitalize())
+            tidyFolder = "c{0}".format(tidyFolder.capitalize())
 
         clangTidyFixOutputFolder = IOUtil.Join(currentWorkingDirectory, tidyFolder)
         currentWorkingDirectory = clangTidyFixOutputFolder

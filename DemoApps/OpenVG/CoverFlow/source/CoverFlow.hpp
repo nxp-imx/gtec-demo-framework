@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenVG/DemoAppVG.hpp>
+#include <array>
 #include "VG/openvg.h"
 #include "VG/vgu.h"
-#include <array>
 
 namespace Fsl
 {

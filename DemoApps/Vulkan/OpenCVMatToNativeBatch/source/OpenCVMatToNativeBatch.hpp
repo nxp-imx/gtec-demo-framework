@@ -33,9 +33,9 @@
 
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
 
 namespace Fsl

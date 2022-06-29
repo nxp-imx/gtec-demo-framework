@@ -43,3 +43,5 @@ class XmlGenFileExternalDependencyPackageManager(XmlBase):
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
         self.Version = self._TryReadAttrib(xmlElement, 'Version')  # type: Optional[str]
         self.PackageTargetFramework = self._TryReadAttrib(xmlElement, 'PackageTargetFramework')  # type: Optional[str]
+        self.PrivateAssets = self._TryReadAttrib(xmlElement, 'PrivateAssets')  # type: Optional[str]
+        self.IncludeAssets = self._TryReadAttrib(xmlElement, 'IncludeAssets')  # type: Optional[str]

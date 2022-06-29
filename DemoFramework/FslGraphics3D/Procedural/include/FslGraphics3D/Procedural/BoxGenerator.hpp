@@ -34,41 +34,37 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/BoxF.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
-#include <FslGraphics/WindingOrder.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslGraphics/WindingOrder.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  class BoxGenerator
   {
-    class BoxGenerator
-    {
-    public:
-      //! @brief Creates a box centered at dstCenter of the given width and height.
-      //! @param dstCenter the center of the cube (origin).
-      //! @param dstWidth the width of the cube.
-      //! @param dstHeight the height of the cube.
-      //! @param dstDepth the depth of the cube
-      //! @param pTextureAreas a pointer to at least 6 texture areas (!= null).
-      //! @param numTextureAreas the number of texture areas provided (must be >= 6 and only six will be used, front, right, back, left, top, bottom).
-      //! @param windingOrder the winding order to utilize.
-      //! @note  ASCII example below
-      //!          x----x
-      //!         /    /| < dstHeight
-      //!        x----x |
-      //!        |    | x
-      //!        |    |/  < dstDepth
-      //!        x----x
-      //!          ^ dstWidth
-      static BasicMesh GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth,
-                                    const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
-                                    const WindingOrder::Enum windingOrder);
-      static BasicMesh GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth,
-                                     const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
-                                     const WindingOrder::Enum windingOrder);
-    };
-  }
+  public:
+    //! @brief Creates a box centered at dstCenter of the given width and height.
+    //! @param dstCenter the center of the cube (origin).
+    //! @param dstWidth the width of the cube.
+    //! @param dstHeight the height of the cube.
+    //! @param dstDepth the depth of the cube
+    //! @param pTextureAreas a pointer to at least 6 texture areas (!= null).
+    //! @param numTextureAreas the number of texture areas provided (must be >= 6 and only six will be used, front, right, back, left, top, bottom).
+    //! @param windingOrder the winding order to utilize.
+    //! @note  ASCII example below
+    //!          x----x
+    //!         /    /| < dstHeight
+    //!        x----x |
+    //!        |    | x
+    //!        |    |/  < dstDepth
+    //!        x----x
+    //!          ^ dstWidth
+    static BasicMesh GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth,
+                                  const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas, const WindingOrder::Enum windingOrder);
+    static BasicMesh GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth,
+                                   const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
+                                   const WindingOrder::Enum windingOrder);
+  };
 }
 
 #endif

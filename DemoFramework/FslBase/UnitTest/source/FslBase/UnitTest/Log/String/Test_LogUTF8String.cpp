@@ -30,12 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/String/LogUTF8String.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <array>
-#include <limits>
 #include <sstream>
-#include <vector>
 
 using namespace Fsl;
 

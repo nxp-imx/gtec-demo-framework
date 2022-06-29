@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_CANVASLAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_CANVASLAYOUT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,35 +31,32 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPointF.hpp>
+#include <FslBase/Math/Dp/DpPoint2F.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct CanvasLayoutWindowRecord : GenericWindowCollectionRecordBase
   {
-    struct CanvasLayoutWindowRecord : GenericWindowCollectionRecordBase
+    DpPoint2F PositionDp;
+
+    explicit CanvasLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
+      : GenericWindowCollectionRecordBase(window)
     {
-      DpPointF PositionDp;
+    }
+  };
 
-      explicit CanvasLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
-        : GenericWindowCollectionRecordBase(window)
-      {
-      }
-    };
+  class CanvasLayout : public ComplexLayout<CanvasLayoutWindowRecord>
+  {
+  public:
+    explicit CanvasLayout(const std::shared_ptr<BaseWindowContext>& context);
 
-    class CanvasLayout : public ComplexLayout<CanvasLayoutWindowRecord>
-    {
-    public:
-      explicit CanvasLayout(const std::shared_ptr<BaseWindowContext>& context);
+    void SetChildPosition(const std::shared_ptr<BaseWindow>& window, const DpPoint2F& positionDp);
 
-      void SetChildPosition(const std::shared_ptr<BaseWindow>& window, const DpPointF& positionDp);
-
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-    };
-  }
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+  };
 }
 
 #endif

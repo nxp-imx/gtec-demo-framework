@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="benchmark" CreationYear="2022">
+    <Default.Platform.Supported Value="false"/>
+    <Requirement Name="GoogleBenchmark" Type="feature"/>
+    <Platform Name="Ubuntu;Windows" Supported="true">
+      <Dependency Name="Recipe.benchmark_1_6"/>
+    </Platform>    
+    
+  </ExternalLibrary>
+</FslBuildGen>

@@ -29,33 +29,28 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLVertexBuffer::GLVertexBuffer(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration,
+                                 const GLenum usage)
+    : GLBuffer(GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage)
+    , m_vertexElements(vertexDeclaration)
   {
-    GLVertexBuffer::GLVertexBuffer(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration,
-                                   const GLenum usage)
-      : GLBuffer(GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage)
-      , m_vertexElements(vertexDeclaration)
-    {
-    }
+  }
 
 
-    void GLVertexBuffer::Reset(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration,
-                               const GLenum usage)
-    {
-      GLBuffer::Reset(GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage);
+  void GLVertexBuffer::Reset(const void* const pVertices, const std::size_t elementCount, VertexDeclarationSpan vertexDeclaration, const GLenum usage)
+  {
+    DoReset(GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage);
 
-      m_vertexElements.Reset(vertexDeclaration);
-    }
+    m_vertexElements.Reset(vertexDeclaration);
   }
 }

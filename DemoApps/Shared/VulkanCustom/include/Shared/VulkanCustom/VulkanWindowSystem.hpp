@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystem.hpp>
+#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Instance.hpp>
 

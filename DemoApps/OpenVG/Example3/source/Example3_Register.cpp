@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "Example3.hpp"
 #include <array>
+#include "Example3.hpp"
 
 namespace Fsl
 {

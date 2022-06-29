@@ -43,7 +43,7 @@ namespace Fsl
 
     std::string GetName() const override
     {
-      return std::string("DemoOptionParser");
+      return {"DemoOptionParser"};
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;

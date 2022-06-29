@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_VULKAN_CONFIG_PHYSICALDEVICEFEATUREREQUEST_HPP
 #define FSLDEMOHOST_VULKAN_CONFIG_PHYSICALDEVICEFEATUREREQUEST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,25 +34,22 @@
 #include <FslDemoHost/Vulkan/Config/FeatureRequirement.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeature.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct PhysicalDeviceFeatureRequest
   {
-    struct PhysicalDeviceFeatureRequest
+    PhysicalDeviceFeature Feature{PhysicalDeviceFeature::Invalid};
+    FeatureRequirement Requirement{FeatureRequirement::Invalid};
+
+    PhysicalDeviceFeatureRequest() = default;
+
+
+    PhysicalDeviceFeatureRequest(const PhysicalDeviceFeature feature, const FeatureRequirement requirement)
+      : Feature(feature)
+      , Requirement(requirement)
     {
-      PhysicalDeviceFeature Feature{PhysicalDeviceFeature::Invalid};
-      FeatureRequirement Requirement{FeatureRequirement::Invalid};
-
-      PhysicalDeviceFeatureRequest() = default;
-
-
-      PhysicalDeviceFeatureRequest(const PhysicalDeviceFeature feature, const FeatureRequirement requirement)
-        : Feature(feature)
-        , Requirement(requirement)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

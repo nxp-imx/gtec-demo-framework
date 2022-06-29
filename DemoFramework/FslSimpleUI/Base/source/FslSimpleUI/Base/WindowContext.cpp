@@ -29,26 +29,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WindowContext::WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<SpriteFont> defaultFont,
+                               const uint32_t densityDpi)
+    : BaseWindowContext(uiContext, densityDpi)
+    , DefaultFont(std::move(defaultFont))
   {
-    WindowContext::WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<SpriteFont> defaultFont,
-                                 const uint32_t densityDpi)
-      : BaseWindowContext(uiContext, densityDpi)
-      , DefaultFont(std::move(defaultFont))
+    if (!DefaultFont)
     {
-      if (!DefaultFont)
-      {
-        throw std::invalid_argument("defaultFont can not be null");
-      }
+      throw std::invalid_argument("defaultFont can not be null");
     }
-
-
-    WindowContext::~WindowContext() = default;
   }
+
+
+  WindowContext::~WindowContext() = default;
 }

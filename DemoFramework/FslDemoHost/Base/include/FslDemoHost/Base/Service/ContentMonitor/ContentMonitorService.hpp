@@ -32,12 +32,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/Concurrent/ConcurrentQueue_fwd.hpp>
-#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorResultCommand.hpp>
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/ContentMonitor/IContentMonitor.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
+#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorResultCommand.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <memory>
 
 namespace Fsl

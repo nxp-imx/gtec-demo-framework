@@ -31,10 +31,7 @@
 
 #include "UnitTestVertexAttribStateFunctor.hpp"
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
-  {
-    std::array<VertexAttribState, 32> UnitTestVertexAttribStateFunctor::GlobalState{};
-  }
+  std::array<VertexAttribState, 32> UnitTestVertexAttribStateFunctor::GlobalState{};
 }

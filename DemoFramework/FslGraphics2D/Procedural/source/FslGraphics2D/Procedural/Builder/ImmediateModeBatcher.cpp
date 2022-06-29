@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics2D/Procedural/Batcher/ImmediateModeBatcher.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/SpanRangeUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatcherAddMeshFlags.hpp>
+#include <FslGraphics2D/Procedural/Batcher/ImmediateModeBatcher.hpp>
 
 namespace Fsl
 {

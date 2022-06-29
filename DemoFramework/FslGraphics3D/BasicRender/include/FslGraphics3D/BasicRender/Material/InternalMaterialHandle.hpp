@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_MATERIAL_INTERNALMATERIALHANDLE_HPP
 #define FSLGRAPHICS3D_BASICRENDER_MATERIAL_INTERNALMATERIALHANDLE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,42 +33,39 @@
 
 #include <FslBase/Collections/HandleVectorConfig.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  struct InternalMaterialHandle
   {
-    struct InternalMaterialHandle
+    int32_t Value{HandleVectorConfig::InvalidHandle};
+
+    InternalMaterialHandle() noexcept = default;
+
+    constexpr explicit InternalMaterialHandle(const int32_t value) noexcept
+      : Value(value)
     {
-      int32_t Value{HandleVectorConfig::InvalidHandle};
+    }
 
-      InternalMaterialHandle() noexcept = default;
+    constexpr bool operator==(const InternalMaterialHandle& rhs) const noexcept
+    {
+      return Value == rhs.Value;
+    }
 
-      constexpr explicit InternalMaterialHandle(const int32_t value) noexcept
-        : Value(value)
-      {
-      }
+    constexpr bool operator!=(const InternalMaterialHandle& rhs) const noexcept
+    {
+      return Value != rhs.Value;
+    }
 
-      constexpr bool operator==(const InternalMaterialHandle& rhs) const noexcept
-      {
-        return Value == rhs.Value;
-      }
+    constexpr bool IsValid() const noexcept
+    {
+      return Value != HandleVectorConfig::InvalidHandle;
+    }
 
-      constexpr bool operator!=(const InternalMaterialHandle& rhs) const noexcept
-      {
-        return Value != rhs.Value;
-      }
-
-      constexpr bool IsValid() const noexcept
-      {
-        return Value != HandleVectorConfig::InvalidHandle;
-      }
-
-      static constexpr InternalMaterialHandle Invalid()
-      {
-        return {};
-      }
-    };
-  }
+    static constexpr InternalMaterialHandle Invalid()
+    {
+      return {};
+    }
+  };
 }
 
 #endif

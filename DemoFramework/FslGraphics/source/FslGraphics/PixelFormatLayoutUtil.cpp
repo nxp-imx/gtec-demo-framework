@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <array>

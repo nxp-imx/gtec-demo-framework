@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/CubeMapping/API/Vulkan/TextureUtil.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <Shared/CubeMapping/API/Vulkan/TextureUtil.hpp>
 #include <array>
 #include <cassert>
 

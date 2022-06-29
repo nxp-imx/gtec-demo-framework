@@ -7,7 +7,7 @@
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslSimpleUI.App.Theme" Access="Private"/>
-    <Dependency Name="FslSimpleUI.Controls.Charts"/>
+    <Dependency Name="FslSimpleUI.Controls.Charts.Common"/>
     <Dependency Name="FslSimpleUI.Render.IMBatch" Access="Private"/>
     <Dependency Name="Shared.UI.Benchmark.Persistence"/>
   </Library>

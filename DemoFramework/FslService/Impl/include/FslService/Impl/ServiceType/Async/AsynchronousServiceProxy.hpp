@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Consumer/IBasicService.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslService/Impl/Foundation/Message/IBasicMessageQueue.hpp>
+#include <FslService/Consumer/IBasicService.hpp>
 #include <FslService/Impl/Foundation/Message/FireAndForgetBasicMessage.hpp>
-#include <memory>
+#include <FslService/Impl/Foundation/Message/IBasicMessageQueue.hpp>
 #include <future>
+#include <memory>
 
 namespace Fsl
 {
@@ -48,6 +48,7 @@ namespace Fsl
     ProviderId m_id;
     std::weak_ptr<IBasicMessageQueue> m_serviceQueue;
     // std::shared_ptr<IMessagePool> m_messagePool;
+
   public:
     explicit AsynchronousServiceProxy(const AsynchronousServiceProxyCreateInfo& createInfo);
     ~AsynchronousServiceProxy() override;

@@ -35,35 +35,32 @@
 #include <FslGraphics/PrimitiveType.hpp>
 #include <cstddef>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  struct RawMeshContent
   {
-    struct RawMeshContent
+    const void* pVertices;
+    const void* pIndices;
+    std::size_t IndexCount;
+    std::size_t IndexStride;
+    std::size_t VertexCount;
+    std::size_t VertexStride;
+    PrimitiveType ThePrimitiveType;
+
+    RawMeshContent();
+    RawMeshContent(const void* const pTheVertices, const std::size_t vertexCount, const std::size_t vertexStride, const void* const pTheIndices,
+                   const std::size_t indexCount, const std::size_t indexStride, const PrimitiveType primitiveType);
+
+    std::size_t VertexArrayByteSize() const
     {
-      const void* pVertices;
-      const void* pIndices;
-      std::size_t IndexCount;
-      std::size_t IndexStride;
-      std::size_t VertexCount;
-      std::size_t VertexStride;
-      PrimitiveType ThePrimitiveType;
+      return VertexStride * VertexCount;
+    }
 
-      RawMeshContent();
-      RawMeshContent(const void* const pTheVertices, const std::size_t vertexCount, const std::size_t vertexStride, const void* const pTheIndices,
-                     const std::size_t indexCount, const std::size_t indexStride, const PrimitiveType primitiveType);
-
-      std::size_t VertexArrayByteSize() const
-      {
-        return VertexStride * VertexCount;
-      }
-
-      std::size_t IndexArrayByteSize() const
-      {
-        return IndexStride * IndexCount;
-      }
-    };
-  }
+    std::size_t IndexArrayByteSize() const
+    {
+      return IndexStride * IndexCount;
+    }
+  };
 }
 
 #endif

@@ -37,91 +37,88 @@
 #include <vulkan/vulkan.h>
 #include <cstdlib>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  // Contains all vulkan objects required for a uniform data object
+  //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  struct VulkanUniformData
   {
-    // Contains all vulkan objects required for a uniform data object
-    //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-    struct VulkanUniformData
+    RapidVulkan::Buffer Buffer;
+    RapidVulkan::Memory Memory;
+    VkDescriptorBufferInfo Descriptor;
+    uint32_t AllocSize;
+    void* pMapped;
+
+    VulkanUniformData(const VulkanUniformData&) = delete;
+    VulkanUniformData& operator=(const VulkanUniformData&) = delete;
+
+    //! @brief Move assignment operator
+    VulkanUniformData& operator=(VulkanUniformData&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    VulkanUniformData(VulkanUniformData&& other) noexcept;
+
+    //! @brief Move objects into this object
+    VulkanUniformData(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& deviceMemory, const VkDescriptorBufferInfo& descriptor,
+                      const uint32_t allocSize);
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    VulkanUniformData();
+
+    ~VulkanUniformData()
     {
-      RapidVulkan::Buffer Buffer;
-      RapidVulkan::Memory Memory;
-      VkDescriptorBufferInfo Descriptor;
-      uint32_t AllocSize;
-      void* pMapped;
+      Reset();
+    }
 
-      VulkanUniformData(const VulkanUniformData&) = delete;
-      VulkanUniformData& operator=(const VulkanUniformData&) = delete;
-
-      //! @brief Move assignment operator
-      VulkanUniformData& operator=(VulkanUniformData&& other) noexcept;
-
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      VulkanUniformData(VulkanUniformData&& other) noexcept;
-
-      //! @brief Move objects into this object
-      VulkanUniformData(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& deviceMemory, const VkDescriptorBufferInfo& descriptor,
-                        const uint32_t allocSize);
-
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      VulkanUniformData();
-
-      ~VulkanUniformData()
-      {
-        Reset();
-      }
-
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
 
 
-      //! @brief Get the associated 'Device'
-      VkDevice GetDevice() const
-      {
-        return Buffer.GetDevice();
-      }
+    //! @brief Get the associated 'Device'
+    VkDevice GetDevice() const
+    {
+      return Buffer.GetDevice();
+    }
 
-      //! @brief Get the associated 'buffer'
-      VkBuffer GetBuffer() const
-      {
-        return Buffer.Get();
-      }
+    //! @brief Get the associated 'buffer'
+    VkBuffer GetBuffer() const
+    {
+      return Buffer.Get();
+    }
 
-      //! @brief Get the associated 'buffer'
-      const VkBuffer* GetBufferPointer() const
-      {
-        return Buffer.GetPointer();
-      }
+    //! @brief Get the associated 'buffer'
+    const VkBuffer* GetBufferPointer() const
+    {
+      return Buffer.GetPointer();
+    }
 
-      //! @brief Get the associated 'memory'
-      VkDeviceMemory GetMemory() const
-      {
-        return Memory.Get();
-      }
+    //! @brief Get the associated 'memory'
+    VkDeviceMemory GetMemory() const
+    {
+      return Memory.Get();
+    }
 
-      //! @brief Check if this object contains a valid resource
-      inline bool IsValid() const
-      {
-        return Buffer.IsValid();
-      }
+    //! @brief Check if this object contains a valid resource
+    inline bool IsValid() const
+    {
+      return Buffer.IsValid();
+    }
 
-      //! @brief Map a memory range of this buffer. If successful, mapped points to the specified buffer range.
-      //! @param offset (Optional) Byte offset from beginning
-      //! @param size (Optional) Size of the memory range to map. Pass VK_WHOLE_SIZE to map the complete buffer range.
-      void Map(const VkDeviceSize offset = 0, const VkDeviceSize size = VK_WHOLE_SIZE);
+    //! @brief Map a memory range of this buffer. If successful, mapped points to the specified buffer range.
+    //! @param offset (Optional) Byte offset from beginning
+    //! @param size (Optional) Size of the memory range to map. Pass VK_WHOLE_SIZE to map the complete buffer range.
+    void Map(const VkDeviceSize offset = 0, const VkDeviceSize size = VK_WHOLE_SIZE);
 
-      //! @brief Unmap a mapped memory range
-      //! @note Does not return a result as vkUnmapMemory can't fail
-      void Unmap();
+    //! @brief Unmap a mapped memory range
+    //! @note Does not return a result as vkUnmapMemory can't fail
+    void Unmap();
 
-      // @brief Attach the allocated memory block to the buffer
-      // @param offset (Optional) Byte offset (from the beginning) for the memory region to bind
-      // @return VkResult of the bindBufferMemory call
-      void Bind(const VkDeviceSize offset = 0);
-    };
-  }
+    // @brief Attach the allocated memory block to the buffer
+    // @param offset (Optional) Byte offset (from the beginning) for the memory region to bind
+    // @return VkResult of the bindBufferMemory call
+    void Bind(const VkDeviceSize offset = 0);
+  };
 }
 
 #endif

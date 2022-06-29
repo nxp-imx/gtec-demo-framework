@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "SimpleBench.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include "SimpleBench.hpp"
 #include <VG/openvg.h>
-#include "PointBench.hpp"
 #include <array>
 #include <iostream>
+#include "PointBench.hpp"
 
 namespace Fsl
 {

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/GpuTimestamp/Shared.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
@@ -40,9 +39,12 @@
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
+#include <FslSimpleUI/Controls/Charts/Common/ChartGridLinesFps.hpp>
+#include <FslSimpleUI/Controls/Charts/Data/ChartDataView.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/GpuTimestamp/OptionParser.hpp>
+#include <Shared/GpuTimestamp/Shared.hpp>
 
 namespace Fsl
 {
@@ -81,9 +83,14 @@ namespace Fsl
   Shared::Shared(const DemoAppConfig& config, const bool chartSupported)
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
-    , m_data(std::make_shared<UI::AreaChartData>(config.WindowMetrics.ExtentPx.Width, LocalConfig::MaxProfileDataEntries))
+    , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), config.WindowMetrics.ExtentPx.Width, LocalConfig::MaxProfileDataEntries,
+                                             UI::ChartData::Constraints(0, {})))
     , m_dataAverage(LocalConfig::AverageEntries)
   {
+    // Configure the chart channel meta data
+    m_data->SetChannelMetaData(0, LocalConfig::ChartColor);
+
+
     std::shared_ptr<OptionParser> options = config.GetOptions<OptionParser>();
     m_defaultIterations = options->GetIterations();
 
@@ -101,8 +108,8 @@ namespace Fsl
 
   void Shared::SetProfileTime(const uint64_t time)
   {
-    UI::ChartComplexDataEntry entry;
-    entry.Values[0] = UncheckedNumericCast<uint32_t>(MathHelper::Clamp(time, uint64_t(0), uint64_t(0xFFFFFFFF)));
+    UI::ChartDataEntry entry;
+    entry.Values[0] = UncheckedNumericCast<uint32_t>(MathHelper::Clamp(time, static_cast<uint64_t>(0), static_cast<uint64_t>(0xFFFFFFFF)));
     m_data->Append(entry);
     m_dataAverage.Append(entry);
   }
@@ -193,7 +200,7 @@ namespace Fsl
   }
 
   Shared::UIRecord Shared::CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const uint16_t iterations,
-                                    const std::shared_ptr<UI::IChartComplexDataWindow>& data, const bool chartSupported)
+                                    const std::shared_ptr<UI::AChartData>& data, const bool chartSupported)
   {
     auto context = uiFactory.GetContext();
 
@@ -221,10 +228,11 @@ namespace Fsl
       chart->SetAlignmentY(UI::ItemAlignment::Stretch);
       chart->SetOpaqueFillSprite(uiFactory.GetResources().GetBasicFillSprite(true));
       chart->SetTransparentFillSprite(uiFactory.GetResources().GetBasicFillSprite(false));
-      chart->SetData(data);
+      chart->SetGridLines(std::make_unique<UI::ChartGridLinesFps>());
+      chart->SetDataView(data);
       chart->SetFont(uiFactory.GetResources().GetDefaultSpriteFont());
       chart->SetLabelBackground(uiFactory.GetResources().GetToolTipNineSliceSprite());
-      chart->SetEntryColor(0, LocalConfig::ChartColor);
+      chart->SetRenderPolicy(UI::ChartRenderPolicy::FillAvailable);
     }
 
     auto bottomGrid = std::make_shared<UI::GridLayout>(context);

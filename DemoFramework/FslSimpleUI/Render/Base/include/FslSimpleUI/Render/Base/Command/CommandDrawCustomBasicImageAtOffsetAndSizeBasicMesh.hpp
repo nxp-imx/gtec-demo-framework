@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_COMMAND_COMMANDDRAWCUSTOMBASICIMAGEATOFFSETANDSIZEBASICMESH_HPP
 #define FSLSIMPLEUI_RENDER_BASE_COMMAND_COMMANDDRAWCUSTOMBASICIMAGEATOFFSETANDSIZEBASICMESH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,50 +33,47 @@
 
 #include <FslSimpleUI/Render/Base/Command/EncodedCommand.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh final : private EncodedCommand
   {
-    struct CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh final : private EncodedCommand
+    constexpr explicit CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh(const EncodedCommand& command) noexcept
+      : EncodedCommand(command)
     {
-      constexpr explicit CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh(const EncodedCommand& command) noexcept
-        : EncodedCommand(command)
-      {
-        assert(command.Type == DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh);
-      }
+      assert(command.Type == DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh);
+    }
 
-      constexpr MeshHandle GetMesh() const noexcept
-      {
-        return Mesh;
-      }
+    constexpr MeshHandle GetMesh() const noexcept
+    {
+      return Mesh;
+    }
 
-      constexpr const PxVector2& GetDstPositionPxf() const noexcept
-      {
-        return DstPositionPxf;
-      }
+    constexpr const PxVector2& GetDstPositionPxf() const noexcept
+    {
+      return DstPositionPxf;
+    }
 
-      constexpr const PxSize2D& GetDstSizePx() const noexcept
-      {
-        return DstSizePx;
-      }
+    constexpr const PxSize2D& GetDstSizePx() const noexcept
+    {
+      return DstSizePx;
+    }
 
-      constexpr Color GetDstColor() const noexcept
-      {
-        return DstColor;
-      }
+    constexpr Color GetDstColor() const noexcept
+    {
+      return DstColor;
+    }
 
-      constexpr uint32_t CustomDrawFunctionIndex() const noexcept
-      {
-        return Custom0;
-      }
+    constexpr uint32_t CustomDrawFunctionIndex() const noexcept
+    {
+      return Custom0;
+    }
 
-      inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
-                                                    const Color& dstColor, const uint32_t customDrawFunctionIndex) noexcept
-      {
-        return {DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh, hMesh, dstPositionPxf, dstSizePx, dstColor, customDrawFunctionIndex};
-      }
-    };
-  }
+    inline constexpr static EncodedCommand Encode(const MeshHandle hMesh, const PxVector2& dstPositionPxf, const PxSize2D dstSizePx,
+                                                  const Color& dstColor, const uint32_t customDrawFunctionIndex) noexcept
+    {
+      return {DrawCommandType::DrawCustomBasicImageAtOffsetAndSizeBasicMesh, hMesh, dstPositionPxf, dstSizePx, dstColor, customDrawFunctionIndex};
+    }
+  };
 }
 
 #endif

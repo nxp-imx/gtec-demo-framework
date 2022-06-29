@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,18 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include "RenderScene.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
-#include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -90,8 +90,8 @@ namespace Fsl
       if (generateMipMaps && pTextureService != nullptr)
       {
         FSLLOG3_INFO("- Generating mipmaps");
-        Optional<Texture> result = pTextureService->TryGenerateMipMaps(bitmap, TextureMipMapFilter::Box);
-        if (result.HasValue())
+        std::optional<Texture> result = pTextureService->TryGenerateMipMaps(bitmap, TextureMipMapFilter::Box);
+        if (result.has_value())
         {
           FSLLOG3_INFO("- Creating texture");
           return CreateTexture(device, deviceQueue, *result, filter, addressMode);
@@ -156,7 +156,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     Vulkan::VUBufferMemory CreateUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -255,7 +255,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
   }
 
@@ -465,9 +465,10 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
-                         vulkanClipMatrix;
+    m_matrixProjection =
+      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
+                                           static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
+      vulkanClipMatrix;
     m_uboData.MatWorldView = m_matrixWorld * m_matrixView;
     m_uboData.MatWorldViewProjection = m_uboData.MatWorldView * m_matrixProjection;
 
@@ -661,6 +662,6 @@ namespace Fsl
     graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-    return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+    return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
   }
 }

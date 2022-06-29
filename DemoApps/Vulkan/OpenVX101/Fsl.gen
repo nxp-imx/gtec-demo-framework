@@ -3,7 +3,7 @@
   <Executable Name="Vulkan.OpenVX101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslDemoService.NativeGraphics.Vulkan"/>
-    <Dependency Name="FslUtil.OpenVX1_1"/>
+    <Dependency Name="FslUtil.OpenVX1_2"/>
     <Dependency Name="OpenVX"/>
   </Executable>
 </FslBuildGen>

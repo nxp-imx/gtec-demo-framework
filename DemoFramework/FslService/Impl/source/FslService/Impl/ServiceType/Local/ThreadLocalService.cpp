@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
 namespace Fsl
 {

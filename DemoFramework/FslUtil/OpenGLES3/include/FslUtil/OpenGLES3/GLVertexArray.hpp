@@ -32,95 +32,92 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Attributes.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
-#include <FslBase/Attributes.hpp>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLVertexArray
   {
-    class GLVertexArray
+    GLuint m_handle;
+
+  public:
+    GLVertexArray(const GLVertexArray&) = delete;
+    GLVertexArray& operator=(const GLVertexArray&) = delete;
+
+    //! @brief Move assignment operator
+    GLVertexArray& operator=(GLVertexArray&& other) noexcept
     {
-      GLuint m_handle;
-
-    public:
-      GLVertexArray(const GLVertexArray&) = delete;
-      GLVertexArray& operator=(const GLVertexArray&) = delete;
-
-      //! @brief Move assignment operator
-      GLVertexArray& operator=(GLVertexArray&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          m_handle = other.m_handle;
-
-          // Remove the data from other
-          other.m_handle = GLValues::INVALID_HANDLE;
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLVertexArray(GLVertexArray&& other) noexcept
-        : m_handle(other.m_handle)
-      {
+        // Claim ownership here
+        m_handle = other.m_handle;
+
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
       }
+      return *this;
+    }
 
-      //! @brief Create a uninitialized VertexArray
-      GLVertexArray();
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLVertexArray(GLVertexArray&& other) noexcept
+      : m_handle(other.m_handle)
+    {
+      // Remove the data from other
+      other.m_handle = GLValues::INVALID_HANDLE;
+    }
 
-      //! @brief Create a initialized buffer
-      //! @param bInitialize if true the VertexArray is initialized (the param really only exist to differentiate it from the empty constructor)
-      explicit GLVertexArray(const bool bInitialize);
+    //! @brief Create a uninitialized VertexArray
+    GLVertexArray();
 
-      ~GLVertexArray();
+    //! @brief Create a initialized buffer
+    //! @param bInitialize if true the VertexArray is initialized (the param really only exist to differentiate it from the empty constructor)
+    explicit GLVertexArray(const bool bInitialize);
 
-      //! @brief If a VertexArray is allocated this will releases it.
-      void Reset() noexcept;
+    ~GLVertexArray();
 
-      //! @brief Create a initialized buffer
-      //! @param bInitialize if true the VertexArray is initialized (the param really only exist to differentiate it from the empty constructor)
-      void Reset(const bool bInitialize);
+    //! @brief If a VertexArray is allocated this will releases it.
+    void Reset() noexcept;
 
-      //! @brief Check if this VertexArray contains a valid gl handle.
-      bool IsValid() const
-      {
-        return m_handle != GLValues::INVALID_HANDLE;
-      }
+    //! @brief Create a initialized buffer
+    //! @param bInitialize if true the VertexArray is initialized (the param really only exist to differentiate it from the empty constructor)
+    void Reset(const bool bInitialize);
 
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      GLuint Get() const
-      {
-        return m_handle;
-      }
+    //! @brief Check if this VertexArray contains a valid gl handle.
+    bool IsValid() const
+    {
+      return m_handle != GLValues::INVALID_HANDLE;
+    }
 
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return m_handle;
-      }
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    GLuint Get() const
+    {
+      return m_handle;
+    }
 
-      //! @brief Bind the vertex array
-      void Bind() const;
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
+    {
+      return m_handle;
+    }
 
-      //! @brief Unbind the vertex array
-      void Unbind() const;
-    };
-  }
+    //! @brief Bind the vertex array
+    void Bind() const;
+
+    //! @brief Unbind the vertex array
+    void Unbind() const;
+  };
 }
 
 #endif

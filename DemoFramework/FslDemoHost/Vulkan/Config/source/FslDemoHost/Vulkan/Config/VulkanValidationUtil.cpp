@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,38 +29,35 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <RapidVulkan/Check.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  namespace VulkanValidationUtil
   {
-    namespace VulkanValidationUtil
+    void CheckWindowAndSurfaceExtent(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface, const PxExtent2D& windowExtent)
     {
-      void CheckWindowAndSurfaceExtent(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface, const PxExtent2D& windowExtent)
-      {
-        VkSurfaceCapabilitiesKHR surfaceCapabilities{};
-        RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
+      VkSurfaceCapabilitiesKHR surfaceCapabilities{};
+      RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
 
-        // Deal with the special undefined surface extent
-        // https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html#vkGetPhysicalDeviceSurfaceCapabilitiesKHR
-        if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF && surfaceCapabilities.currentExtent.height == 0xFFFFFFFF)
-        {
-          FSLLOG3_VERBOSE4("Skipping vulkan native window and surface extent comparison due to the surface not being defined.")
-        }
-        else if (TypeConverter::UncheckedTo<PxExtent2D>(surfaceCapabilities.currentExtent) != windowExtent)
-        {
-          throw InitFailedException(fmt::format("The Vulkan surface extent did not match the window extent. Screen: {} vs surface: {}x{}",
-                                                windowExtent, surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height));
-        }
+      // Deal with the special undefined surface extent
+      // https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html#vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+      if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF && surfaceCapabilities.currentExtent.height == 0xFFFFFFFF)
+      {
+        FSLLOG3_VERBOSE4("Skipping vulkan native window and surface extent comparison due to the surface not being defined.")
       }
-    };
-  }
+      else if (TypeConverter::UncheckedTo<PxExtent2D>(surfaceCapabilities.currentExtent) != windowExtent)
+      {
+        throw InitFailedException(fmt::format("The Vulkan surface extent did not match the window extent. Screen: {} vs surface: {}x{}", windowExtent,
+                                              surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height));
+      }
+    }
+  };
 }

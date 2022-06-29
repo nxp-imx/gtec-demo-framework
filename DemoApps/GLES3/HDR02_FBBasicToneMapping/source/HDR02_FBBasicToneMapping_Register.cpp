@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
-#include <EGL/egl.h>
-#include "HDR02_FBBasicToneMapping.hpp"
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
+#include <EGL/egl.h>
 #include <array>
+#include "HDR02_FBBasicToneMapping.hpp"
 
 namespace Fsl
 {

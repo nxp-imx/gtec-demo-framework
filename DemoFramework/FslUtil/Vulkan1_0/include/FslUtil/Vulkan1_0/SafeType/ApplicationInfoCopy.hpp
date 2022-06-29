@@ -36,41 +36,38 @@
 #include <vulkan/vulkan.h>
 #include <string>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // A 'safe' variant of the VkApplicationInfo structure.
+  // This one stores the 'pointed' to values inside it
+  class ApplicationInfoCopy
   {
-    // A 'safe' variant of the VkApplicationInfo structure.
-    // This one stores the 'pointed' to values inside it
-    class ApplicationInfoCopy
+    VkApplicationInfo m_value;
+    std::string m_applicationName;
+    std::string m_engineName;
+
+  public:
+    ApplicationInfoCopy(const ApplicationInfoCopy&) = delete;
+    ApplicationInfoCopy& operator=(const ApplicationInfoCopy&) = delete;
+
+    ApplicationInfoCopy& operator=(ApplicationInfoCopy&& other) noexcept;
+    ApplicationInfoCopy(ApplicationInfoCopy&& other) noexcept;
+
+    ApplicationInfoCopy();
+    explicit ApplicationInfoCopy(const VkApplicationInfo& value);
+    explicit ApplicationInfoCopy(const VkApplicationInfo* const pValue);
+
+
+    const VkApplicationInfo& Get() const
     {
-      VkApplicationInfo m_value;
-      std::string m_applicationName;
-      std::string m_engineName;
+      return m_value;
+    }
 
-    public:
-      ApplicationInfoCopy(const ApplicationInfoCopy&) = delete;
-      ApplicationInfoCopy& operator=(const ApplicationInfoCopy&) = delete;
-
-      ApplicationInfoCopy& operator=(ApplicationInfoCopy&& other) noexcept;
-      ApplicationInfoCopy(ApplicationInfoCopy&& other) noexcept;
-
-      ApplicationInfoCopy();
-      explicit ApplicationInfoCopy(const VkApplicationInfo& value);
-      explicit ApplicationInfoCopy(const VkApplicationInfo* const pValue);
-
-
-      const VkApplicationInfo& Get() const
-      {
-        return m_value;
-      }
-
-    private:
-      // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
-      // @note  This ensures correct behavior when moving etc
-      void PatchPointers();
-    };
-  }
+  private:
+    // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
+    // @note  This ensures correct behavior when moving etc
+    void PatchPointers();
+  };
 }
 
 #endif

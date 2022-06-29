@@ -62,7 +62,7 @@ namespace Fsl
 
     bool IsValid() const
     {
-      return bool(Material);
+      return static_cast<bool>(Material);
     }
 
     bool operator==(const SpriteMaterialInfo& rhs) const
@@ -77,7 +77,7 @@ namespace Fsl
 
     static SpriteMaterialInfo Invalid()
     {
-      return SpriteMaterialInfo();
+      return {};
     }
   };
 }

@@ -33,15 +33,12 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  namespace VertexAttribConfig
   {
-    namespace VertexAttribConfig
-    {
-      constexpr const uint16_t MaxAttribCount = 8;
-    };
-  }
+    constexpr const uint16_t MaxAttribCount = 8;
+  };
 }
 
 #endif

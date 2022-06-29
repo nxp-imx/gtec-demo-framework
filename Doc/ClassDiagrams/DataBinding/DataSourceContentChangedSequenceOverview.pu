@@ -1,0 +1,77 @@
+@startuml FslDemoService.DataBinding Overview
+
+title Data source collection content changed overview (skips details). 
+caption Here DataSource is used as a source for UIControl
+
+participant UIControl
+participant TypedDependencyProperty_Collection
+participant ScopedDependencyObject
+participant DataSource
+participant ScopedDataSourceObject
+participant DataBindingService
+
+activate DataBindingService
+
+== Construct ==
+
+-->DataSource++: Construct
+DataSource->ScopedDataSourceObject++: Construct
+ScopedDataSourceObject->DataBindingService: CreateDataSourceObject(observable)
+
+...
+
+-->UIControl++: Construct
+UIControl->ScopedDependencyObject++: Construct
+ScopedDependencyObject->DataBindingService: CreateDependencyObject
+UIControl->TypedDependencyProperty_Collection++: Construct
+' The property is associated with the instance and is also destroyed when the instance is destroyed
+TypedDependencyProperty_Collection->ScopedDependencyObject: CreateProperty
+ScopedDependencyObject->DataBindingService: CreateProperty
+TypedDependencyProperty_Collection->ScopedDependencyObject: CreateObserverProperty
+ScopedDependencyObject->DataBindingService: CreateObserverProperty
+
+...
+== Set Property ==
+
+UIControl->TypedDependencyProperty_Collection: Set
+TypedDependencyProperty_Collection->ScopedDependencyObject: PropertyChanged(hPropertyInstance)
+ScopedDependencyObject->DataBindingService: PropertyChanged(hPropertyInstance)
+TypedDependencyProperty_Collection->ScopedDependencyObject: SetBinding(hObserverProperty, hObservableCollection)
+ScopedDependencyObject->DataBindingService: SetBinding
+
+...
+== Date source collection changed ==
+
+-->DataSource: Changed
+DataSource->ScopedDataSourceObject: Changed
+ScopedDataSourceObject->DataBindingService: Changed
+
+...
+== Execute changes ==
+
+-->DataBindingService: ExecuteChanges
+DataBindingService->UIControl: OnDataSourceContentChanged
+
+...
+== Destruct ==
+
+-->UIControl: Destruct
+UIControl->TypedDependencyProperty_Collection: Destruct
+deactivate TypedDependencyProperty_Collection
+UIControl->ScopedDependencyObject: Destruct
+ScopedDependencyObject->DataBindingService: DestroyInstance(hPropertyInstance)
+deactivate ScopedDependencyObject
+deactivate UIControl
+
+...
+-->DataSource: Destruct
+DataSource->ScopedDataSourceObject: Destruct
+ScopedDataSourceObject->DataBindingService: DestroyInstance
+deactivate ScopedDataSourceObject
+deactivate DataSource
+
+
+...
+
+@enduml
+

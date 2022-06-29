@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDERBASE_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDERBASE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/ThicknessF.hpp>
 #include <FslBase/Math/Pixel/PxRectangle2D.hpp>
+#include <FslBase/Math/ThicknessF.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinition.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
+#include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslSimpleUI/Base/Control/SliderContentChangedReason.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderLogic.hpp>
+#include <FslSimpleUI/Base/Control/SliderContentChangedReason.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
@@ -45,239 +50,286 @@
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  template <typename T>
+  class SliderBase : public BaseWindow
   {
-    template <typename T>
-    class SliderBase : public BaseWindow
+  public:
+    using value_type = T;
+
+  protected:
+    const std::shared_ptr<WindowContext> m_windowContext;
+
+  private:
+    LayoutOrientation m_orientation{LayoutOrientation::Horizontal};
+    LayoutDirection m_direction{LayoutDirection::NearToFar};
+
+    SliderLogic<value_type> m_logic;
+    typename DataBinding::TypedDependencyProperty<value_type> m_propertyValue;
+
+  public:
+    explicit SliderBase(const std::shared_ptr<WindowContext>& context)
+      : BaseWindow(context)
+      , m_windowContext(context)
+      , m_logic(SliderConstrainedValue<value_type>(value_type(0), value_type(0), value_type(100)))
     {
-    public:
-      using value_type = T;
+      SyncLogicAndProperty();
+    }
 
-    protected:
-      const std::shared_ptr<WindowContext> m_windowContext;
+    //! @brief Check if the slider is being dragged or not
+    bool IsDragging() const
+    {
+      return m_logic.IsDragging();
+    }
 
-    private:
-      LayoutOrientation m_orientation{LayoutOrientation::Horizontal};
-      LayoutDirection m_direction{LayoutDirection::NearToFar};
+    LayoutOrientation GetOrientation() const
+    {
+      return m_orientation;
+    }
 
-      SliderLogic<value_type> m_logic;
+    LayoutDirection GetDirection() const
+    {
+      return m_direction;
+    }
 
-    public:
-      explicit SliderBase(const std::shared_ptr<WindowContext>& context)
-        : BaseWindow(context)
-        , m_windowContext(context)
-        , m_logic(SliderConstrainedValue<value_type>(value_type(0), value_type(0), value_type(100)))
+    bool IsEnabled() const
+    {
+      return m_logic.IsEnabled();
+    }
+
+    value_type GetMinValue() const
+    {
+      return m_logic.Min();
+    }
+
+    value_type GetMaxValue() const
+    {
+      return m_logic.Max();
+    }
+
+    value_type GetTickFrequency() const
+    {
+      return m_logic.GetTickFrequency();
+    }
+
+    bool SetOrientation(const LayoutOrientation orientation)
+    {
+      if (orientation != m_orientation)
       {
+        m_orientation = orientation;
+        PropertyUpdated(PropertyType::Layout);
+        return true;
       }
+      return false;
+    }
 
-      //! @brief Check if the slider is being dragged or not
-      bool IsDragging() const
+    void SetDirection(const LayoutDirection direction)
+    {
+      if (direction != m_direction)
       {
-        return m_logic.IsDragging();
+        m_direction = direction;
+        PropertyUpdated(PropertyType::Layout);
       }
+    }
 
-      LayoutOrientation GetOrientation() const
+    //! @brief When disabled the slider can not be edited by the user
+    bool SetEnabled(const bool enabled)
+    {
+      auto flags = m_logic.SetEnabled(enabled);
+      SyncLogicAndProperty();
+      if (SliderResultFlagsUtil::IsFlagged(flags, SliderResultFlags::Completed))
       {
-        return m_orientation;
-      }
-
-      LayoutDirection GetDirection() const
-      {
-        return m_direction;
-      }
-
-      bool IsEnabled() const
-      {
-        return m_logic.IsEnabled();
-      }
-
-      value_type GetValue() const
-      {
-        return m_logic.GetValue();
-      }
-
-      value_type GetMinValue() const
-      {
-        return m_logic.Min();
-      }
-
-      value_type GetMaxValue() const
-      {
-        return m_logic.Max();
-      }
-
-      value_type GetTickFrequency() const
-      {
-        return m_logic.GetTickFrequency();
-      }
-
-      bool SetOrientation(const LayoutOrientation orientation)
-      {
-        if (orientation != m_orientation)
+        PropertyUpdated(PropertyType::Other);
+        if (SliderResultFlagsUtil::IsFlagged(flags, SliderResultFlags::DragCancelled))
         {
-          m_orientation = orientation;
-          PropertyUpdated(PropertyType::Layout);
-          return true;
+          DoSendWindowContentChangedEvent(SliderContentChangedReason::DragCanceled);
         }
-        return false;
+        return true;
+      }
+      return false;
+    }
+
+    value_type GetValue() const
+    {
+      return m_logic.GetValue();
+    }
+
+    bool SetValue(const value_type value)
+    {
+      if (!IsReadOnly() && m_logic.SetValue(value))
+      {
+        SyncLogicAndProperty();
+        PropertyUpdated(PropertyType::ContentDraw);
+        DoSendWindowContentChangedEvent(SliderContentChangedReason::Set);
+        return true;
+      }
+      return false;
+    }
+
+    bool AddValue(const value_type value)
+    {
+      const auto range = m_logic.Max() - m_logic.Min();
+      if (value <= range && m_logic.GetValue() <= (m_logic.Max() - value))
+      {
+        return SetValue(m_logic.GetValue() + value);
+      }
+      return SetValue(m_logic.Max());
+    }
+
+    bool SubValue(const value_type value)
+    {
+      const auto range = m_logic.Max() - m_logic.Min();
+      if (value <= range && m_logic.GetValue() >= (m_logic.Min() + value))
+      {
+        return SetValue(m_logic.GetValue() - value);
+      }
+      return SetValue(m_logic.Min());
+    }
+
+    bool SetRange(const value_type min, const value_type max)
+    {
+      if (m_logic.SetRange(min, max))
+      {
+        SyncLogicAndProperty();
+        PropertyUpdated(PropertyType::Other);
+        DoSendWindowContentChangedEvent(SliderContentChangedReason::Set);
+        return true;
+      }
+      return false;
+    }
+
+    bool SetTickFrequency(const value_type tickFrequency)
+    {
+      if (m_logic.SetTickFrequency(tickFrequency))
+      {
+        SyncLogicAndProperty();
+        PropertyUpdated(PropertyType::Other);
+        DoSendWindowContentChangedEvent(SliderContentChangedReason::Set);
+        return true;
+      }
+      return false;
+    }
+
+  protected:
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    {
+      FSL_PARAM_NOT_USED(args);
+
+      if (!m_logic.IsEnabled())
+      {
+        return;
       }
 
-      void SetDirection(const LayoutDirection direction)
-      {
-        if (direction != m_direction)
+      auto pos = PointFromScreen(theEvent->GetScreenPosition());
+      auto offsetPx = (m_orientation == LayoutOrientation::Horizontal ? pos.X : pos.Y);
+      if (!m_logic.IsDragging())
+      {    // Not currently dragging, so check if we should begin
+        if (!IsReadOnly() && theEvent->IsBegin() && !theEvent->IsRepeat())
         {
-          m_direction = direction;
-          PropertyUpdated(PropertyType::Layout);
-        }
-      }
+          const auto renderExtent = RenderExtentPx();
+          PxRectangle2D barClickRect(0, 0, renderExtent.Width, renderExtent.Height);
 
-      //! @brief When disabled the slider can not be edited by the user
-      bool SetEnabled(const bool enabled)
-      {
-        auto flags = m_logic.SetEnabled(enabled);
-        if (SliderResultFlagsUtil::IsFlagged(flags, SliderResultFlags::Completed))
-        {
-          PropertyUpdated(PropertyType::Other);
-          if (SliderResultFlagsUtil::IsFlagged(flags, SliderResultFlags::DragCancelled))
+          if (barClickRect.Contains(pos))
           {
-            DoSendWindowContentChangedEvent(SliderContentChangedReason::DragCanceled);
-          }
-          return true;
-        }
-        return false;
-      }
-
-      bool SetValue(const value_type& value)
-      {
-        if (m_logic.SetValue(value))
-        {
-          PropertyUpdated(PropertyType::Content);
-          DoSendWindowContentChangedEvent(SliderContentChangedReason::Set);
-          return true;
-        }
-        return false;
-      }
-
-      bool AddValue(const value_type value)
-      {
-        const auto range = m_logic.Max() - m_logic.Min();
-        if (value <= range && m_logic.GetValue() <= (m_logic.Max() - value))
-        {
-          return SetValue(m_logic.GetValue() + value);
-        }
-        return SetValue(m_logic.Max());
-      }
-
-      bool SubValue(const value_type value)
-      {
-        const auto range = m_logic.Max() - m_logic.Min();
-        if (value <= range && m_logic.GetValue() >= (m_logic.Min() + value))
-        {
-          return SetValue(m_logic.GetValue() - value);
-        }
-        return SetValue(m_logic.Min());
-      }
-
-      bool SetRange(const value_type min, const value_type max)
-      {
-        if (m_logic.SetRange(min, max))
-        {
-          PropertyUpdated(PropertyType::Other);
-          DoSendWindowContentChangedEvent(SliderContentChangedReason::Set);
-          return true;
-        }
-        return false;
-      }
-
-      bool SetTickFrequency(const value_type tickFrequency)
-      {
-        if (m_logic.SetTickFrequency(tickFrequency))
-        {
-          PropertyUpdated(PropertyType::Other);
-          DoSendWindowContentChangedEvent(SliderContentChangedReason::Set);
-          return true;
-        }
-        return false;
-      }
-
-    protected:
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
-      {
-        FSL_PARAM_NOT_USED(args);
-
-        if (!m_logic.IsEnabled())
-        {
-          return;
-        }
-
-        auto pos = PointFromScreen(theEvent->GetScreenPosition());
-        auto offsetPx = (m_orientation == LayoutOrientation::Horizontal ? pos.X : pos.Y);
-        if (!m_logic.IsDragging())
-        {
-          if (theEvent->IsBegin() && !theEvent->IsRepeat())
-          {
-            const auto renderExtent = RenderExtentPx();
-            PxRectangle2D barClickRect(0, 0, renderExtent.Width, renderExtent.Height);
-
-            if (barClickRect.Contains(pos))
+            if (m_logic.TryBeginDrag(offsetPx))
             {
-              if (m_logic.TryBeginDrag(offsetPx))
-              {
-                DoSendWindowContentChangedEvent(SliderContentChangedReason::DragBegin);
-                theEvent->Handled();
-              }
+              SyncLogicAndProperty();
+              DoSendWindowContentChangedEvent(SliderContentChangedReason::DragBegin);
+              theEvent->Handled();
             }
+          }
+        }
+      }
+      else
+      {
+        if (theEvent->IsBegin() && theEvent->IsRepeat())
+        {
+          auto initialValue = m_logic.GetValue();
+          if (m_logic.TryDrag(offsetPx) && m_logic.GetValue() != initialValue)
+          {
+            SyncLogicAndProperty();
+            DoSendWindowContentChangedEvent(SliderContentChangedReason::Drag);
           }
         }
         else
         {
-          if (theEvent->IsBegin() && theEvent->IsRepeat())
+          if (m_logic.EndDrag(offsetPx))
           {
-            auto initialValue = m_logic.GetValue();
-            if (m_logic.TryDrag(offsetPx) && m_logic.GetValue() != initialValue)
-            {
-              DoSendWindowContentChangedEvent(SliderContentChangedReason::Drag);
-            }
+            SyncLogicAndProperty();
+            DoSendWindowContentChangedEvent(SliderContentChangedReason::DragEnd);
           }
-          else
-          {
-            if (m_logic.EndDrag(offsetPx))
-            {
-              DoSendWindowContentChangedEvent(SliderContentChangedReason::DragEnd);
-            }
-          }
-          theEvent->Handled();
         }
+        theEvent->Handled();
       }
+    }
 
-      int32_t GetCursorPositionPx() const
-      {
-        return m_logic.GetPositionPx();
-      }
+    int32_t GetCursorPositionPx() const
+    {
+      return m_logic.GetPositionPx();
+    }
 
-      const SliderPixelSpanInfo& GetRenderInfo() const
-      {
-        return m_logic.GetSpanInfo();
-      }
+    const SliderPixelSpanInfo& GetRenderInfo() const
+    {
+      return m_logic.GetSpanInfo();
+    }
 
-      //! @brief Allow the inheriting class to set the render information
-      inline void SetSpanInfo(const SliderPixelSpanInfo& spanInfo)
-      {
-        m_logic.SetSpanInfo(spanInfo);
-      }
+    //! @brief Allow the inheriting class to set the render information
+    inline void SetSpanInfo(const SliderPixelSpanInfo& spanInfo)
+    {
+      m_logic.SetSpanInfo(spanInfo);
+      SyncLogicAndProperty();
+    }
 
-    private:
-      void DoSendWindowContentChangedEvent(SliderContentChangedReason reason)
+  private:
+    void DoSendWindowContentChangedEvent(SliderContentChangedReason reason)
+    {
+      if (IsReadyToSendEvents())
       {
-        if (IsReadyToSendEvents())
-        {
-          SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0, static_cast<int32_t>(m_logic.GetValue()), static_cast<int32_t>(reason)));
-        }
+        SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0, static_cast<int32_t>(m_logic.GetValue()), static_cast<int32_t>(reason)));
       }
-    };
-  }
+    }
+
+    bool IsReadOnly() const noexcept
+    {
+      return m_propertyValue.IsReadOnly(ThisDependencyObject());
+    }
+
+    void SyncLogicAndProperty()
+    {
+      if (!IsReadOnly() && m_logic.GetValue() != m_propertyValue.Get())
+      {
+        m_propertyValue.Set(ThisDependencyObject(), m_logic.GetValue());
+      }
+    }
+
+
+  public:
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyValue =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<value_type, SliderBase, &SliderBase::GetValue, &SliderBase::SetValue>("Value");
+
+  protected:
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) final
+    {
+      auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                           DataBinding::PropLinkRefs(SliderBase::PropertyValue, m_propertyValue));
+      return res.IsValid() ? res : BaseWindow::TryGetPropertyHandleNow(sourceDef);
+    }
+
+    DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                           const DataBinding::Binding& binding) final
+    {
+      auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                    DataBinding::PropLinkRefs(SliderBase::PropertyValue, m_propertyValue));
+      return res != DataBinding::PropertySetBindingResult::NotFound ? res : BaseWindow::TrySetBindingNow(targetDef, binding);
+    }
+
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) final
+    {
+      BaseWindow::ExtractAllProperties(rProperties);
+      rProperties.push_back(SliderBase::PropertyValue);
+    }
+  };
 }
 
 #endif

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxThicknessU.hpp>
+#include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

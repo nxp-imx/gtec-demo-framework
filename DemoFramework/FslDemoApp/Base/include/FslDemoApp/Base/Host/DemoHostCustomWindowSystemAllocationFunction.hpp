@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
 #include <functional>
 #include <memory>
-#include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
 
 namespace Fsl
 {

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/App/TestApp.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxViewport.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
@@ -43,18 +42,19 @@
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformWrapLayout.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/Benchmark/Activity/ActivityStack.hpp>
 #include <Shared/UI/Benchmark/App/SimpleDialogActivityFactory.hpp>
+#include <Shared/UI/Benchmark/App/TestApp.hpp>
 
 
 namespace Fsl
@@ -68,8 +68,27 @@ namespace Fsl
     m_controlFactory =
       UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension, false, createInfo.RenderCreateInfo.MaterialCreateInfo.DisableOpaqueMaterials);
 
+    // if (true)
+    //{
     m_uiProfile = CreateUI(*m_controlFactory);
     m_uiExtension->SetMainWindow(m_uiProfile.Layout);
+    //}
+    // else
+    //{
+    //  auto lbl0 = m_controlFactory->CreateLabel("L0");
+    //  auto lbl1 = m_controlFactory->CreateLabel("L1");
+    //  auto img2 = m_controlFactory->CreateImage(m_controlFactory->GetResources().GetBasicFillSprite());
+    //  auto lbl3 = m_controlFactory->CreateLabel("L3");
+    //  lbl1->SetAlignmentX(UI::ItemAlignment::Far);
+    //  img2->SetContentColor(Color::Black());
+    //  auto custom = std::make_shared<UI::FillLayout>(m_controlFactory->GetContext());
+    //  custom->AddChild(lbl0);
+    //  custom->AddChild(lbl1);
+    //  custom->AddChild(img2);
+    //  custom->AddChild(lbl3);
+    //  m_uiExtension->SetMainWindow(custom);
+    //}
+
 
     // m_uiProfile.ActivityStack->Push(std::make_shared<UI::SimpleDialogActivity>(m_uiProfile.ActivityStack, m_controlFactory));
 
@@ -135,15 +154,25 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::Space:
-    {
-      SetDefaultValues();
-      break;
-    }
+      {
+        SetDefaultValues();
+        break;
+      }
     default:
       break;
     }
   }
 
+
+  Color TestApp::GetRootColor() const
+  {
+    return m_uiProfile.Layout ? m_uiProfile.Layout->GetBaseColor() : Color::White();
+  }
+
+  bool TestApp::TrySetRootColor(const Color color)
+  {
+    return m_uiProfile.Layout->SetBaseColor(color);
+  }
 
   const UI::IRenderSystemBase& TestApp::GetRenderSystem() const
   {
@@ -186,7 +215,10 @@ namespace Fsl
     FSL_PARAM_NOT_USED(demoTime);
     // const bool hasActivities = !m_uiProfile.ActivityStack->IsEmpty();
 
-    m_uiProfile.AppLayout->SetBaseColor(m_uiProfile.ActivityStack->GetDesiredParentColor());
+    if (m_uiProfile.ActivityStack)
+    {
+      m_uiProfile.AppLayout->SetBaseColor(m_uiProfile.ActivityStack->GetDesiredParentColor());
+    }
   }
 
   void TestApp::Draw()
@@ -279,8 +311,8 @@ namespace Fsl
     auto middleLayout = std::make_shared<UI::UniformWrapLayout>(context);
     middleLayout->SetAlignmentX(UI::ItemAlignment::Center);
     middleLayout->SetAlignmentY(UI::ItemAlignment::Center);
-    middleLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
-    middleLayout->SetSpacing(DpPointF(4.0f, 4.0f));
+    middleLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
+    middleLayout->SetSpacing(DpPoint2F::Create(4.0f, 4.0f));
     middleLayout->AddChild(window0);
     middleLayout->AddChild(window1);
     middleLayout->AddChild(window2);
@@ -315,7 +347,7 @@ namespace Fsl
 
     auto bottomLayout = std::make_shared<UI::UniformStackLayout>(context);
     bottomLayout->SetAlignmentX(UI::ItemAlignment::Center);
-    bottomLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    bottomLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     bottomLayout->AddChild(btnShowDialog0);
     bottomLayout->AddChild(btnShowDialog1);
     bottomLayout->AddChild(btnShowDialog2);
@@ -352,7 +384,7 @@ namespace Fsl
     auto win2 = uiFactory.CreateSwitch("Switch #2", true);
 
     auto layout = std::make_shared<UI::StackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel);
     layout->AddChild(win0);
@@ -372,7 +404,7 @@ namespace Fsl
     auto win2 = uiFactory.CreateCheckBox("CheckBox #2", true);
 
     auto layout = std::make_shared<UI::StackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel);
     layout->AddChild(win0);
@@ -393,7 +425,7 @@ namespace Fsl
     auto win2 = uiFactory.CreateRadioButton(group, "RadioButton #2", false);
 
     auto layout = std::make_shared<UI::StackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel);
     layout->AddChild(win0);
@@ -416,7 +448,7 @@ namespace Fsl
 
 
     auto layout = std::make_shared<UI::ComplexStackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->SetAlignmentY(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel, UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -430,7 +462,7 @@ namespace Fsl
     else
     {
       auto layout0 = std::make_shared<UI::StackLayout>(context);
-      layout0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      layout0->SetOrientation(UI::LayoutOrientation::Horizontal);
       layout0->SetAlignmentX(UI::ItemAlignment::Center);
       layout0->SetAlignmentY(UI::ItemAlignment::Stretch);
       layout0->AddChild(win0);
@@ -456,7 +488,7 @@ namespace Fsl
 
 
     auto layout = std::make_shared<UI::ComplexStackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->SetAlignmentY(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel, UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -470,7 +502,7 @@ namespace Fsl
     else
     {
       auto layout0 = std::make_shared<UI::StackLayout>(context);
-      layout0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      layout0->SetOrientation(UI::LayoutOrientation::Horizontal);
       layout0->SetAlignmentX(UI::ItemAlignment::Center);
       layout0->SetAlignmentY(UI::ItemAlignment::Stretch);
       layout0->AddChild(win0);
@@ -496,7 +528,7 @@ namespace Fsl
     win2->SetAlignmentX(UI::ItemAlignment::Stretch);
 
     auto layout = std::make_shared<UI::StackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel);
     layout->AddChild(win0);
@@ -520,7 +552,7 @@ namespace Fsl
     auto win4 = uiFactory.CreateLabel("Normal label 'CTP,;'");
 
     auto contentLayout = std::make_shared<UI::StackLayout>(context);
-    contentLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    contentLayout->SetOrientation(UI::LayoutOrientation::Vertical);
     contentLayout->SetAlignmentY(UI::ItemAlignment::Center);
     contentLayout->AddChild(win0);
     contentLayout->AddChild(win1);
@@ -529,7 +561,7 @@ namespace Fsl
     contentLayout->AddChild(win4);
 
     auto layout = std::make_shared<UI::ComplexStackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->SetAlignmentY(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel, UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -553,7 +585,7 @@ namespace Fsl
     win2->SetAlignmentX(UI::ItemAlignment::Far);
 
     auto layout = std::make_shared<UI::StackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel);
     layout->AddChild(win0);
@@ -638,7 +670,7 @@ namespace Fsl
     back4->AddChild(win4);
 
     auto contentLayout = std::make_shared<UI::StackLayout>(context);
-    contentLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    contentLayout->SetOrientation(UI::LayoutOrientation::Vertical);
     contentLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
     contentLayout->SetAlignmentY(UI::ItemAlignment::Center);
     contentLayout->AddChild(back0);
@@ -648,7 +680,7 @@ namespace Fsl
     contentLayout->AddChild(back4);
 
     auto layout = std::make_shared<UI::ComplexStackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->SetAlignmentY(UI::ItemAlignment::Stretch);
     layout->AddChild(winLabel, UI::LayoutLength(UI::LayoutUnitType::Auto));

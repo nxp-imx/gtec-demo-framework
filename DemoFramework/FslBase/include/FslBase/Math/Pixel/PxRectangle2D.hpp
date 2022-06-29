@@ -34,6 +34,7 @@
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <algorithm>
 #include <limits>
 
@@ -70,8 +71,8 @@ namespace Fsl
       static_assert(sizeof(uint32_t) == sizeof(PxExtent2D::value_type), "expect the PxExtent2D value_type to be a uint32_t");
       // FSLLOG3_DEBUG_INFO_IF(right > left, "right > left, capping width to zero");
       // FSLLOG3_DEBUG_INFO_IF(bottom > top, "bottom > top, capping height to zero");
-      return {left, top, right >= left ? uint32_t(int64_t(right) - int64_t(left)) : 0u,
-              bottom >= top ? uint32_t(int64_t(bottom) - int64_t(top)) : 0u};
+      return {left, top, right >= left ? static_cast<uint32_t>(static_cast<int64_t>(right) - static_cast<int64_t>(left)) : 0u,
+              bottom >= top ? static_cast<uint32_t>(static_cast<int64_t>(bottom) - static_cast<int64_t>(top)) : 0u};
     }
 
     static constexpr PxRectangle2D Empty() noexcept
@@ -92,21 +93,21 @@ namespace Fsl
 
     constexpr inline int32_t Right() const noexcept
     {
-      return Offset.X + Extent.Width;
+      return Offset.X + UncheckedNumericCast<int32_t>(Extent.Width);
     }
 
     constexpr inline int32_t Bottom() const noexcept
     {
-      return Offset.Y + Extent.Height;
+      return Offset.Y + UncheckedNumericCast<int32_t>(Extent.Height);
     }
 
     //! @brief Get the center of this rect
     constexpr PxPoint2 Center() const noexcept
     {
-      static_assert(PxExtent2D::value_type(std::numeric_limits<PxPoint2::value_type>::max()) <=
+      static_assert(static_cast<PxExtent2D::value_type>(std::numeric_limits<PxPoint2::value_type>::max()) <=
                       (std::numeric_limits<PxExtent2D::value_type>::max() / 2),
                     "overflow should not be possible");
-      return {Offset.X + PxPoint2::value_type(Extent.Width / 2), Offset.Y + PxPoint2::value_type(Extent.Height / 2)};
+      return {Offset.X + static_cast<PxPoint2::value_type>(Extent.Width / 2), Offset.Y + static_cast<PxPoint2::value_type>(Extent.Height / 2)};
     }
 
 

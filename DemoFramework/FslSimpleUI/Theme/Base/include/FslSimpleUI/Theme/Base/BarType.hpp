@@ -32,19 +32,13 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class BarType
   {
-    namespace Theme
-    {
-      enum class BarType
-      {
-        Normal,
-        Transparent
-      };
-    }
-  }
+    Normal,
+    Transparent
+  };
 }
 
 #endif

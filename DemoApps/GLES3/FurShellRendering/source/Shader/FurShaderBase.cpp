@@ -67,9 +67,10 @@ namespace Fsl
     }
   }
 
-  FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
-    : ShaderBase(contentManager.ReadAllText(GetVert(shaderPath, useHighPrecision)),
-                 contentManager.ReadAllText(GetFrag(shaderPath, useHighPrecision, lightCount)))
+  FurShaderBase::FurShaderBase(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath, const bool useHighPrecision,
+                               const int lightCount)
+    : ShaderBase(contentManager->ReadAllText(GetVert(shaderPath, useHighPrecision)),
+                 contentManager->ReadAllText(GetFrag(shaderPath, useHighPrecision, lightCount)))
     , m_lightCount(lightCount)
     , m_locWorld(GLValues::INVALID_LOCATION)
     , m_locView(GLValues::INVALID_LOCATION)
@@ -85,9 +86,9 @@ namespace Fsl
   }
 
 
-  FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
+  FurShaderBase::FurShaderBase(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
                                const int lightCount)
-    : ShaderBase(contentManager.ReadAllText(vertShaderPath), contentManager.ReadAllText(fragShaderPath))
+    : ShaderBase(contentManager->ReadAllText(vertShaderPath), contentManager->ReadAllText(fragShaderPath))
     , m_lightCount(lightCount)
     , m_locWorld(GLValues::INVALID_LOCATION)
     , m_locView(GLValues::INVALID_LOCATION)
@@ -210,7 +211,7 @@ namespace Fsl
     assert(IsLoaded());
     if (m_locLightCount != GLValues::INVALID_LOCATION)
     {
-      glUniform1f(m_locLightCount, GLfloat(lightCount));
+      glUniform1f(m_locLightCount, static_cast<GLfloat>(lightCount));
     }
   }
 

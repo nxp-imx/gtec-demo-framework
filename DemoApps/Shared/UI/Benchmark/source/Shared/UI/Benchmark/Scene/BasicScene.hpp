@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
-#include "IScene.hpp"
 #include <memory>
+#include "IScene.hpp"
 
 namespace Fsl
 {
@@ -70,9 +70,9 @@ namespace Fsl
     explicit BasicScene(const SceneCreateInfo& createInfo);
     ~BasicScene() override;
 
-    Optional<NextSceneRecord> TryGetNextScene() const final
+    std::optional<NextSceneRecord> TryGetNextScene() const final
     {
-      return m_state == SceneState::Closing ? Optional<NextSceneRecord>(NextSceneRecord(m_nextSceneId)) : Optional<NextSceneRecord>();
+      return m_state == SceneState::Closing ? std::optional<NextSceneRecord>(NextSceneRecord(m_nextSceneId)) : std::optional<NextSceneRecord>();
     }
 
     void OnFrameSequenceBegin() override;

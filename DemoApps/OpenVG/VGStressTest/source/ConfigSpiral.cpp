@@ -99,7 +99,7 @@ namespace Fsl
   {
     const int screenDiv2 = std::max(scrWidth, scrHeight) / 2;
     const float minDiv2 = static_cast<float>(screenDiv2) - m_quadricSpiralStrokeLineWidth;
-    return (m_adaptToScreen ? minDiv2 / float(m_quadricSpiralRevolutionCount) : m_quadricSpiralRevolutionChange);
+    return (m_adaptToScreen ? minDiv2 / static_cast<float>(m_quadricSpiralRevolutionCount) : m_quadricSpiralRevolutionChange);
   }
 
   void ConfigSpiral::SetQuadricSpiralRevolutionChange(const float value)
@@ -137,7 +137,7 @@ namespace Fsl
   {
     const int screenDiv2 = (std::min(scrWidth, scrHeight) / 2);
     const float minDiv2 = static_cast<float>(screenDiv2) - m_segmentedSpiralStrokeLineWidth;
-    return (m_adaptToScreen ? minDiv2 / float(m_segmentedSpiralRevolutionCount) : m_segmentedSpiralRevolutionChange);
+    return (m_adaptToScreen ? minDiv2 / static_cast<float>(m_segmentedSpiralRevolutionCount) : m_segmentedSpiralRevolutionChange);
   }
 
   void ConfigSpiral::SetSegmentedSpiralRevolutionChange(const float value)

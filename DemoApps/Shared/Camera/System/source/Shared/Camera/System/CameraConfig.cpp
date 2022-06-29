@@ -29,20 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Camera/System/CameraConfig.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
+#include <Shared/Camera/System/CameraConfig.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  CameraConfig::CameraConfig(const CameraType cameraType, const PxExtent2D& extent, const PixelFormat nativePixelFormat, const uint32_t nativeStride)
+    : Type(cameraType)
+    , Extent(extent)
+    , NativePixelFormat(nativePixelFormat)
+    , NativeStride(nativeStride)
   {
-    CameraConfig::CameraConfig(const CameraType cameraType, const PxExtent2D& extent, const PixelFormat nativePixelFormat,
-                               const uint32_t nativeStride)
-      : Type(cameraType)
-      , Extent(extent)
-      , NativePixelFormat(nativePixelFormat)
-      , NativeStride(nativeStride)
-    {
-    }
   }
 }

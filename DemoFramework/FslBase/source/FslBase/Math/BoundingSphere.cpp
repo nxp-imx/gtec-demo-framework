@@ -25,15 +25,15 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - BoundingSphere.cs.
 
-#include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingFrustum.hpp>
+#include <FslBase/Math/BoundingSphere.hpp>
+#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
-#include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/Plane.hpp>
+#include <FslBase/Math/Ray.hpp>
 #include <array>
 #include <cassert>
 #include <cmath>

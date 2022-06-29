@@ -66,17 +66,6 @@ namespace Fsl
       return changed;
     }
 
-    constexpr bool SetMax(value_type max)
-    {
-      max = (max >= m_min ? max : m_min);
-      const bool changed = max != m_max;
-      if (changed)
-      {
-        m_max = max;
-      }
-      return changed;
-    }
-
     constexpr value_type Min() const
     {
       return m_min;
@@ -92,6 +81,10 @@ namespace Fsl
       return ((m_max - m_min) / 2) + m_min;
     }
 
+    constexpr value_type Delta() const
+    {
+      return m_max - m_min;
+    }
 
     constexpr bool operator==(const MinMax& rhs) const noexcept
     {

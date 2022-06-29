@@ -25,7 +25,6 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector4.cs.
 
-#include <cassert>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>

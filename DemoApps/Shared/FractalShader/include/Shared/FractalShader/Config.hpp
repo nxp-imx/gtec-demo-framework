@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Point2.hpp>
 #include <Shared/FractalShader/DefaultValues.hpp>
 
 namespace Fsl

@@ -32,97 +32,94 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Attributes.hpp>
 #include <FslUtil/OpenCL1_2/Common.hpp>
 #include <RapidOpenCL1/Context.hpp>
-#include <FslBase/Attributes.hpp>
 #include <CL/cl.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::OpenCL
 {
-  namespace OpenCL
+  //! This class is highly experimental and will probably be removed.
+  //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  class ContextEx
   {
-    //! This class is highly experimental and will probably be removed.
-    //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-    class ContextEx
+    cl_platform_id m_platformId;
+    RapidOpenCL1::Context m_context;
+
+  public:
+    ContextEx(const ContextEx&) = delete;
+    ContextEx& operator=(const ContextEx&) = delete;
+
+    //! @brief Move assignment operator
+    ContextEx& operator=(ContextEx&& other) noexcept;
+    //! @brief Move constructor
+    ContextEx(ContextEx&& other) noexcept;
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    ContextEx();
+
+    ~ContextEx();
+
+    //! @brief Assume control of the Context (this object becomes responsible for releasing it)
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    explicit ContextEx(const cl_platform_id platformId, const cl_context context);
+
+    //! @brief Create the requested resource
+    //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    explicit ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+
+    //! @brief returns the managed handle and releases the ownership.
+    [[nodiscard]] cl_context Release()
     {
-      cl_platform_id m_platformId;
-      RapidOpenCL1::Context m_context;
+      m_platformId = nullptr;
+      return m_context.Release();
+    }
 
-    public:
-      ContextEx(const ContextEx&) = delete;
-      ContextEx& operator=(const ContextEx&) = delete;
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept
+    {
+      m_platformId = nullptr;
+      m_context.Reset();
+    }
 
-      //! @brief Move assignment operator
-      ContextEx& operator=(ContextEx&& other) noexcept;
-      //! @brief Move constructor
-      ContextEx(ContextEx&& other) noexcept;
+    //! @brief Destroys any owned resources and assume control of the ContextEx (this object becomes responsible for releasing it)
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const cl_platform_id platformId, const cl_context context)
+    {
+      m_context.Reset(context);
+      m_platformId = platformId;
+    }
 
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      ContextEx();
+    //! @brief Destroys any owned resources and then creates the requested one
+    //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
-      ~ContextEx();
+    //! @brief Get the associated resource handle
+    cl_platform_id GetPlatformId() const
+    {
+      return m_platformId;
+    }
 
-      //! @brief Assume control of the Context (this object becomes responsible for releasing it)
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      explicit ContextEx(const cl_platform_id platformId, const cl_context context);
+    //! @brief Get the associated resource handle
+    cl_context Get() const
+    {
+      return m_context.Get();
+    }
 
-      //! @brief Create the requested resource
-      //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
-      //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      explicit ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+    //! @brief Check if this object contains a valid resource
+    bool IsValid() const
+    {
+      return m_context.IsValid();
+    }
 
-      //! @brief returns the managed handle and releases the ownership.
-      FSL_FUNC_WARN_UNUSED_RESULT cl_context Release()
-      {
-        m_platformId = nullptr;
-        return m_context.Release();
-      }
-
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept
-      {
-        m_platformId = nullptr;
-        m_context.Reset();
-      }
-
-      //! @brief Destroys any owned resources and assume control of the ContextEx (this object becomes responsible for releasing it)
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      void Reset(const cl_platform_id platformId, const cl_context context)
-      {
-        m_context.Reset(context);
-        m_platformId = platformId;
-      }
-
-      //! @brief Destroys any owned resources and then creates the requested one
-      //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
-      //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      void Reset(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
-
-      //! @brief Get the associated resource handle
-      cl_platform_id GetPlatformId() const
-      {
-        return m_platformId;
-      }
-
-      //! @brief Get the associated resource handle
-      cl_context Get() const
-      {
-        return m_context.Get();
-      }
-
-      //! @brief Check if this object contains a valid resource
-      bool IsValid() const
-      {
-        return m_context.IsValid();
-      }
-
-    private:
-      void SelectDevice(cl_platform_id platformId, const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId);
-    };
-  }
+  private:
+    void SelectDevice(cl_platform_id platformId, const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId);
+  };
 }
 
 #endif

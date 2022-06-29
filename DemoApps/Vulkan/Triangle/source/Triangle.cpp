@@ -39,12 +39,12 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
-#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
-#include <glm/ext/matrix_transform.hpp>     // glm::translate, glm::rotate, glm::scale
 #include <glm/ext/matrix_clip_space.hpp>    // glm::perspective
+#include <glm/ext/matrix_transform.hpp>     // glm::translate, glm::rotate, glm::scale
 #include <vulkan/vulkan.h>
 #include <array>
 
@@ -353,7 +353,7 @@ namespace Fsl
       descriptorLayout.bindingCount = 1;
       descriptorLayout.pBindings = &layoutBinding;
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -367,7 +367,7 @@ namespace Fsl
       pPipelineLayoutCreateInfo.setLayoutCount = 1;
       pPipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(device.Get(), pPipelineLayoutCreateInfo);
+      return {device.Get(), pPipelineLayoutCreateInfo};
     }
 
     RapidVulkan::ShaderModule LoadShader(const IContentManager& contentManager, const IO::Path& fileName, const VkDevice device)
@@ -379,7 +379,7 @@ namespace Fsl
       createInfo.codeSize = shaderBinary.size();
       createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderBinary.data());
 
-      return RapidVulkan::ShaderModule(device, createInfo);
+      return {device, createInfo};
     }
 
 
@@ -505,7 +505,7 @@ namespace Fsl
       pipelineCreateInfo.pDynamicState = &dynamicState;
 
       // Create rendering pipeline using the specified states
-      return RapidVulkan::GraphicsPipeline(device.Get(), VK_NULL_HANDLE, pipelineCreateInfo);
+      return {device.Get(), VK_NULL_HANDLE, pipelineCreateInfo};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device)
@@ -530,7 +530,7 @@ namespace Fsl
       // Set the max. number of descriptor sets that can be requested from this pool (requesting beyond this limit will result in an error)
       descriptorPoolInfo.maxSets = 1;
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 

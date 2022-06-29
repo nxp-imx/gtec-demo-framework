@@ -30,11 +30,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/File.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
 #include <unistd.h>
 
 namespace Fsl

@@ -34,26 +34,20 @@
 #include <FslGraphics2D/Procedural/Batcher/ImmediateModeBatcher.hpp>
 #include "RenderSystemBase.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  class RenderSystem final : public RenderSystemBase
   {
-    namespace RenderIMBatch
-    {
-      class RenderSystem final : public RenderSystemBase
-      {
-        ImmediateModeBatcher m_batcher;
+    ImmediateModeBatcher m_batcher;
 
-      public:
-        RenderSystem(const RenderSystem&) = delete;
-        RenderSystem& operator=(const RenderSystem&) = delete;
+  public:
+    RenderSystem(const RenderSystem&) = delete;
+    RenderSystem& operator=(const RenderSystem&) = delete;
 
-        explicit RenderSystem(const RenderSystemCreateInfo& createInfo);
+    explicit RenderSystem(const RenderSystemCreateInfo& createInfo);
 
-        void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
-      };
-    }
-  }
+    void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
+  };
 }
 
 #endif

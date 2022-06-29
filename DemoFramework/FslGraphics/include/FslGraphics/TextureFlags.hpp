@@ -73,12 +73,12 @@ namespace Fsl
 
     inline void Disable(TextureFlags& rDstFlag, TextureFlags flag)
     {
-      rDstFlag = rDstFlag & (TextureFlags(~static_cast<uint32_t>(flag)));
+      rDstFlag = rDstFlag & (static_cast<TextureFlags>(~static_cast<uint32_t>(flag)));
     }
 
     inline void Set(TextureFlags& rDstFlag, TextureFlags flag, const bool enabled)
     {
-      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (TextureFlags(~static_cast<uint32_t>(flag))));
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<TextureFlags>(~static_cast<uint32_t>(flag))));
     }
   };
 }

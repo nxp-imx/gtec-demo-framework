@@ -31,97 +31,94 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "IStateEventSender.hpp"
-#include "EventRoute.hpp"
-#include "StateEventSenderHistory.hpp"
-#include "StateEventInfo.hpp"
-#include "FunctionCreateTargetWindowDeathEvent.hpp"
 #include "../Modules/IModuleCallbackReceiver.hpp"
+#include "EventRoute.hpp"
+#include "FunctionCreateTargetWindowDeathEvent.hpp"
+#include "IStateEventSender.hpp"
+#include "StateEventInfo.hpp"
+#include "StateEventSenderHistory.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class EventRouter;
+  class IEventHandler;
+  class ITreeContextInfo;
+  struct WindowFlags;
+
+  //! @brief A state event sender ensures that we always sends a Begin as the first event.
+  //! @note  It also ensures that a cancel event is send if the target window dies before the End event is received, then silently consumes
+  //         all future events until the real end or cancel is received
+  class StateEventSender final
+    : public IStateEventSender
+    , public IModuleCallbackReceiver
   {
-    class EventRouter;
-    class IEventHandler;
-    class ITreeContextInfo;
-    struct WindowFlags;
-
-    //! @brief A state event sender ensures that we always sends a Begin as the first event.
-    //! @note  It also ensures that a cancel event is send if the target window dies before the End event is received, then silently consumes
-    //         all future events until the real end or cancel is received
-    class StateEventSender final
-      : public IStateEventSender
-      , public IModuleCallbackReceiver
+    enum class State
     {
-      enum class State
-      {
-        Normal,
-        BuildingHistory,
-        RemovingNode,
-      };
+      Normal,
+      BuildingHistory,
+      RemovingNode,
+    };
 
-      std::shared_ptr<ITreeContextInfo> m_treeContextInfo;
-      std::shared_ptr<EventRouter> m_eventRouter;
-      std::shared_ptr<WindowEventPool> m_eventPool;
-      std::shared_ptr<IEventHandler> m_eventHandler;
-      FunctionCreateTargetWindowDeathEvent m_fnCreateTargetWindowDeathEvent;
-      EventRoute m_eventRoute;
-      StateEventSenderHistory m_history;
-      StateEventInfo m_lastEventInfo;
-      State m_state;
+    std::shared_ptr<ITreeContextInfo> m_treeContextInfo;
+    std::shared_ptr<EventRouter> m_eventRouter;
+    std::shared_ptr<WindowEventPool> m_eventPool;
+    std::shared_ptr<IEventHandler> m_eventHandler;
+    FunctionCreateTargetWindowDeathEvent m_fnCreateTargetWindowDeathEvent;
+    EventRoute m_eventRoute;
+    StateEventSenderHistory m_history;
+    StateEventInfo m_lastEventInfo;
+    State m_state;
+
+  public:
+    StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
+                     std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler, const WindowFlags windowFlags,
+                     FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent);
+    ~StateEventSender() final;
+
+    const std::shared_ptr<WindowEventPool>& GetEventPool() const final
+    {
+      return m_eventPool;
+    }
+    bool HasActiveEvent() const noexcept final;
+    bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const final;
+
+    bool HasHistory() const final;
+    SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target) final;
+    SendResult Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx) final;
+
+    // From IModuleCallbackReceiver
+    void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node) final
+    {
+      FSL_PARAM_NOT_USED(node);
+    }
+
+    void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) final;
+
+  private:
+    SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const PxPoint2& hitPositionPx);
+    SendResult SendViaHistory(const StateEvent& theEvent);
+    void BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const PxPoint2& hitPositionPx);
+    SendResult SendToEventRoute(const StateEvent& theEvent);
+
+    class ScopedStateChange
+    {
+      StateEventSender& m_rObj;
+      State m_oldState;
 
     public:
-      StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
-                       std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler, const WindowFlags windowFlags,
-                       FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent);
-      ~StateEventSender() final;
-
-      const std::shared_ptr<WindowEventPool>& GetEventPool() const final
+      ScopedStateChange(StateEventSender& rObj, const State scopedState)
+        : m_rObj(rObj)
+        , m_oldState(rObj.m_state)
       {
-        return m_eventPool;
-      }
-      bool HasActiveEvent() const noexcept final;
-      bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const final;
-
-      bool HasHistory() const final;
-      SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target) final;
-      SendResult Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx) final;
-
-      // From IModuleCallbackReceiver
-      void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node) final
-      {
-        FSL_PARAM_NOT_USED(node);
+        m_rObj.m_state = scopedState;
       }
 
-      void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) final;
-
-    private:
-      SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const PxPoint2& hitPositionPx);
-      SendResult SendViaHistory(const StateEvent& theEvent);
-      void BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const PxPoint2& hitPositionPx);
-      SendResult SendToEventRoute(const StateEvent& theEvent);
-
-      class ScopedStateChange
+      ~ScopedStateChange()
       {
-        StateEventSender& m_rObj;
-        State m_oldState;
-
-      public:
-        ScopedStateChange(StateEventSender& rObj, const State scopedState)
-          : m_rObj(rObj)
-          , m_oldState(rObj.m_state)
-        {
-          m_rObj.m_state = scopedState;
-        }
-
-        ~ScopedStateChange()
-        {
-          m_rObj.m_state = m_oldState;
-        }
-      };
+        m_rObj.m_state = m_oldState;
+      }
     };
-  }
+  };
 }
 
 #endif

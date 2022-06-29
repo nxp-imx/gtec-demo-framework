@@ -35,7 +35,7 @@
         </Option>
       </Variant>
     </Platform>
-    <Platform Name="Windows" Supported="true">
-    </Platform>
+    <Platform Name="Windows" Supported="true"/>
+    <Platform Name="Emscripten" Supported="true"/>
   </ExternalLibrary>
 </FslBuildGen>

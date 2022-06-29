@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
 #include <FslDemoApp/Base/FrameInfo.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsBeginFrameInfo.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsDependentCreateInfo.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>

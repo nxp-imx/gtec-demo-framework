@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_MATERIAL_BASICMATERIALRECORD_HPP
 #define FSLGRAPHICS3D_BASICRENDER_MATERIAL_BASICMATERIALRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,59 +39,64 @@
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclaration.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclarationSpan.hpp>
+#include <FslGraphics/Render/Basic/Shader/BasicShaderHandle.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics3D/BasicRender/Material/BasicMaterialTracker.hpp>
 #include <FslGraphics3D/BasicRender/Material/BasicNativeMaterialRecord.hpp>
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  struct BasicMaterialDetailsRecord
   {
-    struct BasicMaterialDetailsRecord
+    BasicMaterialInfo MaterialInfo;
+    BasicMaterialVariableDeclaration MaterialDecl;
+    BasicShaderHandle VertexShaderHandle;
+    BasicShaderHandle FragmentShaderHandle;
+    VertexDeclaration VertexDecl;
+
+    BasicMaterialDetailsRecord() = default;
+    BasicMaterialDetailsRecord(const BasicMaterialInfo& materialInfo, const BasicMaterialVariableDeclarationSpan& materialDecl,
+                               const BasicShaderHandle hVertexShader, const BasicShaderHandle hFragmentShader,
+                               const VertexDeclarationSpan& vertexDeclaration)
+      : MaterialInfo(materialInfo)
+      , MaterialDecl(materialDecl)
+      , VertexShaderHandle(hVertexShader)
+      , FragmentShaderHandle(hFragmentShader)
+      , VertexDecl(vertexDeclaration)
     {
-      BasicMaterialInfo MaterialInfo;
-      BasicMaterialVariableDeclaration MaterialDecl;
-      VertexDeclaration VertexDecl;
+    }
+  };
 
-      BasicMaterialDetailsRecord() = default;
-      BasicMaterialDetailsRecord(const BasicMaterialInfo& materialInfo, const BasicMaterialVariableDeclarationSpan& materialDecl,
-                                 const VertexDeclarationSpan& vertexDeclaration)
-        : MaterialInfo(materialInfo)
-        , MaterialDecl(materialDecl)
-        , VertexDecl(vertexDeclaration)
-      {
-      }
-    };
+  struct BasicMaterialRecord
+  {
+    bool IsDynamic{false};
+    BasicMaterialDetailsRecord Details;
+    std::shared_ptr<INativeTexture2D> Texture;
+    std::weak_ptr<BasicMaterialTracker> BasicUserObjectTracker;
 
-    struct BasicMaterialRecord
+    /// <summary>
+    /// Only valid while a native material is allocated
+    /// </summary>
+    BasicNativeMaterialRecord Native;
+
+    BasicMaterialRecord() = default;
+
+    BasicMaterialRecord(const BasicMaterialCreateInfo& createInfo, const BasicShaderHandle hVertexShader, const BasicShaderHandle hFragmentShader,
+                        std::shared_ptr<INativeTexture2D> texture, const bool isDynamic,
+                        const BasicMaterialVariableDeclarationSpan& materialDeclaration, std::weak_ptr<BasicMaterialTracker> basicUserObject)
+      : IsDynamic(isDynamic)
+      , Details(createInfo.MaterialInfo, materialDeclaration, hVertexShader, hFragmentShader, createInfo.VertexDeclaration)
+      , Texture(std::move(texture))
+      , BasicUserObjectTracker(std::move(basicUserObject))
     {
-      bool IsDynamic{false};
-      BasicMaterialDetailsRecord Details;
-      std::shared_ptr<INativeTexture2D> Texture;
-      std::weak_ptr<BasicMaterialTracker> BasicUserObjectTracker;
-      /// <summary>
-      /// Only valid while a native material is allocated
-      /// </summary>
-      BasicNativeMaterialRecord Native;
-
-      BasicMaterialRecord() = default;
-
-      BasicMaterialRecord(const BasicMaterialCreateInfo& createInfo, std::shared_ptr<INativeTexture2D> texture, const bool isDynamic,
-                          const BasicMaterialVariableDeclarationSpan& materialDeclaration, std::weak_ptr<BasicMaterialTracker> basicUserObject)
-        : IsDynamic(isDynamic)
-        , Details(createInfo.MaterialInfo, materialDeclaration, createInfo.VertexDeclaration)
-        , Texture(std::move(texture))
-        , BasicUserObjectTracker(std::move(basicUserObject))
+      if (!createInfo.IsValid())
       {
-        if (!createInfo.IsValid())
-        {
-          throw std::invalid_argument("Invalid VertexDeclaration");
-        }
+        throw std::invalid_argument("Invalid VertexDeclaration");
       }
-    };
-  }
+    }
+  };
 }
 
 #endif

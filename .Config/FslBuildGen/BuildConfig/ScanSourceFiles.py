@@ -33,19 +33,25 @@
 
 from typing import List
 from typing import Optional
+from typing import Set
 import os
 import os.path
+import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFilter
 from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
 from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Exceptions import ExitException
 from FslBuildGen.Packages.Package import Package
 
 __g_includeExtensionList = [".h", ".hpp"]
 __g_sourceExtensionList = [".cpp", ".c"]
 __g_shaderExtensionList = [".frag", ".vert", ".geom", ".tesc", ".tese"]
+
+_g_companyName = " NXP"
+_g_copyright = "Copyright "
 
 #__g_thirdParty = '/ThirdParty/'
 
@@ -279,9 +285,143 @@ def __Repair(log: Log, sourceFile: SourceFile, asciiRepair: bool, disableWrite: 
         if not disableWrite:
             IOUtil.WriteFile(sourceFile.FileName, strContent)
 
+def __IndexOfCopyrightLine(lines: List[str], maxLinesToCheck: int) -> int:
+    linesToCheck = min(len(lines), maxLinesToCheck)
+    for index in range(linesToCheck):
+        lineContent = lines[index]
+        if lineContent.endswith(_g_companyName) and _g_copyright in lineContent:
+            return index
+    return -1
+
+
+def __TryExtractCopyrightYears(log: Log, copyrightYears: str, debugInfo: str) -> Optional[Set[int]]:
+    copyrightYearsStringArray = copyrightYears.split(',')
+    copyrightYearsArray = set() # type: Set[int]
+    for index in range(len(copyrightYearsStringArray)):
+        strYear = copyrightYearsStringArray[index].strip()
+        if '-' in strYear:
+            yearRange = strYear.split('-')
+            if len(yearRange) != 2:
+                log.DoPrintError("{0}: Year range not in the expected format 'start-end' got '{1}'".format(debugInfo, strYear))
+                return None
+            yearRangeStart = int(yearRange[0])
+            yearRangeEnd = int(yearRange[1])
+            if yearRangeStart >= yearRangeEnd:
+                log.DoPrintError("{0}: year range begin must be less than end. Got '{1}'".format(debugInfo, strYear))
+                return None
+            for yearInRange in range(yearRangeStart, yearRangeEnd + 1):
+                copyrightYearsArray.add(yearInRange)
+        else:
+            copyrightYearsArray.add(int(strYear))
+    return copyrightYearsArray
+
+def __TryToCopyrightYearString(yearsSet: Set[int]) -> Optional[str]:
+    if len(yearsSet) < 1:
+        return None
+
+    years = list(yearsSet)
+    years.sort()
+
+    yearRanges = [] # type: List[str]
+
+    startYear = years[0]
+    previousYear = startYear
+    for index in range(1, len(years)):
+        year = years[index]
+        if (previousYear + 1) != year:
+            # new year is not part of the current range
+            if startYear == previousYear:
+                yearRanges.append(str(startYear))
+            else:
+                yearRanges.append("{0}-{1}".format(startYear, previousYear))
+            startYear = year
+        previousYear = year
+
+    if startYear == previousYear:
+        yearRanges.append(str(startYear))
+    else:
+        yearRanges.append("{0}-{1}".format(startYear, previousYear))
+    return ", ".join(yearRanges)
+
+
+def __SafeJoinCommandArguments(strings: List[str]) -> str:
+    res = []
+    for entry in strings:
+        if ' ' in entry:
+            entry = '"{0}"'.format(entry)
+        res.append(entry)
+    return " ".join(res)
+
+
+def __TryCheckForFileModifications(log: Log, gitExeName: str, filename: str, yearsSet: Set[int], minimumLinesChanged: int) -> Optional[int]:
+    try:
+        # diff  --stat release/5.6.0 master VertexMatrix.hpp
+        #latestBranch = 'release/5.6.0'
+        oldestBranch = 'master'
+        #runCommands = [gitExeName, 'diff', '--stat', latestBranch, oldestBranch, '--', filename]
+        runCommands = [gitExeName, 'diff', '--stat', oldestBranch, '--', filename]
+        currentWorkingDirectory = IOUtil.GetDirectoryName(filename)
+        if log.Verbosity >= 1:
+            log.LogPrint("Running run command '{0}' in '{1}'".format(__SafeJoinCommandArguments(runCommands), currentWorkingDirectory))
+        res = subprocess.check_output(runCommands, cwd=currentWorkingDirectory, universal_newlines=True)
+        searchString = ' 1 file changed, '
+        index = res.find(searchString)
+        if index >= 0:
+            res = res[index + len(searchString):]
+            endIndex = res.find('insertions')
+            if endIndex >= 0:
+                res = res[:endIndex].strip()
+                linesChanged = int(res)
+                if linesChanged > minimumLinesChanged:
+                    # git log -1 --format="%as" -- filename
+                    runCommands = [gitExeName, 'log', '-1', '--format="%as"', '--', filename]
+                    res = subprocess.check_output(runCommands, cwd=currentWorkingDirectory, universal_newlines=True).strip()
+                    if res.startswith('"'):
+                        res = res[1:]
+                    if res.endswith('"'):
+                        res = res[:-1]
+                    dateInfo = res.split('-')
+                    if len(dateInfo) == 3:
+                        lastModificationYear = int(dateInfo[0].strip())
+                        return lastModificationYear
+        return None
+    except FileNotFoundError:
+        log.LogPrintWarning("The run command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(__SafeJoinCommandArguments(runCommands), currentWorkingDirectory))
+        raise
+    except subprocess.CalledProcessError:
+        log.LogPrintWarning("The run command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(__SafeJoinCommandArguments(runCommands), currentWorkingDirectory))
+        raise
+
+def __CheckCopyright(log: Log, sourceFile: SourceFile, gitExeName: str) -> bool:
+    copyRightLineIndex = __IndexOfCopyrightLine(sourceFile.LinesModded, 10)
+    if copyRightLineIndex < 0:
+        return True
+    copyrightLine = sourceFile.LinesModded[copyRightLineIndex]
+
+    startIndex = copyrightLine.index(_g_copyright) + len(_g_copyright)
+    endIndex = len(copyrightLine) - len(_g_companyName)
+
+    copyrightYears = copyrightLine[startIndex:endIndex].strip()
+    copyrightYearsSet = __TryExtractCopyrightYears(log, copyrightYears, sourceFile.FileName)
+    if copyrightYearsSet is None:
+        return False
+
+    lastModifiedYear = __TryCheckForFileModifications(log, gitExeName, sourceFile.FileName, copyrightYearsSet, 10)
+    if lastModifiedYear is not None:
+        copyrightYearsSet.add(lastModifiedYear)
+
+    finalYearString = __TryToCopyrightYearString(copyrightYearsSet)
+    if finalYearString is None:
+        return False
+
+    newCopyrightLine = copyrightLine[:startIndex] + finalYearString + copyrightLine[endIndex:]
+    if copyrightLine != newCopyrightLine:
+        sourceFile.LinesModded[copyRightLineIndex] = newCopyrightLine
+    return True
+
 
 def __ProcessIncludeFile(log: Log, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str],
-                         disableWrite: bool) -> bool:
+                         disableWrite: bool, gitExeName: str, checkCopyright: bool) -> bool:
     log.LogPrintVerbose(10, "- Scanning '{0}'".format(fullPath))
     noErrors = True
     asciiRepair = False
@@ -295,13 +435,16 @@ def __ProcessIncludeFile(log: Log, package: Package, fullPath: str, repairEnable
         noErrors = False
     if not __CheckTabs(log, sourceFile, repairEnabled, thirdpartyExceptionDir):
         noErrors = False
+    if checkCopyright:
+        if not __CheckCopyright(log, sourceFile, gitExeName):
+            noErrors = False
     if repairEnabled:
         __Repair(log, sourceFile, asciiRepair, disableWrite)
     return noErrors
 
 
 def __ProcessSourceFile(log: Log, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str],
-                        disableWrite: bool) -> bool:
+                        disableWrite: bool, gitExeName: str, checkCopyright: bool) -> bool:
     log.LogPrintVerbose(10, "- Scanning '{0}'".format(fullPath))
     noErrors = True
     asciiRepair = False
@@ -312,13 +455,17 @@ def __ProcessSourceFile(log: Log, package: Package, fullPath: str, repairEnabled
         noErrors = False
     if not __CheckTabs(log, sourceFile, repairEnabled, thirdpartyExceptionDir):
         noErrors = False
+    if checkCopyright:
+        if not __CheckCopyright(log, sourceFile, gitExeName):
+            noErrors = False
     if repairEnabled:
         __Repair(log, sourceFile, asciiRepair, disableWrite)
     return noErrors
 
 
 def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
-                repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: CheckType, disableWrite: bool) -> int:
+                repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: CheckType, disableWrite: bool,
+                gitExeName: str, checkCopyright: bool) -> int:
     """
     :param filteredFiles: a optional list of specifc files to scan in this package (if supplied the rest should be ignored)
     """
@@ -338,7 +485,7 @@ def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
             # Only process files with the expected extension
             if allowedFileSet is None or fullPath in allowedFileSet:
                 if __IsValidExtension(fileName, __g_includeExtensionList):
-                    if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                    if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite, gitExeName, checkCopyright):
                         errorCount += 1
 
 
@@ -347,17 +494,17 @@ def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
             fullPath = IOUtil.Join(package.AbsolutePath, fileName)
             if allowedFileSet is None or fullPath in allowedFileSet:
                 if __IsValidExtension(fileName, __g_includeExtensionList):
-                    if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                    if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite, gitExeName, checkCopyright):
                         errorCount += 1
                 elif __IsValidExtension(fileName, __g_sourceExtensionList):
-                    if not __ProcessSourceFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                    if not __ProcessSourceFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite, gitExeName, checkCopyright):
                         errorCount += 1
     return errorCount
 
 
 def Scan(log: Log, scanPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter],
          repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: CheckType,
-         disableWrite: bool) -> None:
+         disableWrite: bool, gitExeName: str, checkCopyright: bool) -> None:
     """
     Run through all source files that are part of the packages and check for common errors
     :param scanPackageList: the packages that will be scanned.
@@ -367,6 +514,8 @@ def Scan(log: Log, scanPackageList: List[Package], customPackageFileFilter: Opti
 
     extensionList = __g_includeExtensionList + __g_sourceExtensionList
 
+    # GitUtil.GetExecutableName(generatorContext.Generator.PlatformName)
+
     # Filter the package list so it only contains things we can process
     finalPackageList = [package for package in scanPackageList if PerformClangUtil.CanProcessPackage(package)]
 
@@ -374,7 +523,7 @@ def Scan(log: Log, scanPackageList: List[Package], customPackageFileFilter: Opti
     for package in finalPackageList:
         filteredFiles = None if customPackageFileFilter is None else customPackageFileFilter.TryLocateFilePatternInPackage(log, package, extensionList)
         if customPackageFileFilter is None or filteredFiles is not None:
-            totalErrorCount += __ScanFiles(log, package, filteredFiles, repairEnabled, thirdpartyExceptionDir, checkType, disableWrite)
+            totalErrorCount += __ScanFiles(log, package, filteredFiles, repairEnabled, thirdpartyExceptionDir, checkType, disableWrite, gitExeName, checkCopyright)
 
     if totalErrorCount > 0 and not repairEnabled:
         log.DoPrint("BEWARE: If you have made a backup of your files you can try to auto correct the errors with '--Repair' but do so at your own peril")

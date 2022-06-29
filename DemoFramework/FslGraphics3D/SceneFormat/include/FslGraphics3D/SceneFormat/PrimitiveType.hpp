@@ -31,23 +31,20 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  // Closely resembles the normal PrimitiveType format. Its defined in its own structure to maintain
+  // its integrity. This is done because this enum value is used for persistent storage and changing
+  // it should not be done lightly.
+  enum class PrimitiveType
   {
-    // Closely resembles the normal PrimitiveType format. Its defined in its own structure to maintain
-    // its integrity. This is done because this enum value is used for persistent storage and changing
-    // it should not be done lightly.
-    enum class PrimitiveType
-    {
-      LineList = 0,
-      LineStrip = 1,
-      TriangleList = 2,
-      TriangleStrip = 3,
-      // Only for internal use. Not a valid PrimitiveType
-      SYS_COUNT
-    };
-  }
+    LineList = 0,
+    LineStrip = 1,
+    TriangleList = 2,
+    TriangleStrip = 3,
+    // Only for internal use. Not a valid PrimitiveType
+    SYS_COUNT
+  };
 }
 
 #endif

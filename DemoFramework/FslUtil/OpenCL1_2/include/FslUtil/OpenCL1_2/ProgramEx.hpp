@@ -32,80 +32,77 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenCL1_2/Common.hpp>
 #include <FslBase/Attributes.hpp>
+#include <FslUtil/OpenCL1_2/Common.hpp>
 #include <RapidOpenCL1/Program.hpp>
-#include <string>
 #include <CL/cl.h>
+#include <string>
 
-namespace Fsl
+namespace Fsl::OpenCL
 {
-  namespace OpenCL
+  // Provides a quick way to build a program.
+  // If you want more direct control of the build process use the Program class instead.
+  //
+  // This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  class ProgramEx
   {
-    // Provides a quick way to build a program.
-    // If you want more direct control of the build process use the Program class instead.
-    //
-    // This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-    class ProgramEx
+    RapidOpenCL1::Program m_program;
+
+  public:
+    ProgramEx(const ProgramEx&) = delete;
+    ProgramEx& operator=(const ProgramEx&) = delete;
+
+    //! @brief Move assignment operator
+    ProgramEx& operator=(ProgramEx&& other) noexcept;
+    //! @brief Move constructor
+    ProgramEx(ProgramEx&& other) noexcept;
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    ProgramEx();
+
+    //! @brief Assume control of the Program (this object becomes responsible for releasing it)
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    explicit ProgramEx(const cl_program program);
+
+    //! @brief Create the requested resource
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    ProgramEx(const cl_context context, const cl_device_id deviceId, const std::string& program);
+
+    //! @brief returns the managed handle and releases the ownership.
+    [[nodiscard]] cl_program Release()
     {
-      RapidOpenCL1::Program m_program;
+      return m_program.Release();
+    }
 
-    public:
-      ProgramEx(const ProgramEx&) = delete;
-      ProgramEx& operator=(const ProgramEx&) = delete;
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept
+    {
+      m_program.Reset();
+    }
 
-      //! @brief Move assignment operator
-      ProgramEx& operator=(ProgramEx&& other) noexcept;
-      //! @brief Move constructor
-      ProgramEx(ProgramEx&& other) noexcept;
+    //! @brief Destroys any owned resources and assume control of the Program (this object becomes responsible for releasing it)
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const cl_program program)
+    {
+      m_program.Reset(program);
+    }
 
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      ProgramEx();
+    //! @brief Destroys any owned resources and then creates the requested one
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const cl_context context, const cl_device_id deviceId, const std::string& program);
 
-      //! @brief Assume control of the Program (this object becomes responsible for releasing it)
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      explicit ProgramEx(const cl_program program);
+    //! @brief Get the associated resource handle
+    cl_program Get() const
+    {
+      return m_program.Get();
+    }
 
-      //! @brief Create the requested resource
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      ProgramEx(const cl_context context, const cl_device_id deviceId, const std::string& program);
-
-      //! @brief returns the managed handle and releases the ownership.
-      FSL_FUNC_WARN_UNUSED_RESULT cl_program Release()
-      {
-        return m_program.Release();
-      }
-
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept
-      {
-        m_program.Reset();
-      }
-
-      //! @brief Destroys any owned resources and assume control of the Program (this object becomes responsible for releasing it)
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      void Reset(const cl_program program)
-      {
-        m_program.Reset(program);
-      }
-
-      //! @brief Destroys any owned resources and then creates the requested one
-      // NOLINTNEXTLINE(misc-misplaced-const)
-      void Reset(const cl_context context, const cl_device_id deviceId, const std::string& program);
-
-      //! @brief Get the associated resource handle
-      cl_program Get() const
-      {
-        return m_program.Get();
-      }
-
-      //! @brief Check if this object contains a valid resource
-      bool IsValid() const
-      {
-        return m_program.IsValid();
-      }
-    };
-  }
+    //! @brief Check if this object contains a valid resource
+    bool IsValid() const
+    {
+      return m_program.IsValid();
+    }
+  };
 }
 
 #endif

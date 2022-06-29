@@ -46,14 +46,11 @@ namespace Fsl
   class ReadOnlyFlexSpan
   {
   public:
-    static constexpr std::size_t extent = std::size_t(-1);
+    static constexpr std::size_t extent = static_cast<std::size_t>(-1);
 
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
     using const_pointer = const void*;
-
-    // Disabled and using a base class we can define (workaround until C++17)
-    // static constexpr std::size_t extent = std::size_t(-1);
 
   protected:
     const_pointer m_pData{nullptr};

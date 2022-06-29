@@ -30,8 +30,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Platform/PlatformThread.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/System/Platform/PlatformThread.hpp>
 
 namespace Fsl
 {

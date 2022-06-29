@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Threading/Thread.hpp>
 #include <FslBase/System/Platform/PlatformThread.hpp>
+#include <FslBase/System/Threading/Thread.hpp>
 
 namespace Fsl
 {

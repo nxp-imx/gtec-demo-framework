@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,14 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/App/SimpleCenterDialogActivity.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <Shared/UI/Benchmark/App/SimpleCenterDialogActivity.hpp>
 //#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
@@ -46,104 +45,101 @@
 #include <Shared/UI/Benchmark/App/SimpleDialogActivityFactory.hpp>
 #include "AppConfig.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  SimpleCenterDialogActivity::SimpleCenterDialogActivity(std::weak_ptr<IActivityStack> activityStack,
+                                                         const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                                         const Theme::WindowType windowType)
+    : DialogActivity(std::move(activityStack), themeControlFactory, std::make_shared<GridLayout>(themeControlFactory->GetContext()), windowType,
+                     ItemAlignment::Center)
   {
-    SimpleCenterDialogActivity::SimpleCenterDialogActivity(std::weak_ptr<IActivityStack> activityStack,
-                                                           const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                                           const Theme::WindowType windowType)
-      : DialogActivity(std::move(activityStack), themeControlFactory, std::make_shared<GridLayout>(themeControlFactory->GetContext()), windowType,
-                       ItemAlignment::Center)
+    SetWindowAlignmentY(LocationTweaker::GetItemAlignment(GetWeakActivityStack()));
+
+    auto& rMainLayout = dynamic_cast<GridLayout&>(GetWindow());
+    rMainLayout.AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+
+    auto caption = themeControlFactory->CreateLabel("Basic center dialog", Theme::FontType::Header);
+    caption->SetAlignmentX(ItemAlignment::Center);
+
+    m_buttonBack = themeControlFactory->CreateTextButton(Theme::ButtonType::Contained, "Back");
+    m_buttonBack->SetAlignmentX(ItemAlignment::Stretch);
+    m_buttonDetails = themeControlFactory->CreateTextButton(Theme::ButtonType::Outlined, "Details");
+    m_buttonDetails->SetAlignmentX(ItemAlignment::Stretch);
+
+    auto context = themeControlFactory->GetContext();
+    auto bottomStack = std::make_shared<UniformStackLayout>(context);
+    bottomStack->SetAlignmentX(ItemAlignment::Center);
+    bottomStack->SetOrientation(LayoutOrientation::Horizontal);
+    bottomStack->SetSpacing(DpSize1DF::Create(4.0f));
+    if (ActivityCount() < AppConfig::MaxActivityCount)
     {
-      SetWindowAlignmentY(LocationTweaker::GetItemAlignment(GetWeakActivityStack()));
+      bottomStack->AddChild(m_buttonDetails);
+    }
+    bottomStack->AddChild(m_buttonBack);
 
-      auto& rMainLayout = dynamic_cast<GridLayout&>(GetWindow());
-      rMainLayout.AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    auto content = std::make_shared<GridLayout>(context);
+    {
+      const auto label0 = themeControlFactory->CreateLabel("Dexterity");
+      const auto label1 = themeControlFactory->CreateLabel("Luck");
+      const auto label2 = themeControlFactory->CreateLabel("Perception");
+      const auto label3 = themeControlFactory->CreateLabel("Strength");
+      const auto label4 = themeControlFactory->CreateLabel("Wisdom");
+      label0->SetAlignmentY(UI::ItemAlignment::Center);
+      label1->SetAlignmentY(UI::ItemAlignment::Center);
+      label2->SetAlignmentY(UI::ItemAlignment::Center);
+      label3->SetAlignmentY(UI::ItemAlignment::Center);
+      label4->SetAlignmentY(UI::ItemAlignment::Center);
 
-      auto caption = themeControlFactory->CreateLabel("Basic center dialog", Theme::FontType::Header);
-      caption->SetAlignmentX(ItemAlignment::Center);
-
-      m_buttonBack = themeControlFactory->CreateTextButton(Theme::ButtonType::Contained, "Back");
-      m_buttonBack->SetAlignmentX(ItemAlignment::Stretch);
-      m_buttonDetails = themeControlFactory->CreateTextButton(Theme::ButtonType::Outlined, "Details");
-      m_buttonDetails->SetAlignmentX(ItemAlignment::Stretch);
-
-      auto context = themeControlFactory->GetContext();
-      auto bottomStack = std::make_shared<UniformStackLayout>(context);
-      bottomStack->SetAlignmentX(ItemAlignment::Center);
-      bottomStack->SetLayoutOrientation(LayoutOrientation::Horizontal);
-      bottomStack->SetSpacing(4.0f);
-      if (ActivityCount() < AppConfig::MaxActivityCount)
-      {
-        bottomStack->AddChild(m_buttonDetails);
-      }
-      bottomStack->AddChild(m_buttonBack);
-
-      auto content = std::make_shared<GridLayout>(context);
-      {
-        const auto label0 = themeControlFactory->CreateLabel("Dexterity");
-        const auto label1 = themeControlFactory->CreateLabel("Luck");
-        const auto label2 = themeControlFactory->CreateLabel("Perception");
-        const auto label3 = themeControlFactory->CreateLabel("Strength");
-        const auto label4 = themeControlFactory->CreateLabel("Wisdom");
-        label0->SetAlignmentY(UI::ItemAlignment::Center);
-        label1->SetAlignmentY(UI::ItemAlignment::Center);
-        label2->SetAlignmentY(UI::ItemAlignment::Center);
-        label3->SetAlignmentY(UI::ItemAlignment::Center);
-        label4->SetAlignmentY(UI::ItemAlignment::Center);
-
-        content->SetAlignmentX(ItemAlignment::Stretch);
-        content->SetAlignmentY(ItemAlignment::Stretch);
-        content->AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
-        content->AddColumnDefinition(GridColumnDefinition(GridUnitType::Fixed, 400));
-        content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-        content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-        content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-        content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-        content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-        content->AddChild(label0, 0, 0);
-        content->AddChild(label1, 0, 1);
-        content->AddChild(label2, 0, 2);
-        content->AddChild(label3, 0, 3);
-        content->AddChild(label4, 0, 4);
-        content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(0, 0, 100)), 1, 0);
-        content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(25, 0, 100)), 1, 1);
-        content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(50, 0, 100)), 1, 2);
-        content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(75, 0, 100)), 1, 3);
-        content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(100, 0, 100)), 1, 4);
-      }
-
-      rMainLayout.AddChild(caption, 0, 0);
-      rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 1);
-      rMainLayout.AddChild(content, 0, 2);
-      rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 3);
-      rMainLayout.AddChild(bottomStack, 0, 4);
+      content->SetAlignmentX(ItemAlignment::Stretch);
+      content->SetAlignmentY(ItemAlignment::Stretch);
+      content->AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
+      content->AddColumnDefinition(GridColumnDefinition(GridUnitType::Fixed, 400));
+      content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+      content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+      content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+      content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+      content->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+      content->AddChild(label0, 0, 0);
+      content->AddChild(label1, 0, 1);
+      content->AddChild(label2, 0, 2);
+      content->AddChild(label3, 0, 3);
+      content->AddChild(label4, 0, 4);
+      content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(0, 0, 100)), 1, 0);
+      content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(25, 0, 100)), 1, 1);
+      content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(50, 0, 100)), 1, 2);
+      content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(75, 0, 100)), 1, 3);
+      content->AddChild(themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<int32_t>(100, 0, 100)), 1, 4);
     }
 
+    rMainLayout.AddChild(caption, 0, 0);
+    rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 1);
+    rMainLayout.AddChild(content, 0, 2);
+    rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 3);
+    rMainLayout.AddChild(bottomStack, 0, 4);
+  }
 
-    void SimpleCenterDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+
+  void SimpleCenterDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  {
+    if (m_state == State::Ready && !theEvent->IsHandled())
     {
-      if (m_state == State::Ready && !theEvent->IsHandled())
+      if (theEvent->GetSource() == m_buttonBack)
       {
-        if (theEvent->GetSource() == m_buttonBack)
-        {
-          ScheduleCloseActivity(true);
-          m_state = State::Closing;
-        }
-        else if (theEvent->GetSource() == m_buttonDetails)
-        {
-          auto controlFactory = GetThemeControlFactory();
-          PushActivity(SimpleDialogActivityFactory::CreateRightDialog(GetWeakActivityStack(), controlFactory));
-        }
+        ScheduleCloseActivity(true);
+        m_state = State::Closing;
       }
-
-      DialogActivity::OnSelect(args, theEvent);
+      else if (theEvent->GetSource() == m_buttonDetails)
+      {
+        auto controlFactory = GetThemeControlFactory();
+        PushActivity(SimpleDialogActivityFactory::CreateRightDialog(GetWeakActivityStack(), controlFactory));
+      }
     }
+
+    DialogActivity::OnSelect(args, theEvent);
   }
 }

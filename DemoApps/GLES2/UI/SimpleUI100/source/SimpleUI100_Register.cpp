@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "SimpleUI100.hpp"
 #include <array>
+#include "SimpleUI100.hpp"
 
 namespace Fsl
 {

@@ -30,16 +30,17 @@
  ****************************************************************************************************************************************************/
 
 #include "AssimpDoubleTexture.hpp"
-#include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
 
 // Will use generic assimp header
 #include <assimp/Importer.hpp>    //OO version Header!
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 namespace Fsl
 {
@@ -265,12 +266,14 @@ namespace Fsl
       // Buffer for Indices
       glGenBuffers(1, &(m_mesh[n].indexBO));
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_mesh[n].indexBO);
-      glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh->mNumFaces * 3, faceArray.data(), GL_STATIC_DRAW);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, UncheckedNumericCast<GLsizei>(sizeof(unsigned int) * mesh->mNumFaces * 3), faceArray.data(),
+                   GL_STATIC_DRAW);
 
       // VBO for the whole Mesh
       glGenBuffers(1, &(m_mesh[n].posVBO));
       glBindBuffer(GL_ARRAY_BUFFER, m_mesh[n].posVBO);
-      glBufferData(GL_ARRAY_BUFFER, m_mesh[n].vertexData.size() * sizeof(MeshVertex), &(m_mesh[n].vertexData[0]), GL_STATIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, UncheckedNumericCast<GLsizei>(m_mesh[n].vertexData.size() * sizeof(MeshVertex)), &(m_mesh[n].vertexData[0]),
+                   GL_STATIC_DRAW);
 
       // Assign the VBO Attributes with offsets
       glEnableVertexAttribArray(m_attribLocMeshPosition);

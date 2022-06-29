@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 
 namespace Fsl
 {

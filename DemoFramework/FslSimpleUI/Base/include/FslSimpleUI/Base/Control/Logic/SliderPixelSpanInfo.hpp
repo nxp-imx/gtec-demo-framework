@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_LOGIC_SLIDERPIXELSPANINFO_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_LOGIC_SLIDERPIXELSPANINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,86 +35,83 @@
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <cmath>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct SliderPixelSpanInfo
   {
-    struct SliderPixelSpanInfo
+  private:
+    int32_t m_startPx{};
+    int32_t m_lengthPx{};
+    bool m_reverseDirection{false};
+
+  public:
+    constexpr SliderPixelSpanInfo() noexcept = default;
+
+    //! @brief Create a pixel span info
+    constexpr explicit SliderPixelSpanInfo(const int32_t startPx, const int32_t lengthPx, const bool reverseDirection = false) noexcept
+      : m_startPx(startPx)
+      , m_lengthPx(lengthPx)
+      , m_reverseDirection(reverseDirection)
     {
-    private:
-      int32_t m_startPx{};
-      int32_t m_lengthPx{};
-      bool m_reverseDirection{false};
+    }
 
-    public:
-      constexpr SliderPixelSpanInfo() noexcept = default;
+    constexpr int32_t GetStartPx() const
+    {
+      return m_startPx;
+    }
 
-      //! @brief Create a pixel span info
-      constexpr explicit SliderPixelSpanInfo(const int32_t startPx, const int32_t lengthPx, const bool reverseDirection = false) noexcept
-        : m_startPx(startPx)
-        , m_lengthPx(lengthPx)
-        , m_reverseDirection(reverseDirection)
-      {
-      }
+    constexpr int32_t GetLengthPx() const
+    {
+      return m_lengthPx;
+    }
 
-      constexpr int32_t GetStartPx() const
-      {
-        return m_startPx;
-      }
+    constexpr bool IsReversedDirection() const
+    {
+      return m_reverseDirection;
+    }
 
-      constexpr int32_t GetLengthPx() const
-      {
-        return m_lengthPx;
-      }
+    //! @brief Calculate the percentage of the span the position represents
+    constexpr float CalculatePercentage(const int32_t positionPx) const
+    {
+      // const auto clampedTickInterval(MathHelper::Clamp(pxTickInterval, 1, std::max(m_lengthPx, 1)));
 
-      constexpr bool IsReversedDirection() const
-      {
-        return m_reverseDirection;
-      }
+      const auto includedEndPx = GetIncludedEndPx();
+      // clamp the position to be inside
+      auto relativePositionPx = MathHelper::Clamp(positionPx, m_startPx, m_startPx + includedEndPx) - m_startPx;
+      // Calculate the percentage
+      auto percentage = (includedEndPx > 0 ? (static_cast<float>(relativePositionPx) / static_cast<float>(includedEndPx)) : 0.0f);
 
-      //! @brief Calculate the percentage of the span the position represents
-      constexpr float CalculatePercentage(const int32_t positionPx) const
-      {
-        // const auto clampedTickInterval(MathHelper::Clamp(pxTickInterval, 1, std::max(m_lengthPx, 1)));
+      return static_cast<float>(!m_reverseDirection ? percentage : (1.0 - percentage));
+    }
 
-        const auto includedEndPx = GetIncludedEndPx();
-        // clamp the position to be inside
-        auto relativePositionPx = MathHelper::Clamp(positionPx, m_startPx, m_startPx + includedEndPx) - m_startPx;
-        // Calculate the percentage
-        auto percentage = (includedEndPx > 0 ? (relativePositionPx / static_cast<float>(includedEndPx)) : 0.0f);
+    int32_t CalcPercentageToPxPosition(const float percentage) const
+    {
+      float cappedPercentage = MathHelper::Clamp(percentage, 0.0f, 1.0f);
+      cappedPercentage = !m_reverseDirection ? cappedPercentage : (1.0f - cappedPercentage);
 
-        return static_cast<float>(!m_reverseDirection ? percentage : (1.0 - percentage));
-      }
+      const auto includedEndPx = GetIncludedEndPx();
+      const auto positionPx = static_cast<int32_t>(std::round(cappedPercentage * static_cast<float>(includedEndPx))) + m_startPx;
+      return MathHelper::Clamp(positionPx, m_startPx, m_startPx + includedEndPx);
+    }
 
-      int32_t CalcPercentageToPxPosition(const float percentage) const
-      {
-        float cappedPercentage = MathHelper::Clamp(percentage, 0.0f, 1.0f);
-        cappedPercentage = !m_reverseDirection ? cappedPercentage : (1.0f - cappedPercentage);
+    constexpr bool operator==(const SliderPixelSpanInfo& rhs) const noexcept
+    {
+      return m_startPx == rhs.m_startPx && m_lengthPx == rhs.m_lengthPx && m_reverseDirection == rhs.m_reverseDirection;
+    }
 
-        const auto includedEndPx = GetIncludedEndPx();
-        const auto positionPx = static_cast<int32_t>(std::round(cappedPercentage * includedEndPx)) + m_startPx;
-        return MathHelper::Clamp(positionPx, m_startPx, m_startPx + includedEndPx);
-      }
+    constexpr bool operator!=(const SliderPixelSpanInfo& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
 
-      constexpr bool operator==(const SliderPixelSpanInfo& rhs) const noexcept
-      {
-        return m_startPx == rhs.m_startPx && m_lengthPx == rhs.m_lengthPx && m_reverseDirection == rhs.m_reverseDirection;
-      }
-
-      constexpr bool operator!=(const SliderPixelSpanInfo& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-
-    private:
-      // The last included pixel in the span range (this is what we need to ensure that all slider values can be selected)
-      // beware this is relative to zero not m_startPx
-      constexpr int32_t GetIncludedEndPx() const
-      {
-        return m_lengthPx > 0 ? (m_lengthPx - 1) : 0;
-      }
-    };
-  }
+  private:
+    // The last included pixel in the span range (this is what we need to ensure that all slider values can be selected)
+    // beware this is relative to zero not m_startPx
+    constexpr int32_t GetIncludedEndPx() const
+    {
+      return m_lengthPx > 0 ? (m_lengthPx - 1) : 0;
+    }
+  };
 }
 
 #endif

@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModule.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Module/ExternalModuleCreateInfo.hpp>
 #include <FslSimpleUI/Base/Module/IExternalModuleHost.hpp>
 #include <FslSimpleUI/Base/Module/IWindowBasicInfo.hpp>
 #include <FslSimpleUI/Base/Module/IWindowClickInputTargetLocater.hpp>
+#include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModule.hpp>
 #include <cassert>
 #include <limits>
 
@@ -122,7 +122,7 @@ namespace Fsl
   }
 
 
-  Optional<PxRectangle> WindowIdGeneratorModule::TryGetWindowRectanglePx(const CustomWindowId windowId) const
+  std::optional<PxRectangle> WindowIdGeneratorModule::TryGetWindowRectanglePx(const CustomWindowId windowId) const
   {
     auto itrFind = m_mapIdToWindow.find(windowId.Value);
     if (itrFind != m_mapIdToWindow.end())

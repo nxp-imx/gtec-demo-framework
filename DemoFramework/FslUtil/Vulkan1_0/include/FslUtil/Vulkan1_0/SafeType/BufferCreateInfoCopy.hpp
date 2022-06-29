@@ -36,42 +36,39 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // A 'safe' variant of the VkBufferCreateInfo structure.
+  // This one stores the 'pointed' to values inside it
+  class BufferCreateInfoCopy
   {
-    // A 'safe' variant of the VkBufferCreateInfo structure.
-    // This one stores the 'pointed' to values inside it
-    class BufferCreateInfoCopy
+    VkBufferCreateInfo m_value;
+
+    std::vector<uint32_t> m_queueFamilyIndices;
+
+  public:
+    BufferCreateInfoCopy(const BufferCreateInfoCopy&) = delete;
+    BufferCreateInfoCopy& operator=(const BufferCreateInfoCopy&) = delete;
+
+    BufferCreateInfoCopy& operator=(BufferCreateInfoCopy&& other) noexcept;
+    BufferCreateInfoCopy(BufferCreateInfoCopy&& other) noexcept;
+
+    BufferCreateInfoCopy();
+    explicit BufferCreateInfoCopy(const VkBufferCreateInfo& value);
+
+    void Reset();
+    void Reset(const VkBufferCreateInfo& value);
+
+    const VkBufferCreateInfo& Get() const
     {
-      VkBufferCreateInfo m_value;
+      return m_value;
+    }
 
-      std::vector<uint32_t> m_queueFamilyIndices;
-
-    public:
-      BufferCreateInfoCopy(const BufferCreateInfoCopy&) = delete;
-      BufferCreateInfoCopy& operator=(const BufferCreateInfoCopy&) = delete;
-
-      BufferCreateInfoCopy& operator=(BufferCreateInfoCopy&& other) noexcept;
-      BufferCreateInfoCopy(BufferCreateInfoCopy&& other) noexcept;
-
-      BufferCreateInfoCopy();
-      explicit BufferCreateInfoCopy(const VkBufferCreateInfo& value);
-
-      void Reset();
-      void Reset(const VkBufferCreateInfo& value);
-
-      const VkBufferCreateInfo& Get() const
-      {
-        return m_value;
-      }
-
-    private:
-      // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
-      // @note  This ensures correct behavior when moving etc
-      void PatchPointers() noexcept;
-    };
-  }
+  private:
+    // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
+    // @note  This ensures correct behavior when moving etc
+    void PatchPointers() noexcept;
+  };
 }
 
 #endif

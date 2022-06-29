@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class EventRoutingStrategy
   {
-    enum class EventRoutingStrategy
-    {
-      Tunnel,
-      Bubble,
-      Paired,
-      Direct
-    };
-  }
+    Tunnel,
+    Bubble,
+    Paired,
+    Direct
+  };
 }
 
 #endif

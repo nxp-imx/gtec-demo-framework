@@ -44,16 +44,18 @@ namespace Fsl
     bool DepthBuffer{true};
     bool DrawReorder{true};
     bool MeshCaching{true};
+    bool PreferFastReorder{true};
 
     constexpr AppRenderOptions() noexcept = default;
     constexpr AppRenderOptions(const AppRenderMethod renderMethod, const bool batch, const bool fillBuffers, const bool depthBuffer,
-                               const bool drawReorder, const bool meshCaching) noexcept
+                               const bool drawReorder, const bool meshCaching, const bool preferFastReorder) noexcept
       : RenderMethod(renderMethod)
       , Batch(batch)
       , FillBuffers(fillBuffers)
       , DepthBuffer(depthBuffer)
       , DrawReorder(drawReorder)
       , MeshCaching(meshCaching)
+      , PreferFastReorder(preferFastReorder)
     {
     }
   };

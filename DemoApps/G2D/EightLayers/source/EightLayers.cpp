@@ -31,14 +31,14 @@
 
 // The interaction with FB was copied from the existing G2D overlay example
 
+#include "EightLayers.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <cstring>
-#include "EightLayers.hpp"
+#include "G2DSurface.hpp"
 #include "OptionParser.hpp"
 #include "ScopedFBHandle.hpp"
-#include "G2DSurface.hpp"
 
 namespace Fsl
 {

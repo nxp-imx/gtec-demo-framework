@@ -33,8 +33,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFB.hpp>
-#include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
+#include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemTemplate.hpp>
 
 namespace Fsl

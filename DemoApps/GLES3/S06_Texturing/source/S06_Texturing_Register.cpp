@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S06_Texturing.hpp"
 #include <array>
+#include "S06_Texturing.hpp"
 
 namespace Fsl
 {

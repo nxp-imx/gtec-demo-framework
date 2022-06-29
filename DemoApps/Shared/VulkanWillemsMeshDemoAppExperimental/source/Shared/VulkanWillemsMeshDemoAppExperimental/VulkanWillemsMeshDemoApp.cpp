@@ -12,25 +12,22 @@
 // This class simulates the functionality found in VulkanExampleBase to make it easier
 // to port samples.
 
-#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
 #include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanMeshLoaderAssimp.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  namespace
   {
-    namespace
+    std::unique_ptr<VulkanMeshLoader> Allocate(const std::shared_ptr<IContentManager>& contentManager)
     {
-      std::unique_ptr<VulkanMeshLoader> Allocate(const std::shared_ptr<IContentManager>& contentManager)
-      {
-        return std::unique_ptr<VulkanMeshLoader>(new VulkanMeshLoaderAssimp(contentManager));
-      }
+      return std::unique_ptr<VulkanMeshLoader>(new VulkanMeshLoaderAssimp(contentManager));
     }
+  }
 
 
-    VulkanWillemsMeshDemoApp::VulkanWillemsMeshDemoApp(const DemoAppConfig& demoAppConfig)
-      : VulkanWillemsDemoApp(demoAppConfig, Allocate)
-    {
-    }
+  VulkanWillemsMeshDemoApp::VulkanWillemsMeshDemoApp(const DemoAppConfig& demoAppConfig)
+    : VulkanWillemsDemoApp(demoAppConfig, Allocate)
+  {
   }
 }

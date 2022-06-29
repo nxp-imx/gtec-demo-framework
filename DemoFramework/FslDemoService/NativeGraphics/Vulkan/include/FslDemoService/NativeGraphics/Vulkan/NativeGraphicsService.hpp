@@ -36,8 +36,8 @@
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <memory>
 #include <list>
+#include <memory>
 
 namespace Fsl
 {

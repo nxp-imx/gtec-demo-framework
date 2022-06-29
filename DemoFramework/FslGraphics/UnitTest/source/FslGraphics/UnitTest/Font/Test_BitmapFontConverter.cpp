@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/BitmapFontConverter.hpp>
-#include <FslBase/NumericCast.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
+#include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
+#include <FslGraphics/Font/BitmapFontConverter.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
-#include <FslBase/IO/Path.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphicsContent.hpp>
 #include <fmt/format.h>
 
@@ -94,7 +94,9 @@ namespace
       const auto& entry = atlas.GetEntry(i);
       if (entry.Name == glyphPath)
       {
-        return {PxPoint2(entry.TextureInfo.TrimMarginPx.Left, entry.TextureInfo.TrimMarginPx.Top), entry.TextureInfo.TrimmedRectPx};
+        return {PxPoint2(NumericCast<PxPoint2::value_type>(entry.TextureInfo.TrimMarginPx.Left),
+                         NumericCast<PxPoint2::value_type>(entry.TextureInfo.TrimMarginPx.Top)),
+                entry.TextureInfo.TrimmedRectPx};
       }
     }
     return {};

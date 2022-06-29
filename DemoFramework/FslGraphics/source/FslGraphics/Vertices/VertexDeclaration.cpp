@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <algorithm>
 #include <cassert>
@@ -42,7 +42,7 @@ namespace Fsl
 {
   namespace
   {
-    bool Contains(const std::vector<VertexElementEx>& elements, const VertexElementUsage usage, const uint32_t usageIndex, const uint32_t ignoreIndex)
+    bool Contains(const std::vector<VertexElement>& elements, const VertexElementUsage usage, const uint32_t usageIndex, const uint32_t ignoreIndex)
     {
       assert(elements.size() <= std::numeric_limits<uint32_t>::max());
       const auto count = static_cast<uint32_t>(elements.size());
@@ -57,20 +57,20 @@ namespace Fsl
       return false;
     }
 
-    void VerifyElements(const std::vector<VertexElementEx>& elements, const uint32_t vertexStride)
+    void VerifyElements(const std::vector<VertexElement>& elements, const uint32_t vertexStride)
     {
       // We expect the element offsets to be in order: smallest -> largest
       uint32_t maxOffset = 0;
-      const auto count = uint32_t(elements.size());
+      const auto count = static_cast<uint32_t>(elements.size());
       for (uint32_t i = 0; i < count; ++i)
       {
-        auto offset = elements[i].Offset + VertexElementFormatUtil::GetBytesPerElement(elements[i].Format);
+        auto offset = elements[i].Offset;
         if (offset < maxOffset)
         {
           throw NotSupportedException("The offsets should be in order: smallest -> largest");
         }
 
-        maxOffset = offset;
+        maxOffset = offset + VertexElementFormatUtil::GetBytesPerElement(elements[i].Format);
 
         if (Contains(elements, elements[i].Usage, elements[i].UsageIndex, i))
         {
@@ -86,7 +86,7 @@ namespace Fsl
     }
 
 
-    void CopyElements(std::vector<VertexElementEx>& rDstElements, const VertexElementEx* pSrcElement, const uint32_t elementCount)
+    void CopyElements(std::vector<VertexElement>& rDstElements, const VertexElement* pSrcElement, const uint32_t elementCount)
     {
       assert(rDstElements.size() == std::size_t(elementCount));
 
@@ -164,7 +164,7 @@ namespace Fsl
   }
 
 
-  VertexDeclaration::VertexDeclaration(const VertexElementEx* const pElements, const std::size_t elementCount, const uint32_t vertexStride)
+  VertexDeclaration::VertexDeclaration(const VertexElement* const pElements, const std::size_t elementCount, const uint32_t vertexStride)
     : m_elements(elementCount)
     , m_vertexStride(vertexStride)
   {
@@ -182,7 +182,7 @@ namespace Fsl
   }
 
 
-  void VertexDeclaration::Reset(const VertexElementEx* const pElements, const std::size_t elementCount, const uint32_t vertexStride)
+  void VertexDeclaration::Reset(const VertexElement* const pElements, const std::size_t elementCount, const uint32_t vertexStride)
   {
     if (pElements == nullptr)
     {
@@ -201,13 +201,13 @@ namespace Fsl
   }
 
 
-  uint32_t VertexDeclaration::Count() const
+  uint32_t VertexDeclaration::Count() const noexcept
   {
     return static_cast<uint32_t>(m_elements.size());
   }
 
 
-  const VertexElementEx* VertexDeclaration::DirectAccess() const
+  const VertexElement* VertexDeclaration::DirectAccess() const noexcept
   {
     return m_elements.data();
   }
@@ -224,7 +224,7 @@ namespace Fsl
   }
 
 
-  int32_t VertexDeclaration::VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const
+  int32_t VertexDeclaration::VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const noexcept
   {
     for (std::size_t i = 0; i < m_elements.size(); ++i)
     {
@@ -237,7 +237,7 @@ namespace Fsl
   }
 
 
-  VertexElementEx VertexDeclaration::VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const
+  VertexElement VertexDeclaration::VertexElementGet(const VertexElementUsage usage, const uint32_t usageIndex) const
   {
     for (auto element : m_elements)
     {
@@ -249,13 +249,13 @@ namespace Fsl
     throw NotFoundException("Could not locate a vertex element of the requested type");
   }
 
-  VertexDeclarationSpan VertexDeclaration::AsSpan() const
+  VertexDeclarationSpan VertexDeclaration::AsSpan() const noexcept
   {
-    return VertexDeclarationSpan(ReadOnlySpanUtil::AsSpan(m_elements), m_vertexStride, OptimizationCheckFlag::NoCheck);
+    return {ReadOnlySpanUtil::AsSpan(m_elements), m_vertexStride, OptimizationCheckFlag::NoCheck};
   }
 
 
-  bool VertexDeclaration::operator==(const VertexDeclaration& rhs) const
+  bool VertexDeclaration::operator==(const VertexDeclaration& rhs) const noexcept
   {
     if (m_vertexStride != rhs.m_vertexStride || m_elements.size() != rhs.m_elements.size())
     {
@@ -273,7 +273,7 @@ namespace Fsl
   }
 
 
-  bool VertexDeclaration::operator!=(const VertexDeclaration& rhs) const
+  bool VertexDeclaration::operator!=(const VertexDeclaration& rhs) const noexcept
   {
     return !(*this == rhs);
   }

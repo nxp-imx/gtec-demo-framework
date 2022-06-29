@@ -29,95 +29,92 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
-#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  LabelButton::LabelButton(const std::shared_ptr<WindowContext>& context)
+    : ButtonBase(context)
+    , m_windowContext(context)
+    , m_fontMesh(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
   {
-    LabelButton::LabelButton(const std::shared_ptr<WindowContext>& context)
-      : ButtonBase(context)
-      , m_windowContext(context)
-      , m_fontMesh(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
+    Enable(WindowFlags(WindowFlags::DrawEnabled));
+  }
+
+
+  void LabelButton::SetContent(const std::string& value)
+  {
+    if (m_fontMesh.SetText(value))
     {
-      Enable(WindowFlags(WindowFlags::DrawEnabled));
+      PropertyUpdated(PropertyType::Content);
     }
+  }
 
 
-    void LabelButton::SetContent(const std::string& value)
+  void LabelButton::SetFont(const std::shared_ptr<SpriteFont>& value)
+  {
+    if (m_fontMesh.SetSprite(value))
     {
-      if (m_fontMesh.SetText(value))
-      {
-        PropertyUpdated(PropertyType::Content);
-      }
+      PropertyUpdated(PropertyType::Content);
     }
+  }
 
 
-    void LabelButton::SetFont(const std::shared_ptr<SpriteFont>& value)
+  void LabelButton::SetColorUp(const Color& value)
+  {
+    if (value != m_colorUp)
     {
-      if (m_fontMesh.SetSprite(value))
-      {
-        PropertyUpdated(PropertyType::Content);
-      }
+      m_colorUp = value;
+      PropertyUpdated(PropertyType::Other);
     }
+  }
 
 
-    void LabelButton::SetColorUp(const Color& value)
+  void LabelButton::SetColorDown(const Color& value)
+  {
+    if (value != m_colorDown)
     {
-      if (value != m_colorUp)
-      {
-        m_colorUp = value;
-        PropertyUpdated(PropertyType::Other);
-      }
+      m_colorDown = value;
+      PropertyUpdated(PropertyType::Other);
     }
+  }
 
 
-    void LabelButton::SetColorDown(const Color& value)
+  void LabelButton::WinDraw(const UIDrawContext& context)
+  {
+    ButtonBase::WinDraw(context);
+
+    if (m_fontMesh.IsValid())
     {
-      if (value != m_colorDown)
-      {
-        m_colorDown = value;
-        PropertyUpdated(PropertyType::Other);
-      }
+      const auto color = !IsDown() ? m_colorUp : m_colorDown;
+      context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
     }
+  }
 
 
-    void LabelButton::WinDraw(const UIDrawContext& context)
-    {
-      ButtonBase::WinDraw(context);
-
-      if (m_fontMesh.IsValid())
-      {
-        const auto color = !IsDown() ? m_colorUp : m_colorDown;
-        context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
-      }
-    }
+  PxSize2D LabelButton::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    return finalSizePx;
+  }
 
 
-    PxSize2D LabelButton::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      return finalSizePx;
-    }
-
-
-    PxSize2D LabelButton::MeasureOverride(const PxAvailableSize& availableSizePx)
-    {
-      FSL_PARAM_NOT_USED(availableSizePx);
-      const auto measureInfo = m_fontMesh.ComplexMeasure();
-      m_cachedMeasureMinimalFontSizePx = measureInfo.MinimalSizePx;
-      return measureInfo.MeasureSizePx;
-    }
+  PxSize2D LabelButton::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    FSL_PARAM_NOT_USED(availableSizePx);
+    const auto measureInfo = m_fontMesh.ComplexMeasure();
+    m_cachedMeasureMinimalFontSizePx = measureInfo.MinimalSizePx;
+    return measureInfo.MeasureSizePx;
   }
 }

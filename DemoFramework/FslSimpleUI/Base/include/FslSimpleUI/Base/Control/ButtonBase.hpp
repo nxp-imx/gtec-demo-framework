@@ -33,52 +33,49 @@
 
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  //! @brief The basic implementation of a button
+  //! @note  This is intended as a base class for simple buttons.
+  class ButtonBase : public BaseWindow
   {
-    //! @brief The basic implementation of a button
-    //! @note  This is intended as a base class for simple buttons.
-    class ButtonBase : public BaseWindow
+    bool m_isEnabled{true};
+    bool m_isDown{false};
+
+  public:
+    enum class ButtonPressState
     {
-      bool m_isEnabled{true};
-      bool m_isDown{false};
-
-    public:
-      enum class ButtonPressState
-      {
-        Down = 0,
-        Up = 1,
-        //! The button was released but the 'press' was canceled
-        UpCancelled = 0x2 | Up,
-      };
-
-      virtual bool IsEnabled() const
-      {
-        return m_isEnabled;
-      }
-      virtual void SetEnabled(const bool enabled);
-
-    protected:
-      explicit ButtonBase(const std::shared_ptr<BaseWindowContext>& context);
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-
-      //! @brief Check if the button is down at the moment
-      bool IsDown() const
-      {
-        return m_isDown;
-      }
-
-      //! @brief Called when the button is pressed
-      virtual void Pressed(const ButtonPressState state)
-      {
-        FSL_PARAM_NOT_USED(state);
-      }
-
-    private:
-      void CancelButtonDown();
+      Down = 0,
+      Up = 1,
+      //! The button was released but the 'press' was canceled
+      UpCancelled = 0x2 | Up,
     };
-  }
+
+    virtual bool IsEnabled() const
+    {
+      return m_isEnabled;
+    }
+    virtual void SetEnabled(const bool enabled);
+
+  protected:
+    explicit ButtonBase(const std::shared_ptr<BaseWindowContext>& context);
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+
+    //! @brief Check if the button is down at the moment
+    bool IsDown() const
+    {
+      return m_isDown;
+    }
+
+    //! @brief Called when the button is pressed
+    virtual void Pressed(const ButtonPressState state)
+    {
+      FSL_PARAM_NOT_USED(state);
+    }
+
+  private:
+    void CancelButtonDown();
+  };
 }
 
 #endif

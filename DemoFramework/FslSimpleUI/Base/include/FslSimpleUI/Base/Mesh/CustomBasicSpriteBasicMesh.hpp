@@ -34,19 +34,16 @@
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomSpriteBasicMesh.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class CustomBasicSpriteBasicMesh : public CustomSpriteBasicMesh<BasicImageSprite>
   {
-    class CustomBasicSpriteBasicMesh : public CustomSpriteBasicMesh<BasicImageSprite>
+  public:
+    explicit CustomBasicSpriteBasicMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity)
+      : CustomSpriteBasicMesh(meshManager, vertexCapacity)
     {
-    public:
-      explicit CustomBasicSpriteBasicMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity)
-        : CustomSpriteBasicMesh(meshManager, vertexCapacity)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_CHECKBOX_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_CHECKBOX_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,29 +33,26 @@
 
 #include <FslSimpleUI/Base/Control/ToggleButton.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class CheckBox final : public ToggleButton
   {
-    class CheckBox final : public ToggleButton
+  public:
+    explicit CheckBox(const std::shared_ptr<WindowContext>& context)
+      : ToggleButton(context)
     {
-    public:
-      explicit CheckBox(const std::shared_ptr<WindowContext>& context)
-        : ToggleButton(context)
-      {
-        SetCursorCheckedColor(DefaultColor::CheckBox::CursorChecked);
-        SetCursorCheckedDisabledColor(DefaultColor::CheckBox::CursorCheckedDisabled);
-        SetCursorUncheckedColor(DefaultColor::CheckBox::CursorUnchecked);
-        SetCursorUncheckedDisabledColor(DefaultColor::CheckBox::CursorUncheckedDisabled);
-        SetBackgroundCheckedColor(DefaultColor::CheckBox::BackgroundChecked);
-        SetBackgroundCheckedDisabledColor(DefaultColor::CheckBox::BackgroundCheckedDisabled);
-        SetBackgroundUncheckedColor(DefaultColor::CheckBox::BackgroundUnchecked);
-        SetBackgroundUncheckedDisabledColor(DefaultColor::CheckBox::BackgroundUncheckedDisabled);
-        SetHoverOverlayCheckedColor(DefaultColor::CheckBox::HoverOverlayChecked);
-        SetHoverOverlayUncheckedColor(DefaultColor::CheckBox::HoverOverlayUnchecked);
-      }
-    };
-  }
+      SetCursorCheckedColor(DefaultColor::CheckBox::CursorChecked);
+      SetCursorCheckedDisabledColor(DefaultColor::CheckBox::CursorCheckedDisabled);
+      SetCursorUncheckedColor(DefaultColor::CheckBox::CursorUnchecked);
+      SetCursorUncheckedDisabledColor(DefaultColor::CheckBox::CursorUncheckedDisabled);
+      SetBackgroundCheckedColor(DefaultColor::CheckBox::BackgroundChecked);
+      SetBackgroundCheckedDisabledColor(DefaultColor::CheckBox::BackgroundCheckedDisabled);
+      SetBackgroundUncheckedColor(DefaultColor::CheckBox::BackgroundUnchecked);
+      SetBackgroundUncheckedDisabledColor(DefaultColor::CheckBox::BackgroundUncheckedDisabled);
+      SetHoverOverlayCheckedColor(DefaultColor::CheckBox::HoverOverlayChecked);
+      SetHoverOverlayUncheckedColor(DefaultColor::CheckBox::HoverOverlayUnchecked);
+    }
+  };
 }
 
 #endif

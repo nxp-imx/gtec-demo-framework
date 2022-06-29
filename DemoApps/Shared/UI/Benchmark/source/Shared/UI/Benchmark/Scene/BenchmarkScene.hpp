@@ -35,9 +35,9 @@
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkGpuRecord.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkInfo.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkRenderInfo.hpp>
-#include "BasicTestScene.hpp"
 #include <memory>
 #include <vector>
+#include "BasicTestScene.hpp"
 
 namespace Fsl
 {

@@ -33,14 +33,14 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/Platform/QNX/ScopedSystemMemoryAccessQNX.hpp>
-#include <cstring>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <cstring>
 
 #define MAP_SIZE 4096UL
 #define MAP_MASK (MAP_SIZE - 1)

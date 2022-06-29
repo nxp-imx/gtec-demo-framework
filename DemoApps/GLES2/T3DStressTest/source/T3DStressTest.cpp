@@ -31,14 +31,14 @@
 
 #include "T3DStressTest.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
-#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
-#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
+#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslUtil/OpenGLES2/TextureUtil.hpp>
@@ -77,7 +77,7 @@ namespace Fsl
       Bitmap bitmap;
       contentManager->Read(bitmap, "Seamless.jpg", PixelFormat::R8G8B8A8_UNORM);
       GLTextureParameters texParams1(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      return GLTexture(bitmap, texParams1);
+      return {bitmap, texParams1};
     }
 
     //! Create the fur 'density' bitmap
@@ -87,7 +87,7 @@ namespace Fsl
       const std::vector<uint8_t> furBitmapContent = FurTexture::Generate(furTextureDim, furTextureDim, hairDensity, layerCount);
       const RawBitmap furBitmap(furBitmapContent.data(), furTextureDim, furTextureDim, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
       GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
-      return GLTexture(furBitmap, texParams);
+      return {furBitmap, texParams};
     }
 
     Procedural::BasicMesh CreateMesh(const PxSize2D& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
@@ -125,8 +125,8 @@ namespace Fsl
   T3DStressTest::T3DStressTest(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_config(config.GetOptions<OptionParser>()->GetConfig())
-    , m_shaderMultiPass(*GetContentManager(), "MultiPass", m_config.GetUseHighShaderPrecision(), m_config.GetLightCount())
-    , m_shaderWhite(*GetContentManager())
+    , m_shaderMultiPass(GetContentManager(), "MultiPass", m_config.GetUseHighShaderPrecision(), m_config.GetLightCount())
+    , m_shaderWhite(GetContentManager())
     , m_xAngle(0)
     , m_yAngle(0)
     , m_zAngle(0)
@@ -181,15 +181,15 @@ namespace Fsl
 
     m_radians += 0.01f;
 
-    m_world = Matrix::CreateRotationX(MathHelper::TO_RADS * (float(m_xAngle) / 100.0f));
-    m_world *= Matrix::CreateRotationY(MathHelper::TO_RADS * (float(m_yAngle) / 100.0f));
-    m_world *= Matrix::CreateRotationZ(MathHelper::TO_RADS * (float(m_zAngle) / 100.0f));
+    m_world = Matrix::CreateRotationX(MathHelper::TO_RADS * (static_cast<float>(m_xAngle) / 100.0f));
+    m_world *= Matrix::CreateRotationY(MathHelper::TO_RADS * (static_cast<float>(m_yAngle) / 100.0f));
+    m_world *= Matrix::CreateRotationZ(MathHelper::TO_RADS * (static_cast<float>(m_zAngle) / 100.0f));
 
     // Pull the camera back from the cube
     m_view = Matrix::CreateTranslation(0.0f, 0.0f, -m_config.GetCameraDistance());
 
-    m_perspective =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 100.0f);
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(
+      MathHelper::ToRadians(45.0f), static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 100.0f);
     m_MVP = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;
@@ -278,7 +278,7 @@ namespace Fsl
         m_shaderMultiPass.SetProjection(m_perspective);
         m_shaderMultiPass.SetDisplacement(m_displacement);
 
-        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / float(m_config.GetLayerCount() - 1) : 1);
+        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / static_cast<float>(m_config.GetLayerCount() - 1) : 1);
         float layer = 0.0f;
 
         MeshRender& render = m_resources.MeshStuff->Render;

@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "VulkanWindowSystem.hpp"
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <memory>
+#include "VulkanWindowSystem.hpp"
 
 namespace Fsl
 {

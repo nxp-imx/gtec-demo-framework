@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "SdfFonts.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/Span/SpanUtil.hpp>
@@ -165,7 +165,9 @@ namespace Fsl
     const PxPoint2 line0Px(contentOffset.X, contentOffset.Y + 0);
     const PxPoint2 line1Px(contentOffset.X, line0Px.Y + m_resources.Normal.Font.Font.LineSpacingPx());
     const PxPoint2 line2Px(contentOffset.X, line1Px.Y + m_resources.Sdf.Font.Font.LineSpacingPx());
-    const PxPoint2 line3Px(contentOffset.X, line2Px.Y + int32_t(std::round(m_resources.Normal.Font.Font.LineSpacingPx() * fontDrawConfig.FontScale)));
+    const PxPoint2 line3Px(
+      contentOffset.X,
+      line2Px.Y + static_cast<int32_t>(std::round(static_cast<float>(m_resources.Normal.Font.Font.LineSpacingPx()) * fontDrawConfig.FontScale)));
 
     const bool enableKerning = m_shared.GetKerningEnabled();
     const BitmapFontConfig fontConfigNormal(1.0f, enableKerning);
@@ -181,8 +183,11 @@ namespace Fsl
 
     const auto baseLine0Px = line0Px + PxPoint2(0, m_resources.Normal.Font.Font.BaseLinePx());
     const auto baseLine1Px = line1Px + PxPoint2(0, m_resources.Sdf.Font.Font.BaseLinePx());
-    const auto baseLine2Px = line2Px + PxPoint2(0, int32_t(std::round(m_resources.Normal.Font.Font.BaseLinePx() * fontDrawConfig.FontScale)));
-    const auto baseLine3Px = line3Px + PxPoint2(0, int32_t(std::round(m_resources.Sdf.Font.Font.BaseLinePx() * fontDrawConfig.FontScale)));
+    const auto baseLine2Px =
+      line2Px +
+      PxPoint2(0, static_cast<int32_t>(std::round(static_cast<float>(m_resources.Normal.Font.Font.BaseLinePx()) * fontDrawConfig.FontScale)));
+    const auto baseLine3Px =
+      line3Px + PxPoint2(0, static_cast<int32_t>(std::round(static_cast<float>(m_resources.Sdf.Font.Font.BaseLinePx()) * fontDrawConfig.FontScale)));
 
     // Draw baselines
     {
@@ -274,13 +279,13 @@ namespace Fsl
 
     if (shader.Location.Smoothing != GLES3::GLValues::INVALID_LOCATION)
     {
-      const auto smoothing = 0.25f / (fontDrawConfig.FontSdfSpread * fontDrawConfig.FontScale);
+      const auto smoothing = 0.25f / (static_cast<float>(fontDrawConfig.FontSdfSpread) * fontDrawConfig.FontScale);
       glUniform1f(shader.Location.Smoothing, smoothing);
     }
     if (shader.Location.ShadowOffset != GLES3::GLValues::INVALID_LOCATION)
     {
-      auto maxOffsetX = float(fontDrawConfig.FontSdfSpread) / float(texture.GetSize().Width());
-      auto maxOffsetY = float(fontDrawConfig.FontSdfSpread) / float(texture.GetSize().Height());
+      auto maxOffsetX = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().Width());
+      auto maxOffsetY = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().Height());
       auto shadowOffsetX = fontDrawConfig.ShadowOffset.X != 0.0f ? maxOffsetX * fontDrawConfig.ShadowOffset.X : 0.0f;
       auto shadowOffsetY = fontDrawConfig.ShadowOffset.Y != 0.0f ? -(maxOffsetY * fontDrawConfig.ShadowOffset.Y) : 0.0f;
       glUniform2f(shader.Location.ShadowOffset, shadowOffsetX, shadowOffsetY);
@@ -299,7 +304,7 @@ namespace Fsl
     // enable the attribs
     mesh.VB.EnableAttribArrays(mesh.AttribLink);
 
-    glDrawElements(GL_TRIANGLES, mesh.IB.GetCapacity(), mesh.IB.GetType(), nullptr);
+    glDrawElements(GL_TRIANGLES, mesh.IB.GetGLCapacity(), mesh.IB.GetType(), nullptr);
 
     mesh.VB.DisableAttribArrays(mesh.AttribLink);
   }

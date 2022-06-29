@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUFRAMEBUFFER_HPP
 #define FSLUTIL_VULKAN1_0_VUFRAMEBUFFER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,101 +35,98 @@
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <RapidVulkan/Framebuffer.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  class VUFramebuffer
   {
-    //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-    class VUFramebuffer
+    Vulkan::VUTexture m_texture;
+    RapidVulkan::Framebuffer m_framebuffer;
+
+  public:
+    VUFramebuffer(const VUFramebuffer&) = delete;
+    VUFramebuffer& operator=(const VUFramebuffer&) = delete;
+
+    //! @brief Move assignment operator
+    VUFramebuffer& operator=(VUFramebuffer&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    VUFramebuffer(VUFramebuffer&& other) noexcept;
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    VUFramebuffer();
+    VUFramebuffer(VUTexture&& texture, RapidVulkan::Framebuffer&& framebuffer);
+    VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass, const std::string& name);
+    VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
+                  const VkImageView depthImageView, const std::string& name);
+
+
+    ~VUFramebuffer() noexcept
     {
-      Vulkan::VUTexture m_texture;
-      RapidVulkan::Framebuffer m_framebuffer;
+      Reset();
+    }
 
-    public:
-      VUFramebuffer(const VUFramebuffer&) = delete;
-      VUFramebuffer& operator=(const VUFramebuffer&) = delete;
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
+    void Reset(VUTexture&& texture, RapidVulkan::Framebuffer&& r);
+    void Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass, const std::string& name);
+    void Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
+               const VkImageView depthImageView, const std::string& name);
 
-      //! @brief Move assignment operator
-      VUFramebuffer& operator=(VUFramebuffer&& other) noexcept;
+    //! @brief Check if this object contains a valid resource
+    inline bool IsValid() const
+    {
+      return m_texture.IsValid();
+    }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      VUFramebuffer(VUFramebuffer&& other) noexcept;
+    VkDevice GetDevice() const
+    {
+      return m_texture.GetDevice();
+    }
 
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      VUFramebuffer();
-      VUFramebuffer(VUTexture&& texture, RapidVulkan::Framebuffer&& framebuffer);
-      VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass, const std::string& name);
-      VUFramebuffer(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
-                    const VkImageView depthImageView, const std::string& name);
+    VkImage GetImage() const
+    {
+      return m_texture.GetImage();
+    }
 
+    VkImageView GetImageView() const
+    {
+      return m_texture.GetImageView();
+    }
 
-      ~VUFramebuffer() noexcept
-      {
-        Reset();
-      }
+    VkFramebuffer GetFramebuffer() const
+    {
+      return m_framebuffer.Get();
+    }
 
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
-      void Reset(VUTexture&& texture, RapidVulkan::Framebuffer&& r);
-      void Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass, const std::string& name);
-      void Reset(const VUDevice& device, const VkExtent2D extent, const VkFormat format, const VkRenderPass renderPass,
-                 const VkImageView depthImageView, const std::string& name);
+    VkExtent2D GetExtent2D() const
+    {
+      return m_texture.GetExtent2D();
+    }
 
-      //! @brief Check if this object contains a valid resource
-      inline bool IsValid() const
-      {
-        return m_texture.IsValid();
-      }
-
-      VkDevice GetDevice() const
-      {
-        return m_texture.GetDevice();
-      }
-
-      VkImage GetImage() const
-      {
-        return m_texture.GetImage();
-      }
-
-      VkImageView GetImageView() const
-      {
-        return m_texture.GetImageView();
-      }
-
-      VkFramebuffer GetFramebuffer() const
-      {
-        return m_framebuffer.Get();
-      }
-
-      VkExtent2D GetExtent2D() const
-      {
-        return m_texture.GetExtent2D();
-      }
-
-      //! @brief Get the texture associated with this object
-      const VUTexture& Texture() const
-      {
-        return m_texture;
-      }
+    //! @brief Get the texture associated with this object
+    const VUTexture& Texture() const
+    {
+      return m_texture;
+    }
 
 
-      //! @brief Get the ImageView associated with this object
-      const RapidVulkan::Framebuffer& Framebuffer() const
-      {
-        return m_framebuffer;
-      }
+    //! @brief Get the ImageView associated with this object
+    const RapidVulkan::Framebuffer& Framebuffer() const
+    {
+      return m_framebuffer;
+    }
 
-      //! @brief Extract information about this texture as a VUTextureInfo struct
-      operator VUTextureInfo() const    // NOLINT(google-explicit-constructor)
-      {
-        return m_texture;
-      }
+    //! @brief Extract information about this texture as a VUTextureInfo struct
+    operator VUTextureInfo() const    // NOLINT(google-explicit-constructor)
+    {
+      return m_texture;
+    }
 
-    private:
-      inline void DoReset() noexcept;
-    };
-  }
+  private:
+    inline void DoReset() noexcept;
+  };
 }
 
 #endif

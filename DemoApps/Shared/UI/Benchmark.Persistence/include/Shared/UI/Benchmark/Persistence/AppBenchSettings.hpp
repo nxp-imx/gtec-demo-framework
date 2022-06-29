@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
-#include <Shared/UI/Benchmark/Persistence/AppRenderMethod.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppRenderBasicOptions.hpp>
+#include <Shared/UI/Benchmark/Persistence/AppRenderMethod.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppRenderOptions.hpp>
 #include <array>
+#include <optional>
 
 namespace Fsl
 {
@@ -58,13 +58,13 @@ namespace Fsl
     {
     }
 
-    Optional<AppRenderOptions> TryGetRenderOptions(const AppRenderMethod renderMethod) const
+    std::optional<AppRenderOptions> TryGetRenderOptions(const AppRenderMethod renderMethod) const
     {
       for (const auto& entry : RenderOptions)
       {
         if (entry.RenderMethod == renderMethod)
         {
-          return Optional<AppRenderOptions>(entry);
+          return entry;
         }
       }
       return {};

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
-#include "HDR01_BasicToneMapping.hpp"
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
+#include "HDR01_BasicToneMapping.hpp"
 
 namespace Fsl
 {

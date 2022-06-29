@@ -33,48 +33,45 @@
 
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  //! A more generic implementation of a button
+  //! For most purposes the 'button' code is identical to the ButtonBase implementation
+  class Button : public ContentControl
   {
-    //! A more generic implementation of a button
-    //! For most purposes the 'button' code is identical to the ButtonBase implementation
-    class Button : public ContentControl
+    bool m_isEnabled{true};
+    bool m_isDown{false};
+
+  public:
+    explicit Button(const std::shared_ptr<BaseWindowContext>& context);
+    virtual bool IsEnabled() const
     {
-      bool m_isEnabled{true};
-      bool m_isDown{false};
+      return m_isEnabled;
+    }
 
-    public:
-      explicit Button(const std::shared_ptr<BaseWindowContext>& context);
-      virtual bool IsEnabled() const
-      {
-        return m_isEnabled;
-      }
+    virtual void SetEnabled(const bool enable);
 
-      virtual void SetEnabled(const bool enable);
+  protected:
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
 
-    protected:
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
+    //! @brief Check if the button is down at the moment
+    bool IsDown() const
+    {
+      return m_isDown;
+    }
 
-      //! @brief Check if the button is down at the moment
-      bool IsDown() const
-      {
-        return m_isDown;
-      }
+    //! @brief Called when the button is pressed
+    virtual void Down()
+    {
+    }
 
-      //! @brief Called when the button is pressed
-      virtual void Down()
-      {
-      }
-
-      //! @brief Called when the button is released
-      //! @param wasCanceled true if the press was canceled.
-      virtual void Up(bool wasCanceled)
-      {
-        FSL_PARAM_NOT_USED(wasCanceled);
-      }
-    };
-  }
+    //! @brief Called when the button is released
+    //! @param wasCanceled true if the press was canceled.
+    virtual void Up(bool wasCanceled)
+    {
+      FSL_PARAM_NOT_USED(wasCanceled);
+    }
+  };
 }
 
 #endif

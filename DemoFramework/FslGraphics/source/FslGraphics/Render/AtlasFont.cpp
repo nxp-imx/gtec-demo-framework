@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Render/AtlasFont.hpp>
 #include <utility>
 
 namespace Fsl

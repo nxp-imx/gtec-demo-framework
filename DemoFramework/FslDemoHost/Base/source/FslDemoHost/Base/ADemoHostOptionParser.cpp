@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
 #include <array>
 #include <cstdlib>
@@ -107,15 +107,15 @@ namespace Fsl
         return OptionParseResult::Parsed;
       case CommandId::DensityDpi:
         StringParseUtil::Parse(uintValue, strOptArg);
-        m_nativeWindowConfig.SetForcedDensityDpi(Optional<uint32_t>(uintValue));
+        m_nativeWindowConfig.SetForcedDensityDpi(std::optional<uint32_t>(uintValue));
         return OptionParseResult::Parsed;
       case CommandId::ActualDpi:
-      {
-        Point2U value;
-        StringParseUtil::Parse(value, strOptArg);
-        m_nativeWindowConfig.SetForcedActualDpi(Optional<Point2U>(value));
-        return OptionParseResult::Parsed;
-      }
+        {
+          Point2U value;
+          StringParseUtil::Parse(value, strOptArg);
+          m_nativeWindowConfig.SetForcedActualDpi(std::optional<Point2U>(value));
+          return OptionParseResult::Parsed;
+        }
       default:
         break;
       }

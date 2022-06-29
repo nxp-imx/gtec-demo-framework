@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -61,9 +61,9 @@ TEST(TestVertices_VertexPositionTexture3, Construct_Default)
 
 TEST(TestVertices_VertexPositionTexture3, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexDeclaration(VertexPositionTexture3::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexPositionTexture3), vertexDecl.VertexStride());
@@ -93,9 +93,9 @@ TEST(TestVertices_VertexPositionTexture3, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPositionTexture3, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexPositionTexture3::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexPositionTexture3), vertexDecl.VertexStride());
@@ -125,9 +125,9 @@ TEST(TestVertices_VertexPositionTexture3, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexPositionTexture3, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionTexture3, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionTexture3, TextureCoordinate), VertexElementFormat::Vector3,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexPositionTexture3::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionTexture3), vertexDecl.VertexStride());

@@ -29,19 +29,19 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "TwoPassLinearScaledBlurredDraw.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include "GausianHelper.hpp"
-#include "VBHelper.hpp"
-#include "TwoPassLinearScaledBlurredDraw.hpp"
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include "GausianHelper.hpp"
+#include "VBHelper.hpp"
 
 namespace Fsl
 {
@@ -113,9 +113,10 @@ namespace Fsl
     m_shaders.Reset(contentManager, moddedKernelLength, moddedSigma, m_framebufferBlur1.GetSize(), m_framebufferBlur2.GetSize(),
                     TwoPassShaders::Linear, blurConfig.TheShaderType);
 
-    const float xOrg = ((m_framebufferOrg.GetSize().Width() - ((float(m_framebufferOrg.GetSize().Width()) / 2.0f) + float(addedPixels * 2))) /
+    const float xOrg = ((static_cast<float>(m_framebufferOrg.GetSize().Width()) -
+                         ((static_cast<float>(m_framebufferOrg.GetSize().Width()) / 2.0f) + static_cast<float>(addedPixels * 2))) /
                         static_cast<float>(m_framebufferOrg.GetSize().Width()));
-    const float xFinal = float(addedPixels) / float(m_framebufferBlur2.GetSize().Width());
+    const float xFinal = static_cast<float>(addedPixels) / static_cast<float>(m_framebufferBlur2.GetSize().Width());
 
     VBHelper::BuildVB(m_vertexBufferLeft, BoxF(-1, -1, 0, 1), BoxF(0.0f, 0.0f, 0.5f, 1.0f));
     VBHelper::BuildVB(m_vertexBufferRightX, BoxF(-1, -1, 1, 1), BoxF(xOrg, 0.0f, 1.0f, 1.0f));

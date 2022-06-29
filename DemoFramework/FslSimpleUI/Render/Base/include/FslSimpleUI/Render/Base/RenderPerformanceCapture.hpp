@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_RENDERPERFORMANCECAPTURE_HPP
 #define FSLSIMPLEUI_RENDER_BASE_RENDERPERFORMANCECAPTURE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,24 +33,21 @@
 
 #include <FslBase/System/BasicPerformanceCapture.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class RenderPerformanceCaptureId
   {
-    enum class RenderPerformanceCaptureId
-    {
-      PreprocessDrawCommands = 0u,
-      GenerateMeshes = 1u,
-      UpdateBuffers = 2u,
-      ScheduleDraw = 3u
-    };
+    PreprocessDrawCommands = 0u,
+    GenerateMeshes = 1u,
+    UpdateBuffers = 2u,
+    ScheduleDraw = 3u
+  };
 
-    class RenderPerformanceCapture : public BasicPerformanceCapture<RenderPerformanceCaptureId, 4u>
-    {
-    public:
-      RenderPerformanceCapture() = default;
-    };
-  }
+  class RenderPerformanceCapture : public BasicPerformanceCapture<RenderPerformanceCaptureId, 4u>
+  {
+  public:
+    RenderPerformanceCapture() = default;
+  };
 }
 
 

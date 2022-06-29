@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <Shared/UI/ThemeBasicUI/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "ThemeBasicUI.hpp"
 #include <array>
+#include "ThemeBasicUI.hpp"
 
 namespace Fsl
 {

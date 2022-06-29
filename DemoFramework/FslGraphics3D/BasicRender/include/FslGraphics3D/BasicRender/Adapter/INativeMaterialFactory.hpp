@@ -36,23 +36,19 @@
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeMaterialCreateInfo.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeMaterialHandle.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class INativeMaterialFactory
   {
-    class INativeMaterialFactory
-    {
-    public:
-      virtual ~INativeMaterialFactory() noexcept = default;
+  public:
+    virtual ~INativeMaterialFactory() noexcept = default;
 
-      virtual void CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles,
-                                   ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan) = 0;
+    virtual void CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles, ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan) = 0;
 
-      //! @brief destroy the given buffer
-      //! @return true if the buffer was destroyed (this will always be true for a valid handle)
-      virtual bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) = 0;
-    };
-  }
+    //! @brief destroy the given material
+    //! @return true if the material was destroyed (this will always be true for a valid handle)
+    virtual bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) = 0;
+  };
 }
 
 #endif

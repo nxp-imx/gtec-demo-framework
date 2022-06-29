@@ -33,23 +33,17 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  struct MaterialCacheRecord
   {
-    namespace RenderIMBatch
-    {
-      struct MaterialCacheRecord
-      {
-        uint32_t Index{0};
+    uint32_t Index{0};
 
-        constexpr MaterialCacheRecord() noexcept = default;
-        explicit constexpr MaterialCacheRecord(const uint32_t index) noexcept
-          : Index{index}
-        {
-        }
-      };
+    constexpr MaterialCacheRecord() noexcept = default;
+    explicit constexpr MaterialCacheRecord(const uint32_t index) noexcept
+      : Index{index}
+    {
     }
-  }
+  };
 }
 #endif

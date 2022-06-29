@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "Blur.hpp"
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include <memory>
 #include <GLES2/gl2.h>
-#include "Blur.hpp"
+#include <memory>
 #include "BlurredScene.hpp"
 #include "EnvScene.hpp"
 #include "TestScene.hpp"

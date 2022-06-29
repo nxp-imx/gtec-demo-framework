@@ -33,21 +33,18 @@
 
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class IVulkanDeviceCreationCustomizer
   {
-    class IVulkanDeviceCreationCustomizer
-    {
-    public:
-      virtual ~IVulkanDeviceCreationCustomizer() = default;
+  public:
+    virtual ~IVulkanDeviceCreationCustomizer() = default;
 
-      virtual void Configure(const VkPhysicalDevice physicalDevice) = 0;
+    virtual void Configure(const VkPhysicalDevice physicalDevice) = 0;
 
-      //! @brief the returned pointer must be valid as long as this object is alive!
-      virtual const void* GetVkDeviceCreateInfoNextPointer() const = 0;
-    };
-  }
+    //! @brief the returned pointer must be valid as long as this object is alive!
+    virtual const void* GetVkDeviceCreateInfoNextPointer() const = 0;
+  };
 }
 
 #endif

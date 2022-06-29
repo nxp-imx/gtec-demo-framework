@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Math/LogPoint2.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

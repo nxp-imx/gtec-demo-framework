@@ -34,19 +34,16 @@
 #include <FslBase/Math/Vector4.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const Vector4& lhs, const Vector4& rhs)
   {
-    inline bool AlmostEqual(const Vector4& lhs, const Vector4& rhs)
-    {
-      return AlmostEqual(lhs.X, rhs.X) && AlmostEqual(lhs.Y, rhs.Y) && AlmostEqual(lhs.Z, rhs.Z) && AlmostEqual(lhs.W, rhs.W);
-    }
+    return AlmostEqual(lhs.X, rhs.X) && AlmostEqual(lhs.Y, rhs.Y) && AlmostEqual(lhs.Z, rhs.Z) && AlmostEqual(lhs.W, rhs.W);
+  }
 
-    inline bool IsNear(const Vector4& lhs, const Vector4& rhs, const float absError)
-    {
-      return IsNear(lhs.X, rhs.X, absError) && IsNear(lhs.Y, rhs.Y, absError) && IsNear(lhs.Z, rhs.Z, absError) && IsNear(lhs.W, rhs.W, absError);
-    }
+  inline bool IsNear(const Vector4& lhs, const Vector4& rhs, const float absError)
+  {
+    return IsNear(lhs.X, rhs.X, absError) && IsNear(lhs.Y, rhs.Y, absError) && IsNear(lhs.Z, rhs.Z, absError) && IsNear(lhs.W, rhs.W, absError);
   }
 }
 

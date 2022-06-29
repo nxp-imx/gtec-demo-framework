@@ -9,7 +9,7 @@
   * [Add OpenGL ES support](#add-opengl-es-support)
   * [Add Vulkan support](#add-vulkan-support)
   * [Add OpenCL support](#add-opencl-support)
-  * [Add OpenCV 4.5 support](#add-opencv-45-support)
+  * [Add OpenCV 4.6 support](#add-opencv-46-support)
   * [Add OpenVX support](#add-openvx-support)
 * [To Compile and run an existing sample application](#to-compile-and-run-an-existing-sample-application)
   * [To Compile and run an existing GLES2 sample application](#to-compile-and-run-an-existing-gles2-sample-application)
@@ -25,9 +25,9 @@
 
 # Prerequisites
 
-* [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
+* [Visual Studio 2022](https://visualstudio.microsoft.com/vs/community/)
   (community or better)
-* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* [CMake 3.16 or newer](https://cmake.org/download/)
 * [Python 3.6+](https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe)
   To be able run python scripts.
 * Download the source from git.
@@ -43,7 +43,7 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
 1. Decide what API's you want to compile and run apps for, then install them using one of the guides below.
 2. Start a windows console (cmd.exe) in the DemoFramework folder
 3. Run the visual studio ```vcvarsall.bat x64``` to prepare your command line compiler environment for x64 compilation.
-   * For VS2019 its often located here: ```"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64```
+   * For VS2022 its often located here: ```"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64```
 4. Run the `prepare.bat` file located in the root of the framework folder to
    configure the necessary environment variables and paths.
    Please beware that the `prepare.bat` file requires the current working
@@ -96,13 +96,13 @@ Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/d
 1. Download and install a OpenCL implementation. Beware we depend on cmake's find_package support to locate the installed OpenCL implementation.
 2. Continue the normal setup.
 
-## Add OpenCV 4.5 support
+## Add OpenCV 4.6 support
 
-1. Install the 4.5.2 sdk files.
+1. Install the 4.6.0 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
 
     ```bash
-    set OPENCV_DIR=c:\_sdk\opencv-4.5.2\build
+    set OPENCV_DIR=c:\_sdk\opencv-4.6.0\build
     ```
 
 3. Continue the normal setup.

@@ -34,6 +34,7 @@
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/Render/Basic/BasicBufferUsage.hpp>
 #include <FslGraphics/Render/Basic/BasicMaterial.hpp>
+#include <FslGraphics/Render/Basic/BasicShader.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/TextureFlags.hpp>
@@ -48,6 +49,7 @@ namespace Fsl
   struct BasicCameraInfo;
   struct BasicNativeTextureHandle;
   struct BasicMaterialCreateInfo;
+  struct BasicShaderCreateInfo;
   class Bitmap;
   class IBasicNativeTexture;
   class IBasicStaticBuffer;
@@ -96,7 +98,12 @@ namespace Fsl
     virtual std::shared_ptr<IBasicStaticBuffer> CreateBuffer(const ReadOnlyFlexVertexSpan& vertexSpan, const BasicBufferUsage usage) = 0;
     virtual std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const ReadOnlyFlexVertexSpan& vertexSpan) = 0;
     virtual std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const ReadOnlyFlexVertexSpan& vertexSpan, const uint32_t capacity) = 0;
+    virtual std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const VertexDeclarationSpan vertexDeclaration, const uint32_t capacity) = 0;
     virtual std::shared_ptr<IBasicStaticBuffer> CreateStaticBuffer(const ReadOnlyFlexVertexSpan& vertexSpan) = 0;
+
+    // Shaders
+    virtual BasicShader CreateShader(const BasicShaderCreateInfo& createInfo) = 0;
+    // virtual BasicShader CreateShader(const BasicCustomShaderCreateInfo& createInfo) = 0;
 
     // Materials
     virtual BasicMaterial CreateMaterial(const BasicMaterialCreateInfo& createInfo, const std::shared_ptr<INativeTexture2D>& texture,

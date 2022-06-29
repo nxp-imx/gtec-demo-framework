@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::MathHelper
 {
-  namespace MathHelper
+  //! @brief Performs a bilinear interpolation.
+  constexpr inline float Bilinear(const float val00, const float val10, const float val01, const float val11, const float weightX,
+                                  const float weightY)
   {
-    //! @brief Performs a bilinear interpolation.
-    constexpr inline float Bilinear(const float val00, const float val10, const float val01, const float val11, const float weightX,
-                                    const float weightY)
-    {
-      float a = (val00 * (1.0f - weightX)) + (val10 * weightX);
-      float b = (val01 * (1.0f - weightX)) + (val11 * weightX);
-      return (a * (1.0f - weightY)) + (b * weightY);
-    }
+    float a = (val00 * (1.0f - weightX)) + (val10 * weightX);
+    float b = (val01 * (1.0f - weightX)) + (val11 * weightX);
+    return (a * (1.0f - weightY)) + (b * weightY);
   }
 }
 

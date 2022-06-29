@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <array>
 #include <cassert>
 #include <map>

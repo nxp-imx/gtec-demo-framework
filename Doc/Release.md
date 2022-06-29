@@ -1,5 +1,43 @@
 # Releases
 
+## Release 6.0.0
+
+* Samples
+  * Added [ModelInstancing](../DemoApps/Vulkan/ModelInstancing/README.md) for GLES3 and Vulkan.
+  * Added [System.DevBasicCustomRender](../DemoApps/Vulkan/System/DevBasicRenderCustomShader/README.md) for GLES2, GLES3 and Vulkan.
+  * Added [UI.BasicDataBinding](../DemoApps/Vulkan/UI/BasicDataBinding/README.md) for GLES2, GLES3 and Vulkan.
+  * Added [UI.Charts](../DemoApps/Vulkan/UI/Charts/README.md) for GLES2, GLES3 and Vulkan.
+  * Converted [SpatialHashGrid2D](../DemoApps/GLES3/SpatialHashGrid2D/README.md) from Vulkan to GLES3.
+  * [UI.Benchmark](../DemoApps/Vulkan/UI/Benchmark/README.md) added 'alternative' draw re-order algorithm.
+* Libraries
+  * [FslBase](../DemoFramework/FslBase/README.md) replaced Optional with std::optional
+  * New library [FslDataBinding](../DemoFramework/FslDataBinding/Base/README.md) which provides basic data binding support.
+  * [FslGraphics3D.BasicRender](../DemoFramework/FslGraphics3D/BasicRender/README.md): Added initial custom shader support.
+  * [FslSimpleUI](../DemoFramework/FslSimpleUI/README.md): Added initial data binding support
+  * [FslSimpleUI.Charts](../DemoFramework/FslSimpleUI/Controls/Charts/README.md):
+    * Added BoxPlot control
+    * Added initial data-binding support.
+  * FslSimpleUI.Render cached font information for faster text rendering.
+  * C++17 allowed a lot more things to be constexpr.
+* Experimental [Emscripten build support](Setup_guide_emscripten.md).
+* Now require a compiler with [C++17](https://en.cppreference.com/w/cpp/compiler_support/17) support.
+* Tool changes
+  * **VS2022** is now the default on windows.
+  * FslBuild tools added feature ```HW_GPU_VIVANTE``` for samples that require a vivante GPU.
+  * The [gtec-texture-packer](https://github.com/NXPmicro/gtec-texture-packer) used to create texture atlases for the samples is now freely available for everyone to use.
+  * Now require at least CMake 3.16.
+  * Now require clang format and clang tidy 13+
+  * Android NDK r23c
+* Misc:
+  * Clang format was allowed to auto sort all includes.
+  * Google [Angle](https://github.com/google/angle) was [re-tested](Vulkan/AngleCompatibility.md) to see if it could serve as the default OpenGL-ES emulator on windows.
+  * Upgraded to [Assimp 5.2.4](https://github.com/assimp/assimp/releases/tag/v5.2.4).
+  * Upgraded to [FMT 8.1.1](https://github.com/fmtlib/fmt/releases/tag/8.1.1).
+  * Upgraded to [GoogleTest 1.11.0](https://github.com/google/googletest/releases/tag/release-1.11.0).
+  * Upgraded to [nlohmann/json 3.10.5](https://github.com/nlohmann/json/releases/tag/v3.10.5).
+  * Upgraded to [RapidVulkan 1.3.211](https://github.com/Unarmed1000/RapidVulkan/releases/tag/1.3.211.0).
+  * OpenVX was upgraded to 1.2
+
 ## Release 5.9.2
 
 * Fixed OpenVX.Stereo compilation issue with new versions of OpenCV.

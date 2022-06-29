@@ -36,15 +36,12 @@
 #include <FslUtil/OpenGLES3/GLVertexElementAttribConfig.hpp>
 #include <ostream>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  inline std::ostream& operator<<(std::ostream& o, const GLVertexElementAttribConfig& value)
   {
-    inline std::ostream& operator<<(std::ostream& o, const GLVertexElementAttribConfig& value)
-    {
-      return o << "{AttribIndex=" << value.AttribIndex << " Size=" << value.Size << " Type=" << value.Type
-               << " Normalized=" << NumericCast<uint32_t>(value.Normalized) << " Pointer=" << reinterpret_cast<uintptr_t>(value.Pointer) << "}";
-    }
+    return o << "{AttribIndex=" << value.AttribIndex << " Size=" << value.Size << " Type=" << value.Type
+             << " Normalized=" << NumericCast<uint32_t>(value.Normalized) << " Pointer=" << reinterpret_cast<uintptr_t>(value.Pointer) << "}";
   }
 }
 

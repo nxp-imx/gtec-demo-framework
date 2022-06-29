@@ -30,17 +30,17 @@
  ****************************************************************************************************************************************************/
 
 #include "FurShaderInstanced.hpp"
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <algorithm>
 #include <cassert>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 
 namespace Fsl
 {
   using namespace GLES3;
 
-  FurShaderInstanced::FurShaderInstanced(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision,
-                                         const int lightCount)
+  FurShaderInstanced::FurShaderInstanced(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath,
+                                         const bool useHighPrecision, const int lightCount)
     : FurShaderBase(contentManager, shaderPath, useHighPrecision, lightCount)
     , m_locInstanceMul(GLValues::INVALID_LOCATION)
   {
@@ -57,8 +57,8 @@ namespace Fsl
   }
 
 
-  FurShaderInstanced::FurShaderInstanced(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
-                                         const int lightCount)
+  FurShaderInstanced::FurShaderInstanced(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath,
+                                         const IO::Path& fragShaderPath, const int lightCount)
     : FurShaderBase(contentManager, vertShaderPath, fragShaderPath, lightCount)
     , m_locInstanceMul(GLValues::INVALID_LOCATION)
   {
@@ -79,7 +79,7 @@ namespace Fsl
   {
     assert(IsLoaded());
 
-    const float instanceMul = 1.0f / float(instanceCount);
+    const float instanceMul = 1.0f / static_cast<float>(instanceCount);
     glUniform1f(m_locInstanceMul, instanceMul);
   }
 }

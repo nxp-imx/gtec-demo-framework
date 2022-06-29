@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpThicknessU.hpp>
 #include <FslBase/Log/Math/Dp/LogDpThicknessU.hpp>
+#include <FslBase/Math/Dp/DpThicknessU.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
@@ -48,21 +48,21 @@ TEST(TestMathDp_DpThicknessU, Default)
 {
   DpThicknessU value;
 
-  EXPECT_EQ(0u, value.Left);
-  EXPECT_EQ(0u, value.Top);
-  EXPECT_EQ(0u, value.Right);
-  EXPECT_EQ(0u, value.Bottom);
-  EXPECT_EQ(0u, value.SumX());
-  EXPECT_EQ(0u, value.SumY());
+  EXPECT_EQ(DpThicknessU::value_type(0u), value.Left);
+  EXPECT_EQ(DpThicknessU::value_type(0u), value.Top);
+  EXPECT_EQ(DpThicknessU::value_type(0u), value.Right);
+  EXPECT_EQ(DpThicknessU::value_type(0u), value.Bottom);
+  EXPECT_EQ(DpThicknessU::value_type(0u), value.SumX());
+  EXPECT_EQ(DpThicknessU::value_type(0u), value.SumY());
 }
 
 
 TEST(TestMathDp_DpThicknessU, Values)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  const DpValueU left(1);
+  const DpValueU top(2);
+  const DpValueU right(3);
+  const DpValueU bottom(4);
   DpThicknessU value(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left);
@@ -75,10 +75,10 @@ TEST(TestMathDp_DpThicknessU, Values)
 
 TEST(TestMathDp_DpThicknessU, OperatorEqual)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  const DpValueU left(1);
+  const DpValueU top(2);
+  const DpValueU right(3);
+  const DpValueU bottom(4);
   DpThicknessU value1(left, top, right, bottom);
   DpThicknessU value2(left, top, right, bottom);
 
@@ -88,12 +88,12 @@ TEST(TestMathDp_DpThicknessU, OperatorEqual)
 
 TEST(TestMathDp_DpThicknessU, OperatorNotEqual)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  const DpValueU left(1);
+  const DpValueU top(2);
+  const DpValueU right(3);
+  const DpValueU bottom(4);
   DpThicknessU value1(left, top, right, bottom);
-  DpThicknessU value2(left, top, right, 5);
+  DpThicknessU value2(left, top, right, DpValueU(5));
 
   EXPECT_NE(value1, value2);
 }

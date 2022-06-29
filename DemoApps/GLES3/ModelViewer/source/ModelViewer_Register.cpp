@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
-#include <EGL/egl.h>
-#include "ModelViewer.hpp"
 #include <Shared/ModelViewer/OptionParser.hpp>
+#include <EGL/egl.h>
 #include <array>
+#include "ModelViewer.hpp"
 
 namespace Fsl
 {

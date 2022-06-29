@@ -33,12 +33,9 @@
 
 #include <FslSimpleUI/Base/Module/ExternalModuleId.hpp>
 
-namespace Fsl
+namespace Fsl::ExternalModuleIdConfig
 {
-  namespace ExternalModuleIdConfig
-  {
-    constexpr UI::ExternalModuleId WindowIdGeneratorModule(1);
-  }
+  constexpr UI::ExternalModuleId WindowIdGeneratorModule(1);
 }
 
 #endif

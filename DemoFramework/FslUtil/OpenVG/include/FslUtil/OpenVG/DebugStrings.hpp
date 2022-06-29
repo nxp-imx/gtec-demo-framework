@@ -35,16 +35,13 @@
 #include <FslUtil/OpenVG/Common.hpp>
 #include <VG/openvg.h>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  namespace Debug
   {
-    namespace Debug
-    {
-      //! @brief Convert the error code to a string
-      extern const char* ErrorCodeToString(const VGErrorCode errorCode);
-    };
-  }
+    //! @brief Convert the error code to a string
+    extern const char* ErrorCodeToString(const VGErrorCode errorCode);
+  };
 }
 
 #endif

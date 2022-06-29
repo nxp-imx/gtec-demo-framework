@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="SDL2" CreationYear="2021">
+    <Default.Platform.Supported Value="false"/>
+    <Define Name="FSL_ENABLE_SDL2" Access="Public"/>
+    <Define Name="SDL_MAIN_HANDLED " Access="Public"/>
+    <Platform Name="Emscripten" Supported="true">
+      <!--Dependency Name="Recipe.SDL_2_0"/-->
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

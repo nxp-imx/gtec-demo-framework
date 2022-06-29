@@ -37,21 +37,18 @@
 #include <vulkan/vulkan.h>
 #include <deque>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
-  {
-    class IVulkanDeviceCreationCustomizer;
+  class IVulkanDeviceCreationCustomizer;
 
-    class VulkanDeviceSetupUtil
-    {
-    public:
-      static VulkanDeviceSetup CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
-                                           const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
-                                           const ReadOnlySpan<const char*>& extensions,
-                                           IVulkanDeviceCreationCustomizer* const pDeviceCreationCustomizer = nullptr);
-    };
-  }
+  class VulkanDeviceSetupUtil
+  {
+  public:
+    static VulkanDeviceSetup CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
+                                         const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
+                                         const ReadOnlySpan<const char*>& extensions,
+                                         IVulkanDeviceCreationCustomizer* const pDeviceCreationCustomizer = nullptr);
+  };
 }
 
 #endif

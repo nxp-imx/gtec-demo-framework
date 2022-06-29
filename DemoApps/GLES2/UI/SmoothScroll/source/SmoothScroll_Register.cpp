@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <Shared/UI/SmoothScroll/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "SmoothScroll.hpp"
 #include <array>
+#include "SmoothScroll.hpp"
 
 namespace Fsl
 {

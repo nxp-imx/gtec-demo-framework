@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslAssimp/SceneImporter.hpp>
 #include <FslAssimp/SceneHelper.hpp>
+#include <FslAssimp/SceneImporter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>

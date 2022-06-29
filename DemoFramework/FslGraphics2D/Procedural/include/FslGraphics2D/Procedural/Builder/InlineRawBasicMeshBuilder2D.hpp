@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWBASICMESHBUILDER2D_HPP
 #define FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWBASICMESHBUILDER2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,10 @@ namespace Fsl
   public:
     using vertex_element_type = TVertex;
     using vertex_value_type = std::remove_cv_t<TVertex>;
-    using vertex_pointer = vertex_value_type*;
-    using const_vertex_pointer = const vertex_value_type*;
-    using vertex_reference = vertex_value_type&;
-    using const_vertex_reference = const vertex_value_type&;
+    using vertex_pointer = TVertex*;
+    using const_vertex_pointer = const TVertex*;
+    using vertex_reference = TVertex&;
+    using const_vertex_reference = const TVertex&;
 
     using size_type = uint32_t;
     using difference_type = std::ptrdiff_t;
@@ -114,9 +114,9 @@ namespace Fsl
     }
 
     //! Direct span access
-    ReadOnlySpan<vertex_value_type> VerticesAsReadOnlySpan() const
+    ReadOnlySpan<TVertex> VerticesAsReadOnlySpan() const
     {
-      return ReadOnlySpan<vertex_value_type>(m_pVertexData, m_vertexCount, OptimizationCheckFlag::NoCheck);
+      return ReadOnlySpan<TVertex>(m_pVertexData, m_vertexCount, OptimizationCheckFlag::NoCheck);
     }
 
     constexpr float GetZPos() const noexcept
@@ -143,7 +143,7 @@ namespace Fsl
     constexpr void AddVertex(const float x0, const float y0, const float u0, const float v0) noexcept
     {
       assert((m_vertexCount + 1) <= m_vertexCapacity);
-      *(m_pVertexData + m_vertexCount) = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(u0, v0));
+      *(m_pVertexData + m_vertexCount) = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(u0, v0));
       ++m_vertexCount;
     }
 
@@ -169,13 +169,13 @@ namespace Fsl
       // ABCD
       {
         vertex_pointer pDst = m_pVertexData + m_vertexCount;
-        pDst[0] = vertex_value_type(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(textureCoords.X0, textureCoords.Y1));    // B
-        pDst[1] = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X0, textureCoords.Y0));    // A
-        pDst[2] = vertex_value_type(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y1));    // D
+        pDst[0] = TVertex(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(textureCoords.X0, textureCoords.Y1));    // B
+        pDst[1] = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X0, textureCoords.Y0));    // A
+        pDst[2] = TVertex(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y1));    // D
 
-        pDst[3] = vertex_value_type(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y1));    // D
-        pDst[4] = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X0, textureCoords.Y0));    // A
-        pDst[5] = vertex_value_type(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y0));    // C
+        pDst[3] = TVertex(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y1));    // D
+        pDst[4] = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X0, textureCoords.Y0));    // A
+        pDst[5] = TVertex(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(textureCoords.X1, textureCoords.Y0));    // C
       }
       m_vertexCount += 6;
     }

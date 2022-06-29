@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Matrix3.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/Matrix3.hpp>
-#include <FslBase/Math/Vector4.hpp>
 
 namespace Fsl
 {

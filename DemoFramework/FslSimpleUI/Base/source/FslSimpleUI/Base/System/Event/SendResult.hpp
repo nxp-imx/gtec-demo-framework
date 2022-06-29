@@ -31,17 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class SendResult
   {
-    enum class SendResult
-    {
-      Handled,
-      Unhandled,
-      Error
-    };
-  }
+    Handled,
+    Unhandled,
+    Error
+  };
 }
 
 #endif

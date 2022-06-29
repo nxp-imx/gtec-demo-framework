@@ -31,28 +31,25 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  // Closely resembles the normal VertexElement format. Its defined in its own structure to maintain
+  // its integrity. This is done because this enum value is used for persistent storage and changing
+  // it should not be done lightly.
+  enum class VertexElementFormat
   {
-    // Closely resembles the normal VertexElement format. Its defined in its own structure to maintain
-    // its integrity. This is done because this enum value is used for persistent storage and changing
-    // it should not be done lightly.
-    enum class VertexElementFormat
-    {
-      // one component, 32-bit floating point
-      Single = 0,
-      // two components, 32-bit floating point
-      Vector2 = 1,
-      // three components, 32-bit floating point
-      Vector3 = 2,
-      // four components, 32-bit floating point
-      Vector4 = 3,
+    // one component, 32-bit floating point
+    Single = 0,
+    // two components, 32-bit floating point
+    Vector2 = 1,
+    // three components, 32-bit floating point
+    Vector3 = 2,
+    // four components, 32-bit floating point
+    Vector4 = 3,
 
-      //! Do not utilize this, its for internal use only
-      SYS_COUNT
-    };
-  }
+    //! Do not utilize this, its for internal use only
+    SYS_COUNT
+  };
 }
 
 #endif

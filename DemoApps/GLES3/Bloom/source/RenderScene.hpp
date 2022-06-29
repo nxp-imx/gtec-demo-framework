@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslUtil/OpenGLES3/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslUtil/OpenGLES3/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBufferArray.hpp>
-#include <vector>
 #include <Shared/Bloom/IScene.hpp>
+#include <vector>
 
 namespace Fsl
 {

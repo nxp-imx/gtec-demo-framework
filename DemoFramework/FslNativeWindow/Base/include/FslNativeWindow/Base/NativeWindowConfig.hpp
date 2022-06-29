@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Point2U.hpp>
 #include <FslBase/Math/Rectangle.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <FslBase/Optional.hpp>
 #include <FslNativeWindow/Base/WindowMode.hpp>
+#include <memory>
+#include <optional>
 
 namespace Fsl
 {
@@ -46,8 +46,8 @@ namespace Fsl
     WindowMode m_windowMode;
     Rectangle m_windowRectangle;
     int32_t m_displayId;
-    Optional<uint32_t> m_forcedDensityDpi;
-    Optional<Point2U> m_forcedActualDpi;
+    std::optional<uint32_t> m_forcedDensityDpi;
+    std::optional<Point2U> m_forcedActualDpi;
 
   public:
     NativeWindowConfig();
@@ -63,14 +63,14 @@ namespace Fsl
     void SetDisplayId(const int32_t displayId);
 
     //! A negative value means no value has been provided
-    Optional<uint32_t> GetForcedDensityDpi() const;
+    std::optional<uint32_t> GetForcedDensityDpi() const;
 
-    void SetForcedDensityDpi(const Optional<uint32_t>& densityDpi);
+    void SetForcedDensityDpi(const std::optional<uint32_t>& densityDpi);
 
     //! A negative value means no value has been provided
-    Optional<Point2U> GetForcedActualDpi() const;
+    std::optional<Point2U> GetForcedActualDpi() const;
 
-    void SetForcedActualDpi(const Optional<Point2U>& actualDpi);
+    void SetForcedActualDpi(const std::optional<Point2U>& actualDpi);
   };
 }
 

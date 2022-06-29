@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Keyboard/KeyboardState.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslDemoApp/Base/Service/Keyboard/KeyboardState.hpp>
 #include <cassert>
 
 namespace Fsl

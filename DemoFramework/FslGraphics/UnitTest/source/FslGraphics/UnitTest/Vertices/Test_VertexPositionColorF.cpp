@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -72,8 +72,8 @@ TEST(TestVertices_VertexPositionColorF, Construct)
 
 TEST(TestVertices_VertexPositionColorF, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionColorF, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorF, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElement expected0(offsetof(VertexPositionColorF, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionColorF, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
   const auto vertexDecl = VertexDeclaration(VertexPositionColorF::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexPositionColorF), vertexDecl.VertexStride());
@@ -103,8 +103,8 @@ TEST(TestVertices_VertexPositionColorF, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPositionColorF, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionColorF, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorF, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElement expected0(offsetof(VertexPositionColorF, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionColorF, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
   const auto vertexDecl = VertexPositionColorF::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexPositionColorF), vertexDecl.VertexStride());
@@ -134,8 +134,8 @@ TEST(TestVertices_VertexPositionColorF, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexPositionColorF, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionColorF, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionColorF, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElement expected0(offsetof(VertexPositionColorF, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionColorF, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
   const auto vertexDecl = VertexPositionColorF::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionColorF), vertexDecl.VertexStride());

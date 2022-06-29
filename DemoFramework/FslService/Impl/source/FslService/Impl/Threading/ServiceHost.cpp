@@ -36,11 +36,11 @@
 #include <FslService/Impl/Foundation/Message/FireAndForgetBasicMessage.hpp>
 #include <FslService/Impl/Foundation/Message/ThreadShutdownBasicMessage.hpp>
 #include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
-#include "AsyncServiceImplHost.hpp"
-#include "ServiceHostCreateInfo.hpp"
-#include "Provider/ServiceProviderImpl.hpp"
 #include <cassert>
 #include <memory>
+#include "AsyncServiceImplHost.hpp"
+#include "Provider/ServiceProviderImpl.hpp"
+#include "ServiceHostCreateInfo.hpp"
 
 namespace Fsl
 {
@@ -121,15 +121,15 @@ namespace Fsl
       m_quitRequested = true;
       break;
     case BasicMessageType::ThreadShutdown:
-    {
-      auto messageEx = ThreadShutdownBasicMessage::Decode(message);
-      // If a exception occurred then rethrow it on this thread so we get a more controlled shutdown
-      if (messageEx.Exception)
       {
-        std::rethrow_exception(messageEx.Exception);
+        auto messageEx = ThreadShutdownBasicMessage::Decode(message);
+        // If a exception occurred then rethrow it on this thread so we get a more controlled shutdown
+        if (messageEx.Exception)
+        {
+          std::rethrow_exception(messageEx.Exception);
+        }
+        break;
       }
-      break;
-    }
     case BasicMessageType::FireAndForgetMessage:
       if (m_asyncServiceImplHost)
       {

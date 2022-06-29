@@ -29,11 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/UnitTest/Helper/TestFixtureFslUtil_Vulkan1_0.hpp>
-#include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
+// Include gtest before anything that includes the polluted standard X11 header that cause all kind of issues withs its bad defines.
+#include <gtest/gtest.h>
+// Then include the rest
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchShaders.hpp>
+#include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
+#include <FslUtil/Vulkan1_0/UnitTest/Helper/TestFixtureFslUtil_Vulkan1_0.hpp>
 #include <vector>
 
 using namespace Fsl;

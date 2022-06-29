@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "BitmapFont.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
-#include "BitmapFont.hpp"
 #include <VG/openvg.h>
 #include <array>
 #include <cassert>
@@ -69,7 +69,8 @@ namespace Fsl
 
     // Create child images for each glyph and assign them to the valid chars
     const VGFont parentImage = m_fontImage.GetHandle();
-    const int32_t imageWidth = bitmap.Width();
+    const auto imageWidth = UncheckedNumericCast<int32_t>(bitmap.Width());
+    const auto imageHeight = UncheckedNumericCast<int32_t>(bitmap.Height());
     const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
     std::array<VGfloat, 2> origin = {0.0f, 0.0f};
     std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.Width()), 0.0f};
@@ -77,7 +78,7 @@ namespace Fsl
     int32_t srcY = 0;
     for (uint16_t i = 0; i < numChars; ++i)
     {
-      const VGFont childImage = vgChildImage(parentImage, srcX, bitmap.Height() - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
+      const VGFont childImage = vgChildImage(parentImage, srcX, imageHeight - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
       vgSetGlyphToImage(m_font, firstChar + i, childImage, origin.data(), escapement.data());
       m_fontImages[i].Reset(childImage, fontSize);
 

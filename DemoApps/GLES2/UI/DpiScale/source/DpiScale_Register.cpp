@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <Shared/UI/DpiScale/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "DpiScale.hpp"
 #include <array>
+#include "DpiScale.hpp"
 
 namespace Fsl
 {

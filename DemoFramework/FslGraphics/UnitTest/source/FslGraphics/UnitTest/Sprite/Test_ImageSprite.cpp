@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/ImageSprite.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangleU16.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Log/LogNativeTextureArea.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/SpriteDpConfig.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
@@ -59,7 +59,7 @@ TEST(TestSprite_ImageSprite, Construct_Default)
   EXPECT_EQ(PxThicknessU(), info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(PxExtent2D(), info.ImageInfo.ExtentPx);
   EXPECT_EQ(PxRectangleU16(), info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D(), info.ImageInfo.ExtentDp);
   EXPECT_EQ(SpriteDpConfig::BaseDpi, info.ImageDpi);
   EXPECT_EQ(NativeTextureArea(), info.RenderInfo.TextureArea);
   EXPECT_EQ(PxSize2D(), info.RenderInfo.ScaledSizePx);
@@ -77,7 +77,7 @@ TEST(TestSprite_ImageSprite, Construct_Default_SetContent)
     EXPECT_EQ(PxThicknessU(), info.ImageInfo.TrimMarginPx);
     EXPECT_EQ(PxExtent2D(), info.ImageInfo.ExtentPx);
     EXPECT_EQ(PxRectangleU16(), info.ImageInfo.TrimmedRectanglePx);
-    EXPECT_EQ(DpExtent(), info.ImageInfo.ExtentDp);
+    EXPECT_EQ(DpExtent2D(), info.ImageInfo.ExtentDp);
     EXPECT_EQ(SpriteDpConfig::BaseDpi, info.ImageDpi);
     EXPECT_EQ(NativeTextureArea(), info.RenderInfo.TextureArea);
     EXPECT_EQ(PxSize2D(), info.RenderInfo.ScaledSizePx);
@@ -102,7 +102,7 @@ TEST(TestSprite_ImageSprite, Construct_Default_SetContent)
     EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
     EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
     EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-    EXPECT_EQ(DpExtent(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+    EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
     EXPECT_EQ(imageDpi, info.ImageDpi);
     EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
     EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), info.RenderInfo.ScaledSizePx);
@@ -149,7 +149,7 @@ TEST(TestSprite_ImageSprite, Construct_1x_1x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), info.RenderInfo.ScaledSizePx);
@@ -179,7 +179,7 @@ TEST(TestSprite_ImageSprite, Construct_1x_2x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent * 2u), info.RenderInfo.ScaledSizePx);
@@ -208,7 +208,7 @@ TEST(TestSprite_ImageSprite, Construct_2x_1x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(imageExtent.Width / 2u, imageExtent.Height / 2u), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width / 2u, imageExtent.Height / 2u), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent / 2u), info.RenderInfo.ScaledSizePx);
@@ -237,7 +237,7 @@ TEST(TestSprite_ImageSprite, Construct_2x_2x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(imageExtent.Width / 2u, imageExtent.Height / 2u), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width / 2u, imageExtent.Height / 2u), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), info.RenderInfo.ScaledSizePx);
@@ -275,7 +275,7 @@ TEST(TestSprite_ImageSprite, Resize_2x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent * 2u), info.RenderInfo.ScaledSizePx);

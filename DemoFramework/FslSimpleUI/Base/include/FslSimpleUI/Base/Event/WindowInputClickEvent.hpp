@@ -34,31 +34,28 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowInputClickEvent : public WindowInputEvent
   {
-    class WindowInputClickEvent : public WindowInputEvent
+    PxPoint2 m_screenPositionPx;
+
+  public:
+    WindowInputClickEvent();
+
+    //! @brief Return the screen position in pixels.
+    //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
+    PxPoint2 GetScreenPosition() const
     {
-      PxPoint2 m_screenPositionPx;
+      return m_screenPositionPx;
+    }
 
-    public:
-      WindowInputClickEvent();
-
-      //! @brief Return the screen position in pixels.
-      //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
-      PxPoint2 GetScreenPosition() const
-      {
-        return m_screenPositionPx;
-      }
-
-    protected:
-      void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                         const PxPoint2& screenPositionPx);
-      void SYS_Destruct() override;
-      friend class WindowEventPool;
-    };
-  }
+  protected:
+    void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
+                       const PxPoint2& screenPositionPx);
+    void SYS_Destruct() override;
+    friend class WindowEventPool;
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_SPRITE_INFO_NINESLICESPRITEINFOUTIL_HPP
 #define FSLGRAPHICS_SPRITE_INFO_NINESLICESPRITEINFOUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,31 +38,28 @@
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 
-namespace Fsl
+namespace Fsl::NineSliceSpriteInfoUtil
 {
-  namespace NineSliceSpriteInfoUtil
+  inline NativeNineSliceTextureArea CalcNativeNineSliceTextureArea(const SpriteNativeAreaCalc& spriteNativeAreaCalc,
+                                                                   const SpriteMaterialInfo& spriteMaterialInfo,
+                                                                   const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx,
+                                                                   const StringViewLite& debugName)
   {
-    inline NativeNineSliceTextureArea CalcNativeNineSliceTextureArea(const SpriteNativeAreaCalc& spriteNativeAreaCalc,
-                                                                     const SpriteMaterialInfo& spriteMaterialInfo,
-                                                                     const PxRectangleU16& imageRectanglePx, const PxThicknessU& nineSlicePx,
-                                                                     const StringViewLite& debugName)
+    FSL_PARAM_NOT_USED(debugName);
+    if (nineSlicePx.SumX() > imageRectanglePx.Width || nineSlicePx.SumY() > imageRectanglePx.Height)
     {
-      FSL_PARAM_NOT_USED(debugName);
-      if (nineSlicePx.SumX() > imageRectanglePx.Width || nineSlicePx.SumY() > imageRectanglePx.Height)
-      {
-        throw std::invalid_argument("not a valid nine slice texture");
-      }
-
-      // We calculate everything in integers so we are doing pixel perfect slicing
-      const PxRectangleU16 imageRectangleInnerPx(imageRectanglePx.X + nineSlicePx.Left, imageRectanglePx.Y + nineSlicePx.Top,
-                                                 imageRectanglePx.Width - nineSlicePx.SumX(), imageRectanglePx.Height - nineSlicePx.SumY());
-
-      // then we calculate the texture coordinates of the inner and outer rectangle
-      const NativeTextureArea areaOuter = spriteNativeAreaCalc.CalcNativeTextureArea(imageRectanglePx, spriteMaterialInfo.ExtentPx);
-      const NativeTextureArea areaInner = spriteNativeAreaCalc.CalcNativeTextureArea(imageRectangleInnerPx, spriteMaterialInfo.ExtentPx);
-
-      return {areaOuter.X0, areaOuter.Y0, areaInner.X0, areaInner.Y0, areaInner.X1, areaInner.Y1, areaOuter.X1, areaOuter.Y1};
+      throw std::invalid_argument("not a valid nine slice texture");
     }
+
+    // We calculate everything in integers so we are doing pixel perfect slicing
+    const PxRectangleU16 imageRectangleInnerPx(imageRectanglePx.X + nineSlicePx.Left, imageRectanglePx.Y + nineSlicePx.Top,
+                                               imageRectanglePx.Width - nineSlicePx.SumX(), imageRectanglePx.Height - nineSlicePx.SumY());
+
+    // then we calculate the texture coordinates of the inner and outer rectangle
+    const NativeTextureArea areaOuter = spriteNativeAreaCalc.CalcNativeTextureArea(imageRectanglePx, spriteMaterialInfo.ExtentPx);
+    const NativeTextureArea areaInner = spriteNativeAreaCalc.CalcNativeTextureArea(imageRectangleInnerPx, spriteMaterialInfo.ExtentPx);
+
+    return {areaOuter.X0, areaOuter.Y0, areaInner.X0, areaInner.Y0, areaInner.X1, areaInner.Y1, areaOuter.X1, areaOuter.Y1};
   }
 }
 

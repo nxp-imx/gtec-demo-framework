@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
-#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <utility>
 
 namespace Fsl

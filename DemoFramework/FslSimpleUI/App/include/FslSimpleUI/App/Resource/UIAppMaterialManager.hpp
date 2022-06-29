@@ -37,8 +37,8 @@
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
-#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 #include <FslSimpleUI/App/Resource/UIAppMaterialInfo.hpp>
+#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 #include <map>
 #include <memory>
 #include <unordered_set>
@@ -91,7 +91,7 @@ namespace Fsl
       std::map<SpriteMaterialId, MaterialRecord> m_materials;
       Options m_options;
 
-      std::unordered_set<int32_t> m_usedDynamicIds;
+      std::unordered_set<uint32_t> m_usedDynamicIds;
       uint32_t m_nextDynamicId;
 
     public:

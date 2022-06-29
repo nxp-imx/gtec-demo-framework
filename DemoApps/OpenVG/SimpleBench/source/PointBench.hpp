@@ -31,15 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslUtil/OpenVG/VGFontBuffer.hpp>
 #include <FslUtil/OpenVG/VGImageBuffer.hpp>
 #include <FslUtil/OpenVG/VGPaintBuffer.hpp>
 #include <FslUtil/OpenVG/VGPathBuffer.hpp>
-#include <FslUtil/OpenVG/VGFontBuffer.hpp>
-#include <FslDemoApp/Base/DemoAppConfig.hpp>
-#include <FslGraphics/Color.hpp>
-#include "IBench.hpp"
 #include <array>
 #include <vector>
+#include "IBench.hpp"
 
 namespace Fsl
 {

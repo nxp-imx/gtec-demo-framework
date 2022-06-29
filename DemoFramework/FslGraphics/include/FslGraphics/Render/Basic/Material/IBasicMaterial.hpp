@@ -31,12 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/NativeTextureArea.hpp>
-
 namespace Fsl
 {
-  struct PxRectangleU32;
-
   class IBasicMaterial
   {
   public:

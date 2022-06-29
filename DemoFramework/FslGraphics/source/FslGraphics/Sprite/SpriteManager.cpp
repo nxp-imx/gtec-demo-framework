@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
@@ -41,6 +40,7 @@
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslGraphics/Sprite/OptimizedBasicNineSliceSprite.hpp>
 #include <FslGraphics/Sprite/OptimizedNineSliceSprite.hpp>
+#include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSlicePatchInfo.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <algorithm>

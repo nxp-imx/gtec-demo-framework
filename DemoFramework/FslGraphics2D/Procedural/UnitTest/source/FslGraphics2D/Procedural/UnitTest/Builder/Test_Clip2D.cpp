@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics2D/Procedural/Builder/Clip2DUtil.hpp>
-#include <FslBase/Log/Math/Pixel/LogPxVector2.hpp>
-#include <FslBase/Log/Math/Pixel/LogPxAreaRectangleF.hpp>
-#include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxAreaRectangleF.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxVector2.hpp>
+#include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics2D/Procedural/Builder/Clip2DUtil.hpp>
 #include <array>
 
 using namespace Fsl;

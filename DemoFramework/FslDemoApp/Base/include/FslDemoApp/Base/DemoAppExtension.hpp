@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/IDemoAppExtension.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
@@ -42,60 +43,96 @@
 
 namespace Fsl
 {
-  class DemoAppExtension
+  struct FrameInfo;
+
+  class DemoAppExtension : public IDemoAppExtension
   {
   public:
-    virtual ~DemoAppExtension() = default;
+    void OnKeyEvent(const KeyEvent& event) override
+    {
+      FSL_PARAM_NOT_USED(event);
+    }
+    void OnMouseButtonEvent(const MouseButtonEvent& event) override
+    {
+      FSL_PARAM_NOT_USED(event);
+    }
+    void OnMouseMoveEvent(const MouseMoveEvent& event) override
+    {
+      FSL_PARAM_NOT_USED(event);
+    }
+    void OnMouseWheelEvent(const MouseWheelEvent& event) override
+    {
+      FSL_PARAM_NOT_USED(event);
+    }
+    void OnRawMouseMoveEvent(const RawMouseMoveEvent& event) override
+    {
+      FSL_PARAM_NOT_USED(event);
+    }
+    void OnTimeStateEvent(const TimeStateEvent& event) override
+    {
+      FSL_PARAM_NOT_USED(event);
+    }
 
-    virtual void OnKeyEvent(const KeyEvent& event)
-    {
-      FSL_PARAM_NOT_USED(event);
-    }
-    virtual void OnMouseButtonEvent(const MouseButtonEvent& event)
-    {
-      FSL_PARAM_NOT_USED(event);
-    }
-    virtual void OnMouseMoveEvent(const MouseMoveEvent& event)
-    {
-      FSL_PARAM_NOT_USED(event);
-    }
-    virtual void OnMouseWheelEvent(const MouseWheelEvent& event)
-    {
-      FSL_PARAM_NOT_USED(event);
-    }
-    virtual void OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
-    {
-      FSL_PARAM_NOT_USED(event);
-    }
-    virtual void OnTimeStateEvent(const TimeStateEvent& event)
-    {
-      FSL_PARAM_NOT_USED(event);
-    }
-    virtual void ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override
     {
       FSL_PARAM_NOT_USED(windowMetrics);
     }
-    virtual void PreUpdate(const DemoTime& demoTime)
+
+    //! Called before and after the app 'OnFrameSequenceBegin'
+    void Begin(const DemoAppExtensionCallOrder callOrder) override
     {
+      FSL_PARAM_NOT_USED(callOrder);
+    }
+
+    //! Called before and after the app 'PreUpdate'
+    void PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override
+    {
+      FSL_PARAM_NOT_USED(callOrder);
       FSL_PARAM_NOT_USED(demoTime);
     }
-    virtual void FixedUpdate(const DemoTime& demoTime)
+
+    //! Called before and after the app 'FixedUpdate'
+    void FixedUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override
     {
+      FSL_PARAM_NOT_USED(callOrder);
       FSL_PARAM_NOT_USED(demoTime);
     }
-    virtual void Update(const DemoTime& demoTime)
+
+    //! Called before and after the app 'Update'
+    void Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override
     {
+      FSL_PARAM_NOT_USED(callOrder);
       FSL_PARAM_NOT_USED(demoTime);
     }
-    virtual void PostUpdate(const DemoTime& demoTime)
+
+    //! Called before and after the app 'PostUpdate'
+    void PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override
     {
+      FSL_PARAM_NOT_USED(callOrder);
       FSL_PARAM_NOT_USED(demoTime);
     }
-    virtual void Resolve(const DemoTime& demoTime)
+
+    //! Called before and after the app 'Resolve'
+    void Resolve(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override
     {
+      FSL_PARAM_NOT_USED(callOrder);
       FSL_PARAM_NOT_USED(demoTime);
     }
+
     //    virtual void Draw() {}
+
+    //! Called before and after the app 'OnDrawSkipped'
+    void OnDrawSkipped(const DemoAppExtensionCallOrder callOrder, const FrameInfo& frameInfo) override
+    {
+      FSL_PARAM_NOT_USED(callOrder);
+      FSL_PARAM_NOT_USED(frameInfo);
+    }
+
+    //! Called before and after the app 'OnFrameSequenceEnd'
+    void End(const DemoAppExtensionCallOrder callOrder) override
+    {
+      FSL_PARAM_NOT_USED(callOrder);
+    }
   };
 }
 

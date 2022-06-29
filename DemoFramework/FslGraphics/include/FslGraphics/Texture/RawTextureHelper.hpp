@@ -36,18 +36,15 @@
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
 
-namespace Fsl
+namespace Fsl::RawTextureHelper
 {
-  namespace RawTextureHelper
+  inline RawTexture ToRawTexture(const RawBitmap& rawBitmap)
   {
-    inline RawTexture ToRawTexture(const RawBitmap& rawBitmap)
+    if (rawBitmap.Stride() != PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat()))
     {
-      if (rawBitmap.Stride() != PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat()))
-      {
-        throw NotSupportedException("Can only convert a bitmap using the minimum stride to a raw texture");
-      }
-      return {rawBitmap.Content(), rawBitmap.GetByteSize(), rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin()};
+      throw NotSupportedException("Can only convert a bitmap using the minimum stride to a raw texture");
     }
+    return {rawBitmap.Content(), rawBitmap.GetByteSize(), rawBitmap.GetExtent(), rawBitmap.GetPixelFormat(), rawBitmap.GetOrigin()};
   }
 }
 

@@ -31,17 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  enum class CameraType
   {
-    enum class CameraType
-    {
-      Mipi8X,
-      Mipi6Q,
-      OpenCV
-    };
-  }
+    Mipi8X,
+    Mipi6Q,
+    OpenCV
+  };
 }
 
 #endif

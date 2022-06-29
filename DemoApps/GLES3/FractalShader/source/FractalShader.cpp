@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "FractalShader.hpp"
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "FractalShader.hpp"
+#include <Shared/FractalShader/OptionParser.hpp>
+#include <GLES3/gl3.h>
+#include <memory>
 #include "FractalShaderJulia.hpp"
 #include "FractalShaderMandelbrot.hpp"
-#include <Shared/FractalShader/OptionParser.hpp>
-#include <memory>
-#include <GLES3/gl3.h>
 
 namespace Fsl
 {

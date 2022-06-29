@@ -37,10 +37,12 @@ class LowLevelToolConfig(object):
                  allowDevelopmentPlugins: bool,
                  profilerEnabled: bool,
                  standaloneEnabled: bool,
-                 currentDir: str) -> None:
+                 currentDir: str,
+                 noGitHash: bool) -> None:
         self.VerbosityLevel = verbosityLevel
         self.DebugEnabled = debugEnabled
         self.AllowDevelopmentPlugins = allowDevelopmentPlugins
         self.ProfilerEnabled = profilerEnabled
         self.StandaloneEnabled = standaloneEnabled
         self.CurrentDir = currentDir
+        self.NoGitHash = noGitHash

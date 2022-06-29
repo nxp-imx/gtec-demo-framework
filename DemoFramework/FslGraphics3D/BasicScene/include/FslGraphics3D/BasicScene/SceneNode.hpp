@@ -37,56 +37,54 @@
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class Mesh;
+
+  class SceneNode : public std::enable_shared_from_this<SceneNode>
   {
-    class Mesh;
+    UTF8String m_name;
+    std::deque<int32_t> m_meshes;
+    std::deque<std::shared_ptr<SceneNode>> m_children;
+    std::weak_ptr<SceneNode> m_parent;
+    Matrix m_transformation;
 
-    class SceneNode : public std::enable_shared_from_this<SceneNode>
-    {
-      UTF8String m_name;
-      std::deque<int32_t> m_meshes;
-      std::deque<std::shared_ptr<SceneNode>> m_children;
-      std::weak_ptr<SceneNode> m_parent;
-      Matrix m_transformation;
+  public:
+    SceneNode();
+    explicit SceneNode(const std::size_t meshCapacity);
 
-    public:
-      SceneNode();
-      explicit SceneNode(const std::size_t meshCapacity);
+    virtual ~SceneNode() = default;
 
-      virtual ~SceneNode() = default;
+    //! @brief Get the name of the node
+    const UTF8String& GetName() const;
 
-      //! @brief Get the name of the node
-      const UTF8String& GetName() const;
+    //! @brief Set the name of the node
+    void SetName(const UTF8String& name);
 
-      //! @brief Set the name of the node
-      void SetName(const UTF8String& name);
+    //! @brief Get the parent node
+    std::shared_ptr<SceneNode> GetParent() const;
 
-      //! @brief Get the parent node
-      std::shared_ptr<SceneNode> GetParent() const;
+    //! @brief Set the parent node
+    void SetParent(const std::shared_ptr<SceneNode>& parent);
 
-      //! @brief Set the parent node
-      void SetParent(const std::shared_ptr<SceneNode>& parent);
+    //! @brief Get the transformation relative to the parent
+    const Matrix& GetTransformation() const;
 
-      //! @brief Get the transformation relative to the parent
-      const Matrix& GetTransformation() const;
+    //! @brief set the transformation relative to the parent
+    void SetTransformation(const Matrix& transformation);
 
-      //! @brief set the transformation relative to the parent
-      void SetTransformation(const Matrix& transformation);
+    int32_t GetMeshCount() const;
+    int32_t GetMeshAt(const int32_t index) const;
+    void AddMesh(const int32_t meshIndex);
+    void AddMesh(const uint32_t meshIndex);
 
-      int32_t GetMeshCount() const;
-      int32_t GetMeshAt(const int32_t index) const;
-      void AddMesh(const int32_t meshIndex);
+    int32_t GetChildCount() const;
 
-      int32_t GetChildCount() const;
+    std::shared_ptr<SceneNode> GetChildAt(const int32_t index) const;
 
-      std::shared_ptr<SceneNode> GetChildAt(const int32_t index) const;
-
-      //! @brief Adding a child automatically sets the parent node to this one
-      void AddChild(const std::shared_ptr<SceneNode>& node);
-    };
-  }
+    //! @brief Adding a child automatically sets the parent node to this one
+    void AddChild(const std::shared_ptr<SceneNode>& node);
+  };
 }
 
 #endif

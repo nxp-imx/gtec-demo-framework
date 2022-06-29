@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "CoverFlow.hpp"
 #include <array>
+#include "CoverFlow.hpp"
 
 namespace Fsl
 {

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/IO/PathWatcher.hpp>
 #include <FslBase/IO/Directory.hpp>
+#include <FslBase/IO/PathWatcher.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBaseContent.hpp>
 #include <array>

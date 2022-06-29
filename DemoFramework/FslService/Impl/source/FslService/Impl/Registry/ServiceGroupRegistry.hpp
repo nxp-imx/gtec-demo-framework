@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
-#include <FslService/Impl/ServiceType/Local/IThreadLocalSingletonServiceFactory.hpp>
 #include <FslService/Impl/Registry/ServiceGroupId.hpp>
 #include <FslService/Impl/Registry/ServiceGroupType.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
+#include <FslService/Impl/ServiceType/Local/IThreadLocalSingletonServiceFactory.hpp>
 #include "AsynchronousServiceRegistry.hpp"
 #include "GenericServiceRegistryImpl.hpp"
 

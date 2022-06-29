@@ -32,16 +32,13 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowId
   {
-    class IWindowId
-    {
-    public:
-      virtual ~IWindowId() = default;
-    };
-  }
+  public:
+    virtual ~IWindowId() = default;
+  };
 }
 
 #endif

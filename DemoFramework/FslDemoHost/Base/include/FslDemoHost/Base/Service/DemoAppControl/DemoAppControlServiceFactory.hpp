@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlService.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 
 namespace Fsl
 {
@@ -49,7 +49,7 @@ namespace Fsl
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
-      return std::shared_ptr<AServiceOptionParser>();
+      return {};
     }
 
 

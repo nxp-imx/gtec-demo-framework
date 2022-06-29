@@ -40,6 +40,7 @@ from FslBuildGen import IOUtil
 from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
+from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
@@ -108,6 +109,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], platformName: str, androidABIList: List[str]) -> None:
         super().__init__()
 
+        cmakeMinimumVersion = config.ToolConfig.CMakeConfiguration.MinimumVersion
+
         if config.SDKPathAndroidProjectDir is None:
             raise EnvironmentError("Android environment variable {0} not defined".format(ToolEnvironmentVariableName.FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR))
 
@@ -141,13 +144,13 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                 for package in mainPackage.ResolvedBuildOrder:
                     if package.ResolvedPlatformSupported:
                         if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
-                            self.__GenerateCMakeFile(config, package, platformName, extTemplate, androidProjectDir, androidProjectCMakeDir)
+                            self.__GenerateCMakeFile(config, package, platformName, extTemplate, androidProjectDir, androidProjectCMakeDir, cmakeMinimumVersion)
                         elif package.Type == PackageType.Library:
-                            self.__GenerateCMakeFile(config, package, platformName, libTemplate, androidProjectDir, androidProjectCMakeDir)
+                            self.__GenerateCMakeFile(config, package, platformName, libTemplate, androidProjectDir, androidProjectCMakeDir, cmakeMinimumVersion)
                         elif package.Type == PackageType.Executable:
                             self.__GenerateExecutable(config, package, platformName, exeTemplate, templateFileRecordManager, templateFileProcessor,
                                                       appPackageTemplateInfo, androidProjectDir, androidProjectCMakeDir,
-                                                      exeFileList, androidABIList, cmakePackageRootVariables)
+                                                      exeFileList, androidABIList, cmakePackageRootVariables, cmakeMinimumVersion)
 
         # For now we only support doing 'exe' builds using full source for everything (like the old builder)
         if totalExeCount <= 0:
@@ -183,7 +186,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                             platformName: str,
                             template: CMakeGeneratorUtil.CodeTemplateCMake,
                             androidProjectDir: str,
-                            androidProjectCMakeDir: str) -> None:
+                            androidProjectCMakeDir: str,
+                            cmakeMinimumVersion: CMakeVersion) -> None:
 
         toolConfig = config.ToolConfig
 
@@ -222,6 +226,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
 
         buildCMakeFile = template.Master
 
+        cmakeMinimumVersionStr = "{0}.{1}.{2}".format(cmakeMinimumVersion.Major, cmakeMinimumVersion.Minor, cmakeMinimumVersion.Build)
+
         if package.Type == PackageType.Executable:
             if package.ContentPath is None or package.AbsolutePath is None:
                 raise Exception("Invalid package")
@@ -246,6 +252,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         buildCMakeFile = buildCMakeFile.replace("##ALIAS_PACKAGE_NAME##", aliasPackageName)
         buildCMakeFile = buildCMakeFile.replace("##PROJECT_NAME##", package.ProjectContext.ProjectName)
         buildCMakeFile = buildCMakeFile.replace("##PROJECT_VERSION##", str(package.ProjectContext.ProjectVersion))
+        buildCMakeFile = buildCMakeFile.replace("##CMAKE_MINIMUM_VERSION##", cmakeMinimumVersionStr)
 
         if not config.DisableWrite:
             # We store all cmake build files in their own dir inside the 'android' exe-project's folder
@@ -280,11 +287,11 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                              androidProjectCMakeDir: str,
                              exeFileList: List[str],
                              androidABIList: List[str],
-                             cmakePackageRootVariables: str) -> None:
+                             cmakePackageRootVariables: str, cmakeMinimumVersion: CMakeVersion) -> None:
         # copy files that need to be modified
         dstFilenameModifier = self.__GetDstFilenameModifier(config, androidProjectDir, package, appPackageTemplateInfo,
                                                             template, androidProjectCMakeDir, androidABIList,
-                                                            templateFileProcessor, cmakePackageRootVariables)
+                                                            templateFileProcessor, cmakePackageRootVariables, cmakeMinimumVersion)
 
         templateFileProcessor.Process(config, templateFileRecordManager, androidProjectDir, package, dstFilenameModifier)
 
@@ -293,7 +300,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
             for entry in exeFileList:
                 IOUtil.SetFileExecutable(IOUtil.Join(androidProjectDir, entry))
 
-        self.__GenerateCMakeFile(config, package, platformName, template, androidProjectDir, androidProjectCMakeDir)
+        self.__GenerateCMakeFile(config, package, platformName, template, androidProjectDir, androidProjectCMakeDir, cmakeMinimumVersion)
 
 
     def __GetDstFilenameModifier(self, config: Config,
@@ -304,7 +311,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                                  androidProjectCMakeDir: str,
                                  androidABIList: List[str],
                                  templateFileProcessor: TemplateFileProcessor,
-                                 cmakePackageRootVariables: str) -> Callable[[str], str]:
+                                 cmakePackageRootVariables: str,
+                                 cmakeMinimumVersion: CMakeVersion) -> Callable[[str], str]:
         androidHome = AndroidUtil.GetSDKPath()
         androidNDK = AndroidUtil.GetNDKPath()
         ndkVersion  = AndroidUtil.GetNDKVersion()
@@ -322,6 +330,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         cmakePackageDirectDependenciesAndSubDirectories = self.__BuildCMakeAddSubDirectoriesForDirectDependencies(config, package, template, androidProjectCMakeDir)
 
         addCMakeLibsList = self.__AddCMakeLibs(package)
+
+        cmakeMinimumVersionStr = "{0}.{1}.{2}".format(cmakeMinimumVersion.Major, cmakeMinimumVersion.Minor, cmakeMinimumVersion.Build)
 
         thirdPartyLibsList = []  # type: List[str]
         for entry in addCMakeLibsList:
@@ -357,6 +367,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         templateFileProcessor.Environment.Set("##PACKAGE_VARIANT_ANDROID_ABIS##", packageVariantGradleAndroidABIList)
         templateFileProcessor.Environment.Set("##PREFIXED_PROJECT_NAME##", appPackageTemplateInfo.PrefixedProjectName)
         templateFileProcessor.Environment.Set("##PREFIXED_PROJECT_NAME_L##", appPackageTemplateInfo.PrefixedProjectName.lower())
+        templateFileProcessor.Environment.Set("##CMAKE_MINIMUM_VERSION##", cmakeMinimumVersionStr)
 
         return appPackageTemplateInfo.UpdateFileName
 

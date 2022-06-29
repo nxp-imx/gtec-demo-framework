@@ -50,7 +50,7 @@ namespace fmt
     template <typename FormatContext>
     auto format(const Fsl::BasicWindowMetrics& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{PxExtent={} DpSize={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.DpSize,
+      return format_to(ctx.out(), "{{PxExtent={} DpSize2D={} ExactDpi={} DensityDpi={} DensityScaleFactor={}}}", value.ExtentPx, value.SizeDp,
                        value.ExactDpi, value.DensityDpi, value.DensityScaleFactor);
     }
   };

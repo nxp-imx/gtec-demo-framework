@@ -31,24 +31,21 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class LayoutUnitType
   {
-    enum class LayoutUnitType
-    {
-      //@brief Takes as much space as needed by the contained control.
-      Auto,
-      //@brief Fixed dp size
-      Fixed,
-      //@brief fixed px size
-      Px,
-      // @brief Takes as much space as available, divided over all star-sized columns. Star-sizes are like percentages, except that the
-      // sum of all star columns does not have to be 100%. Remember that star-sizing does not work if the grid size is calculated based on its
-      // content.
-      Star
-    };
-  }
+    //@brief Takes as much space as needed by the contained control.
+    Auto,
+    //@brief Fixed dp size
+    Fixed,
+    //@brief fixed px size
+    Px,
+    // @brief Takes as much space as available, divided over all star-sized columns. Star-sizes are like percentages, except that the
+    // sum of all star columns does not have to be 100%. Remember that star-sizing does not work if the grid size is calculated based on its
+    // content.
+    Star
+  };
 }
 
 #endif

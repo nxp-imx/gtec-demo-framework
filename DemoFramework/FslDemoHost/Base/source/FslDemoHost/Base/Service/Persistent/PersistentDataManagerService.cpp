@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerService.hpp>
+#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <fmt/format.h>
 #include <cassert>
 #include <limits>

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/Math/Pixel/PxSize2DF.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 
 namespace Fsl

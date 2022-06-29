@@ -34,12 +34,12 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
@@ -78,7 +78,7 @@ namespace Fsl
 
     // Create a horizontal stack layout and add the four buttons (in the desired order)
     auto playerStack = std::make_shared<UI::StackLayout>(context);
-    playerStack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    playerStack->SetOrientation(UI::LayoutOrientation::Horizontal);
     playerStack->SetAlignmentX(UI::ItemAlignment::Center);
     playerStack->SetAlignmentY(UI::ItemAlignment::Far);
     playerStack->AddChild(m_btnBack);

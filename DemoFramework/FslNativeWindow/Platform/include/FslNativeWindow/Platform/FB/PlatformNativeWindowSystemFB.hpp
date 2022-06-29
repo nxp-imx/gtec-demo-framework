@@ -33,8 +33,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationFunction.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <functional>
 
 namespace Fsl

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics2D/Procedural/Builder/UITextMeshBuilder.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
@@ -37,6 +36,7 @@
 #include <FslGraphics/Render/Batch2DUtil.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics2D/Procedural/Builder/UIRawMeshBuilder2D.hpp>
+#include <FslGraphics2D/Procedural/Builder/UITextMeshBuilder.hpp>
 #include <algorithm>
 
 namespace Fsl
@@ -163,6 +163,102 @@ namespace Fsl
       for (uint32_t i = 0; i < glyphCount; ++i)
       {
         const SpriteFontGlyphPosition& srcGlyph = glyphScratchpadSpan[i];
+        if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
+        {
+          PxAreaRectangleF dstRectanglePxf(PxAreaRectangleF::AddLocation(dstPositionPxf, srcGlyph.DstRectPxf));
+          NativeTextureArea textureArea(srcGlyph.TextureArea);
+          if (Batch2DUtil::Clip(dstRectanglePxf, textureArea, clipRectPxf))
+          {
+            rBuilder.AddRect(dstRectanglePxf, textureArea);
+          }
+        }
+      }
+    }
+  }
+
+
+  void UITextMeshBuilder::AddString(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const ReadOnlySpan<SpriteFontGlyphPosition> glyphs)
+  {
+    if (glyphs.empty())
+    {
+      return;
+    }
+
+    const auto maxChars = std::min(rBuilder.GetRemainingVertexCapacity() / 4, rBuilder.GetRemainingIndexCapacity() / 6);
+    const ReadOnlySpan<SpriteFontGlyphPosition> glyphSpan = glyphs.subspan(0, maxChars);
+
+    // Extract the render rules
+    {
+      const uint32_t glyphCount = std::min(UncheckedNumericCast<uint32_t>(glyphSpan.size()), rBuilder.GetRemainingVertexCapacity() / 4);
+      assert((rBuilder.GetRemainingVertexCapacity() / 4) <= (rBuilder.GetRemainingIndexCapacity() / 6));
+
+      assert(glyphCount <= glyphSpan.size());
+      for (uint32_t i = 0; i < glyphCount; ++i)
+      {
+        const SpriteFontGlyphPosition& srcGlyph = glyphSpan[i];
+        if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
+        {
+          rBuilder.AddRect(dstPositionPxf.X + srcGlyph.DstRectPxf.Left(), dstPositionPxf.Y + srcGlyph.DstRectPxf.Top(),
+                           dstPositionPxf.X + srcGlyph.DstRectPxf.Right(), dstPositionPxf.Y + srcGlyph.DstRectPxf.Bottom(), srcGlyph.TextureArea);
+        }
+      }
+    }
+  }
+
+
+  void UITextMeshBuilder::AddString(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const ReadOnlySpan<SpriteFontGlyphPosition> glyphs,
+                                    const PxClipRectangle& clipRectPx)
+  {
+    if (glyphs.empty() || clipRectPx.Left() == clipRectPx.Right() || clipRectPx.Top() == clipRectPx.Bottom())
+    {
+      return;
+    }
+
+    const auto maxChars = std::min(rBuilder.GetRemainingVertexCapacity() / 4, rBuilder.GetRemainingIndexCapacity() / 6);
+    const ReadOnlySpan<SpriteFontGlyphPosition> glyphSpan = glyphs.subspan(0, maxChars);
+
+    {
+      const uint32_t glyphCount = std::min(UncheckedNumericCast<uint32_t>(glyphSpan.size()), rBuilder.GetRemainingVertexCapacity() / 4);
+      assert((rBuilder.GetRemainingVertexCapacity() / 4) <= (rBuilder.GetRemainingIndexCapacity() / 6));
+
+      assert(glyphCount <= glyphSpan.size());
+      for (uint32_t i = 0; i < glyphCount; ++i)
+      {
+        const SpriteFontGlyphPosition& srcGlyph = glyphSpan[i];
+        if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
+        {
+          PxAreaRectangleF dstRectanglePxf(PxAreaRectangleF::AddLocation(dstPositionPxf, srcGlyph.DstRectPxf));
+          NativeTextureArea textureArea(srcGlyph.TextureArea);
+          if (Batch2DUtil::Clip(dstRectanglePxf, textureArea, clipRectPx))
+          {
+            rBuilder.AddRect(dstRectanglePxf, textureArea);
+          }
+        }
+      }
+    }
+  }
+
+
+  void UITextMeshBuilder::AddString(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const ReadOnlySpan<SpriteFontGlyphPosition> glyphs,
+                                    const PxAreaRectangleF& clipRectPxf)
+  {
+    if (glyphs.empty() || clipRectPxf.Left() == clipRectPxf.Right() || clipRectPxf.Top() == clipRectPxf.Bottom())
+    {
+      return;
+    }
+
+    const auto maxChars = std::min(rBuilder.GetRemainingVertexCapacity() / 4, rBuilder.GetRemainingIndexCapacity() / 6);
+    const ReadOnlySpan<SpriteFontGlyphPosition> glyphSpan = glyphs.subspan(0, maxChars);
+
+    // Extract the render rules
+    {
+      const uint32_t glyphCount = std::min(UncheckedNumericCast<uint32_t>(glyphSpan.size()), rBuilder.GetRemainingVertexCapacity() / 4);
+      assert((rBuilder.GetRemainingVertexCapacity() / 4) <= (rBuilder.GetRemainingIndexCapacity() / 6));
+
+      assert(glyphCount <= glyphSpan.size());
+      for (uint32_t i = 0; i < glyphCount; ++i)
+      {
+        const SpriteFontGlyphPosition& srcGlyph = glyphSpan[i];
         if (srcGlyph.TextureArea.X1 > srcGlyph.TextureArea.X0)
         {
           PxAreaRectangleF dstRectanglePxf(PxAreaRectangleF::AddLocation(dstPositionPxf, srcGlyph.DstRectPxf));

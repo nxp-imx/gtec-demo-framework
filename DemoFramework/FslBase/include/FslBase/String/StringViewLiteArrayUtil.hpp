@@ -1,7 +1,7 @@
 #ifndef FSLBASE_STRING_STRINGVIEWLITEARRAYUTIL_HPP
 #define FSLBASE_STRING_STRINGVIEWLITEARRAYUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,40 +35,34 @@
 #include <FslBase/String/StringViewLite.hpp>
 #include <array>
 
-namespace Fsl
+namespace Fsl::StringViewLiteArrayUtil
 {
-  // Adds comparision operators for std::string
-  // Added in a external file to ensure that not all StringViewLite users need to depend on std::string (and its header)
-
-  namespace StringViewLiteArrayUtil
+  template <std::size_t T>
+  void CopyToAndZeroTerminate(std::array<char, T>& rDst, StringViewLite strView)
   {
-    template <std::size_t T>
-    void CopyToAndZeroTerminate(std::array<char, T>& rDst, StringViewLite strView)
+    static_assert(T > 0, "Array size must be larger than zero");
+
+    const std::size_t maxCharsToCopy = std::min(rDst.size() - 1u, strView.size());
+    for (std::size_t i = 0; i < maxCharsToCopy; ++i)
     {
-      static_assert(T > 0, "Array size must be larger than zero");
-
-      const std::size_t maxCharsToCopy = std::min(rDst.size() - 1u, strView.size());
-      for (std::size_t i = 0; i < maxCharsToCopy; ++i)
-      {
-        rDst[i] = strView[i];
-      }
-      rDst[maxCharsToCopy] = 0;
+      rDst[i] = strView[i];
     }
+    rDst[maxCharsToCopy] = 0;
+  }
 
-    template <std::size_t T>
-    std::array<char, T> ToArray(StringViewLite strView)
+  template <std::size_t T>
+  std::array<char, T> ToArray(StringViewLite strView)
+  {
+    static_assert(T > 0, "Array size must be larger than zero");
+
+    std::array<char, T> dst;
+    const std::size_t maxCharsToCopy = std::min(dst.size() - 1u, strView.size());
+    for (std::size_t i = 0; i < maxCharsToCopy; ++i)
     {
-      static_assert(T > 0, "Array size must be larger than zero");
-
-      std::array<char, T> dst;
-      const std::size_t maxCharsToCopy = std::min(dst.size() - 1u, strView.size());
-      for (std::size_t i = 0; i < maxCharsToCopy; ++i)
-      {
-        dst[i] = strView[i];
-      }
-      dst[maxCharsToCopy] = 0;
-      return dst;
+      dst[i] = strView[i];
     }
+    dst[maxCharsToCopy] = 0;
+    return dst;
   }
 }
 

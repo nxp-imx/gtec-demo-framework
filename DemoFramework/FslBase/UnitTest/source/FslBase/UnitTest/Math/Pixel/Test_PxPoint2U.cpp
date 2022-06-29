@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxPoint2U.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxPoint2U.hpp>
+#include <FslBase/Math/Pixel/PxPoint2U.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

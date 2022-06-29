@@ -32,17 +32,17 @@
 // OpenCL 1.2 project
 
 #include "SoftISP.hpp"
-#include "OptionParser.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslUtil/OpenCL1_2/ProgramEx.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_2/ProgramEx.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Values.hpp>
 #include <CL/cl.h>
 #include <string.h>
 #include <fstream>
+#include "OptionParser.hpp"
 
 using namespace RapidOpenCL1;
 

@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureMipMapFilter.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -47,16 +47,16 @@ namespace Fsl
     virtual ~ITextureService() = default;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual Optional<Texture> TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) = 0;
+    virtual std::optional<Texture> TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual Optional<Texture> TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) = 0;
+    virtual std::optional<Texture> TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual Optional<Texture> TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) = 0;
+    virtual std::optional<Texture> TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
-    virtual Optional<Texture> TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) = 0;
+    virtual std::optional<Texture> TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter) = 0;
 
     //! @brief Generate a new texture with mip maps based on the src
     virtual Texture GenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter) = 0;

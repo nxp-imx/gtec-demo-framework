@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionTextureWeight.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPositionTextureWeight.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -62,10 +62,10 @@ TEST(TestVertices_VertexPositionTextureWeight, Construct_Default)
 
 TEST(TestVertices_VertexPositionTextureWeight, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
+  const VertexElement expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
   const auto vertexDecl = VertexDeclaration(VertexPositionTextureWeight::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexPositionTextureWeight), vertexDecl.VertexStride());
@@ -100,10 +100,10 @@ TEST(TestVertices_VertexPositionTextureWeight, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPositionTextureWeight, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
+  const VertexElement expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
   const auto vertexDecl = VertexPositionTextureWeight::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexPositionTextureWeight), vertexDecl.VertexStride());
@@ -138,10 +138,10 @@ TEST(TestVertices_VertexPositionTextureWeight, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexPositionTextureWeight, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
-  const VertexElementEx expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
+  const VertexElement expected0(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected1(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected2(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0u);
   const auto vertexDecl = VertexPositionTextureWeight::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionTextureWeight), vertexDecl.VertexStride());

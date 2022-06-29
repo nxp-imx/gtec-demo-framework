@@ -33,13 +33,10 @@
 
 #include <Shared/UI/Benchmark/Persistence/AppRenderMethod.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
-  {
-    extern const char* TryToString(const AppRenderMethod& value);
-    extern const char* ToString(const AppRenderMethod& value);
-  }
+  extern const char* TryToString(const AppRenderMethod& value);
+  extern const char* ToString(const AppRenderMethod& value);
 }
 
 #endif

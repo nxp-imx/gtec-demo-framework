@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_DIALOG_SETTINGSDIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_SCENE_DIALOG_SETTINGSDIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,47 +31,60 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslSimpleUI/Theme/Base/WindowType.hpp>
 #include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
+#include <Shared/UI/Benchmark/RenderMethodInfo.hpp>
 #include <memory>
+#include <vector>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ButtonBase;
+  class Layout;
+  class RadioButton;
+  class Switch;
+
+  class SettingsDialogActivity final : public DialogActivity
   {
-    class ButtonBase;
-    class Switch;
-
-    class SettingsDialogActivity final : public DialogActivity
+    struct RenderMethodUI
     {
-      enum class State
-      {
-        Ready,
-        Closing,
-      };
-
-      State m_state{State::Ready};
-      std::shared_ptr<ButtonBase> m_buttonOK;
-      std::shared_ptr<Switch> m_switchNoOpaqueMaterials;
-      std::shared_ptr<Switch> m_switchStats;
-      std::shared_ptr<Switch> m_switchShowIdle;
-      std::shared_ptr<AppTestSettings> m_settings;
-
-    public:
-      // Since we dont have a proper activity concept with async return values we use the shared settings object for now
-      SettingsDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                             const Theme::WindowType windowType, std::shared_ptr<AppTestSettings> settings);
-
-
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
-      void OnKeyEvent(const KeyEvent& theEvent) final;
-
-    private:
-      void DoScheduleClose();
+      std::shared_ptr<UI::Layout> Main;
+      std::vector<std::shared_ptr<UI::RadioButton>> Methods;
     };
-  }
+
+    enum class State
+    {
+      Ready,
+      Closing,
+    };
+
+    State m_state{State::Ready};
+    RenderMethodUI m_renderMethodUI;
+    std::shared_ptr<ButtonBase> m_buttonOK;
+    std::shared_ptr<Switch> m_switchNoOpaqueMaterials;
+    std::shared_ptr<Switch> m_switchStats;
+    std::shared_ptr<Switch> m_switchShowIdle;
+    std::shared_ptr<AppTestSettings> m_settings;
+
+  public:
+    // Since we dont have a proper activity concept with async return values we use the shared settings object for now
+    SettingsDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                           const Theme::WindowType windowType, std::shared_ptr<AppTestSettings> settings,
+                           const ReadOnlySpan<RenderMethodInfo> renderRecordSpan);
+
+
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnKeyEvent(const KeyEvent& theEvent) final;
+
+  private:
+    void DoScheduleClose();
+
+    RenderMethodUI CreateRenderMethodUI(UI::Theme::IThemeControlFactory& uiFactory, const ReadOnlySpan<RenderMethodInfo> renderRecordSpan,
+                                        const uint32_t activeRenderIndex);
+  };
 }
 
 

@@ -29,132 +29,129 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  VulkanUniformData& VulkanUniformData::operator=(VulkanUniformData&& other) noexcept
   {
-    VulkanUniformData& VulkanUniformData::operator=(VulkanUniformData&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        Buffer = std::move(other.Buffer);
-        Memory = std::move(other.Memory);
-        Descriptor = other.Descriptor;
-        AllocSize = other.AllocSize;
-        pMapped = other.pMapped;
-
-        // Remove the data from other
-        other.Descriptor = VkDescriptorBufferInfo{};
-        other.AllocSize = 0;
-        other.pMapped = nullptr;
+        Reset();
       }
-      return *this;
-    }
 
+      // Claim ownership here
+      Buffer = std::move(other.Buffer);
+      Memory = std::move(other.Memory);
+      Descriptor = other.Descriptor;
+      AllocSize = other.AllocSize;
+      pMapped = other.pMapped;
 
-    VulkanUniformData::VulkanUniformData(VulkanUniformData&& other) noexcept
-      : Buffer(std::move(other.Buffer))
-      , Memory(std::move(other.Memory))
-      , Descriptor(other.Descriptor)
-      , AllocSize(other.AllocSize)
-      , pMapped(other.pMapped)
-    {
       // Remove the data from other
       other.Descriptor = VkDescriptorBufferInfo{};
       other.AllocSize = 0;
       other.pMapped = nullptr;
     }
+    return *this;
+  }
 
 
-    VulkanUniformData::VulkanUniformData(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& deviceMemory, const VkDescriptorBufferInfo& descriptor,
-                                         const uint32_t allocSize)
-      : Buffer(std::move(buffer))
-      , Memory(std::move(deviceMemory))
-      , Descriptor(descriptor)
-      , AllocSize(allocSize)
-      , pMapped(nullptr)
+  VulkanUniformData::VulkanUniformData(VulkanUniformData&& other) noexcept
+    : Buffer(std::move(other.Buffer))
+    , Memory(std::move(other.Memory))
+    , Descriptor(other.Descriptor)
+    , AllocSize(other.AllocSize)
+    , pMapped(other.pMapped)
+  {
+    // Remove the data from other
+    other.Descriptor = VkDescriptorBufferInfo{};
+    other.AllocSize = 0;
+    other.pMapped = nullptr;
+  }
+
+
+  VulkanUniformData::VulkanUniformData(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& deviceMemory, const VkDescriptorBufferInfo& descriptor,
+                                       const uint32_t allocSize)
+    : Buffer(std::move(buffer))
+    , Memory(std::move(deviceMemory))
+    , Descriptor(descriptor)
+    , AllocSize(allocSize)
+    , pMapped(nullptr)
+  {
+    const bool hasOneValid = Buffer.IsValid() || Memory.IsValid();
+    if (Buffer.IsValid() != hasOneValid || Memory.IsValid() != hasOneValid)
     {
-      const bool hasOneValid = Buffer.IsValid() || Memory.IsValid();
-      if (Buffer.IsValid() != hasOneValid || Memory.IsValid() != hasOneValid)
-      {
-        throw std::invalid_argument("Either all objects has to be valid or none must be");
-      }
-
-      if (Buffer.GetDevice() != Memory.GetDevice())
-      {
-        throw std::invalid_argument("All objects must belong to the same device");
-      }
+      throw std::invalid_argument("Either all objects has to be valid or none must be");
     }
 
-
-    VulkanUniformData::VulkanUniformData()
-      : Descriptor{}
-      , AllocSize(0)
-      , pMapped(nullptr)
+    if (Buffer.GetDevice() != Memory.GetDevice())
     {
+      throw std::invalid_argument("All objects must belong to the same device");
+    }
+  }
+
+
+  VulkanUniformData::VulkanUniformData()
+    : Descriptor{}
+    , AllocSize(0)
+    , pMapped(nullptr)
+  {
+  }
+
+
+  void VulkanUniformData::Reset() noexcept
+  {
+    if (!IsValid())
+    {
+      return;
     }
 
-
-    void VulkanUniformData::Reset() noexcept
+    assert(Buffer.IsValid());
+    assert(Memory.IsValid());
+    //! If this goes of a mapped buffer is being reset, unmap it!
+    if (pMapped != nullptr)
     {
-      if (!IsValid())
-      {
-        return;
-      }
+      Unmap();
+    }
 
-      assert(Buffer.IsValid());
-      assert(Memory.IsValid());
-      //! If this goes of a mapped buffer is being reset, unmap it!
-      if (pMapped != nullptr)
-      {
-        Unmap();
-      }
+    Buffer.Reset();
+    Memory.Reset();
+    Descriptor = VkDescriptorBufferInfo{};
+    AllocSize = 0;
+    pMapped = nullptr;
+  }
 
-      Buffer.Reset();
-      Memory.Reset();
-      Descriptor = VkDescriptorBufferInfo{};
-      AllocSize = 0;
+
+  void VulkanUniformData::Map(const VkDeviceSize offset, const VkDeviceSize size)
+  {
+    assert(IsValid());
+    RAPIDVULKAN_CHECK(vkMapMemory(Buffer.GetDevice(), Memory.Get(), offset, size, 0, &pMapped));
+  }
+
+
+  void VulkanUniformData::Unmap()
+  {
+    FSLLOG3_DEBUG_WARNING_IF(!IsValid(), "Unmap called on a invalid object, request ignored.");
+    FSLLOG3_DEBUG_WARNING_IF(pMapped == nullptr, "Unmap called on a unmapped object, request ignored.");
+    if (pMapped != nullptr)
+    {
+      vkUnmapMemory(Buffer.GetDevice(), Memory.Get());
       pMapped = nullptr;
     }
+  }
 
 
-    void VulkanUniformData::Map(const VkDeviceSize offset, const VkDeviceSize size)
-    {
-      assert(IsValid());
-      RAPIDVULKAN_CHECK(vkMapMemory(Buffer.GetDevice(), Memory.Get(), offset, size, 0, &pMapped));
-    }
-
-
-    void VulkanUniformData::Unmap()
-    {
-      FSLLOG3_DEBUG_WARNING_IF(!IsValid(), "Unmap called on a invalid object, request ignored.");
-      FSLLOG3_DEBUG_WARNING_IF(pMapped == nullptr, "Unmap called on a unmapped object, request ignored.");
-      if (pMapped != nullptr)
-      {
-        vkUnmapMemory(Buffer.GetDevice(), Memory.Get());
-        pMapped = nullptr;
-      }
-    }
-
-
-    void VulkanUniformData::Bind(const VkDeviceSize offset)
-    {
-      assert(IsValid());
-      RAPIDVULKAN_CHECK(vkBindBufferMemory(Buffer.GetDevice(), Buffer.Get(), Memory.Get(), offset));
-    }
+  void VulkanUniformData::Bind(const VkDeviceSize offset)
+  {
+    assert(IsValid());
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(Buffer.GetDevice(), Buffer.Get(), Memory.Get(), offset));
   }
 }

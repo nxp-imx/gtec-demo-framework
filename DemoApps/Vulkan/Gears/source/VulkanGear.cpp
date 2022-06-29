@@ -12,15 +12,15 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "VulkanGear.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
 #include <cstring>
 #include <vector>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
 
 namespace Fsl
 {

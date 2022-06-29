@@ -29,85 +29,82 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/IO/Directory.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/System/Platform/PlatformFileSystem.hpp>
-#include "../System/Platform/Platform.hpp"
 #include <cassert>
+#include "../System/Platform/Platform.hpp"
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  namespace
   {
-    namespace
+    void RecursiveCreate(const Path& path)
     {
-      void RecursiveCreate(const Path& path)
+      auto tmpPath = Path::GetDirectoryName(path);
+      if (tmpPath.GetByteSize() > 0)
       {
-        auto tmpPath = Path::GetDirectoryName(path);
-        if (tmpPath.GetByteSize() > 0)
-        {
-          RecursiveCreate(tmpPath);
-        }
+        RecursiveCreate(tmpPath);
+      }
 
-        if (!path.EndsWith(":"))
-        {
-          PlatformFileSystem::CreateDir(path);
-        }
+      if (!path.EndsWith(":"))
+      {
+        PlatformFileSystem::CreateDir(path);
       }
     }
+  }
 
-    void Directory::CreateDir(const Path& path)
+  void Directory::CreateDir(const Path& path)
+  {
+    if (path.EndsWith(":"))
     {
-      if (path.EndsWith(":"))
-      {
-        throw IOException("Invalid path name");
-      }
-
-      const auto indexOfSlash = path.IndexOf('/');
-      if (indexOfSlash >= 0 && path.IndexOf(':', indexOfSlash) > 0)
-      {
-        throw NotSupportedException("A path can only contain ':' in the drive label");
-      }
-
-      RecursiveCreate(path);
+      throw IOException("Invalid path name");
     }
 
-
-    bool Directory::Exists(const Path& path)
+    const auto indexOfSlash = path.IndexOf('/');
+    if (indexOfSlash >= 0 && path.IndexOf(':', indexOfSlash) > 0)
     {
-      FileAttributes attr;
-      if (!File::TryGetAttributes(path, attr))
-      {
-        return false;
-      }
-      return (attr.HasFlag(FileAttributes::Directory));
+      throw NotSupportedException("A path can only contain ':' in the drive label");
     }
 
+    RecursiveCreate(path);
+  }
 
-    Path Directory::GetCurrentWorkingDirectory()
+
+  bool Directory::Exists(const Path& path)
+  {
+    FileAttributes attr;
+    if (!File::TryGetAttributes(path, attr))
     {
-      return Path(Platform::GetCurrentWorkingDirectory());
+      return false;
     }
+    return (attr.HasFlag(FileAttributes::Directory));
+  }
 
 
-    void Directory::GetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions)
+  Path Directory::GetCurrentWorkingDirectory()
+  {
+    return Path(Platform::GetCurrentWorkingDirectory());
+  }
+
+
+  void Directory::GetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions)
+  {
+    return PlatformFileSystem::GetFiles(rResult, path, searchOptions);
+  }
+
+
+  bool Directory::TryGetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions)
+  {
+    try
     {
-      return PlatformFileSystem::GetFiles(rResult, path, searchOptions);
+      GetFiles(rResult, path, searchOptions);
+      return true;
     }
-
-
-    bool Directory::TryGetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions)
+    catch (const std::exception&)
     {
-      try
-      {
-        GetFiles(rResult, path, searchOptions);
-        return true;
-      }
-      catch (const std::exception&)
-      {
-        return false;
-      }
+      return false;
     }
   }
 }

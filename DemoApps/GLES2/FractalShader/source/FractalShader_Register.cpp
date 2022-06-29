@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
-#include <EGL/egl.h>
-#include "FractalShader.hpp"
 #include <Shared/FractalShader/OptionParser.hpp>
+#include <EGL/egl.h>
 #include <array>
+#include "FractalShader.hpp"
 
 namespace Fsl
 {

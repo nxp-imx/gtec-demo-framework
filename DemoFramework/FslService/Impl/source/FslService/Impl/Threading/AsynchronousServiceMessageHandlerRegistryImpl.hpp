@@ -33,8 +33,8 @@
 
 #include <FslService/Impl/ServiceType/Async/IAsynchronousServiceMessageHandlerRegistry.hpp>
 #include <functional>
-#include <memory>
 #include <map>
+#include <memory>
 #include <typeindex>
 #include <utility>
 

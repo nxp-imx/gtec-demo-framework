@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Vector2.hpp>
 
 namespace Fsl
 {
@@ -63,7 +63,7 @@ namespace Fsl
       : ExtentPx(extentPx)
       , ExactDpi(exactDpi)
       , DensityDpi(densityDpi)
-      , DensityScaleFactor(densityDpi / 160.0f)
+      , DensityScaleFactor(static_cast<float>(densityDpi) / 160.0f)
     {
     }
   };

@@ -30,65 +30,62 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::G2D
 {
-  namespace G2D
+  NativeGraphicsBasic2D::NativeGraphicsBasic2D(const PxExtent2D& extentPx)
+    : m_pxCurrentExtent(extentPx)
+    , m_fontSize(EmbeddedFont8x8::CharacterSize())
+    , m_inBegin(false)
   {
-    NativeGraphicsBasic2D::NativeGraphicsBasic2D(const PxExtent2D& extentPx)
-      : m_pxCurrentExtent(extentPx)
-      , m_fontSize(EmbeddedFont8x8::CharacterSize())
-      , m_inBegin(false)
-    {
-      FSLLOG3_WARNING("NativeGraphicsBasic2D is a stub");
-    }
+    FSLLOG3_WARNING("NativeGraphicsBasic2D is a stub");
+  }
 
 
-    NativeGraphicsBasic2D::~NativeGraphicsBasic2D() = default;
+  NativeGraphicsBasic2D::~NativeGraphicsBasic2D() = default;
 
 
-    void NativeGraphicsBasic2D::SetScreenExtent(const PxExtent2D& extentPx)
-    {
-      assert(!m_inBegin);
-      m_pxCurrentExtent = extentPx;
-    }
+  void NativeGraphicsBasic2D::SetScreenExtent(const PxExtent2D& extentPx)
+  {
+    assert(!m_inBegin);
+    m_pxCurrentExtent = extentPx;
+  }
 
 
-    void NativeGraphicsBasic2D::Begin()
-    {
-      assert(!m_inBegin);
-      m_inBegin = true;
-    }
+  void NativeGraphicsBasic2D::Begin()
+  {
+    assert(!m_inBegin);
+    m_inBegin = true;
+  }
 
 
-    void NativeGraphicsBasic2D::End()
-    {
-      assert(m_inBegin);
-      m_inBegin = false;
-    }
+  void NativeGraphicsBasic2D::End()
+  {
+    assert(m_inBegin);
+    m_inBegin = false;
+  }
 
 
-    void NativeGraphicsBasic2D::DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color)
-    {
-      assert(m_inBegin);
-      assert(pDst != nullptr);
-    }
+  void NativeGraphicsBasic2D::DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color)
+  {
+    assert(m_inBegin);
+    assert(pDst != nullptr);
+  }
 
 
-    void NativeGraphicsBasic2D::DrawString(const StringViewLite& strView, const Vector2& dstPosition)
-    {
-      assert(m_inBegin);
-    }
+  void NativeGraphicsBasic2D::DrawString(const StringViewLite& strView, const Vector2& dstPosition)
+  {
+    assert(m_inBegin);
+  }
 
 
-    PxSize2D NativeGraphicsBasic2D::FontSize() const
-    {
-      return m_fontSize;
-    }
+  PxSize2D NativeGraphicsBasic2D::FontSize() const
+  {
+    return m_fontSize;
   }
 }

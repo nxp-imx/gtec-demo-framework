@@ -7,8 +7,8 @@ APP_ABI := ##PACKAGE_APP_ABI##
 
 APP_STL := gnustl_static
 
-# then enable c++14 extensions in source code
-APP_CPPFLAGS += -std=c++14 -fexceptions -frtti -pthread
+# then enable c++17 extensions in source code
+APP_CPPFLAGS += -std=c++17 -fexceptions -frtti -pthread
 
 NDK_TOOLCHAIN_VERSION := clang
 # GCC support is being removed in a future NDK update.

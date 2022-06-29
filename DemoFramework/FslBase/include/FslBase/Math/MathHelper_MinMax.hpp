@@ -31,21 +31,18 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::MathHelper
 {
-  namespace MathHelper
+  template <typename TValueType>
+  constexpr inline TValueType Min(const TValueType value0, const TValueType value1) noexcept
   {
-    template <typename TValueType>
-    constexpr inline TValueType Min(const TValueType value0, const TValueType value1) noexcept
-    {
-      return value0 <= value1 ? value0 : value1;
-    }
+    return value0 <= value1 ? value0 : value1;
+  }
 
-    template <typename TValueType>
-    constexpr inline TValueType Max(const TValueType value0, const TValueType value1) noexcept
-    {
-      return value0 >= value1 ? value0 : value1;
-    }
+  template <typename TValueType>
+  constexpr inline TValueType Max(const TValueType value0, const TValueType value1) noexcept
+  {
+    return value0 >= value1 ? value0 : value1;
   }
 }
 

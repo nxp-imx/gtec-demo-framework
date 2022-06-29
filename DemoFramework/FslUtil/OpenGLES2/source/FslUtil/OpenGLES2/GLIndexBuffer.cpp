@@ -32,85 +32,81 @@
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBuffer.hpp>
-
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  GLIndexBuffer::GLIndexBuffer() = default;
+
+
+  GLIndexBuffer::GLIndexBuffer(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage,
+                               const GLenum type)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, elementStride, usage)
+    , m_type(type)
   {
-    GLIndexBuffer::GLIndexBuffer() = default;
+  }
 
 
-    GLIndexBuffer::GLIndexBuffer(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage,
-                                 const GLenum type)
-      : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, elementStride, usage)
-      , m_type(type)
-    {
-    }
+  GLIndexBuffer::GLIndexBuffer(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint8_t), usage)
+    , m_type(GL_UNSIGNED_BYTE)
+  {
+  }
 
 
-    GLIndexBuffer::GLIndexBuffer(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage)
-      : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint8_t), usage)
-      , m_type(GL_UNSIGNED_BYTE)
-    {
-    }
+  GLIndexBuffer::GLIndexBuffer(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage)
+    , m_type(GL_UNSIGNED_SHORT)
+  {
+  }
 
 
-    GLIndexBuffer::GLIndexBuffer(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
-      : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage)
-      , m_type(GL_UNSIGNED_SHORT)
-    {
-    }
+  GLIndexBuffer::GLIndexBuffer(const std::vector<uint8_t>& indices, const GLenum usage)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage)
+    , m_type(GL_UNSIGNED_BYTE)
+  {
+  }
 
 
-    GLIndexBuffer::GLIndexBuffer(const std::vector<uint8_t>& indices, const GLenum usage)
-      : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage)
-      , m_type(GL_UNSIGNED_BYTE)
-    {
-    }
+  GLIndexBuffer::GLIndexBuffer(const std::vector<uint16_t>& indices, const GLenum usage)
+    : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage)
+    , m_type(GL_UNSIGNED_SHORT)
+  {
+  }
 
 
-    GLIndexBuffer::GLIndexBuffer(const std::vector<uint16_t>& indices, const GLenum usage)
-      : GLBuffer(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage)
-      , m_type(GL_UNSIGNED_SHORT)
-    {
-    }
+  void GLIndexBuffer::Reset(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage,
+                            const GLenum type)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, elementStride, usage);
+    m_type = type;
+  }
 
 
-    void GLIndexBuffer::Reset(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage,
-                              const GLenum type)
-    {
-      GLBuffer::Reset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, elementStride, usage);
-      m_type = type;
-    }
+  void GLIndexBuffer::Reset(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint8_t), usage);
+    m_type = GL_UNSIGNED_BYTE;
+  }
 
 
-    void GLIndexBuffer::Reset(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage)
-    {
-      GLBuffer::Reset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint8_t), usage);
-      m_type = GL_UNSIGNED_BYTE;
-    }
+  void GLIndexBuffer::Reset(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage);
+    m_type = GL_UNSIGNED_SHORT;
+  }
 
 
-    void GLIndexBuffer::Reset(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
-    {
-      GLBuffer::Reset(GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage);
-      m_type = GL_UNSIGNED_SHORT;
-    }
+  void GLIndexBuffer::Reset(const std::vector<uint8_t>& indices, const GLenum usage)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage);
+    m_type = GL_UNSIGNED_BYTE;
+  }
 
 
-    void GLIndexBuffer::Reset(const std::vector<uint8_t>& indices, const GLenum usage)
-    {
-      GLBuffer::Reset(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage);
-      m_type = GL_UNSIGNED_BYTE;
-    }
-
-
-    void GLIndexBuffer::Reset(const std::vector<uint16_t>& indices, const GLenum usage)
-    {
-      GLBuffer::Reset(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage);
-      m_type = GL_UNSIGNED_SHORT;
-    }
+  void GLIndexBuffer::Reset(const std::vector<uint16_t>& indices, const GLenum usage)
+  {
+    DoReset(GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage);
+    m_type = GL_UNSIGNED_SHORT;
   }
 }

@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_CAMERA_BASICFIRSTPERSONCAMERA_HPP
 #define FSLGRAPHICS3D_CAMERA_BASICFIRSTPERSONCAMERA_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,51 +31,48 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class BasicFirstPersonCamera
   {
-    class BasicFirstPersonCamera
-    {
-      Vector3 m_position;
-      Vector3 m_forward;
-      Vector3 m_up;
-      Vector3 m_right;
-      Vector3 m_worldUp;
+    Vector3 m_position;
+    Vector3 m_forward;
+    Vector3 m_up;
+    Vector3 m_right;
+    Vector3 m_worldUp;
 
-      float m_yaw;
-      float m_pitch;
+    float m_yaw;
+    float m_pitch;
 
-    public:
-      BasicFirstPersonCamera();
-      ~BasicFirstPersonCamera() = default;
+  public:
+    BasicFirstPersonCamera();
+    ~BasicFirstPersonCamera() = default;
 
-      //! @brief Get the current view matrix for the camera
-      Matrix GetViewMatrix() const;
+    //! @brief Get the current view matrix for the camera
+    Matrix GetViewMatrix() const;
 
-      Vector3 GetPosition() const;
+    Vector3 GetPosition() const;
 
-      void SetPosition(const Vector3& position);
-      void SetPosition(const Vector3& position, const Vector3& target, const Vector3& up);
+    void SetPosition(const Vector3& position);
+    void SetPosition(const Vector3& position, const Vector3& target, const Vector3& up);
 
-      void MoveForward(const float amount);
-      void MoveBackwards(const float amount);
-      void MoveLeft(const float amount);
-      void MoveRight(const float amount);
+    void MoveForward(const float amount);
+    void MoveBackwards(const float amount);
+    void MoveLeft(const float amount);
+    void MoveRight(const float amount);
 
-      void Rotate(const Vector2& amount);
-      void RotateByRadians(const Vector2& amount);
+    void Rotate(const Vector2& amount);
+    void RotateByRadians(const Vector2& amount);
 
-    private:
-      // @brief Recalculates the camera vectors using m_yaw, m_picth and m_worldUp
-      void RecalcCameraVectors();
-    };
-  }
+  private:
+    // @brief Recalculates the camera vectors using m_yaw, m_picth and m_worldUp
+    void RecalcCameraVectors();
+  };
 }
 
 #endif

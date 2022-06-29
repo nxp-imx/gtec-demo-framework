@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_PERSISTENCE_JSONHELPER_HPP
 #define SHARED_UI_BENCHMARK_PERSISTENCE_JSONHELPER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,28 +31,29 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <nlohmann/json.hpp>
+#include <optional>
 
-namespace Fsl
+namespace Fsl::JsonHelper
 {
-  namespace JsonHelper
+  inline std::optional<int32_t> TryParseInt32(const nlohmann::json& jsonValue)
   {
-    inline Optional<int32_t> TryParseInt32(const nlohmann::json& jsonValue)
-    {
-      return (jsonValue.is_number_integer() ? jsonValue.get<int32_t>() : Optional<int32_t>());
-    }
+    return (jsonValue.is_number_integer() ? jsonValue.get<int32_t>() : std::optional<int32_t>());
+  }
 
+  inline std::optional<uint32_t> TryParseUInt32(const nlohmann::json& jsonValue)
+  {
+    return (jsonValue.is_number_integer() ? jsonValue.get<uint32_t>() : std::optional<uint32_t>());
+  }
 
-    inline Optional<float> TryParseFloat(const nlohmann::json& jsonValue)
-    {
-      return jsonValue.is_number_float() ? jsonValue.get<float>() : Optional<float>();
-    }
+  inline std::optional<float> TryParseFloat(const nlohmann::json& jsonValue)
+  {
+    return jsonValue.is_number_float() ? jsonValue.get<float>() : std::optional<float>();
+  }
 
-    inline Optional<bool> TryParseBool(const nlohmann::json& jsonValue)
-    {
-      return jsonValue.is_boolean() ? jsonValue.get<bool>() : Optional<bool>();
-    }
+  inline std::optional<bool> TryParseBool(const nlohmann::json& jsonValue)
+  {
+    return jsonValue.is_boolean() ? jsonValue.get<bool>() : std::optional<bool>();
   }
 }
 

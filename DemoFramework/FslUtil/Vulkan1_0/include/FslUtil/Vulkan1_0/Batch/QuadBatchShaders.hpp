@@ -34,18 +34,15 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class QuadBatchShaders
   {
-    class QuadBatchShaders
-    {
-    public:
-      static ReadOnlySpan<uint8_t> GetVertexShader();
-      static ReadOnlySpan<uint8_t> GetFragmentShader();
-      static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
-    };
-  }
+  public:
+    static ReadOnlySpan<uint8_t> GetVertexShader();
+    static ReadOnlySpan<uint8_t> GetFragmentShader();
+    static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
+  };
 }
 
 #endif

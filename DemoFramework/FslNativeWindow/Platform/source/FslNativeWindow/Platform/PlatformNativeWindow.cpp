@@ -29,17 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
-#include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/FmtVector2.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
-#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 
 namespace Fsl
 {
@@ -75,12 +75,12 @@ namespace Fsl
       return initialBucket;
     }
 
-    NativeWindowCapabilityFlags PatchFlags(const NativeWindowCapabilityFlags flags, const Optional<Point2U>& forcedActualDpi,
-                                           const Optional<uint32_t>& forcedDensityDpi)
+    NativeWindowCapabilityFlags PatchFlags(const NativeWindowCapabilityFlags flags, const std::optional<Point2U>& forcedActualDpi,
+                                           const std::optional<uint32_t>& forcedDensityDpi)
     {
       NativeWindowCapabilityFlags finalFlags = flags;
-      finalFlags = finalFlags | (forcedActualDpi.HasValue() ? NativeWindowCapabilityFlags::GetDpi : NativeWindowCapabilityFlags::NoFlags);
-      finalFlags = finalFlags | (forcedDensityDpi.HasValue() ? NativeWindowCapabilityFlags::GetDensityDpi : NativeWindowCapabilityFlags::NoFlags);
+      finalFlags = finalFlags | (forcedActualDpi.has_value() ? NativeWindowCapabilityFlags::GetDpi : NativeWindowCapabilityFlags::NoFlags);
+      finalFlags = finalFlags | (forcedDensityDpi.has_value() ? NativeWindowCapabilityFlags::GetDensityDpi : NativeWindowCapabilityFlags::NoFlags);
       return finalFlags;
     }
   }
@@ -172,7 +172,7 @@ namespace Fsl
 
   bool PlatformNativeWindow::TryGetDpi(Vector2& rDPI) const
   {
-    if (m_forcedActualDpi.HasValue())
+    if (m_forcedActualDpi.has_value())
     {
       rDPI = Vector2(m_forcedActualDpi->X, m_forcedActualDpi->Y);
       return true;
@@ -183,7 +183,7 @@ namespace Fsl
 
   bool PlatformNativeWindow::TryGetDensityDpi(uint32_t& rDensityDpi) const
   {
-    if (m_forcedDensityDpi.HasValue())
+    if (m_forcedDensityDpi.has_value())
     {
       rDensityDpi = *m_forcedDensityDpi;
       return true;

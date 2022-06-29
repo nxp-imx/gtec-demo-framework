@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "GridRenderVBLineStrip1.hpp"
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <cassert>
 
@@ -116,7 +116,7 @@ namespace Fsl
     auto& vb = m_vertexBuffer;
     glBindBuffer(vb.GetTarget(), vb.Get());
     vb.EnableAttribArrays();
-    glDrawArrays(GL_LINE_STRIP, 0, vb.GetCapacity());
+    glDrawArrays(GL_LINE_STRIP, 0, vb.GetGLCapacity());
     vb.DisableAttribArrays();
   }
 

@@ -1,8 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_SPATIALGRID_SPATIALHASHGRID2D_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_SPATIALGRID_SPATIALHASHGRID2D_HPP
-#if 0
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,192 +31,249 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
+#include <FslBase/Math/SpanRange.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <unordered_map>
 #include <vector>
 
 namespace Fsl
 {
-  template <uint16_t TShiftX, uint16_t TShiftY, uint32_t TMaxEntriesPerChunk>
   class SpatialHashGrid2D
   {
-    struct GridCellsInfo
-    {
-      uint16_t CountX{};
-      uint16_t CountY{};
-    };
-
-  public:
     struct Record
     {
-      uint32_t Id{0};
-      uint32_t MaterialId{0};
-      PxAreaRectangleF RectPxf;
+      std::vector<uint32_t> Bucket;
     };
 
-  private:
-    GridCellsInfo m_info;
-    std::vector<Record> m_grid;
+    std::vector<Record> m_entries;
+    std::vector<uint32_t> m_lookup;
+    uint16_t m_gridCellCountX{};
+    uint16_t m_gridCellCountY{};
+    uint8_t m_shiftX{};
+    uint8_t m_shiftY{};
 
   public:
-    SpatialHashGrid2D() = default;
-
-    SpatialHashGrid2D(const PxSize2D sizePx)
-      : m_info(CalcInfo(sizePx))
-      , m_grid(std::size_t(m_info.CountX) * m_info.CountY * TMaxEntriesPerChunk)
+    SpatialHashGrid2D(const uint16_t gridCellCountX, const uint16_t gridCellCountY, const uint8_t shiftX, const uint8_t shiftY)
+      : m_entries(gridCellCountX * gridCellCountY)
+      , m_gridCellCountX(gridCellCountX)
+      , m_gridCellCountY(gridCellCountY)
+      , m_shiftX(shiftX)
+      , m_shiftY(shiftY)
     {
-      if (m_info.CountX <= 0)
+      if (gridCellCountX <= 0)
       {
-        throw std::invalid_argument("m_info.CountX must be > 0");
+        throw std::invalid_argument("gridCellCountX must be > 0");
       }
-      if (m_info.CountY <= 0)
+      if (gridCellCountY <= 0)
       {
-        throw std::invalid_argument("m_info.CountY must be > 0");
-      }
-    }
-
-    void Clear()
-    {
-      for (std::size_t i = 0; i < m_grid.size(); i += TMaxEntriesPerChunk)
-      {
-        m_grid[i].Id = 0;
+        throw std::invalid_argument("gridCellCountY must be > 0");
       }
     }
 
-    int32_t GetCellCountX() const
+    void Clear() noexcept
     {
-      return UncheckedNumericCast<int32_t>(m_info.CountX);
+      for (auto& rEntry : m_entries)
+      {
+        rEntry.Bucket.clear();
+      }
+      m_lookup.clear();
     }
 
-    int32_t GetCellCountY() const
+    int32_t GetCellCountX() const noexcept
     {
-      return UncheckedNumericCast<int32_t>(m_info.CountY);
+      return UncheckedNumericCast<int32_t>(m_gridCellCountX);
     }
 
-    int32_t ToXCell(const int32_t position) const
+    int32_t GetCellCountY() const noexcept
     {
-      return (position >> TShiftX);
+      return UncheckedNumericCast<int32_t>(m_gridCellCountY);
     }
 
-    int32_t ToYCell(const int32_t position) const
+    struct Range
     {
-      return (position >> TShiftY);
-    }
-
-    enum class AddResult
-    {
-      NoCollissions,
-      StartNewBatch,
-      Merge,
+      uint16_t Start;
+      uint16_t End;
     };
 
-    bool TryAdd(const PxAreaRectangleF& rect, const uint32_t id, const uint32_t materialId)
+    constexpr Range ToXCell(const float left, const float right) const noexcept
     {
-      int32_t startCellX = (static_cast<int32_t>(rect.Left()) >> TShiftX);
-      int32_t endCellX = (static_cast<int32_t>(rect.Right()) >> TShiftY) + 1;
-      int32_t startCellY = (static_cast<int32_t>(rect.Top()) >> TShiftX);
-      int32_t endCellY = (static_cast<int32_t>(rect.Bottom()) >> TShiftY) + 1;
+      int32_t startCellX = static_cast<int32_t>(left) >> m_shiftX;
+      int32_t endCellX = (static_cast<int32_t>(right + 1.0f) >> m_shiftX) + 1;
+      return {static_cast<uint16_t>(startCellX), static_cast<uint16_t>(endCellX)};
+    }
 
-      if (startCellX < m_info.CountX && endCellX > 0 && startCellY < m_info.CountY && endCellY > 0)
+    constexpr Range ToYCell(const float top, const float bottom) const noexcept
+    {
+      int32_t startCellX = static_cast<int32_t>(top) >> m_shiftY;
+      int32_t endCellX = (static_cast<int32_t>(bottom + 1.0f) >> m_shiftY) + 1;
+      return {static_cast<uint16_t>(startCellX), static_cast<uint16_t>(endCellX)};
+    }
+
+    bool TryAdd(const PxAreaRectangleF& rectangle, const uint32_t originalZPos)
+    {
+      const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+
+      const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
+      if (add)
       {
-        startCellX = startCellX >= 0 ? startCellX : 0;
-        startCellY = startCellY >= 0 ? startCellY : 0;
-        endCellX = endCellX <= m_info.CountX ? endCellX : m_info.CountX;
-        endCellY = endCellY <= m_info.CountY ? endCellY : m_info.CountY;
-        assert(startCellX >= 0);
-        assert(startCellY >= 0);
-        assert(startCellX <= endCellX);
-        assert(startCellY <= endCellY);
-
-        const constexpr uint32_t chunkSizeX = TMaxEntriesPerChunk;
-        const uint32_t gridStride = (m_info.CountX * chunkSizeX);
-        const uint32_t startOffsetY = static_cast<uint32_t>(startCellY) * gridStride;
-        const uint32_t endOffsetY = static_cast<uint32_t>(endCellY) * gridStride;
-        const uint32_t startOffsetX = static_cast<uint32_t>(startCellX) * chunkSizeX;
-        const uint32_t endOffsetX = static_cast<uint32_t>(endCellX) * chunkSizeX;
-
-        uint32_t foundId = 0;
-        AddResult result = AddResult::NoCollissions;
-        for (uint32_t y = startOffsetY; y < endOffsetY; y += gridStride)
+        const uint32_t startX = startCellX >= 0 ? static_cast<uint32_t>(startCellX) : 0;
+        const uint32_t startY = startCellY >= 0 ? static_cast<uint32_t>(startCellY) : 0;
+        const uint32_t endX = endCellX <= m_gridCellCountX ? static_cast<uint32_t>(endCellX) : m_gridCellCountX;
+        const uint32_t endY = endCellY <= m_gridCellCountY ? static_cast<uint32_t>(endCellY) : m_gridCellCountY;
+        assert(startX <= endX);
+        assert(startY <= endY);
+        Record* pDst = m_entries.data();
+        for (uint32_t y = startY; y < endY; ++y)
         {
-          for (uint32_t x = startOffsetX; x < endOffsetX; x += chunkSizeX)
+          for (uint32_t x = startX; x < endX; ++x)
           {
-            // The first entry in the main chunk is the count
-            uint32_t& rEntryCount = m_grid[std::size_t(y) + x].Id;
+            assert((x + (y * m_gridCellCountX)) < m_entries.size());
+            pDst[x + (y * m_gridCellCountX)].Bucket.push_back(originalZPos);
+          }
+        }
+        m_lookup.push_back(originalZPos);
+      }
+      return add;
+    }
 
-            // Check for collisions
-            if (rEntryCount > 0 && result != AddResult::StartNewBatch)
+
+    bool TryInsertAfterZPos(const uint32_t insertAfterRemappedZPos, const PxAreaRectangleF& rectangle, const uint32_t originalZPos)
+    {
+      const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+
+      const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
+      if (add)
+      {
+        const uint32_t startX = startCellX >= 0 ? static_cast<uint32_t>(startCellX) : 0;
+        const uint32_t startY = startCellY >= 0 ? static_cast<uint32_t>(startCellY) : 0;
+        const uint32_t endX = endCellX <= m_gridCellCountX ? static_cast<uint32_t>(endCellX) : m_gridCellCountX;
+        const uint32_t endY = endCellY <= m_gridCellCountY ? static_cast<uint32_t>(endCellY) : m_gridCellCountY;
+        assert(startX <= endX);
+        assert(startY <= endY);
+
+        Record* pEntries = m_entries.data();
+        for (uint32_t y = startY; y < endY; ++y)
+        {
+          for (uint32_t x = startX; x < endX; ++x)
+          {
+            assert((x + (y * m_gridCellCountX)) < m_entries.size());
+            Record& rDst = pEntries[x + (y * m_gridCellCountX)];
+            // Do a push back to just make room for the new entry (then shift everything back until we hit the desired z-pos to insert at
+            rDst.Bucket.push_back(0xFFFFFFFF);
+            uint32_t* pDst = rDst.Bucket.data();
+            const std::size_t bucketSize = rDst.Bucket.size();
+            std::size_t i = bucketSize - 1;
+            while (i > 0 && m_lookup[pDst[i - 1]] > insertAfterRemappedZPos)
             {
-              const uint32_t count = rEntryCount;
-              // travel backwards to the list (last inserted order)
-              for (uint32_t entryIndex = count; entryIndex > 0; --entryIndex)
+              assert(i > 0 && i < bucketSize);
+              pDst[i] = pDst[i - 1];
+              --i;
+            }
+            pDst[i] = originalZPos;
+          }
+        }
+        m_lookup.push_back(insertAfterRemappedZPos);
+      }
+      return add;
+    }
+
+    Span<uint32_t> LookupSpan()
+    {
+      return SpanUtil::AsSpan(m_lookup);
+    }
+
+    inline uint32_t ToRemappedZPos(const uint32_t originalIndex) const noexcept
+    {
+      return m_lookup[originalIndex];
+    }
+
+
+    //! @brief This returns original zPositions
+    ReadOnlySpan<uint32_t> TryGetChunkEntries(const uint16_t chunkX, const uint16_t chunkY) const noexcept
+    {
+      return (chunkX < m_gridCellCountX && chunkY < m_gridCellCountY)
+               ? ReadOnlySpanUtil::AsSpan(m_entries[chunkX + (chunkY * m_gridCellCountX)].Bucket)
+               : ReadOnlySpan<uint32_t>();
+    }
+
+    //! @brief This returns original zPositions
+    ReadOnlySpan<uint32_t> UncheckedGetChunkEntries(const uint16_t chunkX, const uint16_t chunkY) const noexcept
+    {
+      assert(chunkX < m_gridCellCountX);
+      assert(chunkY < m_gridCellCountY);
+      return ReadOnlySpanUtil::AsSpan(m_entries[chunkX + (chunkY * m_gridCellCountX)].Bucket);
+    }
+
+    /*
+        void SanityCheckEntry(const PxAreaRectangleF& rectangle, const uint32_t originalZPos) const
+        {
+          const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
+          const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
+          const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
+          const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+
+          const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
+          if (add)
+          {
+            const uint32_t startX = startCellX >= 0 ? static_cast<uint32_t>(startCellX) : 0;
+            const uint32_t startY = startCellY >= 0 ? static_cast<uint32_t>(startCellY) : 0;
+            const uint32_t endX = endCellX <= m_gridCellCountX ? static_cast<uint32_t>(endCellX) : m_gridCellCountX;
+            const uint32_t endY = endCellY <= m_gridCellCountY ? static_cast<uint32_t>(endCellY) : m_gridCellCountY;
+            assert(startX <= endX);
+            assert(startY <= endY);
+
+            const Record* const pEntries = m_entries.data();
+            for (uint32_t y = 0; y < m_gridCellCountY; ++y)
+            {
+              for (uint32_t x = 0; x < m_gridCellCountY; ++x)
               {
-                const Record& rSrc = m_grid[std::size_t(y) + x + entryIndex];
-                if (rSrc.MaterialId == materialId)
+                assert((x + (y * m_gridCellCountX)) < m_entries.size());
+                const Record& src = pEntries[x + (y * m_gridCellCountX)];
+                bool found = false;
+                for (const auto& bucketEntry : src.Bucket)
                 {
-                  result = AddResult::Merge;
-                  foundId = rSrc.Id > foundId ? rSrc.Id : foundId;
+                  if (bucketEntry == originalZPos)
+                    found = true;
                 }
-                else if (rSrc.RectPxf.Intersects(rect))
+
+                if (x >= startX && x < endX && y >= startY && y < endY)
                 {
-                  result = AddResult::StartNewBatch;
-                  foundId = rSrc.Id > foundId ? rSrc.Id : foundId;
-                  break;
+                  if (!found)
+                    throw InternalErrorException("Grid is not consistent, did not find the entry in the expected cells");
+                }
+                else if (found)
+                {
+                  throw InternalErrorException("Grid is not consistent, found the entry outside the expected cells1");
                 }
               }
             }
-
-            ++rEntryCount;
-            // We foolishly assume that there will be no overflow (and with this controlled data we are actually sure)
-            assert(rEntryCount >= 0u);
-            if (rEntryCount < chunkSizeX)
+          }
+          else
+          {
+            // The ID should not be part of any grid entry
+            for (const auto& entry : m_entries)
             {
-              assert((std::size_t(y) + x + rEntryCount) <= m_grid.size());
-              m_grid[std::size_t(y) + x + rEntryCount] = Record{id, materialId, rect};
-            }
-            else
-            {
-              // Nasty, quick exit if chunk was full
-              // This really ought to at least cleanup what was inserted, but for the demo purpose this should never happen
-              return false;
+              for (const auto& bucketEntry : entry.Bucket)
+              {
+                if (bucketEntry == originalZPos)
+                  throw InternalErrorException("Grid is not consistent, found the entry outside the expected cells2");
+              }
             }
           }
         }
-        switch (result)
-        {
-        case AddResult::Merge:
-          // FSLLOG3_INFO("Merge");
-          break;
-        case AddResult::NoCollissions:
-          break;
-        case AddResult::StartNewBatch:
-          // FSLLOG3_INFO("Start");
-          break;
-        default:
-          break;
-        }
-      }
-      return true;
-    }
-
-    ReadOnlySpan<Record> GetChunkEntries(const uint32_t chunkX, const uint32_t chunkY) const
-    {
-      const uint32_t offsetX = chunkX * TMaxEntriesPerChunk;
-      const uint32_t offsetY = chunkY * (m_info.CountX * TMaxEntriesPerChunk);
-      const Record* pRecord = m_grid.data() + offsetY + offsetX;
-      return ReadOnlySpan<Record>(pRecord + 1, pRecord[0].Id);
-    }
-
-    constexpr static GridCellsInfo CalcInfo(const PxSize2D size)
-    {
-      constexpr uint32_t cellSizeX = 1u << TShiftX;
-      constexpr uint32_t cellSizeY = 1u << TShiftY;
-
-      uint16_t cellCountX = (size.Width() / cellSizeX) + ((size.Width() % cellSizeX) > 0 ? 1 : 0);
-      uint16_t cellCountY = (size.Height() / cellSizeY) + ((size.Height() % cellSizeY) > 0 ? 1 : 0);
-      return {cellCountX, cellCountY};
-    }
+        */
   };
-
 }
-#endif
+
 #endif

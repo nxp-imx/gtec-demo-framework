@@ -1,7 +1,7 @@
 #ifndef FSLUNITTEST_TEST_TESTARRAY_HPP
 #define FSLUNITTEST_TEST_TESTARRAY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,86 +34,83 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <cstddef>
-#include <limits>
 #include <iomanip>
+#include <limits>
 
-namespace Fsl
+namespace Fsl::Test
 {
-  namespace Test
+  template <typename T, std::size_t TSize>
+  inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T, TSize>& lhs, const std::array<T, TSize>& rhs)
   {
-    template <typename T, std::size_t TSize>
-    inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T, TSize>& lhs, const std::array<T, TSize>& rhs)
+    for (std::size_t i = 0; i < lhs.size(); ++i)
     {
-      for (std::size_t i = 0; i < lhs.size(); ++i)
+      if (lhs[i] != rhs[i])
       {
-        if (lhs[i] != rhs[i])
-        {
-          return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
-        }
+        return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
       }
-      return ::testing::AssertionSuccess();
     }
+    return ::testing::AssertionSuccess();
+  }
 
-    template <typename T, std::size_t TSize>
-    inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T, TSize>& lhs, const std::array<T, TSize>& rhs,
-                                                          const std::size_t startIndex, const std::size_t length)
+  template <typename T, std::size_t TSize>
+  inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T, TSize>& lhs, const std::array<T, TSize>& rhs,
+                                                        const std::size_t startIndex, const std::size_t length)
+  {
+    if (length > TSize)
     {
-      if (length > TSize)
-      {
-        return ::testing::AssertionFailure() << "length > size";
-      }
-      if (startIndex > (TSize - length))
-      {
-        return ::testing::AssertionFailure() << "startIndex + length out of bounds";
-      }
-      const auto endIndex = startIndex + length;
-      for (std::size_t i = startIndex; i < endIndex; ++i)
-      {
-        if (lhs[i] != rhs[i])
-        {
-          return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
-        }
-      }
-      return ::testing::AssertionSuccess();
+      return ::testing::AssertionFailure() << "length > size";
     }
-
-
-    template <typename T1, typename T2, std::size_t TSize>
-    inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T1, TSize>& lhs, const std::array<T2, TSize>& rhs)
+    if (startIndex > (TSize - length))
     {
-      for (std::size_t i = 0; i < lhs.size(); ++i)
-      {
-        if (lhs[i] != rhs[i])
-        {
-          return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
-        }
-      }
-      return ::testing::AssertionSuccess();
+      return ::testing::AssertionFailure() << "startIndex + length out of bounds";
     }
-
-
-    template <typename T1, typename T2, std::size_t TSize>
-    inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T1, TSize>& lhs, const std::array<T2, TSize>& rhs,
-                                                          const std::size_t startIndex, const std::size_t length)
+    const auto endIndex = startIndex + length;
+    for (std::size_t i = startIndex; i < endIndex; ++i)
     {
-      if (length > TSize)
+      if (lhs[i] != rhs[i])
       {
-        return ::testing::AssertionFailure() << "length > size";
+        return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
       }
-      if (startIndex > (TSize - length))
-      {
-        return ::testing::AssertionFailure() << "startIndex + length out of bounds";
-      }
-      const auto endIndex = startIndex + length;
-      for (std::size_t i = startIndex; i < endIndex; ++i)
-      {
-        if (lhs[i] != rhs[i])
-        {
-          return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
-        }
-      }
-      return ::testing::AssertionSuccess();
     }
+    return ::testing::AssertionSuccess();
+  }
+
+
+  template <typename T1, typename T2, std::size_t TSize>
+  inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T1, TSize>& lhs, const std::array<T2, TSize>& rhs)
+  {
+    for (std::size_t i = 0; i < lhs.size(); ++i)
+    {
+      if (lhs[i] != rhs[i])
+      {
+        return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
+      }
+    }
+    return ::testing::AssertionSuccess();
+  }
+
+
+  template <typename T1, typename T2, std::size_t TSize>
+  inline ::testing::AssertionResult IsArrayContentEqual(const std::array<T1, TSize>& lhs, const std::array<T2, TSize>& rhs,
+                                                        const std::size_t startIndex, const std::size_t length)
+  {
+    if (length > TSize)
+    {
+      return ::testing::AssertionFailure() << "length > size";
+    }
+    if (startIndex > (TSize - length))
+    {
+      return ::testing::AssertionFailure() << "startIndex + length out of bounds";
+    }
+    const auto endIndex = startIndex + length;
+    for (std::size_t i = startIndex; i < endIndex; ++i)
+    {
+      if (lhs[i] != rhs[i])
+      {
+        return ::testing::AssertionFailure() << "ArrayContent different at index: " << i;
+      }
+    }
+    return ::testing::AssertionSuccess();
   }
 }
 

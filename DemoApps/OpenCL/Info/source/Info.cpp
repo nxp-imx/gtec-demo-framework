@@ -29,26 +29,26 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "Info.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Context.hpp>
 #include <RapidOpenCL1/DebugStrings.hpp>
-#include "Info.hpp"
-#include "LogHelp.hpp"
+#include <CL/cl.h>
+#include <array>
 #include "LogDeviceInfo1_0.hpp"
 #include "LogDeviceInfo1_1.hpp"
 #include "LogDeviceInfo1_2.hpp"
 #include "LogDeviceInfo2_0.hpp"
 #include "LogDeviceInfo2_1.hpp"
+#include "LogHelp.hpp"
 #include "LogPlatformInfo1_0.hpp"
 #include "LogPlatformInfo1_1.hpp"
 #include "LogPlatformInfo1_2.hpp"
 #include "LogPlatformInfo2_0.hpp"
 #include "LogPlatformInfo2_1.hpp"
-#include <array>
-#include <CL/cl.h>
 
 using namespace RapidOpenCL1;
 

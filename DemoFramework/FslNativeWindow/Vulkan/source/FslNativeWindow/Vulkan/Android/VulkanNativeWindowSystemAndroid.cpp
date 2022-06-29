@@ -31,12 +31,12 @@
  ****************************************************************************************************************************************************/
 
 #include "VulkanNativeWindowSystemAndroid.hpp"
-#include "VulkanNativeWindowAndroid.hpp"
-#include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
+#include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <RapidVulkan/Check.hpp>
+#include "VulkanNativeWindowAndroid.hpp"
 
 
 #if 1

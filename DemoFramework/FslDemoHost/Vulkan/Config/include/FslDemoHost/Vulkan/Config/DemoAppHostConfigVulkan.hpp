@@ -128,9 +128,9 @@ namespace Fsl
         throw std::invalid_argument("Not a valid feature requirement");
       }
 
-      if (m_physicalDeviceFeatureRequest.end() !=
-          std::find_if(m_physicalDeviceFeatureRequest.begin(), m_physicalDeviceFeatureRequest.end(),
-                       [feature](const Vulkan::PhysicalDeviceFeatureRequest& entry) { return (entry.Feature == feature); }))
+      if (m_physicalDeviceFeatureRequest.end() != std::find_if(m_physicalDeviceFeatureRequest.begin(), m_physicalDeviceFeatureRequest.end(),
+                                                               [feature](const Vulkan::PhysicalDeviceFeatureRequest& entry)
+                                                               { return (entry.Feature == feature); }))
       {
         throw UsageErrorException("feature already requested");
       }

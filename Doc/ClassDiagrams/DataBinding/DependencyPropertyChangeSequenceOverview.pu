@@ -1,0 +1,70 @@
+@startuml FslDemoService.DataBinding Overview
+
+title Quick overview of how the basic data binding works (skips the on demand part). 
+caption Here UIControl.TypedDependencyProperty0 is used as a source for a UIControl2 property which is used as a source for UIControl3 property
+
+participant UIControl
+participant TypedDependencyProperty0
+participant ScopedDependencyObject
+participant DataBindingService
+participant UIControl2
+participant UIControl3
+
+activate DataBindingService
+activate UIControl2
+activate UIControl3
+
+== Construct ==
+
+-->UIControl++: Construct
+UIControl->ScopedDependencyObject++: Construct
+ScopedDependencyObject->DataBindingService: CreateDependencyObject
+UIControl->TypedDependencyProperty0++: Construct
+' The property is associated with the instance and is also destroyed when the instance is destroyed
+TypedDependencyProperty0->ScopedDependencyObject: CreateProperty
+ScopedDependencyObject->DataBindingService: CreateProperty
+
+...
+== Binding ==
+
+-->UIControl: GetPropertyInstanceHandle
+UIControl->TypedDependencyProperty0: GetInstanceHandleOnDemand
+-->UIControl2: SetBinding
+UIControl2-->DataBindingService: SetBinding
+-->UIControl2: GetPropertyInstanceHandle
+-->UIControl3: SetBinding
+UIControl3-->DataBindingService: SetBinding
+...
+== Set Property ==
+
+-->UIControl: Set
+UIControl->TypedDependencyProperty0: Set
+TypedDependencyProperty0->ScopedDependencyObject: PropertyChanged(hPropertyInstance)
+ScopedDependencyObject->DataBindingService: PropertyChanged(hPropertyInstance)
+DataBindingService->DataBindingService: QueueChangedIndicator
+
+...
+== Execute changes ==
+
+-->DataBindingService: ExecuteChanges
+DataBindingService->UIControl: GetProperty
+UIControl->TypedDependencyProperty0: GetProperty
+DataBindingService->UIControl2: SetProperty
+DataBindingService->UIControl2: GetProperty
+DataBindingService->UIControl3: SetProperty
+
+...
+== Destruct ==
+
+-->UIControl: Destruct
+UIControl->TypedDependencyProperty0: Destruct
+deactivate TypedDependencyProperty0
+UIControl->ScopedDependencyObject: Destruct
+ScopedDependencyObject->DataBindingService: DestroyInstance(hPropertyInstance)
+deactivate ScopedDependencyObject
+deactivate UIControl
+
+...
+
+@enduml
+

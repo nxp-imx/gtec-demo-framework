@@ -34,17 +34,14 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 
-namespace Fsl
+namespace Fsl::ContainerTypeConvert
 {
-  namespace ContainerTypeConvert
-  {
-    //! @brief Convert a bitmap object to a texture by moving its internal content into the new texture object.
-    Texture Convert(Bitmap&& bitmap);
+  //! @brief Convert a bitmap object to a texture by moving its internal content into the new texture object.
+  Texture Convert(Bitmap&& bitmap);
 
 
-    //! @brief Convert a texture object to a bitmap by moving its internal content into the new bitmamp object.
-    Bitmap Convert(Texture&& texture);
-  }
+  //! @brief Convert a texture object to a bitmap by moving its internal content into the new bitmamp object.
+  Bitmap Convert(Texture&& texture);
 }
 
 #endif

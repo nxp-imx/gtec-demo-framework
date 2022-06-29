@@ -18,16 +18,13 @@
 #include <vulkan/vulkan.h>
 
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  class VulkanWillemsMeshDemoApp : public VulkanWillemsDemoApp
   {
-    class VulkanWillemsMeshDemoApp : public VulkanWillemsDemoApp
-    {
-    public:
-      explicit VulkanWillemsMeshDemoApp(const DemoAppConfig& demoAppConfig);
-    };
-  }
+  public:
+    explicit VulkanWillemsMeshDemoApp(const DemoAppConfig& demoAppConfig);
+  };
 }
 
 #endif

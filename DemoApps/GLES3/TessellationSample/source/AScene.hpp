@@ -38,8 +38,8 @@
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBufferArray.hpp>
-#include <FslUtil/OpenGLES3/GLVertexBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBufferArray.hpp>
 #include "BasicShader.hpp"
 #include "RenderCameraConfig.hpp"
 #include "RenderDrawConfig.hpp"

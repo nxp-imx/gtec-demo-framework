@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_VULKAN_CONFIG_INSTANCECONFIGUTIL_HPP
 #define FSLDEMOHOST_VULKAN_CONFIG_INSTANCECONFIGUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,65 +38,62 @@
 #include <string>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::InstanceConfigUtil
 {
-  namespace InstanceConfigUtil
+  struct InstanceConfig
   {
-    struct InstanceConfig
+    std::deque<std::string> Layers;
+    std::deque<std::string> Extensions;
+  };
+
+  // Transform the config to be accessible as nasty C style arrays
+  struct InstanceConfigAsCharArrays
+  {
+    InstanceConfig Config;
+    std::vector<const char*> Layers;
+    std::vector<const char*> Extensions;
+
+    explicit InstanceConfigAsCharArrays(const InstanceConfig& config)
+      : Config(config)
+      , Layers(config.Layers.size())
+      , Extensions(config.Extensions.size())
     {
-      std::deque<std::string> Layers;
-      std::deque<std::string> Extensions;
-    };
+      for (std::size_t i = 0; i < Config.Layers.size(); ++i)
+      {
+        Layers[i] = Config.Layers[i].c_str();
+      }
+      for (std::size_t i = 0; i < Config.Extensions.size(); ++i)
+      {
+        Extensions[i] = Config.Extensions[i].c_str();
+      }
+    }
+  };
 
-    // Transform the config to be accessible as nasty C style arrays
-    struct InstanceConfigAsCharArrays
+  struct InstanceUserChoice
+  {
+    OptionUserChoice ValidationLayer = OptionUserChoice::Default;
+    OptionUserChoice UserChoiceApiDump = OptionUserChoice::Default;
+
+    InstanceUserChoice() = default;
+
+    explicit InstanceUserChoice(const OptionUserChoice validationLayer)
+      : ValidationLayer(validationLayer)
     {
-      InstanceConfig Config;
-      std::vector<const char*> Layers;
-      std::vector<const char*> Extensions;
+    }
 
-      explicit InstanceConfigAsCharArrays(const InstanceConfig& config)
-        : Config(config)
-        , Layers(config.Layers.size())
-        , Extensions(config.Extensions.size())
-      {
-        for (std::size_t i = 0; i < Config.Layers.size(); ++i)
-        {
-          Layers[i] = Config.Layers[i].c_str();
-        }
-        for (std::size_t i = 0; i < Config.Extensions.size(); ++i)
-        {
-          Extensions[i] = Config.Extensions[i].c_str();
-        }
-      }
-    };
-
-    struct InstanceUserChoice
+    InstanceUserChoice(const OptionUserChoice validationLayer, const OptionUserChoice userChoiceApiDump)
+      : ValidationLayer(validationLayer)
+      , UserChoiceApiDump(userChoiceApiDump)
     {
-      OptionUserChoice ValidationLayer = OptionUserChoice::Default;
-      OptionUserChoice UserChoiceApiDump = OptionUserChoice::Default;
+    }
+  };
 
-      InstanceUserChoice() = default;
-
-      explicit InstanceUserChoice(const OptionUserChoice validationLayer)
-        : ValidationLayer(validationLayer)
-      {
-      }
-
-      InstanceUserChoice(const OptionUserChoice validationLayer, const OptionUserChoice userChoiceApiDump)
-        : ValidationLayer(validationLayer)
-        , UserChoiceApiDump(userChoiceApiDump)
-      {
-      }
-    };
-
-    //! @brief
-    //! @param khrSurfaceExtensionName
-    //! @param userEnableValidationLayerRequest true if the user has requested it from the command line
-    //! @param customdemoAppHostConfig a optional demo app host config
-    InstanceConfig BuildInstanceConfig(const std::string& khrSurfaceExtensionName, const InstanceUserChoice& instanceUserChoice,
-                                       const std::shared_ptr<DemoAppHostConfigVulkan>& customDemoAppHostConfig);
-  }
+  //! @brief
+  //! @param khrSurfaceExtensionName
+  //! @param userEnableValidationLayerRequest true if the user has requested it from the command line
+  //! @param customdemoAppHostConfig a optional demo app host config
+  InstanceConfig BuildInstanceConfig(const std::string& khrSurfaceExtensionName, const InstanceUserChoice& instanceUserChoice,
+                                     const std::shared_ptr<DemoAppHostConfigVulkan>& customDemoAppHostConfig);
 }
 
 #endif

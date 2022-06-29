@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <vulkan/vulkan.h>
 #include <FslDemoHost/Vulkan/Config/OptionUserChoice.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Fsl
 {

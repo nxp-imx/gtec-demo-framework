@@ -29,147 +29,144 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <array>
 #include <cassert>
-#include <cstring>
 #include <cctype>
+#include <cstring>
 
-namespace Fsl
+namespace Fsl::ImageFormatUtil
 {
-  namespace ImageFormatUtil
+  namespace
   {
-    namespace
+    inline ImageFormat TryDetectImageFormat(const StringViewLite& strView)
     {
-      inline ImageFormat TryDetectImageFormat(const StringViewLite& strView)
-      {
-        if (strView.size() >= 5u || strView.empty())
-        {
-          return ImageFormat::Undefined;
-        }
-
-        static_assert('a' > 'A', "We expect ASCII");
-
-        std::array<char, 6> ext{};
-
-        // This should be ok as we are working on ASCII chars
-        for (std::size_t i = 0; i < strView.size(); ++i)
-        {
-          char ch = strView[i];
-          if (ch >= 'A' && ch <= 'Z')
-          {
-            ch += ('a' - 'A');
-          }
-          ext[i] = ch;
-        }
-
-        // Skip the leading '.' if it exists
-        const StringViewLite strExtView = ext[0] == '.' ? strView.substr(1) : strView;
-
-        if (strExtView == "jpg" || strExtView == "jpeg")
-        {
-          return ImageFormat::Jpeg;
-        }
-        if (strExtView == "png")
-        {
-          return ImageFormat::Png;
-        }
-        if (strExtView == "dds")
-        {
-          return ImageFormat::DDS;
-        }
-        if (strExtView == "bmp")
-        {
-          return ImageFormat::Bmp;
-        }
-        if (strExtView == "hdr")
-        {
-          return ImageFormat::Hdr;
-        }
-        if (strExtView == "exr")
-        {
-          return ImageFormat::Exr;
-        }
-        if (strExtView == "ktx")
-        {
-          return ImageFormat::KTX;
-        }
-        if (strExtView == "tga")
-        {
-          return ImageFormat::Tga;
-        }
-        return ImageFormat::Undefined;
-      }
-    }
-
-    ImageFormat TryDetectImageFormat(const std::string& extension)
-    {
-      return TryDetectImageFormat(StringViewLiteUtil::AsStringViewLite(extension));
-    }
-
-
-    ImageFormat TryDetectImageFormat(const IO::Path& extension)
-    {
-      return TryDetectImageFormat(extension.AsStringViewLite());
-    }
-
-
-    ImageFormat TryDetectImageFormatFromExtension(const IO::Path& path)
-    {
-      auto extension = IO::Path::GetExtensionView(path.AsPathView());
-      if (extension.empty())
+      if (strView.size() >= 5u || strView.empty())
       {
         return ImageFormat::Undefined;
       }
 
-      return TryDetectImageFormat(extension);
+      static_assert('a' > 'A', "We expect ASCII");
+
+      std::array<char, 6> ext{};
+
+      // This should be ok as we are working on ASCII chars
+      for (std::size_t i = 0; i < strView.size(); ++i)
+      {
+        char ch = strView[i];
+        if (ch >= 'A' && ch <= 'Z')
+        {
+          ch += ('a' - 'A');
+        }
+        ext[i] = ch;
+      }
+
+      // Skip the leading '.' if it exists
+      const StringViewLite strExtView = ext[0] == '.' ? strView.substr(1) : strView;
+
+      if (strExtView == "jpg" || strExtView == "jpeg")
+      {
+        return ImageFormat::Jpeg;
+      }
+      if (strExtView == "png")
+      {
+        return ImageFormat::Png;
+      }
+      if (strExtView == "dds")
+      {
+        return ImageFormat::DDS;
+      }
+      if (strExtView == "bmp")
+      {
+        return ImageFormat::Bmp;
+      }
+      if (strExtView == "hdr")
+      {
+        return ImageFormat::Hdr;
+      }
+      if (strExtView == "exr")
+      {
+        return ImageFormat::Exr;
+      }
+      if (strExtView == "ktx")
+      {
+        return ImageFormat::KTX;
+      }
+      if (strExtView == "tga")
+      {
+        return ImageFormat::Tga;
+      }
+      return ImageFormat::Undefined;
+    }
+  }
+
+  ImageFormat TryDetectImageFormat(const std::string& extension)
+  {
+    return TryDetectImageFormat(StringViewLiteUtil::AsStringViewLite(extension));
+  }
+
+
+  ImageFormat TryDetectImageFormat(const IO::Path& extension)
+  {
+    return TryDetectImageFormat(extension.AsStringViewLite());
+  }
+
+
+  ImageFormat TryDetectImageFormatFromExtension(const IO::Path& path)
+  {
+    auto extension = IO::Path::GetExtensionView(path.AsPathView());
+    if (extension.empty())
+    {
+      return ImageFormat::Undefined;
     }
 
+    return TryDetectImageFormat(extension);
+  }
 
-    const char* GetDefaultExtension(const ImageFormat imageFormat)
+
+  const char* GetDefaultExtension(const ImageFormat imageFormat)
+  {
+    switch (imageFormat)
     {
-      switch (imageFormat)
-      {
-      case ImageFormat::Bmp:
-        return ".bmp";
-      case ImageFormat::DDS:
-        return ".dds";
-      case ImageFormat::Exr:
-        return ".exr";
-      case ImageFormat::Hdr:
-        return ".hdr";
-      case ImageFormat::KTX:
-        return ".ktx";
-      case ImageFormat::Png:
-        return ".png";
-      case ImageFormat::Jpeg:
-        return ".jpg";
-      case ImageFormat::Tga:
-        return ".tga";
-      default:
-        throw NotSupportedException("Unsupported image format");
-      }
+    case ImageFormat::Bmp:
+      return ".bmp";
+    case ImageFormat::DDS:
+      return ".dds";
+    case ImageFormat::Exr:
+      return ".exr";
+    case ImageFormat::Hdr:
+      return ".hdr";
+    case ImageFormat::KTX:
+      return ".ktx";
+    case ImageFormat::Png:
+      return ".png";
+    case ImageFormat::Jpeg:
+      return ".jpg";
+    case ImageFormat::Tga:
+      return ".tga";
+    default:
+      throw NotSupportedException("Unsupported image format");
     }
+  }
 
-    bool IsLossless(const ImageFormat imageFormat)
+  bool IsLossless(const ImageFormat imageFormat)
+  {
+    switch (imageFormat)
     {
-      switch (imageFormat)
-      {
-      case ImageFormat::Bmp:
-      case ImageFormat::DDS:
-      case ImageFormat::Hdr:
-      case ImageFormat::Exr:    // This is probably oversimplified as exr can be lossy
-      case ImageFormat::KTX:
-      case ImageFormat::Png:
-      case ImageFormat::Tga:
-        return true;
-      case ImageFormat::Jpeg:
-        return false;
-      default:
-        throw NotSupportedException("Unsupported image format");
-      }
+    case ImageFormat::Bmp:
+    case ImageFormat::DDS:
+    case ImageFormat::Hdr:
+    case ImageFormat::Exr:    // This is probably oversimplified as exr can be lossy
+    case ImageFormat::KTX:
+    case ImageFormat::Png:
+    case ImageFormat::Tga:
+      return true;
+    case ImageFormat::Jpeg:
+      return false;
+    default:
+      throw NotSupportedException("Unsupported image format");
     }
   }
 }

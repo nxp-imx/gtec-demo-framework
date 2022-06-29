@@ -25,11 +25,11 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - RayTest.cs.
 
-#include <FslBase/Math/Ray.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/BoundingBox.hpp>
-#include <FslBase/Log/Math/LogRay.hpp>
 #include <FslBase/Log/Math/LogBoundingBox.hpp>
+#include <FslBase/Log/Math/LogRay.hpp>
+#include <FslBase/Math/BoundingBox.hpp>
+#include <FslBase/Math/Ray.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>

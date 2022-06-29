@@ -29,20 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIDemoAppExtensionLite.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
+#include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <FslGraphics/TextureAtlas/CompatibilityTextureAtlasMap.hpp>
 #include <FslSimpleUI/App/UIAppConfig.hpp>
 #include <FslSimpleUI/App/UIAppResourceManager.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfo.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtensionLite.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <utility>
 

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,47 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::PropertyUtil
 {
-  namespace Vulkan
+  bool IsLayerAvailable(const ReadOnlySpan<VkLayerProperties>& layerProperties, const StringViewLite& layerName)
   {
-    namespace PropertyUtil
+    if (layerName.empty())
     {
-      bool IsLayerAvailable(const ReadOnlySpan<VkLayerProperties>& layerProperties, const StringViewLite& layerName)
+      FSLLOG3_DEBUG_WARNING("IsInstanceLayerAvailable called with empty name will always returns false.");
+      return false;
+    }
+
+    for (uint32_t i = 0; i < layerProperties.size(); ++i)
+    {
+      if (layerName == layerProperties[i].layerName)
       {
-        if (layerName.empty())
-        {
-          FSLLOG3_DEBUG_WARNING("IsInstanceLayerAvailable called with empty name will always returns false.");
-          return false;
-        }
-
-        for (uint32_t i = 0; i < layerProperties.size(); ++i)
-        {
-          if (layerName == layerProperties[i].layerName)
-          {
-            return true;
-          }
-        }
-        return false;
-      }
-
-
-      bool IsExtensionAvailable(const ReadOnlySpan<VkExtensionProperties>& extensionProperties, const StringViewLite& extensionName)
-      {
-        if (extensionName.empty())
-        {
-          FSLLOG3_DEBUG_WARNING("IsInstanceExtensionAvailable called with empty name will always returns false.");
-          return false;
-        }
-
-        for (uint32_t i = 0; i < extensionProperties.size(); ++i)
-        {
-          if (extensionName == extensionProperties[i].extensionName)
-          {
-            return true;
-          }
-        }
-        return false;
+        return true;
       }
     }
+    return false;
+  }
+
+
+  bool IsExtensionAvailable(const ReadOnlySpan<VkExtensionProperties>& extensionProperties, const StringViewLite& extensionName)
+  {
+    if (extensionName.empty())
+    {
+      FSLLOG3_DEBUG_WARNING("IsInstanceExtensionAvailable called with empty name will always returns false.");
+      return false;
+    }
+
+    for (uint32_t i = 0; i < extensionProperties.size(); ++i)
+    {
+      if (extensionName == extensionProperties[i].extensionName)
+      {
+        return true;
+      }
+    }
+    return false;
   }
 }

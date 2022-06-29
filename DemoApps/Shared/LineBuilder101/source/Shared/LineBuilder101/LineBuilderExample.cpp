@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/LineBuilder101/LineBuilderExample.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/String/ToString.hpp>
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
@@ -43,7 +41,9 @@
 #include <FslBase/Math/Rectangle2D.hpp>
 #include <FslBase/Math/Rectangle3D.hpp>
 #include <FslBase/Math/Vector3.hpp>
+#include <FslBase/String/ToString.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <Shared/LineBuilder101/LineBuilderExample.hpp>
 
 namespace Fsl
 {
@@ -72,19 +72,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -101,7 +101,7 @@ namespace Fsl
   {
     UpdateInput(demoTime);
 
-    float aspectRatio = windowSizePx.Width() / static_cast<float>(windowSizePx.Height());
+    float aspectRatio = static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height());
     m_matView = m_camera.GetViewMatrix();
     m_matProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 0.001f, 500.0f);
 

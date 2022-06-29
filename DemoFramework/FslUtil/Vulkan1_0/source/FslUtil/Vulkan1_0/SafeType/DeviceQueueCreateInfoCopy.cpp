@@ -29,71 +29,68 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/SafeType/DeviceQueueCreateInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/DeviceQueueCreateInfoCopy.hpp>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief Move assignment operator
+  DeviceQueueCreateInfoCopy& DeviceQueueCreateInfoCopy::operator=(DeviceQueueCreateInfoCopy&& other) noexcept
   {
-    //! @brief Move assignment operator
-    DeviceQueueCreateInfoCopy& DeviceQueueCreateInfoCopy::operator=(DeviceQueueCreateInfoCopy&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        m_value = other.m_value;
-        m_queuePriorities = std::move(other.m_queuePriorities);
+      // Claim ownership here
+      m_value = other.m_value;
+      m_queuePriorities = std::move(other.m_queuePriorities);
 
-        // Remove the data from other
-        other.m_value = VkDeviceQueueCreateInfo{};
-        PatchPointers();
-      }
-      return *this;
-    }
-
-    //! @brief Move constructor
-    //! Transfer ownership from other to this
-    DeviceQueueCreateInfoCopy::DeviceQueueCreateInfoCopy(DeviceQueueCreateInfoCopy&& other) noexcept
-      : m_value(other.m_value)
-      , m_queuePriorities(std::move(other.m_queuePriorities))
-    {
       // Remove the data from other
       other.m_value = VkDeviceQueueCreateInfo{};
       PatchPointers();
     }
+    return *this;
+  }
+
+  //! @brief Move constructor
+  //! Transfer ownership from other to this
+  DeviceQueueCreateInfoCopy::DeviceQueueCreateInfoCopy(DeviceQueueCreateInfoCopy&& other) noexcept
+    : m_value(other.m_value)
+    , m_queuePriorities(std::move(other.m_queuePriorities))
+  {
+    // Remove the data from other
+    other.m_value = VkDeviceQueueCreateInfo{};
+    PatchPointers();
+  }
 
 
-    DeviceQueueCreateInfoCopy::DeviceQueueCreateInfoCopy()
-      : m_value{}
+  DeviceQueueCreateInfoCopy::DeviceQueueCreateInfoCopy()
+    : m_value{}
 
+  {
+  }
+
+
+  DeviceQueueCreateInfoCopy::DeviceQueueCreateInfoCopy(const VkDeviceQueueCreateInfo& value)
+    : m_value(value)
+    , m_queuePriorities(value.queueCount)
+  {
+    for (std::size_t i = 0; i < m_queuePriorities.size(); ++i)
     {
+      assert(value.pQueuePriorities != nullptr);
+      m_queuePriorities[i] = value.pQueuePriorities[i];
     }
 
-
-    DeviceQueueCreateInfoCopy::DeviceQueueCreateInfoCopy(const VkDeviceQueueCreateInfo& value)
-      : m_value(value)
-      , m_queuePriorities(value.queueCount)
-    {
-      for (std::size_t i = 0; i < m_queuePriorities.size(); ++i)
-      {
-        assert(value.pQueuePriorities != nullptr);
-        m_queuePriorities[i] = value.pQueuePriorities[i];
-      }
-
-      // Now use the safe copied values instead
-      PatchPointers();
-      m_value.pNext = nullptr;
-      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "DeviceQueueCreateInfoCopy always stores a nullptr for pNext");
-    }
+    // Now use the safe copied values instead
+    PatchPointers();
+    m_value.pNext = nullptr;
+    FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "DeviceQueueCreateInfoCopy always stores a nullptr for pNext");
+  }
 
 
-    void DeviceQueueCreateInfoCopy::PatchPointers() noexcept
-    {
-      m_value.pQueuePriorities = m_value.pQueuePriorities != nullptr ? m_queuePriorities.data() : nullptr;
-    }
+  void DeviceQueueCreateInfoCopy::PatchPointers() noexcept
+  {
+    m_value.pQueuePriorities = m_value.pQueuePriorities != nullptr ? m_queuePriorities.data() : nullptr;
   }
 }

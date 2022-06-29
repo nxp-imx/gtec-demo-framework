@@ -20,8 +20,8 @@ namespace Fsl
   class S02_ColoredTriangle : public DemoAppGLES3
   {
     GLES3::GLProgram m_program;
-    GLuint m_hModelViewMatrixLoc;
-    GLuint m_hProjMatrixLoc;
+    GLint m_hModelViewMatrixLoc;
+    GLint m_hProjMatrixLoc;
 
   public:
     explicit S02_ColoredTriangle(const DemoAppConfig& config);

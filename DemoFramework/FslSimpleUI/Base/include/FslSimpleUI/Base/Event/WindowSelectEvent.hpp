@@ -35,39 +35,36 @@
 #include <FslBase/ITag.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowSelectEvent : public WindowEvent
   {
-    class WindowSelectEvent : public WindowEvent
+    uint32_t m_contentId;
+    std::shared_ptr<ITag> m_payload;
+
+  public:
+    WindowSelectEvent();
+
+    uint32_t GetContentId() const;
+    const std::shared_ptr<ITag>& GetPayload() const;
+
+  protected:
+    void SYS_Construct(const uint32_t contentId, const std::shared_ptr<ITag>& payload)
     {
-      uint32_t m_contentId;
-      std::shared_ptr<ITag> m_payload;
+      WindowEvent::SYS_DoConstruct();
+      m_contentId = contentId;
+      m_payload = payload;
+    }
 
-    public:
-      WindowSelectEvent();
+    void SYS_Destruct() override
+    {
+      m_contentId = 0;
+      m_payload.reset();
+      WindowEvent::SYS_Destruct();
+    }
 
-      uint32_t GetContentId() const;
-      const std::shared_ptr<ITag>& GetPayload() const;
-
-    protected:
-      void SYS_Construct(const uint32_t contentId, const std::shared_ptr<ITag>& payload)
-      {
-        WindowEvent::SYS_DoConstruct();
-        m_contentId = contentId;
-        m_payload = payload;
-      }
-
-      void SYS_Destruct() override
-      {
-        m_contentId = 0;
-        m_payload.reset();
-        WindowEvent::SYS_Destruct();
-      }
-
-      friend class WindowEventPool;
-    };
-  }
+    friend class WindowEventPool;
+  };
 }
 
 #endif

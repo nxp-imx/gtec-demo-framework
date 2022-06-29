@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenVG/Common.hpp>
-#include <FslGraphics/PixelFormat.hpp>
 #include <FslBase/Math/Rectangle.hpp>
+#include <FslGraphics/PixelFormat.hpp>
+#include <FslUtil/OpenVG/Common.hpp>
 
 namespace Fsl
 {

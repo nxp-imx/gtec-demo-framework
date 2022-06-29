@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Rect.hpp>
 #include <FslBase/Log/Math/LogRect.hpp>
+#include <FslBase/Math/Rect.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
@@ -342,7 +342,7 @@ TEST(TestMath_Rect, Intersects_BruteForce)
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        Rect rectA(float(x), float(y), 4, 3);
+        Rect rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
         EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
         EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
       }
@@ -385,7 +385,7 @@ TEST(TestMath_Rect, Intersect_BruteForce)
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        Rect rectA(float(x), float(y), 4, 3);
+        Rect rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
         auto res1 = Rect::Intersect(rectA, rectB);
         auto res2 = Rect::Intersect(rectB, rectA);
@@ -415,7 +415,7 @@ TEST(TestMath_Rect, Union_BruteForce)
   {
     for (int32_t x = 0; x < 11; ++x)
     {
-      Rect rectA(float(x), float(y), 4, 3);
+      Rect rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
 
       auto res1 = Rect::Union(rectA, rectB);
       auto res2 = Rect::Union(rectB, rectA);

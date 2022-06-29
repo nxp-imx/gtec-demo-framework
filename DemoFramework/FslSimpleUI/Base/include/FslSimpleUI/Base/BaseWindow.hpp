@@ -32,20 +32,22 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/ITag.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Dp/DpThicknessF.hpp>
-#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/Math/Vector2.hpp>
+#include <FslDataBinding/Base/Object/DependencyObject.hpp>
+#include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindowFlags.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 #include <FslSimpleUI/Base/DpLayoutSize2D.hpp>
+#include <FslSimpleUI/Base/IWindowId.hpp>
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
 #include <FslSimpleUI/Base/ItemVisibility.hpp>
-#include <FslSimpleUI/Base/IWindowId.hpp>
 #include <FslSimpleUI/Base/LayoutCache.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
@@ -53,7 +55,7 @@
 
 namespace Fsl
 {
-  struct TransitionTimeSpan;
+  struct TimeSpan;
 
   namespace UI
   {
@@ -67,28 +69,41 @@ namespace Fsl
     class WindowEventPool;
 
     class BaseWindow
-      : public IWindowId
+      : public DataBinding::DependencyObject
+      , public IWindowId
       , protected IEventListener
     {
       const std::shared_ptr<BaseWindowContext> m_context;
       std::shared_ptr<ITag> m_tag;
-      DpLayoutSize2D m_sizeDp;
-      DpThicknessF m_marginDp;
-      ItemAlignment m_alignmentX;
-      ItemAlignment m_alignmentY;
+      int32_t m_tagValue{0};
+
+      DataBinding::TypedDependencyProperty<DpLayoutSize1D> m_propertyWidthDp;
+      DataBinding::TypedDependencyProperty<DpLayoutSize1D> m_propertyHeightDp;
+      DataBinding::TypedDependencyProperty<DpThicknessF> m_propertyMarginDpf;
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentX;
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentY;
+      DataBinding::TypedDependencyProperty<Color> m_propertyBaseColor;
+
       BaseWindowFlags m_flags;
       LayoutCache m_layoutCache;
 
       Color m_parentBaseColor{Color::White()};
-      Color m_baseColor{Color::White()};
       Color m_cachedBaseColor{Color::White()};
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyWidthDp;
+      static DataBinding::DependencyPropertyDefinition PropertyHeightDp;
+      static DataBinding::DependencyPropertyDefinition PropertyMarginDpf;
+      static DataBinding::DependencyPropertyDefinition PropertyAlignmentX;
+      static DataBinding::DependencyPropertyDefinition PropertyAlignmentY;
+      static DataBinding::DependencyPropertyDefinition PropertyBaseColor;
+
       BaseWindow(const BaseWindow&) = delete;
       BaseWindow& operator=(const BaseWindow&) = delete;
 
       explicit BaseWindow(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags initialFlags = {});
       ~BaseWindow() override;
+
 
       //! @brief Called on windows that registered for it once they become known to the window manager.
       virtual void WinInit()
@@ -114,7 +129,7 @@ namespace Fsl
 
       WindowFlags WinGetFlags() const noexcept
       {
-        return WindowFlags(m_flags);    // NOLINT(modernize-return-braced-init-list)
+        return WindowFlags(m_flags);    // NOLINT(modernize-return-braced-init-list,google-readability-casting)
       }
 
       const PxRectangle& WinGetContentRectanglePx() const noexcept
@@ -125,7 +140,7 @@ namespace Fsl
       virtual void WinHandleEvent(const RoutedEvent& routedEvent);
 
       //! @note This is only called if enabled.
-      virtual void WinUpdate(const TransitionTimeSpan& timespan);
+      virtual void WinUpdate(const TimeSpan& timespan);
 
 
       //! @brief Called by the UITree to request a draw operation.
@@ -138,7 +153,7 @@ namespace Fsl
 
       //! @brief Called by the UITree to request a resolve operation.
       //! @note This is only called if enabled (WindowFlags::ResolveEnabled).
-      virtual void WinResolve(const TransitionTimeSpan& timespan)
+      virtual void WinResolve(const TimeSpan& timespan)
       {
         FSL_PARAM_NOT_USED(timespan);
       }
@@ -158,51 +173,52 @@ namespace Fsl
       //! @return the width or a negative value if auto sizing is used
       DpLayoutSize1D GetWidth() const noexcept
       {
-        return m_sizeDp.LayoutSizeWidth();
+        return m_propertyWidthDp.Get();
       }
 
       //! @brief Set the current Width
       //! @param value the new width (set it to a negative value to use auto sizing)
-      void SetWidth(const DpLayoutSize1D value);
+      bool SetWidth(const DpLayoutSize1D value);
 
       //! @brief Get the current height
       //! @return the height or a negative value if auto sizing is used
       DpLayoutSize1D GetHeight() const noexcept
       {
-        return m_sizeDp.LayoutSizeHeight();
+        return m_propertyHeightDp.Get();
       }
 
       //! @brief Set the current height
       //! @param value the new height (set it to a negative value to use auto sizing)
-      void SetHeight(const DpLayoutSize1D value);
+      bool SetHeight(const DpLayoutSize1D value);
 
       DpThicknessF GetMargin() const noexcept
       {
-        return m_marginDp;
+        return m_propertyMarginDpf.Get();
       }
 
-      void SetMargin(const DpThicknessF& valueDp);
+      bool SetMargin(const DpThicknessF value);
 
       ItemAlignment GetAlignmentX() const noexcept
       {
-        return m_alignmentX;
+        return m_propertyAlignmentX.Get();
       }
 
-      void SetAlignmentX(const ItemAlignment value);
+      bool SetAlignmentX(const ItemAlignment value);
 
       ItemAlignment GetAlignmentY() const noexcept
       {
-        return m_alignmentY;
+        return m_propertyAlignmentY.Get();
       };
 
-      void SetAlignmentY(const ItemAlignment value);
+      bool SetAlignmentY(const ItemAlignment value);
+
 
       Color GetBaseColor() const noexcept
       {
-        return m_baseColor;
+        return m_propertyBaseColor.Get();
       }
 
-      void SetBaseColor(const Color color);
+      bool SetBaseColor(const Color value);
 
 
       ItemVisibility GetVisibility() const noexcept
@@ -239,6 +255,20 @@ namespace Fsl
 
       // @brief Transform a point relative to this window, to be relative to the toWin
       PxPoint2 PointTo(const IWindowId* const pToWin, const PxPoint2& pointPx) const;
+
+
+      //! @brief Get the user tag value
+      int32_t GetTagValue() const noexcept
+      {
+        return m_tagValue;
+      }
+
+      //! @brief Set the user tag value
+      //! @note allows you to associate a custom value with this window
+      void SetTagValue(const int32_t tagValue) noexcept
+      {
+        m_tagValue = tagValue;
+      }
 
       //! @brief Get the user tag value
       std::shared_ptr<ITag> GetTag() const
@@ -286,7 +316,7 @@ namespace Fsl
       }
 
 
-      virtual void UpdateAnimation(const TransitionTimeSpan& timeSpan)
+      virtual void UpdateAnimation(const TimeSpan& timeSpan)
       {
         FSL_PARAM_NOT_USED(timeSpan);
       }
@@ -439,6 +469,12 @@ namespace Fsl
       {
         SetLayoutDirty(true);
       }
+
+    protected:
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
     };
   }
 }

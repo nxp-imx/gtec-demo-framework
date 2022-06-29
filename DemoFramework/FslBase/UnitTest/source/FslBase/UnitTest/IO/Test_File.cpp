@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Directory.hpp>
+#include <FslBase/IO/File.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBaseContent.hpp>
@@ -188,8 +188,10 @@ TEST_F(TestIO_File, TryReadAllText_FileDontExist)
 
 TEST_F(TestIO_File, ReadAllBytes)
 {
-  std::array<uint8_t, HelloFileLength> expectedContent = {uint8_t('H'), uint8_t('e'), uint8_t('l'), uint8_t('l'), uint8_t('o'), uint8_t(' '),
-                                                          uint8_t('w'), uint8_t('o'), uint8_t('r'), uint8_t('l'), uint8_t('d')};
+  std::array<uint8_t, HelloFileLength> expectedContent = {static_cast<uint8_t>('H'), static_cast<uint8_t>('e'), static_cast<uint8_t>('l'),
+                                                          static_cast<uint8_t>('l'), static_cast<uint8_t>('o'), static_cast<uint8_t>(' '),
+                                                          static_cast<uint8_t>('w'), static_cast<uint8_t>('o'), static_cast<uint8_t>('r'),
+                                                          static_cast<uint8_t>('l'), static_cast<uint8_t>('d')};
 
   std::vector<uint8_t> content;
   IO::File::ReadAllBytes(content, m_helloWorldFilename);
@@ -208,8 +210,10 @@ TEST_F(TestIO_File, ReadAllBytes_FileDontExist)
 
 TEST_F(TestIO_File, ReadAllBytes_OldSchool)
 {
-  std::array<uint8_t, HelloFileLength> expectedContent = {uint8_t('H'), uint8_t('e'), uint8_t('l'), uint8_t('l'), uint8_t('o'), uint8_t(' '),
-                                                          uint8_t('w'), uint8_t('o'), uint8_t('r'), uint8_t('l'), uint8_t('d')};
+  std::array<uint8_t, HelloFileLength> expectedContent = {static_cast<uint8_t>('H'), static_cast<uint8_t>('e'), static_cast<uint8_t>('l'),
+                                                          static_cast<uint8_t>('l'), static_cast<uint8_t>('o'), static_cast<uint8_t>(' '),
+                                                          static_cast<uint8_t>('w'), static_cast<uint8_t>('o'), static_cast<uint8_t>('r'),
+                                                          static_cast<uint8_t>('l'), static_cast<uint8_t>('d')};
 
   std::array<uint8_t, HelloFileLength> content{};
   IO::File::ReadAllBytes(content.data(), content.size(), m_helloWorldFilename);
@@ -244,8 +248,9 @@ TEST_F(TestIO_File, ReadBytes_Partial_OldSchool)
   constexpr uint32_t SkipBegin = 2;
   constexpr uint32_t SkipEnd = 1;
   constexpr uint32_t SkipAll = SkipBegin + SkipEnd;
-  std::array<uint8_t, HelloFileLength - SkipAll> expectedContent = {uint8_t('l'), uint8_t('l'), uint8_t('o'), uint8_t(' '),
-                                                                    uint8_t('w'), uint8_t('o'), uint8_t('r'), uint8_t('l')};
+  std::array<uint8_t, HelloFileLength - SkipAll> expectedContent = {static_cast<uint8_t>('l'), static_cast<uint8_t>('l'), static_cast<uint8_t>('o'),
+                                                                    static_cast<uint8_t>(' '), static_cast<uint8_t>('w'), static_cast<uint8_t>('o'),
+                                                                    static_cast<uint8_t>('r'), static_cast<uint8_t>('l')};
 
   std::array<uint8_t, HelloFileLength - SkipAll> content{};
   IO::File::ReadBytes(content.data(), content.size(), 0, m_helloWorldFilename, SkipBegin, content.size());
@@ -288,8 +293,10 @@ TEST_F(TestIO_File, ReadBytes_Partial_OldSchool_FileDontExist)
 
 TEST_F(TestIO_File, ReadBytes)
 {
-  std::array<uint8_t, HelloFileLength> expectedContent = {uint8_t('H'), uint8_t('e'), uint8_t('l'), uint8_t('l'), uint8_t('o'), uint8_t(' '),
-                                                          uint8_t('w'), uint8_t('o'), uint8_t('r'), uint8_t('l'), uint8_t('d')};
+  std::array<uint8_t, HelloFileLength> expectedContent = {static_cast<uint8_t>('H'), static_cast<uint8_t>('e'), static_cast<uint8_t>('l'),
+                                                          static_cast<uint8_t>('l'), static_cast<uint8_t>('o'), static_cast<uint8_t>(' '),
+                                                          static_cast<uint8_t>('w'), static_cast<uint8_t>('o'), static_cast<uint8_t>('r'),
+                                                          static_cast<uint8_t>('l'), static_cast<uint8_t>('d')};
 
   std::vector<uint8_t> content = IO::File::ReadBytes(m_helloWorldFilename);
 
@@ -306,7 +313,7 @@ TEST_F(TestIO_File, ReadBytes_FileDontExist)
 
 TEST_F(TestIO_File, ReadBytes_Offset)
 {
-  std::array<uint8_t, 3> expectedContent = {uint8_t('w'), uint8_t('o'), uint8_t('r')};
+  std::array<uint8_t, 3> expectedContent = {static_cast<uint8_t>('w'), static_cast<uint8_t>('o'), static_cast<uint8_t>('r')};
 
   std::vector<uint8_t> content;
   IO::File::ReadBytes(content, m_helloWorldFilename, 6u, 3u);

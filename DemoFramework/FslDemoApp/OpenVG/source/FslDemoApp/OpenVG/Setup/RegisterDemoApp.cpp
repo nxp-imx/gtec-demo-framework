@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
@@ -44,8 +44,8 @@
 #include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include <FslUtil/EGL/Exceptions.hpp>
 #include <FslUtil/EGL/DebugStrings.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
 #include <sstream>
 
 namespace Fsl
@@ -93,18 +93,15 @@ namespace Fsl
     }
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::OpenVG
   {
-    namespace OpenVG
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig)
-      {
-        // Register a formatter for common OpenVG exceptions (from the libs we utilize)
-        rSetup.CustomExceptionFormatter.Add(TryFormatException);
-        const DemoHostFeature feature = CommenSetup(rSetup);
-        const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostEGLConfig);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
-      }
+      // Register a formatter for common OpenVG exceptions (from the libs we utilize)
+      rSetup.CustomExceptionFormatter.Add(TryFormatException);
+      const DemoHostFeature feature = CommenSetup(rSetup);
+      const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostEGLConfig);
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }
   }
 }

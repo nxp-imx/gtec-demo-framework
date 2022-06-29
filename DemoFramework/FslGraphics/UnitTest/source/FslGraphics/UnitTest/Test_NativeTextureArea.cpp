@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/Log/LogNativeTextureArea.hpp>
+#include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>
 #include <limits>

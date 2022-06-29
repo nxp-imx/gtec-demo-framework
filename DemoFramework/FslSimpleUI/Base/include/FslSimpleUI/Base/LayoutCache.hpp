@@ -34,30 +34,27 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Rect.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct LayoutCache
   {
-    struct LayoutCache
-    {
-      PxSize2D DesiredSizePx;
-      PxSize2D RenderSizePx;
-      PxRectangle ContentRectPx;
-      PxRectangle ClippedContentRectPx;
-      PxAvailableSize MeasureLastAvailableSizePx;
-      PxRectangle ArrangeLastFinalRectPx;
+    PxSize2D DesiredSizePx;
+    PxSize2D RenderSizePx;
+    PxRectangle ContentRectPx;
+    PxRectangle ClippedContentRectPx;
+    PxAvailableSize MeasureLastAvailableSizePx;
+    PxRectangle ArrangeLastFinalRectPx;
 
-      LayoutCache()
-        : MeasureLastAvailableSizePx(-1, -1)
-        , ArrangeLastFinalRectPx(-10000, -10000, 0, 0)
-      {
-      }
-    };
-  }
+    LayoutCache()
+      : MeasureLastAvailableSizePx(-1, -1)
+      , ArrangeLastFinalRectPx(-10000, -10000, 0, 0)
+    {
+    }
+  };
 }
 
 #endif

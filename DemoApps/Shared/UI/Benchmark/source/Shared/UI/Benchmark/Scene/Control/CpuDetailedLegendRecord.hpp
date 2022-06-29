@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "CpuLegendRecord.hpp"
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
+#include "CpuLegendRecord.hpp"
 
 namespace Fsl
 {

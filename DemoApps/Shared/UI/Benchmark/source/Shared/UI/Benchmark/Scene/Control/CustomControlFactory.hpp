@@ -31,18 +31,18 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 #include "CpuDetailedLegendRecord.hpp"
 #include "CpuLegendRecord.hpp"
 #include "CpuProfileRecord.hpp"
-#include <FslBase/Span/ReadOnlySpan.hpp>
-#include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
     class AreaChart;
-    class AreaChartData;
+    class ChartData;
 
     namespace Theme
     {
@@ -67,7 +67,7 @@ namespace Fsl
 
     // OpaqueHack hack is only here until we ensure that all sprites comes with two materials so the render backend can switch as needed based on
     // color
-    std::shared_ptr<UI::AreaChart> CreateAreaChart(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::AreaChartData>& data,
+    std::shared_ptr<UI::AreaChart> CreateAreaChart(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::ChartData>& data,
                                                    const OpaqueHack hack = OpaqueHack::Disabled);
 
     void SetContent(UI::FmtValueLabel<float>* pTarget, const double value);

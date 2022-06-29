@@ -228,7 +228,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
       }
     }
   }

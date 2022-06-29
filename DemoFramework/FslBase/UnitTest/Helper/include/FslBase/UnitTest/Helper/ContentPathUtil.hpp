@@ -33,14 +33,11 @@
 
 #include <FslBase/IO/Path.hpp>
 
-namespace Fsl
+namespace Fsl::ContentPathUtil
 {
-  namespace ContentPathUtil
-  {
-    // For this to work remember to insert the ScopedExePath line before calling Google test init
-    // - Fsl::CurrentExePath::ScopedExePath exeScope(argc > 0 ? argv[0] : nullptr);
-    IO::Path GetContentPath();
-  }
+  // For this to work remember to insert the ScopedExePath line before calling Google test init
+  // - Fsl::CurrentExePath::ScopedExePath exeScope(argc > 0 ? argv[0] : nullptr);
+  IO::Path GetContentPath();
 }
 
 #endif

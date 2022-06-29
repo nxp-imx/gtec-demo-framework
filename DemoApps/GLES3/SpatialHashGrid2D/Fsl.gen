@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.SpatialHashGrid2D" NoInclude="true" CreationYear="2022">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="Shared.SpatialHashGrid2D"/>
+  </Executable>
+</FslBuildGen>

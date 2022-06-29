@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/ThemeBasicUI/Shared.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
-#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -51,6 +50,7 @@
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
+#include <Shared/UI/ThemeBasicUI/Shared.hpp>
 // #include <FslSimpleUI/Base/Control/Experimental/Histogram.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -199,10 +199,10 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::Space:
-    {
-      SetDefaultValues();
-      break;
-    }
+      {
+        SetDefaultValues();
+        break;
+      }
     case VirtualKey::U:
       SetUITestPattern(!m_uiTestPattern);
       break;
@@ -218,7 +218,7 @@ namespace Fsl
     UpdateResourceScale();
 
     m_uiRecord.Stats.LabelResPx->SetContent(fmt::format("{}x{}px", windowMetrics.ExtentPx.Width, windowMetrics.ExtentPx.Height));
-    m_uiRecord.Stats.LabelResDp->SetContent(fmt::format("{}x{}dp", windowMetrics.DpSize.X, windowMetrics.DpSize.Y));
+    m_uiRecord.Stats.LabelResDp->SetContent(fmt::format("{}x{}dp", windowMetrics.SizeDp.X, windowMetrics.SizeDp.Y));
     m_uiRecord.Stats.LabelDpi->SetContent(fmt::format("{}x{}", windowMetrics.ExactDpi.X, windowMetrics.ExactDpi.Y));
     m_uiRecord.Stats.LabelDensityDpi->SetContent(fmt::format("{}", windowMetrics.DensityDpi));
     m_uiRecord.Stats.LabelDensityScale->SetContent(fmt::format("{}", windowMetrics.DensityScaleFactor));
@@ -288,11 +288,11 @@ namespace Fsl
   {
     auto stackButtons = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackButtons->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stackButtons->SetOrientation(UI::LayoutOrientation::Vertical);
 
       auto stackButtons0 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackButtons0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackButtons0->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto btnText = uiFactory.CreateTextButton(UI::Theme::ButtonType::Text, "TextButton");
         auto btnOutlined = uiFactory.CreateTextButton(UI::Theme::ButtonType::Outlined, "OutlinedButton");
         auto btnContained = uiFactory.CreateTextButton(UI::Theme::ButtonType::Contained, "ContainedButton");
@@ -303,7 +303,7 @@ namespace Fsl
       }
       auto stackButtons1 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackButtons1->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackButtons1->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto btnText = uiFactory.CreateTextButton(UI::Theme::ButtonType::Text, "TextButton");
         auto btnOutlined = uiFactory.CreateTextButton(UI::Theme::ButtonType::Outlined, "OutlinedButton");
         auto btnContained = uiFactory.CreateTextButton(UI::Theme::ButtonType::Contained, "ContainedButton");
@@ -341,7 +341,7 @@ namespace Fsl
         uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
       sliderFmtValueHorz5->SetEnabled(false);
 
-      stackVertSlider->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stackVertSlider->SetOrientation(UI::LayoutOrientation::Vertical);
       stackVertSlider->SetAlignmentX(UI::ItemAlignment::Stretch);
       stackVertSlider->AddChild(sliderHorz0);
       stackVertSlider->AddChild(sliderHorz1);
@@ -358,11 +358,11 @@ namespace Fsl
 
     auto stackCB = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackCB->SetSpacing(10.0f);
-      stackCB->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stackCB->SetSpacing(DpSize1DF::Create(10.0f));
+      stackCB->SetOrientation(UI::LayoutOrientation::Vertical);
       auto stackCB0 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackCB0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackCB0->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto switch0 = uiFactory.CreateCheckBox("CheckBox", true);
         auto switch1 = uiFactory.CreateCheckBox("CheckBox", false);
         auto switch2 = uiFactory.CreateCheckBox(true);
@@ -374,7 +374,7 @@ namespace Fsl
       }
       auto stackCB1 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackCB1->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackCB1->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto switch0Disabled = uiFactory.CreateCheckBox("CheckBox", true);
         auto switch1Disabled = uiFactory.CreateCheckBox("CheckBox", false);
         auto switch2Disabled = uiFactory.CreateCheckBox(true);
@@ -394,11 +394,11 @@ namespace Fsl
 
     auto stackRB = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackRB->SetSpacing(10.0f);
-      stackRB->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stackRB->SetSpacing(DpSize1DF::Create(10.0f));
+      stackRB->SetOrientation(UI::LayoutOrientation::Vertical);
       auto stackRB0 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackRB0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackRB0->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto radioGroup = uiFactory.CreateRadioGroup(LocalConfig::RadioGroupName1);
         auto switch0 = uiFactory.CreateRadioButton(radioGroup, "RadioButton", true);
         auto switch1 = uiFactory.CreateRadioButton(radioGroup, "RadioButton", false);
@@ -413,7 +413,7 @@ namespace Fsl
       }
       auto stackRB1 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackRB1->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackRB1->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto radioGroupA = uiFactory.CreateRadioGroup(LocalConfig::RadioGroupName2A);
         auto radioGroupB = uiFactory.CreateRadioGroup(LocalConfig::RadioGroupName2B);
         auto switch0Disabled = uiFactory.CreateRadioButton(radioGroupA, "RadioButton", true);
@@ -438,11 +438,11 @@ namespace Fsl
 
     auto stackSwitch = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackSwitch->SetSpacing(10.0f);
-      stackSwitch->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stackSwitch->SetSpacing(DpSize1DF::Create(10.0f));
+      stackSwitch->SetOrientation(UI::LayoutOrientation::Vertical);
       auto stackSwitch0 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackSwitch0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackSwitch0->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto switch0 = uiFactory.CreateSwitch("Switch", true);
         auto switch1 = uiFactory.CreateSwitch("Switch", false);
         auto switch2 = uiFactory.CreateSwitch(true);
@@ -454,7 +454,7 @@ namespace Fsl
       }
       auto stackSwitch1 = std::make_shared<UI::StackLayout>(windowContext);
       {
-        stackSwitch1->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+        stackSwitch1->SetOrientation(UI::LayoutOrientation::Horizontal);
         auto switch0Disabled = uiFactory.CreateSwitch("Switch", true);
         auto switch1Disabled = uiFactory.CreateSwitch("Switch", false);
         auto switch2Disabled = uiFactory.CreateSwitch(true);
@@ -500,13 +500,13 @@ namespace Fsl
 
     auto stackLabels = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackLabels->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stackLabels->SetOrientation(UI::LayoutOrientation::Vertical);
       auto label = uiFactory.CreateLabel(StringViewLite("Label"));
       auto labelDisabled = uiFactory.CreateLabel(StringViewLite("Label"));
       labelDisabled->SetEnabled(false);
-      auto fmtValueLabel0 = uiFactory.CreateFmtValueLabel(int32_t(42));
+      auto fmtValueLabel0 = uiFactory.CreateFmtValueLabel(static_cast<int32_t>(42));
       auto fmtValueLabel1 = uiFactory.CreateFmtValueLabel(MathHelper::PI);
-      auto fmtValueLabel2 = uiFactory.CreateFmtValueLabel(int32_t(42), "Hello {} World");
+      auto fmtValueLabel2 = uiFactory.CreateFmtValueLabel(static_cast<int32_t>(42), "Hello {} World");
       auto fmtValueLabel3 = uiFactory.CreateFmtValueLabel(MathHelper::PI, "Hello {:0.4f} world");
       stackLabels->AddChild(label);
       stackLabels->AddChild(labelDisabled);
@@ -526,7 +526,7 @@ namespace Fsl
       auto sliderVert3 = uiFactory.CreateSlider(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(0.25f, -1.0f, 1.0f),
                                                 UI::Theme::SliderConfig(UI::LayoutDirection::FarToNear));
 
-      stackHorzSlider->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stackHorzSlider->SetOrientation(UI::LayoutOrientation::Horizontal);
       stackHorzSlider->SetAlignmentY(UI::ItemAlignment::Stretch);
       stackHorzSlider->AddChild(sliderVert0);
       stackHorzSlider->AddChild(sliderVert1);
@@ -547,7 +547,7 @@ namespace Fsl
         uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Vertical, ConstrainedValue<float>(25.0f, 0.0f, 100.0f), "{:.1f}%");
       sliderFmtValueVert5->SetEnabled(false);
 
-      stackHorzSlider2->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stackHorzSlider2->SetOrientation(UI::LayoutOrientation::Horizontal);
       stackHorzSlider2->SetAlignmentY(UI::ItemAlignment::Stretch);
       stackHorzSlider2->AddChild(sliderFmtValueVert0);
       stackHorzSlider2->AddChild(sliderFmtValueVert1);
@@ -559,7 +559,7 @@ namespace Fsl
 
     auto stackMisc = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackMisc->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stackMisc->SetOrientation(UI::LayoutOrientation::Horizontal);
 
       FSLLOG3_WARNING("FIX: add histogram again");
       // auto histogram = std::make_shared<UI::Histogram<int32_t>>(windowContext);
@@ -588,7 +588,7 @@ namespace Fsl
 
     auto stackImages = std::make_shared<UI::StackLayout>(windowContext);
     {
-      stackImages->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stackImages->SetOrientation(UI::LayoutOrientation::Horizontal);
 
       auto image0 = uiFactory.CreateImage(basicSpriteImageCat);
       auto image1 = uiFactory.CreateImage(basicSpriteImageDog);
@@ -691,7 +691,7 @@ namespace Fsl
     auto stats = CreateStatsUI(uiFactory);
 
     auto layout = std::make_shared<UI::ComplexStackLayout>(windowContext);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->SetAlignmentY(UI::ItemAlignment::Stretch);
     layout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -777,7 +777,7 @@ namespace Fsl
     // const uint32_t currentDensity = !m_uiRecord.SwitchEmulateDpi->IsChecked() ? m_displayMetrics.DensityDpi : m_uiRecord.SliderDpi->GetValue();
     const uint32_t currentDensity = m_displayMetrics.DensityDpi;
 
-    const auto density = float(currentDensity);
+    const auto density = static_cast<float>(currentDensity);
     m_res160.UpdateDensity(density);
     m_activeDensity = currentDensity;
   }

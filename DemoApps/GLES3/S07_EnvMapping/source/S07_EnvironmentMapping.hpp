@@ -14,13 +14,12 @@
  */
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
-#include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
-
-#include <Shared/EnvironmentMapping/EnvState.hpp>
 #include <Shared/EnvironmentMapping/EnvShaderInfo.hpp>
+#include <Shared/EnvironmentMapping/EnvState.hpp>
 #include <vector>
 
 namespace Fsl

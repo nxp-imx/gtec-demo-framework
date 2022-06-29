@@ -10,21 +10,21 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "TexturingArrays.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Memory.hpp>
-#include <array>
-#include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <array>
+#include <cstring>
 
 namespace Fsl
 {
@@ -405,8 +405,8 @@ namespace Fsl
     texDescriptor.imageLayout = texImageLayout;
 
     // Transfer ownership to the texture object (move)
-    return Willems::VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView),
-                                  texExtent, textureArray.GetLevels(), textureArray.GetLayers(), texDescriptor);
+    return {std::move(texSampler),    std::move(texImage),      texImageLayout, std::move(texMemory), std::move(texImageView), texExtent,
+            textureArray.GetLevels(), textureArray.GetLayers(), texDescriptor};
   }
 
 
@@ -448,11 +448,11 @@ namespace Fsl
 
     // Array indices and model matrices are fixed
     const float offset = -1.5f;
-    float center = (layerCount * offset) / 2;
+    float center = (static_cast<float>(layerCount) * offset) / 2.0f;
     for (uint32_t i = 0; i < layerCount; ++i)
     {
       // Instance model matrix
-      m_uboVS.Instance[i].Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, i * offset - center, 0.0f));
+      m_uboVS.Instance[i].Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (static_cast<float>(i) * offset) - center, 0.0f));
       m_uboVS.Instance[i].Model = glm::rotate(m_uboVS.Instance[i].Model, glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f));
       // Instance texture array index
       m_uboVS.Instance[i].ArrayIndex.x = static_cast<float>(i);

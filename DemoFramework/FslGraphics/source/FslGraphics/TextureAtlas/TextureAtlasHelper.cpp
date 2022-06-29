@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslBase/Log/IO/FmtPathView.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
-#include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <fmt/format.h>
 
 namespace Fsl

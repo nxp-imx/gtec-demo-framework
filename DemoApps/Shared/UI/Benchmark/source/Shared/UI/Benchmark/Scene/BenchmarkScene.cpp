@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,24 +30,24 @@
  ****************************************************************************************************************************************************/
 
 #include "BenchmarkScene.hpp"
-#include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslSimpleUI/App/DemoPerformanceCapture.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <Shared/UI/Benchmark/App/TestAppHost.hpp>
 #include <Shared/UI/Benchmark/IBasicGpuProfiler.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppBenchSettings.hpp>
+#include <ctime>
+#include <utility>
 #include "BenchResultManager.hpp"
-#include "ISceneTestDemoControl.hpp"
 #include "Config/BenchSceneConfig.hpp"
+#include "ISceneTestDemoControl.hpp"
 #include "Input/InputRecordingManager.hpp"
 #include "RenderSystemRuntimeSettingsUtil.hpp"
 #include "SceneCreateInfo.hpp"
-#include "TypeConverter.hpp"
 #include "TestHostForwarderTweak.hpp"
-#include <ctime>
-#include <utility>
+#include "TypeConverter.hpp"
 
 namespace Fsl
 {
@@ -173,15 +173,17 @@ namespace Fsl
       valUIDraw -= valUIDrawFillBuffers;
       valUIDraw -= valUIDrawSchedule;
 
-      const AppBenchmarkCpuRecord entry(static_cast<uint32_t>(MathHelper::Clamp(valUIProcessEvents, int64_t(0), int64_t(0xFFFFFFFF))),
-                                        static_cast<uint32_t>(MathHelper::Clamp(valUIUpdate, int64_t(0), int64_t(0xFFFFFFFF))),
-                                        static_cast<uint32_t>(MathHelper::Clamp(valUIDraw, int64_t(0), int64_t(0xFFFFFFFF))),
-                                        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawPreprocess, int64_t(0), int64_t(0xFFFFFFFF))),
-                                        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawGenMesh, int64_t(0), int64_t(0xFFFFFFFF))),
-                                        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawFillBuffers, int64_t(0), int64_t(0xFFFFFFFF))),
-                                        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawSchedule, int64_t(0), int64_t(0xFFFFFFFF))));
+      const AppBenchmarkCpuRecord entry(
+        static_cast<uint32_t>(MathHelper::Clamp(valUIProcessEvents, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))),
+        static_cast<uint32_t>(MathHelper::Clamp(valUIUpdate, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))),
+        static_cast<uint32_t>(MathHelper::Clamp(valUIDraw, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))),
+        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawPreprocess, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))),
+        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawGenMesh, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))),
+        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawFillBuffers, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))),
+        static_cast<uint32_t>(MathHelper::Clamp(valUIDrawSchedule, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF))));
 
-      const AppBenchmarkGpuRecord gpuEntry(static_cast<uint32_t>(MathHelper::Clamp(gpuMicroseconds, uint64_t(0), uint64_t(0xFFFFFFFF))));
+      const AppBenchmarkGpuRecord gpuEntry(
+        static_cast<uint32_t>(MathHelper::Clamp(gpuMicroseconds, static_cast<uint64_t>(0), static_cast<uint64_t>(0xFFFFFFFF))));
 
       if (m_entryCount >= m_cpuEntries.size())
       {
@@ -199,9 +201,9 @@ namespace Fsl
 
   AppBenchmarkRenderInfo BenchmarkScene::RestartTestApp(const AppBenchSettings& benchSettings)
   {
-    Optional<AppRenderOptions> renderOptions = benchSettings.TryGetRenderOptions(benchSettings.RenderMethod);
+    std::optional<AppRenderOptions> renderOptions = benchSettings.TryGetRenderOptions(benchSettings.RenderMethod);
     UI::RenderSystemInfo systemInfo = TestAppFactory::GetRenderSystemInfo(benchSettings.RenderMethod);
-    if (!renderOptions.HasValue())
+    if (!renderOptions.has_value())
     {
       FSLLOG3_WARNING("Could not find render options for render method, defaulting to the default settings for the render-system");
       const auto defaultSettings = systemInfo.DefaultSettings;
@@ -210,8 +212,9 @@ namespace Fsl
                                             UI::RenderOptionFlagsUtil::IsEnabled(defaultSettings, UI::RenderOptionFlags::FillBuffers),
                                             UI::RenderOptionFlagsUtil::IsEnabled(defaultSettings, UI::RenderOptionFlags::DepthBuffer),
                                             UI::RenderOptionFlagsUtil::IsEnabled(defaultSettings, UI::RenderOptionFlags::DrawReorder),
-                                            UI::RenderOptionFlagsUtil::IsEnabled(defaultSettings, UI::RenderOptionFlags::MeshCaching));
-      renderOptions = Optional<AppRenderOptions>(defaultRenderOptions);
+                                            UI::RenderOptionFlagsUtil::IsEnabled(defaultSettings, UI::RenderOptionFlags::MeshCaching),
+                                            UI::RenderOptionFlagsUtil::IsEnabled(defaultSettings, UI::RenderOptionFlags::PreferFastReorder));
+      renderOptions = std::optional<AppRenderOptions>(defaultRenderOptions);
     }
 
     {    // restart the test app with the new render code
@@ -219,26 +222,25 @@ namespace Fsl
       TestAppFactory appFactory(benchSettings.RenderMethod);
 
       UIDemoAppMaterialCreateInfo materialCreateInfo(benchSettings.BasicOptions.NoOpaqueMaterials, true);
-      UIDemoAppMaterialConfig materialConfig(benchSettings.BasicOptions.UseSdfFonts, renderOptions.Value().DepthBuffer);
+      UIDemoAppMaterialConfig materialConfig(benchSettings.BasicOptions.UseSdfFonts, renderOptions.value().DepthBuffer);
       m_testAppHost->StartTestApp(appFactory, materialCreateInfo, materialConfig);
     }
 
     // Finally apply the runtime options by applying them to the system
-    systemInfo.Set(TypeConverter::To<UI::RenderOptionFlags>(renderOptions.Value()));
+    systemInfo.Set(TypeConverter::To<UI::RenderOptionFlags>(renderOptions.value()));
     RenderSystemRuntimeSettingsUtil::Apply(*m_testAppHost, systemInfo.Settings, benchSettings.BasicOptions.UseSdfFonts);
-
-    return {benchSettings.BasicOptions, renderOptions.Value()};
+    return {benchSettings.BasicOptions, renderOptions.value()};
   }
 
 
   bool BenchmarkScene::TryLoad()
   {
-    const Optional<AppInputCommandList> res = m_inputRecordingManager->TryGetRecording();
-    if (res.HasValue())
+    const std::optional<AppInputCommandList> res = m_inputRecordingManager->TryGetRecording();
+    if (res.has_value())
     {
-      GetDemoControl().SetRecording(res.Value().AsSpan(), res.Value().GetFrameCount());
+      GetDemoControl().SetRecording(res.value().AsSpan(), res.value().GetFrameCount());
     }
-    return res.HasValue();
+    return res.has_value();
   }
 
 
@@ -249,11 +251,11 @@ namespace Fsl
     assert(m_benchResultManager);
 
     const bool gpuProfilingEnabled = m_gpuProfiler && m_gpuProfiler->IsEnabled();
-    Optional<AppBenchmarkGpuData> gpuData =
-      gpuProfilingEnabled ? Optional<AppBenchmarkGpuData>(AppBenchmarkGpuData(ReadOnlySpanUtil::AsSpan(m_gpuEntries, 0, m_entryCount)))
-                          : Optional<AppBenchmarkGpuData>();
+    std::optional<AppBenchmarkGpuData> gpuData =
+      gpuProfilingEnabled ? std::optional<AppBenchmarkGpuData>(AppBenchmarkGpuData(ReadOnlySpanUtil::AsSpan(m_gpuEntries, 0, m_entryCount)))
+                          : std::optional<AppBenchmarkGpuData>();
 
-    Optional<AppBenchmarkRenderInfo> renderInfo(m_renderInfo);
+    std::optional<AppBenchmarkRenderInfo> renderInfo(m_renderInfo);
 
     AppBenchmarkData benchmarkData(m_info, AppBenchmarkCpuData(ReadOnlySpanUtil::AsSpan(m_cpuEntries, 0, m_entryCount)), gpuData, renderInfo,
                                    currentTime);

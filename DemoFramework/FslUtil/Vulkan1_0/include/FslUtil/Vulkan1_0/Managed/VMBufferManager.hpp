@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_MANAGED_VMBUFFERMANAGER_HPP
 #define FSLUTIL_VULKAN1_0_MANAGED_VMBUFFERMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,67 +32,63 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
-#include <RapidVulkan/CommandPool.hpp>
-#include <RapidVulkan/CommandBuffer.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpan.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
+#include <RapidVulkan/CommandBuffer.hpp>
+#include <RapidVulkan/CommandPool.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class VMBufferManager
   {
-    class VMBufferManager
+    VUPhysicalDeviceRecord m_physicalDevice;
+    VkDevice m_device;
+    VkQueue m_queue;
+    // uint32_t m_queueFamilyIndex;
+    RapidVulkan::CommandPool m_commandPool;
+    RapidVulkan::CommandBuffer m_commandBuffer;
+
+  public:
+    VMBufferManager(const VMBufferManager&) = delete;
+    VMBufferManager& operator=(const VMBufferManager&) = delete;
+    VMBufferManager(VMBufferManager&& other) noexcept = delete;
+    VMBufferManager& operator=(VMBufferManager&& other) noexcept = delete;
+
+    VMBufferManager(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkQueue queue, const uint32_t queueFamilyIndex);
+
+    //! @param elementStride the size of one element in bytes
+    VUBufferMemory CreateBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
     {
-      VUPhysicalDeviceRecord m_physicalDevice;
-      VkDevice m_device;
-      VkQueue m_queue;
-      // uint32_t m_queueFamilyIndex;
-      RapidVulkan::CommandPool m_commandPool;
-      RapidVulkan::CommandBuffer m_commandBuffer;
+      return CreateBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags, usage);
+    }
 
-    public:
-      VMBufferManager(const VMBufferManager&) = delete;
-      VMBufferManager& operator=(const VMBufferManager&) = delete;
-      VMBufferManager(VMBufferManager&& other) noexcept = delete;
-      VMBufferManager& operator=(VMBufferManager&& other) noexcept = delete;
+    VUBufferMemory CreateBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags,
+                                const VMBufferUsage usage);
 
-      VMBufferManager(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkQueue queue, const uint32_t queueFamilyIndex);
+    VUBufferMemory CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags)
+    {
+      return CreateDynamicBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags);
+    }
 
-      //! @param elementStride the size of one element in bytes
-      VUBufferMemory CreateBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
-      {
-        return CreateBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags, usage);
-      }
-
-      VUBufferMemory CreateBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags,
-                                  const VMBufferUsage usage);
-
-      VUBufferMemory CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags)
-      {
-        return CreateDynamicBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags);
-      }
-
-      VUBufferMemory CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags);
+    VUBufferMemory CreateDynamicBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags);
 
 
-      //! @brief Create a dynamic buffer with the given element capacity
-      VUBufferMemory CreateDynamicBuffer(const std::size_t elementCapacity, const std::size_t elementStride,
-                                         const VkBufferUsageFlags bufferUsageFlags);
+    //! @brief Create a dynamic buffer with the given element capacity
+    VUBufferMemory CreateDynamicBuffer(const std::size_t elementCapacity, const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags);
 
-      VUBufferMemory CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags)
-      {
-        return CreateStaticBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags);
-      }
+    VUBufferMemory CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const VkBufferUsageFlags bufferUsageFlags)
+    {
+      return CreateStaticBuffer(bufferSpan, bufferSpan.size(), bufferUsageFlags);
+    }
 
-      VUBufferMemory CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags);
+    VUBufferMemory CreateStaticBuffer(ReadOnlyFlexSpan bufferSpan, const std::size_t elementCapacity, const VkBufferUsageFlags bufferUsageFlags);
 
-    private:
-      void CopyBuffer(VUBufferMemory& rDst, const VUBufferMemory& src);
-    };
-  }
+  private:
+    void CopyBuffer(VUBufferMemory& rDst, const VUBufferMemory& src);
+  };
 }
 
 #endif

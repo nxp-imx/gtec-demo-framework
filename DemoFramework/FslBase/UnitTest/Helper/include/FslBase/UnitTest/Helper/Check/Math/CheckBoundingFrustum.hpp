@@ -34,19 +34,16 @@
 #include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckMatrix.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const BoundingFrustum& lhs, const BoundingFrustum& rhs)
   {
-    inline bool AlmostEqual(const BoundingFrustum& lhs, const BoundingFrustum& rhs)
-    {
-      return AlmostEqual(lhs.GetMatrix(), rhs.GetMatrix());
-    }
+    return AlmostEqual(lhs.GetMatrix(), rhs.GetMatrix());
+  }
 
-    inline bool IsNear(const BoundingFrustum& lhs, const BoundingFrustum& rhs, const float absError)
-    {
-      return IsNear(lhs.GetMatrix(), rhs.GetMatrix(), absError);
-    }
+  inline bool IsNear(const BoundingFrustum& lhs, const BoundingFrustum& rhs, const float absError)
+  {
+    return IsNear(lhs.GetMatrix(), rhs.GetMatrix(), absError);
   }
 }
 

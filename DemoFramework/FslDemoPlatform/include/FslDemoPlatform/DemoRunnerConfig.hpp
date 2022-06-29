@@ -31,10 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/ITag.hpp>
+#include <FslDemoPlatform/MainLoopCallbackFunc.hpp>
+#include <FslDemoPlatform/Setup/DemoSetupManagerConfig.hpp>
 #include <memory>
 #include <string>
-#include <FslBase/ITag.hpp>
-#include <FslDemoPlatform/Setup/DemoSetupManagerConfig.hpp>
 #include <utility>
 
 namespace Fsl
@@ -44,12 +45,15 @@ namespace Fsl
     bool UseDefaultSignalHandlers;
     DemoSetupManagerConfig SetupManagerConfig;
     std::shared_ptr<ITag> NativeWindowTag;
+    //! If this is not null the function will be called once during the mainloop
+    FNMainLoopCallback MainLoopCallbackFunction{nullptr};
 
     DemoRunnerConfig(const bool useDefaultSignalHandlers, const IO::Path& contentPath, const IO::Path& persistentDataPath,
-                     std::shared_ptr<ITag> nativeWindowTag)
+                     std::shared_ptr<ITag> nativeWindowTag, FNMainLoopCallback mainLoopCallbackFunction = nullptr)
       : UseDefaultSignalHandlers(useDefaultSignalHandlers)
       , SetupManagerConfig(contentPath, persistentDataPath)
       , NativeWindowTag(std::move(nativeWindowTag))
+      , MainLoopCallbackFunction(mainLoopCallbackFunction)
     {
     }
   };

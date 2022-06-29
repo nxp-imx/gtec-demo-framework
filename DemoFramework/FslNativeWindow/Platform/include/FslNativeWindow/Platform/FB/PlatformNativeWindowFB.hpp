@@ -33,8 +33,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <FslBase/Math/Point2.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 
 namespace Fsl
 {

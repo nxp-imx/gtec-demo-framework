@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "ObjectSelection.hpp"
 #include <array>
+#include "ObjectSelection.hpp"
 
 namespace Fsl
 {

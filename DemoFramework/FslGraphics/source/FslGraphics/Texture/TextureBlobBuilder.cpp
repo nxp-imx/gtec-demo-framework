@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslGraphics/Texture/TextureTypeUtil.hpp>
 #include <FslGraphics/Texture/TextureUtil.hpp>
-#include <FslGraphics/Exceptions.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>

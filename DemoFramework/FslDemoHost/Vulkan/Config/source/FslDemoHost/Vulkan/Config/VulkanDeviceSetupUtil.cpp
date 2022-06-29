@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Vulkan/Config/VulkanDeviceSetupUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/IVulkanDeviceCreationCustomizer.hpp>
+#include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
+#include <FslDemoHost/Vulkan/Config/VulkanDeviceSetupUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
@@ -41,59 +41,56 @@
 #include <deque>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  VulkanDeviceSetup VulkanDeviceSetupUtil::CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
+                                                       const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
+                                                       const ReadOnlySpan<const char*>& extensions,
+                                                       IVulkanDeviceCreationCustomizer* const pDeviceCreationCustomizer)
   {
-    VulkanDeviceSetup VulkanDeviceSetupUtil::CreateSetup(const VUPhysicalDeviceRecord& physicalDevice, const VkSurfaceKHR surface,
-                                                         const std::deque<PhysicalDeviceFeatureRequest>& featureRequestDeque,
-                                                         const ReadOnlySpan<const char*>& extensions,
-                                                         IVulkanDeviceCreationCustomizer* const pDeviceCreationCustomizer)
     {
+      const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device);
+      auto supportFilter =
+        PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceSupportKHR(physicalDevice.Device, surface, deviceQueueFamilyProperties.size());
+
+      const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_GRAPHICS_BIT, 0, &supportFilter);
+
+      std::array<float, 1> queuePriorities = {0.0f};
+      VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
+      deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+      deviceQueueCreateInfo.flags = 0;
+      deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
+      deviceQueueCreateInfo.queueCount = static_cast<uint32_t>(queuePriorities.size());
+      deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
+
+      VkDeviceCreateInfo deviceCreateInfo{};
+      deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+      deviceCreateInfo.queueCreateInfoCount = 1;
+      deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
+      deviceCreateInfo.enabledExtensionCount = UncheckedNumericCast<uint32_t>(extensions.size());
+      deviceCreateInfo.ppEnabledExtensionNames = extensions.data();
+
+      // Allow the app to tweak the next pointer
+      if (pDeviceCreationCustomizer != nullptr)
       {
-        const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device);
-        auto supportFilter =
-          PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceSupportKHR(physicalDevice.Device, surface, deviceQueueFamilyProperties.size());
-
-        const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_GRAPHICS_BIT, 0, &supportFilter);
-
-        std::array<float, 1> queuePriorities = {0.0f};
-        VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
-        deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        deviceQueueCreateInfo.flags = 0;
-        deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
-        deviceQueueCreateInfo.queueCount = static_cast<uint32_t>(queuePriorities.size());
-        deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
-
-        VkDeviceCreateInfo deviceCreateInfo{};
-        deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        deviceCreateInfo.queueCreateInfoCount = 1;
-        deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-        deviceCreateInfo.enabledExtensionCount = UncheckedNumericCast<uint32_t>(extensions.size());
-        deviceCreateInfo.ppEnabledExtensionNames = extensions.data();
-
-        // Allow the app to tweak the next pointer
-        if (pDeviceCreationCustomizer != nullptr)
-        {
-          pDeviceCreationCustomizer->Configure(physicalDevice.Device);
-          deviceCreateInfo.pNext = pDeviceCreationCustomizer->GetVkDeviceCreateInfoNextPointer();
-        }
-
-        // Lookup the user defines feature requirements and set them
-        VkPhysicalDeviceFeatures deviceFeatures{};
-        if (!featureRequestDeque.empty())
-        {
-          PhysicalDeviceFeatureRequestUtil::ApplyFeatureRequirements(deviceFeatures, featureRequestDeque, physicalDevice.Device);
-          deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-        }
-
-        VulkanDeviceSetup setup;
-        setup.Device.Reset(physicalDevice.Device, deviceCreateInfo);
-        setup.DeviceFeatures = deviceFeatures;
-        setup.DeviceCreateInfo = std::make_shared<Vulkan::DeviceCreateInfoCopy>(deviceCreateInfo);
-        setup.DeviceQueueRecord = DeviceUtil::GetDeviceQueue(setup.Device.Get(), queueFamilyIndex, 0);
-        return setup;
+        pDeviceCreationCustomizer->Configure(physicalDevice.Device);
+        deviceCreateInfo.pNext = pDeviceCreationCustomizer->GetVkDeviceCreateInfoNextPointer();
       }
+
+      // Lookup the user defines feature requirements and set them
+      VkPhysicalDeviceFeatures deviceFeatures{};
+      if (!featureRequestDeque.empty())
+      {
+        PhysicalDeviceFeatureRequestUtil::ApplyFeatureRequirements(deviceFeatures, featureRequestDeque, physicalDevice.Device);
+        deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+      }
+
+      VulkanDeviceSetup setup;
+      setup.Device.Reset(physicalDevice.Device, deviceCreateInfo);
+      setup.DeviceFeatures = deviceFeatures;
+      setup.DeviceCreateInfo = std::make_shared<Vulkan::DeviceCreateInfoCopy>(deviceCreateInfo);
+      setup.DeviceQueueRecord = DeviceUtil::GetDeviceQueue(setup.Device.Get(), queueFamilyIndex, 0);
+      return setup;
     }
   }
 }

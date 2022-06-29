@@ -64,7 +64,7 @@ namespace Fsl
   public:
     static constexpr double CalcFrequency(const uint64_t frequency) noexcept
     {
-      return frequency != 0u ? 1000000.0 / frequency : 0u;
+      return frequency != 0u ? 1000000.0 / static_cast<double>(frequency) : 0u;
     }
 
     DemoPerformanceCapture()
@@ -116,7 +116,7 @@ namespace Fsl
     int64_t GetResult(const DemoPerformanceCaptureId entry) const
     {
       const BasicPerformanceCaptureRecord& rRecord = m_entries.Get(entry);
-      return static_cast<int64_t>(std::round(double(rRecord.End - rRecord.Begin) * m_frequency));
+      return static_cast<int64_t>(std::round(static_cast<double>(rRecord.End - rRecord.Begin) * m_frequency));
     }
   };
 }

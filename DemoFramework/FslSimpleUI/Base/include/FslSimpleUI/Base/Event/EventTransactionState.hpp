@@ -31,17 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class EventTransactionState
   {
-    enum class EventTransactionState
-    {
-      Begin,
-      End,
-      Canceled
-    };
-  }
+    Begin,
+    End,
+    Canceled
+  };
 }
 
 #endif

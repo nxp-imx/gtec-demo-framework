@@ -34,13 +34,10 @@
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/VersionInfo2.hpp>
 
-namespace Fsl
+namespace Fsl::ReleaseVersion
 {
-  namespace ReleaseVersion
-  {
-    VersionInfo2 CurrentVersion() noexcept;
-    StringViewLite GetGitCommit() noexcept;
-  }
+  VersionInfo2 CurrentVersion() noexcept;
+  StringViewLite GetGitCommit() noexcept;
 }
 
 #endif

@@ -91,12 +91,12 @@ namespace Fsl
 
     constexpr inline void Disable(AtlasNineSliceFlags& rDstFlag, AtlasNineSliceFlags flag) noexcept
     {
-      rDstFlag = rDstFlag & (AtlasNineSliceFlags(~static_cast<uint32_t>(flag)));
+      rDstFlag = rDstFlag & (static_cast<AtlasNineSliceFlags>(~static_cast<uint32_t>(flag)));
     }
 
     constexpr inline void Set(AtlasNineSliceFlags& rDstFlag, AtlasNineSliceFlags flag, const bool enabled) noexcept
     {
-      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (AtlasNineSliceFlags(~static_cast<uint32_t>(flag))));
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<AtlasNineSliceFlags>(~static_cast<uint32_t>(flag))));
     }
 
     constexpr inline AtlasNineSliceFlags GetTransparencyFlags(AtlasNineSliceFlags flags) noexcept

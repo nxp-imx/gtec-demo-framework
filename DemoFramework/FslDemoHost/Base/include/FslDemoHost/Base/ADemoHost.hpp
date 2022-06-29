@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/IDemoHost.hpp>
 #include <FslDemoHost/Base/DemoHostConfig.hpp>
+#include <FslDemoHost/Base/IDemoHost.hpp>
 
 namespace Fsl
 {

@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/ObjectSelection/OptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Exceptions.hpp>
+#include <Shared/ObjectSelection/OptionParser.hpp>
 #include <algorithm>
 #include <cmath>
 #include <cstring>

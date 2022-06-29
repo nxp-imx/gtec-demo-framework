@@ -45,12 +45,9 @@
 
 namespace Fsl
 {
-  namespace UI
+  namespace UI::Theme
   {
-    namespace Theme
-    {
-      class IThemeControlFactory;
-    }
+    class IThemeControlFactory;
   }
 
   class Shared final : public UI::EventListener

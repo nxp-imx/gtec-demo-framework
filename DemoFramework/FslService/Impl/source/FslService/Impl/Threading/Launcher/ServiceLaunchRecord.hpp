@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Consumer/ProviderId.hpp>
-#include <FslService/Consumer/IService.hpp>
-#include <FslService/Impl/Threading/Launcher/ServiceLaunchType.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslService/Consumer/IService.hpp>
+#include <FslService/Consumer/ProviderId.hpp>
+#include <FslService/Impl/Threading/Launcher/ServiceLaunchType.hpp>
 #include <memory>
 #include <utility>
 #include "IServiceLaunchInstanceFactory.hpp"

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
@@ -50,157 +50,154 @@ namespace
 
 namespace Fsl
 {
-  namespace Vulkan
+  namespace Vulkan::VulkanConvert
   {
-    namespace VulkanConvert
+    PixelFormat TryToPixelFormat(const VkFormat pixelFormat)
     {
-      PixelFormat TryToPixelFormat(const VkFormat pixelFormat)
+      const auto formatId =
+        static_cast<uint32_t>(pixelFormat - LocalConfig::FormatBeginRange) + static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE);
+      return PixelFormatUtil::TryGetPixelFormatById(formatId);
+    }
+
+
+    PixelFormat ToPixelFormat(const VkFormat pixelFormat)
+    {
+      if (pixelFormat == VK_FORMAT_UNDEFINED)
       {
-        const auto formatId =
-          static_cast<uint32_t>(pixelFormat - LocalConfig::FormatBeginRange) + static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE);
-        return PixelFormatUtil::TryGetPixelFormatById(formatId);
+        return PixelFormat::Undefined;
       }
 
-
-      PixelFormat ToPixelFormat(const VkFormat pixelFormat)
+      const PixelFormat result = TryToPixelFormat(pixelFormat);
+      if (result != PixelFormat::Undefined)
       {
-        if (pixelFormat == VK_FORMAT_UNDEFINED)
-        {
-          return PixelFormat::Undefined;
-        }
-
-        const PixelFormat result = TryToPixelFormat(pixelFormat);
-        if (result != PixelFormat::Undefined)
-        {
-          return result;
-        }
-        throw UnsupportedVulkanPixelFormatException(pixelFormat);
+        return result;
       }
+      throw UnsupportedVulkanPixelFormatException(pixelFormat);
+    }
 
 
-      VkFormat TryToVkFormat(const PixelFormat pixelFormat)
+    VkFormat TryToVkFormat(const PixelFormat pixelFormat)
+    {
+      const auto pixelFormatRangeIndex = PixelFormatUtil::GetFormatRangeIndex(pixelFormat) + static_cast<uint32_t>(LocalConfig::FormatBeginRange);
+      static_assert(LocalConfig::FormatBeginRange == 0, "(LocalConfig::FormatBeginRange is expected to be zero");
+      // if (pixelFormatRangeIndex >= static_cast<uint32_t>(LocalConfig::FormatBeginRange) &&  pixelFormatRangeIndex <=
+      // static_cast<uint32_t>(VK_FORMAT_END_RANGE))
+      if (pixelFormatRangeIndex <= static_cast<uint32_t>(LocalConfig::FormatEndRange))
       {
-        const auto pixelFormatRangeIndex = PixelFormatUtil::GetFormatRangeIndex(pixelFormat) + static_cast<uint32_t>(LocalConfig::FormatBeginRange);
-        static_assert(LocalConfig::FormatBeginRange == 0, "(LocalConfig::FormatBeginRange is expected to be zero");
-        // if (pixelFormatRangeIndex >= static_cast<uint32_t>(LocalConfig::FormatBeginRange) &&  pixelFormatRangeIndex <=
-        // static_cast<uint32_t>(VK_FORMAT_END_RANGE))
-        if (pixelFormatRangeIndex <= static_cast<uint32_t>(LocalConfig::FormatEndRange))
-        {
-          return static_cast<VkFormat>(pixelFormatRangeIndex);
-        }
+        return static_cast<VkFormat>(pixelFormatRangeIndex);
+      }
+      return VK_FORMAT_UNDEFINED;
+    }
+
+
+    VkFormat ToVkFormat(const PixelFormat pixelFormat)
+    {
+      if (pixelFormat == PixelFormat::Undefined)
+      {
         return VK_FORMAT_UNDEFINED;
       }
 
-
-      VkFormat ToVkFormat(const PixelFormat pixelFormat)
+      const VkFormat result = TryToVkFormat(pixelFormat);
+      if (result != VK_FORMAT_UNDEFINED)
       {
-        if (pixelFormat == PixelFormat::Undefined)
-        {
-          return VK_FORMAT_UNDEFINED;
-        }
+        return result;
+      }
+      throw UnsupportedPixelFormatException(pixelFormat);
+    }
 
-        const VkFormat result = TryToVkFormat(pixelFormat);
-        if (result != VK_FORMAT_UNDEFINED)
-        {
-          return result;
-        }
-        throw UnsupportedPixelFormatException(pixelFormat);
+
+    VkFormat TryToVkFormat(const VertexElementFormat vertexFormat)
+    {
+      switch (vertexFormat)
+      {
+      case VertexElementFormat::Single:
+        return VK_FORMAT_R32_SFLOAT;
+      case VertexElementFormat::Vector2:
+        return VK_FORMAT_R32G32_SFLOAT;
+      case VertexElementFormat::Vector3:
+        return VK_FORMAT_R32G32B32_SFLOAT;
+      case VertexElementFormat::Vector4:
+        return VK_FORMAT_R32G32B32A32_SFLOAT;
+      case VertexElementFormat::X8_UNORM:
+        return VK_FORMAT_R8_UNORM;
+      case VertexElementFormat::X8_UINT:
+        return VK_FORMAT_R8_UINT;
+      case VertexElementFormat::X8Y8_UNORM:
+        return VK_FORMAT_R8G8_UNORM;
+      case VertexElementFormat::X8Y8_UINT:
+        return VK_FORMAT_R8G8_UINT;
+      case VertexElementFormat::X8Y8Z8_UNORM:
+        return VK_FORMAT_R8G8B8_UNORM;
+      case VertexElementFormat::X8Y8Z8_UINT:
+        return VK_FORMAT_R8G8B8_UINT;
+      case VertexElementFormat::X8Y8Z8W8_UNORM:
+        return VK_FORMAT_R8G8B8A8_UNORM;
+      case VertexElementFormat::X8Y8Z8W8_UINT:
+        return VK_FORMAT_R8G8B8A8_UINT;
+      case VertexElementFormat::Matrix4x4:
+      case VertexElementFormat::Undefined:
+      default:
+        return VK_FORMAT_UNDEFINED;
+      }
+    }
+
+
+    VkFormat ToVkFormat(const VertexElementFormat vertexFormat)
+    {
+      if (vertexFormat == VertexElementFormat::Undefined)
+      {
+        return VK_FORMAT_UNDEFINED;
       }
 
-
-      VkFormat TryToVkFormat(const VertexElementFormat vertexFormat)
+      const VkFormat result = TryToVkFormat(vertexFormat);
+      if (result != VK_FORMAT_UNDEFINED)
       {
-        switch (vertexFormat)
-        {
-        case VertexElementFormat::Single:
-          return VK_FORMAT_R32_SFLOAT;
-        case VertexElementFormat::Vector2:
-          return VK_FORMAT_R32G32_SFLOAT;
-        case VertexElementFormat::Vector3:
-          return VK_FORMAT_R32G32B32_SFLOAT;
-        case VertexElementFormat::Vector4:
-          return VK_FORMAT_R32G32B32A32_SFLOAT;
-        case VertexElementFormat::X8_UNORM:
-          return VK_FORMAT_R8_UNORM;
-        case VertexElementFormat::X8_UINT:
-          return VK_FORMAT_R8_UINT;
-        case VertexElementFormat::X8Y8_UNORM:
-          return VK_FORMAT_R8G8_UNORM;
-        case VertexElementFormat::X8Y8_UINT:
-          return VK_FORMAT_R8G8_UINT;
-        case VertexElementFormat::X8Y8Z8_UNORM:
-          return VK_FORMAT_R8G8B8_UNORM;
-        case VertexElementFormat::X8Y8Z8_UINT:
-          return VK_FORMAT_R8G8B8_UINT;
-        case VertexElementFormat::X8Y8Z8W8_UNORM:
-          return VK_FORMAT_R8G8B8A8_UNORM;
-        case VertexElementFormat::X8Y8Z8W8_UINT:
-          return VK_FORMAT_R8G8B8A8_UINT;
-        case VertexElementFormat::Matrix4x4:
-        case VertexElementFormat::Undefined:
-        default:
-          return VK_FORMAT_UNDEFINED;
-        }
+        return result;
       }
+      throw UnsupportedVertexElementFormatException(vertexFormat);
+    }
 
 
-      VkFormat ToVkFormat(const VertexElementFormat vertexFormat)
+    VkImageType ToVkImageType(const TextureType textureType)
+    {
+      switch (textureType)
       {
-        if (vertexFormat == VertexElementFormat::Undefined)
-        {
-          return VK_FORMAT_UNDEFINED;
-        }
-
-        const VkFormat result = TryToVkFormat(vertexFormat);
-        if (result != VK_FORMAT_UNDEFINED)
-        {
-          return result;
-        }
-        throw UnsupportedVertexElementFormatException(vertexFormat);
+      case TextureType::Tex1D:
+      case TextureType::Tex1DArray:
+        return VK_IMAGE_TYPE_1D;
+      case TextureType::Tex2D:
+      case TextureType::Tex2DArray:
+      case TextureType::TexCube:
+      case TextureType::TexCubeArray:
+        return VK_IMAGE_TYPE_2D;
+      case TextureType::Tex3D:
+        return VK_IMAGE_TYPE_3D;
+      default:
+        throw NotSupportedException("Unsupported TextureType");
       }
+    }
 
 
-      VkImageType ToVkImageType(const TextureType textureType)
+    VkImageViewType ToVkImageViewType(const TextureType textureType)
+    {
+      switch (textureType)
       {
-        switch (textureType)
-        {
-        case TextureType::Tex1D:
-        case TextureType::Tex1DArray:
-          return VK_IMAGE_TYPE_1D;
-        case TextureType::Tex2D:
-        case TextureType::Tex2DArray:
-        case TextureType::TexCube:
-        case TextureType::TexCubeArray:
-          return VK_IMAGE_TYPE_2D;
-        case TextureType::Tex3D:
-          return VK_IMAGE_TYPE_3D;
-        default:
-          throw NotSupportedException("Unsupported TextureType");
-        }
-      }
-
-
-      VkImageViewType ToVkImageViewType(const TextureType textureType)
-      {
-        switch (textureType)
-        {
-        case TextureType::Tex1D:
-          return VK_IMAGE_VIEW_TYPE_1D;
-        case TextureType::Tex2D:
-          return VK_IMAGE_VIEW_TYPE_2D;
-        case TextureType::Tex3D:
-          return VK_IMAGE_VIEW_TYPE_3D;
-        case TextureType::TexCube:
-          return VK_IMAGE_VIEW_TYPE_CUBE;
-        case TextureType::Tex1DArray:
-          return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        case TextureType::Tex2DArray:
-          return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        case TextureType::TexCubeArray:
-          return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-        default:
-          throw NotSupportedException("Unsupported TextureType");
-        }
+      case TextureType::Tex1D:
+        return VK_IMAGE_VIEW_TYPE_1D;
+      case TextureType::Tex2D:
+        return VK_IMAGE_VIEW_TYPE_2D;
+      case TextureType::Tex3D:
+        return VK_IMAGE_VIEW_TYPE_3D;
+      case TextureType::TexCube:
+        return VK_IMAGE_VIEW_TYPE_CUBE;
+      case TextureType::Tex1DArray:
+        return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+      case TextureType::Tex2DArray:
+        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+      case TextureType::TexCubeArray:
+        return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+      default:
+        throw NotSupportedException("Unsupported TextureType");
       }
     }
   }

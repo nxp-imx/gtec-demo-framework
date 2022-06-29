@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/IThreadLocalSingletonServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
+#include <FslService/Impl/ServiceType/Local/IThreadLocalSingletonServiceFactory.hpp>
 
 namespace Fsl
 {

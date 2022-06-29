@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexMatrix.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexMatrix.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -59,7 +59,7 @@ TEST(TestVertices_VertexMatrix, Construct_Default)
 
 TEST(TestVertices_VertexMatrix, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElement expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
   const auto vertexDecl = VertexDeclaration(VertexMatrix::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexMatrix), vertexDecl.VertexStride());
@@ -84,7 +84,7 @@ TEST(TestVertices_VertexMatrix, GetVertexDeclaration)
 
 TEST(TestVertices_VertexMatrix, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElement expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
   const auto vertexDecl = VertexMatrix::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexMatrix), vertexDecl.VertexStride());
@@ -109,7 +109,7 @@ TEST(TestVertices_VertexMatrix, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexMatrix, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElement expected0(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
   const auto vertexDecl = VertexMatrix::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexMatrix), vertexDecl.VertexStride());

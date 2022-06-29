@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "PlaygroundScene.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
@@ -43,10 +43,10 @@
 #include <FslSimpleUI/Base/Control/SlidingPanel.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChart.hpp>
 #include <FslSimpleUI/Render/Base/IRenderSystemBase.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemStats.hpp>
@@ -58,6 +58,7 @@
 #include <Shared/UI/Benchmark/Activity/ActivityStack.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <Shared/UI/Benchmark/Scene/Dialog/BenchConfigDialogActivity.hpp>
+#include <Shared/UI/Benchmark/Scene/Dialog/ColorDialogActivity.hpp>
 #include <Shared/UI/Benchmark/Scene/Dialog/FrameAnalysisDialogActivity.hpp>
 #include <Shared/UI/Benchmark/Scene/Dialog/SettingsDialogActivity.hpp>
 #include <Shared/UI/Benchmark/TextConfig.hpp>
@@ -66,9 +67,9 @@
 #include "Control/CustomControlFactory.hpp"
 #include "Control/CustomUIConfig.hpp"
 #include "Control/RenderOptionControlsFactory.hpp"
-#include "SceneCreateInfo.hpp"
 #include "RenderConfig.hpp"
 #include "RenderSystemRuntimeSettingsUtil.hpp"
+#include "SceneCreateInfo.hpp"
 #include "TestHostForwarderTweak.hpp"
 
 namespace Fsl
@@ -128,15 +129,15 @@ namespace Fsl
     , m_uiExtension(createInfo.UIExtension)
     , m_gpuProfilerSupported(createInfo.GpuProfiler)
     , m_renderRecords(ReadOnlySpanUtil::ToVector(RenderConfig::Get()))
-    , m_data(std::make_shared<UI::AreaChartData>(m_windowMetrics.ExtentPx.Width, CustomControlFactory::MaxCpuProfileDataEntries()))
+    , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), m_windowMetrics.ExtentPx.Width,
+                                             CustomControlFactory::MaxCpuProfileDataEntries(), UI::ChartData::Constraints(0, {})))
     , m_dataAverage(LocalConfig::AverageEntries)
     , m_anim(m_uiControlFactory->GetContext()->UITransitionCache, UI::DefaultAnim::ColorChangeTime)
     , m_testAppHost(std::make_shared<TestAppHost>(createInfo.DemoServiceProvider, m_windowMetrics))
     , m_settings(createInfo.Settings)
   {
-    m_uiProfile = CreateProfileUI(*m_uiControlFactory, NumericCast<uint16_t>(m_windowMetrics.DensityDpi), m_data,
-                                  ReadOnlySpanUtil::AsSpan(m_renderRecords), m_activeRenderIndex, m_settings->UI);
-    RestoreUISettings(m_renderRecords[m_activeRenderIndex]);
+    m_uiProfile = CreateProfileUI(*m_uiControlFactory, NumericCast<uint16_t>(m_windowMetrics.DensityDpi), m_data, m_settings->UI);
+    RestoreUISettings(m_renderRecords[m_settings->Test.ActiveRenderIndex]);
 
     createInfo.RootLayout->AddChild(m_uiProfile.MainLayout);
 
@@ -173,19 +174,13 @@ namespace Fsl
       }
       else if (theEvent->GetSource() == m_uiProfile.OptionsBar.ButtonConfig)
       {
-        m_settingsResult = std::make_shared<AppTestSettings>(m_settings->Test);
         theEvent->Handled();
-        m_uiProfile.ActivityStack->Push(std::make_shared<UI::SettingsDialogActivity>(m_uiProfile.ActivityStack, m_uiControlFactory,
-                                                                                     UI::Theme::WindowType::DialogNormal, m_settingsResult));
-        m_inputState = InputState::SettingsSubActivity;
+        ShowSettings();
       }
       else if (theEvent->GetSource() == m_uiProfile.OptionsBar.ButtonFrameAnalysis)
       {
         theEvent->Handled();
-        m_frameAnalysisDialog = std::make_shared<UI::FrameAnalysisDialogActivity>(
-          m_uiProfile.ActivityStack, m_uiControlFactory, UI::Theme::WindowType::DialogNormal, FrameAnalysisGetCurrentMaxDrawCalls());
-        m_uiProfile.ActivityStack->Push(m_frameAnalysisDialog);
-        m_inputState = InputState::FrameAnalysisSubActivity;
+        ShowFrameAnalysisDialogActivity();
       }
       else if (theEvent->GetSource() == m_uiProfile.OptionsBar.ButtonRecord)
       {
@@ -194,11 +189,8 @@ namespace Fsl
       }
       else if (theEvent->GetSource() == m_uiProfile.OptionsBar.ButtonBench)
       {
-        m_benchResult = std::make_shared<AppBenchSettings>(m_settings->Bench);
         theEvent->Handled();
-        m_configDialogPromise = m_uiProfile.ActivityStack->Push(std::make_shared<UI::BenchConfigDialogActivity>(
-          m_uiProfile.ActivityStack, m_uiControlFactory, m_gpuProfilerSupported, ReadOnlySpanUtil::AsSpan(m_renderRecords), m_benchResult));
-        m_inputState = InputState::BenchConfigSubActivity;
+        ShowBenchmarkConfig();
       }
     }
   }
@@ -225,18 +217,17 @@ namespace Fsl
       theEvent->Handled();
       SetDpi(m_windowMetrics.DensityDpi);
     }
-    else if (m_renderRecords[m_activeRenderIndex].RenderMethod == AppRenderMethod::FlexImBatch)
+    else if (m_renderRecords[m_settings->Test.ActiveRenderIndex].RenderMethod == AppRenderMethod::FlexImBatch)
     {
       if (theEvent->GetSource() == m_uiProfile.OptionsBar.RenderOptions.SwitchBatch ||
           theEvent->GetSource() == m_uiProfile.OptionsBar.RenderOptions.SwitchFillBuffers ||
           theEvent->GetSource() == m_uiProfile.OptionsBar.RenderOptions.SwitchDepthBuffer ||
-          theEvent->GetSource() == m_uiProfile.OptionsBar.RenderOptions.SwitchDrawReorder)
+          theEvent->GetSource() == m_uiProfile.OptionsBar.RenderOptions.SwitchDrawReorder ||
+          theEvent->GetSource() == m_uiProfile.OptionsBar.RenderOptions.SwitchPreferFastReorder)
       {
         theEvent->Handled();
 
-        m_uiProfile.OptionsBar.RenderOptions.StoreUISettings(m_renderRecords[m_activeRenderIndex].SystemInfo);
-        RenderSystemRuntimeSettingsUtil::Apply(*m_testAppHost, m_renderRecords[m_activeRenderIndex].SystemInfo.Settings,
-                                               m_uiProfile.OptionsBar.SwitchSdfFont->IsChecked());
+        ApplyRenderSettings();
       }
     }
 
@@ -255,27 +246,6 @@ namespace Fsl
       m_uiProfile.OptionsBar.SliderEmulatedDpi->SetEnabled(enabled);
       SetDpi(NumericCast<int32_t>(m_windowMetrics.DensityDpi));
     }
-    else
-    {
-      const auto count = NumericCast<uint32_t>(m_uiProfile.OptionsBar.RenderMethod.Methods.size());
-      for (uint32_t i = 0; !theEvent->IsHandled() && i < count; ++i)
-      {
-        if (theEvent->GetSource() == m_uiProfile.OptionsBar.RenderMethod.Methods[i])
-        {
-          theEvent->Handled();
-          if (m_activeRenderIndex != i)
-          {
-            // Store the current settings for the render (so its the same when we switch back)
-            m_uiProfile.OptionsBar.RenderOptions.StoreUISettings(m_renderRecords[m_activeRenderIndex].SystemInfo);
-            m_activeRenderIndex = i;
-            // Restore the settings of the just selected UI
-            RestoreUISettings(m_renderRecords[m_activeRenderIndex]);
-
-            RestartTestApp(false);
-          }
-        }
-      }
-    }
   }
 
 
@@ -290,10 +260,14 @@ namespace Fsl
     {
       return;
     }
+    bool handled = true;
     switch (event.GetKey())
     {
     case VirtualKey::Space:
       ClearGraph();
+      break;
+    case VirtualKey::F2:
+      ShowColorDialog();
       break;
     case VirtualKey::B:
       if (m_uiProfile.OptionsBar.RenderOptions.SwitchBatch->IsEnabled())
@@ -320,6 +294,12 @@ namespace Fsl
       if (m_uiProfile.OptionsBar.RenderOptions.SwitchFillBuffers->IsEnabled())
       {
         m_uiProfile.OptionsBar.RenderOptions.SwitchFillBuffers->Toggle();
+      }
+      break;
+    case VirtualKey::I:
+      if (m_uiProfile.OptionsBar.RenderOptions.SwitchPreferFastReorder->IsEnabled())
+      {
+        m_uiProfile.OptionsBar.RenderOptions.SwitchPreferFastReorder->Toggle();
       }
       break;
     case VirtualKey::O:
@@ -374,7 +354,13 @@ namespace Fsl
       }
       break;
     default:
+      handled = false;
       break;
+    }
+
+    if (handled)
+    {
+      event.Handled();
     }
   }
 
@@ -433,7 +419,7 @@ namespace Fsl
     const Color overlayColor = (m_settings->UI.ShowStats) ? Color::White() : Color(0x00FFFFFF);
     m_anim.OverlayColorStatsApp.SetValue(overlayColor);
     m_anim.OverlayColorStats.SetValue(m_settings->Test.ShowStats ? overlayColor : Color(0x00FFFFFF));
-    m_anim.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_anim.Update(demoTime.ElapsedTime);
 
     m_uiProfile.StatsOverlay.MainLayout->SetBaseColor(m_anim.OverlayColorStatsApp.GetValue());
     m_uiProfile.StatsOverlay2.MainLayout->SetBaseColor(m_anim.OverlayColorStats.GetValue());
@@ -454,16 +440,20 @@ namespace Fsl
 
     switch (m_inputState)
     {
+    case InputState::Playground:
+    case InputState::Closing:
+      break;
     case InputState::SettingsSubActivity:
       UpdateSettingsSubActivityState();
       break;
     case InputState::FrameAnalysisSubActivity:
       UpdateFrameAnalysisSubActivityState();
       break;
+    case InputState::ColorSubActivity:
+      UpdateColorSubActivityState();
+      break;
     case InputState::BenchConfigSubActivity:
       UpdateBenchConfigSubActivityState();
-      break;
-    default:
       break;
     }
   }
@@ -504,14 +494,14 @@ namespace Fsl
       valUIDraw -= valUIDrawFillBuffers;
       valUIDraw -= valUIDrawSchedule;
 
-      UI::ChartComplexDataEntry entry;
-      entry.Values[0] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawSchedule, int64_t(0), int64_t(0xFFFFFFFF)));
-      entry.Values[1] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawFillBuffers, int64_t(0), int64_t(0xFFFFFFFF)));
-      entry.Values[2] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawGenMesh, int64_t(0), int64_t(0xFFFFFFFF)));
-      entry.Values[3] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawPreprocess, int64_t(0), int64_t(0xFFFFFFFF)));
-      entry.Values[4] = static_cast<uint32_t>(MathHelper::Clamp(valUIDraw, int64_t(0), int64_t(0xFFFFFFFF)));
-      entry.Values[5] = static_cast<uint32_t>(MathHelper::Clamp(valUIUpdate, int64_t(0), int64_t(0xFFFFFFFF)));
-      entry.Values[6] = static_cast<uint32_t>(MathHelper::Clamp(valUIProcessEvents, int64_t(0), int64_t(0xFFFFFFFF)));
+      UI::ChartDataEntry entry;
+      entry.Values[0] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawSchedule, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
+      entry.Values[1] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawFillBuffers, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
+      entry.Values[2] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawGenMesh, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
+      entry.Values[3] = static_cast<uint32_t>(MathHelper::Clamp(valUIDrawPreprocess, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
+      entry.Values[4] = static_cast<uint32_t>(MathHelper::Clamp(valUIDraw, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
+      entry.Values[5] = static_cast<uint32_t>(MathHelper::Clamp(valUIUpdate, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
+      entry.Values[6] = static_cast<uint32_t>(MathHelper::Clamp(valUIProcessEvents, static_cast<int64_t>(0), static_cast<int64_t>(0xFFFFFFFF)));
 
       m_data->Append(entry);
       m_dataAverage.Append(entry);
@@ -531,12 +521,25 @@ namespace Fsl
     if (m_uiProfile.ActivityStack->IsEmpty())
     {
       assert(m_settingsResult);
-      const bool restartApp = m_settings->Test.NoOpaqueMaterials != m_settingsResult->NoOpaqueMaterials;
+      const auto newActiveRenderIndex = m_settingsResult->ActiveRenderIndex;
+      const auto oldActiveRenderIndex = m_settings->Test.ActiveRenderIndex;
+      const bool activeRenderIndexChanged = newActiveRenderIndex != oldActiveRenderIndex;
+      const bool restartApp = activeRenderIndexChanged || m_settings->Test.NoOpaqueMaterials != m_settingsResult->NoOpaqueMaterials;
       m_settings->Test = *m_settingsResult;
       m_settingsResult.reset();
       m_inputState = InputState::Playground;
 
-      if (restartApp)
+      if (activeRenderIndexChanged)
+      {
+        // Store the current settings for the render (so its the same when we switch back)
+        m_uiProfile.OptionsBar.RenderOptions.StoreUISettings(m_renderRecords[oldActiveRenderIndex].SystemInfo);
+        m_settings->Test.ActiveRenderIndex = newActiveRenderIndex;
+        // Restore the settings of the just selected UI
+        RestoreUISettings(m_renderRecords[newActiveRenderIndex]);
+        // Restart the app
+        RestartTestApp(false);
+      }
+      else if (restartApp)
       {
         RestartTestApp(true);
       }
@@ -553,6 +556,22 @@ namespace Fsl
     {
       m_frameAnalysisDialog.reset();
       FrameAnalysisSetMaxDrawCalls(0xFFFFFFFF);
+      m_inputState = InputState::Playground;
+    }
+  }
+
+  void PlaygroundScene::UpdateColorSubActivityState()
+  {
+    assert(m_inputState == InputState::ColorSubActivity);
+    // Simple little work around for not having proper activities, so we basically do a form of 'busy' wait.
+    if (m_colorDialog && m_testAppHost)
+    {
+      m_testAppHost->TrySetRootColor(m_colorDialog->GetCurrentColor());
+    }
+
+    if (m_uiProfile.ActivityStack->IsEmpty())
+    {
+      m_colorDialog.reset();
       m_inputState = InputState::Playground;
     }
   }
@@ -580,6 +599,47 @@ namespace Fsl
     }
   }
 
+
+  void PlaygroundScene::ShowBenchmarkConfig()
+  {
+    assert(m_inputState == InputState::Playground);
+    m_benchResult = std::make_shared<AppBenchSettings>(m_settings->Bench);
+    m_configDialogPromise = m_uiProfile.ActivityStack->Push(std::make_shared<UI::BenchConfigDialogActivity>(
+      m_uiProfile.ActivityStack, m_uiControlFactory, m_gpuProfilerSupported, ReadOnlySpanUtil::AsSpan(m_renderRecords), m_benchResult));
+    m_inputState = InputState::BenchConfigSubActivity;
+  }
+
+
+  void PlaygroundScene::ShowColorDialog()
+  {
+    assert(m_inputState == InputState::Playground);
+    const auto color = m_testAppHost->GetRootColor();
+    m_colorDialog = std::make_shared<UI::ColorDialogActivity>(m_uiProfile.ActivityStack, m_uiControlFactory, color);
+    m_uiProfile.ActivityStack->Push(m_colorDialog);
+    m_inputState = InputState::ColorSubActivity;
+  }
+
+
+  void PlaygroundScene::ShowFrameAnalysisDialogActivity()
+  {
+    assert(m_inputState == InputState::Playground);
+    m_frameAnalysisDialog = std::make_shared<UI::FrameAnalysisDialogActivity>(
+      m_uiProfile.ActivityStack, m_uiControlFactory, UI::Theme::WindowType::DialogNormal, FrameAnalysisGetCurrentMaxDrawCalls());
+    m_uiProfile.ActivityStack->Push(m_frameAnalysisDialog);
+    m_inputState = InputState::FrameAnalysisSubActivity;
+  }
+
+
+  void PlaygroundScene::ShowSettings()
+  {
+    assert(m_inputState == InputState::Playground);
+
+    m_settingsResult = std::make_shared<AppTestSettings>(m_settings->Test);
+    m_uiProfile.ActivityStack->Push(std::make_shared<UI::SettingsDialogActivity>(m_uiProfile.ActivityStack, m_uiControlFactory,
+                                                                                 UI::Theme::WindowType::DialogNormal, m_settingsResult,
+                                                                                 ReadOnlySpanUtil::AsSpan(m_renderRecords)));
+    m_inputState = InputState::SettingsSubActivity;
+  }
 
   void PlaygroundScene::SetDefaultValues()
   {
@@ -644,16 +704,16 @@ namespace Fsl
     if (storeSettingsBeforeRestart)
     {
       // Store the current settings for the render (so its the same when we switch back)
-      m_uiProfile.OptionsBar.RenderOptions.StoreUISettings(m_renderRecords[m_activeRenderIndex].SystemInfo);
+      m_uiProfile.OptionsBar.RenderOptions.StoreUISettings(m_renderRecords[m_settings->Test.ActiveRenderIndex].SystemInfo);
     }
 
-    const UI::RenderSystemInfo& systemInfo = m_renderRecords[m_activeRenderIndex].SystemInfo;
+    const UI::RenderSystemInfo& systemInfo = m_renderRecords[m_settings->Test.ActiveRenderIndex].SystemInfo;
     const bool depthBuffer = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Settings, UI::RenderOptionFlags::DepthBuffer);
     const bool useSdf = m_uiProfile.OptionsBar.SwitchSdfFont->IsChecked();
 
     {    // restart the test app with the new render code
       m_testAppHost->StopTestApp();
-      TestAppFactory appFactory(m_renderRecords[m_activeRenderIndex].RenderMethod);
+      TestAppFactory appFactory(m_renderRecords[m_settings->Test.ActiveRenderIndex].RenderMethod);
 
       UIDemoAppMaterialCreateInfo materialCreateInfo(m_settings->Test.NoOpaqueMaterials, true);
       UIDemoAppMaterialConfig materialConfig(useSdf, depthBuffer);
@@ -662,18 +722,23 @@ namespace Fsl
     RenderSystemRuntimeSettingsUtil::Apply(*m_testAppHost, systemInfo.Settings, useSdf);
   }
 
+  void PlaygroundScene::ApplyRenderSettings()
+  {
+    m_uiProfile.OptionsBar.RenderOptions.StoreUISettings(m_renderRecords[m_settings->Test.ActiveRenderIndex].SystemInfo);
+    RenderSystemRuntimeSettingsUtil::Apply(*m_testAppHost, m_renderRecords[m_settings->Test.ActiveRenderIndex].SystemInfo.Settings,
+                                           m_uiProfile.OptionsBar.SwitchSdfFont->IsChecked());
+  }
+
 
   PlaygroundScene::ProfileUI PlaygroundScene::CreateProfileUI(UI::Theme::IThemeControlFactory& uiFactory, const uint16_t currentDensityDpi,
-                                                              const std::shared_ptr<UI::AreaChartData>& data,
-                                                              const ReadOnlySpan<RenderMethodInfo> renderRecordSpan, const uint32_t activeRenderIndex,
-                                                              const AppUISettings& settings)
+                                                              const std::shared_ptr<UI::ChartData>& data, const AppUISettings& settings)
   {
     auto context = uiFactory.GetContext();
     auto contentArea = std::make_shared<UI::BaseWindow>(context);
     contentArea->SetAlignmentX(UI::ItemAlignment::Stretch);
     contentArea->SetAlignmentY(UI::ItemAlignment::Stretch);
 
-    auto optionBarUI = CreateOptionBarUI(uiFactory, context, currentDensityDpi, renderRecordSpan, activeRenderIndex, settings);
+    auto optionBarUI = CreateOptionBarUI(uiFactory, context, currentDensityDpi, settings);
 
     auto optionBar = uiFactory.CreateRightBar(optionBarUI.Layout);
 
@@ -684,8 +749,8 @@ namespace Fsl
 
     auto overlayStack = std::make_shared<UI::UniformStackLayout>(context);
     overlayStack->SetAlignmentX(UI::ItemAlignment::Far);
-    overlayStack->SetSpacing(4);
-    overlayStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    overlayStack->SetSpacing(DpSize1DF::Create(4));
+    overlayStack->SetOrientation(UI::LayoutOrientation::Vertical);
     overlayStack->AddChild(overlay.MainLayout);
     overlayStack->AddChild(overlay2.MainLayout);
 
@@ -709,7 +774,7 @@ namespace Fsl
     auto uiMainLayout = std::make_shared<UI::ComplexStackLayout>(context);
     uiMainLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
     uiMainLayout->SetAlignmentY(UI::ItemAlignment::Stretch);
-    uiMainLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    uiMainLayout->SetOrientation(UI::LayoutOrientation::Vertical);
 
     uiMainLayout->AddChild(layout, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     uiMainLayout->AddChild(bottomSlidingPanel, UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -726,11 +791,8 @@ namespace Fsl
 
   PlaygroundScene::OptionBarUI PlaygroundScene::CreateOptionBarUI(UI::Theme::IThemeControlFactory& uiFactory,
                                                                   const std::shared_ptr<UI::WindowContext>& context, const uint16_t currentDensityDpi,
-                                                                  const ReadOnlySpan<RenderMethodInfo> renderRecordSpan,
-                                                                  const uint32_t activeRenderIndex, const AppUISettings& settings)
+                                                                  const AppUISettings& settings)
   {
-    auto radioGroup = uiFactory.CreateRadioGroup("Render");
-
     RenderOptionControls renderOptions = RenderOptionControlsFactory::CreateRenderMethodControls(uiFactory);
 
     auto switchOnDemand = uiFactory.CreateSwitch(TextConfig::OnDemandRendering, false);
@@ -738,27 +800,18 @@ namespace Fsl
 
     auto switchButtons = CreateUISwitchButtons(uiFactory, context, settings);
     auto switchButtonLayout = std::make_shared<UI::ComplexStackLayout>(context);
-    switchButtonLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    switchButtonLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     switchButtonLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
     switchButtonLayout->AddChild(switchButtons.SwitchStats, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     switchButtonLayout->AddChild(switchButtons.SwitchChart, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
 
     auto layout = std::make_shared<UI::ComplexStackLayout>(context);
-    layout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    layout->SetOrientation(UI::LayoutOrientation::Vertical);
     layout->SetAlignmentX(UI::ItemAlignment::Stretch);
     layout->SetAlignmentY(UI::ItemAlignment::Stretch);
 
     layout->AddChild(switchButtonLayout, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateDivider(UI::LayoutOrientation::Horizontal), UI::LayoutLength(UI::LayoutUnitType::Auto));
-    layout->AddChild(uiFactory.CreateLabel(TextConfig::HeaderRenderMethod, UI::Theme::FontType::Header), UI::LayoutLength(UI::LayoutUnitType::Auto));
-
-    RenderMethodUI renderMethodUI;
-    for (uint32_t i = 0; i < renderRecordSpan.size(); ++i)
-    {
-      auto radioButton = uiFactory.CreateRadioButton(radioGroup, renderRecordSpan[i].Name, i == activeRenderIndex);
-      layout->AddChild(radioButton, UI::LayoutLength(UI::LayoutUnitType::Auto));
-      renderMethodUI.Methods.push_back(radioButton);
-    }
 
     auto switchDpi = uiFactory.CreateSwitch(LocalStrings::EmulateDpi);
     auto sliderDpi = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal,
@@ -789,28 +842,28 @@ namespace Fsl
     buttonBench->SetAlignmentX(UI::ItemAlignment::Stretch);
 
     auto buttonStack = std::make_shared<UI::UniformStackLayout>(context);
-    buttonStack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    buttonStack->SetOrientation(UI::LayoutOrientation::Horizontal);
     buttonStack->SetAlignmentX(UI::ItemAlignment::Center);
     buttonStack->AddChild(buttonRecord);
     buttonStack->AddChild(buttonBench);
 
     auto infoStack0 = std::make_shared<UI::StackLayout>(context);
-    infoStack0->SetSpacing(CustomUIConfig::FixedSpacingDp.Value());
-    infoStack0->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    infoStack0->SetSpacing(DpSize1DF(CustomUIConfig::FixedSpacingDp.Value()));
+    infoStack0->SetOrientation(UI::LayoutOrientation::Horizontal);
     infoStack0->SetAlignmentX(UI::ItemAlignment::Center);
     infoStack0->SetAlignmentY(UI::ItemAlignment::Center);
     infoStack0->AddChild(imageIdle);
     infoStack0->AddChild(labelIdle);
 
     auto infoStack = std::make_shared<UI::ComplexStackLayout>(context);
-    infoStack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    infoStack->SetOrientation(UI::LayoutOrientation::Horizontal);
     infoStack->SetAlignmentX(UI::ItemAlignment::Stretch);
-    infoStack->SetSpacing(CustomUIConfig::FixedSpacingDp.Value());
+    infoStack->SetSpacing(DpSize1DF(CustomUIConfig::FixedSpacingDp.Value()));
     infoStack->AddChild(infoStack0, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     infoStack->AddChild(buttonConfig, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
 
     auto lastRow = std::make_shared<UI::StackLayout>(context);
-    lastRow->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    lastRow->SetOrientation(UI::LayoutOrientation::Vertical);
     lastRow->SetAlignmentX(UI::ItemAlignment::Stretch);
     lastRow->SetAlignmentY(UI::ItemAlignment::Far);
     lastRow->AddChild(infoStack);
@@ -822,6 +875,7 @@ namespace Fsl
     layout->AddChild(renderOptions.SwitchFillBuffers, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(renderOptions.SwitchBatch, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(renderOptions.SwitchDrawReorder, UI::LayoutLength(UI::LayoutUnitType::Auto));
+    layout->AddChild(renderOptions.SwitchPreferFastReorder, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(renderOptions.SwitchDepthBuffer, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(renderOptions.SwitchMeshCaching, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateDivider(UI::LayoutOrientation::Horizontal), UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -832,8 +886,8 @@ namespace Fsl
     layout->AddChild(sliderDpi, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(lastRow, UI::LayoutLength(UI::LayoutUnitType::Star));
 
-    return {layout,    switchButtons, renderMethodUI,      renderOptions, switchOnDemand, switchSdfFont, switchDpi,
-            sliderDpi, buttonConfig,  buttonFrameAnalysis, buttonRecord,  buttonBench,    imageIdle};
+    return {layout,    switchButtons, renderOptions,       switchOnDemand, switchSdfFont, switchDpi,
+            sliderDpi, buttonConfig,  buttonFrameAnalysis, buttonRecord,   buttonBench,   imageIdle};
   }
 
   PlaygroundScene::UISwitchButtons PlaygroundScene::CreateUISwitchButtons(UI::Theme::IThemeControlFactory& uiFactory,
@@ -852,9 +906,9 @@ namespace Fsl
 
   PlaygroundScene::BottomBarUI PlaygroundScene::CreateBottomBar(UI::Theme::IThemeControlFactory& uiFactory,
                                                                 const std::shared_ptr<UI::WindowContext>& context,
-                                                                const std::shared_ptr<UI::AreaChartData>& data)
+                                                                const std::shared_ptr<UI::ChartData>& data)
   {
-    auto cpuLegend = CustomControlFactory::CreateDetailedCpuLegend(uiFactory, UI::DpLayoutSize1D(CustomUIConfig::FixedSpacingDp.Value()));
+    auto cpuLegend = CustomControlFactory::CreateDetailedCpuLegend(uiFactory, CustomUIConfig::FixedSpacingDp);
     auto cpuTimeChart = CustomControlFactory::CreateAreaChart(uiFactory, data);
 
     auto buttonClearTimeChart = uiFactory.CreateTextButton(UI::Theme::ButtonType::Outlined, "Clear graph");
@@ -863,7 +917,7 @@ namespace Fsl
 
     auto rightStack = std::make_shared<UI::ComplexStackLayout>(context);
     rightStack->SetAlignmentY(UI::ItemAlignment::Stretch);
-    rightStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    rightStack->SetOrientation(UI::LayoutOrientation::Vertical);
     rightStack->AddChild(buttonClearTimeChart, UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
 
 
@@ -872,13 +926,13 @@ namespace Fsl
 
     auto profileLayout = std::make_shared<UI::GridLayout>(context);
     profileLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
-    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, marginLeftDp.Left()));
+    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, marginLeftDp.Left().Value));
     profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
-    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, CustomUIConfig::FixedSpacingDp.Value()));
+    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, CustomUIConfig::FixedSpacingDp.Value().Value));
     profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Star, 1.0f));
-    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, CustomUIConfig::FixedSpacingDp.Value()));
+    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, CustomUIConfig::FixedSpacingDp.Value().Value));
     profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Auto));
-    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, marginRightDp.Right()));
+    profileLayout->AddColumnDefinition(UI::GridColumnDefinition(UI::GridUnitType::Fixed, marginRightDp.Right().Value));
     profileLayout->AddRowDefinition(UI::GridRowDefinition(UI::GridUnitType::Auto));
     profileLayout->AddChild(cpuLegend.Main, 1, 0);
     profileLayout->AddChild(cpuTimeChart, 3, 0);
@@ -900,14 +954,14 @@ namespace Fsl
     auto lblDesc6 = uiFactory.CreateLabel(LocalStrings::Draw);
     auto lblDesc7 = uiFactory.CreateLabel(LocalStrings::DrawIndexed);
 
-    auto lbl0 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl1 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl2 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl3 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl4 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl5 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl6 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl7 = uiFactory.CreateFmtValueLabel(uint32_t(0));
+    auto lbl0 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl1 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl2 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl3 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl4 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl5 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl6 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl7 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
     lbl0->SetAlignmentX(UI::ItemAlignment::Far);
     lbl1->SetAlignmentX(UI::ItemAlignment::Far);
     lbl2->SetAlignmentX(UI::ItemAlignment::Far);

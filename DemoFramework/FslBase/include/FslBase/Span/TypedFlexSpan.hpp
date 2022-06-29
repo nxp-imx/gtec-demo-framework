@@ -48,7 +48,7 @@ namespace Fsl
   {
   public:
     constexpr TypedFlexSpanBase() noexcept = default;
-    static constexpr std::size_t extent = std::size_t(-1);
+    static constexpr std::size_t extent = static_cast<std::size_t>(-1);
   };
 
 
@@ -65,10 +65,10 @@ namespace Fsl
     using value_type = std::remove_cv_t<T>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-    using reference = value_type&;
-    using const_reference = const value_type&;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
 
     // Disabled and using a base class we can define (workaround until C++17)
     // static constexpr std::size_t extent = std::size_t(-1);
@@ -241,8 +241,8 @@ namespace Fsl
     {
       if (!empty())
       {
-        auto pDst = reinterpret_cast<uint8_t*>(m_pData);
-        auto pDstEnd = reinterpret_cast<uint8_t*>(m_pData) + (m_stride * m_length);
+        auto* pDst = reinterpret_cast<uint8_t*>(m_pData);
+        auto* pDstEnd = reinterpret_cast<uint8_t*>(m_pData) + (m_stride * m_length);
         while (pDst < pDstEnd)
         {
           assert(TypeAlignmentUtil::UnsafeIsPointerAligned(pDst, std::alignment_of<T>::value));
@@ -263,8 +263,8 @@ namespace Fsl
           throw IndexOutOfRangeException("The span could not contain all the entries");
         }
 
-        auto pDst = reinterpret_cast<uint8_t*>(m_pData);
-        auto pDstEnd = reinterpret_cast<uint8_t*>(m_pData) + (m_stride * m_length);
+        auto* pDst = reinterpret_cast<uint8_t*>(m_pData);
+        auto* pDstEnd = reinterpret_cast<uint8_t*>(m_pData) + (m_stride * m_length);
         std::size_t i = 0;
         while (pDst < pDstEnd)
         {

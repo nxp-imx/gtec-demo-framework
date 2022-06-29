@@ -33,87 +33,84 @@
 
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  //! @brief This should only be used in combination with the CallbackEventListener scope
+  class CallbackEventListener final : public IEventListener
   {
-    //! @brief This should only be used in combination with the CallbackEventListener scope
-    class CallbackEventListener final : public IEventListener
+    IEventListener* m_callback;
+
+  public:
+    ~CallbackEventListener() override
     {
-      IEventListener* m_callback;
+      m_callback = nullptr;
+    }
 
-    public:
-      ~CallbackEventListener() override
+    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
       {
-        m_callback = nullptr;
+        m_callback->OnClickInputPreview(args, theEvent);
       }
+    }
 
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
+
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
       {
-        if (m_callback != nullptr)
-        {
-          m_callback->OnClickInputPreview(args, theEvent);
-        }
+        m_callback->OnClickInput(args, theEvent);
       }
+    }
 
-
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
+    void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
       {
-        if (m_callback != nullptr)
-        {
-          m_callback->OnClickInput(args, theEvent);
-        }
+        m_callback->OnMouseOverPreview(args, theEvent);
       }
+    }
 
-      void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
       {
-        if (m_callback != nullptr)
-        {
-          m_callback->OnMouseOverPreview(args, theEvent);
-        }
+        m_callback->OnMouseOver(args, theEvent);
       }
+    }
 
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
       {
-        if (m_callback != nullptr)
-        {
-          m_callback->OnMouseOver(args, theEvent);
-        }
+        m_callback->OnSelect(args, theEvent);
       }
+    }
 
 
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
+    {
+      if (m_callback != nullptr)
       {
-        if (m_callback != nullptr)
-        {
-          m_callback->OnSelect(args, theEvent);
-        }
+        m_callback->OnContentChanged(args, theEvent);
       }
+    }
+
+  private:
+    explicit CallbackEventListener(IEventListener* const pForwardTo)
+      : m_callback(pForwardTo)
+    {
+    }
 
 
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
-      {
-        if (m_callback != nullptr)
-        {
-          m_callback->OnContentChanged(args, theEvent);
-        }
-      }
+    void Dispose()
+    {
+      m_callback = nullptr;
+    }
 
-    private:
-      explicit CallbackEventListener(IEventListener* const pForwardTo)
-        : m_callback(pForwardTo)
-      {
-      }
-
-
-      void Dispose()
-      {
-        m_callback = nullptr;
-      }
-
-      friend class CallbackEventListenerScope;
-    };
-  }
+    friend class CallbackEventListenerScope;
+  };
 }
 
 #endif

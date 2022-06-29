@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_COMMAND_ENCODEDCOMMAND_HPP
 #define FSLSIMPLEUI_RENDER_BASE_COMMAND_ENCODEDCOMMAND_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,22 +37,30 @@
 #include <FslSimpleUI/Render/Base/Command/DrawCommandType.hpp>
 #include <FslSimpleUI/Render/Base/MeshHandle.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct EncodedCommand
   {
-    struct EncodedCommand
+    DrawCommandType Type{DrawCommandType::Nop};
+
+    MeshHandle Mesh;
+    PxVector2 DstPositionPxf;
+    PxSize2D DstSizePx;
+    Color DstColor;
+    uint32_t Custom0{0};
+
+    constexpr bool operator==(const EncodedCommand rhs) const noexcept
     {
-      DrawCommandType Type{DrawCommandType::Nop};
+      return Mesh == rhs.Mesh && DstPositionPxf == rhs.DstPositionPxf && DstSizePx == rhs.DstSizePx && DstColor == rhs.DstColor &&
+             Custom0 == rhs.Custom0;
+    }
 
-      MeshHandle Mesh;
-      PxVector2 DstPositionPxf;
-      PxSize2D DstSizePx;
-      Color DstColor;
-      uint32_t Custom0{0};
-    };
+    constexpr bool operator!=(const EncodedCommand rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+  };
 
-  }
 }
 
 #endif

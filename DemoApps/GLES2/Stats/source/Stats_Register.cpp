@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "Stats.hpp"
 #include <array>
+#include "Stats.hpp"
 
 namespace Fsl
 {

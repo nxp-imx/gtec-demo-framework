@@ -29,28 +29,45 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/PrimitiveTypeUtil.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <algorithm>
+#include <FslGraphics/PrimitiveTypeUtil.hpp>
 #include <cassert>
 
 namespace Fsl
 {
-  int PrimitiveTypeUtil::CalcPrimitiveCount(const int indexCount, const PrimitiveType primitiveType)
+  int32_t PrimitiveTypeUtil::CalcPrimitiveCount(const int32_t indexCount, const PrimitiveType primitiveType)
   {
     switch (primitiveType)
     {
     case PrimitiveType::LineList:
-      return indexCount / 2;
+      return indexCount > 0 ? indexCount / 2 : 0;
     case PrimitiveType::LineStrip:
-      return std::max(indexCount - 1, 0);
+      return indexCount > 0 ? (indexCount - 1) : 0;
     case PrimitiveType::TriangleList:
-      return indexCount / 3;
+      return indexCount > 0 ? indexCount / 3 : 0;
     case PrimitiveType::TriangleStrip:
-      return std::max(indexCount - 2, 0);
+      return indexCount > 2 ? (indexCount - 2) : 0;
     default:
       FSLLOG3_DEBUG_WARNING("Unsupported primitive type");
       return 0;
+    }
+  }
+
+  uint32_t PrimitiveTypeUtil::CalcPrimitiveCount(const uint32_t indexCount, const PrimitiveType primitiveType)
+  {
+    switch (primitiveType)
+    {
+    case PrimitiveType::LineList:
+      return indexCount / 2u;
+    case PrimitiveType::LineStrip:
+      return indexCount > 1u ? (indexCount - 1u) : 0;
+    case PrimitiveType::TriangleList:
+      return indexCount / 3u;
+    case PrimitiveType::TriangleStrip:
+      return indexCount > 2u ? (indexCount - 2u) : 0;
+    default:
+      FSLLOG3_DEBUG_WARNING("Unsupported primitive type");
+      return 0u;
     }
   }
 }

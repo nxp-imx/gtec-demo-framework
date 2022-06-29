@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMesh.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMesh.hpp>
 
 namespace Fsl
 {

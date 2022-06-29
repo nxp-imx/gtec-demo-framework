@@ -33,16 +33,13 @@
 
 #include "WindowEventQueue.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowEventQueueEx : public WindowEventQueue
   {
-    class WindowEventQueueEx : public WindowEventQueue
-    {
-    public:
-      void Push(const WindowEventQueueRecord& record);
-    };
-  }
+  public:
+    void Push(const WindowEventQueueRecord& record);
+  };
 }
 
 #endif

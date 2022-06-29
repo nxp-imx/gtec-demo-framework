@@ -222,27 +222,27 @@ namespace Fsl
     }
 
 
-    constexpr bool operator==(const Color& rhs) const noexcept
+    constexpr bool operator==(const Color rhs) const noexcept
     {
       return PackedValue() == rhs.PackedValue();
     }
 
-    constexpr bool operator!=(const Color& rhs) const noexcept
+    constexpr bool operator!=(const Color rhs) const noexcept
     {
       return PackedValue() != rhs.PackedValue();
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static constexpr inline Color ApplyAlpha(const Color& color, const float alpha)
+    static constexpr inline Color ApplyAlpha(const Color color, const float alpha)
     {
       const int32_t newA = MathHelper::Clamp(FastRoundToInt32(static_cast<float>(color.A()) * alpha), 0, 255);
-      return {color.R(), color.G(), color.B(), uint8_t(newA)};
+      return {color.R(), color.G(), color.B(), static_cast<uint8_t>(newA)};
     }
 
-    static constexpr inline Color ApplyAlpha(const Color& color, const uint8_t alpha)
+    static constexpr inline Color ApplyAlpha(const Color color, const uint8_t alpha)
     {
-      auto newA = static_cast<uint8_t>(((uint32_t(color.A()) * alpha)) / 255);
+      auto newA = static_cast<uint8_t>(((static_cast<uint32_t>(color.A()) * alpha)) / 255);
       return {color.R(), color.G(), color.B(), newA};
     }
 
@@ -269,7 +269,7 @@ namespace Fsl
 
     static constexpr inline Color Premultiply(const Color color)
     {
-      const uint32_t fixed24A = (uint32_t(color.A()) << 24u) / 255;
+      const uint32_t fixed24A = (static_cast<uint32_t>(color.A()) << 24u) / 255;
       // basically ((r * a) + 0.5f) / 2.0f
       const uint32_t r = ((color.R() * fixed24A) + (1u << 23u)) >> 24u;
       const uint32_t g = ((color.G() * fixed24A) + (1u << 23u)) >> 24u;
@@ -284,11 +284,11 @@ namespace Fsl
       // (((((uint32_t(color.A()) * uint32_t(alphaMod)) << 17u) + (1 << 16u))) / 255) >> 1
       const float alpha = (static_cast<float>(color.A()) / 255.0f) * std::max(alphaMul, 0.0f);
       constexpr auto roundMagic = 0.49999997f;
-      auto r = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.R())) + roundMagic), 0u, 255u);
-      auto g = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.G())) + roundMagic), 0u, 255u);
-      auto b = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.B())) + roundMagic), 0u, 255u);
+      auto r = MathHelper::Clamp(static_cast<uint32_t>((alpha * static_cast<float>(color.R())) + roundMagic), 0u, 255u);
+      auto g = MathHelper::Clamp(static_cast<uint32_t>((alpha * static_cast<float>(color.G())) + roundMagic), 0u, 255u);
+      auto b = MathHelper::Clamp(static_cast<uint32_t>((alpha * static_cast<float>(color.B())) + roundMagic), 0u, 255u);
       auto a = MathHelper::Clamp(FastRoundToInt32(alpha * 255.0f), 0, 255);
-      return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), uint8_t(a)};
+      return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), static_cast<uint8_t>(a)};
     }
 
     static constexpr inline Color PremultiplyRGB(const Color color, const float alphaMul, uint8_t newA)
@@ -296,15 +296,15 @@ namespace Fsl
       // pretty close for fixed point
       // (((((uint32_t(color.A()) * uint32_t(alphaMod)) << 17u) + (1 << 16u))) / 255) >> 1
       const float alpha = (static_cast<float>(color.A()) / 255.0f) * std::max(alphaMul, 0.0f);
-      auto r = MathHelper::Clamp(FastRoundToInt32(alpha * float(color.R())), 0, 255);
-      auto g = MathHelper::Clamp(FastRoundToInt32(alpha * float(color.G())), 0, 255);
-      auto b = MathHelper::Clamp(FastRoundToInt32(alpha * float(color.B())), 0, 255);
+      auto r = MathHelper::Clamp(FastRoundToInt32(alpha * static_cast<float>(color.R())), 0, 255);
+      auto g = MathHelper::Clamp(FastRoundToInt32(alpha * static_cast<float>(color.G())), 0, 255);
+      auto b = MathHelper::Clamp(FastRoundToInt32(alpha * static_cast<float>(color.B())), 0, 255);
       return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), newA};
     }
 
     static constexpr inline Color ClearA(const Color color)
     {
-      return {color.m_r, color.m_g, color.m_b, uint8_t(0u)};
+      return {color.m_r, color.m_g, color.m_b, static_cast<uint8_t>(0u)};
     }
 
     static constexpr inline Color SetA(const Color color, uint8_t value)
@@ -347,7 +347,7 @@ namespace Fsl
       return SetB(color, ToUInt8(value));
     }
 
-    static constexpr inline Color Bilinear(const Color& val00, const Color& val10, const Color& val01, const Color& val11, const float weightX,
+    static constexpr inline Color Bilinear(const Color val00, const Color val10, const Color val01, const Color val11, const float weightX,
                                            const float weightY)
     {
       return {
@@ -394,12 +394,12 @@ namespace Fsl
 
   //------------------------------------------------------------------------------------------------------------------------------------------------
 
-  constexpr inline Color operator*(const Color& lhs, const Color& rhs) noexcept
+  constexpr inline Color operator*(const Color lhs, const Color rhs) noexcept
   {
-    const uint32_t fixed24R = (uint32_t(rhs.R()) << 24u) / 255;
-    const uint32_t fixed24G = (uint32_t(rhs.G()) << 24u) / 255;
-    const uint32_t fixed24B = (uint32_t(rhs.B()) << 24u) / 255;
-    const uint32_t fixed24A = (uint32_t(rhs.A()) << 24u) / 255;
+    const uint32_t fixed24R = (static_cast<uint32_t>(rhs.R()) << 24u) / 255;
+    const uint32_t fixed24G = (static_cast<uint32_t>(rhs.G()) << 24u) / 255;
+    const uint32_t fixed24B = (static_cast<uint32_t>(rhs.B()) << 24u) / 255;
+    const uint32_t fixed24A = (static_cast<uint32_t>(rhs.A()) << 24u) / 255;
     // basically ((lhs.r * rhs.r) + 0.5f) / 2.0f
     const uint32_t r = ((lhs.R() * fixed24R) + (1u << 23u)) >> 24u;
     const uint32_t g = ((lhs.G() * fixed24G) + (1u << 23u)) >> 24u;

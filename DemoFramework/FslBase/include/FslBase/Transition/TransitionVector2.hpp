@@ -35,8 +35,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslBase/Transition/TransitionState.hpp>
-#include <FslBase/Transition/TransitionTimeSpan.hpp>
 #include <FslBase/Transition/TransitionType.hpp>
 #include <memory>
 #include <vector>
@@ -59,13 +59,13 @@ namespace Fsl
 
   public:
     TransitionVector2();
-    TransitionVector2(TransitionCache& rTransitionCache, const TransitionTimeSpan& time);
-    TransitionVector2(TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type);
+    TransitionVector2(TransitionCache& rTransitionCache, const TimeSpan& time);
+    TransitionVector2(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type);
 
     //! @brief The timepan that we will wait before we start the actual animation (however the animation is considered in progresses while waiting)
-    TransitionTimeSpan GetStartDelay() const;
+    TimeSpan GetStartDelay() const;
 
-    void SetStartDelay(const TransitionTimeSpan& value);
+    void SetStartDelay(const TimeSpan& value);
 
     //! @brief Check if the animation is completed
     bool IsCompleted() const
@@ -91,10 +91,10 @@ namespace Fsl
 
     void ForceComplete();
 
-    TransitionTimeSpan GetTransitionTime() const;
-    void SetTransitionTime(TransitionCache& rTransitionCache, const TransitionTimeSpan& time);
-    void SetTransitionTime(TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type);
-    TransitionState Update(const TransitionTimeSpan& deltaTime);
+    TimeSpan GetTransitionTime() const;
+    void SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time);
+    void SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type);
+    TransitionState Update(const TimeSpan& deltaTime);
 
   private:
     void CalcTransition();

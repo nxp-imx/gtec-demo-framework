@@ -31,90 +31,87 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/WindowFlags.hpp>
 #include <FslSimpleUI/Base/Event/EventRoutingStrategy.hpp>
+#include <FslSimpleUI/Base/WindowFlags.hpp>
 #include <memory>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
-  {
-    class IEventHandler;
-    class TreeNode;
-    class WindowEvent;
+  class IEventHandler;
+  class TreeNode;
+  class WindowEvent;
 
-    //! @brief  A event route contains the complete route that the event will traverse for a target and routing strategy.
-    class EventRoute
+  //! @brief  A event route contains the complete route that the event will traverse for a target and routing strategy.
+  class EventRoute
+  {
+    WindowFlags m_flags;
+    std::vector<std::shared_ptr<TreeNode>> m_tunnelList;
+    std::vector<std::shared_ptr<TreeNode>> m_bubbleList;
+    std::shared_ptr<TreeNode> m_target;
+    bool m_isInitialized;
+
+  public:
+    EventRoute(const EventRoute&) = delete;
+    EventRoute& operator=(const EventRoute&) = delete;
+
+    EventRoute();
+    explicit EventRoute(const WindowFlags flags);
+    ~EventRoute();
+
+    void Initialize(const WindowFlags flags);
+    void Shutdown();
+
+    WindowFlags GetFlags() const noexcept
     {
-      WindowFlags m_flags;
-      std::vector<std::shared_ptr<TreeNode>> m_tunnelList;
-      std::vector<std::shared_ptr<TreeNode>> m_bubbleList;
-      std::shared_ptr<TreeNode> m_target;
-      bool m_isInitialized;
+      return m_flags;
+    }
+
+    //! @brief Check if the route is empty
+    bool IsEmpty() const noexcept;
+
+    //! @brief Send the event along the route
+    void Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent);
+
+    // @brief Clear the route to a empty state
+    void Clear();
+
+    //! @brief Get the target
+    const std::shared_ptr<TreeNode>& GetTarget() const
+    {
+      return m_target;
+    }
+
+    //! @brief Create a route to the target using the supplied routing strategy.
+    void SetTarget(const std::shared_ptr<TreeNode>& target, const EventRoutingStrategy routingStrategy);
+
+    //! @brief Ensure that a node is removed from the routes
+    //! @note This is intended to be used when a TreeNode is disposed to ensure that we don't keep a reference to it (or call it)
+    void RemoveNode(const std::shared_ptr<TreeNode>& node);
+
+    class StackScopedInit
+    {
+      EventRoute& m_rRoute;
 
     public:
-      EventRoute(const EventRoute&) = delete;
-      EventRoute& operator=(const EventRoute&) = delete;
-
-      EventRoute();
-      explicit EventRoute(const WindowFlags flags);
-      ~EventRoute();
-
-      void Initialize(const WindowFlags flags);
-      void Shutdown();
-
-      WindowFlags GetFlags() const noexcept
+      StackScopedInit(EventRoute& rRoute, const WindowFlags flags)
+        : m_rRoute(rRoute)
       {
-        return m_flags;
+        m_rRoute.Initialize(flags);
       }
-
-      //! @brief Check if the route is empty
-      bool IsEmpty() const noexcept;
-
-      //! @brief Send the event along the route
-      void Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent);
-
-      // @brief Clear the route to a empty state
-      void Clear();
-
-      //! @brief Get the target
-      const std::shared_ptr<TreeNode>& GetTarget() const
+      ~StackScopedInit()
       {
-        return m_target;
+        m_rRoute.Shutdown();
       }
-
-      //! @brief Create a route to the target using the supplied routing strategy.
-      void SetTarget(const std::shared_ptr<TreeNode>& target, const EventRoutingStrategy routingStrategy);
-
-      //! @brief Ensure that a node is removed from the routes
-      //! @note This is intended to be used when a TreeNode is disposed to ensure that we don't keep a reference to it (or call it)
-      void RemoveNode(const std::shared_ptr<TreeNode>& node);
-
-      class StackScopedInit
-      {
-        EventRoute& m_rRoute;
-
-      public:
-        StackScopedInit(EventRoute& rRoute, const WindowFlags flags)
-          : m_rRoute(rRoute)
-        {
-          m_rRoute.Initialize(flags);
-        }
-        ~StackScopedInit()
-        {
-          m_rRoute.Shutdown();
-        }
-      };
-
-    private:
-      void SendTo(IEventHandler& eventHandler, const std::vector<std::shared_ptr<TreeNode>>& nodes, const std::shared_ptr<WindowEvent>& theEvent,
-                  const bool isTunneling);
-      void BuildTunnel(const std::shared_ptr<TreeNode>& target);
-      void BuildBubble(const std::shared_ptr<TreeNode>& target);
-      void BuildDirect(const std::shared_ptr<TreeNode>& target);
     };
-  }
+
+  private:
+    void SendTo(IEventHandler& eventHandler, const std::vector<std::shared_ptr<TreeNode>>& nodes, const std::shared_ptr<WindowEvent>& theEvent,
+                const bool isTunneling);
+    void BuildTunnel(const std::shared_ptr<TreeNode>& target);
+    void BuildBubble(const std::shared_ptr<TreeNode>& target);
+    void BuildDirect(const std::shared_ptr<TreeNode>& target);
+  };
 }
 
 #endif

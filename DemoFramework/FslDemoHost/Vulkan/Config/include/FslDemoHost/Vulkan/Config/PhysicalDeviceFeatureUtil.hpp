@@ -32,24 +32,21 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeature.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <vulkan/vulkan.h>
 
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class PhysicalDeviceFeatureUtil
   {
-    class PhysicalDeviceFeatureUtil
-    {
-    public:
-      static VkBool32 Get(const VkPhysicalDeviceFeatures& features, const PhysicalDeviceFeature featureName);
-      static void Set(VkPhysicalDeviceFeatures& rFeatures, const PhysicalDeviceFeature featureName, const VkBool32 value);
+  public:
+    static VkBool32 Get(const VkPhysicalDeviceFeatures& features, const PhysicalDeviceFeature featureName);
+    static void Set(VkPhysicalDeviceFeatures& rFeatures, const PhysicalDeviceFeature featureName, const VkBool32 value);
 
-      static const char* ToString(const PhysicalDeviceFeature featureName);
-    };
-  }
+    static const char* ToString(const PhysicalDeviceFeature featureName);
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_BASICRENDERSYSTEMCREATEINFO_HPP
 #define FSLGRAPHICS3D_BASICRENDER_BASICRENDERSYSTEMCREATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,30 +36,27 @@
 #include <stdexcept>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  struct BasicRenderSystemCreateInfo
   {
-    struct BasicRenderSystemCreateInfo
-    {
-      uint32_t MaxFramesInFlight{0};
-      std::shared_ptr<INativeDevice> Device;
+    uint32_t MaxFramesInFlight{0};
+    std::shared_ptr<INativeDevice> Device;
 
-      BasicRenderSystemCreateInfo(uint32_t maxFramesInFlight, std::shared_ptr<INativeDevice> device)
-        : MaxFramesInFlight(maxFramesInFlight)
-        , Device(std::move(device))
+    BasicRenderSystemCreateInfo(uint32_t maxFramesInFlight, std::shared_ptr<INativeDevice> device)
+      : MaxFramesInFlight(maxFramesInFlight)
+      , Device(std::move(device))
+    {
+      if (maxFramesInFlight <= 0)
       {
-        if (maxFramesInFlight <= 0)
-        {
-          throw std::invalid_argument("maxFramesInFlight must be >= 1");
-        }
-        if (!Device)
-        {
-          throw std::invalid_argument("device can not be null");
-        }
+        throw std::invalid_argument("maxFramesInFlight must be >= 1");
       }
-    };
-  }
+      if (!Device)
+      {
+        throw std::invalid_argument("device can not be null");
+      }
+    }
+  };
 }
 
 #endif

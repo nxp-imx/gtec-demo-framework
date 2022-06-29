@@ -29,141 +29,138 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
+#include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
-#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  SimpleImageButton::SimpleImageButton(const std::shared_ptr<WindowContext>& context)
+    : ButtonBase(context)
+    , m_windowContext(context)
+    , m_content(context->TheUIContext.Get()->MeshManager)
+    , m_scalePolicy(ItemScalePolicy::FitKeepAR)
+    , m_currentColor(context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
   {
-    SimpleImageButton::SimpleImageButton(const std::shared_ptr<WindowContext>& context)
-      : ButtonBase(context)
-      , m_windowContext(context)
-      , m_content(context->TheUIContext.Get()->MeshManager)
-      , m_scalePolicy(ItemScalePolicy::FitKeepAR)
-      , m_currentColor(context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
-    {
-      m_currentColor.SetActualValue(DefaultColor::Button::Up);
-      Enable(WindowFlags::DrawEnabled);
-    }
-
-
-    void SimpleImageButton::SetContent(const std::shared_ptr<ISizedSprite>& value)
-    {
-      if (m_content.SetSprite(value))
-      {
-        PropertyUpdated(PropertyType::Content);
-      }
-    }
-
-    void SimpleImageButton::SetContent(std::shared_ptr<ISizedSprite>&& value)
-    {
-      if (m_content.SetSprite(std::move(value)))
-      {
-        PropertyUpdated(PropertyType::Content);
-      }
-    }
-
-
-    void SimpleImageButton::SetScalePolicy(const ItemScalePolicy value)
-    {
-      if (value == m_scalePolicy)
-      {
-        return;
-      }
-
-      m_scalePolicy = value;
-      PropertyUpdated(PropertyType::ScalePolicy);
-    }
-
-
-    void SimpleImageButton::SetUpColor(const Color& value)
-    {
-      if (value == m_upColor)
-      {
-        return;
-      }
-
-      m_upColor = value;
-      PropertyUpdated(PropertyType::Other);
-    }
-
-
-    void SimpleImageButton::SetDownColor(const Color& value)
-    {
-      if (value == m_downColor)
-      {
-        return;
-      }
-
-      m_downColor = value;
-      PropertyUpdated(PropertyType::Other);
-    }
-
-
-    void SimpleImageButton::SetDisabledColor(const Color& value)
-    {
-      if (value == m_disabledColor)
-      {
-        return;
-      }
-
-      m_disabledColor = value;
-      PropertyUpdated(PropertyType::Other);
-    }
-
-
-    void SimpleImageButton::WinDraw(const UIDrawContext& context)
-    {
-      ButtonBase::WinDraw(context);
-
-      // ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location(), RenderSizePx(), m_currentColor.GetValue());
-      context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_currentColor.GetValue());
-    }
-
-
-    PxSize2D SimpleImageButton::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      return m_content.Measure(finalSizePx, m_scalePolicy);
-    }
-
-
-    PxSize2D SimpleImageButton::MeasureOverride(const PxAvailableSize& availableSizePx)
-    {
-      FSL_PARAM_NOT_USED(availableSizePx);
-      return m_content.Measure();
-    }
-
-
-    void SimpleImageButton::UpdateAnimation(const TransitionTimeSpan& timeSpan)
-    {
-      BaseWindow::UpdateAnimation(timeSpan);
-      m_currentColor.Update(timeSpan);
-    }
-
-    bool SimpleImageButton::UpdateAnimationState(const bool forceCompleteAnimation)
-    {
-      const bool isEnabled = IsEnabled();
-
-      auto color = isEnabled ? (!IsDown() ? m_upColor : m_downColor) : m_disabledColor;
-      m_currentColor.SetValue(color);
-
-      if (forceCompleteAnimation)
-      {
-        m_currentColor.ForceComplete();
-      }
-
-      const bool isAnimating = !m_currentColor.IsCompleted();
-      return isAnimating;
-    }
-
+    m_currentColor.SetActualValue(DefaultColor::Button::Up);
+    Enable(WindowFlags::DrawEnabled);
   }
+
+
+  void SimpleImageButton::SetContent(const std::shared_ptr<ISizedSprite>& value)
+  {
+    if (m_content.SetSprite(value))
+    {
+      PropertyUpdated(PropertyType::Content);
+    }
+  }
+
+  void SimpleImageButton::SetContent(std::shared_ptr<ISizedSprite>&& value)
+  {
+    if (m_content.SetSprite(std::move(value)))
+    {
+      PropertyUpdated(PropertyType::Content);
+    }
+  }
+
+
+  void SimpleImageButton::SetScalePolicy(const ItemScalePolicy value)
+  {
+    if (value == m_scalePolicy)
+    {
+      return;
+    }
+
+    m_scalePolicy = value;
+    PropertyUpdated(PropertyType::ScalePolicy);
+  }
+
+
+  void SimpleImageButton::SetUpColor(const Color& value)
+  {
+    if (value == m_upColor)
+    {
+      return;
+    }
+
+    m_upColor = value;
+    PropertyUpdated(PropertyType::Other);
+  }
+
+
+  void SimpleImageButton::SetDownColor(const Color& value)
+  {
+    if (value == m_downColor)
+    {
+      return;
+    }
+
+    m_downColor = value;
+    PropertyUpdated(PropertyType::Other);
+  }
+
+
+  void SimpleImageButton::SetDisabledColor(const Color& value)
+  {
+    if (value == m_disabledColor)
+    {
+      return;
+    }
+
+    m_disabledColor = value;
+    PropertyUpdated(PropertyType::Other);
+  }
+
+
+  void SimpleImageButton::WinDraw(const UIDrawContext& context)
+  {
+    ButtonBase::WinDraw(context);
+
+    // ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location(), RenderSizePx(), m_currentColor.GetValue());
+    context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_currentColor.GetValue());
+  }
+
+
+  PxSize2D SimpleImageButton::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    return m_content.Measure(finalSizePx, m_scalePolicy);
+  }
+
+
+  PxSize2D SimpleImageButton::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    FSL_PARAM_NOT_USED(availableSizePx);
+    return m_content.Measure();
+  }
+
+
+  void SimpleImageButton::UpdateAnimation(const TimeSpan& timeSpan)
+  {
+    BaseWindow::UpdateAnimation(timeSpan);
+    m_currentColor.Update(timeSpan);
+  }
+
+  bool SimpleImageButton::UpdateAnimationState(const bool forceCompleteAnimation)
+  {
+    const bool isEnabled = IsEnabled();
+
+    auto color = isEnabled ? (!IsDown() ? m_upColor : m_downColor) : m_disabledColor;
+    m_currentColor.SetValue(color);
+
+    if (forceCompleteAnimation)
+    {
+      m_currentColor.ForceComplete();
+    }
+
+    const bool isAnimating = !m_currentColor.IsCompleted();
+    return isAnimating;
+  }
+
 }

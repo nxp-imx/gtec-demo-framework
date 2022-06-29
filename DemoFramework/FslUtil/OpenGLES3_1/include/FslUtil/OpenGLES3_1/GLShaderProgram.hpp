@@ -32,87 +32,84 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Attributes.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl31.h>
-#include <FslBase/Attributes.hpp>
 #include <string>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLShaderProgram
   {
-    class GLShaderProgram
+    GLint m_shaderType;
+    GLuint m_handle;
+
+  public:
+    GLShaderProgram(const GLShaderProgram&) = delete;
+    GLShaderProgram& operator=(const GLShaderProgram&) = delete;
+
+    //! @brief Move assignment operator
+    GLShaderProgram& operator=(GLShaderProgram&& other) noexcept
     {
-      GLint m_shaderType;
-      GLuint m_handle;
-
-    public:
-      GLShaderProgram(const GLShaderProgram&) = delete;
-      GLShaderProgram& operator=(const GLShaderProgram&) = delete;
-
-      //! @brief Move assignment operator
-      GLShaderProgram& operator=(GLShaderProgram&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
         {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          if (IsValid())
-          {
-            Reset();
-          }
-
-          // Claim ownership here
-          m_shaderType = other.m_shaderType;
-          m_handle = other.m_handle;
-
-          // Remove the data from other
-          other.m_shaderType = 0;
-          other.m_handle = GLValues::INVALID_HANDLE;
+          Reset();
         }
-        return *this;
-      }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLShaderProgram(GLShaderProgram&& other) noexcept
-        : m_shaderType(other.m_shaderType)
-        , m_handle(other.m_handle)
-      {
+        // Claim ownership here
+        m_shaderType = other.m_shaderType;
+        m_handle = other.m_handle;
+
         // Remove the data from other
         other.m_shaderType = 0;
         other.m_handle = GLValues::INVALID_HANDLE;
       }
+      return *this;
+    }
 
-      GLShaderProgram();
-      GLShaderProgram(const GLint shaderType, const std::string& strShaderCode);
-      ~GLShaderProgram();
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLShaderProgram(GLShaderProgram&& other) noexcept
+      : m_shaderType(other.m_shaderType)
+      , m_handle(other.m_handle)
+    {
+      // Remove the data from other
+      other.m_shaderType = 0;
+      other.m_handle = GLValues::INVALID_HANDLE;
+    }
 
-      //! @brief Check if this contains a valid gl handle.
-      bool IsValid() const
-      {
-        return m_handle != GLValues::INVALID_HANDLE;
-      }
+    GLShaderProgram();
+    GLShaderProgram(const GLint shaderType, const std::string& strShaderCode);
+    ~GLShaderProgram();
 
-      void Reset() noexcept;
-      void Reset(const GLint shaderType, const std::string& strShaderCode);
+    //! @brief Check if this contains a valid gl handle.
+    bool IsValid() const
+    {
+      return m_handle != GLValues::INVALID_HANDLE;
+    }
 
-      GLint GetType() const
-      {
-        return m_shaderType;
-      }
+    void Reset() noexcept;
+    void Reset(const GLint shaderType, const std::string& strShaderCode);
 
-      GLuint Get() const
-      {
-        return m_handle;
-      }
+    GLint GetType() const
+    {
+      return m_shaderType;
+    }
 
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return Get();
-      }
-    };
-  }
+    GLuint Get() const
+    {
+      return m_handle;
+    }
+
+    [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
+    {
+      return Get();
+    }
+  };
 }
 
 #endif

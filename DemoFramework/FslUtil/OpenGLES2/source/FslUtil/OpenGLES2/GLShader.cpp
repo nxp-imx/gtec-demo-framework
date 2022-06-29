@@ -30,110 +30,117 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslUtil/OpenGLES2/GLShader.hpp>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <iostream>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  namespace
   {
-    namespace
+    void DumpDebugInformation(const GLuint hShader)
     {
-      void DumpDebugInformation(const GLuint hShader)
-      {
-        // We utilize our own local error checking macro here that just logs the error and returns from this method on error since we dont
-        // want to throw a exception in a debug function.
+      // We utilize our own local error checking macro here that just logs the error and returns from this method on error since we dont
+      // want to throw a exception in a debug function.
 
-        // Get shader source.
-        GLint length = 0;
-        GL_ON_ERROR_LOG_AND_RETURN(glGetShaderiv(hShader, GL_SHADER_SOURCE_LENGTH, &length));
-        std::vector<GLchar> source(std::max(length, 1));
-        source[0] = 0;
-        GL_ON_ERROR_LOG_AND_RETURN(glGetShaderSource(hShader, static_cast<GLsizei>(source.size()), nullptr, &source[0]));
+      // Get shader source.
+      GLint length = 0;
+      GL_ON_ERROR_LOG_AND_RETURN(glGetShaderiv(hShader, GL_SHADER_SOURCE_LENGTH, &length));
+      std::vector<GLchar> source(std::max(length, 1));
+      source[0] = 0;
+      GL_ON_ERROR_LOG_AND_RETURN(glGetShaderSource(hShader, static_cast<GLsizei>(source.size()), nullptr, &source[0]));
 
-        FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", &source[0]);
+      FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", &source[0]);
 
-        // Fetch the log
-        GL_ON_ERROR_LOG_AND_RETURN(glGetShaderiv(hShader, GL_INFO_LOG_LENGTH, &length));
-        std::vector<GLchar> errorLog(std::max(length, 1));
-        errorLog[0] = 0;
-        GL_ON_ERROR_LOG_AND_RETURN(glGetShaderInfoLog(hShader, static_cast<GLsizei>(errorLog.size()), nullptr, &errorLog[0]));
+      // Fetch the log
+      GL_ON_ERROR_LOG_AND_RETURN(glGetShaderiv(hShader, GL_INFO_LOG_LENGTH, &length));
+      std::vector<GLchar> errorLog(std::max(length, 1));
+      errorLog[0] = 0;
+      GL_ON_ERROR_LOG_AND_RETURN(glGetShaderInfoLog(hShader, static_cast<GLsizei>(errorLog.size()), nullptr, &errorLog[0]));
 
-        FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
-      }
+      FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
+    }
+  }
+
+  GLShader::GLShader()
+    : m_handle(GLValues::INVALID_HANDLE)
+  {
+  }
+
+
+  GLShader::GLShader(const GLint shaderType, const std::string& strShaderCode)
+    : m_shaderType(shaderType)
+    , m_handle(GLValues::INVALID_HANDLE)
+  {
+    Reset(shaderType, strShaderCode);
+  }
+
+  GLShader::GLShader(const GLint shaderType, const char* const pszShaderCode)
+    : m_shaderType(shaderType)
+    , m_handle(GLValues::INVALID_HANDLE)
+  {
+    Reset(shaderType, pszShaderCode);
+  }
+
+
+  GLShader::~GLShader() noexcept
+  {
+    Reset();
+  }
+
+
+  void GLShader::Reset() noexcept
+  {
+    if (m_handle != GLValues::INVALID_HANDLE)
+    {
+      glDeleteShader(m_handle);
+      m_handle = GLValues::INVALID_HANDLE;
+      m_shaderType = 0;
+    }
+  }
+
+  void GLShader::Reset(const GLint shaderType, const char* const pszShaderCode)
+  {
+    Reset();
+    m_shaderType = shaderType;
+
+    if (pszShaderCode == nullptr)
+    {
+      throw std::invalid_argument("pszShader can't be null");
     }
 
-    GLShader::GLShader()
-      : m_handle(GLValues::INVALID_HANDLE)
+    // Create the new shader of the given type
+    m_handle = glCreateShader(shaderType);
+    GLenum glError = glGetError();
+    if (m_handle == 0 || glError != GL_NO_ERROR)
     {
+      throw GLESGraphicsException("Failed to create shader", UncheckedNumericCast<int32_t>(glError), __FILE__, __LINE__);
     }
 
-
-    GLShader::GLShader(const GLint shaderType, const std::string& strShaderCode)
-      : m_shaderType(shaderType)
-      , m_handle(GLValues::INVALID_HANDLE)
     {
-      Reset(shaderType, strShaderCode);
-    }
-
-
-    GLShader::~GLShader()
-    {
-      Reset();
-    }
-
-
-    void GLShader::Reset() noexcept
-    {
-      if (m_handle != GLValues::INVALID_HANDLE)
-      {
-        glDeleteShader(m_handle);
-        m_handle = GLValues::INVALID_HANDLE;
-        m_shaderType = 0;
-      }
-    }
-
-
-    void GLShader::Reset(const GLint shaderType, const std::string& strShaderCode)
-    {
-      Reset();
-      m_shaderType = shaderType;
-
-      // if (pszShaderCode == nullptr)
-      //  throw std::invalid_argument("pszShader can't be null");
-
-      // Create the new shader of the given type
-      m_handle = glCreateShader(shaderType);
-      GLenum glError = glGetError();
-      if (m_handle == 0 || glError != GL_NO_ERROR)
-      {
-        throw GLESGraphicsException("Failed to create shader", glError, __FILE__, __LINE__);
-      }
-
-      std::array<const char*, 1> shaderCode = {strShaderCode.c_str()};
-
+      std::array<const char*, 1> shaderCode = {pszShaderCode};
       GL_CHECK(glShaderSource(m_handle, static_cast<GLsizei>(shaderCode.size()), shaderCode.data(), nullptr));
       shaderCode[0] = nullptr;
+    }
 
-      // Compile the shader now
-      GL_CHECK(glCompileShader(m_handle));
+    // Compile the shader now
+    GL_CHECK(glCompileShader(m_handle));
 
-      GLint status = GL_FALSE;
-      GL_CHECK(glGetShaderiv(m_handle, GL_COMPILE_STATUS, &status));
+    GLint status = GL_FALSE;
+    GL_CHECK(glGetShaderiv(m_handle, GL_COMPILE_STATUS, &status));
 
-      // Check if something went wrong
-      if (status != GL_TRUE)
-      {
-        // and verbose is enabled then dump some debug information
-        // if (m_verbose)
-        DumpDebugInformation(m_handle);
-        throw GLESGraphicsException("Shader compilation failed", 0, __FILE__, __LINE__);
-      }
+    // Check if something went wrong
+    if (status != GL_TRUE)
+    {
+      // and verbose is enabled then dump some debug information
+      // if (m_verbose)
+      DumpDebugInformation(m_handle);
+      throw GLESGraphicsException("Shader compilation failed", 0, __FILE__, __LINE__);
     }
   }
 }

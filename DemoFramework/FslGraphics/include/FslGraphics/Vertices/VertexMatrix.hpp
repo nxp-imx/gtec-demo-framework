@@ -52,10 +52,10 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<1> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 1> elements = {
-        VertexElementEx(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
+      constexpr BasicVertexDeclarationArray<1> elements = {
+        VertexElement(offsetof(VertexMatrix, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
       };
-      return VertexDeclarationArray<1>(elements, sizeof(VertexMatrix));
+      return {elements, sizeof(VertexMatrix)};
     }
 
 
@@ -68,12 +68,12 @@ namespace Fsl
     }
 
 
-    constexpr bool operator==(const VertexMatrix& rhs) const
+    constexpr bool operator==(const VertexMatrix& rhs) const noexcept
     {
       return Matrix == rhs.Matrix;
     }
 
-    constexpr bool operator!=(const VertexMatrix& rhs) const
+    constexpr bool operator!=(const VertexMatrix& rhs) const noexcept
     {
       return !(*this == rhs);
     }

@@ -36,26 +36,20 @@
 #include <RapidVulkan/Debug/Strings/VkPresentModeKHR.hpp>
 #include <RapidVulkan/Debug/Strings/VkResult.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan::Debug
 {
-  namespace Vulkan
+  const char* ToString(const VkResult value)
   {
-    namespace Debug
-    {
-      const char* ToString(const VkResult value)
-      {
-        return RapidVulkan::Debug::ToString(value);
-      }
+    return RapidVulkan::Debug::ToString(value);
+  }
 
-      const char* ToString(const VkPresentModeKHR value)
-      {
-        return RapidVulkan::Debug::ToString(value);
-      }
+  const char* ToString(const VkPresentModeKHR value)
+  {
+    return RapidVulkan::Debug::ToString(value);
+  }
 
-      const char* ToString(const VkFormat value)
-      {
-        return RapidVulkan::Debug::ToString(value);
-      }
-    }
+  const char* ToString(const VkFormat value)
+  {
+    return RapidVulkan::Debug::ToString(value);
   }
 }

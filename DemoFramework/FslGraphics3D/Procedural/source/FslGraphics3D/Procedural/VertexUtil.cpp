@@ -35,24 +35,21 @@
 #include <limits>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  std::size_t VertexUtil::CalcMaxInstancesThatFit(const std::size_t instanceVertexCount, const std::size_t maxVertices)
   {
-    std::size_t VertexUtil::CalcMaxInstancesThatFit(const std::size_t instanceVertexCount, const std::size_t maxVertices)
+    return (instanceVertexCount > 0 ? maxVertices / instanceVertexCount : 0);
+  }
+
+
+  std::size_t VertexUtil::CalcMaxInstancesThatFit(const std::size_t instanceVertexCount, const std::size_t vertexCapacity, const bool shareVertices)
+  {
+    if (!shareVertices)
     {
-      return (instanceVertexCount > 0 ? maxVertices / instanceVertexCount : 0);
+      return (instanceVertexCount > 0 ? vertexCapacity / instanceVertexCount : 0);
     }
 
-
-    std::size_t VertexUtil::CalcMaxInstancesThatFit(const std::size_t instanceVertexCount, const std::size_t vertexCapacity, const bool shareVertices)
-    {
-      if (!shareVertices)
-      {
-        return (instanceVertexCount > 0 ? vertexCapacity / instanceVertexCount : 0);
-      }
-
-      return (instanceVertexCount <= vertexCapacity ? std::numeric_limits<int32_t>::max() : 0);
-    }
+    return (instanceVertexCount <= vertexCapacity ? std::numeric_limits<int32_t>::max() : 0);
   }
 }

@@ -37,112 +37,109 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief
+  class VUSwapchainKHR
   {
-    //! @brief
-    class VUSwapchainKHR
+    struct ImageInfo
     {
-      struct ImageInfo
-      {
-        VkAccessFlags AccessFlags{0};
-        VkImageLayout ImageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
+      VkAccessFlags AccessFlags{0};
+      VkImageLayout ImageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
 
-        ImageInfo() = default;
-      };
-
-      RapidVulkan::SwapchainKHR m_swapchain;
-      VkImageUsageFlags m_imageUsageFlags;
-      VkFormat m_imageFormat;
-      VkExtent2D m_imageExtent;
-      std::vector<VkImage> m_images;
-      std::vector<ImageInfo> m_info;
-
-    public:
-      VUSwapchainKHR(const VUSwapchainKHR&) = delete;
-      VUSwapchainKHR& operator=(const VUSwapchainKHR&) = delete;
-
-      //! @brief Move assignment operator
-      VUSwapchainKHR& operator=(VUSwapchainKHR&& other) noexcept;
-
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      VUSwapchainKHR(VUSwapchainKHR&& other) noexcept;
-
-      VUSwapchainKHR();
-      VUSwapchainKHR(const RapidVulkan::ClaimMode claimMode, const VkDevice device, const VkSwapchainKHR swapchain,
-                     const VkSwapchainCreateInfoKHR& createInfo);
-      VUSwapchainKHR(const VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
-      VUSwapchainKHR(const VkDevice device, const VkSwapchainCreateFlagsKHR flags, const VkSurfaceKHR surface, const uint32_t minImageCount,
-                     const VkFormat imageFormat, const VkColorSpaceKHR imageColorSpace, const VkExtent2D imageExtent, const uint32_t imageArrayLayers,
-                     const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
-                     const uint32_t* pQueueFamilyIndices, const VkSurfaceTransformFlagBitsKHR preTransform,
-                     const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkPresentModeKHR presentMode, const VkBool32 clipped,
-                     const VkSwapchainKHR oldSwapchain);
-
-      ~VUSwapchainKHR();
-
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
-
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const RapidVulkan::ClaimMode claimMode, const VkDevice device, const VkSwapchainKHR swapchain,
-                 const VkSwapchainCreateInfoKHR& createInfo);
-
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
-
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkSwapchainCreateFlagsKHR flags, const VkSurfaceKHR surface, const uint32_t minImageCount,
-                 const VkFormat imageFormat, const VkColorSpaceKHR imageColorSpace, const VkExtent2D imageExtent, const uint32_t imageArrayLayers,
-                 const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
-                 const uint32_t* pQueueFamilyIndices, const VkSurfaceTransformFlagBitsKHR preTransform,
-                 const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkPresentModeKHR presentMode, const VkBool32 clipped,
-                 const VkSwapchainKHR oldSwapchain);
-
-
-      //! @brief Get the associated 'Device'
-      VkDevice GetDevice() const
-      {
-        return m_swapchain.GetDevice();
-      }
-
-      //! @brief Get the associated resource handle
-      VkSwapchainKHR Get() const
-      {
-        return m_swapchain.Get();
-      }
-
-      //! @brief Check if this object contains a valid resource
-      bool IsValid() const
-      {
-        return m_swapchain.IsValid();
-      }
-
-      void RefreshImages();
-
-      uint32_t GetImageCount() const;
-
-      //! @brief Access the image at the given index
-      VkImage operator[](const std::size_t arrayIndex) const;
-
-      VkImageUsageFlags GetImageUsageFlags() const
-      {
-        return m_imageUsageFlags;
-      }
-
-      VkFormat GetImageFormat() const;
-
-      VkExtent2D GetImageExtent() const;
-
-      void CmdPipelineBarrier(const VkCommandBuffer cmdBuffer, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
-                              const VkPipelineStageFlags srcStageMask, const VkPipelineStageFlags dstStageMask, const uint32_t imageIndex);
-
-      VkResult TryQueuePresent(const VkQueue queue, const uint32_t waitSemaphoreCount, const VkSemaphore* pWaitSemaphores,
-                               const uint32_t* pImageIndices, VkResult* pResults) const;
+      ImageInfo() = default;
     };
-  }
+
+    RapidVulkan::SwapchainKHR m_swapchain;
+    VkImageUsageFlags m_imageUsageFlags;
+    VkFormat m_imageFormat;
+    VkExtent2D m_imageExtent;
+    std::vector<VkImage> m_images;
+    std::vector<ImageInfo> m_info;
+
+  public:
+    VUSwapchainKHR(const VUSwapchainKHR&) = delete;
+    VUSwapchainKHR& operator=(const VUSwapchainKHR&) = delete;
+
+    //! @brief Move assignment operator
+    VUSwapchainKHR& operator=(VUSwapchainKHR&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    VUSwapchainKHR(VUSwapchainKHR&& other) noexcept;
+
+    VUSwapchainKHR();
+    VUSwapchainKHR(const RapidVulkan::ClaimMode claimMode, const VkDevice device, const VkSwapchainKHR swapchain,
+                   const VkSwapchainCreateInfoKHR& createInfo);
+    VUSwapchainKHR(const VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
+    VUSwapchainKHR(const VkDevice device, const VkSwapchainCreateFlagsKHR flags, const VkSurfaceKHR surface, const uint32_t minImageCount,
+                   const VkFormat imageFormat, const VkColorSpaceKHR imageColorSpace, const VkExtent2D imageExtent, const uint32_t imageArrayLayers,
+                   const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
+                   const uint32_t* pQueueFamilyIndices, const VkSurfaceTransformFlagBitsKHR preTransform,
+                   const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkPresentModeKHR presentMode, const VkBool32 clipped,
+                   const VkSwapchainKHR oldSwapchain);
+
+    ~VUSwapchainKHR();
+
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
+
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const RapidVulkan::ClaimMode claimMode, const VkDevice device, const VkSwapchainKHR swapchain,
+               const VkSwapchainCreateInfoKHR& createInfo);
+
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
+
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkSwapchainCreateFlagsKHR flags, const VkSurfaceKHR surface, const uint32_t minImageCount,
+               const VkFormat imageFormat, const VkColorSpaceKHR imageColorSpace, const VkExtent2D imageExtent, const uint32_t imageArrayLayers,
+               const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
+               const uint32_t* pQueueFamilyIndices, const VkSurfaceTransformFlagBitsKHR preTransform,
+               const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkPresentModeKHR presentMode, const VkBool32 clipped,
+               const VkSwapchainKHR oldSwapchain);
+
+
+    //! @brief Get the associated 'Device'
+    VkDevice GetDevice() const
+    {
+      return m_swapchain.GetDevice();
+    }
+
+    //! @brief Get the associated resource handle
+    VkSwapchainKHR Get() const
+    {
+      return m_swapchain.Get();
+    }
+
+    //! @brief Check if this object contains a valid resource
+    bool IsValid() const
+    {
+      return m_swapchain.IsValid();
+    }
+
+    void RefreshImages();
+
+    uint32_t GetImageCount() const;
+
+    //! @brief Access the image at the given index
+    VkImage operator[](const std::size_t arrayIndex) const;
+
+    VkImageUsageFlags GetImageUsageFlags() const
+    {
+      return m_imageUsageFlags;
+    }
+
+    VkFormat GetImageFormat() const;
+
+    VkExtent2D GetImageExtent() const;
+
+    void CmdPipelineBarrier(const VkCommandBuffer cmdBuffer, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
+                            const VkPipelineStageFlags srcStageMask, const VkPipelineStageFlags dstStageMask, const uint32_t imageIndex);
+
+    VkResult TryQueuePresent(const VkQueue queue, const uint32_t waitSemaphoreCount, const VkSemaphore* pWaitSemaphores,
+                             const uint32_t* pImageIndices, VkResult* pResults) const;
+  };
 }
 
 #endif

@@ -29,12 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "SpringBackground.hpp"
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
+#include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
@@ -44,11 +45,10 @@
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "SpringBackground.hpp"
-#include "OptionParser.hpp"
 #include <GLES3/gl3.h>
 #include <cassert>
 #include <iostream>
+#include "OptionParser.hpp"
 
 namespace Fsl
 {
@@ -126,14 +126,14 @@ namespace Fsl
       UpdateControls();
       break;
     case VirtualKey::D:
-    {
-      event.Handled();
-      auto bloomConfig = m_bloomRender.GetConfig();
-      bloomConfig.IsShowBuffersEnabled = !bloomConfig.IsShowBuffersEnabled;
-      m_bloomRender.SetConfig(bloomConfig);
-      UpdateControls();
-      break;
-    }
+      {
+        event.Handled();
+        auto bloomConfig = m_bloomRender.GetConfig();
+        bloomConfig.IsShowBuffersEnabled = !bloomConfig.IsShowBuffersEnabled;
+        m_bloomRender.SetConfig(bloomConfig);
+        UpdateControls();
+        break;
+      }
     default:
       break;
     }
@@ -314,7 +314,7 @@ namespace Fsl
 
       const Color ballColor = Color::White();
       Vector2 scale(1, 1);
-      Vector2 origin(m_texBall.GetSize().Width() * 0.5f, m_texBall.GetSize().Height() * 0.5f);
+      Vector2 origin(static_cast<float>(m_texBall.GetSize().Width()) * 0.5f, static_cast<float>(m_texBall.GetSize().Height()) * 0.5f);
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)
       {
         m_batch->Draw(m_texBall, itr->Position, ballColor, origin, scale);
@@ -338,10 +338,10 @@ namespace Fsl
     auto layoutMenu = std::make_shared<UI::StackLayout>(context);
     auto menuBar = factory.CreateBottomBar(layoutMenu, UI::Theme::BarType::Transparent);
     {    // Create the menu
-      layoutMenu->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      layoutMenu->SetOrientation(UI::LayoutOrientation::Horizontal);
       layoutMenu->SetAlignmentX(UI::ItemAlignment::Near);
       layoutMenu->SetAlignmentY(UI::ItemAlignment::Near);
-      layoutMenu->SetSpacing(10.0f);
+      layoutMenu->SetSpacing(DpSize1DF::Create(10));
 
       ISpriteResourceManager& rSpriteManager = m_uiExtension->GetSpriteResourceManager();
       const auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
@@ -362,7 +362,7 @@ namespace Fsl
       m_cbBloom->SetAlignmentY(UI::ItemAlignment::Center);
 
       auto stack = std::make_shared<UI::StackLayout>(context);
-      stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stack->SetOrientation(UI::LayoutOrientation::Horizontal);
       stack->SetAlignmentY(UI::ItemAlignment::Center);
       stack->AddChild(m_btnRenderTypePrev);
       stack->AddChild(m_btnRenderTypeNext);

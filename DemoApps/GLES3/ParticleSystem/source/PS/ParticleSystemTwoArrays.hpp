@@ -31,14 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <deque>
+#include <memory>
+#include <vector>
 #include "Draw/IParticleDraw.hpp"
 #include "Emit/IParticleEmitter.hpp"
 #include "IParticleContainer.hpp"
 #include "IParticleSystem.hpp"
 #include "Particle.hpp"
-#include <deque>
-#include <memory>
-#include <vector>
 
 namespace Fsl
 {

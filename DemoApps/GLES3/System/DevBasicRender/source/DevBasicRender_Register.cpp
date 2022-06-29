@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "DevBasicRender.hpp"
 #include <array>
+#include "DevBasicRender.hpp"
 
 namespace Fsl
 {

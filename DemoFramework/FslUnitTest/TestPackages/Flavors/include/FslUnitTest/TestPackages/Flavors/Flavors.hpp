@@ -1,5 +1,5 @@
-#ifndef FSLUNITTEST_TESTPACKAGES_STATICVARIANTS_STATICVARIANTS_HPP
-#define FSLUNITTEST_TESTPACKAGES_STATICVARIANTS_STATICVARIANTS_HPP
+#ifndef FSLUNITTEST_TESTPACKAGES_FLAVORS_FLAVORS_HPP
+#define FSLUNITTEST_TESTPACKAGES_FLAVORS_FLAVORS_HPP
 /****************************************************************************************************************************************************
  * Copyright 2018 NXP
  * All rights reserved.

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Color.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
+#include <FslGraphics/Color.hpp>
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
@@ -74,29 +74,29 @@ namespace
 
   Color Premultiply(const Color& color)
   {
-    float alpha = float(color.A()) / 255.0f;
-    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
-    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
-    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
-    return {r, g, b, uint32_t(color.A())};
+    float alpha = static_cast<float>(color.A()) / 255.0f;
+    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.R()))), 0u, 255u);
+    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.G()))), 0u, 255u);
+    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.B()))), 0u, 255u);
+    return {r, g, b, static_cast<uint32_t>(color.A())};
   }
 
   Color Premultiply(const Color& color, const float alphaMul)
   {
-    float alpha = (float(color.A()) / 255.0f) * alphaMul;
-    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
-    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
-    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
+    float alpha = (static_cast<float>(color.A()) / 255.0f) * alphaMul;
+    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.R()))), 0u, 255u);
+    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.G()))), 0u, 255u);
+    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.B()))), 0u, 255u);
     uint32_t a = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * 255.0f)), 0u, 255u);
     return {r, g, b, a};
   }
 
   Color PremultiplyRGB(const Color& color, const float alphaMul, const uint32_t newAlpha)
   {
-    float alpha = (float(color.A()) / 255.0f) * alphaMul;
-    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
-    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
-    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
+    float alpha = (static_cast<float>(color.A()) / 255.0f) * alphaMul;
+    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.R()))), 0u, 255u);
+    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.G()))), 0u, 255u);
+    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * static_cast<float>(color.B()))), 0u, 255u);
     return {r, g, b, newAlpha};
   }
 }
@@ -365,7 +365,7 @@ TEST(Test_Color, Premultiply_Constant)
   {
     for (uint32_t a = 0; a < 256; ++a)
     {
-      const float alpha = a / 255.0f;
+      const float alpha = static_cast<float>(a) / 255.0f;
       {
         Color color(0xFFu, 0x80u, 0x20u, i);
         auto expectedPremultiply = Premultiply(color, alpha);
@@ -382,7 +382,7 @@ TEST(Test_Color, PremultiplyRGB_Constant)
   {
     for (uint32_t a = 0; a < 256; ++a)
     {
-      const float alpha = a / 255.0f;
+      const float alpha = static_cast<float>(a) / 255.0f;
       {
         Color color(0xFFu, 0x80u, 0x20u, i);
         auto expectedPremultiply = PremultiplyRGB(color, alpha, 32u);
@@ -402,7 +402,7 @@ TEST(Test_Color, Premultiply_Constant_Heavy)
   {
     for (uint32_t a = 0; a < 256; ++a)
     {
-      const float alpha = a / 255.0f;
+      const float alpha = static_cast<float>(a) / 255.0f;
       {
         Color color(0xFFu, 0x80u, 0x20u, i);
         auto expectedPremultiply = Premultiply(color, alpha);

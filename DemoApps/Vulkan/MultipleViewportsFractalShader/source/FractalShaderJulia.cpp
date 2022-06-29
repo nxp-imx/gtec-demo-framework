@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "FractalShaderJulia.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/String/StringUtil.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
@@ -55,7 +55,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -94,7 +94,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
       pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     RapidVulkan::GraphicsPipeline CreatePipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
@@ -228,7 +228,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -272,7 +272,7 @@ namespace Fsl
       m_resources.VertShader.Reset(device.Get(), 0, contentManager->ReadBytes("Shader.vert.spv"));
     }
 
-    const float aspect = (m_screenResolution.Y / static_cast<float>(m_screenResolution.X));
+    const float aspect = (static_cast<float>(m_screenResolution.Y) / static_cast<float>(m_screenResolution.X));
     const float scaleX = 2.5f;
     const float scaleY = scaleX * aspect;
     const float u1 = (-1.0f) * scaleX;

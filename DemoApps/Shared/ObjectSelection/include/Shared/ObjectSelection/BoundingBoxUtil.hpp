@@ -1,7 +1,7 @@
 #ifndef SHARED_OBJECTSELECTION_BOUNDINGBOXUTIL_HPP
 #define SHARED_OBJECTSELECTION_BOUNDINGBOXUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,31 +36,28 @@
 #include <limits>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::BoundingBoxUtil
 {
-  namespace BoundingBoxUtil
+  template <typename TVertex>
+  inline BoundingBox CalculateBoundingBox(const std::vector<TVertex>& vertices)
   {
-    template <typename TVertex>
-    inline BoundingBox CalculateBoundingBox(const std::vector<TVertex>& vertices)
+    Vector3 min = Vector3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+    Vector3 max = Vector3(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
+
+    for (const auto& entry : vertices)
     {
-      Vector3 min = Vector3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
-      Vector3 max = Vector3(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
-
-      for (const auto& entry : vertices)
-      {
-        min.X = (entry.Position.X < min.X ? entry.Position.X : min.X);
-        min.Y = (entry.Position.Y < min.Y ? entry.Position.Y : min.Y);
-        min.Z = (entry.Position.Z < min.Z ? entry.Position.Z : min.Z);
-        max.X = (entry.Position.X > max.X ? entry.Position.X : max.X);
-        max.Y = (entry.Position.Y > max.Y ? entry.Position.Y : max.Y);
-        max.Z = (entry.Position.Z > max.Z ? entry.Position.Z : max.Z);
-      }
-      return {min, max};
+      min.X = (entry.Position.X < min.X ? entry.Position.X : min.X);
+      min.Y = (entry.Position.Y < min.Y ? entry.Position.Y : min.Y);
+      min.Z = (entry.Position.Z < min.Z ? entry.Position.Z : min.Z);
+      max.X = (entry.Position.X > max.X ? entry.Position.X : max.X);
+      max.Y = (entry.Position.Y > max.Y ? entry.Position.Y : max.Y);
+      max.Z = (entry.Position.Z > max.Z ? entry.Position.Z : max.Z);
     }
-
-
-    BoundingBox CalculateAABB(const Matrix& matrix, const BoundingBox& box);
+    return {min, max};
   }
+
+
+  BoundingBox CalculateAABB(const Matrix& matrix, const BoundingBox& box);
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDER_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,219 +31,216 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslSimpleUI/Base/Control/Impl/SliderRenderImpl.hpp>
+#include <FslSimpleUI/Base/Control/SliderBase.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowFlags.hpp>
-#include <FslSimpleUI/Base/Control/SliderBase.hpp>
-#include <FslSimpleUI/Base/Control/Impl/SliderRenderImpl.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowContext;
+
+  template <typename T>
+  class Slider final : public SliderBase<T>
   {
-    class WindowContext;
+    SliderRenderImpl m_impl;
 
-    template <typename T>
-    class Slider final : public SliderBase<T>
+  public:
+    explicit Slider(const std::shared_ptr<WindowContext>& context)
+      : SliderBase<T>(context)
+      , m_impl(context->TheUIContext.Get()->MeshManager, context->UITransitionCache)
     {
-      SliderRenderImpl m_impl;
+      // We need to be draw enabled, accept click input and receive a notification on init
+      this->Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
+    }
 
-    public:
-      explicit Slider(const std::shared_ptr<WindowContext>& context)
-        : SliderBase<T>(context)
-        , m_impl(context->TheUIContext.Get()->MeshManager, context->UITransitionCache)
+
+    bool GetEnableVerticalGraphicsRotation() const
+    {
+      return m_impl.GetEnableVerticalGraphicsRotation();
+    }
+
+    void SetEnableVerticalGraphicsRotation(const bool enabled)
+    {
+      if (m_impl.SetEnableVerticalGraphicsRotation(enabled))
       {
-        // We need to be draw enabled, accept click input and receive a notification on init
-        this->Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
+        this->PropertyUpdated(PropertyType::Content);
       }
+    }
 
+    const std::shared_ptr<ISizedSprite>& GetCursorSprite() const
+    {
+      return m_impl.GetCursorSprite();
+    }
 
-      bool GetEnableVerticalGraphicsRotation() const
+    void SetCursorSprite(const std::shared_ptr<ISizedSprite>& value)
+    {
+      if (m_impl.SetCursorSprite(value))
       {
-        return m_impl.GetEnableVerticalGraphicsRotation();
+        this->PropertyUpdated(PropertyType::Content);
       }
+    }
 
-      void SetEnableVerticalGraphicsRotation(const bool enabled)
+    DpPoint2 GetCursorOrigin() const
+    {
+      return m_impl.GetCursorOrigin();
+    }
+
+    void SetCursorOrigin(const DpPoint2 value)
+    {
+      if (m_impl.SetCursorOrigin(value))
       {
-        if (m_impl.SetEnableVerticalGraphicsRotation(enabled))
-        {
-          this->PropertyUpdated(PropertyType::Content);
-        }
+        this->PropertyUpdated(PropertyType::Content);
       }
+    }
 
-      const std::shared_ptr<ISizedSprite>& GetCursorSprite() const
+    DpSize2D GetCursorSize() const
+    {
+      return m_impl.GetCursorSize();
+    }
+
+    void SetCursorSize(const DpSize2D value)
+    {
+      if (m_impl.SetCursorSize(value))
       {
-        return m_impl.GetCursorSprite();
+        this->PropertyUpdated(PropertyType::Content);
       }
+    }
 
-      void SetCursorSprite(const std::shared_ptr<ISizedSprite>& value)
+    const Color& GetCursorColor() const
+    {
+      return m_impl.GetCursorColor();
+    }
+
+    void SetCursorColor(const Color& value)
+    {
+      if (m_impl.SetCursorColor(value))
       {
-        if (m_impl.SetCursorSprite(value))
-        {
-          this->PropertyUpdated(PropertyType::Content);
-        }
+        this->PropertyUpdated(PropertyType::Other);
       }
+    }
 
-      const DpPoint& GetCursorOrigin() const
+    const Color& GetCursorDisabledColor() const
+    {
+      return m_impl.GetCursorDisabledColor();
+    }
+
+    void SetCursorDisabledColor(const Color& value)
+    {
+      if (m_impl.SetCursorDisabledColor(value))
       {
-        return m_impl.GetCursorOrigin();
+        this->PropertyUpdated(PropertyType::Other);
       }
+    }
 
-      void SetCursorOrigin(const DpPoint& value)
+    // ------
+
+    const std::shared_ptr<ISizedSprite>& GetCursorOverlaySprite() const
+    {
+      return m_impl.GetCursorOverlaySprite();
+    }
+
+    void SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value)
+    {
+      if (m_impl.SetCursorOverlaySprite(value))
       {
-        if (m_impl.SetCursorOrigin(value))
-        {
-          this->PropertyUpdated(PropertyType::Content);
-        }
+        this->PropertyUpdated(PropertyType::Content);
       }
+    }
 
-      const DpSize& GetCursorSize() const
+    const Color& GetCursorOverlayColor() const
+    {
+      return m_impl.GetCursorOverlayColor();
+    }
+
+    void SetCursorOverlayColor(const Color& value)
+    {
+      if (m_impl.SetCursorOverlayColor(value))
       {
-        return m_impl.GetCursorSize();
+        this->PropertyUpdated(PropertyType::Other);
       }
+    }
 
-      void SetCursorSize(const DpSize& value)
+    // ------
+
+    const std::shared_ptr<IContentSprite>& GetBackgroundSprite() const
+    {
+      return m_impl.GetBackgroundSprite();
+    }
+
+    void SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value)
+    {
+      if (m_impl.SetBackgroundSprite(value))
       {
-        if (m_impl.SetCursorSize(value))
-        {
-          this->PropertyUpdated(PropertyType::Content);
-        }
+        this->PropertyUpdated(PropertyType::Content);
       }
+    }
 
-      const Color& GetCursorColor() const
+    const Color& GetBackgroundColor() const
+    {
+      return m_impl.GetBackgroundColor();
+    }
+
+    void SetBackgroundColor(const Color& value)
+    {
+      if (m_impl.SetBackgroundColor(value))
       {
-        return m_impl.GetCursorColor();
+        this->PropertyUpdated(PropertyType::Other);
       }
+    }
 
-      void SetCursorColor(const Color& value)
+    const Color& GetBackgroundDisabledColor() const
+    {
+      return m_impl.GetBackgroundDisabledColor();
+    }
+
+    void SetBackgroundDisabledColor(const Color& value)
+    {
+      if (m_impl.SetBackgroundDisabledColor(value))
       {
-        if (m_impl.SetCursorColor(value))
-        {
-          this->PropertyUpdated(PropertyType::Other);
-        }
+        this->PropertyUpdated(PropertyType::Other);
       }
+    }
 
-      const Color& GetCursorDisabledColor() const
-      {
-        return m_impl.GetCursorDisabledColor();
-      }
+    // ------
 
-      void SetCursorDisabledColor(const Color& value)
-      {
-        if (m_impl.SetCursorDisabledColor(value))
-        {
-          this->PropertyUpdated(PropertyType::Other);
-        }
-      }
+    void WinDraw(const UIDrawContext& context) final
+    {
+      SliderBase<T>::WinDraw(context);
 
-      // ------
+      m_impl.Draw(context.CommandBuffer, context.TargetRect.Location(), this->GetFinalBaseColor(), this->GetCursorPositionPx(), this->IsDragging(),
+                  this->m_windowContext->UnitConverter);
+    }
 
-      const std::shared_ptr<ISizedSprite>& GetCursorOverlaySprite() const
-      {
-        return m_impl.GetCursorOverlaySprite();
-      }
+  protected:
+    void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+    {
+      m_impl.OnMouseOver(args, theEvent, this->IsEnabled());
+    }
 
-      void SetCursorOverlaySprite(const std::shared_ptr<ISizedSprite>& value)
-      {
-        if (m_impl.SetCursorOverlaySprite(value))
-        {
-          this->PropertyUpdated(PropertyType::Content);
-        }
-      }
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
+    {
+      return m_impl.Measure(availableSizePx);
+    }
 
-      const Color& GetCursorOverlayColor() const
-      {
-        return m_impl.GetCursorOverlayColor();
-      }
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final
+    {
+      auto spanInfo = m_impl.Arrange(finalSizePx, this->GetOrientation(), this->GetDirection(), this->m_windowContext->UnitConverter);
+      this->SetSpanInfo(spanInfo);
+      return SliderBase<T>::ArrangeOverride(finalSizePx);
+    }
 
-      void SetCursorOverlayColor(const Color& value)
-      {
-        if (m_impl.SetCursorOverlayColor(value))
-        {
-          this->PropertyUpdated(PropertyType::Other);
-        }
-      }
+    void UpdateAnimation(const TimeSpan& timeSpan) final
+    {
+      SliderBase<T>::UpdateAnimation(timeSpan);
+      m_impl.UpdateAnimation(timeSpan);
+    }
 
-      // ------
-
-      const std::shared_ptr<IContentSprite>& GetBackgroundSprite() const
-      {
-        return m_impl.GetBackgroundSprite();
-      }
-
-      void SetBackgroundSprite(const std::shared_ptr<IContentSprite>& value)
-      {
-        if (m_impl.SetBackgroundSprite(value))
-        {
-          this->PropertyUpdated(PropertyType::Content);
-        }
-      }
-
-      const Color& GetBackgroundColor() const
-      {
-        return m_impl.GetBackgroundColor();
-      }
-
-      void SetBackgroundColor(const Color& value)
-      {
-        if (m_impl.SetBackgroundColor(value))
-        {
-          this->PropertyUpdated(PropertyType::Other);
-        }
-      }
-
-      const Color& GetBackgroundDisabledColor() const
-      {
-        return m_impl.GetBackgroundDisabledColor();
-      }
-
-      void SetBackgroundDisabledColor(const Color& value)
-      {
-        if (m_impl.SetBackgroundDisabledColor(value))
-        {
-          this->PropertyUpdated(PropertyType::Other);
-        }
-      }
-
-      // ------
-
-      void WinDraw(const UIDrawContext& context) final
-      {
-        SliderBase<T>::WinDraw(context);
-
-        m_impl.Draw(context.CommandBuffer, context.TargetRect.Location(), this->GetFinalBaseColor(), this->GetCursorPositionPx(), this->IsDragging(),
-                    this->m_windowContext->UnitConverter);
-      }
-
-    protected:
-      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
-      {
-        m_impl.OnMouseOver(args, theEvent, this->IsEnabled());
-      }
-
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
-      {
-        return m_impl.Measure(availableSizePx);
-      }
-
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final
-      {
-        auto spanInfo = m_impl.Arrange(finalSizePx, this->GetOrientation(), this->GetDirection(), this->m_windowContext->UnitConverter);
-        this->SetSpanInfo(spanInfo);
-        return SliderBase<T>::ArrangeOverride(finalSizePx);
-      }
-
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final
-      {
-        SliderBase<T>::UpdateAnimation(timeSpan);
-        m_impl.UpdateAnimation(timeSpan);
-      }
-
-      bool UpdateAnimationState(const bool forceCompleteAnimation) final
-      {
-        return m_impl.UpdateAnimationState(forceCompleteAnimation, this->IsEnabled(), this->IsDragging());
-      }
-    };
-  }
+    bool UpdateAnimationState(const bool forceCompleteAnimation) final
+    {
+      return m_impl.UpdateAnimationState(forceCompleteAnimation, this->IsEnabled(), this->IsDragging());
+    }
+  };
 }
 
 #endif

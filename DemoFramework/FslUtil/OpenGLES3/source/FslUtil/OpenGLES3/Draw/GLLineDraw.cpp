@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,64 +29,61 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Vector3.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/Draw/GLLineDraw.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslGraphics/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 #include <type_traits>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLLineDraw::GLLineDraw(const uint32_t initialLineCapacity)
+    : LineVertexBuffer(nullptr, initialLineCapacity * 2u, VertexPositionColor::AsVertexDeclarationSpan(), GL_DYNAMIC_DRAW)
   {
-    GLLineDraw::GLLineDraw(const uint32_t initialLineCapacity)
-      : LineVertexBuffer(nullptr, initialLineCapacity * 2u, VertexPositionColor::AsVertexDeclarationSpan(), GL_DYNAMIC_DRAW)
+  }
+
+
+  void GLLineDraw::Draw(const VertexPositionColor* pVertices, const std::size_t vertexCount, const GLVertexAttribLink* const pLinks,
+                        const std::size_t linkCount)
+  {
+    if (pVertices == nullptr)
     {
+      throw std::invalid_argument("pVertices can not be null");
+    }
+    if ((vertexCount % VERTICES_PER_LINE) != 0u)
+    {
+      throw std::invalid_argument("vertexCount did not match a exact number of lines");
+    }
+    if (pLinks == nullptr)
+    {
+      throw std::invalid_argument("pLinks can not be null");
     }
 
-
-    void GLLineDraw::Draw(const VertexPositionColor* pVertices, const std::size_t vertexCount, const GLVertexAttribLink* const pLinks,
-                          const std::size_t linkCount)
+    if (vertexCount > LineVertexBuffer.GetCapacity())
     {
-      if (pVertices == nullptr)
-      {
-        throw std::invalid_argument("pVertices can not be null");
-      }
-      if ((vertexCount % VERTICES_PER_LINE) != 0u)
-      {
-        throw std::invalid_argument("vertexCount did not match a exact number of lines");
-      }
-      if (pLinks == nullptr)
-      {
-        throw std::invalid_argument("pLinks can not be null");
-      }
-
-      if (vertexCount > LineVertexBuffer.GetCapacity())
-      {
-        std::size_t newCapacity = vertexCount;
-        // Warn the developer in debug mode
-        FSLLOG3_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: {} to {}", LineVertexBuffer.GetCapacity(), newCapacity);
-        // Dump the existing buffer and then create a new one
-        LineVertexBuffer.Reset();
-        LineVertexBuffer.Reset(nullptr, newCapacity, VertexPositionColor::AsVertexDeclarationSpan(), GL_DYNAMIC_DRAW);
-      }
-
-      // Enable the attrib arrays
-      LineVertexBuffer.EnableAttribArrays(pLinks, linkCount);
-
-      glBindBuffer(GL_ARRAY_BUFFER, LineVertexBuffer.Get());
-      LineVertexBuffer.SetVertexAttribPointers(pLinks, linkCount);
-      LineVertexBuffer.SetDataFast(0, pVertices, vertexCount);
-
-      // verify that the cast below goes ok
-      assert(vertexCount <= static_cast<std::make_unsigned<GLsizei>::type>(std::numeric_limits<GLsizei>::max()));
-      glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertexCount));
-
-      glBindBuffer(GL_ARRAY_BUFFER, 0u);
+      std::size_t newCapacity = vertexCount;
+      // Warn the developer in debug mode
+      FSLLOG3_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: {} to {}", LineVertexBuffer.GetCapacity(), newCapacity);
+      // Dump the existing buffer and then create a new one
+      LineVertexBuffer.Reset();
+      LineVertexBuffer.Reset(nullptr, newCapacity, VertexPositionColor::AsVertexDeclarationSpan(), GL_DYNAMIC_DRAW);
     }
+
+    // Enable the attrib arrays
+    LineVertexBuffer.EnableAttribArrays(pLinks, linkCount);
+
+    glBindBuffer(GL_ARRAY_BUFFER, LineVertexBuffer.Get());
+    LineVertexBuffer.SetVertexAttribPointers(pLinks, linkCount);
+    LineVertexBuffer.SetDataFast(0, pVertices, vertexCount);
+
+    // verify that the cast below goes ok
+    assert(vertexCount <= static_cast<std::make_unsigned<GLsizei>::type>(std::numeric_limits<GLsizei>::max()));
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(vertexCount));
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0u);
   }
 }

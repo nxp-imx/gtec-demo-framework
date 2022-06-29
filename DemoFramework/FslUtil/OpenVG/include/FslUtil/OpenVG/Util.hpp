@@ -32,84 +32,81 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenVG/Exceptions.hpp>
+#include <VG/openvg.h>
 #include <cassert>
 #include <string>
-#include <VG/openvg.h>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  class Util
   {
-    class Util
+  public:
+    static inline void Check(const VGErrorCode errorCode)
     {
-    public:
-      static inline void Check(const VGErrorCode errorCode)
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          throw OpenVGErrorException(ToNiceMessage("Unknown", errorCode), errorCode);
-        }
+        throw OpenVGErrorException(ToNiceMessage("Unknown", errorCode), errorCode);
       }
+    }
 
-      static inline void Check(const VGErrorCode errorCode, const char* const pszMessage)
+    static inline void Check(const VGErrorCode errorCode, const char* const pszMessage)
+    {
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          assert(pszMessage != nullptr);
-          throw OpenVGErrorException(ToNiceMessage(pszMessage, errorCode), errorCode);
-        }
+        assert(pszMessage != nullptr);
+        throw OpenVGErrorException(ToNiceMessage(pszMessage, errorCode), errorCode);
       }
+    }
 
 
-      static inline void Check(const VGErrorCode errorCode, const std::string& message)
+    static inline void Check(const VGErrorCode errorCode, const std::string& message)
+    {
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          throw OpenVGErrorException(ToNiceMessage(message, errorCode), errorCode);
-        }
+        throw OpenVGErrorException(ToNiceMessage(message, errorCode), errorCode);
       }
+    }
 
-      static inline void Check(const VGErrorCode errorCode, const char* const pszMessage, const char* const pszFileName, const int lineNumber)
+    static inline void Check(const VGErrorCode errorCode, const char* const pszMessage, const char* const pszFileName, const int lineNumber)
+    {
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          assert(pszMessage != nullptr);
-          assert(pszFileName != nullptr);
-          throw OpenVGErrorException(ToNiceMessage(pszMessage, errorCode, pszFileName, lineNumber), errorCode, pszFileName, lineNumber);
-        }
+        assert(pszMessage != nullptr);
+        assert(pszFileName != nullptr);
+        throw OpenVGErrorException(ToNiceMessage(pszMessage, errorCode, pszFileName, lineNumber), errorCode, pszFileName, lineNumber);
       }
+    }
 
-      static inline void Check(const VGErrorCode errorCode, const char* const pszMessage, const std::string& fileName, const int lineNumber)
+    static inline void Check(const VGErrorCode errorCode, const char* const pszMessage, const std::string& fileName, const int lineNumber)
+    {
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          assert(pszMessage != nullptr);
-          throw OpenVGErrorException(ToNiceMessage(pszMessage, errorCode, fileName, lineNumber), errorCode, fileName, lineNumber);
-        }
+        assert(pszMessage != nullptr);
+        throw OpenVGErrorException(ToNiceMessage(pszMessage, errorCode, fileName, lineNumber), errorCode, fileName, lineNumber);
       }
+    }
 
 
-      static inline void Check(const VGErrorCode errorCode, const std::string& message, const char* const pszFileName, const int lineNumber)
+    static inline void Check(const VGErrorCode errorCode, const std::string& message, const char* const pszFileName, const int lineNumber)
+    {
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          assert(pszFileName != nullptr);
-          throw OpenVGErrorException(ToNiceMessage(message, errorCode, pszFileName, lineNumber), errorCode, pszFileName, lineNumber);
-        }
+        assert(pszFileName != nullptr);
+        throw OpenVGErrorException(ToNiceMessage(message, errorCode, pszFileName, lineNumber), errorCode, pszFileName, lineNumber);
       }
+    }
 
-      static inline void Check(const VGErrorCode errorCode, const std::string& message, const std::string& fileName, const int lineNumber)
+    static inline void Check(const VGErrorCode errorCode, const std::string& message, const std::string& fileName, const int lineNumber)
+    {
+      if (errorCode != VG_NO_ERROR)
       {
-        if (errorCode != VG_NO_ERROR)
-        {
-          throw OpenVGErrorException(ToNiceMessage(message, errorCode, fileName, lineNumber), errorCode, fileName, lineNumber);
-        }
+        throw OpenVGErrorException(ToNiceMessage(message, errorCode, fileName, lineNumber), errorCode, fileName, lineNumber);
       }
+    }
 
-      static std::string ToNiceMessage(const std::string& message, const VGErrorCode errorCode);
-      static std::string ToNiceMessage(const std::string& message, const VGErrorCode errorCode, const std::string& fileName, const int lineNumber);
-    };
-  }
+    static std::string ToNiceMessage(const std::string& message, const VGErrorCode errorCode);
+    static std::string ToNiceMessage(const std::string& message, const VGErrorCode errorCode, const std::string& fileName, const int lineNumber);
+  };
 }
 
 #endif

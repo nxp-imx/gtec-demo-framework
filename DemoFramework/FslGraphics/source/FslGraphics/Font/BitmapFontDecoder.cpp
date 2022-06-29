@@ -29,12 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/BitmapFontDecoder.hpp>
 #include <FslBase/Bits/ByteSpanUtil_ReadLE.hpp>
 #include <FslBase/Compression/ValueCompression.hpp>
 #include <FslBase/Compression/ValueCompression_Span.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslGraphics/Font/BitmapFontDecoder.hpp>
 //#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/IO/File.hpp>
 #include <fmt/format.h>
@@ -94,7 +95,7 @@ namespace Fsl
     BitmapFontType ReadBitmapFontType(ReadOnlySpan<uint8_t>& rSpan)
     {
       const uint32_t value = ValueCompression::ReadSimpleUInt32(rSpan);
-      switch (BitmapFontType(value))
+      switch (static_cast<BitmapFontType>(value))
       {
       case BitmapFontType::Bitmap:
         return BitmapFontType::Bitmap;
@@ -135,7 +136,7 @@ namespace Fsl
     {
       const uint32_t first = ValueCompression::ReadSimpleUInt32(rSpan);
       const uint32_t second = ValueCompression::ReadSimpleUInt32(rSpan);
-      const int16_t amountPx = ValueCompression::ReadSimpleInt32(rSpan);
+      const auto amountPx = NumericCast<int16_t>(ValueCompression::ReadSimpleInt32(rSpan));
       return {first, second, amountPx};
     }
 
@@ -203,7 +204,7 @@ namespace Fsl
       throw FormatException("Failed to read all content");
     }
 
-    const float sdfScale = sdfDesiredBaseLinePx == 0 ? 1.0f : float(sdfDesiredBaseLinePx) / float(baseLinePx);
+    const float sdfScale = sdfDesiredBaseLinePx == 0 ? 1.0f : static_cast<float>(sdfDesiredBaseLinePx) / static_cast<float>(baseLinePx);
     const PxThicknessU16 paddingPx(paddingLeft, paddingTop, paddingRight, paddingBottom);
     BitmapFont::SdfParams sdfParams(sdfSpread, sdfScale);
     return {std::move(name),        dpi,      size,      lineSpacingPx,    baseLinePx,         paddingPx,

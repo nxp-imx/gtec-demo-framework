@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandList.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -41,14 +41,14 @@ namespace Fsl
   class InputRecordingManager
   {
     IO::Path m_persistentDataFile;
-    Optional<AppInputCommandList> m_commandList;
+    std::optional<AppInputCommandList> m_commandList;
 
   public:
     explicit InputRecordingManager(const ServiceProvider& serviceProvider, const bool forceDefaultSequence);
     ~InputRecordingManager();
 
 
-    Optional<AppInputCommandList> TryGetRecording();
+    std::optional<AppInputCommandList> TryGetRecording();
     bool TrySetRecording(const AppInputCommandList& commandList);
   };
 }

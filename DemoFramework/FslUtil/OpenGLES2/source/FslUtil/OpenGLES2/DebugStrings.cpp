@@ -33,192 +33,186 @@
 #include <FslUtil/OpenGLES2/GLCompressedFormat.hpp>
 #include <GLES2/gl2ext.h>
 
-namespace Fsl
+namespace Fsl::GLES2::Debug
 {
-  namespace GLES2
+  extern const char* ErrorCodeToString(const GLenum errorCode)
   {
-    namespace Debug
+    switch (errorCode)
     {
-      extern const char* ErrorCodeToString(const GLenum errorCode)
-      {
-        switch (errorCode)
-        {
-        case GL_NO_ERROR:
-          return "GL_NO_ERROR";
-        case GL_INVALID_ENUM:
-          return "GL_INVALID_ENUM";
-        case GL_INVALID_VALUE:
-          return "GL_INVALID_VALUE";
-        case GL_INVALID_OPERATION:
-          return "GL_INVALID_OPERATION";
-        case GL_INVALID_FRAMEBUFFER_OPERATION:
-          return "GL_INVALID_FRAMEBUFFER_OPERATION";
-        case GL_OUT_OF_MEMORY:
-          return "GL_OUT_OF_MEMORY";
+    case GL_NO_ERROR:
+      return "GL_NO_ERROR";
+    case GL_INVALID_ENUM:
+      return "GL_INVALID_ENUM";
+    case GL_INVALID_VALUE:
+      return "GL_INVALID_VALUE";
+    case GL_INVALID_OPERATION:
+      return "GL_INVALID_OPERATION";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+      return "GL_INVALID_FRAMEBUFFER_OPERATION";
+    case GL_OUT_OF_MEMORY:
+      return "GL_OUT_OF_MEMORY";
 
-        // Other useful enum values
-        case GL_FRAMEBUFFER_COMPLETE:
-          return "GL_FRAMEBUFFER_COMPLETE";
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-          return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-          return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-          return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-        case GL_FRAMEBUFFER_UNSUPPORTED:
-          return "GL_FRAMEBUFFER_UNSUPPORTED";
-        default:
-          return "Unknown";
-        }
-      }
+    // Other useful enum values
+    case GL_FRAMEBUFFER_COMPLETE:
+      return "GL_FRAMEBUFFER_COMPLETE";
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+      return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+      return "GL_FRAMEBUFFER_UNSUPPORTED";
+    default:
+      return "Unknown";
+    }
+  }
 
 
-      extern const char* TryTextureFormatToString(const GLint format)
-      {
-        switch (format)
-        {
-        case GL_COMPRESSED_RGBA_ASTC_4x4_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_4x4_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_5x4_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_5x4_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_5x5_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_5x5_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_6x5_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_6x5_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_6x6_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_6x6_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_8x5_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_8x5_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_8x6_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_8x6_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_8x8_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_8x8_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_10x5_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_10x5_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_10x6_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_10x6_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_10x8_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_10x8_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_10x10_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_10x10_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_12x10_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_12x10_KHR";
-        case GL_COMPRESSED_RGBA_ASTC_12x12_KHR:
-          return "GL_COMPRESSED_RGBA_ASTC_12x12_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR";
-        case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR";
+  extern const char* TryTextureFormatToString(const GLint format)
+  {
+    switch (format)
+    {
+    case GL_COMPRESSED_RGBA_ASTC_4x4_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_4x4_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_5x4_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_5x4_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_5x5_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_5x5_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_6x5_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_6x5_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_6x6_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_6x6_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_8x5_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_8x5_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_8x6_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_8x6_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_8x8_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_8x8_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_10x5_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_10x5_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_10x6_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_10x6_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_10x8_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_10x8_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_10x10_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_10x10_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_12x10_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_12x10_KHR";
+    case GL_COMPRESSED_RGBA_ASTC_12x12_KHR:
+      return "GL_COMPRESSED_RGBA_ASTC_12x12_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR";
+    case GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR:
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR";
 
-        case GL_ETC1_RGB8_OES:
-          return "GL_ETC1_RGB8_OES";
+    case GL_ETC1_RGB8_OES:
+      return "GL_ETC1_RGB8_OES";
 
-        case GL_PALETTE4_RGB8_OES:
-          return "GL_PALETTE4_RGB8_OES";
-        case GL_PALETTE4_RGBA8_OES:
-          return "GL_PALETTE4_RGBA8_OES";
-        case GL_PALETTE4_R5_G6_B5_OES:
-          return "GL_PALETTE4_R5_G6_B5_OES";
-        case GL_PALETTE4_RGBA4_OES:
-          return "GL_PALETTE4_RGBA4_OES";
-        case GL_PALETTE4_RGB5_A1_OES:
-          return "GL_PALETTE4_RGB5_A1_OES";
-        case GL_PALETTE8_RGB8_OES:
-          return "GL_PALETTE8_RGB8_OES";
-        case GL_PALETTE8_RGBA8_OES:
-          return "GL_PALETTE8_RGBA8_OES";
-        case GL_PALETTE8_R5_G6_B5_OES:
-          return "GL_PALETTE8_R5_G6_B5_OES";
-        case GL_PALETTE8_RGBA4_OES:
-          return "GL_PALETTE8_RGBA4_OES";
-        case GL_PALETTE8_RGB5_A1_OES:
-          return "GL_PALETTE8_RGB5_A1_OES";
+    case GL_PALETTE4_RGB8_OES:
+      return "GL_PALETTE4_RGB8_OES";
+    case GL_PALETTE4_RGBA8_OES:
+      return "GL_PALETTE4_RGBA8_OES";
+    case GL_PALETTE4_R5_G6_B5_OES:
+      return "GL_PALETTE4_R5_G6_B5_OES";
+    case GL_PALETTE4_RGBA4_OES:
+      return "GL_PALETTE4_RGBA4_OES";
+    case GL_PALETTE4_RGB5_A1_OES:
+      return "GL_PALETTE4_RGB5_A1_OES";
+    case GL_PALETTE8_RGB8_OES:
+      return "GL_PALETTE8_RGB8_OES";
+    case GL_PALETTE8_RGBA8_OES:
+      return "GL_PALETTE8_RGBA8_OES";
+    case GL_PALETTE8_R5_G6_B5_OES:
+      return "GL_PALETTE8_R5_G6_B5_OES";
+    case GL_PALETTE8_RGBA4_OES:
+      return "GL_PALETTE8_RGBA4_OES";
+    case GL_PALETTE8_RGB5_A1_OES:
+      return "GL_PALETTE8_RGB5_A1_OES";
 
-        case GL_3DC_X_AMD:
-          return "GL_3DC_X_AMD";
-        case GL_3DC_XY_AMD:
-          return "GL_3DC_XY_AMD";
+    case GL_3DC_X_AMD:
+      return "GL_3DC_X_AMD";
+    case GL_3DC_XY_AMD:
+      return "GL_3DC_XY_AMD";
 
-        case GL_ATC_RGB_AMD:
-          return "GL_ATC_RGB_AMD";
-        case GL_ATC_RGBA_EXPLICIT_ALPHA_AMD:
-          return "GL_ATC_RGBA_EXPLICIT_ALPHA_AMD";
-        case GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD:
-          return "GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD";
+    case GL_ATC_RGB_AMD:
+      return "GL_ATC_RGB_AMD";
+    case GL_ATC_RGBA_EXPLICIT_ALPHA_AMD:
+      return "GL_ATC_RGBA_EXPLICIT_ALPHA_AMD";
+    case GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD:
+      return "GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD";
 
-        case GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE:
-          return "GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE";
-        case GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE:
-          return "GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE";
+    case GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE:
+      return "GL_COMPRESSED_RGBA_S3TC_DXT3_ANGLE";
+    case GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE:
+      return "GL_COMPRESSED_RGBA_S3TC_DXT5_ANGLE";
 
-        case GL_COMPRESSED_SRGB_PVRTC_2BPPV1_EXT:
-          return "GL_COMPRESSED_SRGB_PVRTC_2BPPV1_EXT";
-        case GL_COMPRESSED_SRGB_PVRTC_4BPPV1_EXT:
-          return "GL_COMPRESSED_SRGB_PVRTC_4BPPV1_EXT";
-        case GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV1_EXT:
-          return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV1_EXT";
-        case GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV1_EXT:
-          return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV1_EXT";
-        case GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV2_IMG:
-          return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV2_IMG";
-        case GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV2_IMG:
-          return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV2_IMG";
+    case GL_COMPRESSED_SRGB_PVRTC_2BPPV1_EXT:
+      return "GL_COMPRESSED_SRGB_PVRTC_2BPPV1_EXT";
+    case GL_COMPRESSED_SRGB_PVRTC_4BPPV1_EXT:
+      return "GL_COMPRESSED_SRGB_PVRTC_4BPPV1_EXT";
+    case GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV1_EXT:
+      return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV1_EXT";
+    case GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV1_EXT:
+      return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV1_EXT";
+    case GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV2_IMG:
+      return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_2BPPV2_IMG";
+    case GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV2_IMG:
+      return "GL_COMPRESSED_SRGB_ALPHA_PVRTC_4BPPV2_IMG";
 
-        case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
-          return "GL_COMPRESSED_RGB_S3TC_DXT1_EXT";
-        case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-          return "GL_COMPRESSED_RGBA_S3TC_DXT1_EXT";
+    case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+      return "GL_COMPRESSED_RGB_S3TC_DXT1_EXT";
+    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+      return "GL_COMPRESSED_RGBA_S3TC_DXT1_EXT";
 
-        case static_cast<GLint>(GLCompressedFormat::R11_EAC):
-          return "GL_COMPRESSED_R11_EAC";
-        case static_cast<GLint>(GLCompressedFormat::SIGNED_R11_EAC):
-          return "GL_COMPRESSED_SIGNED_R11_EAC";
-        case static_cast<GLint>(GLCompressedFormat::RG11_EAC):
-          return "GL_COMPRESSED_RG11_EAC";
-        case static_cast<GLint>(GLCompressedFormat::SIGNED_RG11_EAC):
-          return "GL_COMPRESSED_SIGNED_RG11_EAC";
+    case static_cast<GLint>(GLCompressedFormat::R11_EAC):
+      return "GL_COMPRESSED_R11_EAC";
+    case static_cast<GLint>(GLCompressedFormat::SIGNED_R11_EAC):
+      return "GL_COMPRESSED_SIGNED_R11_EAC";
+    case static_cast<GLint>(GLCompressedFormat::RG11_EAC):
+      return "GL_COMPRESSED_RG11_EAC";
+    case static_cast<GLint>(GLCompressedFormat::SIGNED_RG11_EAC):
+      return "GL_COMPRESSED_SIGNED_RG11_EAC";
 
-        case static_cast<GLint>(GLCompressedFormat::RGB8_ETC2):
-          return "GL_COMPRESSED_RGB8_ETC2";
-        case static_cast<GLint>(GLCompressedFormat::SRGB8_ETC2):
-          return "GL_COMPRESSED_SRGB8_ETC2";
-        case static_cast<GLint>(GLCompressedFormat::RGB8_PUNCHTHROUGH_ALPHA1_ETC2):
-          return "GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2";
-        case static_cast<GLint>(GLCompressedFormat::SRGB8_PUNCHTHROUGH_ALPHA1_ETC2):
-          return "GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2";
-        case static_cast<GLint>(GLCompressedFormat::RGBA8_ETC2_EAC):
-          return "GL_COMPRESSED_RGBA8_ETC2_EAC";
-        case static_cast<GLint>(GLCompressedFormat::SRGB8_ALPHA8_ETC2_EAC):
-          return "GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC";
+    case static_cast<GLint>(GLCompressedFormat::RGB8_ETC2):
+      return "GL_COMPRESSED_RGB8_ETC2";
+    case static_cast<GLint>(GLCompressedFormat::SRGB8_ETC2):
+      return "GL_COMPRESSED_SRGB8_ETC2";
+    case static_cast<GLint>(GLCompressedFormat::RGB8_PUNCHTHROUGH_ALPHA1_ETC2):
+      return "GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2";
+    case static_cast<GLint>(GLCompressedFormat::SRGB8_PUNCHTHROUGH_ALPHA1_ETC2):
+      return "GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2";
+    case static_cast<GLint>(GLCompressedFormat::RGBA8_ETC2_EAC):
+      return "GL_COMPRESSED_RGBA8_ETC2_EAC";
+    case static_cast<GLint>(GLCompressedFormat::SRGB8_ALPHA8_ETC2_EAC):
+      return "GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC";
 
-        default:
-          return nullptr;
-        }
-      }
+    default:
+      return nullptr;
     }
   }
 }

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALMODULEHOST_HPP
 #define FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALMODULEHOST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,45 +33,42 @@
 
 #include <FslSimpleUI/Base/Module/IExternalModuleHost.hpp>
 #include <FslSimpleUI/Base/Module/IWindowClickInputTargetLocater.hpp>
-#include "ExternalWindowClickInputTargetLocater.hpp"
-#include "ExternalWindowBasicInfo.hpp"
-#include "../IModuleHost.hpp"
 #include <utility>
+#include "../IModuleHost.hpp"
+#include "ExternalWindowBasicInfo.hpp"
+#include "ExternalWindowClickInputTargetLocater.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ExternalModuleHost final : public IExternalModuleHost
   {
-    class ExternalModuleHost final : public IExternalModuleHost
+    std::shared_ptr<ExternalWindowClickInputTargetLocater> m_targetLocator;
+    std::shared_ptr<ExternalWindowBasicInfo> m_basicInfo;
+
+  public:
+    explicit ExternalModuleHost(const std::shared_ptr<IModuleHost>& moduleHost)
+      : m_targetLocator(std::make_shared<ExternalWindowClickInputTargetLocater>(moduleHost->GetTargetLocater()))
+      , m_basicInfo(std::make_shared<ExternalWindowBasicInfo>(moduleHost->GetBasicInfo()))
     {
-      std::shared_ptr<ExternalWindowClickInputTargetLocater> m_targetLocator;
-      std::shared_ptr<ExternalWindowBasicInfo> m_basicInfo;
+    }
 
-    public:
-      explicit ExternalModuleHost(const std::shared_ptr<IModuleHost>& moduleHost)
-        : m_targetLocator(std::make_shared<ExternalWindowClickInputTargetLocater>(moduleHost->GetTargetLocater()))
-        , m_basicInfo(std::make_shared<ExternalWindowBasicInfo>(moduleHost->GetBasicInfo()))
-      {
-      }
+    ~ExternalModuleHost() final
+    {
+      m_basicInfo->Dispose();
+      m_targetLocator->Dispose();
+    }
 
-      ~ExternalModuleHost() final
-      {
-        m_basicInfo->Dispose();
-        m_targetLocator->Dispose();
-      }
+    // From IExternalModuleHost
+    std::shared_ptr<IWindowClickInputTargetLocater> GetTargetLocater() const final
+    {
+      return m_targetLocator;
+    }
 
-      // From IExternalModuleHost
-      std::shared_ptr<IWindowClickInputTargetLocater> GetTargetLocater() const final
-      {
-        return m_targetLocator;
-      }
-
-      std::shared_ptr<IWindowBasicInfo> GetWindowInfo() const final
-      {
-        return m_basicInfo;
-      }
-    };
-  }
+    std::shared_ptr<IWindowBasicInfo> GetWindowInfo() const final
+    {
+      return m_basicInfo;
+    }
+  };
 }
 
 #endif

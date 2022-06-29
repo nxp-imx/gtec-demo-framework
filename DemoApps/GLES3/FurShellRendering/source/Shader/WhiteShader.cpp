@@ -39,8 +39,8 @@ namespace Fsl
 {
   using namespace GLES3;
 
-  WhiteShader::WhiteShader(const IContentManager& contentManager)
-    : ShaderBase(contentManager.ReadAllText("White.vert"), contentManager.ReadAllText("White.frag"))
+  WhiteShader::WhiteShader(const std::shared_ptr<IContentManager>& contentManager)
+    : ShaderBase(contentManager->ReadAllText("White.vert"), contentManager->ReadAllText("White.frag"))
     , m_locWVP(GLValues::INVALID_LOCATION)
   {
     const GLuint hHandle = Get();

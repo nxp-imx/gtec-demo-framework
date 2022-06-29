@@ -29,41 +29,38 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/MeshConverter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <FslGraphics/Vertices/VertexConverter.hpp>
+#include <FslGraphics3D/BasicScene/MeshConverter.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  void MeshConverter::GenericConvert(Mesh& rDst, const Mesh& src, const void* const pDstDefaultValues, const int32_t cbDstDefaultValues)
   {
-    void MeshConverter::GenericConvert(Mesh& rDst, const Mesh& src, const void* const pDstDefaultValues, const int32_t cbDstDefaultValues)
+    if (!src.IsValid())
     {
-      if (!src.IsValid())
-      {
-        throw std::invalid_argument("src mesh is not valid");
-      }
-
-      // Reset dst to correct size
-      const RawMeshContent rawSrc = src.GenericDirectAccess();
-      rDst.Reset(rawSrc.VertexCount, rawSrc.IndexCount, rawSrc.ThePrimitiveType);
-
-      RawMeshContentEx rawDst = rDst.GenericDirectAccess();
-      if (static_cast<std::size_t>(cbDstDefaultValues) != rawDst.VertexStride)
-      {
-        throw std::invalid_argument("default value not of the expected size");
-      }
-
-      assert(rawSrc.IndexCount == rawDst.IndexCount);
-      assert(rawSrc.VertexCount == rawDst.VertexCount);
-
-      VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, rDst.AsVertexDeclarationSpan(), rawSrc.pVertices,
-                                      rawSrc.VertexStride * rawSrc.VertexCount, src.AsVertexDeclarationSpan(), rawSrc.VertexCount, pDstDefaultValues,
-                                      cbDstDefaultValues);
-      IndexConverter::GenericConvert(rawDst.pIndices, rawDst.IndexStride * rawDst.IndexCount, rawDst.IndexStride, rawSrc.pIndices,
-                                     rawSrc.IndexStride * rawSrc.IndexCount, rawSrc.IndexStride, rawSrc.IndexCount);
+      throw std::invalid_argument("src mesh is not valid");
     }
+
+    // Reset dst to correct size
+    const RawMeshContent rawSrc = src.GenericDirectAccess();
+    rDst.Reset(rawSrc.VertexCount, rawSrc.IndexCount, rawSrc.ThePrimitiveType);
+
+    RawMeshContentEx rawDst = rDst.GenericDirectAccess();
+    if (static_cast<std::size_t>(cbDstDefaultValues) != rawDst.VertexStride)
+    {
+      throw std::invalid_argument("default value not of the expected size");
+    }
+
+    assert(rawSrc.IndexCount == rawDst.IndexCount);
+    assert(rawSrc.VertexCount == rawDst.VertexCount);
+
+    VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, rDst.AsVertexDeclarationSpan(), rawSrc.pVertices,
+                                    rawSrc.VertexStride * rawSrc.VertexCount, src.AsVertexDeclarationSpan(), rawSrc.VertexCount, pDstDefaultValues,
+                                    cbDstDefaultValues);
+    IndexConverter::GenericConvert(rawDst.pIndices, rawDst.IndexStride * rawDst.IndexCount, rawDst.IndexStride, rawSrc.pIndices,
+                                   rawSrc.IndexStride * rawSrc.IndexCount, rawSrc.IndexStride, rawSrc.IndexCount);
   }
 }

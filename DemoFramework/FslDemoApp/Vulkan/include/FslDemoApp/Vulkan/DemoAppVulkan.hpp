@@ -33,13 +33,13 @@
 
 #include <FslDemoApp/Base/ADemoApp.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanLaunchOptions.hpp>
-#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/DeviceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <memory>
 #include <vulkan/vulkan.h>
+#include <memory>
 
 namespace Fsl
 {

@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "OpenCL101.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "OpenCL101.hpp"
-#include <GLES3/gl3.h>
 #include <CL/cl.h>
+#include <GLES3/gl3.h>
 
 namespace Fsl
 {

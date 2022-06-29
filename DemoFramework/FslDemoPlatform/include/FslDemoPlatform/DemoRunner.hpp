@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoPlatform/DemoRunnerConfig.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslDemoPlatform/DemoRunnerConfig.hpp>
 
 namespace Fsl
 {

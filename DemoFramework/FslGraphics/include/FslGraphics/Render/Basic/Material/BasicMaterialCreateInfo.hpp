@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_BASIC_MATERIAL_BASICMATERIALCREATEINFO_HPP
 #define FSLGRAPHICS_RENDER_BASIC_MATERIAL_BASICMATERIALCREATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
+#include <FslGraphics/Render/Basic/Shader/BasicShaderHandle.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 
 namespace Fsl
@@ -40,6 +41,8 @@ namespace Fsl
   {
     const BasicMaterialInfo MaterialInfo;
     const VertexDeclarationSpan VertexDeclaration;
+    const BasicShaderHandle CustomVertexShader;
+    const BasicShaderHandle CustomFragmentShader;
 
 
     constexpr BasicMaterialCreateInfo(const BlendState blend, const VertexDeclarationSpan& vertexDeclaration) noexcept
@@ -57,6 +60,31 @@ namespace Fsl
     constexpr BasicMaterialCreateInfo(const BasicMaterialInfo materialInfo, const VertexDeclarationSpan& vertexDeclaration) noexcept
       : MaterialInfo(materialInfo)
       , VertexDeclaration(vertexDeclaration)
+    {
+    }
+
+
+    constexpr BasicMaterialCreateInfo(const BlendState blend, const VertexDeclarationSpan& vertexDeclaration,
+                                      const BasicShaderHandle customVertexShader, const BasicShaderHandle customFragmentShader) noexcept
+      : BasicMaterialCreateInfo(BasicMaterialInfo(blend, BasicCullMode::Back, BasicFrontFace::CounterClockwise, BasicMaterialDepthInfo()),
+                                vertexDeclaration, customVertexShader, customFragmentShader)
+    {
+    }
+
+    constexpr BasicMaterialCreateInfo(const BlendState blend, const BasicCullMode cullMode, const BasicFrontFace cullFrontFace,
+                                      const BasicMaterialDepthInfo& depthInfo, const VertexDeclarationSpan& vertexDeclaration,
+                                      const BasicShaderHandle customVertexShader, const BasicShaderHandle customFragmentShader) noexcept
+      : BasicMaterialCreateInfo(BasicMaterialInfo(blend, cullMode, cullFrontFace, depthInfo), vertexDeclaration, customVertexShader,
+                                customFragmentShader)
+    {
+    }
+
+    constexpr BasicMaterialCreateInfo(const BasicMaterialInfo materialInfo, const VertexDeclarationSpan& vertexDeclaration,
+                                      const BasicShaderHandle customVertexShader, const BasicShaderHandle customFragmentShader) noexcept
+      : MaterialInfo(materialInfo)
+      , VertexDeclaration(vertexDeclaration)
+      , CustomVertexShader(customVertexShader)
+      , CustomFragmentShader(customFragmentShader)
     {
     }
 

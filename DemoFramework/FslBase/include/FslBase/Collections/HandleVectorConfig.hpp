@@ -33,13 +33,10 @@
 
 #include <cstdint>
 
-namespace Fsl
+namespace Fsl::HandleVectorConfig
 {
-  namespace HandleVectorConfig
-  {
-    constexpr int32_t InvalidHandle = -1;
-    constexpr const uint32_t GrowBy = 128;
-  }
+  constexpr int32_t InvalidHandle = -1;
+  constexpr const uint32_t GrowBy = 128;
 }
 
 #endif

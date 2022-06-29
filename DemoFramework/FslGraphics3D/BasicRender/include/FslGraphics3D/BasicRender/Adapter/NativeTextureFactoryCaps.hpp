@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_ADAPTER_NATIVETEXTUREFACTORYCAPS_HPP
 #define FSLGRAPHICS3D_BASICRENDER_ADAPTER_NATIVETEXTUREFACTORYCAPS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,57 +33,54 @@
 
 #include <cstdint>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  enum class NativeTextureFactoryCaps : uint32_t
   {
-    enum class NativeTextureFactoryCaps : uint32_t
-    {
-      // A empty flag
-      NotDefined = 0x00,
+    // A empty flag
+    NotDefined = 0x00,
 
-      // The texture factory supports the creation of dynamic textures where you can call SetData on them.
-      Dynamic = 0x01,
+    // The texture factory supports the creation of dynamic textures where you can call SetData on them.
+    Dynamic = 0x01,
 
-      // The texture coordinates should be flipped in Y
-      TextureCoordinatesFlipY = 0x02,
-    };
+    // The texture coordinates should be flipped in Y
+    TextureCoordinatesFlipY = 0x02,
+  };
 
-    constexpr inline NativeTextureFactoryCaps operator|(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs)
-    {
-      return static_cast<NativeTextureFactoryCaps>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-    }
-
-    constexpr inline NativeTextureFactoryCaps operator&(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs)
-    {
-      return static_cast<NativeTextureFactoryCaps>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-    }
-
-
-    namespace NativeTextureFactoryCapsUtil
-    {
-      inline bool IsEnabled(const NativeTextureFactoryCaps srcFlag, NativeTextureFactoryCaps flag)
-      {
-        return (srcFlag & flag) == flag;
-      }
-
-      inline void Enable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag)
-      {
-        rDstFlag = rDstFlag | flag;
-      }
-
-
-      inline void Disable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag)
-      {
-        rDstFlag = rDstFlag & (NativeTextureFactoryCaps(~static_cast<uint32_t>(flag)));
-      }
-
-      inline void Set(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag, const bool enabled)
-      {
-        rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (NativeTextureFactoryCaps(~static_cast<uint32_t>(flag))));
-      }
-    };
+  constexpr inline NativeTextureFactoryCaps operator|(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs)
+  {
+    return static_cast<NativeTextureFactoryCaps>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
+
+  constexpr inline NativeTextureFactoryCaps operator&(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs)
+  {
+    return static_cast<NativeTextureFactoryCaps>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+
+  namespace NativeTextureFactoryCapsUtil
+  {
+    inline bool IsEnabled(const NativeTextureFactoryCaps srcFlag, NativeTextureFactoryCaps flag)
+    {
+      return (srcFlag & flag) == flag;
+    }
+
+    inline void Enable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag)
+    {
+      rDstFlag = rDstFlag | flag;
+    }
+
+
+    inline void Disable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag)
+    {
+      rDstFlag = rDstFlag & (static_cast<NativeTextureFactoryCaps>(~static_cast<uint32_t>(flag)));
+    }
+
+    inline void Set(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag, const bool enabled)
+    {
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<NativeTextureFactoryCaps>(~static_cast<uint32_t>(flag))));
+    }
+  };
 }
 
 #endif

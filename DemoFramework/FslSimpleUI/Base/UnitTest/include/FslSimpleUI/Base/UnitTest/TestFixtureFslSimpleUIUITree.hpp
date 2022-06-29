@@ -39,6 +39,10 @@
 
 namespace Fsl
 {
+  namespace DataBinding
+  {
+    class DataBindingService;
+  }
   namespace UI
   {
     class BaseWindowContext;
@@ -56,6 +60,7 @@ namespace Fsl
 class TestFixtureFslSimpleUIUITree : public TestFixtureFslBase
 {
 protected:
+  std::shared_ptr<Fsl::DataBinding::DataBindingService> m_dataBindingService;
   std::shared_ptr<Fsl::UI::ModuleCallbackRegistry> m_moduleCallbackRegistry;
   Fsl::UI::UIRenderSystem m_renderSystem;
   std::shared_ptr<Fsl::UI::WindowEventPool> m_eventPool;

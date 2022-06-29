@@ -31,15 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
+#include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/ITag.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoApp/Base/CustomDemoAppConfig.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <memory>
 
 namespace Fsl
 {
@@ -71,7 +72,7 @@ namespace Fsl
     void UpdateWindowMetrics(const DemoWindowMetrics& windowMetrics)
     {
       WindowMetrics = windowMetrics;
-      ScreenResolution = Point2(windowMetrics.ExtentPx.Width, windowMetrics.ExtentPx.Height);
+      ScreenResolution = TypeConverter::To<Point2>(windowMetrics.ExtentPx);
     }
 
     //! Get the option parser if its available

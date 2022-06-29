@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Render/AtlasTexture2D.hpp>
 
 namespace Fsl
 {

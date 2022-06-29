@@ -25,8 +25,8 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Plane.cs.
 
-#include <FslBase/Math/PlaneHelper.hpp>
 #include <FslBase/Math/Plane.hpp>
+#include <FslBase/Math/PlaneHelper.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <cassert>
 #include <cmath>

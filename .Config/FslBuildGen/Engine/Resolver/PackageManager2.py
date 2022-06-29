@@ -219,6 +219,7 @@ class PackageManager2(object):
 
         packageLanguage = originalPackage.PackageLanguage
         generateList = originalPackage.GenerateList
+        generateGrpcProtoFileList = originalPackage.GenerateGrpcProtoFileList
 
         # patch the direct dependencies to match the flavor selection
         directDependencies = PackageManager2.__ToProcessedDependencyList(instance.DirectDependencies)
@@ -245,7 +246,8 @@ class PackageManager2(object):
         traceContext = originalPackage.TraceContext
 
         return ProcessedFactory.CreatePackage(createContext.Log, createContext.GeneratorInfo, projectContext, nameInfo, companyName, creationYear,
-                                              packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, generateList, directDependencies,
+                                              packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, generateList,
+                                              generateGrpcProtoFileList, directDependencies,
                                               directRequirements, directDefines, externalDependencies, path, templateType, buildCustomization,
                                               directExperimentalRecipe, resolvedPlatform, directPlatformSupported, customInfo, traceContext)
 
@@ -319,7 +321,6 @@ class PackageManager2(object):
         baseSourcePath = paths.BaseSourcePath
         return ProcessedPackagePaths(includePath, sourcePath, contentPath, contentSourcePath, baseIncludePath, baseSourcePath)
 
-
     @staticmethod
     def ProcessPackage(createContext: FactoryCreateContext, packageProjectContext: PackageProjectContext,
                        unresolvedPackage: UnresolvedPackage) -> ProcessedPackage:
@@ -332,6 +333,7 @@ class PackageManager2(object):
         packageFlags = PackageManager2.__ProcessFlags(unresolvedPackage.Flags)
         packageLanguage = unresolvedPackage.PackageLanguage
         generateList = unresolvedPackage.GenerateList
+        generateGrpcProtoFileList = unresolvedPackage.GenerateGrpcProtoFileList
         directDependencies = PackageManager2.__ToProcessedDependencyList2(unresolvedPackage.DirectDependencies)
         directRequirements = unresolvedPackage.DirectRequirements
         directDefines = unresolvedPackage.DirectDefines
@@ -345,11 +347,11 @@ class PackageManager2(object):
         customInfo = unresolvedPackage.CustomInfo
         traceContext = unresolvedPackage.TraceContext
 
-        return ProcessedFactory.CreatePackage(createContext.Log, createContext.GeneratorInfo, packageProjectContext, nameInfo, companyName, creationYear, packageFile,
-                                              sourceFileHash, packageType, packageFlags, packageLanguage, generateList, directDependencies,
-                                              directRequirements, directDefines, externalDependencies, path, templateType,
-                                              buildCustomization, directExperimentalRecipe, resolvedPlatform, directPlatformSupported,
-                                              customInfo, traceContext)
+        return ProcessedFactory.CreatePackage(createContext.Log, createContext.GeneratorInfo, packageProjectContext, nameInfo, companyName,
+                                              creationYear, packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, generateList,
+                                              generateGrpcProtoFileList, directDependencies, directRequirements, directDefines, externalDependencies,
+                                              path, templateType, buildCustomization, directExperimentalRecipe, resolvedPlatform,
+                                              directPlatformSupported, customInfo, traceContext)
 
 
     @staticmethod

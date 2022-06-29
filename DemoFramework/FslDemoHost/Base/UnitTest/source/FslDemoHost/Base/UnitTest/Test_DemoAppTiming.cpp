@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/DemoAppTiming.hpp>
-#include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Time/LogTimeSpan.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslDemoHost/Base/DemoAppTiming.hpp>
 
 using namespace Fsl;
 
@@ -58,7 +58,7 @@ namespace
 
   constexpr float CalcDeltaTime(const TimeSpan time) noexcept
   {
-    return static_cast<float>(double(time.Ticks()) / double(TimeInfo::TicksPerSecond));
+    return static_cast<float>(static_cast<double>(time.Ticks()) / static_cast<double>(TimeInfo::TicksPerSecond));
   }
 
   constexpr float CalcDeltaTimeFromFixedUpdatesperSecond(const uint16_t updatesPerSecond) noexcept
@@ -68,8 +68,9 @@ namespace
 
   constexpr TimeSpan CalcDeltaTimeSpanFromFixedUpdatesPerSecond(const uint16_t updatesPerSecond) noexcept
   {
-    return TimeSpan(updatesPerSecond > 0 ? static_cast<uint64_t>(std::round(double(TimeInfo::TicksPerSecond) / double(updatesPerSecond)))
-                                         : uint64_t(0));
+    return TimeSpan(updatesPerSecond > 0
+                      ? static_cast<int64_t>(std::round(static_cast<double>(TimeInfo::TicksPerSecond) / static_cast<double>(updatesPerSecond)))
+                      : static_cast<int64_t>(0));
   }
 }
 
@@ -280,7 +281,7 @@ TEST(Test_DemoAppTiming, ResetTimer_GetUpdateTime)
   EXPECT_EQ(updateTime.TotalTime.Ticks(), 0);
   EXPECT_FLOAT_EQ(updateTime.DeltaTime, 0.0f);
 
-  EXPECT_FALSE(timing.TryFixedUpdate().HasValue());
+  EXPECT_FALSE(timing.TryFixedUpdate().has_value());
 }
 
 
@@ -293,7 +294,7 @@ TEST(Test_DemoAppTiming, ResetTimer_TryFixedUpdate)
   timing.ResetTimer(LocalConfig::FixedTime2);
 
   EXPECT_FALSE(timing.HasPendingFixedUpdate());
-  EXPECT_FALSE(timing.TryFixedUpdate().HasValue());
+  EXPECT_FALSE(timing.TryFixedUpdate().has_value());
 }
 
 
@@ -314,7 +315,7 @@ TEST(Test_DemoAppTiming, ResetTimer_MultipleResets)
   EXPECT_FLOAT_EQ(updateTime.DeltaTime, 0.0f);
 
   EXPECT_FALSE(timing.HasPendingFixedUpdate());
-  EXPECT_FALSE(timing.TryFixedUpdate().HasValue());
+  EXPECT_FALSE(timing.TryFixedUpdate().has_value());
 }
 
 TEST(Test_DemoAppTiming, TimeNow_Normal)
@@ -338,10 +339,10 @@ TEST(Test_DemoAppTiming, TimeNow_Normal)
 
     EXPECT_TRUE(timing.HasPendingFixedUpdate());
     auto fixedUpdate = timing.TryFixedUpdate();
-    ASSERT_TRUE(fixedUpdate.HasValue());
-    EXPECT_EQ(fixedUpdate.Value().ElapsedTime, fixedUpdateTime);
-    EXPECT_EQ(fixedUpdate.Value().TotalTime, (numFixedUpdates * fixedUpdateTime));
-    LOCAL_CHECK_DELTATIME(fixedUpdate.Value().DeltaTime, CalcDeltaTime(fixedUpdateTime));
+    ASSERT_TRUE(fixedUpdate.has_value());
+    EXPECT_EQ(fixedUpdate.value().ElapsedTime, fixedUpdateTime);
+    EXPECT_EQ(fixedUpdate.value().TotalTime, (numFixedUpdates * fixedUpdateTime));
+    LOCAL_CHECK_DELTATIME(fixedUpdate.value().DeltaTime, CalcDeltaTime(fixedUpdateTime));
     EXPECT_FALSE(timing.HasPendingFixedUpdate());
   }
 }
@@ -365,7 +366,7 @@ TEST(Test_DemoAppTiming, TimeNow_Normal_ForcedUpdateTime1)
     EXPECT_EQ(numFixedUpdates, 0u);
 
     EXPECT_FALSE(timing.HasPendingFixedUpdate());
-    EXPECT_FALSE(timing.TryFixedUpdate().HasValue());
+    EXPECT_FALSE(timing.TryFixedUpdate().has_value());
   }
 }
 
@@ -389,10 +390,10 @@ TEST(Test_DemoAppTiming, TimeNow_Normal_ForcedUpdateTime2)
 
     EXPECT_TRUE(timing.HasPendingFixedUpdate());
     auto fixedUpdate = timing.TryFixedUpdate();
-    ASSERT_TRUE(fixedUpdate.HasValue());
-    EXPECT_EQ(fixedUpdate.Value().ElapsedTime, fixedUpdateTime);
-    EXPECT_EQ(fixedUpdate.Value().TotalTime, (numFixedUpdates * fixedUpdateTime));
-    LOCAL_CHECK_DELTATIME(fixedUpdate.Value().DeltaTime, CalcDeltaTime(fixedUpdateTime));
+    ASSERT_TRUE(fixedUpdate.has_value());
+    EXPECT_EQ(fixedUpdate.value().ElapsedTime, fixedUpdateTime);
+    EXPECT_EQ(fixedUpdate.value().TotalTime, (numFixedUpdates * fixedUpdateTime));
+    LOCAL_CHECK_DELTATIME(fixedUpdate.value().DeltaTime, CalcDeltaTime(fixedUpdateTime));
     EXPECT_FALSE(timing.HasPendingFixedUpdate());
   }
 }
@@ -408,11 +409,11 @@ TEST(Test_DemoAppTiming, TimeNow_AdvanceTimestep_Normal)
   {
     auto fixedUpdate = timing.TryFixedUpdate();
     // We always expect that a newly created object will have a fixed update ready
-    EXPECT_TRUE(fixedUpdate.HasValue());
-    EXPECT_EQ(fixedUpdate.Value().ElapsedTime, CalcDeltaTimeSpanFromFixedUpdatesPerSecond(timing.GetFixedUpdatesPerSecond()));
-    EXPECT_EQ(fixedUpdate.Value().TotalTime, CalcDeltaTimeSpanFromFixedUpdatesPerSecond(timing.GetFixedUpdatesPerSecond()));
-    LOCAL_CHECK_DELTATIME(fixedUpdate.Value().DeltaTime, CalcDeltaTimeFromFixedUpdatesperSecond(timing.GetFixedUpdatesPerSecond()));
-    baseFixedTotalTime = fixedUpdate.Value().TotalTime;
+    EXPECT_TRUE(fixedUpdate.has_value());
+    EXPECT_EQ(fixedUpdate.value().ElapsedTime, CalcDeltaTimeSpanFromFixedUpdatesPerSecond(timing.GetFixedUpdatesPerSecond()));
+    EXPECT_EQ(fixedUpdate.value().TotalTime, CalcDeltaTimeSpanFromFixedUpdatesPerSecond(timing.GetFixedUpdatesPerSecond()));
+    LOCAL_CHECK_DELTATIME(fixedUpdate.value().DeltaTime, CalcDeltaTimeFromFixedUpdatesperSecond(timing.GetFixedUpdatesPerSecond()));
+    baseFixedTotalTime = fixedUpdate.value().TotalTime;
     EXPECT_FALSE(timing.HasPendingFixedUpdate());
   }
 
@@ -433,9 +434,9 @@ TEST(Test_DemoAppTiming, TimeNow_AdvanceTimestep_Normal)
     EXPECT_EQ(numFixedUpdates, 1u);
 
     auto fixedUpdate = timing.TryFixedUpdate();
-    ASSERT_TRUE(fixedUpdate.HasValue());
-    EXPECT_EQ(fixedUpdate.Value().ElapsedTime, fixedUpdateTime);
-    EXPECT_EQ(fixedUpdate.Value().TotalTime, baseFixedTotalTime + fixedUpdateTime);
-    LOCAL_CHECK_DELTATIME(fixedUpdate.Value().DeltaTime, CalcDeltaTime(fixedUpdateTime));
+    ASSERT_TRUE(fixedUpdate.has_value());
+    EXPECT_EQ(fixedUpdate.value().ElapsedTime, fixedUpdateTime);
+    EXPECT_EQ(fixedUpdate.value().TotalTime, baseFixedTotalTime + fixedUpdateTime);
+    LOCAL_CHECK_DELTATIME(fixedUpdate.value().DeltaTime, CalcDeltaTime(fixedUpdateTime));
   }
 }

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpExtent.hpp>
+#include <FslBase/Math/Dp/DpExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/Font/BitmapFontConfig.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
@@ -50,7 +50,7 @@ namespace Fsl
     PxExtent2D AtlasTextureExtentPx;
 
     //! The source atlas texture density extent (this is the dp size of the source atlas texture)
-    DpExtent AtlasTextureExtentDp;
+    DpExtent2D AtlasTextureExtentDp;
 
     //! This is the actual distance in pixels between each line of text.
     uint16_t LineSpacingPx{};

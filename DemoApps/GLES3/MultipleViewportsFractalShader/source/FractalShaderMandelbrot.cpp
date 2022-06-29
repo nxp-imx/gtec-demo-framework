@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include "FractalShaderMandelbrot.hpp"
-#include <Shared/FractalShader/BasicOptionParser.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <Shared/FractalShader/BasicOptionParser.hpp>
 #include <GLES3/gl3.h>
 #include <array>
 #include <cmath>
@@ -91,7 +91,7 @@ namespace Fsl
     m_locCoordinateScale = glGetUniformLocation(hProgram, "CoordinateScale");
 
     // Since we are rendering to 1/2 of the original resolution the aspect calc can easily use the actual screen resolution.
-    const float aspect = (m_screenResolution.Y / static_cast<float>(m_screenResolution.X));
+    const float aspect = (static_cast<float>(m_screenResolution.Y) / static_cast<float>(m_screenResolution.X));
     const float scaleX = 2.5f;
     const float scaleY = scaleX * aspect;
     const float u1 = (-1.0f) * scaleX;

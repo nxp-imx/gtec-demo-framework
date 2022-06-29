@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_ITEMALIGNMENTUTIL_HPP
 #define FSLSIMPLEUI_BASE_ITEMALIGNMENTUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,45 +34,39 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
 
-namespace Fsl
+namespace Fsl::UI::ItemAlignmentUtil
 {
-  namespace UI
+  constexpr inline int32_t CalcAlignmentPx(const ItemAlignment alignment, const int32_t deltaPx) noexcept
   {
-    namespace ItemAlignmentUtil
+    switch (alignment)
     {
-      constexpr inline int32_t CalcAlignmentPx(const ItemAlignment alignment, const int32_t deltaPx) noexcept
-      {
-        switch (alignment)
-        {
-        case ItemAlignment::Center:
-          // +1 or -1 before divide ensures that this is equal to doing a "round"
-          return deltaPx >= 0 ? static_cast<int32_t>((static_cast<int64_t>(deltaPx) + 1) / 2)
-                              : static_cast<int32_t>((static_cast<int64_t>(deltaPx) - 1) / 2);
-        case ItemAlignment::Far:
-          return deltaPx;
-        case ItemAlignment::Near:
-        default:
-          return 0;
-        }
-      }
-
-
-      constexpr inline int32_t CenterPx(const int32_t deltaPx) noexcept
-      {
-        // +1 or -1 before divide ensures that this is equal to doing a "round"
-        return deltaPx >= 0 ? static_cast<int32_t>((static_cast<int64_t>(deltaPx) + 1) / 2)
-                            : static_cast<int32_t>((static_cast<int64_t>(deltaPx) - 1) / 2);
-      }
-
-
-      constexpr inline uint16_t CenterPx(const uint16_t deltaPx) noexcept
-      {
-        // +1 or -1 before divide ensures that this is equal to doing a "round"
-        return static_cast<uint16_t>((static_cast<int32_t>(deltaPx) + 1) / 2);
-      }
-
+    case ItemAlignment::Center:
+      // +1 or -1 before divide ensures that this is equal to doing a "round"
+      return deltaPx >= 0 ? static_cast<int32_t>((static_cast<int64_t>(deltaPx) + 1) / 2)
+                          : static_cast<int32_t>((static_cast<int64_t>(deltaPx) - 1) / 2);
+    case ItemAlignment::Far:
+      return deltaPx;
+    case ItemAlignment::Near:
+    default:
+      return 0;
     }
   }
+
+
+  constexpr inline int32_t CenterPx(const int32_t deltaPx) noexcept
+  {
+    // +1 or -1 before divide ensures that this is equal to doing a "round"
+    return deltaPx >= 0 ? static_cast<int32_t>((static_cast<int64_t>(deltaPx) + 1) / 2)
+                        : static_cast<int32_t>((static_cast<int64_t>(deltaPx) - 1) / 2);
+  }
+
+
+  constexpr inline uint16_t CenterPx(const uint16_t deltaPx) noexcept
+  {
+    // +1 or -1 before divide ensures that this is equal to doing a "round"
+    return static_cast<uint16_t>((static_cast<int32_t>(deltaPx) + 1) / 2);
+  }
+
 }
 
 #endif

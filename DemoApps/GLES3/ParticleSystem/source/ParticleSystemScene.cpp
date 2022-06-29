@@ -29,13 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include "ParticleSystemScene.hpp"
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
-#include <FslUtil/OpenGLES3/GLUtil.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -44,17 +43,19 @@
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
-#include "ParticleSystemScene.hpp"
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include <GLES3/gl3.h>
+#include <array>
+#include "PS/Draw/ParticleDrawGeometryShaderGLES3.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"
-#include "PS/Draw/ParticleDrawGeometryShaderGLES3.hpp"
 #include "PS/Emit/BoxEmitter.hpp"
 #include "PS/ParticleSystemOneArray.hpp"
 #include "PS/ParticleSystemTwoArrays.hpp"
 #include "PSGpu/ParticleSystemGLES3.hpp"
 #include "PSGpu/ParticleSystemSnow.hpp"
-#include <GLES3/gl3.h>
-#include <array>
 
 namespace Fsl
 {
@@ -287,18 +288,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -332,7 +333,7 @@ namespace Fsl
 
   void ParticleSystemScene::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    m_camera.AddZoom(event.GetDelta() * -0.001f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
 
@@ -367,7 +368,7 @@ namespace Fsl
         particleCount += m_particleSystemGpu2->GetParticleCount();
       }
 
-      m_valueLabelGPUParticleCount->SetContent(particleCount);
+      m_valueLabelGPUParticleCount->SetContent(UncheckedNumericCast<int32_t>(particleCount));
     }
 
     if (m_particleSystem)
@@ -455,7 +456,7 @@ namespace Fsl
     // bind the vertex buffer and enable the attrib array
     glBindBuffer(m_vbCube.GetTarget(), m_vbCube.Get());
     m_vbCube.EnableAttribArrays(m_cubeAttribLink);
-    glDrawArrays(GL_TRIANGLES, 0, m_vbCube.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, m_vbCube.GetGLCapacity());
   }
 
 
@@ -483,19 +484,19 @@ namespace Fsl
     auto& factory = *uiControlFactory;
 
 
-    m_valueLabelParticleCount = factory.CreateFmtValueLabel(int32_t(10));
+    m_valueLabelParticleCount = factory.CreateFmtValueLabel(static_cast<int32_t>(10));
 
     auto labelParticles = factory.CreateLabel("Particles: ");
 
     auto stackLayout = std::make_shared<StackLayout>(context);
-    stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
+    stackLayout->SetOrientation(LayoutOrientation::Horizontal);
     stackLayout->AddChild(labelParticles);
     stackLayout->AddChild(m_valueLabelParticleCount);
 
     m_sliderEmit = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::EmitRange);
 
     auto outerStack = std::make_shared<StackLayout>(context);
-    outerStack->SetLayoutOrientation(LayoutOrientation::Vertical);
+    outerStack->SetOrientation(LayoutOrientation::Vertical);
     outerStack->AddChild(stackLayout);
     outerStack->AddChild(m_sliderEmit);
 
@@ -517,16 +518,16 @@ namespace Fsl
         m_cbParticleSystemGPU2 = factory.CreateSwitch("GPUSystem2");
         m_cbParticleSystemGPU2->SetAlignmentX(UI::ItemAlignment::Stretch);
 
-        m_valueLabelGPUParticleCount = factory.CreateFmtValueLabel(int32_t(10));
+        m_valueLabelGPUParticleCount = factory.CreateFmtValueLabel(static_cast<int32_t>(10));
 
         auto labelParticles2 = factory.CreateLabel("GPUParticles: ");
-        stackLayoutQ->SetLayoutOrientation(LayoutOrientation::Horizontal);
+        stackLayoutQ->SetOrientation(LayoutOrientation::Horizontal);
         stackLayoutQ->AddChild(labelParticles2);
         stackLayoutQ->AddChild(m_valueLabelGPUParticleCount);
       }
 
       auto comboStack = std::make_shared<StackLayout>(context);
-      comboStack->SetLayoutOrientation(LayoutOrientation::Vertical);
+      comboStack->SetOrientation(LayoutOrientation::Vertical);
       if (m_particleSystemPoints)
       {
         comboStack->AddChild(m_particleSystemPoints);

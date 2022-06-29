@@ -51,11 +51,11 @@ namespace Fsl
     using value_type = T;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using reference = value_type&;
-    using const_reference = const value_type&;
+    using reference = T&;
+    using const_reference = const T&;
 
   private:
-    std::vector<value_type> m_data;
+    std::vector<T> m_data;
     size_type m_frontIndex{0u};
     size_type m_entries{0u};
 
@@ -182,7 +182,7 @@ namespace Fsl
       m_frontIndex = 0u;
     }
 
-    void push_back(const value_type& value)
+    void push_back(const T& value)
     {
       if (m_entries >= m_data.size())
       {
@@ -195,7 +195,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
-    void push_back(value_type&& value)
+    void push_back(T&& value)
     {
       if (m_entries >= m_data.size())
       {
@@ -208,7 +208,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
-    void push_front(const value_type& value)
+    void push_front(const T& value)
     {
       if (m_entries >= m_data.size())
       {
@@ -222,7 +222,7 @@ namespace Fsl
       assert(m_entries <= m_data.size());
     }
 
-    void push_front(value_type&& value)
+    void push_front(T&& value)
     {
       if (m_entries >= m_data.size())
       {
@@ -307,7 +307,7 @@ namespace Fsl
         else
         {
           // copy to a new buffer, then release the old one
-          std::vector<value_type> tmp(newSize);
+          std::vector<T> tmp(newSize);
           for (std::size_t i = 0; i < size(); ++i)
           {
             tmp[i] = (*this)[i];
@@ -324,7 +324,7 @@ namespace Fsl
 
     constexpr uint32_t segment_count() const noexcept
     {
-      return m_entries <= (m_data.size() - m_frontIndex) ? 1u : 2u;
+      return m_entries <= (m_data.size() - m_frontIndex) ? (m_entries > 0 ? 1u : 0u) : 2u;
     }
 
     ReadOnlySpan<T> AsReadOnlySpan(const uint32_t segmentIndex) const

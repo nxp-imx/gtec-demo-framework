@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_APP_RESOURCE_UIAPPTEXTUREINFO_HPP
 #define FSLSIMPLEUI_APP_RESOURCE_UIAPPTEXTUREINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,23 +36,20 @@
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::SimpleUIApp
 {
-  namespace SimpleUIApp
+  struct UIAppTextureInfo
   {
-    struct UIAppTextureInfo
-    {
-      PxExtent2D ExtentPx;
-      std::shared_ptr<INativeTexture2D> Texture;
+    PxExtent2D ExtentPx;
+    std::shared_ptr<INativeTexture2D> Texture;
 
-      UIAppTextureInfo() = default;
-      UIAppTextureInfo(const PxExtent2D extentPx, std::shared_ptr<INativeTexture2D> texture)
-        : ExtentPx(extentPx)
-        , Texture(std::move(texture))
-      {
-      }
-    };
-  }
+    UIAppTextureInfo() = default;
+    UIAppTextureInfo(const PxExtent2D extentPx, std::shared_ptr<INativeTexture2D> texture)
+      : ExtentPx(extentPx)
+      , Texture(std::move(texture))
+    {
+    }
+  };
 }
 
 #endif

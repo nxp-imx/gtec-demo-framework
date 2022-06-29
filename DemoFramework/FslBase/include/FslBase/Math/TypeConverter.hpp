@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_TYPECONVERTER_HPP
 #define FSLBASE_MATH_TYPECONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,26 +39,23 @@
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::TypeConverter
 {
-  namespace TypeConverter
+  template <>
+  constexpr inline Point2 UncheckedTo<Point2, Extent2D>(const Extent2D& value) noexcept
   {
-    template <>
-    constexpr inline Point2 UncheckedTo<Point2, Extent2D>(const Extent2D& value) noexcept
-    {
-      assert(value.Width <= static_cast<Extent2D::value_type>(std::numeric_limits<Point2::value_type>::max()));
-      assert(value.Height <= static_cast<Extent2D::value_type>(std::numeric_limits<Point2::value_type>::max()));
-      return {static_cast<Point2::value_type>(value.Width), static_cast<Point2::value_type>(value.Height)};
-    }
+    assert(value.Width <= static_cast<Extent2D::value_type>(std::numeric_limits<Point2::value_type>::max()));
+    assert(value.Height <= static_cast<Extent2D::value_type>(std::numeric_limits<Point2::value_type>::max()));
+    return {static_cast<Point2::value_type>(value.Width), static_cast<Point2::value_type>(value.Height)};
+  }
 
-    template <>
-    constexpr inline Extent2D UncheckedTo<Extent2D, Point2>(const Point2& value) noexcept
-    {
-      static_assert(sizeof(Extent2D::value_type) == sizeof(Point2::value_type), "The sizes of these types should match");
-      assert(value.X >= 0);
-      assert(value.Y >= 0);
-      return {static_cast<Extent2D::value_type>(value.X), static_cast<Extent2D::value_type>(value.Y)};
-    }
+  template <>
+  constexpr inline Extent2D UncheckedTo<Extent2D, Point2>(const Point2& value) noexcept
+  {
+    static_assert(sizeof(Extent2D::value_type) == sizeof(Point2::value_type), "The sizes of these types should match");
+    assert(value.X >= 0);
+    assert(value.Y >= 0);
+    return {static_cast<Extent2D::value_type>(value.X), static_cast<Extent2D::value_type>(value.Y)};
   }
 }
 

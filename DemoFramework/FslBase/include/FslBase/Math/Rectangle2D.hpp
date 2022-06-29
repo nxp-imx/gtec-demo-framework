@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Extent2D.hpp>
 #include <FslBase/Math/Offset2D.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <limits>
 
 namespace Fsl
@@ -76,12 +77,12 @@ namespace Fsl
 
     inline int32_t Right() const noexcept
     {
-      return Offset.X + Extent.Width;
+      return Offset.X + UncheckedNumericCast<int32_t>(Extent.Width);
     }
 
     inline int32_t Bottom() const noexcept
     {
-      return Offset.Y + Extent.Height;
+      return Offset.Y + UncheckedNumericCast<int32_t>(Extent.Height);
     }
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
@@ -108,10 +109,11 @@ namespace Fsl
     //! @brief Get the center of this rect
     Offset2D GetCenter() const noexcept
     {
-      static_assert(Extent2D::value_type(std::numeric_limits<Offset2D::value_type>::max()) <= (std::numeric_limits<Extent2D::value_type>::max() / 2),
+      static_assert(static_cast<Extent2D::value_type>(std::numeric_limits<Offset2D::value_type>::max()) <=
+                      (std::numeric_limits<Extent2D::value_type>::max() / 2),
                     "overflow should not be possible");
 
-      return {Offset.X + Offset2D::value_type(Extent.Width / 2), Offset.Y + Offset2D::value_type(Extent.Height / 2)};
+      return {Offset.X + static_cast<Offset2D::value_type>(Extent.Width / 2), Offset.Y + static_cast<Offset2D::value_type>(Extent.Height / 2)};
     }
 
 

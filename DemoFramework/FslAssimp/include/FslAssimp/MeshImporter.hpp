@@ -31,14 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <assimp/mesh.h>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/Span.hpp>
 #include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
-#include <FslGraphics3D/BasicScene/MeshAllocatorFunc.hpp>
 #include <FslGraphics3D/BasicScene/MeshAllocator.hpp>
+#include <FslGraphics3D/BasicScene/MeshAllocatorFunc.hpp>
+#include <assimp/mesh.h>
 #include <memory>
 
 namespace Fsl

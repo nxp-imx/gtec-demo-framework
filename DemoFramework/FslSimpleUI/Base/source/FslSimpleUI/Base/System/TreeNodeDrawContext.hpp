@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_SYSTEM_TREENODEDRAWCONTEXT_HPP
 #define FSLSIMPLEUI_BASE_SYSTEM_TREENODEDRAWCONTEXT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,30 +34,27 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct TreeNodeDrawContext final
   {
-    struct TreeNodeDrawContext final
+    TreeNodeDrawContext() noexcept = default;
+
+    explicit TreeNodeDrawContext(const PxAreaRectangleF& targetRect) noexcept
+      : TargetRect(targetRect)
+      , ClippedTargetRect(targetRect)
     {
-      TreeNodeDrawContext() noexcept = default;
+    }
 
-      explicit TreeNodeDrawContext(const PxAreaRectangleF& targetRect) noexcept
-        : TargetRect(targetRect)
-        , ClippedTargetRect(targetRect)
-      {
-      }
+    //! @brief The target rect that the draw should occur to
+    PxAreaRectangleF TargetRect;
 
-      //! @brief The target rect that the draw should occur to
-      PxAreaRectangleF TargetRect;
+    //! @brief The target rect clipped against the parent
+    PxAreaRectangleF ClippedTargetRect;
 
-      //! @brief The target rect clipped against the parent
-      PxAreaRectangleF ClippedTargetRect;
-
-      //! @brief If clip to parent is enabled
-      bool ClipToParentEnabled{false};
-    };
-  }
+    //! @brief If clip to parent is enabled
+    bool ClipToParentEnabled{false};
+  };
 }
 
 #endif

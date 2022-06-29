@@ -30,23 +30,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroid.hpp>
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroid.hpp>
-#include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
-#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
-#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
+#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
+#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroid.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroid.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <Platform/Android/JNIUtil/JNIUtil.hpp>
-#include <android/sensor.h>
 #include <android/log.h>
-#include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
+#include <android/sensor.h>
+#include <android_native_app_glue.h>
 #include <algorithm>
 #include <thread>
 

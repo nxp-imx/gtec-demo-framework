@@ -30,10 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "MeshRenderBasic.hpp"
-#include "Shader/ShaderBase.hpp"
-#include <cassert>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES2/GLUtil.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
+#include <cassert>
+#include "Shader/ShaderBase.hpp"
 
 namespace Fsl
 {
@@ -48,15 +49,15 @@ namespace Fsl
     , m_pIndices(nullptr)
     , m_primitiveType(GLUtil::Convert(mesh.GetPrimitiveType()))
   {
-    const int indexCount = mesh.GetIndexCount();
+    const uint32_t indexCount = mesh.GetIndexCount();
     const uint16_t* pSrcIndices = mesh.GetIndices();
     const VertexPositionNormalTexture* const src = mesh.GetVertices();
-    const int vertexCount = mesh.GetVertexCount();
+    const uint32_t vertexCount = mesh.GetVertexCount();
     m_pVertices = new float[3 * vertexCount];
     m_pNormals = new float[3 * vertexCount];
     m_pTextureCoords = new float[2 * vertexCount];
     m_pIndices = new unsigned short[indexCount];
-    for (int i = 0; i < vertexCount; ++i)
+    for (uint32_t i = 0; i < vertexCount; ++i)
     {
       m_pVertices[i * 3 + 0] = src[i].Position.X;
       m_pVertices[i * 3 + 1] = src[i].Position.Y;
@@ -70,7 +71,7 @@ namespace Fsl
       m_pTextureCoords[i * 2 + 1] = src[i].TextureCoordinate.Y;
     }
 
-    for (int i = 0; i < indexCount; ++i)
+    for (uint32_t i = 0; i < indexCount; ++i)
     {
       m_pIndices[i] = static_cast<unsigned short>(pSrcIndices[i]);
     }
@@ -112,7 +113,7 @@ namespace Fsl
 
   void MeshRenderBasic::Draw()
   {
-    glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_pIndices);
+    glDrawElements(m_primitiveType, UncheckedNumericCast<GLsizei>(m_indexCount), GL_UNSIGNED_SHORT, m_pIndices);
   }
 
   void MeshRenderBasic::Unbind()

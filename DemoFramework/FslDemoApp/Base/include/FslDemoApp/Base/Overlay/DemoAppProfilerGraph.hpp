@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Collections/CircularFixedSizeBuffer.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Collections/CircularFixedSizeBuffer.hpp>
 #include <memory>
 #include <vector>
 

@@ -1,0 +1,67 @@
+@startuml FslSimpleUI.Controls.Charts
+scale 1
+
+namespace FslSimpleUI.Base.Mesh {
+    class CustomBasicSpriteBasicMesh
+    class CustomBasicSpriteMesh
+    class CustomSpriteFontMesh
+    class "CustomSpriteMesh<NineSliceSprite>" as CustomSpriteMesh_NineSliceSprite
+}
+
+namespace Data {
+    class ChartComplexDataEntry {
+        std::array<uint32_t, 16> Values
+    }
+    class ChartComplexDataInfo {
+        uint32_t Count
+        uint32_t SegmentCount
+        uint32_t ComplexDataEntries
+    }
+    class ChartGridInfo {
+        MinMax<uint32_t> ViewMinMax
+    }
+    class ChartGridLineInfo {
+        uint32_t Position
+        StringViewLite Label
+    }
+    interface IChartComplexDataWindow {
+      void SetWindowMaxSize(desiredNewCapacity)
+      ChartComplexDataInfo DataInfo()
+      ReadOnlySpan<ChartComplexDataEntry> DataAsReadOnlySpan(uint32_t segmentIndex);
+    }
+
+    interface IChartDataGridLines {
+      ChartGridInfo GridInfo()
+      StringViewLite GetDescriptionString(value)
+      ReadOnlySpan<ChartGridLineInfo> GetSuggestedGridLines(minMax)
+    }
+
+
+    IChartDataGridLines <|-- IChartComplexDataWindow
+    IChartDataGridLines o.. ChartGridLineInfo
+    IChartDataGridLines o.. ChartGridInfo
+    IChartComplexDataWindow o.. ChartComplexDataInfo
+    IChartComplexDataWindow o.. ChartComplexDataEntry
+}
+
+
+namespace Render {
+    class ChartDataWindowDrawData
+}
+
+
+
+class AreaChartConfig
+class AreaChart
+class AreaChartGridLineManager
+
+AreaChart o-- AreaChartGridLineManager
+AreaChart o-- Render.ChartDataWindowDrawData
+AreaChart o-- FslSimpleUI.Base.Mesh.CustomBasicSpriteBasicMesh
+AreaChart o-- FslSimpleUI.Base.Mesh.CustomBasicSpriteMesh
+AreaChart o-- FslSimpleUI.Base.Mesh.CustomSpriteMesh_NineSliceSprite
+AreaChart o-- FslSimpleUI.Base.Mesh.CustomSpriteFontMesh
+
+AreaChartGridLineManager o-- Data.IChartComplexDataWindow
+
+@enduml

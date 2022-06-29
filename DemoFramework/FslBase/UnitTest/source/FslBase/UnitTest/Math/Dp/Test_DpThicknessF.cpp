@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpThicknessF.hpp>
 #include <FslBase/Log/Math/Dp/LogDpThicknessF.hpp>
+#include <FslBase/Math/Dp/DpThicknessF.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
@@ -48,21 +48,21 @@ TEST(TestMathDp_DpThicknessF, Default)
 {
   DpThicknessF value;
 
-  EXPECT_EQ(0.0f, value.Left());
-  EXPECT_EQ(0.0f, value.Top());
-  EXPECT_EQ(0.0f, value.Right());
-  EXPECT_EQ(0.0f, value.Bottom());
-  EXPECT_EQ(0.0f, value.SumX());
-  EXPECT_EQ(0.0f, value.SumY());
+  EXPECT_EQ(DpThicknessF::value_type(0.0f), value.Left());
+  EXPECT_EQ(DpThicknessF::value_type(0.0f), value.Top());
+  EXPECT_EQ(DpThicknessF::value_type(0.0f), value.Right());
+  EXPECT_EQ(DpThicknessF::value_type(0.0f), value.SumX());
+  EXPECT_EQ(DpThicknessF::value_type(0.0f), value.Bottom());
+  EXPECT_EQ(DpThicknessF::value_type(0.0f), value.SumY());
 }
 
 
 TEST(TestMathDp_DpThicknessF, Values)
 {
-  const float left = 1.0f;
-  const float top = 2.0f;
-  const float right = 3.0f;
-  const float bottom = 4.0f;
+  const DpValueF left(1.0f);
+  const DpValueF top(2.0f);
+  const DpValueF right(3.0f);
+  const DpValueF bottom(4.0f);
   DpThicknessF value(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left());
@@ -75,10 +75,10 @@ TEST(TestMathDp_DpThicknessF, Values)
 
 TEST(TestMathDp_DpThicknessF, OperatorEqual)
 {
-  const float left = 1;
-  const float top = 2;
-  const float right = 3;
-  const float bottom = 4;
+  const DpValueF left(1);
+  const DpValueF top(2);
+  const DpValueF right(3);
+  const DpValueF bottom(4);
   DpThicknessF value1(left, top, right, bottom);
   DpThicknessF value2(left, top, right, bottom);
 
@@ -88,12 +88,12 @@ TEST(TestMathDp_DpThicknessF, OperatorEqual)
 
 TEST(TestMathDp_DpThicknessF, OperatorNotEqual)
 {
-  const float left = 1;
-  const float top = 2;
-  const float right = 3;
-  const float bottom = 4;
+  const DpValueF left(1);
+  const DpValueF top(2);
+  const DpValueF right(3);
+  const DpValueF bottom(4);
   DpThicknessF value1(left, top, right, bottom);
-  DpThicknessF value2(left, top, right, 5);
+  DpThicknessF value2(left, top, right, DpValueF(5));
 
   EXPECT_NE(value1, value2);
 }

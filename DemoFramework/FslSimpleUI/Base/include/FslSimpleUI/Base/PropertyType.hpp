@@ -31,26 +31,25 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class PropertyType
   {
-    enum class PropertyType
-    {
-      //! Content updates modifies layout calculations
-      Content = 0x01,
-      //! Layout updates modifies layout calculations
-      Layout = 0x02,
-      //! Alignment does not modify layout calculations
-      Alignment = 0x04,
-      //! Scale Policy does not modify layout calculations
-      ScalePolicy = 0x08,
-      //! BaseColor does not modify layout calculations
-      BaseColor = 0x10,
-      //! Other does not modify layout calculations
-      Other = 0x20,
-    };
-  }
+    //! Content updates modifies layout calculations
+    Content = 0x01,
+    //! Content updates modifies draw but not layout
+    ContentDraw = 0x02,
+    //! Layout updates modifies layout calculations
+    Layout = 0x04,
+    //! Alignment does not modify layout calculations
+    Alignment = 0x08,
+    //! Scale Policy does not modify layout calculations
+    ScalePolicy = 0x10,
+    //! BaseColor does not modify layout calculations
+    BaseColor = 0x20,
+    //! Other does not modify layout calculations
+    Other = 0x40,
+  };
 }
 
 #endif

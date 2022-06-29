@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASE_ICONTYPE_HPP
 #define FSLSIMPLEUI_THEME_BASE_ICONTYPE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,36 +32,36 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class IconType
   {
-    namespace Theme
-    {
-      enum class IconType
-      {
-        // Icons - Media
-        MediaFastForward,
-        MediaFastRewind,
-        MediaNext,
-        MediaPause,
-        MediaPlay,
-        MediaPrevious,
-        MediaRecord,
-        MediaReplay,
-        MediaStop,
+    Fill,
 
-        // Icons - Navigation
-        NavigationArrowBack,
-        NavigationArrowDownward,
-        NavigationArrowDropDown,
-        NavigationArrowDropUp,
-        NavigationArrowForward,
-        NavigationArrowUpward,
-        NavigationCancel
-      };
-    }
-  }
+    // Icons - Media
+    MediaFastForward,
+    MediaFastRewind,
+    MediaNext,
+    MediaPause,
+    MediaPlay,
+    MediaPrevious,
+    MediaRecord,
+    MediaReplay,
+    MediaStop,
+
+    // Icons - Content
+    ContentAdd,
+    ContentRemove,
+
+    // Icons - Navigation
+    NavigationArrowBack,
+    NavigationArrowDownward,
+    NavigationArrowDropDown,
+    NavigationArrowDropUp,
+    NavigationArrowForward,
+    NavigationArrowUpward,
+    NavigationCancel
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_OPENCV_CAMERAADAPTEROPENCV_HPP
 #define SHARED_CAMERA_ADAPTER_OPENCV_CAMERAADAPTEROPENCV_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,33 +31,30 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraAdapterAllocateInfo.hpp>
+#include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 #include <opencv2/opencv.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  class CameraAdapterOpenCV : public ICameraAdapter
   {
-    class CameraAdapterOpenCV : public ICameraAdapter
-    {
-      cv::VideoCapture m_cap;
-      cv::Mat m_vidFrame;
-      CameraAdapterConfig m_config;
-      // uint32_t m_bytesPerPixel{};
-      uint32_t m_frameId;
+    cv::VideoCapture m_cap;
+    cv::Mat m_vidFrame;
+    CameraAdapterConfig m_config;
+    // uint32_t m_bytesPerPixel{};
+    uint32_t m_frameId;
 
-    public:
-      CameraAdapterOpenCV(const CameraAdapterOpenCV&) = delete;
-      CameraAdapterOpenCV& operator=(const CameraAdapterOpenCV&) = delete;
+  public:
+    CameraAdapterOpenCV(const CameraAdapterOpenCV&) = delete;
+    CameraAdapterOpenCV& operator=(const CameraAdapterOpenCV&) = delete;
 
-      explicit CameraAdapterOpenCV(const CameraAdapterAllocateInfo& allocateInfo);
-      ~CameraAdapterOpenCV() override;
+    explicit CameraAdapterOpenCV(const CameraAdapterAllocateInfo& allocateInfo);
+    ~CameraAdapterOpenCV() override;
 
-      CameraAdapterConfig GetConfig() const override;
-      bool TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId) override;
-    };
-  }
+    CameraAdapterConfig GetConfig() const override;
+    bool TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId) override;
+  };
 }
 
 #endif

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "DevBasicRender.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
@@ -50,7 +50,7 @@ namespace Fsl
 
   DevBasicRender::DevBasicRender(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, GetVulkanSetup())
-    , m_shared(config, *GetContentManager())
+    , m_shared(config, GetContentManager())
   {
   }
 

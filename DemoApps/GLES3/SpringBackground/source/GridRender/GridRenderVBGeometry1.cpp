@@ -31,12 +31,12 @@
  ****************************************************************************************************************************************************/
 
 #include "GridRenderVBGeometry1.hpp"
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
+#include <GLES3/gl31.h>
 #include <cassert>
 
 namespace Fsl
@@ -190,7 +190,7 @@ namespace Fsl
     glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get());
     m_vertexBuffer.EnableAttribArrays(m_attribLink.data(), m_attribLink.size());
 
-    glDrawArrays(GL_LINE_STRIP, 0, m_vertexBuffer.GetCapacity());
+    glDrawArrays(GL_LINE_STRIP, 0, m_vertexBuffer.GetGLCapacity());
 
     m_vertexBuffer.DisableAttribArrays(m_attribLink.data(), m_attribLink.size());
     m_pipeline.BindClear();

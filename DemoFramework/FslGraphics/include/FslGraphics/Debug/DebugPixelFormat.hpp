@@ -33,13 +33,10 @@
 
 #include <FslGraphics/PixelFormat.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
-  {
-    const char* TryToString(const PixelFormat& value);
-    const char* ToString(const PixelFormat& value);
-  }
+  const char* TryToString(const PixelFormat& value);
+  const char* ToString(const PixelFormat& value);
 }
 
 #endif

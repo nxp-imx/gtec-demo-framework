@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Options/Options.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslDemoApp/Base/Service/Options/Options.hpp>
 #include <utility>
 
 namespace Fsl

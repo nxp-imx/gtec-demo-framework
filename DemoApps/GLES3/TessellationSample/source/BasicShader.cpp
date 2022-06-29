@@ -36,8 +36,8 @@
 #include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
 
 namespace Fsl
 {

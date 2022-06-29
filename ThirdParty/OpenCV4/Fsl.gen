@@ -74,7 +74,7 @@
       <ExternalDependency Name="opencv_xphoto" Access="Public" Type="StaticLib"/>
     </Platform>    
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.OpenCV_4_5"/>
+      <Dependency Name="Recipe.OpenCV_4_6"/>
     </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

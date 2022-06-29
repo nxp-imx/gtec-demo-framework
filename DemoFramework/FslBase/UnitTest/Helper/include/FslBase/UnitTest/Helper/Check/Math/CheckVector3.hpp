@@ -34,19 +34,16 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const Vector3& lhs, const Vector3& rhs)
   {
-    inline bool AlmostEqual(const Vector3& lhs, const Vector3& rhs)
-    {
-      return AlmostEqual(lhs.X, rhs.X) && AlmostEqual(lhs.Y, rhs.Y) && AlmostEqual(lhs.Z, rhs.Z);
-    }
+    return AlmostEqual(lhs.X, rhs.X) && AlmostEqual(lhs.Y, rhs.Y) && AlmostEqual(lhs.Z, rhs.Z);
+  }
 
-    inline bool IsNear(const Vector3& lhs, const Vector3& rhs, const float absError)
-    {
-      return IsNear(lhs.X, rhs.X, absError) && IsNear(lhs.Y, rhs.Y, absError) && IsNear(lhs.Z, rhs.Z, absError);
-    }
+  inline bool IsNear(const Vector3& lhs, const Vector3& rhs, const float absError)
+  {
+    return IsNear(lhs.X, rhs.X, absError) && IsNear(lhs.Y, rhs.Y, absError) && IsNear(lhs.Z, rhs.Z, absError);
   }
 }
 

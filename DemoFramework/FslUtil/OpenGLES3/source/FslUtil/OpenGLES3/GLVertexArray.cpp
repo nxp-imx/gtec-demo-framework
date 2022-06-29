@@ -32,66 +32,62 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
-
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLVertexArray::GLVertexArray()
+    : m_handle(GLValues::INVALID_HANDLE)
   {
-    GLVertexArray::GLVertexArray()
-      : m_handle(GLValues::INVALID_HANDLE)
+  }
+
+
+  GLVertexArray::GLVertexArray(const bool bInitialize)
+    : m_handle(GLValues::INVALID_HANDLE)
+  {
+    Reset(bInitialize);
+  }
+
+
+  GLVertexArray::~GLVertexArray()
+  {
+    Reset();
+  }
+
+
+  void GLVertexArray::Reset() noexcept
+  {
+    if (m_handle != GLValues::INVALID_HANDLE)
     {
+      glDeleteVertexArrays(1, &m_handle);
+      m_handle = GLValues::INVALID_HANDLE;
+    }
+  }
+
+
+  void GLVertexArray::Reset(const bool bInitialize)
+  {
+    Reset();
+    if (bInitialize)
+    {
+      GL_CHECK(glGenVertexArrays(1, &m_handle));
+    }
+  }
+
+
+  void GLVertexArray::Bind() const
+  {
+    if (!IsValid())
+    {
+      throw UsageErrorException("Can't bind a invalid vertex array");
     }
 
-
-    GLVertexArray::GLVertexArray(const bool bInitialize)
-      : m_handle(GLValues::INVALID_HANDLE)
-    {
-      Reset(bInitialize);
-    }
+    glBindVertexArray(m_handle);
+  }
 
 
-    GLVertexArray::~GLVertexArray()
-    {
-      Reset();
-    }
-
-
-    void GLVertexArray::Reset() noexcept
-    {
-      if (m_handle != GLValues::INVALID_HANDLE)
-      {
-        glDeleteVertexArrays(1, &m_handle);
-        m_handle = GLValues::INVALID_HANDLE;
-      }
-    }
-
-
-    void GLVertexArray::Reset(const bool bInitialize)
-    {
-      Reset();
-      if (bInitialize)
-      {
-        GL_CHECK(glGenVertexArrays(1, &m_handle));
-      }
-    }
-
-
-    void GLVertexArray::Bind() const
-    {
-      if (!IsValid())
-      {
-        throw UsageErrorException("Can't bind a invalid vertex array");
-      }
-
-      glBindVertexArray(m_handle);
-    }
-
-
-    void GLVertexArray::Unbind() const    // NOLINT(readability-convert-member-functions-to-static)
-    {
-      glBindVertexArray(0);
-    }
+  void GLVertexArray::Unbind() const    // NOLINT(readability-convert-member-functions-to-static)
+  {
+    glBindVertexArray(0);
   }
 }

@@ -29,20 +29,21 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "BloomRender.hpp"
-#include <GLES3/gl3.h>
-#include <iostream>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <GLES3/gl3.h>
+#include <iostream>
+#include "../IScene.hpp"
 #include "GaussianShaderBuilder.hpp"
 #include "VBHelper.hpp"
-#include "../IScene.hpp"
 
 
 namespace Fsl
@@ -53,19 +54,20 @@ namespace Fsl
   {
     namespace LocalCfg
     {
-      constexpr const GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+      constexpr GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
-      constexpr const int SIZE_MOD = 2;
-      constexpr const int SIZE_16 = 16 * SIZE_MOD;
-      constexpr const int SIZE_32 = 32 * SIZE_MOD;
-      constexpr const int SIZE_64 = 64 * SIZE_MOD;
-      constexpr const int SIZE_128 = 128 * SIZE_MOD;
-      constexpr const int SIZE_256 = 256 * SIZE_MOD;
+      constexpr int SIZE_MOD = 2;
+      constexpr int SIZE_16 = 16 * SIZE_MOD;
+      constexpr int SIZE_32 = 32 * SIZE_MOD;
+      constexpr int SIZE_64 = 64 * SIZE_MOD;
+      constexpr int SIZE_128 = 128 * SIZE_MOD;
+      constexpr int SIZE_256 = 256 * SIZE_MOD;
     }
 
-    constexpr const std::array<const char*, 3> g_shaderAttributeArray = {"VertexPosition", "VertexTexCoord", nullptr};
+    constexpr std::array<GLES3::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES3::GLBindAttribLocation(0, "VertexPosition"),
+                                                                                   GLES3::GLBindAttribLocation(1, "VertexTexCoord")};
 
-    constexpr const GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+    constexpr GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
   }
 
   // Bloom as described here
@@ -106,18 +108,19 @@ namespace Fsl
 
     m_strShaderVertPass = contentManager->ReadAllText("Shaders/Bloom/Pass.vert");
 
-    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/Bloom/BrightPass.frag"), g_shaderAttributeArray.data());
-    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/Bloom/CopyPass.frag"), g_shaderAttributeArray.data());
-    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/Bloom/BloomPass.frag"), g_shaderAttributeArray.data());
+    constexpr auto shaderAttributeSpan = ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray);
+    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/Bloom/BrightPass.frag"), shaderAttributeSpan);
+    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/Bloom/CopyPass.frag"), shaderAttributeSpan);
+    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/Bloom/BloomPass.frag"), shaderAttributeSpan);
 
     // Prepare the blur shader
     {
       m_programBlurHPass.Reset(m_strShaderVertPass,
                                GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/Bloom/GaussianTemplate5HPass.frag"), 1.0f),
-                               g_shaderAttributeArray.data());
+                               shaderAttributeSpan);
       m_programBlurVPass.Reset(m_strShaderVertPass,
                                GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/Bloom/GaussianTemplate5VPass.frag"), 1.0f),
-                               g_shaderAttributeArray.data());
+                               shaderAttributeSpan);
       m_locBlurHTexSize = glGetUniformLocation(m_programBlurHPass.Get(), "TexSize");
       m_locBlurVTexSize = glGetUniformLocation(m_programBlurVPass.Get(), "TexSize");
     }
@@ -258,19 +261,19 @@ namespace Fsl
     // Draw some debug overlays
     if (m_config.IsShowBuffersEnabled)
     {
-      float dstX = 0;
+      int32_t dstX = 0;
       m_batch->Begin(BlendState::Opaque);
       m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Color::White());
       dstX += m_fbRender256.GetSize().Width();
-      m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur256A.GetSize().Width();
-      m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur128A.GetSize().Width();
-      m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur64A.GetSize().Width();
-      m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0), Color::White());
       dstX += m_fbBlur32A.GetSize().Width();
-      m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0), Color::White());
       // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
     }
@@ -283,7 +286,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurHTexSize >= 0)
     {
-      glUniform1f(m_locBlurHTexSize, 1.0f / src.GetSize().Width());
+      glUniform1f(m_locBlurHTexSize, 1.0f / static_cast<float>(src.GetSize().Width()));
     }
     PostProcess(dst, src);
   }
@@ -295,7 +298,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurVTexSize >= 0)
     {
-      glUniform1f(m_locBlurVTexSize, 1.0f / src.GetSize().Height());
+      glUniform1f(m_locBlurVTexSize, 1.0f / static_cast<float>(src.GetSize().Height()));
     }
     PostProcess(dst, src);
   }

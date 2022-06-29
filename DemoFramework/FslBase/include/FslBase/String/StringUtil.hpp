@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -42,19 +43,19 @@ namespace Fsl
   namespace StringUtil
   {
     //! @brief Check if the string contains the character
-    constexpr inline bool Contains(const StringViewLite& src, const char ch)
+    constexpr inline bool Contains(const StringViewLite& src, const char ch) noexcept
     {
       return src.find(ch) != StringViewLite::npos;
     }
 
     //! @brief Check if the string contains the character
-    constexpr inline bool Contains(const char* const pszSrc, const char ch)
+    constexpr inline bool Contains(const char* const pszSrc, const char ch) noexcept
     {
       return StringViewLite(pszSrc).find(ch) != StringViewLite::npos;
     }
 
     //! @brief Check if the string contains the character
-    inline bool Contains(const std::string& src, const char ch)
+    inline bool Contains(const std::string& src, const char ch) noexcept
     {
       return Contains(StringViewLiteUtil::AsStringViewLite(src), ch);
     }
@@ -65,146 +66,146 @@ namespace Fsl
 
 
     //! @brief Check if the 'source' string starts with the character
-    constexpr inline bool StartsWith(const StringViewLite& src, const char ch)
+    constexpr inline bool StartsWith(const StringViewLite& src, const char ch) noexcept
     {
       return src.starts_with(ch);
     }
 
     //! @brief Check if the 'source' string starts with the character
-    constexpr inline bool StartsWith(const char* const pszSrc, const char ch)
+    constexpr inline bool StartsWith(const char* const pszSrc, const char ch) noexcept
     {
       return pszSrc != nullptr && pszSrc[0] == ch && ch != 0;
     }
 
     //! @brief Check if the 'source' string starts with the character
-    inline bool StartsWith(const std::string& src, const char ch)
+    inline bool StartsWith(const std::string& src, const char ch) noexcept
     {
       return (!src.empty() ? src.front() == ch : false);
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const StringViewLite& source, const StringViewLite& value)
+    constexpr inline bool StartsWith(const StringViewLite& source, const StringViewLite& value) noexcept
     {
       return source.starts_with(value);
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const StringViewLite& source, const char* const pszValue)
+    constexpr inline bool StartsWith(const StringViewLite& source, const char* const pszValue) noexcept
     {
       return source.starts_with(pszValue);
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const StringViewLite& source, const std::string& value)
+    inline bool StartsWith(const StringViewLite& source, const std::string& value) noexcept
     {
       return source.starts_with(StringViewLiteUtil::AsStringViewLite(value));
     }
 
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const char* const pszSource, const StringViewLite& value)
+    constexpr inline bool StartsWith(const char* const pszSource, const StringViewLite& value) noexcept
     {
       return StringViewLite(pszSource).starts_with(value);
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const char* const pszSource, const char* const pzValue)
+    constexpr inline bool StartsWith(const char* const pszSource, const char* const pzValue) noexcept
     {
       return StringViewLite(pszSource).starts_with(pzValue);
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const char* const pszSource, const std::string& value)
+    inline bool StartsWith(const char* const pszSource, const std::string& value) noexcept
     {
       return StringViewLite(pszSource).starts_with(StringViewLiteUtil::AsStringViewLite(value));
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const std::string& source, const StringViewLite& value)
+    inline bool StartsWith(const std::string& source, const StringViewLite& value) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(source).starts_with(StringViewLite(value));
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const std::string& source, const char* const pszValue)
+    inline bool StartsWith(const std::string& source, const char* const pszValue) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(source).starts_with(pszValue);
     }
 
     //! @brief Check if the 'source' string starts with the 'value'
-    inline bool StartsWith(const std::string& source, const std::string& value)
+    inline bool StartsWith(const std::string& source, const std::string& value) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(source).starts_with(StringViewLiteUtil::AsStringViewLite(value));
     }
 
     //! @brief Check if the 'source' string ends with the character
-    constexpr inline bool EndsWith(const StringViewLite& src, const char ch)
+    constexpr inline bool EndsWith(const StringViewLite& src, const char ch) noexcept
     {
       return src.ends_with(ch);
     }
 
     //! @brief Check if the 'source' string ends with the character
-    constexpr inline bool EndsWith(const char* const pszSrc, const char ch)
+    constexpr inline bool EndsWith(const char* const pszSrc, const char ch) noexcept
     {
       return pszSrc != nullptr && StringViewLite(pszSrc).ends_with(ch);
     }
 
     //! @brief Check if the 'source' string ends with the character
-    inline bool EndsWith(const std::string& src, const char ch)
+    inline bool EndsWith(const std::string& src, const char ch) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(src).ends_with(ch);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const StringViewLite& source, const StringViewLite& value)
+    constexpr inline bool EndsWith(const StringViewLite& source, const StringViewLite& value) noexcept
     {
       return source.ends_with(value);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const StringViewLite& source, const char* const pszValue)
+    constexpr inline bool EndsWith(const StringViewLite& source, const char* const pszValue) noexcept
     {
       return source.ends_with(pszValue);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const StringViewLite& source, const std::string& value)
+    inline bool EndsWith(const StringViewLite& source, const std::string& value) noexcept
     {
       return source.ends_with(StringViewLiteUtil::AsStringViewLite(value));
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const char* const pszSource, const StringViewLite& value)
+    constexpr inline bool EndsWith(const char* const pszSource, const StringViewLite& value) noexcept
     {
       return StringViewLite(pszSource).ends_with(value);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const char* const pszSource, const char* const pszValue)
+    constexpr inline bool EndsWith(const char* const pszSource, const char* const pszValue) noexcept
     {
       return StringViewLite(pszSource).ends_with(pszValue);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const char* const pszSource, const std::string& value)
+    inline bool EndsWith(const char* const pszSource, const std::string& value) noexcept
     {
       return StringViewLite(pszSource).ends_with(StringViewLiteUtil::AsStringViewLite(value));
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const std::string& source, const StringViewLite& value)
+    inline bool EndsWith(const std::string& source, const StringViewLite& value) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(source).ends_with(value);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const std::string& source, const char* const pszValue)
+    inline bool EndsWith(const std::string& source, const char* const pszValue) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(source).ends_with(pszValue);
     }
 
     //! @brief Check if the 'source' string ends with the 'value'
-    inline bool EndsWith(const std::string& source, const std::string& value)
+    inline bool EndsWith(const std::string& source, const std::string& value) noexcept
     {
       return StringViewLiteUtil::AsStringViewLite(source).ends_with(StringViewLiteUtil::AsStringViewLite(value));
     }
@@ -212,12 +213,21 @@ namespace Fsl
     //! @brief Index of the first occurrence of the char 'ch' in 'source'
     //! @param fromIndex the index to start at. Beware that if fromIndex is out of bounds this returns a negative value.
     //! @return the index or less than zero if not found
-    extern int32_t IndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex = 0);
+    constexpr inline int32_t IndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex = 0) noexcept
+    {
+      if (fromIndex >= 0 && static_cast<std::size_t>(fromIndex) <= source.size())
+      {
+        const std::size_t index = source.find(ch, static_cast<StringViewLite::size_type>(fromIndex));
+        assert(index == StringViewLite::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+        return (index != StringViewLite::npos ? static_cast<int32_t>(index) : -1);
+      }
+      return -1;
+    }
 
     //! @brief Index of the first occurrence of the char 'ch' in 'source'
     //! @param fromIndex the index to start at. Beware that if fromIndex is out of bounds this returns a negative value.
     //! @return the index or less than zero if not found
-    inline int32_t IndexOf(const char* const pszSource, const char ch, const int32_t fromIndex = 0)
+    constexpr inline int32_t IndexOf(const char* const pszSource, const char ch, const int32_t fromIndex = 0) noexcept
     {
       return IndexOf(StringViewLite(pszSource), ch, fromIndex);
     }
@@ -225,22 +235,27 @@ namespace Fsl
     //! @brief Index of the first occurrence of the char 'ch' in 'source'
     //! @param fromIndex the index to start at. Beware that if fromIndex is out of bounds this returns a negative value.
     //! @return the index or less than zero if not found
-    inline int32_t IndexOf(const std::string& source, const char ch, const int32_t fromIndex = 0)
+    inline int32_t IndexOf(const std::string& source, const char ch, const int32_t fromIndex = 0) noexcept
     {
       return IndexOf(StringViewLiteUtil::AsStringViewLite(source), ch, fromIndex);
     }
 
     //! @brief Index of the last occurrence of the char 'ch' in 'source' (searching backwards from the end to the beginning of the string).
-    extern int32_t LastIndexOf(const StringViewLite& source, const char ch);
+    constexpr inline int32_t LastIndexOf(const StringViewLite& source, const char ch) noexcept
+    {
+      const std::size_t index = source.rfind(ch);
+      assert(index == StringViewLite::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+      return (index != StringViewLite::npos ? static_cast<int32_t>(index) : -1);
+    }
 
     //! @brief Index of the last occurrence of the char 'ch' in 'source' (searching backwards from the end to the beginning of the string).
-    inline int32_t LastIndexOf(const char* const pszSource, const char ch)
+    inline int32_t LastIndexOf(const char* const pszSource, const char ch) noexcept
     {
       return LastIndexOf(StringViewLite(pszSource), ch);
     }
 
     //! @brief Index of the last occurrence of the char 'ch' in 'source' (searching backwards from the end to the beginning of the string).
-    inline int32_t LastIndexOf(const std::string& source, const char ch)
+    inline int32_t LastIndexOf(const std::string& source, const char ch) noexcept
     {
       return LastIndexOf(StringViewLiteUtil::AsStringViewLite(source), ch);
     }
@@ -248,12 +263,21 @@ namespace Fsl
     //! @brief Index of the last occurrence of the char 'ch' in 'source' (searching backwards from the end to the beginning of the string).
     //! @param fromIndex the index to start at. Beware that if fromIndex is out of bounds this returns a negative value.
     //! @return the index or less than zero if not found
-    extern int32_t LastIndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex);
+    constexpr inline int32_t LastIndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex) noexcept
+    {
+      if (fromIndex >= 0 && static_cast<std::size_t>(fromIndex) <= source.size())
+      {
+        const std::size_t index = source.rfind(ch, static_cast<std::size_t>(fromIndex));
+        assert(index == StringViewLite::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+        return (index != StringViewLite::npos ? static_cast<int32_t>(index) : -1);
+      }
+      return -1;
+    }
 
     //! @brief Index of the last occurrence of the char 'ch' in 'source' (searching backwards from the end to the beginning of the string).
     //! @param fromIndex the index to start at. Beware that if fromIndex is out of bounds this returns a negative value.
     //! @return the index or less than zero if not found
-    inline int32_t LastIndexOf(const char* const pszSource, const char ch, const int32_t fromIndex)
+    constexpr inline int32_t LastIndexOf(const char* const pszSource, const char ch, const int32_t fromIndex) noexcept
     {
       return LastIndexOf(StringViewLite(pszSource), ch, fromIndex);
     }
@@ -261,7 +285,7 @@ namespace Fsl
     //! @brief Index of the last occurrence of the char 'ch' in 'source' (searching backwards from the end to the beginning of the string).
     //! @param fromIndex the index to start at. Beware that if fromIndex is out of bounds this returns a negative value.
     //! @return the index or less than zero if not found
-    inline int32_t LastIndexOf(const std::string& source, const char ch, const int32_t fromIndex)
+    inline int32_t LastIndexOf(const std::string& source, const char ch, const int32_t fromIndex) noexcept
     {
       return LastIndexOf(StringViewLiteUtil::AsStringViewLite(source), ch, fromIndex);
     }

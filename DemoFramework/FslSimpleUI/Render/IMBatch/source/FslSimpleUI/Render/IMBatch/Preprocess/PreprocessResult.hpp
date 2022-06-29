@@ -33,20 +33,15 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  struct PreprocessResult
   {
-    namespace RenderIMBatch
-    {
-      struct PreprocessResult
-      {
-        uint32_t OpaqueStartIndex{0};
-        uint32_t OpaqueCount{0};
-        uint32_t TransparentStartIndex{0};
-        uint32_t TransparentCount{0};
-      };
-    }
-  }
+    uint32_t OpaqueStartIndex{0};
+    uint32_t OpaqueCount{0};
+    uint32_t TransparentStartIndex{0};
+    uint32_t TransparentCount{0};
+  };
 }
+
 #endif

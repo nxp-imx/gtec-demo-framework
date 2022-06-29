@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class EventFlowType
   {
-    enum class EventFlowType
-    {
-      Tunnel,
-      Bubble
-    };
-  }
+    Tunnel,
+    Bubble
+  };
 }
 
 #endif

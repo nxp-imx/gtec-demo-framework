@@ -30,9 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
@@ -49,7 +50,7 @@ namespace Fsl
 
     inline bool IsValidChar(const int ch)
     {
-      return (ch >= int(MIN_VALUE) && ch <= int(MAX_VALUE));
+      return (ch >= static_cast<int>(MIN_VALUE) && ch <= static_cast<int>(MAX_VALUE));
     }
   }
 
@@ -93,7 +94,7 @@ namespace Fsl
 
       // Create child images for each glyph and assign them to the valid chars
       const VGFont parentImage = m_fontImage.GetHandle();
-      const int32_t imageWidth = bitmap.Width();
+      const auto imageWidth = UncheckedNumericCast<int32_t>(bitmap.Width());
       const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
       std::array<VGfloat, 2> origin = {0.0f, static_cast<VGfloat>(fontSize.Height())};
       std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.Width()), 0.0f};
@@ -101,7 +102,7 @@ namespace Fsl
       int32_t srcY = 0;
       for (uint16_t i = 0; i < numChars; ++i)
       {
-        const VGFont childImage = vgChildImage(parentImage, srcX, bitmap.Height() - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
+        const VGFont childImage = vgChildImage(parentImage, srcX, imageWidth - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
         vgSetGlyphToImage(m_font.GetHandle(), firstChar + i, childImage, origin.data(), escapement.data());
         m_fontImages[i].Reset(childImage, fontSize);
 
@@ -208,7 +209,7 @@ namespace Fsl
       VGfloat dstX = dstPosition.X;
 
       // Handle leading 'non drawable chars' by skipping them
-      while (pSrc < pSrcEnd && !IsValidChar(int(*pSrc)))
+      while (pSrc < pSrcEnd && !IsValidChar(static_cast<int>(*pSrc)))
       {
         dstX += charWidth;
         ++pSrc;
@@ -218,7 +219,7 @@ namespace Fsl
       VGfloat currentGlyphWidth = 0;
       while (pSrc < pSrcEnd)
       {
-        if (IsValidChar(int(*pSrc)))
+        if (IsValidChar(static_cast<int>(*pSrc)))
         {
           m_glyphs[numGlyphs] = static_cast<unsigned char>(*pSrc);
           if (numGlyphs > 0)
@@ -242,7 +243,7 @@ namespace Fsl
       vgSetfv(VG_GLYPH_ORIGIN, static_cast<VGint>(m_zeroOrigin.size()), m_zeroOrigin.data());
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_GLYPH_USER_TO_SURFACE);
       vgLoadIdentity();
-      vgTranslate(dstX, (m_pxCurrentSize.Height() - dstPosition.Y));
+      vgTranslate(dstX, (static_cast<float>(m_pxCurrentSize.Height()) - dstPosition.Y));
       vgDrawGlyphs(m_font.GetHandle(), numGlyphs, m_glyphs.data(), m_xAdjust.data(), nullptr, VG_FILL_PATH, VG_TRUE);
     }
 

@@ -34,21 +34,15 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
+  //! Holds parameters for mesh creation
+  struct MeshCreateInfo
   {
-    namespace MeshLoader
-    {
-      //! Holds parameters for mesh creation
-      struct MeshCreateInfo
-      {
-        glm::vec3 Center;
-        glm::vec3 Scale;
-        glm::vec2 UVScale;
-      };
-    }
-  }
+    glm::vec3 Center;
+    glm::vec3 Scale;
+    glm::vec2 UVScale;
+  };
 }
 
 #endif

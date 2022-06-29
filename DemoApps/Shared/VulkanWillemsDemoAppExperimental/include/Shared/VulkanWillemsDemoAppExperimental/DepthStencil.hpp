@@ -32,35 +32,32 @@
  ****************************************************************************************************************************************************/
 
 #include <RapidVulkan/Image.hpp>
-#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  class DepthStencil
   {
-    class DepthStencil
-    {
-    public:
-      RapidVulkan::Image Image;
-      RapidVulkan::Memory Mem;
-      RapidVulkan::ImageView View;
+  public:
+    RapidVulkan::Image Image;
+    RapidVulkan::Memory Mem;
+    RapidVulkan::ImageView View;
 
-      DepthStencil(const DepthStencil&) = delete;
-      DepthStencil& operator=(const DepthStencil&) = delete;
+    DepthStencil(const DepthStencil&) = delete;
+    DepthStencil& operator=(const DepthStencil&) = delete;
 
-      //! @brief Move assignment operator
-      DepthStencil& operator=(DepthStencil&& other) noexcept;
+    //! @brief Move assignment operator
+    DepthStencil& operator=(DepthStencil&& other) noexcept;
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      DepthStencil(DepthStencil&& other) noexcept;
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    DepthStencil(DepthStencil&& other) noexcept;
 
-      //! @brief Create a 'invalid' DepthStencil
-      DepthStencil();
-    };
-  }
+    //! @brief Create a 'invalid' DepthStencil
+    DepthStencil();
+  };
 }
 
 #endif

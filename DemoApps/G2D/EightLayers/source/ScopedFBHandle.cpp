@@ -34,12 +34,11 @@
 #include "ScopedFBHandle.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <cstring>
 #include <fcntl.h>
 #include <linux/fb.h>
-
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <cstring>
 
 namespace Fsl
 {

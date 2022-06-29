@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "BitmapFont.hpp"
 #include <array>
+#include "BitmapFont.hpp"
 
 namespace Fsl
 {

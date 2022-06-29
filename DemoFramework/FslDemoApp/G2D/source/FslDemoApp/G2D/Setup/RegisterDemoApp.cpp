@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/G2D/Setup/RegisterDemoApp.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoApp/G2D/Setup/RegisterDemoApp.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Stub/StubDemoHostSetup.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
@@ -57,15 +57,12 @@ namespace Fsl
     }
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::G2D
   {
-    namespace G2D
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
-      {
-        const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
-      }
+      const DemoHostFeature feature = CommenSetup(rSetup);
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
     }
   }
 }

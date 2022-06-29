@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES2/Exceptions.hpp>
-#include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include <FslBase/Math/Matrix.hpp>
+#include "EightLayerBlend.hpp"
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include "EightLayerBlend.hpp"
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <GLES2/gl2.h>
 #include <cmath>
 #include <iostream>
@@ -112,7 +112,7 @@ namespace Fsl
 
     float xRangeFirst = (1200.0f / 2.0f);
     float xRangeLast = (1920.0f / 2.0f);
-    float xRangeAdd = (xRangeLast - xRangeFirst) / float(m_layers.size() - 1u);
+    float xRangeAdd = (xRangeLast - xRangeFirst) / static_cast<float>(m_layers.size() - 1u);
     float xRange = xRangeFirst;
     for (std::size_t i = 0; i < m_layers.size(); ++i)
     {
@@ -157,8 +157,8 @@ namespace Fsl
     glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get());
     m_vertexBuffer.EnableAttribArrays();
 
-    auto positionX = static_cast<int>(-(m_layerSize.X / 2.0f) + m_layers[0].Position);
-    Matrix matViewProj = Matrix::CreateTranslation(static_cast<float>(positionX), static_cast<float>(-m_layerSize.Y / 2.0f), 0.0f) *
+    auto positionX = static_cast<int>((static_cast<float>(-m_layerSize.X) / 2.0f) + m_layers[0].Position);
+    Matrix matViewProj = Matrix::CreateTranslation(static_cast<float>(positionX), static_cast<float>(-m_layerSize.Y) / 2.0f, 0.0f) *
                          Matrix::CreateOrthographic(static_cast<float>(res.X), static_cast<float>(res.Y), 1.0f, 10.0f);
     glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -171,9 +171,9 @@ namespace Fsl
     {
       glBindTexture(GL_TEXTURE_2D, m_layers[i].Texture.Get());
 
-      positionX = int(-(m_layerSize.X / 2.0f) + m_layers[i].Position);
+      positionX = static_cast<int>((static_cast<float>(-m_layerSize.X) / 2.0f) + m_layers[i].Position);
 
-      matViewProj = Matrix::CreateTranslation(static_cast<float>(positionX), static_cast<float>(-m_layerSize.Y / 2.0f), 0.0f) *
+      matViewProj = Matrix::CreateTranslation(static_cast<float>(positionX), static_cast<float>(-m_layerSize.Y) / 2.0f, 0.0f) *
                     Matrix::CreateOrthographic(static_cast<float>(res.X), static_cast<float>(res.Y), 1.0f, 10.0f);
       glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
 

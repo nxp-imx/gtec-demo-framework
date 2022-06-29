@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_LOGIC_SLIDERRESULTFLAGS_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_LOGIC_SLIDERRESULTFLAGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,52 +33,49 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  //! Represents the operations that was performed
+  enum class SliderResultFlags : uint32_t
   {
-    //! Represents the operations that was performed
-    enum class SliderResultFlags : uint32_t
-    {
-      //! Nothing was done (as the request would not change anything)
-      NoChange = 0x00,
-      Completed = 0x01,
-      //! Set if the drag was canceled (will never be set if Completed is not set)
-      DragCancelled = 0x02,
-      Reserved = 0x04,
-    };
+    //! Nothing was done (as the request would not change anything)
+    NoChange = 0x00,
+    Completed = 0x01,
+    //! Set if the drag was canceled (will never be set if Completed is not set)
+    DragCancelled = 0x02,
+    Reserved = 0x04,
+  };
 
 
-    constexpr inline SliderResultFlags& operator|=(SliderResultFlags& rLhs, const SliderResultFlags rhs)
-    {
-      rLhs = static_cast<SliderResultFlags>(static_cast<uint32_t>(rLhs) | static_cast<uint32_t>(rhs));
-      return rLhs;
-    }
-
-    constexpr inline SliderResultFlags& operator&=(SliderResultFlags& rLhs, const SliderResultFlags rhs)
-    {
-      rLhs = static_cast<SliderResultFlags>(static_cast<uint32_t>(rLhs) & static_cast<uint32_t>(rhs));
-      return rLhs;
-    }
-
-    constexpr inline SliderResultFlags operator|(const SliderResultFlags lhs, const SliderResultFlags rhs)
-    {
-      return static_cast<SliderResultFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-    }
-
-    constexpr inline SliderResultFlags operator&(const SliderResultFlags lhs, const SliderResultFlags rhs)
-    {
-      return static_cast<SliderResultFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-    }
-
-    namespace SliderResultFlagsUtil
-    {
-      constexpr inline bool IsFlagged(const SliderResultFlags src, const SliderResultFlags flag)
-      {
-        return (src & flag) == flag;
-      }
-    };
+  constexpr inline SliderResultFlags& operator|=(SliderResultFlags& rLhs, const SliderResultFlags rhs)
+  {
+    rLhs = static_cast<SliderResultFlags>(static_cast<uint32_t>(rLhs) | static_cast<uint32_t>(rhs));
+    return rLhs;
   }
+
+  constexpr inline SliderResultFlags& operator&=(SliderResultFlags& rLhs, const SliderResultFlags rhs)
+  {
+    rLhs = static_cast<SliderResultFlags>(static_cast<uint32_t>(rLhs) & static_cast<uint32_t>(rhs));
+    return rLhs;
+  }
+
+  constexpr inline SliderResultFlags operator|(const SliderResultFlags lhs, const SliderResultFlags rhs)
+  {
+    return static_cast<SliderResultFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+  }
+
+  constexpr inline SliderResultFlags operator&(const SliderResultFlags lhs, const SliderResultFlags rhs)
+  {
+    return static_cast<SliderResultFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+  namespace SliderResultFlagsUtil
+  {
+    constexpr inline bool IsFlagged(const SliderResultFlags src, const SliderResultFlags flag)
+    {
+      return (src & flag) == flag;
+    }
+  };
 }
 
 #endif

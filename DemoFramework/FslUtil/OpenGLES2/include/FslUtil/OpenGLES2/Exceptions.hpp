@@ -32,98 +32,95 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/Common.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  class GLESGraphicsException : public GraphicsException
   {
-    class GLESGraphicsException : public GraphicsException
+    int32_t m_error{};
+    std::string m_filename;
+    int32_t m_lineNumber;
+
+  public:
+    explicit GLESGraphicsException(const char* const psz)
+      : GraphicsException(psz)
+      , m_lineNumber(0)
     {
-      int m_error{};
-      std::string m_filename;
-      int m_lineNumber;
+    }
 
-    public:
-      explicit GLESGraphicsException(const char* const psz)
-        : GraphicsException(psz)
-        , m_lineNumber(0)
-      {
-      }
+    explicit GLESGraphicsException(const std::string& str)
+      : GraphicsException(str)
+      , m_lineNumber(0)
+    {
+    }
 
-      explicit GLESGraphicsException(const std::string& str)
-        : GraphicsException(str)
-        , m_lineNumber(0)
-      {
-      }
+    GLESGraphicsException(const char* const psz, int32_t error)
+      : GraphicsException(psz)
+      , m_error(error)
+      , m_lineNumber(0)
+    {
+    }
 
-      GLESGraphicsException(const char* const psz, int error)
-        : GraphicsException(psz)
-        , m_error(error)
-        , m_lineNumber(0)
-      {
-      }
+    GLESGraphicsException(const std::string& str, int32_t error)
+      : GraphicsException(str)
+      , m_error(error)
+      , m_lineNumber(0)
+    {
+    }
 
-      GLESGraphicsException(const std::string& str, int error)
-        : GraphicsException(str)
-        , m_error(error)
-        , m_lineNumber(0)
-      {
-      }
+    GLESGraphicsException(const char* const psz, int32_t error, const char* const pszFilename, const int32_t line)
+      : GraphicsException(psz)
+      , m_error(error)
+      , m_filename(pszFilename)
+      , m_lineNumber(line)
+    {
+    }
 
-      GLESGraphicsException(const char* const psz, int error, const char* const pszFilename, const int line)
-        : GraphicsException(psz)
-        , m_error(error)
-        , m_filename(pszFilename)
-        , m_lineNumber(line)
-      {
-      }
+    GLESGraphicsException(const std::string& str, int32_t error, const char* const pszFilename, const int32_t line)
+      : GraphicsException(str)
+      , m_error(error)
+      , m_filename(pszFilename)
+      , m_lineNumber(line)
+    {
+    }
 
-      GLESGraphicsException(const std::string& str, int error, const char* const pszFilename, const int line)
-        : GraphicsException(str)
-        , m_error(error)
-        , m_filename(pszFilename)
-        , m_lineNumber(line)
-      {
-      }
+    GLESGraphicsException(const char* const psz, int32_t error, std::string filename, const int32_t line)
+      : GraphicsException(psz)
+      , m_error(error)
+      , m_filename(std::move(filename))
+      , m_lineNumber(line)
+    {
+    }
 
-      GLESGraphicsException(const char* const psz, int error, std::string filename, const int line)
-        : GraphicsException(psz)
-        , m_error(error)
-        , m_filename(std::move(filename))
-        , m_lineNumber(line)
-      {
-      }
+    GLESGraphicsException(const std::string& str, int32_t error, std::string filename, const int32_t line)
+      : GraphicsException(str)
+      , m_error(error)
+      , m_filename(std::move(filename))
+      , m_lineNumber(line)
+    {
+    }
 
-      GLESGraphicsException(const std::string& str, int error, std::string filename, const int line)
-        : GraphicsException(str)
-        , m_error(error)
-        , m_filename(std::move(filename))
-        , m_lineNumber(line)
-      {
-      }
+    ~GLESGraphicsException() noexcept override = default;
 
-      ~GLESGraphicsException() noexcept override = default;
-
-      int GetError() const
-      {
-        return m_error;
-      }
+    int32_t GetError() const noexcept
+    {
+      return m_error;
+    }
 
 
-      const std::string& GetFilename() const
-      {
-        return m_filename;
-      }
+    const std::string& GetFilename() const
+    {
+      return m_filename;
+    }
 
-      int GetLineNumber() const
-      {
-        return m_lineNumber;
-      }
-    };
-  }
+    int32_t GetLineNumber() const noexcept
+    {
+      return m_lineNumber;
+    }
+  };
 }
 
 #endif

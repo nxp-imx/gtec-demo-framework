@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/Common.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestCustomChecks.hpp>
+#include <FslUnitTest/Common.hpp>
 
 #endif

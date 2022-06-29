@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Font/BasicFlatHashTable.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
 #include <FslGraphics/Font/BitmapFontKerningFastLookup.hpp>

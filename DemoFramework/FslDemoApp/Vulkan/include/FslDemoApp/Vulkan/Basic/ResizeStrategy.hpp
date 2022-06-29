@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::VulkanBasic
 {
-  namespace VulkanBasic
+  enum class ResizeStrategy
   {
-    enum class ResizeStrategy
-    {
-      Disabled = 0,
-      RebuildResources = 1,
-    };
-  }
+    Disabled = 0,
+    RebuildResources = 1,
+  };
 }
 
 #endif

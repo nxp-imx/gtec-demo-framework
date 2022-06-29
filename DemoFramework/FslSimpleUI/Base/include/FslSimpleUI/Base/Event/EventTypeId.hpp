@@ -31,30 +31,27 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class EventTypeId
   {
-    enum class EventTypeId
-    {
-      // ActivityCompleted,
-      // Focus,
-      // GestureSpy,
-      InputClick,
-      // InputGamepad,
-      // InputGeneric,
-      // InputKey,
-      // ManipulationBegin,
-      // ManipulationEnd,
-      // ManipulationUpdate,
-      Select,
-      ContentChanged,
-      // Tap,
-      // Tunnel,
-      // Bubble
-      MouseOver,
-    };
-  }
+    // ActivityCompleted,
+    // Focus,
+    // GestureSpy,
+    InputClick,
+    // InputGamepad,
+    // InputGeneric,
+    // InputKey,
+    // ManipulationBegin,
+    // ManipulationEnd,
+    // ManipulationUpdate,
+    Select,
+    ContentChanged,
+    // Tap,
+    // Tunnel,
+    // Bubble
+    MouseOver,
+  };
 }
 
 #endif

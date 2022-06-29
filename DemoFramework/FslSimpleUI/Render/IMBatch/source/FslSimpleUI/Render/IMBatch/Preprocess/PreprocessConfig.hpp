@@ -33,17 +33,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch::PreprocessConfig
 {
-  namespace UI
-  {
-    namespace RenderIMBatch
-    {
-      namespace PreprocessConfig
-      {
-        constexpr uint32_t ProcessedGrowBy = 1024;
-      }
-    }
-  }
+  constexpr uint32_t ProcessedGrowBy = 1024;
 }
 #endif

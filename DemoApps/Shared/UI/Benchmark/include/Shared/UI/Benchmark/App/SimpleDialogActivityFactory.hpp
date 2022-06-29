@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_APP_SIMPLEDIALOGACTIVITYFACTORY_HPP
 #define SHARED_UI_BENCHMARK_APP_SIMPLEDIALOGACTIVITYFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,32 +36,27 @@
 #include <Shared/UI/Benchmark/Activity/FakeActivity.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace Theme
   {
-    namespace Theme
-    {
-      class IThemeControlFactory;
-    }
+    class IThemeControlFactory;
+  }
 
-    namespace SimpleDialogActivityFactory
-    {
-      std::shared_ptr<FakeActivity> CreateLeftDialog(std::weak_ptr<IActivityStack> activityStack,
+  namespace SimpleDialogActivityFactory
+  {
+    std::shared_ptr<FakeActivity> CreateLeftDialog(std::weak_ptr<IActivityStack> activityStack,
+                                                   const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                                   const Theme::WindowType windowType = Theme::WindowType::DialogNormal);
+
+    std::shared_ptr<FakeActivity> CreateCenterDialog(std::weak_ptr<IActivityStack> activityStack,
                                                      const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
                                                      const Theme::WindowType windowType = Theme::WindowType::DialogNormal);
 
-      std::shared_ptr<FakeActivity> CreateCenterDialog(std::weak_ptr<IActivityStack> activityStack,
-                                                       const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                                       const Theme::WindowType windowType = Theme::WindowType::DialogNormal);
-
-      std::shared_ptr<FakeActivity> CreateRightDialog(std::weak_ptr<IActivityStack> activityStack,
-                                                      const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                                      const Theme::WindowType windowType = Theme::WindowType::DialogNormal);
-
-
-    };
-  }
+    std::shared_ptr<FakeActivity> CreateRightDialog(std::weak_ptr<IActivityStack> activityStack,
+                                                    const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                                    const Theme::WindowType windowType = Theme::WindowType::DialogNormal);
+  };
 }
 
 

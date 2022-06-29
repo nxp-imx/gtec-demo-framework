@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslSimpleUI/Base/LayoutHelperPxfConverter.hpp>
 #include <FslSimpleUI/Base/PxAvailableSizeUtil.hpp>
-#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <limits>
 
 using namespace Fsl;

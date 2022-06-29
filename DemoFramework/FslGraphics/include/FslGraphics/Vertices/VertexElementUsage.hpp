@@ -36,7 +36,7 @@ namespace Fsl
 {
   enum class VertexElementUsage
   {
-    Position,
+    Position = 0,
     Color,
     Normal,
     TextureCoordinate,

@@ -103,7 +103,7 @@ namespace Fsl
     if (m_testAppHostExtensionProxy)
     {
       auto time = m_testAppHostExtensionProxy->TryGetDemoTime();
-      return time.ValueOr(demoTime);
+      return time.value_or(demoTime);
     }
     return demoTime;
   }

@@ -29,40 +29,37 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/RawMeshContentEx.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics3D/BasicScene/RawMeshContentEx.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  RawMeshContentEx::RawMeshContentEx()
+    : pVertices(nullptr)
+    , pIndices(nullptr)
+    , IndexCount(0)
+    , IndexStride(0)
+    , VertexCount(0)
+    , VertexStride(0)
+    , ThePrimitiveType(PrimitiveType::LineList)
   {
-    RawMeshContentEx::RawMeshContentEx()
-      : pVertices(nullptr)
-      , pIndices(nullptr)
-      , IndexCount(0)
-      , IndexStride(0)
-      , VertexCount(0)
-      , VertexStride(0)
-      , ThePrimitiveType(PrimitiveType::LineList)
-    {
-    }
+  }
 
 
-    RawMeshContentEx::RawMeshContentEx(void* const pTheVertices, const uint32_t vertexCount, const uint32_t vertexStride, void* const pTheIndices,
-                                       const uint32_t indexCount, const uint32_t indexStride, const PrimitiveType primitiveType)
-      : pVertices(pTheVertices)
-      , pIndices(pTheIndices)
-      , IndexCount(indexCount)
-      , IndexStride(indexStride)
-      , VertexCount(vertexCount)
-      , VertexStride(vertexStride)
-      , ThePrimitiveType(primitiveType)
+  RawMeshContentEx::RawMeshContentEx(void* const pTheVertices, const uint32_t vertexCount, const uint32_t vertexStride, void* const pTheIndices,
+                                     const uint32_t indexCount, const uint32_t indexStride, const PrimitiveType primitiveType)
+    : pVertices(pTheVertices)
+    , pIndices(pTheIndices)
+    , IndexCount(indexCount)
+    , IndexStride(indexStride)
+    , VertexCount(vertexCount)
+    , VertexStride(vertexStride)
+    , ThePrimitiveType(primitiveType)
+  {
+    if (pVertices == nullptr || pIndices == nullptr)
     {
-      if (pVertices == nullptr || pIndices == nullptr)
-      {
-        throw std::invalid_argument("null pointers not valid");
-      }
+      throw std::invalid_argument("null pointers not valid");
     }
   }
 }

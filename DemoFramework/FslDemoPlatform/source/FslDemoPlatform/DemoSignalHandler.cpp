@@ -43,20 +43,17 @@ namespace
   volatile sig_atomic_t gTerminationRequested = 0;
 }
 
-namespace Fsl
+namespace Fsl::DemoFramework
 {
-  namespace DemoFramework
+  bool HasExitRequest()
   {
-    bool HasExitRequest()
-    {
-      return gTerminationRequested != 0;
-    }
+    return gTerminationRequested != 0;
+  }
 
 
-    void SetExitRequest()
-    {
-      gTerminationRequested = 1;
-    }
+  void SetExitRequest()
+  {
+    gTerminationRequested = 1;
   }
 }
 

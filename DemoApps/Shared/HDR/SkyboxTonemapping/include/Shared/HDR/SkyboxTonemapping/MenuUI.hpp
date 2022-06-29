@@ -43,10 +43,10 @@
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
+#include <vector>
 #include "OptionParser.hpp"
 #include "RenderRecord.hpp"
 #include "Tonemapper.hpp"
-#include <vector>
 
 namespace Fsl
 {

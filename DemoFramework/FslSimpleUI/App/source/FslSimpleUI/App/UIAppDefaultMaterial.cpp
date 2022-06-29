@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,42 +29,39 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIAppDefaultMaterial.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Basic/BasicMaterial.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialCreateInfo.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslSimpleUI/App/UIAppConfig.hpp>
+#include <FslSimpleUI/App/UIAppDefaultMaterial.hpp>
 
-namespace Fsl
+namespace Fsl::UIAppDefaultMaterial
 {
-  namespace UIAppDefaultMaterial
+  SpriteMaterialInfo CreateDefaultMaterial(const ServiceProvider& serviceProvider, const VertexDeclarationSpan& vertexDeclaration,
+                                           const bool isDynamic, const bool allowDepthBuffer)
   {
-    SpriteMaterialInfo CreateDefaultMaterial(const ServiceProvider& serviceProvider, const VertexDeclarationSpan& vertexDeclaration,
-                                             const bool isDynamic, const bool allowDepthBuffer)
-    {
-      auto graphicsService = serviceProvider.Get<IGraphicsService>();
-      std::shared_ptr<IBasicRenderSystem> renderSystem = graphicsService->GetBasicRenderSystem();
-      const bool yFlipped = graphicsService->GetNativeBatch2D()->SYS_IsTextureCoordinateYFlipped();
+    auto graphicsService = serviceProvider.Get<IGraphicsService>();
+    std::shared_ptr<IBasicRenderSystem> renderSystem = graphicsService->GetBasicRenderSystem();
+    const bool yFlipped = graphicsService->GetNativeBatch2D()->SYS_IsTextureCoordinateYFlipped();
 
-      Bitmap defaultBitmap(16, 16, PixelFormat::R8G8B8A8_UNORM, yFlipped ? BitmapOrigin::LowerLeft : BitmapOrigin::UpperLeft);
-      auto basicTexture = renderSystem->CreateTexture2D(defaultBitmap, Texture2DFilterHint::Nearest, TextureFlags::NotDefined);
+    Bitmap defaultBitmap(16, 16, PixelFormat::R8G8B8A8_UNORM, yFlipped ? BitmapOrigin::LowerLeft : BitmapOrigin::UpperLeft);
+    auto basicTexture = renderSystem->CreateTexture2D(defaultBitmap, Texture2DFilterHint::Nearest, TextureFlags::NotDefined);
 
-      BasicMaterialDepthInfo depthInfo(allowDepthBuffer, allowDepthBuffer, BasicCompareOp::Less);
+    BasicMaterialDepthInfo depthInfo(allowDepthBuffer, allowDepthBuffer, BasicCompareOp::Less);
 
-      const BasicMaterialCreateInfo createInfo(BlendState::Opaque, BasicCullMode::Disabled, BasicFrontFace::CounterClockwise, depthInfo,
-                                               vertexDeclaration);
+    const BasicMaterialCreateInfo createInfo(BlendState::Opaque, BasicCullMode::Disabled, BasicFrontFace::CounterClockwise, depthInfo,
+                                             vertexDeclaration);
 
-      auto defaultMaterial = std::make_shared<BasicSpriteMaterial>(renderSystem->CreateMaterial(createInfo, basicTexture, isDynamic));
+    auto defaultMaterial = std::make_shared<BasicSpriteMaterial>(renderSystem->CreateMaterial(createInfo, basicTexture, isDynamic));
 
-      // const BasicMaterialHandle hMat = m_defaultMaterial->Material.GetHandle();
-      return SpriteMaterialInfo(UIAppConfig::MaterialId::Default, defaultBitmap.GetExtent(), true, defaultMaterial);
-    }
+    // const BasicMaterialHandle hMat = m_defaultMaterial->Material.GetHandle();
+    return {UIAppConfig::MaterialId::Default, defaultBitmap.GetExtent(), true, defaultMaterial};
   }
 }

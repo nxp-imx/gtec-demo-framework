@@ -159,11 +159,9 @@ namespace Fsl
       throw NotFoundException("Could not locate a material element of the requested type");
     }
 
-    // In C++17 declare this a constexpr
-    BasicMaterialVariableDeclarationSpan AsReadOnlySpan() const
+    constexpr BasicMaterialVariableDeclarationSpan AsReadOnlySpan() const noexcept
     {
-      return BasicMaterialVariableDeclarationSpan(ReadOnlySpan<BasicMaterialVariableElement>(m_elements.data(), m_elements.size()), m_stride,
-                                                  OptimizationCheckFlag::NoCheck);
+      return {ReadOnlySpan<BasicMaterialVariableElement>(m_elements.data(), m_elements.size()), m_stride, OptimizationCheckFlag::NoCheck};
     }
 
 

@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "Config.hpp"
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <memory>
 #include <string>
+#include "Config.hpp"
 
 namespace Fsl
 {

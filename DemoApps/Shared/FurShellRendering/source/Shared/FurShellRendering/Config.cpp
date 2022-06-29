@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/FurShellRendering/Config.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <Shared/FurShellRendering/Config.hpp>
 #include <algorithm>
 
 namespace Fsl

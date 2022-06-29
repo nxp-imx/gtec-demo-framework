@@ -32,8 +32,8 @@
 // The android logging is just hacked in here to get something to work.
 // This is something we will need to expand upon later.
 
-#include <FslBase/Log/Logger0.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Log/Logger0.hpp>
 #include <exception>
 
 #ifdef __ANDROID__

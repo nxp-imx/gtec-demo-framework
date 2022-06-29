@@ -1,7 +1,7 @@
 #ifndef FSLBASE_UNITTEST_HELPER_CHECK_MATH_CHECKRECT_HPP
 #define FSLBASE_UNITTEST_HELPER_CHECK_MATH_CHECKRECT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,23 +34,20 @@
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const Rect& lhs, const Rect& rhs)
   {
-    inline bool AlmostEqual(const Rect& lhs, const Rect& rhs)
-    {
-      // Rect stores left, right, top, bottom
-      return AlmostEqual(lhs.Left(), rhs.Left()) && AlmostEqual(lhs.Top(), rhs.Top()) && AlmostEqual(lhs.Right(), rhs.Right()) &&
-             AlmostEqual(lhs.Bottom(), rhs.Bottom());
-    }
+    // Rect stores left, right, top, bottom
+    return AlmostEqual(lhs.Left(), rhs.Left()) && AlmostEqual(lhs.Top(), rhs.Top()) && AlmostEqual(lhs.Right(), rhs.Right()) &&
+           AlmostEqual(lhs.Bottom(), rhs.Bottom());
+  }
 
-    inline bool IsNear(const Rect& lhs, const Rect& rhs, const float absError)
-    {
-      // Rect stores left, right, top, bottom
-      return IsNear(lhs.Left(), rhs.Left(), absError) && IsNear(lhs.Top(), rhs.Top(), absError) && IsNear(lhs.Right(), rhs.Right(), absError) &&
-             IsNear(lhs.Bottom(), rhs.Bottom(), absError);
-    }
+  inline bool IsNear(const Rect& lhs, const Rect& rhs, const float absError)
+  {
+    // Rect stores left, right, top, bottom
+    return IsNear(lhs.Left(), rhs.Left(), absError) && IsNear(lhs.Top(), rhs.Top(), absError) && IsNear(lhs.Right(), rhs.Right(), absError) &&
+           IsNear(lhs.Bottom(), rhs.Bottom(), absError);
   }
 }
 

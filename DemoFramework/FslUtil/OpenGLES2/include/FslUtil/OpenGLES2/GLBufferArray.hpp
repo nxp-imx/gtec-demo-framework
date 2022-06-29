@@ -32,103 +32,100 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES2/Common.hpp>
-#include <FslUtil/OpenGLES2/GLValues.hpp>
-#include <FslUtil/OpenGLES2/GLBufferArrayEntry.hpp>
-#include <GLES2/gl2.h>
 #include <FslBase/BasicTypes.hpp>
+#include <FslUtil/OpenGLES2/Common.hpp>
+#include <FslUtil/OpenGLES2/GLBufferArrayEntry.hpp>
+#include <FslUtil/OpenGLES2/GLValues.hpp>
+#include <GLES2/gl2.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  class GLBufferArray
   {
-    class GLBufferArray
+    std::vector<GLBufferArrayEntry> m_array;
+    GLenum m_target{0};
+    uint32_t m_elementStride{0};
+
+  public:
+    GLBufferArray(const GLBufferArray&) = delete;
+    GLBufferArray& operator=(const GLBufferArray&) = delete;
+
+    //! @brief Move assignment operator
+    GLBufferArray& operator=(GLBufferArray&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLBufferArray(GLBufferArray&& other) noexcept;
+
+    //! @brief Create a empty buffer array
+    GLBufferArray();
+
+    //! @brief Create a buffer array with the given capacity
+    //! @param elementStride the size of one element in bytes
+    GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride);
+
+    virtual ~GLBufferArray();
+
+    bool IsValid() const
     {
-      std::vector<GLBufferArrayEntry> m_array;
-      GLenum m_target{0};
-      uint32_t m_elementStride{0};
+      return m_target != 0;
+    }
 
-    public:
-      GLBufferArray(const GLBufferArray&) = delete;
-      GLBufferArray& operator=(const GLBufferArray&) = delete;
+    GLenum GetTarget() const
+    {
+      return m_target;
+    }
 
-      //! @brief Move assignment operator
-      GLBufferArray& operator=(GLBufferArray&& other) noexcept;
+    uint32_t GetElementStride() const
+    {
+      return m_elementStride;
+    }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLBufferArray(GLBufferArray&& other) noexcept;
+    //! @brief return the length of the array
+    int32_t Length() const;
 
-      //! @brief Create a empty buffer array
-      GLBufferArray();
+    //! @brief Release the entire array.
+    virtual void Reset() noexcept;
 
-      //! @brief Create a buffer array with the given capacity
-      //! @param elementStride the size of one element in bytes
-      GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride);
+    //! @brief Get the entry at the arrayIndex
+    GLBufferArrayEntry Get(const std::size_t arrayIndex) const;
 
-      virtual ~GLBufferArray();
+    //! @brief Set the entry at the arrayIndex
+    void Set(const std::size_t arrayIndex, const GLBufferArrayEntry& value);
 
-      bool IsValid() const
-      {
-        return m_target != 0;
-      }
+    //! @brief Update the given area of the buffer at arrayIndex
+    //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
+    //! @param dstIndex the dst index where the data will be written.
+    //! @param pElements the elements that should be written.
+    //! @param elementCount the number of elements to write.
+    //! @note   This method does not check for glErrors since its intended for use during rendering.
+    //! @throws std::invalid_argument if pElements == nullptr
+    //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+    //! @throws UsageErrorException if the object isn't valid
+    void SetData(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
 
-      GLenum GetTarget() const
-      {
-        return m_target;
-      }
+    //! @brief Update the given area of the buffer at arrayIndex (Unlike SetData this call assumes that the buffer is already bound to the correct
+    //! target)
+    //! @param dstIndex the dst index where the data will be written.
+    //! @param pElements the elements that should be written.
+    //! @param elementCount the number of elements to write.
+    //! @note   This method does not check for glErrors since its intended for use during rendering.
+    //! @throws std::invalid_argument if pElements == nullptr
+    //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
+    //! @throws UsageErrorException if the object isn't valid
+    void SetDataFast(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
 
-      uint32_t GetElementStride() const
-      {
-        return m_elementStride;
-      }
+  protected:
+    //! @brief Resize the array
+    void DoResize(const std::size_t capacity, const GLenum target, const uint32_t elementStride);
 
-      //! @brief return the length of the array
-      int32_t Length() const;
-
-      //! @brief Release the entire array.
-      virtual void Reset() noexcept;
-
-      //! @brief Get the entry at the arrayIndex
-      GLBufferArrayEntry Get(const std::size_t arrayIndex) const;
-
-      //! @brief Set the entry at the arrayIndex
-      void Set(const std::size_t arrayIndex, const GLBufferArrayEntry& value);
-
-      //! @brief Update the given area of the buffer at arrayIndex
-      //!        This is the recommended way of updating the content of a buffer both for full and partial updates!
-      //! @param dstIndex the dst index where the data will be written.
-      //! @param pElements the elements that should be written.
-      //! @param elementCount the number of elements to write.
-      //! @note   This method does not check for glErrors since its intended for use during rendering.
-      //! @throws std::invalid_argument if pElements == nullptr
-      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
-      //! @throws UsageErrorException if the object isn't valid
-      void SetData(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
-
-      //! @brief Update the given area of the buffer at arrayIndex (Unlike SetData this call assumes that the buffer is already bound to the correct
-      //! target)
-      //! @param dstIndex the dst index where the data will be written.
-      //! @param pElements the elements that should be written.
-      //! @param elementCount the number of elements to write.
-      //! @note   This method does not check for glErrors since its intended for use during rendering.
-      //! @throws std::invalid_argument if pElements == nullptr
-      //! @throws IndexOutOfRangeException if the dstIndex + elementCount exceeds the capacity of the buffer.
-      //! @throws UsageErrorException if the object isn't valid
-      void SetDataFast(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount);
-
-    protected:
-      //! @brief Resize the array
-      void DoResize(const std::size_t capacity, const GLenum target, const uint32_t elementStride);
-
-      //! @brief Fill the buffer with the given entries
-      //! @param pElements a pointer to the data that will be copied (or null to just initialize it to the given size but no copy is done)
-      //! @param elementStride the size of one element in bytes
-      void Reset(const std::size_t arrayIndex, const GLenum target, const void* const pEntries, const std::size_t elementCount,
-                 const uint32_t elementStride, const GLenum usage);
-    };
-  }
+    //! @brief Fill the buffer with the given entries
+    //! @param pElements a pointer to the data that will be copied (or null to just initialize it to the given size but no copy is done)
+    //! @param elementStride the size of one element in bytes
+    void Reset(const std::size_t arrayIndex, const GLenum target, const void* const pEntries, const std::size_t elementCount,
+               const uint32_t elementStride, const GLenum usage);
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASE_THEMEFACTORYCREATEINFO_HPP
 #define FSLSIMPLEUI_THEME_BASE_THEMEFACTORYCREATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,35 +36,29 @@
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  struct ThemeFactoryCreateInfo
   {
-    namespace Theme
-    {
-      struct ThemeFactoryCreateInfo
-      {
-        const SpriteMaterialId DefaultOpaqueMaterialId;
-        const SpriteMaterialId DefaultTransparentMaterialId;
-        const std::shared_ptr<SpriteFont> DefaultFont;
-        const std::shared_ptr<SpriteFont> DefaultHeaderFont;
-        const bool UsePrimaryPalette;
-        const bool DisableOpaqueMaterials;
+    const SpriteMaterialId DefaultOpaqueMaterialId;
+    const SpriteMaterialId DefaultTransparentMaterialId;
+    const std::shared_ptr<SpriteFont> DefaultFont;
+    const std::shared_ptr<SpriteFont> DefaultHeaderFont;
+    const bool UsePrimaryPalette;
+    const bool DisableOpaqueMaterials;
 
-        ThemeFactoryCreateInfo(const SpriteMaterialId defaultOpaqueMaterialId, const SpriteMaterialId defaultTransparentMaterialId,
-                               std::shared_ptr<SpriteFont> defaultFont, std::shared_ptr<SpriteFont> defaultHeaderFont, const bool usePrimaryPalette,
-                               const bool disableOpaqueMaterials)
-          : DefaultOpaqueMaterialId(!disableOpaqueMaterials ? defaultOpaqueMaterialId : defaultTransparentMaterialId)
-          , DefaultTransparentMaterialId(defaultTransparentMaterialId)
-          , DefaultFont(std::move(defaultFont))
-          , DefaultHeaderFont(std::move(defaultHeaderFont))
-          , UsePrimaryPalette(usePrimaryPalette)
-          , DisableOpaqueMaterials(disableOpaqueMaterials)
-        {
-        }
-      };
+    ThemeFactoryCreateInfo(const SpriteMaterialId defaultOpaqueMaterialId, const SpriteMaterialId defaultTransparentMaterialId,
+                           std::shared_ptr<SpriteFont> defaultFont, std::shared_ptr<SpriteFont> defaultHeaderFont, const bool usePrimaryPalette,
+                           const bool disableOpaqueMaterials)
+      : DefaultOpaqueMaterialId(!disableOpaqueMaterials ? defaultOpaqueMaterialId : defaultTransparentMaterialId)
+      , DefaultTransparentMaterialId(defaultTransparentMaterialId)
+      , DefaultFont(std::move(defaultFont))
+      , DefaultHeaderFont(std::move(defaultHeaderFont))
+      , UsePrimaryPalette(usePrimaryPalette)
+      , DisableOpaqueMaterials(disableOpaqueMaterials)
+    {
     }
-  }
+  };
 }
 
 #endif

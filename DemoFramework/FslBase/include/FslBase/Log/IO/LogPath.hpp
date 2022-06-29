@@ -34,14 +34,11 @@
 #include <FslBase/IO/Path.hpp>
 #include <ostream>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  inline std::ostream& operator<<(std::ostream& o, const Path& value)
   {
-    inline std::ostream& operator<<(std::ostream& o, const Path& value)
-    {
-      return o << value.ToUTF8String();
-    }
+    return o << value.ToUTF8String();
   }
 }
 

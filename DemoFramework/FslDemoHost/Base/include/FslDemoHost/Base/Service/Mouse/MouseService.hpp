@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEventListener.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
 namespace Fsl
 {

@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
+#include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/TestUITree_Window.hpp>
 
 using namespace Fsl;
@@ -83,7 +83,7 @@ TEST_F(TestUITree_Window, Window_Update)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
+  m_tree->Update(TimeSpan(0));
 
   auto callCount = window->GetCallCount();
 
@@ -99,7 +99,7 @@ TEST_F(TestUITree_Window, Window_Update_UpdateEnabled)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::UpdateEnabled);
   m_tree->Add(window);
-  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
+  m_tree->Update(TimeSpan(0));
 
   auto callCount = window->GetCallCount();
 
@@ -117,7 +117,7 @@ TEST_F(TestUITree_Window, Window_Resolve)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
+  m_tree->Update(TimeSpan(0));
 
   auto callCount = window->GetCallCount();
 
@@ -134,7 +134,7 @@ TEST_F(TestUITree_Window, Window_Resolve_ResolveEnabled)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::ResolveEnabled);
   m_tree->Add(window);
-  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
+  m_tree->Update(TimeSpan(0));
 
   auto callCount = window->GetCallCount();
 
@@ -150,7 +150,7 @@ TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
 {
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
-  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
+  m_tree->Update(TimeSpan(0));
 
   auto callCount = window->GetCallCount();
 
@@ -161,7 +161,7 @@ TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
   CheckZeroExcept(callCount, ignoreFlags);
 
 
-  m_tree->Update(TransitionTimeSpan(0, TransitionTimeUnit::Microseconds));
+  m_tree->Update(TimeSpan(0));
 
   // Check that the layout was cached
   callCount = window->GetCallCount();
@@ -176,7 +176,7 @@ TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
 TEST_F(TestUITree_Window, Window_Draw)
 {
   // Update must be called before draw
-  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  const TimeSpan timeSpan(0);
 
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   m_tree->Add(window);
@@ -198,7 +198,7 @@ TEST_F(TestUITree_Window, Window_Draw)
 TEST_F(TestUITree_Window, Window_Draw_DrawEnabled)
 {
   // Update must be called before draw
-  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  const TimeSpan timeSpan(0);
 
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::DrawEnabled);
   m_tree->Add(window);
@@ -220,7 +220,7 @@ TEST_F(TestUITree_Window, Window_Draw_DrawEnabled)
 TEST_F(TestUITree_Window, Window_Draw2x_DrawEnabled)
 {
   // Update must be called before draw
-  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  const TimeSpan timeSpan(0);
 
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::DrawEnabled);
   m_tree->Add(window);

@@ -37,8 +37,8 @@
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/Render/DynamicTexture2D.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
-#include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/UnitTest/Helper/Render/NativeGraphicsTestImpl.hpp>
+#include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 
 using namespace Fsl;
 

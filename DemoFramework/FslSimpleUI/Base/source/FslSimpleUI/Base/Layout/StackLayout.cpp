@@ -29,133 +29,172 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <cassert>
 #include <cmath>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  using TClass = StackLayout;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyOrientation = TFactory::Create<LayoutOrientation, TClass, &TClass::GetOrientation, &TClass::SetOrientation>("Orientation");
+  TDef TClass::PropertySpacing = TFactory::Create<DpSize1DF, TClass, &TClass::GetSpacing, &TClass::SetSpacing>("Spacing");
+}
+
+
+namespace Fsl::UI
+{
+  StackLayout::StackLayout(const std::shared_ptr<BaseWindowContext>& context)
+    : SimpleLayout(context)
+    , m_propertyOrientation(LayoutOrientation::Vertical)
   {
-    StackLayout::StackLayout(const std::shared_ptr<BaseWindowContext>& context)
-      : SimpleLayout(context)
-      , m_orientation(LayoutOrientation::Vertical)
-      , m_spacingDp(0)
+  }
+
+
+  bool StackLayout::SetOrientation(const LayoutOrientation value)
+  {
+    const bool changed = m_propertyOrientation.Set(ThisDependencyObject(), value);
+    if (changed)
     {
+      PropertyUpdated(PropertyType::Layout);
     }
+    return changed;
+  }
 
 
-    void StackLayout::SetLayoutOrientation(const LayoutOrientation& value)
+  bool StackLayout::SetSpacing(const DpSize1DF value)
+  {
+    const bool changed = m_propertySpacingDp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      if (value != m_orientation)
-      {
-        m_orientation = value;
-        PropertyUpdated(PropertyType::Layout);
-      }
+      PropertyUpdated(PropertyType::Layout);
     }
+    return changed;
+  }
 
 
-    void StackLayout::SetSpacing(const float& value)
+  PxSize2D StackLayout::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+    const auto spacePx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
-      if (value != m_spacingDp)
-      {
-        m_spacingDp = value;
-        PropertyUpdated(PropertyType::Layout);
-      }
-    }
-
-
-    PxSize2D StackLayout::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-      const auto spacePx = unitConverter.DpToPxInt32(m_spacingDp);
-      if (m_orientation == LayoutOrientation::Horizontal)
-      {
-        // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
-        int32_t posPx = 0;
-        int32_t elementDesiredXPx = 0;
-        for (auto itr = begin(); itr != end(); ++itr)
-        {
-          elementDesiredXPx = itr->Window->DesiredSizePx().Width();
-          itr->Window->Arrange(PxRectangle(posPx, 0, elementDesiredXPx, finalSizePx.Height()));
-          posPx += elementDesiredXPx + spacePx;
-        }
-        if (!empty())
-        {
-          posPx -= spacePx;
-        }
-        return {posPx, finalSizePx.Height()};
-      }
-
-
-      // Run through each element and give it the space it desired in Y, but only finalSize.X in X
+      // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
       int32_t posPx = 0;
-      int32_t elementDesiredYPx = 0;
+      int32_t elementDesiredXPx = 0;
       for (auto itr = begin(); itr != end(); ++itr)
       {
-        elementDesiredYPx = itr->Window->DesiredSizePx().Height();
-        itr->Window->Arrange(PxRectangle(0, posPx, finalSizePx.Width(), elementDesiredYPx));
-        posPx += elementDesiredYPx + spacePx;
+        elementDesiredXPx = itr->Window->DesiredSizePx().Width();
+        itr->Window->Arrange(PxRectangle(posPx, 0, elementDesiredXPx, finalSizePx.Height()));
+        posPx += elementDesiredXPx + spacePx.RawValue();
       }
       if (!empty())
       {
-        posPx -= spacePx;
+        posPx -= spacePx.RawValue();
       }
-      return {finalSizePx.Width(), posPx};
+      return {posPx, finalSizePx.Height()};
     }
 
 
-    PxSize2D StackLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
+    // Run through each element and give it the space it desired in Y, but only finalSize.X in X
+    int32_t posPx = 0;
+    int32_t elementDesiredYPx = 0;
+    for (auto itr = begin(); itr != end(); ++itr)
     {
-      PxPoint2 minSizePx;
-
-      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-
-      const auto spacePx = unitConverter.DpToPxInt32(m_spacingDp);
-      if (m_orientation == LayoutOrientation::Horizontal)
-      {
-        // Fake that we have unlimited space in X and keep Y constrained.
-        const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
-        for (auto itr = begin(); itr != end(); ++itr)
-        {
-          itr->Window->Measure(fakeAvailableSizePx);
-          PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
-          minSizePx.X += desiredSizePx.Width() + spacePx;
-          if (desiredSizePx.Height() > minSizePx.Y)
-          {
-            minSizePx.Y = desiredSizePx.Height();
-          }
-        }
-        if (!empty())
-        {
-          minSizePx.X -= spacePx;
-        }
-      }
-      else
-      {
-        // Fake that we have unlimited space in Y and keep X constrained.
-        const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
-        for (auto itr = begin(); itr != end(); ++itr)
-        {
-          itr->Window->Measure(fakeAvailableSizePx);
-          PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
-          minSizePx.Y += desiredSizePx.Height() + spacePx;
-          if (desiredSizePx.Width() > minSizePx.X)
-          {
-            minSizePx.X = desiredSizePx.Width();
-          }
-        }
-        if (!empty())
-        {
-          minSizePx.Y -= spacePx;
-        }
-      }
-
-      return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
+      elementDesiredYPx = itr->Window->DesiredSizePx().Height();
+      itr->Window->Arrange(PxRectangle(0, posPx, finalSizePx.Width(), elementDesiredYPx));
+      posPx += elementDesiredYPx + spacePx.RawValue();
     }
+    if (!empty())
+    {
+      posPx -= spacePx.RawValue();
+    }
+    return {finalSizePx.Width(), posPx};
   }
+
+
+  PxSize2D StackLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    PxPoint2 minSizePx;
+
+    const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+
+    const auto spacePx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
+    {
+      // Fake that we have unlimited space in X and keep Y constrained.
+      const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
+      for (auto itr = begin(); itr != end(); ++itr)
+      {
+        itr->Window->Measure(fakeAvailableSizePx);
+        PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
+        minSizePx.X += desiredSizePx.Width() + spacePx.RawValue();
+        if (desiredSizePx.Height() > minSizePx.Y)
+        {
+          minSizePx.Y = desiredSizePx.Height();
+        }
+      }
+      if (!empty())
+      {
+        minSizePx.X -= spacePx.RawValue();
+      }
+    }
+    else
+    {
+      // Fake that we have unlimited space in Y and keep X constrained.
+      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
+      for (auto itr = begin(); itr != end(); ++itr)
+      {
+        itr->Window->Measure(fakeAvailableSizePx);
+        PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
+        minSizePx.Y += desiredSizePx.Height() + spacePx.RawValue();
+        if (desiredSizePx.Width() > minSizePx.X)
+        {
+          minSizePx.X = desiredSizePx.Width();
+        }
+      }
+      if (!empty())
+      {
+        minSizePx.Y -= spacePx.RawValue();
+      }
+    }
+
+    return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
+  }
+
+  DataBinding::DataBindingInstanceHandle StackLayout::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                         DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res.IsValid() ? res : SimpleLayout::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult StackLayout::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                      const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                  DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : SimpleLayout::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void StackLayout::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    SimpleLayout::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyOrientation);
+    rProperties.push_back(PropertySpacing);
+  }
+
 }

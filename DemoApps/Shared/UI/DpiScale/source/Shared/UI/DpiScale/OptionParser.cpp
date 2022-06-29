@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/DpiScale/OptionParser.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <Shared/UI/DpiScale/OptionParser.hpp>
 
 namespace Fsl
 {

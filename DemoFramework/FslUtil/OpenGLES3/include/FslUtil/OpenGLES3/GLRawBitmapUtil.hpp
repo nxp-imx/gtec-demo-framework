@@ -32,65 +32,62 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLRawBitmapUtil
   {
-    class GLRawBitmapUtil
+  public:
+    struct Result
     {
-    public:
-      struct Result
+      GLint InternalFormat{0};
+      GLint Format{0};
+      GLenum Type{0};
+      GLint Alignment{0};
+
+      Result() = default;
+
+      Result(const GLint internalFormat, const GLint format, const GLenum type, const GLint alignment)
+        : InternalFormat(internalFormat)
+        , Format(format)
+        , Type(type)
+        , Alignment(alignment)
       {
-        GLint InternalFormat{0};
-        GLint Format{0};
-        GLenum Type{0};
-        GLint Alignment{0};
-
-        Result() = default;
-
-        Result(const GLint internalFormat, const GLint format, const GLenum type, const GLint alignment)
-          : InternalFormat(internalFormat)
-          , Format(format)
-          , Type(type)
-          , Alignment(alignment)
-        {
-        }
-      };
-
-      struct CompressedResult
-      {
-        GLint InternalFormat;    // compressed internal format
-        GLint BaseInternalFormat;
-        GLint Alignment;
-
-        CompressedResult(const GLint internalFormat, const GLint baseInternalFormat, const GLint alignment)
-          : InternalFormat(internalFormat)
-          , BaseInternalFormat(baseInternalFormat)
-          , Alignment(alignment)
-        {
-        }
-      };
-
-      //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D
-      //! @param exactMatch if this is true we require a exact texture format to pixel format match.
-      //                    if false then we allow OpenGL to find something good enough.
-      static Result Convert(const RawBitmap& rawBitmap, const bool exactMatch)
-      {
-        return Convert(rawBitmap.GetPixelFormat(), rawBitmap.Width(), rawBitmap.Stride(), exactMatch);
       }
-
-      //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D
-      //! @param exactMatch if this is true we require a exact texture format to pixel format match.
-      //                    if false then we allow OpenGL to find something good enough.
-      static Result Convert(const PixelFormat pixelFormat, const uint32_t width, const uint32_t stride, const bool exactMatch);
-
-      static CompressedResult ConvertCompressed(const PixelFormat pixelFormat, const uint32_t width);
     };
-  }
+
+    struct CompressedResult
+    {
+      GLint InternalFormat;    // compressed internal format
+      GLint BaseInternalFormat;
+      GLint Alignment;
+
+      CompressedResult(const GLint internalFormat, const GLint baseInternalFormat, const GLint alignment)
+        : InternalFormat(internalFormat)
+        , BaseInternalFormat(baseInternalFormat)
+        , Alignment(alignment)
+      {
+      }
+    };
+
+    //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D
+    //! @param exactMatch if this is true we require a exact texture format to pixel format match.
+    //                    if false then we allow OpenGL to find something good enough.
+    static Result Convert(const RawBitmap& rawBitmap, const bool exactMatch)
+    {
+      return Convert(rawBitmap.GetPixelFormat(), rawBitmap.Width(), rawBitmap.Stride(), exactMatch);
+    }
+
+    //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D
+    //! @param exactMatch if this is true we require a exact texture format to pixel format match.
+    //                    if false then we allow OpenGL to find something good enough.
+    static Result Convert(const PixelFormat pixelFormat, const uint32_t width, const uint32_t stride, const bool exactMatch);
+
+    static CompressedResult ConvertCompressed(const PixelFormat pixelFormat, const uint32_t width);
+  };
 }
 
 #endif

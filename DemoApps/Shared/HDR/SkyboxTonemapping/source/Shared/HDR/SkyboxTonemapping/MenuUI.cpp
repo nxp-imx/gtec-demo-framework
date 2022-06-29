@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/HDR/SkyboxTonemapping/MenuUI.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -39,6 +38,7 @@
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <Shared/HDR/SkyboxTonemapping/MenuUI.hpp>
 
 namespace Fsl
 {
@@ -59,7 +59,7 @@ namespace Fsl
           return checkbox;
         }
       }
-      return std::shared_ptr<UI::Switch>();
+      return {};
     }
   }
 
@@ -270,7 +270,7 @@ namespace Fsl
 
     if (activeSegments > 0)
     {
-      const auto segmentSize = static_cast<float>(extent.Width) / activeSegments;
+      const auto segmentSize = static_cast<float>(extent.Width) / static_cast<float>(activeSegments);
       uint32_t sceneFlags = m_sceneRenderFlags;
       float currentSplitX = segmentSize;
       for (std::size_t i = 0; i < m_render.size(); ++i)
@@ -327,7 +327,7 @@ namespace Fsl
 
   void MenuUI::UpdateSceneTransition(const DemoTime& demoTime)
   {
-    const auto timespan = TransitionTimeSpan(demoTime.ElapsedTime.Ticks());
+    const auto timespan = TimeSpan(demoTime.ElapsedTime.Ticks());
     for (auto& rRecord : m_render)
     {
       rRecord.SplitX.Update(timespan);
@@ -341,8 +341,8 @@ namespace Fsl
     rRender.resize(entries);
     for (auto& rRecord : rRender)
     {
-      rRecord.LabelAlpha.SetTransitionTime(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth);
-      rRecord.SplitX.SetTransitionTime(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth);
+      rRecord.LabelAlpha.SetTransitionTime(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth);
+      rRecord.SplitX.SetTransitionTime(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth);
     }
     rRender[Tonemapper::LinearNoGamma].Name = "LinearNoGamma";
     rRender[Tonemapper::Linear].Name = "Linear";
@@ -406,7 +406,7 @@ namespace Fsl
     auto stackLayout = std::make_shared<UI::ComplexStackLayout>(context);
     stackLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
     stackLayout->SetAlignmentY(UI::ItemAlignment::Stretch);
-    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    stackLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     for (std::size_t i = 0; i < m_checkboxes.size(); ++i)
     {
       stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
@@ -416,7 +416,7 @@ namespace Fsl
     auto stackLayout2 = std::make_shared<UI::ComplexStackLayout>(context);
     stackLayout2->SetAlignmentX(UI::ItemAlignment::Stretch);
     stackLayout2->SetAlignmentY(UI::ItemAlignment::Stretch);
-    stackLayout2->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    stackLayout2->SetOrientation(UI::LayoutOrientation::Horizontal);
     stackLayout2->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
     stackLayout2->AddChild(labelExposure);
     stackLayout2->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
@@ -425,7 +425,7 @@ namespace Fsl
     auto mainStack = std::make_shared<UI::StackLayout>(context);
     mainStack->SetAlignmentX(UI::ItemAlignment::Stretch);
     mainStack->SetAlignmentY(UI::ItemAlignment::Stretch);
-    mainStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    mainStack->SetOrientation(UI::LayoutOrientation::Vertical);
     mainStack->AddChild(stackLayout);
     mainStack->AddChild(stackLayout2);
 

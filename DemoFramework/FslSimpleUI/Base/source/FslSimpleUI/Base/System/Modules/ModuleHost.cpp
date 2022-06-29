@@ -36,75 +36,72 @@
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <utility>
 #include "../Event/EventRouter.hpp"
-#include "../Event/StateEventSender.hpp"
 #include "../Event/SimpleEventSender.hpp"
+#include "../Event/StateEventSender.hpp"
 #include "ModuleCallbackRegistry.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  ModuleHost::ModuleHost(std::shared_ptr<ModuleCallbackRegistry> moduleCallbackRegistry, std::shared_ptr<ITreeContextInfo> treeContextInfo,
+                         const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater,
+                         std::shared_ptr<ITreeNodeBasicInfo> basicInfo, std::shared_ptr<IEventHandler> eventHandler,
+                         std::shared_ptr<WindowEventPool> windowEventPool, const std::shared_ptr<WindowEventSender>& eventSender,
+                         const std::shared_ptr<SimpleEventSender>& simpleEventSender)
+    : m_moduleCallbackRegistry(std::move(moduleCallbackRegistry))
+    , m_treeContextInfo(std::move(treeContextInfo))
+    , m_windowEventPool(std::move(windowEventPool))
+    , m_targetLocater(clickTargetLocater)
+    , m_basicInfo(std::move(basicInfo))
+    , m_eventRouter(new EventRouter(rootNode, clickTargetLocater))
+    , m_eventHandler(std::move(eventHandler))
+    , m_eventSender(eventSender)
+    , m_simpleEventSender(simpleEventSender)
   {
-    ModuleHost::ModuleHost(std::shared_ptr<ModuleCallbackRegistry> moduleCallbackRegistry, std::shared_ptr<ITreeContextInfo> treeContextInfo,
-                           const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater,
-                           std::shared_ptr<ITreeNodeBasicInfo> basicInfo, std::shared_ptr<IEventHandler> eventHandler,
-                           std::shared_ptr<WindowEventPool> windowEventPool, const std::shared_ptr<WindowEventSender>& eventSender,
-                           const std::shared_ptr<SimpleEventSender>& simpleEventSender)
-      : m_moduleCallbackRegistry(std::move(moduleCallbackRegistry))
-      , m_treeContextInfo(std::move(treeContextInfo))
-      , m_windowEventPool(std::move(windowEventPool))
-      , m_targetLocater(clickTargetLocater)
-      , m_basicInfo(std::move(basicInfo))
-      , m_eventRouter(new EventRouter(rootNode, clickTargetLocater))
-      , m_eventHandler(std::move(eventHandler))
-      , m_eventSender(eventSender)
-      , m_simpleEventSender(simpleEventSender)
+    if (!m_moduleCallbackRegistry || !m_treeContextInfo || !m_windowEventPool || !m_eventRouter || !m_eventHandler || !eventSender ||
+        !simpleEventSender)
     {
-      if (!m_moduleCallbackRegistry || !m_treeContextInfo || !m_windowEventPool || !m_eventRouter || !m_eventHandler || !eventSender ||
-          !simpleEventSender)
-      {
-        throw std::invalid_argument("treeContextInfo can not be null");
-      }
+      throw std::invalid_argument("treeContextInfo can not be null");
     }
+  }
 
 
-    ModuleHost::~ModuleHost() = default;
+  ModuleHost::~ModuleHost() = default;
 
 
-    std::shared_ptr<ITreeNodeClickInputTargetLocater> ModuleHost::GetTargetLocater() const
-    {
-      return m_targetLocater;
-    }
+  std::shared_ptr<ITreeNodeClickInputTargetLocater> ModuleHost::GetTargetLocater() const
+  {
+    return m_targetLocater;
+  }
 
 
-    std::shared_ptr<ITreeNodeBasicInfo> ModuleHost::GetBasicInfo() const
-    {
-      return m_basicInfo;
-    }
+  std::shared_ptr<ITreeNodeBasicInfo> ModuleHost::GetBasicInfo() const
+  {
+    return m_basicInfo;
+  }
 
-    std::shared_ptr<WindowEventPool> ModuleHost::GetWindowEventPool() const
-    {
-      return m_windowEventPool;
-    }
-
-
-    std::shared_ptr<WindowEventSender> ModuleHost::GetWindowEventSender() const
-    {
-      return m_eventSender;
-    }
+  std::shared_ptr<WindowEventPool> ModuleHost::GetWindowEventPool() const
+  {
+    return m_windowEventPool;
+  }
 
 
-    std::shared_ptr<SimpleEventSender> ModuleHost::GetSimpleEventSender() const
-    {
-      return m_simpleEventSender;
-    }
+  std::shared_ptr<WindowEventSender> ModuleHost::GetWindowEventSender() const
+  {
+    return m_eventSender;
+  }
 
-    std::shared_ptr<IStateEventSender> ModuleHost::CreateStateEventSender(const WindowFlags::Enum inputType,
-                                                                          const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent)
-    {
-      auto sender = std::make_shared<StateEventSender>(m_treeContextInfo, m_eventRouter, m_windowEventPool, m_eventHandler, inputType,
-                                                       fnCreateTargetWindowDeathEvent);
-      m_moduleCallbackRegistry->AddCallbackReceiver(sender);
-      return sender;
-    }
+
+  std::shared_ptr<SimpleEventSender> ModuleHost::GetSimpleEventSender() const
+  {
+    return m_simpleEventSender;
+  }
+
+  std::shared_ptr<IStateEventSender> ModuleHost::CreateStateEventSender(const WindowFlags::Enum inputType,
+                                                                        const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent)
+  {
+    auto sender = std::make_shared<StateEventSender>(m_treeContextInfo, m_eventRouter, m_windowEventPool, m_eventHandler, inputType,
+                                                     fnCreateTargetWindowDeathEvent);
+    m_moduleCallbackRegistry->AddCallbackReceiver(sender);
+    return sender;
   }
 }

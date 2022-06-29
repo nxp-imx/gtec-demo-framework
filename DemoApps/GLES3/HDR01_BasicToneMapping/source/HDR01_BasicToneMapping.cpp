@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ namespace Fsl
       tex.OverrideOrigin(BitmapOrigin::LowerLeft);
 
       GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      return GLES3::GLTexture(tex, texParams);
+      return {tex, texParams};
     }
   }
 
@@ -108,19 +108,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -159,7 +159,7 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * windowSizePx.Width()));
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(windowSizePx.Width())));
     const GLint remainderX = std::min(std::max(windowSizePx.Width() - splitX, 0), windowSizePx.Width());
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
@@ -276,7 +276,7 @@ namespace Fsl
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_resources.TexSRGB.Get());
-    glDrawArrays(GL_TRIANGLES, 0, m_resources.MeshTunnel.VertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, m_resources.MeshTunnel.VertexBuffer.GetGLCapacity());
 
     m_resources.MeshTunnel.VertexArray.Unbind();
   }

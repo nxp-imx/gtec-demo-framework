@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_INTERFACE_CAMERAADAPTERALLOCATEINFO_HPP
 #define SHARED_CAMERA_ADAPTER_INTERFACE_CAMERAADAPTERALLOCATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,26 +38,23 @@
 #include <Shared/Camera/Adapter/Interface/CameraAdapterAllocateFlags.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  struct CameraAdapterAllocateInfo
   {
-    struct CameraAdapterAllocateInfo
+    CameraAdapterAllocateFlags Flags;
+    PxExtent2D Extent;
+
+    CameraAdapterAllocateInfo()
+      : Flags(0)
     {
-      CameraAdapterAllocateFlags Flags;
-      PxExtent2D Extent;
+    }
 
-      CameraAdapterAllocateInfo()
-        : Flags(0)
-      {
-      }
-
-      CameraAdapterAllocateInfo(const CameraAdapterAllocateFlags flags, const PxExtent2D& extent)
-        : Flags(flags)
-        , Extent(extent)
-      {
-      }
-    };
-  }
+    CameraAdapterAllocateInfo(const CameraAdapterAllocateFlags flags, const PxExtent2D& extent)
+      : Flags(flags)
+      , Extent(extent)
+    {
+    }
+  };
 }
 #endif

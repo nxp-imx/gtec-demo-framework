@@ -33,14 +33,14 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Collections/HandleVector.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/Math/SpanRange.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatchContentType.hpp>
-#include <FslGraphics2D/Procedural/Batcher/BatcherAddMeshFlags.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatchInfo.hpp>
-#include <FslGraphics2D/Procedural/Batcher/BatchRecord.hpp>
 #include <FslGraphics2D/Procedural/Batcher/BatchMaterialId.hpp>
+#include <FslGraphics2D/Procedural/Batcher/BatchRecord.hpp>
+#include <FslGraphics2D/Procedural/Batcher/BatcherAddMeshFlags.hpp>
 #include <FslGraphics2D/Procedural/Batcher/ImmediateModeBatcherTypes.hpp>
 #include <FslGraphics2D/Procedural/Builder/UIRawBasicMeshBuilder2D.hpp>
 #include <FslGraphics2D/Procedural/Builder/UIRawMeshBuilder2D.hpp>

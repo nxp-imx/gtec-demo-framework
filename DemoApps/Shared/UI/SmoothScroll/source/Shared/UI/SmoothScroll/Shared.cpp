@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/SmoothScroll/Shared.hpp>
-#include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/IO/FmtPathView.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtVector2.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
@@ -52,6 +51,7 @@
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/SmoothScroll/OptionParser.hpp>
+#include <Shared/UI/SmoothScroll/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -212,8 +212,8 @@ namespace Fsl
 
   void Shared::FixedUpdate(const DemoTime& /*demoTime*/)
   {
-    m_position0 += m_ui.Slider->GetValue() * float(m_direction0);
-    m_position1 += m_ui.Slider->GetValue() * float(m_direction1);
+    m_position0 += m_ui.Slider->GetValue() * static_cast<float>(m_direction0);
+    m_position1 += m_ui.Slider->GetValue() * static_cast<float>(m_direction1);
   }
 
 
@@ -233,33 +233,33 @@ namespace Fsl
 
     const auto& circleTexture = !useTestAtlas ? m_texCircle : m_texCircleTest;
 
-    Vector2 position0(float(rectTopLeftPx.Left()), m_position0 + float(rectTopLeftPx.Top()));
-    Vector2 position1(float(rectTopRightPx.Left()), std::round(m_position0) + float(rectTopRightPx.Top()));
-    Vector2 position2(m_position1 + float(rectMiddleTopPx.Left()), float(rectMiddleTopPx.Top()));
-    Vector2 position3(std::round(m_position1) + float(rectMiddleBottomPx.Left()), float(rectMiddleBottomPx.Top()));
+    Vector2 position0(static_cast<float>(rectTopLeftPx.Left()), m_position0 + static_cast<float>(rectTopLeftPx.Top()));
+    Vector2 position1(static_cast<float>(rectTopRightPx.Left()), std::round(m_position0) + static_cast<float>(rectTopRightPx.Top()));
+    Vector2 position2(m_position1 + static_cast<float>(rectMiddleTopPx.Left()), static_cast<float>(rectMiddleTopPx.Top()));
+    Vector2 position3(std::round(m_position1) + static_cast<float>(rectMiddleBottomPx.Left()), static_cast<float>(rectMiddleBottomPx.Top()));
 
     const int32_t linesHeightPx = bitmapFont.LineSpacingPx() * 4;
     const int32_t linewidth = bitmapFont.MeasureString(LocalConfig::TextLine0).Width();
 
-    if (m_position0 < rectTopLeftPx.Top())
+    if (m_position0 < static_cast<float>(rectTopLeftPx.Top()))
     {
-      m_position0 = float(rectTopLeftPx.Top());
+      m_position0 = static_cast<float>(rectTopLeftPx.Top());
       m_direction0 = 1;
     }
-    if (m_position0 > float(rectTopLeftPx.Bottom() - linesHeightPx))
+    if (m_position0 > static_cast<float>(rectTopLeftPx.Bottom() - linesHeightPx))
     {
-      m_position0 = float(rectTopLeftPx.Bottom() - linesHeightPx);
+      m_position0 = static_cast<float>(rectTopLeftPx.Bottom() - linesHeightPx);
       m_direction0 = -1;
     }
 
-    if (m_position1 < rectMiddleBottomPx.Left())
+    if (m_position1 < static_cast<float>(rectMiddleBottomPx.Left()))
     {
-      m_position1 = float(rectMiddleBottomPx.Left());
+      m_position1 = static_cast<float>(rectMiddleBottomPx.Left());
       m_direction1 = 1;
     }
-    if (m_position1 > float(rectMiddleBottomPx.Right() - linewidth))
+    if (m_position1 > static_cast<float>(rectMiddleBottomPx.Right() - linewidth))
     {
-      m_position1 = float(rectMiddleBottomPx.Right() - linewidth);
+      m_position1 = static_cast<float>(rectMiddleBottomPx.Right() - linewidth);
       m_direction1 = -1;
     }
 
@@ -320,9 +320,9 @@ namespace Fsl
                         const BitmapFontConfig& fontConfig, const Vector2& positionPxf, const Color& fontColor, const PxClipRectangle& clipRectPx)
   {
     Vector2 pos0Pxf(positionPxf.X, positionPxf.Y);
-    Vector2 pos1Pxf(positionPxf.X, positionPxf.Y + float(font.LineSpacingPx()));
-    Vector2 pos2Pxf(positionPxf.X, positionPxf.Y + float(font.LineSpacingPx() * 2));
-    Vector2 pos3Pxf(positionPxf.X, positionPxf.Y + float(font.LineSpacingPx() * 3));
+    Vector2 pos1Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx()));
+    Vector2 pos2Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx() * 2));
+    Vector2 pos3Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx() * 3));
 
     rNativeBatch.DrawString(srcTexture, font, fontConfig, LocalConfig::TextLine0, pos0Pxf, fontColor, clipRectPx);
     rNativeBatch.DrawString(srcTexture, font, fontConfig, LocalConfig::TextLine1, pos1Pxf, fontColor, clipRectPx);
@@ -370,7 +370,7 @@ namespace Fsl
 
     auto checkboxStack = std::make_shared<UI::StackLayout>(windowContext);
     checkboxStack->SetAlignmentX(UI::ItemAlignment::Center);
-    checkboxStack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    checkboxStack->SetOrientation(UI::LayoutOrientation::Horizontal);
     checkboxStack->AddChild(drawTextCheckbox);
     checkboxStack->AddChild(drawImageCheckbox);
     checkboxStack->AddChild(testPatternCheckBox);
@@ -378,7 +378,7 @@ namespace Fsl
     auto bottomStack = std::make_shared<UI::StackLayout>(windowContext);
     bottomStack->SetAlignmentX(UI::ItemAlignment::Stretch);
     bottomStack->SetAlignmentY(UI::ItemAlignment::Stretch);
-    bottomStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    bottomStack->SetOrientation(UI::LayoutOrientation::Vertical);
     bottomStack->AddChild(checkboxStack);
     bottomStack->AddChild(bottomGrid);
 

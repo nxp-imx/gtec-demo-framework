@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Setup/TemplateIDemoHostFactory.hpp>
-#include <FslDemoHost/Window/WindowDemoHostSetup.hpp>
 #include <FslDemoHost/Window/WindowDemoHost.hpp>
 #include <FslDemoHost/Window/WindowDemoHostOptionParser.hpp>
+#include <FslDemoHost/Window/WindowDemoHostSetup.hpp>
 
 namespace Fsl
 {
@@ -40,6 +40,6 @@ namespace Fsl
   {
     std::shared_ptr<IDemoHostFactory> demoHostFactory(new TemplateIDemoHostFactory<WindowDemoHost>());
     std::shared_ptr<ADemoHostOptionParser> optionParser(new WindowDemoHostOptionParser());
-    return DemoHostSetup(demoHostFactory, optionParser);
+    return {demoHostFactory, optionParser};
   }
 }

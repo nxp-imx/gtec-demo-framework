@@ -39,62 +39,59 @@
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  class InternalSceneRecord;
+
+  //! @brief Class that can load and save the basic scene format.
+  class BasicSceneFormat
   {
-    class InternalSceneRecord;
+    std::shared_ptr<InternalSceneRecord> m_sceneScratchpad;
+    bool m_hostIsLittleEndian;
 
-    //! @brief Class that can load and save the basic scene format.
-    class BasicSceneFormat
+  public:
+    BasicSceneFormat(const BasicSceneFormat&) = delete;
+    BasicSceneFormat& operator=(const BasicSceneFormat&) = delete;
+
+    BasicSceneFormat();
+    ~BasicSceneFormat();
+
+
+    //! @brief Load the given file
+    //! @param filename the file to load.
+    std::shared_ptr<Graphics3D::Scene> GenericLoad(const IO::Path& filename, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
+                                                   const void* const pDstDefaultValues, const int32_t cbDstDefaultValues);
+
+    //! @brief Load the scene from the stream
+    //! @param rStream the stream to load the scene from
+    std::shared_ptr<Graphics3D::Scene> GenericLoad(std::ifstream& rStream, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
+                                                   const void* const pDstDefaultValues, const int32_t cbDstDefaultValues);
+
+
+    //! @brief Load the given file
+    //! @param filename the file to load.
+    template <typename TScene>
+    std::shared_ptr<TScene> Load(const IO::Path& filename)
     {
-      std::shared_ptr<InternalSceneRecord> m_sceneScratchpad;
-      bool m_hostIsLittleEndian;
-
-    public:
-      BasicSceneFormat(const BasicSceneFormat&) = delete;
-      BasicSceneFormat& operator=(const BasicSceneFormat&) = delete;
-
-      BasicSceneFormat();
-      ~BasicSceneFormat();
-
-
-      //! @brief Load the given file
-      //! @param filename the file to load.
-      std::shared_ptr<Graphics3D::Scene> GenericLoad(const IO::Path& filename, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
-                                                     const void* const pDstDefaultValues, const int32_t cbDstDefaultValues);
-
-      //! @brief Load the scene from the stream
-      //! @param rStream the stream to load the scene from
-      std::shared_ptr<Graphics3D::Scene> GenericLoad(std::ifstream& rStream, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
-                                                     const void* const pDstDefaultValues, const int32_t cbDstDefaultValues);
-
-
-      //! @brief Load the given file
-      //! @param filename the file to load.
-      template <typename TScene>
-      std::shared_ptr<TScene> Load(const IO::Path& filename)
+      Graphics3D::SceneAllocatorFunc sceneAllocator(Graphics3D::SceneAllocator::Allocate<TScene>);
+      typename TScene::mesh_type::vertex_type defaultVertex;
+      auto res =
+        std::dynamic_pointer_cast<TScene>(GenericLoad(filename, sceneAllocator, &defaultVertex, sizeof(typename TScene::mesh_type::vertex_type)));
+      if (!res)
       {
-        Graphics3D::SceneAllocatorFunc sceneAllocator(Graphics3D::SceneAllocator::Allocate<TScene>);
-        typename TScene::mesh_type::vertex_type defaultVertex;
-        auto res =
-          std::dynamic_pointer_cast<TScene>(GenericLoad(filename, sceneAllocator, &defaultVertex, sizeof(typename TScene::mesh_type::vertex_type)));
-        if (!res)
-        {
-          throw std::runtime_error("Failed to allocate scene of the desired type");
-        }
-        return res;
+        throw std::runtime_error("Failed to allocate scene of the desired type");
       }
+      return res;
+    }
 
-      //! @brief Save scene to file
-      void Save(const IO::Path& strFilename, const Graphics3D::Scene& scene);
+    //! @brief Save scene to file
+    void Save(const IO::Path& strFilename, const Graphics3D::Scene& scene);
 
-      //! @brief Save scene to stream
-      //! @param stream the binary stream to save to.
-      //! @param scene the scene to be saved.
-      void Save(std::ofstream& rStream, const Graphics3D::Scene& scene);
-    };
-  }
+    //! @brief Save scene to stream
+    //! @param stream the binary stream to save to.
+    //! @param scene the scene to be saved.
+    void Save(std::ofstream& rStream, const Graphics3D::Scene& scene);
+  };
 }
 
 #endif

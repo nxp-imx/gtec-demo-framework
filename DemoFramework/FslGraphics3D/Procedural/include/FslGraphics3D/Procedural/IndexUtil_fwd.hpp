@@ -32,55 +32,51 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics3D/Procedural/IndexUtilBase.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
+#include <FslGraphics3D/Procedural/IndexUtilBase.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  class IndexUtil : public IndexUtilBase
   {
-    class IndexUtil : public IndexUtilBase
-    {
-    public:
-      //! @brief Merge the srcIndices to rDstIndices at dstIndex adding 'mod' to each element
-      //! @return the number of indices that was copied.
-      template <typename TIndex>
-      static std::size_t Merge(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices, const TIndex mod,
-                               const PrimitiveType primitiveType);
+  public:
+    //! @brief Merge the srcIndices to rDstIndices at dstIndex adding 'mod' to each element
+    //! @return the number of indices that was copied.
+    template <typename TIndex>
+    static std::size_t Merge(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices, const TIndex mod,
+                             const PrimitiveType primitiveType);
 
-      //! @brief Merge the srcIndices at srcStartIndex to rDstIndices at dstIndex adding 'mod' to each element
-      //! @return the number of indices that was copied.
-      template <typename TIndex>
-      static std::size_t Merge(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
-                               const std::size_t srcStartIndex, const std::size_t srcCount, const TIndex mod, const PrimitiveType primitiveType);
+    //! @brief Merge the srcIndices at srcStartIndex to rDstIndices at dstIndex adding 'mod' to each element
+    //! @return the number of indices that was copied.
+    template <typename TIndex>
+    static std::size_t Merge(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
+                             const std::size_t srcStartIndex, const std::size_t srcCount, const TIndex mod, const PrimitiveType primitiveType);
 
-      //! @brief Merge the srcIndices to rDstIndices at dstIndex adding 'mod' to each element
-      //! @return the number of indices that was copied.
-      template <typename TIndex>
-      static std::size_t MergeListIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
-                                          const TIndex mod);
+    //! @brief Merge the srcIndices to rDstIndices at dstIndex adding 'mod' to each element
+    //! @return the number of indices that was copied.
+    template <typename TIndex>
+    static std::size_t MergeListIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
+                                        const TIndex mod);
 
-      //! @brief Merge the the srcIndices at srcStartIndex to rDstIndices at dstIndex adding 'mod' to each element
-      //! @return the number of indices that was copied.
-      template <typename TIndex>
-      static std::size_t MergeListIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
-                                          const std::size_t srcStartIndex, const std::size_t srcCount, const TIndex mod);
+    //! @brief Merge the the srcIndices at srcStartIndex to rDstIndices at dstIndex adding 'mod' to each element
+    //! @return the number of indices that was copied.
+    template <typename TIndex>
+    static std::size_t MergeListIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
+                                        const std::size_t srcStartIndex, const std::size_t srcCount, const TIndex mod);
 
-      //! @brief Merge the the srcIndices to rDstIndices at dstIndex adding 'mod' to each element
-      //! @return the number of indices that was copied.
-      template <typename TIndex>
-      static std::size_t MergeTriangleStripIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex,
-                                                   const std::vector<TIndex>& srcIndices, const TIndex mod);
+    //! @brief Merge the the srcIndices to rDstIndices at dstIndex adding 'mod' to each element
+    //! @return the number of indices that was copied.
+    template <typename TIndex>
+    static std::size_t MergeTriangleStripIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
+                                                 const TIndex mod);
 
-      //! @brief Merge the the srcIndices at srcStartIndex to rDstIndices at dstIndex adding 'mod' to each element
-      //! @return the number of indices that was copied.
-      template <typename TIndex>
-      static std::size_t MergeTriangleStripIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex,
-                                                   const std::vector<TIndex>& srcIndices, const std::size_t srcStartIndex, const std::size_t srcCount,
-                                                   const TIndex mod);
-    };
-  }
+    //! @brief Merge the the srcIndices at srcStartIndex to rDstIndices at dstIndex adding 'mod' to each element
+    //! @return the number of indices that was copied.
+    template <typename TIndex>
+    static std::size_t MergeTriangleStripIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
+                                                 const std::size_t srcStartIndex, const std::size_t srcCount, const TIndex mod);
+  };
 }
 
 #endif

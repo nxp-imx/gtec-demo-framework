@@ -35,24 +35,21 @@
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::G2D
 {
-  namespace G2D
+  class NativeGraphicsService final : public ANativeGraphicsServiceNo3D
   {
-    class NativeGraphicsService final : public ANativeGraphicsServiceNo3D
-    {
-    public:
-      explicit NativeGraphicsService(const ServiceProvider& serviceProvider);
-      ~NativeGraphicsService() final;
+  public:
+    explicit NativeGraphicsService(const ServiceProvider& serviceProvider);
+    ~NativeGraphicsService() final;
 
-      // From INativeGraphicsService
-      bool IsSupported(const DemoHostFeature& activeAPI) const final;
-      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
-      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
+    // From INativeGraphicsService
+    bool IsSupported(const DemoHostFeature& activeAPI) const final;
+    void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
+    std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
 
-    private:
-    };
-  }
+  private:
+  };
 }
 
 #endif

@@ -33,11 +33,11 @@
 
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
-#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <Shared/UI/Benchmark/DemoAppExtensionForwarder.hpp>
-#include <Shared/UI/Benchmark/SceneId.hpp>
 #include <Shared/UI/Benchmark/SceneAppInfo.hpp>
+#include <Shared/UI/Benchmark/SceneId.hpp>
 #include <memory>
 
 namespace Fsl
@@ -98,7 +98,7 @@ namespace Fsl
     explicit Shared(const DemoAppConfig& config, std::shared_ptr<IBasicGpuProfiler> gpuProfiler = {});
     ~Shared() override;
 
-    std::shared_ptr<DemoAppExtension> GetDemoAppExtension() const
+    std::shared_ptr<IDemoAppExtension> GetDemoAppExtension() const
     {
       return m_forwarder;
     }

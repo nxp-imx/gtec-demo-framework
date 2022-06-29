@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,127 +29,124 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Logic/RadioGroup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslSimpleUI/Base/Control/Logic/RadioGroup.hpp>
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    std::vector<std::weak_ptr<RadioButton>>::iterator Find(std::vector<std::weak_ptr<RadioButton>>& members,
+                                                           const std::shared_ptr<RadioButton>& value)
     {
-      std::vector<std::weak_ptr<RadioButton>>::iterator Find(std::vector<std::weak_ptr<RadioButton>>& members,
-                                                             const std::shared_ptr<RadioButton>& value)
+      auto itrFind = members.begin();
+      while (itrFind != members.end())
       {
-        auto itrFind = members.begin();
-        while (itrFind != members.end())
+        auto entry = itrFind->lock();
+        if (entry == value)
         {
-          auto entry = itrFind->lock();
-          if (entry == value)
-          {
-            return itrFind;
-          }
-          ++itrFind;
+          return itrFind;
         }
-        return itrFind;
+        ++itrFind;
+      }
+      return itrFind;
+    }
+
+    std::vector<std::weak_ptr<RadioButton>>::iterator Find(std::vector<std::weak_ptr<RadioButton>>& members, const RadioButton* const value)
+    {
+      if (value == nullptr)
+      {
+        return members.end();
       }
 
-      std::vector<std::weak_ptr<RadioButton>>::iterator Find(std::vector<std::weak_ptr<RadioButton>>& members, const RadioButton* const value)
+      auto itrFind = members.begin();
+      while (itrFind != members.end())
       {
-        if (value == nullptr)
+        auto entry = itrFind->lock();
+        if (entry.get() == value)
         {
-          return members.end();
+          return itrFind;
         }
+        ++itrFind;
+      }
+      return itrFind;
+    }
 
-        auto itrFind = members.begin();
-        while (itrFind != members.end())
+    std::vector<std::weak_ptr<RadioButton>>::const_iterator Find(const std::vector<std::weak_ptr<RadioButton>>& members,
+                                                                 const RadioButton* const value)
+    {
+      if (value == nullptr)
+      {
+        return members.end();
+      }
+
+      auto itrFind = members.begin();
+      while (itrFind != members.end())
+      {
+        auto entry = itrFind->lock();
+        if (entry.get() == value)
         {
-          auto entry = itrFind->lock();
-          if (entry.get() == value)
-          {
-            return itrFind;
-          }
-          ++itrFind;
+          return itrFind;
         }
-        return itrFind;
+        ++itrFind;
       }
-
-      std::vector<std::weak_ptr<RadioButton>>::const_iterator Find(const std::vector<std::weak_ptr<RadioButton>>& members,
-                                                                   const RadioButton* const value)
-      {
-        if (value == nullptr)
-        {
-          return members.end();
-        }
-
-        auto itrFind = members.begin();
-        while (itrFind != members.end())
-        {
-          auto entry = itrFind->lock();
-          if (entry.get() == value)
-          {
-            return itrFind;
-          }
-          ++itrFind;
-        }
-        return itrFind;
-      }
+      return itrFind;
     }
-
-
-    RadioGroup::RadioGroup(const StringViewLite& name)
-      : m_name(StringViewLiteUtil::ToString(name))
-    {
-    }
-
-    StringViewLite RadioGroup::GetName() const
-    {
-      return StringViewLiteUtil::AsStringViewLite(m_name);
-    }
-
-    void RadioGroup::Add(const std::shared_ptr<RadioButton>& entry)
-    {
-      if (!entry)
-      {
-        throw std::invalid_argument("Can not add a null entry");
-      }
-      auto itrFind = Find(m_members, entry);
-      if (itrFind != m_members.end())
-      {
-        throw std::invalid_argument("entry already added");
-      }
-      m_members.push_back(entry);
-    }
-
-
-    bool RadioGroup::Remove(const std::shared_ptr<RadioButton>& entry)
-    {
-      auto itrFind = Find(m_members, entry);
-      if (itrFind == m_members.end())
-      {
-        return false;
-      }
-      m_members.erase(itrFind);
-      return true;
-    }
-
-    bool RadioGroup::Contains(const RadioButton* const pButton) const
-    {
-      return Find(m_members, pButton) != m_members.end();
-    }
-
-    bool RadioGroup::Remove(const RadioButton* const pButton)
-    {
-      auto itrFind = Find(m_members, pButton);
-      if (itrFind == m_members.end())
-      {
-        return false;
-      }
-      m_members.erase(itrFind);
-      return true;
-    }
-
   }
+
+
+  RadioGroup::RadioGroup(const StringViewLite& name)
+    : m_name(StringViewLiteUtil::ToString(name))
+  {
+  }
+
+  StringViewLite RadioGroup::GetName() const
+  {
+    return StringViewLiteUtil::AsStringViewLite(m_name);
+  }
+
+  void RadioGroup::Add(const std::shared_ptr<RadioButton>& entry)
+  {
+    if (!entry)
+    {
+      throw std::invalid_argument("Can not add a null entry");
+    }
+    auto itrFind = Find(m_members, entry);
+    if (itrFind != m_members.end())
+    {
+      throw std::invalid_argument("entry already added");
+    }
+    m_members.push_back(entry);
+  }
+
+
+  bool RadioGroup::Remove(const std::shared_ptr<RadioButton>& entry)
+  {
+    auto itrFind = Find(m_members, entry);
+    if (itrFind == m_members.end())
+    {
+      return false;
+    }
+    m_members.erase(itrFind);
+    return true;
+  }
+
+  bool RadioGroup::Contains(const RadioButton* const pButton) const
+  {
+    return Find(m_members, pButton) != m_members.end();
+  }
+
+  bool RadioGroup::Remove(const RadioButton* const pButton)
+  {
+    auto itrFind = Find(m_members, pButton);
+    if (itrFind == m_members.end())
+    {
+      return false;
+    }
+    m_members.erase(itrFind);
+    return true;
+  }
+
 }

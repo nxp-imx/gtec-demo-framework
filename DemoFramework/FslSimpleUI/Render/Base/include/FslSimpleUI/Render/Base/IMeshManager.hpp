@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_IMESHMANAGER_HPP
 #define FSLSIMPLEUI_RENDER_BASE_IMESHMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,26 +48,28 @@ namespace Fsl
     public:
       virtual ~IMeshManager() = default;
 
-      virtual MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite) = 0;
-      virtual MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity) = 0;
-      virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite) = 0;
+      [[nodiscard]] virtual MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite) = 0;
+      [[nodiscard]] virtual MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity) = 0;
+      [[nodiscard]] virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite) = 0;
       //! @param vertexCapacity the desired vertex capacity the final result with be std::max(vertexCapacity, sprite type vertex requirement)
       //! @param indexCapacity the desired index capacity the final result with be std::max(indexCapacity, sprite type index requirement)
-      virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity) = 0;
+      [[nodiscard]] virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity,
+                                                  const uint32_t indexCapacity) = 0;
       //! @brief Create a mesh based on the given sprites material at materialIndex.
-      virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex) = 0;
+      [[nodiscard]] virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex) = 0;
       //! @brief Create a mesh based on the given sprites material at materialIndex.
-      virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex, const uint32_t vertexCapacity,
-                                    const uint32_t indexCapacity) = 0;
-      virtual MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite) = 0;
-      virtual MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity) = 0;
+      [[nodiscard]] virtual MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex,
+                                                  const uint32_t vertexCapacity, const uint32_t indexCapacity) = 0;
+      [[nodiscard]] virtual MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite) = 0;
+      [[nodiscard]] virtual MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite, const uint32_t vertexCapacity,
+                                                  const uint32_t indexCapacity) = 0;
       virtual bool DestroyMesh(const MeshHandle hMesh) noexcept = 0;
 
       // virtual std::shared_ptr<ISprite> TryGetMeshSprite(const MeshHandle hMesh) = 0;
-      FSL_FUNC_WARN_UNUSED_RESULT virtual MeshHandle SetBasicMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) = 0;
-      FSL_FUNC_WARN_UNUSED_RESULT virtual MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) = 0;
-      FSL_FUNC_WARN_UNUSED_RESULT virtual MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<SpriteFont>& sprite) = 0;
-      FSL_FUNC_WARN_UNUSED_RESULT virtual MeshHandle SetMeshText(const MeshHandle hMesh, const StringViewLite& text) = 0;
+      [[nodiscard]] virtual MeshHandle SetBasicMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) = 0;
+      [[nodiscard]] virtual MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) = 0;
+      [[nodiscard]] virtual MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<SpriteFont>& sprite) = 0;
+      [[nodiscard]] virtual MeshHandle SetMeshText(const MeshHandle hMesh, const StringViewLite& text) = 0;
 
       virtual void EnsureCapacity(const MeshHandle hMesh, const uint32_t vertexCapacity, const uint32_t indexCapacity) = 0;
     };

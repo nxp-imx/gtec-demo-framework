@@ -36,18 +36,12 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan::QueueUtil
 {
-  namespace Vulkan
-  {
-    namespace QueueUtil
-    {
-      bool TryGetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
-                                  const uint32_t queueIndex, const std::vector<bool>* pFilter, uint32_t& rQueueFamilyIndex);
-      uint32_t GetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
-                                   const uint32_t queueIndex, const std::vector<bool>* pFilter);
-    }
-  }
+  bool TryGetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
+                              const uint32_t queueIndex, const std::vector<bool>* pFilter, uint32_t& rQueueFamilyIndex);
+  uint32_t GetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
+                               const uint32_t queueIndex, const std::vector<bool>* pFilter);
 }
 
 #endif

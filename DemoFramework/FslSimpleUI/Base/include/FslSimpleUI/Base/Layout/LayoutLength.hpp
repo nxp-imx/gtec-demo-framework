@@ -31,48 +31,66 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslSimpleUI/Base/Layout/LayoutSharedSizeGroup.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutUnitType.hpp>
+#include <memory>
+#include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct LayoutLength
   {
-    struct LayoutLength
+  private:
+    LayoutUnitType m_unitType{LayoutUnitType::Auto};
+    float m_value{0};
+    std::shared_ptr<LayoutSharedSizeGroup> m_sharedSizeGroup;
+
+  public:
+    LayoutLength() = default;
+
+    explicit LayoutLength(const float value)
+      : LayoutLength(LayoutUnitType::Fixed, value)
     {
-    private:
-      LayoutUnitType m_unitType{LayoutUnitType::Auto};
-      float m_value{0};
+    }
 
-    public:
-      LayoutLength() = default;
+    explicit LayoutLength(const LayoutUnitType unitType)
+      : LayoutLength(unitType, 1.0f)
+    {
+    }
 
-      explicit LayoutLength(const float value)
-        : LayoutLength(LayoutUnitType::Fixed, value)
-      {
-      }
+    explicit LayoutLength(const LayoutUnitType unitType, std::shared_ptr<LayoutSharedSizeGroup> sharedSizeGroup)
+      : LayoutLength(unitType, 1.0f, std::move(sharedSizeGroup))
+    {
+    }
 
-      explicit LayoutLength(const LayoutUnitType unitType)
-        : LayoutLength(unitType, 1.0f)
-      {
-      }
+    LayoutLength(const LayoutUnitType unitType, const float value)
+      : m_unitType(unitType)
+      , m_value(value)
+    {
+    }
 
-      LayoutLength(const LayoutUnitType unitType, const float value)
-        : m_unitType(unitType)
-        , m_value(value)
-      {
-      }
+    LayoutLength(const LayoutUnitType unitType, const float value, std::shared_ptr<LayoutSharedSizeGroup> sharedSizeGroup)
+      : m_unitType(unitType)
+      , m_value(value)
+      , m_sharedSizeGroup(std::move(sharedSizeGroup))
+    {
+    }
 
-      float Value() const
-      {
-        return m_value;
-      }
+    float Value() const
+    {
+      return m_value;
+    }
 
-      LayoutUnitType UnitType() const
-      {
-        return m_unitType;
-      }
-    };
-  }
+    LayoutUnitType UnitType() const
+    {
+      return m_unitType;
+    }
+
+    const std::shared_ptr<LayoutSharedSizeGroup>& SharedSizeGroup() const
+    {
+      return m_sharedSizeGroup;
+    }
+  };
 }
 
 #endif

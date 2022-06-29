@@ -37,21 +37,18 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Span/Span.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 
-namespace Fsl
+namespace Fsl::AppHelper
 {
-  namespace AppHelper
-  {
-    extern TextureAtlasSpriteFont ReadFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,
-                                           const IContentManager& contentManager, const IO::Path& pathBitmapFont, const uint32_t densityDpi);
+  extern TextureAtlasSpriteFont ReadFont(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx,
+                                         const IContentManager& contentManager, const IO::Path& pathBitmapFont, const uint32_t densityDpi);
 
-    extern void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx,
-                                 const ReadOnlySpan<SpriteFontGlyphPosition>& positions, float zPos, const PxSize2D& fontTextureSize);
-    extern void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<SpriteFontGlyphPosition>& positions);
-  }
+  extern void GenerateVertices(Span<VertexPositionTexture> dstVertices, const PxPoint2& dstPositionPx,
+                               const ReadOnlySpan<SpriteFontGlyphPosition>& positions, float zPos, const PxSize2D& fontTextureSize);
+  extern void GenerateIndices(Span<uint16_t> dstIndices, const ReadOnlySpan<SpriteFontGlyphPosition>& positions);
 }
 
 #endif

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/FontGlyphRange.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Font/FontGlyphRange.hpp>
 #include <cassert>
 
 namespace Fsl

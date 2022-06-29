@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,122 +29,119 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  bool SpriteFontMesh::SetText(const std::string& str)
   {
-    bool SpriteFontMesh::SetText(const std::string& str)
-    {
-      return SetText(StringViewLiteUtil::AsStringViewLite(str));
-    }
-
-
-    // StringViewLite SpriteFontMesh::GetText() const
-    //{
-    //  return StringViewLiteUtil::AsStringViewLite(m_text);
-    //}
-
-
-    bool SpriteFontMesh::SetText(std::string&& str)
-    {
-      bool changed = false;
-      if (str != m_text)
-      {
-        m_text = std::move(str);
-        changed = true;
-        MeshHandle hMesh = Get();
-        if (hMesh.IsValid())
-        {
-          auto meshManager = GetMeshManager().lock();
-          if (!meshManager)
-          {
-            throw UsageErrorException("mesh manager no longer valid");
-          }
-
-          Set(meshManager->SetMeshText(Get(), StringViewLiteUtil::AsStringViewLite(m_text)));
-        }
-      }
-      return changed;
-    }
-
-
-    bool SpriteFontMesh::SetText(StringViewLite str)
-    {
-      bool changed = false;
-      if (str != m_text)
-      {
-        StringViewLiteUtil::Set(m_text, str);
-        changed = true;
-        MeshHandle hMesh = Get();
-        if (hMesh.IsValid())
-        {
-          auto meshManager = GetMeshManager().lock();
-          if (!meshManager)
-          {
-            throw UsageErrorException("mesh manager no longer valid");
-          }
-          Set(meshManager->SetMeshText(Get(), str));
-        }
-      }
-      return changed;
-    }
-
-    PxSize2D SpriteFontMesh::MinimalMeasure() const
-    {
-      PxSize2D measuredPx;
-      if (IsValid() && !m_text.empty())
-      {
-        const SpriteFont& font = GetSpriteObject();
-        measuredPx = font.MeasureString(StringViewLiteUtil::AsStringViewLite(m_text));
-      }
-      return measuredPx;
-    }
-
-
-    PxSize2D SpriteFontMesh::Measure() const
-    {
-      PxSize2D measuredPx;
-      if (IsValid() && !m_text.empty())
-      {
-        const SpriteFont& font = GetSpriteObject();
-        measuredPx = PxSize2D(font.MeasureString(StringViewLiteUtil::AsStringViewLite(m_text)).Width(), font.GetInfo().ScaledLineSpacingPx);
-      }
-      return measuredPx;
-    }
-
-    SpriteFontMeasureInfo SpriteFontMesh::ComplexMeasure() const
-    {
-      PxSize2D minimalSize;
-      PxSize2D measureSize;
-      if (IsValid() && !m_text.empty())
-      {
-        const SpriteFont& font = GetSpriteObject();
-        minimalSize = font.MeasureString(StringViewLiteUtil::AsStringViewLite(m_text));
-        measureSize = PxSize2D(minimalSize.Width(), font.GetInfo().ScaledLineSpacingPx);
-      }
-      return {minimalSize, measureSize};
-    }
-
-    PxSize2D SpriteFontMesh::Measure(const std::string& str) const
-    {
-      return Measure(StringViewLiteUtil::AsStringViewLite(str));
-    }
-
-    PxSize2D SpriteFontMesh::Measure(StringViewLite str) const
-    {
-      PxSize2D measuredPx;
-      if (IsValid() && !str.empty())
-      {
-        const SpriteFont& font = GetSpriteObject();
-        measuredPx = PxSize2D(font.MeasureString(str).Width(), font.GetInfo().ScaledLineSpacingPx);
-      }
-      return measuredPx;
-    }
-
+    return SetText(StringViewLiteUtil::AsStringViewLite(str));
   }
+
+
+  // StringViewLite SpriteFontMesh::GetText() const
+  //{
+  //  return StringViewLiteUtil::AsStringViewLite(m_text);
+  //}
+
+
+  bool SpriteFontMesh::SetText(std::string&& str)
+  {
+    bool changed = false;
+    if (str != m_text)
+    {
+      m_text = std::move(str);
+      changed = true;
+      MeshHandle hMesh = Get();
+      if (hMesh.IsValid())
+      {
+        auto meshManager = GetMeshManager().lock();
+        if (!meshManager)
+        {
+          throw UsageErrorException("mesh manager no longer valid");
+        }
+
+        Set(meshManager->SetMeshText(Get(), StringViewLiteUtil::AsStringViewLite(m_text)));
+      }
+    }
+    return changed;
+  }
+
+
+  bool SpriteFontMesh::SetText(StringViewLite str)
+  {
+    bool changed = false;
+    if (str != m_text)
+    {
+      StringViewLiteUtil::Set(m_text, str);
+      changed = true;
+      MeshHandle hMesh = Get();
+      if (hMesh.IsValid())
+      {
+        auto meshManager = GetMeshManager().lock();
+        if (!meshManager)
+        {
+          throw UsageErrorException("mesh manager no longer valid");
+        }
+        Set(meshManager->SetMeshText(Get(), str));
+      }
+    }
+    return changed;
+  }
+
+  PxSize2D SpriteFontMesh::MinimalMeasure() const
+  {
+    PxSize2D measuredPx;
+    if (IsValid() && !m_text.empty())
+    {
+      const SpriteFont& font = GetSpriteObject();
+      measuredPx = font.MeasureString(StringViewLiteUtil::AsStringViewLite(m_text));
+    }
+    return measuredPx;
+  }
+
+
+  PxSize2D SpriteFontMesh::Measure() const
+  {
+    PxSize2D measuredPx;
+    if (IsValid() && !m_text.empty())
+    {
+      const SpriteFont& font = GetSpriteObject();
+      measuredPx = PxSize2D(font.MeasureString(StringViewLiteUtil::AsStringViewLite(m_text)).Width(), font.GetInfo().ScaledLineSpacingPx);
+    }
+    return measuredPx;
+  }
+
+  SpriteFontMeasureInfo SpriteFontMesh::ComplexMeasure() const
+  {
+    PxSize2D minimalSize;
+    PxSize2D measureSize;
+    if (IsValid() && !m_text.empty())
+    {
+      const SpriteFont& font = GetSpriteObject();
+      minimalSize = font.MeasureString(StringViewLiteUtil::AsStringViewLite(m_text));
+      measureSize = PxSize2D(minimalSize.Width(), font.GetInfo().ScaledLineSpacingPx);
+    }
+    return {minimalSize, measureSize};
+  }
+
+  PxSize2D SpriteFontMesh::Measure(const std::string& str) const
+  {
+    return Measure(StringViewLiteUtil::AsStringViewLite(str));
+  }
+
+  PxSize2D SpriteFontMesh::Measure(StringViewLite str) const
+  {
+    PxSize2D measuredPx;
+    if (IsValid() && !str.empty())
+    {
+      const SpriteFont& font = GetSpriteObject();
+      measuredPx = PxSize2D(font.MeasureString(str).Width(), font.GetInfo().ScaledLineSpacingPx);
+    }
+    return measuredPx;
+  }
+
 }

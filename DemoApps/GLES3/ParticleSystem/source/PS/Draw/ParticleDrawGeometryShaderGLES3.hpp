@@ -31,8 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "IParticleDraw.hpp"
-#include "../Particle.hpp"
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
@@ -40,6 +38,8 @@
 #include <array>
 #include <memory>
 #include <vector>
+#include "../Particle.hpp"
+#include "IParticleDraw.hpp"
 
 namespace Fsl
 {

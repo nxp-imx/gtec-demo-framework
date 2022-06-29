@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S08_EnvironmentMappingRefraction.hpp"
 #include <array>
+#include "S08_EnvironmentMappingRefraction.hpp"
 
 namespace Fsl
 {

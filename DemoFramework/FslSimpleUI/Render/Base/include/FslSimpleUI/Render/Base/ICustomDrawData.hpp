@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ICustomDrawData
   {
-    class ICustomDrawData
-    {
-    public:
-      virtual ~ICustomDrawData() = default;
-    };
-  }
+  public:
+    virtual ~ICustomDrawData() = default;
+  };
 }
 
 #endif

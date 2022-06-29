@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,65 +29,62 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  VUPhysicalDeviceRecord::VUPhysicalDeviceRecord(const VkPhysicalDevice physicalDevice)
+    : VUPhysicalDeviceRecord()
   {
-    VUPhysicalDeviceRecord::VUPhysicalDeviceRecord(const VkPhysicalDevice physicalDevice)
-      : VUPhysicalDeviceRecord()
+    Reset(physicalDevice);
+  }
+
+
+  void VUPhysicalDeviceRecord::Reset()
+  {
+    Device = VK_NULL_HANDLE;
+    Properties = {};
+    Features = {};
+    MemoryProperties = {};
+  }
+
+
+  void VUPhysicalDeviceRecord::Reset(const VkPhysicalDevice physicalDevice)
+  {
+    if (physicalDevice == VK_NULL_HANDLE)
     {
-      Reset(physicalDevice);
+      throw std::invalid_argument("physicalDevice");
     }
 
-
-    void VUPhysicalDeviceRecord::Reset()
+    // Free any currently allocated resource
+    if (IsValid())
     {
-      Device = VK_NULL_HANDLE;
-      Properties = {};
-      Features = {};
-      MemoryProperties = {};
+      Reset();
     }
 
-
-    void VUPhysicalDeviceRecord::Reset(const VkPhysicalDevice physicalDevice)
+    try
     {
-      if (physicalDevice == VK_NULL_HANDLE)
-      {
-        throw std::invalid_argument("physicalDevice");
-      }
-
-      // Free any currently allocated resource
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        Device = physicalDevice;
-        vkGetPhysicalDeviceProperties(Device, &Properties);
-        vkGetPhysicalDeviceFeatures(Device, &Features);
-        vkGetPhysicalDeviceMemoryProperties(Device, &MemoryProperties);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+      Device = physicalDevice;
+      vkGetPhysicalDeviceProperties(Device, &Properties);
+      vkGetPhysicalDeviceFeatures(Device, &Features);
+      vkGetPhysicalDeviceMemoryProperties(Device, &MemoryProperties);
     }
-
-
-    uint32_t VUPhysicalDeviceRecord::GetMemoryTypeIndex(const uint32_t typeBits, const VkMemoryPropertyFlags properties) const
+    catch (const std::exception&)
     {
-      return MemoryTypeUtil::GetMemoryTypeIndex(MemoryProperties, typeBits, properties);
+      Reset();
+      throw;
     }
+  }
+
+
+  uint32_t VUPhysicalDeviceRecord::GetMemoryTypeIndex(const uint32_t typeBits, const VkMemoryPropertyFlags properties) const
+  {
+    return MemoryTypeUtil::GetMemoryTypeIndex(MemoryProperties, typeBits, properties);
   }
 }

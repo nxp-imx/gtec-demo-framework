@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_VULKAN_CONFIG_PHYSICALDEVICECONFIGUTIL_HPP
 #define FSLDEMOHOST_VULKAN_CONFIG_PHYSICALDEVICECONFIGUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,39 +39,36 @@
 #include <string>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::PhysicalDeviceConfigUtil
 {
-  namespace PhysicalDeviceConfigUtil
+  struct DeviceConfig
   {
-    struct DeviceConfig
-    {
-      std::deque<std::string> Extensions;
-    };
+    std::deque<std::string> Extensions;
+  };
 
-    // Transform the config to be accessible as nasty C style arrays
-    struct DeviceConfigAsCharArrays
-    {
-      DeviceConfig Config;
-      std::vector<const char*> Extensions;
+  // Transform the config to be accessible as nasty C style arrays
+  struct DeviceConfigAsCharArrays
+  {
+    DeviceConfig Config;
+    std::vector<const char*> Extensions;
 
-      explicit DeviceConfigAsCharArrays(const DeviceConfig& config)
-        : Config(config)
-        , Extensions(config.Extensions.size())
+    explicit DeviceConfigAsCharArrays(const DeviceConfig& config)
+      : Config(config)
+      , Extensions(config.Extensions.size())
+    {
+      for (std::size_t i = 0; i < Config.Extensions.size(); ++i)
       {
-        for (std::size_t i = 0; i < Config.Extensions.size(); ++i)
-        {
-          Extensions[i] = Config.Extensions[i].c_str();
-        }
+        Extensions[i] = Config.Extensions[i].c_str();
       }
-    };
+    }
+  };
 
 
-    //! @brief
-    //! @param device
-    //! @param customdemoAppHostConfig a optional demo app host config
-    DeviceConfig BuildConfig(const VkPhysicalDevice device, const std::shared_ptr<DemoAppHostConfigVulkan>& customDemoAppHostConfig,
-                             const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests);
-  }
+  //! @brief
+  //! @param device
+  //! @param customdemoAppHostConfig a optional demo app host config
+  DeviceConfig BuildConfig(const VkPhysicalDevice device, const std::shared_ptr<DemoAppHostConfigVulkan>& customDemoAppHostConfig,
+                           const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests);
 }
 
 #endif

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
-#include <FslUtil/Vulkan1_0/Util/DeviceMemoryUtil.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/TestFixtureFslUtil_Vulkan1_0.hpp>
+#include <FslUtil/Vulkan1_0/Util/DeviceMemoryUtil.hpp>
 
 using namespace Fsl;
 using namespace Fsl::Vulkan;

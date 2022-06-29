@@ -35,70 +35,67 @@
 #include <FslSimpleUI/Base/Event/EventTypeId.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowId;
+
+  class WindowEvent
   {
-    class IWindowId;
+    const EventTypeId m_eventTypeId;
+    const EventDescription m_eventDescription;
 
-    class WindowEvent
+    std::shared_ptr<IWindowId> m_originalSource;
+    std::shared_ptr<IWindowId> m_source;
+    bool m_isHandled;
+    bool m_isInitialized;
+
+  public:
+    WindowEvent(const WindowEvent&) = delete;
+    WindowEvent& operator=(const WindowEvent&) = delete;
+
+    virtual ~WindowEvent();
+
+    bool IsOriginalSource(const IWindowId* const pWindowId) const;
+    bool IsSource(const IWindowId* const pWindowId) const;
+
+    //! @brief Get the original source of the event.
+    const std::shared_ptr<IWindowId>& GetOriginalSource() const;
+
+    //! @brief Get the source of the event.
+    const std::shared_ptr<IWindowId>& GetSource() const;
+
+    //! @brief Check if this event has been handled.
+    bool IsHandled() const;
+
+    //! @brief mark the event as handled.
+    void Handled();
+
+    //! @brief Get the event type id
+    EventTypeId GetEventTypeId() const
     {
-      const EventTypeId m_eventTypeId;
-      const EventDescription m_eventDescription;
+      return m_eventTypeId;
+    }
 
-      std::shared_ptr<IWindowId> m_originalSource;
-      std::shared_ptr<IWindowId> m_source;
-      bool m_isHandled;
-      bool m_isInitialized;
-
-    public:
-      WindowEvent(const WindowEvent&) = delete;
-      WindowEvent& operator=(const WindowEvent&) = delete;
-
-      virtual ~WindowEvent();
-
-      bool IsOriginalSource(const IWindowId* const pWindowId) const;
-      bool IsSource(const IWindowId* const pWindowId) const;
-
-      //! @brief Get the original source of the event.
-      const std::shared_ptr<IWindowId>& GetOriginalSource() const;
-
-      //! @brief Get the source of the event.
-      const std::shared_ptr<IWindowId>& GetSource() const;
-
-      //! @brief Check if this event has been handled.
-      bool IsHandled() const;
-
-      //! @brief mark the event as handled.
-      void Handled();
-
-      //! @brief Get the event type id
-      EventTypeId GetEventTypeId() const
-      {
-        return m_eventTypeId;
-      }
-
-      //! @brief Get the event description.
-      EventDescription GetDescription() const
-      {
-        return m_eventDescription;
-      }
+    //! @brief Get the event description.
+    EventDescription GetDescription() const
+    {
+      return m_eventDescription;
+    }
 
 
-      void SYS_SetSource(const std::shared_ptr<IWindowId>& value);
-      void SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value);
+    void SYS_SetSource(const std::shared_ptr<IWindowId>& value);
+    void SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value);
 
-    protected:
-      WindowEvent(const EventTypeId typeId, EventDescription eventDescription);
-      void SYS_DoConstruct();
-      virtual void SYS_Destruct();
+  protected:
+    WindowEvent(const EventTypeId typeId, EventDescription eventDescription);
+    void SYS_DoConstruct();
+    virtual void SYS_Destruct();
 
-      bool IsDisposed() const
-      {
-        return !m_isInitialized;
-      }
-    };
-  }
+    bool IsDisposed() const
+    {
+      return !m_isInitialized;
+    }
+  };
 }
 
 #endif

@@ -37,16 +37,10 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan::Util
 {
-  namespace Vulkan
-  {
-    namespace Util
-    {
-      bool IsInstanceLayerAvailable(const std::vector<VkLayerProperties>& layerProperties, const char* const pszLayerName);
-      bool IsInstanceExtensionAvailable(const std::vector<VkExtensionProperties>& extensionProperties, const char* const pszExtensionName);
-    }
-  }
+  bool IsInstanceLayerAvailable(const std::vector<VkLayerProperties>& layerProperties, const char* const pszLayerName);
+  bool IsInstanceExtensionAvailable(const std::vector<VkExtensionProperties>& extensionProperties, const char* const pszExtensionName);
 }
 
 #endif

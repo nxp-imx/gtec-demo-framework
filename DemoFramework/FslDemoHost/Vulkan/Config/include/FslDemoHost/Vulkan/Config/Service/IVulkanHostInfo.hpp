@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanLaunchOptions.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl

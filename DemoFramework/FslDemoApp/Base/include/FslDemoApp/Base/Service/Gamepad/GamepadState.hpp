@@ -33,8 +33,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslDemoApp/Base/Service/Gamepad/GamepadButtonState.hpp>
-#include <FslDemoApp/Base/Service/Gamepad/GamepadTriggerState.hpp>
 #include <FslDemoApp/Base/Service/Gamepad/GamepadThumbStick.hpp>
+#include <FslDemoApp/Base/Service/Gamepad/GamepadTriggerState.hpp>
 
 namespace Fsl
 {

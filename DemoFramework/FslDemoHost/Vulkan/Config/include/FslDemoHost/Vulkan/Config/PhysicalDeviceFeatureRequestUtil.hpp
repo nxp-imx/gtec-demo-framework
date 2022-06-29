@@ -32,27 +32,24 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequest.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <vulkan/vulkan.h>
 #include <deque>
 
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class PhysicalDeviceFeatureRequestUtil
   {
-    class PhysicalDeviceFeatureRequestUtil
-    {
-    public:
-      static void ApplyFeatures(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
-                                const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures);
+  public:
+    static void ApplyFeatures(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
+                              const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures);
 
-      static void ApplyFeatureRequirements(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
-                                           const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures,
-                                           const VkPhysicalDevice physicalDevice);
-    };
-  }
+    static void ApplyFeatureRequirements(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
+                                         const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures,
+                                         const VkPhysicalDevice physicalDevice);
+  };
 }
 
 #endif

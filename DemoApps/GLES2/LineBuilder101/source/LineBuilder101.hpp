@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslUtil/OpenGLES2/Draw/GLLineDraw.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
-#include <FslUtil/OpenGLES2/Draw/GLLineDraw.hpp>
 #include <Shared/LineBuilder101/LineBuilderExample.hpp>
 #include <array>
 

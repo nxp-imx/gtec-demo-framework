@@ -40,35 +40,29 @@
 #include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 
 
-namespace Fsl
+namespace Fsl::DemoAppRegister::OpenVG
 {
-  namespace DemoAppRegister
+  extern void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig);
+
+  //! Register a demo app without a option parser
+  template <typename TAppClass, typename TDemoAppHostConfig>
+  static void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const TDemoAppHostConfig& config,
+                       const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
   {
-    namespace OpenVG
-    {
-      extern void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig);
+    auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+    const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
+    Register(rSetup, demoAppSetup, config);
+  }
 
-      //! Register a demo app without a option parser
-      template <typename TAppClass, typename TDemoAppHostConfig>
-      static void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const TDemoAppHostConfig& config,
-                           const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
-      {
-        auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
-        const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
-        Register(rSetup, demoAppSetup, config);
-      }
-
-      //! Register a demo app with a option parser
-      template <typename TAppClass, typename TOptionParser, typename TDemoAppHostConfig>
-      static void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const TDemoAppHostConfig& config,
-                           const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
-      {
-        auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
-        auto appOptionParser = std::make_shared<TOptionParser>();
-        const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
-        Register(rSetup, demoAppSetup, config);
-      }
-    }
+  //! Register a demo app with a option parser
+  template <typename TAppClass, typename TOptionParser, typename TDemoAppHostConfig>
+  static void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const TDemoAppHostConfig& config,
+                       const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+  {
+    auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
+    auto appOptionParser = std::make_shared<TOptionParser>();
+    const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
+    Register(rSetup, demoAppSetup, config);
   }
 }
 

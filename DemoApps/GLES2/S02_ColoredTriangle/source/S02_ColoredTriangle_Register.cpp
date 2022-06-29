@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S02_ColoredTriangle.hpp"
 #include <array>
+#include "S02_ColoredTriangle.hpp"
 
 namespace Fsl
 {

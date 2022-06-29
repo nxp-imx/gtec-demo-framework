@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslBase/Math/Point2.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 
 namespace Fsl
 {

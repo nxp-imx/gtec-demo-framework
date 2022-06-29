@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_ADAPTER_INATIVEBUFFERFACTORY_HPP
 #define FSLGRAPHICS3D_BASICRENDER_ADAPTER_INATIVEBUFFERFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,33 +32,30 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlyFlexSpan.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeBufferHandle.hpp>
 #include <FslGraphics/Render/Basic/BasicBufferType.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Render/Basic/Adapter/BasicNativeBufferHandle.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/NativeBufferFactoryCaps.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class INativeBufferFactory
   {
-    class INativeBufferFactory
-    {
-    public:
-      virtual ~INativeBufferFactory() noexcept = default;
+  public:
+    virtual ~INativeBufferFactory() noexcept = default;
 
-      virtual NativeBufferFactoryCaps GetBufferCaps() const = 0;
+    virtual NativeBufferFactoryCaps GetBufferCaps() const = 0;
 
-      virtual BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData,
-                                                   const uint32_t bufferElementCapacity, const bool isDynamic) = 0;
+    virtual BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
+                                                 const bool isDynamic) = 0;
 
-      //! @brief destroy the given buffer
-      //! @return true if the buffer was destroyed (this will always be true for a valid handle)
-      virtual bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) = 0;
+    //! @brief destroy the given buffer
+    //! @return true if the buffer was destroyed (this will always be true for a valid handle)
+    virtual bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) = 0;
 
-      virtual void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData) = 0;
-    };
-  }
+    virtual void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData) = 0;
+  };
 }
 
 #endif

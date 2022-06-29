@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include "PointMass.hpp"
-#include "GridRenderDrawContext.hpp"
 #include <vector>
+#include "GridRenderDrawContext.hpp"
+#include "PointMass.hpp"
 
 namespace Fsl
 {

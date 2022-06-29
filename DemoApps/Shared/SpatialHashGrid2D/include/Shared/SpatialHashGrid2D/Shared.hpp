@@ -41,12 +41,9 @@
 
 namespace Fsl
 {
-  namespace UI
+  namespace UI::Theme
   {
-    namespace Theme
-    {
-      class IThemeControlFactory;
-    }
+    class IThemeControlFactory;
   }
 
   struct DrawRecord

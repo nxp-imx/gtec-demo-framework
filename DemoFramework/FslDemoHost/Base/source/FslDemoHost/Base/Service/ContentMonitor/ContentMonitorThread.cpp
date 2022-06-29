@@ -31,11 +31,11 @@
 
 #include "ContentMonitorThread.hpp"
 #include <FslBase/Collections/Concurrent/ConcurrentQueue.hpp>
-#include <FslBase/System/IThreadContext.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/PathDeque.hpp>
 #include <FslBase/IO/PathWatcher.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/System/IThreadContext.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <cassert>
 #include <utility>
@@ -49,7 +49,7 @@ namespace Fsl
       IO::PathDeque files;
       IO::Directory::GetFiles(files, contentPath, IO::SearchOptions::AllDirectories);
 
-      for (IO::PathDeque::const_iterator itr = files.begin(); itr != files.end(); ++itr)
+      for (auto itr = files.begin(); itr != files.end(); ++itr)
       {
         rPathWatcher.Add(**itr);
       }

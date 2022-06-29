@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenVG/Common.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslUtil/OpenVG/Common.hpp>
 #include <VG/openvg.h>
 
 namespace Fsl

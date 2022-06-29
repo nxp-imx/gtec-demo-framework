@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/T3DStressTest/Config.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <Shared/T3DStressTest/Config.hpp>
 #include <algorithm>
 
 namespace Fsl

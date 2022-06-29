@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
-#include "OptionParser.hpp"
 #include <EGL/egl.h>
-#include "Blur.hpp"
 #include <array>
+#include "Blur.hpp"
+#include "OptionParser.hpp"
 
 namespace Fsl
 {

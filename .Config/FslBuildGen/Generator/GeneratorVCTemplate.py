@@ -103,6 +103,14 @@ class CodeTemplateVC(object):
         self.ProjectReferences_1 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "ProjectReferences_1.txt"))
         self.PackageReferences = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences.txt"))
         self.PackageReferences_1 = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences_1.txt"))
+        self.PackageReferences_2 = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences_2.txt"), "")
+        self.PackageReferencesPrivateAssets = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences_PrivateAssets.txt"), "")
+        self.PackageReferencesIncludeAssets = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences_IncludeAssets.txt"), "")
+
+        self.GrpcProtoFilesGroup = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "GrpcProtoFilesGroup.txt"), "")
+        self.GrpcProtoFilesGroupEntry = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "GrpcProtoFilesGroupFile.txt"), "")
+        self.GrpcProtoFilesGroupEntryGrpcService = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "GrpcProtoFilesGroupFile_GrpcServices.txt"), "")
+
         self.ExcludePackageDirs = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExcludePackageDirs.txt"))
         self.ExcludePackageDirsComplexEntry = self.__GenerateExcludePackageDirsCoplexEntry(strTemplateProjectPath)
         self.AssemblyReferenceSimple = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceSimple.txt"))

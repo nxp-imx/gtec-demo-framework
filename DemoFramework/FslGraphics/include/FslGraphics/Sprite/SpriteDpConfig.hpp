@@ -33,12 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::SpriteDpConfig
 {
-  namespace SpriteDpConfig
-  {
-    constexpr uint32_t BaseDpi = 160;
-  }
+  constexpr uint32_t BaseDpi = 160;
 }
 
 #endif

@@ -51,8 +51,8 @@
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 //#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
-#include "ImageLibraryServiceAndroidFactory.hpp"
 #include "../PlatformConfig.hpp"
+#include "ImageLibraryServiceAndroidFactory.hpp"
 
 namespace Fsl
 {

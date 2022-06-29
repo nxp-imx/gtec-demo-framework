@@ -33,9 +33,9 @@
 
 #include <FslBase/Log/Math/Pixel/FmtPxExtent3D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent3D.hpp>
-#include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 #include <FslUnitTest/FormatDebugInfo.hpp>
 #include <FslUnitTest/TestCustomChecks.hpp>
 

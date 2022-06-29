@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <cassert>

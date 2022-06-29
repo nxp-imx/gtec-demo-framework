@@ -29,65 +29,62 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/SafeType/StringArrayCopy.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/StringArrayCopy.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  //! @brief Move assignment operator
+  StringArrayCopy& StringArrayCopy::operator=(StringArrayCopy&& other) noexcept
   {
-    //! @brief Move assignment operator
-    StringArrayCopy& StringArrayCopy::operator=(StringArrayCopy&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        m_stringArray = std::move(other.m_stringArray);
-        m_stringPointers = std::move(other.m_stringPointers);
+      // Claim ownership here
+      m_stringArray = std::move(other.m_stringArray);
+      m_stringPointers = std::move(other.m_stringPointers);
 
-        // Remove the data from other
-      }
-      return *this;
-    }
-
-    //! @brief Move constructor
-    //! Transfer ownership from other to this
-    StringArrayCopy::StringArrayCopy(StringArrayCopy&& other) noexcept
-      : m_stringArray(std::move(other.m_stringArray))
-      , m_stringPointers(std::move(other.m_stringPointers))
-    {
       // Remove the data from other
     }
+    return *this;
+  }
 
-    StringArrayCopy::StringArrayCopy() = default;
+  //! @brief Move constructor
+  //! Transfer ownership from other to this
+  StringArrayCopy::StringArrayCopy(StringArrayCopy&& other) noexcept
+    : m_stringArray(std::move(other.m_stringArray))
+    , m_stringPointers(std::move(other.m_stringPointers))
+  {
+    // Remove the data from other
+  }
+
+  StringArrayCopy::StringArrayCopy() = default;
 
 
-    StringArrayCopy::StringArrayCopy(const char* const* ppStrings, const uint32_t entries)
-      : m_stringArray(entries)
-      , m_stringPointers(entries)
+  StringArrayCopy::StringArrayCopy(const char* const* ppStrings, const uint32_t entries)
+    : m_stringArray(entries)
+    , m_stringPointers(entries)
+  {
+    if (entries <= 0)
     {
-      if (entries <= 0)
-      {
-        return;
-      }
+      return;
+    }
 
-      if (ppStrings == nullptr)
-      {
-        throw std::invalid_argument("ppStrings can not be null");
-      }
+    if (ppStrings == nullptr)
+    {
+      throw std::invalid_argument("ppStrings can not be null");
+    }
 
-      for (uint32_t i = 0; i < entries; ++i)
+    for (uint32_t i = 0; i < entries; ++i)
+    {
+      if (ppStrings[i] != nullptr)
       {
-        if (ppStrings[i] != nullptr)
-        {
-          m_stringArray[i] = ppStrings[i];
-          m_stringPointers[i] = m_stringArray[i].c_str();
-        }
-        else
-        {
-          m_stringArray[i].clear();
-          m_stringPointers[i] = nullptr;
-        }
+        m_stringArray[i] = ppStrings[i];
+        m_stringPointers[i] = m_stringArray[i].c_str();
+      }
+      else
+      {
+        m_stringArray[i].clear();
+        m_stringPointers[i] = nullptr;
       }
     }
   }

@@ -249,6 +249,8 @@ class GeneratorCMake(GeneratorBase):
         packageContentDep = CMakeGeneratorUtil.GetContentDepSection(toolConfig, package, platformName, template.PackageContentDep, contentInBinaryDirectory)
         packageContentDepOutputFiles = CMakeGeneratorUtil.GetContentDepOutputFile(log, package, contentInBinaryDirectory)
 
+        packageEmscripten = CMakeGeneratorUtil.GetEmscriptenSection(toolConfig, package, platformName, template.PackageEmscripten, template.PackageEmscriptenContent)
+
         packageCompilerSpecificFileDependencies = CMakeGeneratorUtil.CompilerSpecificFileDependencies(toolConfig, package,
                                                                                                       template.PackageCompilerConditional,
                                                                                                       template.PackageTargetSourceFiles,
@@ -290,6 +292,7 @@ class GeneratorCMake(GeneratorBase):
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_VARIANT_SETTINGS##", packageVariantSettings)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_TARGET_SPECIAL_FILES##", packageTargetSpecialFiles)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PATH##", packagePath)
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_EMSCRIPTEN##", packageEmscripten)
 
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_SOURCE_GROUP##", sourceGroups)
 
@@ -574,7 +577,11 @@ class GeneratorCMake(GeneratorBase):
         if not isMasterBuild:
             buildCWD = GeneratorCMake._GetPackageBuildDir(generatorConfig, cmakeConfig, package)
 
-        buildCommand = "cmake"
+        buildCommand = cmakeConfig.CMakeCommand
+        if cmakeConfig.EmscriptenEnabled:
+            buildCommandArguments.insert(0, buildCommand)
+            buildCommand = cmakeConfig.EmscriptenBuildCommand
+
         buildCommandReport = GeneratorCommandReport(True, buildCommand, buildCommandArguments, buildCommandNativeArguments, buildCWD, nativeArgumentSeparator="--")
         return GeneratorBuildReport(buildCommandReport)
 
@@ -730,9 +737,11 @@ class GeneratorCMake(GeneratorBase):
         # Set the build dir
         configCWD = cmakeConfig.BuildDir
 
-        # FIX: See how the visual studio generator handles debug/release builds
+        configCommand = cmakeConfig.CMakeCommand
+        if cmakeConfig.EmscriptenEnabled:
+            buildCommandArguments.insert(0, configCommand)
+            configCommand = cmakeConfig.EmscriptenConfigureCommand
 
-        configCommand = "cmake"
         configCommandReport = GeneratorConfigCommandReport(configCommand, buildCommandArguments, configCWD)
         configCommandCMakeReport = GeneratorConfigCommandCMakeReport(cmakeConfigureSettingsDict, cmakeCommandArguments, configCWD, cmakePrefixPathList)
 

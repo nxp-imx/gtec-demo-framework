@@ -33,24 +33,21 @@
 
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowContext;
+
+  namespace Theme
   {
-    class WindowContext;
+    class IThemeControlFactory;
 
-    namespace Theme
+    class IThemeFactory
     {
-      class IThemeControlFactory;
+    public:
+      virtual ~IThemeFactory() = default;
 
-      class IThemeFactory
-      {
-      public:
-        virtual ~IThemeFactory() = default;
-
-        virtual std::shared_ptr<IThemeControlFactory> Create(const std::shared_ptr<WindowContext>& context) = 0;
-      };
-    }
+      virtual std::shared_ptr<IThemeControlFactory> Create(const std::shared_ptr<WindowContext>& context) = 0;
+    };
   }
 }
 

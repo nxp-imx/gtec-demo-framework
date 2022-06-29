@@ -50,7 +50,7 @@ This tend to be the fastest way to get started.
 ## Prerequisites
 
 * Ubuntu 20.04
-* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* [CMake 3.16 or newer](https://cmake.org/download/)
 * Python 3.6 (this is standard from Ubuntu 16.04 and forward)
 * A prebuild sdk for your board typically called something like ```toolchain.sh```
 * A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
@@ -129,7 +129,7 @@ This process provides the most flexible solution but it also takes significantly
 ## BSP Build Prerequisites
 
 * The Ubuntu version required by the BSP release.
-* [CMake 3.10.2 or newer](https://cmake.org/download/)
+* [CMake 3.16 or newer](https://cmake.org/download/)
 * Python 3.6+ It should be part of the default Ubuntu install.
 * Ninja build
 

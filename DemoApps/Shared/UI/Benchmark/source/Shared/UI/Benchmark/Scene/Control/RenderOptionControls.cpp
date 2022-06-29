@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Scene/Control/RenderOptionControls.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemInfo.hpp>
+#include <Shared/UI/Benchmark/Scene/Control/RenderOptionControls.hpp>
 
 namespace Fsl
 {
@@ -50,12 +50,14 @@ namespace Fsl
       const bool depthBuffer = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Available, UI::RenderOptionFlags::DepthBuffer);
       const bool drawReorder = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Available, UI::RenderOptionFlags::DrawReorder);
       const bool meshCaching = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Available, UI::RenderOptionFlags::MeshCaching);
+      const bool preferFastReorder = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Available, UI::RenderOptionFlags::PreferFastReorder);
 
       SwitchBatch->SetEnabled(batch);
       SwitchFillBuffers->SetEnabled(fillBuffers);
       SwitchDepthBuffer->SetEnabled(depthBuffer);
       SwitchDrawReorder->SetEnabled(drawReorder);
       SwitchMeshCaching->SetEnabled(meshCaching);
+      SwitchPreferFastReorder->SetEnabled(preferFastReorder);
     }
 
     {
@@ -64,12 +66,14 @@ namespace Fsl
       const bool depthBuffer = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Settings, UI::RenderOptionFlags::DepthBuffer);
       const bool drawReorder = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Settings, UI::RenderOptionFlags::DrawReorder);
       const bool meshCaching = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Settings, UI::RenderOptionFlags::MeshCaching);
+      const bool preferFastReorder = UI::RenderOptionFlagsUtil::IsEnabled(systemInfo.Settings, UI::RenderOptionFlags::PreferFastReorder);
 
       SwitchBatch->SetIsChecked(batch);
       SwitchFillBuffers->SetIsChecked(fillBuffers);
       SwitchDepthBuffer->SetIsChecked(depthBuffer);
       SwitchDrawReorder->SetIsChecked(drawReorder);
       SwitchMeshCaching->SetIsChecked(meshCaching);
+      SwitchPreferFastReorder->SetIsChecked(preferFastReorder);
     }
   }
 
@@ -81,12 +85,14 @@ namespace Fsl
     const bool depthBuffer = SwitchDepthBuffer->IsChecked();
     const bool drawReorder = SwitchDrawReorder->IsChecked();
     const bool meshCaching = SwitchMeshCaching->IsChecked();
+    const bool preferFastReorder = SwitchPreferFastReorder->IsChecked();
 
     rSystemInfo.Set(UI::RenderOptionFlags::Batch, batch);
     rSystemInfo.Set(UI::RenderOptionFlags::FillBuffers, fillBuffers);
     rSystemInfo.Set(UI::RenderOptionFlags::DepthBuffer, depthBuffer);
     rSystemInfo.Set(UI::RenderOptionFlags::DrawReorder, drawReorder);
     rSystemInfo.Set(UI::RenderOptionFlags::MeshCaching, meshCaching);
+    rSystemInfo.Set(UI::RenderOptionFlags::PreferFastReorder, preferFastReorder);
   }
 
 
@@ -112,6 +118,10 @@ namespace Fsl
     {
       SwitchMeshCaching->SetEnabled(isEnabled);
     }
+    if (SwitchPreferFastReorder)
+    {
+      SwitchPreferFastReorder->SetEnabled(isEnabled);
+    }
   }
 
   void RenderOptionControls::FinishAnimation()
@@ -135,6 +145,10 @@ namespace Fsl
     if (SwitchMeshCaching)
     {
       SwitchMeshCaching->FinishAnimation();
+    }
+    if (SwitchPreferFastReorder)
+    {
+      SwitchPreferFastReorder->FinishAnimation();
     }
   }
 

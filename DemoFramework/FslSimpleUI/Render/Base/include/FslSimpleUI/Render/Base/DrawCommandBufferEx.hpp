@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_DRAWCOMMANDBUFFEREX_HPP
 #define FSLSIMPLEUI_RENDER_BASE_DRAWCOMMANDBUFFEREX_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,44 +33,41 @@
 
 #include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class DrawCommandBufferEx : public DrawCommandBuffer
   {
-    class DrawCommandBufferEx : public DrawCommandBuffer
+  public:
+    inline void Clear()
     {
-    public:
-      inline void Clear()
-      {
-        DoClear();
-      }
+      DoClear();
+    }
 
-      inline ReadOnlySpan<EncodedCommand> AsReadOnlySpan() const
-      {
-        return DoAsReadOnlySpan();
-      }
+    inline ReadOnlySpan<EncodedCommand> AsReadOnlySpan() const
+    {
+      return DoAsReadOnlySpan();
+    }
 
-      inline const CustomDrawBasicImageInfo& FastGetCustomDrawBasicImageInfo(const uint32_t index) const noexcept
-      {
-        return DoFastGetCustomDrawBasicImageInfo(index);
-      }
+    inline const CustomDrawBasicImageInfo& FastGetCustomDrawBasicImageInfo(const uint32_t index) const noexcept
+    {
+      return DoFastGetCustomDrawBasicImageInfo(index);
+    }
 
-      inline const CustomDrawBasicImageBasicMeshInfo& FastGetCustomDrawBasicImageBasicMeshInfo(const uint32_t index) const noexcept
-      {
-        return DoFastGetCustomDrawBasicImageBasicMeshInfo(index);
-      }
+    inline const CustomDrawBasicImageBasicMeshInfo& FastGetCustomDrawBasicImageBasicMeshInfo(const uint32_t index) const noexcept
+    {
+      return DoFastGetCustomDrawBasicImageBasicMeshInfo(index);
+    }
 
-      inline const CustomDrawNineSliceInfo& FastGetCustomDrawNineSliceInfo(const uint32_t index) const noexcept
-      {
-        return DoFastGetCustomDrawNineSliceInfo(index);
-      }
+    inline const CustomDrawNineSliceInfo& FastGetCustomDrawNineSliceInfo(const uint32_t index) const noexcept
+    {
+      return DoFastGetCustomDrawNineSliceInfo(index);
+    }
 
-      inline const CustomDrawTextInfo& FastGetCustomDrawTextInfo(const uint32_t index) const noexcept
-      {
-        return DoFastGetCustomDrawTextInfo(index);
-      }
-    };
-  }
+    inline const CustomDrawTextInfo& FastGetCustomDrawTextInfo(const uint32_t index) const noexcept
+    {
+      return DoFastGetCustomDrawTextInfo(index);
+    }
+  };
 }
 
 #endif

@@ -37,10 +37,7 @@
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
-#include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -48,16 +45,19 @@
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <memory>
 
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
-#include "TestScene/TestScene.hpp"
+#include <GLES3/gl31.h>
 #include "LoadedScene.hpp"
 #include "OptionParser.hpp"
+#include "TestScene/TestScene.hpp"
 
 namespace Fsl
 {
@@ -332,7 +332,7 @@ namespace Fsl
     m_sliderShininess = factory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::Shininess);
 
 
-    m_buttonStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    m_buttonStack->SetOrientation(UI::LayoutOrientation::Vertical);
     m_buttonStack->SetAlignmentX(UI::ItemAlignment::Near);
     m_buttonStack->SetAlignmentY(UI::ItemAlignment::Far);
     m_buttonStack->AddChild(m_checkDisplacement);

@@ -33,8 +33,8 @@
 
 #include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationParams.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <functional>
 
 namespace Fsl

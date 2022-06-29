@@ -32,58 +32,55 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Event/EventRoutingStrategy.hpp>
-#include "EventRouter.hpp"
 #include "EventRoute.hpp"
+#include "EventRouter.hpp"
 #include "SendResult.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ITreeContextInfo;
+  class ITreeNodeClickInputTargetLocater;
+  class TreeNode;
+  class WindowEvent;
+  class WindowEventPool;
+
+  class SimpleEventSender
   {
-    class ITreeContextInfo;
-    class ITreeNodeClickInputTargetLocater;
-    class TreeNode;
-    class WindowEvent;
-    class WindowEventPool;
+    std::shared_ptr<ITreeContextInfo> m_treeContextInfo;
+    std::shared_ptr<WindowEventPool> m_windowEventPool;
+    std::shared_ptr<IEventHandler> m_eventHandler;
+    EventRoute m_eventRoute;
+    EventRouter m_eventRouter;
 
-    class SimpleEventSender
+  public:
+    SimpleEventSender(const SimpleEventSender&) = delete;
+    SimpleEventSender& operator=(const SimpleEventSender&) = delete;
+
+    SimpleEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<WindowEventPool> windowEventPool,
+                      std::shared_ptr<IEventHandler> eventHandler, const std::shared_ptr<TreeNode>& rootNode,
+                      const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater);
+    ~SimpleEventSender();
+
+    const std::shared_ptr<WindowEventPool>& GetEventPool() const
     {
-      std::shared_ptr<ITreeContextInfo> m_treeContextInfo;
-      std::shared_ptr<WindowEventPool> m_windowEventPool;
-      std::shared_ptr<IEventHandler> m_eventHandler;
-      EventRoute m_eventRoute;
-      EventRouter m_eventRouter;
-
-    public:
-      SimpleEventSender(const SimpleEventSender&) = delete;
-      SimpleEventSender& operator=(const SimpleEventSender&) = delete;
-
-      SimpleEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<WindowEventPool> windowEventPool,
-                        std::shared_ptr<IEventHandler> eventHandler, const std::shared_ptr<TreeNode>& rootNode,
-                        const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater);
-      ~SimpleEventSender();
-
-      const std::shared_ptr<WindowEventPool>& GetEventPool() const
-      {
-        return m_windowEventPool;
-      }
+      return m_windowEventPool;
+    }
 
 
-      //! @brief Send a event using the given routing strategy to the window at the given hitPosition.
-      //! @param theEvent the event to send.
-      //! @param target the intended target of the event.
-      //! @param manageEvent if true the event will be returned to the pool on completion of this call.
-      //! @warning Do not send TransactionEvents via this method!! Use CreateRoute instead and use the route for the entire transaction.
-      SendResult Send(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& target, const bool manageEvent);
+    //! @brief Send a event using the given routing strategy to the window at the given hitPosition.
+    //! @param theEvent the event to send.
+    //! @param target the intended target of the event.
+    //! @param manageEvent if true the event will be returned to the pool on completion of this call.
+    //! @warning Do not send TransactionEvents via this method!! Use CreateRoute instead and use the route for the entire transaction.
+    SendResult Send(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& target, const bool manageEvent);
 
-      //! @brief Send a event using the given routing strategy to the window at the given hitPosition.
-      //! @param theEvent the event to send.
-      //! @param screenHitPosition the area on screen that was targeted.
-      //! @param manageEvent if true the event will be returned to the pool on completion of this call.
-      //! @warning Do not send TransactionEvents via this method!! Use CreateRoute instead and use the route for the entire transaction.
-      SendResult Send(const std::shared_ptr<WindowEvent>& theEvent, const PxPoint2& screenHitPositionPx, const bool manageEvent);
-    };
-  }
+    //! @brief Send a event using the given routing strategy to the window at the given hitPosition.
+    //! @param theEvent the event to send.
+    //! @param screenHitPosition the area on screen that was targeted.
+    //! @param manageEvent if true the event will be returned to the pool on completion of this call.
+    //! @warning Do not send TransactionEvents via this method!! Use CreateRoute instead and use the route for the entire transaction.
+    SendResult Send(const std::shared_ptr<WindowEvent>& theEvent, const PxPoint2& screenHitPositionPx, const bool manageEvent);
+  };
 }
 
 #endif

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 

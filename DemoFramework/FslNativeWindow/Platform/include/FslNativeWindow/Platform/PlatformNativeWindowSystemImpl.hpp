@@ -37,7 +37,9 @@
 // It's only recommended to include this file from CPP files, if possible dont us it from header files!
 // Pull in the actual class definitions.
 
-#if defined(_WIN32)
+#if defined(FSL_PLATFORM_EMSCRIPTEN)
+#include <FslNativeWindow/Platform/SDL/PlatformNativeWindowSystemSDL.hpp>
+#elif defined(FSL_PLATFORM_WINDOWS)
 #include <FslNativeWindow/Platform/Win32/PlatformNativeWindowSystemWin32.hpp>
 #elif defined(__ANDROID__)
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroid.hpp>

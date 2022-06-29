@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="OpenVX1_2" CreationYear="2016">
+    <Default.Platform.Supported Value="false"/>
+
+    <Requirement Name="OpenVX1.2" Type="feature" Extends="OpenVX" Version="1.2"/>
+    <Define Name="FSL_FEATURE_OPENVX1_2" Access="Public"/> 
+    <Dependency Name="OpenVX"/>
+    <!-- We currently only support OpenVX1.1 under Yocto -->
+    <Platform Name="Yocto" Supported="true"/>
+    <Platform Name="Ubuntu" Supported="true"/>
+    <Platform Name="Windows" Supported="true"/>
+  </ExternalLibrary>
+</FslBuildGen>

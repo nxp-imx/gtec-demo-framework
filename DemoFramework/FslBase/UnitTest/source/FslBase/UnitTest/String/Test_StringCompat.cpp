@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringCompat.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <array>
 #include <cstring>
 #include <limits>

@@ -38,8 +38,8 @@
 #include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
-#include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBufferArray.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBufferArray.hpp>
 #include <Shared/ModelViewer/ModelSceneUtil.hpp>

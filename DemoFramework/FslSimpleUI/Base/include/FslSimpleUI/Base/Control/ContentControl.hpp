@@ -34,37 +34,34 @@
 #include <FslSimpleUI/Base/Control/ContentControlBase.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ContentControl : public ContentControlBase
   {
-    class ContentControl : public ContentControlBase
+  public:
+    explicit ContentControl(const std::shared_ptr<BaseWindowContext>& context);
+
+
+    DpThickness GetPadding() const
     {
-    public:
-      explicit ContentControl(const std::shared_ptr<BaseWindowContext>& context);
+      return DoGetPadding();
+    }
 
+    void SetPadding(const DpThickness& value)
+    {
+      DoSetPadding(value);
+    }
 
-      DpThickness GetPadding() const
-      {
-        return DoGetPadding();
-      }
+    std::shared_ptr<BaseWindow> GetContent() const
+    {
+      return DoGetContent();
+    }
 
-      void SetPadding(const DpThickness& value)
-      {
-        DoSetPadding(value);
-      }
-
-      std::shared_ptr<BaseWindow> GetContent() const
-      {
-        return DoGetContent();
-      }
-
-      void SetContent(const std::shared_ptr<BaseWindow>& value)
-      {
-        DoSetContent(value);
-      }
-    };
-  }
+    void SetContent(const std::shared_ptr<BaseWindow>& value)
+    {
+      DoSetContent(value);
+    }
+  };
 }
 
 #endif

@@ -31,21 +31,22 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/Platform/PlatformPathTransform.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryServiceDevIL.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/IO/BMPUtil.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
-#include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryServiceDevIL.hpp>
+#include <IL/il.h>
 #include <cassert>
 #include <utility>
-#include <IL/il.h>
 
 namespace Fsl
 {
@@ -224,7 +225,7 @@ namespace Fsl
 
     PixelFormat Convert(const DevILPixelFormat& format)
     {
-      PixelFormat value;
+      PixelFormat value{PixelFormat::Undefined};
       if (TryConvert(format, value))
       {
         return value;
@@ -322,7 +323,7 @@ namespace Fsl
       // the conversion is just a hint and if we don't support it we should just not do any conversion
       if (doFormatConversion)
       {
-        PixelFormat tmpFormat;
+        PixelFormat tmpFormat{PixelFormat::Undefined};
         if (!TryConvert(targetFormat, tmpFormat))
         {
           doFormatConversion = false;
@@ -363,7 +364,7 @@ namespace Fsl
         const auto preferredPixelFormat = PixelFormatUtil::Transform(activePixelFormat, preferredChannelOrderHint);
         if (activePixelFormat != preferredPixelFormat)
         {
-          PixelFormat tmpFormat;
+          PixelFormat tmpFormat{PixelFormat::Undefined};
           targetFormat = Convert(preferredPixelFormat);
           doFormatConversion = TryConvert(targetFormat, tmpFormat);
         }
@@ -383,12 +384,13 @@ namespace Fsl
       {
         const PixelFormat activePixelFormat = Convert(currentPixelFormat);
         const DevILPixelFormat activeImageFormat = Convert(activePixelFormat);
-        const int bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(activePixelFormat);
+        const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(activePixelFormat);
 
         // WARNING: IL_ALPHA conversions appear to be broken in devil (as it crashes in ilCopyPixels)
 
         const std::size_t widthEx = width;
-        std::vector<uint8_t> content(widthEx * height * bytesPerPixel);
+        const auto heightEx = UncheckedNumericCast<uint32_t>(height);
+        std::vector<uint8_t> content(widthEx * heightEx * bytesPerPixel);
         ilCopyPixels(0, 0, 0, width, height, 1, activeImageFormat.Format, activeImageFormat.Type, content.data());
 
         ResetObject(rImageContainer, std::move(content), PxExtent2D(width, height), activePixelFormat, bitmapOrigin);
@@ -453,7 +455,7 @@ namespace Fsl
 
   std::string ImageLibraryServiceDevIL::GetName() const
   {
-    return std::string("ImageLibraryServiceDevIL");
+    return {"ImageLibraryServiceDevIL"};
   }
 
 

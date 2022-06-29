@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S04_Projection.hpp"
 #include <array>
+#include "S04_Projection.hpp"
 
 namespace Fsl
 {

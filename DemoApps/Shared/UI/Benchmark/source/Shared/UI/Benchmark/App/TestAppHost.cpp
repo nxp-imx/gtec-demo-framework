@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/App/TestAppHost.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslSimpleUI/App/DemoPerformanceCapture.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfo.hpp>
-#include <Shared/UI/Benchmark/App/CustomWindowInfoModuleProxy.hpp>
 #include <Shared/UI/Benchmark/App/CustomUIDemoAppExtension.hpp>
+#include <Shared/UI/Benchmark/App/CustomWindowInfoModuleProxy.hpp>
 #include <Shared/UI/Benchmark/App/ITestApp.hpp>
 #include <Shared/UI/Benchmark/App/ITestAppFactory.hpp>
+#include <Shared/UI/Benchmark/App/TestAppHost.hpp>
 #include <Shared/UI/Benchmark/UIModule/ExternalModuleIdConfig.hpp>
 #include <Shared/UI/Benchmark/UIModule/ICustomWindowInfoModule.hpp>
 #include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModule.hpp>
@@ -76,6 +76,22 @@ namespace Fsl
 
 
   TestAppHost::~TestAppHost() = default;
+
+
+  Color TestAppHost::GetRootColor() const
+  {
+    return m_appRecord.TestApp ? m_appRecord.TestApp->GetRootColor() : Color::White();
+  }
+
+
+  bool TestAppHost::TrySetRootColor(const Color color)
+  {
+    if (!m_appRecord.TestApp)
+    {
+      return false;
+    }
+    return m_appRecord.TestApp->TrySetRootColor(color);
+  }
 
 
   void TestAppHost::ClearProfileData()
@@ -302,35 +318,69 @@ namespace Fsl
     }
   }
 
-  void TestAppHost::PreUpdate(const DemoTime& demoTime)
+
+  void TestAppHost::Begin(const DemoAppExtensionCallOrder callOrder)
   {
     if (m_appRecord.DemoExtension)
     {
-      m_appRecord.DemoExtension->PreUpdate(demoTime);
+      m_appRecord.DemoExtension->Begin(callOrder);
     }
   }
 
-  void TestAppHost::FixedUpdate(const DemoTime& demoTime)
+  void TestAppHost::PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
     if (m_appRecord.DemoExtension)
     {
-      m_appRecord.DemoExtension->FixedUpdate(demoTime);
+      m_appRecord.DemoExtension->PreUpdate(callOrder, demoTime);
     }
   }
 
-  void TestAppHost::Update(const DemoTime& demoTime)
+  void TestAppHost::FixedUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
     if (m_appRecord.DemoExtension)
     {
-      m_appRecord.DemoExtension->Update(demoTime);
+      m_appRecord.DemoExtension->FixedUpdate(callOrder, demoTime);
     }
   }
 
-  void TestAppHost::PostUpdate(const DemoTime& demoTime)
+  void TestAppHost::Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
     if (m_appRecord.DemoExtension)
     {
-      m_appRecord.DemoExtension->PostUpdate(demoTime);
+      m_appRecord.DemoExtension->Update(callOrder, demoTime);
     }
   }
+
+  void TestAppHost::PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+  {
+    if (m_appRecord.DemoExtension)
+    {
+      m_appRecord.DemoExtension->PostUpdate(callOrder, demoTime);
+    }
+  }
+
+  void TestAppHost::Resolve(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
+  {
+    if (m_appRecord.DemoExtension)
+    {
+      m_appRecord.DemoExtension->Resolve(callOrder, demoTime);
+    }
+  }
+
+  void TestAppHost::OnDrawSkipped(const DemoAppExtensionCallOrder callOrder, const FrameInfo& frameInfo)
+  {
+    if (m_appRecord.DemoExtension)
+    {
+      m_appRecord.DemoExtension->OnDrawSkipped(callOrder, frameInfo);
+    }
+  }
+
+  void TestAppHost::End(const DemoAppExtensionCallOrder callOrder)
+  {
+    if (m_appRecord.DemoExtension)
+    {
+      m_appRecord.DemoExtension->End(callOrder);
+    }
+  }
+
 }

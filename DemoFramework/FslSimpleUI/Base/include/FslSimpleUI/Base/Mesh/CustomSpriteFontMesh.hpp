@@ -34,19 +34,16 @@
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomSpriteMesh.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class CustomSpriteFontMesh : public CustomSpriteMesh<SpriteFont>
   {
-    class CustomSpriteFontMesh : public CustomSpriteMesh<SpriteFont>
+  public:
+    explicit CustomSpriteFontMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity, const uint32_t indexCapacity)
+      : CustomSpriteMesh(meshManager, vertexCapacity, indexCapacity)
     {
-    public:
-      explicit CustomSpriteFontMesh(const std::shared_ptr<IMeshManager>& meshManager, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-        : CustomSpriteMesh(meshManager, vertexCapacity, indexCapacity)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

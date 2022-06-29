@@ -1,7 +1,7 @@
 #ifndef GLES2_BLUR_TEXTUREUTIL_HPP
 #define GLES2_BLUR_TEXTUREUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,36 +38,33 @@
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::TextureUtil
 {
-  namespace TextureUtil
+  inline GLuint ToNative(const IBasicRenderSystem& renderSystem, const std::shared_ptr<INativeTexture2D>& tex)
   {
-    inline GLuint ToNative(const IBasicRenderSystem& renderSystem, const std::shared_ptr<INativeTexture2D>& tex)
+    if (!tex)
     {
-      if (!tex)
-      {
-        throw NotSupportedException("no native");
-      }
-      BasicNativeTextureHandle hTexture = tex->TryGetNativeHandle();
-      if (!hTexture.IsValid())
-      {
-        throw NotSupportedException("There are currently no actual texture associated, call ignored");
-      }
-      const auto* pNativeTexture = dynamic_cast<const GLES2::NativeGraphicsTexture*>(renderSystem.TryGetNativeTexture(hTexture));
-      if (pNativeTexture == nullptr)
-      {
-        throw NotSupportedException("texture not of expected type");
-      }
-
-      GLES2::GLTextureInfo textureInfo = pNativeTexture->ToTextureInfo();
-      if (!textureInfo.IsValid())
-      {
-        throw UsageErrorException("the texture is not valid");
-      }
-      return textureInfo.Handle;
+      throw NotSupportedException("no native");
+    }
+    BasicNativeTextureHandle hTexture = tex->TryGetNativeHandle();
+    if (!hTexture.IsValid())
+    {
+      throw NotSupportedException("There are currently no actual texture associated, call ignored");
+    }
+    const auto* pNativeTexture = dynamic_cast<const GLES2::NativeGraphicsTexture*>(renderSystem.TryGetNativeTexture(hTexture));
+    if (pNativeTexture == nullptr)
+    {
+      throw NotSupportedException("texture not of expected type");
     }
 
+    GLES2::GLTextureInfo textureInfo = pNativeTexture->ToTextureInfo();
+    if (!textureInfo.IsValid())
+    {
+      throw UsageErrorException("the texture is not valid");
+    }
+    return textureInfo.Handle;
   }
+
 }
 
 #endif

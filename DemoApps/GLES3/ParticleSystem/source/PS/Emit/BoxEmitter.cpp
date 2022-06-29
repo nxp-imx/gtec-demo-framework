@@ -36,8 +36,8 @@
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <algorithm>
 #include <cassert>
-#include "RandomHelper.hpp"
 #include "../IParticleContainer.hpp"
+#include "RandomHelper.hpp"
 
 namespace Fsl
 {

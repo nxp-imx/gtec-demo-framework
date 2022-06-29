@@ -28,12 +28,12 @@
 // Based on a sample by Vivante
 // Converted to a DemoFramework OpenCl sample.
 
+#include "FastFourierTransform.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include "FastFourierTransform.hpp"
-#include <FslUtil/OpenCL1_2/ProgramEx.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_2/ProgramEx.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Values.hpp>
 #include <CL/cl.h>
@@ -199,7 +199,7 @@ namespace Fsl
       {
         return 0;
       }
-      return 1.0e-9 * double(end - start);    // convert nanoseconds to seconds
+      return 1.0e-9 * static_cast<double>(end - start);    // convert nanoseconds to seconds
     }
   }
 
@@ -283,7 +283,7 @@ namespace Fsl
     }
 
     // figure out if we can use a radix-4 FFT : otherwise radix-2
-    int rad = Radix(m_length);
+    auto rad = Radix(UncheckedNumericCast<int>(m_length));
     if (4 == rad && ((16 == m_length) || (256 == m_length) || (4096 == m_length) || (65536 == m_length)))
     {
       rad = 2;

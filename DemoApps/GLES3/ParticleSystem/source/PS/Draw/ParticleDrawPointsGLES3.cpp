@@ -33,13 +33,14 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include "../ParticleDrawContext.hpp"
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
+#include "../ParticleDrawContext.hpp"
 
 namespace Fsl
 {
@@ -50,17 +51,17 @@ namespace Fsl
     VertexDeclarationArray<2> GetVertexDeclarationArray(const uint32_t cbParticleRecord)
     {
       assert(cbParticleRecord >= sizeof(Particle));
-      static std::array<VertexElementEx, 2> elements = {
-        VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
+      static std::array<VertexElement, 2> elements = {
+        VertexElement(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
       };
-      return VertexDeclarationArray<2>(elements, cbParticleRecord);
+      return {elements, cbParticleRecord};
     }
 
     GLES3::GLVertexBuffer CreateEmptyDynamicVertexBuffer(std::size_t capacity, const uint32_t cbParticleRecord)
     {
       const auto vertexDeclArray = GetVertexDeclarationArray(cbParticleRecord);
-      return GLES3::GLVertexBuffer(nullptr, capacity, vertexDeclArray.AsReadOnlySpan(), GL_DYNAMIC_DRAW);
+      return {nullptr, capacity, vertexDeclArray.AsReadOnlySpan(), GL_DYNAMIC_DRAW};
     }
   }
 
@@ -105,7 +106,7 @@ namespace Fsl
     m_pCurrentBuffer->SetDataFast(0, pParticles, particleCount);
     m_pCurrentBuffer->EnableAttribArrays(m_particleAttribLink.data(), m_particleAttribLink.size());
 
-    glDrawArrays(GL_POINTS, 0, particleCount);
+    glDrawArrays(GL_POINTS, 0, UncheckedNumericCast<GLsizei>(particleCount));
 
     m_pCurrentBuffer->DisableAttribArrays(m_particleAttribLink.data(), m_particleAttribLink.size());
 

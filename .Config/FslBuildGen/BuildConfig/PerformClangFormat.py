@@ -74,6 +74,7 @@ from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 #from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
 #from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 
+
 class MagicValues(object):
     ClangFormatCommand = "clang-format"
     NinjaCommand = "ninja"

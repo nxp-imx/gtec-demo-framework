@@ -35,19 +35,15 @@
 #include <FslUtil/OpenGLES2/Common.hpp>
 #include <GLES2/gl2.h>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  namespace GLValues
   {
-    namespace GLValues
-    {
-      //! @brief The invalid handle is used for buffers, programs, shaders, textures
-      const constexpr GLuint INVALID_HANDLE = 0;
-      //! @brief Invalid handle like returned by glGetUniformLocation and glGetAttribLocation
-      const constexpr GLint INVALID_LOCATION = -1;
-
-    };
-  }
+    //! @brief The invalid handle is used for buffers, programs, shaders, textures
+    const constexpr GLuint INVALID_HANDLE = 0;
+    //! @brief Invalid handle like returned by glGetUniformLocation and glGetAttribLocation
+    const constexpr GLint INVALID_LOCATION = -1;
+  };
 }
 
 #endif

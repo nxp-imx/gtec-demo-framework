@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkRenderInfo.hpp>
+#include <nlohmann/json.hpp>
 #include "../../Json/JsonAppRenderBasicOptions.hpp"
 #include "../../Json/JsonAppRenderOptions.hpp"
 #include "JsonAppBenchmarkScene.hpp"
-#include <nlohmann/json.hpp>
 
 namespace Fsl
 {

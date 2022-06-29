@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_PROCESSEDCOMMANDFLAGS_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_PROCESSEDCOMMANDFLAGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,54 +33,46 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  enum class ProcessedCommandFlags : uint32_t
   {
-    namespace RenderIMBatch
+    NoFlags = 0,
+    RenderOpaque = 0x20000000,
+    RenderIgnoreOpacity = 0x40000000,
+  };
+
+  constexpr inline ProcessedCommandFlags operator|(const ProcessedCommandFlags lhs, const ProcessedCommandFlags rhs) noexcept
+  {
+    return static_cast<ProcessedCommandFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+  }
+
+  constexpr inline ProcessedCommandFlags operator&(const ProcessedCommandFlags lhs, const ProcessedCommandFlags rhs) noexcept
+  {
+    return static_cast<ProcessedCommandFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+  namespace ProcessedCommandFlagsUtil
+  {
+    constexpr inline bool IsEnabled(const ProcessedCommandFlags srcFlag, ProcessedCommandFlags flag) noexcept
     {
-      enum class ProcessedCommandFlags : uint32_t
-      {
-        NoFlags = 0,
+      return (srcFlag & flag) == flag;
+    }
+
+    constexpr inline void Enable(ProcessedCommandFlags& rDstFlag, ProcessedCommandFlags flag) noexcept
+    {
+      rDstFlag = rDstFlag | flag;
+    }
 
 
-        RenderOpaque = 0x20000000,
-        RenderIgnoreOpacity = 0x40000000,
-      };
+    constexpr inline void Disable(ProcessedCommandFlags& rDstFlag, ProcessedCommandFlags flag) noexcept
+    {
+      rDstFlag = rDstFlag & (static_cast<ProcessedCommandFlags>(~static_cast<uint32_t>(flag)));
+    }
 
-      constexpr inline ProcessedCommandFlags operator|(const ProcessedCommandFlags lhs, const ProcessedCommandFlags rhs) noexcept
-      {
-        return static_cast<ProcessedCommandFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-      }
-
-      constexpr inline ProcessedCommandFlags operator&(const ProcessedCommandFlags lhs, const ProcessedCommandFlags rhs) noexcept
-      {
-        return static_cast<ProcessedCommandFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-      }
-
-      namespace ProcessedCommandFlagsUtil
-      {
-        constexpr inline bool IsEnabled(const ProcessedCommandFlags srcFlag, ProcessedCommandFlags flag) noexcept
-        {
-          return (srcFlag & flag) == flag;
-        }
-
-        constexpr inline void Enable(ProcessedCommandFlags& rDstFlag, ProcessedCommandFlags flag) noexcept
-        {
-          rDstFlag = rDstFlag | flag;
-        }
-
-
-        constexpr inline void Disable(ProcessedCommandFlags& rDstFlag, ProcessedCommandFlags flag) noexcept
-        {
-          rDstFlag = rDstFlag & (ProcessedCommandFlags(~static_cast<uint32_t>(flag)));
-        }
-
-        constexpr inline void Set(ProcessedCommandFlags& rDstFlag, ProcessedCommandFlags flag, const bool enabled) noexcept
-        {
-          rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (ProcessedCommandFlags(~static_cast<uint32_t>(flag))));
-        }
-      }
+    constexpr inline void Set(ProcessedCommandFlags& rDstFlag, ProcessedCommandFlags flag, const bool enabled) noexcept
+    {
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<ProcessedCommandFlags>(~static_cast<uint32_t>(flag))));
     }
   }
 }

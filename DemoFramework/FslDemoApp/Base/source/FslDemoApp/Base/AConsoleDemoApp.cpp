@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/AConsoleDemoApp.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoApp/Base/AConsoleDemoApp.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/IEvent.hpp>

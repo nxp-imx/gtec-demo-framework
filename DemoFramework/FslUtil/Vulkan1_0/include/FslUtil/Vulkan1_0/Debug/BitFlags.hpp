@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_DEBUG_BITFLAGS_HPP
 #define FSLUTIL_VULKAN1_0_DEBUG_BITFLAGS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,54 +36,48 @@
 #include <sstream>
 #include <string>
 
-namespace Fsl
+namespace Fsl::Vulkan::Debug
 {
-  namespace Vulkan
+  template <typename TVulkanType>
+  std::string GetBitflagsString(const TVulkanType flags)
   {
-    namespace Debug
+    std::stringstream stream;
+    std::size_t foundCount = 0;
+
+    if (flags > 0)
     {
-      template <typename TVulkanType>
-      std::string GetBitflagsString(const TVulkanType flags)
+      stream << "0x" << std::hex << flags << " (";
+      uint32_t bitFlags = flags;
+      for (uint32_t i = 0; i < 32; ++i)
       {
-        std::stringstream stream;
-        std::size_t foundCount = 0;
-
-        if (flags > 0)
+        if ((bitFlags & 0x80000000u) != 0)
         {
-          stream << "0x" << std::hex << flags << " (";
-          uint32_t bitFlags = flags;
-          for (uint32_t i = 0; i < 32; ++i)
+          auto flag = static_cast<TVulkanType>(0x80000000u >> i);
+          if (foundCount > 0)
           {
-            if ((bitFlags & 0x80000000u) != 0)
-            {
-              auto flag = static_cast<TVulkanType>(0x80000000u >> i);
-              if (foundCount > 0)
-              {
-                stream << "|";
-              }
-              auto pszFlag = RapidVulkan::Debug::TryToString(flag);
-              if (pszFlag != nullptr)
-              {
-                stream << pszFlag;
-              }
-              else
-              {
-                stream << "0x" << std::hex << flag;
-              }
-
-              ++foundCount;
-            }
-            bitFlags <<= 1;
+            stream << "|";
           }
-          stream << ")";
+          auto pszFlag = RapidVulkan::Debug::TryToString(flag);
+          if (pszFlag != nullptr)
+          {
+            stream << pszFlag;
+          }
+          else
+          {
+            stream << "0x" << std::hex << flag;
+          }
+
+          ++foundCount;
         }
-        else
-        {
-          stream << "0";
-        }
-        return stream.str();
+        bitFlags <<= 1;
       }
+      stream << ")";
     }
+    else
+    {
+      stream << "0";
+    }
+    return stream.str();
   }
 }
 

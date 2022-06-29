@@ -32,29 +32,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/No3D/ANativeGraphicsServiceNo3D.hpp>
-
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Stub
 {
-  namespace Stub
+  class NativeGraphicsService final : public ANativeGraphicsServiceNo3D
   {
-    class NativeGraphicsService final : public ANativeGraphicsServiceNo3D
-    {
-      bool m_showWarning;
+    bool m_showWarning;
 
-    public:
-      explicit NativeGraphicsService(const ServiceProvider& serviceProvider, const bool showWarning = true);
-      ~NativeGraphicsService() final;
+  public:
+    explicit NativeGraphicsService(const ServiceProvider& serviceProvider, const bool showWarning = true);
+    ~NativeGraphicsService() final;
 
-      // From INativeGraphicsService
-      bool IsSupported(const DemoHostFeature& activeAPI) const final;
-      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
-      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
+    // From INativeGraphicsService
+    bool IsSupported(const DemoHostFeature& activeAPI) const final;
+    void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
+    std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
 
-    private:
-    };
-  }
+  private:
+  };
 }
 
 #endif

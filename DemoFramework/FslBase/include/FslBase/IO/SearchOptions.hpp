@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  enum class SearchOptions
   {
-    enum class SearchOptions
-    {
-      AllDirectories,
-      TopDirectoryOnly,
-    };
-  }
+    AllDirectories,
+    TopDirectoryOnly,
+  };
 }
 
 #endif

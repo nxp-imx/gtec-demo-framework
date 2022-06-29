@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 #include <utility>

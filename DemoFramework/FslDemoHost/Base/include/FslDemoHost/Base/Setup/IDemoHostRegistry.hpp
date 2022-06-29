@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <deque>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureName.hpp>
 #include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
+#include <deque>
 
 namespace Fsl
 {

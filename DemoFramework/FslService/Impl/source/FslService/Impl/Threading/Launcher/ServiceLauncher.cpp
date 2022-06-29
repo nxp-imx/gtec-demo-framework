@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/Registry/RegisteredServiceDeque.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
+#include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
 #include <algorithm>
 #include <cassert>
 #include <map>
@@ -68,7 +68,7 @@ namespace Fsl
     void CalcInterfaceHitCount(std::map<std::type_index, int32_t>& rInterfaceMap, const RegisteredServiceDeque& services)
     {
       auto itr = services.begin();
-      const RegisteredServiceDeque::const_iterator itrEnd = services.end();
+      const auto itrEnd = services.end();
       ServiceSupportedInterfaceDeque interfaces;
       while (itr != itrEnd)
       {
@@ -77,8 +77,8 @@ namespace Fsl
         assert(!interfaces.empty());
 
         // Increase the hit count for each interface provided by this service
-        ServiceSupportedInterfaceDeque::const_iterator itrItf = interfaces.begin();
-        const ServiceSupportedInterfaceDeque::const_iterator itrItfEnd = interfaces.end();
+        auto itrItf = interfaces.begin();
+        const auto itrItfEnd = interfaces.end();
         while (itrItf != itrItfEnd)
         {
           auto itrFind = rInterfaceMap.find(*itrItf);
@@ -104,8 +104,8 @@ namespace Fsl
       std::map<std::type_index, int32_t> interfaceMap;
       CalcInterfaceHitCount(interfaceMap, services);
 
-      std::map<std::type_index, int32_t>::const_iterator itr = interfaceMap.begin();
-      const std::map<std::type_index, int32_t>::const_iterator itrEnd = interfaceMap.end();
+      auto itr = interfaceMap.begin();
+      const auto itrEnd = interfaceMap.end();
       while (itr != itrEnd)
       {
         if (itr->second > 1)
@@ -130,7 +130,7 @@ namespace Fsl
       {
         if ((record.Factory->GetFlags() & ServiceCaps::AvailableOnDemand) != 0)
         {
-          return std::shared_ptr<IService>();
+          return {};
         }
 
         FSLLOG3_ERROR("The service factory '{}' returned a nullptr", SafeGetTypeName(record.Factory));
@@ -141,8 +141,8 @@ namespace Fsl
       service->Link(provider);
 
       // Register the object on all interfaces
-      ServiceSupportedInterfaceDeque::const_iterator itr = deque.begin();
-      const ServiceSupportedInterfaceDeque::const_iterator itrEnd = deque.end();
+      auto itr = deque.begin();
+      const auto itrEnd = deque.end();
       while (itr != itrEnd)
       {
         if (multiProviderInterfaces.find(*itr) == multiProviderInterfaces.end())
@@ -186,8 +186,8 @@ namespace Fsl
       auto provider = std::make_shared<ServiceProviderImpl>(rServiceProviderMaps);
       Priority currentPriority = sortedServices.front().StartupPriority;
 
-      RegisteredServiceDeque::const_iterator itr = sortedServices.begin();
-      const RegisteredServiceDeque::const_iterator itrEnd = sortedServices.end();
+      auto itr = sortedServices.begin();
+      const auto itrEnd = sortedServices.end();
 
       ServiceProvider theServiceProvider(provider);
       while (itr != itrEnd)

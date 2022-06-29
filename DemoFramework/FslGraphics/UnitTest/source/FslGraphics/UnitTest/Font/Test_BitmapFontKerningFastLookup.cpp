@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/BitmapFontKerningFastLookup.hpp>
-#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslGraphics/Font/BitmapFontKerningFastLookup.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <fmt/format.h>
 

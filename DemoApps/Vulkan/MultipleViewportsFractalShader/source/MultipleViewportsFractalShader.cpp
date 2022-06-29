@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "MultipleViewportsFractalShader.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include "FractalShaderJulia.hpp"
-#include "FractalShaderMandelbrot.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <Shared/FractalShader/OptionParser.hpp>
 #include <vulkan/vulkan.h>
+#include "FractalShaderJulia.hpp"
+#include "FractalShaderMandelbrot.hpp"
 
 namespace Fsl
 {
@@ -58,7 +58,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
   }
 
@@ -110,14 +110,14 @@ namespace Fsl
 
       rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        const auto extent = GetScreenExtent();
+        const auto sizePx = GetWindowSizePx();
 
-        const uint32_t x0 = 0;
-        const uint32_t x1 = extent.Width / 2;
-        const uint32_t x2 = extent.Width;
-        const uint32_t y0 = 0;
-        const uint32_t y1 = extent.Height / 2;
-        const uint32_t y2 = extent.Height;
+        const int32_t x0 = 0;
+        const int32_t x1 = sizePx.Width() / 2;
+        const int32_t x2 = sizePx.Width();
+        const int32_t y0 = 0;
+        const int32_t y1 = sizePx.Height() / 2;
+        const int32_t y2 = sizePx.Height();
 
         m_scene0.Draw(currentFrameIndex, hCmdBuffer, Rectangle2D(x0, y0, x1 - x0, y2 - y1));
         m_scene1.Draw(currentFrameIndex, hCmdBuffer, Rectangle2D(x0, y1, x1 - x0, y1 - y0));

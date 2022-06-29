@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,52 +31,49 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 
-namespace Fsl
+namespace Fsl::Logger
 {
-  namespace Logger
+  void WriteLine(const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept
   {
-    void WriteLine(const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept
+    try
     {
-      try
-      {
-        WriteLine(logType, fmt::format(pszFormat, pszArg0));
-      }
-      catch (const std::exception&)
-      {
-      }
+      WriteLine(logType, fmt::format(pszFormat, pszArg0));
     }
-
-    void WriteLine(const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept
+    catch (const std::exception&)
     {
-      try
-      {
-        WriteLine(logType, fmt::format(pszFormat, strArg0));
-      }
-      catch (const std::exception&)
-      {
-      }
     }
+  }
 
-    void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept
+  void WriteLine(const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept
+  {
+    try
     {
-      try
-      {
-        WriteLine(logLocation, logType, fmt::format(pszFormat, pszArg0));
-      }
-      catch (const std::exception&)
-      {
-      }
+      WriteLine(logType, fmt::format(pszFormat, strArg0));
     }
-
-    void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept
+    catch (const std::exception&)
     {
-      try
-      {
-        WriteLine(logLocation, logType, fmt::format(pszFormat, strArg0));
-      }
-      catch (const std::exception&)
-      {
-      }
+    }
+  }
+
+  void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept
+  {
+    try
+    {
+      WriteLine(logLocation, logType, fmt::format(pszFormat, pszArg0));
+    }
+    catch (const std::exception&)
+    {
+    }
+  }
+
+  void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept
+  {
+    try
+    {
+      WriteLine(logLocation, logType, fmt::format(pszFormat, strArg0));
+    }
+    catch (const std::exception&)
+    {
     }
   }
 }

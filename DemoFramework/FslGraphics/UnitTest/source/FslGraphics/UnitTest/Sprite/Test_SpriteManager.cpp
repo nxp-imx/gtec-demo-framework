@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/SpriteDpConfig.hpp>
+#include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>

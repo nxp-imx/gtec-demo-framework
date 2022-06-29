@@ -33,11 +33,11 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/ToString.hpp>
-#include <RapidOpenCL1/DebugStrings.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
+#include <RapidOpenCL1/DebugStrings.hpp>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 #include "CustomWriter.hpp"
 
 namespace Fsl

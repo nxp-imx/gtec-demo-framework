@@ -35,12 +35,9 @@
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh_fwd.hpp>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
-  {
-    using BasicMesh = Fsl::Graphics3D::GenericMesh<VertexPositionNormalTexture, uint16_t>;
-  }
+  using BasicMesh = Fsl::Graphics3D::GenericMesh<VertexPositionNormalTexture, uint16_t>;
 }
 
 #endif

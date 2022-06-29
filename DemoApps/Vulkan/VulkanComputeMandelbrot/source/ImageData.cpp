@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "ImageData.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <algorithm>
 #include <cassert>

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SPAN_SPAN_HPP
 #define FSLBASE_SPAN_SPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Iterator/PointerIterator.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 
 namespace Fsl
@@ -44,13 +45,16 @@ namespace Fsl
     using value_type = std::remove_cv_t<T>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-    using reference = value_type&;
-    using const_reference = const value_type&;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
 
-    // Disabled and using a base class we can define (workaround until C++17)
-    // static constexpr std::size_t extent = size_type(-1);
+
+    using iterator = PointerIterator<T>;
+    using const_iterator = PointerConstIterator<T>;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
   protected:
     pointer m_pData{nullptr};
@@ -96,14 +100,14 @@ namespace Fsl
       return m_length == 0;
     }
 
-    constexpr const_reference operator[](size_type pos) const
+    constexpr const_reference operator[](size_type pos) const noexcept
     {
       assert(pos < size());
       assert(m_pData != nullptr);
       return m_pData[pos];
     }
 
-    constexpr reference operator[](size_type pos)
+    constexpr reference operator[](size_type pos) noexcept
     {
       assert(pos < size());
       assert(m_pData != nullptr);
@@ -135,25 +139,25 @@ namespace Fsl
       return m_length;
     }
 
-    constexpr const_reference back() const
+    constexpr const_reference back() const noexcept
     {
       assert(!empty());
       return m_pData[m_length - 1];
     }
 
-    constexpr reference back()
+    constexpr reference back() noexcept
     {
       assert(!empty());
       return m_pData[m_length - 1];
     }
 
-    constexpr const_reference front() const
+    constexpr const_reference front() const noexcept
     {
       assert(!empty());
       return m_pData[0];
     }
 
-    constexpr reference front()
+    constexpr reference front() noexcept
     {
       assert(!empty());
       return m_pData[0];
@@ -210,9 +214,9 @@ namespace Fsl
 
     //! implicit conversion to ReadOnlySpan
     // NOLINTNEXTLINE(google-explicit-constructor)
-    constexpr operator ReadOnlySpan<T>() const
+    constexpr operator ReadOnlySpan<T>() const noexcept
     {
-      return ReadOnlySpan<T>(m_pData, m_length);
+      return ReadOnlySpan<T>(m_pData, m_length, OptimizationCheckFlag::NoCheck);
     }
 
     [[deprecated("Use AsReadOnlySpan")]] constexpr ReadOnlySpan<T> ToReadOnlySpan() const
@@ -220,15 +224,94 @@ namespace Fsl
       return ReadOnlySpan<T>(m_pData, m_length);
     }
 
-    constexpr ReadOnlySpan<T> AsReadOnlySpan() const
+    constexpr ReadOnlySpan<T> AsReadOnlySpan() const noexcept
     {
-      return ReadOnlySpan<T>(m_pData, m_length).subspan();
+      return ReadOnlySpan<T>(m_pData, m_length, OptimizationCheckFlag::NoCheck);
     }
 
     //! @brief Returns a view of the subspan [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
     constexpr ReadOnlySpan<T> AsReadOnlySpan(size_type pos, size_type count = extent) const
     {
-      return ReadOnlySpan<T>(m_pData, m_length).subspan(pos, count);
+      return ReadOnlySpan<T>(m_pData, m_length, OptimizationCheckFlag::NoCheck).subspan(pos, count);
+    }
+
+    constexpr iterator begin() noexcept
+    {
+#ifdef NDEBUG
+      return iterator(m_pData);
+#else
+      return {m_pData, m_pData, m_length};
+#endif
+    }
+
+
+    constexpr iterator end() noexcept
+    {
+#ifdef NDEBUG
+      return iterator(m_pData + m_length);
+#else
+      return {m_pData + m_length, m_pData, m_length};
+#endif
+    }
+
+    constexpr const_iterator begin() const noexcept
+    {
+#ifdef NDEBUG
+      return const_iterator(m_pData);
+#else
+      return {m_pData, m_pData, m_length};
+#endif
+    }
+
+    constexpr const_iterator end() const noexcept
+    {
+#ifdef NDEBUG
+      return const_iterator(m_pData + m_length);
+#else
+      return {m_pData + m_length, m_pData, m_length};
+#endif
+    }
+
+    constexpr const_iterator cbegin() const noexcept
+    {
+      return begin();
+    }
+
+    constexpr const_iterator cend() const noexcept
+    {
+      return end();
+    }
+
+    constexpr reverse_iterator rbegin() noexcept
+    {
+      return reverse_iterator(end());
+    }
+
+
+    constexpr reverse_iterator rend() noexcept
+    {
+      return reverse_iterator(begin());
+    }
+
+    constexpr const_reverse_iterator rbegin() const noexcept
+    {
+      return const_reverse_iterator(end());
+    }
+
+
+    constexpr const_reverse_iterator rend() const noexcept
+    {
+      return const_reverse_iterator(begin());
+    }
+
+    constexpr const_reverse_iterator crbegin() const noexcept
+    {
+      return rbegin();
+    }
+
+    constexpr const_reverse_iterator crend() const noexcept
+    {
+      return rend();
     }
 
   private:

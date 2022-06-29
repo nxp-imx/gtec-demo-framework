@@ -35,8 +35,8 @@
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
-#include "AScene.hpp"
 #include <memory>
+#include "AScene.hpp"
 
 namespace Fsl
 {

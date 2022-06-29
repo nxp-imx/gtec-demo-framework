@@ -35,16 +35,13 @@
 #include <ctime>
 #include <string>
 
-namespace Fsl
+namespace Fsl::StringDateUtil
 {
-  namespace StringDateUtil
-  {
-    //! @brief Encode a time as ISO 8601.
-    std::string ToString(const std::time_t& currentTime);
-    //! @brief Parse a time as a limited subset of ISO 8601, this only supports the formats of the type "2021-04-25T04:22:21Z"
-    //!        The time zone must be 'Z'
-    std::time_t Parse(const StringViewLite strView);
-  }
+  //! @brief Encode a time as ISO 8601.
+  std::string ToString(const std::time_t& currentTime);
+  //! @brief Parse a time as a limited subset of ISO 8601, this only supports the formats of the type "2021-04-25T04:22:21Z"
+  //!        The time zone must be 'Z'
+  std::time_t Parse(const StringViewLite strView);
 }
 
 #endif

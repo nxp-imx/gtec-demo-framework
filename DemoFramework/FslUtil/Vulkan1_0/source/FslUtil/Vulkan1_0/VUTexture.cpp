@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/VUBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
+#include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
@@ -43,113 +43,110 @@
 #include <limits>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  VUTexture& VUTexture::operator=(VUTexture&& other) noexcept
   {
-    VUTexture& VUTexture::operator=(VUTexture&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_image = std::move(other.m_image);
-        m_sampler = std::move(other.m_sampler);
-
-        // Remove the data from other
+        Reset();
       }
-      return *this;
-    }
 
+      // Claim ownership here
+      m_image = std::move(other.m_image);
+      m_sampler = std::move(other.m_sampler);
 
-    VUTexture::VUTexture(VUTexture&& other) noexcept
-      : m_image(std::move(other.m_image))
-      , m_sampler(std::move(other.m_sampler))
-    {
       // Remove the data from other
     }
+    return *this;
+  }
 
 
-    VUTexture::VUTexture() = default;
+  VUTexture::VUTexture(VUTexture&& other) noexcept
+    : m_image(std::move(other.m_image))
+    , m_sampler(std::move(other.m_sampler))
+  {
+    // Remove the data from other
+  }
 
 
-    VUTexture::VUTexture(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo)
-      : VUTexture()
+  VUTexture::VUTexture() = default;
+
+
+  VUTexture::VUTexture(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo)
+    : VUTexture()
+  {
+    Reset(std::move(image), createInfo);
+  }
+
+
+  VUTexture::VUTexture(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler)
+    : VUTexture()
+  {
+    Reset(std::move(image), std::move(sampler));
+  }
+
+
+  void VUTexture::Reset() noexcept
+  {
+    if (!IsValid())
     {
-      Reset(std::move(image), createInfo);
+      return;
     }
 
+    assert(m_image.IsValid());
+    assert(m_sampler.IsValid());
 
-    VUTexture::VUTexture(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler)
-      : VUTexture()
+    DoReset();
+  }
+
+
+  void VUTexture::Reset(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo)
+  {
+    if (IsValid())
     {
-      Reset(std::move(image), std::move(sampler));
+      Reset();
     }
 
-
-    void VUTexture::Reset() noexcept
+    try
     {
-      if (!IsValid())
-      {
-        return;
-      }
-
-      assert(m_image.IsValid());
-      assert(m_sampler.IsValid());
-
+      m_image = std::move(image);
+      m_sampler.Reset(m_image.GetDevice(), createInfo);
+    }
+    catch (const std::exception&)
+    {
       DoReset();
+      throw;
     }
+  }
 
 
-    void VUTexture::Reset(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo)
+  void VUTexture::Reset(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler)
+  {
+    if (IsValid())
     {
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_image = std::move(image);
-        m_sampler.Reset(m_image.GetDevice(), createInfo);
-      }
-      catch (const std::exception&)
-      {
-        DoReset();
-        throw;
-      }
+      Reset();
     }
 
-
-    void VUTexture::Reset(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler)
+    try
     {
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_image = std::move(image);
-        m_sampler = std::move(sampler);
-      }
-      catch (const std::exception&)
-      {
-        DoReset();
-        throw;
-      }
+      m_image = std::move(image);
+      m_sampler = std::move(sampler);
     }
-
-
-    void VUTexture::DoReset()
+    catch (const std::exception&)
     {
-      m_sampler.Reset();
-      m_image.Reset();
+      DoReset();
+      throw;
     }
+  }
+
+
+  void VUTexture::DoReset()
+  {
+    m_sampler.Reset();
+    m_image.Reset();
   }
 }

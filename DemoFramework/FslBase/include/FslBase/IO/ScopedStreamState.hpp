@@ -1,7 +1,7 @@
 #ifndef FSLBASE_IO_SCOPEDSTREAMSTATE_HPP
 #define FSLBASE_IO_SCOPEDSTREAMSTATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,31 +33,28 @@
 
 #include <ostream>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  class ScopedStreamState
   {
-    class ScopedStreamState
+    std::ostream& m_ostream;
+    std::ios_base::fmtflags m_flags;
+    std::streamsize m_precision;
+
+  public:
+    explicit ScopedStreamState(std::ostream& ostream)
+      : m_ostream(ostream)
+      , m_flags(ostream.flags())
+      , m_precision(ostream.precision())
     {
-      std::ostream& m_ostream;
-      std::ios_base::fmtflags m_flags;
-      std::streamsize m_precision;
+    }
 
-    public:
-      explicit ScopedStreamState(std::ostream& ostream)
-        : m_ostream(ostream)
-        , m_flags(ostream.flags())
-        , m_precision(ostream.precision())
-      {
-      }
-
-      ~ScopedStreamState()
-      {
-        m_ostream.precision(m_precision);
-        m_ostream.flags(m_flags);
-      }
-    };
-  }
+    ~ScopedStreamState()
+    {
+      m_ostream.precision(m_precision);
+      m_ostream.flags(m_flags);
+    }
+  };
 }
 
 #endif

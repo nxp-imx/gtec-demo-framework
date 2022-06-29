@@ -32,21 +32,18 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl
 {
   class StringViewLite;
 
-  namespace Vulkan
+  namespace Vulkan::PropertyUtil
   {
-    namespace PropertyUtil
-    {
-      bool IsLayerAvailable(const ReadOnlySpan<VkLayerProperties>& layerProperties, const StringViewLite& layerName);
-      bool IsExtensionAvailable(const ReadOnlySpan<VkExtensionProperties>& extensionProperties, const StringViewLite& extensionName);
-    }
+    bool IsLayerAvailable(const ReadOnlySpan<VkLayerProperties>& layerProperties, const StringViewLite& layerName);
+    bool IsExtensionAvailable(const ReadOnlySpan<VkExtensionProperties>& extensionProperties, const StringViewLite& extensionName);
   }
 }
 

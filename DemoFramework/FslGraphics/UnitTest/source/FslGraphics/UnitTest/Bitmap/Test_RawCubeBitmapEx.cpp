@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/RawCubeBitmapEx.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Bitmap/RawCubeBitmapEx.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 

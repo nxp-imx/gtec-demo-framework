@@ -19,14 +19,13 @@
 
 // The code here is based on JNIHelper from the NDK
 
+#include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <android/log.h>
+#include <android_native_app_glue.h>
 #include <jni.h>
 #include <mutex>
 #include <string>
 #include <vector>
-
-#include <android/log.h>
-#include <android_native_app_glue.h>
-#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "NDKHelper.h"
 
 namespace Fsl

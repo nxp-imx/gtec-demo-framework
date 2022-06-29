@@ -29,135 +29,132 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenCL1_2/ContextEx.hpp>
-#include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/OpenCL1_2/ContextEx.hpp>
+#include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Exceptions.hpp>
 #include <cassert>
 #include <cstring>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::OpenCL
 {
-  namespace OpenCL
+  // move assignment operator
+  ContextEx& ContextEx::operator=(ContextEx&& other) noexcept
   {
-    // move assignment operator
-    ContextEx& ContextEx::operator=(ContextEx&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_platformId = other.m_platformId;
-        m_context = std::move(other.m_context);
-
-        // Remove the data from other
-        other.m_platformId = nullptr;
-      }
-      return *this;
-    }
-
-
-    // Transfer ownership from other to this
-    ContextEx::ContextEx(ContextEx&& other) noexcept
-      : m_platformId(other.m_platformId)
-      , m_context(std::move(other.m_context))
-    {
-      other.m_platformId = nullptr;
-    }
-
-
-    ContextEx::ContextEx()
-      : m_platformId(nullptr)
-    {
-    }
-
-
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    ContextEx::ContextEx(const cl_platform_id platformId, const cl_context context)
-      : ContextEx()
-    {
-      Reset(platformId, context);
-    }
-
-
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    ContextEx::ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
-      : ContextEx()
-    {
-      Reset(deviceType, pDeviceId, allowFallback);
-    }
-
-
-    ContextEx::~ContextEx()
-    {
-      Reset();
-    }
-
-
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    void ContextEx::Reset(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
-    {
+      // Free existing resources then transfer the content of other to this one and fill other with default values
       if (IsValid())
       {
         Reset();
       }
 
-      const auto platformIds = OpenCLHelper::GetPlatformIDs();
-      if (platformIds.empty())
-      {
-        throw NotSupportedException("No OpenCL platform is available");
-      }
+      // Claim ownership here
+      m_platformId = other.m_platformId;
+      m_context = std::move(other.m_context);
 
+      // Remove the data from other
+      other.m_platformId = nullptr;
+    }
+    return *this;
+  }
+
+
+  // Transfer ownership from other to this
+  ContextEx::ContextEx(ContextEx&& other) noexcept
+    : m_platformId(other.m_platformId)
+    , m_context(std::move(other.m_context))
+  {
+    other.m_platformId = nullptr;
+  }
+
+
+  ContextEx::ContextEx()
+    : m_platformId(nullptr)
+  {
+  }
+
+
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  ContextEx::ContextEx(const cl_platform_id platformId, const cl_context context)
+    : ContextEx()
+  {
+    Reset(platformId, context);
+  }
+
+
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  ContextEx::ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
+    : ContextEx()
+  {
+    Reset(deviceType, pDeviceId, allowFallback);
+  }
+
+
+  ContextEx::~ContextEx()
+  {
+    Reset();
+  }
+
+
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  void ContextEx::Reset(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
+  {
+    if (IsValid())
+    {
+      Reset();
+    }
+
+    const auto platformIds = OpenCLHelper::GetPlatformIDs();
+    if (platformIds.empty())
+    {
+      throw NotSupportedException("No OpenCL platform is available");
+    }
+
+    for (auto itr = platformIds.begin(); itr != platformIds.end(); ++itr)
+    {
+      const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, deviceType);
+      if (!deviceIds.empty())
+      {
+        SelectDevice(*itr, deviceIds, pDeviceId);
+        return;
+      }
+    }
+
+    if (allowFallback && deviceType != CL_DEVICE_TYPE_ALL)
+    {
+      FSLLOG3_INFO("Trying to locate a device using CL_DEVICE_TYPE_ALL");
       for (auto itr = platformIds.begin(); itr != platformIds.end(); ++itr)
       {
-        const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, deviceType);
+        const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, CL_DEVICE_TYPE_ALL);
         if (!deviceIds.empty())
         {
           SelectDevice(*itr, deviceIds, pDeviceId);
           return;
         }
       }
-
-      if (allowFallback && deviceType != CL_DEVICE_TYPE_ALL)
-      {
-        FSLLOG3_INFO("Trying to locate a device using CL_DEVICE_TYPE_ALL");
-        for (auto itr = platformIds.begin(); itr != platformIds.end(); ++itr)
-        {
-          const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, CL_DEVICE_TYPE_ALL);
-          if (!deviceIds.empty())
-          {
-            SelectDevice(*itr, deviceIds, pDeviceId);
-            return;
-          }
-        }
-      }
-
-      throw NotSupportedException("No device found");
     }
 
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    void ContextEx::SelectDevice(cl_platform_id platformId, const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId)
-    {
-      // FIX: for now just select the first device
-      const cl_uint targetDevice = 0;
-      // FIX: for now just use one device
-      const cl_uint uiNumDevsUsed = 1;
+    throw NotSupportedException("No device found");
+  }
 
-      // clCreateContext
-      m_context.Reset(nullptr, uiNumDevsUsed, &deviceIds[targetDevice], nullptr, nullptr);
-      m_platformId = platformId;
-      if (pDeviceId != nullptr)
-      {
-        *pDeviceId = deviceIds[targetDevice];
-      }
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  void ContextEx::SelectDevice(cl_platform_id platformId, const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId)
+  {
+    // FIX: for now just select the first device
+    const cl_uint targetDevice = 0;
+    // FIX: for now just use one device
+    const cl_uint uiNumDevsUsed = 1;
+
+    // clCreateContext
+    m_context.Reset(nullptr, uiNumDevsUsed, &deviceIds[targetDevice], nullptr, nullptr);
+    m_platformId = platformId;
+    if (pDeviceId != nullptr)
+    {
+      *pDeviceId = deviceIds[targetDevice];
     }
   }
 }

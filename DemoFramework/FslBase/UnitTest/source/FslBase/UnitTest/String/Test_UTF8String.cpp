@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/UTF8String.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
 #include <FslBase/Log/String/LogUTF8String.hpp>
+#include <FslBase/String/UTF8String.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <cstring>
 #include <utility>
 

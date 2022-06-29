@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/Log/Math/LogVector2.hpp>
+#include <FslBase/UnitTest/Helper/Common.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <FslSimpleUI/Base/UnitTest/Control/UTControl.hpp>
 #include <FslSimpleUI/Base/UnitTest/Control/UTImageControl.hpp>
 #include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <array>
 
 using namespace Fsl;

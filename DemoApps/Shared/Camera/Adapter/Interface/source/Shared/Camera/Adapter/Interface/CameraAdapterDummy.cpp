@@ -29,12 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  void Shared_Camera_Adapter__Dummy()
   {
-    void Shared_Camera_Adapter__Dummy()
-    {
-    }
   }
 }

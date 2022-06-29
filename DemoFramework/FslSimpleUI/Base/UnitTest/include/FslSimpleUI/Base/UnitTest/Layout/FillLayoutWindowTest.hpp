@@ -36,19 +36,16 @@
 #include <FslSimpleUI/Base/UnitTest/WindowCallCount.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowCallbacks.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class FillLayoutWindowTest : public GenericLayoutWindowTest<FillLayout>
   {
-    class FillLayoutWindowTest : public GenericLayoutWindowTest<FillLayout>
+  public:
+    explicit FillLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags())
+      : GenericLayoutWindowTest<FillLayout>(context, windowFlags)
     {
-    public:
-      explicit FillLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags())
-        : GenericLayoutWindowTest<FillLayout>(context, windowFlags)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

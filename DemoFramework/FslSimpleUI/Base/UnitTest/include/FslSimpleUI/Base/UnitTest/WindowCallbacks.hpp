@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_WINDOWCALLBACKS_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_WINDOWCALLBACKS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,131 +35,128 @@
 #include <FslSimpleUI/Base/UnitTest/WindowCallCount.hpp>
 #include <functional>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct WindowCallbacks
   {
-    struct WindowCallbacks
+    std::function<void()> HookWinInit;
+    std::function<void()> HookWinMarkLayoutAsDirty;
+    std::function<void(const RoutedEvent&)> HookWinHandleEvent;
+    std::function<void(const TimeSpan&)> HookWinUpdate;
+    std::function<void(const TimeSpan&)> HookWinResolve;
+    std::function<void(const UIDrawContext&)> HookWinDraw;
+    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInputPreview;
+    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInput;
+    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowSelectEvent>&)> HookOnSelect;
+    std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowContentChangedEvent>&)> HookOnContentChanged;
+    std::function<void(const PxSize2D&)> HookArrangeOverride;
+    std::function<void(const PxAvailableSize&)> HookMeasureOverride;
+    std::function<void(const PropertyTypeFlags&)> HookOnPropertiesUpdated;
+
+    void WinInit()
     {
-      std::function<void()> HookWinInit;
-      std::function<void()> HookWinMarkLayoutAsDirty;
-      std::function<void(const RoutedEvent&)> HookWinHandleEvent;
-      std::function<void(const TransitionTimeSpan&)> HookWinUpdate;
-      std::function<void(const TransitionTimeSpan&)> HookWinResolve;
-      std::function<void(const UIDrawContext&)> HookWinDraw;
-      std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInputPreview;
-      std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInput;
-      std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowSelectEvent>&)> HookOnSelect;
-      std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowContentChangedEvent>&)> HookOnContentChanged;
-      std::function<void(const PxSize2D&)> HookArrangeOverride;
-      std::function<void(const PxAvailableSize&)> HookMeasureOverride;
-      std::function<void(const PropertyTypeFlags&)> HookOnPropertiesUpdated;
-
-      void WinInit()
+      if (HookWinInit)
       {
-        if (HookWinInit)
-        {
-          HookWinInit();
-        }
+        HookWinInit();
       }
+    }
 
-      void WinMarkLayoutAsDirty()
+    void WinMarkLayoutAsDirty()
+    {
+      if (HookWinMarkLayoutAsDirty)
       {
-        if (HookWinMarkLayoutAsDirty)
-        {
-          HookWinMarkLayoutAsDirty();
-        }
+        HookWinMarkLayoutAsDirty();
       }
+    }
 
-      void WinHandleEvent(const RoutedEvent& routedEvent)
+    void WinHandleEvent(const RoutedEvent& routedEvent)
+    {
+      if (HookWinHandleEvent)
       {
-        if (HookWinHandleEvent)
-        {
-          HookWinHandleEvent(routedEvent);
-        }
+        HookWinHandleEvent(routedEvent);
       }
+    }
 
-      void WinUpdate(const TransitionTimeSpan& timeSpan)
+    void WinUpdate(const TimeSpan& timeSpan)
+    {
+      if (HookWinUpdate)
       {
-        if (HookWinUpdate)
-        {
-          HookWinUpdate(timeSpan);
-        }
+        HookWinUpdate(timeSpan);
       }
+    }
 
-      void WinResolve(const TransitionTimeSpan& timeSpan)
+    void WinResolve(const TimeSpan& timeSpan)
+    {
+      if (HookWinResolve)
       {
-        if (HookWinResolve)
-        {
-          HookWinResolve(timeSpan);
-        }
+        HookWinResolve(timeSpan);
       }
+    }
 
-      void WinDraw(const UIDrawContext& context)
+    void WinDraw(const UIDrawContext& context)
+    {
+      if (HookWinDraw)
       {
-        if (HookWinDraw)
-        {
-          HookWinDraw(context);
-        }
+        HookWinDraw(context);
       }
+    }
 
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+    {
+      if (HookOnClickInputPreview)
       {
-        if (HookOnClickInputPreview)
-        {
-          HookOnClickInputPreview(args, theEvent);
-        }
+        HookOnClickInputPreview(args, theEvent);
       }
+    }
 
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+    {
+      if (HookOnClickInput)
       {
-        if (HookOnClickInput)
-        {
-          HookOnClickInput(args, theEvent);
-        }
+        HookOnClickInput(args, theEvent);
       }
+    }
 
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+    {
+      if (HookOnSelect)
       {
-        if (HookOnSelect)
-        {
-          HookOnSelect(args, theEvent);
-        }
+        HookOnSelect(args, theEvent);
       }
+    }
 
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+    {
+      if (HookOnContentChanged)
       {
-        if (HookOnContentChanged)
-        {
-          HookOnContentChanged(args, theEvent);
-        }
+        HookOnContentChanged(args, theEvent);
       }
+    }
 
-      void ArrangeOverride(const PxSize2D& finalSizePx)
+    void ArrangeOverride(const PxSize2D& finalSizePx)
+    {
+      if (HookArrangeOverride)
       {
-        if (HookArrangeOverride)
-        {
-          HookArrangeOverride(finalSizePx);
-        }
+        HookArrangeOverride(finalSizePx);
       }
+    }
 
-      void MeasureOverride(const PxAvailableSize& availableSizePx)
+    void MeasureOverride(const PxAvailableSize& availableSizePx)
+    {
+      if (HookMeasureOverride)
       {
-        if (HookMeasureOverride)
-        {
-          HookMeasureOverride(availableSizePx);
-        }
+        HookMeasureOverride(availableSizePx);
       }
+    }
 
-      void OnPropertiesUpdated(const PropertyTypeFlags& flags)
+    void OnPropertiesUpdated(const PropertyTypeFlags& flags)
+    {
+      if (HookOnPropertiesUpdated)
       {
-        if (HookOnPropertiesUpdated)
-        {
-          HookOnPropertiesUpdated(flags);
-        }
+        HookOnPropertiesUpdated(flags);
       }
-    };
-  }
+    }
+  };
 }
 
 #endif

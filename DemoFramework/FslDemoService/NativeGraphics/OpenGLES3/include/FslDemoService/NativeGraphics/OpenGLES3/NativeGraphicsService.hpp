@@ -37,32 +37,29 @@
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class NativeGraphicsService final : public ANativeGraphicsService
   {
-    class NativeGraphicsService final : public ANativeGraphicsService
-    {
-      std::shared_ptr<NativeGraphicsDevice> m_device;
+    std::shared_ptr<NativeGraphicsDevice> m_device;
 
-    public:
-      explicit NativeGraphicsService(const ServiceProvider& serviceProvider);
-      ~NativeGraphicsService() final;
+  public:
+    explicit NativeGraphicsService(const ServiceProvider& serviceProvider);
+    ~NativeGraphicsService() final;
 
-      // From INativeGraphicsService
-      bool IsSupported(const DemoHostFeature& activeAPI) const final;
-      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
-      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
-      std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) final;
+    // From INativeGraphicsService
+    bool IsSupported(const DemoHostFeature& activeAPI) const final;
+    void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
+    std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
+    std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) final;
 
-      // INativeGraphicsServiceControl
-      void CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo) final;
-      void DestroyDevice() noexcept final;
+    // INativeGraphicsServiceControl
+    void CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo) final;
+    void DestroyDevice() noexcept final;
 
-    protected:
-      std::shared_ptr<Graphics3D::INativeDevice> GetNativeDevice() final;
-    };
-  }
+  protected:
+    std::shared_ptr<Graphics3D::INativeDevice> GetNativeDevice() final;
+  };
 }
 
 #endif

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/ICpuStatsAdapter.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <functional>
 #include <memory>
 

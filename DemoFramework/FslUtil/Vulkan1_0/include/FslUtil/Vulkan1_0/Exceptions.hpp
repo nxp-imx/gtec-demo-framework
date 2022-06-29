@@ -34,40 +34,37 @@
 #include <FslGraphics/Exceptions.hpp>
 #include <RapidVulkan/Exceptions.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class UnsupportedVulkanPixelFormatException : public RapidVulkan::VulkanException
   {
-    class UnsupportedVulkanPixelFormatException : public RapidVulkan::VulkanException
+    VkFormat m_pixelFormat;
+
+  public:
+    UnsupportedVulkanPixelFormatException(const char* const psz, const VkFormat pixelFormat)
+      : RapidVulkan::VulkanException(psz)
+      , m_pixelFormat(pixelFormat)
     {
-      VkFormat m_pixelFormat;
+    }
 
-    public:
-      UnsupportedVulkanPixelFormatException(const char* const psz, const VkFormat pixelFormat)
-        : RapidVulkan::VulkanException(psz)
-        , m_pixelFormat(pixelFormat)
-      {
-      }
-
-      UnsupportedVulkanPixelFormatException(const std::string& str, const VkFormat pixelFormat)
-        : RapidVulkan::VulkanException(str)
-        , m_pixelFormat(pixelFormat)
-      {
-      }
+    UnsupportedVulkanPixelFormatException(const std::string& str, const VkFormat pixelFormat)
+      : RapidVulkan::VulkanException(str)
+      , m_pixelFormat(pixelFormat)
+    {
+    }
 
 
-      explicit UnsupportedVulkanPixelFormatException(const VkFormat pixelFormat)
-        : RapidVulkan::VulkanException("Unsupported pixel format")
-        , m_pixelFormat(pixelFormat)
-      {
-      }
+    explicit UnsupportedVulkanPixelFormatException(const VkFormat pixelFormat)
+      : RapidVulkan::VulkanException("Unsupported pixel format")
+      , m_pixelFormat(pixelFormat)
+    {
+    }
 
-      VkFormat GetPixelFormat() const
-      {
-        return m_pixelFormat;
-      }
-    };
-  }
+    VkFormat GetPixelFormat() const
+    {
+      return m_pixelFormat;
+    }
+  };
 }
 
 #endif

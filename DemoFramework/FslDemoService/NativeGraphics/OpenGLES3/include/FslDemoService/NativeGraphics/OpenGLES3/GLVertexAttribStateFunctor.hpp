@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_GLVERTEXATTRIBSTATEFUNCTOR_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_GLVERTEXATTRIBSTATEFUNCTOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,51 +34,48 @@
 #include <FslDemoService/NativeGraphics/OpenGLES3/VertexAttribState.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct GLVertexAttribStateFunctor
   {
-    struct GLVertexAttribStateFunctor
+    static inline VertexAttribState GetAttrib(const GLuint attribIndex) noexcept
     {
-      static inline VertexAttribState GetAttrib(const GLuint attribIndex) noexcept
-      {
-        VertexAttribState state;
+      VertexAttribState state;
 
-        // Query OpenGL ES about its current state
-        GLint enabled = 0;
-        glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
-        glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_SIZE, &state.Basic.Size);
-        glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_TYPE, &state.Basic.Type);
-        GLint normalized = 0;
-        glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
-        glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &state.Basic.Stride);
-        GLvoid* pointer{nullptr};
-        glGetVertexAttribPointerv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &pointer);
-        state.Enabled = (enabled != GL_FALSE);
-        state.Basic.Normalized = (normalized != GL_FALSE);
-        state.Basic.Pointer = pointer;
-        return state;
-      }
+      // Query OpenGL ES about its current state
+      GLint enabled = 0;
+      glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+      glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_SIZE, &state.Basic.Size);
+      glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_TYPE, &state.Basic.Type);
+      GLint normalized = 0;
+      glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
+      glGetVertexAttribiv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &state.Basic.Stride);
+      GLvoid* pointer{nullptr};
+      glGetVertexAttribPointerv(attribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &pointer);
+      state.Enabled = (enabled != GL_FALSE);
+      state.Basic.Normalized = (normalized != GL_FALSE);
+      state.Basic.Pointer = pointer;
+      return state;
+    }
 
-      static inline void SetAttribEnabled(const GLuint attribIndex, const bool enabled) noexcept
+    static inline void SetAttribEnabled(const GLuint attribIndex, const bool enabled) noexcept
+    {
+      if (enabled)
       {
-        if (enabled)
-        {
-          glEnableVertexAttribArray(attribIndex);
-        }
-        else
-        {
-          glDisableVertexAttribArray(attribIndex);
-        }
+        glEnableVertexAttribArray(attribIndex);
       }
+      else
+      {
+        glDisableVertexAttribArray(attribIndex);
+      }
+    }
 
-      static inline void SetBasicAttrib(const GLuint attribIndex, const BasicVertexAttribState& state) noexcept
-      {
-        const GLboolean normalized = state.Normalized ? GL_TRUE : GL_FALSE;
-        glVertexAttribPointer(attribIndex, state.Size, state.Type, normalized, state.Stride, state.Pointer);
-      }
-    };
-  }
+    static inline void SetBasicAttrib(const GLuint attribIndex, const BasicVertexAttribState& state) noexcept
+    {
+      const GLboolean normalized = state.Normalized ? GL_TRUE : GL_FALSE;
+      glVertexAttribPointer(attribIndex, state.Size, state.Type, normalized, state.Stride, state.Pointer);
+    }
+  };
 }
 
 #endif

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/Events/EventsService.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslDemoHost/Base/Service/Events/EventsService.hpp>
 #include <cassert>
 
 namespace Fsl

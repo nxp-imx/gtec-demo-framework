@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_BASICNATIVEDEPENDENTCUSTOMVULKANCREATEINFO_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_BASICNATIVEDEPENDENTCUSTOMVULKANCREATEINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,37 +32,33 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeDependentCustomCreateInfo.hpp>
+#include <vulkan/vulkan.h>
 #include <memory>
 #include <utility>
 
-#include <vulkan/vulkan.h>
-
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct NativeGraphicsSwapchainInfo;
+  class BasicNativeDependentCustomVulkanCreateInfo : public BasicNativeDependentCustomCreateInfo
   {
-    struct NativeGraphicsSwapchainInfo;
-    class BasicNativeDependentCustomVulkanCreateInfo : public BasicNativeDependentCustomCreateInfo
+  public:
+    const VkPipelineCache PipelineCache;
+    const VkRenderPass MainRenderPass;
+
+    //! The subpass the system UI should be rendered on.
+    const uint32_t SubpassSystemUI;
+
+    const std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> SwapchainInfo;
+
+    BasicNativeDependentCustomVulkanCreateInfo(const VkPipelineCache pipelineCache, const VkRenderPass mainRenderPass, const uint32_t subpassSystemUI,
+                                               std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> swapchainInfo)
+      : PipelineCache(pipelineCache)
+      , MainRenderPass(mainRenderPass)
+      , SubpassSystemUI(subpassSystemUI)
+      , SwapchainInfo(std::move(swapchainInfo))
     {
-    public:
-      const VkPipelineCache PipelineCache;
-      const VkRenderPass MainRenderPass;
-
-      //! The subpass the system UI should be rendered on.
-      const uint32_t SubpassSystemUI;
-
-      const std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> SwapchainInfo;
-
-      BasicNativeDependentCustomVulkanCreateInfo(const VkPipelineCache pipelineCache, const VkRenderPass mainRenderPass,
-                                                 const uint32_t subpassSystemUI, std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> swapchainInfo)
-        : PipelineCache(pipelineCache)
-        , MainRenderPass(mainRenderPass)
-        , SubpassSystemUI(subpassSystemUI)
-        , SwapchainInfo(std::move(swapchainInfo))
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

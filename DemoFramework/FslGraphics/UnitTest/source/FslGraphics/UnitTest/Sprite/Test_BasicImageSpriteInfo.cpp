@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Info/BasicImageSpriteInfo.hpp>
 #include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Log/LogNativeTextureArea.hpp>
-#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <FslGraphics/Sprite/Info/BasicImageSpriteInfo.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
+#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 
@@ -56,7 +56,7 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct_Default)
   EXPECT_FALSE(value.MaterialInfo.IsValid());
   EXPECT_EQ(PxExtent2D(), value.ImageInfo.ExtentPx);
   EXPECT_EQ(PxRectangleU16(), value.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(), value.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D(), value.ImageInfo.ExtentDp);
   EXPECT_EQ(SpriteDpConfig::BaseDpi, value.ImageDpi);
   EXPECT_EQ(NativeTextureArea(), value.RenderInfo.TextureArea);
   EXPECT_EQ(PxSize2D(), value.RenderInfo.ScaledSizePx);
@@ -92,7 +92,7 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct)
   EXPECT_EQ(spriteMaterialInfo, value.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), value.ImageInfo.ExtentPx);
   EXPECT_EQ(imageRectanglePx, value.ImageInfo.RectanglePx);
-  EXPECT_EQ(DpExtent(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), value.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageRectanglePx.GetExtent().Width, imageRectanglePx.GetExtent().Height), value.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, value.ImageDpi);
   EXPECT_EQ(nativeTextureArea, value.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageRectanglePx.GetExtent()), value.RenderInfo.ScaledSizePx);
@@ -113,7 +113,7 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct2X)
 
   BasicImageSpriteInfo value(area, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
 
-  const DpExtent extentDp = SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi);
+  const DpExtent2D extentDp = SpriteUnitConverter::CalcImageDpExtent2D(imageRectanglePx.GetExtent(), imageDpi);
 
   EXPECT_EQ(spriteMaterialInfo, value.MaterialInfo);
   EXPECT_EQ(imageRectanglePx.GetExtent(), value.ImageInfo.ExtentPx);
@@ -138,7 +138,7 @@ TEST(TestSprite_BasicImageSpriteInfo, Construct_NotCompatible)
 
   BasicImageSpriteInfo value(area, spriteMaterialInfo, imageRectanglePx, imageDpi, debugName);
 
-  const DpExtent extentDp = SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi);
+  const DpExtent2D extentDp = SpriteUnitConverter::CalcImageDpExtent2D(imageRectanglePx.GetExtent(), imageDpi);
   constexpr auto nativeTextureArea = SpriteMaterialImpl::TestCalcNativeTextureArea(textureExtent, imageRectanglePx);
 
   EXPECT_EQ(spriteMaterialInfo, value.MaterialInfo);

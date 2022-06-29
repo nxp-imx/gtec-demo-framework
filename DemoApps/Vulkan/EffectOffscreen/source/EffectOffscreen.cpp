@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "EffectOffscreen.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTextureTexture.hpp>
@@ -42,8 +42,8 @@
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace Fsl
@@ -240,7 +240,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorSetLayout CreateEffectDescriptorSetLayout(const VUDevice& device)
@@ -269,7 +269,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
@@ -287,7 +287,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     Vulkan::VUBufferMemory CreateVertexShaderUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -408,7 +408,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     RapidVulkan::RenderPass CreateRenderPass(const VkDevice device, const VkFormat renderFormat, const VkFormat depthImageFormat)
@@ -465,9 +465,14 @@ namespace Fsl
       attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
       attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-      return RapidVulkan::RenderPass(device, 0, UncheckedNumericCast<uint32_t>(attachments.size()), attachments.data(),
-                                     UncheckedNumericCast<uint32_t>(subpassDescription.size()), subpassDescription.data(),
-                                     UncheckedNumericCast<uint32_t>(subpassDependency.size()), subpassDependency.data());
+      return {device,
+              0,
+              UncheckedNumericCast<uint32_t>(attachments.size()),
+              attachments.data(),
+              UncheckedNumericCast<uint32_t>(subpassDescription.size()),
+              subpassDescription.data(),
+              UncheckedNumericCast<uint32_t>(subpassDependency.size()),
+              subpassDependency.data()};
     }
 
     Vulkan::VUTexture CreateRenderAttachment(const Vulkan::VUDevice& device, const VkExtent2D& extent, const VkFormat format, const std::string& name)
@@ -670,8 +675,7 @@ namespace Fsl
   {
     std::array<VkImageView, 2> imageViews = {colorImageView, depthImageView};
 
-    return RapidVulkan::Framebuffer(m_device.Get(), 0, renderPass, UncheckedNumericCast<uint32_t>(imageViews.size()), imageViews.data(), extent.width,
-                                    extent.height, 1);
+    return {m_device.Get(), 0, renderPass, UncheckedNumericCast<uint32_t>(imageViews.size()), imageViews.data(), extent.width, extent.height, 1};
   }
 
 
@@ -742,7 +746,7 @@ namespace Fsl
 
       VkRect2D scissor{};
       scissor.offset = {0, 0};
-      scissor.extent = {extent.width, static_cast<uint32_t>(extent.height * (0.5f + (0.5f * BOTTOM_HALF_SPLIT_PERCENTAGE)))};
+      scissor.extent = {extent.width, static_cast<uint32_t>(static_cast<float>(extent.height) * (0.5f + (0.5f * BOTTOM_HALF_SPLIT_PERCENTAGE)))};
       vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
       DrawSceneToCommandBuffer(frame, commandBuffer);
@@ -979,7 +983,7 @@ namespace Fsl
     graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-    return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+    return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
   }
 
   RapidVulkan::GraphicsPipeline EffectOffscreen::CreatePipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
@@ -1120,6 +1124,6 @@ namespace Fsl
     graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-    return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+    return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
   }
 }

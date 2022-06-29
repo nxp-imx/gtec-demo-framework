@@ -34,21 +34,18 @@
 #include <FslBase/Math/ThicknessF.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const ThicknessF& lhs, const ThicknessF& rhs)
   {
-    inline bool AlmostEqual(const ThicknessF& lhs, const ThicknessF& rhs)
-    {
-      return AlmostEqual(lhs.Left(), rhs.Left()) && AlmostEqual(lhs.Top(), rhs.Top()) && AlmostEqual(lhs.Right(), rhs.Right()) &&
-             AlmostEqual(lhs.Bottom(), rhs.Bottom());
-    }
+    return AlmostEqual(lhs.Left(), rhs.Left()) && AlmostEqual(lhs.Top(), rhs.Top()) && AlmostEqual(lhs.Right(), rhs.Right()) &&
+           AlmostEqual(lhs.Bottom(), rhs.Bottom());
+  }
 
-    inline bool IsNear(const ThicknessF& lhs, const ThicknessF& rhs, const float absError)
-    {
-      return IsNear(lhs.Left(), rhs.Left(), absError) && IsNear(lhs.Top(), rhs.Top(), absError) && IsNear(lhs.Right(), rhs.Right(), absError) &&
-             IsNear(lhs.Bottom(), rhs.Bottom(), absError);
-    }
+  inline bool IsNear(const ThicknessF& lhs, const ThicknessF& rhs, const float absError)
+  {
+    return IsNear(lhs.Left(), rhs.Left(), absError) && IsNear(lhs.Top(), rhs.Top(), absError) && IsNear(lhs.Right(), rhs.Right(), absError) &&
+           IsNear(lhs.Bottom(), rhs.Bottom(), absError);
   }
 }
 

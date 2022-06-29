@@ -46,7 +46,7 @@ namespace Fsl
 
     BatchMaterialId() noexcept = default;
 
-    constexpr explicit BatchMaterialId(const int32_t value) noexcept
+    constexpr explicit BatchMaterialId(const uint32_t value) noexcept
       : Value(value)
     {
     }

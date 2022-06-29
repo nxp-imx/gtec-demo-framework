@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslService/Impl/ServiceType/Async/IAsynchronousServiceProxyFactory.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
 #include <FslService/Impl/ServiceType/Async/IAsynchronousServiceImplFactory.hpp>
+#include <FslService/Impl/ServiceType/Async/IAsynchronousServiceProxyFactory.hpp>
 
 namespace Fsl
 {

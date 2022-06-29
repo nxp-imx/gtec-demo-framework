@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,29 +31,26 @@
 
 #include <FslBase/Debug/Math/DebugContainmentType.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
+  const char* TryToString(const ContainmentType& value)
   {
-    const char* TryToString(const ContainmentType& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case ContainmentType::Disjoint:
-        return "ContainmentType::Disjoint";
-      case ContainmentType::Contains:
-        return "ContainmentType::Contains";
-      case ContainmentType::Intersects:
-        return "ContainmentType::Intersects";
-      default:
-        return nullptr;
-      }
+    case ContainmentType::Disjoint:
+      return "ContainmentType::Disjoint";
+    case ContainmentType::Contains:
+      return "ContainmentType::Contains";
+    case ContainmentType::Intersects:
+      return "ContainmentType::Intersects";
+    default:
+      return nullptr;
     }
+  }
 
-    const char* ToString(const ContainmentType& value)
-    {
-      const auto* const psz = TryToString(value);
-      return psz != nullptr ? psz : "Unknown";
-    }
+  const char* ToString(const ContainmentType& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

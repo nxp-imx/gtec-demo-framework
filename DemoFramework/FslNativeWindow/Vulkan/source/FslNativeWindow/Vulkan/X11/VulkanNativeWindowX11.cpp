@@ -30,10 +30,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "VulkanNativeWindowSystemX11.hpp"
 #include "VulkanNativeWindowX11.hpp"
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <RapidVulkan/Check.hpp>
+#include "VulkanNativeWindowSystemX11.hpp"
 
 namespace Fsl
 {

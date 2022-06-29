@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
 #include <FslBase/Math/Matrix.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
@@ -45,6 +44,7 @@
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
 #include <vector>
+#include "MeshRender.hpp"
 #include "VertexBufferInfo.hpp"
 
 namespace Fsl

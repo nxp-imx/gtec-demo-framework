@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <memory>
 
 namespace Fsl

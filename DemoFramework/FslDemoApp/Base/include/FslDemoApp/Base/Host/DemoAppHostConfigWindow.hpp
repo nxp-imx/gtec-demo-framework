@@ -33,9 +33,9 @@
 
 #include <FslBase/ITag.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
-#include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystem.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemAllocationFunction.hpp>
+#include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <memory>
 
 namespace Fsl

@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLiteArrayUtil.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
+#include <FslBase/String/StringViewLiteArrayUtil.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

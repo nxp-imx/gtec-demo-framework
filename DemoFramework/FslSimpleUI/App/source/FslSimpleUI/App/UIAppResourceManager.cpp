@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIAppResourceManager.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
@@ -40,8 +39,8 @@
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
@@ -59,6 +58,7 @@
 #include <FslGraphics/TextureAtlas/CompatibilityTextureAtlasMap.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
 #include <FslSimpleUI/App/UIAppConfig.hpp>
+#include <FslSimpleUI/App/UIAppResourceManager.hpp>
 #include <array>
 #include <cmath>
 #include <limits>
@@ -606,13 +606,13 @@ namespace Fsl
           m_manager.Patch(rImage.Sprite, newSpriteMaterialInfo0, atlasTextureInfo, rImage.AtlasName.AsPathView());
           break;
         case 2u:
-        {
-          const SpriteMaterialInfo newSpriteMaterialInfo1 =
-            m_materialManager.PatchMaterial(rImage.Sprite->GetMaterialInfo(1u).Id, srcExtentPx, srcTextureHandle);
-          // Patch the material info with the new information
-          m_manager.Patch(rImage.Sprite, newSpriteMaterialInfo0, newSpriteMaterialInfo1, atlasTextureInfo, rImage.AtlasName.AsPathView());
-          break;
-        }
+          {
+            const SpriteMaterialInfo newSpriteMaterialInfo1 =
+              m_materialManager.PatchMaterial(rImage.Sprite->GetMaterialInfo(1u).Id, srcExtentPx, srcTextureHandle);
+            // Patch the material info with the new information
+            m_manager.Patch(rImage.Sprite, newSpriteMaterialInfo0, newSpriteMaterialInfo1, atlasTextureInfo, rImage.AtlasName.AsPathView());
+            break;
+          }
         default:
           throw NotSupportedException("PatchImages of this format is not supported");
         }
@@ -649,15 +649,15 @@ namespace Fsl
           m_manager.Patch(rNineSlice.Sprite, newSpriteMaterialInfo0, atlasTextureInfo, atlasPatchInfo, rNineSlice.AtlasName.AsPathView());
           break;
         case 2u:
-        {
-          const SpriteMaterialInfo newSpriteMaterialInfo1 =
-            m_materialManager.PatchMaterial(rNineSlice.Sprite->GetMaterialInfo(1u).Id, srcExtentPx, srcTextureHandle);
+          {
+            const SpriteMaterialInfo newSpriteMaterialInfo1 =
+              m_materialManager.PatchMaterial(rNineSlice.Sprite->GetMaterialInfo(1u).Id, srcExtentPx, srcTextureHandle);
 
-          // Patch the material info with the new information
-          m_manager.Patch(rNineSlice.Sprite, newSpriteMaterialInfo0, newSpriteMaterialInfo1, atlasTextureInfo, atlasPatchInfo,
-                          rNineSlice.AtlasName.AsPathView());
-          break;
-        }
+            // Patch the material info with the new information
+            m_manager.Patch(rNineSlice.Sprite, newSpriteMaterialInfo0, newSpriteMaterialInfo1, atlasTextureInfo, atlasPatchInfo,
+                            rNineSlice.AtlasName.AsPathView());
+            break;
+          }
         default:
           throw NotSupportedException("PatchImages of this format is not supported");
         }

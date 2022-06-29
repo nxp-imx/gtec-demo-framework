@@ -31,10 +31,10 @@
 
 #include "MultipleViewportsFractalShader.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/String/StringUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/FractalShader/OptionParser.hpp>
-#include <FslBase/String/StringUtil.hpp>
 #include <GLES3/gl3.h>
 #include <iostream>
 #include <string>
@@ -73,14 +73,14 @@ namespace Fsl
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    const auto extent = GetScreenExtent();
+    const auto sizePx = GetWindowSizePx();
 
-    const uint32_t x0 = 0;
-    const uint32_t x1 = extent.Width / 2;
-    const uint32_t x2 = extent.Width;
-    const uint32_t y0 = 0;
-    const uint32_t y1 = extent.Height / 2;
-    const uint32_t y2 = extent.Height;
+    const int32_t x0 = 0;
+    const int32_t x1 = sizePx.Width() / 2;
+    const int32_t x2 = sizePx.Width();
+    const int32_t y0 = 0;
+    const int32_t y1 = sizePx.Height() / 2;
+    const int32_t y2 = sizePx.Height();
 
     // Top left
     glViewport(x0, y1, x1 - x0, y2 - y1);
@@ -99,6 +99,6 @@ namespace Fsl
     m_scene3.Draw();
 
     // Restore the viewport
-    glViewport(0, 0, extent.Width, extent.Height);
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
   }
 }

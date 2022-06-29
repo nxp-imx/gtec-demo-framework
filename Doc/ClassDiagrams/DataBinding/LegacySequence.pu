@@ -1,0 +1,51 @@
+@startuml DataMonitor Overview
+
+caption Quick overview of how data change monitering works
+
+participant UIControl
+participant ScopedDataChangeListener
+participant ChartData
+participant ScopedDataChangeProvider
+participant DataChangeManager
+
+
+activate DataChangeManager
+activate ChartData
+activate UIControl
+
+...
+ChartData->ScopedDataChangeProvider++: Construct
+ScopedDataChangeProvider->DataChangeManager: CreateInstance
+
+...
+UIControl->ScopedDataChangeListener++: Construct
+ScopedDataChangeListener->DataChangeManager: CreateInstance
+...
+UIControl->ScopedDataChangeListener: Bind(chartDataInstanceId)
+ScopedDataChangeListener->DataChangeManager: Bind(chartDataInstanceId)
+...
+
+ChartData->ScopedDataChangeProvider: InstanceChanged(InstanceId)
+ScopedDataChangeProvider->DataChangeManager: InstanceChanged(InstanceId)
+
+...
+
+DataChangeManager->ScopedDataChangeListener: OnBoundDataChanged(instanceId)
+ScopedDataChangeListener->ScopedDataChangeListener: OnBoundDataChanged
+
+...
+ChartData->ScopedDataChangeProvider: Destruct
+ScopedDataChangeProvider->DataChangeManager: DestroyInstance
+deactivate ScopedDataChangeProvider
+deactivate ChartData
+...
+
+UIControl->ScopedDataChangeListener: Destruct
+ScopedDataChangeListener->DataChangeManager: DestroyInstance
+deactivate ScopedDataChangeListener
+deactivate UIControl
+...
+
+
+@enduml
+

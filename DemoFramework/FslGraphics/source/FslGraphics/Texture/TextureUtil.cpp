@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Texture/TextureUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphics/Texture/TextureBlobBuilder.hpp>
-#include <FslGraphics/Texture/RawTextureEx.hpp>
-#include <FslGraphics/Texture/CubeMapFace.hpp>
-#include <FslGraphics/Exceptions.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
-#include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
+#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslGraphics/Texture/CubeMapFace.hpp>
+#include <FslGraphics/Texture/RawTextureEx.hpp>
+#include <FslGraphics/Texture/Texture.hpp>
+#include <FslGraphics/Texture/TextureBlobBuilder.hpp>
+#include <FslGraphics/Texture/TextureUtil.hpp>
 #include <algorithm>
 #include <cassert>
 #include <utility>

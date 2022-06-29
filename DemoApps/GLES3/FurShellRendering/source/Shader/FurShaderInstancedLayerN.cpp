@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "FurShaderInstancedLayerN.hpp"
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <algorithm>
 #include <cassert>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 
 namespace Fsl
 {
-  FurShaderInstancedLayerN::FurShaderInstancedLayerN(const IContentManager& contentManager, const IO::Path& vertShaderPath,
+  FurShaderInstancedLayerN::FurShaderInstancedLayerN(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath,
                                                      const IO::Path& fragShaderPath, const int lightCount)
     : FurShaderInstanced(contentManager, vertShaderPath, fragShaderPath, lightCount)
   {

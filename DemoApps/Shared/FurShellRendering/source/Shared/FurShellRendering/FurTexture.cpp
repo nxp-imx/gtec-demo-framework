@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/FurShellRendering/FurTexture.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <Shared/FurShellRendering/FurTexture.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -57,9 +57,9 @@ namespace Fsl
 
         const int dstPixelIndex = (y * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = uint8_t(max_layer_n * 255);
-        colors[dstPixelIndex + 1] = uint8_t(max_layer_n * 255);
-        colors[dstPixelIndex + 2] = uint8_t(max_layer_n * 255);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255);
         colors[dstPixelIndex + 3] = 255;
       }
     }
@@ -115,9 +115,9 @@ namespace Fsl
       max_layer_n = std::max(std::min(max_layer_n, 1.0f), 0.0f);
       const int dstPixelIndex = (y * width * 4) + (x * 4);
       assert((dstPixelIndex % 4) == 0);
-      colors[dstPixelIndex + 0] = uint8_t(max_layer_n * 255);
-      colors[dstPixelIndex + 1] = uint8_t(max_layer_n * 255);
-      colors[dstPixelIndex + 2] = uint8_t(max_layer_n * 255);
+      colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
+      colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255);
+      colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255);
       colors[dstPixelIndex + 3] = 255;
     }
     return colors;
@@ -175,9 +175,9 @@ namespace Fsl
       {
         const int dstPixelIndex = (y * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = uint8_t(max_layer_n * 255);
-        colors[dstPixelIndex + 1] = uint8_t(max_layer_n * 255);
-        colors[dstPixelIndex + 2] = uint8_t(max_layer_n * 255);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255);
         colors[dstPixelIndex + 3] = 255;
       }
       // if (x > 0)
@@ -202,18 +202,18 @@ namespace Fsl
       {
         const int dstPixelIndex = ((y - 1) * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = uint8_t(max_layer_n * 255 * scale);
-        colors[dstPixelIndex + 1] = uint8_t(max_layer_n * 255 * scale);
-        colors[dstPixelIndex + 2] = uint8_t(max_layer_n * 255 * scale);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255 * scale);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255 * scale);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255 * scale);
         colors[dstPixelIndex + 3] = 255;
       }
       if (y < (height - 1))
       {
         const int dstPixelIndex = ((y + 1) * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
-        colors[dstPixelIndex + 0] = uint8_t(max_layer_n * 255 * 0.75f);
-        colors[dstPixelIndex + 1] = uint8_t(max_layer_n * 255 * 0.75f);
-        colors[dstPixelIndex + 2] = uint8_t(max_layer_n * 255 * 0.75f);
+        colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255 * 0.75f);
+        colors[dstPixelIndex + 1] = static_cast<uint8_t>(max_layer_n * 255 * 0.75f);
+        colors[dstPixelIndex + 2] = static_cast<uint8_t>(max_layer_n * 255 * 0.75f);
         colors[dstPixelIndex + 3] = 255;
       }
     }

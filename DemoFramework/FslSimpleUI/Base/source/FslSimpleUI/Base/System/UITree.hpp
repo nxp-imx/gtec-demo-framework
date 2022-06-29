@@ -31,33 +31,33 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Rect.hpp>
-#include <FslSimpleUI/Base/ItemVisibility.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/ItemVisibility.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/UIStats.hpp>
 #include <deque>
 #include <map>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
+#include "Event/EventRoute.hpp"
 #include "Event/IEventHandler.hpp"
 #include "Event/WindowEventQueueRecord.hpp"
-#include "Event/EventRoute.hpp"
 #include "ITreeContextInfo.hpp"
 #include "ITreeNodeBasicInfo.hpp"
-#include "ITreeNodeLocator.hpp"
 #include "ITreeNodeClickInputTargetLocater.hpp"
+#include "ITreeNodeLocator.hpp"
 #include "TreeNodeDrawContext.hpp"
 #include "TreeNodeFlags.hpp"
 
 namespace Fsl
 {
   struct Point2;
-  struct TransitionTimeSpan;
+  struct TimeSpan;
 
   namespace UI
   {
@@ -186,7 +186,7 @@ namespace Fsl
 
       void ProcessEvents();
       void Resized(const PxExtent2D& extentPx, const uint32_t densityDpi);
-      void Update(const TransitionTimeSpan& timespan);
+      void Update(const TimeSpan& timespan);
       void Draw(DrawCommandBuffer& drawCommandBuffer);
 
 
@@ -231,7 +231,7 @@ namespace Fsl
 
       // From ITreeNodeBasicInfo
       PxRectangle GetWindowRectanglePx(const IWindowId* const pWindowId) const final;
-      Optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const final;
+      std::optional<PxRectangle> TryGetWindowRectanglePx(const IWindowId* const pWindowId) const final;
 
       // From IEventHandler
       void HandleEvent(const std::shared_ptr<TreeNode>& target, const RoutedEvent& routedEvent) final;
@@ -246,8 +246,8 @@ namespace Fsl
       inline void RebuildDeques();
       void RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx, const ItemVisibility parentVisibility);
       inline void ProcessEventsPreUpdate();
-      inline void ProcessEventsPostUpdate(const TransitionTimeSpan& timespan);
-      inline void ProcessEventsPostResolve(const TransitionTimeSpan& timespan);
+      inline void ProcessEventsPostUpdate(const TimeSpan& timespan);
+      inline void ProcessEventsPostResolve(const TimeSpan& timespan);
 
       //! @param pNewWindows if not null this should be filled with any new nodes that are spawned by processing
       //! @param filterFlags any node that has any of the supplied flags will be added to pNewWindows

@@ -1,6 +1,6 @@
 #ifdef FSL_FEATURE_STB
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,15 +30,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibrarySTBService.hpp>
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/IO/File.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
+#include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibrarySTBService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
-#include <limits>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <stb_image_write.h>
+#include <limits>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -238,7 +238,7 @@ namespace Fsl
 
   std::string ImageLibrarySTBService::GetName() const
   {
-    return std::string("-ImageLibrarySTBService-");
+    return {"-ImageLibrarySTBService-"};
   }
 
 
@@ -343,14 +343,17 @@ namespace Fsl
       return false;
     }
 
+    const auto rawBitmapWidth = UncheckedNumericCast<int>(rawBitmap.Width());
+    const auto rawBitmapHeight = UncheckedNumericCast<int>(rawBitmap.Height());
+
     switch (imageFormat)
     {
     case ImageFormat::Bmp:
-      return stbi_write_bmp(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
+      return stbi_write_bmp(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content()) != 0;
     // case ImageFormat::Hdr:
-    //  return stbi_write_hdr(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
+    //  return stbi_write_hdr(dstName.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content()) != 0;
     case ImageFormat::Jpeg:
-      return stbi_write_jpg(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(), DEFAULT_JPG_QUALITY) != 0;
+      return stbi_write_jpg(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content(), DEFAULT_JPG_QUALITY) != 0;
     case ImageFormat::Png:
       // NOLINTNEXTLINE(misc-redundant-expression)
       static_assert(std::numeric_limits<int>::max() >= std::numeric_limits<int32_t>::max(), "We expect int to be at least 32bit");
@@ -358,10 +361,10 @@ namespace Fsl
       {
         return false;
       }
-      return stbi_write_png(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(),
-                            static_cast<uint32_t>(rawBitmap.Stride())) != 0;
+      return stbi_write_png(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content(),
+                            UncheckedNumericCast<int>(rawBitmap.Stride())) != 0;
     case ImageFormat::Tga:
-      return stbi_write_tga(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
+      return stbi_write_tga(dstPathNameString.c_str(), rawBitmapWidth, rawBitmapHeight, comp, rawBitmap.Content()) != 0;
     default:
       return false;
     }

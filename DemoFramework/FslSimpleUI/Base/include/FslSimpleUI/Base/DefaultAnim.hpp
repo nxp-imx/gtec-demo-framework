@@ -31,25 +31,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionTimeSpan.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
+#include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslBase/Transition/TransitionType.hpp>
 
-namespace Fsl
+namespace Fsl::UI::DefaultAnim
 {
-  namespace UI
-  {
-    namespace DefaultAnim
-    {
-      constexpr TransitionTimeSpan HoverOverlayTime(120, TransitionTimeUnit::Milliseconds);
-      constexpr TransitionTimeSpan ColorChangeTime(120, TransitionTimeUnit::Milliseconds);
-      constexpr TransitionTimeSpan SlideTime(240, TransitionTimeUnit::Milliseconds);
+  constexpr TimeSpan HoverOverlayTime = TimeSpanUtil::FromMilliseconds(120);
+  constexpr TimeSpan ColorChangeTime = TimeSpanUtil::FromMilliseconds(120);
+  constexpr TimeSpan SlideTime = TimeSpanUtil::FromMilliseconds(240);
 
 
-      constexpr TransitionType HoverOverlayTransitionType = TransitionType::Smooth;
-      constexpr TransitionType ColorChangeTransitionType = TransitionType::Smooth;
-      constexpr TransitionType SlideTransitionType = TransitionType::Smooth;
-    }
-  }
+  constexpr TransitionType HoverOverlayTransitionType = TransitionType::Smooth;
+  constexpr TransitionType ColorChangeTransitionType = TransitionType::Smooth;
+  constexpr TransitionType SlideTransitionType = TransitionType::Smooth;
 }
 
 #endif

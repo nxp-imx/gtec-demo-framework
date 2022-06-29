@@ -37,63 +37,60 @@
 #include <memory>
 #include "Event/EventListenerManager.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IEventListener;
+  struct RoutedEvent;
+
+  class RootWindow final : public BaseWindow
   {
-    class IEventListener;
-    struct RoutedEvent;
+    PxSize2D m_resolutionPx;
+    uint32_t m_densityDpi;
+    EventListenerManager m_eventListenerManager;
 
-    class RootWindow final : public BaseWindow
+  public:
+    RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi);
+    ~RootWindow() override;
+
+    void WinInit() final;
+
+    PxSize2D GetScreenResolutionPx() const
     {
-      PxSize2D m_resolutionPx;
-      uint32_t m_densityDpi;
-      EventListenerManager m_eventListenerManager;
+      return m_resolutionPx;
+    }
+    uint32_t GetDensityDpi() const
+    {
+      return m_densityDpi;
+    }
 
-    public:
-      RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi);
-      ~RootWindow() override;
+    //! return true if the resolution was modified
+    bool SetScreenResolution(const PxExtent2D& valuePx, const uint32_t densityDpi);
 
-      void WinInit() final;
+    //! @brief Register a event listener
+    void RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
+    //! @brief Unregister a event listener
+    void UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
 
-      PxSize2D GetScreenResolutionPx() const
-      {
-        return m_resolutionPx;
-      }
-      uint32_t GetDensityDpi() const
-      {
-        return m_densityDpi;
-      }
+  protected:
+    // Event forwarding
+    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
 
-      //! return true if the resolution was modified
-      bool SetScreenResolution(const PxExtent2D& valuePx, const uint32_t densityDpi);
+    //! Layout
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final
+    {
+      FSL_PARAM_NOT_USED(finalSizePx);
+      return m_resolutionPx;
+    }
 
-      //! @brief Register a event listener
-      void RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
-      //! @brief Unregister a event listener
-      void UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
-
-    protected:
-      // Event forwarding
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final;
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
-
-      //! Layout
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final
-      {
-        FSL_PARAM_NOT_USED(finalSizePx);
-        return m_resolutionPx;
-      }
-
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
-      {
-        FSL_PARAM_NOT_USED(availableSizePx);
-        return m_resolutionPx;
-      }
-    };
-  }
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
+    {
+      FSL_PARAM_NOT_USED(availableSizePx);
+      return m_resolutionPx;
+    }
+  };
 }
 
 #endif

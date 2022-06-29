@@ -29,20 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslSimpleUI/Base/Control/ContentControl.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  ContentControl::ContentControl(const std::shared_ptr<BaseWindowContext>& context)
+    : ContentControlBase(context)
   {
-    ContentControl::ContentControl(const std::shared_ptr<BaseWindowContext>& context)
-      : ContentControlBase(context)
-    {
-    }
   }
 }

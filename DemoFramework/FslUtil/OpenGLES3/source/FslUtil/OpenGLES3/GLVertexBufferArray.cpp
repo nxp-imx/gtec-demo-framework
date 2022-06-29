@@ -29,52 +29,48 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBufferArray.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-
 #include <algorithm>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLVertexBufferArray::GLVertexBufferArray(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration)
+    : GLBufferArray(capacity, GL_ARRAY_BUFFER, vertexDeclaration.VertexStride())
+    , m_vertexElements(vertexDeclaration)
   {
-    GLVertexBufferArray::GLVertexBufferArray(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration)
-      : GLBufferArray(capacity, GL_ARRAY_BUFFER, vertexDeclaration.VertexStride())
-      , m_vertexElements(vertexDeclaration)
+  }
+
+
+  void GLVertexBufferArray::Resize(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration)
+  {
+    if (!m_vertexElements.IsEqual(vertexDeclaration))
     {
-    }
-
-
-    void GLVertexBufferArray::Resize(const std::size_t capacity, VertexDeclarationSpan vertexDeclaration)
-    {
-      if (!m_vertexElements.IsEqual(vertexDeclaration))
-      {
-        if (IsValid())
-        {
-          throw NotSupportedException("The Vertex declaration did not match the array configuration");
-        }
-
-
-        // Allow resize of invalid array to maintain compatibility.
-        m_vertexElements.Reset(vertexDeclaration);
-      }
-      DoResize(capacity, GL_ARRAY_BUFFER, vertexDeclaration.VertexStride());
-    }
-
-
-    void GLVertexBufferArray::Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount,
-                                    VertexDeclarationSpan vertexDeclaration, const GLenum usage)
-    {
-      if (!m_vertexElements.IsEqual(vertexDeclaration))
+      if (IsValid())
       {
         throw NotSupportedException("The Vertex declaration did not match the array configuration");
       }
 
-      GLBufferArray::Reset(arrayIndex, GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage);
+
+      // Allow resize of invalid array to maintain compatibility.
+      m_vertexElements.Reset(vertexDeclaration);
     }
+    DoResize(capacity, GL_ARRAY_BUFFER, vertexDeclaration.VertexStride());
+  }
+
+
+  void GLVertexBufferArray::Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount,
+                                  VertexDeclarationSpan vertexDeclaration, const GLenum usage)
+  {
+    if (!m_vertexElements.IsEqual(vertexDeclaration))
+    {
+      throw NotSupportedException("The Vertex declaration did not match the array configuration");
+    }
+
+    GLBufferArray::Reset(arrayIndex, GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage);
   }
 }

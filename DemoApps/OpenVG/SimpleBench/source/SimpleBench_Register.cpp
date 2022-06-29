@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "SimpleBench.hpp"
 #include <array>
+#include "SimpleBench.hpp"
 
 namespace Fsl
 {

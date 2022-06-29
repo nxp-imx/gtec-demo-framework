@@ -32,13 +32,13 @@
 #include "ServiceRegistryImpl.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslService/Impl/Registry/InterfaceCollisionChecker.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/Priority.hpp>
-#include "ProviderIdGenerator.hpp"
-#include "RegisteredServices.hpp"
+#include <FslService/Impl/Registry/InterfaceCollisionChecker.hpp>
 #include <algorithm>
 #include <cassert>
+#include "ProviderIdGenerator.hpp"
+#include "RegisteredServices.hpp"
 
 namespace Fsl
 {
@@ -178,7 +178,8 @@ namespace Fsl
   std::shared_ptr<ServiceGroupRegistry> ServiceRegistryImpl::GetServiceGroup(const ServiceGroupId& serviceGroupId)
   {
     const auto id = serviceGroupId.GetValue();
-    auto compareFunc = [id](const std::shared_ptr<ServiceGroupRegistry>& val) {
+    auto compareFunc = [id](const std::shared_ptr<ServiceGroupRegistry>& val)
+    {
       assert(val);
       return (val->Id.GetValue() == id);
     };

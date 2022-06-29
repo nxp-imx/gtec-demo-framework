@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_RENDERSYSTEMBUFFERRECORD_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_RENDERSYSTEMBUFFERRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,39 +35,33 @@
 #include <memory>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  struct RenderSystemBufferRecord
   {
-    namespace RenderIMBatch
+    std::shared_ptr<IBasicDynamicBuffer> VertexBuffer;
+    uint32_t VertexCapacity{};
+    std::shared_ptr<IBasicDynamicBuffer> IndexBuffer;
+    uint32_t IndexCapacity{};
+
+    RenderSystemBufferRecord() = default;
+
+    RenderSystemBufferRecord(std::shared_ptr<IBasicDynamicBuffer> vertexBuffer, const uint32_t vertexCapacity)
+      : VertexBuffer(std::move(vertexBuffer))
+      , VertexCapacity(vertexCapacity)
+
     {
-      struct RenderSystemBufferRecord
-      {
-        std::shared_ptr<IBasicDynamicBuffer> VertexBuffer;
-        uint32_t VertexCapacity{};
-        std::shared_ptr<IBasicDynamicBuffer> IndexBuffer;
-        uint32_t IndexCapacity{};
-
-        RenderSystemBufferRecord() = default;
-
-        RenderSystemBufferRecord(std::shared_ptr<IBasicDynamicBuffer> vertexBuffer, const uint32_t vertexCapacity)
-          : VertexBuffer(std::move(vertexBuffer))
-          , VertexCapacity(vertexCapacity)
-
-        {
-        }
-
-        RenderSystemBufferRecord(std::shared_ptr<IBasicDynamicBuffer> vertexBuffer, const uint32_t vertexCapacity,
-                                 std::shared_ptr<IBasicDynamicBuffer> indexBuffer, const uint32_t indexCapacity)
-          : VertexBuffer(std::move(vertexBuffer))
-          , VertexCapacity(vertexCapacity)
-          , IndexBuffer(std::move(indexBuffer))
-          , IndexCapacity(indexCapacity)
-        {
-        }
-      };
     }
-  }
+
+    RenderSystemBufferRecord(std::shared_ptr<IBasicDynamicBuffer> vertexBuffer, const uint32_t vertexCapacity,
+                             std::shared_ptr<IBasicDynamicBuffer> indexBuffer, const uint32_t indexCapacity)
+      : VertexBuffer(std::move(vertexBuffer))
+      , VertexCapacity(vertexCapacity)
+      , IndexBuffer(std::move(indexBuffer))
+      , IndexCapacity(indexCapacity)
+    {
+    }
+  };
 }
 
 #endif

@@ -31,31 +31,28 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Vector2.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowId;
+
+  class IWindowInfo
   {
-    class IWindowId;
+  public:
+    virtual ~IWindowInfo() = default;
 
-    class IWindowInfo
-    {
-    public:
-      virtual ~IWindowInfo() = default;
+    //! @brief Convert the point from coordinates relative to the window to screen coordinates.
+    //!        If the window is unknown in the window manager Vector2.Zero is returned (and a warning is logged in debug builds)
+    //! @param pWindow the window coordinate system to convert from (if window == null, we expect the point to be relative to the root window)
+    virtual PxPoint2 PointToScreen(const IWindowId* const pWindow, const PxPoint2& point) const = 0;
 
-      //! @brief Convert the point from coordinates relative to the window to screen coordinates.
-      //!        If the window is unknown in the window manager Vector2.Zero is returned (and a warning is logged in debug builds)
-      //! @param pWindow the window coordinate system to convert from (if window == null, we expect the point to be relative to the root window)
-      virtual PxPoint2 PointToScreen(const IWindowId* const pWindow, const PxPoint2& point) const = 0;
-
-      //! @brief Convert the point from coordinates relative to the screen to be relative to the supplied window.
-      //!        if the window is unknown in the window manager Vector2.Zero is returned (and a warning is logged in debug builds)
-      //! @param pWindow the window coordinate system to convert to (if window == null we convert it to be relative to the root window)
-      virtual PxPoint2 PointFromScreen(const IWindowId* const pWindow, const PxPoint2& point) const = 0;
-    };
-  }
+    //! @brief Convert the point from coordinates relative to the screen to be relative to the supplied window.
+    //!        if the window is unknown in the window manager Vector2.Zero is returned (and a warning is logged in debug builds)
+    //! @param pWindow the window coordinate system to convert to (if window == null we convert it to be relative to the root window)
+    virtual PxPoint2 PointFromScreen(const IWindowId* const pWindow, const PxPoint2& point) const = 0;
+  };
 }
 
 #endif

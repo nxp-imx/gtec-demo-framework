@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Async/IAsynchronousServiceProxyFactory.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
+#include <FslService/Impl/ServiceType/Async/IAsynchronousServiceProxyFactory.hpp>
 
 namespace Fsl
 {

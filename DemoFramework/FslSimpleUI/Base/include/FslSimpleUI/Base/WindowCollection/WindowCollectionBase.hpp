@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_WINDOWCOLLECTION_WINDOWCOLLECTIONBASE_HPP
 #define FSLSIMPLEUI_BASE_WINDOWCOLLECTION_WINDOWCOLLECTIONBASE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,40 +34,37 @@
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class BaseWindow;
+  class IWindowManager;
+
+  //! @brief
+  //! @warning When using this class remember to use WinInit on the owner and call SYS_WinInit
+  class WindowCollectionBase
   {
-    class BaseWindow;
-    class IWindowManager;
+    BaseWindow* m_pOwner;
+    std::shared_ptr<IWindowManager> m_windowManager;
 
-    //! @brief
-    //! @warning When using this class remember to use WinInit on the owner and call SYS_WinInit
-    class WindowCollectionBase
+  public:
+    // Make this object non-copyable
+    WindowCollectionBase(const WindowCollectionBase&) = delete;
+    WindowCollectionBase& operator=(const WindowCollectionBase&) = delete;
+
+    WindowCollectionBase();
+
+  protected:
+    void DoInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager);
+
+    bool IsInitialized() const
     {
-      BaseWindow* m_pOwner;
-      std::shared_ptr<IWindowManager> m_windowManager;
+      return m_windowManager != nullptr;
+    }
 
-    public:
-      // Make this object non-copyable
-      WindowCollectionBase(const WindowCollectionBase&) = delete;
-      WindowCollectionBase& operator=(const WindowCollectionBase&) = delete;
-
-      WindowCollectionBase();
-
-    protected:
-      void DoInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager);
-
-      bool IsInitialized() const
-      {
-        return m_windowManager != nullptr;
-      }
-
-      void DoAdd(const std::shared_ptr<BaseWindow>& window);
-      void DoScheduleClose(const std::shared_ptr<BaseWindow>& window);
-      void DoMarkLayoutDirty();
-    };
-  }
+    void DoAdd(const std::shared_ptr<BaseWindow>& window);
+    void DoScheduleClose(const std::shared_ptr<BaseWindow>& window);
+    void DoMarkLayoutDirty();
+  };
 }
 
 #endif

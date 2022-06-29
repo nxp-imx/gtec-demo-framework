@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 

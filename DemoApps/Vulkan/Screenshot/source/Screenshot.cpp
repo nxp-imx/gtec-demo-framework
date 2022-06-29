@@ -37,8 +37,8 @@
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -150,7 +150,7 @@ namespace Fsl
       const auto stride = UncheckedNumericCast<uint32_t>(subResourceLayout.rowPitch);
 
       // Extract the bitmap data
-      return Bitmap(pImageMemory, subResourceLayout.size, extent, pixelFormat, stride, BitmapOrigin::UpperLeft);
+      return {pImageMemory, subResourceLayout.size, extent, pixelFormat, stride, BitmapOrigin::UpperLeft};
     }
 
     void TransitionImagesToTransferLayout(const VkCommandBuffer commandBuffer, const VkImage dstImage, const VkImage srcImage)
@@ -255,7 +255,7 @@ namespace Fsl
 
     // Create a horizontal stack layout and add the UI elements
     auto uiStack = std::make_shared<UI::StackLayout>(context);
-    uiStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    uiStack->SetOrientation(UI::LayoutOrientation::Vertical);
     uiStack->SetAlignmentX(UI::ItemAlignment::Center);
     uiStack->SetAlignmentY(UI::ItemAlignment::Far);
     uiStack->AddChild(m_label);
@@ -375,31 +375,31 @@ namespace Fsl
     if (!TryGetSwapchainInfo(swapchainInfo))
     {
       FSLLOG3_WARNING("Failed to get swapchain info, capture cancelled");
-      return Bitmap();
+      return {};
     }
 
     if (swapchainInfo.CurrentImage == VK_NULL_HANDLE)
     {
       FSLLOG3_WARNING("Invalid swapchain image, capture cancelled");
-      return Bitmap();
+      return {};
     }
     if ((swapchainInfo.ImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) == 0u)
     {
       FSLLOG3_INFO("Swapchain did not support VK_IMAGE_USAGE_TRANSFER_SRC_BIT, capture cancelled");
-      return Bitmap();
+      return {};
     }
     VkFormat srcImageFormat = swapchainInfo.ImageFormat;
     if (srcImageFormat == VK_FORMAT_UNDEFINED)
     {
       FSLLOG3_WARNING("Invalid swapchain image format, capture cancelled");
-      return Bitmap();
+      return {};
     }
 
     auto srcPixelFormat = Vulkan::VulkanConvert::ToPixelFormat(srcImageFormat);
     if (PixelFormatUtil::IsCompressed(srcPixelFormat))
     {
       FSLLOG3_WARNING("srcPixelFormat is compressed, capture cancelled");
-      return Bitmap();
+      return {};
     }
 
     VkFormat dstImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
@@ -430,7 +430,7 @@ namespace Fsl
     SafeWaitForDeviceIdle();
 
     FSLLOG3_ERROR("CaptureScreenshotViaBlit not implemented");
-    return Bitmap();
+    return {};
   }
 
 

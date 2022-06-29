@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_STUB_NATIVEGRAPHICSSERVICEFACTORY_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_STUB_NATIVEGRAPHICSSERVICEFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,33 +31,30 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <memory>
 #include <typeindex>
 
-namespace Fsl
+namespace Fsl::Stub
 {
-  namespace Stub
+  class NativeGraphicsServiceFactory : public ThreadLocalSingletonServiceFactoryBase
   {
-    class NativeGraphicsServiceFactory : public ThreadLocalSingletonServiceFactoryBase
+    bool m_showWarning;
+
+  public:
+    explicit NativeGraphicsServiceFactory(const bool showWarning = true)
+      : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(INativeGraphicsService)))
+      , m_showWarning(showWarning)
     {
-      bool m_showWarning;
+    }
 
-    public:
-      explicit NativeGraphicsServiceFactory(const bool showWarning = true)
-        : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(INativeGraphicsService)))
-        , m_showWarning(showWarning)
-      {
-      }
-
-      // Inherited via ThreadLocalSingletonServiceFactoryBase
-      std::shared_ptr<IService> Allocate(ServiceProvider& provider) override
-      {
-        return std::make_shared<NativeGraphicsService>(provider, m_showWarning);
-      }
-    };
-  }
+    // Inherited via ThreadLocalSingletonServiceFactoryBase
+    std::shared_ptr<IService> Allocate(ServiceProvider& provider) override
+    {
+      return std::make_shared<NativeGraphicsService>(provider, m_showWarning);
+    }
+  };
 }
 
 #endif

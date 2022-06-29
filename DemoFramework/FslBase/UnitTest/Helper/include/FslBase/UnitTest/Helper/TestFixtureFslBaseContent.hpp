@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslBase/UnitTest/Helper/ContentPathUtil.hpp>
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 //! The base fixture intended for tests that needs access to content files or other paths in the filesystem
 class TestFixtureFslBaseContent : public TestFixtureFslBase

@@ -31,99 +31,96 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct StateEventInfo
   {
-    struct StateEventInfo
+  private:
+    int32_t m_sourceId{0};
+    int32_t m_sourceSubId{0};
+    EventTransactionState m_transactionState{EventTransactionState::End};
+    bool m_isRepeat{false};
+    PxPoint2 m_param1;
+    int32_t m_tag{0};
+
+  public:
+    StateEventInfo() = default;
+
+    StateEventInfo(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState transactionState, const bool isRepeat)
+      : m_sourceId(sourceId)
+      , m_sourceSubId(sourceSubId)
+      , m_transactionState(transactionState)
+      , m_isRepeat(isRepeat)
     {
-    private:
-      int32_t m_sourceId{0};
-      int32_t m_sourceSubId{0};
-      EventTransactionState m_transactionState{EventTransactionState::End};
-      bool m_isRepeat{false};
-      PxPoint2 m_param1;
-      int32_t m_tag{0};
-
-    public:
-      StateEventInfo() = default;
-
-      StateEventInfo(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState transactionState, const bool isRepeat)
-        : m_sourceId(sourceId)
-        , m_sourceSubId(sourceSubId)
-        , m_transactionState(transactionState)
-        , m_isRepeat(isRepeat)
-      {
-      }
+    }
 
 
-      StateEventInfo(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState transactionState, const bool isRepeat,
-                     const int32_t tag)
-        : m_sourceId(sourceId)
-        , m_sourceSubId(sourceSubId)
-        , m_transactionState(transactionState)
-        , m_isRepeat(isRepeat)
-        , m_tag(tag)
-      {
-      }
+    StateEventInfo(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState transactionState, const bool isRepeat,
+                   const int32_t tag)
+      : m_sourceId(sourceId)
+      , m_sourceSubId(sourceSubId)
+      , m_transactionState(transactionState)
+      , m_isRepeat(isRepeat)
+      , m_tag(tag)
+    {
+    }
 
 
-      int32_t SourceId() const
-      {
-        return m_sourceId;
-      }
+    int32_t SourceId() const
+    {
+      return m_sourceId;
+    }
 
-      int32_t SourceSubId() const
-      {
-        return m_sourceSubId;
-      }
+    int32_t SourceSubId() const
+    {
+      return m_sourceSubId;
+    }
 
-      EventTransactionState TransactionState() const
-      {
-        return m_transactionState;
-      }
+    EventTransactionState TransactionState() const
+    {
+      return m_transactionState;
+    }
 
-      bool IsBegin() const
-      {
-        return m_transactionState == EventTransactionState::Begin;
-      }
-      bool IsCancel() const
-      {
-        return m_transactionState == EventTransactionState::Canceled;
-      }
-      bool IsEnd() const
-      {
-        return m_transactionState == EventTransactionState::End;
-      }
-      bool IsRepeat() const
-      {
-        return m_isRepeat;
-      }
+    bool IsBegin() const
+    {
+      return m_transactionState == EventTransactionState::Begin;
+    }
+    bool IsCancel() const
+    {
+      return m_transactionState == EventTransactionState::Canceled;
+    }
+    bool IsEnd() const
+    {
+      return m_transactionState == EventTransactionState::End;
+    }
+    bool IsRepeat() const
+    {
+      return m_isRepeat;
+    }
 
-      int32_t Tag() const
-      {
-        return m_tag;
-      }
+    int32_t Tag() const
+    {
+      return m_tag;
+    }
 
-      PxPoint2 Param1() const
-      {
-        return m_param1;
-      }
-      void SetParam1(const PxPoint2& value)
-      {
-        m_param1 = value;
-      }
+    PxPoint2 Param1() const
+    {
+      return m_param1;
+    }
+    void SetParam1(const PxPoint2& value)
+    {
+      m_param1 = value;
+    }
 
-      void Clear()
-      {
-        m_transactionState = EventTransactionState::Canceled;
-        m_tag = 0;
-      }
-    };
-  }
+    void Clear()
+    {
+      m_transactionState = EventTransactionState::Canceled;
+      m_tag = 0;
+    }
+  };
 }
 
 #endif

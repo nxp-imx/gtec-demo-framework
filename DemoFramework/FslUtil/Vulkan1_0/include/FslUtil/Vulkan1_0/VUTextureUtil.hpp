@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUTEXTUREUTIL_HPP
 #define FSLUTIL_VULKAN1_0_VUTEXTUREUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,71 +40,69 @@
 #include <FslGraphics/TextureRectangle.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::VUTextureUtil
 {
-  namespace Vulkan
+  //! @brief Get the native texture area of the given textureRectangle
+  constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxExtent2D& textureSize)
   {
-    namespace VUTextureUtil
-    {
-      //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxExtent2D& textureSize)
-      {
-        return NativeTextureAreaUtil::CalcNativeTextureArea(srcRect, textureSize);
-      }
+    return NativeTextureAreaUtil::CalcNativeTextureArea(srcRect, textureSize);
+  }
 
-      //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxSize2D& textureSize)
-      {
-        assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-        assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-        return {
-          srcRect.Left() == 0 ? 0.0f : srcRect.Left() / static_cast<float>(textureSize.Width()),
-          srcRect.Top() == 0 ? 0.0f : srcRect.Top() / static_cast<float>(textureSize.Height()),
-          srcRect.Right() == UncheckedNumericCast<uint32_t>(textureSize.Width()) ? 1.0f : srcRect.Right() / static_cast<float>(textureSize.Width()),
-          srcRect.Bottom() == UncheckedNumericCast<uint32_t>(textureSize.Height()) ? 1.0f
-                                                                                   : srcRect.Bottom() / static_cast<float>(textureSize.Height())};
-      }
+  //! @brief Get the native texture area of the given textureRectangle
+  constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxSize2D& textureSize)
+  {
+    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
+    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
+    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
+            srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height()),
+            srcRect.Right() == UncheckedNumericCast<uint32_t>(textureSize.Width())
+              ? 1.0f
+              : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
+            srcRect.Bottom() == UncheckedNumericCast<uint32_t>(textureSize.Height())
+              ? 1.0f
+              : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height())};
+  }
 
-      //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize)
-      {
-        assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-        assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-        return {srcRect.Left() == 0 ? 0.0f : srcRect.Left() / static_cast<float>(textureSize.Width()),
-                srcRect.Top() == 0 ? 0.0f : srcRect.Top() / static_cast<float>(textureSize.Height()),
-                srcRect.Right() == textureSize.Width() ? 1.0f : srcRect.Right() / static_cast<float>(textureSize.Width()),
-                srcRect.Bottom() == textureSize.Height() ? 1.0f : srcRect.Bottom() / static_cast<float>(textureSize.Height())};
-      }
+  //! @brief Get the native texture area of the given textureRectangle
+  constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize)
+  {
+    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
+    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
+    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
+            srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height()),
+            srcRect.Right() == textureSize.Width() ? 1.0f : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
+            srcRect.Bottom() == textureSize.Height() ? 1.0f : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height())};
+  }
 
-      //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize, const int timesX, const int timesY)
-      {
-        assert(timesX == 1 || (timesX != 1 && (srcRect.X() == 0 || srcRect.Width() == textureSize.Width())));
-        assert(timesY == 1 || (timesY != 1 && (srcRect.Y() == 0 || srcRect.Height() == textureSize.Height())));
+  //! @brief Get the native texture area of the given textureRectangle
+  constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize, const int timesX, const int timesY)
+  {
+    assert(timesX == 1 || (timesX != 1 && (srcRect.X() == 0 || srcRect.Width() == textureSize.Width())));
+    assert(timesY == 1 || (timesY != 1 && (srcRect.Y() == 0 || srcRect.Height() == textureSize.Height())));
 
-        assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-        assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-        return {srcRect.Left() == 0 ? 0.0f : srcRect.Left() / static_cast<float>(textureSize.Width()),
-                srcRect.Top() == 0 ? 0.0f : srcRect.Top() / static_cast<float>(textureSize.Height()),
-                srcRect.Right() == textureSize.Width() ? float(timesX) : srcRect.Right() / static_cast<float>(textureSize.Width()),
-                srcRect.Bottom() == textureSize.Height() ? float(timesY) : srcRect.Bottom() / static_cast<float>(textureSize.Height())};
-      }
+    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
+    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
+    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
+            srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height()),
+            srcRect.Right() == textureSize.Width() ? static_cast<float>(timesX)
+                                                   : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
+            srcRect.Bottom() == textureSize.Height() ? static_cast<float>(timesY)
+                                                     : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height())};
+  }
 
 
-      //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const TextureRectangle& textureRectangle)
-      {
-        return CalcTextureArea(textureRectangle.GetRectangle(), textureRectangle.GetTextureSize());
-      }
+  //! @brief Get the native texture area of the given textureRectangle
+  constexpr inline NativeTextureArea CalcTextureArea(const TextureRectangle& textureRectangle)
+  {
+    return CalcTextureArea(textureRectangle.GetRectangle(), textureRectangle.GetTextureSize());
+  }
 
-      //! @brief Get the native texture area of the given textureRectangle
-      constexpr inline NativeTextureArea CalcTextureArea(const TextureRectangle& textureRectangle, const int timesX, const int timesY)
-      {
-        const PxRectangle srcRect = textureRectangle.GetRectangle();
-        const PxSize2D textureSize = textureRectangle.GetTextureSize();
-        return CalcTextureArea(srcRect, textureSize, timesX, timesY);
-      }
-    }
+  //! @brief Get the native texture area of the given textureRectangle
+  constexpr inline NativeTextureArea CalcTextureArea(const TextureRectangle& textureRectangle, const int timesX, const int timesY)
+  {
+    const PxRectangle srcRect = textureRectangle.GetRectangle();
+    const PxSize2D textureSize = textureRectangle.GetTextureSize();
+    return CalcTextureArea(srcRect, textureSize, timesX, timesY);
   }
 }
 

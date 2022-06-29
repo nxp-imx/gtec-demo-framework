@@ -30,11 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "S08_EnvironmentMappingRefraction.hpp"
-#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphics/Texture/Texture.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Texture/Texture.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <Shared/EnvironmentMapping/SphereMeshCreator.hpp>
 #include <cassert>
 
@@ -125,7 +125,7 @@ namespace Fsl
     glUniform1f(m_background.LocRadius, 10.0f);
     // glUniform3fv(m_background.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
     glUniformMatrix4fv(m_background.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-    glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexBuffer.GetGLCapacity(), m_indexBuffer.GetType(), nullptr);
 
     // Render glass ball.
     glCullFace(GL_FRONT);
@@ -134,7 +134,7 @@ namespace Fsl
     glUniform1f(m_glass.LocRadius, 1.0f);
     glUniform3fv(m_glass.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
     glUniformMatrix4fv(m_glass.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-    glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
+    glDrawElements(GL_TRIANGLES, m_indexBuffer.GetGLCapacity(), m_indexBuffer.GetType(), nullptr);
 
     m_vertexBuffer.DisableAttribArrays();
   }

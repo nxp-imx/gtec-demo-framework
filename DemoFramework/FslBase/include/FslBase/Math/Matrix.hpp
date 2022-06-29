@@ -996,7 +996,7 @@ namespace Fsl
       return *this;
     }
 
-    constexpr bool operator==(const Matrix& rhs) const
+    constexpr bool operator==(const Matrix& rhs) const noexcept
     {
       using namespace MatrixFields;
       return (m[_M11] == rhs.m[_M11] && m[_M12] == rhs.m[_M12] && m[_M13] == rhs.m[_M13] && m[_M14] == rhs.m[_M14] && m[_M21] == rhs.m[_M21] &&
@@ -1005,7 +1005,7 @@ namespace Fsl
               m[_M44] == rhs.m[_M44]);
     }
 
-    constexpr bool operator!=(const Matrix& rhs) const
+    constexpr bool operator!=(const Matrix& rhs) const noexcept
     {
       using namespace MatrixFields;
       return (m[_M11] != rhs.m[_M11] || m[_M12] != rhs.m[_M12] || m[_M13] != rhs.m[_M13] || m[_M14] != rhs.m[_M14] || m[_M21] != rhs.m[_M21] ||

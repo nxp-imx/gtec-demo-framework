@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXEXTENT2D_HPP
 #define FSLBASE_MATH_PIXEL_PXEXTENT2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,20 +62,20 @@ namespace Fsl
 
     //! @brief Create a Extent
     //! @note  Value is expected to be positive and able to fit in a value_type, if not a exception is thrown
-    constexpr explicit PxExtent2D(const PxPoint2U& value) noexcept
+    constexpr explicit PxExtent2D(const PxPoint2U value) noexcept
       : PxExtent2D(value.X, value.Y)
     {
     }
 
 
-    constexpr PxExtent2D& operator+=(const PxExtent2D& arg) noexcept
+    constexpr PxExtent2D& operator+=(const PxExtent2D arg) noexcept
     {
       Width += arg.Width;
       Height += arg.Height;
       return *this;
     }
 
-    constexpr PxExtent2D& operator-=(const PxExtent2D& arg) noexcept
+    constexpr PxExtent2D& operator-=(const PxExtent2D arg) noexcept
     {
       assert(Width >= arg.Width);
       assert(Height >= arg.Height);
@@ -84,7 +84,7 @@ namespace Fsl
       return *this;
     }
 
-    constexpr PxExtent2D& operator*=(const PxExtent2D& arg) noexcept
+    constexpr PxExtent2D& operator*=(const PxExtent2D arg) noexcept
     {
       Width *= arg.Width;
       Height *= arg.Height;
@@ -106,12 +106,12 @@ namespace Fsl
       return *this;
     }
 
-    constexpr bool operator==(const PxExtent2D& rhs) const noexcept
+    constexpr bool operator==(const PxExtent2D rhs) const noexcept
     {
       return Width == rhs.Width && Height == rhs.Height;
     }
 
-    constexpr bool operator!=(const PxExtent2D& rhs) const noexcept
+    constexpr bool operator!=(const PxExtent2D rhs) const noexcept
     {
       return Width != rhs.Width || Height != rhs.Height;
     }
@@ -123,34 +123,34 @@ namespace Fsl
     }
   };
 
-  inline constexpr PxExtent2D operator+(const PxExtent2D& lhs, const PxExtent2D& rhs) noexcept
+  inline constexpr PxExtent2D operator+(const PxExtent2D lhs, const PxExtent2D rhs) noexcept
   {
     return {lhs.Width + rhs.Width, lhs.Height + rhs.Height};
   }
 
-  inline constexpr PxExtent2D operator-(const PxExtent2D& lhs, const PxExtent2D& rhs) noexcept
+  inline constexpr PxExtent2D operator-(const PxExtent2D lhs, const PxExtent2D rhs) noexcept
   {
     assert(lhs.Width >= rhs.Width);
     assert(lhs.Height >= rhs.Height);
     return {lhs.Width - rhs.Width, lhs.Height - rhs.Height};
   }
 
-  inline constexpr PxExtent2D operator*(const PxExtent2D& lhs, const PxExtent2D& rhs) noexcept
+  inline constexpr PxExtent2D operator*(const PxExtent2D lhs, const PxExtent2D rhs) noexcept
   {
     return {lhs.Width * rhs.Width, lhs.Height * rhs.Height};
   }
 
-  inline constexpr PxExtent2D operator*(const PxExtent2D& lhs, const PxExtent2D::value_type rhs) noexcept
+  inline constexpr PxExtent2D operator*(const PxExtent2D lhs, const PxExtent2D::value_type rhs) noexcept
   {
     return {lhs.Width * rhs, lhs.Height * rhs};
   }
 
-  inline constexpr PxExtent2D operator*(const PxExtent2D::value_type lhs, const PxExtent2D& rhs) noexcept
+  inline constexpr PxExtent2D operator*(const PxExtent2D::value_type lhs, const PxExtent2D rhs) noexcept
   {
     return rhs * lhs;
   }
 
-  inline constexpr PxExtent2D operator/(const PxExtent2D& lhs, const PxExtent2D::value_type rhs)
+  inline constexpr PxExtent2D operator/(const PxExtent2D lhs, const PxExtent2D::value_type rhs)
   {
     assert(rhs > 0u);
     return {lhs.Width / rhs, lhs.Height / rhs};

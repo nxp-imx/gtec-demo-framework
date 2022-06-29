@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class ItemAlignment
   {
-    enum class ItemAlignment
-    {
-      Near = 0,
-      Center = 1,
-      Far = 2,
-      Stretch = 3
-    };
-  }
+    Near = 0,
+    Center = 1,
+    Far = 2,
+    Stretch = 3
+  };
 }
 
 #endif

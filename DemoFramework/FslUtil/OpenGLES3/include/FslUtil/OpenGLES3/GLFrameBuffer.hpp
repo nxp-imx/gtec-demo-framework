@@ -32,164 +32,160 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Attributes.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
-
 #include <FslUtil/OpenGLES3/GLRenderBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLTextureImageParameters.hpp>
-#include <FslBase/Attributes.hpp>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class GLFrameBuffer
   {
-    class GLFrameBuffer
+    GLuint m_handle;
+    PxSize2D m_size;
+    GLRenderBuffer m_depthRenderBuffer;
+    GLRenderBuffer m_stencilRenderBuffer;
+    GLTexture m_texture;
+
+  public:
+    GLFrameBuffer(const GLFrameBuffer&) = delete;
+    GLFrameBuffer& operator=(const GLFrameBuffer&) = delete;
+
+    // move assignment operator
+    GLFrameBuffer& operator=(GLFrameBuffer&& other) noexcept;
+    // move constructor
+    GLFrameBuffer(GLFrameBuffer&& other) noexcept;
+
+    struct Flags
     {
-      GLuint m_handle;
-      PxSize2D m_size;
-      GLRenderBuffer m_depthRenderBuffer;
-      GLRenderBuffer m_stencilRenderBuffer;
-      GLTexture m_texture;
+      using type = uint32_t;
 
-    public:
-      GLFrameBuffer(const GLFrameBuffer&) = delete;
-      GLFrameBuffer& operator=(const GLFrameBuffer&) = delete;
-
-      // move assignment operator
-      GLFrameBuffer& operator=(GLFrameBuffer&& other) noexcept;
-      // move constructor
-      GLFrameBuffer(GLFrameBuffer&& other) noexcept;
-
-      struct Flags
+      enum Enum
       {
-        using type = uint32_t;
-
-        enum Enum
-        {
-          ColorBuffer = 0x01,
-          DepthBuffer = 0x02,
-          StencilBuffer = 0x04,
-        };
-
-
-        uint32_t Value{0};
-        Flags() = default;
-        Flags(const uint32_t value)    // NOLINT(google-explicit-constructor)
-          : Value(value)
-        {
-        }
-        bool IsEnabled(const Enum value) const
-        {
-          return (Value & static_cast<uint32_t>(value)) != 0;
-        }
+        ColorBuffer = 0x01,
+        DepthBuffer = 0x02,
+        StencilBuffer = 0x04,
       };
 
-      //! @brief Create a uninitialized buffer
-      GLFrameBuffer();
 
-      //! @brief Create a framebuffer with a color buffer.
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams);
-
-      //! @brief Create a framebuffer with a color and depth buffer.
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
-      // (GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
-      GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
-                    const GLenum depthBufferFormat);
-
-      //! @brief Create a framebuffer with a color, depth and stencil buffer.
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
-      //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
-      GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
-                    const GLenum depthBufferFormat, const GLenum stencilBufferFormat);
-
-      //! @brief Create a framebuffer with configurable buffers.
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
-      //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
-      GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
-                    const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags);
-
-      ~GLFrameBuffer();
-
-      //! @brief If a buffer is allocated this will releases it.
-      void Reset() noexcept;
-
-      //! @brief Release the existing buffer and replace it with the new one
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      // (GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
-      void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams);
-
-      //! @brief Release the existing buffer and replace it with the new one
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
-      // (GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
-      void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
-                 const GLenum depthBufferFormat);
-
-      //! @brief Release the existing buffer and replace it with the new one
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
-      //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
-      void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
-                 const GLenum depthBufferFormat, const GLenum stencilBufferFormat);
-
-      //! @brief Release the existing buffer and replace it with the new one
-      //! @param size the size of the color render buffer
-      //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
-      //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
-      //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
-      void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
-                 const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags);
-
-      //! @brief Check if this buffer contains a valid gl handle.
-      bool IsValid() const
+      uint32_t Value{0};
+      Flags() = default;
+      Flags(const uint32_t value)    // NOLINT(google-explicit-constructor)
+        : Value(value)
       {
-        return m_handle != GLValues::INVALID_HANDLE;
       }
-
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      GLuint Get() const
+      bool IsEnabled(const Enum value) const
       {
-        return m_handle;
-      }
-
-      //! @brief Get the gl handle associated with the buffer.
-      //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return Get();
-      }
-
-      //! @brief Get the size of the framebuffer
-      PxSize2D GetSize() const
-      {
-        return m_size;
-      }
-
-      //! @brief Get the texture
-      GLTextureInfo GetTextureInfo() const
-      {
-        return m_texture.GetTextureInfo();
-      }
-
-      //! @brief Extract information about this texture as a GLTextureInfo struct
-      operator GLTextureInfo() const    // NOLINT(google-explicit-constructor)
-      {
-        return m_texture.GetTextureInfo();
+        return (Value & static_cast<uint32_t>(value)) != 0;
       }
     };
-  }
+
+    //! @brief Create a uninitialized buffer
+    GLFrameBuffer();
+
+    //! @brief Create a framebuffer with a color buffer.
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams);
+
+    //! @brief Create a framebuffer with a color and depth buffer.
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
+    // (GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
+    GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+                  const GLenum depthBufferFormat);
+
+    //! @brief Create a framebuffer with a color, depth and stencil buffer.
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
+    //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
+    GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+                  const GLenum depthBufferFormat, const GLenum stencilBufferFormat);
+
+    //! @brief Create a framebuffer with configurable buffers.
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
+    //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
+    GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+                  const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags);
+
+    ~GLFrameBuffer();
+
+    //! @brief If a buffer is allocated this will releases it.
+    void Reset() noexcept;
+
+    //! @brief Release the existing buffer and replace it with the new one
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    // (GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
+    void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams);
+
+    //! @brief Release the existing buffer and replace it with the new one
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
+    // (GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
+    void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+               const GLenum depthBufferFormat);
+
+    //! @brief Release the existing buffer and replace it with the new one
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
+    //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
+    void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+               const GLenum depthBufferFormat, const GLenum stencilBufferFormat);
+
+    //! @brief Release the existing buffer and replace it with the new one
+    //! @param size the size of the color render buffer
+    //! @param colorBufferFormat the format of the framebuffers color renderbuffer (for example GL_RGBA4, GL_RGB565 or GL_RGB5_A1)
+    //! @param depthBufferFormat the format of the framebuffers depth renderbuffer (for example GL_DEPTH_COMPONENT16)
+    //! @param stencilBufferFormat the format of the framebuffers stencil renderbuffer (for example GL_STENCIL_INDEX8)
+    void Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+               const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags);
+
+    //! @brief Check if this buffer contains a valid gl handle.
+    bool IsValid() const
+    {
+      return m_handle != GLValues::INVALID_HANDLE;
+    }
+
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    GLuint Get() const
+    {
+      return m_handle;
+    }
+
+    //! @brief Get the gl handle associated with the buffer.
+    //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
+    [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
+    {
+      return Get();
+    }
+
+    //! @brief Get the size of the framebuffer
+    PxSize2D GetSize() const
+    {
+      return m_size;
+    }
+
+    //! @brief Get the texture
+    GLTextureInfo GetTextureInfo() const
+    {
+      return m_texture.GetTextureInfo();
+    }
+
+    //! @brief Extract information about this texture as a GLTextureInfo struct
+    operator GLTextureInfo() const    // NOLINT(google-explicit-constructor)
+    {
+      return m_texture.GetTextureInfo();
+    }
+  };
 }
 
 #endif

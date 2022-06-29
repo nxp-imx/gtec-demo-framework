@@ -35,15 +35,12 @@
 #include <functional>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
-  {
-    class Scene;
+  class Scene;
 
-    //! const std::size_t meshCapacity
-    using SceneAllocatorFunc = std::function<std::shared_ptr<Scene>(const std::size_t)>;
-  }
+  //! const std::size_t meshCapacity
+  using SceneAllocatorFunc = std::function<std::shared_ptr<Scene>(const std::size_t)>;
 }
 
 #endif

@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <deque>
-#include <vector>
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
+#include <deque>
+#include <vector>
 
 namespace Fsl
 {

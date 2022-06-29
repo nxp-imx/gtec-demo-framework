@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Color.hpp>
 #include <memory>
 
 namespace Fsl
@@ -50,6 +51,9 @@ namespace Fsl
   {
   public:
     virtual ~ITestApp() = default;
+
+    virtual Color GetRootColor() const = 0;
+    virtual bool TrySetRootColor(const Color color) = 0;
 
     virtual const UI::IRenderSystemBase& GetRenderSystem() const = 0;
     virtual UI::IRenderSystemBase* TryGetRenderSystem() = 0;

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "GpuTimestamp.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
@@ -66,7 +66,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     RapidVulkan::QueryPool CreateQueryPool(const Vulkan::VUDevice& device)
@@ -77,7 +77,7 @@ namespace Fsl
       queryPoolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
       queryPoolInfo.queryCount = LocalConfig::QueryCount;
 
-      return RapidVulkan::QueryPool(device.Get(), queryPoolInfo);
+      return {device.Get(), queryPoolInfo};
     }
 
     bool IsTimestampSupported(const Vulkan::VUDevice& device)

@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/Render/Basic/BasicRenderSystemEvent.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeTextureHandle.hpp>
+#include <FslGraphics/Render/Basic/BasicRenderSystemEvent.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTexture.hpp>

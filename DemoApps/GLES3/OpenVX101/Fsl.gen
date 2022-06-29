@@ -4,6 +4,6 @@
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3"/>
     <Dependency Name="OpenVX"/>
-    <Dependency Name="FslUtil.OpenVX1_1"/>
+    <Dependency Name="FslUtil.OpenVX1_2"/>
   </Executable>
 </FslBuildGen>

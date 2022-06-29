@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,20 +34,25 @@
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <Shared/UI/Benchmark/TextConfig.hpp>
 
-namespace Fsl
+namespace Fsl::RenderOptionControlsFactory
 {
-  namespace RenderOptionControlsFactory
+  RenderOptionControls CreateRenderMethodControls(UI::Theme::IThemeControlFactory& uiFactory)
   {
-    RenderOptionControls CreateRenderMethodControls(UI::Theme::IThemeControlFactory& uiFactory)
-    {
-      auto switchRenderOptionBatch = uiFactory.CreateSwitch(TextConfig::Batch, true);
-      auto switchRenderOptionFillBuffers = uiFactory.CreateSwitch(TextConfig::FillBuffers, true);
-      auto switchRenderOptionDepthBuffer = uiFactory.CreateSwitch(TextConfig::DepthBuffer, true);
-      auto switchRenderOptionDrawReorder = uiFactory.CreateSwitch(TextConfig::DrawReorder, true);
-      auto switchRenderOptionMeshCaching = uiFactory.CreateSwitch(TextConfig::MeshCaching, false);
+    auto switchRenderOptionBatch = uiFactory.CreateSwitch(TextConfig::Batch, true);
+    auto switchRenderOptionFillBuffers = uiFactory.CreateSwitch(TextConfig::FillBuffers, true);
+    auto switchRenderOptionDepthBuffer = uiFactory.CreateSwitch(TextConfig::DepthBuffer, true);
+    auto switchRenderOptionDrawReorder = uiFactory.CreateSwitch(TextConfig::DrawReorder, true);
+    auto switchRenderOptionPreferFastReorder = uiFactory.CreateSwitch(TextConfig::PreferFastReorder, false);
+    auto switchRenderOptionMeshCaching = uiFactory.CreateSwitch(TextConfig::MeshCaching, false);
 
-      return {switchRenderOptionBatch, switchRenderOptionFillBuffers, switchRenderOptionDepthBuffer, switchRenderOptionDrawReorder,
-              switchRenderOptionMeshCaching};
-    }
+    switchRenderOptionBatch->SetAlignmentX(UI::ItemAlignment::Stretch);
+    switchRenderOptionFillBuffers->SetAlignmentX(UI::ItemAlignment::Stretch);
+    switchRenderOptionDepthBuffer->SetAlignmentX(UI::ItemAlignment::Stretch);
+    switchRenderOptionDrawReorder->SetAlignmentX(UI::ItemAlignment::Stretch);
+    switchRenderOptionPreferFastReorder->SetAlignmentX(UI::ItemAlignment::Stretch);
+    switchRenderOptionMeshCaching->SetAlignmentX(UI::ItemAlignment::Stretch);
+
+    return {switchRenderOptionBatch,       switchRenderOptionFillBuffers,       switchRenderOptionDepthBuffer,
+            switchRenderOptionDrawReorder, switchRenderOptionPreferFastReorder, switchRenderOptionMeshCaching};
   }
 }

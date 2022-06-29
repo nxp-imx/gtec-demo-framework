@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
+#include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
@@ -71,11 +71,11 @@ namespace Fsl
     switch (cmdId)
     {
     case CommandId::AverageEntries:
-    {
-      StringParseUtil::Parse(m_averageEntries, strOptArg);
-      m_averageEntries = std::max(m_averageEntries, 1u);
-      return OptionParseResult::Parsed;
-    }
+      {
+        StringParseUtil::Parse(m_averageEntries, strOptArg);
+        m_averageEntries = std::max(m_averageEntries, 1u);
+        return OptionParseResult::Parsed;
+      }
     default:
       return OptionParseResult::NotHandled;
     }

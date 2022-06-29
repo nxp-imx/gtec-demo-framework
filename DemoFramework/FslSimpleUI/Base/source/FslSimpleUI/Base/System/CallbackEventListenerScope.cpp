@@ -32,25 +32,22 @@
 #include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
 #include "CallbackEventListener.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  CallbackEventListenerScope::CallbackEventListenerScope(IEventListener* const pForwardTo)
+    : m_listener(new CallbackEventListener(pForwardTo))
   {
-    CallbackEventListenerScope::CallbackEventListenerScope(IEventListener* const pForwardTo)
-      : m_listener(new CallbackEventListener(pForwardTo))
-    {
-    }
+  }
 
 
-    CallbackEventListenerScope::~CallbackEventListenerScope()
-    {
-      m_listener->Dispose();
-    }
+  CallbackEventListenerScope::~CallbackEventListenerScope()
+  {
+    m_listener->Dispose();
+  }
 
 
-    std::shared_ptr<IEventListener> CallbackEventListenerScope::GetListener() const
-    {
-      return m_listener;
-    }
+  std::shared_ptr<IEventListener> CallbackEventListenerScope::GetListener() const
+  {
+    return m_listener;
   }
 }

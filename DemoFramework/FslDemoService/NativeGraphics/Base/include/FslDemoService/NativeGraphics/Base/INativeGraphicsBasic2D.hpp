@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 
 namespace Fsl
 {

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SWITCH_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SWITCH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,29 +33,26 @@
 
 #include <FslSimpleUI/Base/Control/ToggleButton.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class Switch final : public ToggleButton
   {
-    class Switch final : public ToggleButton
+  public:
+    explicit Switch(const std::shared_ptr<WindowContext>& context)
+      : ToggleButton(context)
     {
-    public:
-      explicit Switch(const std::shared_ptr<WindowContext>& context)
-        : ToggleButton(context)
-      {
-        SetCursorCheckedColor(DefaultColor::Switch::CursorChecked);
-        SetCursorCheckedDisabledColor(DefaultColor::Switch::CursorCheckedDisabled);
-        SetCursorUncheckedColor(DefaultColor::Switch::CursorUnchecked);
-        SetCursorUncheckedDisabledColor(DefaultColor::Switch::CursorUncheckedDisabled);
-        SetBackgroundCheckedColor(DefaultColor::Switch::BackgroundChecked);
-        SetBackgroundCheckedDisabledColor(DefaultColor::Switch::BackgroundCheckedDisabled);
-        SetBackgroundUncheckedColor(DefaultColor::Switch::BackgroundUnchecked);
-        SetBackgroundUncheckedDisabledColor(DefaultColor::Switch::BackgroundUncheckedDisabled);
-        SetHoverOverlayCheckedColor(DefaultColor::Switch::HoverOverlayChecked);
-        SetHoverOverlayUncheckedColor(DefaultColor::Switch::HoverOverlayUnchecked);
-      }
-    };
-  }
+      SetCursorCheckedColor(DefaultColor::Switch::CursorChecked);
+      SetCursorCheckedDisabledColor(DefaultColor::Switch::CursorCheckedDisabled);
+      SetCursorUncheckedColor(DefaultColor::Switch::CursorUnchecked);
+      SetCursorUncheckedDisabledColor(DefaultColor::Switch::CursorUncheckedDisabled);
+      SetBackgroundCheckedColor(DefaultColor::Switch::BackgroundChecked);
+      SetBackgroundCheckedDisabledColor(DefaultColor::Switch::BackgroundCheckedDisabled);
+      SetBackgroundUncheckedColor(DefaultColor::Switch::BackgroundUnchecked);
+      SetBackgroundUncheckedDisabledColor(DefaultColor::Switch::BackgroundUncheckedDisabled);
+      SetHoverOverlayCheckedColor(DefaultColor::Switch::HoverOverlayChecked);
+      SetHoverOverlayUncheckedColor(DefaultColor::Switch::HoverOverlayUnchecked);
+    }
+  };
 }
 
 #endif

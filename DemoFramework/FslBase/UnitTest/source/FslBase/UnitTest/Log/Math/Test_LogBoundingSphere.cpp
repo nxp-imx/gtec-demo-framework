@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Math/LogBoundingSphere.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/LogBoundingSphere.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

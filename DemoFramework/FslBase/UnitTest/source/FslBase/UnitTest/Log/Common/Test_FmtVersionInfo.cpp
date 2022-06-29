@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Common/FmtVersionInfo.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Common/FmtVersionInfo.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

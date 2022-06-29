@@ -1,5 +1,25 @@
 # Latest version
 
+## Release 6.0
+
+* Upgraded OpenCV to 4.6 on windows.
+* VS2022 is now the default on windows.
+* FslBuild tools added feature HW_GPU_VIVANTE for samples that require a vivante GPU.
+* Now require at least CMake 3.16.
+* Now require clang format and clang tidy 13+
+* Clang format was allowed to auto sort all includes.
+* Upgraded to Assimp 5.2.4
+* Upgraded to FMT 8.1.1
+* Upgraded to nlohmann json 3.10.5
+* **Breaking change** TransitionTimeSpan has been merged into TimeSpan.
+* **Breaking change** Optional has been replaced with std::optional
+* **Breaking change** Now requires C++17.
+* Upgraded to RapidVulkan 1.3.204.0
+* Upgraded OpenVX to 1.2
+* VS2022 is now the default on windows.
+* Upgraded to GoogleTest 1.11.0
+* Upgraded to Assimp 5.2.1
+
 ## Release 5.9.2
 
 * Fixed OpenVX.Stereo compilation issue with new versions of OpenCV.

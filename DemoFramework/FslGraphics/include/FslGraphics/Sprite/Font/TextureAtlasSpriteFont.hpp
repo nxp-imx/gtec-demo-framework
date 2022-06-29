@@ -154,7 +154,7 @@ namespace Fsl
     //! @param length the number of characters to read from pStr
     //! @return true if the rules were extracted, false if it was determined the string would be empty.
     //          If this returns false then rDst was unmodified, if true strView.size() entries were written to rDst.
-    FSL_FUNC_WARN_UNUSED_RESULT bool ExtractRenderRules(Span<SpriteFontGlyphPosition> dst, const StringViewLite& strView) const;
+    [[nodiscard]] bool ExtractRenderRules(Span<SpriteFontGlyphPosition> dst, const StringViewLite& strView) const;
 
     //! @brief Extract render rules for the supplied string with offsets for the baseline.
     //! @param rDst a vector that can contain at least 'length' entries
@@ -162,8 +162,7 @@ namespace Fsl
     //! @param length the number of characters to read from pStr
     //! @return true if the rules were extracted, false if it was determined the string would be empty.
     //          If this returns false then rDst was unmodified, if true strView.size() entries were written to rDst.
-    FSL_FUNC_WARN_UNUSED_RESULT bool ExtractRenderRules(Span<SpriteFontGlyphPosition> dst, const StringViewLite& strView,
-                                                        const BitmapFontConfig& fontConfig) const;
+    [[nodiscard]] bool ExtractRenderRules(Span<SpriteFontGlyphPosition> dst, const StringViewLite& strView, const BitmapFontConfig& fontConfig) const;
 
     //! @brief Do a glyph info lookup
     const SpriteFontCharInfo* TryGetChar(const uint32_t charId) const

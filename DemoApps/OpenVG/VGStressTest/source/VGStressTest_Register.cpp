@@ -31,9 +31,9 @@
 
 #include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
+#include <array>
 #include "VGStressTest.hpp"
 #include "VGStressTestOptionParser.hpp"
-#include <array>
 
 namespace Fsl
 {

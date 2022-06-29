@@ -30,12 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <array>
-#include <limits>
-#include <vector>
+#include <fmt/format.h>
 
 using namespace Fsl;
 

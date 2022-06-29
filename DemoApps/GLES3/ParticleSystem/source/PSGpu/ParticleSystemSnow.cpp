@@ -31,20 +31,20 @@
 
 #include "ParticleSystemSnow.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
-#include "ParticleSnowGPU.hpp"
+#include <GLES3/gl31.h>
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <cstddef>
 #include <random>
 #include <vector>
+#include "ParticleSnowGPU.hpp"
 
 namespace Fsl
 {
@@ -148,7 +148,7 @@ namespace Fsl
 
     glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, m_transformFeedbackQuery);
     glBeginTransformFeedback(GL_POINTS);
-    glDrawArrays(GL_POINTS, 0, m_capacity);
+    glDrawArrays(GL_POINTS, 0, UncheckedNumericCast<GLsizei>(m_capacity));
     glEndTransformFeedback();
     glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 
@@ -188,7 +188,7 @@ namespace Fsl
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
     m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink);
 
-    glDrawArrays(GL_POINTS, 0, m_capacity);
+    glDrawArrays(GL_POINTS, 0, UncheckedNumericCast<GLsizei>(m_capacity));
 
     m_pCurrentVertexBuffer->DisableAttribArrays();
     m_pipeline.BindClear();

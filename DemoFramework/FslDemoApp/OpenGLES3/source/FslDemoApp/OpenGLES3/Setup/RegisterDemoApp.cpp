@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
@@ -45,10 +45,10 @@
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include <FslUtil/EGL/Exceptions.hpp>
 #include <FslUtil/EGL/DebugStrings.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/DebugStrings.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <fmt/format.h>
 
 namespace Fsl
@@ -123,22 +123,19 @@ namespace Fsl
     }
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::GLES3
   {
-    namespace GLES3
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig,
+                  const OpenGLESMinorVersion minorVersion)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig,
-                    const OpenGLESMinorVersion minorVersion)
-      {
-        // Register a formatter for common OpenGLES3 exceptions (from the libs we utilize)
-        rSetup.CustomExceptionFormatter.Add(TryFormatException);
+      // Register a formatter for common OpenGLES3 exceptions (from the libs we utilize)
+      rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-        const DemoHostFeature feature = CommenSetup(rSetup, 3, minorVersion.MinorVersion);
+      const DemoHostFeature feature = CommenSetup(rSetup, 3, minorVersion.MinorVersion);
 
-        const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(CommenSetup(demoHostEGLConfig, minorVersion));
+      const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(CommenSetup(demoHostEGLConfig, minorVersion));
 
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
-      }
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
     }
   }
 }

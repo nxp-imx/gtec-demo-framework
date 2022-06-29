@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_LINEAR_MATERIALCACHE_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_LINEAR_MATERIALCACHE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,44 +38,38 @@
 #include <vector>
 #include "MaterialCacheRecord.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  class MaterialCache
   {
-    namespace RenderIMBatch
+    std::vector<MaterialCacheRecord> m_cache;
+    std::size_t m_currentCapacity{0};
+
+  public:
+    void EnsureCapacity(const uint32_t minCapacity)
     {
-      class MaterialCache
+      if (minCapacity > m_cache.size())
       {
-        std::vector<MaterialCacheRecord> m_cache;
-        std::size_t m_currentCapacity{0};
-
-      public:
-        void EnsureCapacity(const uint32_t minCapacity)
-        {
-          if (minCapacity > m_cache.size())
-          {
-            constexpr std::size_t growthChunkSize = 64;
-            const std::size_t newCapacity = ((minCapacity / growthChunkSize) + ((minCapacity % growthChunkSize) != 0u ? 1 : 0)) * growthChunkSize;
-            assert(newCapacity >= minCapacity);
-            m_currentCapacity = newCapacity;
-            // *2 because we need two buffers
-            m_cache.resize(newCapacity * 2);
-          }
-        }
-
-        Span<MaterialCacheRecord> GetOpaqueCacheSpan(const uint32_t count) noexcept
-        {
-          assert(count <= m_currentCapacity && m_currentCapacity <= m_cache.size());
-          return Span<MaterialCacheRecord>(m_cache.data(), count, OptimizationCheckFlag::NoCheck);
-        }
-
-        Span<MaterialCacheRecord> GetTransparentCacheSpan(const uint32_t count) noexcept
-        {
-          assert((m_currentCapacity + count) <= m_cache.size());
-          return Span<MaterialCacheRecord>(m_cache.data() + m_currentCapacity, count, OptimizationCheckFlag::NoCheck);
-        }
-      };
+        constexpr std::size_t growthChunkSize = 64;
+        const std::size_t newCapacity = ((minCapacity / growthChunkSize) + ((minCapacity % growthChunkSize) != 0u ? 1 : 0)) * growthChunkSize;
+        assert(newCapacity >= minCapacity);
+        m_currentCapacity = newCapacity;
+        // *2 because we need two buffers
+        m_cache.resize(newCapacity * 2);
+      }
     }
-  }
+
+    Span<MaterialCacheRecord> GetOpaqueCacheSpan(const uint32_t count) noexcept
+    {
+      assert(count <= m_currentCapacity && m_currentCapacity <= m_cache.size());
+      return Span<MaterialCacheRecord>(m_cache.data(), count, OptimizationCheckFlag::NoCheck);
+    }
+
+    Span<MaterialCacheRecord> GetTransparentCacheSpan(const uint32_t count) noexcept
+    {
+      assert((m_currentCapacity + count) <= m_cache.size());
+      return Span<MaterialCacheRecord>(m_cache.data() + m_currentCapacity, count, OptimizationCheckFlag::NoCheck);
+    }
+  };
 }
 #endif

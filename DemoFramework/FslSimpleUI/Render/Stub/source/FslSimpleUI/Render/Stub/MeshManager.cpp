@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,187 +29,181 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Render/Stub/MeshManager.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslSimpleUI/Render/Stub/MeshManager.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderStub
 {
-  namespace UI
+  MeshManager::MeshManager() = default;
+
+  MeshManager::~MeshManager()
   {
-    namespace RenderStub
-    {
-      MeshManager::MeshManager() = default;
-
-      MeshManager::~MeshManager()
-      {
-        Dispose();
-      }
-
-      void MeshManager::Dispose() noexcept
-      {
-        if (m_isDisposed)
-        {
-          return;
-        }
-        m_isDisposed = true;
-        FSLLOG3_ERROR_IF(m_meshes.Count() > 0, "There are still {} meshes allocated as dispose time", m_meshes.Count());
-        m_meshes.Clear();
-      }
-
-      MeshHandle MeshManager::CreateBasicMesh(const std::shared_ptr<ISprite>& sprite)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateBasicMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        FSL_PARAM_NOT_USED(vertexCapacity);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        FSL_PARAM_NOT_USED(vertexCapacity);
-        FSL_PARAM_NOT_USED(indexCapacity);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        FSL_PARAM_NOT_USED(spriteMaterialIndex);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex, const uint32_t vertexCapacity,
-                                         const uint32_t indexCapacity)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        FSL_PARAM_NOT_USED(spriteMaterialIndex);
-        FSL_PARAM_NOT_USED(vertexCapacity);
-        FSL_PARAM_NOT_USED(indexCapacity);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateMesh(const std::shared_ptr<SpriteFont>& sprite)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      MeshHandle MeshManager::CreateMesh(const std::shared_ptr<SpriteFont>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        FSL_PARAM_NOT_USED(vertexCapacity);
-        FSL_PARAM_NOT_USED(indexCapacity);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        return MeshHandle(m_meshes.Add(true));
-      }
-
-      bool MeshManager::DestroyMesh(const MeshHandle hMesh) noexcept
-      {
-        assert(m_isDisposed);
-        return !m_isDisposed ? m_meshes.Remove(hMesh.Value) : false;
-      }
-
-      MeshHandle MeshManager::SetBasicMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        m_meshes.Get(hMesh.Value);
-        return hMesh;
-      }
-
-      MeshHandle MeshManager::SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        m_meshes.Get(hMesh.Value);
-        return hMesh;
-      }
-
-      MeshHandle MeshManager::SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<SpriteFont>& sprite)
-      {
-        FSL_PARAM_NOT_USED(sprite);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        m_meshes.Get(hMesh.Value);
-        return hMesh;
-      }
-
-      MeshHandle MeshManager::SetMeshText(const MeshHandle hMesh, const StringViewLite& text)
-      {
-        FSL_PARAM_NOT_USED(text);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        m_meshes.Get(hMesh.Value);
-        return hMesh;
-      }
-
-
-      void MeshManager::EnsureCapacity(const MeshHandle hMesh, const uint32_t vertexCapacity, const uint32_t indexCapacity)
-      {
-        FSL_PARAM_NOT_USED(vertexCapacity);
-        FSL_PARAM_NOT_USED(indexCapacity);
-        if (m_isDisposed)
-        {
-          throw UsageErrorException("Disposed");
-        }
-        m_meshes.Get(hMesh.Value);
-      }
-
-    }
+    Dispose();
   }
+
+  void MeshManager::Dispose() noexcept
+  {
+    if (m_isDisposed)
+    {
+      return;
+    }
+    m_isDisposed = true;
+    FSLLOG3_ERROR_IF(m_meshes.Count() > 0, "There are still {} meshes allocated as dispose time", m_meshes.Count());
+    m_meshes.Clear();
+  }
+
+  MeshHandle MeshManager::CreateBasicMesh(const std::shared_ptr<ISprite>& sprite)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateBasicMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    FSL_PARAM_NOT_USED(vertexCapacity);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    FSL_PARAM_NOT_USED(vertexCapacity);
+    FSL_PARAM_NOT_USED(indexCapacity);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    FSL_PARAM_NOT_USED(spriteMaterialIndex);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex, const uint32_t vertexCapacity,
+                                     const uint32_t indexCapacity)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    FSL_PARAM_NOT_USED(spriteMaterialIndex);
+    FSL_PARAM_NOT_USED(vertexCapacity);
+    FSL_PARAM_NOT_USED(indexCapacity);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateMesh(const std::shared_ptr<SpriteFont>& sprite)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  MeshHandle MeshManager::CreateMesh(const std::shared_ptr<SpriteFont>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    FSL_PARAM_NOT_USED(vertexCapacity);
+    FSL_PARAM_NOT_USED(indexCapacity);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    return MeshHandle(m_meshes.Add(true));
+  }
+
+  bool MeshManager::DestroyMesh(const MeshHandle hMesh) noexcept
+  {
+    assert(m_isDisposed);
+    return !m_isDisposed ? m_meshes.Remove(hMesh.Value) : false;
+  }
+
+  MeshHandle MeshManager::SetBasicMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    m_meshes.Get(hMesh.Value);
+    return hMesh;
+  }
+
+  MeshHandle MeshManager::SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    m_meshes.Get(hMesh.Value);
+    return hMesh;
+  }
+
+  MeshHandle MeshManager::SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<SpriteFont>& sprite)
+  {
+    FSL_PARAM_NOT_USED(sprite);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    m_meshes.Get(hMesh.Value);
+    return hMesh;
+  }
+
+  MeshHandle MeshManager::SetMeshText(const MeshHandle hMesh, const StringViewLite& text)
+  {
+    FSL_PARAM_NOT_USED(text);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    m_meshes.Get(hMesh.Value);
+    return hMesh;
+  }
+
+
+  void MeshManager::EnsureCapacity(const MeshHandle hMesh, const uint32_t vertexCapacity, const uint32_t indexCapacity)
+  {
+    FSL_PARAM_NOT_USED(vertexCapacity);
+    FSL_PARAM_NOT_USED(indexCapacity);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("Disposed");
+    }
+    m_meshes.Get(hMesh.Value);
+  }
+
 }

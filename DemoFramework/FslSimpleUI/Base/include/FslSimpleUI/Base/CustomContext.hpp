@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CUSTOMCONTEXT_HPP
 #define FSLSIMPLEUI_BASE_CUSTOMCONTEXT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,81 +35,78 @@
 #include <stdexcept>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  template <typename T>
+  class CustomContext
   {
-    template <typename T>
-    class CustomContext
+  public:
+    using value_type = T;
+
+  private:
+    std::weak_ptr<value_type> m_context;
+
+  public:
+    //! @brief Move assignment operator
+    CustomContext& operator=(CustomContext&& other) noexcept
     {
-    public:
-      using value_type = T;
-
-    private:
-      std::weak_ptr<value_type> m_context;
-
-    public:
-      //! @brief Move assignment operator
-      CustomContext& operator=(CustomContext&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          Reset();
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
 
-          // Claim ownership here
-          m_context = std::move(other.m_context);
-        }
-        return *this;
+        // Claim ownership here
+        m_context = std::move(other.m_context);
       }
+      return *this;
+    }
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      CustomContext(CustomContext&& other) noexcept
-        : m_context(std::move(other.m_context))
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    CustomContext(CustomContext&& other) noexcept
+      : m_context(std::move(other.m_context))
+    {
+    }
+
+
+    CustomContext() = default;
+
+
+    explicit CustomContext(std::weak_ptr<value_type> context)
+      : m_context(context)
+    {
+    }
+
+    //! @brief check if its expired
+    //! @warning Even if this returns true the next call to get might fail
+    //!          So if you want to use the custom context and allow for a 'null' result use TryGet
+    bool IsExpired() const
+    {
+      return m_context.expired();
+    }
+
+    //! @brief Get the context if its still valid
+    std::shared_ptr<value_type> Get() const
+    {
+      auto context = m_context.lock();
+      if (context)
       {
+        return context;
       }
+      throw std::runtime_error("context has expired");
+    }
 
+    //! @brief Get the context if its still valid
+    std::shared_ptr<value_type> TryGet() const
+    {
+      return m_context.lock();
+    }
 
-      CustomContext() = default;
-
-
-      explicit CustomContext(std::weak_ptr<value_type> context)
-        : m_context(context)
-      {
-      }
-
-      //! @brief check if its expired
-      //! @warning Even if this returns true the next call to get might fail
-      //!          So if you want to use the custom context and allow for a 'null' result use TryGet
-      bool IsExpired() const
-      {
-        return m_context.expired();
-      }
-
-      //! @brief Get the context if its still valid
-      std::shared_ptr<value_type> Get() const
-      {
-        auto context = m_context.lock();
-        if (context)
-        {
-          return context;
-        }
-        throw std::runtime_error("context has expired");
-      }
-
-      //! @brief Get the context if its still valid
-      std::shared_ptr<value_type> TryGet() const
-      {
-        return m_context.lock();
-      }
-
-      void Reset() noexcept
-      {
-        m_context.reset();
-      }
-    };
-  }
+    void Reset() noexcept
+    {
+      m_context.reset();
+    }
+  };
 }
 
 #endif

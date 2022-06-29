@@ -29,160 +29,190 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/GLBuffer.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLBuffer::GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage)
   {
-    GLBuffer::GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const GLenum usage)
+    try
     {
-      try
-      {
-        Reset(target, buffer, usage);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+      DoReset(target, buffer, usage);
     }
-
-
-    GLBuffer::GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage)
-    {
-      try
-      {
-        Reset(target, buffer, bufferElementCapacity, usage);
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
-    }
-
-
-    GLBuffer::~GLBuffer()
+    catch (const std::exception&)
     {
       Reset();
+      throw;
     }
+  }
 
 
-    void GLBuffer::Reset() noexcept
+  GLBuffer::GLBuffer(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage)
+  {
+    try
     {
-      if (m_handle != GLValues::INVALID_HANDLE)
-      {
-        glDeleteBuffers(1, &m_handle);
-        m_handle = GLValues::INVALID_HANDLE;
-        m_target = 0;
-        m_capacity = 0;
-        m_elementStride = 0;
-        m_usage = 0;
-      }
+      DoReset(target, buffer, bufferElementCapacity, usage);
     }
-
-    void GLBuffer::SetData(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData)
+    catch (const std::exception&)
     {
-      if (!bufferData.empty())
-      {
-        SetDataEx(dstIndex, bufferData);
-        glBindBuffer(m_target, 0);
-      }
+      Reset();
+      throw;
     }
+  }
 
-    void GLBuffer::SetDataEx(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData)
+
+  GLBuffer::~GLBuffer()
+  {
+    Reset();
+  }
+
+
+  void GLBuffer::Reset() noexcept
+  {
+    if (m_handle != GLValues::INVALID_HANDLE)
     {
-      if (m_elementStride != bufferData.stride())
-      {
-        throw std::invalid_argument("bufferData is not compatible with GLBuffer");
-      }
-      if ((dstIndex + bufferData.size()) > m_capacity)
-      {
-        throw IndexOutOfRangeException("SetData");
-      }
-      if (!IsValid())
-      {
-        throw UsageErrorException("SetData called on invalid buffer");
-      }
-      if (!bufferData.empty())
-      {
-        assert(m_elementStride > 0);
-        assert(bufferData.data() != nullptr);
-        glBindBuffer(m_target, m_handle);
-        glBufferSubData(m_target, dstIndex * m_elementStride, bufferData.byte_size(), bufferData.data());
-      }
+      glDeleteBuffers(1, &m_handle);
+      m_handle = GLValues::INVALID_HANDLE;
+      m_target = 0;
+      m_capacity = 0;
+      m_elementStride = 0;
+      m_usage = 0;
     }
+  }
 
-    void GLBuffer::SetDataFast(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
+  void GLBuffer::SetData(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData)
+  {
+    if (!bufferData.empty())
     {
-      if (pElements == nullptr)
-      {
-        throw std::invalid_argument("pElements can not be null");
-      }
-      if (((dstIndex + elementCount) * m_elementStride) > (m_elementStride * m_capacity))
-      {
-        throw IndexOutOfRangeException();
-      }
-      if (!IsValid())
-      {
-        throw UsageErrorException("SetData called on invalid buffer");
-      }
-      if (elementCount > 0)
-      {
-        assert(m_elementStride > 0);
-        glBufferSubData(m_target, dstIndex * m_elementStride, elementCount * m_elementStride, pElements);
-      }
+      SetDataEx(dstIndex, bufferData);
+      glBindBuffer(m_target, 0);
     }
+  }
 
-
-    void GLBuffer::Reset(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage)
+  void GLBuffer::SetDataEx(const std::size_t dstIndex, ReadOnlyFlexSpan bufferData)
+  {
+    if (m_elementStride != bufferData.stride())
     {
-      if (buffer.size() > bufferElementCapacity)
-      {
-        throw std::invalid_argument("invalid argument, buffer size can not exceed the capacity");
-      }
-      // invalid stride or one that causes uint32_t overflow
-      if (buffer.size() > (std::numeric_limits<uint32_t>::max() / buffer.stride()))
-      {
-        throw std::invalid_argument("invalid argument");
-      }
-
-      // If we don't have a handle -> allocate one
-      if (m_handle == GLValues::INVALID_HANDLE)
-      {
-        GL_CHECK(glGenBuffers(1, &m_handle));
-      }
-
-
-      GL_CHECK(glBindBuffer(target, m_handle));
-      if (buffer.size() >= bufferElementCapacity)
-      {
-        GL_CHECK(glBufferData(target, buffer.byte_size(), buffer.data(), usage));
-      }
-      else
-      {
-        GL_CHECK(glBufferData(target, bufferElementCapacity * buffer.stride(), nullptr, usage));
-        if (!buffer.empty())
-        {
-          GL_CHECK(glBufferSubData(target, 0, buffer.byte_size(), buffer.data()));
-        }
-      }
-      GL_CHECK(glBindBuffer(target, 0));
-
-      assert(buffer.size() <= std::numeric_limits<uint32_t>::max());
-      assert(buffer.stride() <= std::numeric_limits<uint32_t>::max());
-
-      m_target = target;
-      m_capacity = NumericCast<uint32_t>(bufferElementCapacity);
-      m_elementStride = NumericCast<uint32_t>(buffer.stride());
-      m_usage = usage;
+      throw std::invalid_argument("bufferData is not compatible with GLBuffer");
     }
+    if ((dstIndex + bufferData.size()) > m_capacity)
+    {
+      throw IndexOutOfRangeException("SetData");
+    }
+    if (!IsValid())
+    {
+      throw UsageErrorException("SetData called on invalid buffer");
+    }
+    if (!bufferData.empty())
+    {
+      assert(m_elementStride > 0);
+      assert(bufferData.data() != nullptr);
+      glBindBuffer(m_target, m_handle);
+      glBufferSubData(m_target, UncheckedNumericCast<GLintptr>(dstIndex * m_elementStride), UncheckedNumericCast<GLsizeiptr>(bufferData.byte_size()),
+                      bufferData.data());
+    }
+  }
+
+  void GLBuffer::SetDataFast(const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
+  {
+    if (pElements == nullptr)
+    {
+      throw std::invalid_argument("pElements can not be null");
+    }
+    if (((dstIndex + elementCount) * m_elementStride) > (m_elementStride * m_capacity))
+    {
+      throw IndexOutOfRangeException();
+    }
+    if (!IsValid())
+    {
+      throw UsageErrorException("SetData called on invalid buffer");
+    }
+    if (elementCount > 0)
+    {
+      assert(m_elementStride > 0);
+      glBufferSubData(m_target, UncheckedNumericCast<GLintptr>(dstIndex * m_elementStride),
+                      UncheckedNumericCast<GLsizeiptr>(elementCount * m_elementStride), pElements);
+    }
+  }
+
+  void GLBuffer::DoReset(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride,
+                         const GLenum usage)
+  {
+    // invalid stride or one that causes uint32_t overflow
+    if (elementStride < 1 || elementCount > (std::numeric_limits<uint32_t>::max() / elementStride))
+    {
+      throw std::invalid_argument("invalid argument");
+    }
+
+    // If we don't have a handle -> allocate one
+    if (m_handle == GLValues::INVALID_HANDLE)
+    {
+      GL_CHECK(glGenBuffers(1, &m_handle));
+    }
+
+    const auto cbEntry = elementCount * elementStride;
+
+    GL_CHECK(glBindBuffer(target, m_handle));
+    GL_CHECK(glBufferData(target, cbEntry, pEntries, usage));
+    GL_CHECK(glBindBuffer(target, 0));
+
+    assert(elementCount <= std::numeric_limits<uint32_t>::max());
+    assert(elementStride <= std::numeric_limits<uint32_t>::max());
+
+    m_target = target;
+    m_capacity = static_cast<uint32_t>(elementCount);
+    m_elementStride = static_cast<uint32_t>(elementStride);
+    m_usage = usage;
+  }
+
+
+  void GLBuffer::DoReset(const GLenum target, const ReadOnlyFlexSpan& buffer, const std::size_t bufferElementCapacity, const GLenum usage)
+  {
+    if (buffer.size() > bufferElementCapacity)
+    {
+      throw std::invalid_argument("invalid argument, buffer size can not exceed the capacity");
+    }
+    // invalid stride or one that causes uint32_t overflow
+    if (buffer.size() > (std::numeric_limits<uint32_t>::max() / buffer.stride()))
+    {
+      throw std::invalid_argument("invalid argument");
+    }
+
+    // If we don't have a handle -> allocate one
+    if (m_handle == GLValues::INVALID_HANDLE)
+    {
+      GL_CHECK(glGenBuffers(1, &m_handle));
+    }
+
+
+    GL_CHECK(glBindBuffer(target, m_handle));
+    if (buffer.size() >= bufferElementCapacity)
+    {
+      GL_CHECK(glBufferData(target, buffer.byte_size(), buffer.data(), usage));
+    }
+    else
+    {
+      GL_CHECK(glBufferData(target, bufferElementCapacity * buffer.stride(), nullptr, usage));
+      if (!buffer.empty())
+      {
+        GL_CHECK(glBufferSubData(target, 0, buffer.byte_size(), buffer.data()));
+      }
+    }
+    GL_CHECK(glBindBuffer(target, 0));
+
+    assert(buffer.size() <= std::numeric_limits<uint32_t>::max());
+    assert(buffer.stride() <= std::numeric_limits<uint32_t>::max());
+
+    m_target = target;
+    m_capacity = NumericCast<uint32_t>(bufferElementCapacity);
+    m_elementStride = NumericCast<uint32_t>(buffer.stride());
+    m_usage = usage;
   }
 }

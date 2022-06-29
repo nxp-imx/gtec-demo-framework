@@ -40,8 +40,8 @@
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
+#include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 
 namespace Fsl

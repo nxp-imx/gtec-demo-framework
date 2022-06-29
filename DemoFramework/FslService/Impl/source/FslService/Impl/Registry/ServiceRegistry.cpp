@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/Registry/ServiceRegistry.hpp>
-#include <FslService/Impl/Registry/IServiceRegistry.hpp>
 #include <FslService/Impl/Exceptions.hpp>
+#include <FslService/Impl/Registry/IServiceRegistry.hpp>
+#include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <utility>
 
 namespace Fsl

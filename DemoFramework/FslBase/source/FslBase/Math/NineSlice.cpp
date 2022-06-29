@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/NineSlice.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/NineSlice.hpp>
 
 namespace Fsl
 {

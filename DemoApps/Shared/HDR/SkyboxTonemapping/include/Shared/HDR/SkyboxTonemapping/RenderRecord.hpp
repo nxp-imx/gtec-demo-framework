@@ -45,7 +45,7 @@ namespace Fsl
 
     RenderRecord() = default;
 
-    RenderRecord(TransitionCache& rTransitionCache, const TransitionTimeSpan& timeSplitX, const TransitionTimeSpan& timeLabel)
+    RenderRecord(TransitionCache& rTransitionCache, const TimeSpan& timeSplitX, const TimeSpan& timeLabel)
       : SplitX(rTransitionCache, timeSplitX)
       , LabelAlpha(rTransitionCache, timeLabel)
     {

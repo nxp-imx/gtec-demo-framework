@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Global/AThreadSafeSynchronousService.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslService/Impl/ServiceType/Global/AThreadSafeSynchronousService.hpp>
 
 namespace Fsl
 {

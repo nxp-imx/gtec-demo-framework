@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
 #include <FslDemoApp/Base/Service/Events/IEventListener.hpp>
+#include <memory>
 
 namespace Fsl
 {

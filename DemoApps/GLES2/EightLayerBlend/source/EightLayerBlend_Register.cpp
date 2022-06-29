@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "EightLayerBlend.hpp"
 #include <array>
+#include "EightLayerBlend.hpp"
 
 namespace Fsl
 {

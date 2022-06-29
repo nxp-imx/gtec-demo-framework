@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MODULE_EXTERNALMODULEID_HPP
 #define FSLSIMPLEUI_BASE_MODULE_EXTERNALMODULEID_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,61 +33,58 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct ExternalModuleId
   {
-    struct ExternalModuleId
+    uint32_t Value{0};
+
+    constexpr ExternalModuleId() noexcept = default;
+
+    constexpr explicit ExternalModuleId(const uint32_t value) noexcept
+      : Value(value)
     {
-      uint32_t Value{0};
-
-      constexpr ExternalModuleId() noexcept = default;
-
-      constexpr explicit ExternalModuleId(const uint32_t value) noexcept
-        : Value(value)
-      {
-      }
-
-      constexpr bool operator==(const ExternalModuleId& rhs) const noexcept
-      {
-        return Value == rhs.Value;
-      }
-
-      constexpr bool operator!=(const ExternalModuleId& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-
-      constexpr bool IsValid() const noexcept
-      {
-        return Value != 0u;
-      }
-    };
-
-
-    // Operator <
-    constexpr inline bool operator<(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
-    {
-      return lhs.Value < rhs.Value;
     }
 
-    // Operator <=
-    constexpr inline bool operator<=(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+    constexpr bool operator==(const ExternalModuleId& rhs) const noexcept
     {
-      return lhs.Value <= rhs.Value;
+      return Value == rhs.Value;
     }
 
-    // Operator >
-    constexpr inline bool operator>(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+    constexpr bool operator!=(const ExternalModuleId& rhs) const noexcept
     {
-      return lhs.Value > rhs.Value;
+      return !(*this == rhs);
     }
 
-    // Operator >=
-    constexpr inline bool operator>=(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+    constexpr bool IsValid() const noexcept
     {
-      return lhs.Value >= rhs.Value;
+      return Value != 0u;
     }
+  };
+
+
+  // Operator <
+  constexpr inline bool operator<(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+  {
+    return lhs.Value < rhs.Value;
+  }
+
+  // Operator <=
+  constexpr inline bool operator<=(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+  {
+    return lhs.Value <= rhs.Value;
+  }
+
+  // Operator >
+  constexpr inline bool operator>(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+  {
+    return lhs.Value > rhs.Value;
+  }
+
+  // Operator >=
+  constexpr inline bool operator>=(const ExternalModuleId& lhs, const ExternalModuleId& rhs) noexcept
+  {
+    return lhs.Value >= rhs.Value;
   }
 }
 

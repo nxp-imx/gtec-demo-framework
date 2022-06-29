@@ -38,8 +38,8 @@
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
-#include "FractalShaderMandelbrot.hpp"
 #include "DefaultValues.hpp"
+#include "FractalShaderMandelbrot.hpp"
 
 
 namespace Fsl

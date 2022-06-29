@@ -29,102 +29,99 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslBase/Math/Pixel/PxRectangle2D.hpp>
-#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
-#include <FslSimpleUI/Base/UIDrawContext.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  ButtonBase::ButtonBase(const std::shared_ptr<BaseWindowContext>& context)
+    : BaseWindow(context)
   {
-    ButtonBase::ButtonBase(const std::shared_ptr<BaseWindowContext>& context)
-      : BaseWindow(context)
+    Enable(WindowFlags::ClickInput);
+  }
+
+
+  void ButtonBase::SetEnabled(const bool enabled)
+  {
+    if (enabled != m_isEnabled)
     {
-      Enable(WindowFlags::ClickInput);
+      m_isEnabled = enabled;
+      if (!enabled && m_isDown)
+      {
+        CancelButtonDown();
+      }
+      PropertyUpdated(PropertyType::Other);
+    }
+  }
+
+
+  void ButtonBase::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  {
+    FSL_PARAM_NOT_USED(args);
+
+    if (!theEvent->IsSource(this))
+    {
+      return;
     }
 
-
-    void ButtonBase::SetEnabled(const bool enabled)
+    if (m_isEnabled && theEvent->IsBegin())
     {
-      if (enabled != m_isEnabled)
+      if (!theEvent->IsRepeat())
       {
-        m_isEnabled = enabled;
-        if (!enabled && m_isDown)
+        // Just for safety
+        if (m_isDown)
         {
           CancelButtonDown();
         }
-        PropertyUpdated(PropertyType::Other);
-      }
-    }
-
-
-    void ButtonBase::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
-    {
-      FSL_PARAM_NOT_USED(args);
-
-      if (!theEvent->IsSource(this))
-      {
-        return;
-      }
-
-      if (m_isEnabled && theEvent->IsBegin())
-      {
-        if (!theEvent->IsRepeat())
-        {
-          // Just for safety
-          if (m_isDown)
-          {
-            CancelButtonDown();
-          }
-          m_isDown = true;
-          theEvent->Handled();
-
-          // always set the state before calling 'pressed'
-          Pressed(ButtonPressState::Down);
-        }
-      }
-      else if (m_isDown)
-      {
-        m_isDown = false;
+        m_isDown = true;
         theEvent->Handled();
 
-        if (m_isEnabled)
-        {
-          bool wasCanceled = true;
-          // Only accept the press if the mouse/finger is still on top of the button
-          auto pos = PointFromScreen(theEvent->GetScreenPosition());
-          auto size = RenderExtentPx();
-          PxRectangle2D hitRect(0, 0, size.Width, size.Height);
-          if (hitRect.Contains(pos))
-          {
-            wasCanceled = false;
-            SendEvent(GetEventPool()->AcquireWindowSelectEvent(0));
-          }
-          // always set the state before calling 'pressed'
-          Pressed(!wasCanceled ? ButtonPressState::Up : ButtonPressState::UpCancelled);
-        }
+        // always set the state before calling 'pressed'
+        Pressed(ButtonPressState::Down);
       }
     }
-
-    void ButtonBase::CancelButtonDown()
+    else if (m_isDown)
     {
-      if (!m_isDown)
-      {
-        return;
-      }
-      // always set the state before calling 'pressed'
       m_isDown = false;
-      Pressed(ButtonPressState::UpCancelled);
-    }
+      theEvent->Handled();
 
+      if (m_isEnabled)
+      {
+        bool wasCanceled = true;
+        // Only accept the press if the mouse/finger is still on top of the button
+        auto pos = PointFromScreen(theEvent->GetScreenPosition());
+        auto size = RenderExtentPx();
+        PxRectangle2D hitRect(0, 0, size.Width, size.Height);
+        if (hitRect.Contains(pos))
+        {
+          wasCanceled = false;
+          SendEvent(GetEventPool()->AcquireWindowSelectEvent(0));
+        }
+        // always set the state before calling 'pressed'
+        Pressed(!wasCanceled ? ButtonPressState::Up : ButtonPressState::UpCancelled);
+      }
+    }
   }
+
+  void ButtonBase::CancelButtonDown()
+  {
+    if (!m_isDown)
+    {
+      return;
+    }
+    // always set the state before calling 'pressed'
+    m_isDown = false;
+    Pressed(ButtonPressState::UpCancelled);
+  }
+
 }

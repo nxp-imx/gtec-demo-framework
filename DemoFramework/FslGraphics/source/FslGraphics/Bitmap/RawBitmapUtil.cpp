@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Bitmap/RawBitmapEx.hpp>
+#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <cassert>
 #include <cstring>
 
@@ -93,12 +93,12 @@ namespace Fsl
       minStride = actualMinStride + (((actualMinStride & 7) != 0 ? (8 - (actualMinStride & 7)) : 0));
       break;
     default:
-      throw UnsupportedAlignmentException("Alignment not supported", alignment);
+      throw UnsupportedAlignmentException("Alignment not supported", UncheckedNumericCast<int>(alignment));
     }
 
     if (stride != minStride)
     {
-      throw UnsupportedStrideException("Stride does not fit the supported alignment", stride);
+      throw UnsupportedStrideException("Stride does not fit the supported alignment", UncheckedNumericCast<int32_t>(stride));
     }
   }
 
@@ -652,7 +652,7 @@ namespace Fsl
     }
 
     // Generic slow swizzle for 24bpp to 32bpp formats
-    const uint32_t width = static_cast<int32_t>(srcBitmap.Width()) - 1;
+    const int32_t width = static_cast<int32_t>(srcBitmap.Width()) - 1;
     while (pDst < pDstEnd)
     {
       for (int32_t x = width; x >= 0; --x)

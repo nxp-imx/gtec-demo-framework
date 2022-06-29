@@ -41,11 +41,11 @@
  * Draws n number of cubes using instanced draw calls.
  */
 
+#include "E3_0_InstancingSimple.hpp"
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "E3_0_InstancingSimple.hpp"
 #include <GLES3/gl3.h>
 #include <array>
 #include <cassert>

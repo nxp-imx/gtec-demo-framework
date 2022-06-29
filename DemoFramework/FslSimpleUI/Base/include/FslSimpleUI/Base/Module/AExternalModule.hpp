@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MODULE_AEXTERNALMODULE_HPP
 #define FSLSIMPLEUI_BASE_MODULE_AEXTERNALMODULE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,34 +33,31 @@
 
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowId;
+  struct ExternalModuleCreateInfo;
+
+  class AExternalModule
   {
-    class IWindowId;
-    struct ExternalModuleCreateInfo;
+  public:
+    virtual ~AExternalModule() = default;
 
-    class AExternalModule
+    explicit AExternalModule(const ExternalModuleCreateInfo& /*createInfo*/)
     {
-    public:
-      virtual ~AExternalModule() = default;
+    }
 
-      explicit AExternalModule(const ExternalModuleCreateInfo& /*createInfo*/)
-      {
-      }
+    //! @brief Called when a window is added.
+    virtual void OnWindowAdd(const std::shared_ptr<IWindowId>& /*window*/)
+    {
+    }
 
-      //! @brief Called when a window is added.
-      virtual void OnWindowAdd(const std::shared_ptr<IWindowId>& /*window*/)
-      {
-      }
-
-      //! @brief Called when a TreeNode is disposed (this call occurs right before we dispose it)
-      //! @note  The module should release all pointers it has to the disposed window.
-      virtual void OnWindowDispose(const std::shared_ptr<IWindowId>& /*window*/)
-      {
-      }
-    };
-  }
+    //! @brief Called when a TreeNode is disposed (this call occurs right before we dispose it)
+    //! @note  The module should release all pointers it has to the disposed window.
+    virtual void OnWindowDispose(const std::shared_ptr<IWindowId>& /*window*/)
+    {
+    }
+  };
 }
 
 #endif

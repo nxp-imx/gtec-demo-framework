@@ -1,7 +1,7 @@
 #ifndef SHARED_MODELVIEWER_MESHUTIL_HPP
 #define SHARED_MODELVIEWER_MESHUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,33 +31,30 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::MeshUtil
 {
-  namespace MeshUtil
+  using TestMesh = Graphics3D::GenericMesh<VertexPositionColorNormalTangentTexture, uint16_t>;
+  using TestScene = Graphics3D::GenericScene<TestMesh>;
+
+  struct SingleMesh
   {
-    using TestMesh = Graphics3D::GenericMesh<VertexPositionColorNormalTangentTexture, uint16_t>;
-    using TestScene = Graphics3D::GenericScene<TestMesh>;
+    std::vector<TestMesh::vertex_type> Vertices;
+    std::vector<uint16_t> Indices;
 
-    struct SingleMesh
+    SingleMesh(const std::size_t vertexCount, const std::size_t indexCount)
+      : Vertices(vertexCount)
+      , Indices(indexCount)
     {
-      std::vector<TestMesh::vertex_type> Vertices;
-      std::vector<uint16_t> Indices;
+    }
+  };
 
-      SingleMesh(const std::size_t vertexCount, const std::size_t indexCount)
-        : Vertices(vertexCount)
-        , Indices(indexCount)
-      {
-      }
-    };
-
-    SingleMesh ExtractToSingleMesh(const TestScene& scene);
-    SingleMesh ExtractMeshEdges(const TestScene& scene);
-  }
+  SingleMesh ExtractToSingleMesh(const TestScene& scene);
+  SingleMesh ExtractMeshEdges(const TestScene& scene);
 }
 
 #endif

@@ -9,10 +9,11 @@
  *
  */
 
+#include "S02_ColoredTriangle.hpp"
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "S02_ColoredTriangle.hpp"
 #include <GLES2/gl2.h>
 #include <array>
 
@@ -30,10 +31,11 @@ namespace Fsl
     };
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
-    const GLuint g_hVertexLoc = 0;
-    const GLuint g_hColorLoc = 1;
+    constexpr GLuint g_hVertexLoc = 0;
+    constexpr GLuint g_hColorLoc = 1;
 
-    const std::array<const char*, 3> g_shaderAttributeArray = {"g_vPosition", "g_vColor", nullptr};
+    constexpr std::array<GLES2::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES2::GLBindAttribLocation(g_hVertexLoc, "g_vPosition"),
+                                                                                   GLES2::GLBindAttribLocation(g_hColorLoc, "g_vColor")};
   }
 
   S02_ColoredTriangle::S02_ColoredTriangle(const DemoAppConfig& config)
@@ -42,7 +44,7 @@ namespace Fsl
     , m_hProjMatrixLoc(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
 
     const GLuint hProgram = m_program.Get();
 
@@ -79,7 +81,8 @@ namespace Fsl
     // Clear the color-buffer and depth-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const Matrix matProj = Matrix::CreatePerspective(float(currentSizePx.Width()), float(currentSizePx.Height()), 1.0f, 1000.0f);
+    const Matrix matProj =
+      Matrix::CreatePerspective(static_cast<float>(currentSizePx.Width()), static_cast<float>(currentSizePx.Height()), 1.0f, 1000.0f);
     const Matrix matModelView = Matrix::CreateTranslation(0, 0, -1);
 
     // Set the shader program

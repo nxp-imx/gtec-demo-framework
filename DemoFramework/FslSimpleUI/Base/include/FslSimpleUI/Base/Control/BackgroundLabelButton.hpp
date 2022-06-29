@@ -35,8 +35,8 @@
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
-#include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
+#include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SpriteMesh.hpp>
@@ -211,7 +211,7 @@ namespace Fsl
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
 
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final;
+      void UpdateAnimation(const TimeSpan& timeSpan) final;
       bool UpdateAnimationState(const bool forceCompleteAnimation) final;
 
     private:

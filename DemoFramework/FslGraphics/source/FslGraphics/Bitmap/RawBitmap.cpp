@@ -31,8 +31,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapArea.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <cmath>
 #include <limits>
 

@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class EventProcessed
   {
-    enum class EventProcessed
-    {
-      Tunnel,
-      Bubble,
-      Paired,
-      Direct
-    };
-  }
+    Tunnel,
+    Bubble,
+    Paired,
+    Direct
+  };
 }
 
 #endif

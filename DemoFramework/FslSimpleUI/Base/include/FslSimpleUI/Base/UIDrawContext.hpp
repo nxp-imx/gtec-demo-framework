@@ -34,37 +34,34 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class DrawCommandBuffer;
+
+  struct UIDrawContext final
   {
-    class DrawCommandBuffer;
+    UIDrawContext() noexcept = delete;
 
-    struct UIDrawContext final
+    constexpr UIDrawContext(DrawCommandBuffer& drawCommandBuffer, const PxAreaRectangleF& targetRect, const PxAreaRectangleF& clippedTargetRect,
+                            const bool clipToParentEnabled) noexcept
+      : CommandBuffer(drawCommandBuffer)
+      , TargetRect(targetRect)
+      , ClippedTargetRect(clippedTargetRect)
+      , ClipToParentEnabled(clipToParentEnabled)
     {
-      UIDrawContext() noexcept = delete;
+    }
 
-      constexpr UIDrawContext(DrawCommandBuffer& drawCommandBuffer, const PxAreaRectangleF& targetRect, const PxAreaRectangleF& clippedTargetRect,
-                              const bool clipToParentEnabled) noexcept
-        : CommandBuffer(drawCommandBuffer)
-        , TargetRect(targetRect)
-        , ClippedTargetRect(clippedTargetRect)
-        , ClipToParentEnabled(clipToParentEnabled)
-      {
-      }
+    DrawCommandBuffer& CommandBuffer;
 
-      DrawCommandBuffer& CommandBuffer;
+    //! @brief The target rect that the draw should occur to
+    const PxAreaRectangleF TargetRect;
 
-      //! @brief The target rect that the draw should occur to
-      const PxAreaRectangleF TargetRect;
+    //! @brief The target rect clipped against the parent
+    const PxAreaRectangleF ClippedTargetRect;
 
-      //! @brief The target rect clipped against the parent
-      const PxAreaRectangleF ClippedTargetRect;
-
-      //! @brief If clip to parent is enabled
-      const bool ClipToParentEnabled{false};
-    };
-  }
+    //! @brief If clip to parent is enabled
+    const bool ClipToParentEnabled{false};
+  };
 }
 
 #endif

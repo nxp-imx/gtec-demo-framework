@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
-#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
+#include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
 #include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
-#include <FslDemoApp/Base/Service/Events/IEventService.hpp>
 #include <FslDemoApp/Base/Service/ContentMonitor/IContentMonitor.hpp>
+#include <FslDemoApp/Base/Service/Events/IEventService.hpp>
+#include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/DemoAppManagerEventListener.hpp>
 #include <FslDemoHost/Base/Service/AppInfo/IAppInfoControlService.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
@@ -50,8 +50,8 @@
 #include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <cassert>
-#include <utility>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -92,7 +92,7 @@ namespace Fsl
     auto appInfo = m_demoAppConfig.DemoServiceProvider.Get<IAppInfoControlService>();
     appInfo->SetAppName(StringViewLiteUtil::AsStringViewLite(m_demoAppSetup.ApplicationName));
 
-    m_demoAppControl->SetRenderLoopMaxFramesInFlight(demoAppSetup.CustomAppConfig.MaxFramesInFlight);
+    m_demoAppControl->SetRenderLoopMaxFramesInFlight(m_demoAppSetup.CustomAppConfig.MaxFramesInFlight);
 
     if (enableContentMonitor)
     {
@@ -198,10 +198,10 @@ namespace Fsl
         m_record.DemoApp->_PreUpdate(currentUpdateTime);
 
         {    // Run all missing fixed updates
-          Optional<DemoTime> fixedTime = m_appTiming.TryFixedUpdate();
-          while (fixedTime.HasValue())
+          std::optional<DemoTime> fixedTime = m_appTiming.TryFixedUpdate();
+          while (fixedTime.has_value())
           {
-            m_record.DemoApp->_FixedUpdate(fixedTime.Value());
+            m_record.DemoApp->_FixedUpdate(fixedTime.value());
             fixedTime = m_appTiming.TryFixedUpdate();
           }
         }
@@ -322,8 +322,11 @@ namespace Fsl
 
       const auto averageTime = m_profilerService->GetAverageFrameTime();
       const auto averageTotalTime = TimeSpanUtil::FromMicroseconds(averageTime.TotalTime);
-      const float frameFps = deltaFrameSwapCompletedTime.Ticks() > 0 ? (float(TimeInfo::TicksPerSecond) / deltaFrameSwapCompletedTime.Ticks()) : 0.0f;
-      const float averageFps = averageTotalTime.Ticks() > 0 ? (float(TimeInfo::TicksPerSecond) / averageTotalTime.Ticks()) : 0.0f;
+      const float frameFps = deltaFrameSwapCompletedTime.Ticks() > 0
+                               ? (static_cast<float>(TimeInfo::TicksPerSecond) / static_cast<float>(deltaFrameSwapCompletedTime.Ticks()))
+                               : 0.0f;
+      const float averageFps =
+        averageTotalTime.Ticks() > 0 ? (static_cast<float>(TimeInfo::TicksPerSecond) / static_cast<float>(averageTotalTime.Ticks())) : 0.0f;
 
       if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU) && m_cpuStatsService)
       {

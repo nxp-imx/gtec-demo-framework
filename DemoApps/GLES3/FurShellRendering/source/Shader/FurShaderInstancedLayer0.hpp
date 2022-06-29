@@ -40,7 +40,7 @@ namespace Fsl
   class FurShaderInstancedLayer0 : public FurShaderBase
   {
   public:
-    FurShaderInstancedLayer0(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
+    FurShaderInstancedLayer0(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
                              const int lightCount);
   };
 }

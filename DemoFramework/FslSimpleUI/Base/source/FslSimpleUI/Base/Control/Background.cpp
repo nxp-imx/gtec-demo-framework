@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,110 +29,107 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
+#include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
-#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  Background::Background(const std::shared_ptr<WindowContext>& context)
+    : ContentControl(context)
+    , m_windowContext(context)
+    , m_background(context->TheUIContext.Get()->MeshManager)
   {
-    Background::Background(const std::shared_ptr<WindowContext>& context)
-      : ContentControl(context)
-      , m_windowContext(context)
-      , m_background(context->TheUIContext.Get()->MeshManager)
+    Enable(WindowFlags::DrawEnabled);
+  }
+
+  void Background::SetBackground(const std::shared_ptr<IContentSprite>& value)
+  {
+    if (m_background.SetSprite(value))
     {
-      Enable(WindowFlags::DrawEnabled);
+      PropertyUpdated(PropertyType::Content);
     }
+  }
 
-    void Background::SetBackground(const std::shared_ptr<IContentSprite>& value)
+  void Background::SetBackgroundColor(const Color& value)
+  {
+    if (value != m_backgroundColor)
     {
-      if (m_background.SetSprite(value))
-      {
-        PropertyUpdated(PropertyType::Content);
-      }
+      m_backgroundColor = value;
+      PropertyUpdated(PropertyType::Other);
     }
+  }
 
-    void Background::SetBackgroundColor(const Color& value)
+  void Background::WinDraw(const UIDrawContext& context)
+  {
+    ContentControl::WinDraw(context);
+
+    context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_backgroundColor);
+  }
+
+
+  PxSize2D Background::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    PxSize2D finalContentSizePx(finalSizePx);
+    PxSize2D resultPx;
+    if (m_background.IsValid())
     {
-      if (value != m_backgroundColor)
-      {
-        m_backgroundColor = value;
-        PropertyUpdated(PropertyType::Other);
-      }
-    }
+      // There is a background content sprite so we need to apply it
+      const PxThickness& backgroundContentMarginPx = m_background.GetSpriteObject().GetRenderContentMarginPx();
 
-    void Background::WinDraw(const UIDrawContext& context)
+      // Remove the nine-slice content margin from the final available size
+      const PxSize2D contentMarginSize = backgroundContentMarginPx.Sum();
+      finalContentSizePx -= contentMarginSize;
+
+      // arrange the content
+      resultPx = ContentControl::CustomArrange(finalContentSizePx, backgroundContentMarginPx.TopLeft());
+
+      // Apply the nine-slice content margin, then measure the minimum size of the nine slice
+      resultPx += contentMarginSize;
+
+      resultPx.SetMax(m_background.Measure(finalSizePx));
+    }
+    else
     {
-      ContentControl::WinDraw(context);
-
-      context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_backgroundColor);
+      // The simple case where we have no background nine slice
+      resultPx = ContentControl::ArrangeOverride(finalSizePx);
     }
+    return resultPx;
+  }
 
 
-    PxSize2D Background::ArrangeOverride(const PxSize2D& finalSizePx)
+  PxSize2D Background::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    PxAvailableSize availableContentSizePx(availableSizePx);
+    PxSize2D desiredSizePx;
+    if (m_background.IsValid())
     {
-      PxSize2D finalContentSizePx(finalSizePx);
-      PxSize2D resultPx;
-      if (m_background.IsValid())
-      {
-        // There is a background content sprite so we need to apply it
-        const PxThickness& backgroundContentMarginPx = m_background.GetSpriteObject().GetRenderContentMarginPx();
+      const PxThickness& backgroundContentMarginPx = m_background.GetSpriteObject().GetRenderContentMarginPx();
 
-        // Remove the nine-slice content margin from the final available size
-        const PxSize2D contentMarginSize = backgroundContentMarginPx.Sum();
-        finalContentSizePx -= contentMarginSize;
+      // Remove the background content margin from the available size
+      const PxSize2D contentMarginSize = backgroundContentMarginPx.Sum();
+      availableContentSizePx = PxAvailableSize::Subtract(availableContentSizePx, contentMarginSize);
 
-        // arrange the content
-        resultPx = ContentControl::CustomArrange(finalContentSizePx, backgroundContentMarginPx.TopLeft());
+      // Measure the content using the available content size
+      desiredSizePx = ContentControl::MeasureOverride(availableContentSizePx);
 
-        // Apply the nine-slice content margin, then measure the minimum size of the nine slice
-        resultPx += contentMarginSize;
-
-        resultPx.SetMax(m_background.Measure(finalSizePx));
-      }
-      else
-      {
-        // The simple case where we have no background nine slice
-        resultPx = ContentControl::ArrangeOverride(finalSizePx);
-      }
-      return resultPx;
+      // Apply the background content margin, then measure the minimum size of the background
+      desiredSizePx += contentMarginSize;
+      desiredSizePx.SetMax(m_background.Measure());
     }
-
-
-    PxSize2D Background::MeasureOverride(const PxAvailableSize& availableSizePx)
+    else
     {
-      PxAvailableSize availableContentSizePx(availableSizePx);
-      PxSize2D desiredSizePx;
-      if (m_background.IsValid())
-      {
-        const PxThickness& backgroundContentMarginPx = m_background.GetSpriteObject().GetRenderContentMarginPx();
-
-        // Remove the background content margin from the available size
-        const PxSize2D contentMarginSize = backgroundContentMarginPx.Sum();
-        availableContentSizePx = PxAvailableSize::Subtract(availableContentSizePx, contentMarginSize);
-
-        // Measure the content using the available content size
-        desiredSizePx = ContentControl::MeasureOverride(availableContentSizePx);
-
-        // Apply the background content margin, then measure the minimum size of the background
-        desiredSizePx += contentMarginSize;
-        desiredSizePx.SetMax(m_background.Measure());
-      }
-      else
-      {
-        // The simple case where we have no background nine slice
-        desiredSizePx = ContentControl::MeasureOverride(availableSizePx);
-      }
-      return desiredSizePx;
+      // The simple case where we have no background nine slice
+      desiredSizePx = ContentControl::MeasureOverride(availableSizePx);
     }
+    return desiredSizePx;
   }
 }

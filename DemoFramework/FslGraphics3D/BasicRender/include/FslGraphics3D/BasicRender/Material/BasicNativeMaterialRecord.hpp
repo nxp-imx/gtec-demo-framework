@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_MATERIAL_BASICNATIVEMATERIALRECORD_HPP
 #define FSLGRAPHICS3D_BASICRENDER_MATERIAL_BASICNATIVEMATERIALRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,28 +35,25 @@
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeMaterialHandle.hpp>
 #include <FslGraphics3D/BasicRender/Material/InternalMaterialHandle.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  struct BasicNativeMaterialRecord
   {
-    struct BasicNativeMaterialRecord
+    InternalMaterialHandle InternalHandle;
+    BasicNativeMaterialHandle NativeHandle;
+
+    constexpr BasicNativeMaterialRecord() noexcept = default;
+    constexpr BasicNativeMaterialRecord(InternalMaterialHandle internalHandle, BasicNativeMaterialHandle nativeHandle) noexcept
+      : InternalHandle(internalHandle)
+      , NativeHandle(nativeHandle)
     {
-      InternalMaterialHandle InternalHandle;
-      BasicNativeMaterialHandle NativeHandle;
+    }
 
-      constexpr BasicNativeMaterialRecord() noexcept = default;
-      constexpr BasicNativeMaterialRecord(InternalMaterialHandle internalHandle, BasicNativeMaterialHandle nativeHandle) noexcept
-        : InternalHandle(internalHandle)
-        , NativeHandle(nativeHandle)
-      {
-      }
-
-      constexpr bool IsValid() const
-      {
-        return InternalHandle.IsValid() && NativeHandle.IsValid();
-      }
-    };
-  }
+    constexpr bool IsValid() const
+    {
+      return InternalHandle.IsValid() && NativeHandle.IsValid();
+    }
+  };
 }
 
 #endif

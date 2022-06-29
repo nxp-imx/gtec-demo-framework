@@ -37,9 +37,9 @@
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfoControl.hpp>
 #include <FslDemoHost/Window/WindowDemoHost.hpp>
 #include <FslDemoHost/Window/WindowDemoHostOptionParser.hpp>
+#include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/INativeWindowSystem.hpp>
-#include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/NativeWindowProcessMessagesArgs.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemFactory.hpp>
@@ -77,7 +77,7 @@ namespace Fsl
     , m_activeApi(DemoHostFeatureName::Window, 0)
     , m_options(demoHostConfig.GetOptions<WindowDemoHostOptionParser>())
     , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
-    , m_nativeWindowSetup()
+
   {
     const auto& demoHostAppSetup = demoHostConfig.GetDemoHostAppSetup();
     const auto demoAppHostConfigWindow = demoHostAppSetup.GetDemoAppHostConfig<DemoAppHostConfigWindow>();

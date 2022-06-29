@@ -38,8 +38,8 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/NineSliceAtlasTexture2D.hpp>
-#include <FslSimpleUI/Base/Control/Util/Draw9SliceUtil.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslSimpleUI/Base/Control/Util/Draw9SliceUtil.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>

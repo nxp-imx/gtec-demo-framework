@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "Vulkan101.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
@@ -72,7 +72,7 @@ namespace Fsl
 
     RapidVulkan::PipelineLayout CreatePipelineLayout(const VkDevice device)
     {
-      return RapidVulkan::PipelineLayout(device, 0, 0, nullptr, 0, nullptr);
+      return {device, 0, 0, nullptr, 0, nullptr};
     }
 
 
@@ -112,7 +112,7 @@ namespace Fsl
       subpassDescription.preserveAttachmentCount = 0;
       subpassDescription.pPreserveAttachments = nullptr;
 
-      return RapidVulkan::RenderPass(device, 0, 1, &attachmentDescription, 1, &subpassDescription, 1, &subpassDependency);
+      return {device, 0, 1, &attachmentDescription, 1, &subpassDescription, 1, &subpassDependency};
     }
 
     RapidVulkan::GraphicsPipeline CreatePipeline(const VkDevice device, const VkShaderModule vertShaderModule, const VkShaderModule fragShaderModule,
@@ -245,7 +245,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(device, VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {device, VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 

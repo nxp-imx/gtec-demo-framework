@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_SCENE_DIALOG_FRAMEANALYSISDIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_SCENE_DIALOG_FRAMEANALYSISDIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,48 +31,44 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Theme/Base/WindowType.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <FslSimpleUI/Theme/Base/WindowType.hpp>
 #include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ButtonBase;
+  class IRenderSystem;
+
+  class FrameAnalysisDialogActivity final : public DialogActivity
   {
-    class ButtonBase;
-    class IRenderSystem;
-
-    class FrameAnalysisDialogActivity final : public DialogActivity
+    enum class State
     {
-      enum class State
-      {
-        Ready,
-        Closing,
-      };
-
-      State m_state{State::Ready};
-      std::shared_ptr<ButtonBase> m_buttonOK;
-      std::shared_ptr<SliderAndFmtValueLabel<uint32_t>> m_drawCallSlider;
-
-    public:
-      // Since we dont have a proper activity concept with async return values we use the shared settings object for now
-      FrameAnalysisDialogActivity(std::weak_ptr<IActivityStack> activityStack,
-                                  const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory, const Theme::WindowType windowType,
-                                  const uint32_t maxDrawCalls);
-
-
-      void SetMaxDrawCalls(const uint32_t maxDrawCalls);
-      uint32_t GetCurrentDrawCalls() const;
-
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
-      void OnKeyEvent(const KeyEvent& theEvent) final;
-
-    private:
-      void DoScheduleClose();
+      Ready,
+      Closing,
     };
-  }
+
+    State m_state{State::Ready};
+    std::shared_ptr<ButtonBase> m_buttonOK;
+    std::shared_ptr<SliderAndFmtValueLabel<uint32_t>> m_drawCallSlider;
+
+  public:
+    // Since we dont have a proper activity concept with async return values we use the shared settings object for now
+    FrameAnalysisDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                const Theme::WindowType windowType, const uint32_t maxDrawCalls);
+
+
+    void SetMaxDrawCalls(const uint32_t maxDrawCalls);
+    uint32_t GetCurrentDrawCalls() const;
+
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final;
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final;
+    void OnKeyEvent(const KeyEvent& theEvent) final;
+
+  private:
+    void DoScheduleClose();
+  };
 }
 
 

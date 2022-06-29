@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Info/ImageSpriteInfo.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Sprite/Info/ImageSpriteInfo.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <memory>
@@ -53,7 +53,7 @@ namespace Fsl
                                    const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , ImageInfo(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageTrimMarginPx, imageTrimmedRectanglePx,
-                SpriteUnitConverter::CalcImageDpExtent(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageDpi))
+                SpriteUnitConverter::CalcImageDpExtent2D(CalcExtent(imageTrimMarginPx, imageTrimmedRectanglePx), imageDpi))
     , ImageDpi(imageDpi)
     , RenderInfo(spriteNativeAreaCalc.CalcNativeTextureArea(imageTrimmedRectanglePx, spriteMaterialInfo.ExtentPx),
                  PxTrimmedImage(TypeConverter::To<PxSize2D>(ImageInfo.ExtentPx), TypeConverter::To<PxThicknessF>(imageTrimMarginPx),

@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Offset3D.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <limits>
 
 namespace Fsl
@@ -83,17 +84,17 @@ namespace Fsl
 
     inline constexpr int32_t Right() const noexcept
     {
-      return Offset.X + Extent.Width;
+      return Offset.X + UncheckedNumericCast<int32_t>(Extent.Width);
     }
 
     inline constexpr int32_t Bottom() const noexcept
     {
-      return Offset.Y + Extent.Height;
+      return Offset.Y + UncheckedNumericCast<int32_t>(Extent.Height);
     }
 
     inline constexpr int32_t Back() const noexcept
     {
-      return Offset.Z + Extent.Depth;
+      return Offset.Z + UncheckedNumericCast<int32_t>(Extent.Depth);
     }
 
 
@@ -121,11 +122,12 @@ namespace Fsl
     //! @brief Get the center of this rect
     constexpr Offset3D GetCenter() const noexcept
     {
-      static_assert(Extent3D::value_type(std::numeric_limits<Offset3D::value_type>::max()) <= (std::numeric_limits<Extent3D::value_type>::max() / 2),
+      static_assert(static_cast<Extent3D::value_type>(std::numeric_limits<Offset3D::value_type>::max()) <=
+                      (std::numeric_limits<Extent3D::value_type>::max() / 2),
                     "overflow should not be possible");
 
-      return {Offset.X + Offset3D::value_type(Extent.Width / 2), Offset.Y + Offset3D::value_type(Extent.Height / 2),
-              Offset.Z + Offset3D::value_type(Extent.Depth / 2)};
+      return {Offset.X + static_cast<Offset3D::value_type>(Extent.Width / 2), Offset.Y + static_cast<Offset3D::value_type>(Extent.Height / 2),
+              Offset.Z + static_cast<Offset3D::value_type>(Extent.Depth / 2)};
     }
 
 

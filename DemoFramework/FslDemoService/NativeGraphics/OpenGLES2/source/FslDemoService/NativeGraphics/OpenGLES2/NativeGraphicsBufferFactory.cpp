@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,100 +29,97 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsBufferFactory.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsBufferFactory.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  NativeGraphicsBufferFactory::NativeGraphicsBufferFactory()
   {
-    NativeGraphicsBufferFactory::NativeGraphicsBufferFactory()
+    FSLLOG3_VERBOSE3("NativeGraphicsBufferFactory::Construct");
+  }
+
+  NativeGraphicsBufferFactory::~NativeGraphicsBufferFactory() noexcept
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsBufferFactory::Destruct");
+    Dispose();
+  }
+
+
+  Graphics3D::NativeBufferFactoryCaps NativeGraphicsBufferFactory::GetBufferCaps() const
+  {
+    return Graphics3D::NativeBufferFactoryCaps::Dynamic;
+  }
+
+  void NativeGraphicsBufferFactory::Dispose() noexcept
+  {
+    if (m_isDisposed)
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsBufferFactory::Construct");
+      return;
     }
-
-    NativeGraphicsBufferFactory::~NativeGraphicsBufferFactory() noexcept
+    FSLLOG3_VERBOSE3("NativeGraphicsBufferFactory::Dispose");
+    m_isDisposed = true;
+    if (m_buffers.Count() > 0)
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsBufferFactory::Destruct");
-      Dispose();
-    }
-
-
-    Graphics3D::NativeBufferFactoryCaps NativeGraphicsBufferFactory::GetBufferCaps() const
-    {
-      return Graphics3D::NativeBufferFactoryCaps::Dynamic;
-    }
-
-    void NativeGraphicsBufferFactory::Dispose() noexcept
-    {
-      if (m_isDisposed)
+      try
       {
-        return;
+        FSLLOG3_WARNING("NativeGraphicsBufferFactory: There are still {} allocated buffers, force freeing them", m_buffers.Count());
+        m_buffers.Clear();
       }
-      FSLLOG3_VERBOSE3("NativeGraphicsBufferFactory::Dispose");
-      m_isDisposed = true;
-      if (m_buffers.Count() > 0)
+      catch (const std::exception& ex)
       {
-        try
-        {
-          FSLLOG3_WARNING("NativeGraphicsBufferFactory: There are still {} allocated buffers, force freeing them", m_buffers.Count());
-          m_buffers.Clear();
-        }
-        catch (const std::exception& ex)
-        {
-          // This is the best we can do since this is not supposed to occur
-          FSLLOG3_ERROR("NativeGraphicsBufferFactory consumed exception during force free: {}", ex.what());
-        }
+        // This is the best we can do since this is not supposed to occur
+        FSLLOG3_ERROR("NativeGraphicsBufferFactory consumed exception during force free: {}", ex.what());
       }
     }
+  }
 
 
-    BasicNativeBufferHandle NativeGraphicsBufferFactory::CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData,
-                                                                      const uint32_t bufferElementCapacity, const bool isDynamic)
+  BasicNativeBufferHandle NativeGraphicsBufferFactory::CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData,
+                                                                    const uint32_t bufferElementCapacity, const bool isDynamic)
+  {
+    FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::CreateBuffer");
+    if (m_isDisposed)
     {
-      FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::CreateBuffer");
-      if (m_isDisposed)
-      {
-        throw UsageErrorException("Trying to create buffer after dispose");
-      }
-      if (bufferData.size() > bufferElementCapacity)
-      {
-        throw NotSupportedException("bufferData does not fit within bufferElementCapacity");
-      }
-
-      auto handle = m_buffers.Add(NativeGraphicsBufferRecord(bufferType, bufferData, bufferElementCapacity, isDynamic));
-      FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::CreateBuffer handle: {}", handle);
-      return BasicNativeBufferHandle(handle);
+      throw UsageErrorException("Trying to create buffer after dispose");
+    }
+    if (bufferData.size() > bufferElementCapacity)
+    {
+      throw NotSupportedException("bufferData does not fit within bufferElementCapacity");
     }
 
-    bool NativeGraphicsBufferFactory::DestroyBuffer(const BasicNativeBufferHandle hBuffer)
+    auto handle = m_buffers.Add(NativeGraphicsBufferRecord(bufferType, bufferData, bufferElementCapacity, isDynamic));
+    FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::CreateBuffer handle: {}", handle);
+    return BasicNativeBufferHandle(handle);
+  }
+
+  bool NativeGraphicsBufferFactory::DestroyBuffer(const BasicNativeBufferHandle hBuffer)
+  {
+    FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::DestroyBuffer({})", hBuffer.Value);
+    if (m_isDisposed)
     {
-      FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::DestroyBuffer({})", hBuffer.Value);
-      if (m_isDisposed)
-      {
-        FSLLOG3_ERROR("hBuffer is invalid, call ignored");
-        return false;
-      }
-      if (!m_buffers.Remove(hBuffer.Value))
-      {
-        FSLLOG3_ERROR("tried to free a unknown buffer, call ignored");
-        return false;
-      }
-      return true;
+      FSLLOG3_ERROR("hBuffer is invalid, call ignored");
+      return false;
+    }
+    if (!m_buffers.Remove(hBuffer.Value))
+    {
+      FSLLOG3_ERROR("tried to free a unknown buffer, call ignored");
+      return false;
+    }
+    return true;
+  }
+
+  void NativeGraphicsBufferFactory::SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData)
+  {
+    FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::SetBufferData({})", hBuffer.Value);
+    if (m_isDisposed)
+    {
+      throw UsageErrorException("hBuffer is invalid, call ignored");
     }
 
-    void NativeGraphicsBufferFactory::SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData)
-    {
-      FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::SetBufferData({})", hBuffer.Value);
-      if (m_isDisposed)
-      {
-        throw UsageErrorException("hBuffer is invalid, call ignored");
-      }
-
-      NativeGraphicsBufferRecord& rRecord = m_buffers.Get(hBuffer.Value);
-      rRecord.SetBufferData(dstIndex, bufferData);
-    }
+    NativeGraphicsBufferRecord& rRecord = m_buffers.Get(hBuffer.Value);
+    rRecord.SetBufferData(dstIndex, bufferData);
   }
 }

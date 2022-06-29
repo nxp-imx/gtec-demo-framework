@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringDateUtil.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <cstring>
 

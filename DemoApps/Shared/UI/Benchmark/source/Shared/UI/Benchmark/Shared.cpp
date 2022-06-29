@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,17 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Shared.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoApp/Base/Service/AppInfo/IAppInfoService.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
@@ -47,13 +46,16 @@
 #include <Shared/UI/Benchmark/OptionParser.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettingsPersistence.hpp>
+#include <Shared/UI/Benchmark/Shared.hpp>
+#include <algorithm>
 #include "Scene/BenchResultManager.hpp"
-#include "Scene/Config/BenchSceneConfig.hpp"
-#include "Scene/Input/InputRecordingManager.hpp"
-#include "Scene/IScene.hpp"
 #include "Scene/BenchmarkScene.hpp"
+#include "Scene/Config/BenchSceneConfig.hpp"
+#include "Scene/IScene.hpp"
+#include "Scene/Input/InputRecordingManager.hpp"
 #include "Scene/PlaygroundScene.hpp"
 #include "Scene/RecordScene.hpp"
+#include "Scene/RenderConfig.hpp"
 #include "Scene/ResultScene.hpp"
 #include "Scene/SceneCreateInfo.hpp"
 
@@ -71,11 +73,11 @@ namespace Fsl
 
     AppSettings LoadSettings(const IO::Path& path)
     {
-      Optional<AppSettings> settings = AppSettingsPersistence::TryLoad(path);
-      if (settings.HasValue())
+      std::optional<AppSettings> settings = AppSettingsPersistence::TryLoad(path);
+      if (settings.has_value())
       {
         FSLLOG3_INFO("Loaded settings from '{}'", path);
-        return settings.Value();
+        return settings.value();
       }
       return {};
     }
@@ -111,24 +113,26 @@ namespace Fsl
     , m_mainLayout(std::make_shared<UI::FillLayout>(m_uiControlFactory->GetContext()))
     , m_sceneLayout(std::make_shared<UI::FillLayout>(m_uiControlFactory->GetContext()))
     , m_overlayFillImage(m_uiControlFactory->CreateImage(m_uiControlFactory->GetResources().GetBasicMiniFillSprite(false)))
-    , m_overlayColor(m_uiControlFactory->GetContext()->UITransitionCache, TransitionTimeSpan(240, TransitionTimeUnit::Milliseconds),
-                     TransitionType::Smooth)
+    , m_overlayColor(m_uiControlFactory->GetContext()->UITransitionCache, TimeSpan::FromMilliseconds(240), TransitionType::Smooth)
     , m_serviceProvider(config.DemoServiceProvider)
     , m_settingsPath(IO::Path::Combine(m_serviceProvider.Get<IPersistentDataManager>()->GetPersistentDataPath(), LocalConfig::SettingsFilename))
     , m_settings(std::make_shared<AppSettings>(LoadSettings(m_settingsPath)))
   {
+    // Ensure that the active render index is within the allowed range
+    m_settings->Test.ActiveRenderIndex = std::clamp(m_settings->Test.ActiveRenderIndex, static_cast<uint32_t>(0), RenderConfig::GetSize());
+
     auto options = config.GetOptions<OptionParser>();
     {    // Command line override of the settings
       auto optionLineShowIdleEnabled = options->TryGetShowIdleEnabled();
-      if (optionLineShowIdleEnabled.HasValue())
+      if (optionLineShowIdleEnabled.has_value())
       {
-        m_settings->Test.ShowIdle = optionLineShowIdleEnabled.Value();
+        m_settings->Test.ShowIdle = optionLineShowIdleEnabled.value();
       }
 
       const auto noChart = options->TryGetChartDisabled();
-      if (noChart.HasValue())
+      if (noChart.has_value())
       {
-        m_settings->UI.ShowChart = noChart.Value();
+        m_settings->UI.ShowChart = noChart.value();
       }
     }
     m_overlayFillImage->SetScalePolicy(UI::ItemScalePolicy::Fit);
@@ -222,18 +226,18 @@ namespace Fsl
   {
     if (m_sceneRecord.Scene)
     {
-      const TransitionTimeSpan transitionTime(demoTime.ElapsedTime.Ticks());
+      const TimeSpan transitionTime(demoTime.ElapsedTime.Ticks());
 
       m_sceneRecord.Scene->Update(demoTime);
       auto closeRes = m_sceneRecord.Scene->TryGetNextScene();
-      if (!closeRes.HasValue())
+      if (!closeRes.has_value())
       {
         m_overlayColor.SetValue(Color::Transparent());
         m_overlayColor.Update(transitionTime);
       }
       else
       {
-        assert(closeRes.HasValue());
+        assert(closeRes.has_value());
         m_overlayColor.SetValue(Color::Black());
         m_overlayColor.Update(transitionTime);
         if (m_overlayColor.IsCompleted())
@@ -242,7 +246,7 @@ namespace Fsl
           // Launch the next scene
           SceneCreateInfo createInfo(m_appInfo, m_serviceProvider, m_windowMetrics, m_forwarder, m_uiControlFactory, m_sceneLayout, m_settings,
                                      m_uiExtension, m_gpuProfiler);
-          m_sceneRecord = SelectScene(*m_demoAppControl, closeRes.Value(), createInfo, m_inputRecordingManager, m_benchResultManager);
+          m_sceneRecord = SelectScene(*m_demoAppControl, closeRes.value(), createInfo, m_inputRecordingManager, m_benchResultManager);
         }
       }
       m_overlayFillImage->SetContentColor(m_overlayColor.GetValue());
@@ -314,17 +318,17 @@ namespace Fsl
     switch (scene.Id)
     {
     case SceneId::Benchmark:
-    {
-      BenchSceneConfig defaultSceneConfig;
-      const BenchSceneConfig* pSceneConfig = nullptr;
-      if (scene.Config)
       {
-        pSceneConfig = dynamic_cast<const BenchSceneConfig*>(scene.Config.get());
-        FSLLOG3_WARNING_IF(pSceneConfig == nullptr, "Benchmark scene started with unknown configuration type")
+        BenchSceneConfig defaultSceneConfig;
+        const BenchSceneConfig* pSceneConfig = nullptr;
+        if (scene.Config)
+        {
+          pSceneConfig = dynamic_cast<const BenchSceneConfig*>(scene.Config.get());
+          FSLLOG3_WARNING_IF(pSceneConfig == nullptr, "Benchmark scene started with unknown configuration type")
+        }
+        return {scene.Id, std::make_unique<BenchmarkScene>(createInfo, inputRecordingManager, benchResultManager,
+                                                           pSceneConfig != nullptr ? *pSceneConfig : defaultSceneConfig)};
       }
-      return {scene.Id, std::make_unique<BenchmarkScene>(createInfo, inputRecordingManager, benchResultManager,
-                                                         pSceneConfig != nullptr ? *pSceneConfig : defaultSceneConfig)};
-    }
     case SceneId::Playground:
       return {scene.Id, std::make_unique<PlaygroundScene>(createInfo)};
     case SceneId::Record:

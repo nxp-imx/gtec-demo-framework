@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWMESHBUILDER2D_HPP
 #define FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWMESHBUILDER2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,10 +58,10 @@ namespace Fsl
   public:
     using vertex_element_type = TVertex;
     using vertex_value_type = std::remove_cv_t<TVertex>;
-    using vertex_pointer = vertex_value_type*;
-    using const_vertex_pointer = const vertex_value_type*;
-    using vertex_reference = vertex_value_type&;
-    using const_vertex_reference = const vertex_value_type&;
+    using vertex_pointer = TVertex*;
+    using const_vertex_pointer = const TVertex*;
+    using vertex_reference = TVertex&;
+    using const_vertex_reference = const TVertex&;
 
     using index_element_type = TIndex;
     using index_value_type = std::remove_cv_t<TIndex>;
@@ -139,9 +139,9 @@ namespace Fsl
     }
 
     //! Direct span access
-    inline ReadOnlySpan<vertex_value_type> VerticesAsReadOnlySpan() const
+    inline ReadOnlySpan<TVertex> VerticesAsReadOnlySpan() const
     {
-      return ReadOnlySpan<vertex_value_type>(m_pVertexData, m_vertexCount, OptimizationCheckFlag::NoCheck);
+      return ReadOnlySpan<TVertex>(m_pVertexData, m_vertexCount, OptimizationCheckFlag::NoCheck);
     }
 
     //! Direct span access
@@ -191,7 +191,7 @@ namespace Fsl
     constexpr void AddVertex(const float x0, const float y0, const float u0, const float v0) noexcept
     {
       assert((m_vertexCount + 1) <= m_vertexCapacity);
-      *(m_pVertexData + m_vertexCount) = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(u0, v0));
+      *(m_pVertexData + m_vertexCount) = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(u0, v0));
       ++m_vertexCount;
     }
 
@@ -226,21 +226,21 @@ namespace Fsl
       // ABCD
       {
         vertex_pointer pDst = m_pVertexData + m_vertexCount;
-        // pDst[0] = vertex_value_type(x0, y0, m_zPos, m_color, textureCoords.X0, textureCoords.Y0);
+        // pDst[0] = TVertex(x0, y0, m_zPos, m_color, textureCoords.X0, textureCoords.Y0);
         pDst[0].Position = vertex_position_type(x0, y0, m_zPos);
         pDst[0].Color = m_color;
         pDst[0].TextureCoordinate = vertex_uv_type(textureCoords.X0, textureCoords.Y0);
-        // pDst[1] = vertex_value_type(x0, y1, m_zPos, m_color, textureCoords.X0, textureCoords.Y1);
+        // pDst[1] = TVertex(x0, y1, m_zPos, m_color, textureCoords.X0, textureCoords.Y1);
         pDst[1].Position = vertex_position_type(x0, y1, m_zPos);
         pDst[1].Color = m_color;
         pDst[1].TextureCoordinate = vertex_uv_type(textureCoords.X0, textureCoords.Y1);
 
-        // pDst[2] = vertex_value_type(x1, y0, m_zPos, m_color, textureCoords.X1, textureCoords.Y0);
+        // pDst[2] = TVertex(x1, y0, m_zPos, m_color, textureCoords.X1, textureCoords.Y0);
         pDst[2].Position = vertex_position_type(x1, y0, m_zPos);
         pDst[2].Color = m_color;
         pDst[2].TextureCoordinate = vertex_uv_type(textureCoords.X1, textureCoords.Y0);
 
-        // pDst[3] = vertex_value_type(x1, y1, m_zPos, m_color, textureCoords.X1, textureCoords.Y1);
+        // pDst[3] = TVertex(x1, y1, m_zPos, m_color, textureCoords.X1, textureCoords.Y1);
         pDst[3].Position = vertex_position_type(x1, y1, m_zPos);
         pDst[3].Color = m_color;
         pDst[3].TextureCoordinate = vertex_uv_type(textureCoords.X1, textureCoords.Y1);
@@ -285,76 +285,76 @@ namespace Fsl
 
         // 0123
         // ABCD
-        // pDst[0] = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
+        // pDst[0] = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
         pDst[0].Position = vertex_position_type(x0, y0, m_zPos);
         pDst[0].Color = m_color;
         pDst[0].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0);
-        // pDst[1] = vertex_value_type(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
+        // pDst[1] = TVertex(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
         pDst[1].Position = vertex_position_type(x0, y1, m_zPos);
         pDst[1].Color = m_color;
         pDst[1].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1);
-        // pDst[2] = vertex_value_type(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
+        // pDst[2] = TVertex(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
         pDst[2].Position = vertex_position_type(x1, y0, m_zPos);
         pDst[2].Color = m_color;
         pDst[2].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0);
-        // pDst[3] = vertex_value_type(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
+        // pDst[3] = TVertex(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
         pDst[3].Position = vertex_position_type(x1, y1, m_zPos);
         pDst[3].Color = m_color;
         pDst[3].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1);
 
         // 4567
         // EFGH
-        // pDst[4] = vertex_value_type(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
+        // pDst[4] = TVertex(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
         pDst[4].Position = vertex_position_type(x2, y0, m_zPos);
         pDst[4].Color = m_color;
         pDst[4].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0);
-        // pDst[5] = vertex_value_type(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
+        // pDst[5] = TVertex(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
         pDst[5].Position = vertex_position_type(x2, y1, m_zPos);
         pDst[5].Color = m_color;
         pDst[5].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1);
-        // pDst[6] = vertex_value_type(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
+        // pDst[6] = TVertex(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
         pDst[6].Position = vertex_position_type(x3, y0, m_zPos);
         pDst[6].Color = m_color;
         pDst[6].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0);
-        // pDst[7] = vertex_value_type(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
+        // pDst[7] = TVertex(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
         pDst[7].Position = vertex_position_type(x3, y1, m_zPos);
         pDst[7].Color = m_color;
         pDst[7].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1);
         //   11
         // 8901
         // IJKL
-        // pDst[8] = vertex_value_type(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
+        // pDst[8] = TVertex(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
         pDst[8].Position = vertex_position_type(x0, y2, m_zPos);
         pDst[8].Color = m_color;
         pDst[8].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2);
-        // pDst[9] = vertex_value_type(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
+        // pDst[9] = TVertex(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
         pDst[9].Position = vertex_position_type(x0, y3, m_zPos);
         pDst[9].Color = m_color;
         pDst[9].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3);
-        // pDst[10] = vertex_value_type(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
+        // pDst[10] = TVertex(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
         pDst[10].Position = vertex_position_type(x1, y2, m_zPos);
         pDst[10].Color = m_color;
         pDst[10].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2);
-        // pDst[11] = vertex_value_type(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
+        // pDst[11] = TVertex(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
         pDst[11].Position = vertex_position_type(x1, y3, m_zPos);
         pDst[11].Color = m_color;
         pDst[11].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3);
         // 1111
         // 2345
         // MNOP
-        // pDst[12] = vertex_value_type(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
+        // pDst[12] = TVertex(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
         pDst[12].Position = vertex_position_type(x2, y2, m_zPos);
         pDst[12].Color = m_color;
         pDst[12].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2);
-        // pDst[13] = vertex_value_type(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
+        // pDst[13] = TVertex(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
         pDst[13].Position = vertex_position_type(x2, y3, m_zPos);
         pDst[13].Color = m_color;
         pDst[13].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3);
-        // pDst[14] = vertex_value_type(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
+        // pDst[14] = TVertex(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
         pDst[14].Position = vertex_position_type(x3, y2, m_zPos);
         pDst[14].Color = m_color;
         pDst[14].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2);
-        // pDst[15] = vertex_value_type(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
+        // pDst[15] = TVertex(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
         pDst[15].Position = vertex_position_type(x3, y3, m_zPos);
         pDst[15].Color = m_color;
         pDst[15].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3);
@@ -477,21 +477,21 @@ namespace Fsl
 
         // 0123
         // ABCD
-        // pDst[0] = vertex_value_type(vertex_position_type(pos0.X, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
+        // pDst[0] = TVertex(vertex_position_type(pos0.X, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
         // texCoordNineSlice.Y0));
         pDst[0].Position = vertex_position_type(pos0.X, pos0.Y, m_zPos);
         pDst[0].Color = m_color;
         pDst[0].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0);
-        // pDst[1] = vertex_value_type(vertex_position_type(pos0.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
+        // pDst[1] = TVertex(vertex_position_type(pos0.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
         // texCoordNineSlice.Y1));
         pDst[1].Position = vertex_position_type(pos0.X, pos1.Y, m_zPos);
         pDst[1].Color = m_color;
         pDst[1].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1);
-        // pDst[2] = vertex_value_type(vertex_position_type(x1, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
+        // pDst[2] = TVertex(vertex_position_type(x1, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
         pDst[2].Position = vertex_position_type(pos1.X, pos0.Y, m_zPos);
         pDst[2].Color = m_color;
         pDst[2].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0);
-        // pDst[3] = vertex_value_type(vertex_position_type(pos1.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1,
+        // pDst[3] = TVertex(vertex_position_type(pos1.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1,
         // texCoordNineSlice.Y1));
         pDst[3].Position = vertex_position_type(pos1.X, pos1.Y, m_zPos);
         pDst[3].Color = m_color;
@@ -499,22 +499,22 @@ namespace Fsl
 
         // 4567
         // EFGH
-        // pDst[4] = vertex_value_type(vertex_position_type(pos2.X, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
+        // pDst[4] = TVertex(vertex_position_type(pos2.X, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
         // texCoordNineSlice.Y0));
         pDst[4].Position = vertex_position_type(pos2.X, pos0.Y, m_zPos);
         pDst[4].Color = m_color;
         pDst[4].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0);
-        // pDst[5] = vertex_value_type(vertex_position_type(pos2.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
+        // pDst[5] = TVertex(vertex_position_type(pos2.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
         // texCoordNineSlice.Y1));
         pDst[5].Position = vertex_position_type(pos2.X, pos1.Y, m_zPos);
         pDst[5].Color = m_color;
         pDst[5].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1);
-        // pDst[6] = vertex_value_type(vertex_position_type(pos3.X, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
+        // pDst[6] = TVertex(vertex_position_type(pos3.X, pos0.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
         // texCoordNineSlice.Y0));
         pDst[6].Position = vertex_position_type(pos3.X, pos0.Y, m_zPos);
         pDst[6].Color = m_color;
         pDst[6].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0);
-        // pDst[7] = vertex_value_type(vertex_position_type(pos3.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
+        // pDst[7] = TVertex(vertex_position_type(pos3.X, pos1.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
         // texCoordNineSlice.Y1));
         pDst[7].Position = vertex_position_type(pos3.X, pos1.Y, m_zPos);
         pDst[7].Color = m_color;
@@ -522,22 +522,22 @@ namespace Fsl
         //   11
         // 8901
         // IJKL
-        // pDst[8] = vertex_value_type(vertex_position_type(pos0.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
+        // pDst[8] = TVertex(vertex_position_type(pos0.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
         // texCoordNineSlice.Y2));
         pDst[8].Position = vertex_position_type(pos0.X, pos2.Y, m_zPos);
         pDst[8].Color = m_color;
         pDst[8].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2);
-        // pDst[9] = vertex_value_type(vertex_position_type(pos0.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
+        // pDst[9] = TVertex(vertex_position_type(pos0.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0,
         // texCoordNineSlice.Y3));
         pDst[9].Position = vertex_position_type(pos0.X, pos3.Y, m_zPos);
         pDst[9].Color = m_color;
         pDst[9].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3);
-        // pDst[10] = vertex_value_type(vertex_position_type(pos1.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1,
+        // pDst[10] = TVertex(vertex_position_type(pos1.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1,
         // texCoordNineSlice.Y2));
         pDst[10].Position = vertex_position_type(pos1.X, pos2.Y, m_zPos);
         pDst[10].Color = m_color;
         pDst[10].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2);
-        // pDst[11] = vertex_value_type(vertex_position_type(pos1.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1,
+        // pDst[11] = TVertex(vertex_position_type(pos1.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1,
         // texCoordNineSlice.Y3));
         pDst[11].Position = vertex_position_type(pos1.X, pos3.Y, m_zPos);
         pDst[11].Color = m_color;
@@ -545,22 +545,22 @@ namespace Fsl
         // 1111
         // 2345
         // MNOP
-        // pDst[12] = vertex_value_type(vertex_position_type(pos2.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
+        // pDst[12] = TVertex(vertex_position_type(pos2.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
         // texCoordNineSlice.Y2));
         pDst[12].Position = vertex_position_type(pos2.X, pos2.Y, m_zPos);
         pDst[12].Color = m_color;
         pDst[12].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2);
-        // pDst[13] = vertex_value_type(vertex_position_type(pos2.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
+        // pDst[13] = TVertex(vertex_position_type(pos2.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2,
         // texCoordNineSlice.Y3));
         pDst[13].Position = vertex_position_type(pos2.X, pos3.Y, m_zPos);
         pDst[13].Color = m_color;
         pDst[13].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3);
-        // pDst[14] = vertex_value_type(vertex_position_type(pos3.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
+        // pDst[14] = TVertex(vertex_position_type(pos3.X, pos2.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
         // texCoordNineSlice.Y2));
         pDst[14].Position = vertex_position_type(pos3.X, pos2.Y, m_zPos);
         pDst[14].Color = m_color;
         pDst[14].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2);
-        // pDst[15] = vertex_value_type(vertex_position_type(pos3.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
+        // pDst[15] = TVertex(vertex_position_type(pos3.X, pos3.Y, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3,
         // texCoordNineSlice.Y3));
         pDst[15].Position = vertex_position_type(pos3.X, pos3.Y, m_zPos);
         pDst[15].Color = m_color;
@@ -684,75 +684,75 @@ namespace Fsl
 
         // 0123
         // ABCD
-        // pDst[0] = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
+        // pDst[0] = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
         pDst[0].Position = vertex_position_type(x0, y0, m_zPos);
         pDst[0].Color = m_color;
         pDst[0].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0);
-        // pDst[1] = vertex_value_type(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
+        // pDst[1] = TVertex(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
         pDst[1].Position = vertex_position_type(x0, y1, m_zPos);
         pDst[1].Color = m_color;
         pDst[1].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1);
-        // pDst[2] = vertex_value_type(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
+        // pDst[2] = TVertex(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
         pDst[2].Position = vertex_position_type(x1, y0, m_zPos);
         pDst[2].Color = m_color;
         pDst[2].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0);
-        // pDst[3] = vertex_value_type(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
+        // pDst[3] = TVertex(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
         pDst[3].Position = vertex_position_type(x1, y1, m_zPos);
         pDst[3].Color = m_color;
         pDst[3].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1);
         // 4567
         // EFGH
-        // pDst[4] = vertex_value_type(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
+        // pDst[4] = TVertex(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
         pDst[4].Position = vertex_position_type(x2, y0, m_zPos);
         pDst[4].Color = m_color;
         pDst[4].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0);
-        // pDst[5] = vertex_value_type(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
+        // pDst[5] = TVertex(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
         pDst[5].Position = vertex_position_type(x2, y1, m_zPos);
         pDst[5].Color = m_color;
         pDst[5].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1);
-        // pDst[6] = vertex_value_type(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
+        // pDst[6] = TVertex(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
         pDst[6].Position = vertex_position_type(x3, y0, m_zPos);
         pDst[6].Color = m_color;
         pDst[6].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0);
-        // pDst[7] = vertex_value_type(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
+        // pDst[7] = TVertex(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
         pDst[7].Position = vertex_position_type(x3, y1, m_zPos);
         pDst[7].Color = m_color;
         pDst[7].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1);
         //   11
         // 8901
         // IJKL
-        // pDst[8] = vertex_value_type(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
+        // pDst[8] = TVertex(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
         pDst[8].Position = vertex_position_type(x0, y2, m_zPos);
         pDst[8].Color = m_color;
         pDst[8].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2);
-        // pDst[9] = vertex_value_type(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
+        // pDst[9] = TVertex(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
         pDst[9].Position = vertex_position_type(x0, y3, m_zPos);
         pDst[9].Color = m_color;
         pDst[9].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3);
-        // pDst[10] = vertex_value_type(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
+        // pDst[10] = TVertex(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
         pDst[10].Position = vertex_position_type(x1, y2, m_zPos);
         pDst[10].Color = m_color;
         pDst[10].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2);
-        // pDst[11] = vertex_value_type(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
+        // pDst[11] = TVertex(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
         pDst[11].Position = vertex_position_type(x1, y3, m_zPos);
         pDst[11].Color = m_color;
         pDst[11].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3);
         // 1111
         // 2345
         // MNOP
-        // pDst[12] = vertex_value_type(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
+        // pDst[12] = TVertex(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
         pDst[12].Position = vertex_position_type(x2, y2, m_zPos);
         pDst[12].Color = m_color;
         pDst[12].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2);
-        // pDst[13] = vertex_value_type(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
+        // pDst[13] = TVertex(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
         pDst[13].Position = vertex_position_type(x2, y3, m_zPos);
         pDst[13].Color = m_color;
         pDst[13].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3);
-        // pDst[14] = vertex_value_type(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
+        // pDst[14] = TVertex(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
         pDst[14].Position = vertex_position_type(x3, y2, m_zPos);
         pDst[14].Color = m_color;
         pDst[14].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2);
-        // pDst[15] = vertex_value_type(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
+        // pDst[15] = TVertex(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
         pDst[15].Position = vertex_position_type(x3, y3, m_zPos);
         pDst[15].Color = m_color;
         pDst[15].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3);
@@ -924,75 +924,75 @@ namespace Fsl
 
         // 0123
         // ABCD
-        // pDst[0] = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
+        // pDst[0] = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
         pDst[0].Position = vertex_position_type(x0, y0, m_zPos);
         pDst[0].Color = m_color;
         pDst[0].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3);
-        // pDst[1] = vertex_value_type(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
+        // pDst[1] = TVertex(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
         pDst[1].Position = vertex_position_type(x0, y1, m_zPos);
         pDst[1].Color = m_color;
         pDst[1].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3);
-        // pDst[2] = vertex_value_type(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
+        // pDst[2] = TVertex(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
         pDst[2].Position = vertex_position_type(x1, y0, m_zPos);
         pDst[2].Color = m_color;
         pDst[2].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2);
-        // pDst[3] = vertex_value_type(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
+        // pDst[3] = TVertex(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
         pDst[3].Position = vertex_position_type(x1, y1, m_zPos);
         pDst[3].Color = m_color;
         pDst[3].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2);
         // 4567
         // EFGH
-        // pDst[4] = vertex_value_type(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
+        // pDst[4] = TVertex(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
         pDst[4].Position = vertex_position_type(x2, y0, m_zPos);
         pDst[4].Color = m_color;
         pDst[4].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1);
-        // pDst[5] = vertex_value_type(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
+        // pDst[5] = TVertex(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
         pDst[5].Position = vertex_position_type(x2, y1, m_zPos);
         pDst[5].Color = m_color;
         pDst[5].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1);
-        // pDst[6] = vertex_value_type(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
+        // pDst[6] = TVertex(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
         pDst[6].Position = vertex_position_type(x3, y0, m_zPos);
         pDst[6].Color = m_color;
         pDst[6].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0);
-        // pDst[7] = vertex_value_type(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
+        // pDst[7] = TVertex(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
         pDst[7].Position = vertex_position_type(x3, y1, m_zPos);
         pDst[7].Color = m_color;
         pDst[7].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0);
         //   11
         // 8901
         // IJKL
-        // pDst[8] = vertex_value_type(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
+        // pDst[8] = TVertex(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
         pDst[8].Position = vertex_position_type(x0, y2, m_zPos);
         pDst[8].Color = m_color;
         pDst[8].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3);
-        // pDst[9] = vertex_value_type(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
+        // pDst[9] = TVertex(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
         pDst[9].Position = vertex_position_type(x0, y3, m_zPos);
         pDst[9].Color = m_color;
         pDst[9].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3);
-        // pDst[10] = vertex_value_type(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
+        // pDst[10] = TVertex(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
         pDst[10].Position = vertex_position_type(x1, y2, m_zPos);
         pDst[10].Color = m_color;
         pDst[10].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2);
-        // pDst[11] = vertex_value_type(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
+        // pDst[11] = TVertex(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
         pDst[11].Position = vertex_position_type(x1, y3, m_zPos);
         pDst[11].Color = m_color;
         pDst[11].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2);
         // 1111
         // 2345
         // MNOP
-        // pDst[12] = vertex_value_type(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
+        // pDst[12] = TVertex(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
         pDst[12].Position = vertex_position_type(x2, y2, m_zPos);
         pDst[12].Color = m_color;
         pDst[12].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1);
-        // pDst[13] = vertex_value_type(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
+        // pDst[13] = TVertex(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
         pDst[13].Position = vertex_position_type(x2, y3, m_zPos);
         pDst[13].Color = m_color;
         pDst[13].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1);
-        // pDst[14] = vertex_value_type(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
+        // pDst[14] = TVertex(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
         pDst[14].Position = vertex_position_type(x3, y2, m_zPos);
         pDst[14].Color = m_color;
         pDst[14].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0);
-        // pDst[15] = vertex_value_type(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
+        // pDst[15] = TVertex(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
         pDst[15].Position = vertex_position_type(x3, y3, m_zPos);
         pDst[15].Color = m_color;
         pDst[15].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0);
@@ -1126,75 +1126,75 @@ namespace Fsl
 
         // 0123
         // ABCD
-        // pDst[0] = vertex_value_type(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
+        // pDst[0] = TVertex(vertex_position_type(x0, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3));
         pDst[0].Position = vertex_position_type(x0, y0, m_zPos);
         pDst[0].Color = m_color;
         pDst[0].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y3);
-        // pDst[1] = vertex_value_type(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
+        // pDst[1] = TVertex(vertex_position_type(x0, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3));
         pDst[1].Position = vertex_position_type(x0, y1, m_zPos);
         pDst[1].Color = m_color;
         pDst[1].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y3);
-        // pDst[2] = vertex_value_type(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
+        // pDst[2] = TVertex(vertex_position_type(x1, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2));
         pDst[2].Position = vertex_position_type(x1, y0, m_zPos);
         pDst[2].Color = m_color;
         pDst[2].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y2);
-        // pDst[3] = vertex_value_type(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
+        // pDst[3] = TVertex(vertex_position_type(x1, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2));
         pDst[3].Position = vertex_position_type(x1, y1, m_zPos);
         pDst[3].Color = m_color;
         pDst[3].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y2);
         // 4567
         // EFGH
-        // pDst[4] = vertex_value_type(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
+        // pDst[4] = TVertex(vertex_position_type(x2, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1));
         pDst[4].Position = vertex_position_type(x2, y0, m_zPos);
         pDst[4].Color = m_color;
         pDst[4].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y1);
-        // pDst[5] = vertex_value_type(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
+        // pDst[5] = TVertex(vertex_position_type(x2, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1));
         pDst[5].Position = vertex_position_type(x2, y1, m_zPos);
         pDst[5].Color = m_color;
         pDst[5].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y1);
-        // pDst[6] = vertex_value_type(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
+        // pDst[6] = TVertex(vertex_position_type(x3, y0, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0));
         pDst[6].Position = vertex_position_type(x3, y0, m_zPos);
         pDst[6].Color = m_color;
         pDst[6].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X0, texCoordNineSlice.Y0);
-        // pDst[7] = vertex_value_type(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
+        // pDst[7] = TVertex(vertex_position_type(x3, y1, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0));
         pDst[7].Position = vertex_position_type(x3, y1, m_zPos);
         pDst[7].Color = m_color;
         pDst[7].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X1, texCoordNineSlice.Y0);
         //   11
         // 8901
         // IJKL
-        // pDst[8] = vertex_value_type(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
+        // pDst[8] = TVertex(vertex_position_type(x0, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3));
         pDst[8].Position = vertex_position_type(x0, y2, m_zPos);
         pDst[8].Color = m_color;
         pDst[8].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y3);
-        // pDst[9] = vertex_value_type(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
+        // pDst[9] = TVertex(vertex_position_type(x0, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3));
         pDst[9].Position = vertex_position_type(x0, y3, m_zPos);
         pDst[9].Color = m_color;
         pDst[9].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y3);
-        // pDst[10] = vertex_value_type(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
+        // pDst[10] = TVertex(vertex_position_type(x1, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2));
         pDst[10].Position = vertex_position_type(x1, y2, m_zPos);
         pDst[10].Color = m_color;
         pDst[10].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y2);
-        // pDst[11] = vertex_value_type(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
+        // pDst[11] = TVertex(vertex_position_type(x1, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2));
         pDst[11].Position = vertex_position_type(x1, y3, m_zPos);
         pDst[11].Color = m_color;
         pDst[11].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y2);
         // 1111
         // 2345
         // MNOP
-        // pDst[12] = vertex_value_type(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
+        // pDst[12] = TVertex(vertex_position_type(x2, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1));
         pDst[12].Position = vertex_position_type(x2, y2, m_zPos);
         pDst[12].Color = m_color;
         pDst[12].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y1);
-        // pDst[13] = vertex_value_type(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
+        // pDst[13] = TVertex(vertex_position_type(x2, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1));
         pDst[13].Position = vertex_position_type(x2, y3, m_zPos);
         pDst[13].Color = m_color;
         pDst[13].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y1);
-        // pDst[14] = vertex_value_type(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
+        // pDst[14] = TVertex(vertex_position_type(x3, y2, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0));
         pDst[14].Position = vertex_position_type(x3, y2, m_zPos);
         pDst[14].Color = m_color;
         pDst[14].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X2, texCoordNineSlice.Y0);
-        // pDst[15] = vertex_value_type(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
+        // pDst[15] = TVertex(vertex_position_type(x3, y3, m_zPos), m_color, vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0));
         pDst[15].Position = vertex_position_type(x3, y3, m_zPos);
         pDst[15].Color = m_color;
         pDst[15].TextureCoordinate = vertex_uv_type(texCoordNineSlice.X3, texCoordNineSlice.Y0);
@@ -1373,7 +1373,7 @@ namespace Fsl
           {
             for (uint32_t indexX = 0; indexX < countX; ++indexX)
             {
-              //*pDst = vertex_value_type(vertex_position_type(spanX[indexX].X, spanY[indexY].X, m_zPos), m_color,
+              //*pDst = TVertex(vertex_position_type(spanX[indexX].X, spanY[indexY].X, m_zPos), m_color,
               //                          vertex_uv_type(spanX[indexX].Y, spanY[indexY].Y));
               pDst->Position = vertex_position_type(spanX[indexX].X, spanY[indexY].X, m_zPos);
               pDst->Color = m_color;

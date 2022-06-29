@@ -35,38 +35,39 @@
 #include <FslSimpleUI/Base/Control/LabelBase.hpp>
 #include <string>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class Label : public LabelBase
   {
-    class Label : public LabelBase
+    DataBinding::TypedDependencyProperty<StringViewLite> m_propertyContent;
+
+  public:
+    static DataBinding::DependencyPropertyDefinition PropertyContent;
+
+    explicit Label(const std::shared_ptr<WindowContext>& context);
+
+    StringViewLite GetContent() const;
+
+    bool SetContent(const char* const psz)
     {
-      std::string m_content;
+      return SetContent(StringViewLite(psz));
+    }
 
-    public:
-      explicit Label(const std::shared_ptr<WindowContext>& context);
+    bool SetContent(const StringViewLite value);
+    bool SetContent(const std::string& value);
+    bool SetContent(std::string&& value);
 
-      const std::string& GetContent() const
-      {
-        return m_content;
-      }
+  protected:
+    StringViewLite DoGetContent() const override
+    {
+      return GetContent();
+    }
 
-      void SetContent(const char* const psz)
-      {
-        SetContent(StringViewLite(psz));
-      }
-
-      void SetContent(const StringViewLite& value);
-      void SetContent(const std::string& value);
-      void SetContent(std::string&& value);
-
-    protected:
-      StringViewLite DoGetContent() const override
-      {
-        return StringViewLite(m_content.data(), m_content.size());
-      }
-    };
-  }
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+    DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                           const DataBinding::Binding& binding) override;
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
+  };
 }
 
 #endif

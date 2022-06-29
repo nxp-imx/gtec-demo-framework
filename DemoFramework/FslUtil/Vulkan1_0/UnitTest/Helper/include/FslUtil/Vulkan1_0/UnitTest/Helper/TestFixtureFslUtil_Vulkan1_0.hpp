@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/TestFixture.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslUnitTest/TestFixture.hpp>
 
 class TestFixtureFslUtil_Vulkan1_0 : public TestFixture
 {

@@ -34,19 +34,16 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::G2D
 {
-  namespace G2D
+  DynamicNativeTexture2D::DynamicNativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
   {
-    DynamicNativeTexture2D::DynamicNativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
-    {
-      FSLLOG3_WARNING("DynamicNativeTexture2D is a stub");
-    }
+    FSLLOG3_WARNING("DynamicNativeTexture2D is a stub");
+  }
 
-    DynamicNativeTexture2D::~DynamicNativeTexture2D() = default;
+  DynamicNativeTexture2D::~DynamicNativeTexture2D() = default;
 
-    void DynamicNativeTexture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
-    {
-    }
+  void DynamicNativeTexture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+  {
   }
 }

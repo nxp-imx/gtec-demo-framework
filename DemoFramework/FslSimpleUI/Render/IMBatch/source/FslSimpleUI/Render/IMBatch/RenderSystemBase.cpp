@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,84 +37,78 @@
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 //#include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil.hpp>
 #include <FslSimpleUI/Render/Base/Command/CommandDrawCustomBasicImageAtOffsetAndSizeBasicMesh.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
 #include "MeshManager.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  RenderSystemBase::RenderSystemBase(const RenderSystemCreateInfo& createInfo)
+    : m_renderSystem(createInfo.RenderSystem)
+    , m_meshManager(std::make_shared<MeshManager>(createInfo.DefaultMaterialInfo))
+    , m_windowMetrics(createInfo.WindowMetrics)
+    , m_allowDepthBuffer(createInfo.AllowDepthBuffer)
   {
-    namespace RenderIMBatch
-    {
-      RenderSystemBase::RenderSystemBase(const RenderSystemCreateInfo& createInfo)
-        : m_renderSystem(createInfo.RenderSystem)
-        , m_meshManager(std::make_shared<MeshManager>(createInfo.DefaultMaterialInfo))
-        , m_windowMetrics(createInfo.WindowMetrics)
-        , m_allowDepthBuffer(createInfo.AllowDepthBuffer)
-      {
-        // m_batcher2.SetLimitOnlyOneEntryPerBatch(true);
-        // m_batcher2.SetLimitOnlyOneBatchPerSegment(true);
+    // m_batcher2.SetLimitOnlyOneEntryPerBatch(true);
+    // m_batcher2.SetLimitOnlyOneBatchPerSegment(true);
 
-        OnConfigurationChanged(createInfo.WindowMetrics);
-      }
+    OnConfigurationChanged(createInfo.WindowMetrics);
+  }
 
 
-      RenderSystemBase::~RenderSystemBase() = default;
+  RenderSystemBase::~RenderSystemBase() = default;
 
 
-      void RenderSystemBase::OnConfigurationChanged(const BasicWindowMetrics& windowMetrics)
-      {
-        m_windowMetrics = windowMetrics;
-        {    // Setup the orthographic matrix for 2d rendering
-          const PxSize2D sizePx = windowMetrics.GetSizePx();
+  void RenderSystemBase::OnConfigurationChanged(const BasicWindowMetrics& windowMetrics)
+  {
+    m_windowMetrics = windowMetrics;
+    {    // Setup the orthographic matrix for 2d rendering
+      const PxSize2D sizePx = windowMetrics.GetSizePx();
 
-          const auto screenWidth = static_cast<float>(sizePx.Width());
-          const auto screenHeight = static_cast<float>(sizePx.Height());
-          const float screenOffsetX = screenWidth / 2.0f;
-          const float screenOffsetY = screenHeight / 2.0f;
+      const auto screenWidth = static_cast<float>(sizePx.Width());
+      const auto screenHeight = static_cast<float>(sizePx.Height());
+      const float screenOffsetX = screenWidth / 2.0f;
+      const float screenOffsetY = screenHeight / 2.0f;
 
-          m_matrixProjection = Matrix::CreateTranslation(-screenOffsetX, -screenOffsetY, 1.0f) * Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
-                               Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10000.0f);
-        }
-        m_meshManager->OnConfigurationChanged();
-      }
-
-
-      std::shared_ptr<IMeshManager> RenderSystemBase::GetMeshManager() const
-      {
-        return m_meshManager;
-      }
-
-
-      DrawCommandBuffer& RenderSystemBase::AcquireDrawCommandBuffer()
-      {
-        m_meshManager->PreDraw();
-        return m_commandBuffer;
-      }
-
-      void RenderSystemBase::ReleaseDrawCommandBuffer()
-      {
-      }
-
-      void RenderSystemBase::PreDraw()
-      {
-        assert(m_renderSystem);
-        m_stats = {};
-        m_renderSystem->BeginCache();
-      }
-
-
-      void RenderSystemBase::PostDraw()
-      {
-        assert(m_renderSystem);
-        m_renderSystem->EndCache();
-      }
+      m_matrixProjection = Matrix::CreateTranslation(-screenOffsetX, -screenOffsetY, 1.0f) * Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
+                           Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10000.0f);
     }
+    m_meshManager->OnConfigurationChanged();
+  }
+
+
+  std::shared_ptr<IMeshManager> RenderSystemBase::GetMeshManager() const
+  {
+    return m_meshManager;
+  }
+
+
+  DrawCommandBuffer& RenderSystemBase::AcquireDrawCommandBuffer()
+  {
+    m_meshManager->PreDraw();
+    return m_commandBuffer;
+  }
+
+  void RenderSystemBase::ReleaseDrawCommandBuffer()
+  {
+  }
+
+  void RenderSystemBase::PreDraw()
+  {
+    assert(m_renderSystem);
+    m_stats = {};
+    m_renderSystem->BeginCache();
+  }
+
+
+  void RenderSystemBase::PostDraw()
+  {
+    assert(m_renderSystem);
+    m_renderSystem->EndCache();
   }
 }

@@ -52,7 +52,7 @@ if %errorlevel% neq 0 (
 rem Since a specific executor can run build multiple version of the %JOB_NAME% and there is no way 
 rem to get information about that to create a unique directory name based on 'JOB_NAME' 'EXECUTOR_NUMBER' and this 'magic workspace #'
 rem we force claim the install area instead bypassing a security check
-FslBuildExternal.py --ForceClaimInstallArea --VoidBuild
+FslBuildExternal.py --noGitHash --ForceClaimInstallArea --VoidBuild
 if %errorlevel% neq 0 (
   exit /b %errorlevel%
 )
@@ -62,6 +62,6 @@ if not defined FSL_CI_TEST_REPORTS (
 )
 
 if not defined FSL_CI_FEATURES (
-set FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1,Vulkan]
+set FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.2,Vulkan]
 )
 

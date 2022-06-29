@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,52 +29,46 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
-#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::QueueUtil
 {
-  namespace Vulkan
+  bool TryGetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
+                              const uint32_t queueIndex, const std::vector<bool>* pFilter, uint32_t& rQueueFamilyIndex)
   {
-    namespace QueueUtil
+    if ((pFilter != nullptr) && pFilter->size() != allQueueFamilyProperties.size())
     {
-      bool TryGetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
-                                  const uint32_t queueIndex, const std::vector<bool>* pFilter, uint32_t& rQueueFamilyIndex)
+      throw std::invalid_argument("The filter size must match the allQueueFamilyProperties size");
+    }
+
+    for (uint32_t queueFamilyIndexWalker = 0; queueFamilyIndexWalker < allQueueFamilyProperties.size(); ++queueFamilyIndexWalker)
+    {
+      if (((allQueueFamilyProperties[queueFamilyIndexWalker].queueFlags & queueFlags) != 0u) &&
+          allQueueFamilyProperties[queueFamilyIndexWalker].queueCount > queueIndex)
       {
-        if ((pFilter != nullptr) && pFilter->size() != allQueueFamilyProperties.size())
+        if ((pFilter == nullptr) || ((pFilter != nullptr) && (*pFilter)[queueFamilyIndexWalker]))
         {
-          throw std::invalid_argument("The filter size must match the allQueueFamilyProperties size");
+          rQueueFamilyIndex = queueFamilyIndexWalker;
+          return true;
         }
-
-        for (uint32_t queueFamilyIndexWalker = 0; queueFamilyIndexWalker < allQueueFamilyProperties.size(); ++queueFamilyIndexWalker)
-        {
-          if (((allQueueFamilyProperties[queueFamilyIndexWalker].queueFlags & queueFlags) != 0u) &&
-              allQueueFamilyProperties[queueFamilyIndexWalker].queueCount > queueIndex)
-          {
-            if ((pFilter == nullptr) || ((pFilter != nullptr) && (*pFilter)[queueFamilyIndexWalker]))
-            {
-              rQueueFamilyIndex = queueFamilyIndexWalker;
-              return true;
-            }
-          }
-        }
-        return false;
-      }
-
-
-      uint32_t GetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
-                                   const uint32_t queueIndex, const std::vector<bool>* pFilter)
-      {
-        uint32_t queueFamilyIndex = 0;
-        if (TryGetQueueFamilyIndex(allQueueFamilyProperties, queueFlags, queueIndex, pFilter, queueFamilyIndex))
-        {
-          return queueFamilyIndex;
-        }
-        throw NotSupportedException("Could not find matching physical device queue properties");
       }
     }
+    return false;
+  }
+
+
+  uint32_t GetQueueFamilyIndex(const std::vector<VkQueueFamilyProperties>& allQueueFamilyProperties, const VkQueueFlags queueFlags,
+                               const uint32_t queueIndex, const std::vector<bool>* pFilter)
+  {
+    uint32_t queueFamilyIndex = 0;
+    if (TryGetQueueFamilyIndex(allQueueFamilyProperties, queueFlags, queueIndex, pFilter, queueFamilyIndex))
+    {
+      return queueFamilyIndex;
+    }
+    throw NotSupportedException("Could not find matching physical device queue properties");
   }
 }

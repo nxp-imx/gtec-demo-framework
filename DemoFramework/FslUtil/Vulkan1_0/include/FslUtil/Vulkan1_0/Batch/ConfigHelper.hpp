@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_BATCH_CONFIGHELPER_HPP
 #define FSLUTIL_VULKAN1_0_BATCH_CONFIGHELPER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,40 +33,33 @@
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Span/Span.hpp>
-#include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Render/Basic/BasicCullMode.hpp>
 #include <FslGraphics/Render/Basic/BasicFrontFace.hpp>
+#include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan::ConfigHelper
 {
-  namespace Vulkan
-  {
-    namespace ConfigHelper
-    {
-      void ExtractVertexAttributes(Span<VkVertexInputAttributeDescription> dstAttributes, const VertexDeclarationSpan& vertexDecl);
+  void ExtractVertexAttributes(Span<VkVertexInputAttributeDescription> dstAttributes, const VertexDeclarationSpan& vertexDecl);
 
-      RapidVulkan::PipelineLayout CreatePipelineLayout(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
-                                                       const VkDescriptorSetLayout& descriptorSetLayoutTexture);
+  RapidVulkan::PipelineLayout CreatePipelineLayout(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
+                                                   const VkDescriptorSetLayout& descriptorSetLayoutTexture);
 
-      RapidVulkan::PipelineLayout CreatePipelineLayoutWithPushConstant(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
-                                                                       const VkDescriptorSetLayout& descriptorSetLayoutTexture,
-                                                                       const uint32_t cbPushConstants);
+  RapidVulkan::PipelineLayout CreatePipelineLayoutWithPushConstant(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
+                                                                   const VkDescriptorSetLayout& descriptorSetLayoutTexture,
+                                                                   const uint32_t cbPushConstants);
 
-      VkPipelineColorBlendAttachmentState CreatePipelineColorBlendAttachmentState(const BlendState blendState);
+  VkPipelineColorBlendAttachmentState CreatePipelineColorBlendAttachmentState(const BlendState blendState);
 
 
-      RapidVulkan::GraphicsPipeline CreateGraphicsPipeline(const VkDevice device, const VkShaderModule vertexShader,
-                                                           const VkShaderModule fragmentShader, const VkPipelineLayout pipelineLayout,
-                                                           const VkPipelineCache pipelineCache, const VkRenderPass renderPass, const uint32_t subpass,
-                                                           const PxExtent2D& screenExtentPx, const BlendState blendState,
-                                                           const BasicCullMode cullMode, const BasicFrontFace frontFace,
-                                                           const VertexDeclarationSpan& vertexDeclaration);
-    }
-  }
+  RapidVulkan::GraphicsPipeline CreateGraphicsPipeline(const VkDevice device, const VkShaderModule vertexShader, const VkShaderModule fragmentShader,
+                                                       const VkPipelineLayout pipelineLayout, const VkPipelineCache pipelineCache,
+                                                       const VkRenderPass renderPass, const uint32_t subpass, const PxExtent2D& screenExtentPx,
+                                                       const BlendState blendState, const BasicCullMode cullMode, const BasicFrontFace frontFace,
+                                                       const VertexDeclarationSpan& vertexDeclaration);
 }
 
 #endif

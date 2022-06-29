@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MESH_SIZEDSPRITEMESH_HPP
 #define FSLSIMPLEUI_BASE_MESH_SIZEDSPRITEMESH_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,65 +35,62 @@
 #include <FslSimpleUI/Base/Mesh/SpriteMesh.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class SizedSpriteMesh : public SpriteMesh<ISizedSprite>
   {
-    class SizedSpriteMesh : public SpriteMesh<ISizedSprite>
+  public:
+    explicit SizedSpriteMesh(const std::shared_ptr<IMeshManager>& meshManager)
+      : SpriteMesh(meshManager)
     {
-    public:
-      explicit SizedSpriteMesh(const std::shared_ptr<IMeshManager>& meshManager)
-        : SpriteMesh(meshManager)
-      {
-      }
+    }
 
-      PxSize2D FastGetRenderSizePx() const
-      {
-        assert(IsValid());
-        return GetSpriteObject().GetRenderSizePx();
-      }
+    PxSize2D FastGetRenderSizePx() const
+    {
+      assert(IsValid());
+      return GetSpriteObject().GetRenderSizePx();
+    }
 
-      PxSize2D GetRenderSizePx() const
-      {
-        return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
-      }
+    PxSize2D GetRenderSizePx() const
+    {
+      return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
+    }
 
-      PxSize2D Measure() const
-      {
-        return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
-      }
+    PxSize2D Measure() const
+    {
+      return IsValid() ? GetSpriteObject().GetRenderSizePx() : PxSize2D();
+    }
 
-      PxSize2D Measure(const PxSize2D& finalSizePx, const ItemScalePolicy scalePolicy) const
+    PxSize2D Measure(const PxSize2D& finalSizePx, const ItemScalePolicy scalePolicy) const
+    {
+      PxSize2D desiredSizePx;
+      if (IsValid())
       {
-        PxSize2D desiredSizePx;
-        if (IsValid())
+        const PxSize2D renderSizePx = GetSpriteObject().GetRenderSizePx();
+        if (!UIScaleUtil::TryCalcSize(desiredSizePx, finalSizePx, renderSizePx, scalePolicy))
         {
-          const PxSize2D renderSizePx = GetSpriteObject().GetRenderSizePx();
-          if (!UIScaleUtil::TryCalcSize(desiredSizePx, finalSizePx, renderSizePx, scalePolicy))
-          {
-            // Fallback to the original size
-            desiredSizePx = renderSizePx;
-          }
+          // Fallback to the original size
+          desiredSizePx = renderSizePx;
         }
-        return desiredSizePx;
       }
+      return desiredSizePx;
+    }
 
-      PxSize2D Measure(const PxSize2D& finalSizePx, const ItemScalePolicy scalePolicy, const bool rotate90CW) const
+    PxSize2D Measure(const PxSize2D& finalSizePx, const ItemScalePolicy scalePolicy, const bool rotate90CW) const
+    {
+      PxSize2D desiredSizePx;
+      if (IsValid())
       {
-        PxSize2D desiredSizePx;
-        if (IsValid())
+        const PxSize2D renderSizePx = !rotate90CW ? GetSpriteObject().GetRenderSizePx() : PxSize2D::Flip(GetSpriteObject().GetRenderSizePx());
+        if (!UIScaleUtil::TryCalcSize(desiredSizePx, finalSizePx, renderSizePx, scalePolicy))
         {
-          const PxSize2D renderSizePx = !rotate90CW ? GetSpriteObject().GetRenderSizePx() : PxSize2D::Flip(GetSpriteObject().GetRenderSizePx());
-          if (!UIScaleUtil::TryCalcSize(desiredSizePx, finalSizePx, renderSizePx, scalePolicy))
-          {
-            // Fallback to the original size
-            desiredSizePx = renderSizePx;
-          }
+          // Fallback to the original size
+          desiredSizePx = renderSizePx;
         }
-        return desiredSizePx;
       }
-    };
-  }
+      return desiredSizePx;
+    }
+  };
 }
 
 #endif

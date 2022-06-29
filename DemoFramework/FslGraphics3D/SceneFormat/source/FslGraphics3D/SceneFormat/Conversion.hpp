@@ -36,25 +36,22 @@
 #include <FslGraphics3D/SceneFormat/PrimitiveType.hpp>
 #include "SFVertexDeclaration.hpp"
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  class Conversion
   {
-    class Conversion
-    {
-    public:
-      static SceneFormat::PrimitiveType Convert(const Fsl::PrimitiveType value);
-      static Fsl::PrimitiveType Convert(const SceneFormat::PrimitiveType value);
+  public:
+    static SceneFormat::PrimitiveType Convert(const Fsl::PrimitiveType value);
+    static Fsl::PrimitiveType Convert(const SceneFormat::PrimitiveType value);
 
-      static SceneFormat::VertexElementFormat Convert(const Fsl::VertexElementFormat value);
-      static Fsl::VertexElementFormat Convert(const SceneFormat::VertexElementFormat value);
-      static SceneFormat::VertexElementUsage Convert(const Fsl::VertexElementUsage value);
-      static Fsl::VertexElementUsage Convert(const SceneFormat::VertexElementUsage value);
+    static SceneFormat::VertexElementFormat Convert(const Fsl::VertexElementFormat value);
+    static Fsl::VertexElementFormat Convert(const SceneFormat::VertexElementFormat value);
+    static SceneFormat::VertexElementUsage Convert(const Fsl::VertexElementUsage value);
+    static Fsl::VertexElementUsage Convert(const SceneFormat::VertexElementUsage value);
 
-      static SFVertexElement Convert(const VertexElementEx& element);
-      static SFVertexDeclaration Convert(VertexDeclarationSpan vertexDeclaration);
-    };
-  }
+    static SFVertexElement Convert(const VertexElement& element);
+    static SFVertexDeclaration Convert(VertexDeclarationSpan vertexDeclaration);
+  };
 }
 
 #endif

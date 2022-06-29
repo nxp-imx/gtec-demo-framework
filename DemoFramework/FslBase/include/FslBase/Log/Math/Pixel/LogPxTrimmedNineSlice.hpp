@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxThickness.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxThicknessF.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <ostream>
 
 namespace Fsl

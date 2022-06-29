@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "HDR03_SkyboxToneMapping.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -109,7 +109,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -130,7 +130,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 
@@ -209,9 +209,14 @@ namespace Fsl
       attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
       attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-      return RapidVulkan::RenderPass(device, 0, UncheckedNumericCast<uint32_t>(attachments.size()), attachments.data(),
-                                     UncheckedNumericCast<uint32_t>(subpassDescription.size()), subpassDescription.data(),
-                                     UncheckedNumericCast<uint32_t>(subpassDependency.size()), subpassDependency.data());
+      return {device,
+              0,
+              UncheckedNumericCast<uint32_t>(attachments.size()),
+              attachments.data(),
+              UncheckedNumericCast<uint32_t>(subpassDescription.size()),
+              subpassDescription.data(),
+              UncheckedNumericCast<uint32_t>(subpassDependency.size()),
+              subpassDependency.data()};
     }
 
     Vulkan::VUImageMemoryView CreateRenderAttachment(const Vulkan::VUDevice& device, const VkExtent2D& extent, const VkFormat format,
@@ -380,7 +385,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -445,19 +450,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      m_rightMouseDown = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = m_rightMouseDown;
+        m_rightMouseDown = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
+        {
+          m_mouseCaptureEnabled = m_rightMouseDown;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -584,9 +589,14 @@ namespace Fsl
     std::array<VkImageView, 3> imageViews = {m_dependentResources.RenderAttachment.ImageView().Get(), frameBufferCreateContext.DepthBufferImageView,
                                              frameBufferCreateContext.SwapchainImageView};
 
-    return RapidVulkan::Framebuffer(m_device.Get(), 0, frameBufferCreateContext.RenderPass, UncheckedNumericCast<uint32_t>(imageViews.size()),
-                                    imageViews.data(), frameBufferCreateContext.SwapChainImageExtent.width,
-                                    frameBufferCreateContext.SwapChainImageExtent.height, 1);
+    return {m_device.Get(),
+            0,
+            frameBufferCreateContext.RenderPass,
+            UncheckedNumericCast<uint32_t>(imageViews.size()),
+            imageViews.data(),
+            frameBufferCreateContext.SwapChainImageExtent.width,
+            frameBufferCreateContext.SwapChainImageExtent.height,
+            1};
   }
 
   void HDR03_SkyboxToneMapping::DrawIt(const DemoTime& demoTime, const FrameResources& frame, const VkCommandBuffer commandBuffer)

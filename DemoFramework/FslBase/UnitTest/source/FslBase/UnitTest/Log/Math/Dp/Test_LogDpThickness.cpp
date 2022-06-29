@@ -29,13 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Math/Dp/LogDpThickness.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/Dp/LogDpThickness.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <array>
-#include <limits>
 #include <sstream>
-#include <vector>
 
 using namespace Fsl;
 
@@ -47,7 +44,7 @@ namespace
 
 TEST(TestLog_MathDp_LogDpThickness, Log)
 {
-  DpThickness value(1, 2, 10, 20);
+  auto value = DpThickness::Create(1, 2, 10, 20);
 
   std::stringstream stream;
   stream << value;

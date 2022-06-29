@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/Span.hpp>
 #include <FslBase/Span/SpanUtil.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
+#include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/VirtualGamepadState.hpp>
 #include <algorithm>
@@ -116,7 +116,7 @@ namespace Fsl
 
 
     void HandleGamepadStateEvent(const NativeWindowEvent& event, Span<GamepadState> gamepads, const GamepadDeadZoneType deadZoneType,
-                                 const bool isConfigured)
+                                 [[maybe_unused]] const bool isConfigured)
     {
       VirtualGamepadState gamepadState;
       NativeWindowEventHelper::DecodeVirtualGamepadStateEvent(event, gamepadState);
@@ -173,7 +173,7 @@ namespace Fsl
     }
 
 
-    void CheckInputKeyStateEvent(const NativeWindowEvent& event, const uint32_t maxDevices, const bool isConfigured)
+    void CheckInputKeyStateEvent(const NativeWindowEvent& event, [[maybe_unused]] const uint32_t maxDevices, [[maybe_unused]] const bool isConfigured)
     {
       VirtualKey::Enum virtualKey = VirtualKey::Undefined;
       bool isPressed = false;

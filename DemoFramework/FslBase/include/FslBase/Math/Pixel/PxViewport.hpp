@@ -33,8 +33,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 
 namespace Fsl
 {

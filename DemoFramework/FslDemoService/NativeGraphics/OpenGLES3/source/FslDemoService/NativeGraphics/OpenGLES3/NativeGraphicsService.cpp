@@ -30,79 +30,76 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsService.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsService.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <FslGraphics3D/BasicRender/BasicRenderSystemCreateInfo.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include "NativeGraphicsBasic2D.hpp"
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
+    : ANativeGraphicsService(serviceProvider)
   {
-    NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
-      : ANativeGraphicsService(serviceProvider)
+  }
+
+
+  NativeGraphicsService::~NativeGraphicsService() = default;
+
+
+  bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
+  {
+    if (activeAPI.Name != DemoHostFeatureName::OpenGLES)
     {
+      return false;
     }
 
-
-    NativeGraphicsService::~NativeGraphicsService() = default;
-
-
-    bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
-    {
-      if (activeAPI.Name != DemoHostFeatureName::OpenGLES)
-      {
-        return false;
-      }
-
-      int major = 0;
-      int minor = 0;
-      DemoHostFeatureUtil::DecodeOpenGLESVersion(activeAPI.Version, major, minor);
-      return major == 3;
-    }
+    int major = 0;
+    int minor = 0;
+    DemoHostFeatureUtil::DecodeOpenGLESVersion(activeAPI.Version, major, minor);
+    return major == 3;
+  }
 
 
-    void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
-    {
-      GLUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectangle);
-    }
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+  {
+    GLUtil::Capture(rBitmap, PixelFormat::R8G8B8A8_UINT, srcRectangle);
+  }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
-    {
-      auto quadRenderer = std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY);
-      return std::make_shared<NativeGraphicsBasic2D>(quadRenderer, extentPx);
-    }
+  std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
+  {
+    auto quadRenderer = std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY);
+    return std::make_shared<NativeGraphicsBasic2D>(quadRenderer, extentPx);
+  }
 
 
-    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& extentPx)
-    {
-      return std::make_shared<NativeBatch2D>(GetBasicRenderSystem(), m_device, extentPx);
-    }
+  std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& extentPx)
+  {
+    return std::make_shared<NativeBatch2D>(GetBasicRenderSystem(), m_device, extentPx);
+  }
 
 
-    void NativeGraphicsService::CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo)
-    {
-      m_device = std::make_shared<NativeGraphicsDevice>();
-      ANativeGraphicsService::CreateDevice(createInfo);
-    }
+  void NativeGraphicsService::CreateDevice(const NativeGraphicsDeviceCreateInfo& createInfo)
+  {
+    m_device = std::make_shared<NativeGraphicsDevice>();
+    ANativeGraphicsService::CreateDevice(createInfo);
+  }
 
-    void NativeGraphicsService::DestroyDevice() noexcept
-    {
-      m_device.reset();
-      ANativeGraphicsService::DestroyDevice();
-    }
+  void NativeGraphicsService::DestroyDevice() noexcept
+  {
+    m_device.reset();
+    ANativeGraphicsService::DestroyDevice();
+  }
 
 
-    std::shared_ptr<Graphics3D::INativeDevice> NativeGraphicsService::GetNativeDevice()
-    {
-      return m_device;
-    }
+  std::shared_ptr<Graphics3D::INativeDevice> NativeGraphicsService::GetNativeDevice()
+  {
+    return m_device;
   }
 }
 #endif

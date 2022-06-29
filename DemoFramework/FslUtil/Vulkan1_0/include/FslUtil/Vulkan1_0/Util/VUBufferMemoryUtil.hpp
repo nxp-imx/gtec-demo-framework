@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_UTIL_VUBUFFERMEMORYUTIL_HPP
 #define FSLUTIL_VULKAN1_0_UTIL_VUBUFFERMEMORYUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,49 +32,43 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/Matrix.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan::VUBufferMemoryUtil
 {
-  namespace Vulkan
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const int32_t scalar, const VkMemoryMapFlags memoryMapFlags = 0)
   {
-    namespace VUBufferMemoryUtil
-    {
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const int32_t scalar, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, &scalar, sizeof(int32_t), memoryMapFlags);
-      }
+    rBuffer.Upload(offset, &scalar, sizeof(int32_t), memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const float scalar, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, &scalar, sizeof(float), memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const float scalar, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, &scalar, sizeof(float), memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Vector2& vec, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, vec.DirectAccess(), sizeof(Vector2), memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Vector2& vec, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, vec.DirectAccess(), sizeof(Vector2), memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Vector3& vec, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, vec.DirectAccess(), sizeof(Vector3), memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Vector3& vec, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, vec.DirectAccess(), sizeof(Vector3), memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Vector4& vec, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, vec.DirectAccess(), sizeof(Vector4), memoryMapFlags);
-      }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Vector4& vec, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, vec.DirectAccess(), sizeof(Vector4), memoryMapFlags);
+  }
 
-      inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Matrix& mat, const VkMemoryMapFlags memoryMapFlags = 0)
-      {
-        rBuffer.Upload(offset, mat.DirectAccess(), sizeof(Matrix), memoryMapFlags);
-      }
-    }
+  inline void Upload(VUBufferMemory& rBuffer, const uint32_t offset, const Matrix& mat, const VkMemoryMapFlags memoryMapFlags = 0)
+  {
+    rBuffer.Upload(offset, mat.DirectAccess(), sizeof(Matrix), memoryMapFlags);
   }
 }
 

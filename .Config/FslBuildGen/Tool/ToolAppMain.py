@@ -73,7 +73,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersion = Version(3, 3, 6, 1)
+CurrentVersion = Version(3, 5, 2, 1)
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -83,6 +83,7 @@ def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bo
     parser.add_argument('--version', action='store_true', help='The tool version')
     parser.add_argument('--profile', action='store_true', help='Enable tool profiling')
     parser.add_argument('--input', default=None, help='Set the input directory (defaults to current working directory)')
+    parser.add_argument('--noGitHash', action='store_true', help='Disable getting the current git hash (useful for CI builds).')
     #parser.add_argument('--buildDir', default=None, help='Set the build directory (experimental only supported with cmake)')
     if allowStandaloneMode:
         parser.add_argument('--standalone', action='store_true', help='Allow the tool to run without the SDK present. This is a experimental option.')
@@ -101,6 +102,7 @@ def __EarlyArgumentParser(allowStandaloneMode: bool) -> Optional[LowLevelToolCon
         debugEnabled = True if args.debug else False
         allowDevelopmentPlugins = True if args.dev else False
         profilerEnabled = True if args.profile else False
+        noGitHash = True if args.noGitHash else False
         standaloneEnabled = False if not allowStandaloneMode else (True if args.standalone else False)
         currentDir = IOUtil.NormalizePath(args.input) if args.input is not None else None
 
@@ -114,7 +116,7 @@ def __EarlyArgumentParser(allowStandaloneMode: bool) -> Optional[LowLevelToolCon
         if args.version:
             print("V{0}".format(CurrentVersion))
 
-        return LowLevelToolConfig(verbosityLevel, debugEnabled, allowDevelopmentPlugins, profilerEnabled, standaloneEnabled, currentDir)
+        return LowLevelToolConfig(verbosityLevel, debugEnabled, allowDevelopmentPlugins, profilerEnabled, standaloneEnabled, currentDir, noGitHash)
     except (Exception) as ex:
         print("ERROR: {0}".format(str(ex)))
         if not debugEnabled:
@@ -218,6 +220,8 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
     # Handle the CMake parameters
     if hasattr(args, 'CMakeBuildDir'):
         toolAppConfig.CMakeBuildDir = None if args.CMakeBuildDir is None else IOUtil.NormalizePath(args.CMakeBuildDir)
+    if hasattr(args, 'CMakeBuildDirId'):
+        toolAppConfig.CMakeBuildDirId = None if args.CMakeBuildDirId is None else int(args.CMakeBuildDirId)
     if hasattr(args, 'CMakeInstallPrefix'):
         toolAppConfig.CMakeInstallPrefix = None if args.CMakeInstallPrefix is None else IOUtil.NormalizePath(args.CMakeInstallPrefix)
     if hasattr(args, 'CMakeGeneratorName'):
@@ -288,6 +292,7 @@ def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode
                             help='Select the generator to use (experimental feature): {0}'.format(", ".join(GeneratorNameString.AllStrings())))
         parser.add_argument('--CMakeGeneratorName', default=DefaultValue.CMakeGeneratorName, help='Select the cmake generator name.  Only used by the cmake generator. (experimental feature and work in progress argument name)')
         parser.add_argument('--CMakeBuildDir', default=DefaultValue.CMakeBuildDir, help='Select the build dir to use for cmake. Only used by the cmake generator. (experimental feature and work in progress argument name)')
+        parser.add_argument('--CMakeBuildDirId', default=DefaultValue.CMakeBuildDirId, help='Add a postfix id to the auto generated build dir. This is a easy way to have multiple concurrent builds')
         parser.add_argument('--CMakeConfigArgs', default=DefaultValue.CMakeConfigArgs, help='Add additional cmake config command line arguments to the apps (not recipes).  Only used by the cmake generator. (experimental feature and work in progress argument name)')
         parser.add_argument('--CMakeConfigGlobalArgs', default=DefaultValue.CMakeConfigGlobalArgs, help='Add additional cmake config command line arguments to all cmake config commands.  Only used by the cmake generator. (experimental feature and work in progress argument name)')
         parser.add_argument('--CMakeInstallPrefix', default=DefaultValue.CMakeInstallPrefix, help='Select the install prefix for cmake. Only used by the cmake generator. (experimental feature and work in progress argument name)')

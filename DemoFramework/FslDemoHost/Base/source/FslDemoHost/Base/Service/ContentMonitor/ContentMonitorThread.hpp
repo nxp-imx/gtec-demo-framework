@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Platform/PlatformThread.hpp>
 #include <FslBase/Collections/Concurrent/ConcurrentQueue_fwd.hpp>
-#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorResultCommand.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/System/Platform/PlatformThread.hpp>
+#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorResultCommand.hpp>
 
 namespace Fsl
 {

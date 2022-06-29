@@ -33,35 +33,32 @@
 
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowId;
+  class TreeNode;
+
+  class ITreeNodeLocator
   {
-    class IWindowId;
-    class TreeNode;
+  public:
+    virtual ~ITreeNodeLocator() = default;
 
-    class ITreeNodeLocator
-    {
-    public:
-      virtual ~ITreeNodeLocator() = default;
+    //! @brief Locate the node associated with the given window id
+    //! @throws NotFoundException if the window can't be found
+    virtual std::shared_ptr<TreeNode> Get(const IWindowId* const pWindowId) const = 0;
 
-      //! @brief Locate the node associated with the given window id
-      //! @throws NotFoundException if the window can't be found
-      virtual std::shared_ptr<TreeNode> Get(const IWindowId* const pWindowId) const = 0;
+    //! @brief Locate the node associated with the given window id
+    //! @throws NotFoundException if the window can't be found
+    virtual std::shared_ptr<TreeNode> Get(const std::shared_ptr<IWindowId>& windowId) const = 0;
 
-      //! @brief Locate the node associated with the given window id
-      //! @throws NotFoundException if the window can't be found
-      virtual std::shared_ptr<TreeNode> Get(const std::shared_ptr<IWindowId>& windowId) const = 0;
+    //! @brief Try to Locate the node associated with the given window id
+    //! @throws null if the window can not be found
+    virtual std::shared_ptr<TreeNode> TryGet(const IWindowId* const pWindowId) const = 0;
 
-      //! @brief Try to Locate the node associated with the given window id
-      //! @throws null if the window can not be found
-      virtual std::shared_ptr<TreeNode> TryGet(const IWindowId* const pWindowId) const = 0;
-
-      //! @brief Try to Locate the node associated with the given window id
-      //! @throws null if the window can not be found
-      virtual std::shared_ptr<TreeNode> TryGet(const std::shared_ptr<IWindowId>& windowId) const = 0;
-    };
-  }
+    //! @brief Try to Locate the node associated with the given window id
+    //! @throws null if the window can not be found
+    virtual std::shared_ptr<TreeNode> TryGet(const std::shared_ptr<IWindowId>& windowId) const = 0;
+  };
 }
 
 #endif

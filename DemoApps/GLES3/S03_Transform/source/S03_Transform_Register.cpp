@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "S03_Transform.hpp"
 #include <array>
+#include "S03_Transform.hpp"
 
 namespace Fsl
 {

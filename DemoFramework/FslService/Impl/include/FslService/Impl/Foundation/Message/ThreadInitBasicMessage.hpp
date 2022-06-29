@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
 
 namespace Fsl
 {

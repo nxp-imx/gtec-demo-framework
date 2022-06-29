@@ -29,12 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <cassert>
+#include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
 #include <opencv2/opencv.hpp>
+#include <cassert>
 
 namespace Fsl
 {
@@ -115,7 +116,7 @@ namespace Fsl
     }
 
     // FIX: this should ideally support multiple output formats not just B8G8R8_UINT
-    rDst.create(imageCopy.Height(), imageCopy.Width(), CV_8UC3);
+    rDst.create(NumericCast<int>(imageCopy.Height()), NumericCast<int>(imageCopy.Width()), CV_8UC3);
 
 
     RawBitmap srcBitmap;
@@ -124,8 +125,8 @@ namespace Fsl
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
     auto* pDst = static_cast<uint8_t*>(rawSrcBitmap.Content());
-    const int32_t srcStride = srcBitmap.Stride();
-    const int32_t dstStride = rawSrcBitmap.Stride();
+    const uint32_t srcStride = srcBitmap.Stride();
+    const uint32_t dstStride = rawSrcBitmap.Stride();
 
     for (uint32_t y = 0; y < srcBitmap.Height(); ++y)
     {

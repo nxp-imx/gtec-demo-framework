@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_ITEMVISIBILITY_HPP
 #define FSLSIMPLEUI_BASE_ITEMVISIBILITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,22 +31,19 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  //! WARNING: Do not modify the values of these enums as we encode this into a bitfield elsewhere and we therefore rely on these values
+  //!          being able to fit into the allocated bits
+  enum class ItemVisibility
   {
-    //! WARNING: Do not modify the values of these enums as we encode this into a bitfield elsewhere and we therefore rely on these values
-    //!          being able to fit into the allocated bits
-    enum class ItemVisibility
-    {
-      //! Display the element (default setting)
-      Visible = 0,
-      //! Hide the element but participate in layout
-      Hidden = 1,
-      //! Hide the element and do not participate in layout
-      Collapsed = 2
-    };
-  }
+    //! Display the element (default setting)
+    Visible = 0,
+    //! Hide the element but participate in layout
+    Hidden = 1,
+    //! Hide the element and do not participate in layout
+    Collapsed = 2
+  };
 }
 
 #endif

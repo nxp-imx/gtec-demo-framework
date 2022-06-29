@@ -52,7 +52,7 @@ namespace Fsl
     constexpr DemoTime(const TimeSpan totalTime, const TimeSpan elapsedTime) noexcept
       : TotalTime(totalTime)
       , ElapsedTime(elapsedTime)
-      , DeltaTime(static_cast<float>(static_cast<double>(elapsedTime.Ticks()) / double(TimeInfo::TicksPerSecond)))
+      , DeltaTime(static_cast<float>(static_cast<double>(elapsedTime.Ticks()) / static_cast<double>(TimeInfo::TicksPerSecond)))
     {
     }
   };

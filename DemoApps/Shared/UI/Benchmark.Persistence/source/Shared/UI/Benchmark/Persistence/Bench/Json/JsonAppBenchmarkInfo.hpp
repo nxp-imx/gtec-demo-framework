@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkInfo.hpp>
+#include <nlohmann/json.hpp>
 #include <nlohmann_json/FslBase/Math/Pixel/PxSize2D.hpp>
 #include <nlohmann_json/FslBase/VersionInfo.hpp>
 #include "JsonAppBenchmarkScene.hpp"
-#include <nlohmann/json.hpp>
 
 namespace Fsl
 {

@@ -33,20 +33,17 @@
 
 #include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class FillLayout : public SimpleLayout
   {
-    class FillLayout : public SimpleLayout
-    {
-    public:
-      explicit FillLayout(const std::shared_ptr<BaseWindowContext>& context);
+  public:
+    explicit FillLayout(const std::shared_ptr<BaseWindowContext>& context);
 
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-    };
-  }
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+  };
 }
 
 #endif

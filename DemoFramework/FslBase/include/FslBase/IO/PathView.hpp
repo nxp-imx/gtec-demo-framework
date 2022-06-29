@@ -1,7 +1,7 @@
 #ifndef FSLBASE_IO_PATHVIEW_HPP
 #define FSLBASE_IO_PATHVIEW_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,72 +34,68 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  struct PathView : public StringViewLite
   {
-    struct PathView : public StringViewLite
+    constexpr PathView() noexcept = default;
+    constexpr PathView(const PathView& other) noexcept = default;
+
+    //! @brief overload that allows you to create a PathView from pointer and count that is noexcept.
+    //!        only use this in cases where you are 100% sure that your input is valid and contains no backslashes
+    explicit constexpr PathView(const StringViewLite& str, const OptimizationCheckFlag reserved) noexcept
+      : StringViewLite(str.data(), str.size(), reserved)
     {
-      constexpr PathView() noexcept = default;
-      constexpr PathView(const PathView& other) noexcept = default;
+      assert(find('\\') == StringViewLite::npos);
+    }
 
-      //! @brief overload that allows you to create a PathView from pointer and count that is noexcept.
-      //!        only use this in cases where you are 100% sure that your input is valid and contains no backslashes
-      explicit constexpr PathView(const StringViewLite& str, const OptimizationCheckFlag reserved) noexcept
-        : StringViewLite(str.data(), str.size(), reserved)
+
+    //! @brief overload that allows you to create a PathView from pointer and count that is noexcept.
+    //!        only use this in cases where you are 100% sure that your input is valid and contains no backslashes
+    explicit constexpr PathView(const const_pointer pStr, size_type count, const OptimizationCheckFlag reserved) noexcept
+      : StringViewLite(pStr, count, reserved)
+    {
+      assert(find('\\') == StringViewLite::npos);
+    }
+
+    explicit constexpr PathView(const StringViewLite& strView)
+      : StringViewLite(strView.data(), strView.size())
+    {
+      if (find('\\') != StringViewLite::npos)
       {
-        assert(find('\\') == StringViewLite::npos);
+        throw PathFormatErrorException("PathView can not contain '\\'");
       }
+    }
 
-
-      //! @brief overload that allows you to create a PathView from pointer and count that is noexcept.
-      //!        only use this in cases where you are 100% sure that your input is valid and contains no backslashes
-      explicit constexpr PathView(const const_pointer pStr, size_type count, const OptimizationCheckFlag reserved) noexcept
-        : StringViewLite(pStr, count, reserved)
+    explicit constexpr PathView(const const_pointer pStr, size_type count)
+      : StringViewLite(pStr, count)
+    {
+      if (find('\\') != StringViewLite::npos)
       {
-        assert(find('\\') == StringViewLite::npos);
+        throw PathFormatErrorException("PathView can not contain '\\'");
       }
+    }
 
-      explicit constexpr PathView(const StringViewLite& strView)
-        : StringViewLite(strView.data(), strView.size())
+    explicit constexpr PathView(const const_pointer psz)
+      : StringViewLite(psz)
+    {
+      if (find('\\') != StringViewLite::npos)
       {
-        if (find('\\') != StringViewLite::npos)
-        {
-          throw PathFormatErrorException("PathView can not contain '\\'");
-        }
+        throw PathFormatErrorException("PathView can not contain '\\'");
       }
+    }
 
-      explicit constexpr PathView(const const_pointer pStr, size_type count)
-        : StringViewLite(pStr, count)
+    //! @brief Returns a view of the substring [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
+    constexpr PathView subpath(size_type pos = 0, size_type count = npos) const
+    {
+      if (pos > m_length)
       {
-        if (find('\\') != StringViewLite::npos)
-        {
-          throw PathFormatErrorException("PathView can not contain '\\'");
-        }
+        throw std::out_of_range("pos out of range");
       }
-
-      explicit constexpr PathView(const const_pointer psz)
-        : StringViewLite(psz)
-      {
-        if (find('\\') != StringViewLite::npos)
-        {
-          throw PathFormatErrorException("PathView can not contain '\\'");
-        }
-      }
-
-      //! @brief Returns a view of the substring [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
-      constexpr PathView subpath(size_type pos = 0, size_type count = npos) const
-      {
-        if (pos > m_length)
-        {
-          throw std::out_of_range("pos out of range");
-        }
-        auto maxLength = (m_length - pos);
-        return PathView(m_pStr + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
-      }
-    };
-  }
-
+      auto maxLength = (m_length - pos);
+      return PathView(m_pStr + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
+    }
+  };
 }
 
 #endif

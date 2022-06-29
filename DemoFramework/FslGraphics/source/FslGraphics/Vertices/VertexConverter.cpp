@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexConverter.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <cassert>
 #include <cstring>
 #include <limits>
@@ -44,10 +44,11 @@ namespace Fsl
     {
       for (std::size_t i = 0; i < vertexDeclaration.Count(); ++i)
       {
-        const VertexElementEx element = vertexDeclaration.At(i);
+        const VertexElement element = vertexDeclaration.At(i);
         if (usage == element.Usage && usageIndex == element.UsageIndex)
         {
-          static_assert(uint32_t(std::numeric_limits<int32_t>::max()) < std::numeric_limits<std::size_t>::max(), "std::size assumptions are wrong");
+          static_assert(static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) < std::numeric_limits<std::size_t>::max(),
+                        "std::size assumptions are wrong");
           assert(i <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
           return static_cast<int32_t>(i);
         }
@@ -88,11 +89,11 @@ namespace Fsl
 
     for (std::size_t i = 0; i < dstVertexDeclaration.Count(); ++i)
     {
-      const VertexElementEx dstElement = dstVertexDeclaration.At(i);
+      const VertexElement dstElement = dstVertexDeclaration.At(i);
       const int32_t srcIndex = IndexOf(srcVertexDeclaration, dstElement.Usage, dstElement.UsageIndex);
       if (srcIndex >= 0)
       {
-        const VertexElementEx srcElement = srcVertexDeclaration.At(static_cast<uint32_t>(srcIndex));
+        const VertexElement srcElement = srcVertexDeclaration.At(static_cast<uint32_t>(srcIndex));
 
         // We found it so now we just need to look at the format
         if (dstElement.Format == srcElement.Format)

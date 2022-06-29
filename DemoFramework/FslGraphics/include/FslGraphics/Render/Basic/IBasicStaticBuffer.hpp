@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Basic/BasicBufferType.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeBufferHandle.hpp>
+#include <FslGraphics/Render/Basic/BasicBufferType.hpp>
 
 namespace Fsl
 {

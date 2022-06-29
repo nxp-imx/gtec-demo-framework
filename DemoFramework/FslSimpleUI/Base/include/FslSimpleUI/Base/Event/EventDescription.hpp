@@ -34,22 +34,19 @@
 #include <FslSimpleUI/Base/Event/EventRoutingStrategy.hpp>
 #include <FslSimpleUI/Base/WindowFlags.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct EventDescription
   {
-    struct EventDescription
-    {
-      const EventRoutingStrategy RoutingStrategy;
-      const WindowFlags RequiredFlags;
+    const EventRoutingStrategy RoutingStrategy;
+    const WindowFlags RequiredFlags;
 
-      EventDescription(const EventRoutingStrategy routingStrategy, const WindowFlags requiredFlags)
-        : RoutingStrategy(routingStrategy)
-        , RequiredFlags(requiredFlags)
-      {
-      }
-    };
-  }
+    EventDescription(const EventRoutingStrategy routingStrategy, const WindowFlags requiredFlags)
+      : RoutingStrategy(routingStrategy)
+      , RequiredFlags(requiredFlags)
+    {
+    }
+  };
 }
 
 #endif

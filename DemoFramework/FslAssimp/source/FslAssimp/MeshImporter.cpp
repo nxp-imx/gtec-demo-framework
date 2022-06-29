@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslAssimp/MeshImporter.hpp>
 #include <FslAssimp/MeshHelper.hpp>
+#include <FslAssimp/MeshImporter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
@@ -116,7 +116,7 @@ namespace Fsl
       const auto indexVertices = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Position, 0);
       if (pSrcMesh->mVertices != nullptr && indexVertices >= 0)
       {
-        VertexElementEx vertexElement = dstVertexDeclaration.At(indexVertices);
+        VertexElement vertexElement = dstVertexDeclaration.At(indexVertices);
         if (vertexElement.Format != VertexElementFormat::Vector3)
         {
           throw NotSupportedException("We only support vertex positions of the type Vector3");
@@ -135,7 +135,7 @@ namespace Fsl
       const auto indexNormals = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Normal, 0);
       if (pSrcMesh->mNormals != nullptr && indexNormals >= 0)
       {
-        VertexElementEx vertexElement = dstVertexDeclaration.At(indexNormals);
+        VertexElement vertexElement = dstVertexDeclaration.At(indexNormals);
         if (vertexElement.Format != VertexElementFormat::Vector3)
         {
           throw NotSupportedException("We only support vertex normals of the type Vector3");
@@ -155,7 +155,7 @@ namespace Fsl
       const auto indexTangents = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Tangent, 0);
       if (pSrcMesh->mTangents != nullptr && indexTangents >= 0)
       {
-        VertexElementEx vertexElement = dstVertexDeclaration.At(indexTangents);
+        VertexElement vertexElement = dstVertexDeclaration.At(indexTangents);
         if (vertexElement.Format != VertexElementFormat::Vector3)
         {
           throw NotSupportedException("We only support vertex tangents of the type Vector3");
@@ -174,7 +174,7 @@ namespace Fsl
       const auto indexBitangents = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Bitangent, 0);
       if (pSrcMesh->mBitangents != nullptr && indexBitangents >= 0)
       {
-        VertexElementEx vertexElement = dstVertexDeclaration.At(indexBitangents);
+        VertexElement vertexElement = dstVertexDeclaration.At(indexBitangents);
         if (vertexElement.Format != VertexElementFormat::Vector3)
         {
           throw NotSupportedException("We only support vertex bitangents of the type Vector3");
@@ -196,23 +196,23 @@ namespace Fsl
         const auto indexTexture = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::TextureCoordinate, usageIndex);
         if (pSrcMesh->mTextureCoords[usageIndex] != nullptr && indexTexture >= 0)
         {
-          VertexElementEx vertexElement = dstVertexDeclaration.At(indexTexture);
+          VertexElement vertexElement = dstVertexDeclaration.At(indexTexture);
           switch (vertexElement.Format)
           {
           case VertexElementFormat::Vector2:
-          {
-            TypedFlexSpan<Vector2> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector2>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
-                                                                                          vertexElement.Offset, dstRawMeshContent.VertexStride);
-            MeshImporter::FastExtractTextureCoordinates2(dstSpan, pSrcMesh, usageIndex);
-            break;
-          }
+            {
+              TypedFlexSpan<Vector2> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector2>(
+                dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount, vertexElement.Offset, dstRawMeshContent.VertexStride);
+              MeshImporter::FastExtractTextureCoordinates2(dstSpan, pSrcMesh, usageIndex);
+              break;
+            }
           case VertexElementFormat::Vector3:
-          {
-            TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount,
-                                                                                          vertexElement.Offset, dstRawMeshContent.VertexStride);
-            MeshImporter::FastExtractTextureCoordinates3(dstSpan, pSrcMesh, usageIndex);
-            break;
-          }
+            {
+              TypedFlexSpan<Vector3> dstSpan = TypedFlexSpanUtil::UnsafeVoidAsSpan<Vector3>(
+                dstRawMeshContent.pVertices, dstRawMeshContent.VertexCount, vertexElement.Offset, dstRawMeshContent.VertexStride);
+              MeshImporter::FastExtractTextureCoordinates3(dstSpan, pSrcMesh, usageIndex);
+              break;
+            }
           default:
             throw NotSupportedException("We only support vertex texture coordinates of the type Vector2 or Vector3");
           }
@@ -228,7 +228,7 @@ namespace Fsl
         const auto indexColor = dstVertexDeclaration.VertexElementIndexOf(VertexElementUsage::Color, usageIndex);
         if (indexColor >= 0)
         {
-          VertexElementEx vertexElement = dstVertexDeclaration.At(indexColor);
+          VertexElement vertexElement = dstVertexDeclaration.At(indexColor);
           if (pSrcMesh->mNumVertices > dstRawMeshContent.VertexCount)
           {
             throw IndexOutOfRangeException("The buffer could not contain all the entries");
@@ -368,9 +368,8 @@ namespace Fsl
 
     const auto src = ReadOnlySpanUtil::AsSpan(pSrcMesh->mVertices, pSrcMesh->mNumVertices);
 
-    dst.Copy(src, [positionMod, scale](const aiVector3D& srcVal) {
-      return Vector3((srcVal.x + positionMod.X) * scale.X, (srcVal.y + positionMod.Y) * scale.Y, (srcVal.z + positionMod.Z) * scale.Z);
-    });
+    dst.Copy(src, [positionMod, scale](const aiVector3D& srcVal)
+             { return Vector3((srcVal.x + positionMod.X) * scale.X, (srcVal.y + positionMod.Y) * scale.Y, (srcVal.z + positionMod.Z) * scale.Z); });
 
     return src.size();
   }

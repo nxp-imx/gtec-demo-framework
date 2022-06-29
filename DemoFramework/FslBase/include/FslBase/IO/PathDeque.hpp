@@ -35,14 +35,11 @@
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  class PathDeque : public std::deque<std::shared_ptr<Path>>
   {
-    class PathDeque : public std::deque<std::shared_ptr<Path>>
-    {
-    };
-  }
+  };
 }
 
 #endif

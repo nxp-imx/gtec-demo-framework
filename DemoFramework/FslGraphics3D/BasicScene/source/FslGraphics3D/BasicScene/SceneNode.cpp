@@ -29,102 +29,105 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/SceneNode.hpp>
-#include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslGraphics3D/BasicScene/Mesh.hpp>
+#include <FslGraphics3D/BasicScene/SceneNode.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  SceneNode::SceneNode() = default;
+
+  SceneNode::SceneNode(const std::size_t meshCapacity)
   {
-    SceneNode::SceneNode() = default;
+    FSL_PARAM_NOT_USED(meshCapacity);
+  }
 
-    SceneNode::SceneNode(const std::size_t meshCapacity)
+
+  const UTF8String& SceneNode::GetName() const
+  {
+    return m_name;
+  }
+
+
+  void SceneNode::SetName(const UTF8String& name)
+  {
+    m_name = name;
+  }
+
+
+  std::shared_ptr<SceneNode> SceneNode::GetParent() const
+  {
+    return m_parent.lock();
+  }
+
+
+  void SceneNode::SetParent(const std::shared_ptr<SceneNode>& parent)
+  {
+    m_parent = parent;
+  }
+
+
+  const Matrix& SceneNode::GetTransformation() const
+  {
+    return m_transformation;
+  }
+
+
+  void SceneNode::SetTransformation(const Matrix& transformation)
+  {
+    m_transformation = transformation;
+  }
+
+
+  int32_t SceneNode::GetMeshCount() const
+  {
+    return static_cast<int32_t>(m_meshes.size());
+  }
+
+
+  int32_t SceneNode::GetMeshAt(const int32_t index) const
+  {
+    return m_meshes[index];
+  }
+
+
+  void SceneNode::AddMesh(const int32_t meshIndex)
+  {
+    if (meshIndex < 0)
     {
-      FSL_PARAM_NOT_USED(meshCapacity);
+      throw std::invalid_argument("mesh index can not be negative");
     }
 
+    m_meshes.push_back(meshIndex);
+  }
 
-    const UTF8String& SceneNode::GetName() const
+  void SceneNode::AddMesh(const uint32_t meshIndex)
+  {
+    m_meshes.push_back(NumericCast<int32_t>(meshIndex));
+  }
+
+
+  int32_t SceneNode::GetChildCount() const
+  {
+    return static_cast<int32_t>(m_children.size());
+  }
+
+
+  std::shared_ptr<SceneNode> SceneNode::GetChildAt(const int32_t index) const
+  {
+    return m_children[index];
+  }
+
+
+  void SceneNode::AddChild(const std::shared_ptr<SceneNode>& node)
+  {
+    if (!node)
     {
-      return m_name;
+      throw std::invalid_argument("node can not be null");
     }
 
-
-    void SceneNode::SetName(const UTF8String& name)
-    {
-      m_name = name;
-    }
-
-
-    std::shared_ptr<SceneNode> SceneNode::GetParent() const
-    {
-      return m_parent.lock();
-    }
-
-
-    void SceneNode::SetParent(const std::shared_ptr<SceneNode>& parent)
-    {
-      m_parent = parent;
-    }
-
-
-    const Matrix& SceneNode::GetTransformation() const
-    {
-      return m_transformation;
-    }
-
-
-    void SceneNode::SetTransformation(const Matrix& transformation)
-    {
-      m_transformation = transformation;
-    }
-
-
-    int32_t SceneNode::GetMeshCount() const
-    {
-      return static_cast<int32_t>(m_meshes.size());
-    }
-
-
-    int32_t SceneNode::GetMeshAt(const int32_t index) const
-    {
-      return m_meshes[index];
-    }
-
-
-    void SceneNode::AddMesh(const int32_t meshIndex)
-    {
-      if (meshIndex < 0)
-      {
-        throw std::invalid_argument("mesh index can not be negative");
-      }
-
-      m_meshes.push_back(meshIndex);
-    }
-
-
-    int32_t SceneNode::GetChildCount() const
-    {
-      return static_cast<int32_t>(m_children.size());
-    }
-
-
-    std::shared_ptr<SceneNode> SceneNode::GetChildAt(const int32_t index) const
-    {
-      return m_children[index];
-    }
-
-
-    void SceneNode::AddChild(const std::shared_ptr<SceneNode>& node)
-    {
-      if (!node)
-      {
-        throw std::invalid_argument("node can not be null");
-      }
-
-      node->SetParent(shared_from_this());
-      m_children.push_back(node);
-    }
+    node->SetParent(shared_from_this());
+    m_children.push_back(node);
   }
 }

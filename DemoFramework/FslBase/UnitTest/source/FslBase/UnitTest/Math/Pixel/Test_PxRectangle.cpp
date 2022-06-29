@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangle.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

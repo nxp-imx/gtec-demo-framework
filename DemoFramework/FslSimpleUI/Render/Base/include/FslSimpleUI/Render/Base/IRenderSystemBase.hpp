@@ -33,19 +33,16 @@
 
 #include <FslSimpleUI/Render/Base/RenderSystemStats.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IRenderSystemBase
   {
-    class IRenderSystemBase
-    {
-    public:
-      virtual ~IRenderSystemBase() = default;
+  public:
+    virtual ~IRenderSystemBase() = default;
 
-      //! @brief Get render stats for the last draw operation
-      virtual RenderSystemStats GetStats() const = 0;
-    };
-  }
+    //! @brief Get render stats for the last draw operation
+    virtual RenderSystemStats GetStats() const = 0;
+  };
 }
 
 #endif

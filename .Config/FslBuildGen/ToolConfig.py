@@ -51,6 +51,7 @@ from FslBuildGen.BuildConfig.ClangTidyPlatformCompiler import ClangTidyPlatformC
 from FslBuildGen.BuildConfig.ClangTidyPlatformDefines import ClangTidyPlatformDefines
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
 from FslBuildGen.BuildConfig.CMakeConfigurationPlatform import CMakeConfigurationPlatform
+from FslBuildGen.BuildConfig.DotnetFormatConfiguration import DotnetFormatConfiguration
 from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.CMakeUtil import CMakeUtil
 from FslBuildGen.CMakeIgnoreDirUtil import CMakeIgnoreDirUtil
@@ -93,6 +94,7 @@ from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlClangFormatConfi
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigCompilerConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddBasePackage
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlDotnetFormatConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimental
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 from FslBuildGen.Xml.ToolConfig.XmlConfigFileAddNewProjectTemplatesRootDirectory import XmlConfigFileAddNewProjectTemplatesRootDirectory
@@ -374,10 +376,11 @@ class ToolConfig(object):
         self.DefaultCompany = projectRootConfig.DefaultCompany
         self.RequirePackageCreationYear = projectRootConfig.RequirePackageCreationYear
         self.ProjectRootConfig = projectRootConfig
-        self.ProjectInfo = self.__GenerateProjectInfo(basicConfig, buildPlatformType, projectRootConfig)
+        self.ProjectInfo = self.__GenerateProjectInfo(basicConfig, buildPlatformType, projectRootConfig, lowLevelToolConfig.NoGitHash)
         self.BuildDocConfiguration = self.__TryGetBuildDocConfiguration(basedUponXML.BuildDocConfiguration)
         self.CMakeConfiguration = self.__GetCMakeConfiguration(basedUponXML.CMakeConfiguration)
         self.ClangFormatConfiguration = self.__TryGetClangFormatConfiguration(basedUponXML.ClangFormatConfiguration, self.CMakeConfiguration.NinjaRecipePackageName)
+        self.DotnetFormatConfiguration = self.__TryGetDotnetFormatConfiguration(basedUponXML.DotnetFormatConfiguration, self.CMakeConfiguration.NinjaRecipePackageName)
         self.ClangTidyConfiguration = self.__TryGetClangTidyConfiguration(basedUponXML.ClangTidyConfiguration, self.CMakeConfiguration.NinjaRecipePackageName)
         self.CompilerConfigurationDict = self.__ProcessCompilerConfiguration(basicConfig, basedUponXML.CompilerConfiguration)
         self.RequirementTypes = [PackageRequirementTypeString.Extension, PackageRequirementTypeString.Feature]
@@ -423,6 +426,13 @@ class ToolConfig(object):
             return None
         config = configList[0]
         return ClangFormatConfiguration(config.FileExtensions, config.Recipe, ninjaRecipePackageName)
+
+    def __TryGetDotnetFormatConfiguration(self, configList: List[XmlDotnetFormatConfiguration], ninjaRecipePackageName: str) -> Optional[DotnetFormatConfiguration]:
+        if len(configList) < 1:
+            return None
+        config = configList[0]
+        return DotnetFormatConfiguration(config.FileExtensions, config.Recipe, ninjaRecipePackageName)
+
 
     def __TryGetClangTidyConfiguration(self, configList: List[XmlClangTidyConfiguration], ninjaRecipePackageName: str) -> Optional[ClangTidyConfiguration]:
         if len(configList) < 1:
@@ -507,10 +517,10 @@ class ToolConfig(object):
         return projectMin if projectMin >= toolMin else toolMin
 
 
-    def __GenerateProjectInfo(self, log: Log, buildPlatformType: BuildPlatformType, projectRootConfig: XmlProjectRootConfigFile) -> ToolConfigProjectInfo:
+    def __GenerateProjectInfo(self, log: Log, buildPlatformType: BuildPlatformType, projectRootConfig: XmlProjectRootConfigFile, noGitHash: bool) -> ToolConfigProjectInfo:
         gitExeName = GitUtil.GetPlatformDependentExecutableName(buildPlatformType)
         rootProjectBasePackages = self.__ResolveBasePackages(log, projectRootConfig.XmlBasePackages, projectRootConfig.SourceFileName)
-        gitHash = GitUtil.TryGetCurrentHash(gitExeName, projectRootConfig.RootDirectory)
+        gitHash = GitUtil.TryGetCurrentHash(gitExeName, projectRootConfig.RootDirectory) if not noGitHash else None
         result = [] #  type: List[ToolConfigProjectContext]
         projectVersion = Version.FromString(projectRootConfig.ProjectVersion)
         rootProjectContext = ToolConfigProjectContext(projectRootConfig.ProjectId, projectRootConfig.ProjectName,
@@ -526,7 +536,7 @@ class ToolConfig(object):
             if len(rootProjectBasePackages) > 0:
                 contextBasePackages = rootProjectBasePackages + contextBasePackages
             extendedProjectVersion = Version.FromString(entry.ProjectVersion)
-            entryGitHash = GitUtil.TryGetCurrentHash(gitExeName, entry.RootDirectory)
+            entryGitHash = GitUtil.TryGetCurrentHash(gitExeName, entry.RootDirectory) if not noGitHash else None
             extendedProjectContext = ToolConfigProjectContext(entry.ProjectId, entry.ProjectName, extendedProjectVersion, entry.RootDirectory, entryGitHash, contextBasePackages, rootProjectContext)
             result.append(extendedProjectContext)
             topProjectContext = extendedProjectContext

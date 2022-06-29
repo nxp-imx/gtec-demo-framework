@@ -34,8 +34,8 @@
 #include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
 #include <FslService/Impl/Threading/IServiceHost.hpp>
 #include <FslService/Impl/Threading/ServiceHostContext.hpp>
-#include <queue>
 #include <memory>
+#include <queue>
 
 namespace Fsl
 {

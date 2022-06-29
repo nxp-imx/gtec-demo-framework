@@ -32,31 +32,28 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslGraphics/Vertices/VertexElement.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
-#include <FslGraphics/Vertices/VertexElementEx.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct GLVertexElement
   {
-    struct GLVertexElement
-    {
-      VertexElementEx Source;
-      GLint Size{0};
-      GLenum Type{0};
-      GLboolean Normalized{GL_FALSE};
-      const GLvoid* Pointer{nullptr};
-      uint32_t ExtendedIndex{0};
+    VertexElement Source;
+    GLint Size{0};
+    GLenum Type{0};
+    GLboolean Normalized{GL_FALSE};
+    const GLvoid* Pointer{nullptr};
+    uint32_t ExtendedIndex{0};
 
-      constexpr GLVertexElement() = default;
+    constexpr GLVertexElement() = default;
 
-      explicit GLVertexElement(const VertexElementEx& source);
+    explicit GLVertexElement(const VertexElement& source);
 
-      void Reset(const VertexElementEx& source);
-      void Reset(const VertexElementEx& source, const VertexElementFormat internalFormat, const int32_t offsetAdd);
-    };
-  }
+    void Reset(const VertexElement& source);
+    void Reset(const VertexElement& source, const VertexElementFormat internalFormat, const int32_t offsetAdd);
+  };
 }
 
 #endif

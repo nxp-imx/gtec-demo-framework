@@ -61,13 +61,13 @@ namespace Fsl
       TransitionColor ColorButtonBack;
       TransitionColor ColorButtonRecord;
 
-      TransitionRecord(TransitionCache& rTransitionCache, const TransitionTimeSpan& time)
+      TransitionRecord(TransitionCache& rTransitionCache, const TimeSpan& time)
         : ColorButtonBack(rTransitionCache, time, TransitionType::Smooth)
         , ColorButtonRecord(rTransitionCache, time, TransitionType::Smooth)
       {
       }
 
-      void Update(const TransitionTimeSpan& deltaTime)
+      void Update(const TimeSpan& deltaTime)
       {
         ColorButtonBack.Update(deltaTime);
         ColorButtonRecord.Update(deltaTime);

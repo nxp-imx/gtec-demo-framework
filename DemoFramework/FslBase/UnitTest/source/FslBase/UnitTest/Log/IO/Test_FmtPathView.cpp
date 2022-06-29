@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

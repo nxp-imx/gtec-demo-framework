@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_DPLAYOUTSIZE1D_HPP
 #define FSLSIMPLEUI_BASE_DPLAYOUTSIZE1D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,49 +32,84 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Dp/DpSize1DF.hpp>
+#include <FslBase/Math/Dp/DpValue.hpp>
+#include <FslBase/Math/Dp/DpValueF.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct DpLayoutSize1D
   {
-    struct DpLayoutSize1D
+    using value_type = DpValueF;
+
+  private:
+    value_type m_value{-1.0f};
+
+  public:
+    constexpr DpLayoutSize1D() noexcept = default;
+
+    constexpr explicit DpLayoutSize1D(const float value) noexcept
+      : m_value(DpValueF(value))
     {
-      using value_type = float;
+    }
 
-    private:
-      value_type m_value{-1.0f};
+    constexpr explicit DpLayoutSize1D(const DpSize1DF value) noexcept
+      : m_value(value.Value())
+    {
+    }
 
-    public:
-      constexpr DpLayoutSize1D() noexcept = default;
+    constexpr explicit DpLayoutSize1D(const value_type value) noexcept
+      : m_value(value >= value_type(0.0f) ? value : value_type(-1.0f))
+    {
+    }
 
-      constexpr explicit DpLayoutSize1D(const value_type value) noexcept
-        : m_value(value >= 0.0f ? value : -1.0f)
-      {
-      }
+    constexpr explicit DpLayoutSize1D(const DpValue value) noexcept
+      : m_value(value.Value >= 0 ? value_type(static_cast<value_type::value_type>(value.Value)) : value_type(-1.0f))
+    {
+    }
 
-      constexpr explicit DpLayoutSize1D(const int32_t value) noexcept
-        : m_value(value >= 0 ? float(value) : -1.0f)
-      {
-      }
+    constexpr bool HasValue() const noexcept
+    {
+      return m_value >= value_type(0.0f);
+    }
 
-      constexpr bool HasValue() const noexcept
-      {
-        return m_value >= 0.0f;
-      }
+    constexpr value_type Value() const noexcept
+    {
+      return (m_value >= value_type(0.0f) ? m_value : value_type(0.0f));
+    }
 
-      constexpr float Value() const noexcept
-      {
-        return (m_value >= 0.0f ? m_value : 0.0f);
-      }
+    constexpr DpSize1DF Size() const noexcept
+    {
+      return DpSize1DF::Create(m_value);
+    }
 
-      //! @brief Get the unfiltered value
-      constexpr float RawValue() const noexcept
-      {
-        return m_value;
-      }
-    };
-  }
+    constexpr DpSize1DF SizeOr(const DpSize1DF defaultValue) const noexcept
+    {
+      return m_value.Value >= 0 ? DpSize1DF ::Create(m_value, OptimizationCheckFlag::NoCheck) : defaultValue;
+    }
 
+    //! @brief Get the unfiltered value
+    constexpr value_type RawValue() const noexcept
+    {
+      return m_value;
+    }
+
+    static DpLayoutSize1D Create(float value) noexcept
+    {
+      return DpLayoutSize1D(DpValueF(value));
+    }
+
+
+    constexpr bool operator==(const DpLayoutSize1D rhs) const noexcept
+    {
+      return m_value == rhs.m_value;
+    }
+
+    constexpr bool operator!=(const DpLayoutSize1D rhs) const noexcept
+    {
+      return m_value != rhs.m_value;
+    }
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_BASIC_PREPROCESSUTIL_FORCETRANSPARENT_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_BASIC_PREPROCESSUTIL_FORCETRANSPARENT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,97 +44,122 @@
 #include "../PreprocessResult.hpp"
 #include "../ProcessedCommandRecord.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch::PreprocessUtil
 {
-  namespace UI
+  // Pre-process the draw commands
+  // - Split multi material sprites so each queue gets one entry for it, thereby making it appear as a single material for the rest of the
+  //   drawing system
+  // - Remove dummy entries
+  inline PreprocessResult PreprocessForceTransparent(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords,
+                                                     ReadOnlySpan<EncodedCommand> commandSpan, const MeshManager& meshManager)
   {
-    namespace RenderIMBatch
+    assert(!commandSpan.empty());
+    const MaterialLookup& materialLookup = meshManager.GetMaterialLookup();
+
+    const std::size_t capacity = (commandSpan.size() * 2u);
     {
-      namespace PreprocessUtil
+      if (capacity > rProcessedCommandRecords.size())
       {
-        // Pre-process the draw commands
-        // - Split multi material sprites so each queue gets one entry for it, thereby making it appear as a single material for the rest of the
-        //   drawing system
-        // - Remove dummy entries
-        inline PreprocessResult PreprocessForceTransparent(std::vector<ProcessedCommandRecord>& rProcessedCommandRecords,
-                                                           ReadOnlySpan<EncodedCommand> commandSpan, const MeshManager& meshManager)
+        rProcessedCommandRecords.resize(capacity + PreprocessConfig::ProcessedGrowBy);
+      }
+    }
+
+    const auto count = UncheckedNumericCast<uint32_t>(commandSpan.size());
+    assert(count > 0u);
+
+    ProcessedCommandRecord* const pDst = rProcessedCommandRecords.data();
+    uint32_t dstTransparentIndex = 0;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+      const EncodedCommand& command = commandSpan[i];
+      // The queue should never contain a Nop command
+      assert(command.Type != DrawCommandType::Nop);
+      const int32_t hMesh = HandleCoding::GetOriginalHandle(command.Mesh);
+      switch (HandleCoding::GetType(command.Mesh))
+      {
+      case RenderDrawSpriteType::Dummy:
+        break;
+      case RenderDrawSpriteType::BasicImageSprite:
         {
-          assert(!commandSpan.empty());
-          const MaterialLookup& materialLookup = meshManager.GetMaterialLookup();
-
-          const std::size_t capacity = (commandSpan.size() * 2u);
-          {
-            if (capacity > rProcessedCommandRecords.size())
-            {
-              rProcessedCommandRecords.resize(capacity + PreprocessConfig::ProcessedGrowBy);
-            }
-          }
-
-          const auto count = UncheckedNumericCast<uint32_t>(commandSpan.size());
-          assert(count > 0u);
-
-          ProcessedCommandRecord* const pDst = rProcessedCommandRecords.data();
-          uint32_t dstTransparentIndex = 0;
-
-          for (uint32_t i = 0; i < count; ++i)
-          {
-            const EncodedCommand& command = commandSpan[i];
-            // The queue should never contain a Nop command
-            assert(command.Type != DrawCommandType::Nop);
-            const uint32_t hMesh = HandleCoding::GetOriginalHandle(command.Mesh);
-            switch (HandleCoding::GetType(command.Mesh))
-            {
-            case RenderDrawSpriteType::Dummy:
-              break;
-            case RenderDrawSpriteType::BasicImageSprite:
-            {
-              const auto& meshRecord = meshManager.UncheckedGetBasicImageSprite(hMesh);
-              assert(dstTransparentIndex < capacity);
-              pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                                                 PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
-                                                                                  static_cast<float>(command.DstSizePx.Width()),
-                                                                                  static_cast<float>(command.DstSizePx.Height())),
-                                                                 command.DstColor, dstTransparentIndex, i);
-              ++dstTransparentIndex;
-              break;
-            }
-            case RenderDrawSpriteType::BasicNineSliceSprite:
-            {
-              const auto& meshRecord = meshManager.UncheckedGetBasicNineSliceSprite(hMesh);
-              assert(dstTransparentIndex < capacity);
-              pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                                                 PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
-                                                                                  static_cast<float>(command.DstSizePx.Width()),
-                                                                                  static_cast<float>(command.DstSizePx.Height())),
-                                                                 command.DstColor, dstTransparentIndex, i);
-              ++dstTransparentIndex;
-              break;
-            }
-            // case RenderDrawSpriteType::BasicOptimizedNineSliceSprite:
-            //  currentMaterialHandle = meshManager.FastGet(hMesh).MaterialHandle;
-            //  break;
-            case RenderDrawSpriteType::ImageSprite:
-            {
-              const auto& meshRecord = meshManager.UncheckedGetImageSprite(hMesh);
-              assert(dstTransparentIndex < capacity);
-              pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                                                 PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
-                                                                                  static_cast<float>(command.DstSizePx.Width()),
-                                                                                  static_cast<float>(command.DstSizePx.Height())),
-                                                                 command.DstColor, dstTransparentIndex, i);
-              ++dstTransparentIndex;
-              break;
-            }
-            case RenderDrawSpriteType::NineSliceSprite:
-            {
-              const auto& meshRecord = meshManager.UncheckedGetNineSliceSprite(hMesh);
-              assert(meshRecord.Sprite);
-              const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
-              const auto materialId = materialLookup.GetMaterialIndex(meshRecord.MaterialHandle);
-              assert(dstTransparentIndex < capacity);
-              pDst[dstTransparentIndex] =
-                ProcessedCommandRecord(materialId,
-                                       command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
+          const auto& meshRecord = meshManager.UncheckedGetBasicImageSprite(hMesh);
+          assert(dstTransparentIndex < capacity);
+          pDst[dstTransparentIndex] =
+            ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
+                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   command.DstColor, dstTransparentIndex, i);
+          ++dstTransparentIndex;
+          break;
+        }
+      case RenderDrawSpriteType::BasicNineSliceSprite:
+        {
+          const auto& meshRecord = meshManager.UncheckedGetBasicNineSliceSprite(hMesh);
+          assert(dstTransparentIndex < capacity);
+          pDst[dstTransparentIndex] =
+            ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
+                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   command.DstColor, dstTransparentIndex, i);
+          ++dstTransparentIndex;
+          break;
+        }
+      // case RenderDrawSpriteType::BasicOptimizedNineSliceSprite:
+      //  currentMaterialHandle = meshManager.FastGet(hMesh).MaterialHandle;
+      //  break;
+      case RenderDrawSpriteType::ImageSprite:
+        {
+          const auto& meshRecord = meshManager.UncheckedGetImageSprite(hMesh);
+          assert(dstTransparentIndex < capacity);
+          pDst[dstTransparentIndex] =
+            ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
+                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   command.DstColor, dstTransparentIndex, i);
+          ++dstTransparentIndex;
+          break;
+        }
+      case RenderDrawSpriteType::NineSliceSprite:
+        {
+          const auto& meshRecord = meshManager.UncheckedGetNineSliceSprite(hMesh);
+          assert(meshRecord.Sprite);
+          const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
+          const auto materialId = materialLookup.GetMaterialIndex(meshRecord.MaterialHandle);
+          assert(dstTransparentIndex < capacity);
+          pDst[dstTransparentIndex] =
+            ProcessedCommandRecord(materialId,
+                                   command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
+                                     ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
+                                                        command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
+                                                        static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX(),
+                                                        static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumY())
+                                     : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
+                                                        command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
+                                                        static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY(),
+                                                        static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX()),
+                                   command.DstColor, dstTransparentIndex, i);
+          ++dstTransparentIndex;
+          break;
+        }
+      case RenderDrawSpriteType::SpriteFont:
+        {
+          const auto& meshRecord = meshManager.UncheckedGetSpriteFont(hMesh);
+          assert(dstTransparentIndex < capacity);
+          pDst[dstTransparentIndex] =
+            ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
+                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   command.DstColor, dstTransparentIndex, i);
+          ++dstTransparentIndex;
+          break;
+        }
+      case RenderDrawSpriteType::OptimizedNineSliceSprite:
+        {
+          const auto& meshRecord = meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh);
+          assert(meshRecord.Transparency != MeshTransparencyFlags::NoFlags);
+          assert(meshRecord.Sprite);
+          const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
+          const auto dstRectanglePxf = command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
                                          ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
                                                             command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
                                                             static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX(),
@@ -142,76 +167,43 @@ namespace Fsl
                                          : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
                                                             command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
                                                             static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY(),
-                                                            static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX()),
-                                       command.DstColor, dstTransparentIndex, i);
-              ++dstTransparentIndex;
-              break;
-            }
-            case RenderDrawSpriteType::SpriteFont:
+                                                            static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX());
+          if (command.DstColor.A() == 0xFF)
+          {
+            if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Opaque))
             {
-              const auto& meshRecord = meshManager.UncheckedGetSpriteFont(hMesh);
+              const auto materialId = materialLookup.GetMaterialIndex(meshRecord.OpaqueMaterialHandle);
               assert(dstTransparentIndex < capacity);
-              pDst[dstTransparentIndex] = ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                                                 PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y,
-                                                                                  static_cast<float>(command.DstSizePx.Width()),
-                                                                                  static_cast<float>(command.DstSizePx.Height())),
-                                                                 command.DstColor, dstTransparentIndex, i);
+              pDst[dstTransparentIndex] =
+                ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i, ProcessedCommandFlags::RenderOpaque);
               ++dstTransparentIndex;
-              break;
             }
-            case RenderDrawSpriteType::OptimizedNineSliceSprite:
+            if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Transparent))
             {
-              const auto& meshRecord = meshManager.UncheckedGetOptimizedNineSliceSprite(hMesh);
-              assert(meshRecord.Transparency != MeshTransparencyFlags::NoFlags);
-              assert(meshRecord.Sprite);
-              const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
-              const auto dstRectanglePxf = command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
-                                             ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
-                                                                command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
-                                                                static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX(),
-                                                                static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumY())
-                                             : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
-                                                                command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
-                                                                static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY(),
-                                                                static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX());
-              if (command.DstColor.A() == 0xFF)
-              {
-                if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Opaque))
-                {
-                  const auto materialId = materialLookup.GetMaterialIndex(meshRecord.OpaqueMaterialHandle);
-                  assert(dstTransparentIndex < capacity);
-                  pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i,
-                                                                     ProcessedCommandFlags::RenderOpaque);
-                  ++dstTransparentIndex;
-                }
-                if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Transparent))
-                {
-                  const auto materialId = materialLookup.GetMaterialIndex(meshRecord.TransparentMaterialHandle);
-                  assert(dstTransparentIndex < capacity);
-                  pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i);
-                  ++dstTransparentIndex;
-                }
-              }
-              else
-              {
-                const auto materialId = materialLookup.GetMaterialIndex(meshRecord.TransparentMaterialHandle);
-                assert(dstTransparentIndex < capacity);
-                pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i,
-                                                                   ProcessedCommandFlags::RenderIgnoreOpacity);
-                ++dstTransparentIndex;
-              }
-              break;
-            }
-            default:
-              FSLLOG3_WARNING("Unsupported type: {}", HandleCoding::GetType(command.Mesh));
-              break;
+              const auto materialId = materialLookup.GetMaterialIndex(meshRecord.TransparentMaterialHandle);
+              assert(dstTransparentIndex < capacity);
+              pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i);
+              ++dstTransparentIndex;
             }
           }
-          assert(dstTransparentIndex <= capacity);
-          return {0u, 0u, 0u, dstTransparentIndex};
+          else
+          {
+            const auto materialId = materialLookup.GetMaterialIndex(meshRecord.TransparentMaterialHandle);
+            assert(dstTransparentIndex < capacity);
+            pDst[dstTransparentIndex] = ProcessedCommandRecord(materialId, dstRectanglePxf, command.DstColor, dstTransparentIndex, i,
+                                                               ProcessedCommandFlags::RenderIgnoreOpacity);
+            ++dstTransparentIndex;
+          }
+          break;
         }
+      default:
+        FSLLOG3_WARNING("Unsupported type: {}", HandleCoding::GetType(command.Mesh));
+        break;
       }
     }
+    assert(dstTransparentIndex <= capacity);
+    return {0u, 0u, 0u, dstTransparentIndex};
   }
 }
+
 #endif

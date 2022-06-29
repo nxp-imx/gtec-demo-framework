@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "ShaderBase.hpp"
 #include <FslBase/IO/File.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "ShaderBase.hpp"
 #include <algorithm>
 #include <cassert>
 

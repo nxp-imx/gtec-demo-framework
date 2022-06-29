@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxTrimmedImage.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxTrimmedImage.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedImage.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

@@ -11,29 +11,29 @@
 // Based on a example called 'Texture' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>
-#include <RapidVulkan/Device.hpp>
-#include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSet.hpp>
-#include <RapidVulkan/Memory.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/Device.hpp>
 #include <RapidVulkan/Framebuffer.hpp>
-#include <RapidVulkan/Instance.hpp>
-#include <RapidVulkan/ImageView.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/RenderPass.hpp>
 #include <RapidVulkan/Sampler.hpp>
 #include <RapidVulkan/Semaphore.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
-#include <deque>
-#include <vector>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <deque>
+#include <vector>
 
 namespace Fsl
 {

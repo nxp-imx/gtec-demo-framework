@@ -82,7 +82,7 @@ CPP_DEFINE_FLAG_PARAMS=$(foreach d,$(CPP_DEFINE_FLAG_NAMES),-D$d)
 
 # -Wextra -Wpedantic
 # -Wcast-function-type -Wredundant-move
-REQUIRED_CXX_FLAGS = -Wempty-body -Wmissing-field-initializers -Wtype-limits -Wuninitialized -fPIC -DPIC -std=c++14 -g $(CPP_DEFINE_FLAG_PARAMS) -pthread
+REQUIRED_CXX_FLAGS = -Wempty-body -Wmissing-field-initializers -Wtype-limits -Wuninitialized -fPIC -DPIC -std=c++17 -g $(CPP_DEFINE_FLAG_PARAMS) -pthread
 
 
 all: $(TARGET)

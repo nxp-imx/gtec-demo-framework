@@ -25,9 +25,9 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - BoundingFrustum.cs.
 
-#include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/BoundingBox.hpp>
+#include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
@@ -243,70 +243,70 @@ namespace Fsl
     case ContainmentType::Contains:
       return true;
     case ContainmentType::Intersects:
-    {
-      // TODO: Needs additional test for not 0.0 and null results.
-      float minVal = std::numeric_limits<float>::max();
-      float maxVal = std::numeric_limits<float>::lowest();
-      for (auto plane : m_planes)
       {
-        const auto normal = plane.Normal;
-
-        float result2 = Vector3::Dot(ray.Direction, normal);
-        float result3 = Vector3::Dot(ray.Position, normal);
-
-        result3 += plane.D;
-
-        if (static_cast<double>(std::abs(result2)) < 9.99999974737875E-06)
+        // TODO: Needs additional test for not 0.0 and null results.
+        float minVal = std::numeric_limits<float>::max();
+        float maxVal = std::numeric_limits<float>::lowest();
+        for (auto plane : m_planes)
         {
-          if (static_cast<double>(result3) > 0.0)
+          const auto normal = plane.Normal;
+
+          float result2 = Vector3::Dot(ray.Direction, normal);
+          float result3 = Vector3::Dot(ray.Position, normal);
+
+          result3 += plane.D;
+
+          if (static_cast<double>(std::abs(result2)) < 9.99999974737875E-06)
           {
-            return false;
-          }
-        }
-        else
-        {
-          float result4 = -result3 / result2;
-          if (static_cast<double>(result2) < 0.0)
-          {
-            if (static_cast<double>(result4) > static_cast<double>(maxVal))
+            if (static_cast<double>(result3) > 0.0)
             {
               return false;
-            }
-            if (static_cast<double>(result4) > static_cast<double>(minVal))
-            {
-              minVal = result4;
             }
           }
           else
           {
-            if (static_cast<double>(result4) < static_cast<double>(minVal))
+            float result4 = -result3 / result2;
+            if (static_cast<double>(result2) < 0.0)
             {
-              return false;
+              if (static_cast<double>(result4) > static_cast<double>(maxVal))
+              {
+                return false;
+              }
+              if (static_cast<double>(result4) > static_cast<double>(minVal))
+              {
+                minVal = result4;
+              }
             }
-            if (static_cast<double>(result4) < static_cast<double>(maxVal))
+            else
             {
-              maxVal = result4;
+              if (static_cast<double>(result4) < static_cast<double>(minVal))
+              {
+                return false;
+              }
+              if (static_cast<double>(result4) < static_cast<double>(maxVal))
+              {
+                maxVal = result4;
+              }
             }
+          }
+
+          float distance = 0.0f;
+          if (ray.Intersects(plane, distance))
+          {
+            minVal = std::min(minVal, distance);
+            maxVal = std::max(maxVal, distance);
           }
         }
 
-        float distance = 0.0f;
-        if (ray.Intersects(plane, distance))
+        float temp = minVal >= 0.0 ? minVal : maxVal;
+        if (temp < 0.0)
         {
-          minVal = std::min(minVal, distance);
-          maxVal = std::max(maxVal, distance);
+          return false;
         }
-      }
 
-      float temp = minVal >= 0.0 ? minVal : maxVal;
-      if (temp < 0.0)
-      {
-        return false;
+        rResult = temp;
+        return true;
       }
-
-      rResult = temp;
-      return true;
-    }
     default:
       throw std::invalid_argument("argument out of range");
     }

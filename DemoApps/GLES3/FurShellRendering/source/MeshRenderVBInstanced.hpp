@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <array>
+#include "MeshRender.hpp"
 
 namespace Fsl
 {

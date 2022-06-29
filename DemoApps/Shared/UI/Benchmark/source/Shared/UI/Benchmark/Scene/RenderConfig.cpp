@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,28 +32,31 @@
 #include "RenderConfig.hpp"
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <array>
 
-namespace Fsl
+namespace Fsl::RenderConfig
 {
-  namespace RenderConfig
+  namespace
   {
-    namespace
+    RenderMethodInfo CreateRenderMethodInfo(const AppRenderMethod method, const StringViewLite name)
     {
-      RenderMethodInfo CreateRenderMethodInfo(const AppRenderMethod method, const StringViewLite name)
-      {
-        return {method, name, TestAppFactory::GetRenderSystemInfo(method)};
-      }
-
-      std::array<RenderMethodInfo, 2> g_renderRecords = {CreateRenderMethodInfo(AppRenderMethod::FlexImBatch, "FlexImBatch"),
-                                                         CreateRenderMethodInfo(AppRenderMethod::BasicImBatch, "BasicImBatch")};
-
+      return {method, name, TestAppFactory::GetRenderSystemInfo(method)};
     }
 
-    ReadOnlySpan<RenderMethodInfo> Get()
-    {
-      return ReadOnlySpanUtil::AsSpan(g_renderRecords);
-    }
+    std::array<RenderMethodInfo, 2> g_renderRecords = {CreateRenderMethodInfo(AppRenderMethod::FlexImBatch, "FlexImBatch"),
+                                                       CreateRenderMethodInfo(AppRenderMethod::BasicImBatch, "BasicImBatch")};
+
+  }
+
+  uint32_t GetSize()
+  {
+    return UncheckedNumericCast<uint32_t>(g_renderRecords.size());
+  }
+
+  ReadOnlySpan<RenderMethodInfo> Get()
+  {
+    return ReadOnlySpanUtil::AsSpan(g_renderRecords);
   }
 }

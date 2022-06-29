@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Stats/Shared.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
@@ -42,12 +41,13 @@
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <Shared/Stats/Shared.hpp>
 //#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 
 #include <cassert>

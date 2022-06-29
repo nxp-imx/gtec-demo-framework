@@ -34,9 +34,9 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
@@ -55,7 +55,7 @@ namespace Fsl
 
       AtlasTexture2D GetAtlasTexture(const IO::Path& path) const
       {
-        return AtlasTexture2D(Texture, AtlasMap.GetAtlasTextureInfo(path));
+        return {Texture, AtlasMap.GetAtlasTextureInfo(path)};
       }
     };
 

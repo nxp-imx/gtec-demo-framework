@@ -35,15 +35,9 @@
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VertexLayout.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
-  {
-    namespace MeshLoader
-    {
-      extern uint32_t VertexSize(const std::vector<VertexLayout>& vertexLayout);
-    }
-  }
+  extern uint32_t VertexSize(const std::vector<VertexLayout>& vertexLayout);
 }
 
 #endif

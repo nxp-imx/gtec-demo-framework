@@ -31,10 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslBase/IO/Path.hpp>
 #include <GLES3/gl3.h>
+#include <memory>
 #include <vector>
 #include "ShaderBase.hpp"
 
@@ -61,8 +62,10 @@ namespace Fsl
     std::vector<GLfloat> m_lightColor;
 
   public:
-    FurShaderBase(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount);
-    FurShaderBase(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath, const int lightCount);
+    FurShaderBase(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath, const bool useHighPrecision,
+                  const int lightCount);
+    FurShaderBase(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
+                  const int lightCount);
 
     void SetWorld(const Matrix& matrix);
     void SetView(const Matrix& matrix);

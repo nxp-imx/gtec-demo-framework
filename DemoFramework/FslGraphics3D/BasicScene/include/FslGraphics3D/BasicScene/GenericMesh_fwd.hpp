@@ -36,89 +36,86 @@
 #include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  template <typename TVertex, typename TIndex>
+  class GenericMesh : public Mesh
   {
-    template <typename TVertex, typename TIndex>
-    class GenericMesh : public Mesh
-    {
-      std::vector<TVertex> m_vertices;
-      std::vector<TIndex> m_indices;
+    std::vector<TVertex> m_vertices;
+    std::vector<TIndex> m_indices;
 
-    public:
-      using vertex_type = TVertex;
-      using index_type = TIndex;
+  public:
+    using vertex_type = TVertex;
+    using index_type = TIndex;
 
-      //! @brief create a empty mesh
-      GenericMesh();
+    //! @brief create a empty mesh
+    GenericMesh();
 
-      //! @brief Create a mesh capable of holding a mesh of the specified size.
-      GenericMesh(const std::size_t vertexCapacity, const std::size_t indexCapacity, const PrimitiveType primitiveType);
+    //! @brief Create a mesh capable of holding a mesh of the specified size.
+    GenericMesh(const std::size_t vertexCapacity, const std::size_t indexCapacity, const PrimitiveType primitiveType);
 
-      //! @brief Create a mesh from the supplied vertices and indices.
-      GenericMesh(const TVertex* const pVertices, const std::size_t vertexCount, const TIndex* const pIndices, const std::size_t indexCount,
-                  const PrimitiveType primitiveType);
+    //! @brief Create a mesh from the supplied vertices and indices.
+    GenericMesh(const TVertex* const pVertices, const std::size_t vertexCount, const TIndex* const pIndices, const std::size_t indexCount,
+                const PrimitiveType primitiveType);
 
-      //! @brief Create a mesh from the supplied vertices and indices.
-      GenericMesh(const std::vector<TVertex>& vertices, const std::vector<TIndex>& indices, const PrimitiveType primitiveType);
+    //! @brief Create a mesh from the supplied vertices and indices.
+    GenericMesh(const std::vector<TVertex>& vertices, const std::vector<TIndex>& indices, const PrimitiveType primitiveType);
 
-      //! @brief Create a mesh from the supplied vertices and indices.
-      GenericMesh(const std::vector<TVertex>& vertices, const std::size_t vertexStartOffset, const std::size_t vertexCount,
-                  const std::vector<TIndex>& indices, const std::size_t indexStartOffset, const std::size_t indexCount,
-                  const PrimitiveType primitiveType);
+    //! @brief Create a mesh from the supplied vertices and indices.
+    GenericMesh(const std::vector<TVertex>& vertices, const std::size_t vertexStartOffset, const std::size_t vertexCount,
+                const std::vector<TIndex>& indices, const std::size_t indexStartOffset, const std::size_t indexCount,
+                const PrimitiveType primitiveType);
 
 
-      //! @brief Reset this mesh to be empty
-      void Reset() override;
+    //! @brief Reset this mesh to be empty
+    void Reset() override;
 
-      //! @brief Recreate a mesh capable of holding a mesh of the specified size.
-      void Reset(const int32_t vertexCapacity, const int32_t indexCapacity, const PrimitiveType primitiveType) override;
+    //! @brief Recreate a mesh capable of holding a mesh of the specified size.
+    void Reset(const int32_t vertexCapacity, const int32_t indexCapacity, const PrimitiveType primitiveType) override;
 
-      //! @brief Recreate a mesh capable of holding a mesh of the specified size.
-      void Reset(const std::size_t vertexCapacity, const std::size_t indexCapacity, const PrimitiveType primitiveType) override;
+    //! @brief Recreate a mesh capable of holding a mesh of the specified size.
+    void Reset(const std::size_t vertexCapacity, const std::size_t indexCapacity, const PrimitiveType primitiveType) override;
 
-      //! @brief Recreate this mesh based on the supplied supplied vertices and indices.
-      void Reset(const std::vector<TVertex>& vertices, const std::vector<TIndex>& indices, const PrimitiveType primitiveType);
+    //! @brief Recreate this mesh based on the supplied supplied vertices and indices.
+    void Reset(const std::vector<TVertex>& vertices, const std::vector<TIndex>& indices, const PrimitiveType primitiveType);
 
-      //! @brief Recreate this mesh based on the supplied vertices and indices.
-      void Reset(const std::vector<TVertex>& vertices, const std::size_t vertexStartOffset, const std::size_t vertexCount,
-                 const std::vector<TIndex>& indices, const std::size_t indexStartOffset, const std::size_t indexCount,
-                 const PrimitiveType primitiveType);
+    //! @brief Recreate this mesh based on the supplied vertices and indices.
+    void Reset(const std::vector<TVertex>& vertices, const std::size_t vertexStartOffset, const std::size_t vertexCount,
+               const std::vector<TIndex>& indices, const std::size_t indexStartOffset, const std::size_t indexCount,
+               const PrimitiveType primitiveType);
 
 
-      //! @brief Get a pointer to the vertices
-      //! @note The pointer is only valid until this object is modified.
-      const TVertex* GetVertices() const;
+    //! @brief Get a pointer to the vertices
+    //! @note The pointer is only valid until this object is modified.
+    const TVertex* GetVertices() const;
 
-      //! @brief Get a pointer to the indices
-      //! @note The pointer is only valid until this object is modified.
-      const TIndex* GetIndices() const;
+    //! @brief Get a pointer to the indices
+    //! @note The pointer is only valid until this object is modified.
+    const TIndex* GetIndices() const;
 
-      //! @brief Get a reference to the vertex array
-      //! @note The reference is only valid until this object is modified.
-      const std::vector<TVertex>& GetVertexArray() const;
+    //! @brief Get a reference to the vertex array
+    //! @note The reference is only valid until this object is modified.
+    const std::vector<TVertex>& GetVertexArray() const;
 
-      //! @brief Get a reference to the index array
-      //! @note The reference is only valid until this object is modified.
-      const std::vector<TIndex>& GetIndexArray() const;
+    //! @brief Get a reference to the index array
+    //! @note The reference is only valid until this object is modified.
+    const std::vector<TIndex>& GetIndexArray() const;
 
-      ReadOnlyFlexVertexSpan AsReadOnlyFlexVertexSpan() const;
-      ReadOnlySpan<TIndex> AsReadOnlyIndexSpan() const;
+    ReadOnlyFlexVertexSpan AsReadOnlyFlexVertexSpan() const;
+    ReadOnlySpan<TIndex> AsReadOnlyIndexSpan() const;
 
-      //! @brief Get a pointer to the vertices
-      //! @note The pointer is only valid until this object is modified.
-      TVertex* DirectAccessVertices();
+    //! @brief Get a pointer to the vertices
+    //! @note The pointer is only valid until this object is modified.
+    TVertex* DirectAccessVertices();
 
-      //! @brief Get a pointer to the indices
-      //! @note The pointer is only valid until this object is modified.
-      TIndex* DirectAccessIndices();
+    //! @brief Get a pointer to the indices
+    //! @note The pointer is only valid until this object is modified.
+    TIndex* DirectAccessIndices();
 
-      VertexDeclarationSpan AsVertexDeclarationSpan() const override;
-      RawMeshContent GenericDirectAccess() const override;
-      RawMeshContentEx GenericDirectAccess() override;
-    };
-  }
+    VertexDeclarationSpan AsVertexDeclarationSpan() const override;
+    RawMeshContent GenericDirectAccess() const override;
+    RawMeshContentEx GenericDirectAccess() override;
+  };
 }
 
 #endif

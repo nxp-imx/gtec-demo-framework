@@ -37,47 +37,44 @@
 #include <FslGraphics3D/BasicScene/SceneNode.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class Scene
   {
-    class Scene
-    {
-      MeshAllocatorFunc m_meshAllocator;
-      std::shared_ptr<SceneNode> m_rootNode;
-      float m_scaleFactor;
+    MeshAllocatorFunc m_meshAllocator;
+    std::shared_ptr<SceneNode> m_rootNode;
+    float m_scaleFactor;
 
-    public:
-      Scene();
-      explicit Scene(MeshAllocatorFunc meshAllocator);
+  public:
+    Scene();
+    explicit Scene(MeshAllocatorFunc meshAllocator);
 
-      virtual ~Scene() = default;
+    virtual ~Scene() = default;
 
-      //! @brief The amount the scene was scaled during loading (if any)
-      float GetScaleFactor() const;
+    //! @brief The amount the scene was scaled during loading (if any)
+    float GetScaleFactor() const;
 
-      //! @brief set the scale factor (intended to be set by the loader)
-      void SetScaleFactor(const float scaleFactor);
+    //! @brief set the scale factor (intended to be set by the loader)
+    void SetScaleFactor(const float scaleFactor);
 
-      //! @brief Get the scene root node;
-      std::shared_ptr<SceneNode> GetRootNode() const;
+    //! @brief Get the scene root node;
+    std::shared_ptr<SceneNode> GetRootNode() const;
 
-      //! @brief Set the root node
-      void SetRootNode(const std::shared_ptr<SceneNode>& rootNode);
+    //! @brief Set the root node
+    void SetRootNode(const std::shared_ptr<SceneNode>& rootNode);
 
-      //! @brief Get the mesh allocator (warning it might not be set)
-      MeshAllocatorFunc GetMeshAllocator() const;
+    //! @brief Get the mesh allocator (warning it might not be set)
+    MeshAllocatorFunc GetMeshAllocator() const;
 
-      //! @brief Get the current scene mesh count
-      virtual int32_t GetMeshCount() const = 0;
+    //! @brief Get the current scene mesh count
+    virtual int32_t GetMeshCount() const = 0;
 
-      //! @brief Get the current scene mesh count
-      virtual std::shared_ptr<Mesh> GetMeshAt(const int32_t index) const = 0;
+    //! @brief Get the current scene mesh count
+    virtual std::shared_ptr<Mesh> GetMeshAt(const int32_t index) const = 0;
 
-      //! @brief Add a mesh to the scene
-      virtual void AddMesh(const std::shared_ptr<Mesh>& mesh) = 0;
-    };
-  }
+    //! @brief Add a mesh to the scene
+    virtual void AddMesh(const std::shared_ptr<Mesh>& mesh) = 0;
+  };
 }
 
 #endif

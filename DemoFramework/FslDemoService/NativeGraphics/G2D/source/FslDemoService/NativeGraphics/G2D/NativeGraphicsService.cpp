@@ -29,47 +29,44 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/G2D/NativeGraphicsService.hpp>
-#include "NativeGraphicsBasic2D.hpp"
-#include "DynamicNativeTexture2D.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoService/NativeGraphics/G2D/NativeGraphicsService.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include "DynamicNativeTexture2D.hpp"
+#include "NativeGraphicsBasic2D.hpp"
 
-namespace Fsl
+namespace Fsl::G2D
 {
-  namespace G2D
+  NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
+    : ANativeGraphicsServiceNo3D(serviceProvider)
   {
-    NativeGraphicsService::NativeGraphicsService(const ServiceProvider& serviceProvider)
-      : ANativeGraphicsServiceNo3D(serviceProvider)
-    {
-      FSLLOG3_WARNING("NativeGraphicsService is mostly a stub");
-    }
+    FSLLOG3_WARNING("NativeGraphicsService is mostly a stub");
+  }
 
 
-    NativeGraphicsService::~NativeGraphicsService() = default;
+  NativeGraphicsService::~NativeGraphicsService() = default;
 
 
-    bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
-    {
-      return (activeAPI.Name != DemoHostFeatureName::G2D);
+  bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
+  {
+    return (activeAPI.Name != DemoHostFeatureName::G2D);
 
-      // int major, minor;
-      // DemoHostFeatureUtil::DecodeG2DVersion(activeAPI.Version, major, minor);
-      // return true;
-    }
-
-
-    void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
-    {
-      FSLLOG3_WARNING("G2D::NativeGraphicsService.Capture not implemented");
-    }
+    // int major, minor;
+    // DemoHostFeatureUtil::DecodeG2DVersion(activeAPI.Version, major, minor);
+    // return true;
+  }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
-    {
-      return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx));
-    }
+  void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+  {
+    FSLLOG3_WARNING("G2D::NativeGraphicsService.Capture not implemented");
+  }
+
+
+  std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
+  {
+    return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx));
   }
 }

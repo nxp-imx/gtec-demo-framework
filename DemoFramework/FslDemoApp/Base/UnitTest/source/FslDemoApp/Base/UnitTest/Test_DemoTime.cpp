@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Time/LogTimeSpan.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
 
 using namespace Fsl;
 

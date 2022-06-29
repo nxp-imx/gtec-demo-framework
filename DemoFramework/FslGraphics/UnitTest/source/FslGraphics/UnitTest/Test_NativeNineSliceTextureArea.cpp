@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/Log/LogNativeNineSliceTextureArea.hpp>
+#include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>
 #include <limits>

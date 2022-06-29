@@ -32,22 +32,22 @@
 // Included first since OpenCV currently has a conflict with the X11 header, so this is a workaround for that
 #include <opencv2/opencv.hpp>
 // Normal includes that dont conflict
-#include "OpenCVMatToUI.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
+#include "OpenCVMatToUI.hpp"
 
 namespace Fsl
 {
@@ -94,7 +94,7 @@ namespace Fsl
       label->SetAlignmentY(UI::ItemAlignment::Center);
 
       auto stack = std::make_shared<UI::StackLayout>(context);
-      stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stack->SetOrientation(UI::LayoutOrientation::Horizontal);
       stack->AddChild(image);
       stack->AddChild(label);
       return stack;
@@ -118,7 +118,7 @@ namespace Fsl
       const auto controlBlue = CreateTextureAndText(context, customSpriteResourceManager, texB, "Blue");
 
       auto colorsStackLayout = std::make_shared<UI::StackLayout>(context);
-      colorsStackLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      colorsStackLayout->SetOrientation(UI::LayoutOrientation::Vertical);
       colorsStackLayout->SetAlignmentY(UI::ItemAlignment::Center);
       colorsStackLayout->AddChild(label);
       colorsStackLayout->AddChild(controlRed);
@@ -126,7 +126,7 @@ namespace Fsl
       colorsStackLayout->AddChild(controlBlue);
 
       auto rowStackLayout = std::make_shared<UI::StackLayout>(context);
-      rowStackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      rowStackLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
       rowStackLayout->AddChild(image1);
       rowStackLayout->AddChild(colorsStackLayout);
       return rowStackLayout;
@@ -230,7 +230,7 @@ namespace Fsl
     const auto group2 = CreateImageGroup(context, customSpriteResourceManager, m_texTestMat, m_texTestMatR, m_texTestMatG, m_texTestMatB, "OpenCV");
 
     auto stackLayout = std::make_shared<UI::StackLayout>(context);
-    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    stackLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     stackLayout->SetAlignmentX(UI::ItemAlignment::Center);
     stackLayout->SetAlignmentY(UI::ItemAlignment::Center);
     stackLayout->AddChild(group1);

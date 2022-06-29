@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,13 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLFrameBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
-#include <GLES3/gl3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <GLES3/gl3.h>
 #include <array>
-#include "RenderCube.hpp"
 #include "OptionParser.hpp"
+#include "RenderCube.hpp"
 
 namespace Fsl
 {
@@ -89,7 +89,7 @@ namespace Fsl
     GLES3::GLFrameBuffer CreateFrameBuffer(const PxSize2D& resolution, const GLTextureImageParameters& texImageParams)
     {
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      return GLFrameBuffer(resolution, params, texImageParams, GL_DEPTH_COMPONENT24);
+      return {resolution, params, texImageParams, GL_DEPTH_COMPONENT24};
     }
 
 
@@ -188,7 +188,7 @@ namespace Fsl
       glUseProgram(0);
 
       GL_CHECK_FOR_ERROR();
-      return GLTexture(envCubemap, resolution, GL_TEXTURE_CUBE_MAP);
+      return {envCubemap, resolution, GL_TEXTURE_CUBE_MAP};
     }
   }
 
@@ -244,19 +244,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        const bool mouseCapture = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        {
+          m_mouseCaptureEnabled = mouseCapture;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -320,7 +320,7 @@ namespace Fsl
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.Get());
-    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetGLCapacity());
     // glDrawArrays(GL_TRIANGLES, 0, 6);
 
     mesh.VertexArray.Unbind();

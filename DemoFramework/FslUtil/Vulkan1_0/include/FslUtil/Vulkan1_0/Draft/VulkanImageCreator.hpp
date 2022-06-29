@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <RapidVulkan/CommandBuffer.hpp>
-#include <RapidVulkan/CommandPool.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
+#include <RapidVulkan/CommandBuffer.hpp>
+#include <RapidVulkan/CommandPool.hpp>
 
 namespace Fsl
 {

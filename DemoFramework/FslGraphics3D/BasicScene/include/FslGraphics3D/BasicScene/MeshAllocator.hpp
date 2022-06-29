@@ -35,24 +35,21 @@
 #include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class MeshAllocator
   {
-    class MeshAllocator
-    {
-    public:
-      //! @brief A flexible mesh allocator
-      static std::shared_ptr<Mesh> AllocateComplex(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType);
+  public:
+    //! @brief A flexible mesh allocator
+    static std::shared_ptr<Mesh> AllocateComplex(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType);
 
-      //! @brief A flexible mesh allocator
-      template <typename TMesh>
-      static std::shared_ptr<Mesh> Allocate(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType)
-      {
-        return std::make_shared<TMesh>(vertexCount, indexCount, primitiveType);
-      }
-    };
-  }
+    //! @brief A flexible mesh allocator
+    template <typename TMesh>
+    static std::shared_ptr<Mesh> Allocate(const std::size_t vertexCount, const std::size_t indexCount, const PrimitiveType primitiveType)
+    {
+      return std::make_shared<TMesh>(vertexCount, indexCount, primitiveType);
+    }
+  };
 }
 
 #endif

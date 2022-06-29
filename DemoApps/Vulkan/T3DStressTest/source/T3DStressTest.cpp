@@ -30,21 +30,21 @@
  ****************************************************************************************************************************************************/
 
 #include "T3DStressTest.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxSize2D.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics3D/Procedural/MeshBuilder.hpp>
 #include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUTextureUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <Shared/T3DStressTest/FurTexture.hpp>
 #include <Shared/T3DStressTest/OptionParser.hpp>
-#include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <ctime>
 
@@ -139,7 +139,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     Procedural::BasicMesh CreateMesh(const PxSize2D& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
@@ -259,8 +259,6 @@ namespace Fsl
 
   void T3DStressTest::FixedUpdate(const DemoTime& /*demoTime*/)
   {
-    const PxSize2D windowSizePx = GetWindowSizePx();
-
     Vector3 forceDirection(std::sin(m_radians), 0, 0);
     m_displacement = m_gravity + forceDirection;
 
@@ -278,9 +276,7 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                                         windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 100.0f) *
-                    vulkanClipMatrix;
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 100.0f) * vulkanClipMatrix;
     m_MVP = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_DATA_CHARTDATAINFO_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_DATA_CHARTDATAINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,28 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslSimpleUI/Controls/Charts/Data/ChartGridInfo.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct ChartDataInfo
   {
-    struct ChartDataInfo
-    {
-      // ChartGridInfo GridInfo;
-      uint32_t Count{0};
-      uint32_t SegmentCount{0};
+    //! The total number of data points
+    uint32_t TotalElementCount{0};
 
-      constexpr ChartDataInfo() noexcept = default;
-      constexpr ChartDataInfo(const uint32_t count, const uint32_t segmentCount) noexcept
-        : Count(count)
-        , SegmentCount(segmentCount)
-      {
-      }
-    };
-  }
+    //! The number of segments (0, 1 or 2)
+    uint32_t SegmentCount{0};
+
+    //! The total number of valid data channels in a ChartDataEntry
+    uint32_t ChannelCount{0};
+
+    constexpr ChartDataInfo() noexcept = default;
+    constexpr ChartDataInfo(const uint32_t totalElementCount, const uint32_t segmentCount, const uint32_t channelCount) noexcept
+      : TotalElementCount(totalElementCount)
+      , SegmentCount(segmentCount)
+      , ChannelCount(channelCount)
+    {
+    }
+  };
 }
 
 

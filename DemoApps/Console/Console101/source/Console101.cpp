@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Exceptions.hpp>
 #include "Console101.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 
 namespace Fsl
 {

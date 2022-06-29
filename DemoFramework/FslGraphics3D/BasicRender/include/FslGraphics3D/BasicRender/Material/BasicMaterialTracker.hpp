@@ -33,18 +33,15 @@
 
 #include <FslGraphics/Render/Basic/Material/IBasicMaterial.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  //! This is just used as a auto handle which we can detect when the user throws away.
+  //! This is a quick temporary solution for now
+  class BasicMaterialTracker final : public IBasicMaterial
   {
-    //! This is just used as a auto handle which we can detect when the user throws away.
-    //! This is a quick temporary solution for now
-    class BasicMaterialTracker final : public IBasicMaterial
-    {
-    public:
-      BasicMaterialTracker() = default;
-    };
-  }
+  public:
+    BasicMaterialTracker() = default;
+  };
 }
 
 #endif

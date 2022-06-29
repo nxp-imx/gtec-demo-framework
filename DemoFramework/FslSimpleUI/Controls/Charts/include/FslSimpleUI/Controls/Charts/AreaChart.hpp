@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_AREACHART_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_AREACHART_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
+#include <FslDataBinding/Base/Property/TypedObserverDependencyProperty.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomBasicSpriteBasicMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomBasicSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/CustomSpriteFontMesh.hpp>
 #include <FslSimpleUI/Controls/Charts/AreaChartGridLineManager.hpp>
+#include <FslSimpleUI/Controls/Charts/ChartRenderPolicy.hpp>
 #include <memory>
 #include <string>
 
@@ -46,16 +49,21 @@ namespace Fsl
 
   namespace UI
   {
+    class AChartData;
     namespace Render
     {
       struct ChartDataWindowDrawData;
     }
 
     struct ChartDataWindowRecord;
-    class IChartComplexDataWindow;
+    class ChartDataView;
 
-    class AreaChart final : public BaseWindow
+    class AreaChart final
+      : public BaseWindow
+      , public DataBinding::IObjectObserver
     {
+      using dataview_prop_type = std::shared_ptr<ChartDataView>;
+
       AreaChartGridLineManager m_gridLineManager;
       std::shared_ptr<Render::ChartDataWindowDrawData> m_chartWindowDrawData;
 
@@ -66,10 +74,20 @@ namespace Fsl
       Color m_lineColor;
       Color m_backgroundColor;
       Color m_labelColor;
+      ChartRenderPolicy m_renderPolicy;
+
+      DataBinding::TypedDependencyProperty<bool> m_propertyMatchDataViewEntries;
+      DataBinding::TypedObserverDependencyProperty<dataview_prop_type> m_propertyDataView;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyMatchDataViewEntries;
+      static DataBinding::DependencyPropertyDefinition PropertyDataView;
+
       explicit AreaChart(const std::shared_ptr<BaseWindowContext>& context);
       ~AreaChart() override;
+
+      ChartRenderPolicy GetRenderPolicy() const;
+      void SetRenderPolicy(const ChartRenderPolicy value);
 
       void SetOpaqueFillSprite(const std::shared_ptr<BasicImageSprite>& value);
       void SetTransparentFillSprite(const std::shared_ptr<BasicImageSprite>& value);
@@ -80,8 +98,22 @@ namespace Fsl
       const std::shared_ptr<SpriteFont>& GetFont() const;
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
-      const std::shared_ptr<IChartComplexDataWindow>& GetData() const;
-      void SetData(const std::shared_ptr<IChartComplexDataWindow>& data);
+      void SetGridLines(const std::shared_ptr<IChartGridLines>& gridLines);
+
+
+      bool GetMatchDataViewEntries() const;
+
+      //! @param enabled if true the view size will be forced to match what can be displayed
+      bool SetMatchDataViewEntries(const bool enabled);
+
+
+      const std::shared_ptr<ChartDataView>& GetDataView() const;
+
+      //! @brief Set the data view for this chart
+      bool SetDataView(const std::shared_ptr<ChartDataView>& dataView);
+
+      //! @brief Set the data view for this chart
+      bool SetDataView(const std::shared_ptr<AChartData>& data);
 
 
       Color GetLineColor() const
@@ -105,14 +137,24 @@ namespace Fsl
 
       void SetLabelColor(const Color color);
 
-      void SetEntryColor(const uint32_t index, const Color color);
+      // void SetEntryColor(const uint32_t index, const Color color);
 
       void WinResolutionChanged(const ResolutionChangedInfo& info) final;
       void WinPostLayout() final;
       void WinDraw(const UIDrawContext& context) final;
 
+      void OnChanged(const DataBinding::DataBindingInstanceHandle hInstance) final;
+
     protected:
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final;
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) final;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) final;
+
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+      bool ProcessDataViewChange();
+      void UpdateAnimation(const TimeSpan& timeSpan) final;
       bool UpdateAnimationState(const bool forceCompleteAnimation) final;
     };
   }

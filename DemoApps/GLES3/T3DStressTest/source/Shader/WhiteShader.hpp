@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
+#include <memory>
 #include "ShaderBase.hpp"
 
 namespace Fsl
@@ -44,7 +45,7 @@ namespace Fsl
     GLint m_locWVP;
 
   public:
-    explicit WhiteShader(const IContentManager& contentManager);
+    explicit WhiteShader(const std::shared_ptr<IContentManager>& contentManager);
 
     void SetWorldViewProjection(const Matrix& matrix);
   };

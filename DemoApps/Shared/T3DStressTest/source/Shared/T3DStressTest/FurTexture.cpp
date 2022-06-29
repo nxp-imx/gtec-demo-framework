@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/T3DStressTest/FurTexture.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <Shared/T3DStressTest/FurTexture.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -88,7 +88,7 @@ namespace Fsl
       max_layer_n = std::max(std::min(max_layer_n, 1.0f), 0.0f);
       const int dstPixelIndex = (y * width * 4) + (x * 4);
       assert((dstPixelIndex % 4) == 0);
-      colors[dstPixelIndex + 0] = uint8_t(max_layer_n * 255);
+      colors[dstPixelIndex + 0] = static_cast<uint8_t>(max_layer_n * 255);
       colors[dstPixelIndex + 1] = 0;
       colors[dstPixelIndex + 2] = 0;
       colors[dstPixelIndex + 3] = 255;

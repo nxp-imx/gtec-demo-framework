@@ -34,30 +34,27 @@
 #include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <deque>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  template <typename TMesh>
+  class GenericScene : public Scene
   {
-    template <typename TMesh>
-    class GenericScene : public Scene
-    {
-    public:
-      using mesh_type = TMesh;
+  public:
+    using mesh_type = TMesh;
 
-      GenericScene();
-      explicit GenericScene(const std::size_t numMeshes);
-      GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t numMeshes);
+    GenericScene();
+    explicit GenericScene(const std::size_t numMeshes);
+    GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t numMeshes);
 
-      std::deque<std::shared_ptr<TMesh>> Meshes;
+    std::deque<std::shared_ptr<TMesh>> Meshes;
 
 
-      void AddMesh(const std::shared_ptr<TMesh>& mesh);
+    void AddMesh(const std::shared_ptr<TMesh>& mesh);
 
-      int32_t GetMeshCount() const override;
-      std::shared_ptr<Mesh> GetMeshAt(const int32_t index) const override;
-      void AddMesh(const std::shared_ptr<Mesh>& mesh) override;
-    };
-  }
+    int32_t GetMeshCount() const override;
+    std::shared_ptr<Mesh> GetMeshAt(const int32_t index) const override;
+    void AddMesh(const std::shared_ptr<Mesh>& mesh) override;
+  };
 }
 
 #endif

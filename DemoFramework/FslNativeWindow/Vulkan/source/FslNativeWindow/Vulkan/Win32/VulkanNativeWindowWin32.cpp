@@ -30,10 +30,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "VulkanNativeWindowSystemWin32.hpp"
 #include "VulkanNativeWindowWin32.hpp"
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <RapidVulkan/Check.hpp>
+#include "VulkanNativeWindowSystemWin32.hpp"
 
 namespace Fsl
 {

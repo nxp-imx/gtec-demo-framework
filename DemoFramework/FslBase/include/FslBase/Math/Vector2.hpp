@@ -409,8 +409,8 @@ namespace Fsl
     //! @brief Multiply vector by scalar
     Vector2& operator*=(const int32_t arg)
     {
-      X *= arg;
-      Y *= arg;
+      X *= static_cast<float>(arg);
+      Y *= static_cast<float>(arg);
       return *this;
     }
 
@@ -425,8 +425,8 @@ namespace Fsl
     //! @brief Divide vector by scalar
     Vector2& operator/=(const int32_t arg)
     {
-      X /= arg;
-      Y /= arg;
+      X /= static_cast<float>(arg);
+      Y /= static_cast<float>(arg);
       return *this;
     }
 
@@ -439,45 +439,41 @@ namespace Fsl
     }
 
     //! @brief Tests for equality.
-    constexpr bool operator==(const Vector2& rhs) const
+    constexpr bool operator==(const Vector2& rhs) const noexcept
     {
       return X == rhs.X && Y == rhs.Y;
     }
 
     //! @brief Tests for inequality.
-    constexpr bool operator!=(const Vector2& rhs) const
+    constexpr bool operator!=(const Vector2& rhs) const noexcept
     {
       return X != rhs.X || Y != rhs.Y;
     }
 
 
     //! @brief rResult = lhs + rhs;
-    //! Improvement: constexpr when we adopt C++14
-    static inline void Add(const Vector2& lhs, const Vector2& rhs, Vector2& rResult)
+    constexpr static inline void Add(const Vector2& lhs, const Vector2& rhs, Vector2& rResult) noexcept
     {
       rResult.X = lhs.X + rhs.X;
       rResult.Y = lhs.Y + rhs.Y;
     }
 
     //! @brief rResult = lhs - rhs;
-    //! Improvement: constexpr when we adopt C++14
-    static inline void Subtract(const Vector2& lhs, const Vector2& rhs, Vector2& rResult)
+    constexpr static inline void Subtract(const Vector2& lhs, const Vector2& rhs, Vector2& rResult) noexcept
     {
       rResult.X = lhs.X - rhs.X;
       rResult.Y = lhs.Y - rhs.Y;
     }
 
     //! @brief rResult = lhs * rhs;
-    //! Improvement: constexpr when we adopt C++14
-    static inline void Multiply(const Vector2& lhs, const Vector2& rhs, Vector2& rResult)
+    constexpr static inline void Multiply(const Vector2& lhs, const Vector2& rhs, Vector2& rResult)
     {
       rResult.X = lhs.X * rhs.X;
       rResult.Y = lhs.Y * rhs.Y;
     }
 
     //! @brief rResult = lhs / rhs;
-    //! Improvement: constexpr when we adopt C++14
-    static inline void Divide(const Vector2& lhs, const Vector2& rhs, Vector2& rResult)
+    constexpr static inline void Divide(const Vector2& lhs, const Vector2& rhs, Vector2& rResult)
     {
       rResult.X = lhs.X / rhs.X;
       rResult.Y = lhs.Y / rhs.Y;
@@ -505,7 +501,7 @@ namespace Fsl
   //! @brief multiply a vector with a scalar
   constexpr inline Vector2 operator*(const Vector2& lhs, const int32_t rhs)
   {
-    return {lhs.X * rhs, lhs.Y * rhs};
+    return {lhs.X * static_cast<float>(rhs), lhs.Y * static_cast<float>(rhs)};
   }
 
   //! @brief multiply a vector with a scalar
@@ -535,7 +531,7 @@ namespace Fsl
   //! @brief Divide a vector by a scalar
   constexpr inline Vector2 operator/(const Vector2& lhs, const int32_t rhs)
   {
-    return {lhs.X / rhs, lhs.Y / rhs};
+    return {lhs.X / static_cast<float>(rhs), lhs.Y / static_cast<float>(rhs)};
   }
 
   //! @brief Divide a vector by a scalar

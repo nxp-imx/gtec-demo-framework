@@ -31,15 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/ITag.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
+#include <FslBase/ITag.hpp>
 #include <FslBase/Time/TimeSpan.hpp>
 #include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
+#include <FslDemoHost/Base/LogStatsMode.hpp>
+#include <FslDemoHost/Base/Service/Test/TestScreenshotConfig.hpp>
 #include <FslDemoPlatform/DurationExitConfig.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslNativeWindow/Base/NativeWindowConfig.hpp>
-#include <FslDemoHost/Base/Service/Test/TestScreenshotConfig.hpp>
-#include <FslDemoHost/Base/LogStatsMode.hpp>
 #include <chrono>
 #include <memory>
 
@@ -66,7 +66,7 @@ namespace Fsl
 
     std::string GetName() const override
     {
-      return std::string("DemoHostManagerOptionParser");
+      return {"DemoHostManagerOptionParser"};
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;

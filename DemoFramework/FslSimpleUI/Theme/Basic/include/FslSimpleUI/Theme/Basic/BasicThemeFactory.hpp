@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASIC_BASICTHEMEFACTORY_HPP
 #define FSLSIMPLEUI_THEME_BASIC_BASICTHEMEFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,23 +37,20 @@ namespace Fsl
 {
   class ISpriteResourceManager;
 
-  namespace UI
+  namespace UI::Theme
   {
-    namespace Theme
+    class BasicThemeResources;
+    struct ThemeFactoryCreateInfo;
+
+    class BasicThemeFactory final : public IThemeFactory
     {
-      class BasicThemeResources;
-      struct ThemeFactoryCreateInfo;
+      std::shared_ptr<BasicThemeResources> m_resources;
+      bool m_usePrimaryPalette;
 
-      class BasicThemeFactory final : public IThemeFactory
-      {
-        std::shared_ptr<BasicThemeResources> m_resources;
-        bool m_usePrimaryPalette;
-
-      public:
-        BasicThemeFactory(ISpriteResourceManager& rResourceManager, const ThemeFactoryCreateInfo& createInfo);
-        std::shared_ptr<IThemeControlFactory> Create(const std::shared_ptr<WindowContext>& context) final;
-      };
-    }
+    public:
+      BasicThemeFactory(ISpriteResourceManager& rResourceManager, const ThemeFactoryCreateInfo& createInfo);
+      std::shared_ptr<IThemeControlFactory> Create(const std::shared_ptr<WindowContext>& context) final;
+    };
   }
 }
 

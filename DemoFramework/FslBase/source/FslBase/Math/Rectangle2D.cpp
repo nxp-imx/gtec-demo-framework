@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Rectangle2D.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Rectangle2D.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>

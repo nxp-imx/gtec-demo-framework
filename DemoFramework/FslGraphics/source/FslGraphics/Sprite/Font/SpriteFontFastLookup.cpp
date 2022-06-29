@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Font/SpriteFontFastLookup.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Font/BitmapFont.hpp>
-#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFontFastLookup.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
+#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <cassert>
 #include <utility>
 #include <vector>

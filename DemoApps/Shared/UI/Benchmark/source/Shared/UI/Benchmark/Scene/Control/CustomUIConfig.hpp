@@ -33,12 +33,9 @@
 
 #include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 
-namespace Fsl
+namespace Fsl::CustomUIConfig
 {
-  namespace CustomUIConfig
-  {
-    constexpr UI::DpLayoutSize1D FixedSpacingDp(4.0f);
-  }
+  constexpr UI::DpLayoutSize1D FixedSpacingDp(DpValueF(4.0f));
 }
 
 #endif

@@ -13,33 +13,33 @@
 // Based on a example called 'ComputeParticles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/ComputePipeline.hpp>
-#include <RapidVulkan/Device.hpp>
-#include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSet.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/Device.hpp>
 #include <RapidVulkan/Fence.hpp>
-#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/Framebuffer.hpp>
-#include <RapidVulkan/Instance.hpp>
-#include <RapidVulkan/ImageView.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/RenderPass.hpp>
 #include <RapidVulkan/Sampler.hpp>
 #include <RapidVulkan/Semaphore.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
-#include <deque>
-#include <vector>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
 #include <glm/matrix.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include <deque>
+#include <vector>
 #include "OptionParserEx.hpp"
 
 namespace Fsl
@@ -75,36 +75,31 @@ namespace Fsl
     {
       struct ComputeUBO    //  Compute shader uniform block object
       {
-        float DeltaT;    //    Frame delta time
-        float DestX;     //    x position of the attractor
-        float DestY;     //    y position of the attractor
+        float DeltaT{0};    //    Frame delta time
+        float DestX{0};     //    x position of the attractor
+        float DestY{0};     //    y position of the attractor
         int32_t ParticleCount;
 
         explicit ComputeUBO(const int32_t particleCount)
-          : DeltaT(0)
-          , DestX(0)
-          , DestY(0)
-          , ParticleCount(particleCount)
+          : ParticleCount(particleCount)
         {
         }
       };
 
       Willems::VulkanBuffer StorageBuffer;         // (Shader) storage buffer object containing the particles
       Willems::VulkanBuffer UniformBuffer;         // Uniform buffer object containing particle system parameters
-      VkQueue Queue;                               // Separate queue for compute commands (queue family may differ from the one used for graphics)
+      VkQueue Queue{VK_NULL_HANDLE};               // Separate queue for compute commands (queue family may differ from the one used for graphics)
       RapidVulkan::CommandPool CommandPool;        // Use a separate command pool (queue family may differ from the one used for graphics)
       RapidVulkan::CommandBuffer CommandBuffer;    // Command buffer storing the dispatch commands and barriers
       RapidVulkan::Fence Fence;                    // Synchronization fence to avoid rewriting compute CB if still in use
       RapidVulkan::DescriptorSetLayout DescriptorSetLayout;    // Compute shader binding layout
-      VkDescriptorSet DescriptorSet;                           // Compute shader bindings
+      VkDescriptorSet DescriptorSet{VK_NULL_HANDLE};           // Compute shader bindings
       RapidVulkan::PipelineLayout PipelineLayout;              // Layout of the compute pipeline
       RapidVulkan::ComputePipeline Pipeline;                   // Compute pipeline for updating particle positions
       ComputeUBO Ubo;
 
       explicit Compute(const int32_t particleCount)
-        : Queue(VK_NULL_HANDLE)
-        , DescriptorSet(VK_NULL_HANDLE)
-        , Ubo(particleCount)
+        : Ubo(particleCount)
       {
       }
     };

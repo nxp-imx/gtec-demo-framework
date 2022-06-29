@@ -29,20 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/OpenVX/Setup/RegisterDemoApp.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslBase/ExceptionMessageFormatter.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/OpenVX/Setup/RegisterDemoApp.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Console/ConsoleDemoHostSetup.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include <FslBase/ExceptionMessageFormatter.hpp>
-#include <RapidOpenVX/Exceptions.hpp>
 #include <RapidOpenVX/Debug/Strings/vx_status_e.hpp>
+#include <RapidOpenVX/Exceptions.hpp>
 #include <sstream>
 
 namespace Fsl
@@ -115,18 +115,15 @@ namespace Fsl
     }
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::OpenVX
   {
-    namespace OpenVX
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
-      {
-        // Register a formatter for common OpenVX exceptions (from the libs we utilize)
-        rSetup.CustomExceptionFormatter.Add(TryFormatException);
+      // Register a formatter for common OpenVX exceptions (from the libs we utilize)
+      rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-        const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
-      }
+      const DemoHostFeature feature = CommenSetup(rSetup);
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
     }
   }
 }

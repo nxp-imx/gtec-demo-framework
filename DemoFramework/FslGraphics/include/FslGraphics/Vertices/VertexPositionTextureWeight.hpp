@@ -57,12 +57,12 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 3> elements = {
-        VertexElementEx(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
-                        0),
-        VertexElementEx(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0)};
-      return VertexDeclarationArray<3>(elements, sizeof(VertexPositionTextureWeight));
+      constexpr BasicVertexDeclarationArray<3> elements = {
+        VertexElement(offsetof(VertexPositionTextureWeight, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionTextureWeight, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
+                      0),
+        VertexElement(offsetof(VertexPositionTextureWeight, Weight), VertexElementFormat::Single, VertexElementUsage::BlendWeight, 0)};
+      return {elements, sizeof(VertexPositionTextureWeight)};
     }
 
 
@@ -74,12 +74,12 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionTextureWeight& rhs) const
+    constexpr bool operator==(const VertexPositionTextureWeight& rhs) const noexcept
     {
       return Position == rhs.Position && TextureCoordinate == rhs.TextureCoordinate && Weight == rhs.Weight;
     }
 
-    constexpr bool operator!=(const VertexPositionTextureWeight& rhs) const
+    constexpr bool operator!=(const VertexPositionTextureWeight& rhs) const noexcept
     {
       return !(*this == rhs);
     }

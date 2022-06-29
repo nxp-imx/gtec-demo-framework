@@ -1,7 +1,7 @@
 #ifndef FSLBASE_UNITTEST_HELPER_CHECK_MATH_CHECKMATRIX_HPP
 #define FSLBASE_UNITTEST_HELPER_CHECK_MATH_CHECKMATRIX_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,37 +34,34 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const Matrix& lhs, const Matrix& rhs)
   {
-    inline bool AlmostEqual(const Matrix& lhs, const Matrix& rhs)
+    const auto* pLhs = lhs.DirectAccess();
+    const auto* pRhs = rhs.DirectAccess();
+    for (Matrix::size_type i = 0; i < Matrix::NumElements; ++i)
     {
-      const auto* pLhs = lhs.DirectAccess();
-      const auto* pRhs = rhs.DirectAccess();
-      for (Matrix::size_type i = 0; i < Matrix::NumElements; ++i)
+      if (!AlmostEqual(pLhs[i], pRhs[i]))
       {
-        if (!AlmostEqual(pLhs[i], pRhs[i]))
-        {
-          return false;
-        }
+        return false;
       }
-      return true;
     }
+    return true;
+  }
 
-    inline bool IsNear(const Matrix& lhs, const Matrix& rhs, const float absError)
+  inline bool IsNear(const Matrix& lhs, const Matrix& rhs, const float absError)
+  {
+    const auto* pLhs = lhs.DirectAccess();
+    const auto* pRhs = rhs.DirectAccess();
+    for (Matrix::size_type i = 0; i < Matrix::NumElements; ++i)
     {
-      const auto* pLhs = lhs.DirectAccess();
-      const auto* pRhs = rhs.DirectAccess();
-      for (Matrix::size_type i = 0; i < Matrix::NumElements; ++i)
+      if (!IsNear(pLhs[i], pRhs[i], absError))
       {
-        if (!IsNear(pLhs[i], pRhs[i], absError))
-        {
-          return false;
-        }
+        return false;
       }
-      return true;
     }
+    return true;
   }
 }
 

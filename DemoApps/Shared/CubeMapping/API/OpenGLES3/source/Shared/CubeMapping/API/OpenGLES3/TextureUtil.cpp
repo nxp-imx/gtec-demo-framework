@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/CubeMapping/API/OpenGLES3/TextureUtil.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/TextureUtil.hpp>
 #include <array>
 
 namespace Fsl
@@ -92,6 +92,6 @@ namespace Fsl
     const auto texNegZ = contentManager->ReadBitmap(IO::Path::Combine(basePath, files[5]), pixelFormat, BitmapOrigin::UpperLeft);
 
     GLTextureParameters3 texParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-    return GLTexture(texPosX, texNegX, texPosY, texNegY, texPosZ, texNegZ, texParams, TextureFlags::AllowAnyBitmapOrigin);
+    return {texPosX, texNegX, texPosY, texNegY, texPosZ, texNegZ, texParams, TextureFlags::AllowAnyBitmapOrigin};
   }
 }

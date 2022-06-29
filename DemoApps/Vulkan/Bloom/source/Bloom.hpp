@@ -38,8 +38,8 @@
 #include <FslDemoService/NativeGraphics/Vulkan/NativeBatch2D.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
-#include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <FslUtil/Vulkan1_0/VUFramebuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <Shared/Bloom/GaussianShaderBuilder.hpp>

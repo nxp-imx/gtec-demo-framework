@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanCustom/VulkanWindowDemoApp.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
@@ -42,14 +41,15 @@
 #include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
+#include <Shared/VulkanCustom/VulkanWindowDemoApp.hpp>
 #include <Shared/VulkanCustom/VulkanWindowSystem.hpp>
 #include <Shared/VulkanCustom/VulkanWindowSystemHelper.hpp>
 #include <array>
-#include <string>
 #include <sstream>
+#include <string>
 
 namespace Fsl
 {

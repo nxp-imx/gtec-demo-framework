@@ -31,9 +31,9 @@
 
 #include "CoverFlow.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <VG/openvg.h>
 #include <array>
 #include <iostream>
@@ -69,10 +69,10 @@ namespace Fsl
           // Animation Requested
 
           // Calculate next position and animation increments
-          rObject.IncrementX = ((endPos.X - startPos.X) / float(rObject.AnimationDuration - 1));
-          rObject.IncrementY = ((endPos.Y - startPos.Y) / float(rObject.AnimationDuration - 1));
+          rObject.IncrementX = ((endPos.X - startPos.X) / static_cast<float>(rObject.AnimationDuration - 1));
+          rObject.IncrementY = ((endPos.Y - startPos.Y) / static_cast<float>(rObject.AnimationDuration - 1));
 
-          rObject.AngleIncrement = (360.0f / float(rObject.AnimationDuration - 1));
+          rObject.AngleIncrement = (360.0f / static_cast<float>(rObject.AnimationDuration - 1));
           // Define Animations duration
           rObject.AnimationState = 0;
           rObject.CoverFlowState = ANIMATION_EXECUTING_POS;
@@ -88,8 +88,8 @@ namespace Fsl
           rObject.ScaleAnimation = 0;
           rObject.ScaleX = 1;
           rObject.ScaleY = 1;
-          rObject.ScaleIncrementX = (endScale.X - startScale.X) / float(rObject.AnimationDuration - 1);
-          rObject.ScaleIncrementY = (endScale.Y - startScale.Y) / float(rObject.AnimationDuration - 1);
+          rObject.ScaleIncrementX = (endScale.X - startScale.X) / static_cast<float>(rObject.AnimationDuration - 1);
+          rObject.ScaleIncrementY = (endScale.Y - startScale.Y) / static_cast<float>(rObject.AnimationDuration - 1);
 
           rObject.AnimationState = 0;
           rObject.CoverFlowState = ANIMATION_EXECUTING_SCALE;
@@ -104,9 +104,9 @@ namespace Fsl
       case ANIMATION_EXECUTING_POS:
         if (rObject.AnimationDuration > 0)
         {
-          rObject.CurrentX = startPos.X + (rObject.IncrementX * rObject.AnimationState);
-          rObject.CurrentY = startPos.Y + (rObject.IncrementY * rObject.AnimationState);
-          rObject.CurrentAngle = rObject.AngleIncrement * rObject.AnimationState;
+          rObject.CurrentX = startPos.X + (rObject.IncrementX * static_cast<float>(rObject.AnimationState));
+          rObject.CurrentY = startPos.Y + (rObject.IncrementY * static_cast<float>(rObject.AnimationState));
+          rObject.CurrentAngle = rObject.AngleIncrement * static_cast<float>(rObject.AnimationState);
           rObject.AnimationState++;
           rObject.AnimationDuration--;
         }
@@ -124,8 +124,8 @@ namespace Fsl
       case ANIMATION_EXECUTING_SCALE:
         if (rObject.AnimationDuration > 0)
         {
-          rObject.ScaleX = startScale.X + (rObject.ScaleIncrementX * rObject.AnimationState);
-          rObject.ScaleY = startScale.Y + (rObject.ScaleIncrementY * rObject.AnimationState);
+          rObject.ScaleX = startScale.X + (rObject.ScaleIncrementX * static_cast<float>(rObject.AnimationState));
+          rObject.ScaleY = startScale.Y + (rObject.ScaleIncrementY * static_cast<float>(rObject.AnimationState));
           rObject.AnimationState++;
           rObject.AnimationDuration--;
         }

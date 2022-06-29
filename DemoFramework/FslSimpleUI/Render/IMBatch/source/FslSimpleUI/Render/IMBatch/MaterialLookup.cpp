@@ -33,7 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
   MaterialLookup::MaterialLookup(const SpriteMaterialInfo& defaultMaterialInfo)
     : m_defaultMaterialInfo(defaultMaterialInfo)

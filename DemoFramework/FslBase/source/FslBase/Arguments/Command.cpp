@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,70 +34,67 @@
 #include <stdexcept>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  Command::Command(std::string smartName, const uint32_t commandId, const CommandType commandType, const bool required)
+    : Id(commandId)
+    , Type(commandType)
+    , Required(required)
   {
-    Command::Command(std::string smartName, const uint32_t commandId, const CommandType commandType, const bool required)
-      : Id(commandId)
-      , Type(commandType)
-      , Required(required)
+    if (smartName.empty())
     {
-      if (smartName.empty())
-      {
-        throw std::invalid_argument("smartName can not be empty");
-      }
-      if (smartName.size() == 1)
-      {
-        ShortName = std::move(smartName);
-      }
-      else
-      {
-        Name = std::move(smartName);
-      }
-
-      Validate();
+      throw std::invalid_argument("smartName can not be empty");
+    }
+    if (smartName.size() == 1)
+    {
+      ShortName = std::move(smartName);
+    }
+    else
+    {
+      Name = std::move(smartName);
     }
 
+    Validate();
+  }
 
-    Command::Command(std::string shortName, std::string name, const uint32_t commandId, const CommandType commandType, const bool required)
-      : ShortName(std::move(shortName))
-      , Name(std::move(name))
-      , Id(commandId)
-      , Type(commandType)
-      , Required(required)
+
+  Command::Command(std::string shortName, std::string name, const uint32_t commandId, const CommandType commandType, const bool required)
+    : ShortName(std::move(shortName))
+    , Name(std::move(name))
+    , Id(commandId)
+    , Type(commandType)
+    , Required(required)
+  {
+    Validate();
+  }
+
+
+  void Command::Validate() const
+  {
+    if (ShortName.empty() && Name.empty())
     {
-      Validate();
+      throw std::invalid_argument("ShortName or Name must be valid");
     }
 
-
-    void Command::Validate() const
+    if (!ShortName.empty() && ShortName.size() != 1)
     {
-      if (ShortName.empty() && Name.empty())
-      {
-        throw std::invalid_argument("ShortName or Name must be valid");
-      }
-
-      if (!ShortName.empty() && ShortName.size() != 1)
-      {
-        throw std::invalid_argument("A short name is expected to have a length of 1");
-      }
-
-      if (!Name.empty() && Name.size() <= 1)
-      {
-        throw std::invalid_argument("A name is expected to have a length that is greater than one");
-      }
-
-      if (Type == CommandType::Undefined)
-      {
-        throw std::invalid_argument("The argument type can not be undefined");
-      }
+      throw std::invalid_argument("A short name is expected to have a length of 1");
     }
 
-    bool Command::IsValid() const
+    if (!Name.empty() && Name.size() <= 1)
     {
-      return (!ShortName.empty() || !Name.empty()) && (ShortName.empty() || ShortName.size() == 1) && (Name.empty() || Name.size() > 1) &&
-             Type != CommandType::Undefined;
+      throw std::invalid_argument("A name is expected to have a length that is greater than one");
     }
+
+    if (Type == CommandType::Undefined)
+    {
+      throw std::invalid_argument("The argument type can not be undefined");
+    }
+  }
+
+  bool Command::IsValid() const
+  {
+    return (!ShortName.empty() || !Name.empty()) && (ShortName.empty() || ShortName.size() == 1) && (Name.empty() || Name.size() > 1) &&
+           Type != CommandType::Undefined;
   }
 }

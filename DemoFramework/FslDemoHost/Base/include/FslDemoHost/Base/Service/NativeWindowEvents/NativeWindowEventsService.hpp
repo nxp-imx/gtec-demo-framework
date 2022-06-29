@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslDemoHost/Base/Service/NativeWindowEvents/INativeWindowEventSender.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <list>
 
 namespace Fsl

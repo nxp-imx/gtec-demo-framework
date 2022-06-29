@@ -29,12 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Math/Dp/FmtDpThicknessF.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/Dp/FmtDpThicknessF.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <array>
-#include <limits>
-#include <vector>
 
 using namespace Fsl;
 
@@ -46,7 +43,7 @@ namespace
 
 TEST(TestLog_MathDp_FmtDpThicknessF, Log)
 {
-  DpThicknessF value(1.1f, 2.1f, 10.1f, 20.1f);
+  auto value = DpThicknessF::Create(1.1f, 2.1f, 10.1f, 20.1f);
 
   EXPECT_EQ(std::string("{Left=1.1 Top=2.1 Right=10.1 Bottom=20.1}"), fmt::format("{}", value));
 }

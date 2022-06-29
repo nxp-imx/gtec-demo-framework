@@ -34,9 +34,11 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeBufferHandle.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeMaterialHandle.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeShaderCreateInfo.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeTextureHandle.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeBufferFactory.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeMaterialFactory.hpp>
+#include <FslGraphics3D/BasicRender/Adapter/INativeShaderFactory.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTextureFactory.hpp>
 
 namespace Fsl
@@ -53,6 +55,7 @@ namespace Fsl
     /// </summary>
     class INativeDevice
       : public INativeBufferFactory
+      , public INativeShaderFactory
       , public INativeMaterialFactory
       , public INativeTextureFactory
     {

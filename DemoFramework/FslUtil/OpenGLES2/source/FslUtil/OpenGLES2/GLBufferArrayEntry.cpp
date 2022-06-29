@@ -31,25 +31,21 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLBufferArrayEntry.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
-#include <FslUtil/OpenGLES2/GLBufferArrayEntry.hpp>
-
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  GLBufferArrayEntry::GLBufferArrayEntry()
+    : Handle(GLValues::INVALID_HANDLE)
   {
-    GLBufferArrayEntry::GLBufferArrayEntry()
-      : Handle(GLValues::INVALID_HANDLE)
-    {
-    }
+  }
 
 
-    bool GLBufferArrayEntry::IsValid() const
-    {
-      return Handle != GLValues::INVALID_HANDLE;
-    }
+  bool GLBufferArrayEntry::IsValid() const
+  {
+    return Handle != GLValues::INVALID_HANDLE;
   }
 }

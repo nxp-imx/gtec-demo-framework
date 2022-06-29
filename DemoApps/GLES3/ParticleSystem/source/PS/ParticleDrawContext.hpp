@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Math/Matrix.hpp>
 #include <FslGraphics/Color.hpp>
 
 namespace Fsl

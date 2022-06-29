@@ -32,10 +32,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/G2D/DemoAppG2D.hpp>
 #include <FslBase/Math/Rectangle.hpp>
-#include <vector>
+#include <FslDemoApp/G2D/DemoAppG2D.hpp>
 #include <g2d.h>
+#include <vector>
 
 #ifdef OLD_BOARD
 struct g2d_surface_pair

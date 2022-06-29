@@ -31,17 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  enum class ChunkType
   {
-    enum class ChunkType
-    {
-      VertexDeclarations = 0,
-      Meshes = 1,
-      Nodes = 2
-    };
-  }
+    VertexDeclarations = 0,
+    Meshes = 1,
+    Nodes = 2
+  };
 }
 
 #endif

@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangleU16.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/NativeTextureAreaUtil.hpp>
 

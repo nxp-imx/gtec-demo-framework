@@ -33,12 +33,12 @@
 
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoHost/Base/Service/Image/IImageServiceControl.hpp>
+#include <FslGraphics/ImageFormat.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
-#include <FslGraphics/ImageFormat.hpp>
 #include <deque>
-#include <memory>
 #include <map>
+#include <memory>
 
 namespace Fsl
 {

@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "Launcher/AsynchronousServiceImplLaunchFactoryRecord.hpp"
-#include "Launcher/TypeServiceMaps.hpp"
 #include <FslService/Impl/Registry/RegisteredServiceDeque.hpp>
 #include <FslService/Impl/Registry/ServiceGroupId.hpp>
 #include <deque>
 #include <utility>
+#include "Launcher/AsynchronousServiceImplLaunchFactoryRecord.hpp"
+#include "Launcher/TypeServiceMaps.hpp"
 
 namespace Fsl
 {

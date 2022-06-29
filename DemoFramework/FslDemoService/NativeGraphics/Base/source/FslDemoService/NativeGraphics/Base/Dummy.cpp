@@ -30,10 +30,3 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
-
-namespace Fsl
-{
-  namespace FslDemoServiceDummy
-  {
-  }
-}

@@ -41,9 +41,8 @@
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
 //#include <FslNativeGraphicsVG/NativeGraphicsServiceVG.hpp>
 
-#include "../PlatformConfig.hpp"
-
 #include <memory>
+#include "../PlatformConfig.hpp"
 namespace Fsl
 {
   void PlatformConfig::Configure(IDemoHostRegistry& registry, ServiceRegistry serviceRegistry, bool& rEnableFirewallRequest)

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Dp/LogDpValueF.hpp>
 #include <FslBase/Math/Dp/DpThicknessF.hpp>
 #include <ostream>
 

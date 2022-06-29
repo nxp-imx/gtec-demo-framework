@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <Shared/HDR/SkyboxTonemapping/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "HDR03_SkyboxToneMapping.hpp"
 #include <array>
+#include "HDR03_SkyboxToneMapping.hpp"
 
 namespace Fsl
 {

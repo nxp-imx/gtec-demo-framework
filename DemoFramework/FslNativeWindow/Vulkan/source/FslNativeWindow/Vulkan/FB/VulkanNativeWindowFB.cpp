@@ -30,7 +30,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "VulkanNativeWindowSystemFB.hpp"
 #include "VulkanNativeWindowFB.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/ToString.hpp>
@@ -40,6 +39,7 @@
 #include <RapidVulkan/Check.hpp>
 #include <algorithm>
 #include <vector>
+#include "VulkanNativeWindowSystemFB.hpp"
 
 #if 0
 #define LOCAL_LOG(X) FSLLOG3_INFO("VulkanNativeWindowFB: {}", (X))

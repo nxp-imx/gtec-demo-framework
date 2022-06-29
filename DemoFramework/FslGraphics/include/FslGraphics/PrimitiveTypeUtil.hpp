@@ -39,7 +39,8 @@ namespace Fsl
   {
   public:
     //! @brief Given a the index count calculate how many of primitives of the given type that would fit.
-    static int CalcPrimitiveCount(const int indexCount, const PrimitiveType primitiveType);
+    static int32_t CalcPrimitiveCount(const int32_t indexCount, const PrimitiveType primitiveType);
+    static uint32_t CalcPrimitiveCount(const uint32_t indexCount, const PrimitiveType primitiveType);
   };
 }
 

@@ -35,24 +35,21 @@
 #include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class SceneAllocator
   {
-    class SceneAllocator
-    {
-    public:
-      //! @brief A scene allocator that allows mixed mesh types
-      static std::shared_ptr<Scene> AllocateComplex(const std::size_t meshCapacity);
+  public:
+    //! @brief A scene allocator that allows mixed mesh types
+    static std::shared_ptr<Scene> AllocateComplex(const std::size_t meshCapacity);
 
-      //! @brief A flexible scene allocator
-      template <typename TScene>
-      static std::shared_ptr<Scene> Allocate(const std::size_t meshCapacity)
-      {
-        return std::make_shared<TScene>(meshCapacity);
-      }
-    };
-  }
+    //! @brief A flexible scene allocator
+    template <typename TScene>
+    static std::shared_ptr<Scene> Allocate(const std::size_t meshCapacity)
+    {
+      return std::make_shared<TScene>(meshCapacity);
+    }
+  };
 }
 
 #endif

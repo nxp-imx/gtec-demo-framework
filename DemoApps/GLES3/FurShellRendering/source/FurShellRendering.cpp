@@ -29,15 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "FurShellRendering.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
-#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
-#include <FslGraphics3D/Procedural/BoxGenerator.hpp>
-#include <FslGraphics3D/Procedural/TorusGenerator.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
@@ -45,15 +42,18 @@
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslGraphics3D/Procedural/BoxGenerator.hpp>
+#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
+#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
+#include <FslGraphics3D/Procedural/TorusGenerator.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/TextureUtil.hpp>
-#include <Shared/FurShellRendering/OptionParser.hpp>
 #include <Shared/FurShellRendering/FurTexture.hpp>
+#include <Shared/FurShellRendering/OptionParser.hpp>
+#include <GLES3/gl3.h>
 #include <array>
 #include <memory>
-#include <GLES3/gl3.h>
-#include "FurShellRendering.hpp"
 #include "RenderMode.hpp"
 #include "Shader/ShaderBase.hpp"
 
@@ -109,7 +109,7 @@ namespace Fsl
       auto bitmap = contentManager->ReadBitmap(strPath, PixelFormat::R8G8B8_UNORM);
 
       GLTextureParameters texParams1(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      return GLES3::GLTexture(bitmap, texParams1);
+      return {bitmap, texParams1};
     }
 
     //! Create the fur 'density' bitmap
@@ -121,12 +121,12 @@ namespace Fsl
         const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateSmooth(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
         const RawBitmap furBitmap(&furBitmapContent[0], furTextureDim.X, furTextureDim.Y, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
         GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
-        return GLES3::GLTexture(furBitmap, texParams);
+        return {furBitmap, texParams};
       }
       const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateWave(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
       const RawBitmap furBitmap(&furBitmapContent[0], furTextureDim.X, furTextureDim.Y, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
       GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
-      return GLES3::GLTexture(furBitmap, texParams);
+      return {furBitmap, texParams};
 
       // std::string strPath("Density2.png");
       // auto bitmap = contentManager->ReadBitmap(strPath, PixelFormat::R8G8B8A8_UNORM);
@@ -138,7 +138,7 @@ namespace Fsl
     {
       auto bitmap = contentManager->ReadBitmap("TextureAtlas/MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
       GLTextureParameters texParams(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
-      return GLES3::GLTexture(bitmap, texParams);
+      return {bitmap, texParams};
     }
 
     AtlasTextureInfo CreateMainAtlasTextureInfo(const std::shared_ptr<IContentManager>& contentManager)
@@ -181,11 +181,11 @@ namespace Fsl
   FurShellRendering::FurShellRendering(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_config(config.GetOptions<OptionParser>()->GetConfig())
-    , m_shaderMultiPass(*GetContentManager(), "MultiPass", false, m_config.GetLightCount())
-    , m_shaderInstanced(*GetContentManager(), "Instanced", false, m_config.GetLightCount())
-    , m_shaderInstancedLayer0(*GetContentManager(), "Instanced2/Fur_Layer0.vert", "Instanced2/Fur_Layer0.frag", 1)
-    , m_shaderInstancedLayerN(*GetContentManager(), "Instanced2/Fur_LayerN.vert", "Instanced2/Fur_LayerN.frag", 1)
-    , m_shader2(*GetContentManager())
+    , m_shaderMultiPass(GetContentManager(), "MultiPass", false, m_config.GetLightCount())
+    , m_shaderInstanced(GetContentManager(), "Instanced", false, m_config.GetLightCount())
+    , m_shaderInstancedLayer0(GetContentManager(), "Instanced2/Fur_Layer0.vert", "Instanced2/Fur_Layer0.frag", 1)
+    , m_shaderInstancedLayerN(GetContentManager(), "Instanced2/Fur_LayerN.vert", "Instanced2/Fur_LayerN.frag", 1)
+    , m_shader2(GetContentManager())
     , m_perspectiveZ(400.0f)
     , m_xAngle(0)
     , m_yAngle(MathHelper::ToRadians(270))
@@ -357,15 +357,15 @@ namespace Fsl
       const Vector2 atlasSize(TypeConverter::UncheckedTo<Vector2>(m_resources.TexDescriptionAtlas.GetSize()));
 
       // texSize.X / tex
-      float x1 = -1.0f - (m_resources.TexDescription.OffsetPx.X / res.X);
-      float x2 = x1 + (m_resources.TexDescription.TrimmedRectPx.Width / res.X);
-      float y1 = -1.0f - (m_resources.TexDescription.OffsetPx.Y / res.Y);
-      float y2 = y1 + (m_resources.TexDescription.TrimmedRectPx.Height / res.Y);
+      float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X) / res.X);
+      float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width) / res.X);
+      float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y) / res.Y);
+      float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height) / res.Y);
 
-      float u1 = m_resources.TexDescription.TrimmedRectPx.Left() / atlasSize.X;
-      float v1 = 1.0f - (m_resources.TexDescription.TrimmedRectPx.Top() / atlasSize.Y);
-      float u2 = m_resources.TexDescription.TrimmedRectPx.Right() / atlasSize.X;
-      float v2 = 1.0f - (m_resources.TexDescription.TrimmedRectPx.Bottom() / atlasSize.Y);
+      float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Left()) / atlasSize.X;
+      float v1 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Top()) / atlasSize.Y);
+      float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Right()) / atlasSize.X;
+      float v2 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Bottom()) / atlasSize.Y);
 
       BuildVB(m_resources.VBDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
 
@@ -517,7 +517,7 @@ namespace Fsl
     rShader.SetProjection(perspective);
     rShader.SetDisplacement(displacement);
 
-    float layerAdd = (layerCount > 1 ? 1.0f / float(layerCount - 1) : 1);
+    float layerAdd = (layerCount > 1 ? 1.0f / static_cast<float>(layerCount - 1) : 1);
     float layer = 0.0f;
 
     rRender.Bind(rShader);

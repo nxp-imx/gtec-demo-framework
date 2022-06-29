@@ -35,104 +35,101 @@
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowMouseOverEvent.hpp>
-#include "../IModuleHost.hpp"
+#include <cassert>
 #include "../../Event/SimpleEventSender.hpp"
 #include "../../Event/StateEvent.hpp"
 #include "../../Event/StateEventSender.hpp"
-#include <cassert>
+#include "../IModuleHost.hpp"
 
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    StateEvent Convert(const std::shared_ptr<WindowInputClickEvent>& theEvent)
     {
-      StateEvent Convert(const std::shared_ptr<WindowInputClickEvent>& theEvent)
-      {
-        assert(theEvent);
-        StateEventInfo info(theEvent->GetSourceId(), theEvent->GetSourceSubId(), theEvent->GetState(), theEvent->IsRepeat());
-        info.SetParam1(theEvent->GetScreenPosition());
-        return StateEvent(theEvent, info);
-      }
-
-      StateEvent Convert(const std::shared_ptr<WindowMouseOverEvent>& theEvent)
-      {
-        assert(theEvent);
-        StateEventInfo info(theEvent->GetSourceId(), theEvent->GetSourceSubId(), theEvent->GetState(), theEvent->IsRepeat());
-        info.SetParam1(theEvent->GetScreenPosition());
-        return StateEvent(theEvent, info);
-      }
-
-      // void OnSendCompleted(const std::shared_ptr<ISESOnCompleted>& stateEventSender, const StateEvent& theEvent, const
-      // std::shared_ptr<IWindowEventQueue> m_eventQueue)
-      //{
-      //  assert(stateEventSender);
-      //  stateEventSender->ISESOnCompleted_HandleAutoFocus(m_eventQueue); // , theEvent.Content.TimeStamp);
-      //}
-      //
-
-      StateEvent CreateTargetWindowDeathEvent(const StateEventInfo& lastKnownInfo, const std::shared_ptr<WindowEventPool>& windowEventPool)
-      {
-        assert(windowEventPool);
-        auto fakeEvent = windowEventPool->AcquireWindowInputClickEvent(lastKnownInfo.SourceId(), lastKnownInfo.SourceSubId(),
-                                                                       EventTransactionState::Canceled, false, lastKnownInfo.Param1());
-        return Convert(fakeEvent);
-      }
-
-      StateEvent CreateTargetWindowDeathEventMouseOver(const StateEventInfo& lastKnownInfo, const std::shared_ptr<WindowEventPool>& windowEventPool)
-      {
-        assert(windowEventPool);
-        auto fakeEvent = windowEventPool->AcquireWindowMouseOverEvent(lastKnownInfo.SourceId(), lastKnownInfo.SourceSubId(),
-                                                                      EventTransactionState::Canceled, false, lastKnownInfo.Param1());
-        return Convert(fakeEvent);
-      }
+      assert(theEvent);
+      StateEventInfo info(theEvent->GetSourceId(), theEvent->GetSourceSubId(), theEvent->GetState(), theEvent->IsRepeat());
+      info.SetParam1(theEvent->GetScreenPosition());
+      return {theEvent, info};
     }
 
-
-    HitBasedInputSender::HitBasedInputSender(const std::shared_ptr<IModuleHost>& moduleHost)
-      : m_stateEventSenderClickEvent(moduleHost->CreateStateEventSender(WindowFlags::ClickInput, CreateTargetWindowDeathEvent))
-      , m_stateEventSenderMouseOverEvent(moduleHost->CreateStateEventSender(WindowFlags::MouseOver, CreateTargetWindowDeathEventMouseOver))
+    StateEvent Convert(const std::shared_ptr<WindowMouseOverEvent>& theEvent)
     {
+      assert(theEvent);
+      StateEventInfo info(theEvent->GetSourceId(), theEvent->GetSourceSubId(), theEvent->GetState(), theEvent->IsRepeat());
+      info.SetParam1(theEvent->GetScreenPosition());
+      return {theEvent, info};
     }
 
+    // void OnSendCompleted(const std::shared_ptr<ISESOnCompleted>& stateEventSender, const StateEvent& theEvent, const
+    // std::shared_ptr<IWindowEventQueue> m_eventQueue)
+    //{
+    //  assert(stateEventSender);
+    //  stateEventSender->ISESOnCompleted_HandleAutoFocus(m_eventQueue); // , theEvent.Content.TimeStamp);
+    //}
+    //
 
-    HitBasedInputSender::~HitBasedInputSender() = default;
-
-
-    bool HitBasedInputSender::HasActiveClickEvent() const noexcept
+    StateEvent CreateTargetWindowDeathEvent(const StateEventInfo& lastKnownInfo, const std::shared_ptr<WindowEventPool>& windowEventPool)
     {
-      return m_stateEventSenderClickEvent->HasActiveEvent();
+      assert(windowEventPool);
+      auto fakeEvent = windowEventPool->AcquireWindowInputClickEvent(lastKnownInfo.SourceId(), lastKnownInfo.SourceSubId(),
+                                                                     EventTransactionState::Canceled, false, lastKnownInfo.Param1());
+      return Convert(fakeEvent);
     }
 
-
-    bool HitBasedInputSender::HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const
+    StateEvent CreateTargetWindowDeathEventMouseOver(const StateEventInfo& lastKnownInfo, const std::shared_ptr<WindowEventPool>& windowEventPool)
     {
-      return m_stateEventSenderClickEvent->HasActiveClickEventThatIsNot(target);
+      assert(windowEventPool);
+      auto fakeEvent = windowEventPool->AcquireWindowMouseOverEvent(lastKnownInfo.SourceId(), lastKnownInfo.SourceSubId(),
+                                                                    EventTransactionState::Canceled, false, lastKnownInfo.Param1());
+      return Convert(fakeEvent);
     }
+  }
 
 
-    bool HitBasedInputSender::SendMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
-                                                 const bool isRepeat, const PxPoint2& screenPositionPx, const std::shared_ptr<TreeNode>& target)
-    {
-      assert(m_stateEventSenderMouseOverEvent);
-      auto pool = m_stateEventSenderMouseOverEvent->GetEventPool();
-      auto theEvent = pool->AcquireWindowMouseOverEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
-      auto result = m_stateEventSenderMouseOverEvent->Send(Convert(theEvent), target);
-      pool->Release(theEvent);
-      return result == SendResult::Handled;
-    }
+  HitBasedInputSender::HitBasedInputSender(const std::shared_ptr<IModuleHost>& moduleHost)
+    : m_stateEventSenderClickEvent(moduleHost->CreateStateEventSender(WindowFlags::ClickInput, CreateTargetWindowDeathEvent))
+    , m_stateEventSenderMouseOverEvent(moduleHost->CreateStateEventSender(WindowFlags::MouseOver, CreateTargetWindowDeathEventMouseOver))
+  {
+  }
 
 
-    bool HitBasedInputSender::SendInputClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
-                                                  const bool isRepeat, const PxPoint2& screenPositionPx)
-    {
-      assert(m_stateEventSenderClickEvent);
-      auto pool = m_stateEventSenderClickEvent->GetEventPool();
-      auto theEvent = pool->AcquireWindowInputClickEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
-      auto result = m_stateEventSenderClickEvent->Send(Convert(theEvent), screenPositionPx);
-      pool->Release(theEvent);
-      return result == SendResult::Handled;
-    }
+  HitBasedInputSender::~HitBasedInputSender() = default;
+
+
+  bool HitBasedInputSender::HasActiveClickEvent() const noexcept
+  {
+    return m_stateEventSenderClickEvent->HasActiveEvent();
+  }
+
+
+  bool HitBasedInputSender::HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const
+  {
+    return m_stateEventSenderClickEvent->HasActiveClickEventThatIsNot(target);
+  }
+
+
+  bool HitBasedInputSender::SendMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
+                                               const bool isRepeat, const PxPoint2& screenPositionPx, const std::shared_ptr<TreeNode>& target)
+  {
+    assert(m_stateEventSenderMouseOverEvent);
+    auto pool = m_stateEventSenderMouseOverEvent->GetEventPool();
+    auto theEvent = pool->AcquireWindowMouseOverEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
+    auto result = m_stateEventSenderMouseOverEvent->Send(Convert(theEvent), target);
+    pool->Release(theEvent);
+    return result == SendResult::Handled;
+  }
+
+
+  bool HitBasedInputSender::SendInputClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
+                                                const bool isRepeat, const PxPoint2& screenPositionPx)
+  {
+    assert(m_stateEventSenderClickEvent);
+    auto pool = m_stateEventSenderClickEvent->GetEventPool();
+    auto theEvent = pool->AcquireWindowInputClickEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
+    auto result = m_stateEventSenderClickEvent->Send(Convert(theEvent), screenPositionPx);
+    pool->Release(theEvent);
+    return result == SendResult::Handled;
   }
 }

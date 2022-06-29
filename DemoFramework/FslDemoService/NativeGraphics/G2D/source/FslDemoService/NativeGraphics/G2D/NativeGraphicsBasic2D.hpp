@@ -31,34 +31,31 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 
-namespace Fsl
+namespace Fsl::G2D
 {
-  namespace G2D
+  class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
   {
-    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
-    {
-      PxExtent2D m_pxCurrentExtent;
-      PxSize2D m_fontSize;
-      bool m_inBegin;
+    PxExtent2D m_pxCurrentExtent;
+    PxSize2D m_fontSize;
+    bool m_inBegin;
 
-    public:
-      explicit NativeGraphicsBasic2D(const PxExtent2D& extentPx);
-      ~NativeGraphicsBasic2D() final;
+  public:
+    explicit NativeGraphicsBasic2D(const PxExtent2D& extentPx);
+    ~NativeGraphicsBasic2D() final;
 
-      // From INativeGraphicsBasic2D
-      void SetScreenExtent(const PxExtent2D& extentPx) final;
-      void Begin() final;
-      void End() final;
-      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
-      PxSize2D FontSize() const final;
+    // From INativeGraphicsBasic2D
+    void SetScreenExtent(const PxExtent2D& extentPx) final;
+    void Begin() final;
+    void End() final;
+    void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
+    void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+    PxSize2D FontSize() const final;
 
-    private:
-    };
-  }
+  private:
+  };
 }
 
 #endif

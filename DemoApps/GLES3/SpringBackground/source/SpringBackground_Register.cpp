@@ -31,9 +31,9 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "SpringBackground.hpp"
-#include "OptionParser.hpp"
 #include <array>
+#include "OptionParser.hpp"
+#include "SpringBackground.hpp"
 
 namespace Fsl
 {

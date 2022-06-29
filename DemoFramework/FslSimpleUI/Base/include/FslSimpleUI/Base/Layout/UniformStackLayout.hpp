@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_UNIFORMSTACKLAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_UNIFORMSTACKLAYOUT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,38 +31,36 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
+#include <FslBase/Math/Dp/DpSize1DF.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
+#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class UniformStackLayout : public SimpleLayout
   {
-    class UniformStackLayout : public SimpleLayout
+    LayoutOrientation m_orientation;
+    DpSize1DF m_spacingDp;
+    int32_t m_maxSizePx{0};
+
+  public:
+    explicit UniformStackLayout(const std::shared_ptr<BaseWindowContext>& context);
+
+    LayoutOrientation GetLayoutOrientation() const
     {
-      LayoutOrientation m_orientation;
-      float m_spacingDp;
-      int32_t m_maxSizePx{0};
+      return m_orientation;
+    }
+    void SetOrientation(const LayoutOrientation& value);
+    DpSize1DF GetSpacing() const
+    {
+      return m_spacingDp;
+    }
+    bool SetSpacing(const DpSize1DF value);
 
-    public:
-      explicit UniformStackLayout(const std::shared_ptr<BaseWindowContext>& context);
-
-      LayoutOrientation GetLayoutOrientation() const
-      {
-        return m_orientation;
-      }
-      void SetLayoutOrientation(const LayoutOrientation& value);
-      float GetSpacing() const
-      {
-        return m_spacingDp;
-      }
-      void SetSpacing(const float& value);
-
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-    };
-  }
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+  };
 }
 
 #endif

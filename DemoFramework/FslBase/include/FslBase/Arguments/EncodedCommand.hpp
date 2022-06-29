@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_ENCODEDCOMMAND_HPP
 #define FSLBASE_ARGUMENTS_ENCODEDCOMMAND_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,24 @@
 #include <FslBase/String/StringViewLite.hpp>
 #include <cstdint>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  struct EncodedCommand
   {
-    struct EncodedCommand
-    {
-      CommandType Type{CommandType::Undefined};
-      uint32_t Id{0};
-      uint32_t Count{0};
-      StringViewLite StrOptArg;
+    CommandType Type{CommandType::Undefined};
+    uint32_t Id{0};
+    uint32_t Count{0};
+    StringViewLite StrOptArg;
 
-      constexpr EncodedCommand() noexcept = default;
-      constexpr EncodedCommand(const CommandType type, const uint32_t commandId, const StringViewLite strOptArg, const uint32_t count = 1) noexcept
-        : Type(type)
-        , Id(commandId)
-        , Count(count)
-        , StrOptArg(strOptArg)
-      {
-      }
-    };
-  }
+    constexpr EncodedCommand() noexcept = default;
+    constexpr EncodedCommand(const CommandType type, const uint32_t commandId, const StringViewLite strOptArg, const uint32_t count = 1) noexcept
+      : Type(type)
+      , Id(commandId)
+      , Count(count)
+      , StrOptArg(strOptArg)
+    {
+    }
+  };
 }
 
 #endif

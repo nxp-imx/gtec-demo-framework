@@ -20,8 +20,8 @@ namespace Fsl
   class S01_SimpleTriangle : public DemoAppGLES2
   {
     GLES2::GLProgram m_program;
-    GLuint m_hModelViewMatrixLoc;
-    GLuint m_hProjMatrixLoc;
+    GLint m_hModelViewMatrixLoc;
+    GLint m_hProjMatrixLoc;
 
   public:
     explicit S01_SimpleTriangle(const DemoAppConfig& config);

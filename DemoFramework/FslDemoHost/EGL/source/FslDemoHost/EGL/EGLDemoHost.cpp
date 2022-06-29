@@ -300,7 +300,7 @@ namespace Fsl
     EGLDemoHostFeatureConfig ExamineFeatureRequest(const std::shared_ptr<DemoHostAppSetup::DemoHostFeatureDeque>& features)
     {
       EGLDemoHostFeatureConfig featureConfig;
-      DemoHostAppSetup::DemoHostFeatureDeque::const_iterator itr = features->begin();
+      auto itr = features->begin();
       while (itr != features->end())
       {
         if (itr->Name == DemoHostFeatureName::OpenGLES)
@@ -725,6 +725,9 @@ namespace Fsl
 
     bool TryGetAngleDisplay(EGLDisplay& rDisplay, EGLNativeDisplayType nativeDisplayType)
     {
+#ifdef FSL_PLATFORM_EMSCRIPTEN
+      return false;
+#else
       if (!EGLUtil::HasExtension(EGL_NO_DISPLAY, "EGL_ANGLE_platform_angle_vulkan"))
       {
         return false;
@@ -752,6 +755,7 @@ namespace Fsl
       rDisplay = eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE, nativeDisplayType, attribList.data());
       EGL_CHECK_FOR_ERROR();
       return true;
+#endif
     }
   }
 

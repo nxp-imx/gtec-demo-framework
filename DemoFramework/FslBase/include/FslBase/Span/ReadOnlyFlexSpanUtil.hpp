@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SPAN_READONLYFLEXSPANUTIL_HPP
 #define FSLBASE_SPAN_READONLYFLEXSPANUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,53 +38,50 @@
 #include <cassert>
 #include <exception>
 
-namespace Fsl
+namespace Fsl::ReadOnlyFlexSpanUtil
 {
-  namespace ReadOnlyFlexSpanUtil
+  template <typename T>
+  constexpr inline ReadOnlyFlexSpan AsSpan(const T* const pData, const std::size_t dataEntries)
   {
-    template <typename T>
-    constexpr inline ReadOnlyFlexSpan AsSpan(const T* const pData, const std::size_t dataEntries)
+    if (pData == nullptr && dataEntries > 0)
     {
-      if (pData == nullptr && dataEntries > 0)
-      {
-        throw std::invalid_argument("a nullptr can not have any entries");
-      }
-      return ReadOnlyFlexSpan(pData, dataEntries, sizeof(T));
+      throw std::invalid_argument("a nullptr can not have any entries");
     }
-
-    template <typename T>
-    constexpr inline ReadOnlyFlexSpan AsSpan(const T* pData, const std::size_t dataEntries, const OptimizationCheckFlag flag) noexcept
-    {
-      assert(pData != nullptr || dataEntries == 0u);
-      return ReadOnlyFlexSpan(pData, dataEntries, sizeof(T), flag);
-    }
-
-    template <typename T>
-    constexpr inline ReadOnlyFlexSpan AsSpan(ReadOnlySpan<T> value) noexcept
-    {
-      return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
-    }
-
-    template <typename T>
-    constexpr inline ReadOnlyFlexSpan AsSpan(Span<T> value) noexcept
-    {
-      return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
-    }
-
-    constexpr inline ReadOnlyFlexSpan AsSpan(const void* const pData, const std::size_t dataEntries, const std::size_t stride)
-    {
-      if (pData == nullptr && dataEntries > 0)
-      {
-        throw std::invalid_argument("a nullptr can not have any entries");
-      }
-      if (dataEntries > 0 && stride == 0)
-      {
-        throw std::invalid_argument("a non empty span can not have a stride of zero");
-      }
-      return ReadOnlyFlexSpan(pData, dataEntries, stride);
-    }
-
+    return ReadOnlyFlexSpan(pData, dataEntries, sizeof(T));
   }
+
+  template <typename T>
+  constexpr inline ReadOnlyFlexSpan AsSpan(const T* pData, const std::size_t dataEntries, const OptimizationCheckFlag flag) noexcept
+  {
+    assert(pData != nullptr || dataEntries == 0u);
+    return ReadOnlyFlexSpan(pData, dataEntries, sizeof(T), flag);
+  }
+
+  template <typename T>
+  constexpr inline ReadOnlyFlexSpan AsSpan(ReadOnlySpan<T> value) noexcept
+  {
+    return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
+  }
+
+  template <typename T>
+  constexpr inline ReadOnlyFlexSpan AsSpan(Span<T> value) noexcept
+  {
+    return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
+  }
+
+  constexpr inline ReadOnlyFlexSpan AsSpan(const void* const pData, const std::size_t dataEntries, const std::size_t stride)
+  {
+    if (pData == nullptr && dataEntries > 0)
+    {
+      throw std::invalid_argument("a nullptr can not have any entries");
+    }
+    if (dataEntries > 0 && stride == 0)
+    {
+      throw std::invalid_argument("a non empty span can not have a stride of zero");
+    }
+    return ReadOnlyFlexSpan(pData, dataEntries, stride);
+  }
+
 }
 
 #endif

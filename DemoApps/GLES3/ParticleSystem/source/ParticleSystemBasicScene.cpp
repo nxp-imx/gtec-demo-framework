@@ -29,25 +29,25 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include "ParticleSystemBasicScene.hpp"
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
-#include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "ParticleSystemBasicScene.hpp"
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include <GLES3/gl3.h>
+#include <array>
+#include <memory>
+#include "PS/Draw/ParticleDrawGeometryShaderGLES3.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"
-#include "PS/Draw/ParticleDrawGeometryShaderGLES3.hpp"
 #include "PS/Emit/BoxEmitter.hpp"
 #include "PS/ParticleSystemOneArray.hpp"
 #include "PS/ParticleSystemTwoArrays.hpp"
 #include "PSGpu/ParticleSystemGLES3.hpp"
 #include "PSGpu/ParticleSystemSnow.hpp"
-#include <GLES3/gl3.h>
-#include <array>
-#include <memory>
 
 namespace Fsl
 {
@@ -193,18 +193,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -238,7 +238,7 @@ namespace Fsl
 
   void ParticleSystemBasicScene::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    m_camera.AddZoom(event.GetDelta() * -0.001f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
 
@@ -334,7 +334,7 @@ namespace Fsl
     // bind the vertex buffer and enable the attrib array
     glBindBuffer(m_vbCube.GetTarget(), m_vbCube.Get());
     m_vbCube.EnableAttribArrays(m_cubeAttribLink);
-    glDrawArrays(GL_TRIANGLES, 0, m_vbCube.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, m_vbCube.GetGLCapacity());
   }
 
 

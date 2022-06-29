@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_DP_DPTHICKNESSF_HPP
 #define FSLBASE_MATH_DP_DPTHICKNESSF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Dp/DpPointF.hpp>
-#include <FslBase/Math/Dp/DpSizeF.hpp>
+#include <FslBase/Math/Dp/DpPoint2F.hpp>
+#include <FslBase/Math/Dp/DpSize2DF.hpp>
+#include <FslBase/Math/Dp/DpValueF.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <cassert>
 
@@ -42,7 +43,7 @@ namespace Fsl
   //! While a DpThickness could contain negative values its considered invalid if it does.
   struct DpThicknessF
   {
-    using value_type = float;
+    using value_type = DpValueF;
 
   private:
     value_type m_left{};
@@ -54,10 +55,10 @@ namespace Fsl
     constexpr DpThicknessF() noexcept = default;
 
     constexpr DpThicknessF(const value_type left, const value_type top, const value_type right, const value_type bottom) noexcept
-      : m_left(left >= 0 ? left : 0)
-      , m_top(top >= 0 ? top : 0)
-      , m_right(right >= 0 ? right : 0)
-      , m_bottom(bottom >= 0 ? bottom : 0)
+      : m_left(left >= value_type(0) ? left : value_type(0))
+      , m_top(top >= value_type(0) ? top : value_type(0))
+      , m_right(right >= value_type(0) ? right : value_type(0))
+      , m_bottom(bottom >= value_type(0) ? bottom : value_type(0))
     {
       assert(IsValid());
     }
@@ -92,48 +93,48 @@ namespace Fsl
       return m_bottom;
     }
 
-    constexpr DpPointF TopLeft() const
+    constexpr DpPoint2F TopLeft() const
     {
       return {m_left, m_top};
     }
 
-    constexpr DpPointF TopRight() const
+    constexpr DpPoint2F TopRight() const
     {
       return {m_right, m_top};
     }
 
-    constexpr DpPointF BottomLeft() const
+    constexpr DpPoint2F BottomLeft() const
     {
       return {m_left, m_bottom};
     }
 
-    constexpr DpPointF BottomRight() const
+    constexpr DpPoint2F BottomRight() const
     {
       return {m_right, m_bottom};
     }
 
-    constexpr DpSizeF Sum() const noexcept
+    constexpr DpSize2DF Sum() const noexcept
     {
-      assert(m_left >= 0 && m_right >= 0);
-      assert(m_top >= 0 && m_bottom >= 0);
+      assert(m_left >= value_type(0) && m_right >= value_type(0));
+      assert(m_top >= value_type(0) && m_bottom >= value_type(0));
       return {m_left + m_right, m_top + m_bottom, OptimizationCheckFlag::NoCheck};
     }
 
     constexpr value_type SumX() const noexcept
     {
-      assert(m_left >= 0 && m_right >= 0);
+      assert(m_left >= value_type(0) && m_right >= value_type(0));
       return m_left + m_right;
     }
 
     constexpr value_type SumY() const noexcept
     {
-      assert(m_top >= 0 && m_bottom >= 0);
+      assert(m_top >= value_type(0) && m_bottom >= value_type(0));
       return m_top + m_bottom;
     }
 
     constexpr bool IsValid() const
     {
-      return m_left >= 0 && m_right >= 0 && m_top >= 0 && m_bottom >= 0;
+      return m_left >= value_type(0) && m_right >= value_type(0) && m_top >= value_type(0) && m_bottom >= value_type(0);
     }
 
     constexpr bool operator==(const DpThicknessF& rhs) const noexcept
@@ -143,6 +144,13 @@ namespace Fsl
     constexpr bool operator!=(const DpThicknessF& rhs) const noexcept
     {
       return !(*this == rhs);
+    }
+
+
+    inline static constexpr DpThicknessF Create(const value_type::value_type left, const value_type::value_type top,
+                                                const value_type::value_type right, const value_type::value_type bottom) noexcept
+    {
+      return {value_type(left), value_type(top), value_type(right), value_type(bottom)};
     }
   };
 }

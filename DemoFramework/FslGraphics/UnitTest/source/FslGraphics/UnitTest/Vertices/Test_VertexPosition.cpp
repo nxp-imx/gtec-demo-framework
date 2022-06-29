@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -59,7 +59,7 @@ TEST(TestVertices_VertexPosition, Construct_Default)
 
 TEST(TestVertices_VertexPosition, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
   const auto vertexDecl = VertexDeclaration(VertexPosition::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexPosition), vertexDecl.VertexStride());
@@ -84,7 +84,7 @@ TEST(TestVertices_VertexPosition, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPosition, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
   const auto vertexDecl = VertexPosition::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexPosition), vertexDecl.VertexStride());
@@ -109,7 +109,7 @@ TEST(TestVertices_VertexPosition, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexPosition, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
+  const VertexElement expected0(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u);
   const auto vertexDecl = VertexPosition::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPosition), vertexDecl.VertexStride());

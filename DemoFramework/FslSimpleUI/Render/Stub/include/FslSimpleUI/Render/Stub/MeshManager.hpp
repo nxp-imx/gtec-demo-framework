@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_STUB_MESHMANAGER_HPP
 #define FSLSIMPLEUI_RENDER_STUB_MESHMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,45 +34,39 @@
 #include <FslBase/Collections/HandleVector.hpp>
 #include <FslSimpleUI/Render/Base/IMeshManager.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderStub
 {
-  namespace UI
+  class MeshManager final : public IMeshManager
   {
-    namespace RenderStub
-    {
-      class MeshManager final : public IMeshManager
-      {
-        bool m_isDisposed{false};
-        HandleVector<bool> m_meshes;
+    bool m_isDisposed{false};
+    HandleVector<bool> m_meshes;
 
-      public:
-        MeshManager();
-        ~MeshManager() override;
+  public:
+    MeshManager();
+    ~MeshManager() override;
 
-        void Dispose() noexcept;
+    void Dispose() noexcept;
 
-        MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite) final;
-        MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity) final;
-        MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite) final;
-        MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity) final;
-        MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex) final;
-        MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex, const uint32_t vertexCapacity,
-                              const uint32_t indexCapacity) final;
-        MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite) final;
-        MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity) final;
+    MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite) final;
+    MeshHandle CreateBasicMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity) final;
+    MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite) final;
+    MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity) final;
+    MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex) final;
+    MeshHandle CreateMesh(const std::shared_ptr<ISprite>& sprite, const uint32_t spriteMaterialIndex, const uint32_t vertexCapacity,
+                          const uint32_t indexCapacity) final;
+    MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite) final;
+    MeshHandle CreateMesh(const std::shared_ptr<SpriteFont>& sprite, const uint32_t vertexCapacity, const uint32_t indexCapacity) final;
 
-        bool DestroyMesh(const MeshHandle hMesh) noexcept final;
-        // std::shared_ptr<ISprite> TryGetMeshSprite(const MeshHandle hMesh) final;
-        FSL_FUNC_WARN_UNUSED_RESULT MeshHandle SetBasicMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) final;
-        FSL_FUNC_WARN_UNUSED_RESULT MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) final;
-        FSL_FUNC_WARN_UNUSED_RESULT MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<SpriteFont>& sprite) final;
+    bool DestroyMesh(const MeshHandle hMesh) noexcept final;
+    // std::shared_ptr<ISprite> TryGetMeshSprite(const MeshHandle hMesh) final;
+    [[nodiscard]] MeshHandle SetBasicMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) final;
+    [[nodiscard]] MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<ISprite>& sprite) final;
+    [[nodiscard]] MeshHandle SetMeshSprite(const MeshHandle hMesh, const std::shared_ptr<SpriteFont>& sprite) final;
 
-        FSL_FUNC_WARN_UNUSED_RESULT MeshHandle SetMeshText(const MeshHandle hMesh, const StringViewLite& text) final;
+    [[nodiscard]] MeshHandle SetMeshText(const MeshHandle hMesh, const StringViewLite& text) final;
 
-        void EnsureCapacity(const MeshHandle hMesh, const uint32_t vertexCapacity, const uint32_t indexCapacity) final;
-      };
-    }
-  }
+    void EnsureCapacity(const MeshHandle hMesh, const uint32_t vertexCapacity, const uint32_t indexCapacity) final;
+  };
 }
 
 #endif

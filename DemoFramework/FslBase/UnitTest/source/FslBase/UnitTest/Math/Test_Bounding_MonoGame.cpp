@@ -26,19 +26,19 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Bounding.cs.
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/BoundingBox.hpp>
-#include <FslBase/Math/BoundingFrustum.hpp>
-#include <FslBase/Math/BoundingSphere.hpp>
-#include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Math/Ray.hpp>
 #include <FslBase/Log/Math/LogBoundingBox.hpp>
 #include <FslBase/Log/Math/LogBoundingFrustum.hpp>
 #include <FslBase/Log/Math/LogBoundingSphere.hpp>
 #include <FslBase/Log/Math/LogContainmentType.hpp>
 #include <FslBase/Log/Math/LogRay.hpp>
+#include <FslBase/Math/BoundingBox.hpp>
+#include <FslBase/Math/BoundingFrustum.hpp>
+#include <FslBase/Math/BoundingSphere.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Ray.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
-#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslBase/UnitTest/Helper/Test/Math/TestBoundingSphere.hpp>
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
 #include <vector>

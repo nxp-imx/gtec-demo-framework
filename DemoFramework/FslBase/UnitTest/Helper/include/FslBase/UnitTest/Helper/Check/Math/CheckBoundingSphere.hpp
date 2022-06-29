@@ -35,19 +35,16 @@
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckVector3.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const BoundingSphere& lhs, const BoundingSphere& rhs)
   {
-    inline bool AlmostEqual(const BoundingSphere& lhs, const BoundingSphere& rhs)
-    {
-      return AlmostEqual(lhs.Center, rhs.Center) && AlmostEqual(lhs.Radius, rhs.Radius);
-    }
+    return AlmostEqual(lhs.Center, rhs.Center) && AlmostEqual(lhs.Radius, rhs.Radius);
+  }
 
-    inline bool IsNear(const BoundingSphere& lhs, const BoundingSphere& rhs, const float absError)
-    {
-      return IsNear(lhs.Center, rhs.Center, absError) && IsNear(lhs.Radius, rhs.Radius, absError);
-    }
+  inline bool IsNear(const BoundingSphere& lhs, const BoundingSphere& rhs, const float absError)
+  {
+    return IsNear(lhs.Center, rhs.Center, absError) && IsNear(lhs.Radius, rhs.Radius, absError);
   }
 }
 

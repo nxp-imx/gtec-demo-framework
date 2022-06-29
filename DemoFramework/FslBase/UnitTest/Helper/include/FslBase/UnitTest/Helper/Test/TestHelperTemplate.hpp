@@ -1,7 +1,7 @@
 #ifndef FSLBASE_UNITTEST_HELPER_TEST_TESTHELPERTEMPLATE_HPP
 #define FSLBASE_UNITTEST_HELPER_TEST_TESTHELPERTEMPLATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,32 +34,29 @@
 #include <gtest/gtest.h>
 // Prevent clang-tidy from a error under Ubuntu
 #include <FslBase/UnitTest/Helper/Check/Math/CheckFloat.hpp>
-#include <limits>
 #include <iomanip>
+#include <limits>
 
-namespace Fsl
+namespace Fsl::Test
 {
-  namespace Test
+  template <typename T>
+  inline ::testing::AssertionResult IsFloatEqual(const T& lhs, const T& rhs)
   {
-    template <typename T>
-    inline ::testing::AssertionResult IsFloatEqual(const T& lhs, const T& rhs)
+    if (::Fsl::TestCheck::AlmostEqual(lhs, rhs))
     {
-      if (::Fsl::TestCheck::AlmostEqual(lhs, rhs))
-      {
-        return ::testing::AssertionSuccess();
-      }
-      return ::testing::AssertionFailure() << std::setprecision(std::numeric_limits<float>::digits10 + 2) << lhs << " != " << rhs;
+      return ::testing::AssertionSuccess();
     }
+    return ::testing::AssertionFailure() << std::setprecision(std::numeric_limits<float>::digits10 + 2) << lhs << " != " << rhs;
+  }
 
-    template <typename T>
-    inline ::testing::AssertionResult IsFloatNear(const T& lhs, const T& rhs, const float absError)
+  template <typename T>
+  inline ::testing::AssertionResult IsFloatNear(const T& lhs, const T& rhs, const float absError)
+  {
+    if (::Fsl::TestCheck::IsNear(lhs, rhs, absError))
     {
-      if (::Fsl::TestCheck::IsNear(lhs, rhs, absError))
-      {
-        return ::testing::AssertionSuccess();
-      }
-      return ::testing::AssertionFailure() << std::setprecision(std::numeric_limits<float>::digits10 + 2) << lhs << " != " << rhs;
+      return ::testing::AssertionSuccess();
     }
+    return ::testing::AssertionFailure() << std::setprecision(std::numeric_limits<float>::digits10 + 2) << lhs << " != " << rhs;
   }
 }
 

@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/MathHelper_CalcOptimalSize.hpp>
-#include <FslBase/Log/Math/LogPoint2.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Math/MathHelper_CalcOptimalSize.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

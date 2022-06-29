@@ -32,19 +32,13 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class FontType
   {
-    namespace Theme
-    {
-      enum class FontType
-      {
-        Default,
-        Header
-      };
-    }
-  }
+    Default,
+    Header
+  };
 }
 
 #endif

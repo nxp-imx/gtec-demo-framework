@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES2/Log/LogGLVertexElementAttribConfig.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslUtil/OpenGLES2/Log/LogGLVertexElementAttribConfig.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <limits>

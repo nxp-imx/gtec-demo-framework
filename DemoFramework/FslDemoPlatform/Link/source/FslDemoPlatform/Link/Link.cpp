@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoPlatform/Link/Link.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslDemoPlatform/Link/Link.hpp>
 
 #ifdef FSL_PLATFORM_ANDROID
 #include <FslDemoPlatform/Configuration/Android/DemoMainAndroid.hpp>

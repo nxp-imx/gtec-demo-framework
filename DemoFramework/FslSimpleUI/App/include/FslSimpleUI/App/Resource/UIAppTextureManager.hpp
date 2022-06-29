@@ -41,8 +41,8 @@
 #include <FslSimpleUI/App/Resource/UIAppBasicTextureInfo.hpp>
 #include <FslSimpleUI/App/Resource/UIAppTextureInfo.hpp>
 #include <FslSimpleUI/App/UIAppResourceFlag.hpp>
-#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 #include <FslSimpleUI/App/UIAppTexture.hpp>
+#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 #include <FslSimpleUI/App/UIAppTextureResourceCreationInfo.hpp>
 #include <FslSimpleUI/App/UITestPatternMode.hpp>
 #include <cassert>

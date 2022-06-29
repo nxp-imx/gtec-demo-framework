@@ -63,18 +63,18 @@ namespace Fsl
 
     constexpr uint64_t GetId() const
     {
-      return (uint64_t(First) << 32) | uint64_t(Second);
+      return (static_cast<uint64_t>(First) << 32) | static_cast<uint64_t>(Second);
     }
 
     constexpr void SetId(const uint64_t value)
     {
-      First = uint32_t((value >> 32) & 0xFFFFFFFF);
-      Second = uint32_t(value & 0xFFFFFFFF);
+      First = static_cast<uint32_t>((value >> 32) & 0xFFFFFFFF);
+      Second = static_cast<uint32_t>(value & 0xFFFFFFFF);
     }
 
     static inline constexpr uint64_t ToId(const uint32_t first, const uint32_t second)
     {
-      return (uint64_t(first) << 32) | uint64_t(second);
+      return (static_cast<uint64_t>(first) << 32) | static_cast<uint64_t>(second);
     }
   };
 }

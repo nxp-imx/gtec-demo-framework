@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_APP_RESOURCE_ENCODEDAVAILABLEDPI_HPP
 #define FSLSIMPLEUI_APP_RESOURCE_ENCODEDAVAILABLEDPI_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,35 +33,32 @@
 
 #include <FslBase/Bits/BitsUtil.hpp>
 
-namespace Fsl
+namespace Fsl::SimpleUIApp
 {
-  namespace SimpleUIApp
+  struct EncodedAvailableDpi
   {
-    struct EncodedAvailableDpi
+    uint32_t EncodedValue{};
+
+    constexpr void AddIndex(const uint32_t index)
     {
-      uint32_t EncodedValue{};
+      EncodedValue |= 1 << index;
+    }
 
-      constexpr void AddIndex(const uint32_t index)
-      {
-        EncodedValue |= 1 << index;
-      }
+    constexpr bool Empty() const
+    {
+      return EncodedValue == 0u;
+    }
 
-      constexpr bool Empty() const
-      {
-        return EncodedValue == 0u;
-      }
+    constexpr uint32_t Count() const
+    {
+      return BitsUtil::Count(EncodedValue);
+    }
 
-      constexpr uint32_t Count() const
-      {
-        return BitsUtil::Count(EncodedValue);
-      }
-
-      constexpr bool IsFlagged(const uint32_t bitIndex) const
-      {
-        return (EncodedValue & (1 << bitIndex)) != 0u;
-      }
-    };
-  }
+    constexpr bool IsFlagged(const uint32_t bitIndex) const
+    {
+      return (EncodedValue & (1 << bitIndex)) != 0u;
+    }
+  };
 }
 
 #endif

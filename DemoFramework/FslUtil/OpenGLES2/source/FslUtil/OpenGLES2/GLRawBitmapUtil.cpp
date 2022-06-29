@@ -29,15 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES2/GLRawBitmapUtil.hpp>
-#include <FslUtil/OpenGLES2/GLCompressedFormat.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslUtil/OpenGLES2/GLCompressedFormat.hpp>
+#include <FslUtil/OpenGLES2/GLRawBitmapUtil.hpp>
+#include <GLES2/gl2ext.h>
 #include <array>
 #include <cassert>
-#include <GLES2/gl2ext.h>
 
 namespace Fsl
 {
@@ -349,11 +350,11 @@ namespace Fsl
     }
 
     GLRawBitmapUtil::Result GLRawBitmapUtil::Convert(const PixelFormat pixelFormat, const uint32_t width, const uint32_t stride,
-                                                     const bool exactMatch)
+                                                     [[maybe_unused]] const bool exactMatch)
     {
       if (stride < width)
       {
-        throw UnsupportedStrideException(stride);
+        throw UnsupportedStrideException(UncheckedNumericCast<int32_t>(stride));
       }
 
       FSLLOG3_DEBUG_WARNING_IF(exactMatch, "GLES2 does not support exact matching of pixelFormats with the textureFormat");

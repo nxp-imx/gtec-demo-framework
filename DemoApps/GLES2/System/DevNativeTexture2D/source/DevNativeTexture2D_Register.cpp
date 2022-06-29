@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "DevNativeTexture2D.hpp"
 #include <array>
+#include "DevNativeTexture2D.hpp"
 
 namespace Fsl
 {

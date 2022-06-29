@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_MANAGED_VMVERTEXELEMENT_HPP
 #define FSLUTIL_VULKAN1_0_MANAGED_VMVERTEXELEMENT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,27 +32,24 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslGraphics/Vertices/VertexElement.hpp>
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslGraphics/Vertices/VertexElementEx.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct VMVertexElement : public VertexElement
   {
-    struct VMVertexElement : public VertexElementEx
+    VkFormat NativeFormat{VK_FORMAT_UNDEFINED};
+
+    constexpr VMVertexElement() noexcept = default;
+
+    constexpr VMVertexElement(const VertexElement& source, const VkFormat format) noexcept
+      : VertexElement(source)
+      , NativeFormat(format)
     {
-      VkFormat NativeFormat{VK_FORMAT_UNDEFINED};
-
-      constexpr VMVertexElement() noexcept = default;
-
-      constexpr VMVertexElement(const VertexElementEx& source, const VkFormat format) noexcept
-        : VertexElementEx(source)
-        , NativeFormat(format)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

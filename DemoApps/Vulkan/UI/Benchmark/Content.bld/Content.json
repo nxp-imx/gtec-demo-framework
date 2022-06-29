@@ -20,6 +20,12 @@
         "Textures/GPUSdk/SquareLogo512x512.jpg",
         "Textures/GPUSdk/License.json"
         ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Other/Benchmark",
+        "Content": [
+        "Default.ncl"
+        ]
       }
     ]
   }

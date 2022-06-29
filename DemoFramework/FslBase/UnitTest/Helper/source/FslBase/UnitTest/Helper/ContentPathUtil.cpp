@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,41 +29,38 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/Directory.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/UnitTest/Helper/ContentPathUtil.hpp>
 #include <FslUnitTest/CurrentExePath.hpp>
-#include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/IO/Directory.hpp>
 
-namespace Fsl
+namespace Fsl::ContentPathUtil
 {
-  namespace ContentPathUtil
+  namespace
   {
-    namespace
-    {
 #ifdef _WIN32
-      IO::Path GetBasePath()
-      {
-        return Fsl::IO::Directory::GetCurrentWorkingDirectory();
-      }
-#else
-      IO::Path GetBasePath()
-      {
-        const auto* pszExePath = CurrentExePath::TryGetCurrentExePath();
-        if (pszExePath != nullptr)
-        {
-          return Fsl::IO::Path::GetDirectoryName(pszExePath);
-        }
-        FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
-        return Fsl::IO::Directory::GetCurrentWorkingDirectory();
-      }
-#endif
-    }
-
-    IO::Path GetContentPath()
+    IO::Path GetBasePath()
     {
-      IO::Path strExePath = GetBasePath();
-      strExePath = IO::Path::GetFullPath(strExePath);
-      return IO::Path::Combine(strExePath, IO::PathView("Content"));
+      return Fsl::IO::Directory::GetCurrentWorkingDirectory();
     }
+#else
+    IO::Path GetBasePath()
+    {
+      const auto* pszExePath = CurrentExePath::TryGetCurrentExePath();
+      if (pszExePath != nullptr)
+      {
+        return Fsl::IO::Path::GetDirectoryName(pszExePath);
+      }
+      FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
+      return Fsl::IO::Directory::GetCurrentWorkingDirectory();
+    }
+#endif
+  }
+
+  IO::Path GetContentPath()
+  {
+    IO::Path strExePath = GetBasePath();
+    strExePath = IO::Path::GetFullPath(strExePath);
+    return IO::Path::Combine(strExePath, IO::PathView("Content"));
   }
 }

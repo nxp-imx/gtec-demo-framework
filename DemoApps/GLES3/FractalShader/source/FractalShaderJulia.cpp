@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/FractalShader/ShaderUtil.hpp>
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include "FractalShaderJulia.hpp"
+#include <FslBase/String/StringUtil.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "FractalShaderJulia.hpp"
 #include <Shared/FractalShader/OptionParser.hpp>
-#include <FslBase/String/StringUtil.hpp>
+#include <Shared/FractalShader/ShaderUtil.hpp>
 #include <GLES3/gl3.h>
 #include <array>
 #include <iostream>
@@ -61,7 +61,7 @@ namespace Fsl
 
     m_locCoordinate = glGetUniformLocation(hProgram, "Coordinate");
 
-    const float aspect = (m_screenResolution.Y / static_cast<float>(m_screenResolution.X));
+    const float aspect = (static_cast<float>(m_screenResolution.Y) / static_cast<float>(m_screenResolution.X));
     const float scaleX = 2.5f;
     const float scaleY = scaleX * aspect;
     const float u1 = (-1.0f) * scaleX;

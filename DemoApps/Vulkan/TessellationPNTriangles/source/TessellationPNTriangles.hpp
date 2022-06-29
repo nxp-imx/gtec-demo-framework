@@ -14,12 +14,12 @@
 // Based on a example called 'PN-Triangles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
 
 namespace Fsl
 {

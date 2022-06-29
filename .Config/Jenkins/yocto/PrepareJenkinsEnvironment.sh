@@ -42,13 +42,13 @@ source prepare.sh
 # Since a specific executor can run build multiple version of the %JOB_NAME% and there is no way 
 # to get information about that to create a unique directory name based on 'JOB_NAME' 'EXECUTOR_NUMBER' and this 'magic workspace #'
 # we force claim the install area instead bypassing a security check
-FslBuildExternal.py --ForceClaimInstallArea --VoidBuild
+FslBuildExternal.py --noGitHash --ForceClaimInstallArea --VoidBuild
 
 if [ ! -n "${FSL_CI_FEATURES+1}" ]; then
   # all
-  # export FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,GoogleUnitTest,HW_CAMERA_MIPI8X,Lib_NlohmannJson,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenGLES3.2,OpenVG,OpenVX1.1,Vulkan1.2]
+  # export FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,GoogleUnitTest,HW_CAMERA_MIPI8X,Lib_NlohmannJson,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenGLES3.2,OpenVG,OpenVX1.2,Vulkan1.2]
   # No GLES3.2
-  #export FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,GoogleUnitTest,HW_CAMERA_MIPI8X,Lib_NlohmannJson,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX1.1,Vulkan1.2]
+  #export FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,GoogleUnitTest,HW_CAMERA_MIPI8X,Lib_NlohmannJson,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX1.2,Vulkan1.2]
   # No GLES3.2, Lib_NlohmannJson
-  export FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,GoogleUnitTest,HW_CAMERA_MIPI8X,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX1.1,Vulkan1.2]
+  export FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,GoogleUnitTest,HW_CAMERA_MIPI8X,OpenCL1.2,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX1.2,Vulkan1.2]
 fi

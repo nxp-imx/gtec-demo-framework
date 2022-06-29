@@ -29,17 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "S05_PrecompiledShader.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "S05_PrecompiledShader.hpp"
-#include "OptionParser.hpp"
 #include <GLES2/gl2.h>
+#include "OptionParser.hpp"
 #define GL_GLEXT_PROTOTYPES
-#include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
-#include <vector>
+#include <GLES2/gl2ext.h>
 #include <algorithm>
+#include <vector>
 
 namespace Fsl
 {

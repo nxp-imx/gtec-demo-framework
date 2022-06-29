@@ -97,8 +97,8 @@ namespace Fsl
       for (std::size_t i = dstMiddleIndex + 1; i < linearKernelLength; ++i)
       {
         const auto value = pActualKernel[srcIndex] + pActualKernel[srcIndex + 1];
-        const float offsetAT = pActualKernel[srcIndex] * float(srcIndex - srcMiddleIndex);
-        const float offsetBT = pActualKernel[srcIndex + 1] * float(srcIndex + 1 - srcMiddleIndex);
+        const float offsetAT = pActualKernel[srcIndex] * static_cast<float>(srcIndex - srcMiddleIndex);
+        const float offsetBT = pActualKernel[srcIndex + 1] * static_cast<float>(srcIndex + 1 - srcMiddleIndex);
         const auto offset = (offsetAT + offsetBT) / value;
 
         pLinearKernel[i].Weight = value;

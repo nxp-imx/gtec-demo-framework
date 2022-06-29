@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
+#include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslGraphics/UnitTest/Helper/Sprite/Material/Test/SpriteMaterialImpl.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 

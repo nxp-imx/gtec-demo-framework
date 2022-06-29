@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Logic/SliderPixelSpanInfo.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslSimpleUI/Base/Control/Logic/SliderPixelSpanInfo.hpp>
 #include <limits>
 
 using namespace Fsl;

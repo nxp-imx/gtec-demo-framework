@@ -86,7 +86,7 @@ namespace Fsl
         return keyValue.second;
       }
     }
-    return std::shared_ptr<IOptionParser>();
+    return {};
   }
 
 

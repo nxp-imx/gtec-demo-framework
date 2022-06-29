@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,94 +29,91 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  namespace
   {
-    namespace
+    const float DEFAULT_SENSITIVITY = 0.1f;
+  }
+
+  FirstPersonCamera::FirstPersonCamera()
+    : m_sensitivity(DEFAULT_SENSITIVITY)
+    , m_hasOldPosition(false)
+  {
+  }
+
+  void FirstPersonCamera::SetPosition(const Vector3& position)
+  {
+    m_base.SetPosition(position);
+  }
+
+
+  void FirstPersonCamera::SetPosition(const Vector3& position, const Vector3& target, const Vector3& up)
+  {
+    m_base.SetPosition(position, target, up);
+  }
+
+
+  void FirstPersonCamera::MoveForward(const float amount)
+  {
+    m_base.MoveForward(amount);
+  }
+
+
+  void FirstPersonCamera::MoveBackwards(const float amount)
+  {
+    m_base.MoveBackwards(amount);
+  }
+
+
+  void FirstPersonCamera::MoveLeft(const float amount)
+  {
+    m_base.MoveLeft(amount);
+  }
+
+
+  void FirstPersonCamera::MoveRight(const float amount)
+  {
+    m_base.MoveRight(amount);
+  }
+
+
+  void FirstPersonCamera::Rotate(const Vector2& amount)
+  {
+    Vector2 adjustedAmount(amount.X * m_sensitivity, amount.Y * m_sensitivity);
+    m_base.Rotate(adjustedAmount);
+  }
+
+
+  void FirstPersonCamera::RotateByRadians(const Vector2& amount)
+  {
+    Vector2 adjustedAmount(amount.X * m_sensitivity, amount.Y * m_sensitivity);
+    m_base.RotateByRadians(adjustedAmount);
+  }
+
+
+  void FirstPersonCamera::RotateViaPosition(const bool rotateCamera, const PxPoint2& currentPosition)
+  {
+    if (rotateCamera && m_hasOldPosition)
     {
-      const float DEFAULT_SENSITIVITY = 0.1f;
-    }
-
-    FirstPersonCamera::FirstPersonCamera()
-      : m_sensitivity(DEFAULT_SENSITIVITY)
-      , m_hasOldPosition(false)
-    {
-    }
-
-    void FirstPersonCamera::SetPosition(const Vector3& position)
-    {
-      m_base.SetPosition(position);
-    }
-
-
-    void FirstPersonCamera::SetPosition(const Vector3& position, const Vector3& target, const Vector3& up)
-    {
-      m_base.SetPosition(position, target, up);
-    }
-
-
-    void FirstPersonCamera::MoveForward(const float amount)
-    {
-      m_base.MoveForward(amount);
-    }
-
-
-    void FirstPersonCamera::MoveBackwards(const float amount)
-    {
-      m_base.MoveBackwards(amount);
-    }
-
-
-    void FirstPersonCamera::MoveLeft(const float amount)
-    {
-      m_base.MoveLeft(amount);
-    }
-
-
-    void FirstPersonCamera::MoveRight(const float amount)
-    {
-      m_base.MoveRight(amount);
-    }
-
-
-    void FirstPersonCamera::Rotate(const Vector2& amount)
-    {
-      Vector2 adjustedAmount(amount.X * m_sensitivity, amount.Y * m_sensitivity);
-      m_base.Rotate(adjustedAmount);
-    }
-
-
-    void FirstPersonCamera::RotateByRadians(const Vector2& amount)
-    {
-      Vector2 adjustedAmount(amount.X * m_sensitivity, amount.Y * m_sensitivity);
-      m_base.RotateByRadians(adjustedAmount);
-    }
-
-
-    void FirstPersonCamera::RotateViaPosition(const bool rotateCamera, const PxPoint2& currentPosition)
-    {
-      if (rotateCamera && m_hasOldPosition)
+      PxPoint2 deltaPosition = currentPosition - m_oldPosition;
+      if (deltaPosition.X != 0 || deltaPosition.Y != 0)
       {
-        PxPoint2 deltaPosition = currentPosition - m_oldPosition;
-        if (deltaPosition.X != 0 || deltaPosition.Y != 0)
-        {
-          Rotate(Vector2(deltaPosition.X, -deltaPosition.Y));
-        }
+        Rotate(Vector2(deltaPosition.X, -deltaPosition.Y));
       }
-      m_oldPosition = currentPosition;
-      m_hasOldPosition = true;
     }
+    m_oldPosition = currentPosition;
+    m_hasOldPosition = true;
   }
 }

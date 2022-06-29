@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "Tessellation101.hpp"
 #include <array>
+#include "Tessellation101.hpp"
 
 namespace Fsl
 {

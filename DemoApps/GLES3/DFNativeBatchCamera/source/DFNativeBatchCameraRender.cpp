@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "DFNativeBatchCamera.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/Camera/Platform/PlatformCameraSystem.hpp>
 #include <GLES3/gl3.h>
+#include "DFNativeBatchCamera.hpp"
 
 namespace Fsl
 {

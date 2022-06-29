@@ -38,11 +38,18 @@
 
 namespace Fsl
 {
+  namespace DataBinding
+  {
+    class DataBindingService;
+  }
+
   namespace UI
   {
     class BaseWindowContext
     {
     public:
+      std::shared_ptr<DataBinding::DataBindingService> UIDataBindingService;
+
       //! The UI context, this is a weak pointer to prevent circular dependencies between the UI window tree and its windows
       CustomContext<UIContext> TheUIContext;
 

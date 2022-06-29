@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
+#include <FslGraphics/Render/Basic/Material/BasicMaterialHandle.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclarationArray.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclarationSpan.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariables.hpp>
-#include <FslGraphics/Render/Basic/Material/BasicMaterialHandle.hpp>
 #include <FslGraphics/Render/Basic/Material/IBasicMaterial.hpp>
 #include <cstddef>
 #include <memory>
@@ -91,23 +91,24 @@ namespace Fsl
       return m_material != nullptr;
     }
 
-    BasicMaterialVariables AsPushConstants() const
+    BasicMaterialVariables AsPushConstants() const noexcept
     {
-      return BasicMaterialVariables(&m_pushConstants, sizeof(PushConstants), AsPushConstantDeclarationSpan());
+      return BasicMaterialVariables(&m_pushConstants, sizeof(PushConstants), AsPushConstantDeclarationSpan(), OptimizationCheckFlag::NoCheck);
     }
 
 
     static constexpr BasicMaterialVariableDeclarationArray<1> GetPushConstantDeclarationArray()
     {
-      return BasicMaterialVariableDeclarationArray<1>(
+      constexpr BasicMaterialVariableDeclarationArray<1> declArray(
         std::array<BasicMaterialVariableElement, 1>{
           BasicMaterialVariableElement(offsetof(PushConstants, SdfSmooth), BasicMaterialVariableElementFormat::Float1,
                                        BasicMaterialVariableElementUsage::SdfSmooth, 0),
         },
         sizeof(PushConstants));
+      return declArray;
     }
 
-    BasicMaterialVariableDeclarationSpan AsPushConstantDeclarationSpan() const
+    BasicMaterialVariableDeclarationSpan AsPushConstantDeclarationSpan() const noexcept
     {
       return m_pushConstantDecl.AsReadOnlySpan();
     }

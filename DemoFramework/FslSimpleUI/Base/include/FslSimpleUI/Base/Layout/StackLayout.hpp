@@ -31,37 +31,45 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
+#include <FslBase/Math/Dp/DpSize1DF.hpp>
+#include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
+#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class StackLayout : public SimpleLayout
   {
-    class StackLayout : public SimpleLayout
+    DataBinding::TypedDependencyProperty<LayoutOrientation> m_propertyOrientation;
+    DataBinding::TypedDependencyProperty<DpSize1DF> m_propertySpacingDp;
+
+  public:
+    static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+    static DataBinding::DependencyPropertyDefinition PropertySpacing;
+
+    explicit StackLayout(const std::shared_ptr<BaseWindowContext>& context);
+
+    LayoutOrientation GetOrientation() const
     {
-      LayoutOrientation m_orientation;
-      float m_spacingDp;
+      return m_propertyOrientation.Get();
+    }
+    bool SetOrientation(const LayoutOrientation value);
 
-    public:
-      explicit StackLayout(const std::shared_ptr<BaseWindowContext>& context);
+    DpSize1DF GetSpacing() const
+    {
+      return m_propertySpacingDp.Get();
+    }
+    bool SetSpacing(const DpSize1DF value);
 
-      LayoutOrientation GetLayoutOrientation() const
-      {
-        return m_orientation;
-      }
-      void SetLayoutOrientation(const LayoutOrientation& value);
-      float GetSpacing() const
-      {
-        return m_spacingDp;
-      }
-      void SetSpacing(const float& value);
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-    };
-  }
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+    DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                           const DataBinding::Binding& binding) override;
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
+  };
 }
 
 #endif

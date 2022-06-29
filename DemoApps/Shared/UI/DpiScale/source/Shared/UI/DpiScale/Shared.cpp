@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/DpiScale/Shared.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
-#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
@@ -57,6 +56,7 @@
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/UI/DpiScale/OptionParser.hpp>
+#include <Shared/UI/DpiScale/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -155,7 +155,7 @@ namespace Fsl
     , m_renderSystem(m_graphics->GetBasicRenderSystem())
     , m_nativeBatch(m_graphics->GetNativeBatch2D())
     , m_displayMetrics(config.WindowMetrics)
-    , m_exampleYPosition(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , m_exampleYPosition(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
   {
     auto optionParser = config.GetOptions<OptionParser>();
     const bool enableTestPattern = optionParser->GetEnableTestPattern();
@@ -311,10 +311,10 @@ namespace Fsl
       // m_uiRecord.CheckBoxTestPattern->SetEnabled(!m_uiRecord.CheckBoxTestPattern->IsEnabled());
       break;
     case VirtualKey::Space:
-    {
-      SetDefaultValues();
-      break;
-    }
+      {
+        SetDefaultValues();
+        break;
+      }
     case VirtualKey::P:
       m_uiRecord.CheckBoxPixelPerfect->Toggle();
       break;
@@ -400,7 +400,7 @@ namespace Fsl
     UpdateResourceScale();
 
     m_uiRecord.LabelResPx->SetContent(fmt::format("{}x{}px", windowMetrics.ExtentPx.Width, windowMetrics.ExtentPx.Height));
-    m_uiRecord.LabelResDp->SetContent(fmt::format("{}x{}dp", windowMetrics.DpSize.X, windowMetrics.DpSize.Y));
+    m_uiRecord.LabelResDp->SetContent(fmt::format("{}x{}dp", windowMetrics.SizeDp.X, windowMetrics.SizeDp.Y));
     m_uiRecord.LabelDpi->SetContent(fmt::format("{}x{}", windowMetrics.ExactDpi.X, windowMetrics.ExactDpi.Y));
     m_uiRecord.LabelDensityDpi->SetContent(fmt::format("{}", windowMetrics.DensityDpi));
     m_uiRecord.LabelDensityScale->SetContent(fmt::format("{}", windowMetrics.DensityScaleFactor));
@@ -422,15 +422,15 @@ namespace Fsl
       auto dummyPxAreaHeight = CalcPxAreaHeightPx(m_res160);
 
       const bool showScaleExample = m_uiRecord.CheckBoxShowScaleExample->IsChecked();
-      m_exampleYPosition.SetValue(showScaleExample ? 0.0f : float(std::max(m_displayMetrics.GetSizePx().Height() - dummyPxAreaHeight, 0)));
+      m_exampleYPosition.SetValue(showScaleExample ? 0.0f
+                                                   : static_cast<float>(std::max(m_displayMetrics.GetSizePx().Height() - dummyPxAreaHeight, 0)));
 
-      dummyPxAreaHeight += int32_t(std::round(m_exampleYPosition.GetValue()));
-      m_dummyPx->SetHeight(UI::DpLayoutSize1D(unitConverter.PxToDpf(dummyPxAreaHeight)));
+      dummyPxAreaHeight += static_cast<int32_t>(std::round(m_exampleYPosition.GetValue()));
+      m_dummyPx->SetHeight(UI::DpLayoutSize1D(DpValueF(unitConverter.PxToDpf(dummyPxAreaHeight))));
     }
 
     {    // update the transition values
-      TransitionTimeSpan transitionTimeSpan(demoTime.ElapsedTime.Ticks());
-      m_exampleYPosition.Update(transitionTimeSpan);
+      m_exampleYPosition.Update(demoTime.ElapsedTime);
     }
   }
 
@@ -452,7 +452,7 @@ namespace Fsl
 
     m_nativeBatch->Begin();
 
-    const auto& resources = SelectResource(desiredTexDensity, m_uiRecord.SliderDownscalePreference->GetValue() / 100.0f);
+    const auto& resources = SelectResource(desiredTexDensity, static_cast<float>(m_uiRecord.SliderDownscalePreference->GetValue()) / 100.0f);
 
     if (pixelPerfect)
     {
@@ -550,7 +550,7 @@ namespace Fsl
     const auto& bitmapFont = resources.Font->GetTextureAtlasSpriteFont();
 
     const auto& fontConfig = resources.FontConfig;
-    const auto lineSpacingPx = static_cast<int32_t>(std::round(bitmapFont.LineSpacingPx() * resources.ResolutionDensityScale));
+    const auto lineSpacingPx = static_cast<int32_t>(std::round(static_cast<float>(bitmapFont.LineSpacingPx()) * resources.ResolutionDensityScale));
 
 
     {    // Draw the caption
@@ -614,13 +614,14 @@ namespace Fsl
 
     Vector2 origin;
     Vector2 densityScale(resources.ResolutionDensityScale, resources.ResolutionDensityScale);
-    const float lineSpacingPx = bitmapFont.LineSpacingPx() * resources.ResolutionDensityScale;
+    const float lineSpacingPx = static_cast<float>(bitmapFont.LineSpacingPx()) * resources.ResolutionDensityScale;
 
 
     {    // Draw the caption
       Vector2 dstPositionCaptionPx = dstPositionPx;
       auto res = bitmapFont.MeasureString(caption);
-      Vector2 captionSizePx(res.Width() * resources.ResolutionDensityScale, res.Height() * resources.ResolutionDensityScale);
+      Vector2 captionSizePx(static_cast<float>(res.Width()) * resources.ResolutionDensityScale,
+                            static_cast<float>(res.Height()) * resources.ResolutionDensityScale);
 
       dstPositionCaptionPx.X += (dstAreaSizePx.X - captionSizePx.X) / 2.0f;
 
@@ -838,15 +839,15 @@ namespace Fsl
       const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
       if (fontChar.SrcTextureRectPx.Width > 0u && fontChar.SrcTextureRectPx.Height > 0u)
       {
-        const float dstXPxf = dstPositionPxf.X + (float(fontChar.OffsetPx.X) * fontScale);
-        const float dstYPxf = dstPositionPxf.Y + (float(fontChar.OffsetPx.Y) * fontScale);
-        const float scaledfontCharWidthPxf = float(fontChar.SrcTextureRectPx.Width) * fontScale;
-        const float scaledfontCharHeightPxf = float(fontChar.SrcTextureRectPx.Height) * fontScale;
+        const float dstXPxf = dstPositionPxf.X + (static_cast<float>(fontChar.OffsetPx.X) * fontScale);
+        const float dstYPxf = dstPositionPxf.Y + (static_cast<float>(fontChar.OffsetPx.Y) * fontScale);
+        const float scaledfontCharWidthPxf = static_cast<float>(fontChar.SrcTextureRectPx.Width) * fontScale;
+        const float scaledfontCharHeightPxf = static_cast<float>(fontChar.SrcTextureRectPx.Height) * fontScale;
 
         PxAreaRectangleF fDstRectPx(dstXPxf, dstYPxf, scaledfontCharWidthPxf, scaledfontCharHeightPxf);
         rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstPositionPxf.X += float(fontChar.XAdvancePx) * fontScale;
+      dstPositionPxf.X += static_cast<float>(fontChar.XAdvancePx) * fontScale;
     }
   }
 
@@ -874,17 +875,20 @@ namespace Fsl
       const auto& fontCharInfo = bitmapFont.GetBitmapFontChar(text[i]);
       if (fontCharInfo.RenderInfo.TextureArea.X1 > fontCharInfo.RenderInfo.TextureArea.X0)
       {
-        const auto scaledXStartPx = int32_t(std::round(float(fontCharInfo.CharInfo.OffsetPx.X) * fontScale));
-        const auto scaledYStartPx = int32_t(std::round(float(fontCharInfo.CharInfo.OffsetPx.Y) * fontScale));
+        const auto scaledXStartPx = static_cast<int32_t>(std::round(static_cast<float>(fontCharInfo.CharInfo.OffsetPx.X) * fontScale));
+        const auto scaledYStartPx = static_cast<int32_t>(std::round(static_cast<float>(fontCharInfo.CharInfo.OffsetPx.Y) * fontScale));
         const auto dstXPx = dstXPosPx + scaledXStartPx;
         const auto dstYPx = dstPositionPx.Y + scaledYStartPx;
-        const auto scaledGlyphWidthPx = int32_t(std::round(float(fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale));
-        const auto scaledGlyphHeightPx = int32_t(std::round(float(fontCharInfo.CharInfo.SrcTextureRectPx.Height) * fontScale));
+        const auto scaledGlyphWidthPx =
+          static_cast<int32_t>(std::round(static_cast<float>(fontCharInfo.CharInfo.SrcTextureRectPx.Width) * fontScale));
+        const auto scaledGlyphHeightPx =
+          static_cast<int32_t>(std::round(static_cast<float>(fontCharInfo.CharInfo.SrcTextureRectPx.Height) * fontScale));
 
-        PxAreaRectangleF fDstRectPx(float(dstXPx), float(dstYPx), float(scaledGlyphWidthPx), static_cast<float>(scaledGlyphHeightPx));
+        PxAreaRectangleF fDstRectPx(static_cast<float>(dstXPx), static_cast<float>(dstYPx), static_cast<float>(scaledGlyphWidthPx),
+                                    static_cast<float>(scaledGlyphHeightPx));
         rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontCharInfo.CharInfo.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstXPosPx += int32_t(std::round(float(fontCharInfo.CharInfo.XAdvancePx) * fontScale));
+      dstXPosPx += static_cast<int32_t>(std::round(static_cast<float>(fontCharInfo.CharInfo.XAdvancePx) * fontScale));
     }
   }
 
@@ -920,18 +924,20 @@ namespace Fsl
       {
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontChar.OffsetPx.Y;
-        const auto scaledXStartPx = int32_t(std::round(float(fontChar.OffsetPx.X) * fontScale));
-        const auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledXStartPx = static_cast<int32_t>(std::round(static_cast<float>(fontChar.OffsetPx.X) * fontScale));
+        const auto scaledYStartPx =
+          static_cast<int32_t>(std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale))));
 
         const auto dstXPx = dstXPosPx + scaledXStartPx;
         const auto dstYPx = dstPositionPx.Y + scaledYStartPx;
-        const auto scaledGlyphWidthPx = int32_t(std::round(float(fontChar.SrcTextureRectPx.Width) * fontScale));
-        const auto scaledGlyphHeightPx = int32_t(std::round(float(fontChar.SrcTextureRectPx.Height) * fontScale));
+        const auto scaledGlyphWidthPx = static_cast<int32_t>(std::round(static_cast<float>(fontChar.SrcTextureRectPx.Width) * fontScale));
+        const auto scaledGlyphHeightPx = static_cast<int32_t>(std::round(static_cast<float>(fontChar.SrcTextureRectPx.Height) * fontScale));
 
-        PxAreaRectangleF fDstRectPx(float(dstXPx), float(dstYPx), float(scaledGlyphWidthPx), static_cast<float>(scaledGlyphHeightPx));
+        PxAreaRectangleF fDstRectPx(static_cast<float>(dstXPx), static_cast<float>(dstYPx), static_cast<float>(scaledGlyphWidthPx),
+                                    static_cast<float>(scaledGlyphHeightPx));
         rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstXPosPx += int32_t(std::round(float(fontChar.XAdvancePx) * fontScale));
+      dstXPosPx += static_cast<int32_t>(std::round(static_cast<float>(fontChar.XAdvancePx) * fontScale));
     }
   }
 
@@ -960,7 +966,7 @@ namespace Fsl
     // - glyph width and height might be slightly off
     // - the simple kerning is slightly off
     // - very small glyphs can be reduced to a size of zero
-    auto dstXPosPxf = float(dstPositionPx.X);
+    auto dstXPosPxf = static_cast<float>(dstPositionPx.X);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
       const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
@@ -970,21 +976,24 @@ namespace Fsl
         // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontChar.OffsetPx.Y;
-        const auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYStartPx =
+          static_cast<int32_t>(std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale))));
 
         // We use the sub-pixel precision of dstXPosPxf and apply the 'kerning' before we round which makes the final position much more precise
-        const auto dstXPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X) * fontScale)));
-        const auto dstXEndPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
-        const auto scaledGlyphHeightPx = int32_t(std::round(float(fontChar.SrcTextureRectPx.Height) * fontScale));
+        const auto dstXPx = static_cast<int32_t>(std::round(dstXPosPxf + (static_cast<float>(fontChar.OffsetPx.X) * fontScale)));
+        const auto dstXEndPx =
+          static_cast<int32_t>(std::round(dstXPosPxf + (static_cast<float>(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
+        const auto scaledGlyphHeightPx = static_cast<int32_t>(std::round(static_cast<float>(fontChar.SrcTextureRectPx.Height) * fontScale));
         const auto dstYPx = dstPositionPx.Y + scaledYStartPx;
         const auto dstYEndPx = dstYPx + scaledGlyphHeightPx;
 
         assert(dstXPx <= dstXEndPx);
         assert(dstYPx <= dstYEndPx);
-        auto dstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(float(dstXPx), float(dstYPx), float(dstXEndPx), float(dstYEndPx));
+        auto dstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(static_cast<float>(dstXPx), static_cast<float>(dstYPx),
+                                                                  static_cast<float>(dstXEndPx), static_cast<float>(dstYEndPx));
         rNativeBatch.Draw(texFont, dstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstXPosPxf += float(fontChar.XAdvancePx) * fontScale;
+      dstXPosPxf += static_cast<float>(fontChar.XAdvancePx) * fontScale;
     }
   }
 
@@ -1012,7 +1021,7 @@ namespace Fsl
     // - glyph width and height might be slightly off
     // - the simple kerning is slightly off
     // - very small glyphs can be reduced to a size of zero
-    auto dstXPosPxf = float(dstPositionPx.X);
+    auto dstXPosPxf = static_cast<float>(dstPositionPx.X);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
       const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
@@ -1022,23 +1031,27 @@ namespace Fsl
         // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontChar.OffsetPx.Y;
-        const auto glyphHeight = int32_t(fontChar.SrcTextureRectPx.Height);
-        const auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
-        const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
+        const auto glyphHeight = static_cast<int32_t>(fontChar.SrcTextureRectPx.Height);
+        const auto scaledYStartPx =
+          static_cast<int32_t>(std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYEndPx = static_cast<int32_t>(
+          std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
 
         // We use the sub-pixel precision of dstXPosPxf and apply the 'kerning' before we round which makes the final position much more precise
-        const auto dstXPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X) * fontScale)));
-        auto dstXEndPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
+        const auto dstXPx = static_cast<int32_t>(std::round(dstXPosPxf + (static_cast<float>(fontChar.OffsetPx.X) * fontScale)));
+        auto dstXEndPx =
+          static_cast<int32_t>(std::round(dstXPosPxf + (static_cast<float>(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
         auto dstYPx = dstPositionPx.Y + scaledYStartPx;
         const auto dstYEndPx = dstPositionPx.Y + scaledYEndPx;
 
         dstXEndPx = std::max(dstXPx, dstXEndPx);
         dstYPx = std::min(dstYPx, dstYEndPx);
 
-        auto fDstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(float(dstXPx), float(dstYPx), float(dstXEndPx), float(dstYEndPx));
+        auto fDstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(static_cast<float>(dstXPx), static_cast<float>(dstYPx),
+                                                                   static_cast<float>(dstXEndPx), static_cast<float>(dstYEndPx));
         rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstXPosPxf += float(fontChar.XAdvancePx) * fontScale;
+      dstXPosPxf += static_cast<float>(fontChar.XAdvancePx) * fontScale;
     }
   }
 
@@ -1065,7 +1078,7 @@ namespace Fsl
     // Cons:
     // - glyph width and height might be slightly off
     // - the simple kerning is slightly off
-    auto dstXPosPxf = float(dstPositionPx.X);
+    auto dstXPosPxf = static_cast<float>(dstPositionPx.X);
     for (std::size_t i = 0; i < text.size(); ++i)
     {
       const auto& fontChar = bitmapFont.GetBitmapFontChar(text[i]).CharInfo;
@@ -1075,13 +1088,16 @@ namespace Fsl
         // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
         // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
         const int32_t glyphYOffsetPx = fontChar.OffsetPx.Y;
-        const auto glyphHeight = int32_t(fontChar.SrcTextureRectPx.Height);
-        const auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
-        const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
+        const auto glyphHeight = static_cast<int32_t>(fontChar.SrcTextureRectPx.Height);
+        const auto scaledYStartPx =
+          static_cast<int32_t>(std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYEndPx = static_cast<int32_t>(
+          std::round((static_cast<float>(scaledBaseLinePx) + (static_cast<float>(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
 
         // We use the sub-pixel precision of dstXPosPxf and apply the 'kerning' before we round which makes the final position much more precise
-        const auto dstXPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X) * fontScale)));
-        auto dstXEndPx = int32_t(std::round(dstXPosPxf + (float(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
+        const auto dstXPx = static_cast<int32_t>(std::round(dstXPosPxf + (static_cast<float>(fontChar.OffsetPx.X) * fontScale)));
+        auto dstXEndPx =
+          static_cast<int32_t>(std::round(dstXPosPxf + (static_cast<float>(fontChar.OffsetPx.X + fontChar.SrcTextureRectPx.Width) * fontScale)));
         auto dstYPx = dstPositionPx.Y + scaledYStartPx;
         const auto dstYEndPx = dstPositionPx.Y + scaledYEndPx;
 
@@ -1096,10 +1112,11 @@ namespace Fsl
         //  maxErrorDistance = dist;
         //}
 
-        auto fDstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(float(dstXPx), float(dstYPx), float(dstXEndPx), float(dstYEndPx));
+        auto fDstRectPx = PxAreaRectangleF::FromLeftTopRightBottom(static_cast<float>(dstXPx), static_cast<float>(dstYPx),
+                                                                   static_cast<float>(dstXEndPx), static_cast<float>(dstYEndPx));
         rNativeBatch.Draw(texFont, fDstRectPx, TypeConverter::To<PxRectangleU32>(fontChar.SrcTextureRectPx), fontColor, clipRectPxf);
       }
-      dstXPosPxf += float(fontChar.XAdvancePx) * fontScale;
+      dstXPosPxf += static_cast<float>(fontChar.XAdvancePx) * fontScale;
     }
     // FSLLOG3_INFO("MaxDistance: {}", maxErrorDistance);
   }
@@ -1219,7 +1236,7 @@ namespace Fsl
     btnSetDefaultValues->SetAlignmentY(UI::ItemAlignment::Far);
 
     auto complexStack = std::make_shared<UI::ComplexStackLayout>(context);
-    complexStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    complexStack->SetOrientation(UI::LayoutOrientation::Vertical);
     complexStack->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
     complexStack->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
     complexStack->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -1271,7 +1288,7 @@ namespace Fsl
   {
     const uint32_t currentDensity = !m_uiRecord.CheckBoxEmulateDpi->IsChecked() ? m_displayMetrics.DensityDpi : m_uiRecord.SliderDpi->GetValue();
 
-    const auto density = float(currentDensity);
+    const auto density = static_cast<float>(currentDensity);
     m_res160.UpdateDensity(density);
     m_res320.UpdateDensity(density);
     m_res480.UpdateDensity(density);
@@ -1288,15 +1305,15 @@ namespace Fsl
     }
     if (density < 320)
     {
-      return (float(density - 160u) / 160.0f) <= actualWeight ? m_res160 : m_res320;
+      return (static_cast<float>(density - 160u) / 160.0f) <= actualWeight ? m_res160 : m_res320;
     }
     if (density < 480)
     {
-      return (float(density - 320u) / 160.0f) <= actualWeight ? m_res320 : m_res480;
+      return (static_cast<float>(density - 320u) / 160.0f) <= actualWeight ? m_res320 : m_res480;
     }
     if (density < 640)
     {
-      return (float(density - 480u) / 160.0f) <= actualWeight ? m_res480 : m_res640;
+      return (static_cast<float>(density - 480u) / 160.0f) <= actualWeight ? m_res480 : m_res640;
     }
     return m_res640;
   }

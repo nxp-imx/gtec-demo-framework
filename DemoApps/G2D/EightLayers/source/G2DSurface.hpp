@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <string>
 #include <g2d.h>
+#include <string>
 
 //#include <linux/mxcfb.h>
 #include <linux/fb.h>

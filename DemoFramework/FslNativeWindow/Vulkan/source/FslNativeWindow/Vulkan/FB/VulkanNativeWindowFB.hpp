@@ -34,7 +34,6 @@
 
 #include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
-
 #include "../VulkanNativeWindow.hpp"
 
 namespace Fsl

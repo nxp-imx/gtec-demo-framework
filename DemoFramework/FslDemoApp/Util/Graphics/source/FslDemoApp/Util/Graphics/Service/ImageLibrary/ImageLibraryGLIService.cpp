@@ -30,15 +30,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
-#include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryGLIService.hpp>
 #include <FslBase/BlobRecord.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
+#include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryGLIService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
-#include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslGraphics/IO/BMPUtil.hpp>
+#include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -110,7 +110,7 @@ namespace Fsl
 
   std::string ImageLibraryGLIService::GetName() const
   {
-    return std::string("-ImageLibraryGLIService-");
+    return {"-ImageLibraryGLIService-"};
   }
 
 

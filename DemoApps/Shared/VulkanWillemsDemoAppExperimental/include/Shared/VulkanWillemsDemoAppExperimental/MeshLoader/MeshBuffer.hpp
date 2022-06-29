@@ -33,102 +33,96 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBufferInfo.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshDescriptor.hpp>
+#include <glm/vec3.hpp>
 #include <vulkan/vulkan.h>
 #include <vector>
-#include <glm/vec3.hpp>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
+  //! Mesh representation storing all data required to generate buffers
+  //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  class MeshBuffer
   {
-    namespace MeshLoader
+    std::vector<MeshDescriptor> m_meshDescriptors;
+    MeshBufferInfo m_vertices;
+    MeshBufferInfo m_indices;
+    uint32_t m_indexCount;
+    glm::vec3 m_dim{};
+
+  public:
+    MeshBuffer(const MeshBuffer&) = delete;
+    MeshBuffer& operator=(const MeshBuffer&) = delete;
+
+    //! @brief Move assignment operator
+    MeshBuffer& operator=(MeshBuffer&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    MeshBuffer(MeshBuffer&& other) noexcept;
+
+    //! @brief Move objects into this object
+    MeshBuffer(const MeshDescriptor& meshDescriptor, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
+               const glm::vec3& dim);
+
+    //! @brief Move objects into this object
+    MeshBuffer(std::vector<MeshDescriptor>&& meshDescriptors, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
+               const glm::vec3& dim);
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    MeshBuffer();
+
+
+    ~MeshBuffer()
     {
-      //! Mesh representation storing all data required to generate buffers
-      //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-      class MeshBuffer
-      {
-        std::vector<MeshDescriptor> m_meshDescriptors;
-        MeshBufferInfo m_vertices;
-        MeshBufferInfo m_indices;
-        uint32_t m_indexCount;
-        glm::vec3 m_dim{};
-
-      public:
-        MeshBuffer(const MeshBuffer&) = delete;
-        MeshBuffer& operator=(const MeshBuffer&) = delete;
-
-        //! @brief Move assignment operator
-        MeshBuffer& operator=(MeshBuffer&& other) noexcept;
-
-        //! @brief Move constructor
-        //! Transfer ownership from other to this
-        MeshBuffer(MeshBuffer&& other) noexcept;
-
-        //! @brief Move objects into this object
-        MeshBuffer(const MeshDescriptor& meshDescriptor, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
-                   const glm::vec3& dim);
-
-        //! @brief Move objects into this object
-        MeshBuffer(std::vector<MeshDescriptor>&& meshDescriptors, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
-                   const glm::vec3& dim);
-
-        //! @brief Create a 'invalid' instance (use Reset to populate it)
-        MeshBuffer();
-
-
-        ~MeshBuffer()
-        {
-          Reset();
-        }
-
-        //! @brief Destroys any owned resources and resets the object to its default state.
-        void Reset() noexcept;
-
-        void Reset(const MeshDescriptor& meshDescriptor, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
-                   const glm::vec3& dim);
-
-        void Reset(std::vector<MeshDescriptor>&& meshDescriptors, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
-                   const glm::vec3& dim);
-
-        //! @brief Get the associated 'Device'
-        VkDevice GetDevice() const
-        {
-          return m_vertices.Buffer.GetDevice();
-        }
-
-        const std::vector<MeshDescriptor>& GetMeshDescriptors() const
-        {
-          return m_meshDescriptors;
-        }
-
-        const MeshBufferInfo& GetVertices() const
-        {
-          return m_vertices;
-        }
-
-        const MeshBufferInfo& GetIndices() const
-        {
-          return m_indices;
-        }
-
-        uint32_t GetIndexCount() const
-        {
-          return m_indexCount;
-        }
-
-        glm::vec3 GetDim() const
-        {
-          return m_dim;
-        }
-
-        //! @brief Check if this object contains a valid resource
-        inline bool IsValid() const
-        {
-          return m_vertices.IsValid();
-        }
-      };
+      Reset();
     }
-  }
+
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
+
+    void Reset(const MeshDescriptor& meshDescriptor, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
+               const glm::vec3& dim);
+
+    void Reset(std::vector<MeshDescriptor>&& meshDescriptors, MeshBufferInfo&& vertices, MeshBufferInfo&& indices, const uint32_t indexCount,
+               const glm::vec3& dim);
+
+    //! @brief Get the associated 'Device'
+    VkDevice GetDevice() const
+    {
+      return m_vertices.Buffer.GetDevice();
+    }
+
+    const std::vector<MeshDescriptor>& GetMeshDescriptors() const
+    {
+      return m_meshDescriptors;
+    }
+
+    const MeshBufferInfo& GetVertices() const
+    {
+      return m_vertices;
+    }
+
+    const MeshBufferInfo& GetIndices() const
+    {
+      return m_indices;
+    }
+
+    uint32_t GetIndexCount() const
+    {
+      return m_indexCount;
+    }
+
+    glm::vec3 GetDim() const
+    {
+      return m_dim;
+    }
+
+    //! @brief Check if this object contains a valid resource
+    inline bool IsValid() const
+    {
+      return m_vertices.IsValid();
+    }
+  };
 }
 
 #endif

@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
-#include "BasicScene.hpp"
 #include <memory>
+#include "BasicScene.hpp"
 
 namespace Fsl
 {

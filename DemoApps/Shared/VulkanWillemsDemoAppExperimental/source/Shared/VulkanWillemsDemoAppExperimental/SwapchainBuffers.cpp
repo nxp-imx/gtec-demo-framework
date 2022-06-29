@@ -12,43 +12,40 @@
 // This class simulates the functionality found in VulkanExampleBase to make it easier
 // to port samples.
 
-#include <Shared/VulkanWillemsDemoAppExperimental/SwapchainBuffers.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/SwapchainBuffers.hpp>
 #include <utility>
 
 using namespace RapidVulkan;
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  //! @brief Move assignment operator
+  SwapchainBuffers& SwapchainBuffers::operator=(SwapchainBuffers&& other) noexcept
   {
-    //! @brief Move assignment operator
-    SwapchainBuffers& SwapchainBuffers::operator=(SwapchainBuffers&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
-      {
-        // Claim ownership here
-        Image = other.Image;
-        View = std::move(other.View);
+      // Claim ownership here
+      Image = other.Image;
+      View = std::move(other.View);
 
-        // Remove the data from other
-        other.Image = VK_NULL_HANDLE;
-      }
-      return *this;
-    }
-
-
-    SwapchainBuffers::SwapchainBuffers(SwapchainBuffers&& other) noexcept
-      : Image(other.Image)
-      , View(std::move(other.View))
-    {
       // Remove the data from other
       other.Image = VK_NULL_HANDLE;
     }
+    return *this;
+  }
 
-    SwapchainBuffers::SwapchainBuffers()
-      : Image()
-    {
-    }
+
+  SwapchainBuffers::SwapchainBuffers(SwapchainBuffers&& other) noexcept
+    : Image(other.Image)
+    , View(std::move(other.View))
+  {
+    // Remove the data from other
+    other.Image = VK_NULL_HANDLE;
+  }
+
+  SwapchainBuffers::SwapchainBuffers()
+    : Image()
+  {
   }
 }

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_FLEXRENDERSYSTEM_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_FLEXRENDERSYSTEM_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,66 +33,57 @@
 
 #include <FslGraphics2D/Procedural/Batcher/FlexibleImmediateModeBatcher.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
-#include <FslSimpleUI/Render/IMBatch/IFlexRenderSystemConfig.hpp>
-#include <FslSimpleUI/Render/IMBatch/FlexRenderSystemConfig.hpp>
 #include <FslSimpleUI/Render/IMBatch/DrawReorderMethod.hpp>
+#include <FslSimpleUI/Render/IMBatch/FlexRenderSystemConfig.hpp>
+#include <FslSimpleUI/Render/IMBatch/IFlexRenderSystemConfig.hpp>
 #include "Preprocess/Linear/LinearPreprocessor.hpp"
+#include "Preprocess/SpatialGrid/SpatialGridPreprocessor.hpp"
 #include "RenderSystemBase.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  class FlexRenderSystem final
+    : public RenderSystemBase
+    , public IFlexRenderSystemConfig
   {
-    namespace RenderIMBatch
+    FlexibleImmediateModeBatcher m_batcher;
+    FlexRenderSystemConfig m_config;
+    LinearPreprocessor m_preprocessor;
+    SpatialGridPreprocessor m_spatialGridPreprocessor;
+    uint32_t m_maxDrawCalls{0xFFFFFFFF};
+
+  public:
+    FlexRenderSystem(const FlexRenderSystem&) = delete;
+    FlexRenderSystem& operator=(const FlexRenderSystem&) = delete;
+
+    explicit FlexRenderSystem(const RenderSystemCreateInfo& createInfo);
+
+    void OnConfigurationChanged(const BasicWindowMetrics& windowMetrics) final;
+
+    const FlexRenderSystemConfig& GetConfig() const final
     {
-      class FlexRenderSystem final
-        : public RenderSystemBase
-        , public IFlexRenderSystemConfig
-      {
-        FlexibleImmediateModeBatcher m_batcher;
-        FlexRenderSystemConfig m_config;
-        LinearPreprocessor m_preprocessor;
-        uint32_t m_maxDrawCalls{0xFFFFFFFF};
-
-      public:
-        FlexRenderSystem(const FlexRenderSystem&) = delete;
-        FlexRenderSystem& operator=(const FlexRenderSystem&) = delete;
-
-        explicit FlexRenderSystem(const RenderSystemCreateInfo& createInfo)
-          : RenderSystemBase(createInfo)
-          , m_batcher(createInfo.DefaultVertexCapacity, createInfo.DefaultIndexCapacity)
-          , m_config(true, true, GetAllowDepthBuffer(), DrawReorderMethod::LinearConstrained)
-          , m_preprocessor(createInfo.AllowDepthBuffer)
-        {
-          SetConfig(m_config);
-        }
-
-        const FlexRenderSystemConfig& GetConfig() const final
-        {
-          return m_config;
-        }
-
-        void SetConfig(const FlexRenderSystemConfig& config) final
-        {
-          m_batcher.SetLimitOnlyOneEntryPerBatch(!config.Batch);
-          m_batcher.SetLimitOnlyOneBatchPerSegment(!config.FillBuffers);
-          m_config = config;
-        }
-
-        uint32_t GetMaxDrawCalls() const final
-        {
-          return m_maxDrawCalls;
-        }
-
-        void SetMaxDrawCalls(const uint32_t maxDrawCalls) final
-        {
-          m_maxDrawCalls = maxDrawCalls;
-        }
-
-        void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
-      };
+      return m_config;
     }
-  }
+
+    void SetConfig(const FlexRenderSystemConfig& config) final
+    {
+      m_batcher.SetLimitOnlyOneEntryPerBatch(!config.Batch);
+      m_batcher.SetLimitOnlyOneBatchPerSegment(!config.FillBuffers);
+      m_config = config;
+    }
+
+    uint32_t GetMaxDrawCalls() const final
+    {
+      return m_maxDrawCalls;
+    }
+
+    void SetMaxDrawCalls(const uint32_t maxDrawCalls) final
+    {
+      m_maxDrawCalls = maxDrawCalls;
+    }
+
+    void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
+  };
 }
 
 #endif

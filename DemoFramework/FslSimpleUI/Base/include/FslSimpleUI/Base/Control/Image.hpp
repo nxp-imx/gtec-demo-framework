@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDataBinding/Base/Property/TypedDependencyProperty.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
@@ -48,16 +49,20 @@ namespace Fsl
     //! @brief This is the recommended image control. It is DP aware so it will render the image so it fits the users display.
     class Image : public BaseWindow
     {
+      using color_type = Color;
+
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SizedSpriteMesh m_content;
-      Color m_contentColor{Color::White()};
+      DataBinding::TypedDependencyProperty<color_type> m_propertyContentColor{Color::White()};
       ItemScalePolicy m_scalePolicy;
       bool m_rotate90{false};
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyContentColor;
+
       explicit Image(const std::shared_ptr<WindowContext>& context);
 
       const std::shared_ptr<ISizedSprite>& GetContent() const
@@ -70,10 +75,10 @@ namespace Fsl
 
       Color GetContentColor() const
       {
-        return m_contentColor;
+        return m_propertyContentColor.Get();
       }
 
-      void SetContentColor(const Color& value);
+      bool SetContentColor(const Color value);
 
       ItemScalePolicy GetScalePolicy() const
       {
@@ -95,8 +100,11 @@ namespace Fsl
     protected:
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
     };
   }
 }
-
 #endif

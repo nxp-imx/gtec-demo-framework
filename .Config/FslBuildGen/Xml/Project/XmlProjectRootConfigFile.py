@@ -88,6 +88,12 @@ class XmlClangFormatConfiguration(XmlBase):
         self.FileExtensions = fileExtensions.split(';')
         self.Recipe = self._ReadAttrib(xmlElement, "Recipe")
 
+class XmlDotnetFormatConfiguration(XmlBase):
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
+        fileExtensions = self._ReadAttrib(xmlElement, "FileExtensions")
+        self.FileExtensions = fileExtensions.split(';')
+        self.Recipe = self._ReadAttrib(xmlElement, "Recipe")
 
 class XmlConfigCompilerConfiguration(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
@@ -219,6 +225,13 @@ def _LoadClangFormatConfiguration(log: Log, xmlElement: ET.Element, filename: st
         res.append(XmlClangFormatConfiguration(log, foundElement))
     return res
 
+def _LoadDotnetFormatConfiguration(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlDotnetFormatConfiguration]:
+    res = []
+    foundElements = xmlElement.findall("DotnetFormatConfiguration")
+    for foundElement in foundElements:
+        res.append(XmlDotnetFormatConfiguration(log, foundElement))
+    return res
+
 def _LoadClangTidyConfiguration(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlClangTidyConfiguration]:
     res = []
     foundElements = xmlElement.findall("ClangTidyConfiguration")
@@ -338,6 +351,7 @@ class XmlProjectRootConfigFile(XmlBase):
                 self.XmlNewProjectTemplatesRootDirectories = LoadUtil.LoadAddNewProjectTemplatesRootDirectory(log, projectElem, filename)
                 self.XmlBuildDocConfiguration = _LoadBuildDocConfiguration(log, projectElem, filename)
                 self.XmlClangFormatConfiguration = _LoadClangFormatConfiguration(log, projectElem, filename)
+                self.XmlDotnetFormatConfiguration = _LoadDotnetFormatConfiguration(log, projectElem, filename)
                 self.XmlClangTidyConfiguration = _LoadClangTidyConfiguration(log, projectElem, filename)
                 self.XmlCMakeConfiguration = _LoadCMakeConfiguration(log, projectElem, filename)
                 self.XmlCompilerConfiguration = _LoadCompilerConfiguration(log, projectElem, filename)

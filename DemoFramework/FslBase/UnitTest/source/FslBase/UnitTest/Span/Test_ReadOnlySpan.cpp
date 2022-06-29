@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <array>
 #include <cstring>
 
 using namespace Fsl;
@@ -43,6 +44,12 @@ namespace
   ReadOnlySpan<char> Convert(const std::string& str)
   {
     return ReadOnlySpan<char>(str.data(), str.size());
+  }
+
+  template <typename T, std::size_t TSize>
+  ReadOnlySpan<T> Convert(const std::array<T, TSize>& array)
+  {
+    return ReadOnlySpan<T>(array.data(), array.size());
   }
 }
 
@@ -1031,4 +1038,90 @@ TEST(TestReadOnlySpan, OperatorNotEqual)
   EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("AA", 2));
   EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("BA", 2));
   EXPECT_TRUE(ReadOnlySpan<char>("B", 1) != ReadOnlySpan<char>("CA", 2));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// iterators
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TEST(TestReadOnlySpan, begin_empty)
+{
+  ReadOnlySpan<char> span;
+
+  ASSERT_EQ(span.end(), span.begin());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, begin_iterator_to_end)
+{
+  const std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  ReadOnlySpan<uint8_t> span = Convert(content);
+
+  auto itrSource = content.begin();
+  const auto itrSourceEnd = content.end();
+
+  auto itr = span.begin();
+  auto itrEnd = span.end();
+  while (itr != itrEnd && itrSource != itrSourceEnd)
+  {
+    EXPECT_EQ(*itrSource, *itr);
+    ++itrSource;
+    ++itr;
+  }
+  ASSERT_EQ(itrEnd, itr);
+  ASSERT_EQ(itrSourceEnd, itrSource);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, begin_foreach_with_compare)
+{
+  const std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  ReadOnlySpan<uint8_t> span = Convert(content);
+
+
+  {    // compare span with content using a 'foreach'
+    auto itrSource = content.begin();
+    const auto itrSourceEnd = content.end();
+    for (auto entry : span)
+    {
+      ASSERT_TRUE(itrSourceEnd != itrSource);
+      EXPECT_EQ(*itrSource, entry);
+      ++itrSource;
+    }
+    ASSERT_TRUE(itrSourceEnd == itrSource);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, cbegin_empty)
+{
+  ReadOnlySpan<char> span;
+
+  ASSERT_EQ(span.cend(), span.cbegin());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestReadOnlySpan, cbegin_iterator_to_cend)
+{
+  const std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  ReadOnlySpan<uint8_t> span = Convert(content);
+
+  auto itrSource = content.begin();
+  const auto itrSourceEnd = content.end();
+
+  auto itr = span.cbegin();
+  auto itrEnd = span.cend();
+  while (itr != itrEnd && itrSource != itrSourceEnd)
+  {
+    EXPECT_EQ(*itrSource, *itr);
+    ++itrSource;
+    ++itr;
+  }
+  ASSERT_EQ(itrEnd, itr);
+  ASSERT_EQ(itrSourceEnd, itrSource);
 }

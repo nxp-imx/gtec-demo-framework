@@ -1,0 +1,20 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Textures/GPUSdk/SquareLogo512x512.jpg",
+        "Textures/GPUSdk/License.json",
+        "Textures/TestText/Alpha/1.png",
+        "Textures/TestText/Alpha/License.json",
+        "Textures/TestText/Opaque/R.png",
+        "Textures/TestText/Opaque/G.png",
+        "Textures/TestText/Opaque/B.png",
+        "Textures/TestText/Opaque/License.json",
+        "Textures/TestText/Premultiplied/1.png",
+        "Textures/TestText/Premultiplied/License.json"
+      ]
+    }
+  }
+}

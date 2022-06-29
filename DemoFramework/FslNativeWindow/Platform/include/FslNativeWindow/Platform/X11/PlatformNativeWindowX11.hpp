@@ -32,10 +32,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <memory>

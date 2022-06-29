@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_HANDLECODING_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_HANDLECODING_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,37 +36,28 @@
 #include <cassert>
 #include "RenderDrawSpriteType.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch::HandleCoding
 {
-  namespace UI
+  constexpr int32_t ShiftType = 24;
+  constexpr int32_t MaxHandleValue = 0x00FFFFFF;
+  constexpr int32_t MaskType = static_cast<int32_t>(0xFF000000u);
+  constexpr int32_t MaskHandle = 0x00FFFFFF;
+
+
+  inline constexpr MeshHandle EncodeHandle(const RenderDrawSpriteType type, const int32_t handleValue) noexcept
   {
-    namespace RenderIMBatch
-    {
-      namespace HandleCoding
-      {
-        constexpr int32_t ShiftType = 24;
-        constexpr int32_t MaxHandleValue = 0x00FFFFFF;
-        constexpr int32_t MaskType = 0xFF000000;
-        constexpr int32_t MaskHandle = 0x00FFFFFF;
+    assert(handleValue <= MaxHandleValue);
+    return MeshHandle((static_cast<int32_t>(type) << ShiftType) | handleValue);
+  }
 
+  inline constexpr RenderDrawSpriteType GetType(const MeshHandle handle) noexcept
+  {
+    return static_cast<RenderDrawSpriteType>((handle.Value & MaskType) >> ShiftType);
+  }
 
-        inline constexpr MeshHandle EncodeHandle(const RenderDrawSpriteType type, const int32_t handleValue) noexcept
-        {
-          assert(handleValue <= MaxHandleValue);
-          return MeshHandle((static_cast<int32_t>(type) << ShiftType) | handleValue);
-        }
-
-        inline constexpr RenderDrawSpriteType GetType(const MeshHandle handle) noexcept
-        {
-          return static_cast<RenderDrawSpriteType>((handle.Value & MaskType) >> ShiftType);
-        }
-
-        inline constexpr int32_t GetOriginalHandle(const MeshHandle handle) noexcept
-        {
-          return handle.Value & MaskHandle;
-        }
-      }
-    }
+  inline constexpr int32_t GetOriginalHandle(const MeshHandle handle) noexcept
+  {
+    return handle.Value & MaskHandle;
   }
 }
 

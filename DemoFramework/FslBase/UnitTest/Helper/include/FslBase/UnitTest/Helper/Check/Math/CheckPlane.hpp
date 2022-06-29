@@ -34,19 +34,16 @@
 #include <FslBase/Math/Plane.hpp>
 #include <FslBase/UnitTest/Helper/Check/Math/CheckVector3.hpp>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const Plane& lhs, const Plane& rhs)
   {
-    inline bool AlmostEqual(const Plane& lhs, const Plane& rhs)
-    {
-      return AlmostEqual(lhs.Normal, rhs.Normal) && AlmostEqual(lhs.D, rhs.D);
-    }
+    return AlmostEqual(lhs.Normal, rhs.Normal) && AlmostEqual(lhs.D, rhs.D);
+  }
 
-    inline bool IsNear(const Plane& lhs, const Plane& rhs, const float absError)
-    {
-      return IsNear(lhs.Normal, rhs.Normal, absError) && IsNear(lhs.D, rhs.D, absError);
-    }
+  inline bool IsNear(const Plane& lhs, const Plane& rhs, const float absError)
+  {
+    return IsNear(lhs.Normal, rhs.Normal, absError) && IsNear(lhs.D, rhs.D, absError);
   }
 }
 

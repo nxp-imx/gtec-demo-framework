@@ -33,17 +33,14 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::TimeInfo
 {
-  namespace TimeInfo
-  {
-    constexpr uint16_t TicksPerMicrosecond = 10;
-    constexpr uint16_t TicksPerMillisecond = 10000;
-    constexpr int64_t TicksPerSecond = TicksPerMillisecond * 1000;
-    constexpr int64_t TicksPerMinute = TicksPerSecond * 60;
-    constexpr int64_t TicksPerHour = TicksPerMinute * 60;
-    constexpr int64_t TicksPerDay = TicksPerHour * 24;
-  }
+  constexpr uint16_t TicksPerMicrosecond = 10;
+  constexpr uint16_t TicksPerMillisecond = 10000;
+  constexpr int64_t TicksPerSecond = TicksPerMillisecond * 1000;
+  constexpr int64_t TicksPerMinute = TicksPerSecond * 60;
+  constexpr int64_t TicksPerHour = TicksPerMinute * 60;
+  constexpr int64_t TicksPerDay = TicksPerHour * 24;
 }
 
 #endif

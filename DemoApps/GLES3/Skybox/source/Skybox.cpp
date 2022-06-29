@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "Skybox.hpp"
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
-#include <GLES3/gl3.h>
 #include <Shared/CubeMapping/API/OpenGLES3/SkyboxVertices.hpp>
 #include <Shared/CubeMapping/API/OpenGLES3/TextureUtil.hpp>
+#include <GLES3/gl3.h>
 #include <array>
 #include "OptionParser.hpp"
 
@@ -93,19 +93,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      m_rightMouseDown = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = m_rightMouseDown;
+        m_rightMouseDown = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
+        {
+          m_mouseCaptureEnabled = m_rightMouseDown;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -170,7 +170,7 @@ namespace Fsl
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.Get());
-    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetGLCapacity());
     // glDrawArrays(GL_TRIANGLES, 0, 6);
 
     mesh.VertexArray.Unbind();

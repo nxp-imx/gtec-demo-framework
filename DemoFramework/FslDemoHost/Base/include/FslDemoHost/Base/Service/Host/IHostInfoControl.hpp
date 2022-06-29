@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <FslDemoApp/Base/Service/Host/HostConfig.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <memory>
 
 namespace Fsl

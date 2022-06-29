@@ -32,11 +32,12 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/System/Platform/PlatformPathTransform.hpp>
-#include <FslGraphics/Exceptions.hpp>
-#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/IO/BMPUtil.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <cassert>
@@ -175,12 +176,12 @@ namespace Fsl
       uint32_t MaskB;
       uint32_t MaskA;
       bool IsYFlipped;
-      bool Swizzle;
-      int8_t SwizzleR;
-      int8_t SwizzleG;
-      int8_t SwizzleB;
-      int8_t SwizzleA;
-      PixelFormat ActivePixelFormat;
+      bool Swizzle{false};
+      int8_t SwizzleR{0};
+      int8_t SwizzleG{1};
+      int8_t SwizzleB{2};
+      int8_t SwizzleA{3};
+      PixelFormat ActivePixelFormat{PixelFormat::Undefined};
 
       explicit BitmapHeader(const BMPBitmapV3InfoHeader& header, BmpCompression compression)
         : ImageWidth(header.ImageWidth)
@@ -193,12 +194,7 @@ namespace Fsl
         , MaskB(header.BlueMask)
         , MaskA(header.AlphaMask)
         , IsYFlipped(header.ImageHeight > 0)
-        , Swizzle(false)
-        , SwizzleR(0)
-        , SwizzleG(1)
-        , SwizzleB(2)
-        , SwizzleA(3)
-        , ActivePixelFormat(PixelFormat::Undefined)
+
       {
         if (header.ImageWidth < 0)
         {
@@ -340,7 +336,7 @@ namespace Fsl
 
     void StreamRead(std::ifstream& rStream, void* const pDst, const std::size_t cbRead)
     {
-      rStream.read(reinterpret_cast<char*>(pDst), cbRead);
+      rStream.read(reinterpret_cast<char*>(pDst), NumericCast<std::streamsize>(cbRead));
       if (!rStream.good())
       {
         throw FormatException("Failed to read the expected amount of bytes");
@@ -438,7 +434,7 @@ namespace Fsl
     uint32_t CalcBitmapSize(const BitmapHeader& bitmapHeader, const uint32_t minimumStride, const uint32_t bytesPerPixel, const bool allowZero)
     {
       FSL_PARAM_NOT_USED(bytesPerPixel);
-      const uint64_t calculatedSize = uint64_t(minimumStride) * uint64_t(bitmapHeader.ImageHeight);
+      const uint64_t calculatedSize = static_cast<uint64_t>(minimumStride) * static_cast<uint64_t>(bitmapHeader.ImageHeight);
       if (calculatedSize > MAX_BITMAP_SIZE)
       {
         throw FormatException("The bitmap size was exceeded");
@@ -456,7 +452,7 @@ namespace Fsl
     }
 
 
-    void ReadBitmapContent(std::ifstream& rStream, Bitmap& rBitmap, const uint32_t cbBitmap, const uint32_t minStride,
+    void ReadBitmapContent(std::ifstream& rStream, Bitmap& rBitmap, const uint32_t cbBitmap, [[maybe_unused]] const uint32_t minStride,
                            const BitmapHeader& bitmapHeader, const BitmapOrigin originHint)
     {
       RawBitmapEx rawBitmap;
@@ -544,8 +540,8 @@ namespace Fsl
 
     void WriteBitmapInfoHeader(std::ofstream& stream, const RawBitmap& bitmap, const uint32_t cbBitmap)
     {
-      const int32_t width = bitmap.GetExtent().Width;
-      const int32_t height = bitmap.GetExtent().Height;
+      const auto width = NumericCast<int32_t>(bitmap.GetExtent().Width);
+      const auto height = NumericCast<int32_t>(bitmap.GetExtent().Height);
 
       std::array<uint8_t, SIZE_BITMAPV2INFOHEADER> bitmapHeader{};
       ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_Size, SIZE_BITMAPINFOHEADER);

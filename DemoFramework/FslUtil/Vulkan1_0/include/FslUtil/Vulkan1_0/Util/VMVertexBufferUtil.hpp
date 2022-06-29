@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_UTIL_VMVERTEXBUFFERUTIL_HPP
 #define FSLUTIL_VULKAN1_0_UTIL_VMVERTEXBUFFERUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,70 +32,92 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::VMVertexBufferUtil
 {
-  namespace Vulkan
+  inline void FillVertexInputAttributeDescription(VkVertexInputAttributeDescription* const pDst, const VertexElementUsage* const pShaderBindOrder,
+                                                  const std::size_t entries, const VMVertexBuffer& vertexBuffer)
   {
-    namespace VMVertexBufferUtil
+    assert(pDst != nullptr);
+    assert(pShaderBindOrder != nullptr);
+
+    for (std::size_t i = 0; i < entries; ++i)
     {
-      inline void FillVertexInputAttributeDescription(VkVertexInputAttributeDescription* const pDst, const VertexElementUsage* const pShaderBindOrder,
-                                                      const std::size_t entries, const VMVertexBuffer& vertexBuffer)
-      {
-        assert(pDst != nullptr);
-        assert(pShaderBindOrder != nullptr);
+      const auto& vertexDeclElement = vertexBuffer.GetVertexElement(pShaderBindOrder[i], 0);
 
-        for (std::size_t i = 0; i < entries; ++i)
-        {
-          const auto& vertexDeclElement = vertexBuffer.GetVertexElement(pShaderBindOrder[i], 0);
-
-          pDst[i].location = static_cast<uint32_t>(i);
-          pDst[i].binding = 0;
-          pDst[i].format = vertexDeclElement.NativeFormat;
-          pDst[i].offset = vertexDeclElement.Offset;
-        }
-      }
-
-      inline void FillVertexInputAttributeDescription(std::vector<VkVertexInputAttributeDescription>& rDstDescription,
-                                                      const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
-      {
-        rDstDescription.resize(shaderBindOrder.size());
-        FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
-      }
-
-      template <std::size_t TSize>
-      inline void FillVertexInputAttributeDescription(std::vector<VkVertexInputAttributeDescription>& rDstDescription,
-                                                      const std::array<VertexElementUsage, TSize>& shaderBindOrder,
-                                                      const VMVertexBuffer& vertexBuffer)
-      {
-        rDstDescription.resize(shaderBindOrder.size());
-        FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
-      }
-
-      template <std::size_t TSize>
-      inline void FillVertexInputAttributeDescription(std::array<VkVertexInputAttributeDescription, TSize>& rDstDescription,
-                                                      const std::array<VertexElementUsage, TSize>& shaderBindOrder,
-                                                      const VMVertexBuffer& vertexBuffer)
-      {
-        FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
-      }
-
-      template <std::size_t TSize>
-      inline void FillVertexInputAttributeDescription(std::array<VkVertexInputAttributeDescription, TSize>& rDstDescription,
-                                                      const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
-      {
-        if (shaderBindOrder.size() != rDstDescription.size())
-        {
-          throw std::invalid_argument("rDstDescription.size() != shaderBindOrder.size()");
-        }
-        FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
-      }
+      pDst[i].location = static_cast<uint32_t>(i);
+      pDst[i].binding = 0;
+      pDst[i].format = vertexDeclElement.NativeFormat;
+      pDst[i].offset = vertexDeclElement.Offset;
     }
   }
+
+  inline void FillVertexInputAttributeDescription(std::vector<VkVertexInputAttributeDescription>& rDstDescription,
+                                                  const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    rDstDescription.resize(shaderBindOrder.size());
+    FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
+  }
+
+  template <std::size_t TSize>
+  inline void FillVertexInputAttributeDescription(std::vector<VkVertexInputAttributeDescription>& rDstDescription,
+                                                  const std::array<VertexElementUsage, TSize>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    rDstDescription.resize(shaderBindOrder.size());
+    FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
+  }
+
+  template <std::size_t TSize>
+  inline void FillVertexInputAttributeDescription(std::array<VkVertexInputAttributeDescription, TSize>& rDstDescription,
+                                                  const std::array<VertexElementUsage, TSize>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    FillVertexInputAttributeDescription(rDstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
+  }
+
+
+  // Span based implementation
+
+  inline void FillVertexInputAttributeDescription(Span<VkVertexInputAttributeDescription> dstDescription,
+                                                  const ReadOnlySpan<VertexElementUsage> shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    if (shaderBindOrder.size() != dstDescription.size())
+    {
+      throw std::invalid_argument("rDstDescription.size() != shaderBindOrder.size()");
+    }
+    FillVertexInputAttributeDescription(dstDescription.data(), shaderBindOrder.data(), shaderBindOrder.size(), vertexBuffer);
+  }
+
+
+  // Ease of use forwarders
+
+  template <std::size_t TSize>
+  inline void FillVertexInputAttributeDescription(std::array<VkVertexInputAttributeDescription, TSize>& rDstDescription,
+                                                  const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    FillVertexInputAttributeDescription(SpanUtil::AsSpan(rDstDescription), ReadOnlySpanUtil::AsSpan(shaderBindOrder), shaderBindOrder.size(),
+                                        vertexBuffer);
+  }
+
+
+  inline void FillVertexInputAttributeDescription(Span<VkVertexInputAttributeDescription> dstDescription,
+                                                  const std::vector<VertexElementUsage>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    FillVertexInputAttributeDescription(dstDescription, ReadOnlySpanUtil::AsSpan(shaderBindOrder), vertexBuffer);
+  }
+
+  template <std::size_t TSize>
+  inline void FillVertexInputAttributeDescription(Span<VkVertexInputAttributeDescription> dstDescription,
+                                                  const std::array<VertexElementUsage, TSize>& shaderBindOrder, const VMVertexBuffer& vertexBuffer)
+  {
+    FillVertexInputAttributeDescription(dstDescription, ReadOnlySpanUtil::AsSpan(shaderBindOrder), vertexBuffer);
+  }
+
 }
 
 #endif

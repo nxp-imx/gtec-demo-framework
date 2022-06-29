@@ -31,12 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::JsonConfig
 {
-  namespace JsonConfig
-  {
-    constexpr int Indent = 4;
-  }
+  constexpr int Indent = 4;
 }
 
 #endif

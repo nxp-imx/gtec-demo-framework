@@ -34,18 +34,15 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  enum class VMBufferUsage
   {
-    enum class VMBufferUsage
-    {
-      //! The buffer is almost never updated and its therefore suited to being uploaded to device local memory
-      STATIC,
-      //! The buffer is often updated and is best kept in CPU accessible memory
-      DYNAMIC
-    };
-  }
+    //! The buffer is almost never updated and its therefore suited to being uploaded to device local memory
+    STATIC,
+    //! The buffer is often updated and is best kept in CPU accessible memory
+    DYNAMIC
+  };
 }
 
 #endif

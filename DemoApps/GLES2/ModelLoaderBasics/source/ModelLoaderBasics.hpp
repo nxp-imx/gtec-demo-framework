@@ -35,8 +35,8 @@
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
-#include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBufferArray.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBufferArray.hpp>
 #include <array>

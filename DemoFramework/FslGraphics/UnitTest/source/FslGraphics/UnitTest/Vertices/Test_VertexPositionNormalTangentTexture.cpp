@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -63,13 +63,12 @@ TEST(TestVertices_VertexPositionNormalTangentTexture, Construct_Default)
 
 TEST(TestVertices_VertexPositionNormalTangentTexture, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position,
-                                  0u);
-  const VertexElementEx expected1(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent,
-                                  0u);
-  const VertexElementEx expected3(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position,
+                                0u);
+  const VertexElement expected1(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u);
+  const VertexElement expected2(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u);
+  const VertexElement expected3(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexDeclaration(VertexPositionNormalTangentTexture::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexPositionNormalTangentTexture), vertexDecl.VertexStride());
@@ -109,13 +108,12 @@ TEST(TestVertices_VertexPositionNormalTangentTexture, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPositionNormalTangentTexture, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position,
-                                  0u);
-  const VertexElementEx expected1(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent,
-                                  0u);
-  const VertexElementEx expected3(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position,
+                                0u);
+  const VertexElement expected1(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u);
+  const VertexElement expected2(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u);
+  const VertexElement expected3(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexPositionNormalTangentTexture::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexPositionNormalTangentTexture), vertexDecl.VertexStride());
@@ -155,13 +153,12 @@ TEST(TestVertices_VertexPositionNormalTangentTexture, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexPositionNormalTangentTexture, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position,
-                                  0u);
-  const VertexElementEx expected1(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u);
-  const VertexElementEx expected2(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent,
-                                  0u);
-  const VertexElementEx expected3(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                                  VertexElementUsage::TextureCoordinate, 0u);
+  const VertexElement expected0(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position,
+                                0u);
+  const VertexElement expected1(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u);
+  const VertexElement expected2(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u);
+  const VertexElement expected3(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                                VertexElementUsage::TextureCoordinate, 0u);
   const auto vertexDecl = VertexPositionNormalTangentTexture::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexPositionNormalTangentTexture), vertexDecl.VertexStride());

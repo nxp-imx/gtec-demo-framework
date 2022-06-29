@@ -30,15 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include "FractalShader.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include "FractalShaderJulia.hpp"
-#include "FractalShaderMandelbrot.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <Shared/FractalShader/OptionParser.hpp>
-#include <memory>
 #include <vulkan/vulkan.h>
+#include <memory>
+#include "FractalShaderJulia.hpp"
+#include "FractalShaderMandelbrot.hpp"
 
 namespace Fsl
 {
@@ -59,7 +59,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
   }
 

@@ -31,15 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <FslDemoApp/Vulkan/Basic/BuildResourcesContext.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanSetup.hpp>
 #include <FslDemoApp/Vulkan/Basic/DrawContext.hpp>
 #include <FslDemoApp/Vulkan/Basic/FrameBufferCreateContext.hpp>
 #include <FslDemoApp/Vulkan/Basic/SwapchainInfo.hpp>
+#include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
-#include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
 #include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
+#include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
 #include <RapidVulkan/CommandBuffers.hpp>
 #include <RapidVulkan/CommandPool.hpp>
 #include <RapidVulkan/Fence.hpp>
@@ -117,7 +117,7 @@ namespace Fsl
             m_recycledSemaphores.pop_back();
             return tmp;
           }
-          return RapidVulkan::Semaphore(device, 0);
+          return {device, 0};
         }
 
         void ReleaseSemaphore(RapidVulkan::Semaphore&& value)

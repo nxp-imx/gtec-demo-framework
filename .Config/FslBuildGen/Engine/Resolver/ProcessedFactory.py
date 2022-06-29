@@ -53,6 +53,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependency import Unresol
 from FslBuildGen.Packages.Unresolved.UnresolvedFilter import UnresolvedFilter
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerateGrpcProtoFile import UnresolvedPackageGenerateGrpcProtoFile
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 from FslBuildGen.Xml.XmlStuff import XmlGenFileBuildCustomization
@@ -62,7 +63,8 @@ class ProcessedFactory(object):
     def CreatePackage(log: Log, generatorInfo: GeneratorInfo, packageProjectContext: PackageProjectContext, nameInfo: PackageNameInfo,
                       companyName: CompanyName, creationYear: Optional[str], packageFile: Optional[PackageFile], sourceFileHash: str,
                       packageType: PackageType, packageFlags: ProcessedPackageFlags, packageLanguage: PackageLanguage,
-                      generateList: List[UnresolvedPackageGenerate], 
+                      generateList: List[UnresolvedPackageGenerate],
+                      generateGrpcProtoFileList: List[UnresolvedPackageGenerateGrpcProtoFile],
                       directDependencies: List[ProcessedPackageDependency], directRequirements: List[UnresolvedPackageRequirement],
                       directDefines: List[UnresolvedPackageDefine], externalDependencies: List[UnresolvedExternalDependency],
                       path: ProcessedPackagePaths, templateType: str, buildCustomization: Dict[str, XmlGenFileBuildCustomization],
@@ -74,6 +76,6 @@ class ProcessedFactory(object):
         directDependencies = UnresolvedFilter.FilterOnConditions(log, generatorInfo, directDependencies, "Dependency")
 
         return ProcessedPackage(packageProjectContext, nameInfo, companyName, creationYear, packageFile, sourceFileHash, packageType,
-                                packageFlags, packageLanguage, generateList, directDependencies, directRequirements, directDefines,
-                                externalDependencies, path, templateType, buildCustomization, directExperimentalRecipe, resolvedPlatform,
-                                directPlatformSupported, customInfo, traceContext)
+                                packageFlags, packageLanguage, generateList, generateGrpcProtoFileList, directDependencies, directRequirements,
+                                directDefines, externalDependencies, path, templateType, buildCustomization, directExperimentalRecipe,
+                                resolvedPlatform, directPlatformSupported, customInfo, traceContext)

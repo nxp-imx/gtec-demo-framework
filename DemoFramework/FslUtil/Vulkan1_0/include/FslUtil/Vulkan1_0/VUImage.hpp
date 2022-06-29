@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUIMAGE_HPP
 #define FSLUTIL_VULKAN1_0_VUIMAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,67 +32,46 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <RapidVulkan/Image.hpp>
-#include <vector>
 #include <vulkan/vulkan.h>
+#include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
+  class VUImage
   {
-    // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
-    class VUImage
+    RapidVulkan::Image m_image;
+    VkImageCreateFlags m_flags = 0;
+    VkFormat m_format = VK_FORMAT_UNDEFINED;
+    VkExtent3D m_extent{};
+    uint32_t m_mipLevels = 0;
+    VkImageLayout m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+  public:
+    VUImage(const VUImage&) = delete;
+    VUImage& operator=(const VUImage&) = delete;
+
+
+    // move assignment operator
+    VUImage& operator=(VUImage&& other) noexcept
     {
-      RapidVulkan::Image m_image;
-      VkImageCreateFlags m_flags = 0;
-      VkFormat m_format = VK_FORMAT_UNDEFINED;
-      VkExtent3D m_extent{};
-      uint32_t m_mipLevels = 0;
-      VkImageLayout m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-    public:
-      VUImage(const VUImage&) = delete;
-      VUImage& operator=(const VUImage&) = delete;
-
-
-      // move assignment operator
-      VUImage& operator=(VUImage&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          Reset();
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
 
-          // Claim ownership here
-          m_image = std::move(other.m_image);
-          m_flags = other.m_flags;
-          m_format = other.m_format;
-          m_extent = other.m_extent;
-          m_mipLevels = other.m_mipLevels;
-          m_layout = other.m_layout;
+        // Claim ownership here
+        m_image = std::move(other.m_image);
+        m_flags = other.m_flags;
+        m_format = other.m_format;
+        m_extent = other.m_extent;
+        m_mipLevels = other.m_mipLevels;
+        m_layout = other.m_layout;
 
-          // Remove the data from other
-          other.m_flags = 0;
-          other.m_format = VK_FORMAT_UNDEFINED;
-          other.m_extent = {};
-          other.m_mipLevels = 0;
-          other.m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-        }
-        return *this;
-      }
-
-      // move constructor
-      VUImage(VUImage&& other) noexcept
-        : m_image(std::move(other.m_image))
-        , m_flags(other.m_flags)
-        , m_format(other.m_format)
-        , m_extent(other.m_extent)
-        , m_mipLevels(other.m_mipLevels)
-        , m_layout(other.m_layout)
-      {
         // Remove the data from other
         other.m_flags = 0;
         other.m_format = VK_FORMAT_UNDEFINED;
@@ -100,112 +79,130 @@ namespace Fsl
         other.m_mipLevels = 0;
         other.m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
       }
+      return *this;
+    }
 
-      VUImage() = default;
+    // move constructor
+    VUImage(VUImage&& other) noexcept
+      : m_image(std::move(other.m_image))
+      , m_flags(other.m_flags)
+      , m_format(other.m_format)
+      , m_extent(other.m_extent)
+      , m_mipLevels(other.m_mipLevels)
+      , m_layout(other.m_layout)
+    {
+      // Remove the data from other
+      other.m_flags = 0;
+      other.m_format = VK_FORMAT_UNDEFINED;
+      other.m_extent = {};
+      other.m_mipLevels = 0;
+      other.m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    }
 
-      //! @brief Create a new VUImage.
-      VUImage(const VkDevice device, const VkImageCreateInfo& createInfo);
+    VUImage() = default;
 
-      //! @brief Create a new VUImage.
-      VUImage(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format, const VkExtent3D& extent,
-              const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples, const VkImageTiling tiling,
-              const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
-              const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout);
+    //! @brief Create a new VUImage.
+    VUImage(const VkDevice device, const VkImageCreateInfo& createInfo);
 
-      ~VUImage() noexcept
-      {
-        Reset();
-      }
+    //! @brief Create a new VUImage.
+    VUImage(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format, const VkExtent3D& extent,
+            const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples, const VkImageTiling tiling,
+            const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* queueFamilyIndices,
+            const VkImageLayout initialLayout);
 
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
+    ~VUImage() noexcept
+    {
+      Reset();
+    }
 
-      //! @brief Destroys any owned resources and then creates the requested one
-      //! @note  Function: vkCreateImage
-      void Reset(const VkDevice device, const VkImageCreateInfo& createInfo);
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
 
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format, const VkExtent3D& extent,
-                 const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples, const VkImageTiling tiling,
-                 const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
-                 const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout);
+    //! @brief Destroys any owned resources and then creates the requested one
+    //! @note  Function: vkCreateImage
+    void Reset(const VkDevice device, const VkImageCreateInfo& createInfo);
 
-      //! @brief Get the device associated with this object
-      VkDevice GetDevice() const
-      {
-        return m_image.GetDevice();
-      }
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format, const VkExtent3D& extent,
+               const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples, const VkImageTiling tiling,
+               const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
+               const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout);
 
-      //! @brief Get the handle associated with this object
-      VkImage Get() const
-      {
-        return m_image.Get();
-      }
+    //! @brief Get the device associated with this object
+    VkDevice GetDevice() const
+    {
+      return m_image.GetDevice();
+    }
 
-
-      //! @brief Check if this object is valid
-      bool IsValid() const
-      {
-        return m_image.IsValid();
-      }
-
-
-      VkImageCreateFlags GetFlags() const
-      {
-        return m_flags;
-      }
-
-
-      VkFormat GetFormat() const
-      {
-        return m_format;
-      }
-
-      VkMemoryRequirements GetImageMemoryRequirements() const
-      {
-        return m_image.GetImageMemoryRequirements();
-      }
-
-      VkSubresourceLayout GetImageSubresourceLayout(const VkImageSubresource& imageSubresource) const
-      {
-        return m_image.GetImageSubresourceLayout(imageSubresource);
-      }
-
-      uint32_t GetMipLevels() const
-      {
-        return m_mipLevels;
-      }
-
-      VkExtent2D GetExtent2D() const
-      {
-        return VkExtent2D{m_extent.width, m_extent.height};
-      }
-
-      PxSize2D GetSize() const
-      {
-        return {UncheckedNumericCast<PxSize2D::value_type>(m_extent.width), UncheckedNumericCast<PxSize2D::value_type>(m_extent.height)};
-      }
+    //! @brief Get the handle associated with this object
+    VkImage Get() const
+    {
+      return m_image.Get();
+    }
 
 
-      VkExtent3D GetExtent() const
-      {
-        return m_extent;
-      }
+    //! @brief Check if this object is valid
+    bool IsValid() const
+    {
+      return m_image.IsValid();
+    }
 
-      //! @brief Beware that the image layout can easily be changed outside of this classes control,
-      //         so its up to you to keep it up to date with SetImageLayout
-      VkImageLayout GetImageLayout() const
-      {
-        return m_layout;
-      }
 
-      //! @brief Beware this does not actually do anything to the image, it just sets the stored layout variable
-      void SetImageLayout(const VkImageLayout newLayout)
-      {
-        m_layout = newLayout;
-      }
-    };
-  }
+    VkImageCreateFlags GetFlags() const
+    {
+      return m_flags;
+    }
+
+
+    VkFormat GetFormat() const
+    {
+      return m_format;
+    }
+
+    VkMemoryRequirements GetImageMemoryRequirements() const
+    {
+      return m_image.GetImageMemoryRequirements();
+    }
+
+    VkSubresourceLayout GetImageSubresourceLayout(const VkImageSubresource& imageSubresource) const
+    {
+      return m_image.GetImageSubresourceLayout(imageSubresource);
+    }
+
+    uint32_t GetMipLevels() const
+    {
+      return m_mipLevels;
+    }
+
+    VkExtent2D GetExtent2D() const
+    {
+      return VkExtent2D{m_extent.width, m_extent.height};
+    }
+
+    PxSize2D GetSize() const
+    {
+      return {UncheckedNumericCast<PxSize2D::value_type>(m_extent.width), UncheckedNumericCast<PxSize2D::value_type>(m_extent.height)};
+    }
+
+
+    VkExtent3D GetExtent() const
+    {
+      return m_extent;
+    }
+
+    //! @brief Beware that the image layout can easily be changed outside of this classes control,
+    //         so its up to you to keep it up to date with SetImageLayout
+    VkImageLayout GetImageLayout() const
+    {
+      return m_layout;
+    }
+
+    //! @brief Beware this does not actually do anything to the image, it just sets the stored layout variable
+    void SetImageLayout(const VkImageLayout newLayout)
+    {
+      m_layout = newLayout;
+    }
+  };
 }
 
 #endif

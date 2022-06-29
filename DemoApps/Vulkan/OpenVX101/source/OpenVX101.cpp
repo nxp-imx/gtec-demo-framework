@@ -39,9 +39,9 @@
 #include <RapidOpenVX/Exceptions.hpp>
 #include <RapidOpenVX/Image.hpp>
 #include <RapidVulkan/Check.hpp>
-#include <vulkan/vulkan.h>
 #include <VX/vx.h>
 #include <VX/vxu.h>
+#include <vulkan/vulkan.h>
 #include <cmath>
 
 namespace Fsl

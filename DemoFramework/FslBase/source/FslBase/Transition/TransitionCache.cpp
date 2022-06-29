@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Transition/TransitionCache.hpp>
 #include <cassert>
 
 namespace Fsl

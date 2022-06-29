@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <cstring>
@@ -591,6 +591,29 @@ TEST(TestString_StringViewLite, compare)
   EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("CA")) < 0);
 }
 
+TEST(TestString_StringViewLite, compare_string_view)
+{
+  EXPECT_TRUE(StringViewLite("A").compare(std::string_view("B")) < 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("B")) == 0);
+  EXPECT_TRUE(StringViewLite("C").compare(std::string_view("B")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("A")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("C")) < 0);
+
+  EXPECT_TRUE(StringViewLite("A").compare(std::string_view("BA")) < 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("BA")) < 0);
+  EXPECT_TRUE(StringViewLite("C").compare(std::string_view("BA")) > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(std::string_view("A")) > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(std::string_view("B")) > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(std::string_view("C")) < 0);
+
+  EXPECT_TRUE(StringViewLite("AA").compare(std::string_view("B")) < 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(std::string_view("B")) > 0);
+  EXPECT_TRUE(StringViewLite("CA").compare(std::string_view("B")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("AA")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("BA")) < 0);
+  EXPECT_TRUE(StringViewLite("B").compare(std::string_view("CA")) < 0);
+}
+
 TEST(TestString_StringViewLite, compare_CString)
 {
   EXPECT_TRUE(StringViewLite("A").compare("B") < 0);
@@ -983,6 +1006,62 @@ TEST(TestString_StringViewLite, OperatorLessThan)
   EXPECT_TRUE(StringViewLite("B") < StringViewLite("CA"));
 }
 
+TEST(TestString_StringViewLite, OperatorLessThan_string_view_LHS)
+{
+  EXPECT_LT(std::string_view("A"), StringViewLite("B"));
+  EXPECT_LT(std::string_view("A"), StringViewLite("AB"));
+  EXPECT_LT(std::string_view(""), StringViewLite("AB"));
+
+  EXPECT_TRUE(std::string_view("A") < StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") < StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("C") < StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") < StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("B") < StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") < StringViewLite("C"));
+
+  EXPECT_TRUE(std::string_view("A") < StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("B") < StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("C") < StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("BA") < StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("BA") < StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("BA") < StringViewLite("C"));
+
+  EXPECT_TRUE(std::string_view("AA") < StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("BA") < StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("CA") < StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") < StringViewLite("AA"));
+  EXPECT_TRUE(std::string_view("B") < StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("B") < StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThan_string_view_RHS)
+{
+  EXPECT_LT(StringViewLite("A"), std::string_view("B"));
+  EXPECT_LT(StringViewLite("A"), std::string_view("AB"));
+  EXPECT_LT(StringViewLite(""), std::string_view("AB"));
+
+  EXPECT_TRUE(StringViewLite("A") < std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") < std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("C") < std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") < std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("B") < std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") < std::string_view("C"));
+
+  EXPECT_TRUE(StringViewLite("A") < std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("B") < std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("C") < std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("BA") < std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("BA") < std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("BA") < std::string_view("C"));
+
+  EXPECT_TRUE(StringViewLite("AA") < std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("BA") < std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("CA") < std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") < std::string_view("AA"));
+  EXPECT_TRUE(StringViewLite("B") < std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("B") < std::string_view("CA"));
+}
+
 TEST(TestString_StringViewLite, OperatorLessThan_CString_LHS)
 {
   EXPECT_LT("A", StringViewLite("B"));
@@ -1070,6 +1149,64 @@ TEST(TestString_StringViewLite, OperatorLessThanOrEqual)
   EXPECT_FALSE(StringViewLite("B") <= StringViewLite("AA"));
   EXPECT_TRUE(StringViewLite("B") <= StringViewLite("BA"));
   EXPECT_TRUE(StringViewLite("B") <= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThanOrEqual_string_view_lhs)
+{
+  EXPECT_LE(std::string_view("A"), StringViewLite("B"));
+  EXPECT_LE(std::string_view("A"), StringViewLite("AB"));
+  EXPECT_LE(std::string_view(""), StringViewLite("AB"));
+  EXPECT_LE(std::string_view("A"), StringViewLite("A"));
+
+  EXPECT_TRUE(std::string_view("A") <= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") <= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("C") <= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") <= StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("B") <= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") <= StringViewLite("C"));
+
+  EXPECT_TRUE(std::string_view("A") <= StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("B") <= StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("C") <= StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("BA") <= StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("BA") <= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("BA") <= StringViewLite("C"));
+
+  EXPECT_TRUE(std::string_view("AA") <= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("BA") <= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("CA") <= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") <= StringViewLite("AA"));
+  EXPECT_TRUE(std::string_view("B") <= StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("B") <= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThanOrEqual_string_view_rhs)
+{
+  EXPECT_LE(StringViewLite("A"), std::string_view("B"));
+  EXPECT_LE(StringViewLite("A"), std::string_view("AB"));
+  EXPECT_LE(StringViewLite(""), std::string_view("AB"));
+  EXPECT_LE(StringViewLite("A"), std::string_view("A"));
+
+  EXPECT_TRUE(StringViewLite("A") <= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") <= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("C") <= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") <= std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("B") <= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") <= std::string_view("C"));
+
+  EXPECT_TRUE(StringViewLite("A") <= std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("B") <= std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("C") <= std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("BA") <= std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("BA") <= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("BA") <= std::string_view("C"));
+
+  EXPECT_TRUE(StringViewLite("AA") <= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("BA") <= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("CA") <= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") <= std::string_view("AA"));
+  EXPECT_TRUE(StringViewLite("B") <= std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("B") <= std::string_view("CA"));
 }
 
 TEST(TestString_StringViewLite, OperatorLessThanOrEqual_CString_LHS)
@@ -1162,6 +1299,62 @@ TEST(TestString_StringViewLite, OperatorGreaterThan)
   EXPECT_FALSE(StringViewLite("B") > StringViewLite("CA"));
 }
 
+TEST(TestString_StringViewLite, OperatorGreaterThan_string_view_LHS)
+{
+  EXPECT_GT(std::string_view("B"), StringViewLite("A"));
+  EXPECT_GT(std::string_view("AB"), StringViewLite("A"));
+  EXPECT_GT(std::string_view("AB"), StringViewLite(""));
+
+  EXPECT_FALSE(std::string_view("A") > StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") > StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("C") > StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") > StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("B") > StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") > StringViewLite("C"));
+
+  EXPECT_FALSE(std::string_view("A") > StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("B") > StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("C") > StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("BA") > StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("BA") > StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("BA") > StringViewLite("C"));
+
+  EXPECT_FALSE(std::string_view("AA") > StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("BA") > StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("CA") > StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") > StringViewLite("AA"));
+  EXPECT_FALSE(std::string_view("B") > StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("B") > StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThan_string_view_RHS)
+{
+  EXPECT_GT(StringViewLite("B"), std::string_view("A"));
+  EXPECT_GT(StringViewLite("AB"), std::string_view("A"));
+  EXPECT_GT(StringViewLite("AB"), std::string_view(""));
+
+  EXPECT_FALSE(StringViewLite("A") > std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") > std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("C") > std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") > std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("B") > std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") > std::string_view("C"));
+
+  EXPECT_FALSE(StringViewLite("A") > std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("B") > std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("C") > std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("BA") > std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("BA") > std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("BA") > std::string_view("C"));
+
+  EXPECT_FALSE(StringViewLite("AA") > std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("BA") > std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("CA") > std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") > std::string_view("AA"));
+  EXPECT_FALSE(StringViewLite("B") > std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("B") > std::string_view("CA"));
+}
+
 TEST(TestString_StringViewLite, OperatorGreaterThan_CString_LHS)
 {
   EXPECT_GT("B", StringViewLite("A"));
@@ -1249,6 +1442,64 @@ TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual)
   EXPECT_TRUE(StringViewLite("B") >= StringViewLite("AA"));
   EXPECT_FALSE(StringViewLite("B") >= StringViewLite("BA"));
   EXPECT_FALSE(StringViewLite("B") >= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_string_view_LHS)
+{
+  EXPECT_GE(std::string_view("B"), StringViewLite("A"));
+  EXPECT_GE(std::string_view("AB"), StringViewLite("A"));
+  EXPECT_GE(std::string_view("AB"), StringViewLite(""));
+  EXPECT_GE(std::string_view("A"), StringViewLite("A"));
+
+  EXPECT_FALSE(std::string_view("A") >= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") >= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("C") >= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") >= StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("B") >= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") >= StringViewLite("C"));
+
+  EXPECT_FALSE(std::string_view("A") >= StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("B") >= StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("C") >= StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("BA") >= StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("BA") >= StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("BA") >= StringViewLite("C"));
+
+  EXPECT_FALSE(std::string_view("AA") >= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("BA") >= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("CA") >= StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") >= StringViewLite("AA"));
+  EXPECT_FALSE(std::string_view("B") >= StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("B") >= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_string_view_RHS)
+{
+  EXPECT_GE(StringViewLite("B"), std::string_view("A"));
+  EXPECT_GE(StringViewLite("AB"), std::string_view("A"));
+  EXPECT_GE(StringViewLite("AB"), std::string_view(""));
+  EXPECT_GE(StringViewLite("A"), std::string_view("A"));
+
+  EXPECT_FALSE(StringViewLite("A") >= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") >= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("C") >= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") >= std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("B") >= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") >= std::string_view("C"));
+
+  EXPECT_FALSE(StringViewLite("A") >= std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("B") >= std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("C") >= std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("BA") >= std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("BA") >= std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("BA") >= std::string_view("C"));
+
+  EXPECT_FALSE(StringViewLite("AA") >= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("BA") >= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("CA") >= std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") >= std::string_view("AA"));
+  EXPECT_FALSE(StringViewLite("B") >= std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("B") >= std::string_view("CA"));
 }
 
 TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_CString_LHS)
@@ -1345,6 +1596,68 @@ TEST(TestString_StringViewLite, OperatorEqual)
 }
 
 
+TEST(TestString_StringViewLite, OperatorEqual_string_view_LHS)
+{
+  EXPECT_TRUE(std::string_view("A") == StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("") == StringViewLite(""));
+  EXPECT_FALSE(std::string_view("A") == StringViewLite(""));
+  EXPECT_FALSE(std::string_view("A") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("A") == StringViewLite("a"));
+
+  EXPECT_FALSE(std::string_view("A") == StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("C") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") == StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("B") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") == StringViewLite("C"));
+
+  EXPECT_FALSE(std::string_view("A") == StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("B") == StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("C") == StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("BA") == StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("BA") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("BA") == StringViewLite("C"));
+
+  EXPECT_FALSE(std::string_view("AA") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("BA") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("CA") == StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") == StringViewLite("AA"));
+  EXPECT_FALSE(std::string_view("B") == StringViewLite("BA"));
+  EXPECT_FALSE(std::string_view("B") == StringViewLite("CA"));
+}
+
+
+TEST(TestString_StringViewLite, OperatorEqual_string_view_RHS)
+{
+  EXPECT_TRUE(StringViewLite("A") == std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("") == std::string_view(""));
+  EXPECT_FALSE(StringViewLite("A") == std::string_view(""));
+  EXPECT_FALSE(StringViewLite("A") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("A") == std::string_view("a"));
+
+  EXPECT_FALSE(StringViewLite("A") == std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("C") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") == std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("B") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") == std::string_view("C"));
+
+  EXPECT_FALSE(StringViewLite("A") == std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("B") == std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("C") == std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("BA") == std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("BA") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("BA") == std::string_view("C"));
+
+  EXPECT_FALSE(StringViewLite("AA") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("BA") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("CA") == std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") == std::string_view("AA"));
+  EXPECT_FALSE(StringViewLite("B") == std::string_view("BA"));
+  EXPECT_FALSE(StringViewLite("B") == std::string_view("CA"));
+}
+
+
 TEST(TestString_StringViewLite, OperatorEqual_CString_LHS)
 {
   EXPECT_TRUE("A" == StringViewLite("A"));
@@ -1438,6 +1751,66 @@ TEST(TestString_StringViewLite, OperatorNotEqual)
   EXPECT_TRUE(StringViewLite("B") != StringViewLite("AA"));
   EXPECT_TRUE(StringViewLite("B") != StringViewLite("BA"));
   EXPECT_TRUE(StringViewLite("B") != StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorNotEqual_string_view_LHS)
+{
+  EXPECT_FALSE(std::string_view("A") != StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("") != StringViewLite(""));
+  EXPECT_TRUE(std::string_view("A") != StringViewLite(""));
+  EXPECT_TRUE(std::string_view("A") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("A") != StringViewLite("a"));
+
+  EXPECT_TRUE(std::string_view("A") != StringViewLite("B"));
+  EXPECT_FALSE(std::string_view("B") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("C") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") != StringViewLite("A"));
+  EXPECT_FALSE(std::string_view("B") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") != StringViewLite("C"));
+
+  EXPECT_TRUE(std::string_view("A") != StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("B") != StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("C") != StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("BA") != StringViewLite("A"));
+  EXPECT_TRUE(std::string_view("BA") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("BA") != StringViewLite("C"));
+
+  EXPECT_TRUE(std::string_view("AA") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("BA") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("CA") != StringViewLite("B"));
+  EXPECT_TRUE(std::string_view("B") != StringViewLite("AA"));
+  EXPECT_TRUE(std::string_view("B") != StringViewLite("BA"));
+  EXPECT_TRUE(std::string_view("B") != StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorNotEqual_string_view_RHS)
+{
+  EXPECT_FALSE(StringViewLite("A") != std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("") != std::string_view(""));
+  EXPECT_TRUE(StringViewLite("A") != std::string_view(""));
+  EXPECT_TRUE(StringViewLite("A") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("A") != std::string_view("a"));
+
+  EXPECT_TRUE(StringViewLite("A") != std::string_view("B"));
+  EXPECT_FALSE(StringViewLite("B") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("C") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") != std::string_view("A"));
+  EXPECT_FALSE(StringViewLite("B") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") != std::string_view("C"));
+
+  EXPECT_TRUE(StringViewLite("A") != std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("B") != std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("C") != std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("BA") != std::string_view("A"));
+  EXPECT_TRUE(StringViewLite("BA") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("BA") != std::string_view("C"));
+
+  EXPECT_TRUE(StringViewLite("AA") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("BA") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("CA") != std::string_view("B"));
+  EXPECT_TRUE(StringViewLite("B") != std::string_view("AA"));
+  EXPECT_TRUE(StringViewLite("B") != std::string_view("BA"));
+  EXPECT_TRUE(StringViewLite("B") != std::string_view("CA"));
 }
 
 

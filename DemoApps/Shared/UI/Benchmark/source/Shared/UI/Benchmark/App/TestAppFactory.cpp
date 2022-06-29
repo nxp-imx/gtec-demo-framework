@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfo.hpp>
 #include <FslSimpleUI/Render/IMBatch/RenderSystemFactory.hpp>
 #include <Shared/UI/Benchmark/App/TestApp.hpp>
+#include <Shared/UI/Benchmark/App/TestAppFactory.hpp>
 
 namespace Fsl
 {

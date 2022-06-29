@@ -61,6 +61,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackageF
 from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackagePaths
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerateGrpcProtoFile import UnresolvedPackageGenerateGrpcProtoFile
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedPackageVariant
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariantOption import UnresolvedPackageVariantOption
@@ -70,6 +71,7 @@ from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
 from FslBuildGen.Xml.XmlGenFileExternalDependencyPackageManager import XmlGenFileExternalDependencyPackageManager
 from FslBuildGen.Xml.XmlGenFileGenerate import XmlGenFileGenerate
+from FslBuildGen.Xml.XmlGenFileGenerateGrpcProtoFile import XmlGenFileGenerateGrpcProtoFile
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
 from FslBuildGen.Xml.XmlStuff import XmlGenFilePlatform
 from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
@@ -129,7 +131,7 @@ class XmlConvert(object):
 
     @staticmethod
     def ToUnresolvedExternalDependencyPackageManager(xmlValue: Optional[XmlGenFileExternalDependencyPackageManager]) -> Optional[UnresolvedExternalDependencyPackageManager]:
-        return UnresolvedExternalDependencyPackageManager(xmlValue.Name, xmlValue.Version, xmlValue.PackageTargetFramework) if xmlValue is not None else None
+        return UnresolvedExternalDependencyPackageManager(xmlValue.Name, xmlValue.Version, xmlValue.PackageTargetFramework, xmlValue.PrivateAssets, xmlValue.IncludeAssets) if xmlValue is not None else None
 
     @staticmethod
     def ToUnresolvedPackageRequirement(xmlValue: XmlGenFileRequirement) -> UnresolvedPackageRequirement:
@@ -169,6 +171,7 @@ class XmlConvert(object):
         packageLanguage = xmlValue.PackageLanguage
 
         generateList = XmlConvert.ToUnresolvedPackageGenerateList(xmlValue.GenerateList)
+        generateGrpcProtoFileList = XmlConvert.ToUnresolvedPackageGenerateGrpcProtoFileList(xmlValue.GenerateGrpcProtoFileList)
         directDependencies = XmlConvert.ToUnresolvedPackageDependencyList(xmlValue.DirectDependencies, allowInternalNames)
         directRequirements = XmlConvert.ToUnresolvedPackageRequirementList(xmlValue.DirectRequirements)
         directDefines = XmlConvert.ToUnresolvedPackageDefineList(xmlValue.DirectDefines)
@@ -188,7 +191,7 @@ class XmlConvert(object):
 
 
         return UnresolvedFactory.CreateUnresolvedPackage(createContext, packageProjectContext, nameInfo, companyName, creationYear, packageFile,
-                                                         sourceFileHash, packageType, packageFlags, packageLanguage, generateList, directDependencies,
+                                                         sourceFileHash, packageType, packageFlags, packageLanguage, generateList, generateGrpcProtoFileList, directDependencies,
                                                          directRequirements, directDefines, externalDependencies, path, templateType,
                                                          buildCustomization, directExperimentalRecipe, resolvedPlatform,
                                                          resolvedPlatformDirectSupported, packageCustomInfo, packageTraceContext)
@@ -218,8 +221,16 @@ class XmlConvert(object):
         return [XmlConvert.ToUnresolvedPackageGenerate(xmlEntry) for xmlEntry in xmlList]
 
     @staticmethod
+    def ToUnresolvedPackageGenerateGrpcProtoFileList(xmlList: List[XmlGenFileGenerateGrpcProtoFile]) -> List[UnresolvedPackageGenerateGrpcProtoFile]:
+        return [XmlConvert.ToUnresolvedPackageGenerateGrpcProtoFile(xmlEntry) for xmlEntry in xmlList]
+
+    @staticmethod
     def ToUnresolvedPackageGenerate(entry: XmlGenFileGenerate) -> UnresolvedPackageGenerate:
         return UnresolvedPackageGenerate(entry.TemplateFile, entry.TargetFile)
+
+    @staticmethod
+    def ToUnresolvedPackageGenerateGrpcProtoFile(entry: XmlGenFileGenerateGrpcProtoFile) -> UnresolvedPackageGenerateGrpcProtoFile:
+        return UnresolvedPackageGenerateGrpcProtoFile(entry.Include, entry.GrpcServices)
 
     @staticmethod
     def __TryGetExperimentalRecipe(genFile: XmlGenFile, platformObject: PackagePlatform) -> Optional[XmlExperimentalRecipe]:

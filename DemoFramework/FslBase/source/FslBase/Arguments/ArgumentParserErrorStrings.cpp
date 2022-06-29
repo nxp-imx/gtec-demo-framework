@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,133 +34,123 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Arguments::ArgumentParser
 {
-  namespace Arguments
+  namespace
   {
-    namespace ArgumentParser
+    StringViewLite SafeGetArgumentString(const ReadOnlySpan<StringViewLite> args, const int32_t index)
     {
-      namespace
+      if (index < 0)
       {
-        StringViewLite SafeGetArgumentString(const ReadOnlySpan<StringViewLite> args, const int32_t index)
-        {
-          if (index < 0)
-          {
-            // No argument
-            return "";
-          }
-          if (UncheckedNumericCast<uint32_t>(index) >= args.size())
-          {
-            return "(index out of bounds)";
-          }
-          return args[index];
-        }
+        // No argument
+        return "";
+      }
+      if (UncheckedNumericCast<uint32_t>(index) >= args.size())
+      {
+        return "(index out of bounds)";
+      }
+      return args[index];
+    }
 
-        std::string GetCombinedArgumentErrorString(const ParseResult /*result*/, const ParseErrorInfo& parseErrorInfo,
-                                                   const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
-                                                   ErrorFormatter& formatter, const char* const pszFormat1, const char* const pszFormat2)
+    std::string GetCombinedArgumentErrorString(const ParseResult /*result*/, const ParseErrorInfo& parseErrorInfo,
+                                               const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
+                                               ErrorFormatter& formatter, const char* const pszFormat1, const char* const pszFormat2)
+    {
+      const StringViewLite strArg = SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex);
+      if (!strArg.empty() && strArg[0] == '-')
+      {
+        if (strArg.size() > 2 && strArg[1] != '-')
         {
-          const StringViewLite strArg = SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex);
-          if (!strArg.empty() && strArg[0] == '-')
+          // short name combined switch  (since its length was larger than 2)
+          if (parseErrorInfo.CommandIndex >= 0)
           {
-            if (strArg.size() > 2 && strArg[1] != '-')
+            assert(UncheckedNumericCast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size());
+            if (UncheckedNumericCast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size())
             {
-              // short name combined switch  (since its length was larger than 2)
-              if (parseErrorInfo.CommandIndex >= 0)
-              {
-                assert(UncheckedNumericCast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size());
-                if (UncheckedNumericCast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size())
-                {
-                  assert(!commands[parseErrorInfo.CommandIndex].ShortName.empty());
-                  // and we have a matching command and its a combined switch
-                  return formatter.Format(pszFormat2, commands[parseErrorInfo.CommandIndex].ShortName);
-                }
-              }
+              assert(!commands[parseErrorInfo.CommandIndex].ShortName.empty());
+              // and we have a matching command and its a combined switch
+              return formatter.Format(pszFormat2, commands[parseErrorInfo.CommandIndex].ShortName);
             }
-            // long name switch
           }
-          return formatter.Format(pszFormat1, strArg);
         }
-
-        std::string SafeGetCommandName(const Command& command)
-        {
-          return (!command.Name.empty() ? command.Name : command.ShortName);
-        }
-
-        std::string GetRequiredArgumentNotFoundErrorString(const std::deque<Command>& commands, const int32_t commandIndex, ErrorFormatter& formatter)
-        {
-          if (commandIndex < 0 || static_cast<uint32_t>(commandIndex) >= commands.size())
-          {
-            return "Required argument not found";
-          }
-          const auto& cmd = commands[commandIndex];
-          if ((static_cast<uint32_t>(cmd.Type) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u)
-          {
-            // Positional argument
-            return formatter.Format("Required positional argument '{0}' is missing", SafeGetCommandName(cmd));
-          }
-          // else if ((static_cast<uint32_t>(cmd.Type) & static_cast<uint32_t>(CommandTypeFlags::Value)) != 0u)
-          //{
-          //  // value argument
-          //  if (!cmd.Name.empty())
-          //  {
-          //    return formatter.Format("Required value argument '--{0}' is missing", cmd.Name);
-          //  }
-          //  return formatter.Format("Required value argument '-{0}' is missing", cmd.ShortName);
-          //}
-
-          if (!cmd.Name.empty())
-          {
-            return formatter.Format("Required argument '--{0}' is missing", cmd.Name);
-          }
-          return formatter.Format("Required argument '-{0}' is missing", cmd.ShortName);
-        }
-
-
+        // long name switch
       }
+      return formatter.Format(pszFormat1, strArg);
+    }
 
-      std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,
-                                 const std::deque<Command>& commands, ErrorFormatter& formatter)
+    std::string SafeGetCommandName(const Command& command)
+    {
+      return (!command.Name.empty() ? command.Name : command.ShortName);
+    }
+
+    std::string GetRequiredArgumentNotFoundErrorString(const std::deque<Command>& commands, const int32_t commandIndex, ErrorFormatter& formatter)
+    {
+      if (commandIndex < 0 || static_cast<uint32_t>(commandIndex) >= commands.size())
       {
-        switch (result)
-        {
-        case ParseResult::InternalError:
-          return "Internal error";
-        case ParseResult::Completed:
-          return "Completed";
-        case ParseResult::InvalidArguments:
-          return "Method called with invalid arguments";
-        case ParseResult::DuplicatedSwitchArgumentError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Duplicated switch '{}'",
-                                                "Duplicated switch '-{}'");
-        case ParseResult::DuplicatedValueArgumentError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Duplicated value '{}'", "Duplicated value '-{}'");
-        case ParseResult::UnknownArgumentError:
-          return formatter.Format("Unknown argument '{}'", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
-        case ParseResult::ArgumentMissingValueError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Missing value for argument '{}'",
-                                                "Missing value for argument '-{}'");
-        case ParseResult::CombinedValueArgumentMustBeLastError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter,
-                                                "Combined short value argument '{}' must be last in sequence",
-                                                "Combined short value argument '-{}' must be last in sequence");
-        case ParseResult::ArgumentFormatError:
-          return formatter.Format("Argument '{}' has a invalid format", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
-        case ParseResult::RequiredArgumentNotFound:
-          return GetRequiredArgumentNotFoundErrorString(commands, parseErrorInfo.CommandIndex, formatter);
-        case ParseResult::ArgumentEmptyError:
-          return formatter.Format("Empty argument string found at argument index '{}'",
-                                  SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
-        // case ParseResult::ArgumentListContainedNullError:
-        //  return formatter.Format("nullptr found at argument index '{}'", parseErrorInfo.SourceArgumentIndex);
-        case ParseResult::CommandListIsInvalidError:
-          return "Command list is invalid";
-        case ParseResult::UnsupportedNumberOfArguments:
-          return "Unsupported number of arguments";
-        default:
-          return formatter.Format("Unknown error {0}", static_cast<uint32_t>(result));
-        }
+        return "Required argument not found";
       }
+      const auto& cmd = commands[commandIndex];
+      if ((static_cast<uint32_t>(cmd.Type) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u)
+      {
+        // Positional argument
+        return formatter.Format("Required positional argument '{0}' is missing", SafeGetCommandName(cmd));
+      }
+      // else if ((static_cast<uint32_t>(cmd.Type) & static_cast<uint32_t>(CommandTypeFlags::Value)) != 0u)
+      //{
+      //  // value argument
+      //  if (!cmd.Name.empty())
+      //  {
+      //    return formatter.Format("Required value argument '--{0}' is missing", cmd.Name);
+      //  }
+      //  return formatter.Format("Required value argument '-{0}' is missing", cmd.ShortName);
+      //}
+
+      if (!cmd.Name.empty())
+      {
+        return formatter.Format("Required argument '--{0}' is missing", cmd.Name);
+      }
+      return formatter.Format("Required argument '-{0}' is missing", cmd.ShortName);
+    }
+  }
+
+  std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,
+                             const std::deque<Command>& commands, ErrorFormatter& formatter)
+  {
+    switch (result)
+    {
+    case ParseResult::InternalError:
+      return "Internal error";
+    case ParseResult::Completed:
+      return "Completed";
+    case ParseResult::InvalidArguments:
+      return "Method called with invalid arguments";
+    case ParseResult::DuplicatedSwitchArgumentError:
+      return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Duplicated switch '{}'", "Duplicated switch '-{}'");
+    case ParseResult::DuplicatedValueArgumentError:
+      return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Duplicated value '{}'", "Duplicated value '-{}'");
+    case ParseResult::UnknownArgumentError:
+      return formatter.Format("Unknown argument '{}'", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
+    case ParseResult::ArgumentMissingValueError:
+      return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Missing value for argument '{}'",
+                                            "Missing value for argument '-{}'");
+    case ParseResult::CombinedValueArgumentMustBeLastError:
+      return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter,
+                                            "Combined short value argument '{}' must be last in sequence",
+                                            "Combined short value argument '-{}' must be last in sequence");
+    case ParseResult::ArgumentFormatError:
+      return formatter.Format("Argument '{}' has a invalid format", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
+    case ParseResult::RequiredArgumentNotFound:
+      return GetRequiredArgumentNotFoundErrorString(commands, parseErrorInfo.CommandIndex, formatter);
+    case ParseResult::ArgumentEmptyError:
+      return formatter.Format("Empty argument string found at argument index '{}'", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
+    // case ParseResult::ArgumentListContainedNullError:
+    //  return formatter.Format("nullptr found at argument index '{}'", parseErrorInfo.SourceArgumentIndex);
+    case ParseResult::CommandListIsInvalidError:
+      return "Command list is invalid";
+    case ParseResult::UnsupportedNumberOfArguments:
+      return "Unsupported number of arguments";
+    default:
+      return formatter.Format("Unknown error {0}", static_cast<uint32_t>(result));
     }
   }
 }

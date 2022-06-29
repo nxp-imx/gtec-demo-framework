@@ -90,9 +90,8 @@ namespace Fsl
       {
         if (func2)
         {
-          return [=](auto&& arg1, auto&& arg2, auto&& arg3, auto&& arg4, auto&& arg5) {
-            return CombineCallbackNativeWindowWaylandResize(arg1, arg2, arg3, arg4, arg5, func1, func2);
-          };
+          return [=](auto&& arg1, auto&& arg2, auto&& arg3, auto&& arg4, auto&& arg5)
+          { return CombineCallbackNativeWindowWaylandResize(arg1, arg2, arg3, arg4, arg5, func1, func2); };
         }
 
         return func1;

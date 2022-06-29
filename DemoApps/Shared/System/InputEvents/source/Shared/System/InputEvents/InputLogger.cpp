@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/InputEvents/InputLogger.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <Shared/System/InputEvents/InputLogger.hpp>
 #include <fmt/format.h>
 
 namespace Fsl

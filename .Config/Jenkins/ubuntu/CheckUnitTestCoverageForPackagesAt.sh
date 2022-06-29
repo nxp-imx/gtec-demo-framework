@@ -2,7 +2,7 @@
 export FSL_CMAKE_GENERATOR=Ninja 
 
 pushd $1
-FslBuild.py -r --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --CMakeGeneratorName $FSL_CMAKE_GENERATOR
+FslBuild.py --noGitHash -r --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --CMakeGeneratorName $FSL_CMAKE_GENERATOR
 popd
 
 pushd $WORKSPACE
@@ -11,7 +11,7 @@ lcov --no-external --capture --initial --directory . --output-file coverage_base
 popd
 
 pushd $1/UnitTest
-FslBuild.py --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --CMakeGeneratorName $FSL_CMAKE_GENERATOR --ForAllExe "(EXE) --gtest_output=xml:""$FSL_TEST_REPORTS/(PACKAGE_NAME).xml""" 
+FslBuild.py --noGitHash --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --CMakeGeneratorName $FSL_CMAKE_GENERATOR --ForAllExe "(EXE) --gtest_output=xml:""$FSL_TEST_REPORTS/(PACKAGE_NAME).xml""" 
 popd
 
 echo Generating coverage html

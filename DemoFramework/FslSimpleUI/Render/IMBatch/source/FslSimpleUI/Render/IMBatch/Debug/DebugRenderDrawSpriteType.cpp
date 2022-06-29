@@ -31,45 +31,36 @@
 
 #include "DebugRenderDrawSpriteType.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch::Debug
 {
-  namespace UI
+  const char* TryToString(const RenderDrawSpriteType& value)
   {
-    namespace RenderIMBatch
+    switch (value)
     {
-      namespace Debug
-      {
-        const char* TryToString(const RenderDrawSpriteType& value)
-        {
-          switch (value)
-          {
-          case RenderDrawSpriteType::Dummy:
-            return "RenderDrawSpriteType::Dummy";
-          case RenderDrawSpriteType::BasicImageSprite:
-            return "RenderDrawSpriteType::BasicImageSprite";
-          case RenderDrawSpriteType::BasicNineSliceSprite:
-            return "RenderDrawSpriteType::BasicNineSliceSprite";
-          case RenderDrawSpriteType::BasicOptimizedNineSliceSprite:
-            return "RenderDrawSpriteType::BasicOptimizedNineSliceSprite";
-          case RenderDrawSpriteType::ImageSprite:
-            return "RenderDrawSpriteType::ImageSprite";
-          case RenderDrawSpriteType::NineSliceSprite:
-            return "RenderDrawSpriteType::NineSliceSprite";
-          case RenderDrawSpriteType::OptimizedNineSliceSprite:
-            return "RenderDrawSpriteType::OptimizedNineSliceSprite";
-          case RenderDrawSpriteType::SpriteFont:
-            return "RenderDrawSpriteType::SpriteFont";
-          default:
-            return nullptr;
-          }
-        }
-
-        const char* ToString(const RenderDrawSpriteType& value)
-        {
-          const auto* const psz = TryToString(value);
-          return psz != nullptr ? psz : "Unknown";
-        }
-      }
+    case RenderDrawSpriteType::Dummy:
+      return "RenderDrawSpriteType::Dummy";
+    case RenderDrawSpriteType::BasicImageSprite:
+      return "RenderDrawSpriteType::BasicImageSprite";
+    case RenderDrawSpriteType::BasicNineSliceSprite:
+      return "RenderDrawSpriteType::BasicNineSliceSprite";
+    // case RenderDrawSpriteType::BasicOptimizedNineSliceSprite:
+    //   return "RenderDrawSpriteType::BasicOptimizedNineSliceSprite";
+    case RenderDrawSpriteType::ImageSprite:
+      return "RenderDrawSpriteType::ImageSprite";
+    case RenderDrawSpriteType::NineSliceSprite:
+      return "RenderDrawSpriteType::NineSliceSprite";
+    case RenderDrawSpriteType::OptimizedNineSliceSprite:
+      return "RenderDrawSpriteType::OptimizedNineSliceSprite";
+    case RenderDrawSpriteType::SpriteFont:
+      return "RenderDrawSpriteType::SpriteFont";
+    default:
+      return nullptr;
     }
+  }
+
+  const char* ToString(const RenderDrawSpriteType& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

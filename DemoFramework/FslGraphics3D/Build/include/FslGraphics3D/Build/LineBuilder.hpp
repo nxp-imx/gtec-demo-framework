@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BUILD_LINEBUILDER_HPP
 #define FSLGRAPHICS3D_BUILD_LINEBUILDER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
+#include <FslBase/Math/Rect.hpp>
+#include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector3.hpp>
-// #include <FslBase/Math/Vector4.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
@@ -377,6 +378,27 @@ namespace Fsl
       //! @note  x will be red, y will be green, z will be blue
       void AddAxis(const Vector3& position, const float axisLength, const Matrix& matrix);
 
+      void AddGridXY(const Rectangle& rect, const float posZ, const uint32_t steps, const Color& color)
+      {
+        AddGridXY(ToRect(rect), posZ, steps, color);
+      }
+
+      void AddGridXY(const Rectangle& rect, const float posZ, const uint32_t steps, const Color& color, const Matrix& matrix)
+      {
+        AddGridXY(ToRect(rect), posZ, steps, color, matrix);
+      }
+
+      void AddGridXY(const Rectangle& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color)
+      {
+        AddGridXY(ToRect(rect), posZ, stepsX, stepsY, color);
+      }
+
+      void AddGridXY(const Rectangle& rect, const float posZ, const uint32_t stepsX, const uint32_t stepsY, const Color& color, const Matrix& matrix)
+      {
+        AddGridXY(ToRect(rect), posZ, stepsX, stepsY, color, matrix);
+      }
+
+
       void AddGridXY(const Rect& rect, const float posZ, const uint32_t steps, const Color& color)
       {
         return AddGridXY(rect, posZ, steps, steps, color);
@@ -425,6 +447,12 @@ namespace Fsl
                      const uint32_t steps = DEFAULT_SPHERE_STEPS);
 
     private:
+      constexpr Rect ToRect(const Rectangle& rect) noexcept
+      {
+        return Rect::FromLeftTopRightBottom(static_cast<float>(rect.Left()) + 0.5f, static_cast<float>(rect.Top()) + 0.5f,
+                                            static_cast<float>(rect.Right()) + 0.5f, static_cast<float>(rect.Bottom()) + 0.5f);
+      }
+
       void EnsureCapacityFor(const std::size_t vertexCount)
       {
         const auto capacityLeft = (m_vertices.size() - m_entries);

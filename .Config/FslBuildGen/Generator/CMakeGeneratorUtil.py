@@ -127,6 +127,9 @@ class CodeTemplateCMake(object):
         self.PackageContentFile = self.__ReadOptionalFile("Package_Content_File.txt", "")
         self.PackageContentDep = self.__ReadOptionalFile("Package_ContentDep.txt", "")
 
+        self.PackageEmscripten = self.__ReadOptionalFile("Package_Emscripten.txt", "")
+        self.PackageEmscriptenContent = self.__ReadOptionalFile("Package_Emscripten_content.txt", "")
+
         self.PathEnvToVariable = self.__ReadOptionalFile("PathEnvToVariable.txt", "")
         self.AddExtendedPackage = self.__ReadOptionalFile("AddExtendedPackage.txt", "")
 
@@ -746,6 +749,15 @@ def GetContentDepSection(toolConfig: ToolConfig, package: Package, platformName:
     content = content.replace("##OUTPUT_FILE##", _CONTENT_DEP_FILENAME)
     content = content.replace("##INPUT_FILES##", allContentFiles)
     return "\n" + content
+
+def GetEmscriptenSection(toolConfig: ToolConfig, package: Package, platformName:str, snippetEmscriptenSection: str, snippetEmscriptenContent: str) -> str:
+    if package.Type != PackageType.Executable:
+        return ""
+
+    content = " {0}".format(snippetEmscriptenContent) if len(package.ResolvedContentFiles) > 0 else ""
+    result = snippetEmscriptenSection
+    result = snippetEmscriptenSection.replace("##EMSCRIPTEN_CONTENT##", content)
+    return result
 
 
 def CompilerSpecificFileDependencies(toolConfig: ToolConfig, package: Package, snippetPackageCompilerConditional: str,

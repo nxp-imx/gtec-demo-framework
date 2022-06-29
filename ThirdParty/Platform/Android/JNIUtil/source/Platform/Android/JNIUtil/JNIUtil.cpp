@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <Platform/Android/JNIUtil/JNIUtil.hpp>
-
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-
+#include <Platform/Android/JNIUtil/JNIUtil.hpp>
 #include <cassert>
 #include <fstream>
 #include <iostream>

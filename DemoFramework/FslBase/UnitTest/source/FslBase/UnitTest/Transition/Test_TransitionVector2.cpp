@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionVector2.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Transition/TransitionCache.hpp>
+#include <FslBase/Transition/TransitionVector2.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
@@ -51,25 +51,25 @@ TEST(TestTransition_TransitionVector2, Construct_Default)
   TransitionVector2 transitionValue;
 
   EXPECT_TRUE(transitionValue.IsCompleted());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetStartDelay());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
   EXPECT_EQ(0.0f, transitionValue.GetValue().X);
   EXPECT_EQ(0.0f, transitionValue.GetValue().Y);
   EXPECT_EQ(Vector2(), transitionValue.GetActualValue());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetTransitionTime());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetTransitionTime());
 }
 
 
 TEST(TestTransition_TransitionVector2, Construct_CacheAndTimespan)
 {
   TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TransitionTimeSpan(10));
+  TransitionVector2 transitionValue(cache, TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetStartDelay());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
   EXPECT_EQ(0.0f, transitionValue.GetValue().X);
   EXPECT_EQ(0.0f, transitionValue.GetValue().Y);
   EXPECT_EQ(Vector2(), transitionValue.GetActualValue());
-  EXPECT_EQ(TransitionTimeSpan(10), transitionValue.GetTransitionTime());
+  EXPECT_EQ(TimeSpan(10), transitionValue.GetTransitionTime());
 }
 
 
@@ -79,26 +79,26 @@ TEST(TestTransition_TransitionVector2, SetTransitionTime)
   TransitionVector2 transitionValue;
 
   EXPECT_TRUE(transitionValue.IsCompleted());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetStartDelay());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
   EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().X);
   EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().Y);
   EXPECT_EQ(Vector2(), transitionValue.GetActualValue());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetTransitionTime());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetTransitionTime());
 
-  transitionValue.SetTransitionTime(cache, TransitionTimeSpan(10));
+  transitionValue.SetTransitionTime(cache, TimeSpan(10));
 
   EXPECT_TRUE(transitionValue.IsCompleted());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetStartDelay());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
   EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().X);
   EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().Y);
   EXPECT_EQ(Vector2(), transitionValue.GetActualValue());
-  EXPECT_EQ(TransitionTimeSpan(10), transitionValue.GetTransitionTime());
+  EXPECT_EQ(TimeSpan(10), transitionValue.GetTransitionTime());
 }
 
 TEST(TestTransition_TransitionVector2, SetValue)
 {
   TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TransitionTimeSpan(2), TransitionType::Linear);
+  TransitionVector2 transitionValue(cache, TimeSpan(2), TransitionType::Linear);
 
   const Vector2 value(42.0f, 20.0f);
 
@@ -110,20 +110,20 @@ TEST(TestTransition_TransitionVector2, SetValue)
   EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().Y);
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
-  transitionValue.Update(TransitionTimeSpan(1));
+  transitionValue.Update(TimeSpan(1));
   EXPECT_FALSE(transitionValue.IsCompleted());
   EXPECT_FLOAT_EQ(value.X * 0.5f, transitionValue.GetValue().X);
   EXPECT_FLOAT_EQ(value.Y * 0.5f, transitionValue.GetValue().Y);
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
-  transitionValue.Update(TransitionTimeSpan(1));
+  transitionValue.Update(TimeSpan(1));
   EXPECT_TRUE(transitionValue.IsCompleted());
   // We do expect to hit the exact provided value (so no float eq here)
   EXPECT_EQ(value, transitionValue.GetValue());
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
   // Calling update after the end time should change nothing
-  transitionValue.Update(TransitionTimeSpan(1));
+  transitionValue.Update(TimeSpan(1));
   EXPECT_TRUE(transitionValue.IsCompleted());
   // We do expect to hit the exact provided value (so no float eq here)
   EXPECT_EQ(value, transitionValue.GetValue());
@@ -134,7 +134,7 @@ TEST(TestTransition_TransitionVector2, SetValue)
 TEST(TestTransition_TransitionVector2, SetActualValue)
 {
   TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TransitionTimeSpan(2), TransitionType::Linear);
+  TransitionVector2 transitionValue(cache, TimeSpan(2), TransitionType::Linear);
 
   const Vector2 value(42.0f, 20.0f);
   const Vector2 overrideValue(80.0f, 40.0f);
@@ -147,7 +147,7 @@ TEST(TestTransition_TransitionVector2, SetActualValue)
   EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().Y);
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
-  transitionValue.Update(TransitionTimeSpan(1));
+  transitionValue.Update(TimeSpan(1));
   EXPECT_FALSE(transitionValue.IsCompleted());
   EXPECT_FLOAT_EQ(value.X * 0.5f, transitionValue.GetValue().X);
   EXPECT_FLOAT_EQ(value.Y * 0.5f, transitionValue.GetValue().Y);
@@ -165,14 +165,14 @@ TEST(TestTransition_TransitionVector2, SetActualValue)
 TEST(TestTransition_TransitionVector2, SetStartDelay)
 {
   TransitionCache cache;
-  TransitionVector2 transitionValue(cache, TransitionTimeSpan(2), TransitionType::Linear);
+  TransitionVector2 transitionValue(cache, TimeSpan(2), TransitionType::Linear);
 
   const Vector2 value(42.0f, 20.0f);
 
   EXPECT_TRUE(transitionValue.IsCompleted());
-  EXPECT_EQ(TransitionTimeSpan(0), transitionValue.GetStartDelay());
-  transitionValue.SetStartDelay(TransitionTimeSpan(3));
-  EXPECT_EQ(TransitionTimeSpan(3), transitionValue.GetStartDelay());
+  EXPECT_EQ(TimeSpan(0), transitionValue.GetStartDelay());
+  transitionValue.SetStartDelay(TimeSpan(3));
+  EXPECT_EQ(TimeSpan(3), transitionValue.GetStartDelay());
   EXPECT_TRUE(transitionValue.IsCompleted());
   transitionValue.SetValue(value);
 
@@ -185,20 +185,20 @@ TEST(TestTransition_TransitionVector2, SetStartDelay)
   // Start delay
   for (int i = 0; i < 3; ++i)
   {
-    transitionValue.Update(TransitionTimeSpan(1));
+    transitionValue.Update(TimeSpan(1));
     EXPECT_FALSE(transitionValue.IsCompleted());
     EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().X);
     EXPECT_FLOAT_EQ(0.0f, transitionValue.GetValue().Y);
     EXPECT_EQ(value, transitionValue.GetActualValue());
   }
 
-  transitionValue.Update(TransitionTimeSpan(1));
+  transitionValue.Update(TimeSpan(1));
   EXPECT_FALSE(transitionValue.IsCompleted());
   EXPECT_FLOAT_EQ(value.X * 0.5f, transitionValue.GetValue().X);
   EXPECT_FLOAT_EQ(value.Y * 0.5f, transitionValue.GetValue().Y);
   EXPECT_EQ(value, transitionValue.GetActualValue());
 
-  transitionValue.Update(TransitionTimeSpan(1));
+  transitionValue.Update(TimeSpan(1));
   EXPECT_TRUE(transitionValue.IsCompleted());
   // We do expect to hit the exact provided value (so no float eq here)
   EXPECT_EQ(value, transitionValue.GetValue());

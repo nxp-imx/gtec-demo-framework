@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 
 namespace Fsl
 {

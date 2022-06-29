@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/HDR/BasicScene/API/Vulkan/SimpleMeshUtil.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
+#include <Shared/HDR/BasicScene/API/Vulkan/SimpleMeshUtil.hpp>
 #include <Shared/HDR/BasicScene/ModelVertices.hpp>
 
 namespace Fsl

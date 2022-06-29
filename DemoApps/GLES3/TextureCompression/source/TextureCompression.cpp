@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "TextureCompression.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -40,11 +40,11 @@
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
 #include <FslUtil/OpenGLES3/DebugStrings.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
@@ -152,7 +152,7 @@ namespace Fsl
 
     std::shared_ptr<UI::BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
     {
-      constexpr UI::DpLayoutSize1D forcedSizeDp(320);
+      constexpr UI::DpLayoutSize1D forcedSizeDp(DpValue(320));
 
       Texture2D sourceTexture(context.GraphicsService.GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
 
@@ -175,7 +175,7 @@ namespace Fsl
       tex->SetAlignmentY(UI::ItemAlignment::Center);
 
       auto stack = std::make_shared<UI::StackLayout>(context.WindowContext);
-      stack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      stack->SetOrientation(UI::LayoutOrientation::Vertical);
       stack->AddChild(label);
       stack->AddChild(tex);
       return stack;
@@ -429,8 +429,8 @@ namespace Fsl
     }
 
     auto wrapLayout = std::make_shared<UI::WrapLayout>(createContext.WindowContext);
-    wrapLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
-    wrapLayout->SetSpacing(DpPointF(4, 4));
+    wrapLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
+    wrapLayout->SetSpacing(DpPoint2F::Create(4, 4));
     wrapLayout->SetAlignmentX(UI::ItemAlignment::Center);
     wrapLayout->SetAlignmentY(UI::ItemAlignment::Center);
 
@@ -441,7 +441,7 @@ namespace Fsl
 
     m_scrollable = std::make_shared<UI::VerticalScroller>(createContext.WindowContext);
     m_scrollable->SetContent(wrapLayout);
-    m_scrollable->SetScrollPadding(DpThicknessF(0, 32, 0, 32));
+    m_scrollable->SetScrollPadding(DpThicknessF::Create(0, 32, 0, 32));
     // scrollLayout->SetAlignmentX(ItemAlignment::Stretch);
     // scrollLayout->SetAlignmentY(ItemAlignment::Stretch);
 

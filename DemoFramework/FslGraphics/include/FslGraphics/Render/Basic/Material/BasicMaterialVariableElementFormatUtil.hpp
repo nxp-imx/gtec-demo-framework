@@ -33,6 +33,7 @@
 
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableElementFormat.hpp>
 
@@ -73,7 +74,7 @@ namespace Fsl
 
     constexpr static uint32_t GetBytesPerElement(const BasicMaterialVariableElementFormat format)
     {
-      return ProcessResult(TryGetBytesPerElement(format));
+      return ProcessResult(UncheckedNumericCast<int32_t>(TryGetBytesPerElement(format)));
     }
 
     constexpr static uint32_t GetElementCount(const BasicMaterialVariableElementFormat format)

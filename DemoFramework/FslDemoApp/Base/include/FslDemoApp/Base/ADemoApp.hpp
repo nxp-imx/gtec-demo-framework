@@ -37,7 +37,6 @@
 #include <FslDemoApp/Base/IDemoApp.hpp>
 #include <FslDemoApp/Base/RenderConfig.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
@@ -45,11 +44,12 @@
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/RawMouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
+#include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <memory>
 
 namespace Fsl
 {
-  class DemoAppExtension;
+  class IDemoAppExtension;
 
   class ADemoApp : public IDemoApp
   {
@@ -67,7 +67,7 @@ namespace Fsl
     std::weak_ptr<IContentManager> m_contentManger;
     std::weak_ptr<IPersistentDataManager> m_persistentDataManager;
     std::weak_ptr<IDemoAppControl> m_demoAppControl;
-    std::deque<std::weak_ptr<DemoAppExtension>> m_extensions;
+    std::deque<std::weak_ptr<IDemoAppExtension>> m_extensions;
     ObjectLifeCycle m_currentLifeCycleState = ObjectLifeCycle::Constructing;
 
   public:
@@ -219,8 +219,8 @@ namespace Fsl
     }
 
     //! @brief Register a demo app extension
-    void RegisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
-    void UnregisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
+    void RegisterExtension(const std::shared_ptr<IDemoAppExtension>& extension);
+    void UnregisterExtension(const std::shared_ptr<IDemoAppExtension>& extension);
 
     //! @brief Get the current window metrics
     const DemoWindowMetrics& GetWindowMetrics() const

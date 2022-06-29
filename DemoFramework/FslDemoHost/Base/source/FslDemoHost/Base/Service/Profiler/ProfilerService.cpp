@@ -29,10 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -112,7 +114,7 @@ namespace Fsl
 
     const int32_t handleIndex = m_customCounters[index].RealIndex;
     assert(handleIndex >= 0);
-    return ProfilerCustomCounterHandle((static_cast<uint32_t>(handleIndex) << 16) | m_customCounters[index].Version);
+    return ProfilerCustomCounterHandle(NumericCast<int32_t>((static_cast<uint32_t>(handleIndex) << 16) | m_customCounters[index].Version));
   }
 
 
@@ -138,7 +140,7 @@ namespace Fsl
     m_customCounters[freeIndex].IsInUse = true;
 
     ++m_customCounterCount;
-    return ProfilerCustomCounterHandle((freeIndex << 16) | m_customCounters[freeIndex].Version);
+    return ProfilerCustomCounterHandle(NumericCast<int32_t>((freeIndex << 16) | m_customCounters[freeIndex].Version));
   }
 
 
@@ -241,6 +243,6 @@ namespace Fsl
       throw std::invalid_argument("Unknown handle supplied");
     }
 
-    return handleIndex;
+    return UncheckedNumericCast<int32_t>(handleIndex);
   }
 }

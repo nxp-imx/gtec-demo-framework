@@ -29,10 +29,11 @@
  *
  *****************************************************************************/
 
+#include "S03_Transform.hpp"
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "S03_Transform.hpp"
 #include <GLES2/gl2.h>
 #include <array>
 #include <iostream>
@@ -49,7 +50,8 @@ namespace Fsl
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const GLfloat g_color[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
 
-    const std::array<const char*, 3> g_shaderAttributeArray = {"my_Vertex", "my_Color", nullptr};
+    const std::array<GLES2::GLBindAttribLocation, 2> g_shaderAttributeArray = {GLES2::GLBindAttribLocation(0, "my_Vertex"),
+                                                                               GLES2::GLBindAttribLocation(1, "my_Color")};
   }
 
 
@@ -61,7 +63,7 @@ namespace Fsl
     , m_angle(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
 
     const GLuint hProgram = m_program.Get();
 

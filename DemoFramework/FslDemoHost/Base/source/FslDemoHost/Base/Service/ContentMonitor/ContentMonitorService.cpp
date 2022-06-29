@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorService.hpp>
 #include <FslBase/Collections/Concurrent/ConcurrentQueue.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorService.hpp>
 #include <cassert>
 #include "ContentMonitorThread.hpp"
 
@@ -57,7 +57,7 @@ namespace Fsl
       return;
     }
 
-    ContentMonitorResultCommand command;
+    ContentMonitorResultCommand command{};
     if (!m_commandQueue->TryDequeue(command))
     {
       return;

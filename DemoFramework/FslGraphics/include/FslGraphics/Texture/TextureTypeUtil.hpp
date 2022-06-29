@@ -34,13 +34,10 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Texture/TextureType.hpp>
 
-namespace Fsl
+namespace Fsl::TextureTypeUtil
 {
-  namespace TextureTypeUtil
-  {
-    //! @brief Get the expected face count for a given texture type
-    extern uint32_t GetFaceCount(const TextureType textureType);
-  }
+  //! @brief Get the expected face count for a given texture type
+  extern uint32_t GetFaceCount(const TextureType textureType);
 }
 
 #endif

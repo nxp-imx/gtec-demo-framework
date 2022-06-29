@@ -57,12 +57,12 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 3> elements = {
-        VertexElementEx(offsetof(VertexMatrixColor2, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
-        VertexElementEx(offsetof(VertexMatrixColor2, Color1), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
-        VertexElementEx(offsetof(VertexMatrixColor2, Color2), VertexElementFormat::Vector4, VertexElementUsage::Color, 1)};
+      constexpr BasicVertexDeclarationArray<3> elements = {
+        VertexElement(offsetof(VertexMatrixColor2, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
+        VertexElement(offsetof(VertexMatrixColor2, Color1), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
+        VertexElement(offsetof(VertexMatrixColor2, Color2), VertexElementFormat::Vector4, VertexElementUsage::Color, 1)};
 
-      return VertexDeclarationArray<3>(elements, sizeof(VertexMatrixColor2));
+      return {elements, sizeof(VertexMatrixColor2)};
     }
 
 
@@ -75,12 +75,12 @@ namespace Fsl
     }
 
 
-    constexpr bool operator==(const VertexMatrixColor2& rhs) const
+    constexpr bool operator==(const VertexMatrixColor2& rhs) const noexcept
     {
       return Matrix == rhs.Matrix && Color1 == rhs.Color1 && Color2 == rhs.Color2;
     }
 
-    constexpr bool operator!=(const VertexMatrixColor2& rhs) const
+    constexpr bool operator!=(const VertexMatrixColor2& rhs) const noexcept
     {
       return !(*this == rhs);
     }

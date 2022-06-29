@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/PlaneHelper.hpp>
-#include <FslBase/Math/Plane.hpp>
-#include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Log/Math/LogPlane.hpp>
+#include <FslBase/Math/Plane.hpp>
+#include <FslBase/Math/PlaneHelper.hpp>
+#include <FslBase/Math/Vector3.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

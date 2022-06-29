@@ -32,11 +32,12 @@
 #include "ParticleDrawQuadsGLES3.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <algorithm>
 #include <cassert>
-#include "../ParticleDrawContext.hpp"
 #include <cstddef>
+#include "../ParticleDrawContext.hpp"
 
 namespace Fsl
 {
@@ -142,7 +143,7 @@ namespace Fsl
     m_pCurrentBuffer->SetDataFast(0, m_buffer.data(), particleCount * 6);
     m_pCurrentBuffer->EnableAttribArrays(m_particleAttribLink);
 
-    glDrawArrays(GL_TRIANGLES, 0, particleCount * 6);
+    glDrawArrays(GL_TRIANGLES, 0, UncheckedNumericCast<GLsizei>(particleCount * 6));
 
     // Swap the buffers if double buffering is enabled
     if (m_pOtherBuffer != nullptr)

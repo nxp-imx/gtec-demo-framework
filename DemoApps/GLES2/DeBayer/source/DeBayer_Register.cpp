@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "DeBayer.hpp"
 #include <array>
+#include "DeBayer.hpp"
 
 namespace Fsl
 {

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/DemoAppExtension.hpp>
+#include <FslDataBinding/App/DataBindingDemoAppExtension.hpp>
 #include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <FslSimpleUI/App/UIAppDefaultMaterial.hpp>
@@ -58,7 +58,7 @@ namespace Fsl
   }
 
 
-  class UIDemoAppExtensionBase : public DemoAppExtension
+  class UIDemoAppExtensionBase : public DataBindingDemoAppExtension
   {
     std::unique_ptr<UI::UIManager> m_uiManager;
     std::shared_ptr<TransitionCache> m_transitionCache;
@@ -94,9 +94,9 @@ namespace Fsl
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     void OnMouseMoveEvent(const MouseMoveEvent& event) override;
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
-    void PreUpdate(const DemoTime& demoTime) override;
-    void Update(const DemoTime& demoTime) override;
-    void PostUpdate(const DemoTime& demoTime) override;
+    void PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override;
+    void Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override;
+    void PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime) override;
 
     void SetMainWindow(const std::shared_ptr<UI::BaseWindow>& mainWindow);
 

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SYSTEM_PLATFORM_PLATFORMPERFORMANCECOUNTER_HPP
 #define FSLBASE_SYSTEM_PLATFORM_PLATFORMPERFORMANCECOUNTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,52 +38,59 @@
 #include <ctime>
 #elif defined(FSL_PLATFORM_FREERTOS)
 #include <FslBase/Log/Log3Core.hpp>
+#elif defined(FSL_PLATFORM_EMSCRIPTEN)
+#include <emscripten.h>
 #else
 #error Unsupported platform
 #endif
 
-namespace Fsl
+namespace Fsl::PlatformPerformanceCounter
 {
-  namespace PlatformPerformanceCounter
+  inline uint64_t GetPerformanceFrequency() noexcept
   {
-    inline uint64_t GetPerformanceFrequency() noexcept
-    {
 #ifdef _WIN32
-      LARGE_INTEGER value;
-      QueryPerformanceFrequency(&value);
-      return value.QuadPart;
+    LARGE_INTEGER value;
+    QueryPerformanceFrequency(&value);
+    return value.QuadPart;
 #elif defined(__linux__) || defined(__QNXNTO__)
-      return 1000000u;
+    return 1000000u;
+#elif defined(FSL_PLATFORM_EMSCRIPTEN)
+    return 1000000u;
 #else
-      return 1000000u;
+    return 1000000u;
 #endif
-    }
+  }
 
-    inline uint64_t GetPerformanceCounter() noexcept
-    {
+  inline uint64_t GetPerformanceCounter() noexcept
+  {
 #ifdef _WIN32
-      {
-        LARGE_INTEGER value;
-        QueryPerformanceCounter(&value);
-        return value.QuadPart;
-      }
-#elif defined(__linux__) || defined(__QNXNTO__)
-      {
-        using SafeTimespec = struct timespec;
-        SafeTimespec currentTime{};
-        clock_gettime(CLOCK_MONOTONIC, &currentTime);
-        uint64_t time = currentTime.tv_sec;
-        time *= 1000000;
-        time += (currentTime.tv_nsec / 1000);
-        return time;
-      }
-#else
-      {
-        FSLLOG3_WARNING("PlatformPerformanceCounter::GetPerformanceCounter() not implemented");
-        return 0;
-      }
-#endif
+    {
+      LARGE_INTEGER value;
+      QueryPerformanceCounter(&value);
+      return value.QuadPart;
     }
+#elif defined(__linux__) || defined(__QNXNTO__)
+    {
+      using SafeTimespec = struct timespec;
+      SafeTimespec currentTime{};
+      clock_gettime(CLOCK_MONOTONIC, &currentTime);
+      uint64_t time = currentTime.tv_sec;
+      time *= 1000000;
+      time += (currentTime.tv_nsec / 1000);
+      return time;
+    }
+#elif defined(FSL_PLATFORM_EMSCRIPTEN)
+    {
+      double timestampInMilliseconds = emscripten_get_now();
+      double timestampInMicroseconds = timestampInMilliseconds * 1000.0;
+      return static_cast<uint64_t>(timestampInMicroseconds);
+    }
+#else
+    {
+      FSLLOG3_WARNING("PlatformPerformanceCounter::GetPerformanceCounter() not implemented");
+      return 0;
+    }
+#endif
   }
 }
 #endif

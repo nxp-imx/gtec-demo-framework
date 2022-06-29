@@ -32,36 +32,36 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/MatrixConverter.hpp>
 #ifdef FSL_ENABLE_ASSIMP
 #include <FslAssimp/SceneImporter.hpp>
 #endif
+#include <FslBase/IO/File.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
+#include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/GLUtil.hpp>
-#include <FslGraphics/Bitmap/BitmapUtil.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/MeshConverter.hpp>
 #include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
-#include <FslBase/IO/File.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <algorithm>
 #include "LoadedScene.hpp"
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
+#include <GLES3/gl31.h>
 #include "OptionParser.hpp"
 
 namespace Fsl

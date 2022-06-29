@@ -29,10 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/TestFixture.hpp>
 #include <FslBase/Arguments/ArgumentParser.hpp>
 #include <FslBase/Log/String/LogStringViewLite.hpp>
+#include <FslUnitTest/TestFixture.hpp>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <array>
 #include <limits>
 #include <ostream>

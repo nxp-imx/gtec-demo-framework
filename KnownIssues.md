@@ -16,7 +16,9 @@
 * [Apps](#apps)
   * [UI.Benchmark](#uibenchmark)
 * [Libraries](#libraries)
+  * [Graphics3D.BasicRender](#graphics3dbasicrender)
   * [Helios](#helios)
+  * [SimpleUI](#simpleui)
 <!-- #AG_TOC_END# -->
 
 
@@ -47,6 +49,9 @@
 
 * Visual Studio 2019 16.5.x might not pickup the environment variables and paths it was launched with. This is a visual studio bug.
   Setting ```set ClearDevCommandPromptEnvVars=false``` before calling ```vcvarsall.bat``` can be used as a workaround until they fix it ([issue-link](https://developercommunity.visualstudio.com/content/problem/951981/environment-paths-not-respected.html)).
+* CMake versions below 3.22 might report MSVC_TOOLSET_VERSION as 142 when it should be 143. See this [bug](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/6497). Some versions of cmake shipping with VS2022 has this bug, to workaround it make sure that your cmake 3.22 install is in the path before the VS2022 version.
+
+
 * The generated project files do not detect changes to the build environment automatically.
   So its your job to run FslBuildGen when you change it!
 * If a new shader is added to Content.bld and no files has been modified the content builder
@@ -98,6 +103,11 @@
 
 # Libraries
 
+## Graphics3D.BasicRender
+
+The basic rendering API.
+The 'custom shaders' are still a work in progress and will be changed in upcoming releases.
+
 ## Helios
 
 The new cross platform camera API.
@@ -108,3 +118,10 @@ The new cross platform camera API.
 * Camera support is limited.
 * i.MX8 MIPI Camera always provides the data in a B8G8R8X8 format (even if you request a R8G8B8), fixed the camera adapter to consider the 32bpp format.
 * Some of the camera adapters do not obey our origin request so the image is upside down
+
+## SimpleUI
+
+The simple UI library.
+
+* **Charts:**  Is still a early access release with missing functionality.
+* **Data-binding:** Not all UI controls have not been extended with full data binding support. The current data binding support has been based on the requirements from what our samples needed so far.

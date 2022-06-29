@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_WINDOWCALLID_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_FSLSIMPLEUI_BASE_UNITTEST_WINDOWCALLID_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,29 +33,26 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  // Stores the latest call id
+  struct WindowCallId
   {
-    // Stores the latest call id
-    struct WindowCallId
-    {
-      uint32_t WinInit{};
-      uint32_t WinMarkLayoutAsDirty{};
-      uint32_t WinGetContentRect{};
-      uint32_t WinHandleEvent{};
-      uint32_t WinUpdate{};
-      uint32_t WinResolve{};
-      uint32_t WinDraw{};
-      uint32_t OnClickInputPreview{};
-      uint32_t OnClickInput{};
-      uint32_t OnSelect{};
-      uint32_t OnContentChanged{};
-      uint32_t ArrangeOverride{};
-      uint32_t MeasureOverride{};
-      uint32_t OnPropertiesUpdated{};
-    };
-  }
+    uint32_t WinInit{};
+    uint32_t WinMarkLayoutAsDirty{};
+    uint32_t WinGetContentRect{};
+    uint32_t WinHandleEvent{};
+    uint32_t WinUpdate{};
+    uint32_t WinResolve{};
+    uint32_t WinDraw{};
+    uint32_t OnClickInputPreview{};
+    uint32_t OnClickInput{};
+    uint32_t OnSelect{};
+    uint32_t OnContentChanged{};
+    uint32_t ArrangeOverride{};
+    uint32_t MeasureOverride{};
+    uint32_t OnPropertiesUpdated{};
+  };
 }
 
 #endif

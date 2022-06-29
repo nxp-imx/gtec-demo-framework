@@ -26,10 +26,10 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector2Test.cs.
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Log/Math/LogVector2.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Quaternion.hpp>
-#include <FslBase/Log/Math/LogVector2.hpp>
+#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/Test/Math/TestVector2.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>

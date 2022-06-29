@@ -29,8 +29,8 @@
  *
  *****************************************************************************/
 
-#include <Shared/EnvironmentMapping/SphereMeshCreator.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <Shared/EnvironmentMapping/SphereMeshCreator.hpp>
 #include <cassert>
 
 
@@ -73,12 +73,12 @@ namespace Fsl
     {
       for (x = 1; x < width; ++x)
       {
-        indexArray[icnt++] = uint16_t(offset + x - 1 + width);
-        indexArray[icnt++] = uint16_t(offset + x - 1);
-        indexArray[icnt++] = uint16_t(offset + x);
-        indexArray[icnt++] = uint16_t(offset + x + width);
-        indexArray[icnt++] = uint16_t(offset + x - 1 + width);
-        indexArray[icnt++] = uint16_t(offset + x);
+        indexArray[icnt++] = static_cast<uint16_t>(offset + x - 1 + width);
+        indexArray[icnt++] = static_cast<uint16_t>(offset + x - 1);
+        indexArray[icnt++] = static_cast<uint16_t>(offset + x);
+        indexArray[icnt++] = static_cast<uint16_t>(offset + x + width);
+        indexArray[icnt++] = static_cast<uint16_t>(offset + x - 1 + width);
+        indexArray[icnt++] = static_cast<uint16_t>(offset + x);
       }
       offset += width;
     }

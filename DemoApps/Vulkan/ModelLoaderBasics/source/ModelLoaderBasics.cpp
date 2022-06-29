@@ -30,11 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "ModelLoaderBasics.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslAssimp/SceneImporter.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Vector.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
@@ -113,7 +113,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
@@ -131,7 +131,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     Vulkan::VUBufferMemory CreateUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -207,7 +207,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -335,7 +335,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -462,8 +462,6 @@ namespace Fsl
 
   void ModelLoaderBasics::Update(const DemoTime& demoTime)
   {
-    const PxSize2D windowSizePx = GetWindowSizePx();
-
     m_rotation.X += m_rotationSpeed.X * demoTime.DeltaTime;
     m_rotation.Y += m_rotationSpeed.Y * demoTime.DeltaTime;
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
@@ -475,11 +473,10 @@ namespace Fsl
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     // The ordering in the monogame based Matrix library is the reverse of glm (so perspective * clip instead of clip * perspective)
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
-                         vulkanClipMatrix;
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 1000.0f) * vulkanClipMatrix;
 
     // Update Vertex UBO
+
     auto matWorldView = m_matrixWorld * m_matrixView;
     m_uboData.MatWorldViewProjection = matWorldView * m_matrixProjection;
     // m_uboData.NormalMatrix = Matrix3::Transpose(Matrix3::Invert(MatrixConverter::ToMatrix3(matWorldView)));

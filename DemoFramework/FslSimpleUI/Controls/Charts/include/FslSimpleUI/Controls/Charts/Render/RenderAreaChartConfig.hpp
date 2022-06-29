@@ -33,15 +33,9 @@
 
 #include <FslSimpleUI/Controls/Charts/AreaChartConfig.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderAreaChartConfig
 {
-  namespace UI
-  {
-    namespace RenderAreaChartConfig
-    {
-      constexpr uint32_t MaxGridLines = AreaChartConfig::MaxGridLines * 2;
-    }
-  }
+  constexpr uint32_t MaxGridLines = AreaChartConfig::MaxGridLines * 2;
 }
 
 #endif

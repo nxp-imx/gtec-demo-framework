@@ -4,10 +4,10 @@
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Android" Supported="false">
-      <ExperimentalRecipe Name="ZLIB" Version="1.2.11" FindTargetName="ZLIB::ZLIB">
+      <ExperimentalRecipe Name="ZLIB" Version="1.2.12" FindTargetName="ZLIB::ZLIB">
         <Pipeline>
-          <Download URL="https://zlib.net/zlib-1.2.11.tar.gz" Hash="c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"/>
-          <Unpack File="zlib-1.2.11.tar.gz" OutputPath="zlib-1.2.11"/>
+          <Download URL="https://zlib.net/zlib-1.2.12.tar.gz" Hash="91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9"/>
+          <Unpack File="zlib-1.2.12.tar.gz" OutputPath="zlib-1.2.12"/>
           <CMakeBuild Project="" Target="install" Configuration="release" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
@@ -22,10 +22,10 @@
 
     
     <Platform Name="Ubuntu;QNX" Supported="true">
-      <ExperimentalRecipe Name="ZLIB" Version="1.2.11" FindTargetName="ZLIB::ZLIB">
+      <ExperimentalRecipe Name="ZLIB" Version="1.2.12" FindTargetName="ZLIB::ZLIB">
         <Pipeline>
-          <Download URL="https://zlib.net/zlib-1.2.11.tar.gz" Hash="c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"/>
-          <Unpack File="zlib-1.2.11.tar.gz" OutputPath="zlib-1.2.11"/>
+          <Download URL="https://zlib.net/zlib-1.2.12.tar.gz" Hash="91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9"/>
+          <Unpack File="zlib-1.2.12.tar.gz" OutputPath="zlib-1.2.12"/>
           <CMakeBuild Project="" Target="install" Configuration="debug;release" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
@@ -39,10 +39,10 @@
     </Platform>
 
     <Platform Name="Windows" Supported="true" FindTargetName="ZLIB::ZLIB">
-      <ExperimentalRecipe Name="ZLIB" Version="1.2.11">
+      <ExperimentalRecipe Name="ZLIB" Version="1.2.12">
         <Pipeline>
-          <Download URL="https://zlib.net/zlib-1.2.11.tar.gz" Hash="c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"/>
-          <Unpack File="zlib-1.2.11.tar.gz" OutputPath="zlib-1.2.11"/>
+          <Download URL="https://zlib.net/zlib-1.2.12.tar.gz" Hash="91844808532e5ce316b3c010929493c0244f3d37593afd6de04f71821d5136d9"/>
+          <Unpack File="zlib-1.2.12.tar.gz" OutputPath="zlib-1.2.12"/>
           <CMakeBuild Project="" Target="install" Configuration="release" OutputPath="_Install"/>
         </Pipeline>
         <Installation>

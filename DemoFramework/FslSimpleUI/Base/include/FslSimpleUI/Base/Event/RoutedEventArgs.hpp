@@ -31,14 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct RoutedEventArgs
   {
-    struct RoutedEventArgs
-    {
-    };
-  }
+  };
 }
 
 #endif

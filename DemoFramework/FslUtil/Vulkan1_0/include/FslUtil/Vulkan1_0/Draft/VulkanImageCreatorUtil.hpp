@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslGraphics/Texture/TextureInfo.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <vulkan/vulkan.h>
 #include <vector>

@@ -39,7 +39,7 @@ namespace Fsl
     : m_optionParser(std::move(demoOptionParser))
     , ExceptionFormatter(std::move(exceptionFormatter))
     , WindowMetrics(windowMetrics)
-    , ScreenResolution(Point2(windowMetrics.ExtentPx.Width, windowMetrics.ExtentPx.Height))
+    , ScreenResolution(TypeConverter::To<Point2>(windowMetrics.ExtentPx))
     , DemoServiceProvider(serviceProvider)
     , CustomConfig(std::move(customConfig))
   {

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "Bloom.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -81,7 +81,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -98,7 +98,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     VkDescriptorSet CreateDescriptorSet(const RapidVulkan::DescriptorPool& descriptorPool,
@@ -159,7 +159,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     VkDescriptorSet UpdateBloomDescriptorSet(const VkDevice device, const VkDescriptorSet descriptorSet, const Vulkan::VUTexture& texture256,
@@ -201,7 +201,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -220,7 +220,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
       pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     RapidVulkan::RenderPass CreateRenderPass(const VkDevice device, const VkFormat renderFormat,
@@ -281,8 +281,14 @@ namespace Fsl
 
       const uint32_t attachmentCount = enableDepth ? 2 : 1;
 
-      return RapidVulkan::RenderPass(device, 0, attachmentCount, attachments.data(), UncheckedNumericCast<uint32_t>(subpassDescription.size()),
-                                     subpassDescription.data(), UncheckedNumericCast<uint32_t>(subpassDependency.size()), subpassDependency.data());
+      return {device,
+              0,
+              attachmentCount,
+              attachments.data(),
+              UncheckedNumericCast<uint32_t>(subpassDescription.size()),
+              subpassDescription.data(),
+              UncheckedNumericCast<uint32_t>(subpassDependency.size()),
+              subpassDependency.data()};
     }
 
 
@@ -430,7 +436,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
     RapidVulkan::GraphicsPipeline CreateBloomPipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
@@ -570,7 +576,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
   }
@@ -721,18 +727,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
-    {
-      if (event.IsPressed())
       {
-        m_camera.BeginDrag(event.GetPosition());
+        if (event.IsPressed())
+        {
+          m_camera.BeginDrag(event.GetPosition());
+        }
+        else if (m_camera.IsDragging())
+        {
+          m_camera.EndDrag(event.GetPosition());
+        }
+        event.Handled();
       }
-      else if (m_camera.IsDragging())
-      {
-        m_camera.EndDrag(event.GetPosition());
-      }
-      event.Handled();
-    }
-    break;
+      break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -772,7 +778,7 @@ namespace Fsl
       return;
     }
 
-    m_camera.AddZoom(event.GetDelta() * -0.001f);
+    m_camera.AddZoom(static_cast<float>(event.GetDelta()) * -0.001f);
   }
 
   void Bloom::Update(const DemoTime& demoTime)
@@ -1094,19 +1100,19 @@ namespace Fsl
     // Draw some debug overlays
     if (m_menuUI.IsShowBuffersEnabled())
     {
-      float dstX = 0;
+      uint32_t dstX = 0;
       m_batch->Begin(BlendState::Opaque);
-      m_batch->Draw(m_dependentResources.OffscreenFB256, Vector2(dstX, 0), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB256, Vector2(dstX, 0u), Color::White());
       dstX += m_dependentResources.OffscreenFB256.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB256A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB256A, Vector2(dstX, 0u), Color::White());
       dstX += m_dependentResources.OffscreenFB256A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB128A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB128A, Vector2(dstX, 0u), Color::White());
       dstX += m_dependentResources.OffscreenFB128A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB64A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB64A, Vector2(dstX, 0u), Color::White());
       dstX += m_dependentResources.OffscreenFB64A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB32A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB32A, Vector2(dstX, 0u), Color::White());
       dstX += m_dependentResources.OffscreenFB32A.GetExtent2D().width;
-      m_batch->Draw(m_dependentResources.OffscreenFB16A, Vector2(dstX, 0.0f), Color::White());
+      m_batch->Draw(m_dependentResources.OffscreenFB16A, Vector2(dstX, 0u), Color::White());
       // dstX += m_dependentResources.OffscreenFB16A.GetExtent2D().width;
       m_batch->End();
     }
@@ -1119,27 +1125,27 @@ namespace Fsl
 
   VkPipelineLayout Bloom::PrepareBlurPipeline(const BlurShaderType shaderType, const VkCommandBuffer hCmdBuffer, const uint32_t texelSize) const
   {
-    const float texSize = 1.0f / texelSize;
+    const float texSize = 1.0f / static_cast<float>(texelSize);
 
     if (m_menuUI.GetKernelWeightMod() != m_menuUI.GetKernelWeightRange())
     {
       switch (shaderType)
       {
       case BlurShaderType::Gaussian5X5:
-      {
-        const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout5.Get();
-        std::array<float, 3> pushConstants = {m_gaussian5.Weight0, m_gaussian5.Weight1, m_gaussian5.Offset0 * texSize};
-        vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConstants), pushConstants.data());
-        return hPipelineLayout;
-      }
+        {
+          const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout5.Get();
+          std::array<float, 3> pushConstants = {m_gaussian5.Weight0, m_gaussian5.Weight1, m_gaussian5.Offset0 * texSize};
+          vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConstants), pushConstants.data());
+          return hPipelineLayout;
+        }
       case BlurShaderType::Gaussian9X9:
-      {
-        const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout9.Get();
-        std::array<float, 5> pushConstants = {m_gaussian9.Weight0, m_gaussian9.Weight1, m_gaussian9.Weight2, m_gaussian9.Offset0 * texSize,
-                                              m_gaussian9.Offset1 * texSize};
-        vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConstants), pushConstants.data());
-        return hPipelineLayout;
-      }
+        {
+          const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout9.Get();
+          std::array<float, 5> pushConstants = {m_gaussian9.Weight0, m_gaussian9.Weight1, m_gaussian9.Weight2, m_gaussian9.Offset0 * texSize,
+                                                m_gaussian9.Offset1 * texSize};
+          vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConstants), pushConstants.data());
+          return hPipelineLayout;
+        }
       default:
         break;
       }
@@ -1268,7 +1274,7 @@ namespace Fsl
   {
     m_activeBlueShaderType = shaderType;
 
-    const float gaussianBlurKernelWeightMod = m_menuUI.GetKernelWeightMod() / float(m_menuUI.GetKernelWeightRange());
+    const float gaussianBlurKernelWeightMod = m_menuUI.GetKernelWeightMod() / (m_menuUI.GetKernelWeightRange());
     switch (shaderType)
     {
     case BlurShaderType::Gaussian5X5:

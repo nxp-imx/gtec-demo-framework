@@ -13,11 +13,11 @@
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
-#include <vector>
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace Fsl
 {

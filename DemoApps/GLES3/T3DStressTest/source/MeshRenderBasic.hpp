@@ -31,19 +31,19 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
+#include "MeshRender.hpp"
 
 namespace Fsl
 {
   // Render the model using basic client side arrays (slow but easy)
   class MeshRenderBasic : public MeshRender
   {
-    const int m_vertexCount;
-    const int m_indexCount;
+    const uint32_t m_vertexCount;
+    const uint32_t m_indexCount;
     std::vector<Vector3> m_vertices;
     std::vector<Vector3> m_normals;
     std::vector<Vector2> m_textureCoords;

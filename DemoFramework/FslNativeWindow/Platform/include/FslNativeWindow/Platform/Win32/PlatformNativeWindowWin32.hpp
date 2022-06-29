@@ -1,6 +1,6 @@
 #ifndef FSLNATIVEWINDOW_PLATFORM_WIN32_PLATFORMNATIVEWINDOWWIN32_HPP
 #define FSLNATIVEWINDOW_PLATFORM_WIN32_PLATFORMNATIVEWINDOWWIN32_HPP
-#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
+#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS) && !defined(FSL_PLATFORM_EMSCRIPTEN)
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -32,10 +32,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
+#include <FslBase/Math/Point2.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <vector>
 
 namespace Fsl

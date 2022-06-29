@@ -31,17 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  enum class FeatureRequirement
   {
-    enum class FeatureRequirement
-    {
-      Mandatory,
-      Optional,
-      Invalid
-    };
-  }
+    Mandatory,
+    Optional,
+    Invalid
+  };
 }
 
 #endif

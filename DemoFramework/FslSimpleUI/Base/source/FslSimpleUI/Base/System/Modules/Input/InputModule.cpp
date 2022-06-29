@@ -33,75 +33,72 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
-#include "HitBasedInputSender.hpp"
-#include "../IModuleHost.hpp"
 #include "../../ITreeNodeClickInputTargetLocater.hpp"
 #include "../../TreeNode.hpp"
+#include "../IModuleHost.hpp"
+#include "HitBasedInputSender.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  InputModule::InputModule(const std::shared_ptr<IModuleHost>& moduleHost)
+    : m_targetLocater(moduleHost->GetTargetLocater())
+    , m_hitBasedInputSender(std::make_shared<HitBasedInputSender>(moduleHost))
   {
-    InputModule::InputModule(const std::shared_ptr<IModuleHost>& moduleHost)
-      : m_targetLocater(moduleHost->GetTargetLocater())
-      , m_hitBasedInputSender(std::make_shared<HitBasedInputSender>(moduleHost))
+  }
+
+
+  InputModule::~InputModule() = default;
+
+
+  bool InputModule::IsIdle() const noexcept
+  {
+    return !m_hitBasedInputSender || !m_hitBasedInputSender->HasActiveClickEvent();
+  }
+
+
+  bool InputModule::MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx)
+  {
+    auto target = m_targetLocater->TryGetMouseOverWindow(screenPositionPx);
+    auto previousTarget = m_mouseOver.Target.lock();
+    if (previousTarget != target)
     {
-    }
-
-
-    InputModule::~InputModule() = default;
-
-
-    bool InputModule::IsIdle() const noexcept
-    {
-      return !m_hitBasedInputSender || !m_hitBasedInputSender->HasActiveClickEvent();
-    }
-
-
-    bool InputModule::MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx)
-    {
-      auto target = m_targetLocater->TryGetMouseOverWindow(screenPositionPx);
-      auto previousTarget = m_mouseOver.Target.lock();
-      if (previousTarget != target)
+      bool handled = false;
+      if (previousTarget)
       {
-        bool handled = false;
-        if (previousTarget)
-        {
-          FSLLOG3_VERBOSE5("SendMouseOver end");
-          // End the event
-          handled = m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::End, false, screenPositionPx, target);
-        }
-        // set the new target and send the start event if the target is eligible
+        FSLLOG3_VERBOSE5("SendMouseOver end");
+        // End the event
+        handled = m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::End, false, screenPositionPx, target);
+      }
+      // set the new target and send the start event if the target is eligible
 
-        // Clear the current target
-        m_mouseOver.Target.reset();
-        if (target)
+      // Clear the current target
+      m_mouseOver.Target.reset();
+      if (target)
+      {
+        // Dont allow mouse over while in a active click event
+        if (!m_hitBasedInputSender->HasActiveClickEventThatIsNot(target))
         {
-          // Dont allow mouse over while in a active click event
-          if (!m_hitBasedInputSender->HasActiveClickEventThatIsNot(target))
-          {
-            m_mouseOver.Target = target;
-            assert(target);
-            FSLLOG3_VERBOSE5("SendMouseOver begin");
-            return (m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::Begin, false, screenPositionPx, target) ||
-                    handled);
-          }
+          m_mouseOver.Target = target;
+          assert(target);
+          FSLLOG3_VERBOSE5("SendMouseOver begin");
+          return (m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::Begin, false, screenPositionPx, target) ||
+                  handled);
         }
       }
-      else if (target)
-      {
-        FSLLOG3_VERBOSE5("SendMouseOver continue");
-        // Continue the event
-        return m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::Begin, true, screenPositionPx, target);
-      }
-      return false;
     }
-
-
-    bool InputModule::SendClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                                     const PxPoint2& screenPositionPx)
+    else if (target)
     {
-      return m_hitBasedInputSender->SendInputClickEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
+      FSLLOG3_VERBOSE5("SendMouseOver continue");
+      // Continue the event
+      return m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::Begin, true, screenPositionPx, target);
     }
+    return false;
+  }
+
+
+  bool InputModule::SendClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
+                                   const PxPoint2& screenPositionPx)
+  {
+    return m_hitBasedInputSender->SendInputClickEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
   }
 }

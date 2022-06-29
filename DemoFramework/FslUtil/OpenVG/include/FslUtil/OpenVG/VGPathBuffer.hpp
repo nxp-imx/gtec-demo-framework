@@ -32,57 +32,52 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Math/Vector2.hpp>
 #include <FslUtil/OpenVG/Common.hpp>
 #include <VG/openvg.h>
-#include <FslBase/Math/Vector2.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  class VGPathBuffer
   {
-    class VGPathBuffer
-    {
-      VGPath m_path;
-      std::vector<VGfloat> m_vertices;
-      std::vector<VGubyte> m_segments;
+    VGPath m_path;
+    std::vector<VGfloat> m_vertices;
+    std::vector<VGubyte> m_segments;
 
-    public:
-      VGPathBuffer(const VGPathBuffer&) = delete;
-      VGPathBuffer& operator=(const VGPathBuffer&) = delete;
+  public:
+    VGPathBuffer(const VGPathBuffer&) = delete;
+    VGPathBuffer& operator=(const VGPathBuffer&) = delete;
 
-      //! @brief Create a uninitialized path buffer
-      VGPathBuffer();
+    //! @brief Create a uninitialized path buffer
+    VGPathBuffer();
 
-      //! @brief Create a initialized path buffer
-      VGPathBuffer(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments);
+    //! @brief Create a initialized path buffer
+    VGPathBuffer(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments);
 
-      //! @brief Create a initialized path buffer
-      VGPathBuffer(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments);
+    //! @brief Create a initialized path buffer
+    VGPathBuffer(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments);
 
-      //! @brief Create a initialized path buffer
-      VGPathBuffer(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
-                   const std::vector<VGubyte>& segments);
+    //! @brief Create a initialized path buffer
+    VGPathBuffer(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount, const std::vector<VGubyte>& segments);
 
-      //! @brief Create a initialized path buffer
-      VGPathBuffer(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount,
-                   const std::vector<VGubyte>& segments);
-      ~VGPathBuffer();
+    //! @brief Create a initialized path buffer
+    VGPathBuffer(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount, const std::vector<VGubyte>& segments);
+    ~VGPathBuffer();
 
-      //! @brief If a buffer is allocated this will releases it.
-      void Reset();
+    //! @brief If a buffer is allocated this will releases it.
+    void Reset();
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments);
-      void Reset(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments);
-      void Reset(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount, const std::vector<VGubyte>& segments);
-      void Reset(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount, const std::vector<VGubyte>& segments);
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::vector<VGfloat>& vertices, const std::vector<VGubyte>& segments);
+    void Reset(const std::vector<Vector2>& vertices, const std::vector<VGubyte>& segments);
+    void Reset(const std::vector<VGfloat>& vertices, const uint32_t startVertex, const uint32_t vertexCount, const std::vector<VGubyte>& segments);
+    void Reset(const std::vector<Vector2>& vertices, const uint32_t startVertex, const uint32_t vertexCount, const std::vector<VGubyte>& segments);
 
-      VGPath GetHandle() const;
-    };
-  }
+    VGPath GetHandle() const;
+  };
 }
 
 #endif

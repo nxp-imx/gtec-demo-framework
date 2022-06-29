@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -39,6 +38,7 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <array>
 #include <utility>
 
@@ -65,7 +65,7 @@ TEST(TestVertices_VertexDeclaration, Construct_Default)
 
 TEST(TestVertices_VertexDeclaration, Construct)
 {
-  const std::array<VertexElementEx, 1> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 1> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
 
   VertexDeclaration decl(elements.data(), elements.size(), sizeof(Vector3));
 
@@ -83,8 +83,8 @@ TEST(TestVertices_VertexDeclaration, Construct)
 
 TEST(TestVertices_VertexDeclaration, Construct_Duplicated_Exact)
 {
-  const std::array<VertexElementEx, 2> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                   VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 2> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                 VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
 
   EXPECT_THROW(VertexDeclaration(elements.data(), elements.size(), sizeof(Vector3)), NotSupportedException);
 }
@@ -92,24 +92,24 @@ TEST(TestVertices_VertexDeclaration, Construct_Duplicated_Exact)
 
 TEST(TestVertices_VertexDeclaration, Construct_Duplicated_SmallDiff1)
 {
-  const std::array<VertexElementEx, 2> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                   VertexElementEx(0, VertexElementFormat::Vector2, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 2> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                 VertexElement(0, VertexElementFormat::Vector2, VertexElementUsage::Position, 0u)};
 
   EXPECT_THROW(VertexDeclaration(elements.data(), elements.size(), sizeof(Vector3) + sizeof(Vector2)), NotSupportedException);
 }
 
 TEST(TestVertices_VertexDeclaration, Construct_Duplicated_SmallDiff2)
 {
-  const std::array<VertexElementEx, 2> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                   VertexElementEx(12, VertexElementFormat::Vector2, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 2> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                 VertexElement(12, VertexElementFormat::Vector2, VertexElementUsage::Position, 0u)};
 
   EXPECT_THROW(VertexDeclaration(elements.data(), elements.size(), sizeof(Vector3) + sizeof(Vector2)), NotSupportedException);
 }
 
 TEST(TestVertices_VertexDeclaration, Construct_Duplicated_SmallDiff3)
 {
-  const std::array<VertexElementEx, 2> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                   VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 2> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                 VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
 
   EXPECT_THROW(VertexDeclaration(elements.data(), elements.size(), sizeof(Vector3) * 2), NotSupportedException);
 }
@@ -117,8 +117,8 @@ TEST(TestVertices_VertexDeclaration, Construct_Duplicated_SmallDiff3)
 
 TEST(TestVertices_VertexDeclaration, Construct_OutsideStride)
 {
-  const std::array<VertexElementEx, 2> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                   VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
+  const std::array<VertexElement, 2> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                 VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
 
   EXPECT_THROW(VertexDeclaration(elements.data(), elements.size(), sizeof(Vector3)), NotSupportedException);
 }
@@ -126,8 +126,8 @@ TEST(TestVertices_VertexDeclaration, Construct_OutsideStride)
 
 TEST(TestVertices_VertexDeclaration, Construct_OutOfOrder)
 {
-  const std::array<VertexElementEx, 2> elements = {VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                   VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
+  const std::array<VertexElement, 2> elements = {VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                 VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
 
   VertexDeclaration decl(elements.data(), elements.size(), sizeof(Vector3) * 2);
 
@@ -148,7 +148,7 @@ TEST(TestVertices_VertexDeclaration, Construct_OutOfOrder)
 
 TEST(TestVertices_VertexDeclaration, Construct_Null)
 {
-  const std::array<VertexElementEx, 1> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 1> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
 
   EXPECT_THROW(VertexDeclaration(nullptr, elements.size(), sizeof(Vector3)), std::invalid_argument);
 }
@@ -158,7 +158,7 @@ TEST(TestVertices_VertexDeclaration, Reset_Empty)
 {
   VertexDeclaration decl;
 
-  const std::array<VertexElementEx, 1> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 1> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
   decl.Reset(elements.data(), elements.size(), sizeof(Vector3));
 
   EXPECT_EQ(sizeof(Vector3), decl.VertexStride());
@@ -177,14 +177,14 @@ TEST(TestVertices_VertexDeclaration, Reset_Empty_Null)
 {
   VertexDeclaration decl;
 
-  const std::array<VertexElementEx, 1> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 1> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
   EXPECT_THROW(decl.Reset(nullptr, elements.size(), sizeof(Vector3)), std::invalid_argument);
 }
 
 
 TEST(TestVertices_VertexDeclaration, MoveConstruct)
 {
-  std::array<VertexElementEx, 1> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  std::array<VertexElement, 1> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
 
   VertexDeclaration decl1(elements.data(), elements.size(), sizeof(Vector3));
   VertexDeclaration decl2(std::move(decl1));
@@ -204,7 +204,7 @@ TEST(TestVertices_VertexDeclaration, MoveConstruct)
 
 TEST(TestVertices_VertexDeclaration, MoveAssign)
 {
-  std::array<VertexElementEx, 1> elements = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  std::array<VertexElement, 1> elements = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
 
   VertexDeclaration decl1(elements.data(), elements.size(), sizeof(Vector3));
   VertexDeclaration decl2;
@@ -226,13 +226,13 @@ TEST(TestVertices_VertexDeclaration, MoveAssign)
 
 TEST(TestVertices_VertexDeclaration, Equal)
 {
-  const std::array<VertexElementEx, 1> elements1 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
-  const std::array<VertexElementEx, 2> elements2 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                    VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
-  const std::array<VertexElementEx, 2> elements3 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                    VertexElementEx(12, VertexElementFormat::Vector2, VertexElementUsage::Position, 1u)};
-  const std::array<VertexElementEx, 2> elements4 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                    VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Normal, 1u)};
+  const std::array<VertexElement, 1> elements1 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 2> elements2 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                  VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
+  const std::array<VertexElement, 2> elements3 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                  VertexElement(12, VertexElementFormat::Vector2, VertexElementUsage::Position, 1u)};
+  const std::array<VertexElement, 2> elements4 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                  VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Normal, 1u)};
 
   const VertexDeclaration decl0;
   const VertexDeclaration decl1(elements1.data(), elements1.size(), sizeof(Vector3));
@@ -249,13 +249,13 @@ TEST(TestVertices_VertexDeclaration, Equal)
 
 TEST(TestVertices_VertexDeclaration, NotEqual)
 {
-  const std::array<VertexElementEx, 1> elements1 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
-  const std::array<VertexElementEx, 2> elements2 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                    VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
-  const std::array<VertexElementEx, 2> elements3 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                    VertexElementEx(12, VertexElementFormat::Vector2, VertexElementUsage::Position, 1u)};
-  const std::array<VertexElementEx, 2> elements4 = {VertexElementEx(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-                                                    VertexElementEx(12, VertexElementFormat::Vector3, VertexElementUsage::Normal, 1u)};
+  const std::array<VertexElement, 1> elements1 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u)};
+  const std::array<VertexElement, 2> elements2 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                  VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Position, 1u)};
+  const std::array<VertexElement, 2> elements3 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                  VertexElement(12, VertexElementFormat::Vector2, VertexElementUsage::Position, 1u)};
+  const std::array<VertexElement, 2> elements4 = {VertexElement(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+                                                  VertexElement(12, VertexElementFormat::Vector3, VertexElementUsage::Normal, 1u)};
 
   const VertexDeclaration decl0;
   const VertexDeclaration decl1(elements1.data(), elements1.size(), sizeof(Vector3));

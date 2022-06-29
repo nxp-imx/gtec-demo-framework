@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/Texture/TextureService.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoHost/Base/Service/Texture/TextureService.hpp>
 #include <FslGraphics/Texture/TextureMipMapUtil.hpp>
 
 namespace Fsl
@@ -45,7 +45,7 @@ namespace Fsl
   TextureService::~TextureService() = default;
 
 
-  Optional<Texture> TextureService::TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter)
+  std::optional<Texture> TextureService::TryGenerateMipMaps(const Bitmap& src, const TextureMipMapFilter filter)
   {
     try
     {
@@ -59,7 +59,7 @@ namespace Fsl
   }
 
 
-  Optional<Texture> TextureService::TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter)
+  std::optional<Texture> TextureService::TryGenerateMipMaps(const Texture& src, const TextureMipMapFilter filter)
   {
     try
     {
@@ -73,7 +73,7 @@ namespace Fsl
   }
 
 
-  Optional<Texture> TextureService::TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter)
+  std::optional<Texture> TextureService::TryGenerateMipMaps(const RawBitmap& src, const TextureMipMapFilter filter)
   {
     try
     {
@@ -87,7 +87,7 @@ namespace Fsl
   }
 
 
-  Optional<Texture> TextureService::TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter)
+  std::optional<Texture> TextureService::TryGenerateMipMaps(const RawTexture& src, const TextureMipMapFilter filter)
   {
     try
     {

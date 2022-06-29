@@ -34,60 +34,57 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics3D/BasicScene/Mesh.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class MeshConverter
   {
-    class MeshConverter
+  public:
+    //! @brief Convert from one mesh format to another. This method exist for convenience and its performance is probably pretty bad!
+    //! @param rDst the mesh that should be copied to (will be resized to fit the src mesh).
+    //! @param src the mesh that should be copied from.
+    //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
+    //! format will be ignored.
+    //! @note If you use primitive restart and convert to a small index size then be sure that the primitive restart value isn't used accidentally
+    //! @note Index size conversion does not do any compacting of the values, the exact index value is converted, if it doesn't fit a exception will
+    //! be thrown.
+    template <typename TDstMesh>
+    static void Convert(TDstMesh& rDst, const Mesh& src)
     {
-    public:
-      //! @brief Convert from one mesh format to another. This method exist for convenience and its performance is probably pretty bad!
-      //! @param rDst the mesh that should be copied to (will be resized to fit the src mesh).
-      //! @param src the mesh that should be copied from.
-      //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
-      //! format will be ignored.
-      //! @note If you use primitive restart and convert to a small index size then be sure that the primitive restart value isn't used accidentally
-      //! @note Index size conversion does not do any compacting of the values, the exact index value is converted, if it doesn't fit a exception will
-      //! be thrown.
-      template <typename TDstMesh>
-      static void Convert(TDstMesh& rDst, const Mesh& src)
-      {
-        typename TDstMesh::vertex_type dstDefaultValue;
-        GenericConvert(rDst, src, &dstDefaultValue, sizeof(typename TDstMesh::vertex_type));
-      }
+      typename TDstMesh::vertex_type dstDefaultValue;
+      GenericConvert(rDst, src, &dstDefaultValue, sizeof(typename TDstMesh::vertex_type));
+    }
 
 
-      //! @brief Convert from one mesh format to another. This method exist for convenience and its performance is probably pretty bad!
-      //! @param rDst the mesh that should be copied to (will be resized to fit the src mesh).
-      //! @param src the mesh that should be copied from.
-      //! @param dstDefaultValues holds the default values which is used to fill in required fields in a dst vertex which are missing from a src
-      //! vertex
-      //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
-      //! format will be ignored.
-      //! @note If you use primitive restart and convert to a small index size then be sure that the primitive restart value isn't used accidentally
-      //! @note Index size conversion does not do any compacting of the values, the exact index value is converted, if it doesn't fit a exception will
-      //! be thrown.
-      template <typename TDstMesh>
-      static void Convert(TDstMesh& rDst, const Mesh& src, const typename TDstMesh::vertex_type& dstDefaultValue)
-      {
-        GenericConvert(rDst, src, &dstDefaultValue, sizeof(typename TDstMesh::vertex_type));
-      }
+    //! @brief Convert from one mesh format to another. This method exist for convenience and its performance is probably pretty bad!
+    //! @param rDst the mesh that should be copied to (will be resized to fit the src mesh).
+    //! @param src the mesh that should be copied from.
+    //! @param dstDefaultValues holds the default values which is used to fill in required fields in a dst vertex which are missing from a src
+    //! vertex
+    //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
+    //! format will be ignored.
+    //! @note If you use primitive restart and convert to a small index size then be sure that the primitive restart value isn't used accidentally
+    //! @note Index size conversion does not do any compacting of the values, the exact index value is converted, if it doesn't fit a exception will
+    //! be thrown.
+    template <typename TDstMesh>
+    static void Convert(TDstMesh& rDst, const Mesh& src, const typename TDstMesh::vertex_type& dstDefaultValue)
+    {
+      GenericConvert(rDst, src, &dstDefaultValue, sizeof(typename TDstMesh::vertex_type));
+    }
 
 
-      //! @brief Convert from one mesh format to another. This method exist for convenience and its performance is probably pretty bad!
-      //! @param rDst the mesh that should be copied to (will be resized to fit the src mesh).
-      //! @param src the mesh that should be copied from.
-      //! @param pDstDefaultValues points to one dst type vertex that holds the default values which is used to fill in required fields in a dst
-      //! vertex which are missing from a src vertex
-      //! @param cbDstDefaultValues the number of bytes used for the default vertex.
-      //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
-      //! format will be ignored.
-      //! @note If you use primitive restart and convert to a small index size then be sure that the primitive restart value isn't used accidentally
-      //! @note Index size conversion does not do any compacting of the values, the exact index value is converted, if it doesn't fit a exception will
-      //! be thrown.
-      static void GenericConvert(Mesh& rDst, const Mesh& src, const void* const pDstDefaultValues, const int32_t cbDstDefaultValues);
-    };
-  }
+    //! @brief Convert from one mesh format to another. This method exist for convenience and its performance is probably pretty bad!
+    //! @param rDst the mesh that should be copied to (will be resized to fit the src mesh).
+    //! @param src the mesh that should be copied from.
+    //! @param pDstDefaultValues points to one dst type vertex that holds the default values which is used to fill in required fields in a dst
+    //! vertex which are missing from a src vertex
+    //! @param cbDstDefaultValues the number of bytes used for the default vertex.
+    //! @note Fields that are present in dst but not in src are filled with the supplied default values. Src fields that isn't present in the dst
+    //! format will be ignored.
+    //! @note If you use primitive restart and convert to a small index size then be sure that the primitive restart value isn't used accidentally
+    //! @note Index size conversion does not do any compacting of the values, the exact index value is converted, if it doesn't fit a exception will
+    //! be thrown.
+    static void GenericConvert(Mesh& rDst, const Mesh& src, const void* const pDstDefaultValues, const int32_t cbDstDefaultValues);
+  };
 }
 
 #endif

@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "OpenCV101.hpp"
 #include <array>
+#include "OpenCV101.hpp"
 
 namespace Fsl
 {

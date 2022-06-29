@@ -72,7 +72,8 @@ namespace Fsl
       }
     };
 
-    void CalcLinearWeightsAndOffset(LinearData* pDst, const int dstLength, const std::vector<double>& rKernel, const Vector2& texStep)
+    void CalcLinearWeightsAndOffset(LinearData* pDst, [[maybe_unused]] const int dstLength, const std::vector<double>& rKernel,
+                                    const Vector2& texStep)
     {
       const auto halfLength = static_cast<int32_t>(rKernel.size() - 1);
       assert((halfLength & 1) == 0);
@@ -180,7 +181,7 @@ namespace Fsl
   std::string GausianHelper::GenerateGausianFragmentShader(const std::string& shaderTemplate, const std::vector<double>& kernel, const int32_t length,
                                                            const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
+    Vector2 texStep(1.0f / static_cast<float>(texSize.Width()), 1.0f / static_cast<float>(texSize.Height()));
 
     int halfLength = length / 2;
 
@@ -193,8 +194,8 @@ namespace Fsl
     {
       for (int x = 0; x < length; ++x)
       {
-        str << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * float(x - halfLength)) << ", "
-            << (texStep.Y * float(y - halfLength)) << ")) * " << static_cast<float>(kernel[index]) << ";\n";
+        str << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * static_cast<float>(x - halfLength)) << ", "
+            << (texStep.Y * static_cast<float>(y - halfLength)) << ")) * " << static_cast<float>(kernel[index]) << ";\n";
         ++index;
       }
     }
@@ -212,7 +213,7 @@ namespace Fsl
   void GausianHelper::GenerateGausianFragmentShader(std::string& rGaussianFragX, std::string& rGaussianFragY, const std::vector<double>& kernelSlice,
                                                     const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
+    Vector2 texStep(1.0f / static_cast<float>(texSize.Width()), 1.0f / static_cast<float>(texSize.Height()));
 
     const auto halfLength = static_cast<int32_t>(kernelSlice.size() - 1);
 
@@ -225,17 +226,17 @@ namespace Fsl
     strY << "  vec4 color;\n";
     for (int i = halfLength; i > 0; --i)
     {
-      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * float(-i)) << ", 0.0)) * " << static_cast<float>(kernelSlice[i])
-           << ";\n";
-      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * float(-i)) << ")) * " << static_cast<float>(kernelSlice[i])
-           << ";\n";
+      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * static_cast<float>(-i)) << ", 0.0)) * "
+           << static_cast<float>(kernelSlice[i]) << ";\n";
+      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * static_cast<float>(-i)) << ")) * "
+           << static_cast<float>(kernelSlice[i]) << ";\n";
     }
     for (int i = 0; i <= halfLength; ++i)
     {
-      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * float(i)) << ", 0.0)) * " << static_cast<float>(kernelSlice[i])
-           << ";\n";
-      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * float(i)) << ")) * " << static_cast<float>(kernelSlice[i])
-           << ";\n";
+      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * static_cast<float>(i)) << ", 0.0)) * "
+           << static_cast<float>(kernelSlice[i]) << ";\n";
+      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * static_cast<float>(i)) << ")) * "
+           << static_cast<float>(kernelSlice[i]) << ";\n";
     }
 
     strX << "  gl_FragColor = color;\n";
@@ -251,7 +252,7 @@ namespace Fsl
   void GausianHelper::GenerateGausianFragmentShaderLinear(std::string& rGaussianFragX, std::string& rGaussianFragY,
                                                           const std::vector<double>& kernelSlice, const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
+    Vector2 texStep(1.0f / static_cast<float>(texSize.Width()), 1.0f / static_cast<float>(texSize.Height()));
     if ((kernelSlice.size() & 1) == 0)
     {
       throw std::invalid_argument("Kernel radius must be odd not even");
@@ -300,7 +301,7 @@ namespace Fsl
   void GausianHelper::GenerateNonDependentShaders(std::string& rGaussianVertX, std::string& rGaussianVertY, std::string& rGaussianFrag,
                                                   const std::vector<double>& kernelSlice, const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
+    Vector2 texStep(1.0f / static_cast<float>(texSize.Width()), 1.0f / static_cast<float>(texSize.Height()));
 
     const auto halfLength = static_cast<int32_t>(kernelSlice.size() - 1);
 
@@ -322,8 +323,8 @@ namespace Fsl
       int index = 0;
       for (int i = halfLength; i > 0; --i)
       {
-        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (float(-i) * texStep.X) << ", 0.0);\n";
-        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (float(-i) * texStep.Y) << ");\n";
+        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (static_cast<float>(-i) * texStep.X) << ", 0.0);\n";
+        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (static_cast<float>(-i) * texStep.Y) << ");\n";
         ++index;
       }
       strX << "  v_texcoord[" << index << "] = TexCoord.xy;\n";
@@ -331,8 +332,8 @@ namespace Fsl
       ++index;
       for (int i = 1; i <= halfLength; ++i)
       {
-        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (float(i) * texStep.X) << ", 0.0);\n";
-        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (float(i) * texStep.Y) << ");\n";
+        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (static_cast<float>(i) * texStep.X) << ", 0.0);\n";
+        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (static_cast<float>(i) * texStep.Y) << ");\n";
         ++index;
       }
 
@@ -375,7 +376,7 @@ namespace Fsl
       throw std::invalid_argument("Kernel radius must be odd not even");
     }
 
-    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
+    Vector2 texStep(1.0f / static_cast<float>(texSize.Width()), 1.0f / static_cast<float>(texSize.Height()));
 
     int halfLength = static_cast<int32_t>(kernelSlice.size()) / 2;
     if (halfLength > MAX_KERNEL_SLICE_LENGTH)

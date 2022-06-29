@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_EVENT_WINDOWMOUSEOVEREVENT_HPP
 #define FSLSIMPLEUI_BASE_EVENT_WINDOWMOUSEOVEREVENT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,44 +34,41 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslSimpleUI/Base/Event/WindowTransactionEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowMouseOverEvent : public WindowTransactionEvent
   {
-    class WindowMouseOverEvent : public WindowTransactionEvent
+    PxPoint2 m_screenPositionPx;
+
+  public:
+    WindowMouseOverEvent()
+      : WindowTransactionEvent(EventTypeId::MouseOver, EventDescription(EventRoutingStrategy::Bubble, WindowFlags::MouseOver))
     {
-      PxPoint2 m_screenPositionPx;
+    }
 
-    public:
-      WindowMouseOverEvent()
-        : WindowTransactionEvent(EventTypeId::MouseOver, EventDescription(EventRoutingStrategy::Bubble, WindowFlags::MouseOver))
-      {
-      }
+    //! @brief Return the screen position in pixels.
+    //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
+    PxPoint2 GetScreenPosition() const
+    {
+      return m_screenPositionPx;
+    }
 
-      //! @brief Return the screen position in pixels.
-      //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
-      PxPoint2 GetScreenPosition() const
-      {
-        return m_screenPositionPx;
-      }
+  protected:
+    void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState& state, const bool isRepeat,
+                       const PxPoint2& screenPositionPx)
+    {
+      WindowTransactionEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
+      m_screenPositionPx = screenPositionPx;
+    }
 
-    protected:
-      void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState& state, const bool isRepeat,
-                         const PxPoint2& screenPositionPx)
-      {
-        WindowTransactionEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
-        m_screenPositionPx = screenPositionPx;
-      }
+    void SYS_Destruct() override
+    {
+      m_screenPositionPx = {};
+      WindowTransactionEvent::SYS_Destruct();
+    }
 
-      void SYS_Destruct() override
-      {
-        m_screenPositionPx = {};
-        WindowTransactionEvent::SYS_Destruct();
-      }
-
-      friend class WindowEventPool;
-    };
-  }
+    friend class WindowEventPool;
+  };
 }
 
 #endif

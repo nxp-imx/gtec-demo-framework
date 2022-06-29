@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,11 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "ObjectSelection.hpp"
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/Viewport.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorF.hpp>
@@ -130,19 +130,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      m_rightMouseDown = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = m_rightMouseDown;
+        m_rightMouseDown = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
+        {
+          m_mouseCaptureEnabled = m_rightMouseDown;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -399,7 +399,7 @@ namespace Fsl
 
     m_resources.MeshPlane.VertexBuffer.EnableAttribArrays(m_resources.AttribLinkTextured);
 
-    glDrawElements(GL_TRIANGLE_STRIP, m_resources.MeshPlane.IndexBuffer.GetCapacity(), m_resources.MeshPlane.IndexBuffer.GetType(), nullptr);
+    glDrawElements(GL_TRIANGLE_STRIP, m_resources.MeshPlane.IndexBuffer.GetGLCapacity(), m_resources.MeshPlane.IndexBuffer.GetType(), nullptr);
 
     glBindBuffer(m_resources.MeshPlane.IndexBuffer.GetTarget(), 0);
     glBindBuffer(m_resources.MeshPlane.VertexBuffer.GetTarget(), 0);
@@ -425,7 +425,7 @@ namespace Fsl
       mesh.VertexBuffer.SetVertexAttribPointers(m_resources.AttribLink);
     }
 
-    glDrawElements(GL_TRIANGLE_STRIP, mesh.IndexBuffer.GetCapacity(), indexBufferType, nullptr);
+    glDrawElements(GL_TRIANGLE_STRIP, mesh.IndexBuffer.GetGLCapacity(), indexBufferType, nullptr);
   }
 
 

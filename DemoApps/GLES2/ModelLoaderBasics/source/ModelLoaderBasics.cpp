@@ -152,8 +152,8 @@ namespace Fsl
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     m_matrixView = Matrix::CreateTranslation(0, 0, -DEFAULT_ZOOM);
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(
+      MathHelper::ToRadians(45.0f), static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
 
     // Update Vertex UBO
     m_vertexUboData.MatWorldView = m_matrixWorld * m_matrixView;
@@ -227,7 +227,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
       }
     }
   }

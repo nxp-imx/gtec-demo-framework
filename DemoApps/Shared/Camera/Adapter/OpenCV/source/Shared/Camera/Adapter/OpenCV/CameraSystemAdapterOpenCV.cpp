@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,35 +30,32 @@
  ****************************************************************************************************************************************************/
 // Here we create a camera, the CameraSystem uses this function to create the native camera
 
-#include <Shared/Camera/Adapter/OpenCV/CameraSystemAdapterOpenCV.hpp>
 #include <Shared/Camera/Adapter/OpenCV/CameraAdapterOpenCV.hpp>
+#include <Shared/Camera/Adapter/OpenCV/CameraSystemAdapterOpenCV.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  CameraSystemAdapterOpenCV::CameraSystemAdapterOpenCV()
+    : m_cameraType(CameraType::OpenCV)
   {
-    CameraSystemAdapterOpenCV::CameraSystemAdapterOpenCV()
-      : m_cameraType(CameraType::OpenCV)
-    {
-    }
+  }
 
-    CameraSystemAdapterOpenCV::~CameraSystemAdapterOpenCV() = default;
+  CameraSystemAdapterOpenCV::~CameraSystemAdapterOpenCV() = default;
 
-    CameraType CameraSystemAdapterOpenCV::GetCameraType() const
-    {
-      return m_cameraType;
-    }
+  CameraType CameraSystemAdapterOpenCV::GetCameraType() const
+  {
+    return m_cameraType;
+  }
 
-    uint32_t CameraSystemAdapterOpenCV::GetCameraCount() const
-    {
-      // We only support one camera for now
-      return 1u;
-    }
+  uint32_t CameraSystemAdapterOpenCV::GetCameraCount() const
+  {
+    // We only support one camera for now
+    return 1u;
+  }
 
-    std::shared_ptr<ICameraAdapter> CameraSystemAdapterOpenCV::Allocate(const CameraAdapterAllocateInfo& allocateInfo)
-    {
-      return std::make_shared<CameraAdapterOpenCV>(allocateInfo);
-    }
+  std::shared_ptr<ICameraAdapter> CameraSystemAdapterOpenCV::Allocate(const CameraAdapterAllocateInfo& allocateInfo)
+  {
+    return std::make_shared<CameraAdapterOpenCV>(allocateInfo);
   }
 }

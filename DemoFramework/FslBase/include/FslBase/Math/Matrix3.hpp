@@ -147,14 +147,14 @@ namespace Fsl
 
     static Matrix3 Invert(const Matrix3& matrix);
 
-    constexpr bool operator==(const Matrix3& rhs) const
+    constexpr bool operator==(const Matrix3& rhs) const noexcept
     {
       using namespace Matrix3Fields;
       return (m[_M11] == rhs.m[_M11] && m[_M12] == rhs.m[_M12] && m[_M13] == rhs.m[_M13] && m[_M21] == rhs.m[_M21] && m[_M22] == rhs.m[_M22] &&
               m[_M23] == rhs.m[_M23] && m[_M31] == rhs.m[_M31] && m[_M32] == rhs.m[_M32] && m[_M33] == rhs.m[_M33]);
     }
 
-    constexpr bool operator!=(const Matrix3& rhs) const
+    constexpr bool operator!=(const Matrix3& rhs) const noexcept
     {
       using namespace Matrix3Fields;
       return (m[_M11] != rhs.m[_M11] || m[_M12] != rhs.m[_M12] || m[_M13] != rhs.m[_M13] || m[_M21] != rhs.m[_M21] || m[_M22] != rhs.m[_M22] ||

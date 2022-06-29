@@ -31,18 +31,15 @@
 
 #include "WindowEventQueueEx.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <algorithm>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  void WindowEventQueueEx::Push(const WindowEventQueueRecord& record)
   {
-    void WindowEventQueueEx::Push(const WindowEventQueueRecord& record)
-    {
-      m_queue->push_back(record);
-    }
+    m_queue->push_back(record);
   }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,61 +29,58 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/WindowCollection/WindowCollectionBase.hpp>
-#include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowCollection/WindowCollectionBase.hpp>
 #include <cassert>
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WindowCollectionBase::WindowCollectionBase()
+    : m_pOwner(nullptr)
   {
-    WindowCollectionBase::WindowCollectionBase()
-      : m_pOwner(nullptr)
+  }
+
+
+  void WindowCollectionBase::DoInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager)
+  {
+    if (pOwner == nullptr)
     {
+      throw std::invalid_argument("pOwner can not be null");
+    }
+    if (!windowManager)
+    {
+      throw std::invalid_argument("windowManager can not be null");
+    }
+    if (IsInitialized())
+    {
+      throw UsageErrorException("DoInit already called");
     }
 
+    m_pOwner = pOwner;
+    m_windowManager = windowManager;
+  }
 
-    void WindowCollectionBase::DoInit(BaseWindow* const pOwner, const std::shared_ptr<IWindowManager>& windowManager)
-    {
-      if (pOwner == nullptr)
-      {
-        throw std::invalid_argument("pOwner can not be null");
-      }
-      if (!windowManager)
-      {
-        throw std::invalid_argument("windowManager can not be null");
-      }
-      if (IsInitialized())
-      {
-        throw UsageErrorException("DoInit already called");
-      }
+  void WindowCollectionBase::DoAdd(const std::shared_ptr<BaseWindow>& window)
+  {
+    assert(m_windowManager != nullptr);
+    m_windowManager->AddChild(m_pOwner, window);
+  }
 
-      m_pOwner = pOwner;
-      m_windowManager = windowManager;
-    }
-
-    void WindowCollectionBase::DoAdd(const std::shared_ptr<BaseWindow>& window)
-    {
-      assert(m_windowManager != nullptr);
-      m_windowManager->AddChild(m_pOwner, window);
-    }
-
-    void WindowCollectionBase::DoScheduleClose(const std::shared_ptr<BaseWindow>& window)
-    {
-      assert(m_windowManager != nullptr);
-      m_windowManager->ScheduleClose(window);
-    }
+  void WindowCollectionBase::DoScheduleClose(const std::shared_ptr<BaseWindow>& window)
+  {
+    assert(m_windowManager != nullptr);
+    m_windowManager->ScheduleClose(window);
+  }
 
 
-    void WindowCollectionBase::DoMarkLayoutDirty()
-    {
-      assert(m_pOwner != nullptr);
-      m_pOwner->SYS_MarkLayoutDirty();
-    }
+  void WindowCollectionBase::DoMarkLayoutDirty()
+  {
+    assert(m_pOwner != nullptr);
+    m_pOwner->SYS_MarkLayoutDirty();
   }
 }

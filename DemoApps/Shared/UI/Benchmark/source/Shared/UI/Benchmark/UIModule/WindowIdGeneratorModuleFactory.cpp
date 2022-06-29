@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModuleFactory.hpp>
-#include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModule.hpp>
 #include <Shared/UI/Benchmark/UIModule/ExternalModuleIdConfig.hpp>
+#include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModule.hpp>
+#include <Shared/UI/Benchmark/UIModule/WindowIdGeneratorModuleFactory.hpp>
 
 namespace Fsl
 {

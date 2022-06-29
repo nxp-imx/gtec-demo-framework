@@ -33,11 +33,11 @@
 
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
-#include <FslBase/IO/Path.hpp>
 #include <deque>
 
 namespace Fsl
@@ -71,8 +71,8 @@ namespace Fsl
     //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
     //         The channel order is just a hint and a library is free to ignore it.
     //! @return true on success, false if the image failed to load (for any reason)
-    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
-                                                     const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint) = 0;
+    [[nodiscard]] virtual bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
+                                       const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint) = 0;
 
     //! @brief Try to read the content of the file as a texture.
     //! @param path the path to load the file from
@@ -85,8 +85,8 @@ namespace Fsl
     //         Informs the image library of the preferred channel ordering when loading content using a undefined pixel-format.
     //         The channel order is just a hint and a library is free to ignore it.
     //! @return true on success, false if the image failed to load (for any reason)
-    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
-                                                     const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint) = 0;
+    [[nodiscard]] virtual bool TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
+                                       const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint) = 0;
 
     //! @brief Try to write the bitmap to the file.
     //! @param path the file the bitmap should be saved to.
@@ -95,8 +95,8 @@ namespace Fsl
     //! filename extension, but it does not have to)
     //! @param allowOverwrite if true any existing file is overwritten if false the write fails
     //! @return true if the bitmap was saved.
-    FSL_FUNC_WARN_UNUSED_RESULT virtual bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
-                                                      const bool allowOverwrite) = 0;
+    [[nodiscard]] virtual bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+                                        const bool allowOverwrite) = 0;
   };
 }
 

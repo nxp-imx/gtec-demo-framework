@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Bloom/GaussianShaderBuilder.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <Shared/Bloom/GaussianShaderBuilder.hpp>
 #include <array>
 #include <cassert>
 #include <iomanip>

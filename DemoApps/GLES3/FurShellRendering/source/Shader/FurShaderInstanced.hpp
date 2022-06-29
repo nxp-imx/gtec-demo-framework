@@ -42,8 +42,10 @@ namespace Fsl
     GLint m_locInstanceMul;
 
   public:
-    FurShaderInstanced(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount);
-    FurShaderInstanced(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath, const int lightCount);
+    FurShaderInstanced(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& shaderPath, const bool useHighPrecision,
+                       const int lightCount);
+    FurShaderInstanced(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath,
+                       const int lightCount);
 
     void SetInstanceCount(const int instanceCount);
   };

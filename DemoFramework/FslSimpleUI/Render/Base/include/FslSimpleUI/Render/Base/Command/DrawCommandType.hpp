@@ -31,21 +31,18 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class DrawCommandType
   {
-    enum class DrawCommandType
-    {
-      Nop = 0,
-      DrawAtOffsetAndSize = 1,
-      DrawCustomBasicImageAtOffsetAndSize = 2,
-      DrawCustomBasicImageAtOffsetAndSizeBasicMesh = 3,
-      DrawCustomNineSliceAtOffsetAndSize = 4,
-      DrawCustomTextAtOffsetAndSize = 5,
-      DrawRot90CWAtOffsetAndSize = 6
-    };
-  }
+    Nop = 0,
+    DrawAtOffsetAndSize = 1,
+    DrawCustomBasicImageAtOffsetAndSize = 2,
+    DrawCustomBasicImageAtOffsetAndSizeBasicMesh = 3,
+    DrawCustomNineSliceAtOffsetAndSize = 4,
+    DrawCustomTextAtOffsetAndSize = 5,
+    DrawRot90CWAtOffsetAndSize = 6
+  };
 }
 
 #endif

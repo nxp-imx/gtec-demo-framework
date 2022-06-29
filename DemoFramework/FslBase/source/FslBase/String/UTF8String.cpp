@@ -31,8 +31,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/String/UTF8String.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <FslBase/String/UTF8String.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
@@ -142,7 +142,7 @@ namespace Fsl
 
   void UTF8String::Append(const std::size_t count, const char ch)
   {
-    if (!IsValidChar(int(ch)))
+    if (!IsValidChar(static_cast<int>(ch)))
     {
       throw std::invalid_argument("ch should be in the range 0 to 127");
     }
@@ -174,7 +174,7 @@ namespace Fsl
 
   void UTF8String::Prepend(const std::size_t count, const char ch)
   {
-    if (!IsValidChar(int(ch)))
+    if (!IsValidChar(static_cast<int>(ch)))
     {
       throw std::invalid_argument("ch should be in the range 0 to 127");
     }
@@ -205,7 +205,7 @@ namespace Fsl
 
   bool UTF8String::Contains(const char ch) const
   {
-    if (!IsValidChar(int(ch)))
+    if (!IsValidChar(static_cast<int>(ch)))
     {
       throw std::invalid_argument("ch should be in the range 0 to 127");
     }
@@ -241,7 +241,7 @@ namespace Fsl
 
   bool UTF8String::EndsWith(const char ch) const
   {
-    if (!IsValidChar(int(ch)))
+    if (!IsValidChar(static_cast<int>(ch)))
     {
       throw std::invalid_argument("ch should be in the range 0 to 127");
     }
@@ -260,11 +260,11 @@ namespace Fsl
 
   void UTF8String::Replace(const char from, const char to)
   {
-    if (!IsValidChar(int(from)))
+    if (!IsValidChar(static_cast<int>(from)))
     {
       throw std::invalid_argument("from char should be in the range 0 to 127");
     }
-    if (!IsValidChar(int(to)))
+    if (!IsValidChar(static_cast<int>(to)))
     {
       throw std::invalid_argument("from to should be in the range 0 to 127");
     }
@@ -275,7 +275,7 @@ namespace Fsl
 
   int32_t UTF8String::IndexOf(const char ch, const std::size_t fromIndex) const
   {
-    if (!IsValidChar(int(ch)))
+    if (!IsValidChar(static_cast<int>(ch)))
     {
       throw std::invalid_argument("ch should be in the range 0 to 127");
     }
@@ -285,7 +285,7 @@ namespace Fsl
 
   int32_t UTF8String::LastIndexOf(const char ch) const
   {
-    if (!IsValidChar(int(ch)))
+    if (!IsValidChar(static_cast<int>(ch)))
     {
       throw std::invalid_argument("ch should be in the range 0 to 127");
     }

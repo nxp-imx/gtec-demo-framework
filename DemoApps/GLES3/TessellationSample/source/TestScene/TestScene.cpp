@@ -29,36 +29,36 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "TestScene.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/MeshConverter.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh.hpp>
+#include <FslGraphics3D/Procedural/BoxGenerator.hpp>
+#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
+#include <FslGraphics3D/Procedural/TorusGenerator.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/TextureUtil.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <FslGraphics3D/Procedural/BoxGenerator.hpp>
-#include <FslGraphics3D/Procedural/TorusGenerator.hpp>
-#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
-#include "TestScene.hpp"
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
-#include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
-#include "../OptionParser.hpp"
+#include <GLES3/gl31.h>
 #include <cmath>
+#include "../OptionParser.hpp"
 
 
 namespace Fsl

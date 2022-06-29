@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES2/VertexAttribStateCache.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/VertexAttribStateCache.hpp>
 #include "UnitTestVertexAttribStateFunctor.hpp"
 
 using namespace Fsl;

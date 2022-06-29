@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" ShortName="DF" Version="5.9.2" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" ShortName="DF" Version="6.0.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -24,11 +24,11 @@
     <BuildDocConfiguration>
       <Requirement Name="GoogleUnitTest" Skip="true"/>
     </BuildDocConfiguration>
-    <CMakeConfiguration DefaultBuildDir="${TopProjectRoot}/build" MinVersion="3.10.2" NinjaRecipe="Recipe.BuildTool.ninja">
+    <CMakeConfiguration DefaultBuildDir="${TopProjectRoot}/build" MinVersion="3.16" NinjaRecipe="Recipe.BuildTool.ninja">
       <Platform Name="QNX" DefaultGeneratorName="Ninja"/>
       <Platform Name="Ubuntu" DefaultGeneratorName="Ninja"/>
       <!-- For now we rely on FslBuild to select the default generator based on CompilerConfiguration from this file, as that was the old way to do it instead of using 
-           DefaultGeneratorName="Visual Studio 16 2019 Win64"-->
+           DefaultGeneratorName="Visual Studio 17 2022 Win64"-->
       <Platform Name="Windows"/>
       <!-- 
       The current Yocto SDKs do not contain the required cmake files needed by find_package, so we force disable it for now.
@@ -109,22 +109,22 @@
         </StrictChecks>
       </Platform>
       <Platform Name="Android">
-        <Compiler Flags="-std=c++14"/>
+        <Compiler Flags="-std=c++17"/>
       </Platform>
       <Platform Name="Ubuntu">
-        <Compiler Flags="-std=c++14"/>
+        <Compiler Flags="-std=c++17"/>
         <Defines All="FSL_PLATFORM_UBUNTU;PIC" Debug="DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Windows">
-        <Compiler Flags="-std=c++14;-Wmicrosoft;-fms-compatibility"/>
+        <Compiler Flags="-std=c++17;-Wmicrosoft;-fms-compatibility"/>
         <Defines All="_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE" Debug="_DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Yocto">
-        <Compiler Flags="-std=c++14;-I$(ROOTFS)/usr/include"/>
+        <Compiler Flags="-std=c++17;-I$(ROOTFS)/usr/include"/>
         <Defines All="FSL_PLATFORM_YOCTO;PIC;LINUX" Debug="DEBUG;_DEBUG" Release="NDEBUG"/>
       </Platform>
     </ClangTidyConfiguration>
-    <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2019"/>
+    <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2022"/>
     <Experimental AllowDownloads="true" DisableDownloadEnv="FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DISABLE_DOWNLOAD">
       <!-- Define the name of the default third party installation directory. -->
       <!-- This will be the directory where we install/build any thirdparty source that is needed -->

@@ -31,19 +31,19 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <Shared/UI/Benchmark/SceneId.hpp>
+#include <optional>
 
 namespace Fsl
 {
   class OptionParser : public ADemoOptionParser
   {
-    Optional<bool> m_disableChart;
-    Optional<bool> m_showIdle;
-    Optional<IO::Path> m_compareReportFile;
-    Optional<IO::Path> m_viewReportFile;
+    std::optional<bool> m_disableChart;
+    std::optional<bool> m_showIdle;
+    std::optional<IO::Path> m_compareReportFile;
+    std::optional<IO::Path> m_viewReportFile;
     SceneId m_sceneId{SceneId::Playground};
     bool m_runDefaultBench{false};
 
@@ -51,12 +51,12 @@ namespace Fsl
     OptionParser() = default;
     ~OptionParser() override = default;
 
-    Optional<bool> TryGetChartDisabled() const
+    std::optional<bool> TryGetChartDisabled() const
     {
       return m_disableChart;
     }
 
-    Optional<bool> TryGetShowIdleEnabled() const
+    std::optional<bool> TryGetShowIdleEnabled() const
     {
       return m_showIdle;
     }
@@ -67,7 +67,7 @@ namespace Fsl
       {
         return SceneId::Benchmark;
       }
-      return !m_viewReportFile.HasValue() ? m_sceneId : SceneId::Result;
+      return !m_viewReportFile.has_value() ? m_sceneId : SceneId::Result;
     }
 
     bool GetRunDefaultBench() const
@@ -75,12 +75,12 @@ namespace Fsl
       return m_runDefaultBench;
     }
 
-    Optional<IO::Path> TryGetCompareReportFile() const
+    std::optional<IO::Path> TryGetCompareReportFile() const
     {
       return m_compareReportFile;
     }
 
-    Optional<IO::Path> TryGetViewReportFile() const
+    std::optional<IO::Path> TryGetViewReportFile() const
     {
       return m_viewReportFile;
     }

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpExtent.hpp>
+#include <FslBase/Math/Dp/DpExtent2D.hpp>
 #include <FslBase/Math/Dp/DpThicknessU.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU16.hpp>
@@ -55,7 +55,7 @@ namespace Fsl
     PxThicknessU ContentMarginPx;
 
     //! The image density extent (this is the dp size of the image)
-    DpExtent ExtentDp;
+    DpExtent2D ExtentDp;
 
     //! The nineslice
     DpThicknessU NineSliceDp;
@@ -65,7 +65,7 @@ namespace Fsl
 
     constexpr CoreBasicNineSliceInfo() = default;
     constexpr CoreBasicNineSliceInfo(const PxExtent2D extentPx, const PxRectangleU16& rectanglePx, const PxThicknessU& nineSlicePx,
-                                     const PxThicknessU& contentMarginPx, const DpExtent imageExtentDp, const DpThicknessU& nineSliceDp,
+                                     const PxThicknessU& contentMarginPx, const DpExtent2D imageExtentDp, const DpThicknessU& nineSliceDp,
                                      const DpThicknessU& contentMarginDp)
       : ExtentPx(extentPx)
       , RectanglePx(rectanglePx)

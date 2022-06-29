@@ -29,10 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/BasicRenderModelLoader/Shared.hpp>
 #include <FslAssimp/SceneImporter.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslBase/NumericCast.hpp>
@@ -47,14 +46,15 @@
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
+#include <Shared/System/BasicRenderModelLoader/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -235,9 +235,9 @@ namespace Fsl
     auto lblDesc1 = uiFactory.CreateLabel("Indices:");
     auto lblDesc2 = uiFactory.CreateLabel("SubMeshes:");
 
-    auto lbl0 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl1 = uiFactory.CreateFmtValueLabel(uint32_t(0));
-    auto lbl2 = uiFactory.CreateFmtValueLabel(uint32_t(0));
+    auto lbl0 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl1 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
+    auto lbl2 = uiFactory.CreateFmtValueLabel(static_cast<uint32_t>(0));
     lbl0->SetAlignmentX(UI::ItemAlignment::Far);
     lbl1->SetAlignmentX(UI::ItemAlignment::Far);
     lbl2->SetAlignmentX(UI::ItemAlignment::Far);

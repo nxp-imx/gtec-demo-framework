@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,37 +29,34 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsTexture.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsTexture.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  NativeGraphicsTexture::NativeGraphicsTexture(const PxExtent3D& extentPx, VUTexture texture,
+                                               NativeGraphicsTextureScopedDescriptorSet&& descriptorSet)
+    : m_extentPx(extentPx)
+    , m_texture(std::move(texture))
+    , m_descriptorSet(std::move(descriptorSet))
   {
-    NativeGraphicsTexture::NativeGraphicsTexture(const PxExtent3D& extentPx, VUTexture texture,
-                                                 NativeGraphicsTextureScopedDescriptorSet&& descriptorSet)
-      : m_extentPx(extentPx)
-      , m_texture(std::move(texture))
-      , m_descriptorSet(std::move(descriptorSet))
-    {
-    }
-
-
-    void NativeGraphicsTexture::Destroy()
-    {
-      if (!m_texture.IsValid())
-      {
-        return;
-      }
-      m_texture.Reset();
-    }
-
-    void NativeGraphicsTexture::SetData(const RawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/, const TextureFlags /*textureFlags*/)
-    {
-      throw NotSupportedException("SetData not supported");
-    }
-
   }
+
+
+  void NativeGraphicsTexture::Destroy()
+  {
+    if (!m_texture.IsValid())
+    {
+      return;
+    }
+    m_texture.Reset();
+  }
+
+  void NativeGraphicsTexture::SetData(const RawTexture& /*texture*/, const Texture2DFilterHint /*filterHint*/, const TextureFlags /*textureFlags*/)
+  {
+    throw NotSupportedException("SetData not supported");
+  }
+
 }

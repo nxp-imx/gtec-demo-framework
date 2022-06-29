@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "GammaCorrection.hpp"
 #include <array>
+#include "GammaCorrection.hpp"
 
 namespace Fsl
 {

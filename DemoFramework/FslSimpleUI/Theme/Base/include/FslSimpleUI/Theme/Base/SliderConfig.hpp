@@ -33,25 +33,19 @@
 
 #include <FslSimpleUI/Base/LayoutDirection.hpp>
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  struct SliderConfig
   {
-    namespace Theme
+    LayoutDirection Direction{LayoutDirection::NearToFar};
+
+    constexpr SliderConfig() = default;
+
+    constexpr explicit SliderConfig(const LayoutDirection direction)
+      : Direction(direction)
     {
-      struct SliderConfig
-      {
-        LayoutDirection Direction{LayoutDirection::NearToFar};
-
-        constexpr SliderConfig() = default;
-
-        constexpr explicit SliderConfig(const LayoutDirection direction)
-          : Direction(direction)
-        {
-        }
-      };
     }
-  }
+  };
 }
 
 #endif

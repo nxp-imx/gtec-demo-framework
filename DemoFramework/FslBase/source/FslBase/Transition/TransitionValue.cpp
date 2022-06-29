@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionValue.hpp>
-#include <FslBase/Transition/TransitionConfig.hpp>
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionTimeSpanHelper.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
+#include <FslBase/Transition/TransitionCache.hpp>
+#include <FslBase/Transition/TransitionConfig.hpp>
+#include <FslBase/Transition/TransitionTimeSpanHelper.hpp>
+#include <FslBase/Transition/TransitionValue.hpp>
 #include <cassert>
 #include <limits>
 
@@ -42,32 +42,32 @@ namespace Fsl
   TransitionValue::TransitionValue() = default;
 
 
-  TransitionValue::TransitionValue(TransitionCache& rTransitionCache, const TransitionTimeSpan& time)
-    : m_currentTime(time.Ticks)
-    , m_endTime(time.Ticks)
+  TransitionValue::TransitionValue(TransitionCache& rTransitionCache, const TimeSpan& time)
+    : m_currentTime(time.Ticks())
+    , m_endTime(time.Ticks())
   {
     SetTransitionTime(rTransitionCache, time, m_transitionType);
   }
 
 
-  TransitionValue::TransitionValue(TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
+  TransitionValue::TransitionValue(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
     : m_transitionType(type)
-    , m_currentTime(time.Ticks)
-    , m_endTime(time.Ticks)
+    , m_currentTime(time.Ticks())
+    , m_endTime(time.Ticks())
   {
     SetTransitionTime(rTransitionCache, time, type);
   }
 
 
-  TransitionTimeSpan TransitionValue::GetStartDelay() const
+  TimeSpan TransitionValue::GetStartDelay() const
   {
-    return TransitionTimeSpan(m_startDelay);
+    return TimeSpan(m_startDelay);
   }
 
 
-  void TransitionValue::SetStartDelay(const TransitionTimeSpan& value)
+  void TransitionValue::SetStartDelay(const TimeSpan& value)
   {
-    auto ticks = value.Ticks;
+    auto ticks = value.Ticks();
     if (ticks != m_startDelay)
     {
       assert(ticks >= 0 && ticks <= std::numeric_limits<int32_t>::max());
@@ -109,26 +109,26 @@ namespace Fsl
   }
 
 
-  TransitionTimeSpan TransitionValue::GetTransitionTime() const
+  TimeSpan TransitionValue::GetTransitionTime() const
   {
-    return TransitionTimeSpan(m_endTime + m_startDelay);
+    return TimeSpan(m_endTime + m_startDelay);
   }
 
 
-  void TransitionValue::SetTransitionTime(TransitionCache& rTransitionCache, const TransitionTimeSpan& time)
+  void TransitionValue::SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time)
   {
     SetTransitionTime(rTransitionCache, time, m_transitionType);
   }
 
 
-  void TransitionValue::SetTransitionTime(TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
+  void TransitionValue::SetTransitionTime(TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
   {
-    if (!m_transition || m_endTime != time.Ticks || type != m_transitionType)
+    if (!m_transition || m_endTime != time.Ticks() || type != m_transitionType)
     {
-      m_endTime = time.Ticks >= 0 ? time.Ticks : 0;
+      m_endTime = time.Ticks() >= 0 ? time.Ticks() : 0;
 
       m_transitionType = type;
-      int numSeconds = TransitionTimeSpanHelper::AsSecondsRoundedUp(time);
+      int numSeconds = TimeSpanHelper::AsSecondsRoundedUp(time);
       m_transition = rTransitionCache.GetLookupTable((numSeconds * TransitionConfig::InternalResolutionPerSecond) + 1, type);
       assert(m_transition);
 
@@ -144,12 +144,12 @@ namespace Fsl
   }
 
 
-  TransitionState TransitionValue::Update(const TransitionTimeSpan& deltaTime)
+  TransitionState TransitionValue::Update(const TimeSpan& deltaTime)
   {
     if (m_transition && m_currentTime < m_endTime)
     {
       // We do the increase here because the first entry in the m_transition table is zero which we want to skip
-      m_currentTime += deltaTime.Ticks;
+      m_currentTime += deltaTime.Ticks();
       if (m_currentTime < 0)
       {
         return TransitionState::StartDelay;

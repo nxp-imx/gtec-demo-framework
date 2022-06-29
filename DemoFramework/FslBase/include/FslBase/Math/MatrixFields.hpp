@@ -31,27 +31,24 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::MatrixFields
 {
-  namespace MatrixFields
-  {
-    constexpr unsigned int _M11 = (4 * 0 + 0);
-    constexpr unsigned int _M12 = (4 * 0 + 1);
-    constexpr unsigned int _M13 = (4 * 0 + 2);
-    constexpr unsigned int _M14 = (4 * 0 + 3);
-    constexpr unsigned int _M21 = (4 * 1 + 0);
-    constexpr unsigned int _M22 = (4 * 1 + 1);
-    constexpr unsigned int _M23 = (4 * 1 + 2);
-    constexpr unsigned int _M24 = (4 * 1 + 3);
-    constexpr unsigned int _M31 = (4 * 2 + 0);
-    constexpr unsigned int _M32 = (4 * 2 + 1);
-    constexpr unsigned int _M33 = (4 * 2 + 2);
-    constexpr unsigned int _M34 = (4 * 2 + 3);
-    constexpr unsigned int _M41 = (4 * 3 + 0);
-    constexpr unsigned int _M42 = (4 * 3 + 1);
-    constexpr unsigned int _M43 = (4 * 3 + 2);
-    constexpr unsigned int _M44 = (4 * 3 + 3);
-  }
+  constexpr unsigned int _M11 = (4 * 0 + 0);
+  constexpr unsigned int _M12 = (4 * 0 + 1);
+  constexpr unsigned int _M13 = (4 * 0 + 2);
+  constexpr unsigned int _M14 = (4 * 0 + 3);
+  constexpr unsigned int _M21 = (4 * 1 + 0);
+  constexpr unsigned int _M22 = (4 * 1 + 1);
+  constexpr unsigned int _M23 = (4 * 1 + 2);
+  constexpr unsigned int _M24 = (4 * 1 + 3);
+  constexpr unsigned int _M31 = (4 * 2 + 0);
+  constexpr unsigned int _M32 = (4 * 2 + 1);
+  constexpr unsigned int _M33 = (4 * 2 + 2);
+  constexpr unsigned int _M34 = (4 * 2 + 3);
+  constexpr unsigned int _M41 = (4 * 3 + 0);
+  constexpr unsigned int _M42 = (4 * 3 + 1);
+  constexpr unsigned int _M43 = (4 * 3 + 2);
+  constexpr unsigned int _M44 = (4 * 3 + 3);
 }
 
 #endif

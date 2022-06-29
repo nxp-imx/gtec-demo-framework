@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "DirectMultiSamplingVideoYUV.hpp"
 #include <array>
+#include "DirectMultiSamplingVideoYUV.hpp"
 
 namespace Fsl
 {

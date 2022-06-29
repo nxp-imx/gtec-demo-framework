@@ -37,73 +37,70 @@
  * Which was based on Bretton Wade's, which is based on Ken Shoemake's from Graphic Gems IV p.175
  */
 
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Quaternion.hpp>
-#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class ArcballCamera
   {
-    class ArcballCamera
+    Vector2 m_screenResolutionBounds;
+    Matrix m_rotationMatrix;
+    float m_zoom;
+    bool m_isDragging;
+    Vector3 m_dragStart;
+    Vector3 m_dragCurrent;
+    Quaternion m_dragRotation;
+
+  public:
+    explicit ArcballCamera(const PxPoint2& screenResolution);
+    explicit ArcballCamera(const PxSize2D& screenResolution);
+    ~ArcballCamera() = default;
+
+    void SetScreenResolution(const PxPoint2& screenResolution);
+    void SetScreenResolution(const PxSize2D& screenResolution);
+
+    float GetMinZoom() const;
+    float GetMaxZoom() const;
+    float GetZoom() const;
+    void SetZoom(const float value);
+    void AddZoom(const float value);
+
+
+    //! @brief Check if the camera is being dragged
+    bool IsDragging() const
     {
-      Vector2 m_screenResolutionBounds;
-      Matrix m_rotationMatrix;
-      float m_zoom;
-      bool m_isDragging;
-      Vector3 m_dragStart;
-      Vector3 m_dragCurrent;
-      Quaternion m_dragRotation;
+      return m_isDragging;
+    }
 
-    public:
-      explicit ArcballCamera(const PxPoint2& screenResolution);
-      explicit ArcballCamera(const PxSize2D& screenResolution);
-      ~ArcballCamera() = default;
+    //! @brief Start a camera drag operation
+    void BeginDrag(const PxPoint2& position);
 
-      void SetScreenResolution(const PxPoint2& screenResolution);
-      void SetScreenResolution(const PxSize2D& screenResolution);
+    //! @brief Drag the camera around the object
+    void Drag(const PxPoint2& position);
 
-      float GetMinZoom() const;
-      float GetMaxZoom() const;
-      float GetZoom() const;
-      void SetZoom(const float value);
-      void AddZoom(const float value);
+    //! @brief End the drag operation
+    void EndDrag(const PxPoint2& position);
 
+    //! @brief If a drag is active this will cancel it. If not active this does nothing.
+    void CancelDrag();
 
-      //! @brief Check if the camera is being dragged
-      bool IsDragging() const
-      {
-        return m_isDragging;
-      }
+    //! @brief Get the current view matrix for the camera
+    Matrix GetViewMatrix() const;
 
-      //! @brief Start a camera drag operation
-      void BeginDrag(const PxPoint2& position);
+    //! @brief Get the current rotation matrix for the camera
+    Matrix GetRotationMatrix() const;
 
-      //! @brief Drag the camera around the object
-      void Drag(const PxPoint2& position);
+    //! @brief Reset the rotation
+    void ResetRotation();
 
-      //! @brief End the drag operation
-      void EndDrag(const PxPoint2& position);
-
-      //! @brief If a drag is active this will cancel it. If not active this does nothing.
-      void CancelDrag();
-
-      //! @brief Get the current view matrix for the camera
-      Matrix GetViewMatrix() const;
-
-      //! @brief Get the current rotation matrix for the camera
-      Matrix GetRotationMatrix() const;
-
-      //! @brief Reset the rotation
-      void ResetRotation();
-
-      //! @brief Set the rotation
-      void SetRotation(const Matrix& matrix);
-    };
-  }
+    //! @brief Set the rotation
+    void SetRotation(const Matrix& matrix);
+  };
 }
 
 #endif

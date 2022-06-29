@@ -107,7 +107,7 @@ namespace Fsl
     Matrices m_matrices;
 
   public:
-    explicit Shared(const DemoAppConfig& config, IContentManager& contentManager);
+    explicit Shared(const DemoAppConfig& config, const std::shared_ptr<IContentManager>& theContentManager);
 
     void ConfigurationChanged(const DemoWindowMetrics& windowMetrics);
     void Update(const DemoTime& time);

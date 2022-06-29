@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationParams.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl

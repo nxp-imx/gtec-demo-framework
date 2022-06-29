@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Exceptions.hpp>
 #include "DFGraphicsBasic2D.hpp"
+#include <FslGraphics/Exceptions.hpp>
 #include <g2d.h>
 
 namespace Fsl

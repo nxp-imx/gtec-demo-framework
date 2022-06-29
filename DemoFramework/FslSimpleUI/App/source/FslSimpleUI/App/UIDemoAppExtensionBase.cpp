@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,9 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIDemoAppExtensionBase.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionTimeSpan.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -39,13 +38,14 @@
 #include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/App/DemoPerformanceCapture.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtensionBase.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfo.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/System/UIManager.hpp>
 #include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
-#include <FslSimpleUI/Render/IMBatch/RenderSystemFactory.hpp>
+#include <FslSimpleUI/Render/IMBatch/DefaultRenderSystemFactory.hpp>
 #include <utility>
 
 namespace Fsl
@@ -57,9 +57,9 @@ namespace Fsl
       return {windowMetrics.ExtentPx, windowMetrics.ExactDpi, windowMetrics.DensityDpi};
     }
 
-    TransitionTimeSpan Convert(const DemoTime& time)
+    TimeSpan Convert(const DemoTime& time)
     {
-      return TransitionTimeSpan(time.ElapsedTime.Ticks());
+      return TimeSpan(time.ElapsedTime.Ticks());
     }
 
     std::unique_ptr<UI::IRenderSystem> CreateUIRenderSystem(const UI::IRenderSystemFactory& factory, IGraphicsService& graphicsService,
@@ -74,15 +74,17 @@ namespace Fsl
     }
 
 
-    std::unique_ptr<UI::UIManager> CreateUIManager(const UIDemoAppExtensionCreateInfo& createInfo)
+    std::unique_ptr<UI::UIManager> CreateUIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService,
+                                                   const UIDemoAppExtensionCreateInfo& createInfo)
     {
-      UI::RenderIMBatch::RenderSystemFactory defaultFactory;
+      UI::RenderIMBatch::DefaultRenderSystemFactory defaultFactory;
 
       const UI::IRenderSystemFactory& factory = createInfo.pRenderSystemFactory != nullptr ? *createInfo.pRenderSystemFactory : defaultFactory;
       auto graphicsService = createInfo.DemoServiceProvider.Get<IGraphicsService>();
 
 
       return std::make_unique<UI::UIManager>(
+        dataBindingService,
         CreateUIRenderSystem(factory, *graphicsService, createInfo,
                              UIAppDefaultMaterial::CreateDefaultMaterial(createInfo.DemoServiceProvider, factory.GetVertexDeclarationSpan(),
                                                                          createInfo.RenderCreateInfo.MaterialCreateInfo.AllowDynamicCustomViewport,
@@ -91,9 +93,10 @@ namespace Fsl
         createInfo.ExternalModuleFactories);
     }
   }
+
   UIDemoAppExtensionBase::UIDemoAppExtensionBase(const UIDemoAppExtensionCreateInfo& createInfo,
                                                  const std::shared_ptr<UI::IEventListener>& eventListener)
-    : m_uiManager(CreateUIManager(createInfo))
+    : m_uiManager(CreateUIManager(GetDataBinding(), createInfo))
     , m_transitionCache(std::make_shared<TransitionCache>())
     , m_demoPerformanceCapture(createInfo.Profiler)
     , m_profilerService(createInfo.DemoServiceProvider.Get<IProfilerService>())
@@ -162,49 +165,58 @@ namespace Fsl
     m_uiManager->Resized(Convert(windowMetrics));
   }
 
-  void UIDemoAppExtensionBase::PreUpdate(const DemoTime& demoTime)
+  void UIDemoAppExtensionBase::PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
     FSL_PARAM_NOT_USED(demoTime);
-    DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
-    if (pDemoPerformanceCapture != nullptr)
+    if (callOrder == DemoAppExtensionCallOrder::PreApp)
     {
-      pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIProcessEvents);
-    }
-    m_uiManager->ProcessEvents();
-    if (pDemoPerformanceCapture != nullptr)
-    {
-      pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIProcessEvents);
+      DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
+      if (pDemoPerformanceCapture != nullptr)
+      {
+        pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIProcessEvents);
+      }
+      m_uiManager->ProcessEvents();
+      if (pDemoPerformanceCapture != nullptr)
+      {
+        pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIProcessEvents);
+      }
     }
   }
 
-  void UIDemoAppExtensionBase::Update(const DemoTime& demoTime)
+  void UIDemoAppExtensionBase::Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
     FSL_PARAM_NOT_USED(demoTime);
-    DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
-    if (pDemoPerformanceCapture != nullptr)
+    if (callOrder == DemoAppExtensionCallOrder::PreApp)
     {
-      pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIProcessEvents);
-    }
-    m_uiManager->ProcessEvents();
-    if (pDemoPerformanceCapture != nullptr)
-    {
-      pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIProcessEvents);
+      DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
+      if (pDemoPerformanceCapture != nullptr)
+      {
+        pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIProcessEvents);
+      }
+      m_uiManager->ProcessEvents();
+      if (pDemoPerformanceCapture != nullptr)
+      {
+        pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIProcessEvents);
+      }
     }
   }
 
 
-  void UIDemoAppExtensionBase::PostUpdate(const DemoTime& demoTime)
+  void UIDemoAppExtensionBase::PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
-    DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
-    if (pDemoPerformanceCapture != nullptr)
+    if (callOrder == DemoAppExtensionCallOrder::PostApp)
     {
-      pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIUpdate);
-    }
-    // We call the UIManager in post update to allow the app to modify the UI in its update method
-    m_uiManager->Update(Convert(demoTime));
-    if (pDemoPerformanceCapture != nullptr)
-    {
-      pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIUpdate);
+      DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
+      if (pDemoPerformanceCapture != nullptr)
+      {
+        pDemoPerformanceCapture->BeginProfile(DemoPerformanceCaptureId::UIUpdate);
+      }
+      // We call the UIManager in post update to allow the app to modify the UI in its update method
+      m_uiManager->Update(Convert(demoTime));
+      if (pDemoPerformanceCapture != nullptr)
+      {
+        pDemoPerformanceCapture->EndProfile(DemoPerformanceCaptureId::UIUpdate);
+      }
     }
   }
 

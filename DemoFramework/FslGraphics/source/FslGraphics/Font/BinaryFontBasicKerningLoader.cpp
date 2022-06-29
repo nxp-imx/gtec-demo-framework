@@ -29,22 +29,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
-#include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Compression/ValueCompression.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslBase/System/Platform/PlatformPathTransform.hpp>
+#include <FslGraphics/Font/BasicFontKerning.hpp>
+#include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
 #include <fmt/format.h>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cassert>
-#include <limits>
 #include <fstream>
+#include <limits>
 #include <vector>
 
 namespace Fsl
@@ -71,7 +72,7 @@ namespace Fsl
 
     void StreamRead(std::ifstream& rStream, void* const pDst, const std::size_t cbRead)
     {
-      rStream.read(reinterpret_cast<char*>(pDst), cbRead);
+      rStream.read(reinterpret_cast<char*>(pDst), NumericCast<std::streamsize>(cbRead));
       if (!rStream.good())
       {
         throw FormatException("Failed to read the expected amount of bytes");
@@ -141,14 +142,15 @@ namespace Fsl
       uint32_t entries = 0;
       currentIndex += ValueCompression::ReadSimple(entries, content.data(), content.size(), currentIndex);
 
-      rTextureAtlas.SetRangeCapacity(entries);
-      for (uint32_t i = 0; i < entries; ++i)
+      const auto count = NumericCast<int32_t>(entries);
+      rTextureAtlas.SetRangeCapacity(count);
+      for (int32_t i = 0; i < count; ++i)
       {
         uint32_t rangeFrom = 0;
         uint32_t rangeLength = 0;
         currentIndex += ValueCompression::ReadSimple(rangeFrom, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(rangeLength, content.data(), content.size(), currentIndex);
-        rTextureAtlas.SetRange(i, FontGlyphRange(rangeFrom, rangeLength));
+        rTextureAtlas.SetRange(i, FontGlyphRange(NumericCast<int32_t>(rangeFrom), NumericCast<int32_t>(rangeLength)));
       }
       assert(index <= currentIndex);
       return currentIndex - index;
@@ -162,8 +164,9 @@ namespace Fsl
       uint32_t entries = 0;
       currentIndex += ValueCompression::ReadSimple(entries, content.data(), content.size(), currentIndex);
 
-      rTextureAtlas.SetGlyphKerningCapacity(entries);
-      for (uint32_t i = 0; i < entries; ++i)
+      const auto count = NumericCast<int32_t>(entries);
+      rTextureAtlas.SetGlyphKerningCapacity(count);
+      for (int32_t i = 0; i < count; ++i)
       {
         int32_t offsetX = 0;
         int32_t offsetY = 0;
@@ -172,14 +175,17 @@ namespace Fsl
         currentIndex += ValueCompression::ReadSimple(offsetY, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(layoutWidth, content.data(), content.size(), currentIndex);
 
-        offsetX = MathHelper::Clamp(offsetX, int32_t(std::numeric_limits<int16_t>::min()), int32_t(std::numeric_limits<int16_t>::max()));
-        offsetY = MathHelper::Clamp(offsetY, int32_t(std::numeric_limits<int16_t>::min()), int32_t(std::numeric_limits<int16_t>::max()));
-        int32_t layoutWidth2 = std::min(layoutWidth, static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-        layoutWidth2 = MathHelper::Clamp(layoutWidth2, int32_t(std::numeric_limits<int16_t>::min()), int32_t(std::numeric_limits<int16_t>::max()));
+        offsetX = MathHelper::Clamp(offsetX, static_cast<int32_t>(std::numeric_limits<int16_t>::min()),
+                                    static_cast<int32_t>(std::numeric_limits<int16_t>::max()));
+        offsetY = MathHelper::Clamp(offsetY, static_cast<int32_t>(std::numeric_limits<int16_t>::min()),
+                                    static_cast<int32_t>(std::numeric_limits<int16_t>::max()));
+        int32_t layoutWidth2 = std::min(NumericCast<int32_t>(layoutWidth), std::numeric_limits<int32_t>::max());
+        layoutWidth2 = MathHelper::Clamp(layoutWidth2, static_cast<int32_t>(std::numeric_limits<int16_t>::min()),
+                                         static_cast<int32_t>(std::numeric_limits<int16_t>::max()));
 
-        assert(static_cast<int64_t>(i) <= std::numeric_limits<int32_t>::max());
-        rTextureAtlas.SetGlyphKerning(static_cast<int32_t>(i), FontGlyphBasicKerning(static_cast<int16_t>(offsetX), static_cast<int16_t>(offsetY),
-                                                                                     static_cast<int16_t>(layoutWidth2)));
+        assert(i <= std::numeric_limits<int32_t>::max());
+        rTextureAtlas.SetGlyphKerning(
+          i, FontGlyphBasicKerning(static_cast<int16_t>(offsetX), static_cast<int16_t>(offsetY), static_cast<int16_t>(layoutWidth2)));
       }
       assert(index <= currentIndex);
       return currentIndex - index;
@@ -199,7 +205,8 @@ namespace Fsl
       currentIndex += ValueCompression::ReadSimple(maxGlyphLeadingOverdrawAreaX, content.data(), content.size(), currentIndex);
       currentIndex += ValueCompression::ReadSimple(maxGlyphLeadingOverdrawAreaY, content.data(), content.size(), currentIndex);
 
-      rTextureAtlas.SetDesc(FontDesc(lineSpacing, baseLine, Point2(maxGlyphLeadingOverdrawAreaX, maxGlyphLeadingOverdrawAreaY)));
+      rTextureAtlas.SetDesc(FontDesc(NumericCast<int32_t>(lineSpacing), NumericCast<int32_t>(baseLine),
+                                     Point2(NumericCast<int32_t>(maxGlyphLeadingOverdrawAreaX), NumericCast<int32_t>(maxGlyphLeadingOverdrawAreaY))));
       assert(index <= currentIndex);
       return currentIndex - index;
     }

@@ -251,6 +251,7 @@ class CMakeBuilderGeneric(CMakeBuilder):
 
         # The cmake make files only support one configuration
         self.IsSingleConfiguration = (CMakeHelper.GetGeneratorMultiConfigCapabilities(cmakeConfig.CMakeFinalGeneratorName) != CMakeGeneratorMultiConfigCapability.Yes)
+        self.CMakeConfig = cmakeConfig
 
 
     def Execute(self, toolFinder: PackageToolFinder, path: str, target: CMakeTargetType, cmakeProjectName: str, configuration: BuildVariantConfig,
@@ -259,8 +260,11 @@ class CMakeBuilderGeneric(CMakeBuilder):
         self.Log.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, cmakeProjectName,
                                                                                                      BuildVariantConfig.ToString(configuration)))
 
+        cmakeCommand = self.CMakeConfig.CMakeCommand
         cmakeConfig = CMakeBuildType.FromBuildVariantConfig(configuration)
-        buildCommand = ['cmake', '--build', path, '--config', cmakeConfig]
+        buildCommand = [cmakeCommand, '--build', path, '--config', cmakeConfig]
+        if self.CMakeConfig.EmscriptenEnabled:
+            buildCommand.insert(0, self.CMakeConfig.EmscriptenBuildCommand)
 
         if self.NumBuildThreads > 0:
             buildCommand += ['--parallel', str(self.NumBuildThreads)]
@@ -274,7 +278,9 @@ class CMakeBuilderGeneric(CMakeBuilder):
             raise
 
         if target == CMakeTargetType.Install:
-            buildCommand = ['cmake', '--install', path, '--config', cmakeConfig]
+            buildCommand = [cmakeCommand, '--install', path, '--config', cmakeConfig]
+            if self.CMakeConfig.EmscriptenEnabled:
+                buildCommand.insert(0, self.CMakeConfig.EmscriptenBuildCommand)
             try:
                 result = subprocess.call(buildCommand, cwd=parentPath, env=buildEnv)
                 if result != 0:
@@ -442,12 +448,18 @@ class CMakeAndBuildTask(BasicTask):
         defineBuildType = self.__TryGetBuildTypeString(buildVariantConfig)
 
         self.LogPrint("* Running cmake at '{0}' for source '{1}' with prefix {2} and options {3}".format(path, sourcePath, defineCMakeInstallPrefix, cmakeOptionList))
+
         buildCommand = [self.CMakeConfig.CMakeCommand, '-G', self.CMakeConfig.CMakeFinalGeneratorName, defineCMakeInstallPrefix, sourcePath]
-        if not defineBuildType is None:
+        if self.CMakeConfig.EmscriptenEnabled:
+            buildCommand.insert(0, self.CMakeConfig.EmscriptenConfigureCommand)
+
+        if defineBuildType is not None:
             buildCommand.append("-D{0}".format(defineBuildType))
 
         if len(cmakeOptionList) > 0:
             buildCommand += cmakeOptionList
+
+        self.Log.LogPrintVerbose(4, "Build commands '{0}'".format(buildCommand))
 
         result = subprocess.call(buildCommand, cwd=path, env=buildEnv)
         if result != 0:

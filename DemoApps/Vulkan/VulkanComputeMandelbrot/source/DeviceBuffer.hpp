@@ -43,6 +43,7 @@ namespace Fsl
     Vulkan::VUBuffer m_buffer;
     Vulkan::VUDeviceMemory m_memory;
     // VkFormat m_imageFormat;
+
   public:
     DeviceBuffer(const DeviceBuffer&) = delete;
     DeviceBuffer& operator=(const DeviceBuffer&) = delete;

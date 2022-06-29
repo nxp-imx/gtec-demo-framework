@@ -30,22 +30,25 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "Platform.hpp"
 #include <FslBase/System/Platform/PlatformWin32.hpp>
+#include <Windows.h>
 #include <array>
 #include <cassert>
 #include <limits>
 #include <stdexcept>
+#include <string_view>
+#include <type_traits>
 #include <vector>
-#include <Windows.h>
-#include <codecvt>
-#include <locale>
+#include "Platform.hpp"
 
 namespace Fsl
 {
   namespace
   {
-    const int32_t DEFAULT_CONV_BUFFER_SIZE = 512;
+    namespace LocalConfig
+    {
+      constexpr int DefaultConvBufferSize = 512;
+    }
 
     //! @brief Convert the character to from UTF16 to UTF8
     //! @param psz the UTF16 string to convert
@@ -55,21 +58,21 @@ namespace Fsl
       assert(psz != nullptr);
       if (srcLen == 0)
       {
-        return std::string();
+        return {};
       }
 
       assert(srcLen > 0 || srcLen == -1);
 
-      if (srcLen <= DEFAULT_CONV_BUFFER_SIZE)
+      if (srcLen <= LocalConfig::DefaultConvBufferSize)
       {
         // Try a conversion with minimal heap allocations
-        std::array<char, DEFAULT_CONV_BUFFER_SIZE + 1> tmpBuffer{};
-        const int dstLen = WideCharToMultiByte(CP_UTF8, 0, psz, srcLen, tmpBuffer.data(), DEFAULT_CONV_BUFFER_SIZE, nullptr, nullptr);
+        std::array<char, LocalConfig::DefaultConvBufferSize + 1> tmpBuffer{};
+        const int dstLen = WideCharToMultiByte(CP_UTF8, 0, psz, srcLen, tmpBuffer.data(), LocalConfig::DefaultConvBufferSize, nullptr, nullptr);
         if (dstLen > 0)
         {
-          assert(dstLen <= DEFAULT_CONV_BUFFER_SIZE);
+          assert(dstLen <= LocalConfig::DefaultConvBufferSize);
           tmpBuffer[dstLen] = 0;
-          return std::string(tmpBuffer.data());
+          return {tmpBuffer.data()};
         }
       }
 
@@ -86,7 +89,55 @@ namespace Fsl
       {
         throw std::runtime_error("UTF16 to UTF8 conversion failed");
       }
-      return std::string(buffer.data());
+      return {buffer.data()};
+    }
+
+    // Using the old school method instead of
+    // -     std::wstring_convert<std::codecvt_utf8<wchar_t>> convl;
+    // -     return convl.from_bytes(psz);
+    // To bypass a deprecation warning.
+    // More info can be found here: https://codeutility.org/c-convert-string-or-char-to-wstring-or-wchar_t-stack-overflow/
+    inline std::wstring DoWiden(const std::string_view str)
+    {
+      if (str.empty())
+      {
+        return {};
+      }
+      if (str.size() > static_cast<typename std::make_unsigned<int>::type>(std::numeric_limits<int>::max()))
+      {
+        throw std::runtime_error("UTF8 to UTF16 conversion failed");
+      }
+
+      const char* const pszSrc = str.data();
+      const int cbSrc = static_cast<int>(str.size());
+
+      if (cbSrc <= LocalConfig::DefaultConvBufferSize)
+      {
+        // Try a conversion with minimal heap allocations
+        std::array<wchar_t, LocalConfig::DefaultConvBufferSize + 1> tmpBuffer{};
+        const auto dstLen = MultiByteToWideChar(CP_UTF8, 0, pszSrc, cbSrc, tmpBuffer.data(), LocalConfig::DefaultConvBufferSize);
+        if (dstLen > 0)
+        {
+          assert(dstLen <= LocalConfig::DefaultConvBufferSize);
+          tmpBuffer[dstLen] = 0;
+          return {tmpBuffer.data()};
+        }
+      }
+
+      // Query the required buffer size
+      const auto dstLen = MultiByteToWideChar(CP_UTF8, 0, pszSrc, cbSrc, nullptr, 0);
+      if (dstLen <= 0)
+      {
+        throw std::runtime_error("UTF8 to UTF16 conversion failed");
+      }
+
+      // Try again with a buffer of the correct size
+      std::vector<wchar_t> buffer(dstLen + 1);
+      if (MultiByteToWideChar(CP_UTF8, 0, pszSrc, cbSrc, buffer.data(), dstLen) <= 0)
+      {
+        throw std::runtime_error("UTF8 to UTF16 conversion failed");
+      }
+      return {buffer.data()};
     }
   }
 
@@ -118,8 +169,7 @@ namespace Fsl
       throw std::invalid_argument("psz can not be null");
     }
 
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> convl;
-    return convl.from_bytes(psz);
+    return DoWiden(std::string_view(psz != nullptr ? psz : ""));
   }
 
 
@@ -129,9 +179,7 @@ namespace Fsl
     {
       throw std::runtime_error("string is too large");
     }
-
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> convl;
-    return convl.from_bytes(str);
+    return DoWiden(str);
   }
 
 

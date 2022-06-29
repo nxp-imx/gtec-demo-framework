@@ -31,16 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/IO/Path.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Collections/HandleVector.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/Pixel/PxViewport.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Sprite/ICustomSpriteResourceManager.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
-#include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
+#include <FslGraphics/Sprite/SpriteManager.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslSimpleUI/App/Resource/UIAppMaterialManager.hpp>
 #include <FslSimpleUI/App/Resource/UIAppTextureManager.hpp>

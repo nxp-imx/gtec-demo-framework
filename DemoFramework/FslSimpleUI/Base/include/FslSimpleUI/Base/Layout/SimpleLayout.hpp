@@ -31,75 +31,72 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class SimpleLayout : public Layout
   {
-    class SimpleLayout : public Layout
+  public:
+    using collection_type = GenericWindowCollection<GenericWindowCollectionRecordBase>;
+
+  private:
+    collection_type m_children;
+
+  public:
+    explicit SimpleLayout(const std::shared_ptr<BaseWindowContext>& context);
+    void WinInit() override;
+
+    void ClearChildren() override
     {
-    public:
-      using collection_type = GenericWindowCollection<GenericWindowCollectionRecordBase>;
+      m_children.Clear();
+    }
 
-    private:
-      collection_type m_children;
+    void AddChild(const std::shared_ptr<BaseWindow>& window) override
+    {
+      m_children.Add(window);
+      window->SYS_SetParentBaseColor(GetFinalBaseColor());
+    }
 
-    public:
-      explicit SimpleLayout(const std::shared_ptr<BaseWindowContext>& context);
-      void WinInit() override;
+    void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
+    {
+      m_children.Remove(window);
+    }
 
-      void ClearChildren() override
-      {
-        m_children.Clear();
-      }
+    std::size_t GetChildCount() const override
+    {
+      return m_children.size();
+    }
 
-      void AddChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Add(window);
-        window->SYS_SetParentBaseColor(GetFinalBaseColor());
-      }
+    bool ContainsChild(const std::shared_ptr<BaseWindow>& window) const
+    {
+      return m_children.Contains(window);
+    }
 
-      void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Remove(window);
-      }
+  protected:
+    void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
 
-      std::size_t GetChildCount() const override
-      {
-        return m_children.size();
-      }
+    inline bool empty() const noexcept
+    {
+      return m_children.empty();
+    }
 
-      bool ContainsChild(const std::shared_ptr<BaseWindow>& window) const
-      {
-        return m_children.Contains(window);
-      }
+    inline collection_type::queue_type::size_type size() const noexcept
+    {
+      return m_children.size();
+    }
 
-    protected:
-      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
+    inline collection_type::queue_type::const_iterator begin() const noexcept
+    {
+      return m_children.begin();
+    }
 
-      inline bool empty() const noexcept
-      {
-        return m_children.empty();
-      }
-
-      inline collection_type::queue_type::size_type size() const noexcept
-      {
-        return m_children.size();
-      }
-
-      inline collection_type::queue_type::const_iterator begin() const noexcept
-      {
-        return m_children.begin();
-      }
-
-      inline collection_type::queue_type::const_iterator end() const noexcept
-      {
-        return m_children.end();
-      }
-    };
-  }
+    inline collection_type::queue_type::const_iterator end() const noexcept
+    {
+      return m_children.end();
+    }
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_LOGIC_RADIOGROUP_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_LOGIC_RADIOGROUP_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,44 +36,41 @@
 #include <string>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class RadioButton;
+
+  class RadioGroup final
   {
-    class RadioButton;
+    std::string m_name;
+    std::vector<std::weak_ptr<RadioButton>> m_members;
 
-    class RadioGroup final
+  public:
+    explicit RadioGroup(const StringViewLite& name);
+
+    StringViewLite GetName() const;
+
+
+    std::size_t Count() const
     {
-      std::string m_name;
-      std::vector<std::weak_ptr<RadioButton>> m_members;
+      return m_members.size();
+    }
 
-    public:
-      explicit RadioGroup(const StringViewLite& name);
+    const std::weak_ptr<RadioButton>& At(const std::size_t index)
+    {
+      return m_members[index];
+    }
 
-      StringViewLite GetName() const;
+    void Clear()
+    {
+      m_members.clear();
+    }
+    void Add(const std::shared_ptr<RadioButton>& entry);
+    bool Remove(const std::shared_ptr<RadioButton>& entry);
 
-
-      std::size_t Count() const
-      {
-        return m_members.size();
-      }
-
-      const std::weak_ptr<RadioButton>& At(const std::size_t index)
-      {
-        return m_members[index];
-      }
-
-      void Clear()
-      {
-        m_members.clear();
-      }
-      void Add(const std::shared_ptr<RadioButton>& entry);
-      bool Remove(const std::shared_ptr<RadioButton>& entry);
-
-      bool Contains(const RadioButton* const pButton) const;
-      bool Remove(const RadioButton* const pButton);
-    };
-  }
+    bool Contains(const RadioButton* const pButton) const;
+    bool Remove(const RadioButton* const pButton);
+  };
 }
 
 #endif

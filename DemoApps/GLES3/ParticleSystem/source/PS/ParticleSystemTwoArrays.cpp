@@ -31,11 +31,11 @@
 
 #include "ParticleSystemTwoArrays.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
-#include <FslBase/System/HighResolutionTimer.hpp>
 #include <utility>
 
 namespace Fsl

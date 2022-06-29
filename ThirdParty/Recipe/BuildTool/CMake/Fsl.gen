@@ -3,7 +3,7 @@
   <ToolRecipe Name="Recipe.BuildTool.CMake" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="cmake" MinVersion="3.10.2" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install cmake 3.10.2+ (https://cmake.org/) as it is used to build solutions we depend upon."/>
+        <FindExecutableFileInPath Name="cmake" MinVersion="3.16" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install cmake 3.16+ (https://cmake.org/) as it is used to build solutions we depend upon."/>
       </Installation>
     </ExperimentalRecipe>
     <!-- Override the default recipe to provide a better help message -->
@@ -11,7 +11,9 @@
       <Dependency Name="Recipe.BuildTool.VisualStudio" If="Evaluate(${PlatformName} != 'Android' and not ${IsCMakeBuild})"/>
       <ExperimentalRecipe>
         <Installation>
-          <FindExecutableFileInPath Name="cmake" MinVersion="3.10.2" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install cmake 3.10.2+ (https://cmake.org/) as it is used to build solutions we depend upon."/>
+          <FindExecutableFileInPath Name="cmake" MinVersion="3.16" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install cmake 3.16+ (https://cmake.org/) as it is used to build solutions we depend upon.">
+            <AddOnErrorWarning StartVersion="3.16" EndVersion="3.22" Help="cmake below version 3.22 might report MSVC_TOOLSET_VERSION as 142 when it should be 143. See https://gitlab.kitware.com/cmake/cmake/-/merge_requests/6497"/>
+          </FindExecutableFileInPath>
         </Installation>
       </ExperimentalRecipe>
     </Platform>

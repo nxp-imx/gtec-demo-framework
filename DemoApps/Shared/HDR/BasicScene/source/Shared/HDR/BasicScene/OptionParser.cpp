@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
 
 namespace Fsl

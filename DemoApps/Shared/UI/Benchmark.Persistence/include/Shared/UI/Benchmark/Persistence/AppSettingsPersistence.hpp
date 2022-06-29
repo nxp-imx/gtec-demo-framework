@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/AppSettings.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -43,7 +43,7 @@ namespace Fsl
 
   namespace AppSettingsPersistence
   {
-    Optional<AppSettings> TryLoad(const IO::Path& path);
+    std::optional<AppSettings> TryLoad(const IO::Path& path);
     void Save(const IO::Path& path, const AppSettings& settings);
   }
 }

@@ -1,0 +1,8 @@
+##############
+# Emscripten #
+##############
+
+if(EMSCRIPTEN)
+  # TODO: look into setting -s FULL_ES2=1 or -s FULL_ES3=1 if the app requires it (will require custom meta data per app)
+  set_target_properties(##PACKAGE_NAME## PROPERTIES LINK_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s ASYNCIFY=1 -s EXIT_RUNTIME=1##EMSCRIPTEN_CONTENT##")
+endif()

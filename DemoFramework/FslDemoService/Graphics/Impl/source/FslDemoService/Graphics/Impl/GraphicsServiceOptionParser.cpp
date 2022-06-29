@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/Graphics/Impl/GraphicsServiceOptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsServiceOptionParser.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -64,10 +64,10 @@ namespace Fsl
     switch (cmdId)
     {
     case CommandId::Profile:
-    {
-      m_profile = true;
-      return OptionParseResult::Parsed;
-    }
+      {
+        m_profile = true;
+        return OptionParseResult::Parsed;
+      }
     default:
       return OptionParseResult::NotHandled;
     }

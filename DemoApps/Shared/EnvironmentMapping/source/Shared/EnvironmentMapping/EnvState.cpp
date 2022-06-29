@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/EnvironmentMapping/EnvState.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <Shared/EnvironmentMapping/EnvState.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -67,7 +67,7 @@ namespace Fsl
 
     Matrix::CreateLookAt(EyeVector, LookAt, UpVec, ViewMatrix);
 
-    float fAspect = m_windowSizePx.Width() / float(m_windowSizePx.Height());
+    const float fAspect = static_cast<float>(m_windowSizePx.Width()) / static_cast<float>(m_windowSizePx.Height());
 
     ProjMatrix = Matrix::CreatePerspectiveFieldOfView(MathHelper::PI / 4.0f, fAspect, 1.0f, 100.0f);
   }

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Base/NativeWindowMetrics.hpp>
 #include <FslNativeWindow/Base/NativeWindowCapabilityFlags.hpp>
+#include <FslNativeWindow/Base/NativeWindowMetrics.hpp>
 
 namespace Fsl
 {

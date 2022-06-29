@@ -31,15 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Vulkan/Basic/BuildResourcesContext.hpp>
-#include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
+#include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
@@ -74,7 +74,7 @@ namespace Fsl
       Vector2 Coordinate;
       float Scale{0};
       float HeatmapScale{0};
-      int32_t MaxIterations{0};
+      uint32_t MaxIterations{0};
     };
 
     Resources m_resources;
@@ -103,7 +103,7 @@ namespace Fsl
       m_pushConstants.HeatmapScale = value;
     }
 
-    void SetMaxIterations(const int32_t value)
+    void SetMaxIterations(const uint32_t value)
     {
       m_pushConstants.MaxIterations = value;
     }

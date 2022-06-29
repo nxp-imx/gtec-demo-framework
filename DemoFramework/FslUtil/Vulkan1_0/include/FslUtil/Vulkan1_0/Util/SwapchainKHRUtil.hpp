@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_UTIL_SWAPCHAINKHRUTIL_HPP
 #define FSLUTIL_VULKAN1_0_UTIL_SWAPCHAINKHRUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,40 +37,37 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct SurfaceFormatInfo;
+
+  namespace SwapchainKHRUtil
   {
-    struct SurfaceFormatInfo;
+    //! @param fallbackExtent The desired extent to use for the cases where the surface size will be determined by the extent of the swapchain
+    //!                       targeting it. Unfortunately such platforms exist, one being Wayland. Instead of behaving properly and
+    //!                       setting the surface size on creation we have to deal with a few platforms where 'query' function will not work as on
+    //!                       all other platforms until after swapchain creation. This can easily lead to Vulkan code that only breaks on these
+    //!                       outliers, its a bad design decision that we have to work around.
+    VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
+                                   const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
+                                   const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
+                                   const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
+                                   const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo);
 
-    namespace SwapchainKHRUtil
-    {
-      //! @param fallbackExtent The desired extent to use for the cases where the surface size will be determined by the extent of the swapchain
-      //!                       targeting it. Unfortunately such platforms exist, one being Wayland. Instead of behaving properly and
-      //!                       setting the surface size on creation we have to deal with a few platforms where 'query' function will not work as on
-      //!                       all other platforms until after swapchain creation. This can easily lead to Vulkan code that only breaks on these
-      //!                       outliers, its a bad design decision that we have to work around.
-      VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
-                                     const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
-                                     const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
-                                     const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
-                                     const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo);
+    //! @param fallbackExtent The desired extent to use for the cases where the surface size will be determined by the extent of the swapchain
+    //!                       targeting it. Unfortunately such platforms exist, one being Wayland. Instead of behaving properly and
+    //!                       setting the surface size on creation we have to deal with a few platforms where 'query' function will not work as on
+    //!                       all other platforms until after swapchain creation. This can easily lead to Vulkan code that only breaks on these
+    //!                       outliers, its a bad design decision that we have to work around.
+    VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
+                                   const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
+                                   const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
+                                   const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
+                                   const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain,
+                                   const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo);
 
-      //! @param fallbackExtent The desired extent to use for the cases where the surface size will be determined by the extent of the swapchain
-      //!                       targeting it. Unfortunately such platforms exist, one being Wayland. Instead of behaving properly and
-      //!                       setting the surface size on creation we have to deal with a few platforms where 'query' function will not work as on
-      //!                       all other platforms until after swapchain creation. This can easily lead to Vulkan code that only breaks on these
-      //!                       outliers, its a bad design decision that we have to work around.
-      VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
-                                     const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
-                                     const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
-                                     const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
-                                     const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain,
-                                     const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo);
-
-      //! @brief Get the swap chain images
-      std::vector<VkImage> GetSwapchainImagesKHR(const VkDevice device, const VkSwapchainKHR swapchain);
-    }
+    //! @brief Get the swap chain images
+    std::vector<VkImage> GetSwapchainImagesKHR(const VkDevice device, const VkSwapchainKHR swapchain);
   }
 }
 

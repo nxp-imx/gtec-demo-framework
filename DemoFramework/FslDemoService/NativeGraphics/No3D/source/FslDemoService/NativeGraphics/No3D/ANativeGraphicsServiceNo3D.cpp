@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/No3D/ANativeGraphicsServiceNo3D.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
+#include <FslDemoService/NativeGraphics/Base/NativeGraphicsDeviceCreateInfo.hpp>
+#include <FslDemoService/NativeGraphics/No3D/ANativeGraphicsServiceNo3D.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginFrameInfo.hpp>
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeDependentCreateInfo.hpp>
-#include <FslDemoService/NativeGraphics/Base/NativeGraphicsDeviceCreateInfo.hpp>
 #include <cassert>
 #include <utility>
 

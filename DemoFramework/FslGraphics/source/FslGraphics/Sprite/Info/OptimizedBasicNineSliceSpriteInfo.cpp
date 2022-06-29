@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Info/OptimizedBasicNineSliceSpriteInfo.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/Info/NineSliceSpriteInfoUtil.hpp>
+#include <FslGraphics/Sprite/Info/OptimizedBasicNineSliceSpriteInfo.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <memory>
@@ -49,7 +49,7 @@ namespace Fsl
     : OpaqueMaterialInfo(opaqueSpriteMaterialInfo)
     , TransparentMaterialInfo(transparentSpriteMaterialInfo)
     , ImageInfo(imageRectanglePx.GetExtent(), imageRectanglePx, nineSlicePx, contentMarginPx,
-                SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi),
+                SpriteUnitConverter::CalcImageDpExtent2D(imageRectanglePx.GetExtent(), imageDpi),
                 SpriteUnitConverter::CalcDpThicknessU(nineSlicePx, imageDpi), SpriteUnitConverter::CalcDpThicknessU(contentMarginPx, imageDpi))
     , ImageDpi(imageDpi)
     , RenderInfo(NineSliceSpriteInfoUtil::CalcNativeNineSliceTextureArea(spriteNativeAreaCalc, opaqueSpriteMaterialInfo, imageRectanglePx,

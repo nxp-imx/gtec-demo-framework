@@ -34,12 +34,10 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <Shared/UI/Benchmark/RenderMethodInfo.hpp>
 
-namespace Fsl
+namespace Fsl::RenderConfig
 {
-  namespace RenderConfig
-  {
-    ReadOnlySpan<RenderMethodInfo> Get();
-  }
+  uint32_t GetSize();
+  ReadOnlySpan<RenderMethodInfo> Get();
 }
 
 #endif

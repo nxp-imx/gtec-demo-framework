@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,68 +29,65 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Vulkan/Config/PhysicalDeviceConfigUtil.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
 #include <FslDemoApp/Base/Service/Options/IOptions.hpp>
 #include <FslDemoApp/Base/Service/Options/Options.hpp>
+#include <FslDemoHost/Vulkan/Config/PhysicalDeviceConfigUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include "ConfigUtil.hpp"
 
-namespace Fsl
+namespace Fsl::PhysicalDeviceConfigUtil
 {
-  namespace PhysicalDeviceConfigUtil
+  namespace
   {
-    namespace
+    struct DeviceConfigRequest
     {
-      struct DeviceConfigRequest
-      {
-        std::deque<Vulkan::FeatureRequest> ExtensionRequests;
-      };
+      std::deque<Vulkan::FeatureRequest> ExtensionRequests;
+    };
 
 
-      DeviceConfigRequest BuildHostDeviceConfigRequest(const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests, ConfigControl configControl)
+    DeviceConfigRequest BuildHostDeviceConfigRequest(const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests, ConfigControl configControl)
+    {
+      // FIX: add support for config control
+      FSL_PARAM_NOT_USED(configControl);
+      DeviceConfigRequest deviceConfig;
+      for (std::size_t i = 0; i < hostExtensionRequests.size(); ++i)
       {
-        // FIX: add support for config control
-        FSL_PARAM_NOT_USED(configControl);
-        DeviceConfigRequest deviceConfig;
-        for (std::size_t i = 0; i < hostExtensionRequests.size(); ++i)
-        {
-          deviceConfig.ExtensionRequests.emplace_back(hostExtensionRequests[i]);
-        }
-        return deviceConfig;
+        deviceConfig.ExtensionRequests.emplace_back(hostExtensionRequests[i]);
       }
-
-      DeviceConfig PrepareConfig(const VkPhysicalDevice device, const DeviceConfigRequest& deviceConfigRequest)
-      {
-        DeviceConfig config;
-        ConfigUtil::PrepareConfig(config.Extensions, deviceConfigRequest.ExtensionRequests,
-                                  Vulkan::PhysicalDeviceUtil::EnumerateDeviceExtensionProperties(device), "extension");
-        return config;
-      }
+      return deviceConfig;
     }
 
-    DeviceConfig BuildConfig(const VkPhysicalDevice device, const std::shared_ptr<DemoAppHostConfigVulkan>& customDemoAppHostConfig,
-                             const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests)
+    DeviceConfig PrepareConfig(const VkPhysicalDevice device, const DeviceConfigRequest& deviceConfigRequest)
     {
-      const auto deviceExtensionConfigControl =
-        customDemoAppHostConfig ? customDemoAppHostConfig->GetDeviceExtensionConfigControl() : ConfigControl::Default;
-
-      DeviceConfigRequest deviceConfig = BuildHostDeviceConfigRequest(hostExtensionRequests, deviceExtensionConfigControl);
-      DeviceConfigRequest appDeviceConfig;
-      if (customDemoAppHostConfig)
-      {
-        appDeviceConfig.ExtensionRequests = customDemoAppHostConfig->GetDeviceExtensionRequests();
-      }
-
-      ConfigUtil::MergeFeatureRequests(deviceConfig.ExtensionRequests, appDeviceConfig.ExtensionRequests);
-
-      return PrepareConfig(device, deviceConfig);
+      DeviceConfig config;
+      ConfigUtil::PrepareConfig(config.Extensions, deviceConfigRequest.ExtensionRequests,
+                                Vulkan::PhysicalDeviceUtil::EnumerateDeviceExtensionProperties(device), "extension");
+      return config;
     }
+  }
+
+  DeviceConfig BuildConfig(const VkPhysicalDevice device, const std::shared_ptr<DemoAppHostConfigVulkan>& customDemoAppHostConfig,
+                           const ReadOnlySpan<Vulkan::FeatureRequest> hostExtensionRequests)
+  {
+    const auto deviceExtensionConfigControl =
+      customDemoAppHostConfig ? customDemoAppHostConfig->GetDeviceExtensionConfigControl() : ConfigControl::Default;
+
+    DeviceConfigRequest deviceConfig = BuildHostDeviceConfigRequest(hostExtensionRequests, deviceExtensionConfigControl);
+    DeviceConfigRequest appDeviceConfig;
+    if (customDemoAppHostConfig)
+    {
+      appDeviceConfig.ExtensionRequests = customDemoAppHostConfig->GetDeviceExtensionRequests();
+    }
+
+    ConfigUtil::MergeFeatureRequests(deviceConfig.ExtensionRequests, appDeviceConfig.ExtensionRequests);
+
+    return PrepareConfig(device, deviceConfig);
   }
 }

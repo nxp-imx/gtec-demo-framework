@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexMatrixColor.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexMatrixColor.hpp>
 #include <cstddef>
 
 using namespace Fsl;
@@ -60,8 +60,8 @@ TEST(TestVertices_VertexMatrixColor, Construct_Default)
 
 TEST(TestVertices_VertexMatrixColor, GetVertexDeclaration)
 {
-  const VertexElementEx expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
-  const VertexElementEx expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElement expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElement expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
   const auto vertexDecl = VertexDeclaration(VertexMatrixColor::AsVertexDeclarationSpan());
 
   EXPECT_EQ(sizeof(VertexMatrixColor), vertexDecl.VertexStride());
@@ -91,8 +91,8 @@ TEST(TestVertices_VertexMatrixColor, GetVertexDeclaration)
 
 TEST(TestVertices_VertexMatrixColor, GetVertexDeclarationArray)
 {
-  const VertexElementEx expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
-  const VertexElementEx expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElement expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElement expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
   const auto vertexDecl = VertexMatrixColor::GetVertexDeclarationArray();
 
   EXPECT_EQ(sizeof(VertexMatrixColor), vertexDecl.VertexStride());
@@ -122,8 +122,8 @@ TEST(TestVertices_VertexMatrixColor, GetVertexDeclarationArray)
 
 TEST(TestVertices_VertexMatrixColor, AsVertexDeclarationSpan)
 {
-  const VertexElementEx expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
-  const VertexElementEx expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
+  const VertexElement expected0(offsetof(VertexMatrixColor, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0u);
+  const VertexElement expected1(offsetof(VertexMatrixColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u);
   const auto vertexDecl = VertexMatrixColor::AsVertexDeclarationSpan();
 
   EXPECT_EQ(sizeof(VertexMatrixColor), vertexDecl.VertexStride());

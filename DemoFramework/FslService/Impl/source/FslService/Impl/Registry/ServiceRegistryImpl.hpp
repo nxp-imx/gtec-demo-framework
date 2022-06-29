@@ -34,9 +34,9 @@
 #include <FslService/Impl/Priority.hpp>
 #include <FslService/Impl/Registry/IServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Global/IThreadSafeSynchronousServiceFactory.hpp>
-#include "ServiceGroupRegistry.hpp"
 #include <deque>
 #include "GenericServiceRegistryImpl.hpp"
+#include "ServiceGroupRegistry.hpp"
 
 namespace Fsl
 {

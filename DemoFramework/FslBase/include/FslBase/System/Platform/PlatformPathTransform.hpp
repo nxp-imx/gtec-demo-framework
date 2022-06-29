@@ -43,14 +43,11 @@
 
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 
-namespace Fsl
+namespace Fsl::PlatformPathTransform
 {
-  namespace PlatformPathTransform
+  inline std::wstring ToSystemPath(const IO::Path& path)
   {
-    inline std::wstring ToSystemPath(const IO::Path& path)
-    {
-      return PlatformWin32::Widen(path.ToUTF8String());
-    }
+    return PlatformWin32::Widen(path.ToUTF8String());
   }
 }
 

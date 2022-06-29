@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,163 +29,159 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/SlidingPanel.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
+#include <FslSimpleUI/Base/Control/SlidingPanel.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    namespace LocalConfig
     {
-      namespace LocalConfig
-      {
-        constexpr float Visible = 1.0f;
-        constexpr float Hidden = 0.0f;
-      }
-
-      PxPoint2 CalcOffset(const SlideDirection direction, const float visible, const PxSize2D sizePx)
-      {
-        PxPoint2 offsetPx;
-        switch (direction)
-        {
-        case SlideDirection::Left:
-          offsetPx = PxPoint2(TypeConverter::UncheckedChangeTo<int32_t>((-sizePx.Width()) * (1.0f - visible)), 0);
-          break;
-        case SlideDirection::Right:
-          offsetPx = {};
-          break;
-        case SlideDirection::Up:
-          offsetPx = PxPoint2(0, TypeConverter::UncheckedChangeTo<int32_t>((-sizePx.Height()) * (1.0f - visible)));
-          break;
-        case SlideDirection::Down:
-        default:
-          offsetPx = {};
-          break;
-        }
-        return offsetPx;
-      }
-
-      PxSize2D CalcSize(const SlideDirection direction, const float visible, const PxSize2D sizePx)
-      {
-        PxSize2D modifiedSizePx;
-        switch (direction)
-        {
-        case SlideDirection::Left:
-          modifiedSizePx = PxSize2D(TypeConverter::UncheckedChangeTo<int32_t>((sizePx.Width()) * visible), sizePx.Height());
-          break;
-        case SlideDirection::Right:
-          modifiedSizePx = PxSize2D(TypeConverter::UncheckedChangeTo<int32_t>((sizePx.Width()) * visible), sizePx.Height());
-          break;
-        case SlideDirection::Up:
-          modifiedSizePx = PxSize2D(sizePx.Width(), TypeConverter::UncheckedChangeTo<int32_t>((sizePx.Height()) * visible));
-          break;
-        case SlideDirection::Down:
-        default:
-          modifiedSizePx = PxSize2D(sizePx.Width(), TypeConverter::UncheckedChangeTo<int32_t>((sizePx.Height()) * visible));
-          break;
-        }
-        return modifiedSizePx;
-      }
-
+      constexpr float Visible = 1.0f;
+      constexpr float Hidden = 0.0f;
     }
 
-
-    SlidingPanel::SlidingPanel(const std::shared_ptr<BaseWindowContext>& context)
-      : ContentControl(context)
-      , m_animation(context->UITransitionCache, DefaultAnim::SlideTime, DefaultAnim::SlideTransitionType)
+    PxPoint2 CalcOffset(const SlideDirection direction, const float visible, const PxSize2D sizePx)
     {
-      m_animation.SetActualValue(LocalConfig::Visible);
-    }
-
-    bool SlidingPanel::SetShow(const bool isVisible)
-    {
-      const auto state = isVisible ? State::Shown : State::Hidden;
-      if (m_state == state)
-      {
-        return false;
-      }
-      m_state = state;
-      if (m_state == State::Shown)
-      {
-        SetContentVisibility(ItemVisibility::Visible);
-      }
-
-      PropertyUpdated(PropertyType::Layout);
-      return true;
-    }
-
-
-    bool SlidingPanel::SetDirection(const SlideDirection direction)
-    {
-      if (direction == m_slideDirection)
-      {
-        return false;
-      }
-      m_slideDirection = direction;
-      PropertyUpdated(PropertyType::Layout);
-      return true;
-    }
-
-
-    PxSize2D SlidingPanel::ArrangeOverride(const PxSize2D& finalSizePx)
-    {
-      auto localFinalSizePx = m_desiredSizePx;
-      switch (m_slideDirection)
+      PxPoint2 offsetPx;
+      switch (direction)
       {
       case SlideDirection::Left:
+        offsetPx = PxPoint2(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(-sizePx.Width()) * (1.0f - visible)), 0);
+        break;
       case SlideDirection::Right:
-        localFinalSizePx.SetHeight(finalSizePx.Height());
+        offsetPx = {};
         break;
       case SlideDirection::Up:
+        offsetPx = PxPoint2(0, TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(-sizePx.Height()) * (1.0f - visible)));
+        break;
       case SlideDirection::Down:
-        localFinalSizePx.SetWidth(finalSizePx.Width());
       default:
+        offsetPx = {};
         break;
       }
-
-      PxPoint2 offsetPx = CalcOffset(m_slideDirection, m_animation.GetValue(), localFinalSizePx);
-      ContentControl::CustomArrange(localFinalSizePx, offsetPx);
-      return finalSizePx;
+      return offsetPx;
     }
 
-
-    PxSize2D SlidingPanel::MeasureOverride(const PxAvailableSize& availableSizePx)
+    PxSize2D CalcSize(const SlideDirection direction, const float visible, const PxSize2D sizePx)
     {
-      m_desiredSizePx = ContentControl::MeasureOverride(availableSizePx);
-      return CalcSize(m_slideDirection, m_animation.GetValue(), m_desiredSizePx);
+      PxSize2D modifiedSizePx;
+      switch (direction)
+      {
+      case SlideDirection::Left:
+        modifiedSizePx = PxSize2D(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Width()) * visible), sizePx.Height());
+        break;
+      case SlideDirection::Right:
+        modifiedSizePx = PxSize2D(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Width()) * visible), sizePx.Height());
+        break;
+      case SlideDirection::Up:
+        modifiedSizePx = PxSize2D(sizePx.Width(), TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Height()) * visible));
+        break;
+      case SlideDirection::Down:
+      default:
+        modifiedSizePx = PxSize2D(sizePx.Width(), TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Height()) * visible));
+        break;
+      }
+      return modifiedSizePx;
     }
+  }
 
 
-    void SlidingPanel::UpdateAnimation(const TransitionTimeSpan& timeSpan)
+  SlidingPanel::SlidingPanel(const std::shared_ptr<BaseWindowContext>& context)
+    : ContentControl(context)
+    , m_animation(context->UITransitionCache, DefaultAnim::SlideTime, DefaultAnim::SlideTransitionType)
+  {
+    m_animation.SetActualValue(LocalConfig::Visible);
+  }
+
+  bool SlidingPanel::SetShow(const bool isVisible)
+  {
+    const auto state = isVisible ? State::Shown : State::Hidden;
+    if (m_state == state)
     {
-      float oldValue = m_animation.GetValue();
-      m_animation.Update(timeSpan);
-      if (oldValue != m_animation.GetValue())
-      {
-        SetLayoutDirty(true);
-      }
+      return false;
     }
-
-
-    bool SlidingPanel::UpdateAnimationState(const bool forceCompleteAnimation)
+    m_state = state;
+    if (m_state == State::Shown)
     {
-      m_animation.SetValue(m_state == State::Shown ? LocalConfig::Visible : LocalConfig::Hidden);
-
-      bool isAnimating = ContentControl::UpdateAnimationState(forceCompleteAnimation);
-      if (forceCompleteAnimation)
-      {
-        m_animation.ForceComplete();
-      }
-      bool isAnimating2 = !m_animation.IsCompleted();
-      if (!isAnimating2 && m_state == State::Hidden)
-      {
-        SetContentVisibility(ItemVisibility::Collapsed);
-      }
-      return isAnimating || isAnimating2;
+      SetContentVisibility(ItemVisibility::Visible);
     }
+
+    PropertyUpdated(PropertyType::Layout);
+    return true;
+  }
+
+
+  bool SlidingPanel::SetDirection(const SlideDirection direction)
+  {
+    if (direction == m_slideDirection)
+    {
+      return false;
+    }
+    m_slideDirection = direction;
+    PropertyUpdated(PropertyType::Layout);
+    return true;
+  }
+
+
+  PxSize2D SlidingPanel::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    auto localFinalSizePx = m_desiredSizePx;
+    switch (m_slideDirection)
+    {
+    case SlideDirection::Left:
+    case SlideDirection::Right:
+      localFinalSizePx.SetHeight(finalSizePx.Height());
+      break;
+    case SlideDirection::Up:
+    case SlideDirection::Down:
+      localFinalSizePx.SetWidth(finalSizePx.Width());
+    default:
+      break;
+    }
+
+    PxPoint2 offsetPx = CalcOffset(m_slideDirection, m_animation.GetValue(), localFinalSizePx);
+    ContentControl::CustomArrange(localFinalSizePx, offsetPx);
+    return finalSizePx;
+  }
+
+
+  PxSize2D SlidingPanel::MeasureOverride(const PxAvailableSize& availableSizePx)
+  {
+    m_desiredSizePx = ContentControl::MeasureOverride(availableSizePx);
+    return CalcSize(m_slideDirection, m_animation.GetValue(), m_desiredSizePx);
+  }
+
+
+  void SlidingPanel::UpdateAnimation(const TimeSpan& timeSpan)
+  {
+    float oldValue = m_animation.GetValue();
+    m_animation.Update(timeSpan);
+    if (oldValue != m_animation.GetValue())
+    {
+      SetLayoutDirty(true);
+    }
+  }
+
+
+  bool SlidingPanel::UpdateAnimationState(const bool forceCompleteAnimation)
+  {
+    m_animation.SetValue(m_state == State::Shown ? LocalConfig::Visible : LocalConfig::Hidden);
+
+    bool isAnimating = ContentControl::UpdateAnimationState(forceCompleteAnimation);
+    if (forceCompleteAnimation)
+    {
+      m_animation.ForceComplete();
+    }
+    bool isAnimating2 = !m_animation.IsCompleted();
+    if (!isAnimating2 && m_state == State::Hidden)
+    {
+      SetContentVisibility(ItemVisibility::Collapsed);
+    }
+    return isAnimating || isAnimating2;
   }
 }

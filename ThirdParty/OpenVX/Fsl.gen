@@ -8,11 +8,11 @@
     <Define Name="FSL_FEATURE_OPENVX" Access="Public"/> 
     <Platform Name="Ubuntu" Supported="true">
       <!-- Currently we use this as a fallback for all OpenVX on ubuntu -->
-      <Dependency Name="Recipe.KhronosOpenVX_1_1"/>
+      <Dependency Name="Recipe.KhronosOpenVX_1_2"/>
     </Platform>
     <Platform Name="Windows" Supported="true">
       <!-- Currently we use this as a fallback for all OpenVX on windows -->
-      <Dependency Name="Recipe.KhronosOpenVX_1_1"/>
+      <Dependency Name="Recipe.KhronosOpenVX_1_2"/>
     </Platform>
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="OpenVX" Access="Public" Type="StaticLib"/>

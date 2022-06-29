@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,22 +29,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/SpatialHashGrid2D/Shared.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
-#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
+#include <Shared/SpatialHashGrid2D/Shared.hpp>
 #include <random>
 
 namespace Fsl
@@ -76,8 +77,8 @@ namespace Fsl
       std::uniform_real_distribution<float> randomWidth2(20.0f, 400.0f);
       std::uniform_real_distribution<float> randomHeight(10.0f, 100.0f);
 
-      const float scaleX = sizePx.Width() / LocalConfig::VirtualSize;
-      const float scaleY = sizePx.Height() / LocalConfig::VirtualSize;
+      const float scaleX = static_cast<float>(sizePx.Width()) / LocalConfig::VirtualSize;
+      const float scaleY = static_cast<float>(sizePx.Height()) / LocalConfig::VirtualSize;
 
       uint32_t index = 0;
       for (auto& rRecord : rRecords)
@@ -100,8 +101,8 @@ namespace Fsl
       colorMarkerImage->SetContentColor(color);
       auto label = uiFactory.CreateLabel(strView);
       auto stack = std::make_shared<UI::StackLayout>(uiFactory.GetContext());
-      stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
-      stack->SetSpacing(4);
+      stack->SetOrientation(UI::LayoutOrientation::Horizontal);
+      stack->SetSpacing(DpSize1DF::Create(4));
       stack->AddChild(colorMarkerImage);
       stack->AddChild(label);
       return stack;
@@ -156,10 +157,10 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::Space:
-    {
-      SetDefaultValues();
-      break;
-    }
+      {
+        SetDefaultValues();
+        break;
+      }
     default:
       break;
     }
@@ -231,8 +232,8 @@ namespace Fsl
     }
 
     {
-      const float scaleX = sizePx.Width() / LocalConfig::VirtualSize;
-      const float scaleY = sizePx.Height() / LocalConfig::VirtualSize;
+      const float scaleX = static_cast<float>(sizePx.Width()) / LocalConfig::VirtualSize;
+      const float scaleY = static_cast<float>(sizePx.Height()) / LocalConfig::VirtualSize;
       const float width = 400 * scaleX;
       const float height = 200 * scaleY;
       const uint32_t widthPx = TypeConverter::ChangeTo<uint32_t>(width);
@@ -262,8 +263,9 @@ namespace Fsl
     FSL_PARAM_NOT_USED(demoTime);
     constexpr float zPos = 0;
     m_lineBuilder.Clear();
-    m_lineBuilder.AddGridXY(Rect(0, 0, float(m_resData.GridWidthPx), float(m_resData.GridHeightPx)), zPos, m_resData.GridStepsX, m_resData.GridStepsY,
-                            Color(0xFF909090));
+    m_lineBuilder.AddGridXY(
+      Rectangle(0, 0, UncheckedNumericCast<int32_t>(m_resData.GridWidthPx), UncheckedNumericCast<int32_t>(m_resData.GridHeightPx)), zPos,
+      m_resData.GridStepsX, m_resData.GridStepsY, Color(0xFF909090));
 
     // Dummy implementation
     Rectangle2D candidateRect = m_resData.CandidateArea;
@@ -277,8 +279,8 @@ namespace Fsl
 
       // run though the candidate cells in the grid
       {
-        const int32_t cellSizeX = m_resData.GridWidthPx / m_resData.GridStepsX;
-        const int32_t cellSizeY = m_resData.GridHeightPx / m_resData.GridStepsY;
+        const auto cellSizeX = UncheckedNumericCast<int32_t>(m_resData.GridWidthPx / m_resData.GridStepsX);
+        const auto cellSizeY = UncheckedNumericCast<int32_t>(m_resData.GridHeightPx / m_resData.GridStepsY);
 
         const int32_t cellCountX = m_resData.SpatialHashGrid.GetCellCountX();
         const int32_t cellCountY = m_resData.SpatialHashGrid.GetCellCountY();
@@ -341,9 +343,9 @@ namespace Fsl
     auto legend2 = CreateLegend(uiFactory, LocalConfig::ColorCandidate, "Candidate cells");
 
     auto leftBarLayout = std::make_shared<UI::StackLayout>(context);
-    leftBarLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    leftBarLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     leftBarLayout->SetAlignmentX(UI::ItemAlignment::Center);
-    leftBarLayout->SetSpacing(10);
+    leftBarLayout->SetSpacing(DpSize1DF::Create(10));
     leftBarLayout->AddChild(legend0);
     leftBarLayout->AddChild(legend1);
     leftBarLayout->AddChild(legend2);

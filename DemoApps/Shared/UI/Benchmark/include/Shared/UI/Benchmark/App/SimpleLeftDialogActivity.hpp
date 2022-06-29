@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_APP_SIMPLELEFTDIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_APP_SIMPLELEFTDIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,32 +35,29 @@
 #include <Shared/UI/Benchmark/Activity/DialogActivity.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ButtonBase;
+
+  class SimpleLeftDialogActivity : public DialogActivity
   {
-    class ButtonBase;
-
-    class SimpleLeftDialogActivity : public DialogActivity
+    enum class State
     {
-      enum class State
-      {
-        Ready,
-        Closing,
-      };
-
-
-      State m_state{State::Ready};
-      std::shared_ptr<ButtonBase> m_buttonBack;
-      std::shared_ptr<ButtonBase> m_buttonDetails;
-
-    public:
-      SimpleLeftDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                               const Theme::WindowType windowType);
-
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
+      Ready,
+      Closing,
     };
-  }
+
+
+    State m_state{State::Ready};
+    std::shared_ptr<ButtonBase> m_buttonBack;
+    std::shared_ptr<ButtonBase> m_buttonDetails;
+
+  public:
+    SimpleLeftDialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                             const Theme::WindowType windowType);
+
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
+  };
 }
 
 

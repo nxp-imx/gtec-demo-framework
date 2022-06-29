@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_MODULE_IEXTERNALMODULEHOST_HPP
 #define FSLSIMPLEUI_BASE_MODULE_IEXTERNALMODULEHOST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,22 @@
 
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IWindowBasicInfo;
+  class IWindowClickInputTargetLocater;
+
+  class IExternalModuleHost
   {
-    class IWindowBasicInfo;
-    class IWindowClickInputTargetLocater;
+  public:
+    virtual ~IExternalModuleHost() = default;
 
-    class IExternalModuleHost
-    {
-    public:
-      virtual ~IExternalModuleHost() = default;
+    //! @brief Get the click target locater
+    virtual std::shared_ptr<IWindowClickInputTargetLocater> GetTargetLocater() const = 0;
 
-      //! @brief Get the click target locater
-      virtual std::shared_ptr<IWindowClickInputTargetLocater> GetTargetLocater() const = 0;
-
-      //!@brief get window information
-      virtual std::shared_ptr<IWindowBasicInfo> GetWindowInfo() const = 0;
-    };
-  }
+    //!@brief get window information
+    virtual std::shared_ptr<IWindowBasicInfo> GetWindowInfo() const = 0;
+  };
 }
 
 #endif

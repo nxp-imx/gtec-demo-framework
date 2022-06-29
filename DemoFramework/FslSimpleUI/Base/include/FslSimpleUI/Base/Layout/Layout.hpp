@@ -33,21 +33,18 @@
 
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class Layout : public BaseWindow
   {
-    class Layout : public BaseWindow
-    {
-    public:
-      explicit Layout(const std::shared_ptr<BaseWindowContext>& context);
+  public:
+    explicit Layout(const std::shared_ptr<BaseWindowContext>& context);
 
-      virtual void ClearChildren() = 0;
-      virtual void AddChild(const std::shared_ptr<BaseWindow>& window) = 0;
-      virtual void RemoveChild(const std::shared_ptr<BaseWindow>& window) = 0;
-      virtual std::size_t GetChildCount() const = 0;
-    };
-  }
+    virtual void ClearChildren() = 0;
+    virtual void AddChild(const std::shared_ptr<BaseWindow>& window) = 0;
+    virtual void RemoveChild(const std::shared_ptr<BaseWindow>& window) = 0;
+    virtual std::size_t GetChildCount() const = 0;
+  };
 }
 
 #endif

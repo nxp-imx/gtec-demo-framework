@@ -30,62 +30,59 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenVG/Common.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
 #include <FslUtil/OpenVG/VGFontBuffer.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  VGFontBuffer::VGFontBuffer()
+    : m_font(VG_INVALID_HANDLE)
   {
-    VGFontBuffer::VGFontBuffer()
-      : m_font(VG_INVALID_HANDLE)
+  }
+
+
+  VGFontBuffer::VGFontBuffer(const int32_t capacityHint)
+    : m_font(VG_INVALID_HANDLE)
+  {
+    Reset(capacityHint);
+  }
+
+
+  VGFontBuffer::~VGFontBuffer()
+  {
+    Reset();
+  }
+
+
+  void VGFontBuffer::Reset()
+  {
+    if (m_font != VG_INVALID_HANDLE)
     {
+      vgDestroyFont(m_font);
+      m_font = VG_INVALID_HANDLE;
+    }
+  }
+
+
+  void VGFontBuffer::Reset(const int32_t capacityHint)
+  {
+    if (m_font != VG_INVALID_HANDLE)
+    {
+      vgDestroyFont(m_font);
+      m_font = VG_INVALID_HANDLE;
     }
 
-
-    VGFontBuffer::VGFontBuffer(const int32_t capacityHint)
-      : m_font(VG_INVALID_HANDLE)
-    {
-      Reset(capacityHint);
-    }
+    m_font = vgCreateFont(capacityHint);
+    FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
+  }
 
 
-    VGFontBuffer::~VGFontBuffer()
-    {
-      Reset();
-    }
-
-
-    void VGFontBuffer::Reset()
-    {
-      if (m_font != VG_INVALID_HANDLE)
-      {
-        vgDestroyFont(m_font);
-        m_font = VG_INVALID_HANDLE;
-      }
-    }
-
-
-    void VGFontBuffer::Reset(const int32_t capacityHint)
-    {
-      if (m_font != VG_INVALID_HANDLE)
-      {
-        vgDestroyFont(m_font);
-        m_font = VG_INVALID_HANDLE;
-      }
-
-      m_font = vgCreateFont(capacityHint);
-      FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
-    }
-
-
-    VGFont VGFontBuffer::GetHandle() const
-    {
-      return m_font;
-    }
+  VGFont VGFontBuffer::GetHandle() const
+  {
+    return m_font;
   }
 }

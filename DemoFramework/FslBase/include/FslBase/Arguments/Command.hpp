@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_COMMAND_HPP
 #define FSLBASE_ARGUMENTS_COMMAND_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,27 +35,24 @@
 #include <cstdint>
 #include <string>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  struct Command
   {
-    struct Command
-    {
-      std::string ShortName;
-      std::string Name;
-      uint32_t Id{0};
-      CommandType Type{CommandType::Undefined};
-      bool Required{false};
+    std::string ShortName;
+    std::string Name;
+    uint32_t Id{0};
+    CommandType Type{CommandType::Undefined};
+    bool Required{false};
 
-      Command() = default;
+    Command() = default;
 
-      Command(std::string smartName, const uint32_t commandId, const CommandType commandType, const bool required = false);
-      Command(std::string shortName, std::string name, const uint32_t commandId, const CommandType commandType, const bool required = false);
+    Command(std::string smartName, const uint32_t commandId, const CommandType commandType, const bool required = false);
+    Command(std::string shortName, std::string name, const uint32_t commandId, const CommandType commandType, const bool required = false);
 
-      void Validate() const;
-      bool IsValid() const;
-    };
-  }
+    void Validate() const;
+    bool IsValid() const;
+  };
 }
 
 #endif

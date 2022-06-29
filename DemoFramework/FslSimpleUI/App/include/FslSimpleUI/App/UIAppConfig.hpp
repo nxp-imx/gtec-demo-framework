@@ -33,26 +33,20 @@
 
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 
-namespace Fsl
+namespace Fsl::UIAppConfig::MaterialId
 {
-  namespace UIAppConfig
-  {
-    namespace MaterialId
-    {
-      constexpr SpriteMaterialId Default(0x00u);
+  constexpr SpriteMaterialId Default(0x00u);
 
-      constexpr SpriteMaterialId DefaultUI_Opaque(0x01u);
-      constexpr SpriteMaterialId DefaultUI_AlphaBlend(0x02u);
+  constexpr SpriteMaterialId DefaultUI_Opaque(0x01u);
+  constexpr SpriteMaterialId DefaultUI_AlphaBlend(0x02u);
 
-      constexpr SpriteMaterialId DefaultUI_SdfFont(0x03u);
+  constexpr SpriteMaterialId DefaultUI_SdfFont(0x03u);
 
-      //! The custom Sprite id's are in the range: CustomSpriteOffset >= custin-id < DynamicOffset
-      constexpr SpriteMaterialId CustomSpriteOffset(0x10000000u);
+  //! The custom Sprite id's are in the range: CustomSpriteOffset >= custin-id < DynamicOffset
+  constexpr SpriteMaterialId CustomSpriteOffset(0x10000000u);
 
-      // All sprite id's >= DynamicOffset are reserved for dynamic id's
-      constexpr SpriteMaterialId DynamicOffset(0x80000000u);
-    }
-  }
+  // All sprite id's >= DynamicOffset are reserved for dynamic id's
+  constexpr SpriteMaterialId DynamicOffset(0x80000000u);
 }
 
 #endif

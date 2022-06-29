@@ -29,16 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "OptionParser.hpp"
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Span/SpanUtil.hpp>
+#include <FslBase/String/StringParseUtil.hpp>
 #include <algorithm>
 #include <cmath>
-#include "OptionParser.hpp"
 
 namespace Fsl
 {
@@ -124,15 +124,15 @@ namespace Fsl
       m_fieldOfView = floatValue;
       return OptionParseResult::Parsed;
     case CommandId::MatSpecular:
-    {
-      auto res = StringParseUtil::ParseArray(SpanUtil::AsSpan(floatArrayValuesMax4), strOptArg);
-      if (res.ArrayEntries != 3)
       {
-        return OptionParseResult::Failed;
+        auto res = StringParseUtil::ParseArray(SpanUtil::AsSpan(floatArrayValuesMax4), strOptArg);
+        if (res.ArrayEntries != 3)
+        {
+          return OptionParseResult::Failed;
+        }
+        m_matSpecular = Vector3(floatArrayValuesMax4[0], floatArrayValuesMax4[1], floatArrayValuesMax4[2]);
+        return OptionParseResult::Parsed;
       }
-      m_matSpecular = Vector3(floatArrayValuesMax4[0], floatArrayValuesMax4[1], floatArrayValuesMax4[2]);
-      return OptionParseResult::Parsed;
-    }
     case CommandId::MatShininess:
       if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {

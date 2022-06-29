@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,52 +29,46 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Render/Stub/RenderSystem.hpp>
-#include <FslSimpleUI/Render/Stub/MeshManager.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
+#include <FslSimpleUI/Render/Stub/MeshManager.hpp>
+#include <FslSimpleUI/Render/Stub/RenderSystem.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderStub
 {
-  namespace UI
+  RenderSystem::RenderSystem()
+    : m_meshManager(std::make_shared<MeshManager>())
   {
-    namespace RenderStub
-    {
-      RenderSystem::RenderSystem()
-        : m_meshManager(std::make_shared<MeshManager>())
-      {
-      }
-
-
-      RenderSystem::~RenderSystem()
-      {
-        m_meshManager->Dispose();
-      }
-
-
-      std::shared_ptr<IMeshManager> RenderSystem::GetMeshManager() const
-      {
-        return m_meshManager;
-      }
-
-      DrawCommandBuffer& RenderSystem::AcquireDrawCommandBuffer()
-      {
-        return m_commandBuffer;
-      }
-
-      void RenderSystem::ReleaseDrawCommandBuffer()
-      {
-      }
-
-      void RenderSystem::Draw(RenderPerformanceCapture* const /*pPerformanceCapture*/)
-      {
-        m_commandBuffer.Clear();
-      }
-
-      VertexDeclarationSpan RenderSystem::GetVertexDeclarationSpan()
-      {
-        return VertexPositionColorTexture::AsVertexDeclarationSpan();
-      }
-
-    }
   }
+
+
+  RenderSystem::~RenderSystem()
+  {
+    m_meshManager->Dispose();
+  }
+
+
+  std::shared_ptr<IMeshManager> RenderSystem::GetMeshManager() const
+  {
+    return m_meshManager;
+  }
+
+  DrawCommandBuffer& RenderSystem::AcquireDrawCommandBuffer()
+  {
+    return m_commandBuffer;
+  }
+
+  void RenderSystem::ReleaseDrawCommandBuffer()
+  {
+  }
+
+  void RenderSystem::Draw(RenderPerformanceCapture* const /*pPerformanceCapture*/)
+  {
+    m_commandBuffer.Clear();
+  }
+
+  VertexDeclarationSpan RenderSystem::GetVertexDeclarationSpan()
+  {
+    return VertexPositionColorTexture::AsVertexDeclarationSpan();
+  }
+
 }

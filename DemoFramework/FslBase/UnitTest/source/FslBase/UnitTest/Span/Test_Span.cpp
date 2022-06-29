@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -857,4 +857,217 @@ TEST(TestSpan, OperatorNotEqual)
   EXPECT_TRUE(Convert(contentB) != Convert(contentAA));
   EXPECT_TRUE(Convert(contentB) != Convert(contentBA));
   EXPECT_TRUE(Convert(contentB) != Convert(contentCA));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// iterators
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TEST(TestSpan, begin_empty)
+{
+  Span<char> span;
+
+  ASSERT_EQ(span.end(), span.begin());
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, begin_iterator_to_end)
+{
+  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  Span<uint8_t> span = Convert(content);
+
+  auto itrSource = content.begin();
+  const auto itrSourceEnd = content.end();
+
+  auto itr = span.begin();
+  auto itrEnd = span.end();
+  while (itr != itrEnd && itrSource != itrSourceEnd)
+  {
+    EXPECT_EQ(*itrSource, *itr);
+    ++itrSource;
+    ++itr;
+  }
+  ASSERT_EQ(itrEnd, itr);
+  ASSERT_EQ(itrSourceEnd, itrSource);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, begin_iterator_to_end_with_mod)
+{
+  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  const std::array<uint8_t, 11> content2 = {'W', 'o', 'r', 'l', 'd', ' ', 'h', 'e', 'l', 'l', 'o'};
+  Span<uint8_t> span = Convert(content);
+
+
+  {    // overwrite content with content2 using the span
+    auto itrSource = content2.begin();
+    const auto itrSourceEnd = content2.end();
+    auto itr = span.begin();
+    auto itrEnd = span.end();
+    while (itr != itrEnd && itrSource != itrSourceEnd)
+    {
+      *itr = *itrSource;
+      ++itrSource;
+      ++itr;
+    }
+    ASSERT_EQ(itrEnd, itr);
+    ASSERT_EQ(itrSourceEnd, itrSource);
+  }
+  {    // verify that both the span and content is equal to content2
+    auto itrContent = content.begin();
+    const auto itrContentEnd = content.end();
+    auto itrContent2 = content2.begin();
+    const auto itrContent2End = content2.end();
+
+    auto itr = span.begin();
+    auto itrEnd = span.end();
+    while (itr != itrEnd && itrContent != itrContentEnd && itrContent2 != itrContent2End)
+    {
+      EXPECT_EQ(*itrContent2, *itrContent);
+      EXPECT_EQ(*itrContent2, *itr);
+      ++itrContent;
+      ++itrContent2;
+      ++itr;
+    }
+    ASSERT_EQ(itrEnd, itr);
+    ASSERT_EQ(itrContentEnd, itrContent);
+    ASSERT_EQ(itrContent2End, itrContent2);
+
+    ASSERT_TRUE(itrEnd == itr);
+    ASSERT_TRUE(itrContentEnd == itrContent);
+    ASSERT_TRUE(itrContent2End == itrContent2);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, begin_foreach_with_mod)
+{
+  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  const std::array<uint8_t, 11> content2 = {'W', 'o', 'r', 'l', 'd', ' ', 'h', 'e', 'l', 'l', 'o'};
+  Span<uint8_t> span = Convert(content);
+
+
+  {    // overwrite content with content2 using the span
+    auto itrSource = content2.begin();
+    const auto itrSourceEnd = content2.end();
+    for (auto& rEntry : span)
+    {
+      ASSERT_TRUE(itrSourceEnd != itrSource);
+      rEntry = *itrSource;
+      ++itrSource;
+    }
+    ASSERT_TRUE(itrSourceEnd == itrSource);
+  }
+  {    // verify that both the span and content is equal to content2
+    auto itrContent = content.begin();
+    const auto itrContentEnd = content.end();
+    auto itrContent2 = content2.begin();
+    const auto itrContent2End = content2.end();
+
+    auto itr = span.begin();
+    auto itrEnd = span.end();
+    while (itr != itrEnd && itrContent != itrContentEnd && itrContent2 != itrContent2End)
+    {
+      EXPECT_EQ(*itrContent2, *itrContent);
+      EXPECT_EQ(*itrContent2, *itr);
+      ++itrContent;
+      ++itrContent2;
+      ++itr;
+    }
+    ASSERT_EQ(itrEnd, itr);
+    ASSERT_EQ(itrContentEnd, itrContent);
+    ASSERT_EQ(itrContent2End, itrContent2);
+
+    ASSERT_TRUE(itrEnd == itr);
+    ASSERT_TRUE(itrContentEnd == itrContent);
+    ASSERT_TRUE(itrContent2End == itrContent2);
+  }
+}
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// iterators const
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TEST(TestSpan, begin_empty_const)
+{
+  const Span<char> span;
+
+  ASSERT_EQ(span.end(), span.begin());
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, begin_iterator_to_end_const)
+{
+  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  const Span<uint8_t> span = Convert(content);
+
+  auto itrSource = content.begin();
+  const auto itrSourceEnd = content.end();
+
+  auto itr = span.begin();
+  auto itrEnd = span.end();
+  while (itr != itrEnd && itrSource != itrSourceEnd)
+  {
+    EXPECT_EQ(*itrSource, *itr);
+    ++itrSource;
+    ++itr;
+  }
+  ASSERT_EQ(itrEnd, itr);
+  ASSERT_EQ(itrSourceEnd, itrSource);
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, begin_foreach_with_compare_const)
+{
+  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  const Span<uint8_t> span = Convert(content);
+
+  {    // compare span with content using a 'foreach'
+    auto itrSource = content.begin();
+    const auto itrSourceEnd = content.end();
+    for (auto entry : span)
+    {
+      ASSERT_TRUE(itrSourceEnd != itrSource);
+      EXPECT_EQ(*itrSource, entry);
+      ++itrSource;
+    }
+    ASSERT_TRUE(itrSourceEnd == itrSource);
+  }
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, cbegin_empty)
+{
+  ReadOnlySpan<char> span;
+
+  ASSERT_EQ(span.cend(), span.cbegin());
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestSpan, cbegin_iterator_to_cend_const)
+{
+  std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
+  const Span<uint8_t> span = Convert(content);
+
+  auto itrSource = content.begin();
+  const auto itrSourceEnd = content.end();
+
+  auto itr = span.cbegin();
+  auto itrEnd = span.cend();
+  while (itr != itrEnd && itrSource != itrSourceEnd)
+  {
+    EXPECT_EQ(*itrSource, *itr);
+    ++itrSource;
+    ++itr;
+  }
+  ASSERT_EQ(itrEnd, itr);
+  ASSERT_EQ(itrSourceEnd, itrSource);
 }

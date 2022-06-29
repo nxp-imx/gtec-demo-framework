@@ -32,16 +32,16 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/Render/BatchSdfRenderConfig.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Render/Stats/NativeBatch2DStats.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
-#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTextureInfo.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <array>
 
 namespace Fsl

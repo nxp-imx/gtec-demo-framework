@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenCLGaussianFilter.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Math/TypeConverter.hpp>
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/TypeConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenCL1_2/ContextEx.hpp>
@@ -309,7 +309,7 @@ namespace Fsl
 
   void OpenCLGaussianFilter::PrepareMatrices(const Point2& currentSize)
   {
-    const float aspectRatio = currentSize.X / float(currentSize.Y);
+    const float aspectRatio = static_cast<float>(currentSize.X) / static_cast<float>(currentSize.Y);
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, -3.0f);
   }

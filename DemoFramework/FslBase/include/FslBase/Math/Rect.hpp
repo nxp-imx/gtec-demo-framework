@@ -191,7 +191,8 @@ namespace Fsl
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
     constexpr bool Contains(const int32_t x, const int32_t y) const
     {
-      return (x >= Left() && x < Right() && y >= Top() && y < Bottom());
+      return (static_cast<float>(x) >= Left() && static_cast<float>(x) < Right() && static_cast<float>(y) >= Top() &&
+              static_cast<float>(y) < Bottom());
     }
 
 
@@ -204,7 +205,8 @@ namespace Fsl
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
     constexpr bool Contains(const Point2& value) const
     {
-      return (value.X >= Left() && value.X < Right() && value.Y >= Top() && value.Y < Bottom());
+      return (static_cast<float>(value.X) >= Left() && static_cast<float>(value.X) < Right() && static_cast<float>(value.Y) >= Top() &&
+              static_cast<float>(value.Y) < Bottom());
     }
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle

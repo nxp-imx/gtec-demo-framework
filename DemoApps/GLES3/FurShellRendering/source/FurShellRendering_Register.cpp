@@ -32,9 +32,9 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <Shared/FurShellRendering/OptionParser.hpp>
 #include <EGL/egl.h>
+#include <array>
 #include "FurShellRendering.hpp"
 #include "RenderMode.hpp"
-#include <array>
 
 namespace Fsl
 {

@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2U.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Point2U.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Span/Span.hpp>
 #include <FslBase/String/StringParseArrayResult.hpp>

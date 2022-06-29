@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/Log/LogStrideRequirement.hpp>
+#include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 

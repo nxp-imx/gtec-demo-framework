@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/System/DFGraphicsBasic2D/Shared.hpp>
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <sstream>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <Shared/System/DFGraphicsBasic2D/Shared.hpp>
 #include <cassert>
 #include <cmath>
+#include <sstream>
 
 namespace Fsl
 {

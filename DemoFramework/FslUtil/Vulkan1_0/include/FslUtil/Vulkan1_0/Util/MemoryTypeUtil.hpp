@@ -35,20 +35,14 @@
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan::MemoryTypeUtil
 {
-  namespace Vulkan
-  {
-    namespace MemoryTypeUtil
-    {
-      uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const uint32_t memoryTypeBits,
-                                  const VkMemoryPropertyFlags desiredPropertyFlags, const VkMemoryPropertyFlags notSetPropertyFlags = 0);
+  uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const uint32_t memoryTypeBits,
+                              const VkMemoryPropertyFlags desiredPropertyFlags, const VkMemoryPropertyFlags notSetPropertyFlags = 0);
 
-      bool TryGetMemoryTypeIndex(uint32_t& rMemoryTypeIndex, const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
-                                 const uint32_t memoryTypeBits, const VkMemoryPropertyFlags desiredPropertyFlags,
-                                 const VkMemoryPropertyFlags notSetPropertyFlags = 0);
-    }
-  }
+  bool TryGetMemoryTypeIndex(uint32_t& rMemoryTypeIndex, const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
+                             const uint32_t memoryTypeBits, const VkMemoryPropertyFlags desiredPropertyFlags,
+                             const VkMemoryPropertyFlags notSetPropertyFlags = 0);
 }
 
 #endif

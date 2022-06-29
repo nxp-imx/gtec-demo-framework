@@ -35,37 +35,34 @@
 #include <FslGraphics3D/SceneFormat/VertexElementFormat.hpp>
 #include <FslGraphics3D/SceneFormat/VertexElementUsage.hpp>
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  struct SFVertexElement
   {
-    struct SFVertexElement
+    SceneFormat::VertexElementFormat Format{SceneFormat::VertexElementFormat::Single};
+    SceneFormat::VertexElementUsage Usage{SceneFormat::VertexElementUsage::Color};
+    uint8_t UsageIndex{0};
+
+    SFVertexElement()
+
+      = default;
+
+    SFVertexElement(const SceneFormat::VertexElementFormat format, const SceneFormat::VertexElementUsage usage, const uint8_t usageIndex)
+      : Format(format)
+      , Usage(usage)
+      , UsageIndex(usageIndex)
     {
-      SceneFormat::VertexElementFormat Format{SceneFormat::VertexElementFormat::Single};
-      SceneFormat::VertexElementUsage Usage{SceneFormat::VertexElementUsage::Color};
-      uint8_t UsageIndex{0};
+    }
 
-      SFVertexElement()
-
-        = default;
-
-      SFVertexElement(const SceneFormat::VertexElementFormat format, const SceneFormat::VertexElementUsage usage, const uint8_t usageIndex)
-        : Format(format)
-        , Usage(usage)
-        , UsageIndex(usageIndex)
-      {
-      }
-
-      bool operator==(const SFVertexElement& rhs) const
-      {
-        return Format == rhs.Format && Usage == rhs.Usage && UsageIndex == rhs.UsageIndex;
-      }
-      bool operator!=(const SFVertexElement& rhs) const
-      {
-        return !(*this == rhs);
-      }
-    };
-  }
+    bool operator==(const SFVertexElement& rhs) const
+    {
+      return Format == rhs.Format && Usage == rhs.Usage && UsageIndex == rhs.UsageIndex;
+    }
+    bool operator!=(const SFVertexElement& rhs) const
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

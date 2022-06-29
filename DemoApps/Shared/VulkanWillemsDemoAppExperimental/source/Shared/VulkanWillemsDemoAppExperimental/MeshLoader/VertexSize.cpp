@@ -31,30 +31,24 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VertexSize.hpp>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
+  uint32_t VertexSize(const std::vector<VertexLayout>& vertexLayout)
   {
-    namespace MeshLoader
+    uint32_t vSize = 0;
+    for (const auto& layoutDetail : vertexLayout)
     {
-      uint32_t VertexSize(const std::vector<VertexLayout>& vertexLayout)
+      switch (layoutDetail)
       {
-        uint32_t vSize = 0;
-        for (const auto& layoutDetail : vertexLayout)
-        {
-          switch (layoutDetail)
-          {
-            // UV only has two components
-          case VertexLayout::VERTEX_LAYOUT_UV:
-            vSize += 2 * sizeof(float);
-            break;
-          default:
-            vSize += 3 * sizeof(float);
-            break;
-          }
-        }
-        return vSize;
+        // UV only has two components
+      case VertexLayout::VERTEX_LAYOUT_UV:
+        vSize += 2 * sizeof(float);
+        break;
+      default:
+        vSize += 3 * sizeof(float);
+        break;
       }
     }
+    return vSize;
   }
 }

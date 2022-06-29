@@ -33,19 +33,16 @@
 
 #include <cstdint>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  struct ParseErrorInfo
   {
-    struct ParseErrorInfo
-    {
-      bool IsValid{false};
-      //! If this is negative then no source argument was associated with the error
-      int32_t SourceArgumentIndex{-1};
-      //! @brief If this is negative then no command was associated with the error
-      int32_t CommandIndex{-1};
-    };
-  }
+    bool IsValid{false};
+    //! If this is negative then no source argument was associated with the error
+    int32_t SourceArgumentIndex{-1};
+    //! @brief If this is negative then no command was associated with the error
+    int32_t CommandIndex{-1};
+  };
 }
 
 #endif

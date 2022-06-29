@@ -34,19 +34,12 @@
 #include <FslBase/IO/PathView.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 
-namespace Fsl
+namespace Fsl::IO::PathViewHelper
 {
-  namespace IO
+  inline std::string ToString(const PathView pathView)
   {
-    namespace PathViewHelper
-    {
-      inline std::string ToString(const PathView pathView)
-      {
-        return std::string(pathView.data(), pathView.size());
-      }
-    }
+    return {pathView.data(), pathView.size()};
   }
-
 }
 
 #endif

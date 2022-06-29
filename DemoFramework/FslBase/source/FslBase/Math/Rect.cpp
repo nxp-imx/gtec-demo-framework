@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Rect.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/Rect.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <algorithm>
 #include <cassert>

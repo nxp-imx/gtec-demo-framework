@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,36 +29,40 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/UIContext.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslDataBinding/Base/DataBindingService.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/UIContext.hpp>
 #include <FslSimpleUI/Render/Base/IMeshManager.hpp>
+#include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  UIContext::UIContext(std::shared_ptr<DataBinding::DataBindingService> dataBindingService, std::shared_ptr<IWindowManager> windowManager,
+                       std::shared_ptr<WindowEventSender> eventSender, std::shared_ptr<IMeshManager> meshManager)
+    : DataBindingService(std::move(dataBindingService))
+    , WindowManager(std::move(windowManager))
+    , EventSender(std::move(eventSender))
+    , MeshManager(std::move(meshManager))
   {
-    UIContext::UIContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender,
-                         const std::shared_ptr<IMeshManager>& meshManager)
-      : WindowManager(windowManager)
-      , EventSender(eventSender)
-      , MeshManager(meshManager)
+    if (!DataBindingService)
     {
-      if (!windowManager)
-      {
-        throw std::invalid_argument("windowManager can not be null");
-      }
-      if (!eventSender)
-      {
-        throw std::invalid_argument("eventSender can not be null");
-      }
-      if (!meshManager)
-      {
-        throw std::invalid_argument("meshManager can not be null");
-      }
+      throw std::invalid_argument("dataBindingService can not be null");
     }
-
-    UIContext ::~UIContext() = default;
+    if (!WindowManager)
+    {
+      throw std::invalid_argument("windowManager can not be null");
+    }
+    if (!EventSender)
+    {
+      throw std::invalid_argument("eventSender can not be null");
+    }
+    if (!MeshManager)
+    {
+      throw std::invalid_argument("meshManager can not be null");
+    }
   }
+
+  UIContext ::~UIContext() = default;
 }

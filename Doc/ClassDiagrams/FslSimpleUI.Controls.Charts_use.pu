@@ -1,0 +1,50 @@
+@startuml FslSimpleUI.Controls.Charts use
+scale 1
+
+' FslSimpleUI.Controls.Charts
+
+namespace FslSimpleUI.Controls.Charts {
+    namespace Data {
+        class ChartComplexDataEntry
+        class ChartComplexDataInfo
+        class ChartGridInfo
+        class ChartGridLineInfo
+        interface IChartComplexDataWindow
+        interface IChartDataGridLines
+
+        IChartDataGridLines <|-- IChartComplexDataWindow
+        IChartDataGridLines <|-- IChartDataWindow
+        IChartDataGridLines o.. ChartGridLineInfo
+        IChartDataGridLines o.. ChartGridInfo
+        IChartComplexDataWindow o.. ChartComplexDataInfo
+        IChartComplexDataWindow o.. ChartComplexDataEntry
+    }
+
+
+    namespace Render {
+        class ChartDataWindowDrawData
+    }
+
+
+    class AreaChartConfig
+    class AreaChart
+    class AreaChartGridLineManager
+
+    AreaChart o-- AreaChartGridLineManager
+    AreaChart o-- Render.ChartDataWindowDrawData
+
+    AreaChartGridLineManager o-- Data.IChartComplexDataWindow
+}
+
+namespace Shared.GpuTimestamp {
+    class AreaChartData
+    class AverageData
+
+    FslSimpleUI.Controls.Charts.Data.IChartComplexDataWindow <|-- AreaChartData 
+    AreaChartData o-- FslSimpleUI.Controls.Charts.Data.ChartGridInfo
+    AreaChartData o-- FslSimpleUI.Controls.Charts.Data.ChartComplexDataInfo
+
+    AverageData o-- FslSimpleUI.Controls.Charts.Data.ChartComplexDataEntry
+}
+
+@enduml

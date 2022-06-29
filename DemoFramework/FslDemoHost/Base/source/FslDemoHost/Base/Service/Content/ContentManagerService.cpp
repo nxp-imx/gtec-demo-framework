@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoApp/Base/Service/Texture/ITextureService.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
@@ -188,8 +188,8 @@ namespace Fsl
     {
       if (m_textureService)
       {
-        Optional<Texture> res = m_textureService->TryGenerateMipMaps(rTexture, TextureMipMapFilter::Box);
-        if (res.HasValue())
+        std::optional<Texture> res = m_textureService->TryGenerateMipMaps(rTexture, TextureMipMapFilter::Box);
+        if (res.has_value())
         {
           rTexture = std::move(*res);
         }

@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "SimpleUI101.hpp"
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "SimpleUI101.hpp"
 #include <GLES2/gl2.h>
 
 namespace Fsl

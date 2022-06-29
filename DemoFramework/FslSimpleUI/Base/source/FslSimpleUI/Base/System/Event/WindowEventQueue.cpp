@@ -30,11 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "WindowEventQueue.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -55,67 +54,64 @@
   }
 #endif
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    // const std::size_t MAX_EVENT_LOOPS = 1024;
+  }
+
+
+  WindowEventQueue::WindowEventQueue()
+    : m_queue(new queue_type())
+  {
+  }
+
+
+  WindowEventQueue::~WindowEventQueue() = default;
+
+
+  void WindowEventQueue::Push(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source)
+  {
+    if (!theEvent || !source)
     {
-      // const std::size_t MAX_EVENT_LOOPS = 1024;
+      throw std::invalid_argument("params can not be null");
     }
 
+    LOCAL_LOG("WindowEventQueue.Push(" << static_cast<uint32_t>(theEvent->GetEventTypeId()) << ", " << source << ")")
 
-    WindowEventQueue::WindowEventQueue()
-      : m_queue(new queue_type())
+    assert(m_queue);
+    m_queue->push_back(WindowEventQueueRecord(WindowEventQueueRecordType::Event, source, source, theEvent));
+  }
+
+
+  // bool WindowEventQueue::TryPush(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source)
+  //{
+  //  if (!theEvent || !source)
+  //  {
+  //    FSLLOG3_DEBUG_WARNING("params can not be null");
+  //    return false;
+  //  }
+
+
+  //  assert(m_queue);
+  //  m_queue->push_back(WindowEventQueueRecord(WindowEventQueueRecordType::Event, source, source, theEvent));
+  //  return true;
+  //}
+
+  void WindowEventQueue::Swap(std::unique_ptr<queue_type>& rEmptyQueue)
+  {
+    if (!rEmptyQueue)
     {
+      throw std::invalid_argument("queue can not be null");
     }
-
-
-    WindowEventQueue::~WindowEventQueue() = default;
-
-
-    void WindowEventQueue::Push(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source)
+    if (!rEmptyQueue->empty())
     {
-      if (!theEvent || !source)
-      {
-        throw std::invalid_argument("params can not be null");
-      }
-
-      LOCAL_LOG("WindowEventQueue.Push(" << static_cast<uint32_t>(theEvent->GetEventTypeId()) << ", " << source << ")")
-
-      assert(m_queue);
-      m_queue->push_back(WindowEventQueueRecord(WindowEventQueueRecordType::Event, source, source, theEvent));
+      FSLLOG3_WARNING("Swap the queue was not empty as expected, force clearing it..")
+      rEmptyQueue->clear();
     }
+    std::swap(rEmptyQueue, m_queue);
 
-
-    // bool WindowEventQueue::TryPush(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source)
-    //{
-    //  if (!theEvent || !source)
-    //  {
-    //    FSLLOG3_DEBUG_WARNING("params can not be null");
-    //    return false;
-    //  }
-
-
-    //  assert(m_queue);
-    //  m_queue->push_back(WindowEventQueueRecord(WindowEventQueueRecordType::Event, source, source, theEvent));
-    //  return true;
-    //}
-
-    void WindowEventQueue::Swap(std::unique_ptr<queue_type>& rEmptyQueue)
-    {
-      if (!rEmptyQueue)
-      {
-        throw std::invalid_argument("queue can not be null");
-      }
-      if (!rEmptyQueue->empty())
-      {
-        FSLLOG3_WARNING("Swap the queue was not empty as expected, force clearing it..")
-        rEmptyQueue->clear();
-      }
-      std::swap(rEmptyQueue, m_queue);
-
-      LOCAL_LOG_IF(rEmptyQueue->size() > 0, "WindowEventQueue.Swap")
-    }
+    LOCAL_LOG_IF(rEmptyQueue->size() > 0, "WindowEventQueue.Swap")
   }
 }

@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/PixelPerfect/Shared.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
@@ -40,6 +39,7 @@
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <Shared/UI/PixelPerfect/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -256,21 +256,21 @@ namespace Fsl
     const auto* pFont = font.get();
     if (pFont != nullptr)
     {
-      Vector2 dstPos(float(gridX0Correct), float(offsetPx.Y));
+      Vector2 dstPos(static_cast<float>(gridX0Correct), static_cast<float>(offsetPx.Y));
 
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth0);
 
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
-      dstPos.X = float(gridX1Correct);
+      dstPos.X = static_cast<float>(gridX1Correct);
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth1);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
-      dstPos.X = float(gridX2Correct);
+      dstPos.X = static_cast<float>(gridX2Correct);
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth2);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
-      dstPos.X = float(gridX3Correct);
+      dstPos.X = static_cast<float>(gridX3Correct);
       m_buffer.clear();
       fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth3);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());

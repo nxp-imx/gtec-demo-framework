@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_TEXTCONFIG_HPP
 #define SHARED_UI_BENCHMARK_TEXTCONFIG_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,27 +33,25 @@
 
 #include <FslBase/String/StringViewLite.hpp>
 
-namespace Fsl
+namespace Fsl::TextConfig
 {
-  namespace TextConfig
-  {
-    constexpr StringViewLite HeaderSettings("Settings:");
-    constexpr StringViewLite HeaderOptions("Options:");
-    constexpr StringViewLite HeaderRenderMethod("Render method:");
-    constexpr StringViewLite HeaderRenderOptions("Render options:");
+  constexpr StringViewLite HeaderSettings("Settings:");
+  constexpr StringViewLite HeaderOptions("Options:");
+  constexpr StringViewLite HeaderRenderMethod("Render method:");
+  constexpr StringViewLite HeaderRenderOptions("Render options:");
 
-    constexpr StringViewLite GpuTimestamps("GPU timestamps");
-    constexpr StringViewLite NoOpaqueMaterials("No opaque materials");
-    constexpr StringViewLite UseSdfFonts("Use SDF fonts");
-    constexpr StringViewLite OnDemandRendering("On demand");
+  constexpr StringViewLite GpuTimestamps("GPU timestamps");
+  constexpr StringViewLite NoOpaqueMaterials("No opaque materials");
+  constexpr StringViewLite UseSdfFonts("Use SDF fonts");
+  constexpr StringViewLite OnDemandRendering("On demand");
 
-    constexpr StringViewLite Batch("Batch");
-    constexpr StringViewLite FillBuffers("Fill buffers");
-    constexpr StringViewLite DepthBuffer("Depth buffer");
-    constexpr StringViewLite DrawReorder("Draw reorder");
-    constexpr StringViewLite MeshCaching("Mesh caching");
+  constexpr StringViewLite Batch("Batch");
+  constexpr StringViewLite FillBuffers("Fill buffers");
+  constexpr StringViewLite DepthBuffer("Depth buffer");
+  constexpr StringViewLite DrawReorder("Draw reorder");
+  constexpr StringViewLite MeshCaching("Mesh caching");
+  constexpr StringViewLite PreferFastReorder("Prefer fast reorder");
 
-  }
 }
 
 #endif

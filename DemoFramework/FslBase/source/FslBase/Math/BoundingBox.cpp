@@ -25,8 +25,8 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - BoundingBox.cs.
 
-#include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Math/MathHelper.hpp>

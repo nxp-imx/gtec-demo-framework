@@ -37,44 +37,41 @@
 #include <FslUtil/Vulkan1_0/SafeType/StringArrayCopy.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // Create a deep copy of a VkInstanceCreateInfo making sure that all data pointed to by 'pointers' are copied and stored in this object
+  class InstanceCreateInfoCopy
   {
-    // Create a deep copy of a VkInstanceCreateInfo making sure that all data pointed to by 'pointers' are copied and stored in this object
-    class InstanceCreateInfoCopy
+    ApplicationInfoCopy m_applicationInfo;
+    VkInstanceCreateInfo m_value;
+    StringArrayCopy m_enabledLayerNames;
+    StringArrayCopy m_enabledExtensionNames;
+
+  public:
+    InstanceCreateInfoCopy(const InstanceCreateInfoCopy&) = delete;
+    InstanceCreateInfoCopy& operator=(const InstanceCreateInfoCopy&) = delete;
+
+    InstanceCreateInfoCopy& operator=(InstanceCreateInfoCopy&& other) noexcept;
+    InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other) noexcept;
+
+    InstanceCreateInfoCopy();
+    explicit InstanceCreateInfoCopy(const VkInstanceCreateInfo& value);
+
+    const VkApplicationInfo& GetApplicationInfo() const
     {
-      ApplicationInfoCopy m_applicationInfo;
-      VkInstanceCreateInfo m_value;
-      StringArrayCopy m_enabledLayerNames;
-      StringArrayCopy m_enabledExtensionNames;
+      return m_applicationInfo.Get();
+    }
 
-    public:
-      InstanceCreateInfoCopy(const InstanceCreateInfoCopy&) = delete;
-      InstanceCreateInfoCopy& operator=(const InstanceCreateInfoCopy&) = delete;
+    const VkInstanceCreateInfo& Get() const
+    {
+      return m_value;
+    }
 
-      InstanceCreateInfoCopy& operator=(InstanceCreateInfoCopy&& other) noexcept;
-      InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other) noexcept;
-
-      InstanceCreateInfoCopy();
-      explicit InstanceCreateInfoCopy(const VkInstanceCreateInfo& value);
-
-      const VkApplicationInfo& GetApplicationInfo() const
-      {
-        return m_applicationInfo.Get();
-      }
-
-      const VkInstanceCreateInfo& Get() const
-      {
-        return m_value;
-      }
-
-    private:
-      // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
-      // @note  This ensures correct behavior when moving etc
-      void PatchPointers() noexcept;
-    };
-  }
+  private:
+    // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
+    // @note  This ensures correct behavior when moving etc
+    void PatchPointers() noexcept;
+  };
 }
 
 #endif

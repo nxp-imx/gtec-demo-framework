@@ -35,8 +35,8 @@
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
+#include <FslGraphics/Color.hpp>
 #include <memory>
 #include <string>
 

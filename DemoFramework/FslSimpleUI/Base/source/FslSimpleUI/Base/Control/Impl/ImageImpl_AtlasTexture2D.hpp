@@ -39,49 +39,42 @@
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI::ImageImpl
 {
-  namespace UI
+  inline static void WinDraw(const UIDrawContext& context, const AtlasTexture2D& content, const ItemScalePolicy scalepolicy, const Color& color,
+                             const std::shared_ptr<INativeBatch2D>& batch2D)
   {
-    //! @brief Since we have multiple controls that need this code its been isolated here as inline methods
-    namespace ImageImpl
+    FSL_PARAM_NOT_USED(scalepolicy);
+
+    if (!content.IsValid())
     {
-      inline static void WinDraw(const UIDrawContext& context, const AtlasTexture2D& content, const ItemScalePolicy scalepolicy, const Color& color,
-                                 const std::shared_ptr<INativeBatch2D>& batch2D)
-      {
-        FSL_PARAM_NOT_USED(scalepolicy);
-
-        if (!content.IsValid())
-        {
-          return;
-        }
-
-        // FIX: check if the image needs to be rendered using alpha blend or not
-        batch2D->Draw(content, context.TargetRect, color);
-      }
-
-      inline static PxSize2D ArrangeOverride(const PxSize2D& finalSizePx, const AtlasTexture2D& content, const ItemScalePolicy scalepolicy)
-      {
-        if (!content.IsValid())
-        {
-          return finalSizePx;
-        }
-
-        PxSize2D contentSize(content.GetSize());
-        PxSize2D calcedSizePx;
-        if (!UIScaleUtil::TryCalcSize(calcedSizePx, finalSizePx, contentSize, scalepolicy))
-        {
-          return finalSizePx;
-        }
-        return calcedSizePx;
-      }
-
-      inline static PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx, const AtlasTexture2D& content)
-      {
-        FSL_PARAM_NOT_USED(availableSizePx);
-        return content.GetSize();
-      }
+      return;
     }
+
+    // FIX: check if the image needs to be rendered using alpha blend or not
+    batch2D->Draw(content, context.TargetRect, color);
+  }
+
+  inline static PxSize2D ArrangeOverride(const PxSize2D& finalSizePx, const AtlasTexture2D& content, const ItemScalePolicy scalepolicy)
+  {
+    if (!content.IsValid())
+    {
+      return finalSizePx;
+    }
+
+    PxSize2D contentSize(content.GetSize());
+    PxSize2D calcedSizePx;
+    if (!UIScaleUtil::TryCalcSize(calcedSizePx, finalSizePx, contentSize, scalepolicy))
+    {
+      return finalSizePx;
+    }
+    return calcedSizePx;
+  }
+
+  inline static PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx, const AtlasTexture2D& content)
+  {
+    FSL_PARAM_NOT_USED(availableSizePx);
+    return content.GetSize();
   }
 }
 

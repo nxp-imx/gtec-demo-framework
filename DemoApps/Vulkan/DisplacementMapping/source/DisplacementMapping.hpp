@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
 #include <vector>
 
 namespace Fsl

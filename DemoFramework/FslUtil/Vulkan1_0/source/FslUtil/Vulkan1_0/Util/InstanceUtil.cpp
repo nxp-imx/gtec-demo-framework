@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,174 +29,168 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
-#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::InstanceUtil
 {
-  namespace Vulkan
+  namespace
   {
-    namespace InstanceUtil
+    const int ENGINE_MAJOR = 1;
+    const int ENGINE_MINOR = 0;
+    const int ENGINE_PATCH = 0;
+  }
+
+  bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames)
+  {
+    if (layerCount == 0 || enabledLayerNames == nullptr)
     {
-      namespace
+      return false;
+    }
+
+    const std::vector<VkLayerProperties> layerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
+    const auto layerPropertiesSpan = ReadOnlySpanUtil::AsSpan(layerProperties);
+    for (uint32_t extensionIndex = 0; extensionIndex < layerCount; ++extensionIndex)
+    {
+      if (!PropertyUtil::IsLayerAvailable(layerPropertiesSpan, enabledLayerNames[extensionIndex]))
       {
-        const int ENGINE_MAJOR = 1;
-        const int ENGINE_MINOR = 0;
-        const int ENGINE_PATCH = 0;
-      }
-
-      bool IsInstanceLayersAvailable(const uint32_t layerCount, const char* const* enabledLayerNames)
-      {
-        if (layerCount == 0 || enabledLayerNames == nullptr)
-        {
-          return false;
-        }
-
-        const std::vector<VkLayerProperties> layerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
-        const auto layerPropertiesSpan = ReadOnlySpanUtil::AsSpan(layerProperties);
-        for (uint32_t extensionIndex = 0; extensionIndex < layerCount; ++extensionIndex)
-        {
-          if (!PropertyUtil::IsLayerAvailable(layerPropertiesSpan, enabledLayerNames[extensionIndex]))
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-
-
-      bool IsInstanceExtensionsAvailable(const uint32_t extensionCount, const char* const* enabledExtensionNames, const char* const pszLayerName)
-      {
-        if (extensionCount == 0 || enabledExtensionNames == nullptr)
-        {
-          return false;
-        }
-
-        const std::vector<VkExtensionProperties> extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(pszLayerName);
-        const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
-        for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
-        {
-          if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-
-
-      RapidVulkan::Instance CreateInstance(const std::string& applicationName, const uint32_t applicationVersion, const uint32_t apiVersion,
-                                           const VkInstanceCreateFlags flags, const uint32_t enabledLayerCount,
-                                           const char* const* ppszEnabledLayerNames, const uint32_t enabledExtensionCount,
-                                           const char* const* ppszEnabledExtensionNames, InstanceCreateInfoCopy* pInstanceCreateInfoCopy)
-      {
-        if (ppszEnabledLayerNames == nullptr && enabledLayerCount > 0)
-        {
-          throw std::invalid_argument("enabledLayerCount can not be non-zero when no enabled extensions are supplied");
-        }
-
-        if (ppszEnabledExtensionNames == nullptr && enabledExtensionCount > 0)
-        {
-          throw std::invalid_argument("enabledExtensionCount can not be non-zero when no enabled extensions are supplied");
-        }
-
-        if (enabledLayerCount > 0)
-        {
-          if (!IsInstanceLayersAvailable(enabledLayerCount, ppszEnabledLayerNames))
-          {
-            throw NotSupportedException("Extension not available");
-          }
-        }
-
-        if (enabledExtensionCount > 0)
-        {
-          if (!IsInstanceExtensionsAvailable(enabledExtensionCount, ppszEnabledExtensionNames))
-          {
-            throw NotSupportedException("Extension not available");
-          }
-        }
-
-        VkApplicationInfo applicationInfo{};
-        applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        applicationInfo.pApplicationName = applicationName.c_str();
-        applicationInfo.applicationVersion = applicationVersion;
-        applicationInfo.pEngineName = "DemoFramework";
-        applicationInfo.engineVersion = VK_MAKE_VERSION(ENGINE_MAJOR, ENGINE_MINOR, ENGINE_PATCH);
-        applicationInfo.apiVersion = apiVersion;
-
-        VkInstanceCreateInfo instanceCreateInfo{};
-        instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        instanceCreateInfo.flags = flags;
-        instanceCreateInfo.pApplicationInfo = &applicationInfo;
-        instanceCreateInfo.enabledLayerCount = enabledLayerCount;
-        instanceCreateInfo.ppEnabledLayerNames = ppszEnabledLayerNames;
-        instanceCreateInfo.enabledExtensionCount = enabledExtensionCount;
-        instanceCreateInfo.ppEnabledExtensionNames = ppszEnabledExtensionNames;
-
-        if (pInstanceCreateInfoCopy != nullptr)
-        {
-          *pInstanceCreateInfoCopy = InstanceCreateInfoCopy(instanceCreateInfo);
-        }
-        return RapidVulkan::Instance(instanceCreateInfo);
-      }
-
-
-      VkPhysicalDevice GetPhysicalDevice(const VkInstance instance, const uint32_t index)
-      {
-        if (instance == VK_NULL_HANDLE)
-        {
-          throw std::invalid_argument("Instance has to be valid");
-        }
-
-        const std::vector<VkPhysicalDevice> physicalDevices = InstanceUtil::EnumeratePhysicalDevices(instance);
-        if (index >= physicalDevices.size())
-        {
-          throw std::invalid_argument("physical device index out of bounds");
-        }
-
-        return physicalDevices[index];
-      }
-
-
-      std::vector<VkLayerProperties> EnumerateInstanceLayerProperties()
-      {
-        uint32_t count = 0;
-        RAPIDVULKAN_CHECK2(vkEnumerateInstanceLayerProperties(&count, nullptr), "failed to acquire the count");
-
-        std::vector<VkLayerProperties> result(count);
-        RAPIDVULKAN_CHECK2(vkEnumerateInstanceLayerProperties(&count, result.data()), "failed to enumerate layer properties");
-        return result;
-      }
-
-
-      std::vector<VkExtensionProperties> EnumerateInstanceExtensionProperties(const char* const pszLayerName)
-      {
-        uint32_t count = 0;
-        RAPIDVULKAN_CHECK2(vkEnumerateInstanceExtensionProperties(pszLayerName, &count, nullptr), "failed to acquire the count");
-
-        std::vector<VkExtensionProperties> result(count);
-        RAPIDVULKAN_CHECK2(vkEnumerateInstanceExtensionProperties(pszLayerName, &count, result.data()), "failed to enumerate layer properties");
-        return result;
-      }
-
-
-      std::vector<VkPhysicalDevice> EnumeratePhysicalDevices(const VkInstance instance)
-      {
-        uint32_t count = 0;
-        RAPIDVULKAN_CHECK2(vkEnumeratePhysicalDevices(instance, &count, nullptr), "failed to acquire the count");
-
-        std::vector<VkPhysicalDevice> result(count);
-        RAPIDVULKAN_CHECK2(vkEnumeratePhysicalDevices(instance, &count, result.data()), "failed to enumerate devices");
-        return result;
+        return false;
       }
     }
+    return true;
+  }
+
+
+  bool IsInstanceExtensionsAvailable(const uint32_t extensionCount, const char* const* enabledExtensionNames, const char* const pszLayerName)
+  {
+    if (extensionCount == 0 || enabledExtensionNames == nullptr)
+    {
+      return false;
+    }
+
+    const std::vector<VkExtensionProperties> extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(pszLayerName);
+    const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
+    for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
+    {
+      if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+  RapidVulkan::Instance CreateInstance(const std::string& applicationName, const uint32_t applicationVersion, const uint32_t apiVersion,
+                                       const VkInstanceCreateFlags flags, const uint32_t enabledLayerCount, const char* const* ppszEnabledLayerNames,
+                                       const uint32_t enabledExtensionCount, const char* const* ppszEnabledExtensionNames,
+                                       InstanceCreateInfoCopy* pInstanceCreateInfoCopy)
+  {
+    if (ppszEnabledLayerNames == nullptr && enabledLayerCount > 0)
+    {
+      throw std::invalid_argument("enabledLayerCount can not be non-zero when no enabled extensions are supplied");
+    }
+
+    if (ppszEnabledExtensionNames == nullptr && enabledExtensionCount > 0)
+    {
+      throw std::invalid_argument("enabledExtensionCount can not be non-zero when no enabled extensions are supplied");
+    }
+
+    if (enabledLayerCount > 0)
+    {
+      if (!IsInstanceLayersAvailable(enabledLayerCount, ppszEnabledLayerNames))
+      {
+        throw NotSupportedException("Extension not available");
+      }
+    }
+
+    if (enabledExtensionCount > 0)
+    {
+      if (!IsInstanceExtensionsAvailable(enabledExtensionCount, ppszEnabledExtensionNames))
+      {
+        throw NotSupportedException("Extension not available");
+      }
+    }
+
+    VkApplicationInfo applicationInfo{};
+    applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    applicationInfo.pApplicationName = applicationName.c_str();
+    applicationInfo.applicationVersion = applicationVersion;
+    applicationInfo.pEngineName = "DemoFramework";
+    applicationInfo.engineVersion = VK_MAKE_VERSION(ENGINE_MAJOR, ENGINE_MINOR, ENGINE_PATCH);
+    applicationInfo.apiVersion = apiVersion;
+
+    VkInstanceCreateInfo instanceCreateInfo{};
+    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instanceCreateInfo.flags = flags;
+    instanceCreateInfo.pApplicationInfo = &applicationInfo;
+    instanceCreateInfo.enabledLayerCount = enabledLayerCount;
+    instanceCreateInfo.ppEnabledLayerNames = ppszEnabledLayerNames;
+    instanceCreateInfo.enabledExtensionCount = enabledExtensionCount;
+    instanceCreateInfo.ppEnabledExtensionNames = ppszEnabledExtensionNames;
+
+    if (pInstanceCreateInfoCopy != nullptr)
+    {
+      *pInstanceCreateInfoCopy = InstanceCreateInfoCopy(instanceCreateInfo);
+    }
+    return RapidVulkan::Instance(instanceCreateInfo);
+  }
+
+
+  VkPhysicalDevice GetPhysicalDevice(const VkInstance instance, const uint32_t index)
+  {
+    if (instance == VK_NULL_HANDLE)
+    {
+      throw std::invalid_argument("Instance has to be valid");
+    }
+
+    const std::vector<VkPhysicalDevice> physicalDevices = InstanceUtil::EnumeratePhysicalDevices(instance);
+    if (index >= physicalDevices.size())
+    {
+      throw std::invalid_argument("physical device index out of bounds");
+    }
+
+    return physicalDevices[index];
+  }
+
+
+  std::vector<VkLayerProperties> EnumerateInstanceLayerProperties()
+  {
+    uint32_t count = 0;
+    RAPIDVULKAN_CHECK2(vkEnumerateInstanceLayerProperties(&count, nullptr), "failed to acquire the count");
+
+    std::vector<VkLayerProperties> result(count);
+    RAPIDVULKAN_CHECK2(vkEnumerateInstanceLayerProperties(&count, result.data()), "failed to enumerate layer properties");
+    return result;
+  }
+
+
+  std::vector<VkExtensionProperties> EnumerateInstanceExtensionProperties(const char* const pszLayerName)
+  {
+    uint32_t count = 0;
+    RAPIDVULKAN_CHECK2(vkEnumerateInstanceExtensionProperties(pszLayerName, &count, nullptr), "failed to acquire the count");
+
+    std::vector<VkExtensionProperties> result(count);
+    RAPIDVULKAN_CHECK2(vkEnumerateInstanceExtensionProperties(pszLayerName, &count, result.data()), "failed to enumerate layer properties");
+    return result;
+  }
+
+
+  std::vector<VkPhysicalDevice> EnumeratePhysicalDevices(const VkInstance instance)
+  {
+    uint32_t count = 0;
+    RAPIDVULKAN_CHECK2(vkEnumeratePhysicalDevices(instance, &count, nullptr), "failed to acquire the count");
+
+    std::vector<VkPhysicalDevice> result(count);
+    RAPIDVULKAN_CHECK2(vkEnumeratePhysicalDevices(instance, &count, result.data()), "failed to enumerate devices");
+    return result;
   }
 }

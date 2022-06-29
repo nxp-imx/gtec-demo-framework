@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXPOINT2_HPP
 #define FSLBASE_MATH_PIXEL_PXPOINT2_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <algorithm>
 
 namespace Fsl
 {
+  struct PxSize2D;
+
   struct PxPoint2
   {
     using value_type = int32_t;
@@ -51,47 +53,32 @@ namespace Fsl
     {
     }
 
-    constexpr PxPoint2& operator+=(const PxPoint2& arg) noexcept
+    constexpr PxPoint2& operator+=(const PxPoint2 arg) noexcept
     {
       X += arg.X;
       Y += arg.Y;
       return *this;
     }
 
-    constexpr PxPoint2& operator+=(const PxSize2D& arg) noexcept
-    {
-      X += arg.Width();
-      Y += arg.Height();
-      return *this;
-    }
+    PxPoint2& operator+=(const PxSize2D& arg) noexcept;
 
-    constexpr PxPoint2& operator-=(const PxPoint2& arg) noexcept
+    constexpr PxPoint2& operator-=(const PxPoint2 arg) noexcept
     {
       X -= arg.X;
       Y -= arg.Y;
       return *this;
     }
 
-    constexpr PxPoint2& operator-=(const PxSize2D& arg) noexcept
-    {
-      X -= arg.Width();
-      Y -= arg.Height();
-      return *this;
-    }
+    PxPoint2& operator-=(const PxSize2D& arg) noexcept;
 
-    constexpr PxPoint2& operator*=(const PxPoint2& arg) noexcept
+    constexpr PxPoint2& operator*=(const PxPoint2 arg) noexcept
     {
       X *= arg.X;
       Y *= arg.Y;
       return *this;
     }
 
-    constexpr PxPoint2& operator*=(const PxSize2D& arg) noexcept
-    {
-      X *= arg.Width();
-      Y *= arg.Height();
-      return *this;
-    }
+    PxPoint2& operator*=(const PxSize2D& arg) noexcept;
 
     constexpr PxPoint2& operator*=(const value_type arg) noexcept
     {
@@ -107,12 +94,12 @@ namespace Fsl
       return *this;
     }
 
-    constexpr bool operator==(const PxPoint2& rhs) const noexcept
+    constexpr bool operator==(const PxPoint2 rhs) const noexcept
     {
       return X == rhs.X && Y == rhs.Y;
     }
 
-    constexpr bool operator!=(const PxPoint2& rhs) const noexcept
+    constexpr bool operator!=(const PxPoint2 rhs) const noexcept
     {
       return X != rhs.X || Y != rhs.Y;
     }
@@ -124,75 +111,48 @@ namespace Fsl
     }
 
 
-    static constexpr PxPoint2 Min(const PxPoint2& val0, const PxPoint2& val1)
+    static constexpr PxPoint2 Min(const PxPoint2 val0, const PxPoint2 val1)
     {
       return {std::min(val0.X, val1.X), std::min(val0.Y, val1.Y)};
     }
 
-    static constexpr PxPoint2 Max(const PxPoint2& val0, const PxPoint2& val1)
+    static constexpr PxPoint2 Max(const PxPoint2 val0, const PxPoint2 val1)
     {
       return {std::max(val0.X, val1.X), std::max(val0.Y, val1.Y)};
     }
   };
 
 
-  inline constexpr PxPoint2 operator+(const PxPoint2& lhs, const PxPoint2& rhs) noexcept
+  inline constexpr PxPoint2 operator+(const PxPoint2 lhs, const PxPoint2 rhs) noexcept
   {
     return {lhs.X + rhs.X, lhs.Y + rhs.Y};
   }
 
-  inline constexpr PxPoint2 operator+(const PxPoint2& lhs, const PxSize2D& rhs) noexcept
-  {
-    return {lhs.X + rhs.Width(), lhs.Y + rhs.Height()};
-  }
 
-  inline constexpr PxPoint2 operator+(const PxSize2D& lhs, const PxPoint2& rhs) noexcept
-  {
-    return {lhs.Width() + rhs.X, lhs.Height() + rhs.Y};
-  }
-
-  inline constexpr PxPoint2 operator-(const PxPoint2& lhs, const PxPoint2& rhs) noexcept
+  inline constexpr PxPoint2 operator-(const PxPoint2 lhs, const PxPoint2 rhs) noexcept
   {
     return {lhs.X - rhs.X, lhs.Y - rhs.Y};
   }
 
-  inline constexpr PxPoint2 operator-(const PxPoint2& lhs, const PxSize2D& rhs) noexcept
-  {
-    return {lhs.X - rhs.Width(), lhs.Y - rhs.Height()};
-  }
 
-  inline constexpr PxPoint2 operator-(const PxSize2D& lhs, const PxPoint2& rhs) noexcept
-  {
-    return {lhs.Width() - rhs.X, lhs.Height() - rhs.Y};
-  }
-
-
-  inline constexpr PxPoint2 operator*(const PxPoint2& lhs, const PxPoint2& rhs) noexcept
+  inline constexpr PxPoint2 operator*(const PxPoint2 lhs, const PxPoint2 rhs) noexcept
   {
     return {lhs.X * rhs.X, lhs.Y * rhs.Y};
   }
 
-  inline constexpr PxPoint2 operator*(const PxPoint2& lhs, const PxSize2D& rhs) noexcept
-  {
-    return {lhs.X * rhs.Width(), lhs.Y * rhs.Height()};
-  }
 
-  inline constexpr PxPoint2 operator*(const PxSize2D& lhs, const PxPoint2& rhs) noexcept
-  {
-    return {lhs.Width() * rhs.X, lhs.Height() * rhs.Y};
-  }
-
-  inline constexpr PxPoint2 operator*(const PxPoint2& lhs, const PxPoint2::value_type rhs) noexcept
+  inline constexpr PxPoint2 operator*(const PxPoint2 lhs, const PxPoint2::value_type rhs) noexcept
   {
     return {lhs.X * rhs, lhs.Y * rhs};
   }
 
-  inline constexpr PxPoint2 operator*(const PxPoint2::value_type lhs, const PxPoint2& rhs) noexcept
+  inline constexpr PxPoint2 operator*(const PxPoint2::value_type lhs, const PxPoint2 rhs) noexcept
   {
     return rhs * lhs;
   }
 
-  inline constexpr PxPoint2 operator/(const PxPoint2& lhs, const PxPoint2::value_type rhs)
+
+  inline constexpr PxPoint2 operator/(const PxPoint2 lhs, const PxPoint2::value_type rhs)
   {
     return {lhs.X / rhs, lhs.Y / rhs};
   }

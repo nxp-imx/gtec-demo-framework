@@ -36,44 +36,41 @@
 #include <deque>
 #include <stdexcept>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  //! @brief A complex scene can contain meshes consisting of various mesh types.
+  class ComplexScene : public Scene
   {
-    //! @brief A complex scene can contain meshes consisting of various mesh types.
-    class ComplexScene : public Scene
+  public:
+    std::deque<std::shared_ptr<Mesh>> Meshes;
+
+    explicit ComplexScene(const std::size_t numMeshes)
+      : Meshes(numMeshes)
     {
-    public:
-      std::deque<std::shared_ptr<Mesh>> Meshes;
+    }
 
-      explicit ComplexScene(const std::size_t numMeshes)
-        : Meshes(numMeshes)
+    int32_t GetMeshCount() const override
+    {
+      return static_cast<int32_t>(Meshes.size());
+    }
+
+
+    std::shared_ptr<Mesh> GetMeshAt(const int32_t index) const override
+    {
+      return Meshes[index];
+    }
+
+
+    void AddMesh(const std::shared_ptr<Mesh>& mesh) override
+    {
+      if (!mesh)
       {
+        throw std::invalid_argument("mesh can not be null");
       }
 
-      int32_t GetMeshCount() const override
-      {
-        return static_cast<int32_t>(Meshes.size());
-      }
-
-
-      std::shared_ptr<Mesh> GetMeshAt(const int32_t index) const override
-      {
-        return Meshes[index];
-      }
-
-
-      void AddMesh(const std::shared_ptr<Mesh>& mesh) override
-      {
-        if (!mesh)
-        {
-          throw std::invalid_argument("mesh can not be null");
-        }
-
-        Meshes.push_back(mesh);
-      }
-    };
-  }
+      Meshes.push_back(mesh);
+    }
+  };
 }
 
 #endif

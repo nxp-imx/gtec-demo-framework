@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "TestScene.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include "GausianHelper.hpp"
-#include "TestScene.hpp"
 
 
 namespace Fsl
@@ -76,8 +76,8 @@ namespace Fsl
 
     {    // prepare the vertex buffer
       // We scale the UV coordinates so that we get a 1-1 pixel mapping on the screen
-      const float scaleX = screenResolution.X / float(m_texture.GetSize().Width());
-      const float aspect = (screenResolution.Y / static_cast<float>(screenResolution.X));
+      const float scaleX = static_cast<float>(screenResolution.X) / static_cast<float>(m_texture.GetSize().Width());
+      const float aspect = (static_cast<float>(screenResolution.Y) / static_cast<float>(screenResolution.X));
       const float u1 = 0.0f;
       const float u2 = scaleX;
       const float v1 = scaleX * aspect;

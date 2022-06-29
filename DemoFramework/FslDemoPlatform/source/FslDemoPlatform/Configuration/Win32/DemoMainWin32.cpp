@@ -30,10 +30,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include <windows.h>
 #include "../../DemoSignalHandlerInternal.hpp"

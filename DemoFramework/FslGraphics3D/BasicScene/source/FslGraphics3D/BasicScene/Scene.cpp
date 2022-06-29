@@ -29,53 +29,50 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  Scene::Scene()
+    : m_scaleFactor(1.0f)
   {
-    Scene::Scene()
-      : m_scaleFactor(1.0f)
-    {
-    }
+  }
 
-    Scene::Scene(MeshAllocatorFunc meshAllocator)
-      : m_meshAllocator(std::move(meshAllocator))
-      , m_scaleFactor(1.0f)
-    {
-    }
+  Scene::Scene(MeshAllocatorFunc meshAllocator)
+    : m_meshAllocator(std::move(meshAllocator))
+    , m_scaleFactor(1.0f)
+  {
+  }
 
 
-    float Scene::GetScaleFactor() const
-    {
-      return m_scaleFactor;
-    }
+  float Scene::GetScaleFactor() const
+  {
+    return m_scaleFactor;
+  }
 
 
-    void Scene::SetScaleFactor(const float scaleFactor)
-    {
-      m_scaleFactor = scaleFactor;
-    }
+  void Scene::SetScaleFactor(const float scaleFactor)
+  {
+    m_scaleFactor = scaleFactor;
+  }
 
 
-    std::shared_ptr<SceneNode> Scene::GetRootNode() const
-    {
-      return m_rootNode;
-    }
+  std::shared_ptr<SceneNode> Scene::GetRootNode() const
+  {
+    return m_rootNode;
+  }
 
 
-    void Scene::SetRootNode(const std::shared_ptr<SceneNode>& rootNode)
-    {
-      m_rootNode = rootNode;
-    }
+  void Scene::SetRootNode(const std::shared_ptr<SceneNode>& rootNode)
+  {
+    m_rootNode = rootNode;
+  }
 
 
-    MeshAllocatorFunc Scene::GetMeshAllocator() const
-    {
-      return m_meshAllocator;
-    }
+  MeshAllocatorFunc Scene::GetMeshAllocator() const
+  {
+    return m_meshAllocator;
   }
 }

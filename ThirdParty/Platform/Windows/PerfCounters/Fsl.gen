@@ -2,7 +2,6 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="Platform.Windows.PerfCounters" CreationYear="2017">
     <Default.Platform.Supported Value="false"/>
-
     <Platform Name="Windows" Supported="true">
       <ExternalDependency Name="Pdh.lib" Type="StaticLib"/>
     </Platform>    

@@ -6,7 +6,7 @@ pipeline
         docker
         {
             label 'ubuntu'
-            image 'sigil/android-ndk-sdk:r21dn'
+            image 'sigil/android-ndk-sdk:r23c'
             args '-v $HOME/PersistentCache:/PersistentCache:rw'
         }
     }

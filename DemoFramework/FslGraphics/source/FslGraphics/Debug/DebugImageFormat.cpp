@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,38 @@
 
 #include <FslGraphics/Debug/DebugImageFormat.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
+  const char* TryToString(const ImageFormat& value)
   {
-    const char* TryToString(const ImageFormat& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case ImageFormat::Undefined:
-        return "ImageFormat::Undefined";
-      case ImageFormat::Bmp:
-        return "ImageFormat::Bmp";
-      case ImageFormat::DDS:
-        return "ImageFormat::DDS";
-      case ImageFormat::Exr:
-        return "ImageFormat::Exr";
-      case ImageFormat::Hdr:
-        return "ImageFormat::Hdr";
-      case ImageFormat::KTX:
-        return "ImageFormat::KTX";
-      case ImageFormat::Png:
-        return "ImageFormat::Png";
-      case ImageFormat::Jpeg:
-        return "ImageFormat::Jpeg";
-      case ImageFormat::Tga:
-        return "ImageFormat::Tga";
-      default:
-        return nullptr;
-      }
+    case ImageFormat::Undefined:
+      return "ImageFormat::Undefined";
+    case ImageFormat::Bmp:
+      return "ImageFormat::Bmp";
+    case ImageFormat::DDS:
+      return "ImageFormat::DDS";
+    case ImageFormat::Exr:
+      return "ImageFormat::Exr";
+    case ImageFormat::Hdr:
+      return "ImageFormat::Hdr";
+    case ImageFormat::KTX:
+      return "ImageFormat::KTX";
+    case ImageFormat::Png:
+      return "ImageFormat::Png";
+    case ImageFormat::Jpeg:
+      return "ImageFormat::Jpeg";
+    case ImageFormat::Tga:
+      return "ImageFormat::Tga";
+    default:
+      return nullptr;
     }
+  }
 
-    const char* ToString(const ImageFormat& value)
-    {
-      const auto* const psz = TryToString(value);
-      return psz != nullptr ? psz : "Unknown";
-    }
+  const char* ToString(const ImageFormat& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

@@ -3,7 +3,7 @@
   <ExternalLibrary Name="Recipe.fmt_8_1" CreationYear="2022">
     <Default.Platform.Supported Value="false"/>
 
-    <Platform Name="Android;Ubuntu;QNX" Supported="true">
+    <Platform Name="Android;Ubuntu;QNX;Emscripten" Supported="true">
       <ExperimentalRecipe Name="fmt" Version="8.1.1" Find="True">
         <Pipeline>
           <Download URL="https://github.com/fmtlib/fmt/archive/8.1.1.zip" To="fmt-8.1.1.zip" Hash="f2aad1a340d27c0b22cf23268c1cbdffb8472a242b95daf2d2311eed8d4948fc"/> 

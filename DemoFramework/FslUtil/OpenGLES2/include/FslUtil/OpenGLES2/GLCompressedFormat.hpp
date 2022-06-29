@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_OPENGLES2_GLCOMPRESSEDFORMAT_HPP
 #define FSLUTIL_OPENGLES2_GLCOMPRESSEDFORMAT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,26 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  // Custom formats supported by some GPU's under OpenGL ES2.
+  enum class GLCompressedFormat
   {
-    // Custom formats supported by some GPU's under OpenGL ES2.
-    enum class GLCompressedFormat
-    {
-      R11_EAC = 0x9270,
-      SIGNED_R11_EAC = 0x9271,
-      RG11_EAC = 0x9272,
-      SIGNED_RG11_EAC = 0x9273,
+    R11_EAC = 0x9270,
+    SIGNED_R11_EAC = 0x9271,
+    RG11_EAC = 0x9272,
+    SIGNED_RG11_EAC = 0x9273,
 
-      RGB8_ETC2 = 0x9274,
-      SRGB8_ETC2 = 0x9275,
-      RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9276,
-      SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9277,
-      RGBA8_ETC2_EAC = 0x9278,
-      SRGB8_ALPHA8_ETC2_EAC = 0x9279
-    };
-  }
+    RGB8_ETC2 = 0x9274,
+    SRGB8_ETC2 = 0x9275,
+    RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9276,
+    SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9277,
+    RGBA8_ETC2_EAC = 0x9278,
+    SRGB8_ALPHA8_ETC2_EAC = 0x9279
+  };
 }
 
 #endif

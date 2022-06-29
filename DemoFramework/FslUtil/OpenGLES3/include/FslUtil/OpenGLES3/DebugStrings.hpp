@@ -35,19 +35,16 @@
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  namespace Debug
   {
-    namespace Debug
-    {
-      //! @brief Convert the error code to a string
-      extern const char* ErrorCodeToString(const GLenum errorCode);
+    //! @brief Convert the error code to a string
+    extern const char* ErrorCodeToString(const GLenum errorCode);
 
-      //! @brief Try to convert the texture format to a string
-      extern const char* TryTextureFormatToString(const GLint format);
-    };
-  }
+    //! @brief Try to convert the texture format to a string
+    extern const char* TryTextureFormatToString(const GLint format);
+  };
 }
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,79 +29,75 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES2/VertexElementAttribLinks.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/VertexElementAttribLinks.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElements.hpp>
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  VertexElementAttribLinks::VertexElementAttribLinks(const VertexDeclarationSpan& vertexDeclaration,
+                                                     const ReadOnlySpan<GLVertexAttribLink> attribLinks)
+    : m_array(ToArray(vertexDeclaration, attribLinks))
+    , m_vertexStride(vertexDeclaration.VertexStride())
   {
-    VertexElementAttribLinks::VertexElementAttribLinks(const VertexDeclarationSpan& vertexDeclaration,
-                                                       const ReadOnlySpan<GLVertexAttribLink> attribLinks)
-      : m_array(ToArray(vertexDeclaration, attribLinks))
-      , m_vertexStride(vertexDeclaration.VertexStride())
-    {
-    }
+  }
 
-    VertexElementAttribLinks::VertexElementAttribLinks(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs,
-                                                       const uint32_t vertexStride)
-      : m_array(ToArray(vertexElementAttribConfigs))
-      , m_vertexStride(vertexStride)
-    {
-    }
+  VertexElementAttribLinks::VertexElementAttribLinks(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs,
+                                                     const uint32_t vertexStride)
+    : m_array(ToArray(vertexElementAttribConfigs))
+    , m_vertexStride(vertexStride)
+  {
+  }
 
-    bool VertexElementAttribLinks::IsCompatible(const VertexElementAttribLinks& instance) const noexcept
+  bool VertexElementAttribLinks::IsCompatible(const VertexElementAttribLinks& instance) const noexcept
+  {
+    if (&instance != this)
     {
-      if (&instance != this)
+      if (m_array.Entries.size() != instance.m_array.Entries.size())
       {
-        if (m_array.Entries.size() != instance.m_array.Entries.size())
+        return false;
+      }
+      for (std::size_t i = 0; i < m_array.Entries.size(); ++i)
+      {
+        if (m_array.Entries[i] != instance.m_array.Entries[i])
         {
           return false;
         }
-        for (std::size_t i = 0; i < m_array.Entries.size(); ++i)
-        {
-          if (m_array.Entries[i] != instance.m_array.Entries[i])
-          {
-            return false;
-          }
-        }
       }
-      return true;
     }
+    return true;
+  }
 
-    VertexElementAttribLinks::InlineArray VertexElementAttribLinks::ToArray(const VertexDeclarationSpan& vertexDeclaration,
-                                                                            const ReadOnlySpan<GLVertexAttribLink> attribLinks)
+  VertexElementAttribLinks::InlineArray VertexElementAttribLinks::ToArray(const VertexDeclarationSpan& vertexDeclaration,
+                                                                          const ReadOnlySpan<GLVertexAttribLink> attribLinks)
+  {
+    // This is not optimal but it works for now
+    auto configuration = GLVertexElements(vertexDeclaration).ExtractConfiguration(attribLinks);
+    return ToArray(ReadOnlySpanUtil::AsSpan(configuration));
+  }
+
+  VertexElementAttribLinks::InlineArray VertexElementAttribLinks::ToArray(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs)
+  {
+    VertexElementAttribLinks::InlineArray result;
+    const std::size_t convertedSize = vertexElementAttribConfigs.size();
+    if (convertedSize > result.Entries.size())
     {
-      // This is not optimal but it works for now
-      auto configuration = GLVertexElements(vertexDeclaration).ExtractConfiguration(attribLinks);
-      return ToArray(ReadOnlySpanUtil::AsSpan(configuration));
+      throw NotSupportedException("VertexElementAttribLinks max supported capacity exceeded");
     }
-
-    VertexElementAttribLinks::InlineArray
-      VertexElementAttribLinks::ToArray(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs)
+    // Copy it to the array
+    for (std::size_t i = 0; i < convertedSize; ++i)
     {
-      VertexElementAttribLinks::InlineArray result;
-      const std::size_t convertedSize = vertexElementAttribConfigs.size();
-      if (convertedSize > result.Entries.size())
-      {
-        throw NotSupportedException("VertexElementAttribLinks max supported capacity exceeded");
-      }
-      // Copy it to the array
-      for (std::size_t i = 0; i < convertedSize; ++i)
-      {
-        result.Entries[i] = vertexElementAttribConfigs[i];
-      }
-      // sort the entries based on attrib index (low to high)
-      std::sort(
-        result.Entries.begin(), result.Entries.begin() + convertedSize,
-        [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool { return lhs.AttribIndex < rhs.AttribIndex; });
-
-      result.Count = NumericCast<uint32_t>(convertedSize);
-      assert(result.Count <= result.Entries.size());
-      return result;
+      result.Entries[i] = vertexElementAttribConfigs[i];
     }
+    // sort the entries based on attrib index (low to high)
+    std::sort(result.Entries.begin(), result.Entries.begin() + UncheckedNumericCast<std::ptrdiff_t>(convertedSize),
+              [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool
+              { return lhs.AttribIndex < rhs.AttribIndex; });
+
+    result.Count = NumericCast<uint32_t>(convertedSize);
+    assert(result.Count <= result.Entries.size());
+    return result;
   }
 }

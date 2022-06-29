@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraAdapterAllocateInfo.hpp>
+#include <Shared/Camera/Adapter/Interface/ICameraAdapter.hpp>
 
 namespace Fsl
 {

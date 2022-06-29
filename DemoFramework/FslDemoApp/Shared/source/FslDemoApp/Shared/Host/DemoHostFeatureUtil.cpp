@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <limits>
 
@@ -48,7 +49,7 @@ namespace Fsl
 
   void DemoHostFeatureUtil::DecodeOpenGLESVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor)
   {
-    rMajor = (encodedValue >> 16) & 0xFFFF;
+    rMajor = UncheckedNumericCast<int32_t>((encodedValue >> 16) & 0xFFFF);
     uint16_t minor = encodedValue & 0xFFFF;
     rMinor = minor != 0xFFFF ? minor : -1;
   }
@@ -68,7 +69,7 @@ namespace Fsl
 
   void DemoHostFeatureUtil::DecodeOpenVGVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor)
   {
-    rMajor = (encodedValue >> 16) & 0xFFFF;
+    rMajor = UncheckedNumericCast<int32_t>((encodedValue >> 16) & 0xFFFF);
     uint16_t minor = encodedValue & 0xFFFF;
     rMinor = minor != 0xFFFF ? minor : -1;
   }
@@ -88,7 +89,7 @@ namespace Fsl
 
   void DemoHostFeatureUtil::DecodeG2DVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor)
   {
-    rMajor = (encodedValue >> 16) & 0xFFFF;
+    rMajor = UncheckedNumericCast<int32_t>((encodedValue >> 16) & 0xFFFF);
     uint16_t minor = encodedValue & 0xFFFF;
     rMinor = minor != 0xFFFF ? minor : -1;
   }
@@ -108,7 +109,7 @@ namespace Fsl
 
   void DemoHostFeatureUtil::DecodeVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor)
   {
-    rMajor = (encodedValue >> 16) & 0xFFFF;
+    rMajor = UncheckedNumericCast<int32_t>((encodedValue >> 16) & 0xFFFF);
     uint16_t minor = encodedValue & 0xFFFF;
     rMinor = minor != 0xFFFF ? minor : -1;
   }

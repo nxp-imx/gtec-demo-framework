@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,76 +29,38 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsMaterialFactory.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsDeviceShaders.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsMaterialFactory.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeShaderCreateInfo.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  namespace
   {
-    namespace
+    //! Set up the predefined shaders
+    std::array<BasicNativeShaderCreateInfo, 3> g_predefindShaders = {
+      // PredefinedShaderType::Vertex
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Vertex, NativeGraphicsDeviceShaders::GetVertexShader(),
+                                  NativeGraphicsDeviceShaders::VertexShaderVertexDecl.AsReadOnlySpan()),
+      // PredefinedShaderType::Fragment
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetFragmentShader(), {}),
+      // PredefinedShaderType::FragmentSdf
+      BasicNativeShaderCreateInfo(BasicShaderStageFlag::Fragment, NativeGraphicsDeviceShaders::GetSdfFragmentShader(), {})};
+
+
+    void CheckIfMaterialDeclarationIsSupported(const BlendState blendState, const BasicMaterialVariableDeclarationSpan& materialDeclaration)
     {
-      constexpr const char* const g_vertexShader =
-        "precision mediump float;\n"
-        "uniform mat4 MatModelViewProj;\n"
-        "\n"
-        "attribute vec4 VertexPosition;\n"
-        "attribute vec4 VertexColor;\n"
-        "attribute vec2 VertexTextureCoord;\n"
-        "\n"
-        "varying vec4 FragColor;\n"
-        "varying vec2 FragTextureCoord;\n"
-        "\n"
-        "void main()\n"
-        "{"
-        "  gl_Position = MatModelViewProj * VertexPosition;\n"
-        "  FragColor = VertexColor;\n"
-        "  FragTextureCoord = VertexTextureCoord;\n"
-        "}";
-
-      constexpr const char* const g_fragmentShader =
-        "precision mediump float;\n"
-        "\n"
-        "uniform sampler2D Texture;\n"
-        "\n"
-        "varying vec4 FragColor;\n"
-        "varying vec2 FragTextureCoord;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "  gl_FragColor = texture2D(Texture, FragTextureCoord) * FragColor;\n"
-        "}\n";
-
-
-      constexpr const char* const g_fragmentSdfShader =
-        "precision mediump float;\n"
-        "\n"
-        "uniform sampler2D Texture;\n"
-        "uniform float Smoothing;\n"
-        "\n"
-        "varying vec4 FragColor;\n"
-        "varying vec2 FragTextureCoord;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "  float distance = texture2D(Texture, FragTextureCoord).a;\n"
-        "  float alpha = smoothstep(0.5 - Smoothing, 0.5 + Smoothing, distance);\n"
-        "  gl_FragColor = vec4(FragColor.rgb, FragColor.a * alpha);\n"
-        "}\n";
-
-
-      void CheckIfMaterialDeclarationIsSupported(const BlendState blendState, const BasicMaterialVariableDeclarationSpan& materialDeclaration)
+      switch (blendState)
       {
-        switch (blendState)
-        {
-        case BlendState::Additive:
-        case BlendState::AlphaBlend:
-        case BlendState::NonPremultiplied:
-        case BlendState::Opaque:
+      case BlendState::Additive:
+      case BlendState::AlphaBlend:
+      case BlendState::NonPremultiplied:
+      case BlendState::Opaque:
         {
           // auto index = materialDeclaration.MaterialElementIndexOf(BasicMaterialVariableElementUsage::ModelViewProj, 0);
           // if (index < 0)
@@ -111,7 +73,7 @@ namespace Fsl
           //}
           break;
         }
-        case BlendState::Sdf:
+      case BlendState::Sdf:
         {
           // auto index = materialDeclaration.MaterialElementIndexOf(BasicMaterialVariableElementUsage::ModelViewProj, 0);
           // if (index < 0)
@@ -133,184 +95,153 @@ namespace Fsl
           }
           break;
         }
-        default:
-          throw NotSupportedException("Unsupported BlendState");
-        }
-      }
-
-    }
-
-    NativeGraphicsMaterialFactory::NativeGraphicsMaterialFactory()
-      : m_resources(PreallocatePrograms())
-    {
-      FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::Construct");
-    }
-
-
-    NativeGraphicsMaterialFactory::~NativeGraphicsMaterialFactory() noexcept
-    {
-      FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::Destruct");
-    }
-
-
-    void NativeGraphicsMaterialFactory::ClearCachedCameraChangeIds()
-    {
-      for (auto& rEntry : m_resources.Programs)
-      {
-        rEntry.CameraChangeId = 0;
+      default:
+        throw NotSupportedException("Unsupported BlendState");
       }
     }
+  }
+
+  NativeGraphicsMaterialFactory::NativeGraphicsMaterialFactory()
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::Construct");
+  }
 
 
-    void NativeGraphicsMaterialFactory::CreateDependentResources(const PxExtent2D& screenExtentPx)
+  NativeGraphicsMaterialFactory::~NativeGraphicsMaterialFactory() noexcept
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::Destruct");
+  }
+
+
+  void NativeGraphicsMaterialFactory::CreateDependentResources(const PxExtent2D& screenExtentPx)
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::CreateDependentResources");
+    try
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::CreateDependentResources");
-      try
-      {
-        m_dependentResources = DependentResources(screenExtentPx);
-      }
-      catch (const std::exception& ex)
-      {
-        FSLLOG3_ERROR("CreateDependentResources failed with: {}", ex.what());
-        DestroyDependentResources();
-        throw;
-      }
+      m_dependentResources = DependentResources(screenExtentPx);
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG3_ERROR("CreateDependentResources failed with: {}", ex.what());
+      DestroyDependentResources();
+      throw;
+    }
+  }
+
+
+  void NativeGraphicsMaterialFactory::DestroyDependentResources()
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::DestroyDependentResources");
+    FSLLOG3_WARNING_IF(!m_dependentResources.Materials.Empty(), "There are still {} materials active, force freeing them",
+                       m_dependentResources.Materials.Count());
+    m_dependentResources = {};
+  }
+
+
+  ReadOnlySpan<BasicNativeShaderCreateInfo> NativeGraphicsMaterialFactory::GetPredefinedShaders() const
+  {
+    return ReadOnlySpanUtil::AsSpan(g_predefindShaders);
+  }
+
+
+  BasicNativeShaderHandle NativeGraphicsMaterialFactory::CreateShader(const BasicNativeShaderCreateInfo& createInfo)
+  {
+    return m_resources.ShaderManager.Create(createInfo);
+  }
+
+
+  bool NativeGraphicsMaterialFactory::DestroyShader(const BasicNativeShaderHandle hShader) noexcept
+  {
+    return m_resources.ShaderManager.Destroy(hShader);
+  }
+
+
+  void NativeGraphicsMaterialFactory::CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles,
+                                                      ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan)
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::CreatePipelines");
+
+    if (!m_dependentResources.IsValid)
+    {
+      throw UsageErrorException("Cant CreateMaterials in the current state");
     }
 
-
-    void NativeGraphicsMaterialFactory::DestroyDependentResources()
+    try
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::DestroyDependentResources");
-      FSLLOG3_WARNING_IF(!m_dependentResources.Materials.Empty(), "There are still {} materials active, force freeing them",
-                         m_dependentResources.Materials.Count());
-      m_dependentResources = {};
-    }
+      // Ensure that we have enough capacity
+      m_dependentResources.Materials.Reserve(UncheckedNumericCast<uint32_t>(m_dependentResources.Materials.Count() + createInfoSpan.size()));
 
-
-    void NativeGraphicsMaterialFactory::CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles,
-                                                        ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan)
-    {
-      FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::CreatePipelines");
-      if (!m_dependentResources.IsValid)
+      for (uint32_t i = 0; i < createInfoSpan.size(); ++i)
       {
-        throw UsageErrorException("Cant CreateMaterials in the current state");
+        assert(!dstMaterialHandles[i].IsValid());
+        int32_t handle = m_dependentResources.Materials.Add(CreateMaterial(createInfoSpan[i]));
+        dstMaterialHandles[i] = BasicNativeMaterialHandle(handle);
       }
-
-      try
+    }
+    catch (const std::exception&)
+    {
+      // Clear all temporarily written handles
+      for (uint32_t i = 0; i < dstMaterialHandles.size(); ++i)
       {
-        // Ensure that we have enough capacity
-        m_dependentResources.Materials.Reserve(UncheckedNumericCast<uint32_t>(m_dependentResources.Materials.Count() + createInfoSpan.size()));
-
-        for (uint32_t i = 0; i < createInfoSpan.size(); ++i)
+        if (dstMaterialHandles[i].IsValid())
         {
-          assert(!dstMaterialHandles[i].IsValid());
-          int32_t handle = m_dependentResources.Materials.Add(CreateMaterial(createInfoSpan[i]));
-          dstMaterialHandles[i] = BasicNativeMaterialHandle(handle);
+          m_dependentResources.Materials.Remove(dstMaterialHandles[i].Value);
+          dstMaterialHandles[i] = {};
         }
       }
-      catch (const std::exception&)
-      {
-        // Clear all temporarily written handles
-        for (uint32_t i = 0; i < dstMaterialHandles.size(); ++i)
-        {
-          if (dstMaterialHandles[i].IsValid())
-          {
-            m_dependentResources.Materials.Remove(dstMaterialHandles[i].Value);
-            dstMaterialHandles[i] = {};
-          }
-        }
-        throw;
-      }
+      throw;
     }
+  }
 
-    bool NativeGraphicsMaterialFactory::DestroyMaterial(const BasicNativeMaterialHandle hMaterial)
+  bool NativeGraphicsMaterialFactory::DestroyMaterial(const BasicNativeMaterialHandle hMaterial)
+  {
+    FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::DestroyPipeline({})", hMaterial.Value);
+    if (!m_dependentResources.IsValid)
     {
-      FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::DestroyPipeline({})", hMaterial.Value);
-      if (!m_dependentResources.IsValid)
-      {
-        FSLLOG3_ERROR("Can't destroy a material in this state");
-        return false;
-      }
-      MaterialRecord* pMaterial = m_dependentResources.Materials.TryGet(hMaterial.Value);
-      if (pMaterial == nullptr)
-      {
-        return false;
-      }
-      m_attribManager.ReleaseConfig(pMaterial->AttribLinkHandle);
-      pMaterial->AttribLinkHandle = NativeMaterialAttribHandle::Invalid();
-      return m_dependentResources.Materials.Remove(hMaterial.Value);
+      FSLLOG3_ERROR("Can't destroy a material in this state");
+      return false;
     }
-
-
-    NativeGraphicsMaterialFactory::MaterialRecord NativeGraphicsMaterialFactory::CreateMaterial(const BasicNativeMaterialCreateInfo& createInfo)
+    MaterialRecord* pMaterial = m_dependentResources.Materials.TryGet(hMaterial.Value);
+    if (pMaterial == nullptr)
     {
-      assert(createInfo.IsValid());
+      return false;
+    }
+    m_attribManager.ReleaseConfig(pMaterial->AttribLinkHandle);
+    pMaterial->AttribLinkHandle = NativeMaterialAttribHandle::Invalid();
+    m_resources.ProgramManager.Release(pMaterial->ProgramHandle);
+    pMaterial->ProgramHandle = NativeProgramHandle::Invalid();
+    return m_dependentResources.Materials.Remove(hMaterial.Value);
+  }
 
-      CheckIfMaterialDeclarationIsSupported(createInfo.MaterialInfo.Blend, createInfo.MaterialDeclaration);
 
-      const uint32_t programIndex = FindMatchingProgramIndex(createInfo);
-      const ProgramRecord& programRecord = m_resources.Programs[programIndex];
-      assert(programRecord.IsValid());
+  NativeGraphicsMaterialFactory::MaterialRecord NativeGraphicsMaterialFactory::CreateMaterial(const BasicNativeMaterialCreateInfo& createInfo)
+  {
+    assert(createInfo.IsValid());
+
+    CheckIfMaterialDeclarationIsSupported(createInfo.MaterialInfo.Blend, createInfo.MaterialDeclaration);
+
+    const NativeProgramHandle hProgram =
+      m_resources.ProgramManager.Acquire(m_resources.ShaderManager, createInfo.VertexShaderHandle, createInfo.FragmentShaderHandle);
+    try
+    {
+      const auto& programRecord = m_resources.ProgramManager.Get(hProgram);
 
       const NativeMaterialAttribHandle hAttribLink = m_attribManager.AcquireConfig(programRecord.LocVertexPosition, programRecord.LocVertexColor,
                                                                                    programRecord.LocVertexTextureCoord, createInfo.VertexDeclaration);
-
-
-      return MaterialRecord(createInfo.MaterialInfo, programIndex, programRecord.Program.Get(), programRecord.LocMatModelViewProj,
-                            programRecord.LocTexture, programRecord.LocSmoothing, hAttribLink);
-    }
-
-
-    uint32_t NativeGraphicsMaterialFactory::FindMatchingProgramIndex(const BasicNativeMaterialCreateInfo& createInfo)
-    {
-      switch (createInfo.MaterialInfo.Blend)
+      try
       {
-      case BlendState::Additive:
-      case BlendState::AlphaBlend:
-      case BlendState::NonPremultiplied:
-      case BlendState::Opaque:
-        return 0;
-      case BlendState::Sdf:
-        return 1;
-      default:
-        throw NotSupportedException("Unsupported blend state");
+        return MaterialRecord(createInfo.MaterialInfo, hProgram, hAttribLink, programRecord.Program.Get(), programRecord.LocSmoothing);
+      }
+      catch (const std::exception&)
+      {
+        m_attribManager.ReleaseConfig(hAttribLink);
+        throw;
       }
     }
-
-
-    std::array<NativeGraphicsMaterialFactory::ProgramRecord, 2> NativeGraphicsMaterialFactory::PreallocatePrograms()
+    catch (const std::exception&)
     {
-      std::array<NativeGraphicsMaterialFactory::ProgramRecord, 2> programs{};
-
-      // Normal program
-      programs[0].Program.Reset(g_vertexShader, g_fragmentShader);
-      programs[0].LocMatModelViewProj = programs[0].Program.GetUniformLocation("MatModelViewProj");
-      programs[0].LocTexture = programs[0].Program.GetUniformLocation("Texture");
-      // programs[0].LocSmoothing;
-      programs[0].LocVertexPosition = programs[0].Program.GetAttribLocation("VertexPosition");
-      programs[0].LocVertexColor = programs[0].Program.GetAttribLocation("VertexColor");
-      programs[0].LocVertexTextureCoord = programs[0].Program.GetAttribLocation("VertexTextureCoord");
-
-      // SDF program
-      programs[1].Program.Reset(g_vertexShader, g_fragmentSdfShader);
-      programs[1].LocMatModelViewProj = programs[1].Program.GetUniformLocation("MatModelViewProj");
-      programs[1].LocTexture = programs[1].Program.GetUniformLocation("Texture");
-      programs[1].LocSmoothing = programs[1].Program.GetUniformLocation("Smoothing");
-      programs[1].LocVertexPosition = programs[1].Program.GetAttribLocation("VertexPosition");
-      programs[1].LocVertexColor = programs[1].Program.GetAttribLocation("VertexColor");
-      programs[1].LocVertexTextureCoord = programs[1].Program.GetAttribLocation("VertexTextureCoord");
-
-      // Update the texture
-      for (const auto& record : programs)
-      {
-        if (record.LocTexture != GLValues::INVALID_LOCATION)
-        {
-          glUseProgram(record.Program.Get());
-          glUniform1i(record.LocTexture, 0);
-        }
-      }
-      glUseProgram(0);
-      return programs;
+      m_resources.ProgramManager.Release(hProgram);
+      throw;
     }
   }
 }

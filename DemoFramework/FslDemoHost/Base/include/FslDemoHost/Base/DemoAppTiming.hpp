@@ -32,9 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Optional.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/TimeStepMode.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -118,7 +118,7 @@ namespace Fsl
     bool HasPendingFixedUpdate() const noexcept;
 
     //! @brief Return a DemoTime if a FixedUpdate should be scheduled, return a empty Optional if not
-    Optional<DemoTime> TryFixedUpdate();
+    std::optional<DemoTime> TryFixedUpdate();
 
     DemoTime GetUpdateTime() const noexcept
     {

@@ -31,24 +31,21 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class ItemScalePolicy
   {
-    enum class ItemScalePolicy
-    {
-      //! No scaling will be done the item will be drawn at full size (exceeding its window rect if necessary)
-      NoScaling,
-      //! The item will be scaled to fit, the aspect ratio will be ignored.
-      Fit,
-      //! The item will be scaled to fit, the aspect ratio will be kept.
-      FitKeepAR,
-      //! The item will be down scaled to fit if its too big, the aspect ratio will be ignored.
-      Downscale,
-      //! The item will be down scaled to fit if its too big, the aspect ratio will be kept.
-      DownscaleKeepAR,
-    };
-  }
+    //! No scaling will be done the item will be drawn at full size (exceeding its window rect if necessary)
+    NoScaling,
+    //! The item will be scaled to fit, the aspect ratio will be ignored.
+    Fit,
+    //! The item will be scaled to fit, the aspect ratio will be kept.
+    FitKeepAR,
+    //! The item will be down scaled to fit if its too big, the aspect ratio will be ignored.
+    Downscale,
+    //! The item will be down scaled to fit if its too big, the aspect ratio will be kept.
+    DownscaleKeepAR,
+  };
 }
 
 #endif

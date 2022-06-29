@@ -91,8 +91,10 @@ namespace Fsl
       assert((int64_t(right) - int64_t(left)) <= std::numeric_limits<value_type>::max());
       assert((int64_t(bottom) - int64_t(top)) <= std::numeric_limits<value_type>::max());
       // do the calcs in int64_t and then clamp it to a valid range to handle overflows
-      auto width = value_type(MathHelper::Clamp(int64_t(right) - int64_t(left), int64_t(0), int64_t(std::numeric_limits<value_type>::max())));
-      auto height = value_type(MathHelper::Clamp(int64_t(bottom) - int64_t(top), int64_t(0), int64_t(std::numeric_limits<value_type>::max())));
+      auto width = static_cast<value_type>(MathHelper::Clamp(static_cast<int64_t>(right) - static_cast<int64_t>(left), static_cast<int64_t>(0),
+                                                             static_cast<int64_t>(std::numeric_limits<value_type>::max())));
+      auto height = static_cast<value_type>(MathHelper::Clamp(static_cast<int64_t>(bottom) - static_cast<int64_t>(top), static_cast<int64_t>(0),
+                                                              static_cast<int64_t>(std::numeric_limits<value_type>::max())));
       return {left, top, width, height};
     }
 

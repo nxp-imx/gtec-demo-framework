@@ -29,30 +29,24 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeControlFactory.hpp>
-#include <FslSimpleUI/Theme/Basic/BasicThemeResources.hpp>
 #include <FslSimpleUI/Theme/Base/ThemeFactoryCreateInfo.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeControlFactory.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeResources.hpp>
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  BasicThemeFactory::BasicThemeFactory(ISpriteResourceManager& rResourceManager, const ThemeFactoryCreateInfo& createInfo)
+    : m_resources(std::make_shared<BasicThemeResources>(rResourceManager, createInfo))
+    , m_usePrimaryPalette(createInfo.UsePrimaryPalette)
   {
-    namespace Theme
-    {
-      BasicThemeFactory::BasicThemeFactory(ISpriteResourceManager& rResourceManager, const ThemeFactoryCreateInfo& createInfo)
-        : m_resources(std::make_shared<BasicThemeResources>(rResourceManager, createInfo))
-        , m_usePrimaryPalette(createInfo.UsePrimaryPalette)
-      {
-      }
+  }
 
 
-      std::shared_ptr<IThemeControlFactory> BasicThemeFactory::Create(const std::shared_ptr<WindowContext>& context)
-      {
-        return std::make_shared<BasicThemeControlFactory>(context, m_resources, m_usePrimaryPalette);
-      }
-    }
+  std::shared_ptr<IThemeControlFactory> BasicThemeFactory::Create(const std::shared_ptr<WindowContext>& context)
+  {
+    return std::make_shared<BasicThemeControlFactory>(context, m_resources, m_usePrimaryPalette);
   }
 }

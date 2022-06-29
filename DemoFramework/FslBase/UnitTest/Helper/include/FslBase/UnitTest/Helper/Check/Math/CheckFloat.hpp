@@ -32,24 +32,21 @@
  ****************************************************************************************************************************************************/
 
 #include <gtest/gtest.h>
-#include <limits>
 #include <iomanip>
+#include <limits>
 
-namespace Fsl
+namespace Fsl::TestCheck
 {
-  namespace TestCheck
+  inline bool AlmostEqual(const float lhs, const float rhs)
   {
-    inline bool AlmostEqual(const float lhs, const float rhs)
-    {
-      ::testing::internal::FloatingPoint<float> lhs1(lhs);
-      ::testing::internal::FloatingPoint<float> rhs1(rhs);
-      return lhs1.AlmostEquals(rhs1);
-    }
+    ::testing::internal::FloatingPoint<float> lhs1(lhs);
+    ::testing::internal::FloatingPoint<float> rhs1(rhs);
+    return lhs1.AlmostEquals(rhs1);
+  }
 
-    inline bool IsNear(const float& lhs, const float& rhs, const float absError)
-    {
-      return (lhs - rhs) < absError;
-    }
+  inline bool IsNear(const float& lhs, const float& rhs, const float absError)
+  {
+    return (lhs - rhs) < absError;
   }
 }
 

@@ -31,20 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "../Debug/DebugRenderDrawSpriteType.hpp"
 #include <ostream>
+#include "../Debug/DebugRenderDrawSpriteType.hpp"
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  inline std::ostream& operator<<(std::ostream& o, const RenderDrawSpriteType& value)
   {
-    namespace RenderIMBatch
-    {
-      inline std::ostream& operator<<(std::ostream& o, const RenderDrawSpriteType& value)
-      {
-        return o << Debug::ToString(value) << " (" << static_cast<uint32_t>(value) << ')';
-      }
-    }
+    return o << Debug::ToString(value) << " (" << static_cast<uint32_t>(value) << ')';
   }
 }
 

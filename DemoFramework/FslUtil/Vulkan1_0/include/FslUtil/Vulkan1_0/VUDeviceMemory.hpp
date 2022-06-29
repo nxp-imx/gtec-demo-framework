@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUDEVICEMEMORY_HPP
 #define FSLUTIL_VULKAN1_0_VUDEVICEMEMORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,71 +32,48 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/SpanRange.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <vulkan/vulkan.h>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
+  class VUDeviceMemory
   {
-    // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
-    class VUDeviceMemory
+    RapidVulkan::Memory m_deviceMemory;
+    VkMemoryPropertyFlags m_memoryPropertyFlags = 0;
+    //! The device memory capacity
+    VkDeviceSize m_capacity = 0;
+    VkDeviceSize m_physicalDeviceLimitNonCoherentAtomSize = 0;
+    void* m_pData = nullptr;
+    bool m_isMapped = false;
+    SpanRange<VkDeviceSize> m_mappedSpan;
+
+  public:
+    VUDeviceMemory(const VUDeviceMemory&) = delete;
+    VUDeviceMemory& operator=(const VUDeviceMemory&) = delete;
+
+    // move assignment operator
+    VUDeviceMemory& operator=(VUDeviceMemory&& other) noexcept
     {
-      RapidVulkan::Memory m_deviceMemory;
-      VkMemoryPropertyFlags m_memoryPropertyFlags = 0;
-      //! The device memory capacity
-      VkDeviceSize m_capacity = 0;
-      VkDeviceSize m_physicalDeviceLimitNonCoherentAtomSize = 0;
-      void* m_pData = nullptr;
-      bool m_isMapped = false;
-      SpanRange<VkDeviceSize> m_mappedSpan;
-
-    public:
-      VUDeviceMemory(const VUDeviceMemory&) = delete;
-      VUDeviceMemory& operator=(const VUDeviceMemory&) = delete;
-
-      // move assignment operator
-      VUDeviceMemory& operator=(VUDeviceMemory&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Free existing resources then transfer the content of other to this one and fill other with default values
-          Reset();
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
 
-          // Claim ownership here
-          m_deviceMemory = std::move(other.m_deviceMemory);
-          m_memoryPropertyFlags = other.m_memoryPropertyFlags;
-          m_capacity = other.m_capacity;
-          m_physicalDeviceLimitNonCoherentAtomSize = other.m_physicalDeviceLimitNonCoherentAtomSize;
-          m_pData = other.m_pData;
-          m_isMapped = other.m_isMapped;
-          m_mappedSpan = other.m_mappedSpan;
+        // Claim ownership here
+        m_deviceMemory = std::move(other.m_deviceMemory);
+        m_memoryPropertyFlags = other.m_memoryPropertyFlags;
+        m_capacity = other.m_capacity;
+        m_physicalDeviceLimitNonCoherentAtomSize = other.m_physicalDeviceLimitNonCoherentAtomSize;
+        m_pData = other.m_pData;
+        m_isMapped = other.m_isMapped;
+        m_mappedSpan = other.m_mappedSpan;
 
-          // Remove the data from other
-          other.m_memoryPropertyFlags = 0;
-          other.m_capacity = 0;
-          other.m_physicalDeviceLimitNonCoherentAtomSize = 0;
-          other.m_pData = nullptr;
-          other.m_isMapped = false;
-          other.m_mappedSpan = {};
-        }
-        return *this;
-      }
-
-      // move constructor
-      VUDeviceMemory(VUDeviceMemory&& other) noexcept
-        : m_deviceMemory(std::move(other.m_deviceMemory))
-        , m_memoryPropertyFlags(other.m_memoryPropertyFlags)
-        , m_capacity(other.m_capacity)
-        , m_physicalDeviceLimitNonCoherentAtomSize(other.m_physicalDeviceLimitNonCoherentAtomSize)
-        , m_pData(other.m_pData)
-        , m_isMapped(other.m_isMapped)
-        , m_mappedSpan(other.m_mappedSpan)
-      {
         // Remove the data from other
         other.m_memoryPropertyFlags = 0;
         other.m_capacity = 0;
@@ -105,111 +82,131 @@ namespace Fsl
         other.m_isMapped = false;
         other.m_mappedSpan = {};
       }
+      return *this;
+    }
 
-      VUDeviceMemory() = default;
+    // move constructor
+    VUDeviceMemory(VUDeviceMemory&& other) noexcept
+      : m_deviceMemory(std::move(other.m_deviceMemory))
+      , m_memoryPropertyFlags(other.m_memoryPropertyFlags)
+      , m_capacity(other.m_capacity)
+      , m_physicalDeviceLimitNonCoherentAtomSize(other.m_physicalDeviceLimitNonCoherentAtomSize)
+      , m_pData(other.m_pData)
+      , m_isMapped(other.m_isMapped)
+      , m_mappedSpan(other.m_mappedSpan)
+    {
+      // Remove the data from other
+      other.m_memoryPropertyFlags = 0;
+      other.m_capacity = 0;
+      other.m_physicalDeviceLimitNonCoherentAtomSize = 0;
+      other.m_pData = nullptr;
+      other.m_isMapped = false;
+      other.m_mappedSpan = {};
+    }
 
-      //! @brief Create a new memory.
-      VUDeviceMemory(const VkDevice device, const VkMemoryAllocateInfo& memoryAllocationInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
-                     const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize)
-        : VUDeviceMemory()
-      {
-        Reset(device, memoryAllocationInfo, memoryPropertyFlags, physicalDeviceLimitNonCoherentAtomSize);
-      }
+    VUDeviceMemory() = default;
 
-      //! @brief Create a new memory.
-      VUDeviceMemory(const VkDevice device, const VkMemoryRequirements& memoryRequirements,
-                     const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const VkMemoryPropertyFlags propertyFlags,
-                     const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize)
-        : VUDeviceMemory()
-      {
-        Reset(device, memoryRequirements, physicalDeviceMemoryProperties, propertyFlags, physicalDeviceLimitNonCoherentAtomSize);
-      }
+    //! @brief Create a new memory.
+    VUDeviceMemory(const VkDevice device, const VkMemoryAllocateInfo& memoryAllocationInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
+                   const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize)
+      : VUDeviceMemory()
+    {
+      Reset(device, memoryAllocationInfo, memoryPropertyFlags, physicalDeviceLimitNonCoherentAtomSize);
+    }
 
-      ~VUDeviceMemory() noexcept
-      {
-        Reset();
-      }
+    //! @brief Create a new memory.
+    VUDeviceMemory(const VkDevice device, const VkMemoryRequirements& memoryRequirements,
+                   const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const VkMemoryPropertyFlags propertyFlags,
+                   const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize)
+      : VUDeviceMemory()
+    {
+      Reset(device, memoryRequirements, physicalDeviceMemoryProperties, propertyFlags, physicalDeviceLimitNonCoherentAtomSize);
+    }
 
-      //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset() noexcept;
+    ~VUDeviceMemory() noexcept
+    {
+      Reset();
+    }
 
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkMemoryRequirements& memoryRequirements,
-                 const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const VkMemoryPropertyFlags desiredPropertyFlags,
-                 const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize);
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
 
-      //! @brief Replaces the managed object with a new one (releasing the old)
-      void Reset(const VkDevice device, const VkMemoryAllocateInfo& memoryAllocationInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
-                 const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize);
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkMemoryRequirements& memoryRequirements,
+               const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const VkMemoryPropertyFlags desiredPropertyFlags,
+               const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize);
 
-      //! @brief returns the managed handle and releases the ownership.
-      VkDeviceMemory Release();
+    //! @brief Replaces the managed object with a new one (releasing the old)
+    void Reset(const VkDevice device, const VkMemoryAllocateInfo& memoryAllocationInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
+               const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize);
 
-      //! @brief Get the device associated with this object
-      VkDevice GetDevice() const
-      {
-        return m_deviceMemory.GetDevice();
-      }
+    //! @brief returns the managed handle and releases the ownership.
+    VkDeviceMemory Release();
 
-      //! @brief Get the memory handle associated with this object
-      VkDeviceMemory Get() const
-      {
-        return m_deviceMemory.Get();
-      }
+    //! @brief Get the device associated with this object
+    VkDevice GetDevice() const
+    {
+      return m_deviceMemory.GetDevice();
+    }
 
-      //! @brief Check if this memory object is valid
-      bool IsValid() const
-      {
-        return m_deviceMemory.IsValid();
-      }
+    //! @brief Get the memory handle associated with this object
+    VkDeviceMemory Get() const
+    {
+      return m_deviceMemory.Get();
+    }
 
-
-      VkDeviceSize GetAllocationSize() const
-      {
-        return m_capacity;
-      }
+    //! @brief Check if this memory object is valid
+    bool IsValid() const
+    {
+      return m_deviceMemory.IsValid();
+    }
 
 
-      VkMemoryPropertyFlags GetMemoryPropertyFlags() const
-      {
-        return m_memoryPropertyFlags;
-      }
+    VkDeviceSize GetAllocationSize() const
+    {
+      return m_capacity;
+    }
 
-      void* MapMemory(const VkDeviceSize offset, const VkDeviceSize size, const VkMemoryMapFlags flags);
 
-      const void* GetMappedMemoryPointer() const
-      {
-        FSLLOG3_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
-        return m_pData;
-      }
+    VkMemoryPropertyFlags GetMemoryPropertyFlags() const
+    {
+      return m_memoryPropertyFlags;
+    }
 
-      void* GetMappedMemoryPointer()
-      {
-        FSLLOG3_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
-        return m_pData;
-      }
+    void* MapMemory(const VkDeviceSize offset, const VkDeviceSize size, const VkMemoryMapFlags flags);
 
-      bool IsMapped() const
-      {
-        return m_isMapped;
-      }
+    const void* GetMappedMemoryPointer() const
+    {
+      FSLLOG3_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
+      return m_pData;
+    }
 
-      void InvalidateMappedMemoryRanges(const VkDeviceSize offset, const VkDeviceSize size);
+    void* GetMappedMemoryPointer()
+    {
+      FSLLOG3_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
+      return m_pData;
+    }
 
-      void FlushMappedMemoryRanges(const VkDeviceSize offset, const VkDeviceSize size);
+    bool IsMapped() const
+    {
+      return m_isMapped;
+    }
 
-      void UnmapMemory() noexcept;
+    void InvalidateMappedMemoryRanges(const VkDeviceSize offset, const VkDeviceSize size);
 
-      //! @brief Upload the given source data to device memory.
-      //! @details If the memory is unmapped this method will map, upload (+flush if needed) and unmap it.
-      //!          If the memory is mapped it will just upload (+flush if needed). However be sure that you are uploading inside the mapped area.
-      //! @note    For frequently updated data its recommended to keep the memory mapped while the frequent update is necessary.
-      void Upload(const VkDeviceSize dstOffset, const void* pSrcData, const VkDeviceSize srcDataSize, const VkMemoryMapFlags memoryMapFlags);
+    void FlushMappedMemoryRanges(const VkDeviceSize offset, const VkDeviceSize size);
 
-    private:
-      void DoUnmapMemory() noexcept;
-    };
-  }
+    void UnmapMemory() noexcept;
+
+    //! @brief Upload the given source data to device memory.
+    //! @details If the memory is unmapped this method will map, upload (+flush if needed) and unmap it.
+    //!          If the memory is mapped it will just upload (+flush if needed). However be sure that you are uploading inside the mapped area.
+    //! @note    For frequently updated data its recommended to keep the memory mapped while the frequent update is necessary.
+    void Upload(const VkDeviceSize dstOffset, const void* pSrcData, const VkDeviceSize srcDataSize, const VkMemoryMapFlags memoryMapFlags);
+
+  private:
+    void DoUnmapMemory() noexcept;
+  };
 }
 
 #endif

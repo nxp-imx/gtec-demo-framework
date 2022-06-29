@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <ostream>
 #include <string>
 
@@ -42,7 +41,7 @@ namespace Fsl
   {
     if (value.data() != nullptr)
     {
-      return o << StringViewLiteUtil::ToString(value);
+      return o << value.AsStringView();
     }
     return o;
   }

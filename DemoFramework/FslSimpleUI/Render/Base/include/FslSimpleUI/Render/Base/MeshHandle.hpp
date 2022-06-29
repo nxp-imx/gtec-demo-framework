@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_MESHHANDLE_HPP
 #define FSLSIMPLEUI_RENDER_BASE_MESHHANDLE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,42 +33,39 @@
 
 #include <FslBase/Collections/HandleVectorConfig.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct MeshHandle
   {
-    struct MeshHandle
+    int32_t Value{HandleVectorConfig::InvalidHandle};
+
+    MeshHandle() noexcept = default;
+
+    constexpr explicit MeshHandle(const int32_t value) noexcept
+      : Value(value)
     {
-      int32_t Value{HandleVectorConfig::InvalidHandle};
+    }
 
-      MeshHandle() noexcept = default;
+    constexpr bool operator==(const MeshHandle& rhs) const noexcept
+    {
+      return Value == rhs.Value;
+    }
 
-      constexpr explicit MeshHandle(const int32_t value) noexcept
-        : Value(value)
-      {
-      }
+    constexpr bool operator!=(const MeshHandle& rhs) const noexcept
+    {
+      return Value != rhs.Value;
+    }
 
-      constexpr bool operator==(const MeshHandle& rhs) const noexcept
-      {
-        return Value == rhs.Value;
-      }
+    constexpr bool IsValid() const noexcept
+    {
+      return Value != HandleVectorConfig::InvalidHandle;
+    }
 
-      constexpr bool operator!=(const MeshHandle& rhs) const noexcept
-      {
-        return Value != rhs.Value;
-      }
-
-      constexpr bool IsValid() const noexcept
-      {
-        return Value != HandleVectorConfig::InvalidHandle;
-      }
-
-      static constexpr MeshHandle Invalid()
-      {
-        return {};
-      }
-    };
-  }
+    static constexpr MeshHandle Invalid()
+    {
+      return {};
+    }
+  };
 }
 
 

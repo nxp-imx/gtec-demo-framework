@@ -673,6 +673,10 @@ class Builder(object):
             command = command.replace("(BUILD_PATH)", fullBuildDirPath)
             command = command.replace("(RUN_PATH)", runPath)
             commands.append(command)
+
+        if buildConfig.Generator.IsCMake and buildConfig.Generator.CMakeConfig is not None and buildConfig.Generator.CMakeConfig.EmscriptenEnabled:
+            commands.insert(0, buildConfig.Generator.CMakeConfig.EmscriptenRunCommand)
+
         return RunCmdInfo(commands, runPath)
 
 # generator = the generator that was used to build the files

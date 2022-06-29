@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
+#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Math/Pixel/PxRectangleU32.hpp>
-#include <FslBase/Math/Vector4.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
@@ -261,8 +261,8 @@ namespace Fsl
     dstPosText.Y += gridCellSizeDiv2;
 
     const auto dimPx = font.MeasureString(psz);
-    const auto emptyAreaX = float(areaWidth - dimPx.Width());
-    Vector2 originCenter(dimPx.Width() * 0.5f, dimPx.Height() * 0.5f);
+    const auto emptyAreaX = static_cast<float>(areaWidth - dimPx.Width());
+    Vector2 originCenter(static_cast<float>(dimPx.Width()) * 0.5f, static_cast<float>(dimPx.Height()) * 0.5f);
     Vector2 originBottomRight(dimPx.Width(), dimPx.Height());
 
     m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + (emptyAreaX * 0.5f), dstPosText.Y), Color::White());
@@ -307,7 +307,7 @@ namespace Fsl
     const PxSize2D atlas4Size = m_atlasTexture4.GetSize();
 
     {
-      const Vector2 halfF4(atlas4Size.Width() / 2.0f, atlas4Size.Height() / 2.0f);
+      const Vector2 halfF4(static_cast<float>(atlas4Size.Width()) / 2.0f, static_cast<float>(atlas4Size.Height()) / 2.0f);
       Vector2 offset0 = Vector2(dstOffset.X + LocalConfig::GridCellSize * 1, dstOffset.Y + LocalConfig::GridCellSize);
       Vector2 offset1 = Vector2(dstOffset.X + LocalConfig::GridCellSize * 4, dstOffset.Y + LocalConfig::GridCellSize);
       Vector2 offset2 = Vector2(dstOffset.X + LocalConfig::GridCellSize * 7, dstOffset.Y + LocalConfig::GridCellSize);
@@ -327,7 +327,7 @@ namespace Fsl
 
     {
       PxRectangle srcRect(atlas4Size.Width() / 4, atlas4Size.Height() / 4, atlas4Size.Width() / 2, atlas4Size.Height() / 2);
-      const Vector2 halfF4(srcRect.Width() / 2.0f, srcRect.Height() / 2.0f);
+      const Vector2 halfF4(static_cast<float>(srcRect.Width()) / 2.0f, static_cast<float>(srcRect.Height()) / 2.0f);
       Vector2 offset0 = Vector2(dstOffset.X + LocalConfig::GridCellSize * 1, dstOffset.Y + (LocalConfig::GridCellSize * 3));
       Vector2 offset1 = Vector2(dstOffset.X + LocalConfig::GridCellSize * 4, dstOffset.Y + (LocalConfig::GridCellSize * 3));
       Vector2 offset2 = Vector2(dstOffset.X + LocalConfig::GridCellSize * 7, dstOffset.Y + (LocalConfig::GridCellSize * 3));
@@ -366,10 +366,10 @@ namespace Fsl
     const Point2 half1(atlas1Size.Width() / 2, atlas1Size.Height() / 2);
     const Point2 half2(atlas2Size.Width() / 2, atlas2Size.Height() / 2);
     const Point2 half3(atlas3Size.Width() / 2, atlas3Size.Height() / 2);
-    const Vector2 halfF1(atlas1Size.Width() / 2.0f, atlas1Size.Height() / 2.0f);
-    const Vector2 halfF2(atlas2Size.Width() / 2.0f, atlas2Size.Height() / 2.0f);
-    const Vector2 halfF3(atlas3Size.Width() / 2.0f, atlas3Size.Height() / 2.0f);
-    const Vector2 halfF4(atlas4Size.Width() / 2.0f, atlas4Size.Height() / 2.0f);
+    const Vector2 halfF1(static_cast<float>(atlas1Size.Width()) / 2.0f, static_cast<float>(atlas1Size.Height()) / 2.0f);
+    const Vector2 halfF2(static_cast<float>(atlas2Size.Width()) / 2.0f, static_cast<float>(atlas2Size.Height()) / 2.0f);
+    const Vector2 halfF3(static_cast<float>(atlas3Size.Width()) / 2.0f, static_cast<float>(atlas3Size.Height()) / 2.0f);
+    const Vector2 halfF4(static_cast<float>(atlas4Size.Width()) / 2.0f, static_cast<float>(atlas4Size.Height()) / 2.0f);
 
     const int quarterX1 = atlas1Size.Width() / 4;
     const int quarterY1 = atlas1Size.Height() / 4;
@@ -379,8 +379,8 @@ namespace Fsl
     const float spacing = 32;
 
     Vector2 offset1(dstOffset.X, dstOffset.Y);
-    Vector2 offset2(offset1.X + m_atlasTexture1.GetSize().Width(), offset1.Y);
-    Vector2 offset3(offset2.X + m_atlasTexture2.GetSize().Width(), offset2.Y);
+    Vector2 offset2(offset1.X + static_cast<float>(m_atlasTexture1.GetSize().Width()), offset1.Y);
+    Vector2 offset3(offset2.X + static_cast<float>(m_atlasTexture2.GetSize().Width()), offset2.Y);
     Vector2 offset4(dstOffset.X + LocalConfig::GridCellSize * 10, dstOffset.Y + LocalConfig::GridCellSize);
 
     Vector2 offsetA(offset3.X + static_cast<float>(m_atlasTexture3.GetSize().Width()) + spacing, offset3.Y);
@@ -397,8 +397,10 @@ namespace Fsl
     const float speed = 0.40f;
     for (int32_t i = 0; i < numEntries; ++i)
     {
-      offsets1[i] = Vector2(offsetA.X + static_cast<float>(i * atlas1Size.Width()), offsetA.Y + 30.0f + std::sin(m_angle + (i * speed)) * 30.0f);
-      offsets2[i] = Vector2(offsetB.X + static_cast<float>(i * atlas2Size.Width()), offsetB.Y + 30.0f + std::sin(m_angle + (i * speed)) * 30.0f);
+      offsets1[i] = Vector2(offsetA.X + static_cast<float>(i * atlas1Size.Width()),
+                            offsetA.Y + 30.0f + std::sin(m_angle + (static_cast<float>(i) * speed)) * 30.0f);
+      offsets2[i] = Vector2(offsetB.X + static_cast<float>(i * atlas2Size.Width()),
+                            offsetB.Y + 30.0f + std::sin(m_angle + (static_cast<float>(i) * speed)) * 30.0f);
     }
 
     m_batch->Draw(m_atlasTexture1, offset1, Color::White());
@@ -483,7 +485,7 @@ namespace Fsl
     m_batch->Draw(m_atlasTexture1, Vector2(offset1.X + halfF1.X, offset1.Y + halfF1.Y), Color::White(), Vector2(halfF1.X, halfF1.Y), zoom1);
     m_batch->Draw(m_atlasTexture3, Vector2(offset2.X + halfF3.X, offset2.Y + halfF3.Y), Color::White(), Vector2(halfF3.X, halfF3.Y), zoom1);
     m_batch->Draw(m_atlasTexture1, Vector2(offset3.X + halfF1.X, offset3.Y + halfF1.Y), q1, Color::White(),
-                  Vector2(q1.Width() * 0.5f, q1.Height() * 0.5f), zoom1);
+                  Vector2(static_cast<float>(q1.Width()) * 0.5f, static_cast<float>(q1.Height()) * 0.5f), zoom1);
 
     offset1.Y += maxSizeY;
     offset2.Y += maxSizeY;
@@ -492,7 +494,7 @@ namespace Fsl
     m_batch->Draw(m_atlasTexture1, Vector2(offset1.X + halfF1.X, offset1.Y + halfF1.Y), Color::White(), Vector2(halfF1.X, halfF1.Y), zoom2);
     m_batch->Draw(m_atlasTexture3, Vector2(offset2.X + halfF3.X, offset2.Y + halfF3.Y), Color::White(), Vector2(halfF3.X, halfF3.Y), zoom2);
     m_batch->Draw(m_atlasTexture1, Vector2(offset3.X + halfF1.X, offset3.Y + halfF1.Y), q1, Color::White(),
-                  Vector2(q1.Width() * 0.5f, q1.Height() * 0.5f), zoom2);
+                  Vector2(static_cast<float>(q1.Width()) * 0.5f, static_cast<float>(q1.Height()) * 0.5f), zoom2);
   }
 
 
@@ -516,13 +518,17 @@ namespace Fsl
     const int quarterX2 = atlas2Size.Width() / 4;
     const int quarterY2 = atlas2Size.Height() / 4;
 
-    PxRectangle offset1(dstOffset.X, dstOffset.Y, int32_t(atlas1Size.Width() * zoomValue1), int32_t(atlas1Size.Height() * zoomValue1));
-    PxRectangle offset2(offset1.X() + m_atlasTexture1.GetSize().Width(), offset1.Y(), int32_t(atlas2Size.Width() * zoomValue1),
-                        int32_t(atlas2Size.Height() * zoomValue1));
-    PxRectangle offset3(offset2.X() + m_atlasTexture2.GetSize().Width(), offset2.Y(), int32_t(atlas1Size.Width() * zoomValue1),
-                        int32_t(atlas1Size.Height() * zoomValue2));
-    PxRectangle offset4(offset3.X() + m_atlasTexture1.GetSize().Width(), offset3.Y(), int32_t(atlas2Size.Width() * zoomValue1),
-                        int32_t(atlas2Size.Height() * zoomValue2));
+    PxRectangle offset1(dstOffset.X, dstOffset.Y, static_cast<int32_t>(static_cast<float>(atlas1Size.Width()) * zoomValue1),
+                        static_cast<int32_t>(static_cast<float>(atlas1Size.Height()) * zoomValue1));
+    PxRectangle offset2(offset1.X() + m_atlasTexture1.GetSize().Width(), offset1.Y(),
+                        static_cast<int32_t>(static_cast<float>(atlas2Size.Width()) * zoomValue1),
+                        static_cast<int32_t>(static_cast<float>(atlas2Size.Height()) * zoomValue1));
+    PxRectangle offset3(offset2.X() + m_atlasTexture2.GetSize().Width(), offset2.Y(),
+                        static_cast<int32_t>(static_cast<float>(atlas1Size.Width()) * zoomValue1),
+                        static_cast<int32_t>(static_cast<float>(atlas1Size.Height()) * zoomValue2));
+    PxRectangle offset4(offset3.X() + m_atlasTexture1.GetSize().Width(), offset3.Y(),
+                        static_cast<int32_t>(static_cast<float>(atlas2Size.Width()) * zoomValue1),
+                        static_cast<int32_t>(static_cast<float>(atlas2Size.Height()) * zoomValue2));
 
     m_batch->Draw(m_atlasTexture1, offset1, Color::White());
     m_batch->Draw(m_atlasTexture2, offset2, Color::White());

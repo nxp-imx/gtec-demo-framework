@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/Collections/HandleVector.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeMaterialFactory.hpp>
 
 namespace Fsl

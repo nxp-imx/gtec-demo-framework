@@ -41,29 +41,46 @@ from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PackageConfig import PlatformNameIdString
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorName
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
 
+class CMakeEmscriptenConfig(object):
+    def __init__(self, configureCommand: str, buildCommand: str, runCommand: str) -> None:
+        super().__init__()
+        self.ConfigureCommand = configureCommand
+        self.BuildCommand = buildCommand
+        self.RunCommand = runCommand
+
+
 def DetermineCMakeCommand(platformName: str) -> str:
     return PlatformUtil.GetExecutableName('cmake', platformName)
 
+def DetermineEmscriptenCommands() -> CMakeEmscriptenConfig:
+    scriptName = 'emcmake'
+    buildScriptName = 'emmake'
+    runName = 'emrun'
+    if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows:
+        return CMakeEmscriptenConfig(scriptName + '.bat', buildScriptName + '.bat', runName + '.bat')
+    return CMakeEmscriptenConfig(scriptName, buildScriptName, runName)
+
+
 def TryGetPlatformDefaultCMakeGenerator(platformName: str, compilerVersion: int) -> Optional[str]:
     if platformName == PackageConfig.PlatformNameString.UBUNTU:
-        return CMakeGeneratorName.UnixMakeFile
+        return CMakeGeneratorName.Ninja
     elif platformName == PackageConfig.PlatformNameString.YOCTO:
-        return CMakeGeneratorName.UnixMakeFile
+        return CMakeGeneratorName.Ninja
     elif platformName == PackageConfig.PlatformNameString.FREERTOS:
-        return CMakeGeneratorName.UnixMakeFile
+        return CMakeGeneratorName.Ninja
     elif platformName == PackageConfig.PlatformNameString.QNX:
-        return CMakeGeneratorName.UnixMakeFile
+        return CMakeGeneratorName.Ninja
     elif platformName == PackageConfig.PlatformNameString.WINDOWS:
         return CMakeGeneratorName.FromVisualStudioVersion(compilerVersion)
     elif platformName == PackageConfig.PlatformNameString.ANDROID:
         return CMakeGeneratorName.Android
     elif platformName == PackageConfig.PlatformNameString.EMSCRIPTEN:
-        return CMakeGeneratorName.FromVisualStudioVersion(compilerVersion)
-#        return CMakeGeneratorName.Ninja
+        return CMakeGeneratorName.Ninja
     return None
 
     #if generator.Name == PackageConfig.PlatformNameString.ANDROID:

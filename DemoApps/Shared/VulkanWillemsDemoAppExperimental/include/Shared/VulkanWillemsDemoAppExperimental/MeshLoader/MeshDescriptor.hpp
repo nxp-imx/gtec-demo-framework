@@ -33,36 +33,30 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
+  //! Stores a mesh's vertex and index descriptions
+  struct MeshDescriptor
   {
-    namespace MeshLoader
+    uint32_t VertexCount{0};
+    uint32_t IndexBase{0};
+    uint32_t IndexCount{0};
+
+    MeshDescriptor() = default;
+
+    MeshDescriptor(const uint32_t vertexCount, const uint32_t indexCount)
+      : VertexCount(vertexCount)
+      , IndexCount(indexCount)
     {
-      //! Stores a mesh's vertex and index descriptions
-      struct MeshDescriptor
-      {
-        uint32_t VertexCount{0};
-        uint32_t IndexBase{0};
-        uint32_t IndexCount{0};
-
-        MeshDescriptor() = default;
-
-        MeshDescriptor(const uint32_t vertexCount, const uint32_t indexCount)
-          : VertexCount(vertexCount)
-          , IndexCount(indexCount)
-        {
-        }
-
-        MeshDescriptor(const uint32_t vertexCount, const uint32_t indexBase, const uint32_t indexCount)
-          : VertexCount(vertexCount)
-          , IndexBase(indexBase)
-          , IndexCount(indexCount)
-        {
-        }
-      };
     }
-  }
+
+    MeshDescriptor(const uint32_t vertexCount, const uint32_t indexBase, const uint32_t indexCount)
+      : VertexCount(vertexCount)
+      , IndexBase(indexBase)
+      , IndexCount(indexCount)
+    {
+    }
+  };
 }
 
 #endif

@@ -30,19 +30,19 @@
  ****************************************************************************************************************************************************/
 
 #include "ServiceThreadManager.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
 #include <FslService/Impl/Registry/RegisteredServiceGroupDeque.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
 #include <FslService/Impl/ServiceType/Async/IAsynchronousServiceProxyFactory.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 //#include <experimental/future>
 #include <cassert>
 #include <exception>
 #include <memory>
 #include <thread>
-#include "Launcher/AsynchronousServiceProxyLaunchFactory.hpp"
 #include "Launcher/AsynchronousServiceImplLaunchFactoryRecord.hpp"
+#include "Launcher/AsynchronousServiceProxyLaunchFactory.hpp"
 #include "Launcher/RegisteredGlobalServiceInfo.hpp"
 #include "ServiceHost.hpp"
 #include "ServiceHostCreateInfo.hpp"
@@ -85,7 +85,7 @@ namespace Fsl
                                                    serviceGroup.ThreadLocalServices);
       ServiceHostCreateInfo createInfo(hostContext, serviceConfig);
       auto mainHost = std::make_shared<ServiceHost>(createInfo, false);
-      return CustomServiceHostRecord(serviceGroup.Type, mainHost, hostReceiveQueue);
+      return {serviceGroup.Type, mainHost, hostReceiveQueue};
     }
   }
 

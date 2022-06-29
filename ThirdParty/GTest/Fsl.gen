@@ -8,11 +8,8 @@
       <ExternalDependency Name="gmock" Access="Public" Type="StaticLib"/>
       <ExternalDependency Name="gtest_main" Access="Public" Type="StaticLib"/>
     </Platform>    
-    <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.GTest_1_10"/>
-    </Platform>    
-    <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.GTest_1_10"/>
+    <Platform Name="Ubuntu;Windows" Supported="true">
+      <Dependency Name="Recipe.GTest_1_11"/>
     </Platform>    
     
   </ExternalLibrary>

@@ -30,11 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/String/FmtUTF8String.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
-#include <array>
-#include <limits>
-#include <vector>
 
 using namespace Fsl;
 

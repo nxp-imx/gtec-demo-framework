@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Dp/FmtDpValue.hpp>
 #include <FslBase/Math/Dp/DpThickness.hpp>
 #include <fmt/format.h>
 

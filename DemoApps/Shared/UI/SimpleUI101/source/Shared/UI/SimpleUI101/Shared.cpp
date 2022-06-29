@@ -29,12 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/SimpleUI101/Shared.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/NumericCast.hpp>
 #include <FslBase/Math/Dp/TypeConverter.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -43,12 +42,11 @@
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
-#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
-#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Button.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
@@ -59,9 +57,10 @@
 #include <FslSimpleUI/Base/Control/RadioButton.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <Shared/UI/SimpleUI101/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -114,7 +113,7 @@ namespace Fsl
     auto stackLayout = std::make_shared<UI::StackLayout>(windowContext);
     stackLayout->SetAlignmentX(UI::ItemAlignment::Center);
     stackLayout->SetAlignmentY(UI::ItemAlignment::Center);
-    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    stackLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     stackLayout->AddChild(stackLayout1);
     // stackLayout->AddChild(stackLayout2);
     // stackLayout->AddChild(m_complexButton);
@@ -263,16 +262,16 @@ namespace Fsl
     image4F->SetAlignmentX(UI::ItemAlignment::Far);
     image4S->SetAlignmentX(UI::ItemAlignment::Stretch);
 
-    const auto widthDp = NumericCast<int32_t>(imageSprite->GetImageInfo().ExtentDp.Width);
-    const auto heightDp = NumericCast<int32_t>(imageSprite->GetImageInfo().ExtentDp.Height);
+    const auto widthDp = TypeConverter::To<DpValue>(imageSprite->GetImageInfo().ExtentDp.Width);
+    const auto heightDp = TypeConverter::To<DpValue>(imageSprite->GetImageInfo().ExtentDp.Height);
     image2->SetWidth(UI::DpLayoutSize1D(widthDp));
-    image2->SetHeight(UI::DpLayoutSize1D(heightDp / 2));
-    image3->SetWidth(UI::DpLayoutSize1D(widthDp / 2));
+    image2->SetHeight(UI::DpLayoutSize1D(heightDp / DpValue(2)));
+    image3->SetWidth(UI::DpLayoutSize1D(widthDp / DpValue(2)));
     image3->SetHeight(UI::DpLayoutSize1D(heightDp));
-    image4N->SetHeight(UI::DpLayoutSize1D(heightDp / 4));
-    image4C->SetHeight(UI::DpLayoutSize1D(heightDp / 4));
-    image4F->SetHeight(UI::DpLayoutSize1D(heightDp / 4));
-    image4S->SetHeight(UI::DpLayoutSize1D(heightDp / 4));
+    image4N->SetHeight(UI::DpLayoutSize1D(heightDp / DpValue(4)));
+    image4C->SetHeight(UI::DpLayoutSize1D(heightDp / DpValue(4)));
+    image4F->SetHeight(UI::DpLayoutSize1D(heightDp / DpValue(4)));
+    image4S->SetHeight(UI::DpLayoutSize1D(heightDp / DpValue(4)));
 
     // Create a stack layout and add various items to it
     auto stackLayout = std::make_shared<UI::StackLayout>(context);
@@ -296,12 +295,12 @@ namespace Fsl
     std::shared_ptr<NineSliceSprite> trackbarSprite = rSpriteManager.CreateNineSliceSprite(defaultMaterialId, "Slider");
     std::shared_ptr<ImageSprite> trackbarCursorSprite = rSpriteManager.CreateImageSprite(defaultMaterialId, "SliderCursor");
 
-    DpSize cursorSizeDp(18, 50);
-    DpPoint cursorOriginDp(16, 32);
+    constexpr auto cursorSizeDp = DpSize2D::Create(18, 50);
+    constexpr auto cursorOriginDp = DpPoint2::Create(16, 32);
 
     auto labelSliders = std::make_shared<UI::Label>(context);
     labelSliders->SetContent("Sliders:");
-    labelSliders->SetWidth(UI::DpLayoutSize1D(200));
+    labelSliders->SetWidth(UI::DpLayoutSize1D(DpValue(200)));
 
     m_slider1 = std::make_shared<UI::Slider<int32_t>>(context);
     m_slider1->SetAlignmentX(UI::ItemAlignment::Center);
@@ -385,8 +384,8 @@ namespace Fsl
     auto labelSliders = std::make_shared<UI::Label>(context);
     labelSliders->SetContent("CheckBox:");
 
-    auto cursorPosion1 = TypeConverter::To<DpPoint>(texCheckBox1U->GetImageInfo().ExtentDp / 2);
-    auto cursorPosion2 = TypeConverter::To<DpPoint>(texCheckBox2U->GetImageInfo().ExtentDp / 2);
+    auto cursorPosion1 = TypeConverter::To<DpPoint2>(texCheckBox1U->GetImageInfo().ExtentDp / DpValueU(2));
+    auto cursorPosion2 = TypeConverter::To<DpPoint2>(texCheckBox2U->GetImageInfo().ExtentDp / DpValueU(2));
 
     auto checkBox1 = std::make_shared<UI::CheckBox>(context);
     checkBox1->SetAlignmentX(UI::ItemAlignment::Near);

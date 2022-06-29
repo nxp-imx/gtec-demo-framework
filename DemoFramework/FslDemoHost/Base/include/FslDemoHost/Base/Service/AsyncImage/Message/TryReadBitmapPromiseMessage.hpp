@@ -1,7 +1,7 @@
 #ifndef FSLDEMOHOST_BASE_SERVICE_ASYNCIMAGE_MESSAGE_TRYREADBITMAPPROMISEMESSAGE_HPP
 #define FSLDEMOHOST_BASE_SERVICE_ASYNCIMAGE_MESSAGE_TRYREADBITMAPPROMISEMESSAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,37 +31,34 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Async/Message/AsyncPromiseMessage.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslService/Impl/ServiceType/Async/Message/AsyncPromiseMessage.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::AsyncImageMessages
 {
-  namespace AsyncImageMessages
+  struct TryReadBitmapPromiseMessage : public AsyncPromiseMessage<std::pair<bool, Bitmap>>
   {
-    struct TryReadBitmapPromiseMessage : public AsyncPromiseMessage<std::pair<bool, Bitmap>>
+    IO::Path AbsolutePath;
+    PixelFormat DesiredPixelFormat{PixelFormat::Undefined};
+    BitmapOrigin DesiredOrigin{BitmapOrigin::Undefined};
+    PixelChannelOrder PreferredChannelOrderHint{PixelChannelOrder::Undefined};
+
+    TryReadBitmapPromiseMessage() = default;
+
+    TryReadBitmapPromiseMessage(IO::Path absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                                const PixelChannelOrder preferredChannelOrder)
+      : AbsolutePath(std::move(absolutePath))
+      , DesiredPixelFormat(desiredPixelFormat)
+      , DesiredOrigin(desiredOrigin)
+      , PreferredChannelOrderHint(preferredChannelOrder)
     {
-      IO::Path AbsolutePath;
-      PixelFormat DesiredPixelFormat{PixelFormat::Undefined};
-      BitmapOrigin DesiredOrigin{BitmapOrigin::Undefined};
-      PixelChannelOrder PreferredChannelOrderHint{PixelChannelOrder::Undefined};
-
-      TryReadBitmapPromiseMessage() = default;
-
-      TryReadBitmapPromiseMessage(IO::Path absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
-                                  const PixelChannelOrder preferredChannelOrder)
-        : AbsolutePath(std::move(absolutePath))
-        , DesiredPixelFormat(desiredPixelFormat)
-        , DesiredOrigin(desiredOrigin)
-        , PreferredChannelOrderHint(preferredChannelOrder)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

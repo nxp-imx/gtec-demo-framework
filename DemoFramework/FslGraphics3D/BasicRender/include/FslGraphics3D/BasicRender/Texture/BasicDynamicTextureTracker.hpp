@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_TEXTURE_BASICDYNAMICTEXTURETRACKER_HPP
 #define FSLGRAPHICS3D_BASICRENDER_TEXTURE_BASICDYNAMICTEXTURETRACKER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,71 +33,68 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
 #include <FslGraphics/Render/Basic/Texture/BasicTextureHandle.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
 #include <FslGraphics3D/BasicRender/Texture/ABasicTextureTracker.hpp>
 #include <FslGraphics3D/BasicRender/Texture/BasicDynamicTextureLink.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class BasicDynamicTextureTracker final
+    : public ABasicTextureTracker
+    , public IDynamicNativeTexture2D
   {
-    class BasicDynamicTextureTracker final
-      : public ABasicTextureTracker
-      , public IDynamicNativeTexture2D
+    BasicTextureHandle m_hTexture;
+    std::shared_ptr<BasicDynamicTextureLink> m_link;
+
+  public:
+    explicit BasicDynamicTextureTracker(const BasicTextureHandle hTexture, const PxExtent3D& extentPx, const bool textureCoordinatesFlipY,
+                                        std::shared_ptr<BasicDynamicTextureLink> link)
+      : ABasicTextureTracker(extentPx, textureCoordinatesFlipY)
+      , m_hTexture(hTexture)
+      , m_link(std::move(link))
     {
-      BasicTextureHandle m_hTexture;
-      std::shared_ptr<BasicDynamicTextureLink> m_link;
-
-    public:
-      explicit BasicDynamicTextureTracker(const BasicTextureHandle hTexture, const PxExtent3D& extentPx, const bool textureCoordinatesFlipY,
-                                          std::shared_ptr<BasicDynamicTextureLink> link)
-        : ABasicTextureTracker(extentPx, textureCoordinatesFlipY)
-        , m_hTexture(hTexture)
-        , m_link(std::move(link))
+      assert(m_hTexture.IsValid());
+      if (!m_link)
       {
-        assert(m_hTexture.IsValid());
-        if (!m_link)
-        {
-          throw std::invalid_argument("DynamicNativeTextureLink can not be null");
-        }
+        throw std::invalid_argument("DynamicNativeTextureLink can not be null");
       }
+    }
 
-      ~BasicDynamicTextureTracker() final = default;
+    ~BasicDynamicTextureTracker() final = default;
 
 
-      void Dispose() noexcept
+    void Dispose() noexcept
+    {
+      m_link.reset();
+      m_hTexture = {};
+    }
+
+    BasicNativeTextureHandle TryGetNativeHandle() const noexcept final
+    {
+      BasicDynamicTextureLink* pLink = m_link.get();
+      return pLink != nullptr ? pLink->TryGetNativeHandle() : BasicNativeTextureHandle();
+    }
+
+
+    NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const final
+    {
+      return DoCalcNativeTextureArea(imageRectanglePx);
+    }
+
+
+    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final
+    {
+      BasicDynamicTextureLink* pLink = m_link.get();
+      if (pLink == nullptr)
       {
-        m_link.reset();
-        m_hTexture = {};
+        throw UsageErrorException("BasicDynamicTextureTracker has been marked as disposed");
       }
-
-      BasicNativeTextureHandle TryGetNativeHandle() const noexcept final
-      {
-        BasicDynamicTextureLink* pLink = m_link.get();
-        return pLink != nullptr ? pLink->TryGetNativeHandle() : BasicNativeTextureHandle();
-      }
-
-
-      NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const final
-      {
-        return DoCalcNativeTextureArea(imageRectanglePx);
-      }
-
-
-      void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final
-      {
-        BasicDynamicTextureLink* pLink = m_link.get();
-        if (pLink == nullptr)
-        {
-          throw UsageErrorException("BasicDynamicTextureTracker has been marked as disposed");
-        }
-        m_link->SetData(texture, filterHint, textureFlags);
-      }
-    };
-  }
+      m_link->SetData(texture, filterHint, textureFlags);
+    }
+  };
 }
 
 #endif

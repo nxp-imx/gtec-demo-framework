@@ -29,85 +29,82 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Button.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslGraphics/Color.hpp>
 #include <FslBase/Math/Pixel/PxRectangle2D.hpp>
-#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
-#include <FslSimpleUI/Base/UIDrawContext.hpp>
+#include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Base/Control/Button.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  Button::Button(const std::shared_ptr<BaseWindowContext>& context)
+    : ContentControl(context)
   {
-    Button::Button(const std::shared_ptr<BaseWindowContext>& context)
-      : ContentControl(context)
+    Enable(WindowFlags::ClickInput);
+  }
+
+  void Button::SetEnabled(const bool enable)
+  {
+    if (enable != m_isEnabled)
     {
-      Enable(WindowFlags::ClickInput);
+      m_isEnabled = enable;
+      PropertyUpdated(PropertyType::Other);
+    }
+  }
+
+
+  void Button::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
+  {
+    FSL_PARAM_NOT_USED(args);
+
+    if (!theEvent->IsSource(this))
+    {
+      return;
     }
 
-    void Button::SetEnabled(const bool enable)
+    if (m_isEnabled && theEvent->IsBegin())
     {
-      if (enable != m_isEnabled)
+      if (!theEvent->IsRepeat())
       {
-        m_isEnabled = enable;
-        PropertyUpdated(PropertyType::Other);
-      }
-    }
-
-
-    void Button::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
-    {
-      FSL_PARAM_NOT_USED(args);
-
-      if (!theEvent->IsSource(this))
-      {
-        return;
-      }
-
-      if (m_isEnabled && theEvent->IsBegin())
-      {
-        if (!theEvent->IsRepeat())
+        // Just for safety
+        if (m_isDown)
         {
-          // Just for safety
-          if (m_isDown)
-          {
-            m_isDown = false;
-            Up(true);
-          }
-          m_isDown = true;
-          theEvent->Handled();
-
-          Down();
+          m_isDown = false;
+          Up(true);
         }
-      }
-      else if (m_isDown)
-      {
-        m_isDown = false;
+        m_isDown = true;
         theEvent->Handled();
 
-        bool wasCanceled = true;
-        if (m_isEnabled)
-        {
-          // Only accept the press if the mouse/finger is still on top of the button
-          auto pos = PointFromScreen(theEvent->GetScreenPosition());
-          auto renderExtent = RenderExtentPx();
-          PxRectangle2D hitRect(0, 0, renderExtent.Width, renderExtent.Height);
-          if (hitRect.Contains(pos))
-          {
-            wasCanceled = false;
-            SendEvent(GetEventPool()->AcquireWindowSelectEvent(0));
-          }
-        }
-
-        Up(wasCanceled);
+        Down();
       }
+    }
+    else if (m_isDown)
+    {
+      m_isDown = false;
+      theEvent->Handled();
+
+      bool wasCanceled = true;
+      if (m_isEnabled)
+      {
+        // Only accept the press if the mouse/finger is still on top of the button
+        auto pos = PointFromScreen(theEvent->GetScreenPosition());
+        auto renderExtent = RenderExtentPx();
+        PxRectangle2D hitRect(0, 0, renderExtent.Width, renderExtent.Height);
+        if (hitRect.Contains(pos))
+        {
+          wasCanceled = false;
+          SendEvent(GetEventPool()->AcquireWindowSelectEvent(0));
+        }
+      }
+
+      Up(wasCanceled);
     }
   }
 }

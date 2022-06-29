@@ -37,9 +37,9 @@
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <array>
 #include "AScene.hpp"
 #include "PS/ParticleDrawContext.hpp"
-#include <array>
 
 namespace Fsl
 {

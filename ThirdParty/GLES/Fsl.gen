@@ -18,6 +18,10 @@
       <Dependency Name="GLBase"/>
       <ExternalDependency Name="GLESv2" Type="StaticLib"/>
     </Platform>
+    <Platform Name="Emscripten" Supported="true">
+      <Dependency Name="GLBase"/>
+      <ExternalDependency Name="GLESv2" Type="StaticLib"/>
+    </Platform>
     <Platform Name="Windows" Supported="true">
       <Dependency Name="GLBase" Flavor="OpenImpl=OpenGLES"/>
     </Platform>

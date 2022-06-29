@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <fmt/core.h>
 #include <string>
 
@@ -52,7 +51,7 @@ namespace fmt
     {
       if (value.data() != nullptr)
       {
-        return format_to(ctx.out(), Fsl::StringViewLiteUtil::ToString(value));
+        return format_to(ctx.out(), value.AsStringView());
       }
       return format_to(ctx.out(), "");
     }

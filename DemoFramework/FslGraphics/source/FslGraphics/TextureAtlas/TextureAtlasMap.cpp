@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/IO/FmtPathView.hpp>
-#include <FslBase/IO/Path.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
+#include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasNineSlicePatch.hpp>
-#include <FslGraphics/Exceptions.hpp>
 #include <fmt/format.h>
 
 namespace Fsl

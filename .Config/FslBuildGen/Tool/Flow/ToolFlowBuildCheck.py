@@ -35,6 +35,7 @@ from typing import Any
 from typing import List
 from typing import Optional
 from typing import Tuple
+from enum import Enum
 import argparse
 import shlex
 from FslBuildGen import IOUtil
@@ -50,6 +51,7 @@ from FslBuildGen.BuildConfig.FileFinder import FileFinder
 from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFilter
 from FslBuildGen.BuildConfig.LicenseConfig import LicenseConfig
 from FslBuildGen.BuildConfig.PerformClangFormat import PerformClangFormat
+from FslBuildGen.BuildConfig.PerformDotnetFormat import PerformDotnetFormat
 from FslBuildGen.BuildConfig.PerformClangTidy import PerformClangTidy
 from FslBuildGen.BuildConfig.PerformClangTidyConfig import PerformClangTidyConfig
 from FslBuildGen.BuildConfig.TidyBuildGeneratorConfig import TidyBuildGeneratorConfig
@@ -62,9 +64,11 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import ClangTidyProfile
 from FslBuildGen.DataTypes import ClangTidyProfileString
+from FslBuildGen.DataTypes import PackageLanguage
 #from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
+from FslBuildGen.GitUtil import GitUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PackageFilters import PackageFilters
@@ -78,6 +82,11 @@ from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 from FslBuildGen.VariableContextHelper import VariableContextHelper
 
+class FormatTool(Enum):
+    Disabled = 0
+    ClangFormat = 1
+    DotnetFormat = 2
+
 class DefaultValue(object):
     DryRun = False
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
@@ -88,8 +97,9 @@ class DefaultValue(object):
     ScanLicense = False
     ScanSource = False
     ScanDependencies = False
-    ClangFormat = False
-    ClangFormatArgs = []  # type: List[str]
+    ScanCopyright = False
+    Format = False
+    FormatArgs = []  # type: List[str]
     ClangTidy = False
     ClangTidyArgs = []  # type: List[str]
     ClangTidyProfile = ClangTidyProfile.Strict
@@ -113,8 +123,9 @@ class LocalToolConfig(ToolAppConfig):
         self.ScanLicense = DefaultValue.ScanLicense
         self.ScanSource = DefaultValue.ScanSource
         self.ScanDependencies = DefaultValue.ScanDependencies
-        self.ClangFormat = DefaultValue.ClangFormat
-        self.ClangFormatArgs = DefaultValue.ClangFormatArgs
+        self.ScanCopyright = DefaultValue.ScanCopyright
+        self.Format = DefaultValue.Format
+        self.FormatArgs = DefaultValue.FormatArgs
         self.ClangTidy = DefaultValue.ClangTidy
         self.ClangTidyArgs = DefaultValue.ClangTidyArgs
         self.ClangTidyPostfixArgs = DefaultValue.ClangPostfixArgs
@@ -177,13 +188,16 @@ class ToolFlowBuildCheck(AToolAppFlow):
         localToolConfig.LicenseList = args.licenseList
         localToolConfig.LicenseSaveCSVs = args.licenseSaveCSVs
         localToolConfig.ScanSource = args.scan
+        localToolConfig.ScanCopyright = args.scanCopyright
+        if localToolConfig.ScanCopyright and not localToolConfig.ScanSource:
+            localToolConfig.ScanSource = True
         localToolConfig.ScanDependencies = args.scanDeps
         localToolConfig.Repair = args.repair
         localToolConfig.IgnoreNotSupported = args.ignoreNotSupported
         if hasattr(args, 'format'):
-            localToolConfig.ClangFormat = args.format
+            localToolConfig.Format = args.format
         if hasattr(args, 'formatArgs'):
-            localToolConfig.ClangFormatArgs = shlex.split(args.formatArgs)
+            localToolConfig.FormatArgs = shlex.split(args.formatArgs)
         if hasattr(args, 'tidy'):
             localToolConfig.ClangTidy = args.tidy
         if hasattr(args, 'tidyArgs'):
@@ -214,6 +228,20 @@ class ToolFlowBuildCheck(AToolAppFlow):
             if entry.strip() == "--":
                 raise Exception("{0} args can not contain '--'")
 
+
+    def __DetermineFormatType(self, applyFormat: bool, defaultPackageLanguage: PackageLanguage, toolConfig: ToolConfig) -> FormatTool:
+        if applyFormat:
+            if defaultPackageLanguage == PackageLanguage.CPP:
+                if toolConfig.ClangFormatConfiguration is not None:
+                    return FormatTool.ClangFormat
+            elif defaultPackageLanguage == PackageLanguage.CSharp:
+                if toolConfig.DotnetFormatConfiguration is not None:
+                    return FormatTool.DotnetFormat
+                if toolConfig.ClangFormatConfiguration is not None:
+                    return FormatTool.ClangFormat
+        return FormatTool.Disabled
+
+
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
 
         #self.Log.LogPrintVerbose(2, "*** Forcing the legacy clang tidy mode ***")
@@ -229,14 +257,16 @@ class ToolFlowBuildCheck(AToolAppFlow):
             config.ForceDisableAllWrite()
             configToolCheck.ForceDisableAllWrite()
 
-        self.__CheckUserArgs(localToolConfig.ClangFormatArgs, "formatArgs")
+        self.__CheckUserArgs(localToolConfig.FormatArgs, "formatArgs")
         self.__CheckUserArgs(localToolConfig.ClangTidyArgs, "tidyArgs")
         self.__CheckUserArgs(localToolConfig.ClangTidyPostfixArgs, "tidyPostfixArgs")
 
-        applyClangFormat = toolConfig.ClangFormatConfiguration is not None and localToolConfig.ClangFormat
+        formatTool =  self.__DetermineFormatType(localToolConfig.Format, toolConfig.DefaultPackageLanguage, toolConfig)
+        applyFormat = formatTool != FormatTool.Disabled
+
         applyClangTidy = toolConfig.ClangTidyConfiguration is not None and localToolConfig.ClangTidy
 
-        if localToolConfig.IgnoreNotSupported or ((localToolConfig.ScanLicense or localToolConfig.ScanSource or applyClangFormat) and not applyClangTidy):
+        if localToolConfig.IgnoreNotSupported or ((localToolConfig.ScanLicense or localToolConfig.ScanSource or applyFormat) and not applyClangTidy):
             config.IgnoreNotSupported = True
             configToolCheck.IgnoreNotSupported = True
 
@@ -270,12 +300,17 @@ class ToolFlowBuildCheck(AToolAppFlow):
         packageRecipeResultManager = None # type: Optional[PackageRecipeResultManager]
         toolPackageNamesSet = set()
         toolPackageNames = []
-        if applyClangFormat or applyClangTidy:
-            if applyClangFormat:
+        if formatTool != FormatTool.Disabled or applyClangTidy:
+            if formatTool == FormatTool.ClangFormat:
                 if toolConfig.ClangFormatConfiguration is None:
                     raise Exception("internal error")
                 toolPackageNamesSet.add(toolConfig.ClangFormatConfiguration.RecipePackageName)
                 toolPackageNamesSet.add(toolConfig.ClangFormatConfiguration.NinjaRecipePackageName)
+            elif formatTool == FormatTool.DotnetFormat:
+                if toolConfig.DotnetFormatConfiguration is None:
+                    raise Exception("internal error")
+                toolPackageNamesSet.add(toolConfig.DotnetFormatConfiguration.RecipePackageName)
+                toolPackageNamesSet.add(toolConfig.DotnetFormatConfiguration.NinjaRecipePackageName)
             if applyClangTidy:
                 if toolConfig.ClangTidyConfiguration is None:
                     raise Exception("internal error")
@@ -300,20 +335,24 @@ class ToolFlowBuildCheck(AToolAppFlow):
         packageProcess = None   # type: Optional[MainFlow.PackageLoadAndResolveProcess]
         packages = None
         discoverFeatureList = '*' in packageFilters.FeatureNameList
-        if discoverFeatureList or localToolConfig.Project is None or localToolConfig.ScanLicense or localToolConfig.ScanSource or applyClangFormat or applyClangTidy:
+        if discoverFeatureList or localToolConfig.Project is None or localToolConfig.ScanLicense or localToolConfig.ScanSource or applyFormat or applyClangTidy:
             if discoverFeatureList:
                 config.LogPrint("No features specified, so using package to determine them")
-            if localToolConfig.ScanLicense or localToolConfig.ScanSource or applyClangFormat or applyClangTidy or discoverFeatureList:
+            if localToolConfig.ScanLicense or localToolConfig.ScanSource or applyFormat or applyClangTidy or discoverFeatureList:
                 packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
                                                              generatorContext.Platform, toolPackageNames)
-                packageProcess.Resolve(generatorContext, packageFilters, applyClangTidy, False)
+                doFullResolve = formatTool == FormatTool.DotnetFormat
+                packageProcess.Resolve(generatorContext, packageFilters, applyClangTidy, doFullResolve)
                 packages = packageProcess.Packages
                 topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
                 if discoverFeatureList:
                     packageFilters.FeatureNameList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
+                if formatTool == FormatTool.DotnetFormat:
+                    generator.Generate(generatorContext, config, packageProcess.Packages)
+
 
         customPackageFileFilter = None   # type: Optional[CustomPackageFileFilter]
-        if not localToolConfig.ScanLicense and not localToolConfig.ScanSource and not applyClangFormat and not applyClangTidy:
+        if not localToolConfig.ScanLicense and not localToolConfig.ScanSource and not applyFormat and not applyClangTidy:
             Validate.ValidatePlatform(config, localToolConfig.PlatformName, packageFilters.FeatureNameList)
             if packageProcess is None:
                 packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
@@ -331,7 +370,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
         theTopLevelPackage = None  # type: Optional[Package]
         filteredPackageList = [] # type: List[Package]
-        if applyClangTidy or applyClangFormat or localToolConfig.ScanSource or localToolConfig.ScanLicense:
+        if applyClangTidy or applyFormat or localToolConfig.ScanSource or localToolConfig.ScanLicense:
             addExternals = applyClangTidy
             filteredPackageList, theTopLevelPackage = self.__PreparePackages(self.Log, localToolConfig,
                                                                              packageProcess, generatorContext, packageFilters, addExternals,
@@ -344,13 +383,21 @@ class ToolFlowBuildCheck(AToolAppFlow):
             self.__ApplyClangTidy(self.Log, toolConfig, localToolConfig, packageRecipeResultManager, theTopLevelPackage,
                                   filteredPackageList, generator, config, generatorContext, customPackageFileFilter)
 
-        if applyClangFormat:
+        if formatTool == FormatTool.ClangFormat:
             self.__ApplyClangFormat(self.Log, toolConfig, localToolConfig, packageRecipeResultManager, filteredPackageList, customPackageFileFilter,
+                                    generatorContext.CMakeConfig)
+        elif formatTool == FormatTool.DotnetFormat:
+            #theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), currentDirPath, localToolConfig.Recursive)
+            #MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, variableContext,
+            #                              self.ErrorHelpManager, theFiles, generator, localToolConfig.BuildPackageFilters)
+
+            self.__ApplyDotnetFormat(self.Log, toolConfig, localToolConfig, packageRecipeResultManager, filteredPackageList, customPackageFileFilter,
                                     generatorContext.CMakeConfig)
 
         # Scan source after 'format' to ensure we dont warn about stuff that has been fixed
         if localToolConfig.ScanSource:
-            self.__ApplyScanSource(self.Log, localToolConfig, config.IsSDKBuild, config.DisableWrite, filteredPackageList, customPackageFileFilter)
+            gitExeName = GitUtil.GetExecutableName(generatorContext.Generator.PlatformName)
+            self.__ApplyScanSource(self.Log, localToolConfig, config.IsSDKBuild, config.DisableWrite, filteredPackageList, customPackageFileFilter, gitExeName)
 
         # Finally do the resource license scan if requested
         if localToolConfig.ScanLicense:
@@ -435,17 +482,36 @@ class ToolFlowBuildCheck(AToolAppFlow):
             raise Exception("internal error")
 
         # FIX: should really be done the same was as we do for tidy
-        toolConfig.ClangFormatConfiguration.AdditionalUserArguments = localToolConfig.ClangFormatArgs
+        toolConfig.ClangFormatConfiguration.AdditionalUserArguments = localToolConfig.FormatArgs
 
         PerformClangFormat.Run(log, toolConfig, formatPackageList, customPackageFileFilter, packageRecipeResultManager,
                                toolConfig.ClangFormatConfiguration, cmakeConfig, localToolConfig.Repair, localToolConfig.BuildThreads,
                                localToolConfig.Legacy)
 
+    def __ApplyDotnetFormat(self, log: Log, toolConfig: ToolConfig, localToolConfig: LocalToolConfig,
+                            packageRecipeResultManager: Optional[PackageRecipeResultManager],
+                            formatPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter],
+                            cmakeConfig: GeneratorCMakeConfig) -> None:
+        """
+        The only reason we take optionals here is because they are optional in the main program, so its just easier to do the check here
+        """
+        if toolConfig.DotnetFormatConfiguration is None or packageRecipeResultManager is None:
+           raise Exception("internal error")
+
+
+        # FIX: should really be done the same was as we do for tidy
+        toolConfig.DotnetFormatConfiguration.AdditionalUserArguments = localToolConfig.FormatArgs
+
+        PerformDotnetFormat.Run(log, toolConfig, formatPackageList, customPackageFileFilter, packageRecipeResultManager,
+                                toolConfig.DotnetFormatConfiguration, cmakeConfig, localToolConfig.Repair, localToolConfig.BuildThreads)
+
+
+
     def __ApplyScanSource(self, log: Log, localToolConfig: LocalToolConfig, isSdkBuild: bool, disableWrite: bool,
-                          scanPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter]) -> None:
+                          scanPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter], gitExeName: str) -> None:
         #thirdpartyExceptionDir = IOUtil.TryToUnixStylePath(currentDirPath) if not isSdkBuild else None
         thirdpartyExceptionDir = None
-        ScanSourceFiles.Scan(log, scanPackageList, customPackageFileFilter, localToolConfig.Repair, thirdpartyExceptionDir, CheckType.Normal, disableWrite)
+        ScanSourceFiles.Scan(log, scanPackageList, customPackageFileFilter, localToolConfig.Repair, thirdpartyExceptionDir, CheckType.Normal, disableWrite, gitExeName, localToolConfig.ScanCopyright)
 
     def __ScanResourceLicenses(self, log: Log, localToolConfig: LocalToolConfig, miniToolConfig: ToolMinimalConfig, isSdkBuild: bool,
                                disableWrite: bool, directory: str, scanPackageList: List[Package], listLicense: bool, saveCSVs: bool,
@@ -480,12 +546,22 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
 
     def AddCustomArguments(self, parser: argparse.ArgumentParser, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
         clangFormatConfiguration = toolConfig.ClangFormatConfiguration
+        dotnetFormatConfiguration = toolConfig.DotnetFormatConfiguration
         clangTidyConfiguration = toolConfig.ClangTidyConfiguration
         parser.add_argument('--project', default=DefaultValue.Project, help='The name of the project')
         parser.add_argument('-t', '--type', default=DefaultValue.PackageConfigurationType, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')
-        if clangFormatConfiguration is not None:
-            parser.add_argument('--format', action='store_true', help="Apply the clang format file '{0}' to all include and source files. Beware this modifies your source files so use it at your own risk!.".format(clangFormatConfiguration.CustomFormatFile))
-            parser.add_argument('--formatArgs', default=" ".join(DefaultValue.ClangFormatArgs), help="The command line arguments to pass to clang-format before any '--'.")
+        if clangFormatConfiguration is not None or dotnetFormatConfiguration is not None:
+            strFormatFileDesc = ""
+            if clangFormatConfiguration is not None:
+                if dotnetFormatConfiguration is not None:
+                    strFormatFileDesc = "clangFormat: '{0}' or dotnetFormat: {1}".format(clangFormatConfiguration.CustomFormatFile, dotnetFormatConfiguration.CustomFormatFile)
+                else:
+                    strFormatFileDesc = clangFormatConfiguration.CustomFormatFile
+            elif dotnetFormatConfiguration is not None:
+                strFormatFileDesc = dotnetFormatConfiguration.CustomFormatFile
+
+            parser.add_argument('--format', action='store_true', help="Apply the format file '{0}' to all include and source files. Beware this modifies your source files so use it at your own risk!.".format(strFormatFileDesc))
+            parser.add_argument('--formatArgs', default=" ".join(DefaultValue.FormatArgs), help="The command line arguments to pass to clang-format before any '--'.")
         if clangTidyConfiguration is not None:
             tidyProfileNameList = ClangTidyProfileString.AllStrings()
             tidyDefaultProfileName = ClangTidyProfile.ToString(DefaultValue.ClangTidyProfile)
@@ -499,6 +575,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--file', default=DefaultValue.File, help='The file to process, supports Unix shell-style wildcards')
         parser.add_argument('--scan', action='store_true', help='Scan source and check for common issues. (Disabled the normal build environment configuration check)')
         parser.add_argument('--scanDeps', action='store_true', help="Scan all package dependencies of the specified package)")
+        parser.add_argument('--scanCopyright', action='store_true', help='Scan files for significant differences between the current branch and master and update the copyright accordingly')
         parser.add_argument('--license', action='store_true', help='Scan all resources for license issues. This scans for all {0} files'.format(ScanResourceLicenseFiles.GetExtensionList()))
         parser.add_argument('--licenseList', action='store_true', help='List all licenses.')
         parser.add_argument('--licenseSaveCSVs', action='store_true', help='Save CSVs.')

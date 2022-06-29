@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SPAN_SPANUTIL_HPP
 #define FSLBASE_SPAN_SPANUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,49 +31,75 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/Span.hpp>
 #include <array>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::SpanUtil
 {
-  namespace SpanUtil
+  template <typename T>
+  constexpr inline Span<T> AsSpan(T* const pData, const std::size_t dataEntries)
   {
-    template <typename T>
-    constexpr inline Span<T> AsSpan(T* const pData, const std::size_t dataEntries)
+    if (pData == nullptr && dataEntries > 0)
     {
-      if (pData == nullptr && dataEntries > 0)
-      {
-        throw std::invalid_argument("a nullptr can not have any entries");
-      }
-      return Span<T>(pData, dataEntries);
+      throw std::invalid_argument("a nullptr can not have any entries");
     }
+    return Span<T>(pData, dataEntries);
+  }
 
-    template <typename T>
-    constexpr inline Span<T> AsSpan(T* pData, const std::size_t dataEntries, const OptimizationCheckFlag flag) noexcept
-    {
-      assert(pData != nullptr || dataEntries == 0u);
-      return Span<T>(pData, dataEntries, flag);
-    }
+  template <typename T>
+  constexpr inline Span<T> AsSpan(T* pData, const std::size_t dataEntries, const OptimizationCheckFlag flag) noexcept
+  {
+    FSL_PARAM_NOT_USED(flag);
+    assert(pData != nullptr || dataEntries == 0u);
+    return Span<T>(pData, dataEntries, OptimizationCheckFlag::NoCheck);
+  }
 
 
-    template <typename T, std::size_t TSize>
-    constexpr inline Span<T> AsSpan(std::array<T, TSize>& rValue)
-    {
-      return Span<T>(rValue.data(), rValue.size());
-    }
+  template <typename T, std::size_t TSize>
+  constexpr inline Span<T> AsSpan(std::array<T, TSize>& rValue)
+  {
+    return Span<T>(rValue.data(), rValue.size(), OptimizationCheckFlag::NoCheck);
+  }
 
-    template <typename T>
-    constexpr inline Span<T> AsSpan(std::vector<T>& rValue)
-    {
-      return Span<T>(rValue.data(), rValue.size());
-    }
+  template <typename T>
+  constexpr inline Span<T> AsSpan(std::vector<T>& rValue)
+  {
+    return Span<T>(rValue.data(), rValue.size(), OptimizationCheckFlag::NoCheck);
+  }
 
-    template <typename T>
-    constexpr inline Span<T> AsSubSpan(std::vector<T>& rValue, typename Span<T>::size_type pos, typename Span<T>::size_type count = Span<T>::extent)
-    {
-      return Span<T>(rValue.data(), rValue.size()).subspan(pos, count);
-    }
+  template <typename T, std::size_t TSize>
+  constexpr inline Span<T> AsSubSpan(std::array<T, TSize>& rValue, typename Span<T>::size_type pos,
+                                     typename Span<T>::size_type count = Span<T>::extent)
+  {
+    return Span<T>(rValue.data(), rValue.size(), OptimizationCheckFlag::NoCheck).subspan(pos, count);
+  }
+
+  template <typename T, std::size_t TSize>
+  constexpr inline Span<T> AsSubSpan(std::array<T, TSize>& rValue, typename Span<T>::size_type pos, typename Span<T>::size_type count,
+                                     const OptimizationCheckFlag flag) noexcept
+  {
+    FSL_PARAM_NOT_USED(flag);
+    assert(pos <= rValue.size());
+    assert(count <= (rValue.size() - pos));
+    return Span<T>(rValue.data() + pos, count, OptimizationCheckFlag::NoCheck);
+  }
+
+  template <typename T>
+  constexpr inline Span<T> AsSubSpan(std::vector<T>& rValue, typename Span<T>::size_type pos, typename Span<T>::size_type count = Span<T>::extent)
+  {
+    return Span<T>(rValue.data(), rValue.size(), OptimizationCheckFlag::NoCheck).subspan(pos, count);
+  }
+
+  template <typename T>
+  constexpr inline Span<T> AsSubSpan(std::vector<T>& rValue, typename Span<T>::size_type pos, typename Span<T>::size_type count,
+                                     const OptimizationCheckFlag flag) noexcept
+  {
+    FSL_PARAM_NOT_USED(flag);
+    assert(pos <= rValue.size());
+    assert(count <= (rValue.size() - pos));
+    return Span<T>(rValue.data() + pos, count, OptimizationCheckFlag::NoCheck);
   }
 }
 

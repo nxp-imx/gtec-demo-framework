@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;
@@ -85,22 +85,6 @@ TEST(TestMathPixel_PxPoint2, OpPlusEqual)
   EXPECT_EQ(y1 + y0, value1.Y);
 }
 
-TEST(TestMathPixel_PxPoint2, OpPlusEqual_PxSize2D)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxSize2D value0(x0, y0);
-  PxPoint2 value1(x1, y1);
-
-  value1 += value0;
-
-  EXPECT_EQ(x0, value0.Width());
-  EXPECT_EQ(y0, value0.Height());
-  EXPECT_EQ(x1 + x0, value1.X);
-  EXPECT_EQ(y1 + y0, value1.Y);
-}
 
 TEST(TestMathPixel_PxPoint2, OpSubEqual)
 {
@@ -119,22 +103,6 @@ TEST(TestMathPixel_PxPoint2, OpSubEqual)
   EXPECT_EQ(y1 - y0, value1.Y);
 }
 
-TEST(TestMathPixel_PxPoint2, OpSubEqual_PxSize2D)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxSize2D value0(x0, y0);
-  PxPoint2 value1(x1, y1);
-
-  value1 -= value0;
-
-  EXPECT_EQ(x0, value0.Width());
-  EXPECT_EQ(y0, value0.Height());
-  EXPECT_EQ(x1 - x0, value1.X);
-  EXPECT_EQ(y1 - y0, value1.Y);
-}
 
 TEST(TestMathPixel_PxPoint2, OpMulEqual)
 {
@@ -149,23 +117,6 @@ TEST(TestMathPixel_PxPoint2, OpMulEqual)
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_EQ(x1 * x0, value1.X);
-  EXPECT_EQ(y1 * y0, value1.Y);
-}
-
-TEST(TestMathPixel_PxPoint2, OpMulEqual_PxSize2D)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxSize2D value0(x0, y0);
-  PxPoint2 value1(x1, y1);
-
-  value1 *= value0;
-
-  EXPECT_EQ(x0, value0.Width());
-  EXPECT_EQ(y0, value0.Height());
   EXPECT_EQ(x1 * x0, value1.X);
   EXPECT_EQ(y1 * y0, value1.Y);
 }
@@ -217,43 +168,6 @@ TEST(TestMathPixel_PxPoint2, OpAdd)
   EXPECT_EQ(y1 + y0, value3.Y);
 }
 
-TEST(TestMathPixel_PxPoint2, OpAdd_PxPoint2_PxSize2D)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxSize2D value0(x0, y0);
-  PxPoint2 value1(x1, y1);
-
-  auto value3 = value1 + value0;
-
-  EXPECT_EQ(x0, value0.Width());
-  EXPECT_EQ(y0, value0.Height());
-  EXPECT_EQ(x1, value1.X);
-  EXPECT_EQ(y1, value1.Y);
-  EXPECT_EQ(x1 + x0, value3.X);
-  EXPECT_EQ(y1 + y0, value3.Y);
-}
-
-TEST(TestMathPixel_PxPoint2, OpAdd_PxSize2D_PxPoint2)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxPoint2 value0(x0, y0);
-  PxSize2D value1(x1, y1);
-
-  auto value3 = value1 + value0;
-
-  EXPECT_EQ(x0, value0.X);
-  EXPECT_EQ(y0, value0.Y);
-  EXPECT_EQ(x1, value1.Width());
-  EXPECT_EQ(y1, value1.Height());
-  EXPECT_EQ(x1 + x0, value3.X);
-  EXPECT_EQ(y1 + y0, value3.Y);
-}
 
 TEST(TestMathPixel_PxPoint2, OpSub)
 {
@@ -274,44 +188,6 @@ TEST(TestMathPixel_PxPoint2, OpSub)
   EXPECT_EQ(y1 - y0, value3.Y);
 }
 
-TEST(TestMathPixel_PxPoint2, OpSub_PxPoint2_PxSize2D)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxSize2D value0(x0, y0);
-  PxPoint2 value1(x1, y1);
-
-  auto value3 = value1 - value0;
-
-  EXPECT_EQ(x0, value0.Width());
-  EXPECT_EQ(y0, value0.Height());
-  EXPECT_EQ(x1, value1.X);
-  EXPECT_EQ(y1, value1.Y);
-  EXPECT_EQ(x1 - x0, value3.X);
-  EXPECT_EQ(y1 - y0, value3.Y);
-}
-
-TEST(TestMathPixel_PxPoint2, OpSub_PxSize2D_PxPoint2)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxPoint2 value0(x0, y0);
-  PxSize2D value1(x1, y1);
-
-  auto value3 = value1 - value0;
-
-  EXPECT_EQ(x0, value0.X);
-  EXPECT_EQ(y0, value0.Y);
-  EXPECT_EQ(x1, value1.Width());
-  EXPECT_EQ(y1, value1.Height());
-  EXPECT_EQ(x1 - x0, value3.X);
-  EXPECT_EQ(y1 - y0, value3.Y);
-}
-
 
 TEST(TestMathPixel_PxPoint2, OpMul)
 {
@@ -328,44 +204,6 @@ TEST(TestMathPixel_PxPoint2, OpMul)
   EXPECT_EQ(y0, value0.Y);
   EXPECT_EQ(x1, value1.X);
   EXPECT_EQ(y1, value1.Y);
-  EXPECT_EQ(x1 * x0, value3.X);
-  EXPECT_EQ(y1 * y0, value3.Y);
-}
-
-TEST(TestMathPixel_PxPoint2, OpMul_PxPoint2_PxSize2D)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxSize2D value0(x0, y0);
-  PxPoint2 value1(x1, y1);
-
-  auto value3 = value1 * value0;
-
-  EXPECT_EQ(x0, value0.Width());
-  EXPECT_EQ(y0, value0.Height());
-  EXPECT_EQ(x1, value1.X);
-  EXPECT_EQ(y1, value1.Y);
-  EXPECT_EQ(x1 * x0, value3.X);
-  EXPECT_EQ(y1 * y0, value3.Y);
-}
-
-TEST(TestMathPixel_PxPoint2, OpMul_PxSize2D_PxPoint2)
-{
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
-  PxPoint2 value0(x0, y0);
-  PxSize2D value1(x1, y1);
-
-  auto value3 = value1 * value0;
-
-  EXPECT_EQ(x0, value0.X);
-  EXPECT_EQ(y0, value0.Y);
-  EXPECT_EQ(x1, value1.Width());
-  EXPECT_EQ(y1, value1.Height());
   EXPECT_EQ(x1 * x0, value3.X);
   EXPECT_EQ(y1 * y0, value3.Y);
 }

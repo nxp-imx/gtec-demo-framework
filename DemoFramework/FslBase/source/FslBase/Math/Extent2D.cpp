@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Extent2D.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <limits>
 

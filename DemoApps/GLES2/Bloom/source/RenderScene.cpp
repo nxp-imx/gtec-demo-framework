@@ -31,15 +31,15 @@
 
 #include "RenderScene.hpp"
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
-#include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
-#include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/BasicScene/GenericScene.hpp>
+#include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <GLES2/gl2.h>
@@ -201,8 +201,8 @@ namespace Fsl
 
     m_matrixWorld = Matrix::CreateRotationX(rotation.X) * Matrix::CreateRotationY(rotation.Y) * Matrix::CreateRotationZ(rotation.Z);
     m_matrixView = cameraViewMatrix;
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(
+      MathHelper::ToRadians(45.0f), static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
     m_matrixWorldView = m_matrixWorld * m_matrixView;
     m_matrixWorldViewProjection = m_matrixWorldView * m_matrixProjection;
 
@@ -320,7 +320,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetGLCapacity(), indexBufferType, nullptr);
       }
     }
   }

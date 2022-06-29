@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerService.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <utility>
 
 namespace Fsl
@@ -51,7 +51,7 @@ namespace Fsl
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
-      return std::shared_ptr<AServiceOptionParser>();
+      return {};
     }
 
 

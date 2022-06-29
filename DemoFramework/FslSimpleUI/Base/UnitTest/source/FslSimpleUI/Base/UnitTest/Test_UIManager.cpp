@@ -31,9 +31,10 @@
 
 #include <FslBase/Math/BasicWindowMetrics.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Transition/TransitionTimeSpan.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslDataBinding/Base/DataBindingService.hpp>
 #include <FslSimpleUI/Base/System/UIManager.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBufferEx.hpp>
 #include <FslSimpleUI/Render/Stub/RenderSystem.hpp>
@@ -45,11 +46,14 @@ namespace
   class TestUIManager : public TestFixtureFslBase
   {
   protected:
+    std::shared_ptr<Fsl::DataBinding::DataBindingService> m_dataBindingService;
     Fsl::UI::UIManager m_manager;
 
   public:
     TestUIManager()
-      : m_manager(std::make_unique<UI::RenderStub::RenderSystem>(), false, BasicWindowMetrics(PxExtent2D(800, 600), Vector2(160, 160), 160))
+      : m_dataBindingService(std::make_shared<Fsl::DataBinding::DataBindingService>())
+      , m_manager(m_dataBindingService, std::make_unique<UI::RenderStub::RenderSystem>(), false,
+                  BasicWindowMetrics(PxExtent2D(800, 600), Vector2(160, 160), 160))
     {
     }
   };
@@ -107,13 +111,13 @@ TEST_F(TestUIManager, ResizedEmpty)
 
 TEST_F(TestUIManager, FixedUpdateEmpty)
 {
-  m_manager.FixedUpdate(TransitionTimeSpan(1, TransitionTimeUnit::Microseconds));
+  m_manager.FixedUpdate(TimeSpan::FromMicroseconds(1));
 }
 
 
 TEST_F(TestUIManager, UpdateEmpty)
 {
-  m_manager.Update(TransitionTimeSpan(1, TransitionTimeUnit::Microseconds));
+  m_manager.Update(TimeSpan::FromMicroseconds(1));
 }
 
 

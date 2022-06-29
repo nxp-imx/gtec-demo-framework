@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxVector2.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFontGlyphPosition.hpp>
 #include <vector>
@@ -53,6 +54,12 @@ namespace Fsl
     void AddString(UIRawMeshBuilder2D& rBuilder, const SpriteFont& spriteFont, const PxVector2 dstPositionPxf, const StringViewLite strView,
                    const PxClipRectangle& clipRectPx);
     void AddString(UIRawMeshBuilder2D& rBuilder, const SpriteFont& spriteFont, const PxVector2 dstPositionPxf, const StringViewLite strView,
+                   const PxAreaRectangleF& clipRectPxf);
+
+    void AddString(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const ReadOnlySpan<SpriteFontGlyphPosition> glyphs);
+    void AddString(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const ReadOnlySpan<SpriteFontGlyphPosition> glyphs,
+                   const PxClipRectangle& clipRectPx);
+    void AddString(UIRawMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const ReadOnlySpan<SpriteFontGlyphPosition> glyphs,
                    const PxAreaRectangleF& clipRectPxf);
   };
 }

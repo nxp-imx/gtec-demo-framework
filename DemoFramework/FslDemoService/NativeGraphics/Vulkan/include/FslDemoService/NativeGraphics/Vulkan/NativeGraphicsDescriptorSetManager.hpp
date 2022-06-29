@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSDESCRIPTORSETMANAGER_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSDESCRIPTORSETMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,30 +36,27 @@
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class NativeGraphicsDescriptorSetManager
   {
-    class NativeGraphicsDescriptorSetManager
+    VkDevice m_device;
+    RapidVulkan::DescriptorPool m_mainDescriptorPool;
+    RapidVulkan::DescriptorSetLayout m_mainDescriptorSetLayout;
+    std::vector<VkDescriptorSet> m_releasedDescriptors;
+
+  public:
+    NativeGraphicsDescriptorSetManager(const VUDevice& device, const uint32_t maxFramesInFlight);
+    ~NativeGraphicsDescriptorSetManager();
+
+    VkDescriptorSetLayout GetMainDescriptorSetLayout() const
     {
-      VkDevice m_device;
-      RapidVulkan::DescriptorPool m_mainDescriptorPool;
-      RapidVulkan::DescriptorSetLayout m_mainDescriptorSetLayout;
-      std::vector<VkDescriptorSet> m_releasedDescriptors;
+      return m_mainDescriptorSetLayout.Get();
+    }
 
-    public:
-      NativeGraphicsDescriptorSetManager(const VUDevice& device, const uint32_t maxFramesInFlight);
-      ~NativeGraphicsDescriptorSetManager();
-
-      VkDescriptorSetLayout GetMainDescriptorSetLayout() const
-      {
-        return m_mainDescriptorSetLayout.Get();
-      }
-
-      VkDescriptorSet AcquireDescriptorSet(const VkDescriptorImageInfo& textureImageInfo);
-      void ReleaseDescriptorSet(const VkDescriptorSet descriptorSet);
-    };
-  }
+    VkDescriptorSet AcquireDescriptorSet(const VkDescriptorImageInfo& textureImageInfo);
+    void ReleaseDescriptorSet(const VkDescriptorSet descriptorSet);
+  };
 }
 
 #endif

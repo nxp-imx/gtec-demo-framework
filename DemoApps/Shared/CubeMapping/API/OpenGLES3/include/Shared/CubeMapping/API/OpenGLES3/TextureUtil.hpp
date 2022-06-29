@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/Path.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslBase/IO/Path.hpp>
 #include <memory>
 
 namespace Fsl

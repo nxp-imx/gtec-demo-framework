@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicRender/Texture/BasicDynamicTextureLink.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTexture.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTextureFactory.hpp>
+#include <FslGraphics3D/BasicRender/Texture/BasicDynamicTextureLink.hpp>
 #include <algorithm>
 #include <utility>
 

@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceProxy.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/Message/ReadBitmapPromiseMessage.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/Message/ReadTexturePromiseMessage.hpp>
@@ -37,7 +38,6 @@
 #include <FslDemoHost/Base/Service/AsyncImage/Message/TryWriteExactBitmapImagePromiseMessage.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/Message/WriteBitmapPromiseMessage.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/Message/WriteExactBitmapImagePromiseMessage.hpp>
-#include <FslBase/Exceptions.hpp>
 
 namespace Fsl
 {

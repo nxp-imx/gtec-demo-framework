@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALMODULES_HPP
 #define FSLSIMPLEUI_BASE_SYSTEM_MODULES_EXTERNAL_EXTERNALMODULES_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,47 +34,44 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslSimpleUI/Base/Module/ExternalModuleId.hpp>
 #include <memory>
-#include <vector>
 #include <utility>
+#include <vector>
 #include "../IModuleCallbackReceiver.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class AExternalModule;
+  class ExternalModuleHost;
+  class IModuleHost;
+  class IExternalModuleFactory;
+
+  class ExternalModules final : public IModuleCallbackReceiver
   {
-    class AExternalModule;
-    class ExternalModuleHost;
-    class IModuleHost;
-    class IExternalModuleFactory;
-
-    class ExternalModules final : public IModuleCallbackReceiver
+    struct ExternalModuleRecord
     {
-      struct ExternalModuleRecord
+      ExternalModuleId Id;
+      std::shared_ptr<AExternalModule> Module;
+
+      ExternalModuleRecord() = default;
+      ExternalModuleRecord(const ExternalModuleId id, std::shared_ptr<AExternalModule> module)
+        : Id(id)
+        , Module(std::move(module))
       {
-        ExternalModuleId Id;
-        std::shared_ptr<AExternalModule> Module;
-
-        ExternalModuleRecord() = default;
-        ExternalModuleRecord(const ExternalModuleId id, std::shared_ptr<AExternalModule> module)
-          : Id(id)
-          , Module(std::move(module))
-        {
-        }
-      };
-
-      std::unique_ptr<ExternalModuleHost> m_externalModuleHost;
-      std::vector<ExternalModuleRecord> m_modules;
-
-    public:
-      explicit ExternalModules(const std::shared_ptr<IModuleHost>& moduleHost, const ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> factories);
-      ~ExternalModules() final;
-
-      void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node) final;
-      void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) final;
-
-      std::shared_ptr<AExternalModule> GetExternalModule(const ExternalModuleId moduleId) const;
+      }
     };
-  }
+
+    std::unique_ptr<ExternalModuleHost> m_externalModuleHost;
+    std::vector<ExternalModuleRecord> m_modules;
+
+  public:
+    explicit ExternalModules(const std::shared_ptr<IModuleHost>& moduleHost, const ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> factories);
+    ~ExternalModules() final;
+
+    void ModuleOnTreeNodeAdd(const std::shared_ptr<TreeNode>& node) final;
+    void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) final;
+
+    std::shared_ptr<AExternalModule> GetExternalModule(const ExternalModuleId moduleId) const;
+  };
 }
 
 #endif

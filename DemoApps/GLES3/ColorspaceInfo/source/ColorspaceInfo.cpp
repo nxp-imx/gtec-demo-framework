@@ -32,9 +32,9 @@
 #include "ColorspaceInfo.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoHost/EGL/Config/Service/IEGLHostInfo.hpp>
+#include <FslUtil/EGL/EGLUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/EGL/EGLUtil.hpp>
 #include <GLES3/gl3.h>
 #include <array>
 

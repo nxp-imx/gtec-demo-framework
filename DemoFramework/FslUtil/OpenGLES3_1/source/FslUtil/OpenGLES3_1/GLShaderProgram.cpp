@@ -30,105 +30,103 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <type_traits>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  namespace
   {
-    namespace
+    void DumpDebugInformation(const GLuint hProgram, const std::string& strShaderCode)
     {
-      void DumpDebugInformation(const GLuint hProgram, const std::string& strShaderCode)
-      {
-        FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", strShaderCode);
+      FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", strShaderCode);
 
-        GLint errorBufSize = 0;
-        GLint errorLength = 0;
-        glGetProgramiv(hProgram, GL_INFO_LOG_LENGTH, &errorBufSize);
+      GLint errorBufSize = 0;
+      GLint errorLength = 0;
+      glGetProgramiv(hProgram, GL_INFO_LOG_LENGTH, &errorBufSize);
 
-        std::vector<char> errorLog(std::max(errorBufSize, 1));
-        errorLog[0] = 0;
+      std::vector<char> errorLog(std::max(errorBufSize, 1));
+      errorLog[0] = 0;
 
-        glGetProgramInfoLog(hProgram, static_cast<GLsizei>(errorLog.size()), &errorLength, &errorLog[0]);
+      glGetProgramInfoLog(hProgram, static_cast<GLsizei>(errorLog.size()), &errorLength, &errorLog[0]);
 
-        // GetShaderStageName(target)
+      // GetShaderStageName(target)
 
-        FSLLOG3_INFO(
-          "*** GLShaderProgram: Error log start ***\n{}\n*** GLShaderProgram: Error Log End ***\n(If the log is empty try compiling with "
-          "GLShader)\n\n",
-          &errorLog[0]);
-      }
+      FSLLOG3_INFO(
+        "*** GLShaderProgram: Error log start ***\n{}\n*** GLShaderProgram: Error Log End ***\n(If the log is empty try compiling with "
+        "GLShader)\n\n",
+        &errorLog[0]);
+    }
+  }
+
+
+  GLShaderProgram::GLShaderProgram()
+    : m_shaderType(0)
+    , m_handle(GLValues::INVALID_HANDLE)
+  {
+  }
+
+
+  GLShaderProgram::GLShaderProgram(const GLint shaderType, const std::string& strShaderCode)
+    : m_shaderType(shaderType)
+    , m_handle(GLValues::INVALID_HANDLE)
+  {
+    Reset(shaderType, strShaderCode);
+  }
+
+
+  GLShaderProgram::~GLShaderProgram()
+  {
+    Reset();
+  }
+
+
+  void GLShaderProgram::Reset() noexcept
+  {
+    if (m_handle != GLValues::INVALID_HANDLE)
+    {
+      glDeleteProgram(m_handle);
+      m_handle = GLValues::INVALID_HANDLE;
+    }
+  }
+
+
+  void GLShaderProgram::Reset(const GLint shaderType, const std::string& strShaderCode)
+  {
+    Reset();
+    m_shaderType = shaderType;
+
+    std::array<const char*, 1> shaderCode = {strShaderCode.c_str()};
+
+    // Create the new shader of the given type
+    assert(shaderCode.size() <= std::make_unsigned<GLsizei>::type(std::numeric_limits<GLsizei>::max()));
+    m_handle = glCreateShaderProgramv(shaderType, static_cast<GLsizei>(shaderCode.size()), shaderCode.data());
+    shaderCode[0] = nullptr;
+    GLenum glError = glGetError();
+    if (m_handle == 0 || glError != GL_NO_ERROR)
+    {
+      throw GLESGraphicsException("Failed to create shader", UncheckedNumericCast<int32_t>(glError), __FILE__, __LINE__);
     }
 
-
-    GLShaderProgram::GLShaderProgram()
-      : m_shaderType(0)
-      , m_handle(GLValues::INVALID_HANDLE)
+    GLint status = GL_FALSE;
+    GL_CHECK(glGetProgramiv(m_handle, GL_LINK_STATUS, &status));
+    // Check if something went wrong
+    if (status != GL_TRUE)
     {
-    }
+      // and verbose is enabled then dump some debug information
+      // if (m_verbose)
+      DumpDebugInformation(m_handle, strShaderCode);
 
+      glDeleteProgram(m_handle);
+      m_handle = 0;
 
-    GLShaderProgram::GLShaderProgram(const GLint shaderType, const std::string& strShaderCode)
-      : m_shaderType(shaderType)
-      , m_handle(GLValues::INVALID_HANDLE)
-    {
-      Reset(shaderType, strShaderCode);
-    }
-
-
-    GLShaderProgram::~GLShaderProgram()
-    {
-      Reset();
-    }
-
-
-    void GLShaderProgram::Reset() noexcept
-    {
-      if (m_handle != GLValues::INVALID_HANDLE)
-      {
-        glDeleteProgram(m_handle);
-        m_handle = GLValues::INVALID_HANDLE;
-      }
-    }
-
-
-    void GLShaderProgram::Reset(const GLint shaderType, const std::string& strShaderCode)
-    {
-      Reset();
-      m_shaderType = shaderType;
-
-      std::array<const char*, 1> shaderCode = {strShaderCode.c_str()};
-
-      // Create the new shader of the given type
-      assert(shaderCode.size() <= std::make_unsigned<GLsizei>::type(std::numeric_limits<GLsizei>::max()));
-      m_handle = glCreateShaderProgramv(shaderType, static_cast<GLsizei>(shaderCode.size()), shaderCode.data());
-      shaderCode[0] = nullptr;
-      GLenum glError = glGetError();
-      if (m_handle == 0 || glError != GL_NO_ERROR)
-      {
-        throw GLESGraphicsException("Failed to create shader", glError, __FILE__, __LINE__);
-      }
-
-      GLint status = GL_FALSE;
-      GL_CHECK(glGetProgramiv(m_handle, GL_LINK_STATUS, &status));
-      // Check if something went wrong
-      if (status != GL_TRUE)
-      {
-        // and verbose is enabled then dump some debug information
-        // if (m_verbose)
-        DumpDebugInformation(m_handle, strShaderCode);
-
-        glDeleteProgram(m_handle);
-        m_handle = 0;
-
-        throw GLESGraphicsException("Shader compilation failed", 0, __FILE__, __LINE__);
-      }
+      throw GLESGraphicsException("Shader compilation failed", 0, __FILE__, __LINE__);
     }
   }
 }

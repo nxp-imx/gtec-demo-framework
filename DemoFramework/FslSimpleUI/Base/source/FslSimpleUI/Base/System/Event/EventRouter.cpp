@@ -30,124 +30,121 @@
  ****************************************************************************************************************************************************/
 
 #include "EventRouter.hpp"
-#include "EventRoute.hpp"
-#include "../TreeNode.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
-#include <FslBase/Math/Rect.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Rect.hpp>
 #include <FslSimpleUI/Base/Event/EventDescription.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
-#include "../ITreeNodeClickInputTargetLocater.hpp"
-#include "ScopedEventRoute.hpp"
 #include <cassert>
 #include <utility>
+#include "../ITreeNodeClickInputTargetLocater.hpp"
+#include "../TreeNode.hpp"
+#include "EventRoute.hpp"
+#include "ScopedEventRoute.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    void CalcClipRect(PxPoint2& rTopLeftPx, PxClipRectangle& rClipRectPx, const PxPoint2& parentTopLeftPx, const PxClipRectangle& parentClipRectPx,
+                      const std::shared_ptr<TreeNode>& node)
     {
-      void CalcClipRect(PxPoint2& rTopLeftPx, PxClipRectangle& rClipRectPx, const PxPoint2& parentTopLeftPx, const PxClipRectangle& parentClipRectPx,
-                        const std::shared_ptr<TreeNode>& node)
+      PxRectangle boundingRectPx = node->WinGetContentRectanglePx();
+      rTopLeftPx = PxPoint2(parentTopLeftPx.X + boundingRectPx.X(), parentTopLeftPx.Y + boundingRectPx.Y());
       {
-        PxRectangle boundingRectPx = node->WinGetContentRectanglePx();
-        rTopLeftPx = PxPoint2(parentTopLeftPx.X + boundingRectPx.X(), parentTopLeftPx.Y + boundingRectPx.Y());
-        {
-          // assert(EqualHelper::IsEqual(node->CalcScreenTopLeftCornerPx(), rTopLeft));
-          PxClipRectangle actualRect(rTopLeftPx.X, rTopLeftPx.Y, boundingRectPx.Width(), boundingRectPx.Height());
+        // assert(EqualHelper::IsEqual(node->CalcScreenTopLeftCornerPx(), rTopLeft));
+        PxClipRectangle actualRect(rTopLeftPx.X, rTopLeftPx.Y, boundingRectPx.Width(), boundingRectPx.Height());
 
-          // Clip the actual rect to the parent rect
-          rClipRectPx = PxClipRectangle::Intersect(parentClipRectPx, actualRect);
-        }
+        // Clip the actual rect to the parent rect
+        rClipRectPx = PxClipRectangle::Intersect(parentClipRectPx, actualRect);
       }
+    }
 
-      // FIX: this method clips each node to its parent. Meaning the top children that draw outside their parents area wont get hit.
-      //      A more correct and probably faster solution would be to store all hit enabled children in a oct-tree for fast searching
-      std::shared_ptr<TreeNode> RecursiveLocateTopChildThatWasHit(const PxPoint2& currentTopLeftPx, const PxClipRectangle& currentClipRectPx,
-                                                                  const std::shared_ptr<TreeNode>& node, const PxPoint2& eventPosPx,
-                                                                  const WindowFlags flags)
+    // FIX: this method clips each node to its parent. Meaning the top children that draw outside their parents area wont get hit.
+    //      A more correct and probably faster solution would be to store all hit enabled children in a oct-tree for fast searching
+    std::shared_ptr<TreeNode> RecursiveLocateTopChildThatWasHit(const PxPoint2& currentTopLeftPx, const PxClipRectangle& currentClipRectPx,
+                                                                const std::shared_ptr<TreeNode>& node, const PxPoint2& eventPosPx,
+                                                                const WindowFlags flags)
+    {
+      assert(node);
+
+      // Verify the integrity of the supplied rect by holding it up against the slow version
+      // assert(EqualHelper::IsEqual(record.CalcScreenClipRect(), currentClipRect));
+      // assert(EqualHelper::IsEqual(record.CalcScreenTopLeftCornerPx(), currentTopLeft));
+
+      if (node->IsConsideredRunning() && currentClipRectPx.Contains(eventPosPx.X, eventPosPx.Y))
       {
-        assert(node);
-
-        // Verify the integrity of the supplied rect by holding it up against the slow version
-        // assert(EqualHelper::IsEqual(record.CalcScreenClipRect(), currentClipRect));
-        // assert(EqualHelper::IsEqual(record.CalcScreenTopLeftCornerPx(), currentTopLeft));
-
-        if (node->IsConsideredRunning() && currentClipRectPx.Contains(eventPosPx.X, eventPosPx.Y))
+        const auto& children = node->m_children;
+        for (auto itr = children.rbegin(); itr != children.rend(); ++itr)
         {
-          const auto& children = node->m_children;
-          for (auto itr = children.rbegin(); itr != children.rend(); ++itr)
+          PxPoint2 childTopLeftPx;
+          PxClipRectangle childClipRectPx;
+          CalcClipRect(childTopLeftPx, childClipRectPx, currentTopLeftPx, currentClipRectPx, *itr);
+
+          // assert(EqualHelper::IsEqual(childClipRect, (*itr)->CalcScreenClipRect()));
+
+          std::shared_ptr<TreeNode> res = RecursiveLocateTopChildThatWasHit(childTopLeftPx, childClipRectPx, *itr, eventPosPx, flags);
+          if (res)
           {
-            PxPoint2 childTopLeftPx;
-            PxClipRectangle childClipRectPx;
-            CalcClipRect(childTopLeftPx, childClipRectPx, currentTopLeftPx, currentClipRectPx, *itr);
-
-            // assert(EqualHelper::IsEqual(childClipRect, (*itr)->CalcScreenClipRect()));
-
-            std::shared_ptr<TreeNode> res = RecursiveLocateTopChildThatWasHit(childTopLeftPx, childClipRectPx, *itr, eventPosPx, flags);
-            if (res)
-            {
-              return res;
-            }
-          }
-
-          // If the record is touch enabled, it becomes our target
-          if (node->GetFlags().IsFlagged(flags))
-          {
-            return node;
+            return res;
           }
         }
-        return std::shared_ptr<TreeNode>();
+
+        // If the record is touch enabled, it becomes our target
+        if (node->GetFlags().IsFlagged(flags))
+        {
+          return node;
+        }
       }
+      return {};
     }
+  }
 
 
-    EventRouter::EventRouter(std::shared_ptr<TreeNode> rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater)
-      : m_rootNode(std::move(rootNode))
-      , m_clickTargetLocater(clickTargetLocater)
+  EventRouter::EventRouter(std::shared_ptr<TreeNode> rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater)
+    : m_rootNode(std::move(rootNode))
+    , m_clickTargetLocater(clickTargetLocater)
+  {
+    if (!m_rootNode || !clickTargetLocater)
     {
-      if (!m_rootNode || !clickTargetLocater)
-      {
-        throw std::invalid_argument("arguments can not be null");
-      }
+      throw std::invalid_argument("arguments can not be null");
     }
+  }
 
 
-    EventRouter::~EventRouter() = default;
+  EventRouter::~EventRouter() = default;
 
 
-    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-    void EventRouter::CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const std::shared_ptr<TreeNode>& target)
+  // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+  void EventRouter::CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const std::shared_ptr<TreeNode>& target)
 
+  {
+    rRoute.SetTarget(target, routingStrategy);
+  }
+
+
+  void EventRouter::CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const PxPoint2& hitPositionPx)
+  {
+    // locate the actual window that was hit
+    std::shared_ptr<TreeNode> hit = LocateWindowByHit(hitPositionPx, rRoute.GetFlags());
+    CreateRoute(rRoute, routingStrategy, hit);
+  }
+
+
+  std::shared_ptr<TreeNode> EventRouter::LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags flags) const
+  {
+    if (flags.IsOnlyFlagEnabled(WindowFlags::ClickInput))
     {
-      rRoute.SetTarget(target, routingStrategy);
+      return m_clickTargetLocater->TryGetClickInputWindow(hitPositionPx);
     }
 
-
-    void EventRouter::CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const PxPoint2& hitPositionPx)
-    {
-      // locate the actual window that was hit
-      std::shared_ptr<TreeNode> hit = LocateWindowByHit(hitPositionPx, rRoute.GetFlags());
-      CreateRoute(rRoute, routingStrategy, hit);
-    }
-
-
-    std::shared_ptr<TreeNode> EventRouter::LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags flags) const
-    {
-      if (flags.IsOnlyFlagEnabled(WindowFlags::ClickInput))
-      {
-        return m_clickTargetLocater->TryGetClickInputWindow(hitPositionPx);
-      }
-
-      // locate the actual window that was hit
-      PxClipRectangle clipRectPx(TypeConverter::UncheckedTo<PxClipRectangle>(m_rootNode->WinGetContentRectanglePx()));
-      const PxPoint2 topLeftPx = clipRectPx.TopLeft();
-      return RecursiveLocateTopChildThatWasHit(topLeftPx, clipRectPx, m_rootNode, hitPositionPx, flags);
-    }
+    // locate the actual window that was hit
+    PxClipRectangle clipRectPx(TypeConverter::UncheckedTo<PxClipRectangle>(m_rootNode->WinGetContentRectanglePx()));
+    const PxPoint2 topLeftPx = clipRectPx.TopLeft();
+    return RecursiveLocateTopChildThatWasHit(topLeftPx, clipRectPx, m_rootNode, hitPositionPx, flags);
   }
 }

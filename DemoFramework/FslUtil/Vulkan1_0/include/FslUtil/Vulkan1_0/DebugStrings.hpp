@@ -37,18 +37,15 @@
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  namespace Debug
   {
-    namespace Debug
-    {
-      //! @brief Convert the error code to a string
-      const char* ToString(const VkResult value);
-      const char* ToString(const VkPresentModeKHR value);
-      const char* ToString(const VkFormat value);
-    };
-  }
+    //! @brief Convert the error code to a string
+    const char* ToString(const VkResult value);
+    const char* ToString(const VkPresentModeKHR value);
+    const char* ToString(const VkFormat value);
+  };
 }
 
 #endif

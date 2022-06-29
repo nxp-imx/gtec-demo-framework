@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <Shared/Bloom/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "Bloom.hpp"
 #include <array>
+#include "Bloom.hpp"
 
 namespace Fsl
 {

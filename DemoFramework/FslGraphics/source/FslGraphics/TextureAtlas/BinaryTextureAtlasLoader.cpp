@@ -29,30 +29,30 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
 #include <FslBase/Bits/ByteSpanUtil_ReadLE.hpp>
 #include <FslBase/Compression/ValueCompression_Span.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Rectangle.hpp>
-#include <FslBase/Optional.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
-#include <FslBase/System/Platform/PlatformPathTransform.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <FslBase/System/Platform/PlatformPathTransform.hpp>
 #include <FslGraphics/TextureAtlas/AtlasNineSliceFlags.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
+#include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <cassert>
 #include <fstream>
-#include <vector>
+#include <optional>
 #include <utility>
+#include <vector>
 
 namespace Fsl
 {
@@ -140,7 +140,7 @@ namespace Fsl
 
     bool TryStreamRead(std::ifstream& rStream, void* const pDst, const std::size_t cbRead)
     {
-      rStream.read(reinterpret_cast<char*>(pDst), cbRead);
+      rStream.read(reinterpret_cast<char*>(pDst), NumericCast<std::streamsize>(cbRead));
       return rStream.good();
     }
 
@@ -185,7 +185,7 @@ namespace Fsl
       const uint32_t chunkContentType = ValueCompression::ReadSimpleUInt32(rSpan);
       switch (chunkContentType)
       {
-      case uint32_t(ChunkType::NineSlices):
+      case static_cast<uint32_t>(ChunkType::NineSlices):
         return ChunkType::NineSlices;
       default:
         throw NotSupportedException(fmt::format("Unsupported chunk content type: ", chunkContentType));
@@ -205,7 +205,7 @@ namespace Fsl
       {
         throw NotSupportedException("The rectangle is of a unsupported size");
       }
-      return {srcRectX, srcRectY, UncheckedNumericCast<int32_t>(srcRectWidth), UncheckedNumericCast<int32_t>(srcRectHeight)};
+      return {srcRectX, srcRectY, NumericCast<int32_t>(srcRectWidth), NumericCast<int32_t>(srcRectHeight)};
     }
 
     PxRectangleU32 ReadRectangleU(ReadOnlySpan<uint8_t>& rSpan)
@@ -298,7 +298,8 @@ namespace Fsl
       rTextureAtlas.Reset(numEntries);
 
       // Read the entries
-      for (uint32_t index = 0; index < numEntries; ++index)
+      const auto count = NumericCast<int32_t>(numEntries);
+      for (int32_t index = 0; index < count; ++index)
       {
         Rectangle srcRectangle = ReadRectangle(contentSpan);
         Rectangle trimmedRectangle = ReadRectangle(contentSpan);
@@ -330,7 +331,8 @@ namespace Fsl
       rTextureAtlas.Reset(entryCount);
 
       BTA2AtlasEntry entry;
-      for (uint32_t i = 0; i < entryCount; ++i)
+      const auto count = NumericCast<int32_t>(entryCount);
+      for (int32_t i = 0; i < count; ++i)
       {
         // Parse the content
         entry.SrcRectangle = ReadRectangle(rSpan);
@@ -388,7 +390,7 @@ namespace Fsl
       ReadBTA3AtlasEntries(rTextureAtlas, pathEntries, contentSpan);
     }
 
-    Optional<MinimalChunkHeader> TryReadMinimalChunkHeader(std::ifstream& rStream)
+    std::optional<MinimalChunkHeader> TryReadMinimalChunkHeader(std::ifstream& rStream)
     {
       // Try to read the header
       std::array<uint8_t, BTAFormat::Chunk::HeaderSize> header{};
@@ -400,7 +402,7 @@ namespace Fsl
       MinimalChunkHeader minimalHeader;
       minimalHeader.Magic = ByteSpanUtil::ReadUInt32LE(headerSpan, BTAFormat::Chunk::OffsetMagic);
       minimalHeader.Size = ByteSpanUtil::ReadUInt32LE(headerSpan, BTAFormat::Chunk::OffsetSize);
-      return Optional<MinimalChunkHeader>(minimalHeader);
+      return minimalHeader;
     }
 
 
@@ -438,22 +440,22 @@ namespace Fsl
     bool TryReadBTA4Chunk(BasicTextureAtlas& rTextureAtlas, std::ifstream& rStream)
     {
       // Try to read the chunk header
-      Optional<MinimalChunkHeader> chunkHeader = TryReadMinimalChunkHeader(rStream);
-      if (!chunkHeader.HasValue())
+      std::optional<MinimalChunkHeader> chunkHeader = TryReadMinimalChunkHeader(rStream);
+      if (!chunkHeader.has_value())
       {
         return false;
       }
-      if (chunkHeader.Value().Magic != BTAFormat::Chunk::HeaderMagicValue)
+      if (chunkHeader.value().Magic != BTAFormat::Chunk::HeaderMagicValue)
       {
         throw FormatException("Chunk not of the expected format");
       }
-      if (chunkHeader.Value().Size < BTAFormat::Chunk::HeaderSize)
+      if (chunkHeader.value().Size < BTAFormat::Chunk::HeaderSize)
       {
         throw FormatException("Invalid chunk");
       }
 
       // Read the remaining chunk content
-      const uint32_t chunkContentSize = chunkHeader.Value().Size - BTAFormat::Chunk::HeaderSize;
+      const uint32_t chunkContentSize = chunkHeader.value().Size - BTAFormat::Chunk::HeaderSize;
       std::vector<uint8_t> chunkContent(chunkContentSize);
       StreamRead(rStream, chunkContent.data(), chunkContent.size());
 
@@ -471,7 +473,7 @@ namespace Fsl
         ProcessNineSliceChunk(rTextureAtlas, chunkContentSpan, chunkVersion);
         break;
       default:
-        throw NotSupportedException(fmt::format("Unsupported chunk content type: ", uint32_t(chunkType)));
+        throw NotSupportedException(fmt::format("Unsupported chunk content type: ", static_cast<uint32_t>(chunkType)));
       }
       return true;
     }

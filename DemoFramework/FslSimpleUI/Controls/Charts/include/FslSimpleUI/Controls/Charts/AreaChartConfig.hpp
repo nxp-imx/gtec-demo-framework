@@ -33,15 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::AreaChartConfig
 {
-  namespace UI
-  {
-    namespace AreaChartConfig
-    {
-      constexpr uint32_t MaxGridLines = 16u;
-    }
-  }
+  constexpr uint32_t MaxGridLines = 16u;
 }
 
 #endif

@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/NextSceneRecord.hpp>
 #include <memory>
+#include <optional>
 
 namespace Fsl
 {
@@ -53,7 +53,7 @@ namespace Fsl
   public:
     virtual ~IScene() = default;
 
-    virtual Optional<NextSceneRecord> TryGetNextScene() const = 0;
+    virtual std::optional<NextSceneRecord> TryGetNextScene() const = 0;
 
     virtual void OnFrameSequenceBegin() = 0;
 

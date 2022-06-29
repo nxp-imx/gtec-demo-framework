@@ -11,25 +11,25 @@
 
 
 #include "Texturing.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
 #include <cstddef>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace Fsl
 {
@@ -913,7 +913,7 @@ namespace Fsl
     {
       m_uboVS.LodBias = 0.0f;
     }
-    if (m_uboVS.LodBias > m_texture.MipLevels)
+    if (m_uboVS.LodBias > static_cast<float>(m_texture.MipLevels))
     {
       m_uboVS.LodBias = static_cast<float>(m_texture.MipLevels);
     }

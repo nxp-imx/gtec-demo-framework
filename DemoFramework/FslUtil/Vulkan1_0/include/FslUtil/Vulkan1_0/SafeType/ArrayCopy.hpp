@@ -32,87 +32,84 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Common.hpp>
 #include <vulkan/vulkan.h>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  template <typename TSrc, typename TDst>
+  class ArrayCopy
   {
-    template <typename TSrc, typename TDst>
-    class ArrayCopy
+    std::vector<TDst> m_arrayCopy;
+    std::vector<TSrc> m_array;
+
+  public:
+    ArrayCopy(const ArrayCopy&) = delete;
+    ArrayCopy& operator=(const ArrayCopy&) = delete;
+
+    //! @brief Move assignment operator
+    ArrayCopy& operator=(ArrayCopy&& other) noexcept
     {
-      std::vector<TDst> m_arrayCopy;
-      std::vector<TSrc> m_array;
-
-    public:
-      ArrayCopy(const ArrayCopy&) = delete;
-      ArrayCopy& operator=(const ArrayCopy&) = delete;
-
-      //! @brief Move assignment operator
-      ArrayCopy& operator=(ArrayCopy&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Claim ownership here
-          m_arrayCopy = std::move(other.m_arrayCopy);
-          m_array = std::move(other.m_array);
+        // Claim ownership here
+        m_arrayCopy = std::move(other.m_arrayCopy);
+        m_array = std::move(other.m_array);
 
-          // Remove the data from other
-        }
-        return *this;
-      }
-
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      ArrayCopy(ArrayCopy&& other) noexcept
-        : m_arrayCopy(std::move(other.m_arrayCopy))
-        , m_array(std::move(other.m_array))
-      {
         // Remove the data from other
       }
+      return *this;
+    }
 
-      ArrayCopy()
-        : m_arrayCopy()
-        , m_array()
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    ArrayCopy(ArrayCopy&& other) noexcept
+      : m_arrayCopy(std::move(other.m_arrayCopy))
+      , m_array(std::move(other.m_array))
+    {
+      // Remove the data from other
+    }
+
+    ArrayCopy()
+      : m_arrayCopy()
+      , m_array()
+    {
+    }
+
+    ArrayCopy(const TSrc* const pSrc, const uint32_t entries)
+      : m_arrayCopy(entries)
+      , m_array(entries)
+    {
+      if (entries <= 0)
       {
+        return;
+      }
+      if (pSrc == nullptr)
+      {
+        throw std::invalid_argument("pSrc can not be null");
       }
 
-      ArrayCopy(const TSrc* const pSrc, const uint32_t entries)
-        : m_arrayCopy(entries)
-        , m_array(entries)
+      for (uint32_t i = 0; i < entries; ++i)
       {
-        if (entries <= 0)
-        {
-          return;
-        }
-        if (pSrc == nullptr)
-        {
-          throw std::invalid_argument("pSrc can not be null");
-        }
-
-        for (uint32_t i = 0; i < entries; ++i)
-        {
-          m_arrayCopy[i] = std::move(TDst(pSrc[i]));
-          m_array[i] = m_arrayCopy[i].Get();
-        }
+        m_arrayCopy[i] = std::move(TDst(pSrc[i]));
+        m_array[i] = m_arrayCopy[i].Get();
       }
+    }
 
-      const TSrc* data() const
-      {
-        return m_array.data();
-      }
+    const TSrc* data() const
+    {
+      return m_array.data();
+    }
 
-      std::size_t size() const
-      {
-        return m_array.size();
-      }
-    };
-  }
+    std::size_t size() const
+    {
+      return m_array.size();
+    }
+  };
 }
 
 #endif

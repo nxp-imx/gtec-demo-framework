@@ -16,13 +16,13 @@
 // The Assimp dependent parts were also split into their own class to make it
 // possible to builds apps without the Assimp dependency.
 
-#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VulkanMeshLoader.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <RapidVulkan/Check.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VulkanMeshLoader.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -245,7 +245,7 @@ namespace Fsl
       // meshDim.min *= scale;
       // meshDim.max *= scale;
       meshDim.size *= scale;
-      return MeshBuffer(std::move(meshDescriptors), std::move(meshVertices), std::move(meshIndices), meshIndexCount, meshDim.size);
+      return {std::move(meshDescriptors), std::move(meshVertices), std::move(meshIndices), meshIndexCount, meshDim.size};
     }
   }
 }

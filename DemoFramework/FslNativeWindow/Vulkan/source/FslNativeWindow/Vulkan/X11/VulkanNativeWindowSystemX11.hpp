@@ -33,8 +33,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/X11/PlatformNativeWindowSystemX11.hpp>
-#include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
+#include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemTemplate.hpp>
 
 namespace Fsl

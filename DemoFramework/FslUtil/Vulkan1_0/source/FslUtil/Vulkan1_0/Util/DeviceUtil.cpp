@@ -32,18 +32,12 @@
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::DeviceUtil
 {
-  namespace Vulkan
+  VUDeviceQueueRecord GetDeviceQueue(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex)
   {
-    namespace DeviceUtil
-    {
-      VUDeviceQueueRecord GetDeviceQueue(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex)
-      {
-        VkQueue queue = nullptr;
-        vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, &queue);
-        return {device, queueFamilyIndex, queueIndex, queue};
-      }
-    }
+    VkQueue queue = nullptr;
+    vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, &queue);
+    return {device, queueFamilyIndex, queueIndex, queue};
   }
 }

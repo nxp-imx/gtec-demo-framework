@@ -60,13 +60,13 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<4> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 4> elements = {
-        VertexElementEx(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
-        VertexElementEx(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
-        VertexElementEx(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                        VertexElementUsage::TextureCoordinate, 0)};
-      return VertexDeclarationArray<4>(elements, sizeof(VertexPositionNormalTangentTexture));
+      constexpr BasicVertexDeclarationArray<4> elements = {
+        VertexElement(offsetof(VertexPositionNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
+        VertexElement(offsetof(VertexPositionNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
+        VertexElement(offsetof(VertexPositionNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                      VertexElementUsage::TextureCoordinate, 0)};
+      return {elements, sizeof(VertexPositionNormalTangentTexture)};
     }
 
 
@@ -78,12 +78,12 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionNormalTangentTexture& rhs) const
+    constexpr bool operator==(const VertexPositionNormalTangentTexture& rhs) const noexcept
     {
       return Position == rhs.Position && Normal == rhs.Normal && Tangent == rhs.Tangent && TextureCoordinate == rhs.TextureCoordinate;
     }
 
-    constexpr bool operator!=(const VertexPositionNormalTangentTexture& rhs) const
+    constexpr bool operator!=(const VertexPositionNormalTangentTexture& rhs) const noexcept
     {
       return !(*this == rhs);
     }

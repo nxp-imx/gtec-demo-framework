@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Math/Rectangle.hpp>
 #include <algorithm>
 
 namespace Fsl

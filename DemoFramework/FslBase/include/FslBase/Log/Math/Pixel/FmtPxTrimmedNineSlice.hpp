@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxSize2D.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxThickness.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxThicknessF.hpp>
+#include <FslBase/Math/Pixel/PxTrimmedNineSlice.hpp>
 #include <fmt/format.h>
 
 namespace fmt

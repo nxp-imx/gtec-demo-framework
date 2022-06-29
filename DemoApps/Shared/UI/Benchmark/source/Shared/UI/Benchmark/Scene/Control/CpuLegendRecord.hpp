@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
 #include <memory>
 #include <vector>

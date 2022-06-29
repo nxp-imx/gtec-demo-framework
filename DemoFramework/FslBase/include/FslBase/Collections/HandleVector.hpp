@@ -1,7 +1,7 @@
 #ifndef FSLBASE_COLLECTIONS_HANDLEVECTOR_HPP
 #define FSLBASE_COLLECTIONS_HANDLEVECTOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Exceptions.hpp>
 #include <FslBase/Collections/HandleVectorConfig.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/TypedFlexSpan.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <cassert>
@@ -52,10 +52,10 @@ namespace Fsl
     using value_type = T;
     using size_type = uint32_t;
     using difference_type = std::ptrdiff_t;
-    using reference = value_type&;
-    using const_reference = const value_type&;
-    using const_pointer = const value_type*;
-    using pointer = value_type*;
+    using reference = T&;
+    using const_reference = const T&;
+    using const_pointer = const T*;
+    using pointer = T*;
 
     using index_type = size_type;
     using handle_type = int32_t;
@@ -68,7 +68,7 @@ namespace Fsl
       //! The handle associated with this element
       handle_type Handle{};
       //! The actual element
-      value_type Element{};
+      T Element{};
 
       constexpr Record() = default;
 
@@ -199,7 +199,7 @@ namespace Fsl
       return newHandle;
     }
 
-    handle_type Add(value_type&& element)
+    handle_type Add(T&& element)
     {
       assert(Count() >= 0 && Count() <= Capacity());
 
@@ -239,7 +239,7 @@ namespace Fsl
     //! @brief Insert the item at the given index
     //! @param handle The item handle to insert after
     //! @param element The object to insert. The value can be null for reference types
-    handle_type Insert(const handle_type handle, value_type&& element)
+    handle_type Insert(const handle_type handle, T&& element)
     {
       if (!IsValidHandle(handle))
       {
@@ -266,7 +266,7 @@ namespace Fsl
     //! @brief Insert the item at the given index
     //! @param index The zero-based index at which item should be inserted.
     //! @param element The object to insert. The value can be null for reference types
-    handle_type InsertAt(const index_type index, value_type&& element)
+    handle_type InsertAt(const index_type index, T&& element)
     {
       if (index < 0 || index > Count())
       {
@@ -394,13 +394,13 @@ namespace Fsl
     }
 
     //! Get the entry
-    const_pointer TryGet(const handle_type handle) const
+    const_pointer TryGet(const handle_type handle) const noexcept
     {
       return IsValidHandle(handle) ? &m_data[m_data[handle].HandleToIndex].Element : nullptr;
     }
 
     //! Get the entry
-    pointer TryGet(const handle_type handle)
+    pointer TryGet(const handle_type handle) noexcept
     {
       return IsValidHandle(handle) ? &m_data[m_data[handle].HandleToIndex].Element : nullptr;
     }
@@ -485,7 +485,7 @@ namespace Fsl
     }
 
     //! Set the entry
-    void Set(const handle_type handle, value_type&& element)
+    void Set(const handle_type handle, T&& element)
     {
       if (!IsValidHandle(handle))
       {
@@ -526,7 +526,7 @@ namespace Fsl
     }
 
     //! @brief Set the element at the given index
-    void SetAt(const index_type index, value_type&& value)
+    void SetAt(const index_type index, T&& value)
     {
       if (!IsValidIndex(index))
       {
@@ -826,7 +826,7 @@ namespace Fsl
       return newHandle;
     }
 
-    handle_type DoInsertAt(const index_type index, value_type&& element)
+    handle_type DoInsertAt(const index_type index, T&& element)
     {
       assert(Count() >= 0 && Count() <= Capacity());
       assert(index >= 0 && index <= Count());

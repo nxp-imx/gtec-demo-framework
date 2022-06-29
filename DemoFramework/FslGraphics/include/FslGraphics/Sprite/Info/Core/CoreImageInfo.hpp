@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpExtent.hpp>
+#include <FslBase/Math/Dp/DpExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU16.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
@@ -51,11 +51,11 @@ namespace Fsl
     PxRectangleU16 TrimmedRectanglePx;
 
     //! The image density extent (this is the dp size of the image)
-    DpExtent ExtentDp;
+    DpExtent2D ExtentDp;
 
     constexpr CoreImageInfo() = default;
     constexpr CoreImageInfo(const PxExtent2D extentPx, const PxThicknessU& trimMarginPx, const PxRectangleU16& trimmedRectanglePx,
-                            const DpExtent extentDp)
+                            const DpExtent2D extentDp)
       : ExtentPx(extentPx)
       , TrimMarginPx(trimMarginPx)
       , TrimmedRectanglePx(trimmedRectanglePx)

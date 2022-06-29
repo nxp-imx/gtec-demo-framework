@@ -30,233 +30,231 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
-#include <FslUtil/OpenGLES3/GLBufferArray.hpp>
-
 #include <algorithm>
 #include <cassert>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLBufferArray& GLBufferArray::operator=(GLBufferArray&& other) noexcept
   {
-    GLBufferArray& GLBufferArray::operator=(GLBufferArray&& other) noexcept
+    if (this != &other)
     {
-      if (this != &other)
+      // Free existing resources then transfer the content of other to this one and fill other with default values
+      if (IsValid())
       {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_array = std::move(other.m_array);
-        m_target = other.m_target;
-        m_elementStride = other.m_elementStride;
-
-        // Remove the data from other
-        other.m_target = 0;
-        other.m_elementStride = 0;
+        Reset();
       }
-      return *this;
-    }
 
+      // Claim ownership here
+      m_array = std::move(other.m_array);
+      m_target = other.m_target;
+      m_elementStride = other.m_elementStride;
 
-    GLBufferArray::GLBufferArray(GLBufferArray&& other) noexcept
-      : m_array(std::move(other.m_array))
-      , m_target(other.m_target)
-      , m_elementStride(other.m_elementStride)
-    {
       // Remove the data from other
       other.m_target = 0;
       other.m_elementStride = 0;
     }
+    return *this;
+  }
 
 
-    GLBufferArray::GLBufferArray() = default;
+  GLBufferArray::GLBufferArray(GLBufferArray&& other) noexcept
+    : m_array(std::move(other.m_array))
+    , m_target(other.m_target)
+    , m_elementStride(other.m_elementStride)
+  {
+    // Remove the data from other
+    other.m_target = 0;
+    other.m_elementStride = 0;
+  }
 
 
-    GLBufferArray::GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride)
-      : m_array(capacity)
-      , m_target(target)
-      , m_elementStride(elementStride)
+  GLBufferArray::GLBufferArray() = default;
+
+
+  GLBufferArray::GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride)
+    : m_array(capacity)
+    , m_target(target)
+    , m_elementStride(elementStride)
+  {
+  }
+
+
+  GLBufferArray::~GLBufferArray()
+  {
+    Reset();
+  }
+
+
+  int32_t GLBufferArray::Length() const
+  {
+    return static_cast<int32_t>(m_array.size());
+  }
+
+
+  void GLBufferArray::Reset() noexcept
+  {
+    auto itr = m_array.begin();
+    while (itr != m_array.end())
     {
-    }
-
-
-    GLBufferArray::~GLBufferArray()
-    {
-      Reset();
-    }
-
-
-    int32_t GLBufferArray::Length() const
-    {
-      return static_cast<int32_t>(m_array.size());
-    }
-
-
-    void GLBufferArray::Reset() noexcept
-    {
-      auto itr = m_array.begin();
-      while (itr != m_array.end())
+      if (itr->Handle != GLValues::INVALID_HANDLE)
       {
-        if (itr->Handle != GLValues::INVALID_HANDLE)
+        glDeleteBuffers(1, &itr->Handle);
+        itr->Handle = GLValues::INVALID_HANDLE;
+        itr->Capacity = 0;
+        itr->Usage = 0;
+      }
+      ++itr;
+    }
+    m_target = 0;
+    m_elementStride = 0;
+  }
+
+
+  GLBufferArrayEntry GLBufferArray::Get(const std::size_t arrayIndex) const
+  {
+    if (arrayIndex >= m_array.size())
+    {
+      throw std::invalid_argument("Get arrayIndex out of range");
+    }
+
+    return m_array[arrayIndex];
+  }
+
+
+  void GLBufferArray::Set(const std::size_t arrayIndex, const GLBufferArrayEntry& value)
+  {
+    if (arrayIndex >= m_array.size())
+    {
+      throw std::invalid_argument("Set arrayIndex out of range");
+    }
+
+    m_array[arrayIndex] = value;
+  }
+
+
+  void GLBufferArray::SetData(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
+  {
+    if (arrayIndex >= m_array.size())
+    {
+      throw std::invalid_argument("SetData arrayIndex out of range");
+    }
+    const auto& arrayEntry = m_array[arrayIndex];
+
+    if (pElements == nullptr)
+    {
+      throw std::invalid_argument("pElements can not be null");
+    }
+    if ((dstIndex + (m_elementStride * elementCount)) > (m_elementStride * arrayEntry.Capacity))
+    {
+      throw IndexOutOfRangeException();
+    }
+    if (!arrayEntry.IsValid())
+    {
+      throw UsageErrorException();
+    }
+
+    glBindBuffer(m_target, arrayEntry.Handle);
+    glBufferSubData(m_target, UncheckedNumericCast<GLintptr>(dstIndex * m_elementStride),
+                    UncheckedNumericCast<GLsizeiptr>(elementCount * m_elementStride), pElements);
+    glBindBuffer(m_target, 0);
+  }
+
+
+  void GLBufferArray::SetDataFast(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements,
+                                  const std::size_t elementCount)
+  {
+    if (arrayIndex >= m_array.size())
+    {
+      throw std::invalid_argument("SetDataFast arrayIndex out of range");
+    }
+    const auto& arrayEntry = m_array[arrayIndex];
+
+    if (pElements == nullptr)
+    {
+      throw std::invalid_argument("pElements can not be null");
+    }
+    if ((dstIndex + (m_elementStride * elementCount)) > (m_elementStride * arrayEntry.Capacity))
+    {
+      throw IndexOutOfRangeException();
+    }
+    if (!arrayEntry.IsValid())
+    {
+      throw UsageErrorException();
+    }
+
+    glBufferSubData(m_target, UncheckedNumericCast<GLintptr>(dstIndex * m_elementStride),
+                    UncheckedNumericCast<GLsizeiptr>(elementCount * m_elementStride), pElements);
+  }
+
+
+  void GLBufferArray::Reset(const std::size_t arrayIndex, const GLenum target, const void* const pEntries, const std::size_t elementCount,
+                            const uint32_t elementStride, const GLenum usage)
+  {
+    if (arrayIndex >= m_array.size())
+    {
+      throw std::invalid_argument("Reset arrayIndex out of range");
+    }
+    if (target != m_target)
+    {
+      throw std::invalid_argument("the target did not match the arrays expected target");
+    }
+    if (elementStride != m_elementStride)
+    {
+      throw std::invalid_argument("the elementStride did not match the arrays expected stride");
+    }
+
+    auto& rArrayEntry = m_array[arrayIndex];
+
+    if (elementStride < 1)
+    {
+      throw std::invalid_argument("invalid argument");
+    }
+
+    // If we don't have a handle -> allocate one
+    if (rArrayEntry.Handle == GLValues::INVALID_HANDLE)
+    {
+      GL_CHECK(glGenBuffers(1, &rArrayEntry.Handle));
+    }
+
+    const auto cbEntry = elementCount * elementStride;
+
+    GL_CHECK(glBindBuffer(target, rArrayEntry.Handle));
+    GL_CHECK(glBufferData(target, cbEntry, pEntries, usage));
+    GL_CHECK(glBindBuffer(target, 0));
+
+    rArrayEntry.Capacity = static_cast<uint32_t>(elementCount);
+    rArrayEntry.Usage = usage;
+  }
+
+
+  void GLBufferArray::DoResize(const std::size_t capacity, const GLenum target, const uint32_t elementStride)
+  {
+    assert(target != 0);
+
+    if (capacity != m_array.size())
+    {
+      if (m_array.size() < capacity)
+      {
+        // Free the entries we are removing
+        for (std::size_t i = capacity; i < m_array.size(); ++i)
         {
-          glDeleteBuffers(1, &itr->Handle);
-          itr->Handle = GLValues::INVALID_HANDLE;
-          itr->Capacity = 0;
-          itr->Usage = 0;
-        }
-        ++itr;
-      }
-      m_target = 0;
-      m_elementStride = 0;
-    }
-
-
-    GLBufferArrayEntry GLBufferArray::Get(const std::size_t arrayIndex) const
-    {
-      if (arrayIndex >= m_array.size())
-      {
-        throw std::invalid_argument("Get arrayIndex out of range");
-      }
-
-      return m_array[arrayIndex];
-    }
-
-
-    void GLBufferArray::Set(const std::size_t arrayIndex, const GLBufferArrayEntry& value)
-    {
-      if (arrayIndex >= m_array.size())
-      {
-        throw std::invalid_argument("Set arrayIndex out of range");
-      }
-
-      m_array[arrayIndex] = value;
-    }
-
-
-    void GLBufferArray::SetData(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements, const std::size_t elementCount)
-    {
-      if (arrayIndex >= m_array.size())
-      {
-        throw std::invalid_argument("SetData arrayIndex out of range");
-      }
-      const auto& arrayEntry = m_array[arrayIndex];
-
-      if (pElements == nullptr)
-      {
-        throw std::invalid_argument("pElements can not be null");
-      }
-      if ((dstIndex + (m_elementStride * elementCount)) > (m_elementStride * arrayEntry.Capacity))
-      {
-        throw IndexOutOfRangeException();
-      }
-      if (!arrayEntry.IsValid())
-      {
-        throw UsageErrorException();
-      }
-
-      glBindBuffer(m_target, arrayEntry.Handle);
-      glBufferSubData(m_target, dstIndex * m_elementStride, elementCount * m_elementStride, pElements);
-      glBindBuffer(m_target, 0);
-    }
-
-
-    void GLBufferArray::SetDataFast(const std::size_t arrayIndex, const std::size_t dstIndex, const void* const pElements,
-                                    const std::size_t elementCount)
-    {
-      if (arrayIndex >= m_array.size())
-      {
-        throw std::invalid_argument("SetDataFast arrayIndex out of range");
-      }
-      const auto& arrayEntry = m_array[arrayIndex];
-
-      if (pElements == nullptr)
-      {
-        throw std::invalid_argument("pElements can not be null");
-      }
-      if ((dstIndex + (m_elementStride * elementCount)) > (m_elementStride * arrayEntry.Capacity))
-      {
-        throw IndexOutOfRangeException();
-      }
-      if (!arrayEntry.IsValid())
-      {
-        throw UsageErrorException();
-      }
-
-      glBufferSubData(m_target, dstIndex * m_elementStride, elementCount * m_elementStride, pElements);
-    }
-
-
-    void GLBufferArray::Reset(const std::size_t arrayIndex, const GLenum target, const void* const pEntries, const std::size_t elementCount,
-                              const uint32_t elementStride, const GLenum usage)
-    {
-      if (arrayIndex >= m_array.size())
-      {
-        throw std::invalid_argument("Reset arrayIndex out of range");
-      }
-      if (target != m_target)
-      {
-        throw std::invalid_argument("the target did not match the arrays expected target");
-      }
-      if (elementStride != m_elementStride)
-      {
-        throw std::invalid_argument("the elementStride did not match the arrays expected stride");
-      }
-
-      auto& rArrayEntry = m_array[arrayIndex];
-
-      if (elementStride < 1)
-      {
-        throw std::invalid_argument("invalid argument");
-      }
-
-      // If we don't have a handle -> allocate one
-      if (rArrayEntry.Handle == GLValues::INVALID_HANDLE)
-      {
-        GL_CHECK(glGenBuffers(1, &rArrayEntry.Handle));
-      }
-
-      const auto cbEntry = elementCount * elementStride;
-
-      GL_CHECK(glBindBuffer(target, rArrayEntry.Handle));
-      GL_CHECK(glBufferData(target, cbEntry, pEntries, usage));
-      GL_CHECK(glBindBuffer(target, 0));
-
-      rArrayEntry.Capacity = static_cast<uint32_t>(elementCount);
-      rArrayEntry.Usage = usage;
-    }
-
-
-    void GLBufferArray::DoResize(const std::size_t capacity, const GLenum target, const uint32_t elementStride)
-    {
-      assert(target != 0);
-
-      if (capacity != m_array.size())
-      {
-        if (m_array.size() < capacity)
-        {
-          // Free the entries we are removing
-          for (std::size_t i = capacity; i < m_array.size(); ++i)
+          if (m_array[i].Handle != GLValues::INVALID_HANDLE)
           {
-            if (m_array[i].Handle != GLValues::INVALID_HANDLE)
-            {
-              glDeleteBuffers(1, &m_array[i].Handle);
-              m_array[i].Handle = GLValues::INVALID_HANDLE;
-              m_array[i].Capacity = 0;
-              m_array[i].Usage = 0;
-            }
+            glDeleteBuffers(1, &m_array[i].Handle);
+            m_array[i].Handle = GLValues::INVALID_HANDLE;
+            m_array[i].Capacity = 0;
+            m_array[i].Usage = 0;
           }
         }
-        m_array.resize(capacity);
       }
-      m_target = target;
-      m_elementStride = elementStride;
+      m_array.resize(capacity);
     }
+    m_target = target;
+    m_elementStride = elementStride;
   }
 }

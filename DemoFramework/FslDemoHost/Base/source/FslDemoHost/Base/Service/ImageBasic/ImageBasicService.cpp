@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
-#include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
-#include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/IO/File.hpp>
-#include <FslGraphics/Exceptions.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
+#include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
+#include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/ContainerTypeConvert.hpp>
-#include <FslGraphics/ImageFormatUtil.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/IO/BMPUtil.hpp>
+#include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
@@ -87,9 +87,8 @@ namespace Fsl
     serviceProvider.Get<IImageLibraryService>(m_imageLibraryServices);
 
     // Sort the library services by name to ensure that we have a consistent order
-    auto funcByNameComp = [](const std::shared_ptr<IImageLibraryService>& lhs, const std::shared_ptr<IImageLibraryService>& rhs) {
-      return lhs->GetName() > rhs->GetName();
-    };
+    auto funcByNameComp = [](const std::shared_ptr<IImageLibraryService>& lhs, const std::shared_ptr<IImageLibraryService>& rhs)
+    { return lhs->GetName() > rhs->GetName(); };
     std::sort(m_imageLibraryServices.begin(), m_imageLibraryServices.end(), funcByNameComp);
 
     // Query all libs for their supported extensions (note its optional for them to provide this list)

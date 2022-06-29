@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ namespace Fsl
       queryPoolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
       queryPoolInfo.queryCount = LocalConfig::QueryCount;
 
-      return RapidVulkan::QueryPool(device, queryPoolInfo);
+      return {device, queryPoolInfo};
     }
   }
 
@@ -166,17 +166,17 @@ namespace Fsl
         FSLLOG3_WARNING("Begin was set, but end was not");
         break;
       case TimestampState::BothSet:
-      {
-        // To make this simple we just do a wait for idle
-        RAPIDVULKAN_CHECK(vkDeviceWaitIdle(m_device));
-        std::array<uint64_t, LocalConfig::QueryCount> resultBuffer{};
-        RAPIDVULKAN_CHECK(vkGetQueryPoolResults(m_device, m_queryPool.Get(), 0, LocalConfig::QueryCount, sizeof(uint64_t) * resultBuffer.size(),
-                                                resultBuffer.data(), sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
-        // timestampPeriod is the number of nanoseconds required for a timestamp query to be incremented by 1.
-        m_resources.LastResult =
-          static_cast<uint64_t>(std::round((static_cast<double>(resultBuffer[1] - resultBuffer[0]) * m_timestampPeriod) / 1000.0));
-        break;
-      }
+        {
+          // To make this simple we just do a wait for idle
+          RAPIDVULKAN_CHECK(vkDeviceWaitIdle(m_device));
+          std::array<uint64_t, LocalConfig::QueryCount> resultBuffer{};
+          RAPIDVULKAN_CHECK(vkGetQueryPoolResults(m_device, m_queryPool.Get(), 0, LocalConfig::QueryCount, sizeof(uint64_t) * resultBuffer.size(),
+                                                  resultBuffer.data(), sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
+          // timestampPeriod is the number of nanoseconds required for a timestamp query to be incremented by 1.
+          m_resources.LastResult =
+            static_cast<uint64_t>(std::round((static_cast<double>(resultBuffer[1] - resultBuffer[0]) * m_timestampPeriod) / 1000.0));
+          break;
+        }
       default:
         FSLLOG3_WARNING("Unsupported state");
         break;

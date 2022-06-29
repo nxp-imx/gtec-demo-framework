@@ -34,21 +34,15 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan::ScreenshotUtil
 {
-  namespace Vulkan
-  {
-    namespace ScreenshotUtil
-    {
-      constexpr uint64_t DEFAULT_SCREENSHOT_TIMEOUT = 1000000000ull * 10;
+  constexpr uint64_t DEFAULT_SCREENSHOT_TIMEOUT = 1000000000ull * 10;
 
-      // Returns a invalid screenshot if the capture fails
-      Bitmap TryCaptureScreenshot(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkQueue queue, const uint32_t queueFamilyIndex,
-                                  const VkImage srcImage, const VkFormat srcImageFormat, const VkImageUsageFlags srcImageUsageFormats,
-                                  const VkExtent2D& srcImageExtent, const uint64_t timeout = DEFAULT_SCREENSHOT_TIMEOUT);
+  // Returns a invalid screenshot if the capture fails
+  Bitmap TryCaptureScreenshot(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkQueue queue, const uint32_t queueFamilyIndex,
+                              const VkImage srcImage, const VkFormat srcImageFormat, const VkImageUsageFlags srcImageUsageFormats,
+                              const VkExtent2D& srcImageExtent, const uint64_t timeout = DEFAULT_SCREENSHOT_TIMEOUT);
 
-    }
-  }
 }
 
 #endif

@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/OpenGLES3/VertexElementAttribLinks.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <FslDemoService/NativeGraphics/OpenGLES3/VertexElementAttribLinks.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
-#include <FslGraphics/Vertices/VertexElementEx.hpp>
+#include <FslGraphics/Vertices/VertexElement.hpp>
 #include <FslUtil/OpenGLES3/Log/LogGLVertexElementAttribConfig.hpp>
 #include <array>
 
@@ -76,10 +76,10 @@ TEST(Test_VertexElementAttribLinks, Construct_FromEmptySpan)
 
 TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_InOrder)
 {
-  std::array<VertexElementEx, 3> vertexElements = {
-    VertexElementEx(0 * 4, VertexElementFormat::Single, VertexElementUsage::PointSize, 1),
-    VertexElementEx(1 * 4, VertexElementFormat::Single, VertexElementUsage::TextureCoordinate, 2),
-    VertexElementEx((1 + 2) * 4, VertexElementFormat::Single, VertexElementUsage::Position, 3),
+  std::array<VertexElement, 3> vertexElements = {
+    VertexElement(0 * 4, VertexElementFormat::Single, VertexElementUsage::PointSize, 1),
+    VertexElement(1 * 4, VertexElementFormat::Single, VertexElementUsage::TextureCoordinate, 2),
+    VertexElement((1 + 2) * 4, VertexElementFormat::Single, VertexElementUsage::Position, 3),
   };
   const uint32_t vertexStride = (1 + 2 + 3) * 4;
 
@@ -107,10 +107,10 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_InOrder)
 
 TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_OutOfOrder)
 {
-  std::array<VertexElementEx, 3> vertexElements = {
-    VertexElementEx(0 * 4, VertexElementFormat::Single, VertexElementUsage::PointSize, 1),
-    VertexElementEx(1 * 4, VertexElementFormat::Single, VertexElementUsage::TextureCoordinate, 2),
-    VertexElementEx((1 + 2) * 4, VertexElementFormat::Single, VertexElementUsage::Position, 3),
+  std::array<VertexElement, 3> vertexElements = {
+    VertexElement(0 * 4, VertexElementFormat::Single, VertexElementUsage::PointSize, 1),
+    VertexElement(1 * 4, VertexElementFormat::Single, VertexElementUsage::TextureCoordinate, 2),
+    VertexElement((1 + 2) * 4, VertexElementFormat::Single, VertexElementUsage::Position, 3),
   };
   const uint32_t vertexStride = (1 + 2 + 3) * 4;
 

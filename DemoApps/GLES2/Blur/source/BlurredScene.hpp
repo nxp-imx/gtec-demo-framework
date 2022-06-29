@@ -36,18 +36,18 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeBatch2D.hpp>
-#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
-#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
-#include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
+#include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <deque>
 #include <memory>
-#include "AScene.hpp"
 #include "ABlurredDraw.hpp"
+#include "AScene.hpp"
 #include "Config.hpp"
 
 namespace Fsl

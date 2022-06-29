@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Vertices/VertexElementFormat.hpp>

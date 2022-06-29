@@ -83,6 +83,9 @@ namespace Fsl
     void OnKeyEvent(const KeyEvent& event);
 
     // From ITestApp
+    Color GetRootColor() const final;
+    bool TrySetRootColor(const Color color) final;
+
     const UI::IRenderSystemBase& GetRenderSystem() const final;
     UI::IRenderSystemBase* TryGetRenderSystem() final;
     std::shared_ptr<CustomUIDemoAppExtension> GetCustomUIDemoAppExtension() const final

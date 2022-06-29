@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_NATIVEMATERIALATTRIBHANDLE_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_NATIVEMATERIALATTRIBHANDLE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,42 +33,39 @@
 
 #include <FslBase/Collections/HandleVectorConfig.hpp>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  struct NativeMaterialAttribHandle
   {
-    struct NativeMaterialAttribHandle
+    int32_t Value{HandleVectorConfig::InvalidHandle};
+
+    NativeMaterialAttribHandle() noexcept = default;
+
+    constexpr explicit NativeMaterialAttribHandle(const int32_t value) noexcept
+      : Value(value)
     {
-      int32_t Value{HandleVectorConfig::InvalidHandle};
+    }
 
-      NativeMaterialAttribHandle() noexcept = default;
+    constexpr bool operator==(const NativeMaterialAttribHandle& rhs) const noexcept
+    {
+      return Value == rhs.Value;
+    }
 
-      constexpr explicit NativeMaterialAttribHandle(const int32_t value) noexcept
-        : Value(value)
-      {
-      }
+    constexpr bool operator!=(const NativeMaterialAttribHandle& rhs) const noexcept
+    {
+      return Value != rhs.Value;
+    }
 
-      constexpr bool operator==(const NativeMaterialAttribHandle& rhs) const noexcept
-      {
-        return Value == rhs.Value;
-      }
+    constexpr bool IsValid() const noexcept
+    {
+      return Value != HandleVectorConfig::InvalidHandle;
+    }
 
-      constexpr bool operator!=(const NativeMaterialAttribHandle& rhs) const noexcept
-      {
-        return Value != rhs.Value;
-      }
-
-      constexpr bool IsValid() const noexcept
-      {
-        return Value != HandleVectorConfig::InvalidHandle;
-      }
-
-      static constexpr NativeMaterialAttribHandle Invalid()
-      {
-        return {};
-      }
-    };
-  }
+    static constexpr NativeMaterialAttribHandle Invalid()
+    {
+      return {};
+    }
+  };
 }
 
 #endif

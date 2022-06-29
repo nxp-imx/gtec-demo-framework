@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
-#include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxThicknessU.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 #include <limits>

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_APP_RESOURCE_UIAPPMATERIALINFO_HPP
 #define FSLSIMPLEUI_APP_RESOURCE_UIAPPMATERIALINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,26 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
+#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 
-namespace Fsl
+namespace Fsl::SimpleUIApp
 {
-  namespace SimpleUIApp
+  struct UIAppMaterialInfo
   {
-    struct UIAppMaterialInfo
-    {
-      UIAppTextureHandle TextureHandle;
-      SpriteMaterialInfo MaterialInfo;
+    UIAppTextureHandle TextureHandle;
+    SpriteMaterialInfo MaterialInfo;
 
-      UIAppMaterialInfo() = default;
-      UIAppMaterialInfo(const UIAppTextureHandle textureHandle, const SpriteMaterialInfo& materialInfo)
-        : TextureHandle(textureHandle)
-        , MaterialInfo(materialInfo)
-      {
-      }
-    };
-  }
+    UIAppMaterialInfo() = default;
+    UIAppMaterialInfo(const UIAppTextureHandle textureHandle, const SpriteMaterialInfo& materialInfo)
+      : TextureHandle(textureHandle)
+      , MaterialInfo(materialInfo)
+    {
+    }
+  };
 }
 
 #endif

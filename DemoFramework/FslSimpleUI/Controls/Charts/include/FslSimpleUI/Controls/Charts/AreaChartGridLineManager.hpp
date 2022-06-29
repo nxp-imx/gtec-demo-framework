@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_CONTROLS_CHARTS_AREACHARTGRIDLINEMANAGER_HPP
 #define FSLSIMPLEUI_CONTROLS_CHARTS_AREACHARTGRIDLINEMANAGER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,11 @@
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslBase/Span/Span.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslSimpleUI/Controls/Charts/Data/ChartDataInfo.hpp>
-#include <FslSimpleUI/Controls/Charts/Data/ChartGridLineInfo.hpp>
+#include <FslSimpleUI/Controls/Charts/Grid/ChartGridConfig.hpp>
+#include <FslSimpleUI/Controls/Charts/Grid/ChartGridLineInfo.hpp>
 #include <FslSimpleUI/Controls/Charts/Render/RenderAreaChartConfig.hpp>
 #include <string>
 #include <vector>
@@ -52,7 +53,8 @@ namespace Fsl
 
   namespace UI
   {
-    class IChartComplexDataWindow;
+    class IChartGridLines;
+    class ChartDataView;
 
     namespace Render
     {
@@ -67,20 +69,19 @@ namespace Fsl
         TransitionValue m_animatedViewMax;
         MinMax<uint32_t> m_actualMinMax;
 
-        ViewRecord(TransitionCache& rTransitionCache, const int64_t transitionMilliseconds);
+        ViewRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTime);
         bool SetViewMinMax(const MinMax<uint32_t> minMax);
         uint32_t ViewMin() const;
         uint32_t ViewMax() const;
         MinMax<uint32_t> ViewMinMax() const;
 
-        bool Update(const TransitionTimeSpan& timespan);
+        bool Update(const TimeSpan& timespan);
         bool IsAnimating() const;
         // void FinishAnimation();
       };
 
       struct ChartDataRecord
       {
-        ChartGridInfo Info;
         ReadOnlySpan<ChartGridLineInfo> Span;
       };
 
@@ -93,7 +94,7 @@ namespace Fsl
         std::string Label;
 
         GridLineRecord() = default;
-        GridLineRecord(TransitionCache& rTransitionCache, const int64_t transitionMilliseconds);
+        GridLineRecord(TransitionCache& rTransitionCache, const TimeSpan transitionTime);
 
         void SetAlpha(const uint8_t alpha);
         uint8_t GetAlpha() const;
@@ -105,7 +106,7 @@ namespace Fsl
           m_actualAlpha = 0;
           RawDataPosition = 0;
         }
-        bool Update(const TransitionTimeSpan& timespan);
+        bool Update(const TimeSpan& timespan);
         bool IsAnimating() const;
       };
 
@@ -113,25 +114,29 @@ namespace Fsl
       int32_t m_chartEntryWidthPx;
       int32_t m_chartLabelSpacingPx;
 
-      std::vector<GridLineRecord> m_gridLines;
-      uint32_t m_gridLineCount{0};
+      std::vector<GridLineRecord> m_gridLineRecords;
+      uint32_t m_gridLineRecordCount{0};
 
       ViewRecord m_viewRecord;
       bool m_isAnimating{true};
 
-      std::shared_ptr<IChartComplexDataWindow> m_data;
+      std::shared_ptr<IChartGridLines> m_gridLines;
+      std::shared_ptr<ChartDataView> m_dataView;
 
     public:
-      AreaChartGridLineManager(TransitionCache& rTransitionCache, const int64_t transitionMilliseconds, const int64_t transitionMillisecondsLabels,
+      AreaChartGridLineManager(TransitionCache& rTransitionCache, const TimeSpan transitionTime, const TimeSpan transitionTimespanLabels,
                                const int32_t chartEntryWidthPx, const int32_t chartLabelSpacingPx);
 
 
-      const std::shared_ptr<IChartComplexDataWindow>& GetData() const
+      const std::shared_ptr<ChartDataView>& GetDataView() const
       {
-        return m_data;
+        return m_dataView;
       }
 
-      bool SetData(const std::shared_ptr<IChartComplexDataWindow>& data);
+      void Reset();
+
+      bool SetGridLines(const std::shared_ptr<IChartGridLines>& gridLines);
+      bool SetDataView(const std::shared_ptr<ChartDataView>& data);
 
       int32_t GetChartEntryWidth() const
       {
@@ -148,21 +153,21 @@ namespace Fsl
       void SetChartLabelSpacing(const int32_t chartLabelSpacingPx);
 
       void ExtractDrawData(Render::ChartDataWindowDrawData& rDst, const PxSize2D renderSizePx, const NineSliceSprite* const pBackgroundSprite,
-                           const SpriteFont* const pFont);
+                           const SpriteFont* const pFont, const bool matchDataViewEntries);
 
-      void Update(const TransitionTimeSpan& timespan);
+      void Update(const TimeSpan& timespan);
       bool IsAnimating() const;
 
     private:
-      static void SelectGridLines(std::vector<GridLineRecord>& rGridLines, uint32_t& rGridLineCount, const IChartComplexDataWindow* const pData,
+      static void SelectGridLines(std::vector<GridLineRecord>& rGridLines, uint32_t& rGridLineCount, const IChartGridLines* const pGridLines,
                                   const ViewRecord& viewRecord);
 
       static void DetermineVisibility(Render::ChartDataWindowDrawData& rDst, Span<GridLineRecord> gridLines, const ViewRecord& viewRecord,
                                       const PxSize2D renderSizePx, const NineSliceSprite* const pBackgroundSprite, const SpriteFont* const pFont,
-                                      const int32_t chartEntryWidthPx, const uint32_t chartLabelSpacingPx);
+                                      const int32_t chartEntryWidthPx, const int32_t chartLabelSpacingPx);
 
 
-      static ChartDataRecord ExtractChartData(const IChartComplexDataWindow* const pData, const MinMax<uint32_t> minMax);
+      static ChartDataRecord ExtractChartData(const IChartGridLines* const pGridLines, const MinMax<uint32_t> minMax);
       static uint32_t InsertAt(std::vector<GridLineRecord>& rGridLines, uint32_t& rGridLineCount, const uint32_t insertAtIndex,
                                const ChartGridLineInfo& srcInfo);
       static uint32_t RemoveAt(std::vector<GridLineRecord>& rGridLines, uint32_t& rGridLineCount, const uint32_t removeAtIndex);

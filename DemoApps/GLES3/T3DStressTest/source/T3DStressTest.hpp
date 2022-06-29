@@ -41,8 +41,8 @@
 #include "MeshRenderBasic.hpp"
 #include "MeshRenderNormals.hpp"
 #include "MeshRenderVB.hpp"
-#include "Shader/FurShaderMultiPass.hpp"
 #include "Shader/FurShaderInstanced.hpp"
+#include "Shader/FurShaderMultiPass.hpp"
 #include "Shader/WhiteShader.hpp"
 
 namespace Fsl

@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_SURFACEFORMATINFO_HPP
 #define FSLUTIL_VULKAN1_0_SURFACEFORMATINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,32 +34,29 @@
 #include <vulkan/vulkan.h>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct SurfaceFormatInfo
   {
-    struct SurfaceFormatInfo
+    VkFormat Format;
+    VkColorSpaceKHR ColorSpace;
+
+    constexpr SurfaceFormatInfo()
+      : SurfaceFormatInfo(VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
     {
-      VkFormat Format;
-      VkColorSpaceKHR ColorSpace;
+    }
 
-      constexpr SurfaceFormatInfo()
-        : SurfaceFormatInfo(VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-      {
-      }
+    explicit constexpr SurfaceFormatInfo(const VkFormat format)
+      : SurfaceFormatInfo(format, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+    {
+    }
 
-      explicit constexpr SurfaceFormatInfo(const VkFormat format)
-        : SurfaceFormatInfo(format, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-      {
-      }
-
-      constexpr SurfaceFormatInfo(const VkFormat format, const VkColorSpaceKHR colorSpace)
-        : Format(format)
-        , ColorSpace(colorSpace)
-      {
-      }
-    };
-  }
+    constexpr SurfaceFormatInfo(const VkFormat format, const VkColorSpaceKHR colorSpace)
+      : Format(format)
+      , ColorSpace(colorSpace)
+    {
+    }
+  };
 }
 
 #endif

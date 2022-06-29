@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslBase/Transition/TransitionTimeSpan.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
+#include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/TestUITree_ActiveLayout.hpp>
 
 using namespace Fsl;
@@ -56,7 +56,7 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   auto tree = m_tree;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  auto onUpdate = [newWindow, mainWindow, tree](const TransitionTimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow); };
+  auto onUpdate = [newWindow, mainWindow, tree](const TimeSpan& /*timeSpan*/) { tree->AddChild(mainWindow, newWindow); };
 
   m_mainWindow->Callbacks.HookWinUpdate = onUpdate;
 
@@ -64,7 +64,7 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   CheckZero(callCount, WindowMethod::All);
 
   // Update the tree which adds the new window during the update call using the above callback
-  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  const TimeSpan timeSpan(0);
   m_tree->Update(timeSpan);
 
   // Since the child was added directly on the window manager this returns zero
@@ -100,7 +100,7 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   auto mainWindow = m_mainWindow;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  m_mainWindow->Callbacks.HookWinUpdate = [newWindow, mainWindow](const TransitionTimeSpan& /*timeSpan*/) { mainWindow->AddChild(newWindow); };
+  m_mainWindow->Callbacks.HookWinUpdate = [newWindow, mainWindow](const TimeSpan& /*timeSpan*/) { mainWindow->AddChild(newWindow); };
 
   auto callCount = newWindow->GetCallCount();
   CheckZero(callCount, WindowMethod::All);
@@ -108,7 +108,7 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   ASSERT_EQ(1u, m_tree->GetNodeCount());
 
   // Update the tree which adds the new window during the update call using the above callback
-  const TransitionTimeSpan timeSpan(0, TransitionTimeUnit::Microseconds);
+  const TimeSpan timeSpan(0);
   m_tree->Update(timeSpan);
 
   ASSERT_EQ(1u, m_mainWindow->GetChildCount());

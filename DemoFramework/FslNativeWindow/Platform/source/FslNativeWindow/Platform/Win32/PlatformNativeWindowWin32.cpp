@@ -1,4 +1,4 @@
-#if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
+#if defined(_WIN32) && (defined(FSL_PLATFORM_WINDOWS) && !defined(FSL_PLATFORM_EMSCRIPTEN))
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -30,28 +30,28 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/Win32/PlatformNativeWindowSystemWin32.hpp>
-#include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtRectangle.hpp>
+#include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/System/Platform/PlatformWin32.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslNativeWindow/Base/VirtualGamepadState.hpp>
-#include <FslBase/Math/Rectangle.hpp>
-#include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/FmtRectangle.hpp>
-#include <FslBase/System/Platform/PlatformWin32.hpp>
-#include <array>
+#include <FslNativeWindow/Platform/Win32/PlatformNativeWindowSystemWin32.hpp>
+#include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
+#include <Winuser.h>
+#include <Xinput.h>
+#include <windowsx.h>
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <deque>
 #include <iostream>
 #include <memory>
 #include <utility>
-#include <Xinput.h>
-#include <windowsx.h>
-#include <Winuser.h>
 #include "DPIHelperWin32.hpp"
 
 #if 0
@@ -320,16 +320,15 @@ namespace Fsl
 
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
     bool m_forceActivated;
-    bool m_activated;
-    uint32_t m_mouseButtonState;
+    bool m_activated{false};
+    uint32_t m_mouseButtonState{0};
     std::deque<WindowRecord> m_activeWindows;
 
   public:
     explicit PlatformNativeWindowSystemWin32State(std::weak_ptr<INativeWindowEventQueue> eventQueue)
       : m_eventQueue(std::move(eventQueue))
       , m_forceActivated(USE_FORCE_ACTIVATED)
-      , m_activated(false)
-      , m_mouseButtonState(0)
+
     {
     }
 
@@ -365,7 +364,8 @@ namespace Fsl
 
     std::shared_ptr<PlatformNativeWindowWin32> TryGetWindow(HWND hWnd) const
     {
-      auto compareFunc = [hWnd](const WindowRecord& val) {
+      auto compareFunc = [hWnd](const WindowRecord& val)
+      {
         auto window = val.Window.lock();
         return (window && window->GetPlatformWindow() == hWnd);
       };
@@ -866,26 +866,26 @@ namespace Fsl
     switch (nativeWindowConfig.GetWindowMode())
     {
     case WindowMode::Fullscreen:
-    {
-      const int32_t displayIdRequest = nativeWindowSetup.GetConfig().GetDisplayId();
-      if (displayIdRequest == 0)
       {
-        const int width = GetSystemMetrics(SM_CXSCREEN);
-        const int height = GetSystemMetrics(SM_CYSCREEN);
-        targetRectangle = Rectangle(0, 0, width, height);
-      }
-      else
-      {
-        const MonitorRecord record = GetMonitorRecord(displayIdRequest);
-        targetRectangle = record.Rect;
-      }
+        const int32_t displayIdRequest = nativeWindowSetup.GetConfig().GetDisplayId();
+        if (displayIdRequest == 0)
+        {
+          const int width = GetSystemMetrics(SM_CXSCREEN);
+          const int height = GetSystemMetrics(SM_CYSCREEN);
+          targetRectangle = Rectangle(0, 0, width, height);
+        }
+        else
+        {
+          const MonitorRecord record = GetMonitorRecord(displayIdRequest);
+          targetRectangle = record.Rect;
+        }
 
-      dwStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
-      bFullscreen = true;
+        dwStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
+        bFullscreen = true;
 
-      FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: {}", targetRectangle);
-    }
-    break;
+        FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: {}", targetRectangle);
+      }
+      break;
     case WindowMode::Window:
       FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating window: {}", targetRectangle);
       break;

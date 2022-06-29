@@ -33,14 +33,14 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/Platform/Linux/ScopedSystemMemoryAccessLinux.hpp>
-#include <cstring>
-#include <cerrno>
 #include <fcntl.h>
-#include <cstdio>
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 
 
 namespace Fsl

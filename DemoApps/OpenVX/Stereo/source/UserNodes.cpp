@@ -30,10 +30,10 @@
  ****************************************************************************************************************************************************/
 
 // OpenVX 1.1 project
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <RapidOpenVX/Check.hpp>
 #include "UserNodes.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <RapidOpenVX/Check.hpp>
 
 #define VX_KERNEL_NAME_CENSUS "com.nxp.extension.CensusTransform"
 #define VX_KERNEL_ENUM_CENSUS 100

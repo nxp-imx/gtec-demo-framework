@@ -35,42 +35,39 @@
 #include <memory>
 #include "WindowEventQueueRecord.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class TreeNode;
+  class WindowEvent;
+
+  // This only servers as a little container's class that holds the current active event queue instance
+  class WindowEventQueue
   {
-    class TreeNode;
-    class WindowEvent;
+  public:
+    using queue_type = std::deque<WindowEventQueueRecord>;
 
-    // This only servers as a little container's class that holds the current active event queue instance
-    class WindowEventQueue
+  protected:
+    std::unique_ptr<queue_type> m_queue;
+
+  public:
+    WindowEventQueue(const WindowEventQueue&) = delete;
+    WindowEventQueue& operator=(const WindowEventQueue&) = delete;
+
+    WindowEventQueue();
+    virtual ~WindowEventQueue();
+
+    //! @brief Check if the queue is empty.
+    inline bool IsEmpty() const
     {
-    public:
-      using queue_type = std::deque<WindowEventQueueRecord>;
+      return m_queue->empty();
+    }
 
-    protected:
-      std::unique_ptr<queue_type> m_queue;
+    void Push(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source);
+    // bool TryPush(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source);
 
-    public:
-      WindowEventQueue(const WindowEventQueue&) = delete;
-      WindowEventQueue& operator=(const WindowEventQueue&) = delete;
-
-      WindowEventQueue();
-      virtual ~WindowEventQueue();
-
-      //! @brief Check if the queue is empty.
-      inline bool IsEmpty() const
-      {
-        return m_queue->empty();
-      }
-
-      void Push(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source);
-      // bool TryPush(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source);
-
-      //! @brief Swap the used queue with the provided empty queue, return the previously used queue
-      void Swap(std::unique_ptr<queue_type>& rEmptyQueue);
-    };
-  }
+    //! @brief Swap the used queue with the provided empty queue, return the previously used queue
+    void Swap(std::unique_ptr<queue_type>& rEmptyQueue);
+  };
 }
 
 #endif

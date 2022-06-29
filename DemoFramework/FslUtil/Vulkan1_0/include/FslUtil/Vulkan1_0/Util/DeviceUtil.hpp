@@ -35,15 +35,9 @@
 #include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Vulkan::DeviceUtil
 {
-  namespace Vulkan
-  {
-    namespace DeviceUtil
-    {
-      VUDeviceQueueRecord GetDeviceQueue(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex);
-    }
-  }
+  VUDeviceQueueRecord GetDeviceQueue(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex);
 }
 
 #endif

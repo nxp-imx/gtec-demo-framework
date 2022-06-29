@@ -34,12 +34,9 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 
-namespace Fsl
+namespace Fsl::StringToValue
 {
-  namespace StringToValue
-  {
-    extern bool TryParse(uint64_t& rResult, const StringViewLite& strView);
-  }
+  extern bool TryParse(uint64_t& rResult, const StringViewLite& strView);
 }
 
 #endif

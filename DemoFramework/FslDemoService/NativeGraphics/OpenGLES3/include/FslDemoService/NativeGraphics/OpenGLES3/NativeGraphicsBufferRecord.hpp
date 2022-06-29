@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_NATIVEGRAPHICSBUFFERRECORD_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_NATIVEGRAPHICSBUFFERRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,58 +37,55 @@
 #include <FslUtil/OpenGLES3/GLBuffer.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  class NativeGraphicsBufferRecord
   {
-    class NativeGraphicsBufferRecord
+    GLBuffer m_buffer;
+
+  public:
+    NativeGraphicsBufferRecord() noexcept = default;
+
+    explicit NativeGraphicsBufferRecord(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
+                                        const bool isDynamic)
+      : m_buffer(GetTarget(bufferType), bufferData, bufferElementCapacity, (isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW))
     {
-      GLBuffer m_buffer;
+    }
 
-    public:
-      NativeGraphicsBufferRecord() noexcept = default;
+    bool IsValid() const
+    {
+      return m_buffer.IsValid();
+    }
 
-      explicit NativeGraphicsBufferRecord(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
-                                          const bool isDynamic)
-        : m_buffer(GetTarget(bufferType), bufferData, bufferElementCapacity, (isDynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW))
+    const GLBuffer& GetBuffer() const
+    {
+      return m_buffer;
+    }
+
+    void SetBufferData(const uint32_t dstIndex, ReadOnlyFlexSpan bufferData)
+    {
+      if (bufferData.stride() != m_buffer.GetElementStride())
       {
+        throw std::invalid_argument("Supplied buffer is not compatible");
       }
+      assert(m_buffer.GetUsage() == GL_DYNAMIC_DRAW);
+      m_buffer.SetDataEx(dstIndex, bufferData);
+    }
 
-      bool IsValid() const
+  private:
+    static GLenum GetTarget(const BasicBufferType bufferType)
+    {
+      switch (bufferType)
       {
-        return m_buffer.IsValid();
+      case BasicBufferType::Index:
+        return GL_ELEMENT_ARRAY_BUFFER;
+      case BasicBufferType::Vertex:
+        return GL_ARRAY_BUFFER;
+      default:
+        throw NotSupportedException("Unsupported bufferType");
       }
-
-      const GLBuffer& GetBuffer() const
-      {
-        return m_buffer;
-      }
-
-      void SetBufferData(const uint32_t dstIndex, ReadOnlyFlexSpan bufferData)
-      {
-        if (bufferData.stride() != m_buffer.GetElementStride())
-        {
-          throw std::invalid_argument("Supplied buffer is not compatible");
-        }
-        assert(m_buffer.GetUsage() == GL_DYNAMIC_DRAW);
-        m_buffer.SetDataEx(dstIndex, bufferData);
-      }
-
-    private:
-      static GLenum GetTarget(const BasicBufferType bufferType)
-      {
-        switch (bufferType)
-        {
-        case BasicBufferType::Index:
-          return GL_ELEMENT_ARRAY_BUFFER;
-        case BasicBufferType::Vertex:
-          return GL_ARRAY_BUFFER;
-        default:
-          throw NotSupportedException("Unsupported bufferType");
-        }
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

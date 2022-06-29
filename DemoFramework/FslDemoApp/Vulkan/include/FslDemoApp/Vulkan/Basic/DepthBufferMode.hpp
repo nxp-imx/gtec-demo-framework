@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::VulkanBasic
 {
-  namespace VulkanBasic
+  enum class DepthBufferMode
   {
-    enum class DepthBufferMode
-    {
-      Disabled,
-      Enabled
-    };
-  }
+    Disabled,
+    Enabled
+  };
 }
 
 #endif

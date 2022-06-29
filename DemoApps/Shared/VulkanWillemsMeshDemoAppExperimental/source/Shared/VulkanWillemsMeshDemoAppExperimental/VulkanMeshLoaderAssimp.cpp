@@ -13,144 +13,139 @@
 // to port samples. It is not a straight port, but it has instead been converted to
 // follow the RAII principle used in this framework
 
-#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanMeshLoaderAssimp.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
-#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanMeshLoaderAssimp.hpp>
 #include <algorithm>
 #include <cstring>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  // using namespace Vulkan;
-
-  namespace Willems
+  namespace
   {
-    namespace
+    IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
     {
-      IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
+      assert(!trustedAbsPath.IsEmpty());
+
+      // Do a lot of extra validation
+      if (notTrustedRelativePath.IsEmpty())
       {
-        assert(!trustedAbsPath.IsEmpty());
-
-        // Do a lot of extra validation
-        if (notTrustedRelativePath.IsEmpty())
-        {
-          throw std::invalid_argument(std::string("path is invalid: ") + notTrustedRelativePath.ToAsciiString());
-        }
-        if (IO::Path::IsPathRooted(notTrustedRelativePath))
-        {
-          throw std::invalid_argument(std::string("not a relative path: ") + notTrustedRelativePath.ToAsciiString());
-        }
-        if (notTrustedRelativePath.Contains(".."))
-        {
-          throw std::invalid_argument(std::string("\"..\" not allowed in the relative path: ") + notTrustedRelativePath.ToAsciiString());
-        }
-
-        return IO::Path::Combine(trustedAbsPath, notTrustedRelativePath);
+        throw std::invalid_argument(std::string("path is invalid: ") + notTrustedRelativePath.ToAsciiString());
       }
+      if (IO::Path::IsPathRooted(notTrustedRelativePath))
+      {
+        throw std::invalid_argument(std::string("not a relative path: ") + notTrustedRelativePath.ToAsciiString());
+      }
+      if (notTrustedRelativePath.Contains(".."))
+      {
+        throw std::invalid_argument(std::string("\"..\" not allowed in the relative path: ") + notTrustedRelativePath.ToAsciiString());
+      }
+
+      return IO::Path::Combine(trustedAbsPath, notTrustedRelativePath);
+    }
+  }
+
+  VulkanMeshLoaderAssimp::VulkanMeshLoaderAssimp(const std::shared_ptr<IContentManager>& contentManager)
+    : VulkanMeshLoader(contentManager)
+  {
+    if (!contentManager)
+    {
+      throw std::invalid_argument("contentManager can not be null");
+    }
+  }
+
+
+  VulkanMeshLoaderAssimp::~VulkanMeshLoaderAssimp() = default;
+
+
+  void VulkanMeshLoaderAssimp::LoadMeshNow(const std::string& relativePath, std::vector<MeshEntry>& rEntries, Dimension& rDim)
+  {
+    LoadMeshNow(relativePath, DefaultFlags, rEntries, rDim);
+  }
+
+
+  void VulkanMeshLoaderAssimp::LoadMeshNow(const std::string& relativePath, const int flags, std::vector<MeshEntry>& rEntries, Dimension& rDim)
+  {
+    const IO::Path absPath(ToAbsolutePath(GetContentPath(), IO::Path(relativePath)));
+
+
+    const auto* pScene = Importer.ReadFile(absPath.ToAsciiString().c_str(), flags);
+    if (pScene == nullptr)
+    {
+      throw NotSupportedException(std::string("Could not read file: ") + absPath.ToAsciiString());
     }
 
-    VulkanMeshLoaderAssimp::VulkanMeshLoaderAssimp(const std::shared_ptr<IContentManager>& contentManager)
-      : VulkanMeshLoader(contentManager)
+    rEntries.clear();
+    rEntries.resize(pScene->mNumMeshes);
+    // Read in all meshes in the scene
+    uint32_t numVertices = 0;
+    for (std::size_t i = 0; i < rEntries.size(); ++i)
     {
-      if (!contentManager)
-      {
-        throw std::invalid_argument("contentManager can not be null");
-      }
+      rEntries[i].VertexBase = numVertices;
+      numVertices += pScene->mMeshes[i]->mNumVertices;
+      const aiMesh* paiMesh = pScene->mMeshes[i];
+      InitMesh(rEntries[i], paiMesh, pScene, rDim);
+    }
+  }
+
+
+  void VulkanMeshLoaderAssimp::InitMesh(MeshEntry& rMeshEntry, const aiMesh* const pAiMesh, const aiScene* const pScene, Dimension& rDim)
+  {
+    assert(pAiMesh != nullptr);
+    assert(pScene != nullptr);
+
+    rMeshEntry.MaterialIndex = pAiMesh->mMaterialIndex;
+
+    aiColor3D pColor(0.f, 0.f, 0.f);
+    pScene->mMaterials[pAiMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, pColor);
+
+    aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
+
+    rMeshEntry.Vertices.clear();
+    rMeshEntry.Vertices.resize(pAiMesh->mNumVertices);
+
+    for (unsigned int i = 0; i < pAiMesh->mNumVertices; i++)
+    {
+      aiVector3D* pPos = &(pAiMesh->mVertices[i]);
+      aiVector3D* pNormal = &(pAiMesh->mNormals[i]);
+      aiVector3D* pTexCoord = (pAiMesh->HasTextureCoords(0)) ? &(pAiMesh->mTextureCoords[0][i]) : &Zero3D;
+      aiVector3D* pTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mTangents[i]) : &Zero3D;
+      aiVector3D* pBiTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mBitangents[i]) : &Zero3D;
+
+      Vertex v(glm::vec3(pPos->x, -pPos->y, pPos->z), glm::vec2(pTexCoord->x, pTexCoord->y), glm::vec3(pNormal->x, pNormal->y, pNormal->z),
+               glm::vec3(pTangent->x, pTangent->y, pTangent->z), glm::vec3(pBiTangent->x, pBiTangent->y, pBiTangent->z),
+               glm::vec3(pColor.r, pColor.g, pColor.b));
+
+      rDim.max.x = std::max(pPos->x, rDim.max.x);
+      rDim.max.y = std::max(pPos->y, rDim.max.y);
+      rDim.max.z = std::max(pPos->z, rDim.max.z);
+
+      rDim.min.x = std::min(pPos->x, rDim.min.x);
+      rDim.min.y = std::min(pPos->y, rDim.min.y);
+      rDim.min.z = std::min(pPos->z, rDim.min.z);
+
+      rMeshEntry.Vertices[i] = v;
     }
 
+    rDim.size = rDim.max - rDim.min;
 
-    VulkanMeshLoaderAssimp::~VulkanMeshLoaderAssimp() = default;
-
-
-    void VulkanMeshLoaderAssimp::LoadMeshNow(const std::string& relativePath, std::vector<MeshEntry>& rEntries, Dimension& rDim)
+    auto indexBase = UncheckedNumericCast<uint32_t>(rMeshEntry.Indices.size());
+    for (unsigned int i = 0; i < pAiMesh->mNumFaces; i++)
     {
-      LoadMeshNow(relativePath, DefaultFlags, rEntries, rDim);
-    }
-
-
-    void VulkanMeshLoaderAssimp::LoadMeshNow(const std::string& relativePath, const int flags, std::vector<MeshEntry>& rEntries, Dimension& rDim)
-    {
-      const IO::Path absPath(ToAbsolutePath(GetContentPath(), IO::Path(relativePath)));
-
-
-      const auto* pScene = Importer.ReadFile(absPath.ToAsciiString().c_str(), flags);
-      if (pScene == nullptr)
+      const aiFace& Face = pAiMesh->mFaces[i];
+      if (Face.mNumIndices == 3)
       {
-        throw NotSupportedException(std::string("Could not read file: ") + absPath.ToAsciiString());
-      }
-
-      rEntries.clear();
-      rEntries.resize(pScene->mNumMeshes);
-      // Read in all meshes in the scene
-      uint32_t numVertices = 0;
-      for (std::size_t i = 0; i < rEntries.size(); ++i)
-      {
-        rEntries[i].VertexBase = numVertices;
-        numVertices += pScene->mMeshes[i]->mNumVertices;
-        const aiMesh* paiMesh = pScene->mMeshes[i];
-        InitMesh(rEntries[i], paiMesh, pScene, rDim);
-      }
-    }
-
-
-    void VulkanMeshLoaderAssimp::InitMesh(MeshEntry& rMeshEntry, const aiMesh* const pAiMesh, const aiScene* const pScene, Dimension& rDim)
-    {
-      assert(pAiMesh != nullptr);
-      assert(pScene != nullptr);
-
-      rMeshEntry.MaterialIndex = pAiMesh->mMaterialIndex;
-
-      aiColor3D pColor(0.f, 0.f, 0.f);
-      pScene->mMaterials[pAiMesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, pColor);
-
-      aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
-
-      rMeshEntry.Vertices.clear();
-      rMeshEntry.Vertices.resize(pAiMesh->mNumVertices);
-
-      for (unsigned int i = 0; i < pAiMesh->mNumVertices; i++)
-      {
-        aiVector3D* pPos = &(pAiMesh->mVertices[i]);
-        aiVector3D* pNormal = &(pAiMesh->mNormals[i]);
-        aiVector3D* pTexCoord = (pAiMesh->HasTextureCoords(0)) ? &(pAiMesh->mTextureCoords[0][i]) : &Zero3D;
-        aiVector3D* pTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mTangents[i]) : &Zero3D;
-        aiVector3D* pBiTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mBitangents[i]) : &Zero3D;
-
-        Vertex v(glm::vec3(pPos->x, -pPos->y, pPos->z), glm::vec2(pTexCoord->x, pTexCoord->y), glm::vec3(pNormal->x, pNormal->y, pNormal->z),
-                 glm::vec3(pTangent->x, pTangent->y, pTangent->z), glm::vec3(pBiTangent->x, pBiTangent->y, pBiTangent->z),
-                 glm::vec3(pColor.r, pColor.g, pColor.b));
-
-        rDim.max.x = std::max(pPos->x, rDim.max.x);
-        rDim.max.y = std::max(pPos->y, rDim.max.y);
-        rDim.max.z = std::max(pPos->z, rDim.max.z);
-
-        rDim.min.x = std::min(pPos->x, rDim.min.x);
-        rDim.min.y = std::min(pPos->y, rDim.min.y);
-        rDim.min.z = std::min(pPos->z, rDim.min.z);
-
-        rMeshEntry.Vertices[i] = v;
-      }
-
-      rDim.size = rDim.max - rDim.min;
-
-      auto indexBase = UncheckedNumericCast<uint32_t>(rMeshEntry.Indices.size());
-      for (unsigned int i = 0; i < pAiMesh->mNumFaces; i++)
-      {
-        const aiFace& Face = pAiMesh->mFaces[i];
-        if (Face.mNumIndices == 3)
-        {
-          rMeshEntry.Indices.push_back(indexBase + Face.mIndices[0]);
-          rMeshEntry.Indices.push_back(indexBase + Face.mIndices[1]);
-          rMeshEntry.Indices.push_back(indexBase + Face.mIndices[2]);
-        }
+        rMeshEntry.Indices.push_back(indexBase + Face.mIndices[0]);
+        rMeshEntry.Indices.push_back(indexBase + Face.mIndices[1]);
+        rMeshEntry.Indices.push_back(indexBase + Face.mIndices[2]);
       }
     }
   }

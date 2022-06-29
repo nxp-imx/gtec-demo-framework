@@ -31,22 +31,19 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
+#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 
-namespace Fsl
+namespace Fsl::Stub
 {
-  namespace Stub
+  class DynamicNativeTexture2D : public IDynamicNativeTexture2D
   {
-    class DynamicNativeTexture2D : public IDynamicNativeTexture2D
-    {
-    public:
-      DynamicNativeTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint);
-      ~DynamicNativeTexture2D() override;
+  public:
+    DynamicNativeTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint);
+    ~DynamicNativeTexture2D() override;
 
-      void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) override;
-    };
-  }
+    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) override;
+  };
 }
 
 #endif

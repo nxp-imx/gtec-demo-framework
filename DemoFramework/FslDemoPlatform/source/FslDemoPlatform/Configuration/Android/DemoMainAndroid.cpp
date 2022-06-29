@@ -30,23 +30,22 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <jni.h>
-#include <errno.h>
-#include <memory>
-
-#include <android/sensor.h>
-#include <android/log.h>
-#include <android_native_app_glue.h>
-#include <android/native_window_jni.h>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/ITag.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
-#include "NDKHelper.h"
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <Platform/Android/JNIUtil/JNIUtil.hpp>
+#include <android/log.h>
+#include <android/native_window_jni.h>
+#include <android/sensor.h>
+#include <android_native_app_glue.h>
+#include <errno.h>
+#include <jni.h>
+#include <memory>
+#include "NDKHelper.h"
 
 
 #define SYNC_CLASS_NAME "com/freescale/demoplatform/DemoHelper"

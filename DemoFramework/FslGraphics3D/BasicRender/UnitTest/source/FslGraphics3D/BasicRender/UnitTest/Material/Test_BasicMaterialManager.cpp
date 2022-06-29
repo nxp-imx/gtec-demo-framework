@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,15 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicRender/Material/BasicMaterialManager.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialCreateInfo.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslGraphics/UnitTest/Helper/Render/NativeTextureTestImpl.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
-#include <FslBase/Exceptions.hpp>
-#include "NativeMaterialTestFactory.hpp"
-#include "NativeTexture2DTest.hpp"
+#include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
+#include <FslGraphics3D/BasicRender/Material/BasicMaterialManager.hpp>
+#include <FslGraphics3D/BasicRender/Shader/BasicShaderManager.hpp>
 #include <memory>
+#include "NativeMaterialTestFactory.hpp"
+#include "NativeShaderTestFactory.hpp"
+#include "NativeTexture2DTest.hpp"
 
 using namespace Fsl;
 
@@ -56,12 +58,16 @@ namespace
   class Test_BasicMaterialManager : public TestFixtureFslGraphics
   {
   public:
+    std::shared_ptr<NativeShaderTestFactory> m_testShaderFactory;
     std::shared_ptr<NativeMaterialTestFactory> m_testFactory;
+    Graphics3D::BasicShaderManager m_basicShaderManager;
     Graphics3D::BasicMaterialManager m_manager;
 
     Test_BasicMaterialManager()
-      : m_testFactory(std::make_shared<NativeMaterialTestFactory>())
-      , m_manager(LocalConfig::MaxFramesInFlight, m_testFactory)
+      : m_testShaderFactory(std::make_shared<NativeShaderTestFactory>())
+      , m_testFactory(std::make_shared<NativeMaterialTestFactory>())
+      , m_basicShaderManager(m_testShaderFactory)
+      , m_manager(LocalConfig::MaxFramesInFlight, m_testFactory, m_basicShaderManager)
     {
     }
   };

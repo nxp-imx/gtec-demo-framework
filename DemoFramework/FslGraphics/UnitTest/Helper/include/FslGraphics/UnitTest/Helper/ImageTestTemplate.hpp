@@ -38,9 +38,9 @@
 #include <FslGraphics/PixelFormatLayout.hpp>
 #include <FslUnitTest/FormatDebugInfo.hpp>
 #include <FslUnitTest/TestCustomChecks.hpp>
-#include <gtest/gtest.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <gtest/gtest.h>
 
 namespace Fsl
 {

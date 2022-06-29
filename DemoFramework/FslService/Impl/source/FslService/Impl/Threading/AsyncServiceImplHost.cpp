@@ -35,9 +35,9 @@
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/Foundation/Message/FireAndForgetBasicMessage.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplCreateInfo.hpp>
+#include <algorithm>
 #include "AsynchronousServiceMessageHandlerRegistryImpl.hpp"
 #include "Launcher/AsynchronousServiceImplLaunchFactoryRecord.hpp"
-#include <algorithm>
 
 namespace Fsl
 {
@@ -46,9 +46,8 @@ namespace Fsl
   {
     std::deque<AsynchronousServiceImplLaunchFactoryRecord> sortedList(asyncServiceImplLaunchFactories);
     std::sort(sortedList.begin(), sortedList.end(),
-              [](const AsynchronousServiceImplLaunchFactoryRecord& lhs, const AsynchronousServiceImplLaunchFactoryRecord& rhs) {
-                return lhs.StartupPriority > rhs.StartupPriority;
-              });
+              [](const AsynchronousServiceImplLaunchFactoryRecord& lhs, const AsynchronousServiceImplLaunchFactoryRecord& rhs)
+              { return lhs.StartupPriority > rhs.StartupPriority; });
 
     ServiceProvider theServiceProvider(serviceProvider);
 

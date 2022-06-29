@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Setup/TemplateIDemoHostFactory.hpp>
-#include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHost.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostOptionParser.hpp>
+#include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
 
 namespace Fsl
 {
@@ -40,6 +40,6 @@ namespace Fsl
   {
     std::shared_ptr<IDemoHostFactory> demoHostFactory(new TemplateIDemoHostFactory<VulkanDemoHost>(DemoHostCaps::Flags::AppRenderedSystemOverlay));
     std::shared_ptr<ADemoHostOptionParser> optionParser(new VulkanDemoHostOptionParser());
-    return DemoHostSetup(demoHostFactory, optionParser);
+    return {demoHostFactory, optionParser};
   }
 }

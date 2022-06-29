@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,90 +29,87 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
-#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  void VMIndexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage)
   {
-    void VMIndexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlyFlexSpan indexSpan, const VMBufferUsage usage)
+    if (!bufferManager)
     {
-      if (!bufferManager)
-      {
-        throw std::invalid_argument("bufferManager can not be null");
-      }
-      if (indexSpan.size() > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("element counts larger than a uint32_t is not supported");
-      }
-      if (indexSpan.stride() != 2 && indexSpan.stride() != 4)
-      {
-        throw NotSupportedException("elementStride must be greater than zero");
-      }
+      throw std::invalid_argument("bufferManager can not be null");
+    }
+    if (indexSpan.size() > std::numeric_limits<uint32_t>::max())
+    {
+      throw NotSupportedException("element counts larger than a uint32_t is not supported");
+    }
+    if (indexSpan.stride() != 2 && indexSpan.stride() != 4)
+    {
+      throw NotSupportedException("elementStride must be greater than zero");
+    }
 
+    Reset();
+
+    try
+    {
+      m_indexBuffer = bufferManager->CreateBuffer(indexSpan, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, usage);
+      m_bufferManager = bufferManager;
+      m_indexCount = UncheckedNumericCast<uint32_t>(indexSpan.size());
+      m_elementStride = UncheckedNumericCast<uint32_t>(indexSpan.stride());
+      m_usage = usage;
+    }
+    catch (const std::exception&)
+    {
       Reset();
+      throw;
+    }
+  }
 
-      try
-      {
-        m_indexBuffer = bufferManager->CreateBuffer(indexSpan, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, usage);
-        m_bufferManager = bufferManager;
-        m_indexCount = UncheckedNumericCast<uint32_t>(indexSpan.size());
-        m_elementStride = UncheckedNumericCast<uint32_t>(indexSpan.stride());
-        m_usage = usage;
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+  void VMIndexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride)
+  {
+    if (!bufferManager)
+    {
+      throw std::invalid_argument("bufferManager can not be null");
+    }
+    if (elementCapacity > std::numeric_limits<uint32_t>::max())
+    {
+      throw NotSupportedException("element counts larger than a uint32_t is not supported");
     }
 
-    void VMIndexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride)
-    {
-      if (!bufferManager)
-      {
-        throw std::invalid_argument("bufferManager can not be null");
-      }
-      if (elementCapacity > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("element counts larger than a uint32_t is not supported");
-      }
+    Reset();
 
+    try
+    {
+      m_indexBuffer = bufferManager->CreateDynamicBuffer(elementCapacity, elementStride, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+      m_bufferManager = bufferManager;
+      m_indexCount = UncheckedNumericCast<uint32_t>(elementCapacity);
+      m_elementStride = elementStride;
+      m_usage = VMBufferUsage::DYNAMIC;
+    }
+    catch (const std::exception&)
+    {
       Reset();
-
-      try
-      {
-        m_indexBuffer = bufferManager->CreateDynamicBuffer(elementCapacity, elementStride, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-        m_bufferManager = bufferManager;
-        m_indexCount = UncheckedNumericCast<uint32_t>(elementCapacity);
-        m_elementStride = elementStride;
-        m_usage = VMBufferUsage::DYNAMIC;
-      }
-      catch (const std::exception&)
-      {
-        Reset();
-        throw;
-      }
+      throw;
     }
+  }
 
-    void VMIndexBuffer::SetData(ReadOnlyFlexSpan indexSpan)
+  void VMIndexBuffer::SetData(ReadOnlyFlexSpan indexSpan)
+  {
+    if (indexSpan.size() > m_indexCount)
     {
-      if (indexSpan.size() > m_indexCount)
-      {
-        throw std::invalid_argument("out of bounds");
-      }
-      if (indexSpan.stride() != m_elementStride)
-      {
-        throw std::invalid_argument("elementStride must match the VMIndexBuffer element stride");
-      }
-
-      m_indexBuffer.Upload(0u, indexSpan.data(), indexSpan.byte_size());
+      throw std::invalid_argument("out of bounds");
     }
+    if (indexSpan.stride() != m_elementStride)
+    {
+      throw std::invalid_argument("elementStride must match the VMIndexBuffer element stride");
+    }
+
+    m_indexBuffer.Upload(0u, indexSpan.data(), indexSpan.byte_size());
   }
 }

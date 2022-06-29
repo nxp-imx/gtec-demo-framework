@@ -36,16 +36,12 @@
 #include <array>
 #include <exception>
 
-namespace Fsl
+namespace Fsl::ReadOnlyFlexSpanUtil
 {
-  namespace ReadOnlyFlexSpanUtil
+  template <typename T, std::size_t TSize>
+  constexpr inline ReadOnlyFlexSpan AsSpan(const std::array<T, TSize>& value) noexcept
   {
-    // C++17 can make this constexpr
-    template <typename T, std::size_t TSize>
-    inline ReadOnlyFlexSpan AsSpan(const std::array<T, TSize>& value) noexcept
-    {
-      return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
-    }
+    return ReadOnlyFlexSpan(value.data(), value.size(), sizeof(T), OptimizationCheckFlag::NoCheck);
   }
 }
 

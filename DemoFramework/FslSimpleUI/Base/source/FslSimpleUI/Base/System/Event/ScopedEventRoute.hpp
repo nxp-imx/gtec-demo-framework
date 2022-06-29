@@ -37,51 +37,48 @@
 #include "EventRoute.hpp"
 #include "EventRoutePool.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IEventHandler;
+  struct WindowFlags;
+
+  struct ScopedEventRoute
   {
-    class IEventHandler;
-    struct WindowFlags;
+  private:
+    std::shared_ptr<EventRoutePool> m_pool;
+    std::shared_ptr<EventRoute> m_route;
 
-    struct ScopedEventRoute
+  public:
+    ScopedEventRoute(const ScopedEventRoute&) = delete;
+    ScopedEventRoute& operator=(const ScopedEventRoute&) = delete;
+
+    const std::shared_ptr<EventRoute>& Route()
     {
-    private:
-      std::shared_ptr<EventRoutePool> m_pool;
-      std::shared_ptr<EventRoute> m_route;
+      return m_route;
+    }
 
-    public:
-      ScopedEventRoute(const ScopedEventRoute&) = delete;
-      ScopedEventRoute& operator=(const ScopedEventRoute&) = delete;
+    ScopedEventRoute(const std::shared_ptr<EventRoutePool>& pool, const std::shared_ptr<IEventHandler>& eventHandler, const WindowFlags flags)
+    {
+      FSL_PARAM_NOT_USED(eventHandler);
 
-      const std::shared_ptr<EventRoute>& Route()
+      if (!pool)
       {
-        return m_route;
+        throw std::invalid_argument("pool can not be null");
       }
+      m_pool = pool;
+      m_route = pool->Allocate(flags);
+    }
 
-      ScopedEventRoute(const std::shared_ptr<EventRoutePool>& pool, const std::shared_ptr<IEventHandler>& eventHandler, const WindowFlags flags)
+    ~ScopedEventRoute()
+    {
+      if (m_pool)
       {
-        FSL_PARAM_NOT_USED(eventHandler);
-
-        if (!pool)
-        {
-          throw std::invalid_argument("pool can not be null");
-        }
-        m_pool = pool;
-        m_route = pool->Allocate(flags);
+        m_pool->Release(m_route);
+        m_pool.reset();
       }
-
-      ~ScopedEventRoute()
-      {
-        if (m_pool)
-        {
-          m_pool->Release(m_route);
-          m_pool.reset();
-        }
-        m_route.reset();
-      }
-    };
-  }
+      m_route.reset();
+    }
+  };
 }
 
 #endif

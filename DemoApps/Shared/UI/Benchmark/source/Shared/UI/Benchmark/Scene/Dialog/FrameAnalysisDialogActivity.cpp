@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,140 +29,135 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Scene/Dialog/FrameAnalysisDialogActivity.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
 #include <FslSimpleUI/Base/Control/Switch.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <Shared/UI/Benchmark/App/SimpleDialogActivityFactory.hpp>
+#include <Shared/UI/Benchmark/Scene/Dialog/FrameAnalysisDialogActivity.hpp>
 #include <Shared/UI/Benchmark/TextConfig.hpp>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  FrameAnalysisDialogActivity::FrameAnalysisDialogActivity(std::weak_ptr<IActivityStack> activityStack,
+                                                           const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                                                           const Theme::WindowType windowType, const uint32_t maxDrawCalls)
+    : DialogActivity(std::move(activityStack), themeControlFactory, std::make_shared<GridLayout>(themeControlFactory->GetContext()), windowType,
+                     ItemAlignment::Far, ItemAlignment::Far)
   {
-    FrameAnalysisDialogActivity::FrameAnalysisDialogActivity(std::weak_ptr<IActivityStack> activityStack,
-                                                             const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                                                             const Theme::WindowType windowType, const uint32_t maxDrawCalls)
-      : DialogActivity(std::move(activityStack), themeControlFactory, std::make_shared<GridLayout>(themeControlFactory->GetContext()), windowType,
-                       ItemAlignment::Far, ItemAlignment::Far)
+    auto& rMainLayout = dynamic_cast<GridLayout&>(GetWindow());
+    rMainLayout.AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+    rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+
+    auto caption = themeControlFactory->CreateLabel("Frame analysis", Theme::FontType::Header);
+    caption->SetAlignmentX(ItemAlignment::Center);
+
+    m_buttonOK = themeControlFactory->CreateTextButton(Theme::ButtonType::Contained, "Back");
+    m_buttonOK->SetAlignmentX(ItemAlignment::Center);
+
+    auto context = themeControlFactory->GetContext();
+    auto content = std::make_shared<StackLayout>(context);
     {
-      auto& rMainLayout = dynamic_cast<GridLayout&>(GetWindow());
-      rMainLayout.AddColumnDefinition(GridColumnDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
-      rMainLayout.AddRowDefinition(GridRowDefinition(GridUnitType::Auto));
+      m_drawCallSlider =
+        themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<uint32_t>(maxDrawCalls, 0, maxDrawCalls));
+      m_drawCallSlider->SetWidth(DpLayoutSize1D(DpValue(200)));
 
-      auto caption = themeControlFactory->CreateLabel("Frame analysis", Theme::FontType::Header);
-      caption->SetAlignmentX(ItemAlignment::Center);
+      content->SetAlignmentX(ItemAlignment::Stretch);
+      content->SetAlignmentY(ItemAlignment::Stretch);
+      content->SetOrientation(LayoutOrientation::Vertical);
+      content->AddChild(m_drawCallSlider);
+    }
 
-      m_buttonOK = themeControlFactory->CreateTextButton(Theme::ButtonType::Contained, "Back");
-      m_buttonOK->SetAlignmentX(ItemAlignment::Center);
+    rMainLayout.AddChild(caption, 0, 0);
+    rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 1);
+    rMainLayout.AddChild(content, 0, 2);
+    rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 3);
+    rMainLayout.AddChild(m_buttonOK, 0, 4);
+  }
 
-      auto context = themeControlFactory->GetContext();
-      auto content = std::make_shared<StackLayout>(context);
+
+  void FrameAnalysisDialogActivity::SetMaxDrawCalls(const uint32_t maxDrawCalls)
+  {
+    m_drawCallSlider->SetRange(0, maxDrawCalls);
+  }
+
+
+  uint32_t FrameAnalysisDialogActivity::GetCurrentDrawCalls() const
+  {
+    return m_drawCallSlider->GetValue();
+  }
+
+
+  void FrameAnalysisDialogActivity::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  {
+    if (m_state == State::Ready && !theEvent->IsHandled())
+    {
+      if (theEvent->GetSource() == m_drawCallSlider)
       {
-        m_drawCallSlider =
-          themeControlFactory->CreateSliderFmtValue(LayoutOrientation::Horizontal, ConstrainedValue<uint32_t>(maxDrawCalls, 0, maxDrawCalls));
-        m_drawCallSlider->SetWidth(DpLayoutSize1D(200));
-
-        content->SetAlignmentX(ItemAlignment::Stretch);
-        content->SetAlignmentY(ItemAlignment::Stretch);
-        content->SetLayoutOrientation(LayoutOrientation::Vertical);
-        content->AddChild(m_drawCallSlider);
+        theEvent->Handled();
       }
-
-      rMainLayout.AddChild(caption, 0, 0);
-      rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 1);
-      rMainLayout.AddChild(content, 0, 2);
-      rMainLayout.AddChild(themeControlFactory->CreateDivider(LayoutOrientation::Horizontal), 0, 3);
-      rMainLayout.AddChild(m_buttonOK, 0, 4);
     }
+    DialogActivity::OnContentChanged(args, theEvent);
+  }
 
 
-    void FrameAnalysisDialogActivity::SetMaxDrawCalls(const uint32_t maxDrawCalls)
+  void FrameAnalysisDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  {
+    if (m_state == State::Ready && !theEvent->IsHandled())
     {
-      m_drawCallSlider->SetRange(0, maxDrawCalls);
-    }
-
-
-    uint32_t FrameAnalysisDialogActivity::GetCurrentDrawCalls() const
-    {
-      return m_drawCallSlider->GetValue();
-    }
-
-
-    void FrameAnalysisDialogActivity::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
-    {
-      if (m_state == State::Ready && !theEvent->IsHandled())
+      if (theEvent->GetSource() == m_buttonOK)
       {
-        if (theEvent->GetSource() == m_drawCallSlider)
-        {
-          theEvent->Handled();
-        }
+        theEvent->Handled();
+        DoScheduleClose();
       }
-      DialogActivity::OnContentChanged(args, theEvent);
     }
+    DialogActivity::OnSelect(args, theEvent);
+  }
 
 
-    void FrameAnalysisDialogActivity::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void FrameAnalysisDialogActivity::OnKeyEvent(const KeyEvent& theEvent)
+  {
+    if (m_state == State::Ready && !theEvent.IsHandled() && theEvent.IsPressed())
     {
-      if (m_state == State::Ready && !theEvent->IsHandled())
+      switch (theEvent.GetKey())
       {
-        if (theEvent->GetSource() == m_buttonOK)
-        {
-          theEvent->Handled();
-          DoScheduleClose();
-        }
+      case VirtualKey::Escape:
+        theEvent.Handled();
+        DoScheduleClose();
+        break;
+      case VirtualKey::LeftArrow:
+        theEvent.Handled();
+        m_drawCallSlider->SubValue(1);
+        break;
+      case VirtualKey::RightArrow:
+        theEvent.Handled();
+        m_drawCallSlider->AddValue(1);
+        break;
+      default:
+        break;
       }
-      DialogActivity::OnSelect(args, theEvent);
     }
+    DialogActivity::OnKeyEvent(theEvent);
+  }
 
 
-    void FrameAnalysisDialogActivity::OnKeyEvent(const KeyEvent& theEvent)
-    {
-      if (m_state == State::Ready && !theEvent.IsHandled() && theEvent.IsPressed())
-      {
-        switch (theEvent.GetKey())
-        {
-        case VirtualKey::Escape:
-          theEvent.Handled();
-          DoScheduleClose();
-          break;
-        case VirtualKey::LeftArrow:
-          theEvent.Handled();
-          m_drawCallSlider->SubValue(1);
-          break;
-        case VirtualKey::RightArrow:
-          theEvent.Handled();
-          m_drawCallSlider->AddValue(1);
-          break;
-        default:
-          break;
-        }
-      }
-      DialogActivity::OnKeyEvent(theEvent);
-    }
-
-
-    void FrameAnalysisDialogActivity::DoScheduleClose()
-    {
-      assert(m_state == State::Ready);
-      ScheduleCloseActivity(true);
-      m_state = State::Closing;
-    }
-
+  void FrameAnalysisDialogActivity::DoScheduleClose()
+  {
+    assert(m_state == State::Ready);
+    ScheduleCloseActivity(true);
+    m_state = State::Closing;
   }
 }

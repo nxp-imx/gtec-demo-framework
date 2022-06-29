@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_APP_LOCATIONTWEAKER_HPP
 #define SHARED_UI_BENCHMARK_APP_LOCATIONTWEAKER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,37 +36,31 @@
 #include <Shared/UI/Benchmark/Activity/IActivityStack.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI::LocationTweaker
 {
-  namespace UI
+  inline uint32_t GetDepth(const std::weak_ptr<IActivityStack>& activityStack)
   {
-    namespace LocationTweaker
+    auto stack = activityStack.lock();
+    return stack ? stack->Count() : 0;
+  }
+
+  inline ItemAlignment GetItemAlignment(const uint32_t locationTweakId)
+  {
+    switch ((locationTweakId / 3) % 3)
     {
-      inline uint32_t GetDepth(const std::weak_ptr<IActivityStack>& activityStack)
-      {
-        auto stack = activityStack.lock();
-        return stack ? stack->Count() : 0;
-      }
-
-      inline ItemAlignment GetItemAlignment(const uint32_t locationTweakId)
-      {
-        switch ((locationTweakId / 3) % 3)
-        {
-        case 0:
-          return ItemAlignment::Center;
-        case 1:
-          return ItemAlignment::Far;
-        case 2:
-        default:
-          return ItemAlignment::Near;
-        }
-      }
-
-      inline ItemAlignment GetItemAlignment(const std::weak_ptr<IActivityStack>& activityStack)
-      {
-        return GetItemAlignment(GetDepth(activityStack));
-      }
+    case 0:
+      return ItemAlignment::Center;
+    case 1:
+      return ItemAlignment::Far;
+    case 2:
+    default:
+      return ItemAlignment::Near;
     }
+  }
+
+  inline ItemAlignment GetItemAlignment(const std::weak_ptr<IActivityStack>& activityStack)
+  {
+    return GetItemAlignment(GetDepth(activityStack));
   }
 }
 

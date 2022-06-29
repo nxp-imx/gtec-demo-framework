@@ -34,30 +34,27 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/BoxF.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
-#include <FslGraphics/WindingOrder.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslGraphics/WindingOrder.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  class SegmentedQuadGenerator
   {
-    class SegmentedQuadGenerator
-    {
-    public:
-      static BasicMesh GenerateList(const BoxF& dstBox, const float dstZ, const int segmentsX, const int segmentsY,
-                                    const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
+  public:
+    static BasicMesh GenerateList(const BoxF& dstBox, const float dstZ, const int segmentsX, const int segmentsY,
+                                  const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
 
-      static BasicMesh GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX, const int segmentsY,
-                                    const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
+    static BasicMesh GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX, const int segmentsY,
+                                  const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
 
-      static BasicMesh GenerateStrip(const BoxF& dstBox, const float dstZ, const int segmentsX, const int segmentsY,
-                                     const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
+    static BasicMesh GenerateStrip(const BoxF& dstBox, const float dstZ, const int segmentsX, const int segmentsY,
+                                   const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
 
-      static BasicMesh GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX, const int segmentsY,
-                                     const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
-    };
-  }
+    static BasicMesh GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX, const int segmentsY,
+                                   const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder);
+  };
 }
 
 #endif

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "ConsoleMinimal101.hpp"
-#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 
 namespace Fsl
 {

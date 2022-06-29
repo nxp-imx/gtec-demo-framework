@@ -70,12 +70,12 @@ namespace Fsl
 
     inline void Disable(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag)
     {
-      rDstFlag = rDstFlag & (BatcherAddMeshFlags(~static_cast<uint32_t>(flag)));
+      rDstFlag = rDstFlag & (static_cast<BatcherAddMeshFlags>(~static_cast<uint32_t>(flag)));
     }
 
     inline void Set(BatcherAddMeshFlags& rDstFlag, BatcherAddMeshFlags flag, const bool enabled)
     {
-      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (BatcherAddMeshFlags(~static_cast<uint32_t>(flag))));
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<BatcherAddMeshFlags>(~static_cast<uint32_t>(flag))));
     }
   };
 }

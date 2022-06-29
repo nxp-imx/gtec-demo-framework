@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_UNITTEST_LAYOUT_FSLSIMPLEUI_BASE_UNITTEST_GENERICLAYOUTWINDOWTEST_HPP
 #define FSLSIMPLEUI_BASE_UNITTEST_LAYOUT_FSLSIMPLEUI_BASE_UNITTEST_GENERICLAYOUTWINDOWTEST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,239 +31,236 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/UnitTest/WindowCallIdManager.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowCallCount.hpp>
-#include <FslSimpleUI/Base/UnitTest/WindowCallbacks.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowCallId.hpp>
+#include <FslSimpleUI/Base/UnitTest/WindowCallIdManager.hpp>
+#include <FslSimpleUI/Base/UnitTest/WindowCallbacks.hpp>
 #include <FslSimpleUI/Base/UnitTest/WindowMethod.hpp>
 #include <functional>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  template <typename TParent>
+  class GenericLayoutWindowTest : public TParent
   {
-    template <typename TParent>
-    class GenericLayoutWindowTest : public TParent
+    std::shared_ptr<WindowCallIdManager> m_callIdManager;
+    mutable WindowCallCount m_callCount{};
+    mutable WindowCallId m_callId;
+
+  public:
+    using parent_type = TParent;
+
+    WindowCallbacks Callbacks;
+
+    void SetCallbackIdManager(const std::shared_ptr<WindowCallIdManager>& callIdManager)
     {
-      std::shared_ptr<WindowCallIdManager> m_callIdManager;
-      mutable WindowCallCount m_callCount{};
-      mutable WindowCallId m_callId;
+      m_callIdManager = callIdManager;
+    }
 
-    public:
-      using parent_type = TParent;
+    WindowCallCount GetCallCount() const
+    {
+      return m_callCount;
+    }
 
-      WindowCallbacks Callbacks;
+    // Get the latest call id for all methods
+    WindowCallId GetCallId() const
+    {
+      return m_callId;
+    }
 
-      void SetCallbackIdManager(const std::shared_ptr<WindowCallIdManager>& callIdManager)
+    explicit GenericLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags())
+      : parent_type(context)
+    {
+      if (windowFlags.GetValue() > 0)
       {
-        m_callIdManager = callIdManager;
+        parent_type::Enable(windowFlags);
+      }
+    }
+
+    void WinInit() override
+    {
+      ++m_callCount.WinInit;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinInit))
+      {
+        m_callId.WinInit = m_callIdManager->Claim();
       }
 
-      WindowCallCount GetCallCount() const
+      parent_type::WinInit();
+
+      Callbacks.WinInit();
+    }
+
+    bool WinMarkLayoutAsDirty() override
+    {
+      ++m_callCount.WinMarkLayoutAsDirty;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinMarkLayoutAsDirty))
       {
-        return m_callCount;
+        m_callId.WinMarkLayoutAsDirty = m_callIdManager->Claim();
       }
 
-      // Get the latest call id for all methods
-      WindowCallId GetCallId() const
+      auto res = parent_type::WinMarkLayoutAsDirty();
+
+      Callbacks.WinMarkLayoutAsDirty();
+      return res;
+    }
+
+    // const PxRectangle& WinGetContentPxRectangle() const override
+    //{
+    //  ++m_callCount.WinGetContentRect;
+    //  if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
+    //  {
+    //    m_callId.WinGetContentRect = m_callIdManager->Claim();
+    //  }
+    //  return parent_type::WinGetContentPxRectangle();
+    //}
+
+    void WinHandleEvent(const RoutedEvent& routedEvent) override
+    {
+      ++m_callCount.WinHandleEvent;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinHandleEvent))
       {
-        return m_callId;
+        m_callId.WinHandleEvent = m_callIdManager->Claim();
       }
 
-      explicit GenericLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags windowFlags = WindowFlags())
-        : parent_type(context)
+      parent_type::WinHandleEvent(routedEvent);
+
+      Callbacks.WinHandleEvent(routedEvent);
+    }
+
+    void WinUpdate(const TimeSpan& timeSpan) override
+    {
+      ++m_callCount.WinUpdate;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinUpdate))
       {
-        if (windowFlags.GetValue() > 0)
-        {
-          parent_type::Enable(windowFlags);
-        }
+        m_callId.WinUpdate = m_callIdManager->Claim();
       }
 
-      void WinInit() override
+      parent_type::WinUpdate(timeSpan);
+
+      Callbacks.WinUpdate(timeSpan);
+    }
+
+    void WinResolve(const TimeSpan& timeSpan) override
+    {
+      ++m_callCount.WinResolve;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinResolve))
       {
-        ++m_callCount.WinInit;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinInit))
-        {
-          m_callId.WinInit = m_callIdManager->Claim();
-        }
-
-        parent_type::WinInit();
-
-        Callbacks.WinInit();
+        m_callId.WinResolve = m_callIdManager->Claim();
       }
 
-      bool WinMarkLayoutAsDirty() override
+      parent_type::WinResolve(timeSpan);
+
+      Callbacks.WinResolve(timeSpan);
+    }
+
+    void WinDraw(const UIDrawContext& context) override
+    {
+      ++m_callCount.WinDraw;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinDraw))
       {
-        ++m_callCount.WinMarkLayoutAsDirty;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinMarkLayoutAsDirty))
-        {
-          m_callId.WinMarkLayoutAsDirty = m_callIdManager->Claim();
-        }
-
-        auto res = parent_type::WinMarkLayoutAsDirty();
-
-        Callbacks.WinMarkLayoutAsDirty();
-        return res;
+        m_callId.WinDraw = m_callIdManager->Claim();
       }
 
-      // const PxRectangle& WinGetContentPxRectangle() const override
-      //{
-      //  ++m_callCount.WinGetContentRect;
-      //  if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
-      //  {
-      //    m_callId.WinGetContentRect = m_callIdManager->Claim();
-      //  }
-      //  return parent_type::WinGetContentPxRectangle();
-      //}
+      parent_type::WinDraw(context);
 
-      void WinHandleEvent(const RoutedEvent& routedEvent) override
+      Callbacks.WinDraw(context);
+    }
+
+  protected:
+    void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    {
+      ++m_callCount.OnClickInputPreview;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInputPreview))
       {
-        ++m_callCount.WinHandleEvent;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinHandleEvent))
-        {
-          m_callId.WinHandleEvent = m_callIdManager->Claim();
-        }
-
-        parent_type::WinHandleEvent(routedEvent);
-
-        Callbacks.WinHandleEvent(routedEvent);
+        m_callId.OnClickInputPreview = m_callIdManager->Claim();
       }
 
-      void WinUpdate(const TransitionTimeSpan& timeSpan) override
+      parent_type::OnClickInputPreview(args, theEvent);
+
+      Callbacks.OnClickInputPreview(args, theEvent);
+    }
+
+    void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+    {
+      ++m_callCount.OnClickInput;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInput))
       {
-        ++m_callCount.WinUpdate;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinUpdate))
-        {
-          m_callId.WinUpdate = m_callIdManager->Claim();
-        }
-
-        parent_type::WinUpdate(timeSpan);
-
-        Callbacks.WinUpdate(timeSpan);
+        m_callId.OnClickInput = m_callIdManager->Claim();
       }
 
-      void WinResolve(const TransitionTimeSpan& timeSpan) override
+      parent_type::OnClickInput(args, theEvent);
+
+      Callbacks.OnClickInput(args, theEvent);
+    }
+
+    void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+    {
+      ++m_callCount.OnSelect;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnSelect))
       {
-        ++m_callCount.WinResolve;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinResolve))
-        {
-          m_callId.WinResolve = m_callIdManager->Claim();
-        }
-
-        parent_type::WinResolve(timeSpan);
-
-        Callbacks.WinResolve(timeSpan);
+        m_callId.OnSelect = m_callIdManager->Claim();
       }
 
-      void WinDraw(const UIDrawContext& context) override
+      parent_type::OnSelect(args, theEvent);
+
+      Callbacks.OnSelect(args, theEvent);
+    }
+
+    void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+    {
+      ++m_callCount.OnContentChanged;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnContentChanged))
       {
-        ++m_callCount.WinDraw;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinDraw))
-        {
-          m_callId.WinDraw = m_callIdManager->Claim();
-        }
-
-        parent_type::WinDraw(context);
-
-        Callbacks.WinDraw(context);
+        m_callId.OnContentChanged = m_callIdManager->Claim();
       }
 
-    protected:
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      parent_type::OnContentChanged(args, theEvent);
+
+      Callbacks.OnContentChanged(args, theEvent);
+    }
+
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
+    {
+      ++m_callCount.ArrangeOverride;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::ArrangeOverride))
       {
-        ++m_callCount.OnClickInputPreview;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInputPreview))
-        {
-          m_callId.OnClickInputPreview = m_callIdManager->Claim();
-        }
-
-        parent_type::OnClickInputPreview(args, theEvent);
-
-        Callbacks.OnClickInputPreview(args, theEvent);
+        m_callId.ArrangeOverride = m_callIdManager->Claim();
       }
 
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      auto result = parent_type::ArrangeOverride(finalSizePx);
+
+      Callbacks.ArrangeOverride(finalSizePx);
+      return result;
+    }
+
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
+    {
+      ++m_callCount.MeasureOverride;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::MeasureOverride))
       {
-        ++m_callCount.OnClickInput;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnClickInput))
-        {
-          m_callId.OnClickInput = m_callIdManager->Claim();
-        }
-
-        parent_type::OnClickInput(args, theEvent);
-
-        Callbacks.OnClickInput(args, theEvent);
+        m_callId.MeasureOverride = m_callIdManager->Claim();
       }
 
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+      auto result = parent_type::MeasureOverride(availableSizePx);
+
+      Callbacks.MeasureOverride(availableSizePx);
+      return result;
+    }
+
+    void OnPropertiesUpdated(const PropertyTypeFlags& flags) override
+    {
+      ++m_callCount.OnPropertiesUpdated;
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnPropertiesUpdated))
       {
-        ++m_callCount.OnSelect;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnSelect))
-        {
-          m_callId.OnSelect = m_callIdManager->Claim();
-        }
-
-        parent_type::OnSelect(args, theEvent);
-
-        Callbacks.OnSelect(args, theEvent);
+        m_callId.OnPropertiesUpdated = m_callIdManager->Claim();
       }
 
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
-      {
-        ++m_callCount.OnContentChanged;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnContentChanged))
-        {
-          m_callId.OnContentChanged = m_callIdManager->Claim();
-        }
+      parent_type::OnPropertiesUpdated(flags);
 
-        parent_type::OnContentChanged(args, theEvent);
-
-        Callbacks.OnContentChanged(args, theEvent);
-      }
-
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
-      {
-        ++m_callCount.ArrangeOverride;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::ArrangeOverride))
-        {
-          m_callId.ArrangeOverride = m_callIdManager->Claim();
-        }
-
-        auto result = parent_type::ArrangeOverride(finalSizePx);
-
-        Callbacks.ArrangeOverride(finalSizePx);
-        return result;
-      }
-
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
-      {
-        ++m_callCount.MeasureOverride;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::MeasureOverride))
-        {
-          m_callId.MeasureOverride = m_callIdManager->Claim();
-        }
-
-        auto result = parent_type::MeasureOverride(availableSizePx);
-
-        Callbacks.MeasureOverride(availableSizePx);
-        return result;
-      }
-
-      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override
-      {
-        ++m_callCount.OnPropertiesUpdated;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::OnPropertiesUpdated))
-        {
-          m_callId.OnPropertiesUpdated = m_callIdManager->Claim();
-        }
-
-        parent_type::OnPropertiesUpdated(flags);
-
-        Callbacks.OnPropertiesUpdated(flags);
-      }
-    };
-  }
+      Callbacks.OnPropertiesUpdated(flags);
+    }
+  };
 }
 
 #endif

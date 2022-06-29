@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_RENDERDRAWSPRITETYPE_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_RENDERDRAWSPRITETYPE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,21 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  // WARNING: be careful if you change these values as they are actually serialized and used in various places.
+  //          So if possible we should only add new values and never remove or change existing values.
+  enum class RenderDrawSpriteType : uint8_t
   {
-    namespace RenderIMBatch
-    {
-      enum class RenderDrawSpriteType : uint8_t
-      {
-        Dummy = 0x00,
-        BasicImageSprite = 0x01,
-        BasicNineSliceSprite = 0x02,
-        BasicOptimizedNineSliceSprite = 0x03,
-        ImageSprite = 0x04,
-        NineSliceSprite = 0x05,
-        OptimizedNineSliceSprite = 0x06,
-        SpriteFont = 0x07,
-      };
-    }
-  }
+    Dummy = 0x00,
+    BasicImageSprite = 0x01,
+    BasicNineSliceSprite = 0x02,
+    // BasicOptimizedNineSliceSprite = 0x03,
+    ImageSprite = 0x04,
+    NineSliceSprite = 0x05,
+    OptimizedNineSliceSprite = 0x06,
+    SpriteFont = 0x07,
+  };
 }
 
 #endif

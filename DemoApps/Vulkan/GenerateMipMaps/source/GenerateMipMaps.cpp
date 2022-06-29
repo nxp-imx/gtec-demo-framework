@@ -30,11 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "GenerateMipMaps.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Texture/TextureMipMapUtil.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
@@ -48,8 +48,8 @@
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include "OptionParser.hpp"
@@ -185,7 +185,7 @@ namespace Fsl
       samplerCreateInfo.minLod = minLod;
       samplerCreateInfo.maxLod = maxLod;
       samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
-      return RapidVulkan::Sampler(device, samplerCreateInfo);
+      return {device, samplerCreateInfo};
     }
 
     std::vector<RapidVulkan::Sampler> CreateSamplers(const VkDevice device, const uint32_t maxMipLevels)
@@ -255,7 +255,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
@@ -273,7 +273,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     Vulkan::VUBufferMemory CreateVertexShaderUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -354,7 +354,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -394,7 +394,7 @@ namespace Fsl
       subpassDescription.preserveAttachmentCount = 0;
       subpassDescription.pPreserveAttachments = nullptr;
 
-      return RapidVulkan::RenderPass(device, 0, 1, &attachmentDescription, 1, &subpassDescription, 1, &subpassDependency);
+      return {device, 0, 1, &attachmentDescription, 1, &subpassDescription, 1, &subpassDependency};
     }
   }
 
@@ -432,7 +432,7 @@ namespace Fsl
     m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    const float aspectRatio = currentSizePx.Width() / static_cast<float>(currentSizePx.Height());
+    const float aspectRatio = static_cast<float>(currentSizePx.Width()) / static_cast<float>(currentSizePx.Height());
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(75.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
 
@@ -797,6 +797,6 @@ namespace Fsl
     graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-    return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+    return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
   }
 }

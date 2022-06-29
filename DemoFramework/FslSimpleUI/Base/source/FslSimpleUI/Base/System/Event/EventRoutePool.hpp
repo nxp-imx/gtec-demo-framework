@@ -34,29 +34,26 @@
 #include <deque>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class EventRoute;
+  struct WindowFlags;
+
+  class EventRoutePool
   {
-    class EventRoute;
-    struct WindowFlags;
+    std::deque<std::shared_ptr<EventRoute>> m_pool;
 
-    class EventRoutePool
-    {
-      std::deque<std::shared_ptr<EventRoute>> m_pool;
+  public:
+    EventRoutePool(const EventRoutePool&) = delete;
+    EventRoutePool& operator=(const EventRoutePool&) = delete;
 
-    public:
-      EventRoutePool(const EventRoutePool&) = delete;
-      EventRoutePool& operator=(const EventRoutePool&) = delete;
+    EventRoutePool();
+    ~EventRoutePool();
 
-      EventRoutePool();
-      ~EventRoutePool();
-
-      //! @brief Allocate a object from the pool (its recommended to utilize the ScopedEventRoute helper object for this)
-      std::shared_ptr<EventRoute> Allocate(const WindowFlags flags);
-      void Release(const std::shared_ptr<EventRoute>& route);
-    };
-  }
+    //! @brief Allocate a object from the pool (its recommended to utilize the ScopedEventRoute helper object for this)
+    std::shared_ptr<EventRoute> Allocate(const WindowFlags flags);
+    void Release(const std::shared_ptr<EventRoute>& route);
+  };
 }
 
 #endif

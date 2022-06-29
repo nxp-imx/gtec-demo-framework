@@ -32,21 +32,15 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class ImageButtonType
   {
-    namespace Theme
-    {
-      enum class ImageButtonType
-      {
-        Normal,
-        Small,
-        FloatingNormal,
-        FloatingSmall,
-      };
-    }
-  }
+    Normal,
+    Small,
+    FloatingNormal,
+    FloatingSmall,
+  };
 }
 
 #endif

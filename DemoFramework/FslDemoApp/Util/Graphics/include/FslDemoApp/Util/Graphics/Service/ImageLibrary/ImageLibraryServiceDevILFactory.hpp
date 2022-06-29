@@ -32,8 +32,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryServiceDevIL.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 
 namespace Fsl
 {

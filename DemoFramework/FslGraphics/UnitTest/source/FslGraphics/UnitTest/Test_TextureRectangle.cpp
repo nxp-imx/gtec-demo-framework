@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Log/LogTextureRectangle.hpp>
+#include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>

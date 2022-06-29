@@ -35,10 +35,10 @@
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
 #include <VG/openvg.h>
-#include "VG/vgu.h"
 #include <array>
 #include <cmath>
 #include <iostream>
+#include "VG/vgu.h"
 
 namespace Fsl
 {
@@ -80,8 +80,8 @@ namespace Fsl
     vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour.size()), afClearColour.data());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
     const PxSize2D currentSizePx = GetWindowSizePx();
-    float scaleX = currentSizePx.Width() / 1280.0f;
-    float scaleY = currentSizePx.Height() / 1080.0f;
+    float scaleX = static_cast<float>(currentSizePx.Width()) / 1280.0f;
+    float scaleY = static_cast<float>(currentSizePx.Height()) / 1080.0f;
     std::vector<Vector2> vgTrianglePoints;
     std::vector<Vector2> vgQuadCurvePoints;
     std::vector<Vector2> vgCubicCurvePoints;

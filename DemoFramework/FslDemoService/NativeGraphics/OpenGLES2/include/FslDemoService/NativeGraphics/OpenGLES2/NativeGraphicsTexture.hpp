@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_NATIVEGRAPHICSTEXTURE_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_NATIVEGRAPHICSTEXTURE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,61 +32,58 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
-#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTexture.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  class NativeGraphicsTexture final : public Graphics3D::INativeTexture
   {
-    class NativeGraphicsTexture final : public Graphics3D::INativeTexture
+    PxExtent3D m_extentPx{};
+    GLTexture m_texture;
+
+  public:
+    NativeGraphicsTexture() = default;
+    NativeGraphicsTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);
+
+    void Destroy();
+
+    bool IsValid() const
     {
-      PxExtent3D m_extentPx{};
-      GLTexture m_texture;
+      return m_texture.IsValid();
+    }
 
-    public:
-      NativeGraphicsTexture() = default;
-      NativeGraphicsTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);
+    inline GLTextureInfo ToTextureInfo() const
+    {
+      assert(IsValid());
+      return {Get(), PxExtent3D{m_extentPx.Width, m_extentPx.Height, m_extentPx.Depth}};
+    }
 
-      void Destroy();
-
-      bool IsValid() const
-      {
-        return m_texture.IsValid();
-      }
-
-      inline GLTextureInfo ToTextureInfo() const
-      {
-        assert(IsValid());
-        return {Get(), PxExtent3D{m_extentPx.Width, m_extentPx.Height, m_extentPx.Depth}};
-      }
-
-      //! @brief Get the native texture handle
-      GLuint Get() const
-      {
-        assert(IsValid());
-        return m_texture.Get();
-      }
+    //! @brief Get the native texture handle
+    GLuint Get() const
+    {
+      assert(IsValid());
+      return m_texture.Get();
+    }
 
 
-      // PxSize2D GetSize() const
-      //{
-      //  return m_sizePx;
-      //}
+    // PxSize2D GetSize() const
+    //{
+    //  return m_sizePx;
+    //}
 
-      // NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const final
-      //{
-      //  return TextureUtil::CalcTextureArea(imageRectanglePx, m_sizePx);
-      //}
+    // NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const final
+    //{
+    //  return TextureUtil::CalcTextureArea(imageRectanglePx, m_sizePx);
+    //}
 
-      // Graphics3D::INativeTexture
-      void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
-    };
-  }
+    // Graphics3D::INativeTexture
+    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
+  };
 }
 
 #endif

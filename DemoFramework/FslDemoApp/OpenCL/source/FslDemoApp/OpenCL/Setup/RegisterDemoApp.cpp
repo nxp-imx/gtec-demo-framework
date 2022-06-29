@@ -29,20 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/OpenCL/Setup/RegisterDemoApp.hpp>
-#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
+#include <FslBase/ExceptionMessageFormatter.hpp>
+#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/OpenCL/Setup/RegisterDemoApp.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Console/ConsoleDemoHostSetup.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include <FslBase/ExceptionMessageFormatter.hpp>
-#include <RapidOpenCL1/Exceptions.hpp>
 #include <RapidOpenCL1/DebugStrings.hpp>
+#include <RapidOpenCL1/Exceptions.hpp>
 #include <sstream>
 
 namespace Fsl
@@ -77,18 +77,15 @@ namespace Fsl
     }
   }
 
-  namespace DemoAppRegister
+  namespace DemoAppRegister::OpenCL
   {
-    namespace OpenCL
+    void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
     {
-      void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup)
-      {
-        // Register a formatter for common OpenCL exceptions (from the libs we utilize)
-        rSetup.CustomExceptionFormatter.Add(TryFormatException);
+      // Register a formatter for common OpenCL exceptions (from the libs we utilize)
+      rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
-        const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
-      }
+      const DemoHostFeature feature = CommenSetup(rSetup);
+      rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature);
     }
   }
 }

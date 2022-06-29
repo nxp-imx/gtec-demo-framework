@@ -33,9 +33,9 @@
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeBatch2D.hpp>
+#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
 #include <deque>
 
 namespace Fsl

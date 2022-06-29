@@ -43,5 +43,5 @@ export FSL_TEST_REPORTS=$WORKSPACE/.Reports/UnitTests
 # to get information about that to create a unique directory name based on 'JOB_NAME' 'EXECUTOR_NUMBER' and this 'magic workspace #'
 # we force claim the install area instead bypassing a security check
 echo Claiming persistent cache
-FslBuildExternal.py --ForceClaimInstallArea --VoidBuild -v --debug
+FslBuildExternal.py --noGitHash --ForceClaimInstallArea --VoidBuild -v --debug
 echo Prepare done

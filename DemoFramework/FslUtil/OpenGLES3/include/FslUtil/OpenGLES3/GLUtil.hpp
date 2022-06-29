@@ -32,11 +32,11 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
+#include <FslUtil/OpenGLES3/Common.hpp>
 #include <GLES3/gl3.h>
 #include <string>
 #include <vector>

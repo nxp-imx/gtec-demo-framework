@@ -1,6 +1,6 @@
 #ifndef FSLCUSTOM_USE_JSON_FOR_COMMANDLIST
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,42 +30,39 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 #include "Custom/AppInputCommandListIO.hpp"
 
-namespace Fsl
+namespace Fsl::AppInputCommandListPersistence
 {
-  namespace AppInputCommandListPersistence
+  std::optional<AppInputCommandList> TryLoad(const IO::Path& path)
   {
-    Optional<AppInputCommandList> TryLoad(const IO::Path& path)
+    try
     {
-      try
-      {
-        std::vector<uint8_t> content;
-        return IO::File::TryReadAllBytes(content, path) ? AppInputCommandListIO::Decode(ReadOnlySpanUtil::AsSpan(content))
-                                                        : Optional<AppInputCommandList>();
-      }
-      catch (std::exception& ex)
-      {
-        FSLLOG3_DEBUG_WARNING("Exception: {}", ex.what());
-        FSL_PARAM_NOT_USED(ex);
-        return {};
-      }
+      std::vector<uint8_t> content;
+      return IO::File::TryReadAllBytes(content, path) ? AppInputCommandListIO::Decode(ReadOnlySpanUtil::AsSpan(content))
+                                                      : std::optional<AppInputCommandList>();
     }
-
-    void Save(const IO::Path& path, const AppInputCommandList& commandList)
+    catch (std::exception& ex)
     {
-      auto newContent = AppInputCommandListIO::Encode(commandList);
-      std::vector<uint8_t> existing;
-      if (!IO::File::TryReadAllBytes(existing, path) || ReadOnlySpanUtil::AsSpan(existing) != ReadOnlySpanUtil::AsSpan(newContent))
-      {
-        IO::File::WriteAllBytes(path, newContent);
-      }
+      FSLLOG3_DEBUG_WARNING("Exception: {}", ex.what());
+      FSL_PARAM_NOT_USED(ex);
+      return {};
+    }
+  }
+
+  void Save(const IO::Path& path, const AppInputCommandList& commandList)
+  {
+    auto newContent = AppInputCommandListIO::Encode(commandList);
+    std::vector<uint8_t> existing;
+    if (!IO::File::TryReadAllBytes(existing, path) || ReadOnlySpanUtil::AsSpan(existing) != ReadOnlySpanUtil::AsSpan(newContent))
+    {
+      IO::File::WriteAllBytes(path, newContent);
     }
   }
 }

@@ -33,20 +33,17 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct ResolutionChangedInfo
   {
-    struct ResolutionChangedInfo
-    {
-      const uint32_t DensityDpi;
+    const uint32_t DensityDpi;
 
-      constexpr explicit ResolutionChangedInfo(const uint32_t densityDpi)
-        : DensityDpi(densityDpi)
-      {
-      }
-    };
-  }
+    constexpr explicit ResolutionChangedInfo(const uint32_t densityDpi)
+      : DensityDpi(densityDpi)
+    {
+    }
+  };
 }
 
 #endif

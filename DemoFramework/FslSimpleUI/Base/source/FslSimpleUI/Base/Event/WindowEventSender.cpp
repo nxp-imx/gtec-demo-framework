@@ -29,86 +29,83 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <cassert>
 #include <utility>
 #include "../System/Event/WindowEventQueue.hpp"
 #include "../System/ITreeNodeLocator.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  WindowEventSender::WindowEventSender(std::shared_ptr<WindowEventQueue> windowEventQueue, std::shared_ptr<WindowEventPool> eventPool,
+                                       std::shared_ptr<ITreeNodeLocator> treeNodeLocator)
+    : m_windowEventQueue(std::move(windowEventQueue))
+    , m_treeNodeLocator(std::move(treeNodeLocator))
+    , EventPool(std::move(eventPool))
   {
-    WindowEventSender::WindowEventSender(std::shared_ptr<WindowEventQueue> windowEventQueue, std::shared_ptr<WindowEventPool> eventPool,
-                                         std::shared_ptr<ITreeNodeLocator> treeNodeLocator)
-      : m_windowEventQueue(std::move(windowEventQueue))
-      , m_treeNodeLocator(std::move(treeNodeLocator))
-      , EventPool(std::move(eventPool))
-    {
-    }
-
-
-    WindowEventSender::~WindowEventSender() = default;
-
-
-    void WindowEventSender::SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId* const pSource)
-    {
-      if (!theEvent)
-      {
-        throw std::invalid_argument("theEvent can not be null");
-      }
-      if (pSource == nullptr)
-      {
-        throw std::invalid_argument("pSource can not be null");
-      }
-
-      m_windowEventQueue->Push(theEvent, m_treeNodeLocator->Get(pSource));
-    }
-
-
-    void WindowEventSender::SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source)
-    {
-      if (!theEvent)
-      {
-        throw std::invalid_argument("theEvent can not be null");
-      }
-      if (!source)
-      {
-        throw std::invalid_argument("source can not be null");
-      }
-
-      m_windowEventQueue->Push(theEvent, m_treeNodeLocator->Get(source));
-    }
-
-
-    // bool WindowEventSender::TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource)
-    //{
-    //  if (!theEvent)
-    //    return false;
-    //  if (pSource == nullptr)
-    //    return false;
-
-    //  auto node = m_treeNodeLocator->TryGet(pSource);
-    //  if (!node)
-    //    return false;
-
-    //  return m_windowEventQueue->TryPush(theEvent, node);
-    //}
-
-
-    // bool WindowEventSender::TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source)
-    //{
-    //  if (!theEvent)
-    //    return false;
-    //  if (!source)
-    //    return false;
-
-    //  auto node = m_treeNodeLocator->TryGet(source);
-    //  if (!node)
-    //    return false;
-
-    //  return m_windowEventQueue->TryPush(theEvent, node);
-    //}
   }
+
+
+  WindowEventSender::~WindowEventSender() = default;
+
+
+  void WindowEventSender::SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId* const pSource)
+  {
+    if (!theEvent)
+    {
+      throw std::invalid_argument("theEvent can not be null");
+    }
+    if (pSource == nullptr)
+    {
+      throw std::invalid_argument("pSource can not be null");
+    }
+
+    m_windowEventQueue->Push(theEvent, m_treeNodeLocator->Get(pSource));
+  }
+
+
+  void WindowEventSender::SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source)
+  {
+    if (!theEvent)
+    {
+      throw std::invalid_argument("theEvent can not be null");
+    }
+    if (!source)
+    {
+      throw std::invalid_argument("source can not be null");
+    }
+
+    m_windowEventQueue->Push(theEvent, m_treeNodeLocator->Get(source));
+  }
+
+
+  // bool WindowEventSender::TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource)
+  //{
+  //  if (!theEvent)
+  //    return false;
+  //  if (pSource == nullptr)
+  //    return false;
+
+  //  auto node = m_treeNodeLocator->TryGet(pSource);
+  //  if (!node)
+  //    return false;
+
+  //  return m_windowEventQueue->TryPush(theEvent, node);
+  //}
+
+
+  // bool WindowEventSender::TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source)
+  //{
+  //  if (!theEvent)
+  //    return false;
+  //  if (!source)
+  //    return false;
+
+  //  auto node = m_treeNodeLocator->TryGet(source);
+  //  if (!node)
+  //    return false;
+
+  //  return m_windowEventQueue->TryPush(theEvent, node);
+  //}
 }

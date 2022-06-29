@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_UNITTEST_FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_UNITTEST_UNITTESTVERTEXATTRIBSTATEFUNCTOR_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_UNITTEST_FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_UNITTEST_UNITTESTVERTEXATTRIBSTATEFUNCTOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,56 +38,53 @@
 #include <GLES3/gl3.h>
 #include <array>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct UnitTestVertexAttribStateFunctor
   {
-    struct UnitTestVertexAttribStateFunctor
+    static std::array<VertexAttribState, 32> GlobalState;
+
+    static void Populate()
     {
-      static std::array<VertexAttribState, 32> GlobalState;
-
-      static void Populate()
+      for (std::size_t i = 0; i < GlobalState.size(); ++i)
       {
-        for (std::size_t i = 0; i < GlobalState.size(); ++i)
-        {
-          const auto size = NumericCast<GLint>((i % 3) + 1);
-          const auto type = NumericCast<GLint>((i + 1) * 10);
-          const bool normalized = (i % 2) != 0;
-          const auto stride = NumericCast<GLint>(1000 + i);
-          const GLvoid* pointer = reinterpret_cast<const GLvoid*>(NumericCast<uintptr_t>(i % 12));
-          BasicVertexAttribState basicState(size, type, normalized, stride, pointer);
-          GlobalState[i] = VertexAttribState((i % 1) == 0, basicState);
-        }
+        const auto size = NumericCast<GLint>((i % 3) + 1);
+        const auto type = NumericCast<GLint>((i + 1) * 10);
+        const bool normalized = (i % 2) != 0;
+        const auto stride = NumericCast<GLint>(1000 + i);
+        const GLvoid* pointer = reinterpret_cast<const GLvoid*>(NumericCast<uintptr_t>(i % 12));
+        BasicVertexAttribState basicState(size, type, normalized, stride, pointer);
+        GlobalState[i] = VertexAttribState((i % 1) == 0, basicState);
       }
+    }
 
-      static inline VertexAttribState GetAttrib(const GLuint attribIndex) noexcept
+    static inline VertexAttribState GetAttrib(const GLuint attribIndex) noexcept
+    {
+      if (attribIndex >= GlobalState.size())
       {
-        if (attribIndex >= GlobalState.size())
-        {
-          std::abort();
-        }
-        return GlobalState[attribIndex];
+        std::abort();
       }
+      return GlobalState[attribIndex];
+    }
 
-      static inline void SetAttribEnabled(const GLuint attribIndex, const bool enabled) noexcept
+    static inline void SetAttribEnabled(const GLuint attribIndex, const bool enabled) noexcept
+    {
+      if (attribIndex >= GlobalState.size())
       {
-        if (attribIndex >= GlobalState.size())
-        {
-          std::abort();
-        }
-        GlobalState[attribIndex].Enabled = enabled;
+        std::abort();
       }
+      GlobalState[attribIndex].Enabled = enabled;
+    }
 
-      static inline void SetBasicAttrib(const GLuint attribIndex, const BasicVertexAttribState& state) noexcept
+    static inline void SetBasicAttrib(const GLuint attribIndex, const BasicVertexAttribState& state) noexcept
+    {
+      if (attribIndex >= GlobalState.size())
       {
-        if (attribIndex >= GlobalState.size())
-        {
-          std::abort();
-        }
-        GlobalState[attribIndex].Basic = state;
+        std::abort();
       }
-    };
-  }
+      GlobalState[attribIndex].Basic = state;
+    }
+  };
 }
 
 #endif

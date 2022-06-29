@@ -31,18 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class WindowEventQueueRecordType
   {
-    enum class WindowEventQueueRecordType
-    {
-      Event = 0,
-      AddChild = 1,
-      ScheduleClose = 2,
-      ScheduleCloseAllChildren = 3
-    };
-  }
+    Event = 0,
+    AddChild = 1,
+    ScheduleClose = 2,
+    ScheduleCloseAllChildren = 3
+  };
 }
 
 #endif

@@ -57,12 +57,12 @@ namespace Fsl
 
     constexpr static VertexDeclarationArray<3> GetVertexDeclarationArray()
     {
-      constexpr std::array<VertexElementEx, 3> elements = {
-        VertexElementEx(offsetof(VertexPositionTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-        VertexElementEx(offsetof(VertexPositionTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
-        VertexElementEx(offsetof(VertexPositionTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                        VertexElementUsage::TextureCoordinate, 0)};
-      return VertexDeclarationArray<3>(elements, sizeof(VertexPositionTangentTexture));
+      constexpr BasicVertexDeclarationArray<3> elements = {
+        VertexElement(offsetof(VertexPositionTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+        VertexElement(offsetof(VertexPositionTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
+        VertexElement(offsetof(VertexPositionTangentTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
+                      0)};
+      return {elements, sizeof(VertexPositionTangentTexture)};
     }
 
 
@@ -74,12 +74,12 @@ namespace Fsl
       return decl.AsReadOnlySpan();
     }
 
-    constexpr bool operator==(const VertexPositionTangentTexture& rhs) const
+    constexpr bool operator==(const VertexPositionTangentTexture& rhs) const noexcept
     {
       return Position == rhs.Position && Tangent == rhs.Tangent && TextureCoordinate == rhs.TextureCoordinate;
     }
 
-    constexpr bool operator!=(const VertexPositionTangentTexture& rhs) const
+    constexpr bool operator!=(const VertexPositionTangentTexture& rhs) const noexcept
     {
       return !(*this == rhs);
     }

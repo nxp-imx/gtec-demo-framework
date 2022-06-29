@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "ServiceThreadRecord.hpp"
 #include <FslService/Impl/Registry/RegisteredServiceGroupRecord.hpp>
 #include <deque>
 #include <memory>
 #include <utility>
 #include <vector>
 #include "CustomServiceHostRecord.hpp"
+#include "ServiceThreadRecord.hpp"
 
 namespace Fsl
 {

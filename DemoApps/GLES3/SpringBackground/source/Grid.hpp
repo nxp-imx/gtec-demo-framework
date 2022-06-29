@@ -34,12 +34,12 @@
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <vector>
+#include "IGridRender.hpp"
 #include "PointMass.hpp"
 #include "Spring.hpp"
-#include "IGridRender.hpp"
-#include <vector>
-#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 
 namespace Fsl
 {

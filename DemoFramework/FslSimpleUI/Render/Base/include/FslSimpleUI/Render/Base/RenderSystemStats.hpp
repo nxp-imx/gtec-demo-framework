@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_RENDERSYSTEMSTATS_HPP
 #define FSLSIMPLEUI_RENDER_BASE_RENDERSYSTEMSTATS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,37 +33,34 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct RenderSystemStats
   {
-    struct RenderSystemStats
-    {
-      uint32_t MeshCount{0};
-      uint32_t BatchCount{0};
-      uint32_t VertexCount{0};
-      uint32_t IndexCount{0};
-      uint32_t DrawCalls{0};
-      uint32_t DrawIndexCalls{0};
-      uint32_t VertexBufferCount{0};
-      uint32_t IndexBufferCount{0};
+    uint32_t MeshCount{0};
+    uint32_t BatchCount{0};
+    uint32_t VertexCount{0};
+    uint32_t IndexCount{0};
+    uint32_t DrawCalls{0};
+    uint32_t DrawIndexCalls{0};
+    uint32_t VertexBufferCount{0};
+    uint32_t IndexBufferCount{0};
 
-      constexpr RenderSystemStats() noexcept = default;
-      constexpr RenderSystemStats(const uint32_t meshCount, const uint32_t batchCount, const uint32_t vertexCount, const uint32_t indexCount,
-                                  const uint32_t drawCalls, const uint32_t drawIndexCalls, const uint32_t vertexBufferCount,
-                                  const uint32_t indexBufferCount) noexcept
-        : MeshCount(meshCount)
-        , BatchCount(batchCount)
-        , VertexCount(vertexCount)
-        , IndexCount(indexCount)
-        , DrawCalls(drawCalls)
-        , DrawIndexCalls(drawIndexCalls)
-        , VertexBufferCount(vertexBufferCount)
-        , IndexBufferCount(indexBufferCount)
-      {
-      }
-    };
-  }
+    constexpr RenderSystemStats() noexcept = default;
+    constexpr RenderSystemStats(const uint32_t meshCount, const uint32_t batchCount, const uint32_t vertexCount, const uint32_t indexCount,
+                                const uint32_t drawCalls, const uint32_t drawIndexCalls, const uint32_t vertexBufferCount,
+                                const uint32_t indexBufferCount) noexcept
+      : MeshCount(meshCount)
+      , BatchCount(batchCount)
+      , VertexCount(vertexCount)
+      , IndexCount(indexCount)
+      , DrawCalls(drawCalls)
+      , DrawIndexCalls(drawIndexCalls)
+      , VertexBufferCount(vertexBufferCount)
+      , IndexBufferCount(indexBufferCount)
+    {
+    }
+  };
 }
 
 

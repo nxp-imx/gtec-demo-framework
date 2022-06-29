@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/TextureAtlas/AtlasTextureInfoUtil.hpp>
 #include <FslBase/Log/Math/LogVector2.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangleU32.hpp>
+#include <FslGraphics/TextureAtlas/AtlasTextureInfoUtil.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 

@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSTEXTUREFACTORY_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSTEXTUREFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,64 +42,60 @@
 #include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class VulkanImageCreator;
+
+  class NativeGraphicsTextureFactory
   {
-    class VulkanImageCreator;
+    NativeGraphicsDescriptorSetManager m_descriptorManager;
+    std::shared_ptr<VulkanImageCreator> m_imageCreator;
+    // It's very important that this is listed after m_descriptorManager as it might contain entries with a pointer to m_descriptorManager
+    HandleVector<NativeGraphicsTexture> m_textures;
+    bool m_isDisposed{false};
 
-    class NativeGraphicsTextureFactory
+  public:
+    NativeGraphicsTextureFactory(const NativeGraphicsTextureFactory&) = delete;
+    NativeGraphicsTextureFactory(NativeGraphicsTextureFactory&& other) = delete;
+    NativeGraphicsTextureFactory& operator=(const NativeGraphicsTextureFactory&) = delete;
+    NativeGraphicsTextureFactory& operator=(NativeGraphicsTextureFactory&& other) = delete;
+
+    explicit NativeGraphicsTextureFactory(const VUDevice& device, std::shared_ptr<VulkanImageCreator> imageCreator, const uint32_t maxFramesInFlight);
+    ~NativeGraphicsTextureFactory() noexcept;
+
+    void Dispose() noexcept;
+
+    bool IsValidHandle(const BasicNativeTextureHandle hTexture) const
     {
-      NativeGraphicsDescriptorSetManager m_descriptorManager;
-      std::shared_ptr<VulkanImageCreator> m_imageCreator;
-      // It's very important that this is listed after m_descriptorManager as it might contain entries with a pointer to m_descriptorManager
-      HandleVector<NativeGraphicsTexture> m_textures;
-      bool m_isDisposed{false};
-
-    public:
-      NativeGraphicsTextureFactory(const NativeGraphicsTextureFactory&) = delete;
-      NativeGraphicsTextureFactory(NativeGraphicsTextureFactory&& other) = delete;
-      NativeGraphicsTextureFactory& operator=(const NativeGraphicsTextureFactory&) = delete;
-      NativeGraphicsTextureFactory& operator=(NativeGraphicsTextureFactory&& other) = delete;
-
-      explicit NativeGraphicsTextureFactory(const VUDevice& device, std::shared_ptr<VulkanImageCreator> imageCreator,
-                                            const uint32_t maxFramesInFlight);
-      ~NativeGraphicsTextureFactory() noexcept;
-
-      void Dispose() noexcept;
-
-      bool IsValidHandle(const BasicNativeTextureHandle hTexture) const
-      {
-        return m_textures.IsValidHandle(hTexture.Value);
-      }
+      return m_textures.IsValidHandle(hTexture.Value);
+    }
 
 
-      VkDescriptorSetLayout GetMainDescriptorSetLayout() const
-      {
-        return m_descriptorManager.GetMainDescriptorSetLayout();
-      }
+    VkDescriptorSetLayout GetMainDescriptorSetLayout() const
+    {
+      return m_descriptorManager.GetMainDescriptorSetLayout();
+    }
 
-      VkDescriptorSet GetDescriptorSet(const BasicNativeTextureHandle hTexture) const
-      {
-        return m_textures.Get(hTexture.Value).GetDescriptorSet();
-      }
+    VkDescriptorSet GetDescriptorSet(const BasicNativeTextureHandle hTexture) const
+    {
+      return m_textures.Get(hTexture.Value).GetDescriptorSet();
+    }
 
-      VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
-      {
-        const NativeGraphicsTexture* pRecord = m_textures.TryGet(hTexture.Value);
-        return pRecord != nullptr ? pRecord->ToTextureInfo() : VUTextureInfo();
-      }
+    VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
+    {
+      const NativeGraphicsTexture* pRecord = m_textures.TryGet(hTexture.Value);
+      return pRecord != nullptr ? pRecord->ToTextureInfo() : VUTextureInfo();
+    }
 
-      Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const;
-      BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
-                                             const bool isDynamic);
-      bool DestroyTexture(const BasicNativeTextureHandle hTexture);
+    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const;
+    BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
+                                           const bool isDynamic);
+    bool DestroyTexture(const BasicNativeTextureHandle hTexture);
 
-      void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
-                          const TextureFlags textureFlags);
-      const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const;
-    };
-  }
+    void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
+                        const TextureFlags textureFlags);
+    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const;
+  };
 }
 
 #endif

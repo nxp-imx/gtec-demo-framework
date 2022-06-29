@@ -33,38 +33,35 @@
 
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ITreeNodeLocator;
+  class IWindowId;
+  class WindowEvent;
+  class WindowEventPool;
+  class WindowEventQueue;
+
+  class WindowEventSender final
   {
-    class ITreeNodeLocator;
-    class IWindowId;
-    class WindowEvent;
-    class WindowEventPool;
-    class WindowEventQueue;
+    const std::shared_ptr<WindowEventQueue> m_windowEventQueue;
+    const std::shared_ptr<ITreeNodeLocator> m_treeNodeLocator;
 
-    class WindowEventSender final
-    {
-      const std::shared_ptr<WindowEventQueue> m_windowEventQueue;
-      const std::shared_ptr<ITreeNodeLocator> m_treeNodeLocator;
+  public:
+    WindowEventSender(const WindowEventSender&) = delete;
+    WindowEventSender& operator=(const WindowEventSender&) = delete;
 
-    public:
-      WindowEventSender(const WindowEventSender&) = delete;
-      WindowEventSender& operator=(const WindowEventSender&) = delete;
+    const std::shared_ptr<WindowEventPool> EventPool;
 
-      const std::shared_ptr<WindowEventPool> EventPool;
+    WindowEventSender(std::shared_ptr<WindowEventQueue> windowEventQueue, std::shared_ptr<WindowEventPool> eventPool,
+                      std::shared_ptr<ITreeNodeLocator> treeNodeLocator);
+    ~WindowEventSender();
 
-      WindowEventSender(std::shared_ptr<WindowEventQueue> windowEventQueue, std::shared_ptr<WindowEventPool> eventPool,
-                        std::shared_ptr<ITreeNodeLocator> treeNodeLocator);
-      ~WindowEventSender();
-
-      //! @brief Send a event from the supplied source
-      void SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId* const pSource);
-      void SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source);
-      // bool TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource);
-      // bool TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source);
-    };
-  }
+    //! @brief Send a event from the supplied source
+    void SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId* const pSource);
+    void SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source);
+    // bool TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource);
+    // bool TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source);
+  };
 }
 
 #endif

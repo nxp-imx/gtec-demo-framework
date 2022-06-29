@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,59 +29,56 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/Material/Basic/BasicSpriteMaterial.hpp>
+#include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
 
-namespace Fsl
+namespace Fsl::UISpriteToTextureUtil
 {
-  namespace UISpriteToTextureUtil
+  AtlasTexture2D ExtractFillTexture(const IBasicRenderSystem& renderSystem, const std::shared_ptr<BasicImageSprite>& fillSprite)
   {
-    AtlasTexture2D ExtractFillTexture(const IBasicRenderSystem& renderSystem, const std::shared_ptr<BasicImageSprite>& fillSprite)
+    if (!fillSprite)
     {
-      if (!fillSprite)
-      {
-        throw std::invalid_argument("fillSprite must be valid");
-      }
-
-      const BasicImageSpriteInfo& info = fillSprite->GetInfo();
-
-      const PxRectangleU32 fillRect(info.ImageInfo.RectanglePx.GetCenter().X, info.ImageInfo.RectanglePx.GetCenter().Y, 1, 1);
-
-      const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
-      if (pMaterial == nullptr)
-      {
-        throw NotSupportedException("Material not of the expected type");
-      }
-
-      return AtlasTexture2D(Texture2D(renderSystem.GetMaterialTexture(pMaterial->Material), info.MaterialInfo.ExtentPx, PixelFormat::R8G8B8A8_UNORM),
-                            AtlasTextureInfo(fillRect, PxThicknessU(), info.ImageDpi));
+      throw std::invalid_argument("fillSprite must be valid");
     }
 
-    AtlasTexture2D ExtractFillTexture(const IBasicRenderSystem& renderSystem, const std::shared_ptr<ImageSprite>& fillSprite)
+    const BasicImageSpriteInfo& info = fillSprite->GetInfo();
+
+    const PxRectangleU32 fillRect(info.ImageInfo.RectanglePx.GetCenter().X, info.ImageInfo.RectanglePx.GetCenter().Y, 1, 1);
+
+    const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
+    if (pMaterial == nullptr)
     {
-      if (!fillSprite)
-      {
-        throw std::invalid_argument("fillSprite must be valid");
-      }
-
-      const ImageSpriteInfo& info = fillSprite->GetInfo();
-
-      const PxRectangleU32 fillRect(info.ImageInfo.TrimmedRectanglePx.GetCenter().X, info.ImageInfo.TrimmedRectanglePx.GetCenter().Y, 1, 1);
-
-      const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
-      if (pMaterial == nullptr)
-      {
-        throw NotSupportedException("Material not of the expected type");
-      }
-
-      return AtlasTexture2D(Texture2D(renderSystem.GetMaterialTexture(pMaterial->Material), info.MaterialInfo.ExtentPx, PixelFormat::R8G8B8A8_UNORM),
-                            AtlasTextureInfo(fillRect, PxThicknessU(), info.ImageDpi));
+      throw NotSupportedException("Material not of the expected type");
     }
+
+    return {Texture2D(renderSystem.GetMaterialTexture(pMaterial->Material), info.MaterialInfo.ExtentPx, PixelFormat::R8G8B8A8_UNORM),
+            AtlasTextureInfo(fillRect, PxThicknessU(), info.ImageDpi)};
+  }
+
+  AtlasTexture2D ExtractFillTexture(const IBasicRenderSystem& renderSystem, const std::shared_ptr<ImageSprite>& fillSprite)
+  {
+    if (!fillSprite)
+    {
+      throw std::invalid_argument("fillSprite must be valid");
+    }
+
+    const ImageSpriteInfo& info = fillSprite->GetInfo();
+
+    const PxRectangleU32 fillRect(info.ImageInfo.TrimmedRectanglePx.GetCenter().X, info.ImageInfo.TrimmedRectanglePx.GetCenter().Y, 1, 1);
+
+    const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
+    if (pMaterial == nullptr)
+    {
+      throw NotSupportedException("Material not of the expected type");
+    }
+
+    return {Texture2D(renderSystem.GetMaterialTexture(pMaterial->Material), info.MaterialInfo.ExtentPx, PixelFormat::R8G8B8A8_UNORM),
+            AtlasTextureInfo(fillRect, PxThicknessU(), info.ImageDpi)};
   }
 }

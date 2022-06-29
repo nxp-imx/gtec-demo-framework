@@ -33,8 +33,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/IO/Path.hpp>
-#include "AScene.hpp"
 #include <memory>
+#include "AScene.hpp"
 
 namespace Fsl
 {

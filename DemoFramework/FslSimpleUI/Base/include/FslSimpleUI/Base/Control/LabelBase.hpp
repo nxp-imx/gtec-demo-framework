@@ -54,12 +54,17 @@ namespace Fsl
 
     private:
       SpriteFontMesh m_font;
-      Color m_fontColor{DefaultColor::Palette::Font};
-      Color m_fontDisabledColor{DefaultColor::Palette::FontDisabled};
-      ItemAlignment m_contentAlignmentX{ItemAlignment::Near};
-      ItemAlignment m_contentAlignmentY{ItemAlignment::Near};
+      DataBinding::TypedDependencyProperty<Color> m_propertyFontColor{DefaultColor::Palette::Font};
+      DataBinding::TypedDependencyProperty<Color> m_propertyFontDisabledColor{DefaultColor::Palette::FontDisabled};
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentX;
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentY;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyFontColor;
+      static DataBinding::DependencyPropertyDefinition PropertyFontDisabledColor;
+      static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentX;
+      static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentY;
+
       explicit LabelBase(const std::shared_ptr<WindowContext>& context);
 
       bool IsEnabled() const
@@ -72,17 +77,17 @@ namespace Fsl
 
       ItemAlignment GetContentAlignmentX() const
       {
-        return m_contentAlignmentX;
+        return m_propertyContentAlignmentX.Get();
       };
 
-      void SetContentAlignmentX(const ItemAlignment& value);
+      bool SetContentAlignmentX(const ItemAlignment value);
 
       ItemAlignment GetContentAlignmentY() const
       {
-        return m_contentAlignmentX;
+        return m_propertyContentAlignmentY.Get();
       };
 
-      void SetContentAlignmentY(const ItemAlignment& value);
+      bool SetContentAlignmentY(const ItemAlignment value);
 
 
       const std::shared_ptr<SpriteFont>& GetFont() const
@@ -94,17 +99,17 @@ namespace Fsl
 
       Color GetFontColor() const
       {
-        return m_fontColor;
+        return m_propertyFontColor.Get();
       }
 
-      void SetFontColor(const Color& color);
+      bool SetFontColor(const Color value);
 
       Color GetFontDisabledColor() const
       {
-        return m_fontDisabledColor;
+        return m_propertyFontDisabledColor.Get();
       }
 
-      void SetFontDisabledColor(const Color& color);
+      bool SetFontDisabledColor(const Color value);
 
       void WinDraw(const UIDrawContext& context) override;
 
@@ -123,6 +128,11 @@ namespace Fsl
       {
         return m_font.Measure(value);
       }
+
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
     };
   }
 }

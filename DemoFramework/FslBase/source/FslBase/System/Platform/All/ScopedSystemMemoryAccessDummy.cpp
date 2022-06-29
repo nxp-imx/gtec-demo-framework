@@ -30,8 +30,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/System/Platform/All/ScopedSystemMemoryAccessDummy.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/System/Platform/All/ScopedSystemMemoryAccessDummy.hpp>
 
 namespace Fsl
 {

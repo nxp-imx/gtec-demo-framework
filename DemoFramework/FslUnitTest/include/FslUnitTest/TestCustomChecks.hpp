@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <gtest/gtest.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <gtest/gtest.h>
 #include <stdexcept>
 
 namespace Fsl

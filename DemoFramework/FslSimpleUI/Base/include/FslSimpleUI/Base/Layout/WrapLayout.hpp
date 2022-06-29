@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_WRAPLAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_WRAPLAYOUT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,64 +31,61 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPointF.hpp>
+#include <FslBase/Math/Dp/DpPoint2F.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct WrapLayoutWindowRecord : GenericWindowCollectionRecordBase
   {
-    struct WrapLayoutWindowRecord : GenericWindowCollectionRecordBase
+    PxPoint2 PositionPx;
+
+    explicit WrapLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
+      : GenericWindowCollectionRecordBase(window)
     {
-      PxPoint2 PositionPx;
+    }
+  };
 
-      explicit WrapLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
-        : GenericWindowCollectionRecordBase(window)
-      {
-      }
-    };
+  class WrapLayout : public ComplexLayout<WrapLayoutWindowRecord>
+  {
+    LayoutOrientation m_orientation;
+    DpPoint2F m_spacingDp;
 
-    class WrapLayout : public ComplexLayout<WrapLayoutWindowRecord>
+  public:
+    explicit WrapLayout(const std::shared_ptr<BaseWindowContext>& context);
+
+    LayoutOrientation GetLayoutOrientation() const
     {
-      LayoutOrientation m_orientation;
-      DpPointF m_spacingDp;
+      return m_orientation;
+    }
 
-    public:
-      explicit WrapLayout(const std::shared_ptr<BaseWindowContext>& context);
+    void SetOrientation(const LayoutOrientation& value);
 
-      LayoutOrientation GetLayoutOrientation() const
-      {
-        return m_orientation;
-      }
+    DpPoint2F GetSpacing() const
+    {
+      return m_spacingDp;
+    }
 
-      void SetLayoutOrientation(const LayoutOrientation& value);
+    bool SetSpacing(const DpPoint2F valueDp);
 
-      DpPointF GetSpacing() const
-      {
-        return m_spacingDp;
-      }
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
-      void SetSpacing(const DpPointF& valueDp);
-
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
-
-      static PxSize2D MeasureHorizontalStackLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                   const collection_type::queue_type::iterator& itrEnd, const int32_t spacingXPx,
-                                                   const PxAvailableSize& availableSizePx);
-      static PxSize2D MeasureVerticalStackLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                 const collection_type::queue_type::iterator& itrEnd, const int32_t spacingYPx,
+    static PxSize2D MeasureHorizontalStackLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                 const collection_type::queue_type::iterator& itrEnd, const PxValue spacingXPx,
                                                  const PxAvailableSize& availableSizePx);
-      static PxSize2D MeasureHorizontalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                  const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
-                                                  const PxAvailableSize& availableSizePx);
-      static PxSize2D MeasureVerticalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
+    static PxSize2D MeasureVerticalStackLayout(const collection_type::queue_type::iterator& itrBegin,
+                                               const collection_type::queue_type::iterator& itrEnd, const PxValue spacingYPx,
+                                               const PxAvailableSize& availableSizePx);
+    static PxSize2D MeasureHorizontalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
                                                 const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
                                                 const PxAvailableSize& availableSizePx);
-    };
-  }
+    static PxSize2D MeasureVerticalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
+                                              const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
+                                              const PxAvailableSize& availableSizePx);
+  };
 }
 
 #endif

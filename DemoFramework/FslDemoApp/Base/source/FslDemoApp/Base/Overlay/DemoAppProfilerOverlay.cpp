@@ -29,22 +29,22 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/String/StringCompat.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoService/CpuStats/ICpuStatsService.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslDemoService/Profiler/DefaultProfilerColors.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
-#include <cmath>
 #include <utility>
 
 namespace Fsl
@@ -129,7 +129,8 @@ namespace Fsl
         {
           if (showFPS && showMilliseconds)
           {
-            fmt::format_to(std::back_inserter(m_scracthpad), "{:5.1f}FPS {:4.1f}ms", frameTime.GetFramePerSecond(), frameTime.TotalTime / 1000.0f);
+            fmt::format_to(std::back_inserter(m_scracthpad), "{:5.1f}FPS {:4.1f}ms", frameTime.GetFramePerSecond(),
+                           static_cast<double>(frameTime.TotalTime) / 1000.0);
           }
           else if (showFPS)
           {
@@ -137,7 +138,7 @@ namespace Fsl
           }
           else if (showMilliseconds)
           {
-            fmt::format_to(std::back_inserter(m_scracthpad), "{:4.1f}ms", frameTime.TotalTime / 1000.0f);
+            fmt::format_to(std::back_inserter(m_scracthpad), "{:4.1f}ms", static_cast<double>(frameTime.TotalTime) / 1000.0);
           }
         }
         if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU) && m_cpuStatsService)
@@ -159,7 +160,7 @@ namespace Fsl
 
         {    // Render text for the custom counters
           dstPos.X += static_cast<float>((m_scracthpad.size() + 1) * fontSize.Width());
-          std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
+          auto itr = m_customCounters.begin();
           while (itr != m_customCounters.end())
           {
             m_scracthpad.clear();
@@ -264,7 +265,7 @@ namespace Fsl
 
   void DemoAppProfilerOverlay::UpdateAndDrawCustomCounters(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPos)
   {
-    std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
+    auto itr = m_customCounters.begin();
     while (itr != m_customCounters.end())
     {
       itr->Graph->Add(m_profilerService->Get(itr->Handle));

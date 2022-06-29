@@ -29,48 +29,45 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "TreeNode.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <cassert>
-#include "TreeNode.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  void TreeNode::AddChild(const std::shared_ptr<TreeNode>& parentNode, const std::shared_ptr<TreeNode>& childNode)
   {
-    void TreeNode::AddChild(const std::shared_ptr<TreeNode>& parentNode, const std::shared_ptr<TreeNode>& childNode)
-    {
-      assert(parentNode);
-      assert(childNode);
+    assert(parentNode);
+    assert(childNode);
 
-      childNode->m_parent = parentNode;
-      parentNode->m_children.push_back(childNode);
-    }
+    childNode->m_parent = parentNode;
+    parentNode->m_children.push_back(childNode);
+  }
 
 
-    void TreeNode::MarkNodeAsDisposed()
-    {
+  void TreeNode::MarkNodeAsDisposed()
+  {
 #ifdef _DEBUG
+    {
+      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
-        for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
-        {
-          assert((*itr)->IsDisposed());
-        }
+        assert((*itr)->IsDisposed());
       }
+    }
 #endif
 
-      m_flags.EnableFlag(TreeNodeFlags::Disposed);
-      m_window->WinShutdown();
-    }
+    m_flags.EnableFlag(TreeNodeFlags::Disposed);
+    m_window->WinShutdown();
+  }
 
 
-    void TreeNode::RemoveChild(const std::shared_ptr<TreeNode>& childNode)
+  void TreeNode::RemoveChild(const std::shared_ptr<TreeNode>& childNode)
+  {
+    auto itr = std::find(m_children.begin(), m_children.end(), childNode);
+    if (itr != m_children.end())
     {
-      auto itr = std::find(m_children.begin(), m_children.end(), childNode);
-      if (itr != m_children.end())
-      {
-        childNode->m_parent.reset();
-        m_children.erase(itr);
-      }
+      childNode->m_parent.reset();
+      m_children.erase(itr);
     }
   }
 }

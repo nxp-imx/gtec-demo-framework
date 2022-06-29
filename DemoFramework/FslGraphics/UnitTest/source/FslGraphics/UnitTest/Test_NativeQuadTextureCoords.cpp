@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/NativeQuadTextureCoords.hpp>
 #include <FslGraphics/Log/LogNativeQuadTextureCoords.hpp>
+#include <FslGraphics/NativeQuadTextureCoords.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>
 #include <limits>

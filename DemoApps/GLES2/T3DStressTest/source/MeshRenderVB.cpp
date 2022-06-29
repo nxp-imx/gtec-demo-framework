@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "MeshRenderVB.hpp"
-#include "Shader/ShaderBase.hpp"
 #include <FslUtil/OpenGLES2/GLUtil.hpp>
+#include "Shader/ShaderBase.hpp"
 
 namespace Fsl
 {
@@ -60,7 +60,7 @@ namespace Fsl
 
   void MeshRenderVB::Draw()
   {
-    glDrawElements(m_primitiveType, m_ib.GetCapacity(), m_ib.GetType(), nullptr);
+    glDrawElements(m_primitiveType, m_ib.GetGLCapacity(), m_ib.GetType(), nullptr);
   }
 
   void MeshRenderVB::Unbind()

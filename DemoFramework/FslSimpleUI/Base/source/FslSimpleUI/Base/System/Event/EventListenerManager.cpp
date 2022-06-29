@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,75 +34,72 @@
 #include <algorithm>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  EventListenerManager::EventListenerManager() = default;
+
+  void EventListenerManager::RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
   {
-    EventListenerManager::EventListenerManager() = default;
+    m_eventListeners.push_back(eventListener);
+    m_cacheDirty = true;
+  }
 
-    void EventListenerManager::RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
+  void EventListenerManager::UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
+  {
+    auto listener = eventListener.lock();
+    // If the pointer has become invalid we just ignore the request as the next broadcast will remove the entry
+    if (!listener)
     {
-      m_eventListeners.push_back(eventListener);
+      ForceGC();
+      return;
+    }
+
+    auto itr = std::find_if(m_eventListeners.begin(), m_eventListeners.end(),
+                            [listener](const std::weak_ptr<IEventListener>& record) { return record.lock() == listener; });
+    if (itr != m_eventListeners.end())
+    {
+      m_eventListeners.erase(itr);
       m_cacheDirty = true;
     }
+  }
 
-    void EventListenerManager::UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener)
+  void EventListenerManager::UpdateCache()
+  {
+    if (!m_cacheDirty)
     {
-      auto listener = eventListener.lock();
-      // If the pointer has become invalid we just ignore the request as the next broadcast will remove the entry
-      if (!listener)
-      {
-        ForceGC();
-        return;
-      }
-
-      auto itr = std::find_if(m_eventListeners.begin(), m_eventListeners.end(),
-                              [listener](const std::weak_ptr<IEventListener>& record) { return record.lock() == listener; });
-      if (itr != m_eventListeners.end())
-      {
-        m_eventListeners.erase(itr);
-        m_cacheDirty = true;
-      }
+      return;
     }
 
-    void EventListenerManager::UpdateCache()
-    {
-      if (!m_cacheDirty)
-      {
-        return;
-      }
+    m_eventListenersCache.clear();
+    std::copy(m_eventListeners.begin(), m_eventListeners.end(), std::back_inserter(m_eventListenersCache));
+    m_cacheDirty = false;
+  }
 
-      m_eventListenersCache.clear();
-      std::copy(m_eventListeners.begin(), m_eventListeners.end(), std::back_inserter(m_eventListenersCache));
-      m_cacheDirty = false;
+  void EventListenerManager::ForceGC()
+  {
+    m_gcRequested = true;
+    PerformGC();
+  }
+
+  void EventListenerManager::PerformGC()
+  {
+    if (!m_gcRequested)
+    {
+      return;
     }
 
-    void EventListenerManager::ForceGC()
-    {
-      m_gcRequested = true;
-      PerformGC();
-    }
+    m_cacheDirty = true;
 
-    void EventListenerManager::PerformGC()
+    auto itr = m_eventListeners.begin();
+    while (itr != m_eventListeners.end())
     {
-      if (!m_gcRequested)
+      if (itr->expired())
       {
-        return;
+        itr = m_eventListeners.erase(itr);
       }
-
-      m_cacheDirty = true;
-
-      auto itr = m_eventListeners.begin();
-      while (itr != m_eventListeners.end())
+      else
       {
-        if (itr->expired())
-        {
-          itr = m_eventListeners.erase(itr);
-        }
-        else
-        {
-          ++itr;
-        }
+        ++itr;
       }
     }
   }

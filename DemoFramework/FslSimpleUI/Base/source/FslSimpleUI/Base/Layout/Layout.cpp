@@ -31,15 +31,12 @@
 
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  Layout::Layout(const std::shared_ptr<BaseWindowContext>& context)
+    : BaseWindow(context)
   {
-    Layout::Layout(const std::shared_ptr<BaseWindowContext>& context)
-      : BaseWindow(context)
-    {
-      // Enable the WinInit callback required by window collections that all layouts utilize
-      Enable(WindowFlags::WinInit);
-    }
+    // Enable the WinInit callback required by window collections that all layouts utilize
+    Enable(WindowFlags::WinInit);
   }
 }

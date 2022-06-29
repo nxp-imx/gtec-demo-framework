@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -40,6 +39,7 @@
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
 #include <array>
 #include <cstddef>
 
@@ -82,13 +82,13 @@ TEST(TestVertices_VertexPositionColorNormalTangentTexture, Construct)
 
 TEST(TestVertices_VertexPositionColorNormalTangentTexture, GetVertexDeclaration)
 {
-  std::array<VertexElementEx, 5> expected = {
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                    VertexElementUsage::TextureCoordinate, 0u)};
+  std::array<VertexElement, 5> expected = {
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                  VertexElementUsage::TextureCoordinate, 0u)};
 
   const auto vertexDecl = VertexDeclaration(VertexPositionColorNormalTangentTexture::AsVertexDeclarationSpan());
 
@@ -112,13 +112,13 @@ TEST(TestVertices_VertexPositionColorNormalTangentTexture, GetVertexDeclaration)
 
 TEST(TestVertices_VertexPositionColorNormalTangentTexture, GetVertexDeclarationArray)
 {
-  std::array<VertexElementEx, 5> expected = {
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                    VertexElementUsage::TextureCoordinate, 0u)};
+  std::array<VertexElement, 5> expected = {
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                  VertexElementUsage::TextureCoordinate, 0u)};
 
   const auto vertexDecl = VertexPositionColorNormalTangentTexture::GetVertexDeclarationArray();
 
@@ -142,13 +142,13 @@ TEST(TestVertices_VertexPositionColorNormalTangentTexture, GetVertexDeclarationA
 
 TEST(TestVertices_VertexPositionColorNormalTangentTexture, AsVertexDeclarationSpan)
 {
-  std::array<VertexElementEx, 5> expected = {
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
-    VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
-                    VertexElementUsage::TextureCoordinate, 0u)};
+  std::array<VertexElement, 5> expected = {
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0u),
+    VertexElement(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
+                  VertexElementUsage::TextureCoordinate, 0u)};
 
   const auto vertexDecl = VertexPositionColorNormalTangentTexture::AsVertexDeclarationSpan();
 

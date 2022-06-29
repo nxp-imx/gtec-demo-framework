@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_BASE_RENDERSYSTEMINFO_HPP
 #define FSLSIMPLEUI_RENDER_BASE_RENDERSYSTEMINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,51 +33,48 @@
 
 #include <FslSimpleUI/Render/Base/RenderOptionFlags.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct RenderSystemInfo
   {
-    struct RenderSystemInfo
+    // The flags that can be tweaked at run-time
+    RenderOptionFlags Available{UI::RenderOptionFlags::NoFlags};
+    // The flags that are currently set
+    RenderOptionFlags Settings{RenderOptionFlags::NoFlags};
+    // The default flag values.
+    RenderOptionFlags DefaultSettings{RenderOptionFlags::NoFlags};
+
+    constexpr RenderSystemInfo() noexcept = default;
+    constexpr RenderSystemInfo(const RenderOptionFlags available, const RenderOptionFlags settings, const RenderOptionFlags defaultSettings) noexcept
+      : Available(available)
+      , Settings(settings)
+      , DefaultSettings(defaultSettings)
     {
-      // The flags that can be tweaked at run-time
-      RenderOptionFlags Available{UI::RenderOptionFlags::NoFlags};
-      // The flags that are currently set
-      RenderOptionFlags Settings{RenderOptionFlags::NoFlags};
-      // The default flag values.
-      RenderOptionFlags DefaultSettings{RenderOptionFlags::NoFlags};
+    }
 
-      constexpr RenderSystemInfo() noexcept = default;
-      constexpr RenderSystemInfo(const RenderOptionFlags available, const RenderOptionFlags settings,
-                                 const RenderOptionFlags defaultSettings) noexcept
-        : Available(available)
-        , Settings(settings)
-        , DefaultSettings(defaultSettings)
-      {
-      }
+    void Set(const RenderOptionFlags flag, const bool enabled)
+    {
+      UI::RenderOptionFlagsUtil::Set(
+        Settings, flag,
+        (UI::RenderOptionFlagsUtil::IsEnabled(Available, flag) ? enabled : UI::RenderOptionFlagsUtil::IsEnabled(DefaultSettings, flag)));
+    }
 
-      void Set(const RenderOptionFlags flag, const bool enabled)
-      {
-        UI::RenderOptionFlagsUtil::Set(
-          Settings, flag,
-          (UI::RenderOptionFlagsUtil::IsEnabled(Available, flag) ? enabled : UI::RenderOptionFlagsUtil::IsEnabled(DefaultSettings, flag)));
-      }
+    void Set(const RenderOptionFlags flags)
+    {
+      SetFlagIfEnabled(RenderOptionFlags::Batch, flags);
+      SetFlagIfEnabled(RenderOptionFlags::FillBuffers, flags);
+      SetFlagIfEnabled(RenderOptionFlags::DepthBuffer, flags);
+      SetFlagIfEnabled(RenderOptionFlags::DrawReorder, flags);
+      SetFlagIfEnabled(RenderOptionFlags::MeshCaching, flags);
+      SetFlagIfEnabled(RenderOptionFlags::PreferFastReorder, flags);
+    }
 
-      void Set(const RenderOptionFlags flags)
-      {
-        SetFlagIfEnabled(RenderOptionFlags::Batch, flags);
-        SetFlagIfEnabled(RenderOptionFlags::FillBuffers, flags);
-        SetFlagIfEnabled(RenderOptionFlags::DepthBuffer, flags);
-        SetFlagIfEnabled(RenderOptionFlags::DrawReorder, flags);
-        SetFlagIfEnabled(RenderOptionFlags::MeshCaching, flags);
-      }
-
-    private:
-      void SetFlagIfEnabled(RenderOptionFlags flag, RenderOptionFlags sourceFlags)
-      {
-        Set(flag, UI::RenderOptionFlagsUtil::IsEnabled(sourceFlags, flag));
-      }
-    };
-  }
+  private:
+    void SetFlagIfEnabled(RenderOptionFlags flag, RenderOptionFlags sourceFlags)
+    {
+      Set(flag, UI::RenderOptionFlagsUtil::IsEnabled(sourceFlags, flag));
+    }
+  };
 }
 
 

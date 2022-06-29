@@ -31,8 +31,8 @@
 
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
-#include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/Bitmap/BitmapImageConfig.hpp>
+#include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/ImageTestTemplate.hpp>
 #include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>

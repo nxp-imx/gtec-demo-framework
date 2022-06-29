@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_BUFFER_BASICDYNAMICBUFFERLINK_HPP
 #define FSLGRAPHICS3D_BASICRENDER_BUFFER_BASICDYNAMICBUFFERLINK_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,67 +40,64 @@
 #include <utility>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class INativeBufferFactory;
+
+  class BasicDynamicBufferLink final
   {
-    class INativeBufferFactory;
-
-    class BasicDynamicBufferLink final
+    struct Record
     {
-      struct Record
-      {
-        BasicNativeBufferHandle NativeHandle;
-        uint32_t DeferCount{0};
-        bool IsInUse{false};
-        bool DeferredReuse{false};
-      };
-
-      std::shared_ptr<INativeBufferFactory> m_factory;
-      BasicBufferType m_bufferType;
-      std::vector<Record> m_buffers;
-      uint32_t m_activeIndex{0};
-      bool m_setDataSupported{false};
-      bool m_swapchainValid{true};
-      bool m_isDestroyed{false};
-      uint32_t m_bufferElementCapacity;
-
-    public:
-      BasicDynamicBufferLink(const uint32_t maxFramesInFlight, std::shared_ptr<INativeBufferFactory> factory, const BasicBufferType bufferType,
-                             ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity, const bool setDataSupported);
-      ~BasicDynamicBufferLink();
-      void Destroy();
-
-      void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent);
-
-      void CollectGarbage();
-
-
-      void SetData(ReadOnlyFlexSpan bufferData);
-
-
-      //! @brief Get the content type
-      BasicBufferType GetType() const noexcept
-      {
-        return m_bufferType;
-      }
-
-      uint32_t Capacity() const noexcept
-      {
-        return m_bufferElementCapacity;
-      }
-
-      //! @brief Try to get the native texture
-      BasicNativeBufferHandle TryGetNativeHandle() const noexcept
-      {
-        return m_activeIndex < m_buffers.size() ? m_buffers[m_activeIndex].NativeHandle : BasicNativeBufferHandle::Invalid();
-      }
-
-    private:
-      static void SetData(Record& rRecord, INativeBufferFactory& factory, const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData,
-                          const uint32_t bufferElementCapacity, const bool setDataSupported);
+      BasicNativeBufferHandle NativeHandle;
+      uint32_t DeferCount{0};
+      bool IsInUse{false};
+      bool DeferredReuse{false};
     };
-  }
+
+    std::shared_ptr<INativeBufferFactory> m_factory;
+    BasicBufferType m_bufferType;
+    std::vector<Record> m_buffers;
+    uint32_t m_activeIndex{0};
+    bool m_setDataSupported{false};
+    bool m_swapchainValid{true};
+    bool m_isDestroyed{false};
+    uint32_t m_bufferElementCapacity;
+
+  public:
+    BasicDynamicBufferLink(const uint32_t maxFramesInFlight, std::shared_ptr<INativeBufferFactory> factory, const BasicBufferType bufferType,
+                           ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity, const bool setDataSupported);
+    ~BasicDynamicBufferLink();
+    void Destroy();
+
+    void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent);
+
+    void CollectGarbage();
+
+
+    void SetData(ReadOnlyFlexSpan bufferData);
+
+
+    //! @brief Get the content type
+    BasicBufferType GetType() const noexcept
+    {
+      return m_bufferType;
+    }
+
+    uint32_t Capacity() const noexcept
+    {
+      return m_bufferElementCapacity;
+    }
+
+    //! @brief Try to get the native texture
+    BasicNativeBufferHandle TryGetNativeHandle() const noexcept
+    {
+      return m_activeIndex < m_buffers.size() ? m_buffers[m_activeIndex].NativeHandle : BasicNativeBufferHandle::Invalid();
+    }
+
+  private:
+    static void SetData(Record& rRecord, INativeBufferFactory& factory, const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData,
+                        const uint32_t bufferElementCapacity, const bool setDataSupported);
+  };
 }
 
 #endif

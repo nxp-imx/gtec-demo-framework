@@ -37,77 +37,71 @@
 #include <vulkan/vulkan.h>
 #include <cstdlib>
 
-namespace Fsl
+namespace Fsl::Willems::MeshLoader
 {
-  namespace Willems
+  //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+  struct MeshBufferInfo
   {
-    namespace MeshLoader
+    RapidVulkan::Buffer Buffer;
+    RapidVulkan::Memory Memory;
+    std::size_t Size;
+
+    MeshBufferInfo(const MeshBufferInfo&) = delete;
+    MeshBufferInfo& operator=(const MeshBufferInfo&) = delete;
+
+    //! @brief Move assignment operator
+    MeshBufferInfo& operator=(MeshBufferInfo&& other) noexcept;
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    MeshBufferInfo(MeshBufferInfo&& other) noexcept;
+
+    //! @brief Move objects into this object
+    MeshBufferInfo(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& memory, const std::size_t size);
+
+    //! @brief Create a 'invalid' instance (use Reset to populate it)
+    MeshBufferInfo();
+
+    ~MeshBufferInfo()
     {
-      //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
-      struct MeshBufferInfo
-      {
-        RapidVulkan::Buffer Buffer;
-        RapidVulkan::Memory Memory;
-        std::size_t Size;
-
-        MeshBufferInfo(const MeshBufferInfo&) = delete;
-        MeshBufferInfo& operator=(const MeshBufferInfo&) = delete;
-
-        //! @brief Move assignment operator
-        MeshBufferInfo& operator=(MeshBufferInfo&& other) noexcept;
-
-        //! @brief Move constructor
-        //! Transfer ownership from other to this
-        MeshBufferInfo(MeshBufferInfo&& other) noexcept;
-
-        //! @brief Move objects into this object
-        MeshBufferInfo(RapidVulkan::Buffer&& buffer, RapidVulkan::Memory&& memory, const std::size_t size);
-
-        //! @brief Create a 'invalid' instance (use Reset to populate it)
-        MeshBufferInfo();
-
-        ~MeshBufferInfo()
-        {
-          Reset();
-        }
-
-        //! @brief Destroys any owned resources and resets the object to its default state.
-        void Reset() noexcept;
-
-
-        VkDevice GetDevice() const
-        {
-          return Buffer.GetDevice();
-        }
-
-        VkBuffer GetBuffer() const
-        {
-          return Buffer.Get();
-        }
-
-        const VkBuffer* GetBufferPointer() const
-        {
-          return Buffer.GetPointer();
-        }
-
-        VkDeviceMemory GetMemory() const
-        {
-          return Memory.Get();
-        }
-
-        const VkDeviceMemory* GetMemoryPointer() const
-        {
-          return Memory.GetPointer();
-        }
-
-        //! @brief Check if this object contains a valid resource
-        inline bool IsValid() const
-        {
-          return Buffer.IsValid();
-        }
-      };
+      Reset();
     }
-  }
+
+    //! @brief Destroys any owned resources and resets the object to its default state.
+    void Reset() noexcept;
+
+
+    VkDevice GetDevice() const
+    {
+      return Buffer.GetDevice();
+    }
+
+    VkBuffer GetBuffer() const
+    {
+      return Buffer.Get();
+    }
+
+    const VkBuffer* GetBufferPointer() const
+    {
+      return Buffer.GetPointer();
+    }
+
+    VkDeviceMemory GetMemory() const
+    {
+      return Memory.Get();
+    }
+
+    const VkDeviceMemory* GetMemoryPointer() const
+    {
+      return Memory.GetPointer();
+    }
+
+    //! @brief Check if this object contains a valid resource
+    inline bool IsValid() const
+    {
+      return Buffer.IsValid();
+    }
+  };
 }
 
 #endif

@@ -33,77 +33,74 @@
 
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Logger1.hpp>
-#include <exception>
 #include <fmt/format.h>
+#include <exception>
 
-namespace Fsl
+namespace Fsl::Logger
 {
-  namespace Logger
+  extern void WriteLine(const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept;
+  extern void WriteLine(const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept;
+
+  template <typename... Args>
+  void WriteLine(const LogType logType, const char* const pszFormat, const Args&... args) noexcept
   {
-    extern void WriteLine(const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept;
-    extern void WriteLine(const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept;
-
-    template <typename... Args>
-    void WriteLine(const LogType logType, const char* const pszFormat, const Args&... args) noexcept
+    try
     {
-      try
-      {
-        fmt::memory_buffer buf;
-        fmt::format_to(std::back_inserter(buf), pszFormat, args...);
-        buf.push_back(0);
-        WriteLine(logType, buf.data());
-      }
-      catch (const std::exception&)
-      {
-      }
+      fmt::memory_buffer buf;
+      fmt::format_to(std::back_inserter(buf), pszFormat, args...);
+      buf.push_back(0);
+      WriteLine(logType, buf.data());
     }
-
-    template <typename... Args>
-    void WriteLine(const LogType logType, const std::string& strFormat, const Args&... args) noexcept
+    catch (const std::exception&)
     {
-      try
-      {
-        fmt::memory_buffer buf;
-        fmt::format_to(std::back_inserter(buf), strFormat, args...);
-        buf.push_back(0);
-        WriteLine(logType, buf.data());
-      }
-      catch (const std::exception&)
-      {
-      }
     }
+  }
 
-    extern void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept;
-    extern void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept;
-
-    template <typename... Args>
-    void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const Args&... args) noexcept
+  template <typename... Args>
+  void WriteLine(const LogType logType, const std::string& strFormat, const Args&... args) noexcept
+  {
+    try
     {
-      try
-      {
-        fmt::memory_buffer buf;
-        fmt::format_to(std::back_inserter(buf), pszFormat, args...);
-        buf.push_back(0);
-        WriteLine(logLocation, logType, buf.data());
-      }
-      catch (const std::exception&)
-      {
-      }
+      fmt::memory_buffer buf;
+      fmt::format_to(std::back_inserter(buf), strFormat, args...);
+      buf.push_back(0);
+      WriteLine(logType, buf.data());
     }
-
-    template <typename... Args>
-    void WriteLine(const LogLocation& logLocation, const LogType logType, const std::string& strFormat, const Args&... args) noexcept
+    catch (const std::exception&)
     {
-      try
-      {
-        fmt::memory_buffer buf;
-        fmt::format_to(std::back_inserter(buf), strFormat, args...);
-        buf.push_back(0);
-        WriteLine(logLocation, logType, buf.data());
-      }
-      catch (const std::exception&)
-      {
-      }
+    }
+  }
+
+  extern void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const char* const pszArg0) noexcept;
+  extern void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const std::string& strArg0) noexcept;
+
+  template <typename... Args>
+  void WriteLine(const LogLocation& logLocation, const LogType logType, const char* const pszFormat, const Args&... args) noexcept
+  {
+    try
+    {
+      fmt::memory_buffer buf;
+      fmt::format_to(std::back_inserter(buf), pszFormat, args...);
+      buf.push_back(0);
+      WriteLine(logLocation, logType, buf.data());
+    }
+    catch (const std::exception&)
+    {
+    }
+  }
+
+  template <typename... Args>
+  void WriteLine(const LogLocation& logLocation, const LogType logType, const std::string& strFormat, const Args&... args) noexcept
+  {
+    try
+    {
+      fmt::memory_buffer buf;
+      fmt::format_to(std::back_inserter(buf), strFormat, args...);
+      buf.push_back(0);
+      WriteLine(logLocation, logType, buf.data());
+    }
+    catch (const std::exception&)
+    {
     }
   }
 }

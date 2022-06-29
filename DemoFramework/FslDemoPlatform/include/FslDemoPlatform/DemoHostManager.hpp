@@ -35,6 +35,7 @@
 #include <FslDemoHost/Base/DemoHostCaps.hpp>
 #include <FslDemoHost/Base/SwapBuffersResult.hpp>
 #include <FslDemoPlatform/DurationExitConfig.hpp>
+#include <FslDemoPlatform/MainLoopCallbackFunc.hpp>
 #include <FslDemoPlatform/Setup/DemoSetup.hpp>
 #include <memory>
 
@@ -86,7 +87,8 @@ namespace Fsl
     DemoHostManager(const DemoSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser);
     ~DemoHostManager();
 
-    int Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper);
+    //! @param mainLoopCallbackFunction if not null this will be called during the main loop
+    int Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper, FNMainLoopCallback mainLoopCallbackFunction);
 
   private:
     void AppProcess(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedHost);

@@ -34,22 +34,19 @@
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslSimpleUI/App/UIAppTextureHandle.hpp>
 
-namespace Fsl
+namespace Fsl::SimpleUIApp
 {
-  namespace SimpleUIApp
+  struct UIAppBasicTextureInfo
   {
-    struct UIAppBasicTextureInfo
-    {
-      UIAppTextureHandle TextureHandle;
-      PxExtent2D ExtentPx;
+    UIAppTextureHandle TextureHandle;
+    PxExtent2D ExtentPx;
 
-      constexpr UIAppBasicTextureInfo(const UIAppTextureHandle textureHandle, const PxExtent2D extentPx) noexcept
-        : TextureHandle(textureHandle)
-        , ExtentPx(extentPx)
-      {
-      }
-    };
-  }
+    constexpr UIAppBasicTextureInfo(const UIAppTextureHandle textureHandle, const PxExtent2D extentPx) noexcept
+      : TextureHandle(textureHandle)
+      , ExtentPx(extentPx)
+    {
+    }
+  };
 }
 
 #endif

@@ -31,9 +31,9 @@
 
 #include "OpenVX101.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <RapidOpenVX/Check.hpp>
 #include <RapidOpenVX/Context.hpp>
 #include <RapidOpenVX/Exceptions.hpp>
@@ -148,7 +148,7 @@ namespace Fsl
       Bitmap tmpBitmap(srcBitmap);
       BitmapUtil::Convert(tmpBitmap, pixelFormat);
       GLTextureParameters texParams;
-      return GLTexture(tmpBitmap, texParams);
+      return {tmpBitmap, texParams};
     }
   }
 

@@ -29,23 +29,24 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "VGStressTest.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
-#include "Logo.hpp"
-#include "VGStressTest.hpp"
-#include "VGStressTestOptionParser.hpp"
 #include <VG/openvg.h>
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include "Logo.hpp"
+#include "VGStressTestOptionParser.hpp"
 
 namespace Fsl
 {
@@ -102,7 +103,8 @@ namespace Fsl
         for (int i = 0; i < numVerticesPerCircle; ++i)
         {
           float mod = modOffset + (static_cast<float>(i) * growStep);
-          rDst[dstIdx] = Vector2(dstCenter.X + (std::sin(angle) * mod), dstCenter.Y + (std::cos(angle) * mod));
+          rDst[dstIdx] =
+            Vector2(static_cast<float>(dstCenter.X) + (std::sin(angle) * mod), static_cast<float>(dstCenter.Y) + (std::cos(angle) * mod));
           ++dstIdx;
           angle += angleAdd;
         }
@@ -113,7 +115,7 @@ namespace Fsl
         int i = 0;
         float angle = 0.0f;
         float mod = modOffset + (static_cast<float>(i) * growStep);
-        rDst[dstIdx] = Vector2(dstCenter.X + (std::sin(angle) * mod), dstCenter.Y + (std::cos(angle) * mod));
+        rDst[dstIdx] = Vector2(static_cast<float>(dstCenter.X) + (std::sin(angle) * mod), static_cast<float>(dstCenter.Y) + (std::cos(angle) * mod));
       }
     }
 
@@ -301,8 +303,8 @@ namespace Fsl
       for (int i = 0; i < numLayers; ++i)
       {
         DrawPath(VGPathBuffer, paint, pColor);
-        vgTranslate((std::sin(float(angle) * MathHelper::TO_RADS) * float(i) * 0.005f) + (float(i) * 0.005f),
-                    (std::cos(float(angle) * MathHelper::TO_RADS) * float(i) * 0.005f) + (float(i) * 0.005f));
+        vgTranslate((std::sin(static_cast<float>(angle) * MathHelper::TO_RADS) * static_cast<float>(i) * 0.005f) + (static_cast<float>(i) * 0.005f),
+                    (std::cos(static_cast<float>(angle) * MathHelper::TO_RADS) * static_cast<float>(i) * 0.005f) + (static_cast<float>(i) * 0.005f));
       }
       vgLoadIdentity();
 
@@ -345,8 +347,8 @@ namespace Fsl
     {
       const RawBitmap logo = Logo::GetBitmap();
 
-      const int w = logo.Width();
-      const int h = logo.Height();
+      const auto w = UncheckedNumericCast<VGint>(logo.Width());
+      const auto h = UncheckedNumericCast<VGint>(logo.Height());
 
       const auto* pContent = static_cast<const uint8_t*>(logo.Content());
       const auto imgSize = static_cast<std::size_t>(logo.GetByteSize());

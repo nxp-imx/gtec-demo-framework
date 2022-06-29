@@ -1,7 +1,7 @@
 #ifndef SHARED_CAMERA_ADAPTER_OPENCV_CAMERASYSTEMADAPTEROPENCV_HPP
 #define SHARED_CAMERA_ADAPTER_OPENCV_CAMERASYSTEMADAPTEROPENCV_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,25 +33,22 @@
 
 #include <Shared/Camera/Adapter/Interface/ICameraSystemAdapter.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  class CameraSystemAdapterOpenCV : public ICameraSystemAdapter
   {
-    class CameraSystemAdapterOpenCV : public ICameraSystemAdapter
-    {
-      CameraType m_cameraType;
+    CameraType m_cameraType;
 
-    public:
-      CameraSystemAdapterOpenCV(const CameraSystemAdapterOpenCV&) = delete;
-      CameraSystemAdapterOpenCV& operator=(const CameraSystemAdapterOpenCV&) = delete;
+  public:
+    CameraSystemAdapterOpenCV(const CameraSystemAdapterOpenCV&) = delete;
+    CameraSystemAdapterOpenCV& operator=(const CameraSystemAdapterOpenCV&) = delete;
 
-      CameraSystemAdapterOpenCV();
-      ~CameraSystemAdapterOpenCV() override;
+    CameraSystemAdapterOpenCV();
+    ~CameraSystemAdapterOpenCV() override;
 
-      CameraType GetCameraType() const override;
-      uint32_t GetCameraCount() const override;
-      std::shared_ptr<ICameraAdapter> Allocate(const CameraAdapterAllocateInfo& allocateInfo) override;
-    };
-  }
+    CameraType GetCameraType() const override;
+    uint32_t GetCameraCount() const override;
+    std::shared_ptr<ICameraAdapter> Allocate(const CameraAdapterAllocateInfo& allocateInfo) override;
+  };
 }
 #endif

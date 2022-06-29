@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/ADemoApp.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDemoApp/Base/ADemoApp.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
 #include <FslDemoApp/Base/FrameInfo.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
@@ -66,14 +66,14 @@ namespace Fsl
 
     struct ExtensionCompare
     {
-      std::shared_ptr<DemoAppExtension> m_ext;
+      std::shared_ptr<IDemoAppExtension> m_ext;
 
-      explicit ExtensionCompare(std::shared_ptr<DemoAppExtension> ext)
+      explicit ExtensionCompare(std::shared_ptr<IDemoAppExtension> ext)
         : m_ext(std::move(ext))
       {
       }
 
-      inline bool operator()(const std::weak_ptr<DemoAppExtension>& value) const
+      inline bool operator()(const std::weak_ptr<IDemoAppExtension>& value) const
       {
         auto val = value.lock();
         return (val == m_ext);
@@ -81,201 +81,9 @@ namespace Fsl
     };
 
 
-    struct PredMethodOnKeyEvent
-    {
-      const KeyEvent& m_rParam0;
-      explicit PredMethodOnKeyEvent(const KeyEvent& rParam0)
-        : m_rParam0(rParam0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->OnKeyEvent(m_rParam0);
-      }
-    };
-
-
-    struct PredMethodOnMouseButtonEvent
-    {
-      const MouseButtonEvent& m_rParam0;
-      explicit PredMethodOnMouseButtonEvent(const MouseButtonEvent& rParam0)
-        : m_rParam0(rParam0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->OnMouseButtonEvent(m_rParam0);
-      }
-    };
-
-    struct PredMethodOnMouseMoveEvent
-    {
-      const MouseMoveEvent& m_rParam0;
-      explicit PredMethodOnMouseMoveEvent(const MouseMoveEvent& rParam0)
-        : m_rParam0(rParam0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->OnMouseMoveEvent(m_rParam0);
-      }
-    };
-
-    struct PredMethodOnMouseWheelEvent
-    {
-      const MouseWheelEvent& m_rParam0;
-      explicit PredMethodOnMouseWheelEvent(const MouseWheelEvent& rParam0)
-        : m_rParam0(rParam0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->OnMouseWheelEvent(m_rParam0);
-      }
-    };
-
-    struct PredMethodOnRawMouseMoveEvent
-    {
-      const RawMouseMoveEvent& m_rParam0;
-      explicit PredMethodOnRawMouseMoveEvent(const RawMouseMoveEvent& rParam0)
-        : m_rParam0(rParam0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->OnRawMouseMoveEvent(m_rParam0);
-      }
-    };
-
-    struct PredMethodOnTimeStateEvent
-    {
-      const TimeStateEvent& m_rParam0;
-      explicit PredMethodOnTimeStateEvent(const TimeStateEvent& rParam0)
-        : m_rParam0(rParam0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->OnTimeStateEvent(m_rParam0);
-      }
-    };
-
-
-    struct PredMethodConfigurationChanged
-    {
-      DemoWindowMetrics m_param0;
-      explicit PredMethodConfigurationChanged(const DemoWindowMetrics& param0)
-        : m_param0(param0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->ConfigurationChanged(m_param0);
-      }
-    };
-
-
-    struct PredMethodPreUpdate
-    {
-      DemoTime m_param0;
-      explicit PredMethodPreUpdate(const DemoTime& param0)
-        : m_param0(param0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->PreUpdate(m_param0);
-      }
-    };
-
-    struct PredMethodFixedUpdate
-    {
-      DemoTime m_param0;
-      explicit PredMethodFixedUpdate(const DemoTime& param0)
-        : m_param0(param0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->FixedUpdate(m_param0);
-      }
-    };
-
-    struct PredMethodUpdate
-    {
-      DemoTime m_param0;
-      explicit PredMethodUpdate(const DemoTime& param0)
-        : m_param0(param0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->Update(m_param0);
-      }
-    };
-
-    struct PredMethodPostUpdate
-    {
-      DemoTime m_param0;
-      explicit PredMethodPostUpdate(const DemoTime& param0)
-        : m_param0(param0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->PostUpdate(m_param0);
-      }
-    };
-
-    struct PredMethodResolve
-    {
-      DemoTime m_param0;
-      explicit PredMethodResolve(const DemoTime& param0)
-        : m_param0(param0)
-      {
-      }
-
-      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-      {
-        assert(value);
-        value->Resolve(m_param0);
-      }
-    };
-
-    // struct PredMethodDraw
-    //{
-    //  inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
-    //  {
-    //    assert(value);
-    //    value->Draw();
-    //  }
-    //};
-
     //! @brief Loop over all the registered extensions calling the predicate for all valid extensions and removing all invalid ones.
     template <typename TPred>
-    inline void CallExtensions(std::deque<std::weak_ptr<DemoAppExtension>>& rExtensions, const TPred& predicate)
+    inline void CallExtensions(std::deque<std::weak_ptr<IDemoAppExtension>>& rExtensions, const TPred& predicate)
     {
       auto itr = rExtensions.begin();
       while (itr != rExtensions.end())
@@ -283,7 +91,7 @@ namespace Fsl
         auto extension = itr->lock();
         if (extension)
         {
-          predicate(extension);
+          predicate(*extension);
           ++itr;
         }
         else
@@ -292,6 +100,45 @@ namespace Fsl
         }
       }
     }
+
+    //! @brief Loop over all the registered extensions calling the predicate for all valid extensions and removing all invalid ones.
+    template <typename TPred>
+    inline void CallExtensionsPre(std::deque<std::weak_ptr<IDemoAppExtension>>& rExtensions, const TPred& predicate)
+    {
+      auto itr = rExtensions.begin();
+      while (itr != rExtensions.end())
+      {
+        auto extension = itr->lock();
+        if (extension)
+        {
+          predicate(*extension, DemoAppExtensionCallOrder::PreApp);
+          ++itr;
+        }
+        else
+        {
+          itr = rExtensions.erase(itr);
+        }
+      }
+    }
+
+    //! @brief Reverse loop over all the registered extensions calling the predicate for all valid extensions
+    template <typename TPred>
+    inline void CallExtensionsPost(std::deque<std::weak_ptr<IDemoAppExtension>>& rExtensions, const TPred& predicate)
+    {
+      // Post extensions are called in reverse order
+      auto itr = rExtensions.rbegin();
+      while (itr != rExtensions.rend())
+      {
+        auto extension = itr->lock();
+        if (extension)
+        {
+          predicate(*extension, DemoAppExtensionCallOrder::PostApp);
+          ++itr;
+        }
+      }
+    }
+
+
   }
 
 
@@ -320,7 +167,7 @@ namespace Fsl
   }
 
 
-  void ADemoApp::RegisterExtension(const std::shared_ptr<DemoAppExtension>& extension)
+  void ADemoApp::RegisterExtension(const std::shared_ptr<IDemoAppExtension>& extension)
   {
     auto itr = std::find_if(m_extensions.begin(), m_extensions.end(), ExtensionCompare(extension));
     if (itr != m_extensions.end())
@@ -332,7 +179,7 @@ namespace Fsl
   }
 
 
-  void ADemoApp::UnregisterExtension(const std::shared_ptr<DemoAppExtension>& extension)
+  void ADemoApp::UnregisterExtension(const std::shared_ptr<IDemoAppExtension>& extension)
   {
     auto itr = std::find_if(m_extensions.begin(), m_extensions.end(), ExtensionCompare(extension));
     if (itr == m_extensions.end())
@@ -389,60 +236,60 @@ namespace Fsl
       switch (pEvent->GetEventType())
       {
       case EventType::KeyPressed:
-      {
-        KeyEvent keyEvent(*pBasicEvent);
-
-        // Call all registered extensions
-        CallExtensions(m_extensions, PredMethodOnKeyEvent(keyEvent));
-
-        OnKeyEvent(keyEvent);
-        if (!keyEvent.IsHandled())
         {
-          UnhandledKeyFallback(keyEvent);
-        }
-        break;
-      }
-      case EventType::MouseButton:
-      {
-        MouseButtonEvent mouseEvent(*pBasicEvent);
-        // Call all registered extensions
-        CallExtensions(m_extensions, PredMethodOnMouseButtonEvent(mouseEvent));
+          KeyEvent keyEvent(*pBasicEvent);
 
-        OnMouseButtonEvent(mouseEvent);
-        break;
-      }
+          // Call all registered extensions
+          CallExtensions(m_extensions, [keyEvent](IDemoAppExtension& rExt) { rExt.OnKeyEvent(keyEvent); });
+
+          OnKeyEvent(keyEvent);
+          if (!keyEvent.IsHandled())
+          {
+            UnhandledKeyFallback(keyEvent);
+          }
+          break;
+        }
+      case EventType::MouseButton:
+        {
+          MouseButtonEvent mouseEvent(*pBasicEvent);
+          // Call all registered extensions
+          CallExtensions(m_extensions, [mouseEvent](IDemoAppExtension& rExt) { rExt.OnMouseButtonEvent(mouseEvent); });
+
+          OnMouseButtonEvent(mouseEvent);
+          break;
+        }
       case EventType::MouseMove:
-      {
-        MouseMoveEvent mouseEvent(*pBasicEvent);
-        // Call all registered extensions
-        CallExtensions(m_extensions, PredMethodOnMouseMoveEvent(mouseEvent));
-        OnMouseMoveEvent(mouseEvent);
-        break;
-      }
+        {
+          MouseMoveEvent mouseEvent(*pBasicEvent);
+          // Call all registered extensions
+          CallExtensions(m_extensions, [mouseEvent](IDemoAppExtension& rExt) { rExt.OnMouseMoveEvent(mouseEvent); });
+          OnMouseMoveEvent(mouseEvent);
+          break;
+        }
       case EventType::MouseWheel:
-      {
-        MouseWheelEvent mouseEvent(*pBasicEvent);
-        // Call all registered extensions
-        CallExtensions(m_extensions, PredMethodOnMouseWheelEvent(mouseEvent));
-        OnMouseWheelEvent(mouseEvent);
-        break;
-      }
+        {
+          MouseWheelEvent mouseEvent(*pBasicEvent);
+          // Call all registered extensions
+          CallExtensions(m_extensions, [mouseEvent](IDemoAppExtension& rExt) { rExt.OnMouseWheelEvent(mouseEvent); });
+          OnMouseWheelEvent(mouseEvent);
+          break;
+        }
       case EventType::RawMouseMove:
-      {
-        RawMouseMoveEvent mouseEvent(*pBasicEvent);
-        // Call all registered extensions
-        CallExtensions(m_extensions, PredMethodOnRawMouseMoveEvent(mouseEvent));
-        OnRawMouseMoveEvent(mouseEvent);
-        break;
-      }
+        {
+          RawMouseMoveEvent mouseEvent(*pBasicEvent);
+          // Call all registered extensions
+          CallExtensions(m_extensions, [mouseEvent](IDemoAppExtension& rExt) { rExt.OnRawMouseMoveEvent(mouseEvent); });
+          OnRawMouseMoveEvent(mouseEvent);
+          break;
+        }
       case EventType::TimeState:
-      {
-        TimeStateEvent timeStateEvent(*pBasicEvent);
-        // Call all registered extensions
-        CallExtensions(m_extensions, PredMethodOnTimeStateEvent(timeStateEvent));
-        OnTimeStateEvent(timeStateEvent);
-        break;
-      }
+        {
+          TimeStateEvent timeStateEvent(*pBasicEvent);
+          // Call all registered extensions
+          CallExtensions(m_extensions, [timeStateEvent](IDemoAppExtension& rExt) { rExt.OnTimeStateEvent(timeStateEvent); });
+          OnTimeStateEvent(timeStateEvent);
+          break;
+        }
       default:
         FSLLOG3_DEBUG_WARNING("Unhandled event: {}", static_cast<int32_t>(pEvent->GetEventType()));
         break;
@@ -458,7 +305,7 @@ namespace Fsl
     m_demoAppConfig.UpdateWindowMetrics(windowMetrics);
 
     // Call all registered extensions
-    CallExtensions(m_extensions, PredMethodConfigurationChanged(windowMetrics));
+    CallExtensions(m_extensions, [windowMetrics](IDemoAppExtension& rExt) { rExt.ConfigurationChanged(windowMetrics); });
 
     ConfigurationChanged(windowMetrics);
   }
@@ -466,27 +313,39 @@ namespace Fsl
   void ADemoApp::_Begin()
   {
     VERBOSE_LOG("ADemoApp::_Begin()");
+
+    auto fn = [](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.Begin(callOrder); };
+    CallExtensionsPre(m_extensions, fn);
     OnFrameSequenceBegin();
+    CallExtensionsPost(m_extensions, fn);
   }
 
   void ADemoApp::_PreUpdate(const DemoTime& demoTime)
   {
     VERBOSE_LOG("ADemoApp::_PreUpdate()");
+
     // Call all registered extensions
-    CallExtensions(m_extensions, PredMethodPreUpdate(demoTime));
+    auto fn = [demoTime](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.PreUpdate(callOrder, demoTime); };
+    CallExtensionsPre(m_extensions, fn);
 
     // Done this way to prevent common mistakes where people forget to call the base class
     PreUpdate(demoTime);
+
+    // Call all registered extensions
+    CallExtensionsPost(m_extensions, fn);
   }
 
   void ADemoApp::_FixedUpdate(const DemoTime& demoTime)
   {
     VERBOSE_LOG("ADemoApp::_FixedUpdate()");
     // Call all registered extensions
-    CallExtensions(m_extensions, PredMethodFixedUpdate(demoTime));
+    auto fn = [demoTime](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.FixedUpdate(callOrder, demoTime); };
+    CallExtensionsPre(m_extensions, fn);
 
     // Done this way to prevent common mistakes where people forget to call the base class
     FixedUpdate(demoTime);
+
+    CallExtensionsPost(m_extensions, fn);
   }
 
 
@@ -494,35 +353,46 @@ namespace Fsl
   {
     VERBOSE_LOG("ADemoApp::_Update()");
     // Call all registered extensions
-    CallExtensions(m_extensions, PredMethodUpdate(demoTime));
+    auto fn = [demoTime](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.Update(callOrder, demoTime); };
+    CallExtensionsPre(m_extensions, fn);
 
     // Done this way to prevent common mistakes where people forget to call the base class
     Update(demoTime);
+
+    CallExtensionsPost(m_extensions, fn);
   }
 
 
   void ADemoApp::_PostUpdate(const DemoTime& demoTime)
   {
     VERBOSE_LOG("ADemoApp::_PostUpdate()");
+
+    auto fn = [demoTime](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.PostUpdate(callOrder, demoTime); };
+    CallExtensionsPre(m_extensions, fn);
+
     // Done this way to prevent common mistakes where people forget to call the base class
     PostUpdate(demoTime);
 
     // Here we call the extensions after the app, which allows for example a UI extension to do things after the app has finished
 
     // Call all registered extensions
-    CallExtensions(m_extensions, PredMethodPostUpdate(demoTime));
+    CallExtensionsPost(m_extensions, fn);
   }
 
   void ADemoApp::_Resolve(const DemoTime& demoTime)
   {
     VERBOSE_LOG("ADemoApp::_Resolve()");
+
+    auto fn = [demoTime](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.Resolve(callOrder, demoTime); };
+    CallExtensionsPre(m_extensions, fn);
+
     // Done this way to prevent common mistakes where people forget to call the base class
     Resolve(demoTime);
 
     // Here we call the extensions after the app, which allows for example a UI extension to do things after the app has finished
 
     // Call all registered extensions
-    CallExtensions(m_extensions, PredMethodResolve(demoTime));
+    CallExtensionsPost(m_extensions, fn);
   }
 
   AppDrawResult ADemoApp::_TryPrepareDraw(const FrameInfo& frameInfo)
@@ -561,7 +431,10 @@ namespace Fsl
     // CallExtensions(m_extensions, PredMethodDraw());
 
     // Done this way to prevent common mistakes where people forget to call the base class
+    auto fn = [frameInfo](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.OnDrawSkipped(callOrder, frameInfo); };
+    CallExtensionsPre(m_extensions, fn);
     OnDrawSkipped(frameInfo);
+    CallExtensionsPost(m_extensions, fn);
   }
 
   AppDrawResult ADemoApp::_TrySwapBuffers(const FrameInfo& frameInfo)
@@ -574,7 +447,13 @@ namespace Fsl
   void ADemoApp::_End()
   {
     VERBOSE_LOG("ADemoApp::_End()");
+
+    auto fn = [](IDemoAppExtension& rExt, const DemoAppExtensionCallOrder callOrder) { rExt.End(callOrder); };
+    CallExtensionsPre(m_extensions, fn);
+
     OnFrameSequenceEnd();
+
+    CallExtensionsPost(m_extensions, fn);
   }
 
   PxSize2D ADemoApp::GetWindowSizePx() const

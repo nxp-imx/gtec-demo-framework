@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
-#include <FslService/Consumer/IService.hpp>
 #include <FslService/Consumer/BasicServiceDeque.hpp>
+#include <FslService/Consumer/IService.hpp>
 #include <FslService/Consumer/ServiceId.hpp>
+#include <memory>
 
 namespace Fsl
 {
@@ -85,7 +85,7 @@ namespace Fsl
       Get(services, ServiceId(typeid(T)));
 
       // Dynamic cast all the returned services to the expected type
-      BasicServiceDeque::const_iterator itr = services.begin();
+      auto itr = services.begin();
       while (itr != services.end())
       {
         rServices.push_back(std::dynamic_pointer_cast<T>(*itr));

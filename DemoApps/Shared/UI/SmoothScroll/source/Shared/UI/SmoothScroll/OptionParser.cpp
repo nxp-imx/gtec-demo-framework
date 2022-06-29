@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/UI/SmoothScroll/OptionParser.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <Shared/UI/SmoothScroll/OptionParser.hpp>
 
 namespace Fsl
 {

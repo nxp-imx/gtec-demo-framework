@@ -29,58 +29,56 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/Procedural/IndexUtilBase.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics3D/Procedural/IndexUtilBase.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::Procedural
 {
-  namespace Procedural
+  std::size_t IndexUtilBase::CalcAppendMinimumCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
+                                                       const PrimitiveType primitiveType)
   {
-    std::size_t IndexUtilBase::CalcAppendMinimumCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
-                                                         const PrimitiveType primitiveType)
+    switch (primitiveType)
     {
-      switch (primitiveType)
+    case PrimitiveType::LineStrip:
+      // If the linestrips can be merged (then it would require the dstIndex[end] == srcIndex[0] to be equal)
+      return currentIndexCount > 0 ? std::max(currentIndexCount + srcIndexCount - 1, static_cast<std::size_t>(0)) : srcIndexCount;
+    case PrimitiveType::LineList:
+    case PrimitiveType::TriangleList:
+      return currentIndexCount + srcIndexCount;
+    case PrimitiveType::TriangleStrip:
+      if (currentIndexCount != 0)
       {
-      case PrimitiveType::LineStrip:
-        // If the linestrips can be merged (then it would require the dstIndex[end] == srcIndex[0] to be equal)
-        return currentIndexCount > 0 ? std::max(currentIndexCount + srcIndexCount - 1, static_cast<std::size_t>(0)) : srcIndexCount;
-      case PrimitiveType::LineList:
-      case PrimitiveType::TriangleList:
-        return currentIndexCount + srcIndexCount;
-      case PrimitiveType::TriangleStrip:
-        if (currentIndexCount != 0)
-        {
-          return (currentIndexCount & 1) == 0 ? currentIndexCount + 4 + srcIndexCount : currentIndexCount + 5 + srcIndexCount;
-        }
-        else
-        {
-          return srcIndexCount;
-        }
-      default:
-        throw NotImplementedException("Unknown primitive type");
+        return (currentIndexCount & 1) == 0 ? currentIndexCount + 4 + srcIndexCount : currentIndexCount + 5 + srcIndexCount;
       }
+      else
+      {
+        return srcIndexCount;
+      }
+    default:
+      throw NotImplementedException("Unknown primitive type");
+    }
+  }
+
+
+  std::size_t IndexUtilBase::CalcAppendInstancesRequiredCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
+                                                                 const std::size_t instanceCount, const PrimitiveType primitiveType)
+  {
+    if (srcIndexCount <= 2)
+    {
+      throw std::invalid_argument("we expect at least two indices");
     }
 
-
-    std::size_t IndexUtilBase::CalcAppendInstancesRequiredCapacity(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
-                                                                   const std::size_t instanceCount, const PrimitiveType primitiveType)
+    switch (primitiveType)
     {
-      if (srcIndexCount <= 2)
-      {
-        throw std::invalid_argument("we expect at least two indices");
-      }
-
-      switch (primitiveType)
-      {
-      case PrimitiveType::LineStrip:
-        return (currentIndexCount > 0 ? currentIndexCount + srcIndexCount - 1 : srcIndexCount);
-      case PrimitiveType::LineList:
-      case PrimitiveType::TriangleList:
-        return currentIndexCount + (srcIndexCount * instanceCount);
-      case PrimitiveType::TriangleStrip:
+    case PrimitiveType::LineStrip:
+      return (currentIndexCount > 0 ? currentIndexCount + srcIndexCount - 1 : srcIndexCount);
+    case PrimitiveType::LineList:
+    case PrimitiveType::TriangleList:
+      return currentIndexCount + (srcIndexCount * instanceCount);
+    case PrimitiveType::TriangleStrip:
       {
         const std::size_t mod = ((srcIndexCount & 1) == 0 ? 4 : 5);
         std::size_t startCapacity = 0;
@@ -94,31 +92,31 @@ namespace Fsl
         }
         return startCapacity + (instanceCount * srcIndexCount) + (mod * (instanceCount - 1));
       }
-      default:
-        throw NotImplementedException();
-      }
+    default:
+      throw NotImplementedException();
+    }
+  }
+
+
+  std::size_t IndexUtilBase::CalcAppendMaxInstancesThatFit(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
+                                                           const std::size_t indexCapacity, const PrimitiveType primitiveType)
+  {
+    if (srcIndexCount <= 2)
+    {
+      throw std::invalid_argument("we expect at least two indices");
     }
 
-
-    std::size_t IndexUtilBase::CalcAppendMaxInstancesThatFit(const std::size_t currentIndexCount, const std::size_t srcIndexCount,
-                                                             const std::size_t indexCapacity, const PrimitiveType primitiveType)
+    if (indexCapacity < srcIndexCount)
     {
-      if (srcIndexCount <= 2)
-      {
-        throw std::invalid_argument("we expect at least two indices");
-      }
+      return 0;
+    }
 
-      if (indexCapacity < srcIndexCount)
-      {
-        return 0;
-      }
-
-      switch (primitiveType)
-      {
-      case PrimitiveType::LineList:
-      case PrimitiveType::TriangleList:
-        return (indexCapacity - currentIndexCount) / srcIndexCount;
-      case PrimitiveType::TriangleStrip:
+    switch (primitiveType)
+    {
+    case PrimitiveType::LineList:
+    case PrimitiveType::TriangleList:
+      return (indexCapacity - currentIndexCount) / srcIndexCount;
+    case PrimitiveType::TriangleStrip:
       {
         // capacity = (instanceCount * srcIndexCount) + (4 * (instances-1))
         // capacity = -4 + (instanceCount * (4+srcIndexCount))
@@ -128,12 +126,11 @@ namespace Fsl
         assert(res <= std::numeric_limits<std::size_t>::max());
         return static_cast<std::size_t>(res);
       }
-      case PrimitiveType::LineStrip:
-        // If the linestrips can be merged (then it would require the dstIndex[end] == srcIndex[0] to be equal)
-        return (srcIndexCount > 1 ? (indexCapacity - currentIndexCount) / (srcIndexCount - 1) : 0);
-      default:
-        throw NotImplementedException();
-      }
+    case PrimitiveType::LineStrip:
+      // If the linestrips can be merged (then it would require the dstIndex[end] == srcIndex[0] to be equal)
+      return (srcIndexCount > 1 ? (indexCapacity - currentIndexCount) / (srcIndexCount - 1) : 0);
+    default:
+      throw NotImplementedException();
     }
   }
 }

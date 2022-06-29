@@ -46,7 +46,10 @@
 namespace Fsl
 {
   class ISprite;
+}
 
+namespace Fsl::UI::RenderIMBatch
+{
   class MaterialLookup
   {
     struct Record

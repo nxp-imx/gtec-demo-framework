@@ -29,112 +29,109 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/IO/PathWatcher.hpp>
-#include <FslBase/IO/File.hpp>
-#include <FslBase/IO/Directory.hpp>
-#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/IO/Directory.hpp>
+#include <FslBase/IO/File.hpp>
+#include <FslBase/IO/PathWatcher.hpp>
+#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <algorithm>
 #include <list>
 #include <utility>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  class PathWatcherInternalRecord
   {
-    class PathWatcherInternalRecord
-    {
-    public:
-      IO::Path FullPath;
-      std::shared_ptr<PlatformPathMonitorToken> Token;
+  public:
+    IO::Path FullPath;
+    std::shared_ptr<PlatformPathMonitorToken> Token;
 
-      PathWatcherInternalRecord(Path fullPath, std::shared_ptr<PlatformPathMonitorToken> token)
-        : FullPath(std::move(fullPath))
-        , Token(std::move(token))
+    PathWatcherInternalRecord(Path fullPath, std::shared_ptr<PlatformPathMonitorToken> token)
+      : FullPath(std::move(fullPath))
+      , Token(std::move(token))
+    {
+    }
+
+    bool CheckForChanges()
+    {
+      if (!Token)
+      {
+        throw NotSupportedException("");
+      }
+      return PlatformFileSystem::CheckPathForChanges(Token);
+    }
+  };
+
+  namespace
+  {
+    struct FullPathComp
+    {
+      const Path& FullPath;
+      explicit FullPathComp(const Path& fullPath)
+        : FullPath(fullPath)
       {
       }
 
-      bool CheckForChanges()
+      inline bool operator()(const std::shared_ptr<PathWatcherInternalRecord>& entry) const
       {
-        if (!Token)
-        {
-          throw NotSupportedException("");
-        }
-        return PlatformFileSystem::CheckPathForChanges(Token);
+        return entry->FullPath == FullPath;
       }
     };
+  }
 
-    namespace
+
+  PathWatcher::PathWatcher() = default;
+  PathWatcher::~PathWatcher() = default;
+
+
+  void PathWatcher::Add(const IO::Path& fullPath)
+  {
+    if (!TryAdd(fullPath))
     {
-      struct FullPathComp
-      {
-        const Path& FullPath;
-        explicit FullPathComp(const Path& fullPath)
-          : FullPath(fullPath)
-        {
-        }
+      throw NotSupportedException("PathWatcher not supported");
+    }
+  }
 
-        inline bool operator()(const std::shared_ptr<PathWatcherInternalRecord>& entry) const
-        {
-          return entry->FullPath == FullPath;
-        }
-      };
+
+  bool PathWatcher::TryAdd(const IO::Path& fullPath)
+  {
+    if (!Path::IsPathRooted(fullPath))
+    {
+      throw std::invalid_argument("Path is not rooted");
     }
 
-
-    PathWatcher::PathWatcher() = default;
-    PathWatcher::~PathWatcher() = default;
-
-
-    void PathWatcher::Add(const IO::Path& fullPath)
+    if (std::find_if(m_paths.begin(), m_paths.end(), FullPathComp(fullPath)) != m_paths.end())
     {
-      if (!TryAdd(fullPath))
-      {
-        throw NotSupportedException("PathWatcher not supported");
-      }
-    }
-
-
-    bool PathWatcher::TryAdd(const IO::Path& fullPath)
-    {
-      if (!Path::IsPathRooted(fullPath))
-      {
-        throw std::invalid_argument("Path is not rooted");
-      }
-
-      if (std::find_if(m_paths.begin(), m_paths.end(), FullPathComp(fullPath)) != m_paths.end())
-      {
-        return false;
-      }
-
-      std::shared_ptr<PlatformPathMonitorToken> token = PlatformFileSystem::CreatePathMonitorToken(fullPath);
-      if (!token)
-      {
-        return false;
-      }
-
-      const auto record = std::make_shared<PathWatcherInternalRecord>(fullPath, token);
-      m_paths.push_back(record);
-      return true;
-    }
-
-
-    void PathWatcher::Remove(const IO::Path& fullPath)
-    {
-      m_paths.remove_if(FullPathComp(fullPath));
-    }
-
-
-    bool PathWatcher::Check()
-    {
-      for (auto itr = m_paths.begin(); itr != m_paths.end(); ++itr)
-      {
-        if ((*itr)->CheckForChanges())
-        {
-          return true;
-        }
-      }
       return false;
     }
+
+    std::shared_ptr<PlatformPathMonitorToken> token = PlatformFileSystem::CreatePathMonitorToken(fullPath);
+    if (!token)
+    {
+      return false;
+    }
+
+    const auto record = std::make_shared<PathWatcherInternalRecord>(fullPath, token);
+    m_paths.push_back(record);
+    return true;
+  }
+
+
+  void PathWatcher::Remove(const IO::Path& fullPath)
+  {
+    m_paths.remove_if(FullPathComp(fullPath));
+  }
+
+
+  bool PathWatcher::Check()
+  {
+    for (auto itr = m_paths.begin(); itr != m_paths.end(); ++itr)
+    {
+      if ((*itr)->CheckForChanges())
+      {
+        return true;
+      }
+    }
+    return false;
   }
 }

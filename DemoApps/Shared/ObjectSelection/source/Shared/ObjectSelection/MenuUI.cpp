@@ -29,8 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/ObjectSelection/MenuUI.hpp>
-#include <Shared/ObjectSelection/OptionParser.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
@@ -38,6 +36,8 @@
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <Shared/ObjectSelection/MenuUI.hpp>
+#include <Shared/ObjectSelection/OptionParser.hpp>
 
 namespace Fsl
 {
@@ -139,7 +139,7 @@ namespace Fsl
     m_uiExtension->GetWindowManager()->Add(m_rootLayout);
 
     auto stackLayout = std::make_shared<UI::ComplexStackLayout>(context);
-    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    stackLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
     stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));

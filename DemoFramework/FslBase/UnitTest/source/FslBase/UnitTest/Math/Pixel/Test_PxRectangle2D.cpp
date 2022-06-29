@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxRectangle2D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxRectangle2D.hpp>
+#include <FslBase/Math/Pixel/PxRectangle2D.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
@@ -90,7 +90,8 @@ TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_XMinXMax)
   constexpr int32_t bottom = 20;
   auto value = PxRectangle2D::FromLeftTopRightBottom(left, top, right, bottom);
 
-  constexpr PxExtent2D expectedExtent(uint32_t(uint64_t(right) - uint64_t(left)), uint32_t(uint64_t(bottom) - uint64_t(top)));
+  constexpr PxExtent2D expectedExtent(static_cast<uint32_t>(static_cast<uint64_t>(right) - static_cast<uint64_t>(left)),
+                                      static_cast<uint32_t>(static_cast<uint64_t>(bottom) - static_cast<uint64_t>(top)));
 
   EXPECT_EQ(PxPoint2(left, top), value.Offset);
   EXPECT_EQ(expectedExtent, value.Extent);
@@ -104,7 +105,8 @@ TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_YMinYMax)
   constexpr int32_t bottom = std::numeric_limits<int32_t>::max();
   auto value = PxRectangle2D::FromLeftTopRightBottom(left, top, right, bottom);
 
-  constexpr PxExtent2D expectedExtent(uint32_t(uint64_t(right) - uint64_t(left)), uint32_t(uint64_t(bottom) - uint64_t(top)));
+  constexpr PxExtent2D expectedExtent(static_cast<uint32_t>(static_cast<uint64_t>(right) - static_cast<uint64_t>(left)),
+                                      static_cast<uint32_t>(static_cast<uint64_t>(bottom) - static_cast<uint64_t>(top)));
 
   EXPECT_EQ(PxPoint2(left, top), value.Offset);
   EXPECT_EQ(expectedExtent, value.Extent);
@@ -124,8 +126,8 @@ TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_Invalid)
 
 TEST(TestMathPixel_PxRectangle2D, Center)
 {
-  uint32_t x = 10;
-  uint32_t y = 12;
+  uint16_t x = 10;
+  uint16_t y = 12;
   uint32_t width = 10;
   uint32_t height = 20;
   PxRectangle2D value(x, y, width, height);
@@ -138,8 +140,8 @@ TEST(TestMathPixel_PxRectangle2D, Center)
 
 TEST(TestMathPixel_PxRectangle2D, Contains_int32_int32)
 {
-  uint32_t x = 10;
-  uint32_t y = 12;
+  uint16_t x = 10;
+  uint16_t y = 12;
   uint32_t width = 10;
   uint32_t height = 20;
   PxRectangle2D value(x, y, width, height);
@@ -158,8 +160,8 @@ TEST(TestMathPixel_PxRectangle2D, Contains_int32_int32)
 
 TEST(TestMathPixel_PxRectangle2D, Contains_PxPoint2)
 {
-  uint32_t x = 10;
-  uint32_t y = 12;
+  uint16_t x = 10;
+  uint16_t y = 12;
   uint32_t width = 10;
   uint32_t height = 20;
   PxRectangle2D value(x, y, width, height);

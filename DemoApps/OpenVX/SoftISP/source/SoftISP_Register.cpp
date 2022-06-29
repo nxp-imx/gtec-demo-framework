@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenVX/Setup/RegisterDemoApp.hpp>
-#include "SoftISP.hpp"
 #include "OptionParser.hpp"
+#include "SoftISP.hpp"
 
 namespace Fsl
 {

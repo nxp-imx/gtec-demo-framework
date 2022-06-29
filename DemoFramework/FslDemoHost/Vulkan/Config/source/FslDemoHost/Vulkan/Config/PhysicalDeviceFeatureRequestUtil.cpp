@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,72 +29,69 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureUtil.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  namespace
   {
-    namespace
+    void FilterFeatures(std::deque<Vulkan::PhysicalDeviceFeatureRequest>& rFilteredFeatures,
+                        const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures,
+                        const VkPhysicalDeviceFeatures& physicalDeviceFeatures)
     {
-      void FilterFeatures(std::deque<Vulkan::PhysicalDeviceFeatureRequest>& rFilteredFeatures,
-                          const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures,
-                          const VkPhysicalDeviceFeatures& physicalDeviceFeatures)
+      rFilteredFeatures.clear();
+      for (auto entry : requiredFeatures)
       {
-        rFilteredFeatures.clear();
-        for (auto entry : requiredFeatures)
+        // Look at the current value
+        auto value = PhysicalDeviceFeatureUtil::Get(physicalDeviceFeatures, entry.Feature);
+        if (value != VK_FALSE)
         {
-          // Look at the current value
-          auto value = PhysicalDeviceFeatureUtil::Get(physicalDeviceFeatures, entry.Feature);
-          if (value != VK_FALSE)
+          rFilteredFeatures.push_back(entry);
+        }
+        else
+        {
+          switch (entry.Requirement)
           {
-            rFilteredFeatures.push_back(entry);
-          }
-          else
-          {
-            switch (entry.Requirement)
-            {
-            case FeatureRequirement::Mandatory:
-              throw NotSupportedException("The requested physical device feature was not supported: " +
-                                          std::string(PhysicalDeviceFeatureUtil::ToString(entry.Feature)));
-            case FeatureRequirement::Optional:
-              FSLLOG3_DEBUG_INFO("VulkanPhysicalDevice optional feature '{}' is unavailable.", PhysicalDeviceFeatureUtil::ToString(entry.Feature));
-              break;
-            default:
-              FSLLOG3_WARNING("Invalid requirement for feature: {}", PhysicalDeviceFeatureUtil::ToString(entry.Feature));
-              break;
-            }
+          case FeatureRequirement::Mandatory:
+            throw NotSupportedException("The requested physical device feature was not supported: " +
+                                        std::string(PhysicalDeviceFeatureUtil::ToString(entry.Feature)));
+          case FeatureRequirement::Optional:
+            FSLLOG3_DEBUG_INFO("VulkanPhysicalDevice optional feature '{}' is unavailable.", PhysicalDeviceFeatureUtil::ToString(entry.Feature));
+            break;
+          default:
+            FSLLOG3_WARNING("Invalid requirement for feature: {}", PhysicalDeviceFeatureUtil::ToString(entry.Feature));
+            break;
           }
         }
       }
     }
+  }
 
-    void PhysicalDeviceFeatureRequestUtil::ApplyFeatures(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
-                                                         const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures)
+  void PhysicalDeviceFeatureRequestUtil::ApplyFeatures(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
+                                                       const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures)
+  {
+    for (auto entry : requiredFeatures)
     {
-      for (auto entry : requiredFeatures)
-      {
-        PhysicalDeviceFeatureUtil::Set(rPhysicalDeviceFeatures, entry.Feature, VK_TRUE);
-      }
+      PhysicalDeviceFeatureUtil::Set(rPhysicalDeviceFeatures, entry.Feature, VK_TRUE);
     }
+  }
 
 
-    void PhysicalDeviceFeatureRequestUtil::ApplyFeatureRequirements(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
-                                                                    const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures,
-                                                                    const VkPhysicalDevice physicalDevice)
-    {
-      // Query the device
-      VkPhysicalDeviceFeatures physicalDeviceFeatures{};
-      vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
+  void PhysicalDeviceFeatureRequestUtil::ApplyFeatureRequirements(VkPhysicalDeviceFeatures& rPhysicalDeviceFeatures,
+                                                                  const std::deque<Vulkan::PhysicalDeviceFeatureRequest>& requiredFeatures,
+                                                                  const VkPhysicalDevice physicalDevice)
+  {
+    // Query the device
+    VkPhysicalDeviceFeatures physicalDeviceFeatures{};
+    vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
 
-      // Then filter out all unavailable optional features
-      std::deque<Vulkan::PhysicalDeviceFeatureRequest> filteredFeatures;
-      FilterFeatures(filteredFeatures, requiredFeatures, physicalDeviceFeatures);
+    // Then filter out all unavailable optional features
+    std::deque<Vulkan::PhysicalDeviceFeatureRequest> filteredFeatures;
+    FilterFeatures(filteredFeatures, requiredFeatures, physicalDeviceFeatures);
 
-      ApplyFeatures(rPhysicalDeviceFeatures, filteredFeatures);
-    }
+    ApplyFeatures(rPhysicalDeviceFeatures, filteredFeatures);
   }
 }

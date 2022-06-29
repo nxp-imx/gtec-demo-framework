@@ -31,14 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPointF.hpp>
-#include <FslBase/Math/EqualHelper.hpp>
+#include <FslBase/Math/Dp/DpPoint2F.hpp>
+#include <FslBase/Math/Dp/EqualHelper_DpValueF.hpp>
 
 namespace Fsl
 {
   namespace EqualHelper
   {
-    inline static bool IsAlmostEqual(const DpPointF& lhs, const DpPointF& rhs)
+    inline static bool IsAlmostEqual(const DpPoint2F lhs, const DpPoint2F rhs)
     {
       return IsAlmostEqual(lhs.X, rhs.X) && IsAlmostEqual(lhs.Y, rhs.Y);
     }

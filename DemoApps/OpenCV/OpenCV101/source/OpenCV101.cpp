@@ -31,9 +31,9 @@
 
 // OpenCV 4 App
 
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Exceptions.hpp>
 #include "OpenCV101.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <cmath>

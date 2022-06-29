@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSBUFFERRECORD_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSBUFFERRECORD_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,39 +34,36 @@
 #include <FslUtil/Vulkan1_0/Managed/VMBuffer.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class NativeGraphicsBufferRecord
   {
-    class NativeGraphicsBufferRecord
+    VMBuffer m_buffer;
+
+  public:
+    NativeGraphicsBufferRecord() noexcept = default;
+
+    explicit NativeGraphicsBufferRecord(VMBuffer buffer)
+      : m_buffer(std::move(buffer))
     {
-      VMBuffer m_buffer;
-
-    public:
-      NativeGraphicsBufferRecord() noexcept = default;
-
-      explicit NativeGraphicsBufferRecord(VMBuffer buffer)
-        : m_buffer(std::move(buffer))
-      {
-      }
+    }
 
 
-      bool IsValid() const
-      {
-        return m_buffer.IsValid();
-      }
+    bool IsValid() const
+    {
+      return m_buffer.IsValid();
+    }
 
-      const VMBuffer& GetBuffer() const
-      {
-        return m_buffer;
-      }
+    const VMBuffer& GetBuffer() const
+    {
+      return m_buffer;
+    }
 
-      void SetBufferData(const uint32_t dstIndex, ReadOnlyFlexSpan bufferData)
-      {
-        m_buffer.SetData(dstIndex, bufferData);
-      }
-    };
-  }
+    void SetBufferData(const uint32_t dstIndex, ReadOnlyFlexSpan bufferData)
+    {
+      m_buffer.SetData(dstIndex, bufferData);
+    }
+  };
 }
 
 #endif

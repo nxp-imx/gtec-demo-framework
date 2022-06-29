@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/Window/CustomWindowId.hpp>
+#include <optional>
 
 namespace Fsl
 {
@@ -51,7 +51,7 @@ namespace Fsl
     //! @brief Get the current screen-space rectangle of the given window
     virtual PxRectangle GetWindowRectanglePx(const CustomWindowId windowId) const = 0;
 
-    virtual Optional<PxRectangle> TryGetWindowRectanglePx(const CustomWindowId windowId) const = 0;
+    virtual std::optional<PxRectangle> TryGetWindowRectanglePx(const CustomWindowId windowId) const = 0;
   };
 }
 

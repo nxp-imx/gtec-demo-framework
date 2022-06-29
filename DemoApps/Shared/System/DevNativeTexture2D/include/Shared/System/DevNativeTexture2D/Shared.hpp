@@ -42,10 +42,10 @@
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
 #include <FslSimpleUI/Base/System/EventListener.hpp>
 #include <FslSimpleUI/Base/System/UIManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <deque>
 #include <memory>
 #include <utility>
@@ -175,7 +175,7 @@ namespace Fsl
     void RemoveBackTestRecord();
     void ClearTestRecords();
 
-    const Bitmap& GetDynamicBitmap(int imageIndex);
+    const Bitmap& GetDynamicBitmap(const uint32_t imageIndex);
     DynamicTestRecord CreateDynamicTestRecord();
     void AddDynamicFrontTestRecord();
     void RemoveDynamicFrontTestRecord();

@@ -30,15 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/LogVector4.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Log/Math/LogVector4.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
-#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslBase/UnitTest/Helper/Test/Math/TestVector4.hpp>
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
 #include <vector>

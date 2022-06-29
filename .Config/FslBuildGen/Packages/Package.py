@@ -54,6 +54,7 @@ from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Packages.PackageBuildCustomization import PackageBuildCustomization
 from FslBuildGen.Packages.PackageElement import PackageElement
 from FslBuildGen.Packages.PackageGenerate import PackageGenerate
+from FslBuildGen.Packages.PackageGenerateGrpcProtoFile import PackageGenerateGrpcProtoFile
 #from FslBuildGen.Packages.PackageNameInfo import PackageNameInfo
 from FslBuildGen.Packages.PackagePlatform import PackagePlatform
 from FslBuildGen.Packages.PackagePlatformExternalDependency import PackagePlatformExternalDependency
@@ -62,6 +63,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependencyPackageManager 
 from FslBuildGen.Engine.Resolver.PreResolvePackageResult import PreResolvePackageResult
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerateGrpcProtoFile import UnresolvedPackageGenerateGrpcProtoFile
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedPackageVariant
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariantOption import UnresolvedPackageVariantOption
@@ -165,6 +167,7 @@ class Package(object):
 
         # All generate commands for the package
         self.ResolvedGenerateList = self.__ToResolvedGenerateList(self.Path, unresolvedPackage.GenerateList)
+        self.ResolvedGenerateGrpcProtoFileList = self.__ToResolvedGenerateGrpcProtoFileList(self.Path, unresolvedPackage.GenerateGrpcProtoFileList)
 
         # Fill all the package attributes that will be resolved with a initial value
         self.ResolvedPlatform = unresolvedPackage.ResolvedPlatform # type: PackagePlatform
@@ -313,9 +316,25 @@ class Package(object):
         for entry in sourceList:
             resolvedTemplate = ResolvedPath(IOUtil.Join(pathRelative, entry.TemplateFile), IOUtil.Join(pathAbsolute, entry.TemplateFile))
             resolvedTarget = ResolvedPath(IOUtil.Join(pathRelative, entry.TargetFile), IOUtil.Join(pathAbsolute, entry.TargetFile))
- 
+
             res.append(PackageGenerate(resolvedTemplate, resolvedTarget))
         return res
+
+    def __ToResolvedGenerateGrpcProtoFileList(self, packagePath: Optional[PackagePath], sourceList: List[UnresolvedPackageGenerateGrpcProtoFile]) -> List[PackageGenerateGrpcProtoFile]:
+        if packagePath is None:
+            if len(sourceList) > 0:
+                raise Exception("Could not locate location of package '{0}'".format(self.Name))
+            return []
+        pathRelative = packagePath.RootRelativeDirPath
+        pathAbsolute = packagePath.AbsoluteDirPath
+        res = [] # type: List[PackageGenerateGrpcProtoFile]
+        for entry in sourceList:
+            resolvedInclude = ResolvedPath(entry.Include, IOUtil.Join(pathAbsolute, entry.Include))
+
+            res.append(PackageGenerateGrpcProtoFile(resolvedInclude, entry.GrpcServices))
+        return res
+
+
 
     def __ResolveAllowDependencyOnThis(self, packageType: PackageType) -> bool:
         if packageType == PackageType.Library:

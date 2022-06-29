@@ -34,8 +34,8 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
-#include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLRawBitmapUtil.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <Shared/Camera/System/Camera.hpp>
 #include <Shared/Camera/System/CameraSystem.hpp>
 

@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
+#include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <Shared/CubeMapping/API/Vulkan/CommonMethods.hpp>
 #include <Shared/CubeMapping/API/Vulkan/SkyboxVertices.hpp>
-#include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <utility>
 #include <vector>
 
@@ -74,7 +74,7 @@ namespace Fsl
       descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     Vulkan::VUBufferMemory CreateUBO(const Vulkan::VUDevice& device, const VkDeviceSize size)
@@ -184,7 +184,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -312,7 +312,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   };
 }

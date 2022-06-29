@@ -35,54 +35,51 @@
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class ContentControlBase : public BaseWindow
   {
-    class ContentControlBase : public BaseWindow
+    std::shared_ptr<BaseWindow> m_content;
+    DpThickness m_paddingDp;
+    bool m_isInitialized;
+
+  public:
+    explicit ContentControlBase(const std::shared_ptr<BaseWindowContext>& context);
+
+    void WinInit() override;
+
+  protected:
+    void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
+
+    void SetContentVisibility(const ItemVisibility visibility)
     {
-      std::shared_ptr<BaseWindow> m_content;
-      DpThickness m_paddingDp;
-      bool m_isInitialized;
-
-    public:
-      explicit ContentControlBase(const std::shared_ptr<BaseWindowContext>& context);
-
-      void WinInit() override;
-
-    protected:
-      void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
-
-      void SetContentVisibility(const ItemVisibility visibility)
+      if (m_content)
       {
-        if (m_content)
-        {
-          m_content->SetVisibility(visibility);
-        }
+        m_content->SetVisibility(visibility);
       }
+    }
 
-      //! @brief This includes any padding set
-      PxSize2D GetContentDesiredSizePx() const;
+    //! @brief This includes any padding set
+    PxSize2D GetContentDesiredSizePx() const;
 
-      DpThickness DoGetPadding() const
-      {
-        return m_paddingDp;
-      }
-      void DoSetPadding(const DpThickness& valueDp);
+    DpThickness DoGetPadding() const
+    {
+      return m_paddingDp;
+    }
+    void DoSetPadding(const DpThickness& valueDp);
 
-      std::shared_ptr<BaseWindow> DoGetContent() const
-      {
-        return m_content;
-      }
-      void DoSetContent(const std::shared_ptr<BaseWindow>& value);
+    std::shared_ptr<BaseWindow> DoGetContent() const
+    {
+      return m_content;
+    }
+    void DoSetContent(const std::shared_ptr<BaseWindow>& value);
 
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
-      //! @brief Alternative method to ArrangeOverride that can be called to tweak the content offset
-      PxSize2D CustomArrange(const PxSize2D& finalSizePx, const PxPoint2& positionOffset);
-    };
-  }
+    //! @brief Alternative method to ArrangeOverride that can be called to tweak the content offset
+    PxSize2D CustomArrange(const PxSize2D& finalSizePx, const PxPoint2& positionOffset);
+  };
 }
 
 #endif

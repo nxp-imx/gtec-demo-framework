@@ -32,9 +32,9 @@
 #include "InputRecordingManager.hpp"
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 //#include <FslBase/System/HighResolutionTimer.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 
@@ -66,15 +66,15 @@ namespace Fsl
       }
     }
 
-    Optional<AppInputCommandList> TryLoadInputCommandList(const ServiceProvider& serviceProvider, const IO::Path& persistentDataFile,
-                                                          const bool forceDefaultSequence)
+    std::optional<AppInputCommandList> TryLoadInputCommandList(const ServiceProvider& serviceProvider, const IO::Path& persistentDataFile,
+                                                               const bool forceDefaultSequence)
     {
       // Try to load the custom recording first
-      Optional<AppInputCommandList> res;
+      std::optional<AppInputCommandList> res;
       if (!forceDefaultSequence)
       {
         res = AppInputCommandListPersistence::TryLoad(persistentDataFile);
-        if (res.HasValue())
+        if (res.has_value())
         {
           FSLLOG3_INFO("Custom input recording loaded from '{}'", persistentDataFile);
           return res;
@@ -87,8 +87,8 @@ namespace Fsl
       auto defaultRecordingPath = IO::Path::Combine(contentPath, LocalConfig::DefaultInputRecordingFilename);
 
       res = AppInputCommandListPersistence::TryLoad(defaultRecordingPath);
-      FSLLOG3_WARNING_IF(!res.HasValue(), "Default input recording not found at '{}'", defaultRecordingPath);
-      FSLLOG3_INFO_IF(res.HasValue(), "Default input recording loaded from '{}'", defaultRecordingPath);
+      FSLLOG3_WARNING_IF(!res.has_value(), "Default input recording not found at '{}'", defaultRecordingPath);
+      FSLLOG3_INFO_IF(res.has_value(), "Default input recording loaded from '{}'", defaultRecordingPath);
       return res;
     }
   }
@@ -102,7 +102,7 @@ namespace Fsl
 
   InputRecordingManager::~InputRecordingManager() = default;
 
-  Optional<AppInputCommandList> InputRecordingManager::TryGetRecording()
+  std::optional<AppInputCommandList> InputRecordingManager::TryGetRecording()
   {
     return m_commandList;
   }

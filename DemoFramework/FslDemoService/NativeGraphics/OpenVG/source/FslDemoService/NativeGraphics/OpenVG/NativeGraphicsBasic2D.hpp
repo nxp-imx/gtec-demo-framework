@@ -31,48 +31,45 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
-#include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/String/StringViewLite.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslUtil/OpenVG/VGFontBuffer.hpp>
 #include <FslUtil/OpenVG/VGImageBuffer.hpp>
 #include <array>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
   {
-    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
-    {
-      PxSize2D m_pxCurrentSize;
-      PxSize2D m_fontSize;
-      VGFontBuffer m_font;
-      std::vector<VGuint> m_glyphs;
-      std::vector<VGfloat> m_xAdjust;
-      bool m_inBegin;
-      VGint m_oldMatrixMode;
-      VGImageBuffer m_fontImage;
-      std::array<VGImageBuffer, 128 - 33> m_fontImages{};
-      VGint m_oldScissorEnabled;
-      std::array<VGfloat, 4> m_oldClearColor{};
-      std::array<VGfloat, 2> m_oldOrigin{};
-      std::array<VGfloat, 2> m_zeroOrigin{};
+    PxSize2D m_pxCurrentSize;
+    PxSize2D m_fontSize;
+    VGFontBuffer m_font;
+    std::vector<VGuint> m_glyphs;
+    std::vector<VGfloat> m_xAdjust;
+    bool m_inBegin;
+    VGint m_oldMatrixMode;
+    VGImageBuffer m_fontImage;
+    std::array<VGImageBuffer, 128 - 33> m_fontImages{};
+    VGint m_oldScissorEnabled;
+    std::array<VGfloat, 4> m_oldClearColor{};
+    std::array<VGfloat, 2> m_oldOrigin{};
+    std::array<VGfloat, 2> m_zeroOrigin{};
 
-    public:
-      explicit NativeGraphicsBasic2D(const PxExtent2D& extentPx);
-      ~NativeGraphicsBasic2D() final;
+  public:
+    explicit NativeGraphicsBasic2D(const PxExtent2D& extentPx);
+    ~NativeGraphicsBasic2D() final;
 
-      // From INativeGraphicsBasic2D
-      void SetScreenExtent(const PxExtent2D& extentPx) final;
-      void Begin() final;
-      void End() final;
-      void DrawPoints(const Vector2* const pSrc, const uint32_t length, const Color& color) final;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
-      PxSize2D FontSize() const final;
+    // From INativeGraphicsBasic2D
+    void SetScreenExtent(const PxExtent2D& extentPx) final;
+    void Begin() final;
+    void End() final;
+    void DrawPoints(const Vector2* const pSrc, const uint32_t length, const Color& color) final;
+    void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+    PxSize2D FontSize() const final;
 
-    private:
-    };
-  }
+  private:
+  };
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_SPANRANGEUTIL_HPP
 #define FSLBASE_MATH_SPANRANGEUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,34 +36,31 @@
 #include <cassert>
 #include <stdexcept>
 
-namespace Fsl
+namespace Fsl::SpanRangeUtil
 {
-  namespace SpanRangeUtil
+  template <typename T>
+  inline SpanRange<T> AsSpanRange(const T& startIndex, const T& count, const OptimizationCheckFlag /*unused*/) noexcept
   {
-    template <typename T>
-    inline SpanRange<T> AsSpanRange(const T& startIndex, const T& count, const OptimizationCheckFlag /*unused*/) noexcept
-    {
-      assert(count >= 0);
-      return {startIndex, count};
-    }
+    assert(count >= 0);
+    return {startIndex, count};
+  }
 
 
-    template <typename T>
-    inline SpanRange<T> FromStartAndEnd(const T& startIndex, const T& endIndex)
+  template <typename T>
+  inline SpanRange<T> FromStartAndEnd(const T& startIndex, const T& endIndex)
+  {
+    if (startIndex > endIndex)
     {
-      if (startIndex > endIndex)
-      {
-        throw std::invalid_argument("startIndex must be <= endIndex");
-      }
-      return {startIndex, endIndex - startIndex};
+      throw std::invalid_argument("startIndex must be <= endIndex");
     }
+    return {startIndex, endIndex - startIndex};
+  }
 
-    template <typename T>
-    inline SpanRange<T> FromStartAndEnd(const T& startIndex, const T& endIndex, const OptimizationCheckFlag /*unused*/) noexcept
-    {
-      assert(startIndex <= endIndex);
-      return {startIndex, endIndex - startIndex};
-    }
+  template <typename T>
+  inline SpanRange<T> FromStartAndEnd(const T& startIndex, const T& endIndex, const OptimizationCheckFlag /*unused*/) noexcept
+  {
+    assert(startIndex <= endIndex);
+    return {startIndex, endIndex - startIndex};
   }
 }
 

@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <algorithm>
 #include <cassert>

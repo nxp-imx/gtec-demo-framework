@@ -29,15 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "VGStressTestOptionParser.hpp"
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
-
-
 #include <cmath>
-
-#include "VGStressTestOptionParser.hpp"
 
 namespace Fsl
 {

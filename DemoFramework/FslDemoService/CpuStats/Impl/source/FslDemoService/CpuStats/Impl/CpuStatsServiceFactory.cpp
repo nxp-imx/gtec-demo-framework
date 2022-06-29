@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <FslDemoService/CpuStats/Impl/CpuStatsService.hpp>
+#include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <stdexcept>
 
 namespace Fsl

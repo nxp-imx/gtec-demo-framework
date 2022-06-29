@@ -1,0 +1,108 @@
+@startuml FslSimpleUI.Controls.Charts new
+scale 1
+
+namespace Data {
+
+    class ChartSortedDataChannelView {
+        uint64_t ChangeId()
+        ReadOnlySpan<uint32_t> GetChannelViewSpan()
+    }
+
+    class ChartDataInfo {
+        uint32_t Count
+        uint32_t SegmentCount
+        uint32_t DataEntries
+    }
+
+    class ChartDataViewConfig {
+        uint32_t MaxEntries
+    }
+
+    class "ChartDataStats<TValueType>" as ChartDataStats_TValueType {
+        MinMax<TValueType> ValueMinMax
+    }
+
+    class "ChartDataEntry<TValueType,TChannelCount>" as ChartDataEntry_TValueType_TChannelCount {
+        std::array<TValueType, TChannelCount> Values
+    }
+
+    class "ChartDataView<TValueType,TChannelCount>" as ChartDataView_TValueType_TChannelCount {
+        uint64_t ChangeId()
+        void ClearCustomMinMax()
+        void SetCustomMinMax(customViewMinMax)
+        void SetMaxViewEntries(maxEntries)
+        ChartDataStats CalculateDataStats();
+        uint32_t Count()
+        ChartDataInfo DataInfo()
+        ReadOnlySpan<ChartDataEntry<TValueType,TChannelCount>> DataAsReadOnlySpan(uint32_t segmentIndex);
+    }
+
+    interface "IChartData<TValueType,TChannelCount>" as IChartData_TValueType_TChannelCount {
+        uint32_t ChangeId()
+        ViewConfig CreateViewConfig(maxEntries)
+        uint32_t Count(viewConfig)
+        ChartDataStats CalculateDataStats(viewConfig)
+        ChartDataInfo DataInfo(viewConfig)
+        ReadOnlySpan<ChartDataEntry> ViewDataAsReadOnlySpan(viewConfig, segmentIndex);
+    }
+
+   class "ChartData<TValueType,TChannelCount>" as ChartData_TValueType_TChannelCount 
+
+
+   ChartDataView_TValueType_TChannelCount o-- IChartData_TValueType_TChannelCount
+   ChartDataView_TValueType_TChannelCount o-- ChartDataViewConfig
+
+   IChartData_TValueType_TChannelCount <|-- ChartData_TValueType_TChannelCount
+
+   ChartData_TValueType_TChannelCount o.. ChartDataInfo
+   ChartData_TValueType_TChannelCount o-- ChartDataEntry_TValueType_TChannelCount
+   ChartData_TValueType_TChannelCount o-- ChartDataStats_TValueType
+
+   ChartSortedDataChannelView o-- ChartDataView_TValueType_TChannelCount
+}
+
+namespace Grid {
+    class "ChartGridLineInfo<TValueType>" as ChartGridLineInfo_TValueType {
+        TValueType Position
+        StringViewLite Label
+    }
+
+    class "ChartGridConfig<TValueType>" as ChartGridConfig_TValueType {
+        MinMax<TValueType> ViewMinMax
+    }
+
+
+    class "ChartDataGridLines<TValueType>" as ChartDataGridLines_TValueType {
+        StringViewLite GetDescriptionString(value)
+        ReadOnlySpan<ChartGridLineInfo<TValueType>> GetSuggestedGridLines(minMax)
+    }
+
+    ChartDataGridLines_TValueType o.. ChartGridLineInfo_TValueType
+    ChartDataGridLines_TValueType o.. ChartGridConfig_TValueType
+}
+
+namespace Util {
+    class BoxPlotHelper
+    class DataCanvas
+}
+
+
+class "AreaChart<TValueType,TChannelCount>" as AreaChart_TValueType_TChannelCount
+class "BoxPlotChart<TValueType,TChannelCount>" as BoxPlotChart_TValueType_TChannelCount
+
+AreaChart_TValueType_TChannelCount o-- Data.ChartDataView_TValueType_TChannelCount
+AreaChart_TValueType_TChannelCount o-- Grid.ChartDataGridLines_TValueType
+
+BoxPlotChart_TValueType_TChannelCount o-- Data.ChartDataView_TValueType_TChannelCount
+BoxPlotChart_TValueType_TChannelCount o-- Data.ChartSortedDataChannelView
+BoxPlotChart_TValueType_TChannelCount .-- Util.BoxPlotHelper
+BoxPlotChart_TValueType_TChannelCount *-- Util.DataCanvas
+
+class UserApp
+UserApp o-- Data.ChartData_TValueType_TChannelCount
+UserApp o.. Grid.ChartDataGridLines_TValueType
+UserApp o-- AreaChart_TValueType_TChannelCount
+UserApp o-- BoxPlotChart_TValueType_TChannelCount
+
+
+@enduml

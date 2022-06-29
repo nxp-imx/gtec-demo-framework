@@ -32,45 +32,50 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES2/Common.hpp>
-#include <GLES2/gl2.h>
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/OpenGLES2/Common.hpp>
+#include <GLES2/gl2.h>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  struct GLBufferArrayEntry
   {
-    struct GLBufferArrayEntry
+    GLuint Handle;
+    uint32_t Capacity{0};
+    GLenum Usage{0};
+
+    GLBufferArrayEntry();
+
+    bool IsValid() const;
+
+    GLuint Get() const noexcept
     {
-      GLuint Handle;
-      uint32_t Capacity{0};
-      GLenum Usage{0};
+      return Handle;
+    }
 
-      GLBufferArrayEntry();
+    [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
+    {
+      return Handle;
+    }
 
-      bool IsValid() const;
+    uint32_t GetCapacity() const noexcept
+    {
+      return Capacity;
+    }
 
-      GLuint Get() const
-      {
-        return Handle;
-      }
+    //! @brief Get the GL capacity
+    GLsizei GetGLCapacity() const noexcept
+    {
+      return UncheckedNumericCast<GLsizei>(Capacity);
+    }
 
-      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
-      {
-        return Handle;
-      }
-
-      int32_t GetCapacity() const
-      {
-        return Capacity;
-      }
-      GLenum GetUsage() const
-      {
-        return Usage;
-      }
-    };
-  }
+    GLenum GetUsage() const noexcept
+    {
+      return Usage;
+    }
+  };
 }
 
 #endif

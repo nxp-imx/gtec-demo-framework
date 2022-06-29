@@ -33,12 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::AppConfig
 {
-  namespace AppConfig
-  {
-    constexpr uint32_t MaxActivityCount = 20;
-  }
+  constexpr uint32_t MaxActivityCount = 20;
 }
 
 #endif

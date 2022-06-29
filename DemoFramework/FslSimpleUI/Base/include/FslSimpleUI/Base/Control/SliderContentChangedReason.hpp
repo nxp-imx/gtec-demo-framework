@@ -31,19 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class SliderContentChangedReason
   {
-    enum class SliderContentChangedReason
-    {
-      DragCanceled = 0,
-      DragBegin = 1,
-      Drag = 2,
-      DragEnd = 3,
-      Set = 4
-    };
-  }
+    DragCanceled = 0,
+    DragBegin = 1,
+    Drag = 2,
+    DragEnd = 3,
+    Set = 4
+  };
 }
 
 #endif

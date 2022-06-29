@@ -32,50 +32,46 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
 #include <FslUtil/OpenVG/VGPaintBuffer.hpp>
-
 #include <algorithm>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  VGPaintBuffer::VGPaintBuffer()
+    : m_handle(VG_INVALID_HANDLE)
   {
-    VGPaintBuffer::VGPaintBuffer()
-      : m_handle(VG_INVALID_HANDLE)
+  }
+
+
+  VGPaintBuffer::VGPaintBuffer(const VGPaint handle)
+    : m_handle(handle)
+  {
+  }
+
+  VGPaintBuffer::~VGPaintBuffer()
+  {
+    Reset();
+  }
+
+
+  void VGPaintBuffer::Reset()
+  {
+    if (m_handle != VG_INVALID_HANDLE)
     {
+      vgDestroyPaint(m_handle);
+      m_handle = VG_INVALID_HANDLE;
     }
+  }
 
 
-    VGPaintBuffer::VGPaintBuffer(const VGPaint handle)
-      : m_handle(handle)
-    {
-    }
+  void VGPaintBuffer::Reset(const VGPaint handle)
+  {
+    Reset();
+    m_handle = handle;
+  }
 
-    VGPaintBuffer::~VGPaintBuffer()
-    {
-      Reset();
-    }
-
-
-    void VGPaintBuffer::Reset()
-    {
-      if (m_handle != VG_INVALID_HANDLE)
-      {
-        vgDestroyPaint(m_handle);
-        m_handle = VG_INVALID_HANDLE;
-      }
-    }
-
-
-    void VGPaintBuffer::Reset(const VGPaint handle)
-    {
-      Reset();
-      m_handle = handle;
-    }
-
-    VGPaint VGPaintBuffer::GetHandle() const
-    {
-      return m_handle;
-    }
+  VGPaint VGPaintBuffer::GetHandle() const
+  {
+    return m_handle;
   }
 }

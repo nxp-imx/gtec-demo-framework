@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/Info/BasicNineSliceSpriteInfo.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Sprite/Info/BasicNineSliceSpriteInfo.hpp>
+#include <FslGraphics/Sprite/Info/NineSliceSpriteInfoUtil.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
-#include <FslGraphics/Sprite/Info/NineSliceSpriteInfoUtil.hpp>
 #include <memory>
 #include <utility>
 
@@ -45,7 +45,7 @@ namespace Fsl
                                                      const PxThicknessU& contentMarginPx, const uint32_t imageDpi, const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)
     , ImageInfo(imageRectanglePx.GetExtent(), imageRectanglePx, nineSlicePx, contentMarginPx,
-                SpriteUnitConverter::CalcImageDpExtent(imageRectanglePx.GetExtent(), imageDpi),
+                SpriteUnitConverter::CalcImageDpExtent2D(imageRectanglePx.GetExtent(), imageDpi),
                 SpriteUnitConverter::CalcDpThicknessU(nineSlicePx, imageDpi), SpriteUnitConverter::CalcDpThicknessU(contentMarginPx, imageDpi))
     , ImageDpi(imageDpi)
     , RenderInfo(

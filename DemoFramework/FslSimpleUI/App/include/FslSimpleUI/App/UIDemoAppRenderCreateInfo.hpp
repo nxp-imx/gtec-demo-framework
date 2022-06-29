@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIDemoAppMaterialCreateInfo.hpp>
 #include <FslSimpleUI/App/UIDemoAppMaterialConfig.hpp>
+#include <FslSimpleUI/App/UIDemoAppMaterialCreateInfo.hpp>
 #include <FslSimpleUI/App/UIDemoAppRenderCapacityInfo.hpp>
 
 namespace Fsl

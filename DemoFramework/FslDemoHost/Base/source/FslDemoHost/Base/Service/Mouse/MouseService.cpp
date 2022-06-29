@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
@@ -38,6 +37,7 @@
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/Mouse/MouseService.hpp>
+#include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 
 namespace Fsl
 {

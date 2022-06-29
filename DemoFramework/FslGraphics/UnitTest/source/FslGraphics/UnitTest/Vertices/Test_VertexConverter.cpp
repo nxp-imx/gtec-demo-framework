@@ -29,9 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Vertices/VertexConverter.hpp>
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
@@ -41,6 +38,9 @@
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
+#include <FslGraphics/Vertices/VertexConverter.hpp>
+#include <FslGraphics/Vertices/VertexPosition.hpp>
+#include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <array>
 
 using namespace Fsl;

@@ -30,23 +30,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <RapidVulkan/System/ErrorFormatter.hpp>
 #include <RapidVulkan/Debug/Strings/VkResult.hpp>
+#include <RapidVulkan/System/ErrorFormatter.hpp>
 #include <fmt/format.h>
 
-namespace RapidVulkan
+namespace RapidVulkan::ErrorFormatter
 {
-  namespace ErrorFormatter
+  std::string Format(const std::string& message, const VkResult errorCode)
   {
-    std::string Format(const std::string& message, const VkResult errorCode)
-    {
-      return fmt::format("{} failed with error code {} ({})", message, Debug::ToString(errorCode), errorCode);
-    }
+    return fmt::format("{} failed with error code {} ({})", message, Debug::ToString(errorCode), errorCode);
+  }
 
-    std::string Format(const std::string& message, const VkResult errorCode, const std::string& fileName, const int lineNumber)
-    {
-      return fmt::format("{} failed with error code {} ({}) at {}({})", message, Debug::ToString(errorCode), errorCode, fileName, lineNumber);
-    }
+  std::string Format(const std::string& message, const VkResult errorCode, const std::string& fileName, const int lineNumber)
+  {
+    return fmt::format("{} failed with error code {} ({}) at {}({})", message, Debug::ToString(errorCode), errorCode, fileName, lineNumber);
   }
 }
 #endif

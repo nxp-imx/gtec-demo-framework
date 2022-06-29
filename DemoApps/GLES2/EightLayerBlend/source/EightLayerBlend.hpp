@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
-#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Matrix.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <array>
 
 namespace Fsl

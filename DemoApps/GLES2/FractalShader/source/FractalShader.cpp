@@ -29,17 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "FractalShader.hpp"
+#include <FslBase/String/StringUtil.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "FractalShader.hpp"
-#include "FractalShaderJulia.hpp"
-#include "FractalShaderMandelbrot.hpp"
 #include <Shared/FractalShader/OptionParser.hpp>
-#include <FslBase/String/StringUtil.hpp>
 #include <GLES2/gl2.h>
 #include <iostream>
 #include <memory>
 #include <string>
+#include "FractalShaderJulia.hpp"
+#include "FractalShaderMandelbrot.hpp"
 
 namespace Fsl
 {

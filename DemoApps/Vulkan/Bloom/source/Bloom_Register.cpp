@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
-#include "Bloom.hpp"
 #include <Shared/Bloom/OptionParser.hpp>
+#include "Bloom.hpp"
 
 namespace Fsl
 {

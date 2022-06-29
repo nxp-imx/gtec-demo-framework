@@ -42,7 +42,7 @@ namespace Fsl
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
     {
-      return std::shared_ptr<AServiceOptionParser>();
+      return {};
     }
 
     ServiceCaps::Flags GetFlags() const override;

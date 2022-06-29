@@ -1,4 +1,4 @@
-#if !defined(_WIN32) && !defined(__ANDROID__)
+#if !defined(_WIN32) && !defined(__ANDROID__) && !defined(FSL_PLATFORM_EMSCRIPTEN)
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -30,9 +30,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include <csignal>
 #include <cstdlib>
@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
     }
 
     strContentPath = Fsl::IO::Path::GetFullPath(strContentPath);
+
     strPersistentPath = strContentPath;
     strContentPath = Fsl::IO::Path::Combine(strContentPath, "Content");
 

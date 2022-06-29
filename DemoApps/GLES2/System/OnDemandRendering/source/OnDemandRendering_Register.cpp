@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "OnDemandRendering.hpp"
 #include <array>
+#include "OnDemandRendering.hpp"
 
 namespace Fsl
 {

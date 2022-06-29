@@ -1,7 +1,7 @@
 #ifndef FSLBASE_TIME_TIMESPAN_HPP
 #define FSLBASE_TIME_TIMESPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Time/TimeInfo.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -53,6 +53,30 @@ namespace Fsl
     constexpr explicit TimeSpan(const int64_t ticks) noexcept
       : m_ticks(ticks)
     {
+    }
+
+    constexpr explicit TimeSpan(const int32_t hours, const int32_t minutes, const int32_t seconds) noexcept
+      : TimeSpan((hours * TimeInfo::TicksPerHour) + (minutes * TimeInfo::TicksPerMinute) + (seconds * TimeInfo::TicksPerSecond))
+    {
+    }
+
+    constexpr explicit TimeSpan(const int32_t days, const int32_t hours, const int32_t minutes, const int32_t seconds) noexcept
+      : TimeSpan((days * TimeInfo::TicksPerDay) + (hours * TimeInfo::TicksPerHour) + (minutes * TimeInfo::TicksPerMinute) +
+                 (seconds * TimeInfo::TicksPerSecond))
+    {
+    }
+
+    constexpr explicit TimeSpan(const int32_t days, const int32_t hours, const int32_t minutes, const int32_t seconds,
+                                const int32_t milliseconds) noexcept
+      : TimeSpan((days * TimeInfo::TicksPerDay) + (hours * TimeInfo::TicksPerHour) + (minutes * TimeInfo::TicksPerMinute) +
+                 (seconds * TimeInfo::TicksPerSecond) + (milliseconds * TimeInfo::TicksPerMillisecond))
+    {
+    }
+
+
+    constexpr float DeltaTime() const
+    {
+      return static_cast<float>(static_cast<double>(m_ticks) / 10000000.0);
     }
 
     constexpr int64_t Ticks() const noexcept
@@ -112,6 +136,36 @@ namespace Fsl
     {
       m_ticks /= arg;
       return *this;
+    }
+
+    static inline constexpr TimeSpan FromDays(const int32_t value) noexcept
+    {
+      return TimeSpan(value * TimeInfo::TicksPerDay);
+    }
+
+    static inline constexpr TimeSpan FromHours(const int32_t value) noexcept
+    {
+      return TimeSpan(value * TimeInfo::TicksPerHour);
+    }
+
+    static inline constexpr TimeSpan FromMinutes(const int32_t value) noexcept
+    {
+      return TimeSpan(value * TimeInfo::TicksPerMinute);
+    }
+
+    static inline constexpr TimeSpan FromSeconds(const int32_t value) noexcept
+    {
+      return TimeSpan(value * TimeInfo::TicksPerSecond);
+    }
+
+    static inline constexpr TimeSpan FromMilliseconds(const int32_t value) noexcept
+    {
+      return TimeSpan(UncheckedNumericCast<int64_t>(value) * TimeInfo::TicksPerMillisecond);
+    }
+
+    static inline constexpr TimeSpan FromMicroseconds(const int32_t value) noexcept
+    {
+      return TimeSpan(UncheckedNumericCast<int64_t>(value) * TimeInfo::TicksPerMicrosecond);
     }
   };
 

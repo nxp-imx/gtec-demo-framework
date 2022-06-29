@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceFramework.hpp>
-#include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
-#include <FslService/Impl/Foundation/Message/ThreadInitBasicMessage.hpp>
-#include <FslService/Impl/Threading/IServiceHost.hpp>
-#include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
+#include <FslService/Impl/Foundation/Message/ThreadInitBasicMessage.hpp>
+#include <FslService/Impl/ServiceFramework.hpp>
+#include <FslService/Impl/Threading/IServiceHost.hpp>
+#include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
 #include <cassert>
 #include "Registry/RegisteredServices.hpp"
 #include "Registry/ServiceRegistryImpl.hpp"
-#include "Threading/ServiceThreadManager.hpp"
 #include "Threading/Launcher/RegisteredGlobalServiceInfo.hpp"
+#include "Threading/ServiceThreadManager.hpp"
 
 namespace Fsl
 {

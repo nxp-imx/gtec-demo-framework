@@ -1,7 +1,7 @@
 #ifndef FSLDEMOAPP_VULKAN_BASIC_SWAPCHAININFO_HPP
 #define FSLDEMOAPP_VULKAN_BASIC_SWAPCHAININFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,32 +34,29 @@
 #include <FslBase/BasicTypes.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::VulkanBasic
 {
-  namespace VulkanBasic
+  struct SwapchainInfo
   {
-    struct SwapchainInfo
+    VkExtent2D ImageExtent{};
+    //! The current image (VK_NULL_HANDLE if none)
+    VkImage CurrentImage{VK_NULL_HANDLE};
+    //! The current image format;
+    //! If SwapchainCurrentImage == VK_NULL_HANDLE this will be VK_FORMAT_UNDEFINED
+    VkFormat ImageFormat{VK_FORMAT_UNDEFINED};
+
+    VkImageUsageFlags ImageUsageFlags{0u};
+
+    SwapchainInfo() = default;
+
+    SwapchainInfo(const VkExtent2D& imageExtent, const VkImage currentImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags)
+      : ImageExtent(imageExtent)
+      , CurrentImage(currentImage)
+      , ImageFormat(imageFormat)
+      , ImageUsageFlags(imageUsageFlags)
     {
-      VkExtent2D ImageExtent{};
-      //! The current image (VK_NULL_HANDLE if none)
-      VkImage CurrentImage{VK_NULL_HANDLE};
-      //! The current image format;
-      //! If SwapchainCurrentImage == VK_NULL_HANDLE this will be VK_FORMAT_UNDEFINED
-      VkFormat ImageFormat{VK_FORMAT_UNDEFINED};
-
-      VkImageUsageFlags ImageUsageFlags{0u};
-
-      SwapchainInfo() = default;
-
-      SwapchainInfo(const VkExtent2D& imageExtent, const VkImage currentImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags)
-        : ImageExtent(imageExtent)
-        , CurrentImage(currentImage)
-        , ImageFormat(imageFormat)
-        , ImageUsageFlags(imageUsageFlags)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

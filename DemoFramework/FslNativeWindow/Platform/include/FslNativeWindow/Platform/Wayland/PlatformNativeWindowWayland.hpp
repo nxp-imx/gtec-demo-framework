@@ -32,6 +32,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Point2.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <vector>
 

@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSTEXTURE_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSTEXTURE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,58 +33,55 @@
 
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsTextureScopedDescriptorSet.hpp>
+#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslGraphics/TextureFlags.hpp>
-#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics3D/BasicRender/Adapter/INativeTexture.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class NativeGraphicsTexture final : public Graphics3D::INativeTexture
   {
-    class NativeGraphicsTexture final : public Graphics3D::INativeTexture
+    PxExtent3D m_extentPx{};
+    VUTexture m_texture;
+    NativeGraphicsTextureScopedDescriptorSet m_descriptorSet;
+
+  public:
+    NativeGraphicsTexture() = default;
+    NativeGraphicsTexture(const PxExtent3D& extentPx, VUTexture texture, NativeGraphicsTextureScopedDescriptorSet&& descriptorSet);
+
+    void Destroy();
+
+    bool IsValid() const
     {
-      PxExtent3D m_extentPx{};
-      VUTexture m_texture;
-      NativeGraphicsTextureScopedDescriptorSet m_descriptorSet;
+      return m_texture.IsValid();
+    }
 
-    public:
-      NativeGraphicsTexture() = default;
-      NativeGraphicsTexture(const PxExtent3D& extentPx, VUTexture texture, NativeGraphicsTextureScopedDescriptorSet&& descriptorSet);
-
-      void Destroy();
-
-      bool IsValid() const
-      {
-        return m_texture.IsValid();
-      }
-
-      inline VkDescriptorSet GetDescriptorSet() const
-      {
-        assert(IsValid());
-        return m_descriptorSet.Get();
-      }
+    inline VkDescriptorSet GetDescriptorSet() const
+    {
+      assert(IsValid());
+      return m_descriptorSet.Get();
+    }
 
 
-      inline VUTextureInfo ToTextureInfo() const
-      {
-        assert(IsValid());
-        return {Get(), VkExtent2D{m_extentPx.Width, m_extentPx.Height}};
-      }
+    inline VUTextureInfo ToTextureInfo() const
+    {
+      assert(IsValid());
+      return {Get(), VkExtent2D{m_extentPx.Width, m_extentPx.Height}};
+    }
 
-      //! @brief Get the native texture handle
-      VkDescriptorImageInfo Get() const
-      {
-        assert(IsValid());
-        return m_texture.GetDescriptorImageInfo();
-      }
+    //! @brief Get the native texture handle
+    VkDescriptorImageInfo Get() const
+    {
+      assert(IsValid());
+      return m_texture.GetDescriptorImageInfo();
+    }
 
-      // Graphics3D::INativeTexture
-      void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
-    };
-  }
+    // Graphics3D::INativeTexture
+    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags) final;
+  };
 }
 
 #endif

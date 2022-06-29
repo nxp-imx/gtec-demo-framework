@@ -34,84 +34,81 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslSimpleUI/Base/WindowFlags.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct TreeNodeFlags
   {
-    struct TreeNodeFlags
+    uint32_t Value{0};
+
+    enum Enum
     {
-      uint32_t Value{0};
-
-      enum Enum
-      {
-        LayoutDirty = WindowFlags::LayoutDirty,
-        UpdateEnabled = WindowFlags::UpdateEnabled,
-        DrawEnabled = WindowFlags::DrawEnabled,
-        ClickInput = WindowFlags::ClickInput,
-        MouseOver = WindowFlags::MouseOver,
-        ResolveEnabled = WindowFlags::ResolveEnabled,
-        PostLayoutEnabled = WindowFlags::PostLayoutEnabled,
-        Disposed = 0x01 << WindowFlags::BitsReserved,
-      };
-
-
-      constexpr TreeNodeFlags() noexcept = default;
-
-      constexpr TreeNodeFlags(const Enum flag) noexcept    // NOLINT(google-explicit-constructor)
-        : Value(static_cast<uint32_t>(flag))
-      {
-      }
-
-      explicit constexpr TreeNodeFlags(const WindowFlags flags) noexcept
-        : Value(flags.GetValue())
-      {
-      }
-
-      explicit constexpr TreeNodeFlags(const uint32_t flags) noexcept
-        : Value(flags)
-      {
-      }
-
-      constexpr bool IsRunning() const noexcept
-      {
-        return !IsFlagged(Disposed);
-      }
-
-
-      constexpr bool IsDisposed() const noexcept
-      {
-        return IsFlagged(Disposed);
-      }
-
-
-      constexpr inline bool IsFlagged(Enum flag) const noexcept
-      {
-        return ((Value & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag));
-      }
-
-
-      constexpr bool IsFlagged(const WindowFlags flags) const noexcept
-      {
-        return ((Value & flags.GetValue()) == flags.GetValue());
-      }
-
-      constexpr void EnableFlag(Enum flag) noexcept
-      {
-        Value |= static_cast<uint32_t>(flag);
-      }
-
-      constexpr inline ItemVisibility GetVisibility() const noexcept
-      {
-        return static_cast<ItemVisibility>((Value & WindowFlags::VisibilityMask) >> WindowFlags::VisibilityShift);
-      }
-
-      constexpr inline void SetVisibility(const ItemVisibility visibility) noexcept
-      {
-        Value = (Value & (~WindowFlags::VisibilityMask)) |
-                ((static_cast<uint32_t>(visibility) << WindowFlags::VisibilityShift) & WindowFlags::VisibilityMask);
-      }
+      LayoutDirty = WindowFlags::LayoutDirty,
+      UpdateEnabled = WindowFlags::UpdateEnabled,
+      DrawEnabled = WindowFlags::DrawEnabled,
+      ClickInput = WindowFlags::ClickInput,
+      MouseOver = WindowFlags::MouseOver,
+      ResolveEnabled = WindowFlags::ResolveEnabled,
+      PostLayoutEnabled = WindowFlags::PostLayoutEnabled,
+      Disposed = 0x01 << WindowFlags::BitsReserved,
     };
-  }
+
+
+    constexpr TreeNodeFlags() noexcept = default;
+
+    constexpr TreeNodeFlags(const Enum flag) noexcept    // NOLINT(google-explicit-constructor)
+      : Value(static_cast<uint32_t>(flag))
+    {
+    }
+
+    explicit constexpr TreeNodeFlags(const WindowFlags flags) noexcept
+      : Value(flags.GetValue())
+    {
+    }
+
+    explicit constexpr TreeNodeFlags(const uint32_t flags) noexcept
+      : Value(flags)
+    {
+    }
+
+    constexpr bool IsRunning() const noexcept
+    {
+      return !IsFlagged(Disposed);
+    }
+
+
+    constexpr bool IsDisposed() const noexcept
+    {
+      return IsFlagged(Disposed);
+    }
+
+
+    constexpr inline bool IsFlagged(Enum flag) const noexcept
+    {
+      return ((Value & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag));
+    }
+
+
+    constexpr bool IsFlagged(const WindowFlags flags) const noexcept
+    {
+      return ((Value & flags.GetValue()) == flags.GetValue());
+    }
+
+    constexpr void EnableFlag(Enum flag) noexcept
+    {
+      Value |= static_cast<uint32_t>(flag);
+    }
+
+    constexpr inline ItemVisibility GetVisibility() const noexcept
+    {
+      return static_cast<ItemVisibility>((Value & WindowFlags::VisibilityMask) >> WindowFlags::VisibilityShift);
+    }
+
+    constexpr inline void SetVisibility(const ItemVisibility visibility) noexcept
+    {
+      Value = (Value & (~WindowFlags::VisibilityMask)) |
+              ((static_cast<uint32_t>(visibility) << WindowFlags::VisibilityShift) & WindowFlags::VisibilityMask);
+    }
+  };
 }
 
 #endif

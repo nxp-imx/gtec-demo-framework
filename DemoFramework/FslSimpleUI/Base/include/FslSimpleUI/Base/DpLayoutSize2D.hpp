@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_DPLAYOUTSIZE2D_HPP
 #define FSLSIMPLEUI_BASE_DPLAYOUTSIZE2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,70 +33,23 @@
 
 #include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  struct DpLayoutSize2D
   {
-    struct DpLayoutSize2D
+    using value_type = DpLayoutSize1D;
+
+    value_type Width;
+    value_type Height;
+
+    constexpr DpLayoutSize2D() = default;
+
+    constexpr explicit DpLayoutSize2D(const value_type width, const value_type height)
+      : Width(width)
+      , Height(height)
     {
-      using value_type = float;
-
-    private:
-      value_type m_width{-1.0f};
-      value_type m_height{-1.0f};
-
-    public:
-      constexpr DpLayoutSize2D() = default;
-
-      constexpr explicit DpLayoutSize2D(const value_type width, const value_type height)
-        : m_width(width >= 0.0f ? width : -1.0f)
-        , m_height(height >= 0.0f ? height : -1.0f)
-      {
-      }
-
-      constexpr bool HasWidthValue() const
-      {
-        return m_width >= 0.0f;
-      }
-
-      constexpr bool HasHeightValue() const
-      {
-        return m_height >= 0.0f;
-      }
-
-      constexpr float Width() const
-      {
-        return (m_width >= 0.0f ? m_width : 0.0f);
-      }
-
-
-      constexpr float Height() const
-      {
-        return (m_height >= 0.0f ? m_height : 0.0f);
-      }
-
-      constexpr DpLayoutSize1D LayoutSizeWidth() const
-      {
-        return DpLayoutSize1D(m_width);
-      }
-
-      constexpr DpLayoutSize1D LayoutSizeHeight() const
-      {
-        return DpLayoutSize1D(m_height);
-      }
-
-      constexpr void SetWidth(const DpLayoutSize1D& value)
-      {
-        m_width = value.RawValue();
-      }
-
-      constexpr void SetHeight(const DpLayoutSize1D& value)
-      {
-        m_height = value.RawValue();
-      }
-    };
-  }
-
+    }
+  };
 }
 
 #endif

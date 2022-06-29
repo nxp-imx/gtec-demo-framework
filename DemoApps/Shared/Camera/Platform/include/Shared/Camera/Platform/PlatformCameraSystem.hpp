@@ -33,16 +33,13 @@
 
 #include <Shared/Camera/System/CameraSystem.hpp>
 
-namespace Fsl
+namespace Fsl::Helios
 {
-  namespace Helios
+  class PlatformCameraSystem
   {
-    class PlatformCameraSystem
-    {
-    public:
-      static CameraSystem CreateCameraSystem();
-    };
-  }
+  public:
+    static CameraSystem CreateCameraSystem();
+  };
 }
 
 #endif

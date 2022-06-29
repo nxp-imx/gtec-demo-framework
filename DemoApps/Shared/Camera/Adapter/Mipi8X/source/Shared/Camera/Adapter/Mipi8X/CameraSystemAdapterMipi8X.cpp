@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 // Here we create a camera, the CameraSystem uses this function to create the native camera
-#include <Shared/Camera/Adapter/Mipi8X/CameraSystemAdapterMipi8X.hpp>
 #include <Shared/Camera/Adapter/Mipi8X/CameraAdapterMipi8X.hpp>
+#include <Shared/Camera/Adapter/Mipi8X/CameraSystemAdapterMipi8X.hpp>
 
 namespace Fsl
 {

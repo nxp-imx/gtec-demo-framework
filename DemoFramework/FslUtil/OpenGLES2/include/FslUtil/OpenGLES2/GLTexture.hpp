@@ -32,17 +32,17 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
-#include <FslUtil/OpenGLES2/Common.hpp>
-#include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
-#include <FslGraphics/TextureFlags.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
+#include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
-#include <FslUtil/OpenGLES2/GLTextureParameters.hpp>
+#include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslUtil/OpenGLES2/GLTextureInfo.hpp>
+#include <FslUtil/OpenGLES2/GLTextureParameters.hpp>
+#include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <GLES2/gl2.h>
 
 namespace Fsl

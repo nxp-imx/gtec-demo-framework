@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "FurShellRendering.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
-#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
-#include <FslGraphics3D/Procedural/BoxGenerator.hpp>
-#include <FslGraphics3D/Procedural/TorusGenerator.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
@@ -46,15 +41,20 @@
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpanUtil_Array.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <RapidVulkan/Check.hpp>
+#include <FslGraphics3D/Procedural/BoxGenerator.hpp>
+#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
+#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
+#include <FslGraphics3D/Procedural/TorusGenerator.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUTextureUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <Shared/FurShellRendering/FurTexture.hpp>
 #include <Shared/FurShellRendering/OptionParser.hpp>
 #include <vulkan/vulkan.h>
-#include "RenderMode.hpp"
 #include <array>
+#include "RenderMode.hpp"
 
 namespace Fsl
 {
@@ -210,7 +210,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
     VertexBufferInfo<2> BuildVB(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const BoxF& coords, const BoxF& uv)
@@ -323,7 +323,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -334,7 +334,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     RapidVulkan::GraphicsPipeline CreateDescPipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
@@ -476,7 +476,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -655,15 +655,15 @@ namespace Fsl
                               static_cast<float>(m_resources.TexDescriptionAtlas.GetExtent().height));
 
       // texSize.X / tex
-      float x1 = -1.0f - (m_resources.TexDescription.OffsetPx.X / res.X);
-      float x2 = x1 + (m_resources.TexDescription.TrimmedRectPx.Width / res.X);
-      float y1 = -1.0f - (m_resources.TexDescription.OffsetPx.Y / res.Y);
-      float y2 = y1 + (m_resources.TexDescription.TrimmedRectPx.Height / res.Y);
+      const float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X) / res.X);
+      const float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width) / res.X);
+      const float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y) / res.Y);
+      const float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height) / res.Y);
 
-      float u1 = m_resources.TexDescription.TrimmedRectPx.Left() / atlasSize.X;
-      float v1 = m_resources.TexDescription.TrimmedRectPx.Top() / atlasSize.Y;
-      float u2 = m_resources.TexDescription.TrimmedRectPx.Right() / atlasSize.X;
-      float v2 = m_resources.TexDescription.TrimmedRectPx.Bottom() / atlasSize.Y;
+      const float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Left()) / atlasSize.X;
+      const float v1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Top()) / atlasSize.Y;
+      const float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Right()) / atlasSize.X;
+      const float v2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Bottom()) / atlasSize.Y;
 
       m_resources.VBDescription = BuildVB(m_bufferManager, BoxF(x1, y1, x2, y2), BoxF(u1, v1, u2, v2));
 
@@ -850,7 +850,7 @@ namespace Fsl
     rRender.SetProjection(perspective);
     rRender.SetDisplacement(displacement);
 
-    float layerAdd = (layerCount > 1 ? 1.0f / float(layerCount - 1) : 1.0f);
+    float layerAdd = (layerCount > 1 ? 1.0f / static_cast<float>(layerCount - 1) : 1.0f);
     float layer = 0.0f;
 
     rRender.SetDrawOpaque(true);

@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/AppInfo/AppInfoService.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslDemoHost/Base/Service/AppInfo/AppInfoService.hpp>
 
 namespace Fsl
 {

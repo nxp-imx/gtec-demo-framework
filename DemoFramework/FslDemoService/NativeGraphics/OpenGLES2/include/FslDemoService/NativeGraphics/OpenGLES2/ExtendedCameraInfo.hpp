@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_EXTENDEDCAMERAINFO_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES2_EXTENDEDCAMERAINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,34 +33,31 @@
 
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  struct ExtendedCameraInfo
   {
-    struct ExtendedCameraInfo
+    BasicCameraInfo Info;
+    Matrix ModelViewProjection;
+    bool IsValid{false};
+    constexpr ExtendedCameraInfo() noexcept = default;
+    constexpr explicit ExtendedCameraInfo(const BasicCameraInfo& info) noexcept
+      : Info(info)
+      , ModelViewProjection(info.Model * info.View * info.Projection)
+      , IsValid(true)
     {
-      BasicCameraInfo Info;
-      Matrix ModelViewProjection;
-      bool IsValid{false};
-      constexpr ExtendedCameraInfo() noexcept = default;
-      constexpr explicit ExtendedCameraInfo(const BasicCameraInfo& info) noexcept
-        : Info(info)
-        , ModelViewProjection(info.Model * info.View * info.Projection)
-        , IsValid(true)
-      {
-      }
+    }
 
-      inline constexpr bool operator==(const ExtendedCameraInfo& rhs) const noexcept
-      {
-        return Info == rhs.Info && ModelViewProjection == rhs.ModelViewProjection && IsValid == rhs.IsValid;
-      }
+    inline constexpr bool operator==(const ExtendedCameraInfo& rhs) const noexcept
+    {
+      return Info == rhs.Info && ModelViewProjection == rhs.ModelViewProjection && IsValid == rhs.IsValid;
+    }
 
-      inline constexpr bool operator!=(const ExtendedCameraInfo& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-    };
-  }
+    inline constexpr bool operator!=(const ExtendedCameraInfo& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

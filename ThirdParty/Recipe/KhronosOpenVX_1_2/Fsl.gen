@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.KhronosOpenVX_1_2" CreationYear="2017">
+    <Default.Platform.Supported Value="false"/>
+    <Requirement Name="EarlyAccess" Type="feature"/>
+
+    <Platform Name="Ubuntu" Supported="true">
+      <ExperimentalRecipe Name="KhronosOpenVX" Version="1.2">
+        <Pipeline>
+          <Download URL="https://www.khronos.org/registry/OpenVX/sample/openvx_sample_1.2.tar.bz2" Hash="8f61203572668f7719bc9f86bc24ca06c51a98531ca7941264bd7cbbaa7b9aaa"/>
+          <Unpack File="openvx_sample_1.2.tar.bz2" OutputPath="openvx_sample">
+          </Unpack>
+          <CMakeBuild Project="OpenVX" Target="install" Configuration="release" Options="-DBUILD_X64=1" OutputPath="_Install"/>
+        </Pipeline>  
+        <Installation>
+          <!-- Currently requires manually setting the library path: export LD_LIBRARY_PATH="$LD_LIBRARY_PATH;/home/rcvt/DemoFramework/.Thirdparty/Ubuntu/Make/KhronosOpenVX-1.2/bin" -->
+          <AddHeaders Name="include"/>
+          <AddDLL Name="bin/libopenvx.so"/>
+          <AddDLL Name="bin/libvxu.so"/>
+          <AddDLL Name="bin/libxyz.so"/>
+          <Path Name="include/VX/vx.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="KhronosOpenVX" Version="1.2">
+        <Pipeline>
+          <Download URL="https://www.khronos.org/registry/OpenVX/sample/openvx_sample_1.2.tar.bz2" Hash="8f61203572668f7719bc9f86bc24ca06c51a98531ca7941264bd7cbbaa7b9aaa"/>
+          <Unpack File="openvx_sample_1.2.tar.bz2" OutputPath="openvx_sample">
+          </Unpack>
+          <CMakeBuild Project="OpenVX" Target="install" Configuration="release" Options="-DBUILD_X64=1" OutputPath="_Install"/>
+        </Pipeline>  
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/openvx.lib"/>
+          <AddLib Name="lib/openvx-c_model.lib"/>
+          <AddLib Name="lib/vxu.lib"/>
+          <AddDLL Name="bin/openvx.dll"/>
+          <AddDLL Name="bin/openvx-c_model.dll"/>
+          <AddDLL Name="bin/openvx-debug.dll"/>
+          <AddDLL Name="bin/openvx-extras.dll"/>
+          <AddDLL Name="bin/vxu.dll"/>
+          <AddDLL Name="bin/xyz.dll"/>
+          <Path Name="include/VX/vx.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

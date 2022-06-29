@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_RENDERSYSTEMFACTORY_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_RENDERSYSTEMFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,41 +33,36 @@
 
 #include <FslSimpleUI/Render/Base/IRenderSystemFactory.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  class RenderSystemFactory final : public IRenderSystemFactory
   {
-    namespace RenderIMBatch
+  public:
+    enum class RenderSystemType
     {
-      class RenderSystemFactory final : public IRenderSystemFactory
-      {
-      public:
-        enum class RenderSystemType
-        {
-          Normal,
-          Flex,
-        };
+      Default,
+      Normal,
+      Flex,
+    };
 
-      private:
-        RenderSystemType m_renderSystemType{RenderSystemType::Normal};
+  private:
+    RenderSystemType m_renderSystemType{RenderSystemType::Normal};
 
-      public:
-        RenderSystemFactory() = default;
-        explicit RenderSystemFactory(const RenderSystemType renderSystemType)
-          : m_renderSystemType(renderSystemType)
-        {
-        }
-
-        RenderSystemInfo GetInfo() const final;
-
-        std::unique_ptr<IRenderSystem> Create(const RenderSystemCreateInfo& createInfo) const final;
-
-        VertexDeclarationSpan GetVertexDeclarationSpan() const final;
-
-        static RenderSystemInfo GetRenderInfo(const RenderSystemType renderSystemType);
-      };
+  public:
+    RenderSystemFactory() = default;
+    explicit RenderSystemFactory(const RenderSystemType renderSystemType)
+      : m_renderSystemType(renderSystemType)
+    {
     }
-  }
+
+    RenderSystemInfo GetInfo() const final;
+
+    std::unique_ptr<IRenderSystem> Create(const RenderSystemCreateInfo& createInfo) const final;
+
+    VertexDeclarationSpan GetVertexDeclarationSpan() const final;
+
+    static RenderSystemInfo GetRenderInfo(const RenderSystemType renderSystemType);
+  };
 }
 
 #endif

@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Transition/TransitionCache.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
@@ -44,6 +43,7 @@
 #include <FslSimpleUI/App/UIAppConfig.hpp>
 #include <FslSimpleUI/App/UIAppResourceManager.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfoUtil.hpp>
+#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <utility>
 
@@ -117,7 +117,7 @@ namespace Fsl
 
   AtlasTexture2D UIDemoAppLegacyExtension::GetAtlasTexture2D(const IO::PathView& filename) const
   {
-    return AtlasTexture2D(m_resources.LegacyTexture, m_resources.LegacyTextureAtlasMap.GetAtlasTextureInfo(filename));
+    return {m_resources.LegacyTexture, m_resources.LegacyTextureAtlasMap.GetAtlasTextureInfo(filename)};
   }
 
 

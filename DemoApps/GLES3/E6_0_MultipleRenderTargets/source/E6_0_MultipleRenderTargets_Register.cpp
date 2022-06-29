@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "E6_0_MultipleRenderTargets.hpp"
 #include <array>
+#include "E6_0_MultipleRenderTargets.hpp"
 
 namespace Fsl
 {

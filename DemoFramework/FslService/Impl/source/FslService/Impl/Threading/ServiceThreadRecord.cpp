@@ -33,13 +33,13 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
 #include <FslService/Impl/Foundation/Message/ThreadInitBasicMessage.hpp>
-#include <FslService/Impl/Foundation/Message/ThreadShutdownBeginBasicMessage.hpp>
 #include <FslService/Impl/Foundation/Message/ThreadShutdownBasicMessage.hpp>
+#include <FslService/Impl/Foundation/Message/ThreadShutdownBeginBasicMessage.hpp>
 #include <FslService/Impl/Threading/IServiceHost.hpp>
 #include <FslService/Impl/Threading/IServiceHostFactory.hpp>
-#include "ServiceHostCreateInfo.hpp"
-#include <cassert>
 #include <fmt/ostream.h>
+#include <cassert>
+#include "ServiceHostCreateInfo.hpp"
 
 namespace Fsl
 {

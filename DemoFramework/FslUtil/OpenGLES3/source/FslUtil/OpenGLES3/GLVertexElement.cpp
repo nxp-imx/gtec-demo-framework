@@ -29,106 +29,103 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElement.hpp>
-#include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
 #include <cassert>
 #include <cstdint>
 #include <limits>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  namespace
   {
-    namespace
+    GLenum ConvertToNativeType(const VertexElementFormat format)
     {
-      GLenum ConvertToNativeType(const VertexElementFormat format)
+      switch (format)
       {
-        switch (format)
-        {
-        case VertexElementFormat::Single:
-        case VertexElementFormat::Vector2:
-        case VertexElementFormat::Vector3:
-        case VertexElementFormat::Vector4:
-        case VertexElementFormat::Matrix4x4:
-          return GL_FLOAT;
-        case VertexElementFormat::X8_UINT:
-        case VertexElementFormat::X8_UNORM:
-        case VertexElementFormat::X8Y8_UINT:
-        case VertexElementFormat::X8Y8_UNORM:
-        case VertexElementFormat::X8Y8Z8_UINT:
-        case VertexElementFormat::X8Y8Z8_UNORM:
-        case VertexElementFormat::X8Y8Z8W8_UINT:
-        case VertexElementFormat::X8Y8Z8W8_UNORM:
-          return GL_UNSIGNED_BYTE;
-        default:
-          throw NotSupportedException("Unknown VertexElementFormat");
-        }
-      }
-
-      GLboolean IsNormalized(const VertexElementFormat format)
-      {
-        switch (format)
-        {
-        case VertexElementFormat::Single:
-        case VertexElementFormat::Vector2:
-        case VertexElementFormat::Vector3:
-        case VertexElementFormat::Vector4:
-        case VertexElementFormat::Matrix4x4:
-        case VertexElementFormat::X8Y8Z8W8_UINT:
-        case VertexElementFormat::X8_UINT:
-        case VertexElementFormat::X8Y8_UINT:
-        case VertexElementFormat::X8Y8Z8_UINT:
-          return GL_FALSE;
-        case VertexElementFormat::X8_UNORM:
-        case VertexElementFormat::X8Y8_UNORM:
-        case VertexElementFormat::X8Y8Z8_UNORM:
-        case VertexElementFormat::X8Y8Z8W8_UNORM:
-          return GL_TRUE;
-        default:
-          throw NotSupportedException("Unknown VertexElementFormat");
-        }
-      }
-
-      inline GLint GetElementCount(const VertexElementFormat format)
-      {
-        auto res = VertexElementFormatUtil::GetElementCount(format);
-        assert(res < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-        assert(static_cast<GLint>(res) <= std::numeric_limits<GLint>::max());
-        return static_cast<GLint>(res);
+      case VertexElementFormat::Single:
+      case VertexElementFormat::Vector2:
+      case VertexElementFormat::Vector3:
+      case VertexElementFormat::Vector4:
+      case VertexElementFormat::Matrix4x4:
+        return GL_FLOAT;
+      case VertexElementFormat::X8_UINT:
+      case VertexElementFormat::X8_UNORM:
+      case VertexElementFormat::X8Y8_UINT:
+      case VertexElementFormat::X8Y8_UNORM:
+      case VertexElementFormat::X8Y8Z8_UINT:
+      case VertexElementFormat::X8Y8Z8_UNORM:
+      case VertexElementFormat::X8Y8Z8W8_UINT:
+      case VertexElementFormat::X8Y8Z8W8_UNORM:
+        return GL_UNSIGNED_BYTE;
+      default:
+        throw NotSupportedException("Unknown VertexElementFormat");
       }
     }
 
-
-    GLVertexElement::GLVertexElement(const VertexElementEx& source)
-      : Source(source)
-      , Size((GetElementCount(source.Format)))
-      , Type(ConvertToNativeType(source.Format))
-      , Normalized(IsNormalized(source.Format))
-      , Pointer(reinterpret_cast<const GLvoid*>(intptr_t(source.Offset)))
+    GLboolean IsNormalized(const VertexElementFormat format)
     {
+      switch (format)
+      {
+      case VertexElementFormat::Single:
+      case VertexElementFormat::Vector2:
+      case VertexElementFormat::Vector3:
+      case VertexElementFormat::Vector4:
+      case VertexElementFormat::Matrix4x4:
+      case VertexElementFormat::X8Y8Z8W8_UINT:
+      case VertexElementFormat::X8_UINT:
+      case VertexElementFormat::X8Y8_UINT:
+      case VertexElementFormat::X8Y8Z8_UINT:
+        return GL_FALSE;
+      case VertexElementFormat::X8_UNORM:
+      case VertexElementFormat::X8Y8_UNORM:
+      case VertexElementFormat::X8Y8Z8_UNORM:
+      case VertexElementFormat::X8Y8Z8W8_UNORM:
+        return GL_TRUE;
+      default:
+        throw NotSupportedException("Unknown VertexElementFormat");
+      }
     }
 
-
-    void GLVertexElement::Reset(const VertexElementEx& source)
+    inline GLint GetElementCount(const VertexElementFormat format)
     {
-      Source = source;
-      Size = GetElementCount(source.Format);
-      Type = ConvertToNativeType(source.Format);
-      Normalized = IsNormalized(source.Format);
-      Pointer = reinterpret_cast<const GLvoid*>(intptr_t(source.Offset));
-      ExtendedIndex = 0;
+      auto res = VertexElementFormatUtil::GetElementCount(format);
+      assert(res < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+      assert(static_cast<GLint>(res) <= std::numeric_limits<GLint>::max());
+      return static_cast<GLint>(res);
     }
+  }
 
 
-    void GLVertexElement::Reset(const VertexElementEx& source, const VertexElementFormat internalFormat, const int32_t offsetAdd)
-    {
-      Source = source;
-      Size = GetElementCount(internalFormat);
-      Type = ConvertToNativeType(internalFormat);
-      Normalized = IsNormalized(source.Format);
-      Pointer = reinterpret_cast<const GLvoid*>(intptr_t(source.Offset + offsetAdd));
-      ExtendedIndex = 0;
-    }
+  GLVertexElement::GLVertexElement(const VertexElement& source)
+    : Source(source)
+    , Size((GetElementCount(source.Format)))
+    , Type(ConvertToNativeType(source.Format))
+    , Normalized(IsNormalized(source.Format))
+    , Pointer(reinterpret_cast<const GLvoid*>(static_cast<intptr_t>(source.Offset)))
+  {
+  }
+
+
+  void GLVertexElement::Reset(const VertexElement& source)
+  {
+    Source = source;
+    Size = GetElementCount(source.Format);
+    Type = ConvertToNativeType(source.Format);
+    Normalized = IsNormalized(source.Format);
+    Pointer = reinterpret_cast<const GLvoid*>(static_cast<intptr_t>(source.Offset));
+    ExtendedIndex = 0;
+  }
+
+
+  void GLVertexElement::Reset(const VertexElement& source, const VertexElementFormat internalFormat, const int32_t offsetAdd)
+  {
+    Source = source;
+    Size = GetElementCount(internalFormat);
+    Type = ConvertToNativeType(internalFormat);
+    Normalized = IsNormalized(source.Format);
+    Pointer = reinterpret_cast<const GLvoid*>(static_cast<intptr_t>(source.Offset + offsetAdd));
+    ExtendedIndex = 0;
   }
 }

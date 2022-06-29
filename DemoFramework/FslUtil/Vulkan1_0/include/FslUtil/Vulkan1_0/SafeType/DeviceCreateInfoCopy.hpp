@@ -34,47 +34,44 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/ArrayCopy.hpp>
-#include <FslUtil/Vulkan1_0/SafeType/StringArrayCopy.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/DeviceQueueCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/StringArrayCopy.hpp>
 #include <vulkan/vulkan.h>
 #include <string>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  // Create a deep copy of a VkDeviceCreateInfo making sure that all data pointed to by 'pointers' are copied and stored in this object
+  class DeviceCreateInfoCopy
   {
-    // Create a deep copy of a VkDeviceCreateInfo making sure that all data pointed to by 'pointers' are copied and stored in this object
-    class DeviceCreateInfoCopy
+    VkDeviceCreateInfo m_value;
+
+    ArrayCopy<VkDeviceQueueCreateInfo, DeviceQueueCreateInfoCopy> m_queueCreateInfos;
+    StringArrayCopy m_enabledLayerNames;
+    StringArrayCopy m_enabledExtensionNames;
+    VkPhysicalDeviceFeatures m_enabledFeatures;
+
+  public:
+    DeviceCreateInfoCopy(const DeviceCreateInfoCopy&) = delete;
+    DeviceCreateInfoCopy& operator=(const DeviceCreateInfoCopy&) = delete;
+
+    DeviceCreateInfoCopy& operator=(DeviceCreateInfoCopy&& other) noexcept;
+    DeviceCreateInfoCopy(DeviceCreateInfoCopy&& other) noexcept;
+
+    DeviceCreateInfoCopy();
+    explicit DeviceCreateInfoCopy(const VkDeviceCreateInfo& value);
+
+    const VkDeviceCreateInfo& Get() const
     {
-      VkDeviceCreateInfo m_value;
+      return m_value;
+    }
 
-      ArrayCopy<VkDeviceQueueCreateInfo, DeviceQueueCreateInfoCopy> m_queueCreateInfos;
-      StringArrayCopy m_enabledLayerNames;
-      StringArrayCopy m_enabledExtensionNames;
-      VkPhysicalDeviceFeatures m_enabledFeatures;
-
-    public:
-      DeviceCreateInfoCopy(const DeviceCreateInfoCopy&) = delete;
-      DeviceCreateInfoCopy& operator=(const DeviceCreateInfoCopy&) = delete;
-
-      DeviceCreateInfoCopy& operator=(DeviceCreateInfoCopy&& other) noexcept;
-      DeviceCreateInfoCopy(DeviceCreateInfoCopy&& other) noexcept;
-
-      DeviceCreateInfoCopy();
-      explicit DeviceCreateInfoCopy(const VkDeviceCreateInfo& value);
-
-      const VkDeviceCreateInfo& Get() const
-      {
-        return m_value;
-      }
-
-    private:
-      // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
-      // @note  This ensures correct behavior when moving etc
-      void PatchPointers() noexcept;
-    };
-  }
+  private:
+    // @brief Make sure that the pointers stored in m_value is the correct 'safe' ones
+    // @note  This ensures correct behavior when moving etc
+    void PatchPointers() noexcept;
+  };
 }
 
 #endif

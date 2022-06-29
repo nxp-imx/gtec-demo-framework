@@ -31,6 +31,7 @@
 
 #include "CameraRender.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -42,7 +43,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 // value_ptr
 #include <glm/gtc/type_ptr.hpp>
-
 #include <memory>
 
 namespace Fsl
@@ -51,10 +51,11 @@ namespace Fsl
 
   namespace
   {
-    const GLuint g_hVertexLoc = 0;
-    const GLuint g_hVertexTexLoc = 1;
+    constexpr GLuint g_hVertexLoc = 0;
+    constexpr GLuint g_hVertexTexLoc = 1;
 
-    const std::array<const char*, 3> g_shaderAttributeArray = {"g_vPosition", "g_vTexCoord", nullptr};
+    constexpr std::array<GLBindAttribLocation, 2> g_shaderAttributeArray = {GLBindAttribLocation(g_hVertexLoc, "g_vPosition"),
+                                                                            GLBindAttribLocation(g_hVertexTexLoc, "g_vTexCoord")};
 
     // Vertices
     // cameraPlaneVertices[0,1,2] = X,Y,Z Vertex 1
@@ -81,7 +82,8 @@ namespace Fsl
     // RawBitmap(pContent, width, height, pixelFormat, stride, origin)
 
     // Compile the shader program, the shaders are located in the Content Folder
-    m_program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
+    m_program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText("Shader.frag"),
+                    ReadOnlySpanUtil::AsSpan(g_shaderAttributeArray));
     const GLuint hProgram = m_program.Get();
 
     GLuint buffer = 0;
@@ -108,7 +110,8 @@ namespace Fsl
 
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_cameraPlaneVertices.size(), m_cameraPlaneVertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, UncheckedNumericCast<GLsizeiptr>(sizeof(GLfloat) * m_cameraPlaneVertices.size()), m_cameraPlaneVertices.data(),
+                 GL_STATIC_DRAW);
     glEnableVertexAttribArray(g_hVertexLoc);
     glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, nullptr);
 

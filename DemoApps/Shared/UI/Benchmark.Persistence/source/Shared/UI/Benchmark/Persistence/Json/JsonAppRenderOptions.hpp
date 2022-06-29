@@ -34,10 +34,12 @@
 #include <Shared/UI/Benchmark/Persistence/AppRenderOptions.hpp>
 #include <nlohmann/json.hpp>
 #include "JsonAppRenderMethod.hpp"
+#include "TempJsonMacros.hpp"
 
 namespace Fsl
 {
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AppRenderOptions, RenderMethod, Batch, FillBuffers, DepthBuffer, DrawReorder, MeshCaching)
+  TEMP_NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppRenderOptions, RenderMethod, Batch, FillBuffers, DepthBuffer, DrawReorder, MeshCaching,
+                                                       PreferFastReorder)
 }
 
 #endif

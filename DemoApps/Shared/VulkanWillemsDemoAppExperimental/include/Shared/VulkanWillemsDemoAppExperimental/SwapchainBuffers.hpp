@@ -23,30 +23,27 @@
 #include <RapidVulkan/ImageView.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::Willems
 {
-  namespace Willems
+  class SwapchainBuffers
   {
-    class SwapchainBuffers
-    {
-    public:
-      VkImage Image;
-      RapidVulkan::ImageView View;
+  public:
+    VkImage Image;
+    RapidVulkan::ImageView View;
 
-      SwapchainBuffers(const SwapchainBuffers&) = delete;
-      SwapchainBuffers& operator=(const SwapchainBuffers&) = delete;
+    SwapchainBuffers(const SwapchainBuffers&) = delete;
+    SwapchainBuffers& operator=(const SwapchainBuffers&) = delete;
 
-      //! @brief Move assignment operator
-      SwapchainBuffers& operator=(SwapchainBuffers&& other) noexcept;
+    //! @brief Move assignment operator
+    SwapchainBuffers& operator=(SwapchainBuffers&& other) noexcept;
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      SwapchainBuffers(SwapchainBuffers&& other) noexcept;
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    SwapchainBuffers(SwapchainBuffers&& other) noexcept;
 
-      //! @brief Create a 'invalid' swapchain buffers
-      SwapchainBuffers();
-    };
-  }
+    //! @brief Create a 'invalid' swapchain buffers
+    SwapchainBuffers();
+  };
 }
 
 #endif

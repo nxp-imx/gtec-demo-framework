@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
+
 namespace Fsl
 {
   struct AppTestSettings
@@ -38,12 +40,14 @@ namespace Fsl
     bool ShowStats{false};
     bool ShowIdle{false};
     bool NoOpaqueMaterials{false};
+    uint32_t ActiveRenderIndex{0};
 
     constexpr AppTestSettings() noexcept = default;
-    constexpr AppTestSettings(const bool showStats, const bool showIdle, const bool noOpaqueMaterials) noexcept
+    constexpr AppTestSettings(const bool showStats, const bool showIdle, const bool noOpaqueMaterials, const uint32_t activeRenderIndex) noexcept
       : ShowStats(showStats)
       , ShowIdle(showIdle)
       , NoOpaqueMaterials(noOpaqueMaterials)
+      , ActiveRenderIndex(activeRenderIndex)
     {
     }
   };

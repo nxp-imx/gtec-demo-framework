@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMPL_SLIDERRENDERIMPL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMPL_SLIDERRENDERIMPL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Dp/DpPoint.hpp>
-#include <FslBase/Math/Dp/DpSize.hpp>
+#include <FslBase/Math/Dp/DpPoint2.hpp>
+#include <FslBase/Math/Dp/DpSize2D.hpp>
 #include <FslBase/Math/Dp/DpThickness.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
@@ -40,8 +40,8 @@
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderPixelSpanInfo.hpp>
 #include <FslSimpleUI/Base/DefaultValues.hpp>
-#include <FslSimpleUI/Base/LayoutDirection.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
+#include <FslSimpleUI/Base/LayoutDirection.hpp>
 #include <FslSimpleUI/Base/Mesh/ContentSpriteMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
 #include <memory>
@@ -67,7 +67,7 @@ namespace Fsl
         TransitionColor CurrentColor;
 
         explicit BackgroundGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor,
-                                          TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
+                                          TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
@@ -78,14 +78,14 @@ namespace Fsl
       struct CursorGraphicsRecord
       {
         SizedSpriteMesh Sprite;
-        DpPoint OriginDp;
-        DpSize SizeDp;
+        DpPoint2 OriginDp;
+        DpSize2D SizeDp;
         Color EnabledColor;
         Color DisabledColor;
         TransitionColor CurrentColor;
 
         explicit CursorGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, const Color& disabledColor,
-                                      TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
+                                      TransitionCache& rTransitionCache, const TimeSpan& time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , DisabledColor(disabledColor)
@@ -100,7 +100,7 @@ namespace Fsl
         TransitionColor CurrentColor;
 
         explicit OverlayGraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, const Color& enabledColor, TransitionCache& rTransitionCache,
-                                       const TransitionTimeSpan& time, const TransitionType type)
+                                       const TimeSpan& time, const TransitionType type)
           : Sprite(meshManager)
           , EnabledColor(enabledColor)
           , CurrentColor(rTransitionCache, time, type)
@@ -190,12 +190,12 @@ namespace Fsl
         return modified;
       }
 
-      const DpPoint& GetCursorOrigin() const
+      const DpPoint2& GetCursorOrigin() const
       {
         return m_cursor.OriginDp;
       }
 
-      bool SetCursorOrigin(const DpPoint& value)
+      bool SetCursorOrigin(const DpPoint2& value)
       {
         const bool modified = value != m_cursor.OriginDp;
         if (modified)
@@ -205,12 +205,12 @@ namespace Fsl
         return modified;
       }
 
-      const DpSize& GetCursorSize() const
+      DpSize2D GetCursorSize() const
       {
         return m_cursor.SizeDp;
       }
 
-      bool SetCursorSize(const DpSize& value)
+      bool SetCursorSize(const DpSize2D value)
       {
         const bool modified = value != m_cursor.SizeDp;
         if (modified)
@@ -295,7 +295,7 @@ namespace Fsl
       SliderPixelSpanInfo Arrange(const PxSize2D finalSizePx, const LayoutOrientation orientation, const LayoutDirection layoutDirection,
                                   const SpriteUnitConverter& spriteUnitConverter);
 
-      void UpdateAnimation(const TransitionTimeSpan& timeSpan);
+      void UpdateAnimation(const TimeSpan& timeSpan);
 
       bool UpdateAnimationState(const bool forceCompleteAnimation, const bool isEnabled, const bool isDragging);
     };

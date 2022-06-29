@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Getopt/Option.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/Option.hpp>
 #include <cstring>
 #include <utility>
 

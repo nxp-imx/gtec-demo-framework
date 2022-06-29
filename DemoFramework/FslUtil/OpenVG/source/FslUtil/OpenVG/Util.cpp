@@ -29,28 +29,25 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenVG/Util.hpp>
 #include <FslUtil/OpenVG/DebugStrings.hpp>
+#include <FslUtil/OpenVG/Util.hpp>
 #include <sstream>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  std::string Util::ToNiceMessage(const std::string& message, const VGErrorCode errorCode)
   {
-    std::string Util::ToNiceMessage(const std::string& message, const VGErrorCode errorCode)
-    {
-      std::stringstream stream;
-      stream << message << " failed with error code " << Debug::ErrorCodeToString(errorCode) << " (" << errorCode << ")";
-      return stream.str();
-    }
+    std::stringstream stream;
+    stream << message << " failed with error code " << Debug::ErrorCodeToString(errorCode) << " (" << errorCode << ")";
+    return stream.str();
+  }
 
 
-    std::string Util::ToNiceMessage(const std::string& message, const VGErrorCode errorCode, const std::string& fileName, const int lineNumber)
-    {
-      std::stringstream stream;
-      stream << message << " failed with error code " << Debug::ErrorCodeToString(errorCode) << " (" << errorCode << ") at " << fileName << "("
-             << lineNumber << ")";
-      return stream.str();
-    }
+  std::string Util::ToNiceMessage(const std::string& message, const VGErrorCode errorCode, const std::string& fileName, const int lineNumber)
+  {
+    std::stringstream stream;
+    stream << message << " failed with error code " << Debug::ErrorCodeToString(errorCode) << " (" << errorCode << ") at " << fileName << "("
+           << lineNumber << ")";
+    return stream.str();
   }
 }

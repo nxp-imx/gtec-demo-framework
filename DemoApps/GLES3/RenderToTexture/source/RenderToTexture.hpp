@@ -38,7 +38,6 @@
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-
 #include <array>
 #ifdef FSL_PLATFORM_YOCTO
 #include <g2d.h>

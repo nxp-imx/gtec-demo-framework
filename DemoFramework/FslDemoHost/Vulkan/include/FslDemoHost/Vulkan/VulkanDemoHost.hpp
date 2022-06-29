@@ -34,8 +34,8 @@
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Instance.hpp>
 #include <vulkan/vulkan.h>
 

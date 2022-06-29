@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 
 namespace Fsl
 {
@@ -51,12 +51,12 @@ namespace Fsl
       throw std::invalid_argument("densityDpi can not be zero");
     }
     m_densityDpi = densityDpi;
-    m_scalePxToDp = static_cast<float>(SpriteDpConfig::BaseDpi) / static_cast<float>(densityDpi);
-    m_scaleDpToPx = static_cast<float>(densityDpi) / static_cast<float>(SpriteDpConfig::BaseDpi);
+    m_scalePxToDpf = static_cast<float>(SpriteDpConfig::BaseDpi) / static_cast<float>(densityDpi);
+    m_scaleDpToPxf = static_cast<float>(densityDpi) / static_cast<float>(SpriteDpConfig::BaseDpi);
   }
 
 
-  PxSize2D SpriteUnitConverter::CalcScaledPxSize2D(const PxExtent2D& extentPx, const uint32_t imageDpi) const
+  PxSize2D SpriteUnitConverter::CalcScaledPxSize2D(const PxExtent2D extentPx, const uint32_t imageDpi) const
   {
     if (imageDpi == 0)
     {
@@ -77,7 +77,7 @@ namespace Fsl
   }
 
 
-  PxSize2DF SpriteUnitConverter::CalcScaledPxSize2DF(const PxExtent2D& extentPx, const uint32_t imageDpi) const
+  PxSize2DF SpriteUnitConverter::CalcScaledPxSize2DF(const PxExtent2D extentPx, const uint32_t imageDpi) const
   {
     if (imageDpi == 0)
     {
@@ -287,7 +287,7 @@ namespace Fsl
   }
 
 
-  DpExtent SpriteUnitConverter::CalcImageDpExtent(const PxExtent2D imageExtentPx, const uint32_t imageDpi)
+  DpExtent2D SpriteUnitConverter::CalcImageDpExtent2D(const PxExtent2D imageExtentPx, const uint32_t imageDpi)
   {
     if (imageDpi == 0u)
     {
@@ -295,15 +295,11 @@ namespace Fsl
     }
     if (imageDpi == SpriteDpConfig::BaseDpi)
     {
-      return {imageExtentPx.Width, imageExtentPx.Height};
+      return DpExtent2D::Create(imageExtentPx.Width, imageExtentPx.Height);
     }
     const float scalePxToDp = static_cast<float>(SpriteDpConfig::BaseDpi) / static_cast<float>(imageDpi);
-
-    const float scaledX = std::round(float(imageExtentPx.Width) * scalePxToDp);
-    const float scaledY = std::round(float(imageExtentPx.Height) * scalePxToDp);
-    assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<DpExtent::value_type>::max()));
-    assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<DpExtent::value_type>::max()));
-    return {static_cast<DpExtent::value_type>(scaledX), static_cast<DpExtent::value_type>(scaledY)};
+    return TypeConverter::UncheckedChangeTo<DpExtent2D>(
+      DpSize2DF::Create(static_cast<float>(imageExtentPx.Width) * scalePxToDp, static_cast<float>(imageExtentPx.Height) * scalePxToDp));
   }
 
   DpThicknessU SpriteUnitConverter::CalcDpThicknessU(const PxThicknessU& thicknessPx, const uint32_t imageDpi)
@@ -314,24 +310,17 @@ namespace Fsl
     }
     if (imageDpi == SpriteDpConfig::BaseDpi)
     {
-      return {thicknessPx.Left, thicknessPx.Top, thicknessPx.Right, thicknessPx.Bottom};
+      return DpThicknessU::Create(thicknessPx.Left, thicknessPx.Top, thicknessPx.Right, thicknessPx.Bottom);
     }
     const float scalePxToDp = static_cast<float>(SpriteDpConfig::BaseDpi) / static_cast<float>(imageDpi);
 
-    const float scaledL = std::round(float(thicknessPx.Left) * scalePxToDp);
-    const float scaledT = std::round(float(thicknessPx.Top) * scalePxToDp);
-    const float scaledR = std::round(float(thicknessPx.Right) * scalePxToDp);
-    const float scaledB = std::round(float(thicknessPx.Bottom) * scalePxToDp);
-    assert(scaledL >= 0.0f && scaledL <= float(std::numeric_limits<DpThicknessU::value_type>::max()));
-    assert(scaledT >= 0.0f && scaledT <= float(std::numeric_limits<DpThicknessU::value_type>::max()));
-    assert(scaledR >= 0.0f && scaledR <= float(std::numeric_limits<DpThicknessU::value_type>::max()));
-    assert(scaledB >= 0.0f && scaledB <= float(std::numeric_limits<DpThicknessU::value_type>::max()));
-    return {static_cast<DpThicknessU::value_type>(scaledL), static_cast<DpThicknessU::value_type>(scaledT),
-            static_cast<DpThicknessU::value_type>(scaledR), static_cast<DpThicknessU::value_type>(scaledB)};
+    return TypeConverter::UncheckedChangeTo<DpThicknessU>(
+      DpThicknessF::Create(static_cast<float>(thicknessPx.Left) * scalePxToDp, static_cast<float>(thicknessPx.Top) * scalePxToDp,
+                           static_cast<float>(thicknessPx.Right) * scalePxToDp, static_cast<float>(thicknessPx.Bottom) * scalePxToDp));
   }
 
 
-  PxVector2 SpriteUnitConverter::CalcScaledOffsetPxVector2(const PxPoint2& offsetPx, const uint32_t imageDpi) const
+  PxVector2 SpriteUnitConverter::CalcScaledOffsetPxVector2(const PxPoint2 offsetPx, const uint32_t imageDpi) const
   {
     if (imageDpi == 0)
     {

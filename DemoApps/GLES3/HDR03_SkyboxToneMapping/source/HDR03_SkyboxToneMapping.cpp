@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ namespace Fsl
     {
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       GLTextureImageParameters texImageParams(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
-      return GLFrameBuffer(sizePx, params, texImageParams, GL_DEPTH_COMPONENT16);
+      return {sizePx, params, texImageParams, GL_DEPTH_COMPONENT16};
     }
   }
 
@@ -127,19 +127,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      m_rightMouseDown = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = m_rightMouseDown;
+        m_rightMouseDown = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
+        {
+          m_mouseCaptureEnabled = m_rightMouseDown;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -280,7 +280,7 @@ namespace Fsl
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.Get());
-    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetGLCapacity());
     // glDrawArrays(GL_TRIANGLES, 0, 6);
 
     mesh.VertexArray.Unbind();
@@ -308,7 +308,7 @@ namespace Fsl
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, hdrFramebufferTexInfo.Handle);
-    glDrawArrays(GL_TRIANGLES, 0, m_resources.MeshQuad.VertexBuffer.GetCapacity());
+    glDrawArrays(GL_TRIANGLES, 0, m_resources.MeshQuad.VertexBuffer.GetGLCapacity());
 
     m_resources.MeshQuad.VertexArray.Unbind();
   }
@@ -401,6 +401,6 @@ namespace Fsl
       vertexBuffer.EnableAttribArrays(attribLink);
     }
     vertexArray.Unbind();
-    return SimpleMesh(std::move(vertexBuffer), std::move(vertexArray));
+    return {std::move(vertexBuffer), std::move(vertexArray)};
   }
 }

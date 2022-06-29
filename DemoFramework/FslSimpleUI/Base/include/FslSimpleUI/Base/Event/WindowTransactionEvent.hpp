@@ -34,29 +34,26 @@
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowTransactionEvent : public WindowEvent
   {
-    class WindowTransactionEvent : public WindowEvent
-    {
-      int32_t m_sourceId;
-      int32_t m_sourceSubId;
-      EventTransactionState m_state;
-      bool m_isRepeat;
+    int32_t m_sourceId;
+    int32_t m_sourceSubId;
+    EventTransactionState m_state;
+    bool m_isRepeat;
 
-    public:
-      int32_t GetSourceId() const;
-      int32_t GetSourceSubId() const;
-      EventTransactionState GetState() const;
-      bool IsRepeat() const;
+  public:
+    int32_t GetSourceId() const;
+    int32_t GetSourceSubId() const;
+    EventTransactionState GetState() const;
+    bool IsRepeat() const;
 
-    protected:
-      WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription);
-      void SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat);
-      void SYS_Destruct() override;
-    };
-  }
+  protected:
+    WindowTransactionEvent(const EventTypeId typeId, const EventDescription& eventDescription);
+    void SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat);
+    void SYS_Destruct() override;
+  };
 }
 
 #endif

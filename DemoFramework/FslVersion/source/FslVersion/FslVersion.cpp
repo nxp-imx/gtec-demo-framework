@@ -32,18 +32,15 @@
 #include <FslVersion/FslVersion.hpp>
 #include "ReleaseVersionTag.hpp"
 
-namespace Fsl
+namespace Fsl::ReleaseVersion
 {
-  namespace ReleaseVersion
+  VersionInfo2 CurrentVersion() noexcept
   {
-    VersionInfo2 CurrentVersion() noexcept
-    {
-      return ReleaseVersionTag::Release;
-    }
+    return ReleaseVersionTag::Release;
+  }
 
-    StringViewLite GetGitCommit() noexcept
-    {
-      return ReleaseVersionTag::Commit;
-    }
+  StringViewLite GetGitCommit() noexcept
+  {
+    return ReleaseVersionTag::Commit;
   }
 }

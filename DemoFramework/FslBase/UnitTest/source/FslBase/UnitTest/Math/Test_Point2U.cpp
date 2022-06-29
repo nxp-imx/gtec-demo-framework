@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2U.hpp>
 #include <FslBase/Log/Math/LogPoint2U.hpp>
+#include <FslBase/Math/Point2U.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

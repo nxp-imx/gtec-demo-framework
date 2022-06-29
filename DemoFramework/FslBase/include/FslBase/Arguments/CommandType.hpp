@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_COMMANDTYPE_HPP
 #define FSLBASE_ARGUMENTS_COMMANDTYPE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,38 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
+  enum class CommandTypeFlags
   {
-    enum class CommandTypeFlags
-    {
-      //! The argument type is followed by a value
-      Value = 0x1000,
-      //! This is a positional value
-      Positional = 0x2000,
-      //! The argument type can be repeated multiple times
-      Multi = 0x4000,
-    };
+    //! The argument type is followed by a value
+    Value = 0x1000,
+    //! This is a positional value
+    Positional = 0x2000,
+    //! The argument type can be repeated multiple times
+    Multi = 0x4000,
+  };
 
 
-    enum class CommandType
-    {
-      //! Not used.
-      Undefined = 0,
-      // A optional switch argument (on/off)
-      Switch = 1,
-      // A optional switch argument that can be specified multiple times, for example to increase verbosity levels '-v', '-vv' or '-v -v'
-      MultiSwitch = (static_cast<int>(Switch) | static_cast<int>(CommandTypeFlags::Multi)),
-      // A optional argument with a associated value
-      Value = (2 | static_cast<int>(CommandTypeFlags::Value)),
-      // A optional argument with a associated value that can be specified multiple times
-      MultiValue = (static_cast<int>(Value) | static_cast<int>(CommandTypeFlags::Multi)),
-      // A optional positional value argument without a name
-      PositionalValue = 3 | static_cast<int>(CommandTypeFlags::Positional),
-      // A optional positional value argument without a name that can be specified multiple times
-      // MultiPositionalValue = 4 | (static_cast<int>(CommandTypeFlags::Positional) | static_cast<int>(CommandTypeFlags::Multi)),
-      // All arguments found after '--' will be classified as unhandled
-      Unhandled = 7
-    };
-  }
+  enum class CommandType
+  {
+    //! Not used.
+    Undefined = 0,
+    // A optional switch argument (on/off)
+    Switch = 1,
+    // A optional switch argument that can be specified multiple times, for example to increase verbosity levels '-v', '-vv' or '-v -v'
+    MultiSwitch = (static_cast<int>(Switch) | static_cast<int>(CommandTypeFlags::Multi)),
+    // A optional argument with a associated value
+    Value = (2 | static_cast<int>(CommandTypeFlags::Value)),
+    // A optional argument with a associated value that can be specified multiple times
+    MultiValue = (static_cast<int>(Value) | static_cast<int>(CommandTypeFlags::Multi)),
+    // A optional positional value argument without a name
+    PositionalValue = 3 | static_cast<int>(CommandTypeFlags::Positional),
+    // A optional positional value argument without a name that can be specified multiple times
+    // MultiPositionalValue = 4 | (static_cast<int>(CommandTypeFlags::Positional) | static_cast<int>(CommandTypeFlags::Multi)),
+    // All arguments found after '--' will be classified as unhandled
+    Unhandled = 7
+  };
 }
 
 #endif

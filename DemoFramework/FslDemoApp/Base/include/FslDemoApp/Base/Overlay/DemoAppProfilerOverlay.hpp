@@ -31,16 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Overlay/DemoAppProfilerGraph.hpp>
 #include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
+#include <FslDemoApp/Base/Overlay/DemoAppProfilerGraph.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslDemoService/Profiler/ProfilerCustomCounterHandle.hpp>
 #include <FslGraphics/Color.hpp>
 #include <fmt/format.h>
+#include <array>
 #include <list>
 #include <memory>
 #include <string>
-#include <array>
 
 namespace Fsl
 {

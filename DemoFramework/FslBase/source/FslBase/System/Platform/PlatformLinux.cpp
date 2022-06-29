@@ -1,4 +1,4 @@
-#if defined(__linux__)
+#if defined(__linux__) || defined(FSL_PLATFORM_EMSCRIPTEN)
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -30,12 +30,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "Platform.hpp"
-#include <array>
-#include <stdexcept>
-#include <ctime>
-#include <cstdlib>
+#include <fmt/format.h>
 #include <unistd.h>
+#include <array>
+#include <cstdlib>
+#include <ctime>
+#include <stdexcept>
+#include "Platform.hpp"
 
 namespace Fsl
 {
@@ -55,7 +56,7 @@ namespace Fsl
     char* pPath = realpath(path.c_str(), nullptr);
     if (pPath == nullptr)
     {
-      throw std::runtime_error("failed to create the full path");
+      throw std::runtime_error(fmt::format("failed to create the full path for '{}'", path));
     }
 
     try

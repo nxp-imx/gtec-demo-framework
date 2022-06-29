@@ -34,22 +34,19 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslSimpleUI/Base/Event/WindowTransactionEvent.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class WindowInputEvent : public WindowTransactionEvent
   {
-    class WindowInputEvent : public WindowTransactionEvent
-    {
-    public:
-      //! @brief Check if this is a begin event
-      bool IsBegin() const;
+  public:
+    //! @brief Check if this is a begin event
+    bool IsBegin() const;
 
-    protected:
-      WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription);
-      void SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat);
-      void SYS_Destruct() override;
-    };
-  }
+  protected:
+    WindowInputEvent(const EventTypeId typeId, const EventDescription& eventDescription);
+    void SYS_DoConstruct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat);
+    void SYS_Destruct() override;
+  };
 }
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,112 +29,106 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PropertyUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::Vulkan::PhysicalDeviceUtil
 {
-  namespace Vulkan
+  bool IsDeviceExtensionsAvailable(const VkPhysicalDevice device, const uint32_t extensionCount, const char* const* enabledExtensionNames,
+                                   const char* const pszLayerName)
   {
-    namespace PhysicalDeviceUtil
+    if (device == VK_NULL_HANDLE || extensionCount == 0 || enabledExtensionNames == nullptr)
     {
-      bool IsDeviceExtensionsAvailable(const VkPhysicalDevice device, const uint32_t extensionCount, const char* const* enabledExtensionNames,
-                                       const char* const pszLayerName)
+      return false;
+    }
+
+    const std::vector<VkExtensionProperties> extensionProperties = EnumerateDeviceExtensionProperties(device, pszLayerName);
+    const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
+    for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
+    {
+      if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
       {
-        if (device == VK_NULL_HANDLE || extensionCount == 0 || enabledExtensionNames == nullptr)
-        {
-          return false;
-        }
-
-        const std::vector<VkExtensionProperties> extensionProperties = EnumerateDeviceExtensionProperties(device, pszLayerName);
-        const auto extensionPropertiesSpan = ReadOnlySpanUtil::AsSpan(extensionProperties);
-        for (uint32_t extensionIndex = 0; extensionIndex < extensionCount; ++extensionIndex)
-        {
-          if (!PropertyUtil::IsExtensionAvailable(extensionPropertiesSpan, enabledExtensionNames[extensionIndex]))
-          {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      std::vector<VkExtensionProperties> EnumerateDeviceExtensionProperties(const VkPhysicalDevice device, const char* const pszLayerName)
-      {
-        uint32_t count = 0;
-        RAPIDVULKAN_CHECK2(vkEnumerateDeviceExtensionProperties(device, pszLayerName, &count, nullptr), "failed to acquire the count");
-
-        std::vector<VkExtensionProperties> result(count);
-        RAPIDVULKAN_CHECK2(vkEnumerateDeviceExtensionProperties(device, pszLayerName, &count, result.data()), "failed to enumerate layer properties");
-        return result;
-      }
-
-      std::vector<VkQueueFamilyProperties> GetPhysicalDeviceQueueFamilyProperties(const VkPhysicalDevice device)
-      {
-        uint32_t count = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
-
-        std::vector<VkQueueFamilyProperties> result(count);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &count, result.data());
-        return result;
-      }
-
-
-      bool IsImageTilingAvailable(const VkPhysicalDevice physicalDevice, const VkImageTiling imageTiling, const VkFormat format,
-                                  const VkImageType type, const VkImageCreateFlags flags, const VkExtent3D& extent, const uint32_t mipLevels,
-                                  const uint32_t arrayLayers, const VkSampleCountFlags sampleCounts, const VkDeviceSize resourceSize)
-      {
-        const VkFormatProperties formatProperties = GetPhysicalDeviceFormatProperties(physicalDevice, format);
-
-        if (imageTiling == VK_IMAGE_TILING_OPTIMAL && ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) == 0u))
-        {
-          return false;
-        }
-
-        if (imageTiling == VK_IMAGE_TILING_LINEAR && ((formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) == 0u))
-        {
-          return false;
-        }
-
-        VkImageFormatProperties imageFormatProperties;
-        if (!TryGetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, imageTiling, VK_IMAGE_USAGE_SAMPLED_BIT, flags,
-                                                       imageFormatProperties))
-        {
-          return false;
-        }
-
-        if (imageFormatProperties.maxResourceSize < resourceSize)
-        {
-          return false;
-        }
-
-        if (imageFormatProperties.maxExtent.width < extent.width || imageFormatProperties.maxExtent.height < extent.height ||
-            imageFormatProperties.maxExtent.depth < extent.depth)
-        {
-          return false;
-        }
-
-        if (imageFormatProperties.maxMipLevels < mipLevels)
-        {
-          return false;
-        }
-
-        if (imageFormatProperties.maxArrayLayers < arrayLayers)
-        {
-          return false;
-        }
-
-        if ((imageFormatProperties.sampleCounts & sampleCounts) == 0u)
-        {
-          return false;
-        }
-
-        return true;
+        return false;
       }
     }
+    return true;
+  }
+
+  std::vector<VkExtensionProperties> EnumerateDeviceExtensionProperties(const VkPhysicalDevice device, const char* const pszLayerName)
+  {
+    uint32_t count = 0;
+    RAPIDVULKAN_CHECK2(vkEnumerateDeviceExtensionProperties(device, pszLayerName, &count, nullptr), "failed to acquire the count");
+
+    std::vector<VkExtensionProperties> result(count);
+    RAPIDVULKAN_CHECK2(vkEnumerateDeviceExtensionProperties(device, pszLayerName, &count, result.data()), "failed to enumerate layer properties");
+    return result;
+  }
+
+  std::vector<VkQueueFamilyProperties> GetPhysicalDeviceQueueFamilyProperties(const VkPhysicalDevice device)
+  {
+    uint32_t count = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
+
+    std::vector<VkQueueFamilyProperties> result(count);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &count, result.data());
+    return result;
+  }
+
+
+  bool IsImageTilingAvailable(const VkPhysicalDevice physicalDevice, const VkImageTiling imageTiling, const VkFormat format, const VkImageType type,
+                              const VkImageCreateFlags flags, const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers,
+                              const VkSampleCountFlags sampleCounts, const VkDeviceSize resourceSize)
+  {
+    const VkFormatProperties formatProperties = GetPhysicalDeviceFormatProperties(physicalDevice, format);
+
+    if (imageTiling == VK_IMAGE_TILING_OPTIMAL && ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) == 0u))
+    {
+      return false;
+    }
+
+    if (imageTiling == VK_IMAGE_TILING_LINEAR && ((formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) == 0u))
+    {
+      return false;
+    }
+
+    VkImageFormatProperties imageFormatProperties;
+    if (!TryGetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, imageTiling, VK_IMAGE_USAGE_SAMPLED_BIT, flags,
+                                                   imageFormatProperties))
+    {
+      return false;
+    }
+
+    if (imageFormatProperties.maxResourceSize < resourceSize)
+    {
+      return false;
+    }
+
+    if (imageFormatProperties.maxExtent.width < extent.width || imageFormatProperties.maxExtent.height < extent.height ||
+        imageFormatProperties.maxExtent.depth < extent.depth)
+    {
+      return false;
+    }
+
+    if (imageFormatProperties.maxMipLevels < mipLevels)
+    {
+      return false;
+    }
+
+    if (imageFormatProperties.maxArrayLayers < arrayLayers)
+    {
+      return false;
+    }
+
+    if ((imageFormatProperties.sampleCounts & sampleCounts) == 0u)
+    {
+      return false;
+    }
+
+    return true;
   }
 }

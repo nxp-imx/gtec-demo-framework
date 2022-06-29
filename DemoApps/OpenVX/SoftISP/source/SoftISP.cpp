@@ -31,10 +31,10 @@
 
 // OpenVX 1.1 project
 #include "SoftISP.hpp"
-#include "OptionParser.hpp"
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidOpenVX/Check.hpp>
+#include "OptionParser.hpp"
 
 namespace Fsl
 {

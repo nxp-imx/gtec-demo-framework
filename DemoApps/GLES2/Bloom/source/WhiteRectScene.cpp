@@ -29,16 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES2/Exceptions.hpp>
-#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "WhiteRectScene.hpp"
-#include <GLES2/gl2.h>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/BasicScene/GenericScene.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <GLES2/gl2.h>
 #include "VBHelper.hpp"
 
 namespace Fsl

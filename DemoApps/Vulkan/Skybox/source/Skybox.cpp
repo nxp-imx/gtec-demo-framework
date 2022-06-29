@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "Skybox.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -40,8 +40,8 @@
 #include <Shared/CubeMapping/API/Vulkan/CommonMethods.hpp>
 #include <Shared/CubeMapping/API/Vulkan/TextureUtil.hpp>
 #include <vulkan/vulkan.h>
-#include "OptionParser.hpp"
 #include <array>
+#include "OptionParser.hpp"
 
 namespace Fsl
 {
@@ -79,7 +79,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
   }
 
@@ -136,19 +136,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      m_rightMouseDown = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = m_rightMouseDown;
+        m_rightMouseDown = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
+        {
+          m_mouseCaptureEnabled = m_rightMouseDown;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {

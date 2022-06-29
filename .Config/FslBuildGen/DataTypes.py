@@ -204,7 +204,7 @@ class VisualStudioVersion:
     VS2017 = 2017
     VS2019 = 2019
     VS2022 = 2022
-    DEFAULT = VS2019
+    DEFAULT = VS2022
 
     AllEntries = [VS2015, VS2017, VS2019, VS2022]
 
@@ -598,3 +598,41 @@ class ClangTidyProfile(Enum):
         elif value == ClangTidyProfile.Strict:
             return ClangTidyProfileString.Strict
         return None if not returnValueStringIfUnknown else "{0}".format(value)
+
+
+class GrpcServices(Enum):
+    Both = 0
+    Server = 1
+    Client = 2
+    NoneGen = 3
+
+    @staticmethod
+    def ToString(value: 'GrpcServices') -> str:
+        if value == GrpcServices.Both:
+            return 'Both'
+        elif value == GrpcServices.Server:
+            return 'Server'
+        elif value == GrpcServices.Client:
+            return 'Client'
+        elif value == GrpcServices.NoneGen:
+            return 'None'
+        raise Exception("Unknown GrpcServices: {0}".format(value))
+
+    @staticmethod
+    def TryFromString(value: str) -> Optional['GrpcServices']:
+        if value == 'Both':
+            return GrpcServices.Both
+        elif value == 'Server':
+            return GrpcServices.Server
+        elif value == 'Client':
+            return GrpcServices.Client
+        elif value == 'None':
+            return GrpcServices.NoneGen
+        return None
+
+    @staticmethod
+    def FromString(value: str) -> 'GrpcServices':
+        result = GrpcServices.TryFromString(value)
+        if result is not None:
+            return result
+        raise Exception("Unknown external dependency type: '{0}' expected: Both, Server, Client, None".format(value))

@@ -25,16 +25,16 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Matrix.cs.
 
-#include <FslBase/Math/Matrix.hpp>
-#include <cassert>
-#include <cmath>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Plane.hpp>
 #include <FslBase/Math/Quaternion.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <cassert>
+#include <cmath>
 #include "MatrixInternals.hpp"
 
 // Workaround a issue with qnx signbit

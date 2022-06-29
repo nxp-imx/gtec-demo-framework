@@ -32,8 +32,8 @@
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <Shared/T3DStressTest/OptionParser.hpp>
 #include <EGL/egl.h>
-#include "T3DStressTest.hpp"
 #include <array>
+#include "T3DStressTest.hpp"
 
 namespace Fsl
 {

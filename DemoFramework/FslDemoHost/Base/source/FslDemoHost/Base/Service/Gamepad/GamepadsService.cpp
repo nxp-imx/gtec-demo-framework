@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/Gamepad/GamepadsService.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
+#include <FslDemoHost/Base/Service/Gamepad/GamepadsService.hpp>
 //#include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
 #include <algorithm>

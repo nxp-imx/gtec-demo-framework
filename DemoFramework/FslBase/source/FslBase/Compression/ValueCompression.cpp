@@ -517,10 +517,10 @@ namespace Fsl
       }
       // <=35 bits value
       pDst[index + 0] = static_cast<uint8_t>(0xF0 | (value & 0x07));
-      pDst[index + 1] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 3)) >> 3);
-      pDst[index + 2] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 11)) >> 11);
-      pDst[index + 3] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 19)) >> 19);
-      pDst[index + 4] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 27)) >> 27);
+      pDst[index + 1] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 3)) >> 3);
+      pDst[index + 2] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 11)) >> 11);
+      pDst[index + 3] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 19)) >> 19);
+      pDst[index + 4] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 27)) >> 27);
       return 5;
     }
     if (value <= 0x3FFFFFFFFFF)    // 1111 10AA - BBAA AAAA - CCVB BBBB - DDCC CCCC - EEDD DDDD - FFEE EEEE
@@ -531,11 +531,11 @@ namespace Fsl
       }
       // <=42 bits value
       pDst[index + 0] = static_cast<uint8_t>(0xF8 | (value & 0x03));
-      pDst[index + 1] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 2)) >> 2);
-      pDst[index + 2] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 10)) >> 10);
-      pDst[index + 3] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 18)) >> 18);
-      pDst[index + 4] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 26)) >> 26);
-      pDst[index + 5] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 34)) >> 34);
+      pDst[index + 1] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 2)) >> 2);
+      pDst[index + 2] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 10)) >> 10);
+      pDst[index + 3] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 18)) >> 18);
+      pDst[index + 4] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 26)) >> 26);
+      pDst[index + 5] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 34)) >> 34);
       return 6;
     }
     if (value <= 0x1FFFFFFFFFFFF)    // 1111 110A - BAAA AAAA - CCBB BBBB - DCCC CCCC - EDDD DDDD - FEEE EEEE - GFFF FFFF
@@ -546,12 +546,12 @@ namespace Fsl
       }
       // <=49 bits value
       pDst[index + 0] = static_cast<uint8_t>(0xFC | (value & 0x01));
-      pDst[index + 1] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 1)) >> 1);
-      pDst[index + 2] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 9)) >> 9);
-      pDst[index + 3] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 17)) >> 17);
-      pDst[index + 4] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 25)) >> 25);
-      pDst[index + 5] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 33)) >> 33);
-      pDst[index + 6] = static_cast<uint8_t>((value & (uint64_t(0xFF) << 41)) >> 41);
+      pDst[index + 1] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 1)) >> 1);
+      pDst[index + 2] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 9)) >> 9);
+      pDst[index + 3] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 17)) >> 17);
+      pDst[index + 4] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 25)) >> 25);
+      pDst[index + 5] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 33)) >> 33);
+      pDst[index + 6] = static_cast<uint8_t>((value & (static_cast<uint64_t>(0xFF) << 41)) >> 41);
       return 7;
     }
     if (value <= 0xFFFFFFFFFFFFFF)    // 1111 1110 - AAAA AAAA - BBBB BBBB - CCCC CCCC - DDDD DDDD - EEEE EEEE - FFFF FFFF - GGGG GGGG

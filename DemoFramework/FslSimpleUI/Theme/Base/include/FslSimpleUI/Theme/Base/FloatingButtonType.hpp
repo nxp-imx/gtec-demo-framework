@@ -32,18 +32,12 @@
  ****************************************************************************************************************************************************/
 
 
-namespace Fsl
+namespace Fsl::UI::Theme
 {
-  namespace UI
+  enum class FloatingButtonType
   {
-    namespace Theme
-    {
-      enum class FloatingButtonType
-      {
-        Back
-      };
-    }
-  }
+    Back
+  };
 }
 
 #endif

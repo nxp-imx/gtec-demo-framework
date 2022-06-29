@@ -31,17 +31,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
+#include "MeshRender.hpp"
 
 namespace Fsl
 {
   // Render the model using basic client side arrays (slow but easy)
   class MeshRenderBasic : public MeshRender
   {
-    const int m_vertexCount;
-    const int m_indexCount;
+    const uint32_t m_vertexCount;
+    const uint32_t m_indexCount;
     float* m_pVertices;
     float* m_pNormals;
     float* m_pTextureCoords;

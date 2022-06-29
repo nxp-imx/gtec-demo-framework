@@ -42,8 +42,8 @@ namespace Fsl
   {
     GLES2::GLProgram m_program;
     GLES2::GLTexture m_texture;
-    GLuint m_hModelViewMatrixLoc;
-    GLuint m_hProjMatrixLoc;
+    GLint m_hModelViewMatrixLoc;
+    GLint m_hProjMatrixLoc;
     Matrix m_matProj;
     Matrix m_matTranslate;
     Vector3 m_angle;

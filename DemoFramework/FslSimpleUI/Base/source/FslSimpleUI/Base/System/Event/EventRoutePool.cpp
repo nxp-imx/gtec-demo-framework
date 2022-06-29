@@ -32,55 +32,52 @@
 #include "EventRoutePool.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include "EventRoute.hpp"
 #include <cassert>
+#include "EventRoute.hpp"
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace
   {
-    namespace
+    const std::size_t MAX_CAPACITY = 1024;
+  }
+
+
+  EventRoutePool::EventRoutePool() = default;
+
+
+  EventRoutePool::~EventRoutePool() = default;
+
+
+  std::shared_ptr<EventRoute> EventRoutePool::Allocate(const WindowFlags flags)
+  {
+    if (!m_pool.empty())
     {
-      const std::size_t MAX_CAPACITY = 1024;
+      auto route = m_pool.front();
+      m_pool.pop_front();
+      route->Initialize(flags);
+      return route;
     }
 
-
-    EventRoutePool::EventRoutePool() = default;
-
-
-    EventRoutePool::~EventRoutePool() = default;
+    return std::make_shared<EventRoute>(flags);
+  }
 
 
-    std::shared_ptr<EventRoute> EventRoutePool::Allocate(const WindowFlags flags)
+  void EventRoutePool::Release(const std::shared_ptr<EventRoute>& route)
+  {
+    if (!route)
     {
-      if (!m_pool.empty())
-      {
-        auto route = m_pool.front();
-        m_pool.pop_front();
-        route->Initialize(flags);
-        return route;
-      }
-
-      return std::make_shared<EventRoute>(flags);
+      return;
     }
 
-
-    void EventRoutePool::Release(const std::shared_ptr<EventRoute>& route)
+    route->Shutdown();
+    if (m_pool.size() < MAX_CAPACITY)
     {
-      if (!route)
-      {
-        return;
-      }
-
-      route->Shutdown();
-      if (m_pool.size() < MAX_CAPACITY)
-      {
-        m_pool.push_back(route);
-      }
-      else
-      {
-        FSLLOG3_WARNING("Pool capacity reached for EventRoute");
-      }
+      m_pool.push_back(route);
+    }
+    else
+    {
+      FSLLOG3_WARNING("Pool capacity reached for EventRoute");
     }
   }
 }

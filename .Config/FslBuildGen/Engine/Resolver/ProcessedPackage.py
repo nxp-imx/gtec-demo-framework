@@ -50,6 +50,7 @@ from FslBuildGen.Packages.PackageTraceContext import PackageTraceContext
 from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependency import UnresolvedExternalDependency
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerate import UnresolvedPackageGenerate
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageGenerateGrpcProtoFile import UnresolvedPackageGenerateGrpcProtoFile
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 from FslBuildGen.Xml.XmlStuff import XmlGenFileBuildCustomization
@@ -83,7 +84,9 @@ class ProcessedPackagePaths(object):
 class ProcessedPackage(object):
     def __init__(self, projectContext: PackageProjectContext, nameInfo: PackageNameInfo, companyName: CompanyName, creationYear: Optional[str],
                  packageFile: Optional[PackageFile], sourceFileHash: str, packageType: PackageType, packageFlags: ProcessedPackageFlags,
-                 packageLanguage: PackageLanguage, generateList: List[UnresolvedPackageGenerate], directDependencies: List[ProcessedPackageDependency],
+                 packageLanguage: PackageLanguage, generateList: List[UnresolvedPackageGenerate],
+                 generateGrpcProtoFileList: List[UnresolvedPackageGenerateGrpcProtoFile],
+                 directDependencies: List[ProcessedPackageDependency],
                  directRequirements: List[UnresolvedPackageRequirement], directDefines: List[UnresolvedPackageDefine],
                  externalDependencies: List[UnresolvedExternalDependency], path: ProcessedPackagePaths, templateType: str,
                  buildCustomization: Dict[str, XmlGenFileBuildCustomization], directExperimentalRecipe: Optional[XmlExperimentalRecipe],
@@ -105,6 +108,7 @@ class ProcessedPackage(object):
         self.PackageLanguage = packageLanguage
 
         self.GenerateList = generateList
+        self.GenerateGrpcProtoFileList = generateGrpcProtoFileList
 
         self.DirectDependencies = directDependencies
         self.DirectRequirements = directRequirements

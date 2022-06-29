@@ -1,6 +1,6 @@
 #if defined(_WIN32) && defined(FSL_PLATFORM_WINDOWS)
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/CpuStats/Impl/Adapter/Win32/CpuStatsAdapterWin32.hpp>
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/Win32/CpuStatsAdapterWin32.hpp>
 #include <fmt/format.h>
+#include <pdh.h>
+#include <psapi.h>
 #include <algorithm>
 #include <cassert>
 #include <exception>
-#include <pdhmsg.h>
-#include <psapi.h>
+#include "PerformanceCounterQueryWin32.hpp"
 
 namespace Fsl
 {
@@ -47,7 +48,6 @@ namespace Fsl
   {
     namespace LocalConfig
     {
-      constexpr TimeSpan MinIntervalCoreCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
       constexpr TimeSpan MinIntervalApplicationCpuUsage(TimeSpanUtil::FromMicroseconds(250 * 1000));
     }
 
@@ -56,7 +56,7 @@ namespace Fsl
     {
       SYSTEM_INFO systemInfo{};
       GetSystemInfo(&systemInfo);
-      return static_cast<uint32_t>(systemInfo.dwNumberOfProcessors);
+      return UncheckedNumericCast<uint32_t>(systemInfo.dwNumberOfProcessors);
     }
 
     uint64_t ToUInt64(const FILETIME& time)
@@ -68,70 +68,39 @@ namespace Fsl
     }
   }
 
-
+  // Counters can be listed with: "Get-Counter -ListSet *"
+  // The performance counters can be lost but can sometimes be manually rebuild.
+  // Please read more at https://docs.microsoft.com/en-us/troubleshoot/windows-server/performance/rebuild-performance-counter-library-values
+  // If you read that and understand what it does its possible that running "lodctr /R" will fix any issues.
   CpuStatsAdapterWin32::CpuStatsAdapterWin32()
   {
-    auto result = PdhOpenQuery(nullptr, 0, &m_hQuery);
-    if (result != ERROR_SUCCESS)
-    {
-      throw std::runtime_error(fmt::format("PdhOpenQuery with: {}", result));
-    }
+    m_cpuCount = DoGetCpuCount();
 
     try
     {
-      m_cpuCount = std::min(DoGetCpuCount(), UncheckedNumericCast<uint32_t>(m_cpuStats.size()));
-
-      fmt::memory_buffer buf;
-      for (uint32_t cpuIndex = 0; cpuIndex < m_cpuCount; ++cpuIndex)
-      {
-        buf.clear();
-        fmt::format_to(std::back_inserter(buf), "\\Processor({})\\% Processor Time", cpuIndex);
-        buf.push_back(0);
-
-        result = PdhAddEnglishCounterA(m_hQuery, buf.data(), 0, &m_cpuStats[cpuIndex].Counter);
-        if (result != ERROR_SUCCESS)
-        {
-          throw std::runtime_error(fmt::format("PdhAddEnglishCounter failed with: {}", result));
-        }
-
-        m_cpuStats[cpuIndex].Initialized = true;
-        m_cpuStats[cpuIndex].Value = 0.0f;
-      }
-
-      // Do a query right away just to verify that it works
-      result = PdhCollectQueryData(m_hQuery);
-      if (result != ERROR_SUCCESS)
-      {
-        throw std::runtime_error(fmt::format("PdhCollectQueryData failed with: {}", result));
-      }
-
-      // Get the initial value for 'app' times
-      if (!TryGetSystemTimes(m_appSystemLast))
-      {
-        throw std::runtime_error("TryGetSystemTimes failed");
-      }
-      if (!TryGetProcessTimes(m_appProcessLast))
-      {
-        throw std::runtime_error("TryGetProcessTimes failed");
-      }
-
-      m_lastTryGetCpuUsage = m_timer.GetTimestamp() - LocalConfig::MinIntervalCoreCpuUsage;
-      m_lastTryGetApplicationCpuUsageTime = m_timer.GetTimestamp() - LocalConfig::MinIntervalApplicationCpuUsage;
+      m_counters = std::make_unique<PerformanceCounterQueryWin32>(m_cpuCount, m_timer.GetTimestamp());
     }
-    catch (const std::exception&)
+    catch (const std::exception& ex)
     {
-      RemoveCounters();
-      PdhCloseQuery(&m_hQuery);
-      throw;
+      m_counters.reset();
+      FSLLOG3_WARNING("Failed to create performance counters, so that functionality is missing. Reported failure: {}", ex.what());
     }
+
+    // Get the initial value for 'app' times
+    if (!TryGetSystemTimes(m_appSystemLast))
+    {
+      throw std::runtime_error("TryGetSystemTimes failed");
+    }
+    if (!TryGetProcessTimes(m_appProcessLast))
+    {
+      throw std::runtime_error("TryGetProcessTimes failed");
+    }
+
+    m_lastTryGetApplicationCpuUsageTime = m_timer.GetTimestamp() - LocalConfig::MinIntervalApplicationCpuUsage;
   }
 
 
-  CpuStatsAdapterWin32::~CpuStatsAdapterWin32()
-  {
-    RemoveCounters();
-    PdhCloseQuery(&m_hQuery);
-  }
+  CpuStatsAdapterWin32::~CpuStatsAdapterWin32() = default;
 
 
   uint32_t CpuStatsAdapterWin32::GetCpuCount() const
@@ -142,27 +111,12 @@ namespace Fsl
 
   bool CpuStatsAdapterWin32::TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const
   {
-    // We rely on the service to do the actual validation
-    assert(m_cpuCount <= m_cpuStats.size());
-    if (cpuIndex >= m_cpuCount || !m_cpuStats[cpuIndex].Initialized)
+    if (m_counters)
     {
-      return false;
+      return m_counters->TryGetCpuUsage(rUsagePercentage, cpuIndex, m_timer.GetTimestamp());
     }
-
-    // Ensure that we only cache the counters after the desired time has passed
-    auto currentTime = m_timer.GetTimestamp();
-    auto deltaTime = currentTime - m_lastTryGetCpuUsage;
-    if (deltaTime >= LocalConfig::MinIntervalCoreCpuUsage)
-    {
-      m_lastTryGetCpuUsage = currentTime;
-      if (!TryQueryCountersNow())
-      {
-        return false;
-      }
-    }
-
-    rUsagePercentage = m_cpuStats[cpuIndex].Value;
-    return true;
+    rUsagePercentage = 0.0f;
+    return false;
   }
 
 
@@ -201,7 +155,7 @@ namespace Fsl
     {
       m_appSystemLast = systemTimes;
       m_appProcessLast = processTimes;
-      m_appCpuUsagePercentage = static_cast<float>((100.0 * appTime) / systemTime);
+      m_appCpuUsagePercentage = static_cast<float>((100.0 * static_cast<double>(appTime)) / static_cast<double>(systemTime));
     }
     else
     {
@@ -228,39 +182,13 @@ namespace Fsl
   }
 
 
-  void CpuStatsAdapterWin32::RemoveCounters() noexcept
-  {
-    for (uint32_t cpuIndex = 0; cpuIndex < m_cpuCount; ++cpuIndex)
-    {
-      if (m_cpuStats[cpuIndex].Initialized)
-      {
-        m_cpuStats[cpuIndex].Initialized = false;
-        auto result = PdhRemoveCounter(m_cpuStats[cpuIndex].Counter);
-        FSLLOG3_ERROR_IF(result != ERROR_SUCCESS, "PdhRemoveCounter failed with: {:#x}", result);
-      }
-    }
-  }
-
-
   bool CpuStatsAdapterWin32::TryQueryCountersNow() const
   {
-    auto result = PdhCollectQueryData(m_hQuery);
-    if (result != ERROR_SUCCESS)
+    if (m_counters)
     {
-      FSLLOG3_DEBUG_WARNING("PdhCollectQueryData failed with: {}", result);
-      return false;
+      return m_counters->TryQueryCountersNow();
     }
-
-    for (uint32_t cpuIndex = 0; cpuIndex < m_cpuCount; ++cpuIndex)
-    {
-      PDH_FMT_COUNTERVALUE counterValue;
-      result = PdhGetFormattedCounterValue(m_cpuStats[cpuIndex].Counter, PDH_FMT_DOUBLE | PDH_FMT_NOCAP100, nullptr, &counterValue);
-      if (result == ERROR_SUCCESS && (counterValue.CStatus == PDH_CSTATUS_NEW_DATA || counterValue.CStatus == PDH_CSTATUS_VALID_DATA))
-      {
-        m_cpuStats[cpuIndex].Value = static_cast<float>(counterValue.doubleValue);
-      }
-    }
-    return true;
+    return false;
   }
 
 

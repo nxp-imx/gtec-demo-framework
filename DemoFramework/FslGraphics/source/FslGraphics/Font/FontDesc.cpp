@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Font/FontDesc.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics/Font/FontDesc.hpp>
 #include <cassert>
 
 namespace Fsl

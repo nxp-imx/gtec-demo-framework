@@ -33,13 +33,10 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-namespace Fsl
+namespace Fsl::DefaultValues
 {
-  namespace DefaultValues
-  {
-    // If this is changed remember to modify the default shaders in the Vulkan sample.
-    constexpr const uint16_t MandelbrotDefaultIterations = 300;
-  }
+  // If this is changed remember to modify the default shaders in the Vulkan sample.
+  constexpr const uint16_t MandelbrotDefaultIterations = 300;
 }
 
 #endif

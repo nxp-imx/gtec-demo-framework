@@ -34,7 +34,6 @@
 
 #include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
-
 #include "../VulkanNativeWindow.hpp"
 
 #pragma warning(push)

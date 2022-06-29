@@ -83,6 +83,7 @@ from FslBuildGen.Xml.XmlGenFileDependency import XmlGenFileDependency
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
 from FslBuildGen.Xml.XmlGenFileFindPackage import FakeXmlGenFileFindPackage
 from FslBuildGen.Xml.XmlGenFileGenerate import XmlGenFileGenerate
+from FslBuildGen.Xml.XmlGenFileGenerateGrpcProtoFile import XmlGenFileGenerateGrpcProtoFile
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
 from FslBuildGen.Xml.XmlStuff import DefaultValueName
 from FslBuildGen.Xml.XmlStuff import LocalPackageDefaultValues
@@ -107,6 +108,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.Type = PackageType.Library
         self.IsVirtual = False
         self.GenerateList = [] # type: List[XmlGenFileGenerate]
+        self.GenerateGrpcProtoFileList = [] # type: List[XmlGenFileGenerateGrpcProtoFile]
         self.DirectDependencies = []  # type: List[XmlGenFileDependency]
         self.DirectRequirements = []  # type: List[XmlGenFileRequirement]
         self.DirectDefines = []
@@ -182,6 +184,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.BaseLoad(elem)
 
         self.GenerateList = self.__GetGenerateList(log, elem)
+        self.GenerateGrpcProtoFileList = self.__GetGenerateGrpcProtoFileList(log, elem)
         requirements = self._GetXMLRequirements(elem)
         allowRecipes = self.__DoesTypeAllowRecipes(theType)
 
@@ -303,6 +306,12 @@ class XmlGenFile(XmlCommonFslBuild):
             res.append(XmlGenFileGenerate(log, element))
         return res
 
+    def __GetGenerateGrpcProtoFileList(self, log: Log, xmlElement: ET.Element) -> List[XmlGenFileGenerateGrpcProtoFile]:
+        res = []  # type: List[XmlGenFileGenerateGrpcProtoFile]
+        foundElements = xmlElement.findall("GenerateGrpcProtoFile")
+        for element in foundElements:
+            res.append(XmlGenFileGenerateGrpcProtoFile(log, element))
+        return res
 
     def __GetXMLPlatforms(self, requirementTypes: List[str], elem: ET.Element, ownerPackageName: str,
                           directDependencies: List[XmlGenFileDependency], allowRecipes: bool,

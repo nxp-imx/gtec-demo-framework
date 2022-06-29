@@ -29,13 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/HDR/BasicScene/MenuUI.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <Shared/HDR/BasicScene/MenuUI.hpp>
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
 
 namespace Fsl
@@ -53,13 +53,13 @@ namespace Fsl
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
     , m_state(SceneState::Invalid)
-    , m_scene1LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_scene2LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
+    , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
     , m_menuTextLDR("LDR scene")
     , m_menuTextHDR("HDR scene")
     , m_captionTopLeft("LDR")
     , m_captionTopRight("HDR")
-    , SplitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
+    , SplitX(m_transitionCache, TimeSpan::FromMilliseconds(400), TransitionType::Smooth)
   {
     const auto options = config.GetOptions<OptionParser>();
     SetState(options->GetScene());
@@ -248,9 +248,9 @@ namespace Fsl
 
   void MenuUI::Update(const DemoTime& demoTime)
   {
-    SplitX.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene1LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
-    m_scene2LabelAlpha.Update(TransitionTimeSpan(demoTime.ElapsedTime.Ticks()));
+    SplitX.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene1LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
+    m_scene2LabelAlpha.Update(TimeSpan(demoTime.ElapsedTime.Ticks()));
 
     const float alpha1 = m_scene1LabelAlpha.GetValue();
     const float alpha2 = m_scene2LabelAlpha.GetValue();

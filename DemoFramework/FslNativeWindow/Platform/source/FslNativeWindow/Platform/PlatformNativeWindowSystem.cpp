@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 
 namespace Fsl
 {

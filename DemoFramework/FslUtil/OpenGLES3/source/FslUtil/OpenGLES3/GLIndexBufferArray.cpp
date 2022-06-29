@@ -32,100 +32,96 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBufferArray.hpp>
-
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  namespace
   {
-    namespace
+    int32_t ConvertTypeToStride(const GLenum type)
     {
-      int32_t ConvertTypeToStride(const GLenum type)
+      switch (type)
       {
-        switch (type)
-        {
-        case GL_UNSIGNED_BYTE:
-          return 1;
-        case GL_UNSIGNED_SHORT:
-          return 2;
-        default:
-          throw NotSupportedException("Unsupported index buffer type");
-        }
+      case GL_UNSIGNED_BYTE:
+        return 1;
+      case GL_UNSIGNED_SHORT:
+        return 2;
+      default:
+        throw NotSupportedException("Unsupported index buffer type");
       }
     }
+  }
 
 
-    GLIndexBufferArray::GLIndexBufferArray() = default;
+  GLIndexBufferArray::GLIndexBufferArray() = default;
 
 
-    GLIndexBufferArray::GLIndexBufferArray(const std::size_t capacity, const GLenum type)
-      : GLBufferArray(capacity, GL_ELEMENT_ARRAY_BUFFER, ConvertTypeToStride(type))
-      , m_type(type)
+  GLIndexBufferArray::GLIndexBufferArray(const std::size_t capacity, const GLenum type)
+    : GLBufferArray(capacity, GL_ELEMENT_ARRAY_BUFFER, ConvertTypeToStride(type))
+    , m_type(type)
+  {
+  }
+
+
+  void GLIndexBufferArray::Resize(const std::size_t capacity, const GLenum type)
+  {
+    DoResize(capacity, GL_ELEMENT_ARRAY_BUFFER, ConvertTypeToStride(type));
+    m_type = type;
+  }
+
+
+  void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const void* const pIndices, const std::size_t elementCount,
+                                 const uint32_t elementStride, const GLenum usage, const GLenum type)
+  {
+    if (type != m_type)
     {
+      throw NotSupportedException("This array is not configured to hold indices of the requested type");
     }
 
+    GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, elementStride, usage);
+  }
 
-    void GLIndexBufferArray::Resize(const std::size_t capacity, const GLenum type)
+
+  void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+  {
+    if (m_type != GL_UNSIGNED_BYTE)
     {
-      DoResize(capacity, GL_ELEMENT_ARRAY_BUFFER, ConvertTypeToStride(type));
-      m_type = type;
+      throw NotSupportedException("This array is not configured to hold uint8_t indices");
     }
 
+    GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint8_t), usage);
+  }
 
-    void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const void* const pIndices, const std::size_t elementCount,
-                                   const uint32_t elementStride, const GLenum usage, const GLenum type)
+
+  void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+  {
+    if (m_type != GL_UNSIGNED_SHORT)
     {
-      if (type != m_type)
-      {
-        throw NotSupportedException("This array is not configured to hold indices of the requested type");
-      }
-
-      GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, elementStride, usage);
+      throw NotSupportedException("This array is not configured to hold uint16_t indices");
     }
 
+    GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage);
+  }
 
-    void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+
+  void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const std::vector<uint8_t>& indices, const GLenum usage)
+  {
+    if (m_type != GL_UNSIGNED_BYTE)
     {
-      if (m_type != GL_UNSIGNED_BYTE)
-      {
-        throw NotSupportedException("This array is not configured to hold uint8_t indices");
-      }
-
-      GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint8_t), usage);
+      throw NotSupportedException("This array is not configured to hold uint8_t indices");
     }
 
+    GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage);
+  }
 
-    void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage)
+
+  void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const std::vector<uint16_t>& indices, const GLenum usage)
+  {
+    if (m_type != GL_UNSIGNED_SHORT)
     {
-      if (m_type != GL_UNSIGNED_SHORT)
-      {
-        throw NotSupportedException("This array is not configured to hold uint16_t indices");
-      }
-
-      GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, pIndices, elementCount, sizeof(uint16_t), usage);
+      throw NotSupportedException("This array is not configured to hold uint16_t indices");
     }
 
-
-    void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const std::vector<uint8_t>& indices, const GLenum usage)
-    {
-      if (m_type != GL_UNSIGNED_BYTE)
-      {
-        throw NotSupportedException("This array is not configured to hold uint8_t indices");
-      }
-
-      GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint8_t), usage);
-    }
-
-
-    void GLIndexBufferArray::Reset(const std::size_t arrayIndex, const std::vector<uint16_t>& indices, const GLenum usage)
-    {
-      if (m_type != GL_UNSIGNED_SHORT)
-      {
-        throw NotSupportedException("This array is not configured to hold uint16_t indices");
-      }
-
-      GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage);
-    }
+    GLBufferArray::Reset(arrayIndex, GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size(), sizeof(uint16_t), usage);
   }
 }

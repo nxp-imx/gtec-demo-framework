@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
-#include "Skybox.hpp"
 #include "OptionParser.hpp"
+#include "Skybox.hpp"
 
 namespace Fsl
 {

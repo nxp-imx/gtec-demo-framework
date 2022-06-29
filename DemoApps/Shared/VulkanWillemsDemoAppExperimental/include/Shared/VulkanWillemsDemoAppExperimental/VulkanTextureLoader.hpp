@@ -18,8 +18,8 @@
 
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanTexture.hpp>
-#include <memory>
 #include <vulkan/vulkan.h>
+#include <memory>
 
 namespace Fsl
 {

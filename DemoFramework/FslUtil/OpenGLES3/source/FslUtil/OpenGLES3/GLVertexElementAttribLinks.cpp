@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,59 +29,58 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/GLVertexElementAttribLinks.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/OpenGLES3/GLVertexElementAttribLinks.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElements.hpp>
 #include <algorithm>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  GLVertexElementAttribLinks::GLVertexElementAttribLinks(const VertexDeclarationSpan& vertexDeclaration,
+                                                         const ReadOnlySpan<GLVertexAttribLink> attribLinks)
+    : m_entries(GLVertexElements(vertexDeclaration).ExtractConfiguration(attribLinks))
+    , m_vertexStride(vertexDeclaration.VertexStride())
   {
-    GLVertexElementAttribLinks::GLVertexElementAttribLinks(const VertexDeclarationSpan& vertexDeclaration,
-                                                           const ReadOnlySpan<GLVertexAttribLink> attribLinks)
-      : m_entries(GLVertexElements(vertexDeclaration).ExtractConfiguration(attribLinks))
-      , m_vertexStride(vertexDeclaration.VertexStride())
+  }
+
+  GLVertexElementAttribLinks::GLVertexElementAttribLinks(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs,
+                                                         const uint32_t vertexStride)
+    : m_entries(ReadOnlySpanUtil::ToVector(vertexElementAttribConfigs))
+    , m_vertexStride(vertexStride)
+  {
+  }
+
+
+  bool GLVertexElementAttribLinks::IsCompatible(const GLVertexElementAttribLinks& instance) const
+  {
+    if (m_entries.size() != instance.m_entries.size())
     {
+      return false;
     }
-
-    GLVertexElementAttribLinks::GLVertexElementAttribLinks(const ReadOnlySpan<GLVertexElementAttribConfig>& vertexElementAttribConfigs,
-                                                           const uint32_t vertexStride)
-      : m_entries(ReadOnlySpanUtil::ToVector(vertexElementAttribConfigs))
-      , m_vertexStride(vertexStride)
+    for (std::size_t i = 0; i < m_entries.size(); ++i)
     {
-    }
-
-
-    bool GLVertexElementAttribLinks::IsCompatible(const GLVertexElementAttribLinks& instance) const
-    {
-      if (m_entries.size() != instance.m_entries.size())
+      if (m_entries[i] != instance.m_entries[i])
       {
         return false;
       }
-      for (std::size_t i = 0; i < m_entries.size(); ++i)
-      {
-        if (m_entries[i] != instance.m_entries[i])
-        {
-          return false;
-        }
-      }
-      return true;
     }
+    return true;
+  }
 
-    void GLVertexElementAttribLinks::EnableAttribArrays() const noexcept
+  void GLVertexElementAttribLinks::EnableAttribArrays() const noexcept
+  {
+    for (const auto& entry : m_entries)
     {
-      for (const auto& entry : m_entries)
-      {
-        glVertexAttribPointer(entry.AttribIndex, entry.Size, entry.Type, entry.Normalized, m_vertexStride, entry.Pointer);
-        glEnableVertexAttribArray(entry.AttribIndex);
-      }
+      glVertexAttribPointer(entry.AttribIndex, entry.Size, entry.Type, entry.Normalized, UncheckedNumericCast<GLsizei>(m_vertexStride),
+                            entry.Pointer);
+      glEnableVertexAttribArray(entry.AttribIndex);
     }
+  }
 
 
-    ReadOnlySpan<GLVertexElementAttribConfig> GLVertexElementAttribLinks::AsSpan() const
-    {
-      return ReadOnlySpanUtil::AsSpan(m_entries);
-    }
+  ReadOnlySpan<GLVertexElementAttribConfig> GLVertexElementAttribLinks::AsSpan() const
+  {
+    return ReadOnlySpanUtil::AsSpan(m_entries);
   }
 }

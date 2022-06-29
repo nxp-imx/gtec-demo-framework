@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "D1_2_VAOs.hpp"
 #include <array>
+#include "D1_2_VAOs.hpp"
 
 namespace Fsl
 {

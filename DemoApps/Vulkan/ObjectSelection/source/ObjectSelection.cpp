@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include "ObjectSelection.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/Viewport.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorF.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -44,9 +44,9 @@
 #include <FslGraphics3D/Procedural/TorusGenerator.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/VUTextureUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
+#include <FslUtil/Vulkan1_0/VUTextureUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <Shared/ObjectSelection/BoundingBoxUtil.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
@@ -217,7 +217,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorSetLayout CreateObjectTransformDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -234,7 +234,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
     RapidVulkan::DescriptorSetLayout CreateObjectDescriptorSetLayout(const Vulkan::VUDevice& device)
@@ -257,7 +257,7 @@ namespace Fsl
       descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
-      return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
+      return {device.Get(), descriptorLayout};
     }
 
 
@@ -278,7 +278,7 @@ namespace Fsl
       descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
-      return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
+      return {device.Get(), descriptorPoolInfo};
     }
 
 
@@ -289,7 +289,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = 1;
       pipelineLayoutCreateInfo.pSetLayouts = descripterSetLayout.GetPointer();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout.GetDevice(), pipelineLayoutCreateInfo};
     }
 
     RapidVulkan::PipelineLayout CreateObjectPipelineLayout(const RapidVulkan::DescriptorSetLayout& descripterSetLayout1,
@@ -302,7 +302,7 @@ namespace Fsl
       pipelineLayoutCreateInfo.setLayoutCount = UncheckedNumericCast<uint32_t>(layouts.size());
       pipelineLayoutCreateInfo.pSetLayouts = layouts.data();
 
-      return RapidVulkan::PipelineLayout(descripterSetLayout1.GetDevice(), pipelineLayoutCreateInfo);
+      return {descripterSetLayout1.GetDevice(), pipelineLayoutCreateInfo};
     }
 
 
@@ -433,7 +433,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {pipelineLayout.GetDevice(), VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
   }
 
@@ -532,19 +532,19 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
-    {
-      m_rightMouseDown = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = m_rightMouseDown;
+        m_rightMouseDown = event.IsPressed();
+        if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
+        {
+          m_mouseCaptureEnabled = m_rightMouseDown;
+        }
+        else
+        {
+          m_mouseCaptureEnabled = false;
+        }
+        event.Handled();
+        break;
       }
-      else
-      {
-        m_mouseCaptureEnabled = false;
-      }
-      event.Handled();
-      break;
-    }
     case VirtualMouseButton::Middle:
       if (event.IsPressed())
       {
@@ -949,7 +949,7 @@ namespace Fsl
                                                           const Vulkan::VUTexture& texture)
   {
     const auto textureExtent = texture.GetExtent();
-    const PxSize2D tex1Size(textureExtent.width, textureExtent.height);
+    const PxSize2D tex1Size(UncheckedNumericCast<int32_t>(textureExtent.width), UncheckedNumericCast<int32_t>(textureExtent.height));
     TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
     const NativeTextureArea texRepeatArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, 15 / 5, 15 / 5));
     const auto mesh =
@@ -962,7 +962,7 @@ namespace Fsl
                                       const Vulkan::VUTexture& texture)
   {
     const auto textureExtent = texture.GetExtent();
-    const PxSize2D tex1Size(textureExtent.width, textureExtent.height);
+    const PxSize2D tex1Size(UncheckedNumericCast<int32_t>(textureExtent.width), UncheckedNumericCast<int32_t>(textureExtent.height));
     TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
 
     const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, 1, 1));

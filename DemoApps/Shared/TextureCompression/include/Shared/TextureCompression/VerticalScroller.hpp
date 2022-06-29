@@ -1,7 +1,7 @@
 #ifndef SHARED_TEXTURECOMPRESSION_VERTICALSCROLLER_HPP
 #define SHARED_TEXTURECOMPRESSION_VERTICALSCROLLER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,32 +33,29 @@
 
 #include <FslSimpleUI/Base/Control/ContentControl.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class VerticalScroller final : public ContentControl
   {
-    class VerticalScroller final : public ContentControl
-    {
-      float m_animationPosition = 0.0f;
-      float m_animationSpeed = 1.0f;
-      bool m_animate = false;
-      DpThicknessF m_scrollPaddingDp;
+    float m_animationPosition = 0.0f;
+    float m_animationSpeed = 1.0f;
+    bool m_animate = false;
+    DpThicknessF m_scrollPaddingDp;
 
-    public:
-      explicit VerticalScroller(const std::shared_ptr<BaseWindowContext>& context);
+  public:
+    explicit VerticalScroller(const std::shared_ptr<BaseWindowContext>& context);
 
-      //! @note This is only called if enabled.
-      void WinUpdate(const TransitionTimeSpan& timeSpan) final;
-      void WinResolve(const TransitionTimeSpan& timeSpan) final;
+    //! @note This is only called if enabled.
+    void WinUpdate(const TimeSpan& timeSpan) final;
+    void WinResolve(const TimeSpan& timeSpan) final;
 
-      void SetScrollPadding(const DpThicknessF& paddingDp);
+    void SetScrollPadding(const DpThicknessF& paddingDp);
 
-    protected:
-      PxSize2D ArrangeOverride(const PxSize2D& finalSizepx) final;
-      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
-      bool UpdateAnimationState(const bool forceCompleteAnimation) final;
-    };
-  }
+  protected:
+    PxSize2D ArrangeOverride(const PxSize2D& finalSizepx) final;
+    PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+    bool UpdateAnimationState(const bool forceCompleteAnimation) final;
+  };
 }
 
 #endif

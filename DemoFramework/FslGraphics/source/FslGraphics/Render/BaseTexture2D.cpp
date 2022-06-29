@@ -29,11 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/BaseTexture2D.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
+#include <FslGraphics/Render/BaseTexture2D.hpp>
 #include <FslGraphics/Texture/RawTextureHelper.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <utility>
 
 namespace Fsl

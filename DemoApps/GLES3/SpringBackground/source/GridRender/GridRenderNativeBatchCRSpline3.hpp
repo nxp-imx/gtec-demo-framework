@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
-#include "../IGridRender.hpp"
 #include <cstddef>
+#include "../IGridRender.hpp"
 
 namespace Fsl
 {

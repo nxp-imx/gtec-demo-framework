@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Exceptions.hpp>
 #include "InputEvents.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 
 namespace Fsl
 {

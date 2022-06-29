@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSDEVICESHADERS_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSDEVICESHADERS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,19 +33,22 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslGraphics/Vertices/VertexAttributeDescriptionArray.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  class NativeGraphicsDeviceShaders
   {
-    class NativeGraphicsDeviceShaders
-    {
-    public:
-      static ReadOnlySpan<uint8_t> GetVertexShader();
-      static ReadOnlySpan<uint8_t> GetFragmentShader();
-      static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
-    };
-  }
+  public:
+    static ReadOnlySpan<uint8_t> GetVertexShader();
+    static ReadOnlySpan<uint8_t> GetFragmentShader();
+    static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
+
+    static constexpr VertexAttributeDescriptionArray<3> VertexShaderVertexDecl = {
+      VertexAttributeDescription(0, VertexElementFormat::Vector3, VertexElementUsage::Position, 0, "inVertexPosition"),
+      VertexAttributeDescription(1, VertexElementFormat::Vector4, VertexElementUsage::Color, 0, "inVertexColor"),
+      VertexAttributeDescription(2, VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0, "inVertexTextureCoord")};
+  };
 }
 
 #endif

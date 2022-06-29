@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="Fsl::DpValue">
+      <DisplayString>{Value}dp</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpValueF">
+      <DisplayString>{Value}dpf</DisplayString>
+  </Type>
+  <Type Name="Fsl::DpValueU">
+      <DisplayString>{Value}dp</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxValue">
+      <DisplayString>{Value}px</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxValueF">
+      <DisplayString>{Value}pxf</DisplayString>
+  </Type>
+  <Type Name="Fsl::PxValueU">
+      <DisplayString>{Value}px</DisplayString>
+  </Type>
+  <Type Name="Fsl::CStringView">
+      <DisplayString>{{str={m_psz,[m_length]} size={m_length} }}</DisplayString>
+  </Type>
   <Type Name="Fsl::StringViewLite">
       <DisplayString>{{str={m_pStr,[m_length]} size={m_length} }}</DisplayString>
   </Type>
@@ -58,7 +79,10 @@
       -->
     </Expand>
   </Type>
-  <Type Name="Fsl::CircularFixedSizeBuffer&lt;*&gt;">
+	<Type Name="Fsl::DpValue">
+		<DisplayString>{Value}dp</DisplayString>
+	</Type>
+	<Type Name="Fsl::CircularFixedSizeBuffer&lt;*&gt;">
     <DisplayString>{{size={m_entries}}}</DisplayString>
     <Expand>
       <Item Name="size" ExcludeView="simple">m_entries</Item>

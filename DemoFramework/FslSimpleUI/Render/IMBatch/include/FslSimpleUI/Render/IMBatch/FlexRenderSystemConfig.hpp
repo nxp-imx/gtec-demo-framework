@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_FLEXRENDERSYSTEMCONFIG_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_FLEXRENDERSYSTEMCONFIG_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,40 +33,34 @@
 
 #include <FslSimpleUI/Render/IMBatch/DrawReorderMethod.hpp>
 
-namespace Fsl
+namespace Fsl::UI::RenderIMBatch
 {
-  namespace UI
+  struct FlexRenderSystemConfig
   {
-    namespace RenderIMBatch
+    bool Batch{false};
+    bool FillBuffers{false};
+    bool UseDepthBuffer{false};
+    DrawReorderMethod ReorderMethod{DrawReorderMethod::Disabled};
+
+    constexpr FlexRenderSystemConfig() = default;
+    constexpr FlexRenderSystemConfig(const bool batch, const bool fillBuffers, const bool useDepthBuffer, const DrawReorderMethod reorderMethod)
+      : Batch(batch)
+      , FillBuffers(fillBuffers)
+      , UseDepthBuffer(useDepthBuffer)
+      , ReorderMethod(reorderMethod)
     {
-      struct FlexRenderSystemConfig
-      {
-        bool Batch{false};
-        bool FillBuffers{false};
-        bool UseDepthBuffer{false};
-        DrawReorderMethod ReorderMethod{DrawReorderMethod::Disabled};
-
-        constexpr FlexRenderSystemConfig() = default;
-        constexpr FlexRenderSystemConfig(const bool batch, const bool fillBuffers, const bool useDepthBuffer, const DrawReorderMethod reorderMethod)
-          : Batch(batch)
-          , FillBuffers(fillBuffers)
-          , UseDepthBuffer(useDepthBuffer)
-          , ReorderMethod(reorderMethod)
-        {
-        }
-
-        constexpr bool operator==(const FlexRenderSystemConfig& rhs) const noexcept
-        {
-          return Batch == rhs.Batch && FillBuffers == rhs.FillBuffers && UseDepthBuffer == rhs.UseDepthBuffer && ReorderMethod == rhs.ReorderMethod;
-        }
-
-        constexpr bool operator!=(const FlexRenderSystemConfig& rhs) const noexcept
-        {
-          return !(*this == rhs);
-        }
-      };
     }
-  }
+
+    constexpr bool operator==(const FlexRenderSystemConfig& rhs) const noexcept
+    {
+      return Batch == rhs.Batch && FillBuffers == rhs.FillBuffers && UseDepthBuffer == rhs.UseDepthBuffer && ReorderMethod == rhs.ReorderMethod;
+    }
+
+    constexpr bool operator!=(const FlexRenderSystemConfig& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

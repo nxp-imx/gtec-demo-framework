@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class LayoutDirection
   {
-    enum class LayoutDirection
-    {
-      NearToFar = 0,
-      FarToNear = 1
-    };
-  }
+    NearToFar = 0,
+    FarToNear = 1
+  };
 }
 
 #endif

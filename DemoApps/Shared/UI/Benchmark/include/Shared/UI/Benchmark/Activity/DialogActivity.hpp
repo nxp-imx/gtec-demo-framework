@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_ACTIVITY_DIALOGACTIVITY_HPP
 #define SHARED_UI_BENCHMARK_ACTIVITY_DIALOGACTIVITY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,36 +35,33 @@
 #include <Shared/UI/Benchmark/Activity/FakeActivity.hpp>
 #include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  namespace Theme
   {
-    namespace Theme
-    {
-      class IThemeControlFactory;
-    }
-
-    class DialogActivity : public FakeActivity
-    {
-      std::weak_ptr<Theme::IThemeControlFactory> m_controlFactory;
-      std::shared_ptr<BaseWindow> m_window;
-
-    public:
-      DialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
-                     std::shared_ptr<BaseWindow> window, const Theme::WindowType windowType = Theme::WindowType::Normal,
-                     const ItemAlignment windowAlignmentX = ItemAlignment::Center, const ItemAlignment windowAlignmentY = ItemAlignment::Center);
-
-      BaseWindow& GetWindow() const;
-
-    protected:
-      void SetBackgroundColor(const Color color);
-
-      std::shared_ptr<Theme::IThemeControlFactory> GetThemeControlFactory() const;
-
-      void SetWindowAlignmentX(const ItemAlignment alignment);
-      void SetWindowAlignmentY(const ItemAlignment alignment);
-    };
+    class IThemeControlFactory;
   }
+
+  class DialogActivity : public FakeActivity
+  {
+    std::weak_ptr<Theme::IThemeControlFactory> m_controlFactory;
+    std::shared_ptr<BaseWindow> m_window;
+
+  public:
+    DialogActivity(std::weak_ptr<IActivityStack> activityStack, const std::shared_ptr<Theme::IThemeControlFactory>& themeControlFactory,
+                   std::shared_ptr<BaseWindow> window, const Theme::WindowType windowType = Theme::WindowType::Normal,
+                   const ItemAlignment windowAlignmentX = ItemAlignment::Center, const ItemAlignment windowAlignmentY = ItemAlignment::Center);
+
+    BaseWindow& GetWindow() const;
+
+  protected:
+    void SetBackgroundColor(const Color color);
+
+    std::shared_ptr<Theme::IThemeControlFactory> GetThemeControlFactory() const;
+
+    void SetWindowAlignmentX(const ItemAlignment alignment);
+    void SetWindowAlignmentY(const ItemAlignment alignment);
+  };
 }
 
 

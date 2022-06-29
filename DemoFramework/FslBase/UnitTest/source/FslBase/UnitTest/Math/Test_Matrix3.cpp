@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Log/Math/LogMatrix3.hpp>
+#include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

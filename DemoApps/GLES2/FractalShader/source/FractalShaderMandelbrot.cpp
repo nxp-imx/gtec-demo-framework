@@ -29,15 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslUtil/OpenGLES2/Exceptions.hpp>
-#include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include "FractalShaderMandelbrot.hpp"
-#include <Shared/FractalShader/OptionParser.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <Shared/FractalShader/OptionParser.hpp>
 #include <GLES2/gl2.h>
 #include <cmath>
 #include <iostream>
@@ -90,7 +90,7 @@ namespace Fsl
     m_locCoordinateScale = glGetUniformLocation(hProgram, "CoordinateScale");
 
 
-    const float aspect = (m_screenResolution.Y / static_cast<float>(m_screenResolution.X));
+    const float aspect = (static_cast<float>(m_screenResolution.Y) / static_cast<float>(m_screenResolution.X));
     const float scaleX = 2.5f;
     const float scaleY = scaleX * aspect;
     const float u1 = (-1.0f) * scaleX;

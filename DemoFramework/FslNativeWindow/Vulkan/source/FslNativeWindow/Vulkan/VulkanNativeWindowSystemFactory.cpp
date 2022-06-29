@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
+#include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>
 
 #if defined(_WIN32)
 #include "Win32/VulkanNativeWindowSystemWin32.hpp"

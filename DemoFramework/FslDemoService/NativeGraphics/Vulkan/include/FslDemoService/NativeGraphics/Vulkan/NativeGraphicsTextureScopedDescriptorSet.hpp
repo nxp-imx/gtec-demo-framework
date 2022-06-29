@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSTEXTURESCOPEDDESCRIPTORSET_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_VULKAN_NATIVEGRAPHICSTEXTURESCOPEDDESCRIPTORSET_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,69 +33,66 @@
 
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsDescriptorSetManager.hpp>
 
-namespace Fsl
+namespace Fsl::Vulkan
 {
-  namespace Vulkan
+  struct NativeGraphicsTextureScopedDescriptorSet
   {
-    struct NativeGraphicsTextureScopedDescriptorSet
+    NativeGraphicsDescriptorSetManager* m_pManager{nullptr};
+    VkDescriptorSet m_descriptorSet{VK_NULL_HANDLE};
+
+    NativeGraphicsTextureScopedDescriptorSet() noexcept = default;
+
+    NativeGraphicsTextureScopedDescriptorSet(const NativeGraphicsTextureScopedDescriptorSet&) = delete;
+    NativeGraphicsTextureScopedDescriptorSet& operator=(const NativeGraphicsTextureScopedDescriptorSet&) = delete;
+
+    NativeGraphicsTextureScopedDescriptorSet(NativeGraphicsTextureScopedDescriptorSet&& other) noexcept
+      : m_pManager(other.m_pManager)
+      , m_descriptorSet(other.m_descriptorSet)
     {
-      NativeGraphicsDescriptorSetManager* m_pManager{nullptr};
-      VkDescriptorSet m_descriptorSet{VK_NULL_HANDLE};
+      other.m_pManager = nullptr;
+      other.m_descriptorSet = VK_NULL_HANDLE;
+    }
 
-      NativeGraphicsTextureScopedDescriptorSet() noexcept = default;
-
-      NativeGraphicsTextureScopedDescriptorSet(const NativeGraphicsTextureScopedDescriptorSet&) = delete;
-      NativeGraphicsTextureScopedDescriptorSet& operator=(const NativeGraphicsTextureScopedDescriptorSet&) = delete;
-
-      NativeGraphicsTextureScopedDescriptorSet(NativeGraphicsTextureScopedDescriptorSet&& other) noexcept
-        : m_pManager(other.m_pManager)
-        , m_descriptorSet(other.m_descriptorSet)
+    NativeGraphicsTextureScopedDescriptorSet& operator=(NativeGraphicsTextureScopedDescriptorSet&& other) noexcept
+    {
+      if (&other != this)
       {
+        Reset();
+        m_pManager = other.m_pManager;
+        m_descriptorSet = other.m_descriptorSet;
         other.m_pManager = nullptr;
         other.m_descriptorSet = VK_NULL_HANDLE;
       }
+      return *this;
+    }
 
-      NativeGraphicsTextureScopedDescriptorSet& operator=(NativeGraphicsTextureScopedDescriptorSet&& other) noexcept
+    NativeGraphicsTextureScopedDescriptorSet(NativeGraphicsDescriptorSetManager& rManager, VkDescriptorSet descriptorSet) noexcept
+      : m_pManager(&rManager)
+      , m_descriptorSet(descriptorSet)
+    {
+    }
+
+    ~NativeGraphicsTextureScopedDescriptorSet() noexcept
+    {
+      Reset();
+    }
+
+    VkDescriptorSet Get() const
+    {
+      return m_descriptorSet;
+    }
+
+  private:
+    void Reset() noexcept
+    {
+      if (m_pManager != nullptr && m_descriptorSet != VK_NULL_HANDLE)
       {
-        if (&other != this)
-        {
-          Reset();
-          m_pManager = other.m_pManager;
-          m_descriptorSet = other.m_descriptorSet;
-          other.m_pManager = nullptr;
-          other.m_descriptorSet = VK_NULL_HANDLE;
-        }
-        return *this;
+        m_pManager->ReleaseDescriptorSet(m_descriptorSet);
+        m_descriptorSet = VK_NULL_HANDLE;
       }
+    }
+  };
 
-      NativeGraphicsTextureScopedDescriptorSet(NativeGraphicsDescriptorSetManager& rManager, VkDescriptorSet descriptorSet) noexcept
-        : m_pManager(&rManager)
-        , m_descriptorSet(descriptorSet)
-      {
-      }
-
-      ~NativeGraphicsTextureScopedDescriptorSet() noexcept
-      {
-        Reset();
-      }
-
-      VkDescriptorSet Get() const
-      {
-        return m_descriptorSet;
-      }
-
-    private:
-      void Reset() noexcept
-      {
-        if (m_pManager != nullptr && m_descriptorSet != VK_NULL_HANDLE)
-        {
-          m_pManager->ReleaseDescriptorSet(m_descriptorSet);
-          m_descriptorSet = VK_NULL_HANDLE;
-        }
-      }
-    };
-
-  }
 }
 
 #endif

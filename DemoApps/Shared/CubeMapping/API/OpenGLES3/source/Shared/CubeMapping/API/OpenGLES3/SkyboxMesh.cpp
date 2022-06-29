@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/CubeMapping/API/OpenGLES3/SkyboxMesh.hpp>
 #include <Shared/CubeMapping/API/OpenGLES3/SkyboxVertices.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
 
 namespace Fsl
 {

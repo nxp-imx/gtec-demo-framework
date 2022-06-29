@@ -35,35 +35,32 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/IO/SearchOptions.hpp>
 
-namespace Fsl
+namespace Fsl::IO
 {
-  namespace IO
+  class PathDeque;
+
+  class Directory
   {
-    class PathDeque;
+  public:
+    Directory(const Directory&) = delete;
+    Directory& operator=(const Directory&) = delete;
 
-    class Directory
-    {
-    public:
-      Directory(const Directory&) = delete;
-      Directory& operator=(const Directory&) = delete;
+    //! @brief Create the given directory (renamed form CreateDirectory to prevent issues with windows.h>
+    //! @note Any and all directories specified in path are created, unless they already exist or unless some part of path is invalid
+    static void CreateDir(const Path& path);
 
-      //! @brief Create the given directory (renamed form CreateDirectory to prevent issues with windows.h>
-      //! @note Any and all directories specified in path are created, unless they already exist or unless some part of path is invalid
-      static void CreateDir(const Path& path);
+    //! @brief Check if a directory exists
+    static bool Exists(const Path& path);
 
-      //! @brief Check if a directory exists
-      static bool Exists(const Path& path);
+    //! @brief Get the current working directory
+    //! @note Could not be named getCurrentDirectory because it clashes with a windows.h define.
+    static Path GetCurrentWorkingDirectory();
 
-      //! @brief Get the current working directory
-      //! @note Could not be named getCurrentDirectory because it clashes with a windows.h define.
-      static Path GetCurrentWorkingDirectory();
+    //! @brief Get the files under the path directory
+    static void GetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions);
 
-      //! @brief Get the files under the path directory
-      static void GetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions);
-
-      static bool TryGetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions);
-    };
-  }
+    static bool TryGetFiles(PathDeque& rResult, const Path& path, const SearchOptions searchOptions);
+  };
 }
 
 #endif

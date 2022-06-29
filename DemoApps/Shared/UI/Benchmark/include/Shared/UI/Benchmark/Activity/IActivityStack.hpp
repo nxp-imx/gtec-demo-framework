@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_ACTIVITY_IACTIVITYSTACK_HPP
 #define SHARED_UI_BENCHMARK_ACTIVITY_IACTIVITYSTACK_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,25 +31,22 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
 #include <future>
+#include <memory>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class FakeActivity;
+
+  class IActivityStack
   {
-    class FakeActivity;
+  public:
+    virtual ~IActivityStack() = default;
 
-    class IActivityStack
-    {
-    public:
-      virtual ~IActivityStack() = default;
-
-      virtual uint32_t Count() const = 0;
-      virtual std::future<bool> Push(std::shared_ptr<FakeActivity> activity) = 0;
-      virtual void SchedulePop(const bool completed = true) = 0;
-    };
-  }
+    virtual uint32_t Count() const = 0;
+    virtual std::future<bool> Push(std::shared_ptr<FakeActivity> activity) = 0;
+    virtual void SchedulePop(const bool completed = true) = 0;
+  };
 }
 
 

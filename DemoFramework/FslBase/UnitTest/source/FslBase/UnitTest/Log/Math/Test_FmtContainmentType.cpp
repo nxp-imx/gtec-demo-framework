@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Math/FmtContainmentType.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Math/FmtContainmentType.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
 using namespace Fsl;

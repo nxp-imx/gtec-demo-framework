@@ -33,13 +33,10 @@
 
 #include <FslGraphics/Texture/TextureType.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
-  {
-    extern const char* TryToString(const TextureType& value);
-    extern const char* ToString(const TextureType& value);
-  }
+  extern const char* TryToString(const TextureType& value);
+  extern const char* ToString(const TextureType& value);
 }
 
 #endif

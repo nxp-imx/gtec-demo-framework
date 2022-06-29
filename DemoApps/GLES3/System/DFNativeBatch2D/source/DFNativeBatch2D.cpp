@@ -30,11 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include "DFNativeBatch2D.hpp"
+#include <FslBase/Math/Rectangle.hpp>
+#include <FslGraphics/Color.hpp>
 #include <FslGraphics/Sprite/SpriteNativeAreaCalc.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslBase/Math/Rectangle.hpp>
-#include <FslGraphics/Color.hpp>
 #include <GLES3/gl3.h>
 #include <iostream>
 

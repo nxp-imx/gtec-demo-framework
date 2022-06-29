@@ -31,16 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  enum class LayoutOrientation
   {
-    enum class LayoutOrientation
-    {
-      Vertical,
-      Horizontal
-    };
-  }
+    Vertical,
+    Horizontal
+  };
 }
 
 #endif

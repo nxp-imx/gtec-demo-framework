@@ -32,99 +32,97 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/BasicTypes.hpp>
 #include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslUtil/OpenGLES2/GLBuffer.hpp>
 #include <GLES2/gl2.h>
-#include <FslBase/BasicTypes.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::GLES2
 {
-  namespace GLES2
+  class GLIndexBuffer : public GLBuffer
   {
-    class GLIndexBuffer : public GLBuffer
+    GLenum m_type{};
+
+  public:
+    //! @brief Move assignment operator
+    GLIndexBuffer& operator=(GLIndexBuffer&& other) noexcept
     {
-      GLenum m_type{};
-
-    public:
-      //! @brief Move assignment operator
-      GLIndexBuffer& operator=(GLIndexBuffer&& other) noexcept
+      if (this != &other)
       {
-        if (this != &other)
-        {
-          // Claim ownership here
-          m_type = other.m_type;
-          // Remove the data from other
-          other.m_type = 0;
-          // Move the base class part
-          GLBuffer::operator=(std::move(other));
-        }
-        return *this;
-      }
-
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      GLIndexBuffer(GLIndexBuffer&& other) noexcept
-        : GLBuffer(std::move(other))    // NOLINT(bugprone-use-after-move)
-        , m_type(other.m_type)
-      {
+        // Claim ownership here
+        m_type = other.m_type;
         // Remove the data from other
         other.m_type = 0;
+        // Move the base class part
+        GLBuffer::operator=(std::move(other));
       }
+      return *this;
+    }
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLIndexBuffer(GLIndexBuffer&& other) noexcept
+      : GLBuffer(std::move(other))    // NOLINT(bugprone-use-after-move)
+      , m_type(other.m_type)          // NOLINT(bugprone-use-after-move)
+    {
+      // Remove the data from other
+      // NOLINTNEXTLINE(bugprone-use-after-move)
+      other.m_type = 0;
+    }
 
 
-      //! @brief Create a uninitialized index buffer
-      GLIndexBuffer();
+    //! @brief Create a uninitialized index buffer
+    GLIndexBuffer();
 
-      //! @brief Create a initialized index buffer
-      GLIndexBuffer(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage, const GLenum type);
+    //! @brief Create a initialized index buffer
+    GLIndexBuffer(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage, const GLenum type);
 
-      //! @brief Create a initialized index buffer
-      GLIndexBuffer(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage);
+    //! @brief Create a initialized index buffer
+    GLIndexBuffer(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage);
 
-      //! @brief Create a initialized index buffer
-      GLIndexBuffer(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage);
+    //! @brief Create a initialized index buffer
+    GLIndexBuffer(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage);
 
-      //! @brief Create a initialized index buffer
-      GLIndexBuffer(const std::vector<uint8_t>& indices, const GLenum usage);
+    //! @brief Create a initialized index buffer
+    GLIndexBuffer(const std::vector<uint8_t>& indices, const GLenum usage);
 
-      //! @brief Create a initialized index buffer
-      GLIndexBuffer(const std::vector<uint16_t>& indices, const GLenum usage);
+    //! @brief Create a initialized index buffer
+    GLIndexBuffer(const std::vector<uint16_t>& indices, const GLenum usage);
 
-      using GLBuffer::Reset;
+    using GLBuffer::Reset;
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage, const GLenum type);
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage, const GLenum type);
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage);
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const uint8_t* const pIndices, const std::size_t elementCount, const GLenum usage);
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage);
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const uint16_t* const pIndices, const std::size_t elementCount, const GLenum usage);
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::vector<uint8_t>& indices, const GLenum usage);
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::vector<uint8_t>& indices, const GLenum usage);
 
-      //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const std::vector<uint16_t>& indices, const GLenum usage);
+    //! @brief Reset the buffer to contain the supplied elements
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const std::vector<uint16_t>& indices, const GLenum usage);
 
-      //! @brief Get the type of the buffer content
-      GLenum GetType() const
-      {
-        return m_type;
-      }
-    };
-  }
+    //! @brief Get the type of the buffer content
+    GLenum GetType() const
+    {
+      return m_type;
+    }
+  };
 }
 
 #endif

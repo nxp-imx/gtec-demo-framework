@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoHost/Base/Service/Host/IHostInfoControl.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
 namespace Fsl
 {

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_MATHHELPER_CALCOPTIMALSIZE_HPP
 #define FSLBASE_MATH_MATHHELPER_CALCOPTIMALSIZE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,25 +36,22 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/RectangleSizeRestrictionFlag.hpp>
 
-namespace Fsl
+namespace Fsl::MathHelper
 {
-  namespace MathHelper
-  {
-    //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
-    //! @param unitSize the size of the unit (x > 0 && y > 0)
-    //! @param unitCount the total number of units > 0
-    Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
+  //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
+  //! @param unitSize the size of the unit (x > 0 && y > 0)
+  //! @param unitCount the total number of units > 0
+  Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
 
-    //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
-    //! @param unitSize the size of the unit (x > 0 && y > 0)
-    //! @param unitCount the total number of units > 0
-    PxSize2D CalcOptimalSize(const PxSize2D& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
+  //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
+  //! @param unitSize the size of the unit (x > 0 && y > 0)
+  //! @param unitCount the total number of units > 0
+  PxSize2D CalcOptimalSize(const PxSize2D& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
 
-    //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
-    //! @param unitSize the size of the unit (x > 0 && y > 0)
-    //! @param unitCount the total number of units > 0
-    PxExtent2D CalcOptimalSize(const PxExtent2D& unitSize, const uint32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
-  }
+  //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
+  //! @param unitSize the size of the unit (x > 0 && y > 0)
+  //! @param unitCount the total number of units > 0
+  PxExtent2D CalcOptimalSize(const PxExtent2D& unitSize, const uint32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
 }
 
 

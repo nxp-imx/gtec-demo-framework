@@ -31,22 +31,19 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::UI
 {
-  namespace UI
+  class IExternalModuleHost;
+
+  struct ExternalModuleCreateInfo
   {
-    class IExternalModuleHost;
+    IExternalModuleHost& ModuleHost;
 
-    struct ExternalModuleCreateInfo
+    explicit ExternalModuleCreateInfo(IExternalModuleHost& moduleHost)
+      : ModuleHost(moduleHost)
     {
-      IExternalModuleHost& ModuleHost;
-
-      explicit ExternalModuleCreateInfo(IExternalModuleHost& moduleHost)
-        : ModuleHost(moduleHost)
-      {
-      }
-    };
-  }
+    }
+  };
 }
 
 #endif

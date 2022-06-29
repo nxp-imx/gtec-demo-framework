@@ -31,25 +31,22 @@
  *
  ****************************************************************************************************************************************************/
 
-namespace Fsl
+namespace Fsl::SceneFormat
 {
-  namespace SceneFormat
+  // Closely resembles the normal VertexElementUsage format. Its defined in its own structure to maintain
+  // its integrity. This is done because this enum value is used for persistent storage and changing
+  // it should not be done lightly.
+  enum class VertexElementUsage
   {
-    // Closely resembles the normal VertexElementUsage format. Its defined in its own structure to maintain
-    // its integrity. This is done because this enum value is used for persistent storage and changing
-    // it should not be done lightly.
-    enum class VertexElementUsage
-    {
-      Color = 0,
-      Normal = 1,
-      Position = 2,
-      TextureCoordinate = 3,
-      Tangent = 4,
-      Bitangent = 5,
-      //! Do not use its for internal use only
-      SYS_COUNT
-    };
-  }
+    Color = 0,
+    Normal = 1,
+    Position = 2,
+    TextureCoordinate = 3,
+    Tangent = 4,
+    Bitangent = 5,
+    //! Do not use its for internal use only
+    SYS_COUNT
+  };
 }
 
 #endif

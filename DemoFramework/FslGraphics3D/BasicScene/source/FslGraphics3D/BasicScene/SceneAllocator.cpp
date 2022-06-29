@@ -29,17 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics3D/BasicScene/SceneAllocator.hpp>
-#include <FslGraphics3D/BasicScene/ComplexScene.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslGraphics3D/BasicScene/ComplexScene.hpp>
+#include <FslGraphics3D/BasicScene/SceneAllocator.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  std::shared_ptr<Scene> SceneAllocator::AllocateComplex(const std::size_t meshCapacity)
   {
-    std::shared_ptr<Scene> SceneAllocator::AllocateComplex(const std::size_t meshCapacity)
-    {
-      return std::make_shared<ComplexScene>(meshCapacity);
-    }
+    return std::make_shared<ComplexScene>(meshCapacity);
   }
 }

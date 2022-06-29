@@ -37,12 +37,12 @@
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
-#include <Shared/SdfFonts/Shared.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
 #include <RapidVulkan/GraphicsPipeline.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
+#include <Shared/SdfFonts/Shared.hpp>
 #include <array>
 #include <vector>
 #include "DynamicMesh.hpp"

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include "DevBatch.hpp"
-#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxRectangleU16.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 //#include <FslBase/Log/Math/Pixel/FmtPxRectangleU32.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
@@ -91,13 +91,13 @@ namespace Fsl
     {
       constexpr std::array<VertexPosition, 3> vertices = {VertexPosition(-0.5f, 0.5f, 0.0f), VertexPosition(0.5f, 0.5f, 0.0f),
                                                           VertexPosition(0.0f, -0.5f, 0.0f)};
-      return VMVertexBuffer(bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC);
+      return {bufferManager, ReadOnlyFlexVertexSpanUtil::AsSpan(vertices), Vulkan::VMBufferUsage::STATIC};
     }
 
 
     RapidVulkan::PipelineLayout CreatePipelineLayout(const VkDevice device)
     {
-      return RapidVulkan::PipelineLayout(device, 0, 0, nullptr, 0, nullptr);
+      return {device, 0, 0, nullptr, 0, nullptr};
     }
 
 
@@ -243,7 +243,7 @@ namespace Fsl
       graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
       graphicsPipelineCreateInfo.basePipelineIndex = 0;
 
-      return RapidVulkan::GraphicsPipeline(device, VK_NULL_HANDLE, graphicsPipelineCreateInfo);
+      return {device, VK_NULL_HANDLE, graphicsPipelineCreateInfo};
     }
 
 
@@ -409,8 +409,8 @@ namespace Fsl
     m_currentPos2 = ((std::cos(m_currentAngle) + 1.0f) / 2.0f) * (4 * Local::ForcedTexWidth);
     m_currentPos3 = ((-std::cos(m_currentAngle) + 1.0f) / 2.0f) * (4 * Local::ForcedTexWidth);
 
-    m_currentPos.X = ((std::cos(m_currentAngle) + 1.0f) / 2.0f) * (resPx.Width() - Local::ForcedTexWidth);
-    m_currentPos.Y = ((std::sin(m_currentAngle) + 1.0f) / 2.0f) * (resPx.Height() - Local::ForcedTexHeight);
+    m_currentPos.X = ((std::cos(m_currentAngle) + 1.0f) / 2.0f) * (static_cast<float>(resPx.Width()) - Local::ForcedTexWidth);
+    m_currentPos.Y = ((std::sin(m_currentAngle) + 1.0f) / 2.0f) * (static_cast<float>(resPx.Height()) - Local::ForcedTexHeight);
 
     m_currentPos4.X = ((std::cos(m_currentAngle) + 1.0f) / 2.0f) * (400.0f - Local::ForcedTexWidth);
     m_currentPos4.Y = ((std::sin(m_currentAngle) + 1.0f) / 2.0f) * (400.0f - Local::ForcedTexHeight);
@@ -675,7 +675,10 @@ namespace Fsl
 
     rBatch2DQuad->BeginFrame(commandBuffer, swapBufferIndex);
 
-    Vector2 textOffsetPx(400, 0);
+    Vector2 textOffsetPxf(400, 0);
+
+    const auto sdfFontLineSpacingPxf = static_cast<float>(sdfFont.LineSpacingPx());
+
     BitmapFontConfig fontConfig(1.0f, m_kerningEnabled);
     BitmapFontConfig fontConfigZoom(2.1f, m_kerningEnabled);
     rBatch2D->Begin(BlendState::NonPremultiplied);
@@ -683,35 +686,37 @@ namespace Fsl
     auto sizeInfo = normalFont.MeasureString(strInfo);
     rBatch2D->DrawString(textureNormalFont, normalFont, fontConfig, strInfo, Vector2(windowSizePx.Width() - sizeInfo.Width(), 0), Color::White());
 
-    rBatch2D->DrawString(textureNormalFont, normalFont, fontConfig, "Hello World. P. (Normal) NonPremultipliedShader)", textOffsetPx, Color::White());
-    textOffsetPx.Y += normalFont.LineSpacingPx();
-    rBatch2D->DrawString(textureNormalFont, normalFont, fontConfigZoom, "Hello World. P. (Normal 2.1x) NonPremultipliedShader)", textOffsetPx,
+    rBatch2D->DrawString(textureNormalFont, normalFont, fontConfig, "Hello World. P. (Normal) NonPremultipliedShader)", textOffsetPxf,
                          Color::White());
-    textOffsetPx.Y += normalFont.LineSpacingPx(fontConfigZoom);
+    textOffsetPxf.Y += static_cast<float>(normalFont.LineSpacingPx());
+    rBatch2D->DrawString(textureNormalFont, normalFont, fontConfigZoom, "Hello World. P. (Normal 2.1x) NonPremultipliedShader)", textOffsetPxf,
+                         Color::White());
+    textOffsetPxf.Y += static_cast<float>(normalFont.LineSpacingPx(fontConfigZoom));
 
     rBatch2D->ChangeTo(BlendState::Sdf);
-    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) SdfShader", textOffsetPx, Color::White());
-    textOffsetPx.Y += sdfFont.LineSpacingPx();
-    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfigZoom, "Hello World. P. (SDF 2.1x) SdfShader", textOffsetPx, Color::White());
-    textOffsetPx.Y += sdfFont.LineSpacingPx(fontConfigZoom);
+    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) SdfShader", textOffsetPxf, Color::White());
+    textOffsetPxf.Y += sdfFontLineSpacingPxf;
+    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfigZoom, "Hello World. P. (SDF 2.1x) SdfShader", textOffsetPxf, Color::White());
+    textOffsetPxf.Y += static_cast<float>(sdfFont.LineSpacingPx(fontConfigZoom));
     rBatch2D->ChangeTo(BlendState::NonPremultiplied);
-    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) NonPremultipliedShader)", textOffsetPx, Color::White());
-    textOffsetPx.Y += sdfFont.LineSpacingPx();
+    rBatch2D->DrawString(textureSdfFont, sdfFont, fontConfig, "Hello World. P. (SDF) NonPremultipliedShader)", textOffsetPxf, Color::White());
+    textOffsetPxf.Y += sdfFontLineSpacingPxf;
     rBatch2D->End();
 
+    const auto heightPxf = static_cast<float>(heightPx);
     rBatch2D->Begin(BlendState::NonPremultiplied);
     // Bottom left
     rBatch2D->Draw(
-      texture4, PxAreaRectangleF(0 * Local::ForcedTexWidth, heightPx - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col1);
+      texture4, PxAreaRectangleF(0 * Local::ForcedTexWidth, heightPxf - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col1);
     rBatch2D->Draw(
-      texture4, PxAreaRectangleF(1 * Local::ForcedTexWidth, heightPx - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col2);
+      texture4, PxAreaRectangleF(1 * Local::ForcedTexWidth, heightPxf - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col2);
     rBatch2D->Draw(
-      texture4, PxAreaRectangleF(2 * Local::ForcedTexWidth, heightPx - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col3);
+      texture4, PxAreaRectangleF(2 * Local::ForcedTexWidth, heightPxf - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col3);
     rBatch2D->Draw(
-      texture4, PxAreaRectangleF(3 * Local::ForcedTexWidth, heightPx - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col4);
+      texture4, PxAreaRectangleF(3 * Local::ForcedTexWidth, heightPxf - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col4);
     rBatch2D->Draw(
-      texture4, PxAreaRectangleF(4 * Local::ForcedTexWidth, heightPx - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col5);
-    rBatch2D->Draw(texture4Pre, PxAreaRectangleF(m_currentPos2, heightPx - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight),
+      texture4, PxAreaRectangleF(4 * Local::ForcedTexWidth, heightPxf - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight), col5);
+    rBatch2D->Draw(texture4Pre, PxAreaRectangleF(m_currentPos2, heightPxf - Local::ForcedTexHeight, Local::ForcedTexWidth, Local::ForcedTexHeight),
                    colMovingPre);
     rBatch2D->End();
 
@@ -719,33 +724,34 @@ namespace Fsl
     // Bottom left
     rBatch2D->Draw(
       texture4Pre,
-      PxAreaRectangleF(0 * Local::ForcedTexWidth, heightPx - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col1);
+      PxAreaRectangleF(0 * Local::ForcedTexWidth, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col1);
     rBatch2D->Draw(
       texture4Pre,
-      PxAreaRectangleF(1 * Local::ForcedTexWidth, heightPx - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col2);
+      PxAreaRectangleF(1 * Local::ForcedTexWidth, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col2);
     rBatch2D->Draw(
       texture4Pre,
-      PxAreaRectangleF(2 * Local::ForcedTexWidth, heightPx - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col3);
+      PxAreaRectangleF(2 * Local::ForcedTexWidth, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col3);
     rBatch2D->Draw(
       texture4Pre,
-      PxAreaRectangleF(3 * Local::ForcedTexWidth, heightPx - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col4);
+      PxAreaRectangleF(3 * Local::ForcedTexWidth, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col4);
     rBatch2D->Draw(
       texture4Pre,
-      PxAreaRectangleF(4 * Local::ForcedTexWidth, heightPx - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col5);
+      PxAreaRectangleF(4 * Local::ForcedTexWidth, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight), col5);
 
     rBatch2D->Draw(texture4Pre, PxAreaRectangleF(m_currentPos.X, m_currentPos.Y, Local::ForcedTexWidth, Local::ForcedTexHeight), colMovingPre);
     rBatch2D->Draw(texture4Pre,
-                   PxAreaRectangleF(m_currentPos2, heightPx - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight),
+                   PxAreaRectangleF(m_currentPos2, heightPxf - (2 * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight),
                    colMovingPre);
     rBatch2D->Draw(texture4Pre, PxAreaRectangleF(m_currentPos4.X, m_currentPos4.Y, Local::ForcedTexWidth, Local::ForcedTexHeight), Color::White());
-    rBatch2D->Draw(texture4Pre, PxAreaRectangleF(windowSizePx.Width() - 200.0f, 50.0f, 200.0f, 200.0f), Color::White());
+    rBatch2D->Draw(texture4Pre, PxAreaRectangleF(static_cast<float>(windowSizePx.Width()) - 200.0f, 50.0f, 200.0f, 200.0f), Color::White());
     // rBatch2D->Draw(texture4, m_currentPos, Color(1.0f, 1.0f, 1.0f, 0.70f));
     rBatch2D->End();
 
     rBatch2D->Begin(BlendState::Additive);
-    rBatch2D->Draw(texture4Pre,
-                   PxAreaRectangleF(m_currentPos3, heightPx - (1.5f * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight),
-                   colMovingPre);
+    rBatch2D->Draw(
+      texture4Pre,
+      PxAreaRectangleF(m_currentPos3, static_cast<float>(heightPx) - (1.5f * Local::ForcedTexHeight), Local::ForcedTexWidth, Local::ForcedTexHeight),
+      colMovingPre);
     rBatch2D->End();
 
 

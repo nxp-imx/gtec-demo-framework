@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
-#include <FslBase/Transition/TransitionTimeSpan.hpp>
-#include <FslSimpleUI/Base/UnitTest/WindowMethodFlags.hpp>
+#include <FslBase/Time/TimeSpan.hpp>
 #include <FslSimpleUI/Base/System/UITree.hpp>
 #include <FslSimpleUI/Base/UnitTest/BaseWindowTest.hpp>
+#include <FslSimpleUI/Base/UnitTest/TestFixtureFslSimpleUIUITree.hpp>
+#include <FslSimpleUI/Base/UnitTest/WindowMethodFlags.hpp>
 
 class TestUITree_Window : public TestFixtureFslSimpleUIUITree
 {

@@ -32,42 +32,39 @@
  ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslBase/Math/Vector2.hpp>
 #include <FslUtil/OpenVG/Common.hpp>
 #include <VG/openvg.h>
-#include <FslBase/Math/Vector2.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::OpenVG
 {
-  namespace OpenVG
+  class VGFontBuffer
   {
-    class VGFontBuffer
-    {
-      VGFont m_font;
+    VGFont m_font;
 
-    public:
-      VGFontBuffer(const VGFontBuffer&) = delete;
-      VGFontBuffer& operator=(const VGFontBuffer&) = delete;
+  public:
+    VGFontBuffer(const VGFontBuffer&) = delete;
+    VGFontBuffer& operator=(const VGFontBuffer&) = delete;
 
-      //! @brief Create a uninitialized path buffer
-      VGFontBuffer();
+    //! @brief Create a uninitialized path buffer
+    VGFontBuffer();
 
-      //! @brief Create a initialized path buffer
-      explicit VGFontBuffer(const int32_t capacityHint);
+    //! @brief Create a initialized path buffer
+    explicit VGFontBuffer(const int32_t capacityHint);
 
-      ~VGFontBuffer();
+    ~VGFontBuffer();
 
-      //! @brief If a buffer is allocated this will releases it.
-      void Reset();
+    //! @brief If a buffer is allocated this will releases it.
+    void Reset();
 
-      //! @brief Reset the buffer to the suggested capacity
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
-      //! internally)
-      void Reset(const int32_t capacityHint);
+    //! @brief Reset the buffer to the suggested capacity
+    //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+    //! internally)
+    void Reset(const int32_t capacityHint);
 
-      VGPath GetHandle() const;
-    };
-  }
+    VGPath GetHandle() const;
+  };
 }
 
 #endif

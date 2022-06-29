@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
-#include "ModelViewer.hpp"
 #include <Shared/ModelViewer/OptionParser.hpp>
+#include "ModelViewer.hpp"
 
 namespace Fsl
 {

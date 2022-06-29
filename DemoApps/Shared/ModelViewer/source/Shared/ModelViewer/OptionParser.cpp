@@ -29,18 +29,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/ModelViewer/OptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
-#include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/IO/File.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Exceptions.hpp>
-#include <array>
+#include <Shared/ModelViewer/OptionParser.hpp>
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace Fsl

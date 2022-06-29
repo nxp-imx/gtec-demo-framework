@@ -31,12 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Optional.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkCpuData.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkGpuData.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkInfo.hpp>
 #include <Shared/UI/Benchmark/Persistence/Bench/AppBenchmarkRenderInfo.hpp>
 #include <ctime>
+#include <optional>
 #include <utility>
 
 namespace Fsl
@@ -45,14 +45,14 @@ namespace Fsl
   {
     AppBenchmarkInfo Info;
     AppBenchmarkCpuData CpuData;
-    Optional<AppBenchmarkGpuData> GpuData;
-    Optional<AppBenchmarkRenderInfo> RenderInfo;
+    std::optional<AppBenchmarkGpuData> GpuData;
+    std::optional<AppBenchmarkRenderInfo> RenderInfo;
     std::time_t Time{};
 
     AppBenchmarkData() = default;
 
-    explicit AppBenchmarkData(AppBenchmarkInfo info, AppBenchmarkCpuData cpuData, Optional<AppBenchmarkGpuData> gpuData,
-                              Optional<AppBenchmarkRenderInfo> renderInfo, const std::time_t time)
+    explicit AppBenchmarkData(AppBenchmarkInfo info, AppBenchmarkCpuData cpuData, std::optional<AppBenchmarkGpuData> gpuData,
+                              std::optional<AppBenchmarkRenderInfo> renderInfo, const std::time_t time)
       : Info(std::move(info))
       , CpuData(std::move(cpuData))
       , GpuData(std::move(gpuData))

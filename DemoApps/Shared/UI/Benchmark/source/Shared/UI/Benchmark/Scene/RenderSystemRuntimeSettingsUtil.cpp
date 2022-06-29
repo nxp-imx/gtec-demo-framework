@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,43 +34,54 @@
 #include <FslSimpleUI/Render/Base/IRenderSystemBase.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemInfo.hpp>
 #include <FslSimpleUI/Render/IMBatch/DrawReorderMethod.hpp>
-#include <FslSimpleUI/Render/IMBatch/IFlexRenderSystemConfig.hpp>
 #include <FslSimpleUI/Render/IMBatch/FlexRenderSystemConfig.hpp>
+#include <FslSimpleUI/Render/IMBatch/IFlexRenderSystemConfig.hpp>
 #include <Shared/UI/Benchmark/App/TestAppHost.hpp>
 
-namespace Fsl
+namespace Fsl::RenderSystemRuntimeSettingsUtil
 {
-  namespace RenderSystemRuntimeSettingsUtil
+  namespace
   {
-    void Apply(TestAppHost& rAppHost, const UI::RenderOptionFlags settings, const bool useSdf)
+    UI::RenderIMBatch::DrawReorderMethod SelectReorderMethod(const bool reorderEnabled, const bool preferFastReorder)
     {
-      const bool batch = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::Batch);
-      const bool fillBuffers = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::FillBuffers);
-      const bool depthBuffer = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::DepthBuffer);
-      const bool drawReorder = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::DrawReorder);
-      // const bool meshCaching = UI::RenderOptionFlagsUtil::IsEnabled(settings.Settings, UI::RenderOptionFlags::MeshCaching);
-
-      {    // update the material system if necessary
-        UIDemoAppMaterialConfig newConfig(useSdf, depthBuffer);
-        UIDemoAppMaterialConfig oldConfig = rAppHost.GetDefaultMaterialConfig();
-        if (newConfig != oldConfig)
-        {
-          rAppHost.SetDefaultMaterialConfig(newConfig);
-        }
+      if (!reorderEnabled)
+      {
+        return UI::RenderIMBatch::DrawReorderMethod::Disabled;
       }
-      {    // Update the render system
-        auto* pRenderSystem = rAppHost.TryGetRenderSystem();
-        auto* pFlexRenderSystemConfig = dynamic_cast<UI::RenderIMBatch::IFlexRenderSystemConfig*>(pRenderSystem);
-        if (pFlexRenderSystemConfig != nullptr)
-        {
-          const auto method = drawReorder ? UI::RenderIMBatch::DrawReorderMethod::LinearConstrained : UI::RenderIMBatch::DrawReorderMethod::Disabled;
 
-          UI::RenderIMBatch::FlexRenderSystemConfig newConfig(batch, fillBuffers, depthBuffer, method);
-          auto oldConfig = pFlexRenderSystemConfig->GetConfig();
-          if (oldConfig != newConfig)
-          {
-            pFlexRenderSystemConfig->SetConfig(newConfig);
-          }
+      return preferFastReorder ? UI::RenderIMBatch::DrawReorderMethod::LinearConstrained : UI::RenderIMBatch::DrawReorderMethod::SpatialGrid;
+    }
+  }
+
+  void Apply(TestAppHost& rAppHost, const UI::RenderOptionFlags settings, const bool useSdf)
+  {
+    const bool batch = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::Batch);
+    const bool fillBuffers = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::FillBuffers);
+    const bool depthBuffer = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::DepthBuffer);
+    const bool drawReorder = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::DrawReorder);
+    // const bool meshCaching = UI::RenderOptionFlagsUtil::IsEnabled(settings.Settings, UI::RenderOptionFlags::MeshCaching);
+    const bool preferFastReorder = UI::RenderOptionFlagsUtil::IsEnabled(settings, UI::RenderOptionFlags::PreferFastReorder);
+
+    {    // update the material system if necessary
+      UIDemoAppMaterialConfig newConfig(useSdf, depthBuffer);
+      UIDemoAppMaterialConfig oldConfig = rAppHost.GetDefaultMaterialConfig();
+      if (newConfig != oldConfig)
+      {
+        rAppHost.SetDefaultMaterialConfig(newConfig);
+      }
+    }
+    {    // Update the render system
+      auto* pRenderSystem = rAppHost.TryGetRenderSystem();
+      auto* pFlexRenderSystemConfig = dynamic_cast<UI::RenderIMBatch::IFlexRenderSystemConfig*>(pRenderSystem);
+      if (pFlexRenderSystemConfig != nullptr)
+      {
+        const auto method = SelectReorderMethod(drawReorder, preferFastReorder);
+
+        UI::RenderIMBatch::FlexRenderSystemConfig newConfig(batch, fillBuffers, depthBuffer, method);
+        auto oldConfig = pFlexRenderSystemConfig->GetConfig();
+        if (oldConfig != newConfig)
+        {
+          pFlexRenderSystemConfig->SetConfig(newConfig);
         }
       }
     }

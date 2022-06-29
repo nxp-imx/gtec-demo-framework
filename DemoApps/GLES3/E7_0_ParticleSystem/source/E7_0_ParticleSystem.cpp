@@ -41,10 +41,10 @@
  * Draws a Particle system
  */
 
+#include "E7_0_ParticleSystem.hpp"
+#include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslGraphics/Bitmap/Bitmap.hpp>
-#include "E7_0_ParticleSystem.hpp"
 #include <GLES3/gl3.h>
 #include <array>
 #include <cstdlib>
@@ -187,7 +187,7 @@ namespace Fsl
 
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
 
-    int glErr = glGetError();
+    const auto glErr = glGetError();
     if (GL_NO_ERROR != glErr)
     {
       FSLLOG3_ERROR("Errors While Drawing 0x{:x}", glErr);

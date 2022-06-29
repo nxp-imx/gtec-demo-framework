@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_BASICRENDERSYSTEM_HPP
 #define FSLGRAPHICS3D_BASICRENDER_BASICRENDERSYSTEM_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Span/ReadOnlyFlexSpan.hpp>
-#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics/Render/Basic/BasicBufferType.hpp>
+#include <FslGraphics/Render/Basic/IBasicHandleManager.hpp>
+#include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
 #include <FslGraphics3D/BasicRender/BasicRenderSystemCreateInfo.hpp>
 #include <FslGraphics3D/BasicRender/Buffer/BasicBufferManager.hpp>
 #include <FslGraphics3D/BasicRender/Material/BasicMaterialManager.hpp>
+#include <FslGraphics3D/BasicRender/Shader/BasicShaderManager.hpp>
 #include <FslGraphics3D/BasicRender/Texture/BasicTextureManager.hpp>
 #include <memory>
 
@@ -54,15 +57,17 @@ namespace Fsl
       {
         bool IsValid{false};
         std::shared_ptr<INativeDevice> Device;
+        BasicShaderManager Shaders;
         BasicTextureManager Textures;
         BasicBufferManager Buffers;
         BasicMaterialManager Materials;
 
         explicit DeviceResources(const Graphics3D::BasicRenderSystemCreateInfo& createInfo)
           : Device(createInfo.Device)
+          , Shaders(createInfo.Device)
           , Textures(createInfo.MaxFramesInFlight, createInfo.Device)
           , Buffers(createInfo.MaxFramesInFlight, createInfo.Device)
-          , Materials(createInfo.MaxFramesInFlight, createInfo.Device)
+          , Materials(createInfo.MaxFramesInFlight, createInfo.Device, Shaders)
         {
         }
 
@@ -79,6 +84,7 @@ namespace Fsl
           Buffers.DestroyDependentResources();
           Textures.DestroyDependentResources();
         }
+
         void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent)
         {
           switch (theEvent)
@@ -138,7 +144,41 @@ namespace Fsl
         }
       };
 
+      class HandleManager final : public IBasicHandleManager
+      {
+        BasicShaderManager* m_pShaders{nullptr};
+
+      public:
+        explicit HandleManager(BasicShaderManager* pShaders)
+          : m_pShaders(pShaders)
+        {
+        }
+
+        ~HandleManager() noexcept override
+        {
+          Dispose();
+        }
+
+        void Dispose() noexcept
+        {
+          m_pShaders = nullptr;
+        }
+
+        // IBasicHandleManager
+        bool DestroyHandle(const BasicShaderHandle handle) noexcept final
+        {
+          if (m_pShaders != nullptr)
+          {
+            return m_pShaders->DestroyShader(handle);
+          }
+          FSLLOG3_DEBUG_WARNING("Handle destroyed after the render system was shutdown");
+          return false;
+        }
+      };
+
+
       std::unique_ptr<DeviceResources> m_deviceResources;
+      std::shared_ptr<HandleManager> m_handleManager;
       DependentResources m_dependentResources;
 
       FrameRecord m_frame;
@@ -187,7 +227,11 @@ namespace Fsl
       std::shared_ptr<IBasicStaticBuffer> CreateBuffer(const ReadOnlyFlexVertexSpan& vertexSpan, const BasicBufferUsage usage) final;
       std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const ReadOnlyFlexVertexSpan& vertexSpan) final;
       std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const ReadOnlyFlexVertexSpan& vertexSpan, const uint32_t capacity) final;
+      std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const VertexDeclarationSpan vertexDeclaration, const uint32_t capacity) final;
       std::shared_ptr<IBasicStaticBuffer> CreateStaticBuffer(const ReadOnlyFlexVertexSpan& vertexSpan) final;
+
+      // Shaders
+      BasicShader CreateShader(const BasicShaderCreateInfo& createInfo) final;
 
       BasicMaterial CreateMaterial(const BasicMaterialCreateInfo& createInfo, const std::shared_ptr<INativeTexture2D>& texture,
                                    const bool isDynamic) final;

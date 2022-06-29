@@ -72,10 +72,13 @@ def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str,
 
     # Apply the commandline overrides (so the user gets the final say)
     buildDirSetByUser = False
+    buildDirId = None # Optional[int]
     if userCMakeConfig is not None:
         if userCMakeConfig.BuildDir is not None:
             buildDir = userCMakeConfig.BuildDir
             buildDirSetByUser = True
+        if userCMakeConfig.BuildDirId is not None:
+            buildDirId = userCMakeConfig.BuildDirId
         if userCMakeConfig.GeneratorName is not None:
             generatorName = userCMakeConfig.GeneratorName
         if userCMakeConfig.InstallPrefix is not None:
@@ -98,6 +101,6 @@ def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str,
     if isCheckMode:
         buildDir = checkDir
 
-    return GeneratorCMakeConfig(log, toolVersion, platformName, buildVariantConfig, userSetVariables, buildDir, buildDirSetByUser, checkDir,
+    return GeneratorCMakeConfig(log, toolVersion, platformName, buildVariantConfig, userSetVariables, buildDir, buildDirSetByUser, buildDirId, checkDir,
                                 generatorName, installPrefix, cmakeVersion, cmakeConfigGlobalArgs, cmakeConfigAppArgs,
                                 allowFindPackage)

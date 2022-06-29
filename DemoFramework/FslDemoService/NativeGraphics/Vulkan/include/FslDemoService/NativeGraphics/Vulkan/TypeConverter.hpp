@@ -35,22 +35,19 @@
 #include <FslGraphics/Render/Basic/BasicBufferType.hpp>
 #include <vulkan/vulkan.h>
 
-namespace Fsl
+namespace Fsl::TypeConverter
 {
-  namespace TypeConverter
+  template <>
+  inline VkBufferUsageFlags ChangeTo<VkBufferUsageFlags, BasicBufferType>(const BasicBufferType& value)
   {
-    template <>
-    inline VkBufferUsageFlags ChangeTo<VkBufferUsageFlags, BasicBufferType>(const BasicBufferType& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case BasicBufferType::Index:
-        return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-      case BasicBufferType::Vertex:
-        return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-      default:
-        throw NotSupportedException("Unsupported BasicBufferType");
-      }
+    case BasicBufferType::Index:
+      return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+    case BasicBufferType::Vertex:
+      return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    default:
+      throw NotSupportedException("Unsupported BasicBufferType");
     }
   }
 }

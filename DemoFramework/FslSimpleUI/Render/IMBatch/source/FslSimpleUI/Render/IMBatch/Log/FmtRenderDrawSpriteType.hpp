@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "../Debug/DebugRenderDrawSpriteType.hpp"
 #include <fmt/format.h>
+#include "../Debug/DebugRenderDrawSpriteType.hpp"
 
 namespace fmt
 {

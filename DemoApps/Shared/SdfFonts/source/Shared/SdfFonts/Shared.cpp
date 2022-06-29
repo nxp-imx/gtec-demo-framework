@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/SdfFonts/Shared.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslBase/Log/IO/FmtPath.hpp>
-#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
@@ -44,8 +43,8 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>
+#include <FslGraphics/Sprite/Font/TextureAtlasSpriteFont.hpp>
 #include <FslGraphics/TextureAtlas/TestAtlasTextureGenerator.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
 #include <FslSimpleUI/App/UISpriteToTextureUtil.hpp>
@@ -55,6 +54,7 @@
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
+#include <Shared/SdfFonts/Shared.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -140,10 +140,10 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::K:
-    {
-      m_uiRecord.KerningCheckBox->Toggle();
-      break;
-    }
+      {
+        m_uiRecord.KerningCheckBox->Toggle();
+        break;
+      }
     case VirtualKey::Delete:
       m_uiRecord.FontScaleSlider->SubValue(0.01f);
       break;
@@ -157,10 +157,10 @@ namespace Fsl
       m_uiRecord.FontScaleSlider->AddValue(0.5f);
       break;
     case VirtualKey::Space:
-    {
-      SetDefaultValues();
-      break;
-    }
+      {
+        SetDefaultValues();
+        break;
+      }
     default:
       break;
     }
@@ -343,7 +343,7 @@ namespace Fsl
     menuGrid->AddChild(shadowOffsetXSlider, 1, 7);
     menuGrid->AddChild(shadowOffsetYLabel, 0, 8);
     menuGrid->AddChild(shadowOffsetYSlider, 1, 8);
-    menuGrid->SetWidth(UI::DpLayoutSize1D(250));
+    menuGrid->SetWidth(UI::DpLayoutSize1D(DpValue(250)));
 
 
     auto menuBar = rUIFactory.CreateLeftBar(menuGrid);

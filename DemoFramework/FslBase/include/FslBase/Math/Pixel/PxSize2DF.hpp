@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE2DF_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE2DF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxSize1DF.hpp>
+#include <FslBase/Math/Pixel/PxVector2.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <algorithm>
 #include <cassert>
@@ -50,6 +52,12 @@ namespace Fsl
 
   public:
     constexpr PxSize2DF() noexcept = default;
+
+    explicit constexpr PxSize2DF(const PxVector2 value) noexcept
+      : m_width(value.X >= 0 ? value.X : 0)
+      , m_height(value.Y >= 0 ? value.Y : 0)
+    {
+    }
 
     constexpr PxSize2DF(const value_type width, const value_type height) noexcept
       : m_width(width >= 0.0f ? width : 0.0f)
@@ -108,24 +116,24 @@ namespace Fsl
       m_height = std::max(m_height + height, 0.0f);
     }
 
-    constexpr inline void SetMax(const PxSize2DF& value)
+    constexpr inline void SetMax(const PxSize2DF value)
     {
       m_width = std::max(m_width, value.m_width);
       m_height = std::max(m_height, value.m_height);
     }
 
 
-    constexpr bool operator==(const PxSize2DF& rhs) const noexcept
+    constexpr bool operator==(const PxSize2DF rhs) const noexcept
     {
       return m_width == rhs.m_width && m_height == rhs.m_height;
     }
 
-    constexpr bool operator!=(const PxSize2DF& rhs) const noexcept
+    constexpr bool operator!=(const PxSize2DF rhs) const noexcept
     {
       return m_width != rhs.m_width || m_height != rhs.m_height;
     }
 
-    static constexpr PxSize2DF Add(const PxSize2DF& sizePx, const PxSize2DF& valuePx)
+    static constexpr PxSize2DF Add(const PxSize2DF sizePx, const PxSize2DF valuePx)
     {
       // check for overflow
       assert(sizePx.m_width <= (std::numeric_limits<value_type>::max() - valuePx.m_width));
@@ -133,18 +141,24 @@ namespace Fsl
       return {sizePx.m_width + valuePx.m_width, sizePx.m_height + valuePx.m_height, OptimizationCheckFlag::NoCheck};
     }
 
-    static constexpr PxSize2DF Subtract(const PxSize2DF& sizePx, const PxSize2DF& valuePx)
+    static constexpr PxVector2 Subtract(const PxSize2DF sizePx, const PxSize2DF valuePx)
     {
-      return {std::max(sizePx.m_width - valuePx.m_width, 0.0f), std::max(sizePx.m_height - valuePx.m_height, 0.0f), OptimizationCheckFlag::NoCheck};
+      return {sizePx.m_width - valuePx.m_width, sizePx.m_height - valuePx.m_height};
     }
 
-    static constexpr PxSize2DF Divide(const PxSize2DF& sizePx, const value_type value)
+    static constexpr PxSize2DF Divide(const PxSize2DF sizePx, const PxSize1DF value)
+    {
+      assert(value.Value().Value != 0.0f);
+      return {sizePx.m_width / value.RawValue(), sizePx.m_height / value.RawValue(), OptimizationCheckFlag::NoCheck};
+    }
+
+    static constexpr PxSize2DF Divide(const PxSize2DF sizePx, const value_type value)
     {
       assert(value != 0.0f);
       return {sizePx.m_width / value, sizePx.m_height / value, OptimizationCheckFlag::NoCheck};
     }
 
-    constexpr PxSize2DF& operator+=(const PxSize2DF& valuePx) noexcept
+    constexpr PxSize2DF& operator+=(const PxSize2DF valuePx) noexcept
     {
       assert(m_width <= (std::numeric_limits<value_type>::max() - valuePx.m_width));
       assert(m_height <= (std::numeric_limits<value_type>::max() - valuePx.m_height));
@@ -153,37 +167,69 @@ namespace Fsl
       return *this;
     }
 
-    constexpr PxSize2DF& operator-=(const PxSize2DF& valuePx) noexcept
+    constexpr PxSize2DF& operator-=(const PxSize2DF valuePx) noexcept
     {
       m_width = std::max(m_width - valuePx.m_width, 0.0f);
       m_height = std::max(m_height - valuePx.m_height, 0.0f);
       return *this;
     }
 
-    static constexpr PxSize2DF Min(const PxSize2DF& val0, const PxSize2DF& val1)
+    static constexpr PxSize2DF Min(const PxSize2DF val0, const PxSize2DF val1)
     {
       return {std::min(val0.m_width, val1.m_width), std::min(val0.m_height, val1.m_height)};
     }
 
-    static constexpr PxSize2DF Max(const PxSize2DF& val0, const PxSize2DF& val1)
+    static constexpr PxSize2DF Max(const PxSize2DF val0, const PxSize2DF val1)
     {
       return {std::max(val0.m_width, val1.m_width), std::max(val0.m_height, val1.m_height)};
     }
   };
 
-  inline constexpr PxSize2DF operator+(const PxSize2DF& lhs, const PxSize2DF& rhs) noexcept
+  inline constexpr PxSize2DF operator+(const PxSize2DF lhs, const PxSize2DF rhs) noexcept
   {
     return PxSize2DF::Add(lhs, rhs);
   }
 
-  inline constexpr PxSize2DF operator-(const PxSize2DF& lhs, const PxSize2DF& rhs) noexcept
+  inline constexpr PxVector2 operator+(const PxVector2 lhs, const PxSize2DF rhs) noexcept
+  {
+    return {lhs.X + rhs.Width(), lhs.Y + rhs.Height()};
+  }
+
+  inline constexpr PxVector2 operator+(const PxSize2DF lhs, const PxVector2 rhs) noexcept
+  {
+    return {lhs.Width() + rhs.X, lhs.Height() + rhs.Y};
+  }
+
+
+  inline constexpr PxVector2 operator-(const PxSize2DF lhs, const PxSize2DF rhs) noexcept
   {
     return PxSize2DF::Subtract(lhs, rhs);
   }
 
-  inline constexpr PxSize2DF operator/(const PxSize2DF& lhs, const PxSize2DF::value_type rhs) noexcept
+  inline constexpr PxVector2 operator-(const PxVector2 lhs, const PxSize2DF rhs) noexcept
+  {
+    return {lhs.X - rhs.Width(), lhs.Y - rhs.Height()};
+  }
+
+  inline constexpr PxVector2 operator-(const PxSize2DF lhs, const PxVector2 rhs) noexcept
+  {
+    return {lhs.Width() - rhs.X, lhs.Height() - rhs.Y};
+  }
+
+
+  inline constexpr PxSize2DF operator/(const PxSize2DF lhs, const PxSize2DF::value_type rhs) noexcept
   {
     return PxSize2DF::Divide(lhs, rhs);
+  }
+
+  inline constexpr PxVector2 operator*(const PxVector2 lhs, const PxSize2DF rhs) noexcept
+  {
+    return {lhs.X * rhs.Width(), lhs.Y * rhs.Height()};
+  }
+
+  inline constexpr PxVector2 operator*(const PxSize2DF lhs, const PxVector2 rhs) noexcept
+  {
+    return {lhs.Width() * rhs.X, lhs.Height() * rhs.Y};
   }
 }
 

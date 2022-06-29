@@ -33,19 +33,16 @@
 
 #include <FslGraphics/Render/Basic/Adapter/BasicNativeBufferHandle.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class ABasicBufferTracker
   {
-    class ABasicBufferTracker
-    {
-    public:
-      // constexpr ABasicBuffer() = default;
-      constexpr explicit ABasicBufferTracker() = default;
+  public:
+    // constexpr ABasicBuffer() = default;
+    constexpr explicit ABasicBufferTracker() = default;
 
-      virtual ~ABasicBufferTracker() = default;
-    };
-  }
+    virtual ~ABasicBufferTracker() = default;
+  };
 }
 
 #endif

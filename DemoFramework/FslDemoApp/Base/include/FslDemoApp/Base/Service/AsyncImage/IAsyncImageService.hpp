@@ -33,13 +33,13 @@
 
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslBase/IO/Path.hpp>
 #include <future>
 #include <utility>
 

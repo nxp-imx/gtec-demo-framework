@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS3D_BASICRENDER_TEXTURE_ABASICTEXTURETRACKER_HPP
 #define FSLGRAPHICS3D_BASICRENDER_TEXTURE_ABASICTEXTURETRACKER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,50 +37,47 @@
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/NativeTextureAreaUtil.hpp>
 
-namespace Fsl
+namespace Fsl::Graphics3D
 {
-  namespace Graphics3D
+  class INativeTexture;
+
+  class ABasicTextureTracker
   {
-    class INativeTexture;
+    PxExtent3D m_extentPx;
+    bool m_textureCoordinatesFlipY{false};
 
-    class ABasicTextureTracker
+  public:
+    constexpr ABasicTextureTracker() = default;
+    constexpr explicit ABasicTextureTracker(const PxExtent3D& extentPx, const bool textureCoordinatesFlipY)
+      : m_extentPx(extentPx)
+      , m_textureCoordinatesFlipY(textureCoordinatesFlipY)
     {
-      PxExtent3D m_extentPx;
-      bool m_textureCoordinatesFlipY{false};
+    }
 
-    public:
-      constexpr ABasicTextureTracker() = default;
-      constexpr explicit ABasicTextureTracker(const PxExtent3D& extentPx, const bool textureCoordinatesFlipY)
-        : m_extentPx(extentPx)
-        , m_textureCoordinatesFlipY(textureCoordinatesFlipY)
+    virtual ~ABasicTextureTracker() = default;
+
+
+    constexpr PxExtent2D GetExtent2D() const
+    {
+      return {m_extentPx.Width, m_extentPx.Height};
+    }
+
+    constexpr PxExtent3D GetExtent3D() const
+    {
+      return m_extentPx;
+    }
+
+  protected:
+    NativeTextureArea DoCalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const
+    {
+      const auto extentPx = GetExtent2D();
+      if (!m_textureCoordinatesFlipY)
       {
+        return NativeTextureAreaUtil::CalcNativeTextureArea(imageRectanglePx, extentPx);
       }
-
-      virtual ~ABasicTextureTracker() = default;
-
-
-      constexpr PxExtent2D GetExtent2D() const
-      {
-        return {m_extentPx.Width, m_extentPx.Height};
-      }
-
-      constexpr PxExtent3D GetExtent3D() const
-      {
-        return m_extentPx;
-      }
-
-    protected:
-      NativeTextureArea DoCalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const
-      {
-        const auto extentPx = GetExtent2D();
-        if (!m_textureCoordinatesFlipY)
-        {
-          return NativeTextureAreaUtil::CalcNativeTextureArea(imageRectanglePx, extentPx);
-        }
-        return NativeTextureAreaUtil::CalcNativeTextureAreaYFlipped(imageRectanglePx, extentPx);
-      }
-    };
-  }
+      return NativeTextureAreaUtil::CalcNativeTextureAreaYFlipped(imageRectanglePx, extentPx);
+    }
+  };
 }
 
 #endif

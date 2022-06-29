@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Arguments/ArgumentParser.hpp>
 #include <FslBase/Arguments/ArgumentParserErrorStrings.hpp>
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
@@ -43,10 +43,10 @@
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <fmt/format.h>
 #include <string>
 #include <vector>
 #include "OptionRecord.hpp"
@@ -173,11 +173,11 @@ namespace Fsl
     {
       std::size_t maxLength = 0;
       auto itr = args.begin();
-      const std::deque<OptionRecord>::const_iterator itrEnd = args.end();
+      const auto itrEnd = args.end();
 
       while (itr != itrEnd)
       {
-        if ((optionGroupFlags & int32_t(itr->SourceOption.Group)) != 0)
+        if ((optionGroupFlags & static_cast<int32_t>(itr->SourceOption.Group)) != 0)
         {
           auto len = !itr->SourceOption.Name.empty() ? itr->SourceOption.Name.size() + 2 : 0;
           len += !itr->SourceOption.ShortName.empty() ? 4 : 0;
@@ -292,12 +292,12 @@ namespace Fsl
       }
 
       auto itr = options.begin();
-      const std::deque<OptionRecord>::const_iterator itrEnd = options.end();
+      const auto itrEnd = options.end();
 
       std::string strFormat(fmt::format("  {{:<{}}} = {{}}\n", maxNameLength));
       while (itr != itrEnd)
       {
-        if ((optionGroupFlags & int32_t(itr->SourceOption.Group)) != 0)
+        if ((optionGroupFlags & static_cast<int32_t>(itr->SourceOption.Group)) != 0)
         {
           // 4 due to the "  --"
           // 3 due to the " = "
@@ -612,31 +612,31 @@ namespace Fsl
           //  StringParseUtil::Parse(verbosityLevel, strOptArg.c_str());
           //  break;
         default:
-        {
-          // Parse the unknown option off to the supplied parsers
-          OptionParseResult result = OptionParseResult::NotHandled;
-          auto itr = inputOptionParsers.begin();
-          while (itr != inputOptionParsers.end() && result == OptionParseResult::NotHandled)
           {
-            try
+            // Parse the unknown option off to the supplied parsers
+            OptionParseResult result = OptionParseResult::NotHandled;
+            auto itr = inputOptionParsers.begin();
+            while (itr != inputOptionParsers.end() && result == OptionParseResult::NotHandled)
             {
-              // Remove the offset before we call the parser
-              const int32_t cmdId = encodedCommand.Id - itr->CmdIdOffset;
-              result = itr->Parser->Parse(cmdId, strOptArg);
+              try
+              {
+                // Remove the offset before we call the parser
+                const int32_t cmdId = UncheckedNumericCast<int32_t>(encodedCommand.Id) - itr->CmdIdOffset;
+                result = itr->Parser->Parse(cmdId, strOptArg);
+              }
+              catch (const std::exception& ex)
+              {
+                FSLLOG3_ERROR("Parse option failed with: {}", ex.what());
+                result = OptionParseResult::Failed;
+              }
+              ++itr;
             }
-            catch (const std::exception& ex)
+            if (result != OptionParseResult::Parsed)
             {
-              FSLLOG3_ERROR("Parse option failed with: {}", ex.what());
-              result = OptionParseResult::Failed;
+              ++optionErrors;
             }
-            ++itr;
+            break;
           }
-          if (result != OptionParseResult::Parsed)
-          {
-            ++optionErrors;
-          }
-          break;
-        }
         }
       }
 

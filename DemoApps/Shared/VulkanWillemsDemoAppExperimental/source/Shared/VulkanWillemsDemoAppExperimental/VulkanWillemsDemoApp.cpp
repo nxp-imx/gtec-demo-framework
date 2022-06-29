@@ -12,12 +12,12 @@
 // This class simulates the functionality found in VulkanExampleBase to make it easier
 // to port samples.
 
-#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
-#include <FslBase/Exceptions.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
@@ -847,7 +847,7 @@ namespace Fsl
       createInfo.codeSize = shaderBinary.size();
       createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderBinary.data());
 
-      return ShaderModule(device, createInfo);
+      return {device, createInfo};
     }
 
 

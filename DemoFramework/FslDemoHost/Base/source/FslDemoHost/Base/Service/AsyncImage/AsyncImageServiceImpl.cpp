@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceImpl.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplCreateInfo.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <functional>
 #include <utility>
 
@@ -44,12 +44,12 @@ namespace Fsl
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::ReadBitmapPromiseMessage>([this](auto& message) { ReadBitmap(message); });
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::ReadTexturePromiseMessage>([this](auto& message) { ReadTexture(message); });
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::WriteBitmapPromiseMessage>([this](auto& message) { Write(message); });
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::WriteExactBitmapImagePromiseMessage>(
-      [this](auto& message) { WriteExactImage(message); });
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::WriteExactBitmapImagePromiseMessage>([this](auto& message)
+                                                                                                        { WriteExactImage(message); });
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryReadBitmapPromiseMessage>([this](auto& message) { TryRead(message); });
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryWriteBitmapPromiseMessage>([this](auto& message) { TryWrite(message); });
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryWriteExactBitmapImagePromiseMessage>(
-      [this](auto& message) { TryWriteExactImage(message); });
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryWriteExactBitmapImagePromiseMessage>([this](auto& message)
+                                                                                                           { TryWriteExactImage(message); });
   }
 
 

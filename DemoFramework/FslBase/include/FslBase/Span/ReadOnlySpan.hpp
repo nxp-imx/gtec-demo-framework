@@ -1,7 +1,7 @@
 #ifndef FSLBASE_SPAN_READONLYSPAN_HPP
 #define FSLBASE_SPAN_READONLYSPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Attributes.hpp>
+#include <FslBase/Iterator/PointerConstIterator.hpp>
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <cassert>
@@ -45,7 +46,7 @@ namespace Fsl
   {
   public:
     constexpr ReadOnlySpanBase() noexcept = default;
-    static constexpr std::size_t extent = std::size_t(-1);
+    static constexpr std::size_t extent = static_cast<std::size_t>(-1);
   };
 
   // This is similar to C++20 Span
@@ -57,11 +58,13 @@ namespace Fsl
     using value_type = std::remove_cv_t<T>;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-    using reference = value_type&;
-    using const_reference = const value_type&;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
 
+    using const_iterator = PointerConstIterator<T>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     // Disabled and using a base class we can define (workaround until C++17)
     // static constexpr std::size_t extent = std::size_t(-1);
@@ -100,12 +103,17 @@ namespace Fsl
       return m_length;
     }
 
+    constexpr size_type byte_size() const noexcept
+    {
+      return m_length * sizeof(T);
+    }
+
     constexpr bool empty() const noexcept
     {
       return m_length == 0;
     }
 
-    constexpr const_reference operator[](size_type pos) const
+    constexpr const_reference operator[](size_type pos) const noexcept
     {
       assert(pos < size());
       assert(m_pData != nullptr);
@@ -127,13 +135,13 @@ namespace Fsl
       return m_length;
     }
 
-    constexpr const_reference back() const
+    constexpr const_reference back() const noexcept
     {
       assert(!empty());
       return m_pData[m_length - 1];
     }
 
-    constexpr const_reference front() const
+    constexpr const_reference front() const noexcept
     {
       assert(!empty());
       return m_pData[0];
@@ -146,6 +154,14 @@ namespace Fsl
       {
         throw std::out_of_range("pos out of range");
       }
+      auto maxLength = (m_length - pos);
+      return ReadOnlySpan(m_pData + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
+    }
+
+    //! @brief Returns a view of the subspan [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
+    constexpr ReadOnlySpan unsafe_subspan(size_type pos = 0, size_type count = extent) const noexcept
+    {
+      assert(pos <= m_length);
       auto maxLength = (m_length - pos);
       return ReadOnlySpan(m_pData + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
     }
@@ -166,13 +182,13 @@ namespace Fsl
     }
 
     //! @note  This functionality is not present on C++20 span
-    int compare(size_type pos1, size_type count1, ReadOnlySpan v) const
+    constexpr int compare(size_type pos1, size_type count1, ReadOnlySpan v) const
     {
       return subspan(pos1, count1).compare(v);
     }
 
     //! @note  This functionality is not present on C++20 span
-    int compare(size_type pos1, size_type count1, ReadOnlySpan v, size_type pos2, size_type count2) const
+    constexpr int compare(size_type pos1, size_type count1, ReadOnlySpan v, size_type pos2, size_type count2) const
     {
       return subspan(pos1, count1).compare(v.subspan(pos2, count2));
     }
@@ -187,7 +203,7 @@ namespace Fsl
     {
       if (value.m_length <= m_length)
       {
-        return subspan(0, value.m_length).compare(value) == 0;
+        return unsafe_subspan(0, value.m_length).compare(value) == 0;
       }
       return false;
     }
@@ -202,7 +218,7 @@ namespace Fsl
     {
       if (value.m_length <= m_length)
       {
-        return subspan(m_length - value.m_length, value.m_length).compare(value) == 0;
+        return unsafe_subspan(m_length - value.m_length, value.m_length).compare(value) == 0;
       }
       return false;
     }
@@ -230,6 +246,56 @@ namespace Fsl
         return (pCurrent >= m_pData ? static_cast<size_type>(pCurrent - m_pData) : extent);
       }
       return extent;
+    }
+
+
+    constexpr const_iterator begin() const noexcept
+    {
+#ifdef NDEBUG
+      return const_iterator(m_pData);
+#else
+      return {m_pData, m_pData, m_length};
+#endif
+    }
+
+    constexpr const_iterator end() const noexcept
+    {
+#ifdef NDEBUG
+      return const_iterator(m_pData + m_length);
+#else
+      return {m_pData + m_length, m_pData, m_length};
+#endif
+    }
+
+    constexpr const_iterator cbegin() const noexcept
+    {
+      return begin();
+    }
+
+    constexpr const_iterator cend() const noexcept
+    {
+      return end();
+    }
+
+    constexpr const_reverse_iterator rbegin() const noexcept
+    {
+      return const_reverse_iterator(end());
+    }
+
+
+    constexpr const_reverse_iterator rend() const noexcept
+    {
+      return const_reverse_iterator(begin());
+    }
+
+    constexpr const_reverse_iterator crbegin() const noexcept
+    {
+      return rbegin();
+    }
+
+    constexpr const_reverse_iterator crend() const noexcept
+    {
+      return rend();
     }
 
   private:
@@ -266,7 +332,7 @@ namespace Fsl
   // Operator ==
   //! @note  This functionality is not present on C++20 span
   template <typename T>
-  inline bool operator==(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
+  constexpr inline bool operator==(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
   {
     return lhs.equals(rhs);
   }
@@ -274,7 +340,7 @@ namespace Fsl
   // Operator !=
   //! @note  This functionality is not present on C++20 span
   template <typename T>
-  inline bool operator!=(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
+  constexpr inline bool operator!=(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
   {
     return !(lhs == rhs);
   }
@@ -282,7 +348,7 @@ namespace Fsl
   // Operator <
   //! @note  This functionality is not present on C++20 span
   template <typename T>
-  inline bool operator<(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
+  constexpr inline bool operator<(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
   {
     return lhs.compare(rhs) < 0;
   }
@@ -290,7 +356,7 @@ namespace Fsl
   // Operator <=
   //! @note  This functionality is not present on C++20 span
   template <typename T>
-  inline bool operator<=(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
+  constexpr inline bool operator<=(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
   {
     return lhs.compare(rhs) <= 0;
   }
@@ -298,7 +364,7 @@ namespace Fsl
   // Operator >
   template <typename T>
   //! @note  This functionality is not present on C++20 span
-  inline bool operator>(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
+  constexpr inline bool operator>(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
   {
     return rhs < lhs;
   }
@@ -306,7 +372,7 @@ namespace Fsl
   // Operator >=
   template <typename T>
   //! @note  This functionality is not present on C++20 span
-  inline bool operator>=(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
+  constexpr inline bool operator>=(const ReadOnlySpan<T>& lhs, const ReadOnlySpan<T>& rhs) noexcept
   {
     return rhs <= lhs;
   }

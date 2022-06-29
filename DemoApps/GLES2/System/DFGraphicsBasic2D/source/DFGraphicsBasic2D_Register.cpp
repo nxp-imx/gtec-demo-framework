@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
-#include "DFGraphicsBasic2D.hpp"
 #include <array>
+#include "DFGraphicsBasic2D.hpp"
 
 namespace Fsl
 {

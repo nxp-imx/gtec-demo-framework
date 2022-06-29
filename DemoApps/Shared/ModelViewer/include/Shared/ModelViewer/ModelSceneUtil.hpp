@@ -1,7 +1,7 @@
 #ifndef SHARED_MODELVIEWER_MODELSCENEUTIL_HPP
 #define SHARED_MODELVIEWER_MODELSCENEUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,41 +36,38 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 
-namespace Fsl
+namespace Fsl::ModelSceneUtil
 {
-  namespace ModelSceneUtil
+  struct ModelLoaderConfig
   {
-    struct ModelLoaderConfig
+    IO::Path ModelFileName;
+    IO::Path TextureFileName;
+    IO::Path TextureSpecularFileName;
+    IO::Path TextureGloss;
+    IO::Path TextureNormalFileName;
+    float ScaleMod{1.0f};
+  };
+
+  struct RenderConfig
+  {
+    Vector3 Rotation;
+    Vector3 RotationSpeed;
+    bool AllowBackfaceCull{false};
+
+    constexpr RenderConfig() = default;
+
+    constexpr RenderConfig(const Vector3& rotation, const Vector3& rotationSpeed, const bool allowBackfaceCull)
+      : Rotation(rotation)
+      , RotationSpeed(rotationSpeed)
+      , AllowBackfaceCull(allowBackfaceCull)
     {
-      IO::Path ModelFileName;
-      IO::Path TextureFileName;
-      IO::Path TextureSpecularFileName;
-      IO::Path TextureGloss;
-      IO::Path TextureNormalFileName;
-      float ScaleMod{1.0f};
-    };
-
-    struct RenderConfig
-    {
-      Vector3 Rotation;
-      Vector3 RotationSpeed;
-      bool AllowBackfaceCull{false};
-
-      constexpr RenderConfig() = default;
-
-      constexpr RenderConfig(const Vector3& rotation, const Vector3& rotationSpeed, const bool allowBackfaceCull)
-        : Rotation(rotation)
-        , RotationSpeed(rotationSpeed)
-        , AllowBackfaceCull(allowBackfaceCull)
-      {
-      }
-    };
+    }
+  };
 
 
-    ModelLoaderConfig PrepareCustomModel(RenderConfig& rRenderConfig, const IContentManager& contentManager, const IO::Path& customModelPath);
-    ModelLoaderConfig PrepareSceneModel(RenderConfig& rRenderConfig, Graphics3D::ArcballCamera& rCamera, const IContentManager& contentManager,
-                                        const int32_t scene, const IO::Path& defaultScenePath);
-  }
+  ModelLoaderConfig PrepareCustomModel(RenderConfig& rRenderConfig, const IContentManager& contentManager, const IO::Path& customModelPath);
+  ModelLoaderConfig PrepareSceneModel(RenderConfig& rRenderConfig, Graphics3D::ArcballCamera& rCamera, const IContentManager& contentManager,
+                                      const int32_t scene, const IO::Path& defaultScenePath);
 }
 
 #endif

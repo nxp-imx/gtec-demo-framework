@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASIC_BASICTHEMECONTROLFACTORY_HPP
 #define FSLSIMPLEUI_THEME_BASIC_BASICTHEMECONTROLFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,16 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Math/Dp/DpSize.hpp>
 #include <FslBase/Math/ConstrainedValue.hpp>
+#include <FslBase/Math/Dp/DpSize2D.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslGraphics/Render/NineSliceAtlasTexture2D.hpp>
 #include <FslGraphics/Sprite/IContentSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
-#include <FslGraphics/Render/NineSliceAtlasTexture2D.hpp>
+#include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Basic/BasicThemeColors.hpp>
 #include <memory>
 #include <utility>
@@ -85,7 +85,7 @@ namespace Fsl
                                  const bool usePrimaryPalette);
         ~BasicThemeControlFactory() override;
 
-        std::shared_ptr<WindowContext> GetContext() const final
+        const std::shared_ptr<WindowContext>& GetContext() const final
         {
           return m_context;
         }
@@ -209,6 +209,11 @@ namespace Fsl
 
         // ----- CreateBackgroundWindow
 
+        std::shared_ptr<Background> CreateBackgroundWindow(const WindowType windowType) final
+        {
+          return CreateBackgroundWindow(windowType, {}, UI::ItemAlignment::Near);
+        }
+
         std::shared_ptr<Background> CreateBackgroundWindow(const WindowType windowType, const std::shared_ptr<BaseWindow>& content) final
         {
           return CreateBackgroundWindow(windowType, content, UI::ItemAlignment::Near);
@@ -225,6 +230,13 @@ namespace Fsl
 
         // ----- CreateFloatingButton
         std::shared_ptr<ButtonBase> CreateFloatingButton(const FloatingButtonType type) final;
+
+        // ----- CreateFmtValueLabel<uint8_t>
+        std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value) final;
+        std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, const StringViewLite& strViewFormat) final;
+        std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, std::string&& strFormat) final;
+        std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, const char* const pszFormat) final;
+        std::shared_ptr<FmtValueLabel<uint8_t>> CreateFmtValueLabel(const uint8_t value, const std::string& strFormat) final;
 
         // ----- CreateFmtValueLabel<int32_t>
         std::shared_ptr<FmtValueLabel<int32_t>> CreateFmtValueLabel(const int32_t value) final;
@@ -246,6 +258,12 @@ namespace Fsl
         std::shared_ptr<FmtValueLabel<float>> CreateFmtValueLabel(const float value, std::string&& strFormat) final;
         std::shared_ptr<FmtValueLabel<float>> CreateFmtValueLabel(const float value, const char* const pszFormat) final;
         std::shared_ptr<FmtValueLabel<float>> CreateFmtValueLabel(const float value, const std::string& strFormat) final;
+
+
+        // ----- CreateSlider<uint8_t>
+
+        std::shared_ptr<Slider<uint8_t>> CreateSlider(const LayoutOrientation orientation, const ConstrainedValue<uint8_t>& value,
+                                                      const SliderConfig& config = {}) final;
 
         // ----- CreateSlider<int32_t>
 

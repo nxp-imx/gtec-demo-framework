@@ -31,9 +31,9 @@
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
+#include <array>
 #include "InputEvents.hpp"
 #include "InputEventsOptionParser.hpp"
-#include <array>
 
 namespace Fsl
 {

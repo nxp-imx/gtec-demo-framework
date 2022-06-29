@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +31,28 @@
 
 #include <FslGraphics/Debug/Render/DebugBlendState.hpp>
 
-namespace Fsl
+namespace Fsl::Debug
 {
-  namespace Debug
+  const char* TryToString(const BlendState& value)
   {
-    const char* TryToString(const BlendState& value)
+    switch (value)
     {
-      switch (value)
-      {
-      case BlendState::Additive:
-        return "BlendState::Additive";
-      case BlendState::AlphaBlend:
-        return "BlendState::AlphaBlend";
-      case BlendState::NonPremultiplied:
-        return "BlendState::NonPremultiplied";
-      case BlendState::Opaque:
-        return "BlendState::Opaque";
-      default:
-        return nullptr;
-      }
+    case BlendState::Additive:
+      return "BlendState::Additive";
+    case BlendState::AlphaBlend:
+      return "BlendState::AlphaBlend";
+    case BlendState::NonPremultiplied:
+      return "BlendState::NonPremultiplied";
+    case BlendState::Opaque:
+      return "BlendState::Opaque";
+    default:
+      return nullptr;
     }
+  }
 
-    const char* ToString(const BlendState& value)
-    {
-      const auto* const psz = TryToString(value);
-      return psz != nullptr ? psz : "Unknown";
-    }
+  const char* ToString(const BlendState& value)
+  {
+    const auto* const psz = TryToString(value);
+    return psz != nullptr ? psz : "Unknown";
   }
 }

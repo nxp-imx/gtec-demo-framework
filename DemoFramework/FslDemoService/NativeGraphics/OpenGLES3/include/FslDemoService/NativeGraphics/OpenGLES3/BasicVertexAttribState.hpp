@@ -1,7 +1,7 @@
 #ifndef FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_BASICVERTEXATTRIBSTATE_HPP
 #define FSLDEMOSERVICE_NATIVEGRAPHICS_OPENGLES3_BASICVERTEXATTRIBSTATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,40 +33,37 @@
 
 #include <GLES3/gl3.h>
 
-namespace Fsl
+namespace Fsl::GLES3
 {
-  namespace GLES3
+  struct BasicVertexAttribState
   {
-    struct BasicVertexAttribState
+    // The actual state of the attrib index
+    GLint Size{0};
+    GLint Type{0};
+    bool Normalized{false};
+    GLint Stride{0};
+    const GLvoid* Pointer{nullptr};
+
+    constexpr BasicVertexAttribState() noexcept = default;
+    constexpr BasicVertexAttribState(const GLint size, const GLint type, const bool normalized, const GLint stride, const GLvoid* pointer) noexcept
+      : Size(size)
+      , Type(type)
+      , Normalized(normalized)
+      , Stride(stride)
+      , Pointer(pointer)
     {
-      // The actual state of the attrib index
-      GLint Size{0};
-      GLint Type{0};
-      bool Normalized{false};
-      GLint Stride{0};
-      const GLvoid* Pointer{nullptr};
+    }
 
-      constexpr BasicVertexAttribState() noexcept = default;
-      constexpr BasicVertexAttribState(const GLint size, const GLint type, const bool normalized, const GLint stride, const GLvoid* pointer) noexcept
-        : Size(size)
-        , Type(type)
-        , Normalized(normalized)
-        , Stride(stride)
-        , Pointer(pointer)
-      {
-      }
+    constexpr bool operator==(const BasicVertexAttribState& rhs) const noexcept
+    {
+      return Size == rhs.Size && Type == rhs.Type && Normalized == rhs.Normalized && Stride == rhs.Stride && Pointer == rhs.Pointer;
+    }
 
-      constexpr bool operator==(const BasicVertexAttribState& rhs) const noexcept
-      {
-        return Size == rhs.Size && Type == rhs.Type && Normalized == rhs.Normalized && Stride == rhs.Stride && Pointer == rhs.Pointer;
-      }
-
-      constexpr bool operator!=(const BasicVertexAttribState& rhs) const noexcept
-      {
-        return !(*this == rhs);
-      }
-    };
-  }
+    constexpr bool operator!=(const BasicVertexAttribState& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+  };
 }
 
 #endif

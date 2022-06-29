@@ -29,8 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/Log/Math/Pixel/LogPxExtent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

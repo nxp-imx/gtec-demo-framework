@@ -29,13 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Bitmap/BitmapUtil.hpp>
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginFrameInfo.hpp>
-#include <FslGraphics/Render/Basic/Adapter/BasicNativeDependentCreateInfo.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsBeginFrameInfo.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsDependentCreateInfo.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsDeviceCreateInfo.hpp>
@@ -47,7 +44,13 @@
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsServiceControl.hpp>
 #include <FslDemoService/NativeGraphics/Base/NativeGraphicsDeviceCreateInfo.hpp>
 #include <FslDemoService/Profiler/DefaultProfilerColors.hpp>
+#include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Bitmap/BitmapUtil.hpp>
+#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeBeginFrameInfo.hpp>
+#include <FslGraphics/Render/Basic/Adapter/BasicNativeDependentCreateInfo.hpp>
+#include <algorithm>
 #include <cassert>
 #include <limits>
 
@@ -94,13 +97,13 @@ namespace Fsl
     ThreadLocalService::Update();
     if (m_profilerService)
     {
-      uint32_t batchDrawCount = 0;
-      uint32_t batchVertices = 0;
+      int32_t batchDrawCount = 0;
+      int32_t batchVertices = 0;
       if (m_resources.NativeBatch2D)
       {
         Batch2DStats stats = m_resources.NativeBatch2D->GetStats();
-        batchDrawCount = stats.Native.DrawCalls;
-        batchVertices = stats.Native.Vertices;
+        batchDrawCount = UncheckedNumericCast<int32_t>(std::min(stats.Native.DrawCalls, 0x7FFFFFFFu));
+        batchVertices = UncheckedNumericCast<int32_t>(std::min(stats.Native.Vertices, 0x7FFFFFFFu));
       }
 
       m_profilerService->Set(m_hProfilerBatchDrawCalls, batchDrawCount);
@@ -116,7 +119,7 @@ namespace Fsl
       throw UsageErrorException("Not linked to native service");
     }
 
-    const Rectangle srcRectangle(0, 0, m_windowMetrics.ExtentPx.Width, m_windowMetrics.ExtentPx.Height);
+    const Rectangle srcRectangle(0, 0, NumericCast<int32_t>(m_windowMetrics.ExtentPx.Width), NumericCast<int32_t>(m_windowMetrics.ExtentPx.Height));
     Capture(rBitmap, desiredPixelFormat, srcRectangle);
   }
 
@@ -262,7 +265,7 @@ namespace Fsl
     }
     m_apiResources.IsValid = true;
 
-    NativeGraphicsServiceDeque::const_iterator itr = m_nativeGraphicsServices.begin();
+    auto itr = m_nativeGraphicsServices.begin();
     while (itr != m_nativeGraphicsServices.end() && !m_apiResources.NativeService)
     {
       if ((*itr)->IsSupported(activeAPI))

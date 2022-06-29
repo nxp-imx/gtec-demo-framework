@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclaration.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/Render/Basic/Material/BasicMaterialVariableDeclaration.hpp>
 #include <FslGraphics/Render/Basic/Material/BasicMaterialVariableElementFormatUtil.hpp>
 #include <algorithm>
 #include <cassert>
@@ -62,7 +62,7 @@ namespace Fsl
     {
       // We expect the element offsets to be in order: smallest -> largest
       uint32_t maxOffset = 0;
-      const auto count = uint32_t(elements.size());
+      const auto count = static_cast<uint32_t>(elements.size());
       for (uint32_t i = 0; i < count; ++i)
       {
         auto offset = elements[i].Offset + BasicMaterialVariableElementFormatUtil::GetBytesPerElement(elements[i].Format);
@@ -256,7 +256,7 @@ namespace Fsl
 
   BasicMaterialVariableDeclarationSpan BasicMaterialVariableDeclaration::AsSpan() const
   {
-    return BasicMaterialVariableDeclarationSpan(ReadOnlySpanUtil::AsSpan(m_elements), m_stride, OptimizationCheckFlag::NoCheck);
+    return {ReadOnlySpanUtil::AsSpan(m_elements), m_stride, OptimizationCheckFlag::NoCheck};
   }
 
 

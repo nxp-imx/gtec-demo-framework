@@ -48,17 +48,19 @@ namespace Fsl
     std::shared_ptr<UI::Switch> SwitchFillBuffers;
     std::shared_ptr<UI::Switch> SwitchDepthBuffer;
     std::shared_ptr<UI::Switch> SwitchDrawReorder;
+    std::shared_ptr<UI::Switch> SwitchPreferFastReorder;
     std::shared_ptr<UI::Switch> SwitchMeshCaching;
 
 
     RenderOptionControls() = default;
     RenderOptionControls(std::shared_ptr<UI::Switch> switchBatch, std::shared_ptr<UI::Switch> switchFillBuffers,
                          std::shared_ptr<UI::Switch> switchDepthBuffer, std::shared_ptr<UI::Switch> switchDrawReorder,
-                         std::shared_ptr<UI::Switch> switchMeshCaching)
+                         std::shared_ptr<UI::Switch> switchRenderOptionPreferFastReorder, std::shared_ptr<UI::Switch> switchMeshCaching)
       : SwitchBatch(std::move(switchBatch))
       , SwitchFillBuffers(std::move(switchFillBuffers))
       , SwitchDepthBuffer(std::move(switchDepthBuffer))
       , SwitchDrawReorder(std::move(switchDrawReorder))
+      , SwitchPreferFastReorder(std::move(switchRenderOptionPreferFastReorder))
       , SwitchMeshCaching(std::move(switchMeshCaching))
     {
     }

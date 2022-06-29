@@ -1,7 +1,7 @@
 #ifndef FSLBASE_ARGUMENTS_ARGUMENTPARSER_HPP
 #define FSLBASE_ARGUMENTS_ARGUMENTPARSER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,25 +39,22 @@
 #include <cstdint>
 #include <deque>
 
-namespace Fsl
+namespace Fsl::Arguments
 {
-  namespace Arguments
-  {
-    struct ParseErrorInfo;
+  struct ParseErrorInfo;
 
-    namespace ArgumentParser
-    {
-      //! @brief Try to parse the argument list into commands.
-      //! @param rEncodedCommands (the parsed argument commands)
-      //! @param args = the arguments as a span of valid string view lites pointers.
-      //! @param commands a list of valid commands.
-      //! @param pErrorInfo a optional structure that will be filled with extra error information in case a error occurs.
-      //! @note BEWARE: this does not skip the initial argument, so if you are parsing parameters directly from the main ensure that you
-      //!               do argc-1, argv+1
-      ParseResult TryParse(std::deque<EncodedCommand>& rEncodedCommands, const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
-                           ParseErrorInfo* pErrorInfo = nullptr);
-    };
-  }
+  namespace ArgumentParser
+  {
+    //! @brief Try to parse the argument list into commands.
+    //! @param rEncodedCommands (the parsed argument commands)
+    //! @param args = the arguments as a span of valid string view lites pointers.
+    //! @param commands a list of valid commands.
+    //! @param pErrorInfo a optional structure that will be filled with extra error information in case a error occurs.
+    //! @note BEWARE: this does not skip the initial argument, so if you are parsing parameters directly from the main ensure that you
+    //!               do argc-1, argv+1
+    ParseResult TryParse(std::deque<EncodedCommand>& rEncodedCommands, const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
+                         ParseErrorInfo* pErrorInfo = nullptr);
+  };
 }
 
 #endif

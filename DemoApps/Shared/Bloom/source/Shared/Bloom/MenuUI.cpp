@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/Bloom/MenuUI.hpp>
-#include <Shared/Bloom/OptionParser.hpp>
 #include <FslSimpleUI/App/Theme/ThemeSelector.hpp>
-#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
+#include <Shared/Bloom/MenuUI.hpp>
+#include <Shared/Bloom/OptionParser.hpp>
 
 namespace Fsl
 {
@@ -185,7 +185,7 @@ namespace Fsl
     auto layoutMenu = std::make_shared<UI::StackLayout>(context);
     {
       // Create the outer stack for the menu
-      layoutMenu->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+      layoutMenu->SetOrientation(UI::LayoutOrientation::Vertical);
       layoutMenu->SetAlignmentX(UI::ItemAlignment::Near);
       layoutMenu->SetAlignmentY(UI::ItemAlignment::Near);
 
