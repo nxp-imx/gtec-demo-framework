@@ -1,5 +1,9 @@
 # Releases
 
+## Release 6.0.1
+
+* Minor bugfix to OpenVG/NativeGraphicsBasic2D
+
 ## Release 6.0.0
 
 * Samples

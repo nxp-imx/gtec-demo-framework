@@ -1,5 +1,9 @@
 # Latest version
 
+## Release 6.0.1
+
+* Minor bugfix to OpenVG/NativeGraphicsBasic2D
+
 ## Release 6.0
 
 * Upgraded OpenCV to 4.6 on windows.
