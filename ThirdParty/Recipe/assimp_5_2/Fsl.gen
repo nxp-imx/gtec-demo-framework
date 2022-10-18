@@ -8,8 +8,8 @@
       <!-- Find is disabled due to a error in the assimp recipe -->
       <ExperimentalRecipe Name="assimp" Version="5.2" Find="False" FindVersion="5.0">
         <Pipeline>
-          <Download URL="https://github.com/assimp/assimp/archive/v5.2.4.tar.gz" To="assimp-5.2.4.tar.gz" Hash="6a4ff75dc727821f75ef529cea1c4fc0a7b5fc2e0a0b2ff2f6b7993fe6cb54ba"/> 
-          <Unpack File="assimp-5.2.4.tar.gz" OutputPath="assimp-5.2.4"/>
+          <Download URL="https://github.com/assimp/assimp/archive/v5.2.5.tar.gz" To="assimp-5.2.5.tar.gz" Hash="b5219e63ae31d895d60d98001ee5bb809fb2c7b2de1e7f78ceeb600063641e1a"/> 
+          <Unpack File="assimp-5.2.5.tar.gz" OutputPath="assimp-5.2.5"/>
           <!-- We use a workaround to build this -->
           <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DBUILD_SHARED_LIBS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_BUILD_ZLIB=ON" OutputPath="_Install"/>
         </Pipeline>
@@ -28,10 +28,10 @@
     <Platform Name="Ubuntu;QNX" Supported="true">
       <Dependency Name="zlib"/>
       <!-- Find is disabled due to a error in the assimp recipe -->
-      <ExperimentalRecipe Name="assimp" Version="5.2.4" Find="false" FindVersion="5.0">
+      <ExperimentalRecipe Name="assimp" Version="5.2.5" Find="false" FindVersion="5.0">
         <Pipeline>
-          <Download URL="https://github.com/assimp/assimp/archive/v5.2.4.tar.gz" To="assimp-5.2.4.tar.gz" Hash="6a4ff75dc727821f75ef529cea1c4fc0a7b5fc2e0a0b2ff2f6b7993fe6cb54ba"/> 
-          <Unpack File="assimp-5.2.4.tar.gz" OutputPath="assimp-5.2.4"/>
+          <Download URL="https://github.com/assimp/assimp/archive/v5.2.5.tar.gz" To="assimp-5.2.5.tar.gz" Hash="b5219e63ae31d895d60d98001ee5bb809fb2c7b2de1e7f78ceeb600063641e1a"/> 
+          <Unpack File="assimp-5.2.5.tar.gz" OutputPath="assimp-5.2.5"/>
           <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
@@ -47,10 +47,10 @@
     <Platform Name="Windows" Supported="true">
       <Dependency Name="zlib"/>
       <!-- Find is disabled due to a error in the assimp recipe -->
-      <ExperimentalRecipe Name="assimp" Version="5.2.4" Find="false" FindVersion="5.2">
+      <ExperimentalRecipe Name="assimp" Version="5.2.5" Find="false" FindVersion="5.2">
         <Pipeline>
-          <Download URL="https://github.com/assimp/assimp/archive/v5.2.4.tar.gz" To="assimp-5.2.4.tar.gz" Hash="6a4ff75dc727821f75ef529cea1c4fc0a7b5fc2e0a0b2ff2f6b7993fe6cb54ba"/> 
-          <Unpack File="assimp-5.2.4.tar.gz" OutputPath="assimp-5.2.4"/>
+          <Download URL="https://github.com/assimp/assimp/archive/v5.2.5.tar.gz" To="assimp-5.2.5.tar.gz" Hash="b5219e63ae31d895d60d98001ee5bb809fb2c7b2de1e7f78ceeb600063641e1a"/> 
+          <Unpack File="assimp-5.2.5.tar.gz" OutputPath="assimp-5.2.5"/>
           <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>

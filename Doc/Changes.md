@@ -1,5 +1,12 @@
 # Latest version
 
+## Release 6.0.2
+
+* Forward compatibility with fmt 9.x
+* Upgraded assimp to 5.2.5 for gcc compatibility fix.
+* Fixed openvx recipe as its repository was changed.
+* Fixed openexr recipe as its repository was changed.
+
 ## Release 6.0.1
 
 * Minor bugfix to OpenVG/NativeGraphicsBasic2D

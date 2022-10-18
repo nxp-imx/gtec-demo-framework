@@ -49,6 +49,13 @@ fi
 echo FSL_COVERITY_DIR=$FSL_COVERITY_DIR
 
 echo ***************************
+
+if [ -n "${FSL_COVERITY_BIN_DIR+1}" ]; then
+  echo Adding coverity directory at $FSL_COVERITY_BIN_DIR to path
+  PATH=$PATH:$FSL_COVERITY_BIN_DIR
+fi
+
+echo ***************************
 echo *** Coverity: Configure ***
 echo ***************************
 
@@ -59,7 +66,7 @@ echo *** Coverity: Build  ***
 echo ************************
 
 cov-build --dir $FSL_COVERITY_DIR FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
-rem cov-build --dir $FSL_COVERITY_DIR FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigGlobalArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
+# cov-build --dir $FSL_COVERITY_DIR FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM --CMakeConfigGlobalArgs="-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++"
 
 echo **************************
 echo *** Coverity: Analyze  ***
