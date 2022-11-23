@@ -34,6 +34,7 @@
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElements.hpp>
 #include <algorithm>
+#include <iterator>
 
 namespace Fsl::GLES2
 {
@@ -92,7 +93,8 @@ namespace Fsl::GLES2
       result.Entries[i] = vertexElementAttribConfigs[i];
     }
     // sort the entries based on attrib index (low to high)
-    std::sort(result.Entries.begin(), result.Entries.begin() + UncheckedNumericCast<std::ptrdiff_t>(convertedSize),
+    auto itrEnd = std::next(result.Entries.begin(), UncheckedNumericCast<std::ptrdiff_t>(convertedSize));
+    std::sort(result.Entries.begin(), itrEnd,
               [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool
               { return lhs.AttribIndex < rhs.AttribIndex; });
 

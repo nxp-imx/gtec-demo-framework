@@ -6,7 +6,7 @@
       <ExperimentalRecipe>
         <Installation>
           <FindExecutableFileInPath Name="rc" Help="This tool is normally provided by Visual Studio and is used internally by cmake when generating visual studio projects. Please install it if its missing or maybe you just forgot to run Visual Studio's setup script 'vcvarsall.bat x64'"/>
-          <FindExecutableFileInPath Name="msbuild" VersionCommand="-version" VersionRegEx="Build Engine version\s*([\d.]+)" Help="This tool is normally provided by Visual Studio, please ensure that msbuild is available in your path. Did you run Visual Studio's setup script 'vcvarsall.bat x64'?">
+          <FindExecutableFileInPath Name="msbuild" VersionCommand="-version" VersionRegEx="version\s*([\d.]+)" Help="This tool is normally provided by Visual Studio, please ensure that msbuild is available in your path. Did you run Visual Studio's setup script 'vcvarsall.bat x64'?">
               <AddOnErrorWarning StartVersion="16.5" EndVersion="16.6" Help="Visual Studio 16.5 might not pickup the expected environment paths and variables from the launch environment. See https://developercommunity.visualstudio.com/content/problem/951981/environment-paths-not-respected.html"/>
           </FindExecutableFileInPath>
         </Installation>

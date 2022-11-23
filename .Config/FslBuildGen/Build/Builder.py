@@ -80,7 +80,6 @@ from FslBuildGen.OpenProject.OpenProjectCreateInfo import OpenProjectCreateInfo
 from FslBuildGen.OpenProject.OpenProjectCMakeInfo import OpenProjectCMakeInfo
 from FslBuildGen.OpenProject.OpenProjectCreateInfo import OpenProjectExecutableInfo
 from FslBuildGen.OpenProject.OpenProjectUtil import OpenProjectUtil
-#from FslBuildGen.ExtensionListManager import ExtensionListManager
 #from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorPluginBase2

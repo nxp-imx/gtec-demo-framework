@@ -7,7 +7,7 @@
     <Dependency Name="FslSimpleUI.App.Theme"/>
     <Platform Name="Yocto" Supported="true">
       <Dependency Name="G2D"/>
-      <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES3"/>
+      <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES"/>
     </Platform>    
   </Executable>
 </FslBuildGen>

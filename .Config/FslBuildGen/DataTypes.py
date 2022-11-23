@@ -310,6 +310,12 @@ class CheckType(Enum):
     Forced = 2
 
 
+class FilterMethod(Enum):
+    AllowAll = 1
+    AllowList = 2
+    BannedList = 3
+
+
 class ScanMethod:
     Directory = 0
     OneSubDirectory = 1

@@ -39,6 +39,7 @@ from typing import Optional
 from typing import Set
 from typing import Tuple
 from typing import Union
+import os
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
 #from FslBuildGen.BasicConfig import BasicConfig
@@ -1025,11 +1026,12 @@ class GeneratorVC(GeneratorBase):
         for entry in package.ResolvedBuildOrder:
             if self.__IsProject(entry) and entry.ResolvedPlatform is not None and package != entry:
                 projectName = entry.Name
-                projectPath = config.ToolConfig.TryLegacyToDosPathDirectConversion(entry.AbsolutePath)
-                # To use relative paths instead of absolute
-                # NOTE: This was disabled because it doesn't play well with 'msbuild' (even though visual studio has no problems with it).
-                #projectPath = config.TryLegacyToDosPath(entry.AbsolutePath)
-                projectPath = "{0}\\{1}.{2}".format(projectPath, projectName, projectExtension)
+                #projectPath = config.ToolConfig.TryLegacyToDosPathDirectConversion(entry.AbsolutePath)
+                ## To use relative paths instead of absolute
+                ## NOTE: This was disabled because it doesn't play well with 'msbuild' (even though visual studio has no problems with it).
+                ##projectPath = config.TryLegacyToDosPath(entry.AbsolutePath)
+                #projectPath = "{0}\\{1}.{2}".format(projectPath, projectName, projectExtension)
+                projectPath = self.__GenerateProjectPath(config, package, entry, projectExtension)
                 if entry.CustomInfo.VisualStudioProjectGUID is None:
                     raise Exception("Invalid package")
                 projectId = entry.CustomInfo.VisualStudioProjectGUID
@@ -1119,15 +1121,32 @@ class GeneratorVC(GeneratorBase):
         if len(package.ResolvedBuildOrder) > 1:
             for entry in package.ResolvedBuildOrder:
                 if self.__IsProject(entry) and entry.ResolvedPlatform is not None and package != entry:
-                    if entry.AbsolutePath is None or entry.CustomInfo.VisualStudioProjectGUID is None:
+                    if entry.CustomInfo.VisualStudioProjectGUID is None:
                         raise Exception("Invalid package")
-                    projectPath = "{0}\\{1}.{2}".format(config.ToolConfig.ToPath(entry.AbsolutePath).replace('/', '\\'), entry.Name, projectExtension)
+                    projectPath = self.__GenerateProjectPath(config, package, entry, projectExtension)
                     projectId = entry.CustomInfo.VisualStudioProjectGUID
                     strContent = snippet.replace("##PACKAGE_DEPENDENCY_PROJECT_PATH##", projectPath)
                     strContent = strContent.replace("##PACKAGE_DEPENDENCY_PROJECTID##", projectId.lower())
                     strContent = strContent.replace("##PACKAGE_NAME##", entry.Name)
                     res.append(strContent)
         return "\n".join(res)
+
+    def __GenerateProjectPath(self, config: Config, package: Package, entry: Package, projectExtension: str) -> str:
+        if package.AbsolutePath is None or entry.AbsolutePath is None:
+            raise Exception("Invalid package")
+
+        # absolute path
+        depPath = entry.AbsolutePath
+
+        # prefer environment variables
+        # depPath = config.ToolConfig.ToPath(path)
+
+        # prefer relative paths
+        try:
+            path = os.path.relpath(depPath, package.AbsolutePath)
+        except ValueError:
+            path = depPath
+        return "{0}\\{1}.{2}".format(path.replace('/', '\\'), entry.Name, projectExtension)
 
 
     def __GenerateCustomGenerateSections(self, snippetGroup: str, snippetEntry: str, snippetGrpcService: str, config: Config, package: Package) -> str:

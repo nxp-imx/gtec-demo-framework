@@ -50,6 +50,7 @@ namespace Fsl
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
     DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
+    config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_VIV_direct_texture", ExtensionPrecense::Mandatory);
 
     DemoAppRegister::GLES3::Register<S09_VIV_direct_texture>(rSetup, "GLES3.S09_VIV_direct_texture", config);
   }

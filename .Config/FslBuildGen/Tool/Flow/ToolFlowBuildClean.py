@@ -48,7 +48,6 @@ from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 #from FslBuildGen.DataTypes import PackageType
-#from FslBuildGen.ExtensionListManager import ExtensionListManager
 #from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 #from FslBuildGen.Log import Log
 #from FslBuildGen.PackageFilters import PackageFilters

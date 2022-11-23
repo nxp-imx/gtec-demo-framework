@@ -43,9 +43,11 @@ from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackage
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Exceptions import PackageRequirementExtendsUnusedFeatureException
 from FslBuildGen.Packages.ExceptionsXml import RequirementNameCollisionException
+from FslBuildGen.Packages.PackageNameInfo import PackageNameInfo
 from FslBuildGen.Packages.PackageInstanceName import PackageInstanceName
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.Packages.Unresolved.Exceptions import RequirementUseDuplicatedException
+from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 
 class LocalVerbosityLevel(object):
     Info = 3
@@ -144,21 +146,29 @@ class PreResolver(object):
 
 
     @staticmethod
-    def __ResolvePackageDirectRequirements(log: Log, packageLookupDict: Dict[str, PreResolvePackageResult],
-                                           package: ProcessedPackage) -> List[PackageRequirement]:
-        uniqueDict = {}  # type: Dict[str, Set[str]]
-        # Resolve the direct used requirements
-        resResolvedDirectRequirements = [] # type: List[PackageRequirement]
-        for requirement1 in package.DirectRequirements:
-            packageRequirement = PackageRequirement(requirement1, package.NameInfo.FullName.Value)
+    def __ExtractRequirements(resResolvedDirectRequirements: List[PackageRequirement], uniqueDict: Dict[str, Set[str]], nameInfo: PackageNameInfo,
+                              directRequirements: List[UnresolvedPackageRequirement]) -> None:
+        for requirement1 in directRequirements:
+            packageRequirement = PackageRequirement(requirement1, nameInfo.FullName.Value)
             uniqueSet = uniqueDict[packageRequirement.GroupId] if packageRequirement.GroupId in uniqueDict else set()
             if packageRequirement.Id in uniqueSet:
-                raise RequirementUseDuplicatedException(package.NameInfo.FullName, requirement1)
+                raise RequirementUseDuplicatedException(nameInfo.FullName, requirement1)
             resResolvedDirectRequirements.append(packageRequirement)
 
             uniqueSet.add(packageRequirement.Id)
             if len(uniqueSet) == 1:
                 uniqueDict[packageRequirement.GroupId] = uniqueSet
+
+
+    @staticmethod
+    def __ResolvePackageDirectRequirements(log: Log, packageLookupDict: Dict[str, PreResolvePackageResult],
+                                           package: ProcessedPackage) -> List[PackageRequirement]:
+        uniqueDict = {}  # type: Dict[str, Set[str]]
+        # Resolve the direct used requirements
+        resResolvedDirectRequirements = [] # type: List[PackageRequirement]
+
+        PreResolver.__ExtractRequirements(resResolvedDirectRequirements, uniqueDict, package.NameInfo, package.DirectRequirements)
+        PreResolver.__ExtractRequirements(resResolvedDirectRequirements, uniqueDict, package.NameInfo, package.ResolvedPlatform.DirectRequirements)
 
         resResolvedDirectRequirements.sort(key=lambda s: s.Id)
         return resResolvedDirectRequirements

@@ -47,7 +47,6 @@ from FslBuildGen.Build.Filter import PackageFilter
 #from FslBuildGen.Context.GeneratorContext import GeneratorContext
 #from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import ExitException
-#from FslBuildGen.ExtensionListManager import ExtensionListManager
 #from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
 from FslBuildGen.Info.AppInfo import AppInfoPackage

@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.0.2
+# DemoFramework 6.0.3
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.

@@ -139,8 +139,7 @@ This process provides the most flexible solution but it also takes significantly
 
 * A working yocto build
   For example follow one of these:
-  * http://git.freescale.com/git/cgit.cgi/imx/fsl-arm-yocto-bsp.git/
-  * https://community.freescale.com/docs/DOC-94866
+  * https://github.com/nxp-imx/imx-manifest
   * Or read from here: [Preparing a Yocto build]
 
 For this guide we will assume you are using a FB image.

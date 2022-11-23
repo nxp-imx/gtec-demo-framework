@@ -44,6 +44,9 @@ class QualifiedRequirementExtensionName(object):
         if not Util.IsValidRequirementName(extensionName):
             raise Exception("The extensionName '{0}' is invalid".format(extensionName))
 
+    def ToId(self) -> str:
+        return "{0}#{1}".format(self.FeatureName.lower(), self.ExtensionName.lower())
+
     def __str__(self) -> str:
         return "{0}:{1}".format(self.FeatureName, self.ExtensionName)
 

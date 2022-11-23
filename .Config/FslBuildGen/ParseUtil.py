@@ -35,8 +35,9 @@ from typing import Dict
 from typing import List
 from typing import Optional
 #from typing import Union
+from FslBuildGen.DataTypes import FilterMethod
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.ExtensionListManager2 import ExtensionListManager2
 from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.RecipeFilterName import RecipeFilterName
 from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
@@ -56,6 +57,22 @@ def ParseList(strSrcList: str, message: str, allowWildcard: bool) -> List[str]:
         return []
     parsedList = strSrcList.split(',')
     return parsedList if not '*' in parsedList else ['*']
+
+
+def ParseComplexList(strSrcList: str, message: str, allowWildcard: bool) -> List[str]:
+    if not strSrcList:
+        return []
+    if allowWildcard and strSrcList == '*':
+        return ['*']
+    if not strSrcList.startswith('[') and not strSrcList.endswith('['):
+        raise Exception("Expected a {0} list in the format '[{0},{0}]' not '{1}'".format(message, strSrcList))
+
+    strSrcList = strSrcList[1:-1]
+    if len(strSrcList) == 0:
+        return []
+    parsedList = strSrcList.split(',')
+    return parsedList
+
 
 def ParseFilterList(strSrcList: str, message: str, allowWildcard: bool) -> List[str]:
     if not strSrcList:
@@ -82,8 +99,8 @@ def __ValidateRequirementList(requirementNameList: List[str], strHelpListName: s
             raise Exception("The {0} must be valid, the {1} name '{2}' is not a valid {1} name in list {3}".format(strHelpListName, strHelpEntryName, entry, requirementNameList))
 
 
-def ParseExtensionList(strExtensionList: str) -> ExtensionListManager:
-    parsedList = ParseList(strExtensionList, "extension", True)
+def ParseExtensionList(strExtensionList: str) -> ExtensionListManager2:
+    parsedList = ParseComplexList(strExtensionList, "extension", True)
     if not '*' in parsedList:
         newParsedList = []
         for entry in parsedList:
@@ -97,8 +114,24 @@ def ParseExtensionList(strExtensionList: str) -> ExtensionListManager:
             if not Util.IsValidRequirementName(values[1]):
                 raise Exception("The extension list must be valid, the extension '{0}' did not contain a valid extension name '{1}'".format(entry, values[1]))
             newParsedList.append(QualifiedRequirementExtensionName(values[0], values[1]))
-        return ExtensionListManager(False, newParsedList)
-    return ExtensionListManager(True, [])
+        return ExtensionListManager2(FilterMethod.AllowList, newParsedList)
+    newParsedList = []
+    for entry in parsedList:
+        if entry != '*':
+            # Do some minimal basic validation of the input
+            # All extensions has to be qualified with a feature "featureName:extensionName
+            values = entry.split(':')
+            if not len(values) == 2:
+                raise Exception("The extension list must be valid, the extension '{0}' did not follow the expected '<FeatureName>:<ExtensionName>' format".format(entry))
+            if(len(values[0]) < 1 or values[0][0] != '-'):
+                raise Exception("A extension as part of a list that contains a wildcard must be 'substracted' so it is expected to start with '-' which '{0}' did not".format(entry))
+            firstValue = values[0][1:];
+            if not Util.IsValidRequirementName(firstValue):
+                raise Exception("The extension list must be valid, the extension '{0}' did not contain a valid feature name '{1}'".format(entry, firstValue))
+            if not Util.IsValidRequirementName(values[1]):
+                raise Exception("The extension list must be valid, the extension '{0}' did not contain a valid extension name '{1}'".format(entry, values[1]))
+            newParsedList.append(QualifiedRequirementExtensionName(firstValue, values[1]))
+    return ExtensionListManager2(FilterMethod.AllowAll if len(newParsedList) <= 0 else FilterMethod.BannedList, newParsedList)
 
 
 def ParseRecipeList(strRecipeFilterList: str) -> RecipeFilterManager:

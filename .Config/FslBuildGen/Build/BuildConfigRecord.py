@@ -39,7 +39,6 @@ from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.Build.DataTypes import CommandType
 #from FslBuildGen.DataTypes import BuildVariantConfig
-#from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorPluginBase2
 from FslBuildGen.Version import Version
 #from FslBuildGen.PackageFilters import PackageFilters

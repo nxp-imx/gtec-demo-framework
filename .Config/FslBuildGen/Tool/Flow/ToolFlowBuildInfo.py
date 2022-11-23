@@ -46,7 +46,6 @@ from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
-#from FslBuildGen.ExtensionListManager import ExtensionListManager
 #from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 #from FslBuildGen.Log import Log

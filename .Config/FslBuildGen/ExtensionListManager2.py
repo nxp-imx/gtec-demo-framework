@@ -32,23 +32,12 @@
 #****************************************************************************************************************************************************
 
 from typing import List
-from typing import Optional
 from FslBuildGen.DataTypes import FilterMethod
-from FslBuildGen.ExtensionListManager2 import ExtensionListManager2
-from FslBuildGen.RecipeFilterManager import RecipeFilterManager
+from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
 
-class PackageFilters(object):
-    def __init__(self, featureNameList: Optional[List[str]] = None,
-                 extensionNameList: Optional[ExtensionListManager2] = None,
-                 requiredFeatureNameList: Optional[List[str]] = None,
-                 recipeList: Optional[RecipeFilterManager] = None) -> None:
-        self.FeatureNameList = ['*'] if featureNameList is None else featureNameList                                                    # type: List[str]
-        self.ExtensionNameList = ExtensionListManager2(FilterMethod.AllowAll, []) if extensionNameList is None else extensionNameList   # type: ExtensionListManager2
-        self.RequiredFeatureNameList = ['*'] if requiredFeatureNameList is None else requiredFeatureNameList                            # type: List[str]
-        self.RecipeFilterManager = RecipeFilterManager(True, []) if recipeList is None else recipeList                                  # type: RecipeFilterManager
 
-    def ContainsFilters(self) -> bool:
-        return (not self.ExtensionNameList.FilterMethod == FilterMethod.AllowAll or
-                not '*' in self.FeatureNameList or
-                not '*' in self.RequiredFeatureNameList or
-                not self.RecipeFilterManager.AllRecipesEnabled)
+class ExtensionListManager2(object):
+    def __init__(self, filterMethod: FilterMethod, content: List[QualifiedRequirementExtensionName]) -> None:
+        super().__init__()
+        self.FilterMethod = filterMethod
+        self.Content = [] if filterMethod == FilterMethod.AllowAll else content

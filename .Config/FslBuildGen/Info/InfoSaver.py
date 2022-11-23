@@ -42,7 +42,6 @@ from FslBuildGen import IOUtil
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageType
-#from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport

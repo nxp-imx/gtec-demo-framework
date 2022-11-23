@@ -288,8 +288,10 @@ namespace Fsl
     if (TextureBacking::g2d == textureBackingScheme)
     {
       CreateContiguousBuffer();
+      // Verify the assumption
+      static_assert(sizeof(GLuint) == sizeof(int), "Verify that the cast assumption for last param to glTexDirectVIVMap is valid for this platform");
       glTexDirectVIVMap(GL_TEXTURE_2D, LocalConfig::TextureWidth, LocalConfig::TextureHeight, GL_RGBA, &m_mappedBuffer.g2dBuffer->buf_vaddr,
-                        (uint*)&m_mappedBuffer.g2dBuffer->buf_paddr);
+                        (GLuint*)&m_mappedBuffer.g2dBuffer->buf_paddr);
       glTexDirectInvalidateVIV(GL_TEXTURE_2D);
     }
     else

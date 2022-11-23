@@ -43,15 +43,18 @@ from FslBuildGen import Util
 from FslBuildGen.Build.RequirementTree import RequirementTree
 from FslBuildGen.Build.RequirementTreeNode import RequirementTreeNode
 #from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import FilterMethod
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.Resolver.PreResolvePackageResult import PreResolvePackageResult
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.ExtensionListManager2 import ExtensionListManager2
 from FslBuildGen.Info.AppInfo import AppInfoPackage
-from FslBuildGen.Info.RequirementInfo import RequirementInfo
 from FslBuildGen.Info.AppInfoRequirementTree import AppInfoGlobalRequirementTree
 from FslBuildGen.Info.AppInfoGlobalRequirementTreeNode import AppInfoGlobalRequirementTreeNode
+from FslBuildGen.Info.RequirementInfo import RequirementInfo
+#from FslBuildGen.Info.RequirementInfo import RequirementType
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
@@ -455,8 +458,8 @@ class PackageFilter:
         # - First we add all parent features automatically to ensure the feature list is complete
         useStrictFeatureWarning = requestedPackages is None or len(requestedPackages) <= 0
         featureNameList2 = PackageFilter.__AddParentFeatures(log, packageFilters.FeatureNameList, requirementTree, useStrictFeatureWarning)
-        extensionNameList = packageFilters.ExtensionNameList
-        if not packageFilters.ExtensionNameList.AllowAllExtensions:
+        extensionNameList = PackageFilter.__CreateExtensionNameList(resolvedBuildOrder, packageFilters.ExtensionNameList)
+        if not extensionNameList.AllowAllExtensions:
             # Filter extensions by available features
             extensionNameList = PackageFilter.__FilterExtensionsByAvailableFeatures(log, featureNameList2, extensionNameList)
             requirementTree.SetExtensionSupport(log, extensionNameList)
@@ -491,8 +494,8 @@ class PackageFilter:
         # Smart expand the input lists
         # - First we add all parent features automatically to ensure the feature list is complete
         featureNameList2 = PackageFilter.__AddParentFeatures(log, packageFilters.FeatureNameList, appInfoRequirementTree, useStrictFeatureWarning)
-        extensionNameList = packageFilters.ExtensionNameList
-        if not packageFilters.ExtensionNameList.AllowAllExtensions:
+        extensionNameList = PackageFilter.__CreateExtensionNameList(resolvedBuildOrder, packageFilters.ExtensionNameList)
+        if not extensionNameList.AllowAllExtensions:
             # Filter extensions by available features
             extensionNameList = PackageFilter.__FilterExtensionsByAvailableFeatures(log, featureNameList2, extensionNameList)
             appInfoRequirementTree.SetExtensionSupport(log, extensionNameList)
@@ -532,3 +535,25 @@ class PackageFilter:
             if not package.IsVirtual and (package.Type == PackageType.Library or package.Type == PackageType.Executable):
                 result.append(package)
         return result
+
+    @staticmethod
+    def __CreateExtensionNameList(resolvedBuildOrder: Union[List[CommonPackage], List[AppInfoPackage]], extensionList: ExtensionListManager2) -> ExtensionListManager:
+        if extensionList.FilterMethod == FilterMethod.AllowAll:
+            return ExtensionListManager(True, [])
+        elif extensionList.FilterMethod == FilterMethod.AllowList:
+            return ExtensionListManager(False, extensionList.Content)
+
+        uniqueExtensionDict = dict()  # type: Dict[str,QualifiedRequirementExtensionName]
+        for package in resolvedBuildOrder:
+            for requirement in package.ResolvedAllRequirements:
+                if requirement.Type == PackageRequirementTypeString.Extension:
+                    ext = QualifiedRequirementExtensionName(requirement.Extends, requirement.Name)
+                    uniqueExtensionDict[ext.ToId()] = ext
+
+        # pop all banned
+        for bannedEntry in extensionList.Content:
+            bannedId = bannedEntry.ToId()
+            uniqueExtensionDict.pop(bannedId, None)
+
+        allowedList = list(uniqueExtensionDict.values())
+        return ExtensionListManager(False, allowedList)

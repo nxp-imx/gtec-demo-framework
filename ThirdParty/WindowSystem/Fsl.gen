@@ -39,6 +39,27 @@
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND_IVI" Access="Public"/>
         </Option>
+        <Option Name="Wayland_XDG">
+          <ExternalDependency Name="wayland-client" Type="StaticLib"/>
+          <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
+          <ExternalDependency Name="df-wayland-xdg-application-stable-latest" Type="StaticLib"/>
+          <!-- Since this is just a small tweak to the wayland backend, we reuse the old define and create a new one -->
+          <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
+          <Define Name="FSL_WINDOWSYSTEM_WAYLAND_XDG" Access="Public"/>
+        </Option>
+        <Option Name="Wayland_XDG_IVI">
+          <ExternalDependency Name="wayland-client" Type="StaticLib"/>
+          <ExternalDependency Name="ilmCommon" Type="StaticLib"/>
+          <ExternalDependency Name="ilmClient" Type="StaticLib"/>
+          <ExternalDependency Name="ilmControl" Type="StaticLib"/>
+          <ExternalDependency Name="ivi-application" Type="StaticLib"/>
+          <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
+          <ExternalDependency Name="df-wayland-xdg-application-stable-latest" Type="StaticLib"/>
+          <!-- Since this is just a small tweak to the wayland backend, we reuse the old define and create a new one -->
+          <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
+          <Define Name="FSL_WINDOWSYSTEM_WAYLAND_IVI" Access="Public"/>
+          <Define Name="FSL_WINDOWSYSTEM_WAYLAND_XDG" Access="Public"/>
+        </Option>
         <Option Name="X11">
           <ExternalDependency Name="Xrandr" Type="StaticLib"/>
           <ExternalDependency Name="X11" Type="StaticLib"/>

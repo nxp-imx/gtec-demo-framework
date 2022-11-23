@@ -1,5 +1,5 @@
 #if !defined(__ANDROID__) && defined(__linux__) && !defined(FSL_WINDOWSYSTEM_X11) && defined(FSL_WINDOWSYSTEM_WAYLAND) && \
-  !defined(FSL_WINDOWSYSTEM_WAYLAND_XDG)
+  defined(FSL_WINDOWSYSTEM_WAYLAND_XDG)
 /*
  * Copyright (C) 2011 Benjamin Franzke
  *
@@ -35,6 +35,7 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowSystemWayland.hpp>
 #include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWayland.hpp>
+#include <df-xdg/xdg-shell-client-protocol.h>
 #include <linux/input.h>
 #include <string.h>
 #include <wayland-client.h>
@@ -85,14 +86,18 @@ namespace Fsl
       struct geometry window_size
       {
       };
-      wl_surface* surface{nullptr};
-      wl_shell_surface* shell_surface{nullptr};
+      struct wl_surface* surface{nullptr};
+      struct xdg_surface* xdg_surface{nullptr};
+      struct xdg_toplevel* xdg_toplevel{nullptr};
+      ;
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
       struct ivi_surface* ivi_surface{nullptr};
 #endif
       wl_callback* callback{nullptr};
       int fullscreen{0};
+      int maximized{0};
       int configured{0};
+      bool wait_for_configure{1};
       std::function<void(void*, int, int, int, int)> resizeWindowCallback;
     };
 
@@ -101,7 +106,7 @@ namespace Fsl
       wl_display* display{nullptr};
       wl_registry* registry{nullptr};
       wl_compositor* compositor{nullptr};
-      wl_shell* shell{nullptr};
+      xdg_wm_base* wm_base{nullptr};
       wl_seat* seat{nullptr};
       wl_pointer* pointer{nullptr};
       wl_keyboard* keyboard{nullptr};
@@ -207,27 +212,52 @@ namespace Fsl
     };
 
 
-    void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
+    void HandlePing(void* data, xdg_wm_base* shell, uint32_t serial)
     {
-      wl_shell_surface_pong(shell_surface, serial);
+      xdg_wm_base_pong(shell, serial);
     }
 
-
-    void HandleConfigure(void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height)
+    void HandleToplevelConfigure(void* data, xdg_toplevel* toplevel, int32_t width, int32_t height, struct wl_array* states)
     {
       struct window* window = (struct window*)data;
+      // uint32_t *p;
+      void* p;
+
+      window->fullscreen = 0;
+      window->maximized = 0;
+      wl_array_for_each(p, states)
+      {
+        uint32_t state = *((uint32_t*)p);
+        switch (state)
+        {
+        case XDG_TOPLEVEL_STATE_FULLSCREEN:
+          window->fullscreen = 1;
+          break;
+        case XDG_TOPLEVEL_STATE_MAXIMIZED:
+          window->maximized = 1;
+          break;
+        }
+      }
+      if (width > 0 && height > 0)
+      {
+        if (!window->fullscreen && !window->maximized)
+        {
+          window->window_size.width = width;
+          window->window_size.height = height;
+        }
+        window->geometry.width = width;
+        window->geometry.height = height;
+      }
+      else if (!window->fullscreen && !window->maximized)
+      {
+        window->geometry = window->window_size;
+      }
+
       if (window->native && !window->fullscreen)
       {
         if (window->resizeWindowCallback)
           window->resizeWindowCallback(window->native, width, height, 0, 0);
       }
-      window->geometry.width = width;
-      window->geometry.height = height;
-      swindow.window_size.width = width;
-      swindow.window_size.height = height;
-
-      if (!window->fullscreen)
-        window->window_size = window->geometry;
 
       {    // Let the framework know that we might have been resized
         std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
@@ -238,13 +268,26 @@ namespace Fsl
       }
     }
 
+    void HandleSurfaceConfigure(void* data, struct xdg_surface* surface, uint32_t serial)
+    {
+      struct window* window = (struct window*)data;
+      xdg_surface_ack_configure(surface, serial);
+      window->wait_for_configure = false;
+    }
 
-    void HandlePopUpDone(void* data, wl_shell_surface* shell_surface)
+    void HandleToplevelClose(void* data, struct xdg_toplevel* xdg_toplevel)
     {
     }
 
+    const struct xdg_wm_base_listener wm_base_listener = {
+      HandlePing,
+    };
+    const struct xdg_surface_listener xdg_surface_listener = {HandleSurfaceConfigure};
+    const struct xdg_toplevel_listener xdg_toplevel_listener = {
+      HandleToplevelConfigure,
+      HandleToplevelClose,
+    };
 
-    const wl_shell_surface_listener shell_surface_listener = {HandlePing, HandleConfigure, HandlePopUpDone};
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
     static void HandleIVISurfaceConfigure(void* data, struct ivi_surface* ivi_surface, int32_t width, int32_t height)
     {
@@ -262,28 +305,6 @@ namespace Fsl
     const struct ivi_surface_listener iviSurfaceListener = {HandleIVISurfaceConfigure};
 #endif
 
-    void ToggleFullScreen(struct window* window, int fullscreen)
-    {
-      wl_callback* callback;
-      window->fullscreen = fullscreen;
-      window->configured = 0;
-
-      if (fullscreen)
-      {
-        wl_shell_surface_set_fullscreen(window->shell_surface, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
-      }
-      else
-      {
-        wl_shell_surface_set_toplevel(window->shell_surface);
-        HandleConfigure(window, window->shell_surface, 0, window->window_size.width, window->window_size.height);
-      }
-
-      if (nullptr == (callback = wl_display_sync(window->display->display)))
-        throw GraphicsException("wl_display_sync Failure");
-      if (-1 == (wl_callback_add_listener(callback, &configureCallBackListener, window)))
-        throw GraphicsException("wl_display_sync Failure");
-    }
-
 
     void CreateWlDummySurface()
     {
@@ -294,18 +315,26 @@ namespace Fsl
       {
         if (nullptr == (window->surface = wl_compositor_create_surface(display->compositor)))
           throw GraphicsException("wl_compositor_create_surface Failure");
-        if (display->shell)
+        if (display->wm_base)
         {
-          if (nullptr == (window->shell_surface = wl_shell_get_shell_surface(display->shell, window->surface)))
-            throw GraphicsException("wl_shell_get_shell_surface Failure");
+          if (nullptr == (window->xdg_surface = xdg_wm_base_get_xdg_surface(display->wm_base, window->surface)))
+            throw GraphicsException("xdg_wm_base_get_shell_surface Failure");
 
-          if (wl_shell_surface_add_listener(window->shell_surface, &shell_surface_listener, window))
-            throw GraphicsException("wl_shell_surface_add_listener Failure");
+          if (xdg_surface_add_listener(window->xdg_surface, &xdg_surface_listener, window))
+            throw GraphicsException("xdg_surface_add_listener Failure");
 
-          wl_shell_surface_set_title(window->shell_surface, "FSL Framework");
+          if (nullptr == (window->xdg_toplevel = xdg_surface_get_toplevel(window->xdg_surface)))
+            throw GraphicsException("xdg_surface_get_toplevel Failure");
 
-          wl_shell_surface_set_fullscreen(window->shell_surface, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
+          if (xdg_toplevel_add_listener(window->xdg_toplevel, &xdg_toplevel_listener, window))
+            throw GraphicsException("xdg_toplevel_add_listener Failure");
+          ;
+
+          xdg_toplevel_set_title(window->xdg_toplevel, "FSL Framework");
+
+          xdg_toplevel_set_fullscreen(window->xdg_toplevel, NULL);
         }
+
         if (nullptr == (callback = wl_display_sync(window->display->display)))
           throw GraphicsException("wl_display_sync Failure");
 
@@ -314,19 +343,22 @@ namespace Fsl
       }
       catch (const std::exception&)
       {
+        if (window->xdg_toplevel)
+          xdg_toplevel_destroy(window->xdg_toplevel);
+        if (window->xdg_surface != nullptr)
+          xdg_surface_destroy(window->xdg_surface);
         if (window->surface != nullptr)
           wl_surface_destroy(window->surface);
-        if (window->shell_surface != nullptr)
-          wl_shell_surface_destroy(window->shell_surface);
         throw;
       }
 
       while (dummyRunning)
         wl_display_dispatch(sdisplay.display);
 
-      if (window->fullscreen && display->shell)
+      if (window->fullscreen && display->wm_base)
       {
-        wl_shell_surface_destroy(window->shell_surface);
+        xdg_toplevel_destroy(window->xdg_toplevel);
+        xdg_surface_destroy(window->xdg_surface);
         wl_surface_destroy(window->surface);
         window->fullscreen = 0;
       }
@@ -337,23 +369,40 @@ namespace Fsl
     {
       struct display* display = &sdisplay;
       struct window* window = &swindow;
+      wl_callback* callback;
       try
       {
         if (nullptr == (window->surface = wl_compositor_create_surface(display->compositor)))
           throw GraphicsException("wl_compositor_create_surface Failure");
 #ifndef FSL_WINDOWSYSTEM_WAYLAND_IVI
-        if (display->shell)
+        if (display->wm_base)
         {
-          if (nullptr == (window->shell_surface = wl_shell_get_shell_surface(display->shell, window->surface)))
-            throw GraphicsException("wl_shell_get_shell_surface Failure");
+          if (nullptr == (window->xdg_surface = xdg_wm_base_get_xdg_surface(display->wm_base, window->surface)))
+            throw GraphicsException("xdg_wm_base_get_shell_surface Failure");
 
-          if (wl_shell_surface_add_listener(window->shell_surface, &shell_surface_listener, window))
-            throw GraphicsException("wl_shell_surface_add_listener Failure");
+          if (xdg_surface_add_listener(window->xdg_surface, &xdg_surface_listener, window))
+            throw GraphicsException("xdg_surface_add_listener Failure");
 
-          wl_shell_surface_set_title(window->shell_surface, "FSL Framework");
+          if (nullptr == (window->xdg_toplevel = xdg_surface_get_toplevel(window->xdg_surface)))
+            throw GraphicsException("xdg_surface_get_toplevel Failure");
 
-          ToggleFullScreen(window, window->fullscreen);
+          if (xdg_toplevel_add_listener(window->xdg_toplevel, &xdg_toplevel_listener, window))
+            throw GraphicsException("xdg_toplevel_add_listener Failure");
+          ;
+
+          xdg_toplevel_set_title(window->xdg_toplevel, "FSL Framework");
+
+          window->wait_for_configure = true;
+          wl_surface_commit(window->surface);
+          if (window->fullscreen)
+            xdg_toplevel_set_fullscreen(window->xdg_toplevel, NULL);
         }
+        if (nullptr == (callback = wl_display_sync(window->display->display)))
+          throw GraphicsException("wl_display_sync Failure");
+        if (-1 == (wl_callback_add_listener(callback, &configureCallBackListener, window)))
+          throw GraphicsException("wl_display_sync Failure");
+        while (window->wait_for_configure)
+          wl_display_dispatch(sdisplay.display);
 #endif
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
 
@@ -367,8 +416,10 @@ namespace Fsl
       }
       catch (const std::exception&)
       {
-        if (window->shell_surface != nullptr)
-          wl_shell_surface_destroy(window->shell_surface);
+        if (window->xdg_toplevel)
+          xdg_toplevel_destroy(window->xdg_toplevel);
+        if (window->xdg_surface != nullptr)
+          xdg_surface_destroy(window->xdg_surface);
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
         if (window->ivi_surface != nullptr)
           ivi_surface_destroy(window->ivi_surface);
@@ -465,18 +516,11 @@ namespace Fsl
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(display->zDelta, display->mousePosition));
     }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
 
     const wl_pointer_listener pointer_listener = {
       PointerHandleEnter, PointerHandleLeave, PointerHandleMotion, PointerHandleButton, PointerHandleAxis,
     };
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
     void KeyboardHandleKeymap(void* data, wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size)
     {
@@ -643,18 +687,10 @@ namespace Fsl
     {
     }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
 
     const wl_keyboard_listener keyboard_listener = {
       KeyboardHandleKeymap, KeyboardHandleEnter, KeyboardHandleLeave, KeyboardHandleKey, KeyboardHandleModifiers,
     };
-
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
     static void print_global_info(void* data)
     {
@@ -863,13 +899,13 @@ namespace Fsl
       wl_list_insert(&display->outputs, &output->global_link);
     }
 
-    // static void print_infos(struct wl_list* infos)
-    // {
-    //   struct global_info* info;
-    //   assert(infos != nullptr);
+    static void print_infos(struct wl_list* infos)
+    {
+      struct global_info* info;
+      assert(infos != nullptr);
 
-    //   wl_list_for_each(info, infos, link) info->print(info);
-    // }
+      wl_list_for_each(info, infos, link) info->print(info);
+    }
 
     static void destroy_info(void* data)
     {
@@ -919,18 +955,10 @@ namespace Fsl
       }
     }
 
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-
     const wl_seat_listener seat_listener = {
       SeatHandleCapabilities,
     };
 
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 
     void RegistryHandleGlobal(void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
     {
@@ -940,9 +968,10 @@ namespace Fsl
       {
         d->compositor = (struct wl_compositor*)wl_registry_bind(registry, name, &wl_compositor_interface, 1);
       }
-      else if (strcmp(interface, "wl_shell") == 0)
+      else if (strcmp(interface, "xdg_wm_base") == 0)
       {
-        d->shell = (struct wl_shell*)wl_registry_bind(registry, name, &wl_shell_interface, 1);
+        d->wm_base = (struct xdg_wm_base*)wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
+        xdg_wm_base_add_listener(d->wm_base, &wm_base_listener, d);
       }
       else if (strcmp(interface, "wl_seat") == 0)
       {
@@ -1128,7 +1157,7 @@ namespace Fsl
     sdisplay.mousePosition.X = 0;
     sdisplay.mousePosition.Y = 0;
 
-    if (swindow.fullscreen && sdisplay.shell)
+    if (swindow.fullscreen && sdisplay.wm_base)
     {
       CreateWlDummySurface();
       swindow.fullscreen = 0;
@@ -1194,8 +1223,10 @@ namespace Fsl
     destroy_infos(&display->infos);
 
 #ifndef FSL_WINDOWSYSTEM_WAYLAND_IVI
-    if (display->shell)
-      wl_shell_surface_destroy(window->shell_surface);
+    if (window->xdg_toplevel)
+      xdg_toplevel_destroy(window->xdg_toplevel);
+    if (window->xdg_surface)
+      xdg_surface_destroy(window->xdg_surface);
 #endif
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
     if (window->ivi_surface)
@@ -1211,8 +1242,8 @@ namespace Fsl
     if (display->cursor_theme)
       wl_cursor_theme_destroy(display->cursor_theme);
 
-    if (display->shell)
-      wl_shell_destroy(display->shell);
+    if (display->wm_base)
+      xdg_wm_base_destroy(display->wm_base);
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
     if (display->ivi_application)
       ivi_application_destroy(display->ivi_application);

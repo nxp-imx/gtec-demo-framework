@@ -125,7 +125,8 @@ TEST(TestBuilder_Clip2D, Clip2_PartialLeft0)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[1], clipped);
+  EXPECT_EQ(clippedEntries[1].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clipped.Y);
 }
 
 // segments:     A---B
@@ -147,7 +148,8 @@ TEST(TestBuilder_Clip2D, Clip2_PartialLeft1)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[1], clipped);
+  EXPECT_EQ(clippedEntries[1].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clipped.Y);
 }
 
 
@@ -170,7 +172,8 @@ TEST(TestBuilder_Clip2D, Clip2_PartialRight0)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     A---B
@@ -192,7 +195,8 @@ TEST(TestBuilder_Clip2D, Clip2_PartialRight)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     A---B
@@ -216,8 +220,10 @@ TEST(TestBuilder_Clip2D, Clip2_Inside)
   PxVector2 clippedL(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentageL));
   PxVector2 clippedR(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentageR));
 
-  EXPECT_EQ(clippedEntries[0], clippedL);
-  EXPECT_EQ(clippedEntries[1], clippedR);
+  EXPECT_EQ(clippedEntries[0].X, clippedL.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clippedL.Y);
+  EXPECT_EQ(clippedEntries[1].X, clippedR.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clippedR.Y);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -297,7 +303,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialLeft0)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[1], clipped);
+  EXPECT_EQ(clippedEntries[1].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clipped.Y);
 }
 
 // segments:     A---B---C
@@ -320,7 +327,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialLeft1)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[1], clipped);
+  EXPECT_EQ(clippedEntries[1].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clipped.Y);
 }
 
 
@@ -344,7 +352,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialRight0)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[1].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[1].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     A---B---C
@@ -367,7 +376,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialRight)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[1].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[1].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     A---B---C
@@ -391,8 +401,10 @@ TEST(TestBuilder_Clip2D, Clip3_InsideAB)
   PxVector2 clippedL(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentageL));
   PxVector2 clippedR(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentageR));
 
-  EXPECT_EQ(clippedEntries[0], clippedL);
-  EXPECT_EQ(clippedEntries[1], clippedR);
+  EXPECT_EQ(clippedEntries[0].X, clippedL.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clippedL.Y);
+  EXPECT_EQ(clippedEntries[1].X, clippedR.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clippedR.Y);
 }
 
 // segments:     A---B---C
@@ -419,9 +431,12 @@ TEST(TestBuilder_Clip2D, Clip3_InsideAC)
   PxVector2 clippedL(clipRangePxf.X, orgCoordsPxf[0].Y + (deltaL.Y * percentageL));
   PxVector2 clippedR(clipRangePxf.Y, orgCoordsPxf[1].Y + (deltaR.Y * percentageR));
 
-  EXPECT_EQ(clippedEntries[0], clippedL);
-  EXPECT_EQ(clippedEntries[1], orgCoordsPxf[1]);
-  EXPECT_EQ(clippedEntries[2], clippedR);
+  EXPECT_EQ(clippedEntries[0].X, clippedL.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clippedL.Y);
+  EXPECT_EQ(clippedEntries[1].X, orgCoordsPxf[1].X);
+  EXPECT_EQ(clippedEntries[1].Y, orgCoordsPxf[1].Y);
+  EXPECT_EQ(clippedEntries[2].X, clippedR.X);
+  EXPECT_FLOAT_EQ(clippedEntries[2].Y, clippedR.Y);
 }
 
 // segments:     A---B---C
@@ -445,8 +460,10 @@ TEST(TestBuilder_Clip2D, Clip3_InsideBC)
   PxVector2 clippedL(clipRangePxf.X, orgCoordsPxf[1].Y + (deltaR.Y * percentageL));
   PxVector2 clippedR(clipRangePxf.Y, orgCoordsPxf[1].Y + (deltaR.Y * percentageR));
 
-  EXPECT_EQ(clippedEntries[0], clippedL);
-  EXPECT_EQ(clippedEntries[1], clippedR);
+  EXPECT_EQ(clippedEntries[0].X, clippedL.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clippedL.Y);
+  EXPECT_EQ(clippedEntries[1].X, clippedR.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clippedR.Y);
 }
 
 
@@ -529,7 +546,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialLeft0_OverlappingCoordsAB)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[1].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[1].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[2], clipped);
+  EXPECT_EQ(clippedEntries[2].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[2].Y, clipped.Y);
 }
 
 // segments:     AB---C
@@ -554,7 +572,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialLeft1_OverlappingCoordsAB)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[1].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[1].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[2], clipped);
+  EXPECT_EQ(clippedEntries[2].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[2].Y, clipped.Y);
 }
 
 
@@ -578,7 +597,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialRight0_OverlappingCoordsAB)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[1].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[1].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     AB---C
@@ -601,7 +621,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialRight_OverlappingCoordsAB)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[1].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[1].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     AB---C
@@ -625,8 +646,10 @@ TEST(TestBuilder_Clip2D, Clip3_InsideBC_OverlappingCoordsAB)
   PxVector2 clippedL(clipRangePxf.X, orgCoordsPxf[1].Y + (deltaR.Y * percentageL));
   PxVector2 clippedR(clipRangePxf.Y, orgCoordsPxf[1].Y + (deltaR.Y * percentageR));
 
-  EXPECT_EQ(clippedEntries[0], clippedL);
-  EXPECT_EQ(clippedEntries[1], clippedR);
+  EXPECT_EQ(clippedEntries[0].X, clippedL.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clippedL.Y);
+  EXPECT_EQ(clippedEntries[1].X, clippedR.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clippedR.Y);
 }
 
 
@@ -707,7 +730,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialLeft0_OverlappignCoordsBC)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[1], clipped);
+  EXPECT_EQ(clippedEntries[1].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clipped.Y);
 }
 
 // segments:     A---BC
@@ -730,7 +754,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialLeft1_OverlappignCoordsBC)
   auto deltaNew = clipRangePxf.Y - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[1], clipped);
+  EXPECT_EQ(clippedEntries[1].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clipped.Y);
 }
 
 
@@ -756,7 +781,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialRight0_OverlappignCoordsBC)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     A---BC
@@ -781,7 +807,8 @@ TEST(TestBuilder_Clip2D, Clip3_PartialRight_OverlappignCoordsBC)
   auto deltaNew = clipRangePxf.X - orgCoordsPxf[0].X;
   float percentage = deltaNew / delta.X;
   PxVector2 clipped(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentage));
-  EXPECT_EQ(clippedEntries[0], clipped);
+  EXPECT_EQ(clippedEntries[0].X, clipped.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clipped.Y);
 }
 
 // segments:     A---B---C
@@ -805,8 +832,10 @@ TEST(TestBuilder_Clip2D, Clip3_InsideAB_OverlappignCoordsBC)
   PxVector2 clippedL(clipRangePxf.X, orgCoordsPxf[0].Y + (delta.Y * percentageL));
   PxVector2 clippedR(clipRangePxf.Y, orgCoordsPxf[0].Y + (delta.Y * percentageR));
 
-  EXPECT_EQ(clippedEntries[0], clippedL);
-  EXPECT_EQ(clippedEntries[1], clippedR);
+  EXPECT_EQ(clippedEntries[0].X, clippedL.X);
+  EXPECT_FLOAT_EQ(clippedEntries[0].Y, clippedL.Y);
+  EXPECT_EQ(clippedEntries[1].X, clippedR.X);
+  EXPECT_FLOAT_EQ(clippedEntries[1].Y, clippedR.Y);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
