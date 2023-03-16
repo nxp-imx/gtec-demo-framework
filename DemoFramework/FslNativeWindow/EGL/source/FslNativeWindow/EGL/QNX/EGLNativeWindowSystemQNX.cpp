@@ -31,8 +31,8 @@
  ****************************************************************************************************************************************************/
 
 #include "EGLNativeWindowSystemQNX.hpp"
-#include <FslNativeWindow/Platform/QNX/PlatformNativeWindowQNX.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
+#include <FslNativeWindow/Platform/QNX/PlatformNativeWindowQNX.hpp>
 
 namespace Fsl
 {

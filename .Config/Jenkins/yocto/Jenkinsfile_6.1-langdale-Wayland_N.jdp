@@ -1,0 +1,56 @@
+#!/usr/bin/env groovy
+pipeline
+{
+    agent
+    {
+        docker
+        {
+            label 'ubuntu'
+            registryUrl "$DOCKER_PRIVATE_REGISTRY"
+            registryCredentialsId 'private-docker-hub-cred'
+            image 'work-internal/graphics-compute-api-test:6.1-langdale'
+            args '-v $HOME/PersistentCache:/PersistentCache:rw'
+        }
+    }
+    environment {
+        FSL_JENKINS_DF_PLATFORM_NAME     = 'Yocto'    
+        FSL_JENKINS_DF_SDK_NAME          = '6.1-langdale'
+        FSL_JENKINS_DF_VARIANT           = 'Wayland'
+        FSL_JENKINS_DF_SDK_VARIANT_NAME  = "${FSL_JENKINS_DF_SDK_NAME}-${FSL_JENKINS_DF_VARIANT}"
+        FSL_JENKINS_DF_CACHE_DIR         = "DF-${FSL_JENKINS_DF_PLATFORM_NAME}-${FSL_JENKINS_DF_SDK_NAME}"
+        FSL_JENKINS_THIRD_PARTY_INSTALL  = "/PersistentCache/${FSL_JENKINS_DF_CACHE_DIR}"
+    }    
+    options
+    {
+      buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+    triggers
+    {
+        pollSCM('H 4 * * *')
+    }
+    stages
+    {
+        stage('Build')
+        {
+            steps
+            {
+                sh ".Config/Jenkins/yocto/Review_DF_${FSL_JENKINS_DF_SDK_VARIANT_NAME}.sh"
+                recordIssues(tools: [gcc4()])
+            }
+        }
+        stage('Test')
+        {
+            steps
+            {
+                echo 'make check'
+            }
+        }
+        stage('Deploy')
+        {
+            steps
+            {
+                echo 'make publish'
+            }
+        }
+    }
+}

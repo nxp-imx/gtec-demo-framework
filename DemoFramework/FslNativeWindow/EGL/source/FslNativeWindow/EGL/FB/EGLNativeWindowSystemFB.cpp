@@ -33,14 +33,14 @@
 
 #include "EGLNativeWindowSystemFB.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslUtil/EGL/Exceptions.hpp>
-#include <FslUtil/EGL/EGLCheck.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
-#include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
-#include <algorithm>
+#include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
+#include <FslUtil/EGL/EGLCheck.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
 #include <EGL/egl.h>
+#include <algorithm>
 
 
 namespace Fsl

@@ -41,17 +41,17 @@
 #include <FslDemoHost/EGL/EGLDemoHostOptionParser.hpp>
 #include <FslDemoService/Graphics/Control/GraphicsDeviceCreateInfo.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceHost.hpp>
-#include <FslNativeWindow/EGL/EGLNativeWindowSystemFactory.hpp>
-#include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
-#include <FslNativeWindow/EGL/IEGLNativeWindow.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/NativeWindowProcessMessagesArgs.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <FslNativeWindow/EGL/EGLNativeWindowSystemFactory.hpp>
+#include <FslNativeWindow/EGL/IEGLNativeWindow.hpp>
+#include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 #include <FslUtil/EGL/EGLCheck.hpp>
-#include <FslUtil/EGL/Exceptions.hpp>
 #include <FslUtil/EGL/EGLConfigUtil.hpp>
 #include <FslUtil/EGL/EGLStringUtil.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
 #include <fmt/core.h>
 #include <algorithm>
 #include <array>
@@ -766,7 +766,6 @@ namespace Fsl
     , m_eglContextClientVersionMajor(0)
     , m_eglContextClientVersionMinor(0)
     , m_eglContextClientVersionMinimumMinor(0)
-    , m_nativeWindowSetup()
     , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
     , m_hostService(demoHostConfig.GetServiceProvider().Get<EGLHostService>())
     , m_graphicsService(demoHostConfig.GetServiceProvider().Get<IGraphicsServiceHost>())

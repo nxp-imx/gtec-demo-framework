@@ -33,11 +33,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFB.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowSystemTemplate.hpp>
-#include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/IEGLNativeWindow.hpp>
+#include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/NativeEGLSetup.hpp>
+#include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFB.hpp>
 
 namespace Fsl
 {

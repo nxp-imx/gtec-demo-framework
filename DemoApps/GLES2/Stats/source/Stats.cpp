@@ -38,7 +38,7 @@
 
 namespace Fsl
 {
-  //! All the actual UI example code can be found in the Shared class since its reused for all DFSimpleUI101 samples.
+  //! All the actual UI example code can be found in the Shared class since its reused for all Stats samples.
   Stats::Stats(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_shared(config)

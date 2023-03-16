@@ -37,29 +37,26 @@
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/BufferedFileParser.hpp>
 #include <vector>
 
-namespace Fsl
+namespace Fsl::ProcFileUtil
 {
-  namespace ProcFileUtil
+  struct CPUInfo
   {
-    struct CPUInfo
-    {
-      uint64_t Id{0};
-      uint64_t User{0};
-      uint64_t Nice{0};
-      uint64_t System{0};
-      uint64_t Idle{0};
-    };
+    uint64_t Id{0};
+    uint64_t User{0};
+    uint64_t Nice{0};
+    uint64_t System{0};
+    uint64_t Idle{0};
+  };
 
-    struct RAMInfo
-    {
-      uint64_t VmRSS{0};
-    };
+  struct RAMInfo
+  {
+    uint64_t VmRSS{0};
+  };
 
-    //! @brief intended for parsing information about CPU load from "/proc/stat"
-    extern bool TryParseCPUStats(std::vector<CPUInfo>& rParsed, BasicFileReader& file, BufferedFileParser<4096>& fileParser);
-    //! @brief intended for parsing information about CPU load from "/proc/self/status"
-    extern bool TryParseRAMStats(RAMInfo& rParsed, BasicFileReader& file, BufferedFileParser<4096>& fileParser);
-  }
+  //! @brief intended for parsing information about CPU load from "/proc/stat"
+  extern bool TryParseCPUStats(std::vector<CPUInfo>& rParsed, BasicFileReader& file, BufferedFileParser<4096>& fileParser);
+  //! @brief intended for parsing information about CPU load from "/proc/self/status"
+  extern bool TryParseRAMStats(RAMInfo& rParsed, BasicFileReader& file, BufferedFileParser<4096>& fileParser);
 }
 
 #endif

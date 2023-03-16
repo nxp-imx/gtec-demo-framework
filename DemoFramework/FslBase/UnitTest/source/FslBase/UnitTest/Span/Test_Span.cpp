@@ -878,7 +878,9 @@ TEST(TestSpan, begin_iterator_to_end)
   std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
   Span<uint8_t> span = Convert(content);
 
+  // NOLINTNEXTLINE(readability-qualified-auto)
   auto itrSource = content.begin();
+  // NOLINTNEXTLINE(readability-qualified-auto)
   const auto itrSourceEnd = content.end();
 
   auto itr = span.begin();
@@ -903,7 +905,9 @@ TEST(TestSpan, begin_iterator_to_end_with_mod)
 
 
   {    // overwrite content with content2 using the span
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrSource = content2.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrSourceEnd = content2.end();
     auto itr = span.begin();
     auto itrEnd = span.end();
@@ -917,9 +921,13 @@ TEST(TestSpan, begin_iterator_to_end_with_mod)
     ASSERT_EQ(itrSourceEnd, itrSource);
   }
   {    // verify that both the span and content is equal to content2
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrContent = content.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrContentEnd = content.end();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrContent2 = content2.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrContent2End = content2.end();
 
     auto itr = span.begin();
@@ -952,7 +960,9 @@ TEST(TestSpan, begin_foreach_with_mod)
 
 
   {    // overwrite content with content2 using the span
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrSource = content2.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrSourceEnd = content2.end();
     for (auto& rEntry : span)
     {
@@ -963,9 +973,13 @@ TEST(TestSpan, begin_foreach_with_mod)
     ASSERT_TRUE(itrSourceEnd == itrSource);
   }
   {    // verify that both the span and content is equal to content2
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrContent = content.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrContentEnd = content.end();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrContent2 = content2.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrContent2End = content2.end();
 
     auto itr = span.begin();
@@ -1006,7 +1020,9 @@ TEST(TestSpan, begin_iterator_to_end_const)
   std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
   const Span<uint8_t> span = Convert(content);
 
+  // NOLINTNEXTLINE(readability-qualified-auto)
   auto itrSource = content.begin();
+  // NOLINTNEXTLINE(readability-qualified-auto)
   const auto itrSourceEnd = content.end();
 
   auto itr = span.begin();
@@ -1029,7 +1045,9 @@ TEST(TestSpan, begin_foreach_with_compare_const)
   const Span<uint8_t> span = Convert(content);
 
   {    // compare span with content using a 'foreach'
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrSource = content.begin();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrSourceEnd = content.end();
     for (auto entry : span)
     {
@@ -1057,7 +1075,9 @@ TEST(TestSpan, cbegin_iterator_to_cend_const)
   std::array<uint8_t, 11> content = {'H', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd'};
   const Span<uint8_t> span = Convert(content);
 
+  // NOLINTNEXTLINE(readability-qualified-auto)
   auto itrSource = content.begin();
+  // NOLINTNEXTLINE(readability-qualified-auto)
   const auto itrSourceEnd = content.end();
 
   auto itr = span.cbegin();

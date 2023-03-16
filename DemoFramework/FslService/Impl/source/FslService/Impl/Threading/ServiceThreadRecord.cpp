@@ -53,7 +53,7 @@ namespace Fsl
 
       const auto currentThreadId = std::this_thread::get_id();
 
-      FSLLOG3_VERBOSE("Thread started for serviceGroupId {} on {}", serviceConfig.Id.GetValue(), currentThreadId);
+      FSLLOG3_VERBOSE("Thread started for serviceGroupId {} on {}", serviceConfig.Id.GetValue(), fmt::streamed(currentThreadId));
       try
       {
         ServiceHostContext hostContext(incomingProvider);
@@ -67,11 +67,11 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG3_ERROR("Thread serviceGroupId {} on {} threw exception: {}", serviceConfig.Id.GetValue(), currentThreadId, ex.what());
+        FSLLOG3_ERROR("Thread serviceGroupId {} on {} threw exception: {}", serviceConfig.Id.GetValue(), fmt::streamed(currentThreadId), ex.what());
         // Notify the owner queue that we shutdown due to a exception
         ownerQueue->Push(ThreadShutdownBasicMessage(serviceConfig.Id, std::current_exception()));
       }
-      FSLLOG3_VERBOSE("Thread stopped for serviceGroupId {} on {}", serviceConfig.Id.GetValue(), currentThreadId);
+      FSLLOG3_VERBOSE("Thread stopped for serviceGroupId {} on {}", serviceConfig.Id.GetValue(), fmt::streamed(currentThreadId));
     }
   }
 

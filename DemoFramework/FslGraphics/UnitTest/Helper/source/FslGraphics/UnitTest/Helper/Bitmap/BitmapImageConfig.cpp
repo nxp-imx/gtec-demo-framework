@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/UnitTest/Helper/Bitmap/BitmapImageConfig.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
+#include <FslGraphics/UnitTest/Helper/Log/FmtPixelUInt8.hpp>
 #include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 
 

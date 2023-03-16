@@ -54,7 +54,14 @@ namespace Fsl::UI
   {
     for (auto itr = m_stack.rbegin(); itr != m_stack.rend(); ++itr)
     {
-      itr->Promise.set_exception(std::make_exception_ptr(std::runtime_error("activity canceled")));
+      try
+      {
+        itr->Promise.set_exception(std::make_exception_ptr(std::runtime_error("activity canceled")));
+      }
+      catch (const std::exception& ex)
+      {
+        FSLLOG3_ERROR("Failed to set exception on promise due to: ", ex.what());
+      }
     }
   }
 

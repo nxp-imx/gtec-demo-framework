@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <algorithm>
 
@@ -48,10 +49,20 @@ namespace Fsl
 
   public:
     constexpr Rectangle() noexcept = default;
-    Rectangle(const int32_t x, const int32_t y, const int32_t width, const int32_t height);
+    constexpr Rectangle(const int32_t x, const int32_t y, const int32_t width, const int32_t height) noexcept
+      : m_x(x)
+      , m_y(y)
+      , m_width(width >= 0 ? width : 0)
+      , m_height(height >= 0 ? height : 0)
+    {
+      FSLLOG3_DEBUG_WARNING_IF(width < 0, "Tried to set width to less than zero");
+      FSLLOG3_DEBUG_WARNING_IF(height < 0, "Tried to set height to less than zero");
+    }
 
-
-    static Rectangle FromLeftTopRigtBottom(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom);
+    constexpr static Rectangle FromLeftTopRigtBottom(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom) noexcept
+    {
+      return {left, top, right - left, bottom - top};
+    }
 
     static constexpr Rectangle Empty() noexcept
     {
@@ -156,8 +167,17 @@ namespace Fsl
       m_y = value;
     }
 
-    void SetWidth(const int32_t value);
-    void SetHeight(const int32_t value);
+    constexpr void SetWidth(const int32_t value) noexcept
+    {
+      FSLLOG3_DEBUG_WARNING_IF(value < 0, "Tried to set width to less than zero");
+      m_width = value >= 0 ? value : 0;
+    }
+
+    constexpr void SetHeight(const int32_t value) noexcept
+    {
+      FSLLOG3_DEBUG_WARNING_IF(value < 0, "Tried to set height to less than zero");
+      m_height = value >= 0 ? value : 0;
+    }
 
     inline constexpr void AddSize(const int32_t x, const int32_t y) noexcept
     {

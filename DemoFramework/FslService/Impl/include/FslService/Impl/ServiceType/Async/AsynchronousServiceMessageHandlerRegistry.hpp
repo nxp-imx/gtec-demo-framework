@@ -63,7 +63,7 @@ namespace Fsl
       // Little lambda function that converts from the generic Message to a TMessage
       type_message_function typeConversionFunc = [handler](Message& message) { handler(dynamic_cast<TMessage&>(message)); };
 
-      Register(std::type_index(typeid(TMessage)), typeConversionFunc);
+      Register(typeid(TMessage), typeConversionFunc);
     }
   };
 }

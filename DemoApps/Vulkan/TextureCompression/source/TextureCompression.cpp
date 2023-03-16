@@ -34,7 +34,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslGraphics/Log/LogPixelFormat.hpp>
+#include <FslGraphics/Log/FmtPixelFormat.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Sprite/BasicImageSprite.hpp>

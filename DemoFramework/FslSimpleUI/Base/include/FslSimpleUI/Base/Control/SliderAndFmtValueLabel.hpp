@@ -489,13 +489,13 @@ namespace Fsl::UI
         if (m_slider->GetOrientation() == LayoutOrientation::Horizontal)
         {
           // Since we recalc this on resize, we might as well just use the final px sizes
-          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, float(finalSizePx.Width())));
+          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, static_cast<float>(finalSizePx.Width())));
           // m_label->SetHeight(DpLayoutSize1D(finalSizeDp.Height()));
         }
         else
         {
           // Since we recalc this on resize, we might as well just use the final px sizes
-          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, float(finalSizePx.Height())));
+          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, static_cast<float>(finalSizePx.Height())));
           // m_label->SetWidth(DpLayoutSize1D(finalSizeDp.Width()));
         }
       }

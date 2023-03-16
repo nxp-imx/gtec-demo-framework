@@ -24,6 +24,7 @@
 
 // Wayland code adapted for the DemoFramework by Freescale 2014
 
+
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
@@ -51,10 +52,20 @@
 
 // TODO: remove globals
 
+
 namespace Fsl
 {
   namespace
   {
+    // https://gitlab.freedesktop.org/wayland/wayland/-/issues/34
+    // Workaround for "wl_array_for_each" not being C++ safe (or safe in general) and wayland failing to fix it for 3+ years
+    // at this point
+#define LOCAL_WL_ARRAY_FOR_EACH(pos, array, type) \
+	for (pos = (type)(array)->data; \
+	     (const char *) pos < ((const char *) (array)->data + (array)->size); \
+	     (pos)++)
+
+   
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
 
     struct MouseEvent
@@ -220,14 +231,13 @@ namespace Fsl
     void HandleToplevelConfigure(void* data, xdg_toplevel* toplevel, int32_t width, int32_t height, struct wl_array* states)
     {
       struct window* window = (struct window*)data;
-      // uint32_t *p;
-      void* p;
+      const uint32_t* p;
 
       window->fullscreen = 0;
       window->maximized = 0;
-      wl_array_for_each(p, states)
+      LOCAL_WL_ARRAY_FOR_EACH(p, states, uint32_t*)
       {
-        uint32_t state = *((uint32_t*)p);
+        uint32_t state = *p;
         switch (state)
         {
         case XDG_TOPLEVEL_STATE_FULLSCREEN:
@@ -236,11 +246,17 @@ namespace Fsl
         case XDG_TOPLEVEL_STATE_MAXIMIZED:
           window->maximized = 1;
           break;
+        default:
+          break;
         }
       }
+
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure width {} height {} fullscreen {} maximized {}", width, height, window->fullscreen, window->maximized);
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height, window->geometry.width, window->geometry.height);
+
       if (width > 0 && height > 0)
       {
-        if (!window->fullscreen && !window->maximized)
+        if (window->fullscreen || window->maximized)
         {
           window->window_size.width = width;
           window->window_size.height = height;
@@ -253,11 +269,15 @@ namespace Fsl
         window->geometry = window->window_size;
       }
 
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure1 active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height, window->geometry.width, window->geometry.height);
+
       if (window->native && !window->fullscreen)
       {
         if (window->resizeWindowCallback)
           window->resizeWindowCallback(window->native, width, height, 0, 0);
       }
+
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure2 active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height, window->geometry.width, window->geometry.height);
 
       {    // Let the framework know that we might have been resized
         std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
@@ -282,11 +302,22 @@ namespace Fsl
     const struct xdg_wm_base_listener wm_base_listener = {
       HandlePing,
     };
+    
     const struct xdg_surface_listener xdg_surface_listener = {HandleSurfaceConfigure};
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
     const struct xdg_toplevel_listener xdg_toplevel_listener = {
       HandleToplevelConfigure,
       HandleToplevelClose,
     };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
     static void HandleIVISurfaceConfigure(void* data, struct ivi_surface* ivi_surface, int32_t width, int32_t height)
@@ -516,10 +547,18 @@ namespace Fsl
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseWheelEvent(display->zDelta, display->mousePosition));
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 
     const wl_pointer_listener pointer_listener = {
       PointerHandleEnter, PointerHandleLeave, PointerHandleMotion, PointerHandleButton, PointerHandleAxis,
     };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 
     void KeyboardHandleKeymap(void* data, wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size)
@@ -687,10 +726,18 @@ namespace Fsl
     {
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
 
     const wl_keyboard_listener keyboard_listener = {
       KeyboardHandleKeymap, KeyboardHandleEnter, KeyboardHandleLeave, KeyboardHandleKey, KeyboardHandleModifiers,
     };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     static void print_global_info(void* data)
     {
@@ -743,7 +790,7 @@ namespace Fsl
         subpixel_orientation = "vertical bgr";
         break;
       default:
-        FSLLOG3_ERROR("unknown subpixel orientation {}", output->geometry.subpixel);
+        FSLLOG3_ERROR("unknown subpixel orientation {}", static_cast<uint64_t>(output->geometry.subpixel));
         subpixel_orientation = "unexpected value";
         break;
       }
@@ -775,7 +822,7 @@ namespace Fsl
         transform = "flipped 270";
         break;
       default:
-        FSLLOG3_ERROR("unknown output transform {}", output->geometry.output_transform);
+        FSLLOG3_ERROR("unknown output transform {}", static_cast<uint64_t>(output->geometry.output_transform));
         transform = "unexpected value";
         break;
       }
@@ -848,12 +895,21 @@ namespace Fsl
       output->geometry.scale = scale;
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
     static const struct wl_output_listener output_listener = {
       output_handle_geometry,
       output_handle_mode,
       output_handle_done,
       output_handle_scale,
     };
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     static void destroy_output_info(void* data)
     {
@@ -899,13 +955,13 @@ namespace Fsl
       wl_list_insert(&display->outputs, &output->global_link);
     }
 
-    static void print_infos(struct wl_list* infos)
-    {
-      struct global_info* info;
-      assert(infos != nullptr);
+    // static void print_infos(struct wl_list* infos)
+    // {
+    //   struct global_info* info;
+    //   assert(infos != nullptr);
 
-      wl_list_for_each(info, infos, link) info->print(info);
-    }
+    //   wl_list_for_each(info, infos, link) info->print(info);
+    // }
 
     static void destroy_info(void* data)
     {
@@ -955,10 +1011,18 @@ namespace Fsl
       }
     }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
     const wl_seat_listener seat_listener = {
       SeatHandleCapabilities,
     };
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
     void RegistryHandleGlobal(void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
     {
@@ -1028,6 +1092,7 @@ namespace Fsl
       else
       {
         FSLLOG3_WARNING("Failed to acquire proper DPI information, using defaults");
+        FSLLOG3_DEBUG_VERBOSE4("- Width {}, height {}, physicalWidth {} physicalHeight {}", width, height, physicalWidth, physicalHeight);
       }
     }
 
@@ -1133,11 +1198,12 @@ namespace Fsl
                        nativeWindowSetup.GetConfig().GetDisplayId());
     if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
     {
-      FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "Window Size/Position not defined, setting them to MAX Display Resolution");
+      FSLLOG3_VERBOSE("Fullscreen: Window Size/Position not defined, setting them to MAX Display Resolution");
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
       swindow.window_size.width = 480;
       swindow.window_size.height = 504;
       swindow.fullscreen = 0;
+      FSLLOG3_VERBOSE("Wayland IVI not configured to fullscreen access even though requested to do so");
 #else
       swindow.window_size.width = 250;
       swindow.window_size.height = 250;
@@ -1146,10 +1212,12 @@ namespace Fsl
     }
     else
     {
+      FSLLOG3_VERBOSE5("WindowMode");
       const Rectangle windowRectangle = nativeWindowConfig.GetWindowRectangle();
       swindow.window_size.width = windowRectangle.Width();
       swindow.window_size.height = windowRectangle.Height();
     }
+    FSLLOG3_VERBOSE("Creating window with {}x{} fullscreen {}", swindow.window_size.width, swindow.window_size.height, swindow.fullscreen);
 
     swindow.display = &sdisplay;
     sdisplay.window = &swindow;

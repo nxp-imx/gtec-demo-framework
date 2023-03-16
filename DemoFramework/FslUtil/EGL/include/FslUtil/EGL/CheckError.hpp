@@ -31,95 +31,93 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/EGL/Exceptions.hpp>
 #include <EGL/egl.h>
 #include <cassert>
 
-namespace Fsl
+namespace Fsl::EGL
 {
-  namespace EGL
+  inline void CheckError(const EGLenum errorCode)
   {
-    inline void CheckError(const EGLenum errorCode)
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        throw EGLGraphicsException("", errorCode);
-      }
+      throw EGLGraphicsException("", UncheckedNumericCast<int>(errorCode));
     }
+  }
 
-    inline void CheckError(const EGLenum errorCode, const char* const pszMessage)
+  inline void CheckError(const EGLenum errorCode, const char* const pszMessage)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        assert(pszMessage != nullptr);
-        throw EGLGraphicsException(pszMessage, errorCode);
-      }
+      assert(pszMessage != nullptr);
+      throw EGLGraphicsException(pszMessage, UncheckedNumericCast<int>(errorCode));
     }
+  }
 
 
-    inline void CheckError(const EGLenum errorCode, const std::string& message)
+  inline void CheckError(const EGLenum errorCode, const std::string& message)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        throw EGLGraphicsException(message, errorCode);
-      }
+      throw EGLGraphicsException(message, UncheckedNumericCast<int>(errorCode));
     }
+  }
 
 
-    inline void CheckError(const EGLenum errorCode, const char* const pszFilename, const int lineNumber)
+  inline void CheckError(const EGLenum errorCode, const char* const pszFilename, const int lineNumber)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        assert(pszFilename != nullptr);
-        throw EGLGraphicsException("", errorCode, pszFilename, lineNumber);
-      }
+      assert(pszFilename != nullptr);
+      throw EGLGraphicsException("", UncheckedNumericCast<int>(errorCode), pszFilename, lineNumber);
     }
+  }
 
 
-    inline void CheckError(const EGLenum errorCode, const std::string& filename, const int lineNumber)
+  inline void CheckError(const EGLenum errorCode, const std::string& filename, const int lineNumber)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        throw EGLGraphicsException("", errorCode, filename, lineNumber);
-      }
+      throw EGLGraphicsException("", UncheckedNumericCast<int>(errorCode), filename, lineNumber);
     }
+  }
 
 
-    inline void CheckError(const EGLenum errorCode, const char* const pszMessage, const char* const pszFilename, const int lineNumber)
+  inline void CheckError(const EGLenum errorCode, const char* const pszMessage, const char* const pszFilename, const int lineNumber)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        assert(pszMessage != nullptr);
-        assert(pszFilename != nullptr);
-        throw EGLGraphicsException(pszMessage, errorCode, pszFilename, lineNumber);
-      }
+      assert(pszMessage != nullptr);
+      assert(pszFilename != nullptr);
+      throw EGLGraphicsException(pszMessage, UncheckedNumericCast<int>(errorCode), pszFilename, lineNumber);
     }
+  }
 
-    inline void CheckError(const EGLenum errorCode, const char* const pszMessage, const std::string& filename, const int lineNumber)
+  inline void CheckError(const EGLenum errorCode, const char* const pszMessage, const std::string& filename, const int lineNumber)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        assert(pszMessage != nullptr);
-        throw EGLGraphicsException(pszMessage, errorCode, filename, lineNumber);
-      }
+      assert(pszMessage != nullptr);
+      throw EGLGraphicsException(pszMessage, UncheckedNumericCast<int>(errorCode), filename, lineNumber);
     }
+  }
 
 
-    inline void CheckError(const EGLenum errorCode, const std::string& message, const char* const pszFilename, const int lineNumber)
+  inline void CheckError(const EGLenum errorCode, const std::string& message, const char* const pszFilename, const int lineNumber)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        assert(pszFilename != nullptr);
-        throw EGLGraphicsException(message, errorCode, pszFilename, lineNumber);
-      }
+      assert(pszFilename != nullptr);
+      throw EGLGraphicsException(message, UncheckedNumericCast<int>(errorCode), pszFilename, lineNumber);
     }
+  }
 
-    inline void CheckError(const EGLenum errorCode, const std::string& message, const std::string& filename, const int lineNumber)
+  inline void CheckError(const EGLenum errorCode, const std::string& message, const std::string& filename, const int lineNumber)
+  {
+    if (errorCode != EGL_SUCCESS)
     {
-      if (errorCode != EGL_SUCCESS)
-      {
-        throw EGLGraphicsException(message, errorCode, filename, lineNumber);
-      }
+      throw EGLGraphicsException(message, UncheckedNumericCast<int>(errorCode), filename, lineNumber);
     }
   }
 }

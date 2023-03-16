@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <memory>
 
 namespace Fsl
 {

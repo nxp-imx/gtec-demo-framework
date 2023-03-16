@@ -64,6 +64,13 @@ namespace Fsl
     {
       using dataview_prop_type = std::shared_ptr<ChartDataView>;
 
+      struct DataViewCache
+      {
+        uint32_t Count{0};
+        uint32_t ChannelCount{0};
+      };
+
+
       AreaChartGridLineManager m_gridLineManager;
       std::shared_ptr<Render::ChartDataWindowDrawData> m_chartWindowDrawData;
 
@@ -75,9 +82,11 @@ namespace Fsl
       Color m_backgroundColor;
       Color m_labelColor;
       ChartRenderPolicy m_renderPolicy;
+      DataViewCache m_dataViewCache;
 
       DataBinding::TypedDependencyProperty<bool> m_propertyMatchDataViewEntries;
       DataBinding::TypedObserverDependencyProperty<dataview_prop_type> m_propertyDataView;
+
 
     public:
       static DataBinding::DependencyPropertyDefinition PropertyMatchDataViewEntries;

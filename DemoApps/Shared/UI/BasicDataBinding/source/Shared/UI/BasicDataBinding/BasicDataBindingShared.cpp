@@ -240,8 +240,8 @@ namespace Fsl
     const auto& context = uiFactory.GetContext();
     const auto& resources = uiFactory.GetResources();
 
-    const auto spriteDownArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowDownward);
-    const auto spriteRightArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowForward);
+    const auto& spriteDownArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowDownward);
+    const auto& spriteRightArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowForward);
     // const auto spriteContentAdd = resources.GetIconSprite(UI::Theme::IconType::ContentAdd);
     // const auto spriteContentRemove = resources.GetIconSprite(UI::Theme::IconType::ContentRemove);
 
@@ -428,9 +428,9 @@ namespace Fsl
   {
     const auto& context = uiFactory.GetContext();
     const auto& resources = uiFactory.GetResources();
-    const auto spriteDownArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowDownward);
-    const auto spriteRightArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowForward);
-    const auto spriteImage = resources.GetIconSprite(UI::Theme::IconType::Fill);
+    const auto& spriteDownArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowDownward);
+    const auto& spriteRightArrow = resources.GetIconSprite(UI::Theme::IconType::NavigationArrowForward);
+    const auto& spriteImage = resources.GetIconSprite(UI::Theme::IconType::Fill);
 
 
     auto layout = std::make_shared<UI::GridLayout>(context);

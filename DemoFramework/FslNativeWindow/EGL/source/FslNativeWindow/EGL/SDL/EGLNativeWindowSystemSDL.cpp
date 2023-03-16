@@ -31,8 +31,8 @@
  ****************************************************************************************************************************************************/
 
 #include "EGLNativeWindowSystemSDL.hpp"
-#include <FslNativeWindow/Platform/SDL/PlatformNativeWindowSDL.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
+#include <FslNativeWindow/Platform/SDL/PlatformNativeWindowSDL.hpp>
 #include <SDL2/SDL.h>
 
 namespace Fsl

@@ -37,6 +37,7 @@
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/Log/FmtAll.hpp>
 #include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>

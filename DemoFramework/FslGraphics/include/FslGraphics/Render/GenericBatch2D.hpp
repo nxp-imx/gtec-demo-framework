@@ -44,6 +44,7 @@
 #include <FslBase/Math/VectorHelper.hpp>
 #include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BitmapFontConfig.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
@@ -60,7 +61,8 @@ namespace Fsl
   GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GenericBatch2D(const native_batch_type& nativeBatchType, const PxExtent2D& currentExtent)
     : m_batchStrategy(GenericBatch2D_DEFAULT_CAPACITY)
     , m_native(nativeBatchType)
-    , m_screenRect(0, 0, currentExtent.Width, currentExtent.Height)
+    , m_screenRect(0, 0, UncheckedNumericCast<PxRectangle::value_type>(currentExtent.Width),
+                   UncheckedNumericCast<PxRectangle::value_type>(currentExtent.Height))
     , m_inBegin(false)
     , m_restoreState(false)
     , m_posScratchpad(128)
@@ -77,7 +79,8 @@ namespace Fsl
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::SetScreenExtent(const PxExtent2D& extentPx)
   {
-    m_screenRect = PxRectangle(0, 0, extentPx.Width, extentPx.Height);
+    m_screenRect = PxRectangle(0, 0, UncheckedNumericCast<PxRectangle::value_type>(extentPx.Width),
+                               UncheckedNumericCast<PxRectangle::value_type>(extentPx.Height));
   }
 
 
@@ -356,7 +359,8 @@ namespace Fsl
   {
     if (dstRectanglePx.Width() > 0 && dstRectanglePx.Height() > 0)
     {
-      Vector2 scale(dstRectanglePx.Width() / float(srcTexture.Info.ExtentPx.Width), dstRectanglePx.Height() / float(srcTexture.Info.ExtentPx.Height));
+      Vector2 scale(static_cast<float>(dstRectanglePx.Width()) / float(srcTexture.Info.ExtentPx.Width),
+                    static_cast<float>(dstRectanglePx.Height()) / float(srcTexture.Info.ExtentPx.Height));
       Draw(srcTexture, Vector2(dstRectanglePx.X(), dstRectanglePx.Y()), color, Vector2(), scale);
     }
   }
@@ -454,16 +458,17 @@ namespace Fsl
     // 2-3
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    const float u1 = clippedSrcRectPx.Left() / srcWidth;
-    const float u2 = clippedSrcRectPx.Right() / srcWidth;
-    const float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    const float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    const float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    const float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    const float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
-    m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y),
-                            Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Height),
-                            Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y + clippedSrcRectPx.Height), Vector2(u1, v1),
-                            Vector2(u2, v2), color);
+    m_batchStrategy.AddQuad(
+      dstPositionPxf, Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Width), dstPositionPxf.Y),
+      Vector2(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Height)),
+      Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Width), dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Height)),
+      Vector2(u1, v1), Vector2(u2, v2), color);
   }
 
   // ---------- 2 with clip
@@ -569,10 +574,10 @@ namespace Fsl
     // 2 2--3    Rot270CW = 0=u2,v1 1=u2,v2 2=u1,v1 3=u1,v2
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    float u1 = clippedSrcRectPx.Left() / srcWidth;
-    float u2 = clippedSrcRectPx.Right() / srcWidth;
-    float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
 
@@ -587,29 +592,33 @@ namespace Fsl
     switch (effect & BatchEffect::RotateMask)
     {
     case BatchEffect::Rotate90Clockwise:
-      m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y),
-                              Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Width),
-                              Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y + clippedSrcRectPx.Width),
-                              NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color);
+      m_batchStrategy.AddQuad(
+        dstPositionPxf, Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Height), dstPositionPxf.Y),
+        Vector2(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Width)),
+        Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Height), dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Width)),
+        NativeQuadTextureCoords(u1, v2, u1, v1, u2, v2, u2, v1), color);
       break;
     case BatchEffect::Rotate180Clockwise:
-      m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y),
-                              Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Height),
-                              Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y + clippedSrcRectPx.Height), Vector2(u2, v2),
-                              Vector2(u1, v1), color);
+      m_batchStrategy.AddQuad(
+        dstPositionPxf, Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Width), dstPositionPxf.Y),
+        Vector2(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Height)),
+        Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Width), dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Height)),
+        Vector2(u2, v2), Vector2(u1, v1), color);
       break;
     case BatchEffect::Rotate270Clockwise:
-      m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y),
-                              Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Width),
-                              Vector2(dstPositionPxf.X + clippedSrcRectPx.Height, dstPositionPxf.Y + clippedSrcRectPx.Width),
-                              NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color);
+      m_batchStrategy.AddQuad(
+        dstPositionPxf, Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Height), dstPositionPxf.Y),
+        Vector2(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Width)),
+        Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Height), dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Width)),
+        NativeQuadTextureCoords(u2, v1, u2, v2, u1, v1, u1, v2), color);
       break;
     case BatchEffect::NoEffect:
     default:
-      m_batchStrategy.AddQuad(dstPositionPxf, Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y),
-                              Vector2(dstPositionPxf.X, dstPositionPxf.Y + clippedSrcRectPx.Height),
-                              Vector2(dstPositionPxf.X + clippedSrcRectPx.Width, dstPositionPxf.Y + clippedSrcRectPx.Height), Vector2(u1, v1),
-                              Vector2(u2, v2), color);
+      m_batchStrategy.AddQuad(
+        dstPositionPxf, Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Width), dstPositionPxf.Y),
+        Vector2(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Height)),
+        Vector2(dstPositionPxf.X + static_cast<float>(clippedSrcRectPx.Width), dstPositionPxf.Y + static_cast<float>(clippedSrcRectPx.Height)),
+        Vector2(u1, v1), Vector2(u2, v2), color);
       break;
     }
   }
@@ -623,7 +632,8 @@ namespace Fsl
   {
     if (dstRectanglePx.Width() > 0 && dstRectanglePx.Height() > 0)
     {
-      Vector2 scale(dstRectanglePx.Width() / float(srcRectanglePx.Width), dstRectanglePx.Height() / float(srcRectanglePx.Height));
+      Vector2 scale(static_cast<float>(dstRectanglePx.Width()) / static_cast<float>(srcRectanglePx.Width),
+                    static_cast<float>(dstRectanglePx.Height()) / static_cast<float>(srcRectanglePx.Height));
       Draw(srcTexture, Vector2(dstRectanglePx.X(), dstRectanglePx.Y()), srcRectanglePx, color, Vector2(), scale);
     }
   }
@@ -660,10 +670,10 @@ namespace Fsl
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    const float u1 = clippedSrcRectPx.Left() / srcWidth;
-    const float u2 = clippedSrcRectPx.Right() / srcWidth;
-    const float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    const float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    const float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    const float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    const float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
     m_batchStrategy.AddQuad(Vector2(static_cast<float>(dstRectanglePx.Left()), static_cast<float>(dstRectanglePx.Top())),
@@ -681,7 +691,8 @@ namespace Fsl
   {
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
-      Vector2 scale(dstRectanglePxf.Width() / srcRectanglePx.Width, dstRectanglePxf.Height() / srcRectanglePx.Height);
+      Vector2 scale(dstRectanglePxf.Width() / static_cast<float>(srcRectanglePx.Width),
+                    dstRectanglePxf.Height() / static_cast<float>(srcRectanglePx.Height));
       Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), srcRectanglePx, color, Vector2(), scale);
     }
   }
@@ -719,10 +730,10 @@ namespace Fsl
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    const float u1 = clippedSrcRectPx.Left() / srcWidth;
-    const float u2 = clippedSrcRectPx.Right() / srcWidth;
-    const float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    const float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    const float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    const float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    const float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
     m_batchStrategy.AddQuad(Vector2(static_cast<float>(dstRectanglePxf.Left()), static_cast<float>(dstRectanglePxf.Top())),
@@ -742,7 +753,8 @@ namespace Fsl
   {
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
-      Vector2 scale(dstRectanglePxf.Width() / srcRectanglePx.Width, dstRectanglePxf.Height() / srcRectanglePx.Height);
+      Vector2 scale(dstRectanglePxf.Width() / static_cast<float>(srcRectanglePx.Width),
+                    dstRectanglePxf.Height() / static_cast<float>(srcRectanglePx.Height));
       Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), srcRectanglePx, color, Vector2(), scale, clipRectPx);
     }
   }
@@ -806,8 +818,10 @@ namespace Fsl
     if (dstRectanglePxf.Width() > 0 && dstRectanglePxf.Height() > 0)
     {
       auto scale = (effect & (BatchEffect::Rotate90Clockwise | BatchEffect::Rotate270Clockwise)) == BatchEffect::NoEffect
-                     ? Vector2(dstRectanglePxf.Width() / srcRectanglePx.Width, dstRectanglePxf.Height() / srcRectanglePx.Height)
-                     : Vector2(dstRectanglePxf.Width() / srcRectanglePx.Height, dstRectanglePxf.Height() / srcRectanglePx.Width);
+                     ? Vector2(dstRectanglePxf.Width() / static_cast<float>(srcRectanglePx.Width),
+                               dstRectanglePxf.Height() / static_cast<float>(srcRectanglePx.Height))
+                     : Vector2(dstRectanglePxf.Width() / static_cast<float>(srcRectanglePx.Height),
+                               dstRectanglePxf.Height() / static_cast<float>(srcRectanglePx.Width));
 
       Draw(srcTexture, TypeConverter::To<Vector2>(dstRectanglePxf.Location()), srcRectanglePx, color, Vector2(), scale, effect);
     }
@@ -845,10 +859,10 @@ namespace Fsl
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    float u1 = clippedSrcRectPx.Left() / srcWidth;
-    float u2 = clippedSrcRectPx.Right() / srcWidth;
-    float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
 
@@ -1000,14 +1014,14 @@ namespace Fsl
     // | |
     // 2-3
 
-    const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
-    const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
+    const float scaledDstWidth = static_cast<float>(clippedSrcRectPx.Width) * scale.X;
+    const float scaledDstHeight = static_cast<float>(clippedSrcRectPx.Height) * scale.Y;
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    const float u1 = clippedSrcRectPx.Left() / srcWidth;
-    const float u2 = clippedSrcRectPx.Right() / srcWidth;
-    const float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    const float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    const float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    const float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    const float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
     m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
@@ -1056,7 +1070,8 @@ namespace Fsl
       return;
     }
 
-    PxAreaRectangleF dstRectPxf(dstPos.X, dstPos.Y, clippedSrcRectPx.Width * scale.X, clippedSrcRectPx.Height * scale.Y);
+    PxAreaRectangleF dstRectPxf(dstPos.X, dstPos.Y, static_cast<float>(clippedSrcRectPx.Width) * scale.X,
+                                static_cast<float>(clippedSrcRectPx.Height) * scale.Y);
     auto finalClippedSrcRectPxf = TypeConverter::UncheckedTo<PxAreaRectangleF>(clippedSrcRectPx);
     if (Batch2DUtil::Clip(dstRectPxf, finalClippedSrcRectPxf, clipRectPx))
     {
@@ -1131,10 +1146,10 @@ namespace Fsl
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    float u1 = clippedSrcRectPx.Left() / srcWidth;
-    float u2 = clippedSrcRectPx.Right() / srcWidth;
-    float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
 
@@ -1150,8 +1165,8 @@ namespace Fsl
     {
     case BatchEffect::Rotate90Clockwise:
       {
-        const float scaledDstWidth = clippedSrcRectPx.Width * scale.Y;
-        const float scaledDstHeight = clippedSrcRectPx.Height * scale.X;
+        const float scaledDstWidth = static_cast<float>(clippedSrcRectPx.Width) * scale.Y;
+        const float scaledDstHeight = static_cast<float>(clippedSrcRectPx.Height) * scale.X;
         const Vector2 dstPos(dstPositionPxf.X - (origin.Y * scale.X), dstPositionPxf.Y - (origin.X * scale.Y));
 
         m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
@@ -1161,8 +1176,8 @@ namespace Fsl
       }
     case BatchEffect::Rotate180Clockwise:
       {
-        const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
-        const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
+        const float scaledDstWidth = static_cast<float>(clippedSrcRectPx.Width) * scale.X;
+        const float scaledDstHeight = static_cast<float>(clippedSrcRectPx.Height) * scale.Y;
         const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
         m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
@@ -1171,8 +1186,8 @@ namespace Fsl
       }
     case BatchEffect::Rotate270Clockwise:
       {
-        const float scaledDstWidth = clippedSrcRectPx.Width * scale.Y;
-        const float scaledDstHeight = clippedSrcRectPx.Height * scale.X;
+        const float scaledDstWidth = static_cast<float>(clippedSrcRectPx.Width) * scale.Y;
+        const float scaledDstHeight = static_cast<float>(clippedSrcRectPx.Height) * scale.X;
         const Vector2 dstPos(dstPositionPxf.X - (origin.Y * scale.X), dstPositionPxf.Y - (origin.X * scale.Y));
 
         m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstHeight, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstWidth),
@@ -1183,8 +1198,8 @@ namespace Fsl
     case BatchEffect::NoEffect:
     default:
       {
-        const float scaledDstWidth = clippedSrcRectPx.Width * scale.X;
-        const float scaledDstHeight = clippedSrcRectPx.Height * scale.Y;
+        const float scaledDstWidth = static_cast<float>(clippedSrcRectPx.Width) * scale.X;
+        const float scaledDstHeight = static_cast<float>(clippedSrcRectPx.Height) * scale.Y;
         const Vector2 dstPos(dstPositionPxf.X - (origin.X * scale.X), dstPositionPxf.Y - (origin.Y * scale.Y));
 
         m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledDstWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledDstHeight),
@@ -1260,9 +1275,9 @@ namespace Fsl
       const float dx = dstPositionPxf.X;
       const float dy = dstPositionPxf.Y;
       const float left = -scaledOrigin.X;
-      const float right = left + (clippedSrcRectPx.Width * scale.X);
+      const float right = left + (static_cast<float>(clippedSrcRectPx.Width) * scale.X);
       const float top = -scaledOrigin.Y;
-      const float bottom = top + (clippedSrcRectPx.Height * scale.Y);
+      const float bottom = top + (static_cast<float>(clippedSrcRectPx.Height) * scale.Y);
       vec0 = Vector2(left, top);
       vec1 = Vector2(right, top);
       vec2 = Vector2(left, bottom);
@@ -1281,10 +1296,10 @@ namespace Fsl
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    const float u1 = clippedSrcRectPx.Left() / srcWidth;
-    const float u2 = clippedSrcRectPx.Right() / srcWidth;
-    const float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    const float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    const float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    const float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    const float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     m_batchStrategy.SetTexture(srcTexture);
     m_batchStrategy.AddQuad(vec0, vec1, vec2, vec3, Vector2(u1, v1), Vector2(u2, v2), color);
@@ -1386,10 +1401,10 @@ namespace Fsl
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
-    const float u1 = clippedSrcRectPx.Left() / srcWidth;
-    const float u2 = clippedSrcRectPx.Right() / srcWidth;
-    const float v1 = TVFormatter::Format(clippedSrcRectPx.Top() / srcHeight);
-    const float v2 = TVFormatter::Format(clippedSrcRectPx.Bottom() / srcHeight);
+    const float u1 = static_cast<float>(clippedSrcRectPx.Left()) / srcWidth;
+    const float u2 = static_cast<float>(clippedSrcRectPx.Right()) / srcWidth;
+    const float v1 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Top()) / srcHeight);
+    const float v2 = TVFormatter::Format(static_cast<float>(clippedSrcRectPx.Bottom()) / srcHeight);
 
     const Vector2* pDstPosition = pDstPositions;
     const Vector2* const pDstPositionEnd = pDstPositions + dstPositionsLength;
@@ -1397,10 +1412,11 @@ namespace Fsl
     m_batchStrategy.SetTexture(srcTexture);
     while (pDstPosition < pDstPositionEnd)
     {
-      m_batchStrategy.AddQuad(*pDstPosition, Vector2(pDstPosition->X + clippedSrcRectPx.Width, pDstPosition->Y),
-                              Vector2(pDstPosition->X, pDstPosition->Y + clippedSrcRectPx.Height),
-                              Vector2(pDstPosition->X + clippedSrcRectPx.Width, pDstPosition->Y + clippedSrcRectPx.Height), Vector2(u1, v1),
-                              Vector2(u2, v2), color);
+      m_batchStrategy.AddQuad(
+        *pDstPosition, Vector2(pDstPosition->X + static_cast<float>(clippedSrcRectPx.Width), pDstPosition->Y),
+        Vector2(pDstPosition->X, pDstPosition->Y + static_cast<float>(clippedSrcRectPx.Height)),
+        Vector2(pDstPosition->X + static_cast<float>(clippedSrcRectPx.Width), pDstPosition->Y + static_cast<float>(clippedSrcRectPx.Height)),
+        Vector2(u1, v1), Vector2(u2, v2), color);
       ++pDstPosition;
     }
   }

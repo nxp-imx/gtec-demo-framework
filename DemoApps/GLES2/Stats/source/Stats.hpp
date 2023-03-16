@@ -36,7 +36,7 @@
 
 namespace Fsl
 {
-  class Stats : public DemoAppGLES2
+  class Stats final : public DemoAppGLES2
   {
     //! All the actual UI example code can be found in the Shared class since its reused for all Stats samples.
     Shared m_shared;
@@ -45,8 +45,8 @@ namespace Fsl
     explicit Stats(const DemoAppConfig& config);
 
   protected:
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
   };
 }
 

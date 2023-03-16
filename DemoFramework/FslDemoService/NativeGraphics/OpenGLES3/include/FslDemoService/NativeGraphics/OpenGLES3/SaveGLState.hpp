@@ -284,7 +284,7 @@ namespace Fsl::GLES3
       if (m_newState.Viewport != viewportPx)
       {
         m_newState.Viewport = viewportPx;
-        glViewport(m_newState.Viewport.X, m_newState.Viewport.Y, m_newState.Viewport.Width, m_newState.Viewport.Height);
+        glViewport(m_newState.Viewport.X(), m_newState.Viewport.Y(), m_newState.Viewport.Width(), m_newState.Viewport.Height());
       }
     }
 
@@ -465,7 +465,7 @@ namespace Fsl::GLES3
         }
         if (m_oldState.Viewport != m_newState.Viewport)
         {
-          glViewport(m_oldState.Viewport.X, m_oldState.Viewport.Y, m_oldState.Viewport.Width, m_oldState.Viewport.Height);
+          glViewport(m_oldState.Viewport.X(), m_oldState.Viewport.Y(), m_oldState.Viewport.Width(), m_oldState.Viewport.Height());
         }
         m_attribCache = {};
       }

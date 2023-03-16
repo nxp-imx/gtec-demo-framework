@@ -33,16 +33,10 @@
 
 #include <EGL/egl.h>
 
-namespace Fsl
+namespace Fsl::EGL::Debug
 {
-  namespace EGL
-  {
-    namespace Debug
-    {
-      //! @brief Convert the error code to a string
-      extern const char* ErrorCodeToString(const EGLenum errorCode);
-    };
-  }
+  //! @brief Convert the error code to a string
+  extern const char* ErrorCodeToString(const EGLenum errorCode);
 }
 
 #endif

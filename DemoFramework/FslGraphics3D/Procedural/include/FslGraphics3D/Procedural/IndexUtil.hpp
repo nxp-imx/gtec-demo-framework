@@ -80,10 +80,9 @@ namespace Fsl::Procedural
   std::size_t IndexUtil::MergeListIndices(std::vector<TIndex>& rDstIndices, const std::size_t dstIndex, const std::vector<TIndex>& srcIndices,
                                           const std::size_t srcStartIndex, const std::size_t srcCount, const TIndex mod)
   {
-    if (/*dstIndex < 0 || srcStartIndex < 0 || srcCount < 0 ||*/ std::size_t(srcStartIndex + srcCount) > srcIndices.size() ||
-        std::size_t(dstIndex + srcCount) > rDstIndices.size())
+    if (srcStartIndex + srcCount > srcIndices.size() || dstIndex + srcCount > rDstIndices.size())
     {
-      if (std::size_t(srcStartIndex + srcCount) > srcIndices.size())
+      if (static_cast<std::size_t>(srcStartIndex + srcCount) > srcIndices.size())
       {
         throw std::invalid_argument("(srcStartIndex + srcCount) should be <= srcIndices.size()");
       }
@@ -114,7 +113,7 @@ namespace Fsl::Procedural
                                                    const std::vector<TIndex>& srcIndices, const std::size_t srcStartIndex, const std::size_t srcCount,
                                                    const TIndex mod)
   {
-    if (/*dstIndex < 0 || srcStartIndex < 0 || srcCount < 0 ||*/ std::size_t(srcStartIndex + srcCount) > srcIndices.size())
+    if (/*dstIndex < 0 || srcStartIndex < 0 || srcCount < 0 ||*/ static_cast<std::size_t>(srcStartIndex + srcCount) > srcIndices.size())
     {
       throw std::invalid_argument("One of the arguments is invalid");
     }

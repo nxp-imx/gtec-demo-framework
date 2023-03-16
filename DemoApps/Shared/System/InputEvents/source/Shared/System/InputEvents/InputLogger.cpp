@@ -32,6 +32,8 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslNativeWindow/Base/VirtualKeyToString.hpp>
+#include <FslNativeWindow/Base/VirtualMouseButtonToString.hpp>
 #include <Shared/System/InputEvents/InputLogger.hpp>
 #include <fmt/format.h>
 
@@ -60,7 +62,8 @@ namespace Fsl
 
   void InputLogger::OnKeyEvent(const KeyEvent& event)
   {
-    auto str = fmt::format("OnKeyEvent key: {} pressed: {}", event.GetKey(), event.IsPressed());
+    auto strKey = Fsl::Debug::ToString(event.GetKey());
+    auto str = fmt::format("OnKeyEvent key: {} pressed: {}", strKey, event.IsPressed());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
@@ -68,7 +71,9 @@ namespace Fsl
 
   void InputLogger::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
-    auto str = fmt::format("OnMouseButtonEvent key: {} pressed: {} position: {}", event.GetButton(), event.IsPressed(), event.GetPosition());
+    auto strButton = Fsl::Debug::ToString(event.GetButton());
+
+    auto str = fmt::format("OnMouseButtonEvent key: {} pressed: {} position: {}", strButton, event.IsPressed(), event.GetPosition());
     FSLLOG3_INFO(str);
     m_console.push_back(str);
   }

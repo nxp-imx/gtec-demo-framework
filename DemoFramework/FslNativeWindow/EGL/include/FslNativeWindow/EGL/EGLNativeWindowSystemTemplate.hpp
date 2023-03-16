@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
-#include <FslNativeWindow/Platform/PlatformNativeWindowAllocationFunction.hpp>
-#include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/IEGLNativeWindow.hpp>
+#include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/NativeEGLSetup.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowAllocationFunction.hpp>
 
 namespace Fsl
 {

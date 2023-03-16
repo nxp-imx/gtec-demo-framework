@@ -38,12 +38,13 @@ namespace RapidVulkan::ErrorFormatter
 {
   std::string Format(const std::string& message, const VkResult errorCode)
   {
-    return fmt::format("{} failed with error code {} ({})", message, Debug::ToString(errorCode), errorCode);
+    return fmt::format("{} failed with error code {} ({})", message, Debug::ToString(errorCode), static_cast<int64_t>(errorCode));
   }
 
   std::string Format(const std::string& message, const VkResult errorCode, const std::string& fileName, const int lineNumber)
   {
-    return fmt::format("{} failed with error code {} ({}) at {}({})", message, Debug::ToString(errorCode), errorCode, fileName, lineNumber);
+    return fmt::format("{} failed with error code {} ({}) at {}({})", message, Debug::ToString(errorCode), static_cast<int64_t>(errorCode), fileName,
+                       lineNumber);
   }
 }
 #endif

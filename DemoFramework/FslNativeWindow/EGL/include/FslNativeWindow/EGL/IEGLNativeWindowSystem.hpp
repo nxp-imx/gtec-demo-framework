@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <EGL/egl.h>
+#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslNativeWindow/Base/NativeWindowProcessMessagesArgs.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/NativeEGLSetup.hpp>
+#include <EGL/egl.h>
 #include <memory>
 
 namespace Fsl

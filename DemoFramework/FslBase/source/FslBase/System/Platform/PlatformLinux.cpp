@@ -47,7 +47,7 @@ namespace Fsl
     {
       throw std::runtime_error("Failed to retrieve the current working directory");
     }
-    return std::string(buffer.data());
+    return buffer.data();
   }
 
 

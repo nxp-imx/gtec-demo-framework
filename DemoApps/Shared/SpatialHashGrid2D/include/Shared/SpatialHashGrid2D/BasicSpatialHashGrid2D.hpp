@@ -60,7 +60,7 @@ namespace Fsl
     BasicSpatialHashGrid2D() = default;
 
     BasicSpatialHashGrid2D(const uint16_t gridCellCountX, const uint16_t gridCellCountY, const uint8_t shiftX, const uint8_t shiftY)
-      : m_grid(std::size_t(gridCellCountX) * gridCellCountY * TMaxEntriesPerChunk)
+      : m_grid(static_cast<std::size_t>(gridCellCountX) * gridCellCountY * TMaxEntriesPerChunk)
       , m_gridCellCountX(gridCellCountX)
       , m_gridCellCountY(gridCellCountY)
       , m_shiftX(shiftX)

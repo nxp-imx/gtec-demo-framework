@@ -4,7 +4,7 @@ This describes a simple process for how to distribute a new sample that depends 
 
 ## Develop
 
-Go to github and [download](https://github.com/NXPmicro/gtec-demo-framework/releases) the latest release and then follow the standard process for creating a new app of the desired type. For this you should follow one of the ```Doc/Setup_guide_X``` documents found in the demo-framework repository. For example: [Setup_guide_windows.md](./Setup_guide_windows.md).
+Go to github and [download](https://github.com/nxp-imx/gtec-demo-framework/releases) the latest release and then follow the standard process for creating a new app of the desired type. For this you should follow one of the ```Doc/Setup_guide_X``` documents found in the demo-framework repository. For example: [Setup_guide_windows.md](./Setup_guide_windows.md).
 
 Once the sample has been created it's a good idea to follow the [CONTRIBUTING.md](../CONTRIBUTING.md) recommendations as that ensures we provide a higher quality sample and it will also make it easier to integrate the sample in a future version of the framework if it fits.
 

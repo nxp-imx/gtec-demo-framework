@@ -33,8 +33,8 @@
 
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
-#include <utility>
 #include <EGL/egl.h>
+#include <utility>
 
 namespace Fsl
 {

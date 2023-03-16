@@ -157,7 +157,7 @@ namespace Fsl
     {
       return;
     }
-    m_config.AppViewportPx.SetBounds(appRectPx);
+    m_config.AppViewportPx = PxViewport::SetBounds(m_config.AppViewportPx, appRectPx);
     if (m_appRecord.TestApp)
     {
       m_appRecord.TestApp->SetCustomViewport(m_config.AppViewportPx);

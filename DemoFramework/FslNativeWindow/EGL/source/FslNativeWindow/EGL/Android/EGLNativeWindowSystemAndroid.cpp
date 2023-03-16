@@ -31,13 +31,12 @@
  ****************************************************************************************************************************************************/
 
 #include "EGLNativeWindowSystemAndroid.hpp"
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroid.hpp>
-#include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
-
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroidCallbackCombiner.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroid.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroidCallbackCombiner.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 
 
 #if 0

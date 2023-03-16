@@ -488,7 +488,7 @@ namespace Fsl::GLES3
       {
         const PxViewport& viewport = record.MaterialInfo.Viewport;
         const int32_t newY = m_dependentResources.WindowSizePx.Height() - viewport.Bottom();
-        PxViewport newViewport(viewport.X, newY, viewport.Width, viewport.Height);
+        PxViewport newViewport(viewport.X(), newY, viewport.Width(), viewport.Height());
         m_frame.Cache.SavedState.SetViewport(newViewport);
         break;
       }

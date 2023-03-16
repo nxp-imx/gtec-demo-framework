@@ -35,14 +35,11 @@
 #include <EGL/egl.h>
 #include <deque>
 
-namespace Fsl
+namespace Fsl::EGLConfigUtil
 {
-  namespace EGLConfigUtil
-  {
-    //! @brief This is a very basic configuration chooser.
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    bool TryChooseConfig(const EGLDisplay hDisplay, const std::deque<EGLint>& configAttribs, const bool allowHDR, EGLConfig& rEGLConfig);
-  }
+  //! @brief This is a very basic configuration chooser.
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  bool TryChooseConfig(const EGLDisplay hDisplay, const std::deque<EGLint>& configAttribs, const bool allowHDR, EGLConfig& rEGLConfig);
 }
 
 #endif

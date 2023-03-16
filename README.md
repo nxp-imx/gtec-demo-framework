@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.0.3
+# DemoFramework 6.1.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -33,7 +33,7 @@ since the exact same demo/benchmark code run on all of them.
 * Android NDK
 * Linux with various windowing systems (Yocto).
 * Ubuntu 20.04
-* Windows 7+
+* Windows 10+
 
 ## Table of contents
 
@@ -193,7 +193,7 @@ Operating System | Build system
 -----------------|---------------------
 Android          | gradle + cmake (Android Studio can be used with the generated projects)
 Ubuntu           | cmake (ninja)
-Windows          | cmake (Visual studio 2019 x64)
+Windows          | cmake (Visual studio 2022 x64)
 Yocto            | cmake (ninja)
 
 ## Scripts
@@ -511,7 +511,7 @@ Argument             | Description
 ## Default keyboard mappings.
 
 All apps support these keys per default, but can override then if they chose to do so.
-Beware that some platforms might not support the given 'key' type and therefore they functonality is unsupported.
+Beware that some platforms might not support the given 'key' type and therefore the functonality is unsupported.
 
 Key     | Function
 ------- | ------------------------------------------------
@@ -1450,6 +1450,13 @@ Enables a SRGB Framebuffer if the extension EGL_KHR_gl_colorspace is available.
 If unavailable it does normal gamma correction in the shader.
 
 
+### [Stats](DemoApps/GLES3/Stats)
+
+<a href="DemoApps/GLES3/Stats/Example.jpg"><img src="DemoApps/GLES3/Stats/Example.jpg" height="108px" title="GLES3.Stats"></a>
+
+Showcase the new stats services.
+
+
 ### [T3DStressTest](DemoApps/GLES3/T3DStressTest)
 
 <a href="DemoApps/GLES3/T3DStressTest/Example.jpg"><img src="DemoApps/GLES3/T3DStressTest/Example.jpg" height="108px" title="GLES3.T3DStressTest"></a>
@@ -2130,6 +2137,13 @@ A simple example of how a spatial hash grid works in 2d.
 
 Enables a SRGB Framebuffer if its available.
 If unavailable it does normal gamma correction in the shader.
+
+
+### [Stats](DemoApps/Vulkan/Stats)
+
+<a href="DemoApps/Vulkan/Stats/Example.jpg"><img src="DemoApps/Vulkan/Stats/Example.jpg" height="108px" title="Vulkan.Stats"></a>
+
+Showcase the new stats services.
 
 
 ### [T3DStressTest](DemoApps/Vulkan/T3DStressTest)

@@ -575,8 +575,8 @@ namespace Fsl::Vulkan
     auto waitResult = vkDeviceWaitIdle(m_deviceResource.UniformBuffer.GetDevice());
     if (waitResult != VK_SUCCESS)
     {
-      FSLLOG3_ERROR_IF(m_logEnabled, "vkDeviceWaitIdle failed with: {}({}) at {} line: {}", RapidVulkan::Debug::ToString(waitResult), waitResult,
-                       __FILE__, __LINE__);
+      FSLLOG3_ERROR_IF(m_logEnabled, "vkDeviceWaitIdle failed with: {}({}) at {} line: {}", RapidVulkan::Debug::ToString(waitResult),
+                       static_cast<int64_t>(waitResult), __FILE__, __LINE__);
     }
 
     if (!m_dependentResource.IsValid)

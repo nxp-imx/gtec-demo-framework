@@ -107,7 +107,7 @@ namespace Fsl::GLES3
 
     void ChangeAttribs(const VertexElementAttribLinks& attribs)
     {
-      auto vertexStride = attribs.VertexStride();
+      const auto vertexStride = UncheckedNumericCast<GLint>(attribs.VertexStride());
       auto span = attribs.AsSpan();
 
       // We expect the max entries in VertexElementAttribLinks will be able to fit inside our cache

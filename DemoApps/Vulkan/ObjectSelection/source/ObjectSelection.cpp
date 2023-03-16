@@ -34,7 +34,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Ray.hpp>
-#include <FslBase/Math/Viewport.hpp>
+#include <FslBase/Math/ViewportUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorF.hpp>
@@ -713,9 +713,9 @@ namespace Fsl
       const auto mouseState = m_mouse->GetState();
 
       Vector3 sourcePos(static_cast<float>(mouseState.Position.X), static_cast<float>(mouseState.Position.Y), 0.0f);
-      m_mousePositionNear = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
+      m_mousePositionNear = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
       sourcePos.Z = 1.0f;
-      m_mousePositionFar = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
+      m_mousePositionFar = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
       // FSLLOG3_INFO("2D: X: " << mouseState.Position.X << " Y: " << mouseState.Position.Y  << " 3D: X: " << m_mousePositionFar.X << " Y: " <<
       // m_mousePositionFar.Y << " Z: " << m_mousePositionFar.Z);
 
@@ -761,9 +761,9 @@ namespace Fsl
     Vector3 sourcePos(static_cast<float>(screenSpacePosition.X), static_cast<float>(screenSpacePosition.Y), 0.0f);
 
     // Unproject a point on the near and far plane
-    const auto nearPoint = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
+    const auto nearPoint = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
     sourcePos.Z = 1.0f;
-    const auto farPoint = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
+    const auto farPoint = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
 
     // Build a ray
     Vector3 direction = farPoint - nearPoint;

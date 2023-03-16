@@ -32,6 +32,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/NumericCast.hpp>
 #include <cassert>
 #include <cstddef>
 #include <fstream>
@@ -70,7 +71,7 @@ namespace Fsl
     inline uint32_t Read(char* const pDst, const std::size_t dstSize)
     {
       assert(pDst != nullptr);
-      m_file.read(pDst, dstSize);
+      m_file.read(pDst, NumericCast<std::streamsize>(dstSize));
       return static_cast<uint32_t>(m_file.gcount());
     }
 

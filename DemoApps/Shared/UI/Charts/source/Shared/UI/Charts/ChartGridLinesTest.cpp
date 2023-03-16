@@ -101,8 +101,10 @@ namespace Fsl
 
     const uint32_t min = minMax.Min();
     const uint32_t max = minMax.Max();
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrFindMax =
       std::find_if(m_gridLines.begin(), m_gridLines.end(), [max](const UI::ChartGridLineInfo& entry) { return entry.Position > max; });
+    // NOLINTNEXTLINE(readability-qualified-auto)
     const auto itrFindMin =
       std::find_if(m_gridLines.begin(), itrFindMax, [min](const UI::ChartGridLineInfo& entry) { return entry.Position >= min; });
     const std::size_t indexFirst = std::distance(m_gridLines.begin(), itrFindMin);

@@ -361,6 +361,16 @@ namespace Fsl
       return SafeJsonString(fmt::format("{}", value));
     }
 
+    std::string SafeJsonString(const Fsl::OptionGroup::Enum value)
+    {
+      return SafeJsonString(fmt::format("{}", static_cast<int64_t>(value)));
+    }
+
+    std::string SafeJsonString(const Fsl::OptionType::Enum value)
+    {
+      return SafeJsonString(fmt::format("{}", static_cast<int64_t>(value)));
+    }
+
     std::string SafeJsonString(const OptionArgument& value)
     {
       return SafeJsonString(static_cast<uint32_t>(value));

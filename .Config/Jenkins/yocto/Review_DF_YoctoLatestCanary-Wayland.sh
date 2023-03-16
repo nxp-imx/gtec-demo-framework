@@ -13,4 +13,4 @@ source $DF_CI_YOCTO_SDK_SETUP_SCRIPT
 
 source $WORKSPACE/.Config/Jenkins/yocto/PrepareJenkinsEnvironment.sh
 
-FslBuild.py --noGitHash --debug -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES --Variants [WindowSystem=Wayland] -c install --CMakeInstallPrefix bin
+FslBuild.py --noGitHash --debug -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES --Variants [WindowSystem=Wayland_XDG] -c install --CMakeInstallPrefix bin

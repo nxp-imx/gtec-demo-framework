@@ -53,14 +53,14 @@ namespace Fsl
   {
   protected:
     NativeVulkanSetup m_setup;
-    VkSurfaceKHR m_surface;
+    VkSurfaceKHR m_surface{VK_NULL_HANDLE};
 
   public:
     VulkanNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                        const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
       : TPlatformNativeWindow(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
       , m_setup(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
-      , m_surface(VK_NULL_HANDLE)
+
     {
       if (m_setup.Instance == VK_NULL_HANDLE || m_setup.PhysicalDevice == VK_NULL_HANDLE)
       {

@@ -75,7 +75,9 @@ namespace Fsl::UI::BoxPlotHelper
   {
     const auto size = span.size();
     if (size < MinimumEntries)
+    {
       throw NotSupportedException("we expect at least five entries");
+    }
 
     // Find the median of the span
     const auto q2 = CalculateMedian(span);
@@ -119,7 +121,8 @@ namespace Fsl::UI::BoxPlotHelper
         break;
       }
     }
-    return {float(span.front()), float(min), float(q1), float(q2), float(q3), float(max), float(span.back())};
+    return {static_cast<float>(span.front()), static_cast<float>(min), static_cast<float>(q1),         static_cast<float>(q2),
+            static_cast<float>(q3),           static_cast<float>(max), static_cast<float>(span.back())};
   }
 }
 

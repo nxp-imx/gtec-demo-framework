@@ -45,7 +45,7 @@ namespace Fsl::Procedural
   template <typename TVertex>
   std::size_t VertexUtil::Copy(std::vector<TVertex>& rDst, const std::size_t dstIndex, const std::vector<TVertex>& srcVertices)
   {
-    if (/*dstIndex < 0 ||*/ (std::size_t(dstIndex) + srcVertices.size()) > rDst.size())
+    if (/*dstIndex < 0 ||*/ (dstIndex + srcVertices.size()) > rDst.size())
     {
       throw std::invalid_argument("One of the arguments is invalid");
     }
@@ -59,7 +59,7 @@ namespace Fsl::Procedural
   std::size_t VertexUtil::Copy(std::vector<TVertex>& rDst, const std::size_t dstIndex, const std::vector<TVertex>& srcVertices,
                                const Vector3& positionMod)
   {
-    if (dstIndex < 0 || (std::size_t(dstIndex) + srcVertices.size()) > rDst.size())
+    if (dstIndex < 0 || (dstIndex + srcVertices.size()) > rDst.size())
     {
       throw std::invalid_argument("One of the arguments is invalid");
     }

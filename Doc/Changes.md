@@ -1,5 +1,15 @@
 # Latest version
 
+## Release 6.1.0
+
+* Upgraded to fmt9
+* Bumped Android ndk to r25b
+* Updated android studio support to latest version.
+
+## Release 6.0.3
+
+* Minor fixes
+
 ## Release 6.0.2
 
 * Forward compatibility with fmt 9.x

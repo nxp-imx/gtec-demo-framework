@@ -239,8 +239,8 @@ namespace Fsl
     m_ubo.Normal = glm::inverseTranspose(m_ubo.View * m_ubo.Model);
 
     m_ubo.LightPos = glm::vec3(0.0f, 0.0f, 2.5f);
-    m_ubo.LightPos.x = sin(glm::radians(timer)) * 8.0f;
-    m_ubo.LightPos.z = cos(glm::radians(timer)) * 8.0f;
+    m_ubo.LightPos.x = std::sin(glm::radians(timer)) * 8.0f;
+    m_ubo.LightPos.z = std::cos(glm::radians(timer)) * 8.0f;
 
     {    // Transfer
       void* pData = nullptr;

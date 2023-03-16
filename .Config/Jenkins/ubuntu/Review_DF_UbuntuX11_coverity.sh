@@ -5,7 +5,8 @@ echo ********************
 set -o errexit
 
 if [ ! -n "${FSL_CI_BUILD_PARAM+1}" ]; then
-export FSL_CI_BUILD_PARAM="-c install --CMakeInstallPrefix bin"
+#export FSL_CI_BUILD_PARAM="-c install --CMakeInstallPrefix bin"
+export FSL_CI_BUILD_PARAM=""
 fi 
 
 if [ ! -z "${FSL_CI_COVERITY_PARAM}" ]; then
@@ -80,6 +81,10 @@ echo *********************************
 
 # Generate a html report for now
 cov-format-errors --dir $FSL_COVERITY_DIR --html-output $FSL_COVERITY_HTML_DIR
+
+# Archive the report
+rm -f $WORKSPACE/coverity-html-report.tar.gz
+tar -czvf $WORKSPACE/coverity-html-report.tar.gz $FSL_COVERITY_HTML_DIR
 
 echo ******************
 echo *** End script ***

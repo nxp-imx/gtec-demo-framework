@@ -692,13 +692,17 @@ namespace Fsl::UI
         auto dataStats = pDataViewElement->CalculateDataStats();
         requireRelayout = rDrawData.Canvas.SetAxisRange(dataStats.ValueMinMax);
       }
+
+      const uint32_t currentCount = pDataViewElement->Count();
+      const uint32_t channelCount = pDataViewElement->ChannelCount();
+      if (m_dataViewCache.Count != currentCount || m_dataViewCache.ChannelCount != channelCount)
+      {
+        m_dataViewCache.Count = currentCount;
+        m_dataViewCache.ChannelCount = channelCount;
+        requireRelayout = true;
+      }
     }
-
-    requireRelayout = true;
-
-
-    //// Recalculate the box plot data
-    // PopulateDrawDataWithBoxPlots(rDrawData, pDataViewElement, ReadOnlySpanUtil::AsSpan(m_channels));
+    // requireRelayout = true;
     return requireRelayout;
   }
 

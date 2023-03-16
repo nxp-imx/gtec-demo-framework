@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

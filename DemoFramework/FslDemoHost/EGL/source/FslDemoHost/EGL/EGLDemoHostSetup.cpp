@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Setup/TemplateIDemoHostFactory.hpp>
-#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostOptionParser.hpp>
+#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 
 namespace Fsl
 {
@@ -41,6 +41,6 @@ namespace Fsl
     std::shared_ptr<IDemoHostFactory> demoHostFactory =
       std::make_shared<TemplateIDemoHostFactory<EGLDemoHost>>(DemoHostCaps::Flags::HostControlGraphicsServiceApi);
     std::shared_ptr<ADemoHostOptionParser> optionParser = std::make_shared<EGLDemoHostOptionParser>();
-    return DemoHostSetup(demoHostFactory, optionParser);
+    return {demoHostFactory, optionParser};
   }
 }

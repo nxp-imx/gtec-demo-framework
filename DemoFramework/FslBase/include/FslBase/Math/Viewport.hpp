@@ -1,113 +1,151 @@
 #ifndef FSLBASE_MATH_VIEWPORT_HPP
 #define FSLBASE_MATH_VIEWPORT_HPP
-/*
-Microsoft Public License (Ms-PL)
-MonoGame - Copyright (C) 2009 The MonoGame Team
-
-All rights reserved.
-
-This license governs use of the accompanying software. If you use the software, you accept this license. If you do not
-accept the license, do not use the software.
-
-1. Definitions
-The terms "reproduce," "reproduction," "derivative works," and "distribution" have the same meaning here as under
-U.S. copyright law.
-
-A "contribution" is the original software, or any additions or changes to the software.
-A "contributor" is any person that distributes its contribution under this license.
-"Licensed patents" are a contributor's patent claims that read directly on its contribution.
-
-2. Grant of Rights
-(A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
-each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its
-contribution, and distribute its contribution or any derivative works that you create. (B) Patent Grant- Subject to the terms of this license,
-including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its
-licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative
-works of the contribution in the software.
-
-3. Conditions and Limitations
-(A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
-(B) If you bring a patent claim against any contributor over patents that you claim are infringed by the software,
-your patent license from such contributor to the software ends automatically.
-(C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution
-notices that are present in the software.
-(D) If you distribute any portion of the software in source code form, you may do so only under this license by including
-a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object
-code form, you may only do so under a license that complies with this license.
-(E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees
-or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent
-permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular
-purpose and non-infringement.
-*/
-
-// The functions in this file are a port of an MIT licensed library: MonoGame - Viewport.cs.
+/****************************************************************************************************************************************************
+ * Copyright 2023 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Rectangle.hpp>
-#include <FslBase/Math/Vector3.hpp>
 
 namespace Fsl
 {
-  struct Matrix;
-
   struct Viewport
   {
-    int32_t X{0};
-    int32_t Y{0};
-    int32_t Width{0};
-    int32_t Height{0};
-    float MinDepth{0.0f};
-    float MaxDepth{0.0f};
+  private:
+    int32_t m_x{0};
+    int32_t m_y{0};
+    int32_t m_width{0};
+    int32_t m_height{0};
+    float m_minDepth{0};
+    float m_maxDepth{0};
 
+  public:
+    constexpr Viewport() noexcept = default;
 
-    float GetAspectRatio() const
-    {
-      if ((Height != 0) && (Width != 0))
-      {
-        return static_cast<float>(Width) / static_cast<float>(Height);
-      }
-      return 0.0f;
-    }
-
-    Rectangle GetBounds() const
-    {
-      return {X, Y, Width, Height};
-    }
-
-    void SetBounds(const Rectangle& value)
-    {
-      X = value.X();
-      Y = value.Y();
-      Width = value.Width();
-      Height = value.Height();
-    }
-
-    constexpr Viewport() = default;
-
-    constexpr Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height)
-      : Viewport(x, y, width, height, 0.0f, 1.0f)
+    explicit constexpr Viewport(const Rectangle& src) noexcept
+      : Viewport(src.Left(), src.Top(), src.Width(), src.Height())
     {
     }
 
-    constexpr explicit Viewport(const Rectangle& bounds)
-      : Viewport(bounds.X(), bounds.Y(), bounds.Width(), bounds.Height())
+    constexpr Viewport(const Rectangle& src, const float minDepth, const float maxDepth) noexcept
+      : Viewport(src.Left(), src.Top(), src.Width(), src.Height(), minDepth, maxDepth)
     {
     }
 
-    constexpr Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height, float minDepth, float maxDepth)
-      : X(x)
-      , Y(y)
-      , Width(width)
-      , Height(height)
-      , MinDepth(minDepth)
-      , MaxDepth(maxDepth)
+    constexpr Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height, const float minDepth = 0.0f,
+                       const float maxDepth = 1.0f) noexcept
+      : m_x(x)
+      , m_y(y)
+      , m_width(width >= 0 ? width : 0)
+      , m_height(height >= 0 ? height : 0)
+      , m_minDepth(minDepth)
+      , m_maxDepth(maxDepth)
     {
     }
 
-    Vector3 Project(const Vector3& source, const Matrix& projection, const Matrix& view, const Matrix& world);
-    Vector3 Unproject(const Vector3& source, const Matrix& projection, const Matrix& view, const Matrix& world);
+    constexpr int32_t X() const noexcept
+    {
+      return m_x;
+    }
+
+    constexpr int32_t Y() const noexcept
+    {
+      return m_y;
+    }
+
+    constexpr int32_t Width() const noexcept
+    {
+      return m_width;
+    }
+
+    constexpr int32_t Height() const noexcept
+    {
+      return m_height;
+    }
+
+    constexpr float MinDepth() const noexcept
+    {
+      return m_minDepth;
+    }
+
+    constexpr float MaxDepth() const noexcept
+    {
+      return m_maxDepth;
+    }
+
+    constexpr int32_t Left() const
+    {
+      return m_x;
+    }
+
+    constexpr int32_t Top() const
+    {
+      return m_y;
+    }
+
+    constexpr int32_t Right() const
+    {
+      return m_x + m_width;
+    }
+
+    constexpr int32_t Bottom() const
+    {
+      return m_y + m_height;
+    }
+
+    constexpr float GetAspectRatio() const
+    {
+      return m_width != 0 && m_height != 0 ? static_cast<float>(m_width) / static_cast<float>(m_height) : 0.0f;
+    }
+
+    constexpr bool operator==(const Viewport& rhs) const noexcept
+    {
+      return m_x == rhs.m_x && m_y == rhs.m_y && m_width == rhs.m_width && m_height == rhs.m_height && m_minDepth == rhs.m_minDepth &&
+             m_maxDepth == rhs.m_maxDepth;
+    }
+
+    constexpr bool operator!=(const Viewport& rhs) const noexcept
+    {
+      return !(*this == rhs);
+    }
+
+    constexpr Rectangle GetBounds() noexcept
+    {
+      return {m_x, m_y, m_width, m_height};
+    }
+
+    constexpr static Viewport SetBounds(Viewport& src, const Rectangle& rectangle) noexcept
+    {
+      return {rectangle, src.MinDepth(), src.MaxDepth()};
+    }
   };
 }
-
 
 #endif

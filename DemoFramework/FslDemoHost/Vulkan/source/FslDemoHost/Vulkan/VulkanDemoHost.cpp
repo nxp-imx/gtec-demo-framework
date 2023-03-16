@@ -45,7 +45,8 @@
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>
-#include <FslUtil/Vulkan1_0/Log/All.hpp>
+//#include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/Log/FmtAll.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
@@ -135,10 +136,10 @@ namespace Fsl
       for (const auto& entry : surfaceFormats)
       {
 #ifdef RAPIDVULKAN_VULKAN_VERSION_MAJOR
-        FSLLOG3_INFO("- Format: {} ({}), ColorSpace: {} ({})", entry.format, RapidVulkan::Debug::ToString(entry.format), entry.colorSpace,
-                     RapidVulkan::Debug::ToString(entry.colorSpace));
+        FSLLOG3_INFO("- Format: {} ({}), ColorSpace: {} ({})", static_cast<int64_t>(entry.format), RapidVulkan::Debug::ToString(entry.format),
+                     static_cast<int64_t>(entry.colorSpace), RapidVulkan::Debug::ToString(entry.colorSpace));
 #else
-        FSLLOG3_INFO("- Format: {} (), ColorSpace: {}", entry.format, RapidVulkan::Debug::ToString(entry.format), entry.colorSpace);
+        FSLLOG3_INFO("- Format: {} (), ColorSpace: {}", static_cast<int64_t>(entry.format), RapidVulkan::Debug::ToString(entry.format), static_cast<int64_t>(entry.colorSpace);
 #endif
       }
     }

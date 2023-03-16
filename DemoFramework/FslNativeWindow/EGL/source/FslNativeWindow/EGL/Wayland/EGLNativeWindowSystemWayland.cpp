@@ -32,14 +32,13 @@
 
 #include "EGLNativeWindowSystemWayland.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWayland.hpp>
-#include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
-
-#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWaylandCombiner.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
-#include <wayland-egl.h>
+#include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
+#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWayland.hpp>
+#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWaylandCombiner.hpp>
 #include <wayland-client.h>
+#include <wayland-egl.h>
 #include <cstring>
 
 namespace Fsl

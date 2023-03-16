@@ -29,14 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/EGL/EGLStringUtil.hpp>
-#include <FslUtil/EGL/EGLCheck.hpp>
-#include <FslUtil/EGL/Exceptions.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
+#include <FslUtil/EGL/EGLCheck.hpp>
+#include <FslUtil/EGL/EGLStringUtil.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
 //#include <EGL/eglext.h>
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define DEFINE_BITFLAG_NAMERECORD(fLAG) BitFlagAndNameRecord((fLAG), #fLAG)
@@ -231,81 +231,81 @@ namespace Fsl
     switch (attribute)
     {
     case EGL_ALPHA_MASK_SIZE:
-      return std::string("EGL_ALPHA_MASK_SIZE");
+      return "EGL_ALPHA_MASK_SIZE";
     case EGL_ALPHA_SIZE:
-      return std::string("EGL_ALPHA_SIZE");
+      return "EGL_ALPHA_SIZE";
     case EGL_BIND_TO_TEXTURE_RGB:
-      return std::string("EGL_BIND_TO_TEXTURE_RGB");
+      return "EGL_BIND_TO_TEXTURE_RGB";
     case EGL_BIND_TO_TEXTURE_RGBA:
-      return std::string("EGL_BIND_TO_TEXTURE_RGBA");
+      return "EGL_BIND_TO_TEXTURE_RGBA";
     case EGL_BLUE_SIZE:
-      return std::string("EGL_BLUE_SIZE");
+      return "EGL_BLUE_SIZE";
     case EGL_BUFFER_SIZE:
-      return std::string("EGL_BUFFER_SIZE");
+      return "EGL_BUFFER_SIZE";
     case EGL_COLOR_BUFFER_TYPE:
-      return std::string("EGL_COLOR_BUFFER_TYPE");
+      return "EGL_COLOR_BUFFER_TYPE";
     case EGL_CONFIG_CAVEAT:
-      return std::string("EGL_CONFIG_CAVEAT");
+      return "EGL_CONFIG_CAVEAT";
     case EGL_CONFIG_ID:
-      return std::string("EGL_CONFIG_ID");
+      return "EGL_CONFIG_ID";
     case EGL_CONFORMANT:
-      return std::string("EGL_CONFORMANT");
+      return "EGL_CONFORMANT";
     case EGL_DEPTH_SIZE:
-      return std::string("EGL_DEPTH_SIZE");
+      return "EGL_DEPTH_SIZE";
     case EGL_GREEN_SIZE:
-      return std::string("EGL_GREEN_SIZE");
+      return "EGL_GREEN_SIZE";
     case EGL_LEVEL:
-      return std::string("EGL_LEVEL");
+      return "EGL_LEVEL";
     case EGL_LUMINANCE_SIZE:
-      return std::string("EGL_LUMINANCE_SIZE");
+      return "EGL_LUMINANCE_SIZE";
 #ifdef EGL_MAX_PBUFFER_WIDTH
     case EGL_MAX_PBUFFER_WIDTH:
-      return std::string("EGL_MAX_PBUFFER_WIDTH");
+      return "EGL_MAX_PBUFFER_WIDTH";
 #endif
 #ifdef EGL_MAX_PBUFFER_HEIGHT
     case EGL_MAX_PBUFFER_HEIGHT:
-      return std::string("EGL_MAX_PBUFFER_HEIGHT");
+      return "EGL_MAX_PBUFFER_HEIGHT";
 #endif
     case EGL_MATCH_NATIVE_PIXMAP:
-      return std::string("EGL_MATCH_NATIVE_PIXMAP");
+      return "EGL_MATCH_NATIVE_PIXMAP";
 #ifdef EGL_MAX_PBUFFER_PIXELS
     case EGL_MAX_PBUFFER_PIXELS:
-      return std::string("EGL_MAX_PBUFFER_PIXELS");
+      return "EGL_MAX_PBUFFER_PIXELS";
 #endif
     case EGL_MAX_SWAP_INTERVAL:
-      return std::string("EGL_MAX_SWAP_INTERVAL");
+      return "EGL_MAX_SWAP_INTERVAL";
     case EGL_MIN_SWAP_INTERVAL:
-      return std::string("EGL_MIN_SWAP_INTERVAL");
+      return "EGL_MIN_SWAP_INTERVAL";
     case EGL_NATIVE_RENDERABLE:
-      return std::string("EGL_NATIVE_RENDERABLE");
+      return "EGL_NATIVE_RENDERABLE";
 #ifdef EGL_NATIVE_VISUAL_ID
     case EGL_NATIVE_VISUAL_ID:
-      return std::string("EGL_NATIVE_VISUAL_ID");
+      return "EGL_NATIVE_VISUAL_ID";
 #endif
 #ifdef EGL_NATIVE_VISUAL_TYPE
     case EGL_NATIVE_VISUAL_TYPE:
-      return std::string("EGL_NATIVE_VISUAL_TYPE");
+      return "EGL_NATIVE_VISUAL_TYPE";
 #endif
     case EGL_RED_SIZE:
-      return std::string("EGL_RED_SIZE");
+      return "EGL_RED_SIZE";
     case EGL_RENDERABLE_TYPE:
-      return std::string("EGL_RENDERABLE_TYPE");
+      return "EGL_RENDERABLE_TYPE";
     case EGL_SAMPLE_BUFFERS:
-      return std::string("EGL_SAMPLE_BUFFERS");
+      return "EGL_SAMPLE_BUFFERS";
     case EGL_SAMPLES:
-      return std::string("EGL_SAMPLES");
+      return "EGL_SAMPLES";
     case EGL_STENCIL_SIZE:
-      return std::string("EGL_STENCIL_SIZE");
+      return "EGL_STENCIL_SIZE";
     case EGL_SURFACE_TYPE:
-      return std::string("EGL_SURFACE_TYPE");
+      return "EGL_SURFACE_TYPE";
     case EGL_TRANSPARENT_TYPE:
-      return std::string("EGL_TRANSPARENT_TYPE");
+      return "EGL_TRANSPARENT_TYPE";
     case EGL_TRANSPARENT_RED_VALUE:
-      return std::string("EGL_TRANSPARENT_RED_VALUE");
+      return "EGL_TRANSPARENT_RED_VALUE";
     case EGL_TRANSPARENT_GREEN_VALUE:
-      return std::string("EGL_TRANSPARENT_GREEN_VALUE");
+      return "EGL_TRANSPARENT_GREEN_VALUE";
     case EGL_TRANSPARENT_BLUE_VALUE:
-      return std::string("EGL_TRANSPARENT_BLUE_VALUE");
+      return "EGL_TRANSPARENT_BLUE_VALUE";
     default:
       std::stringstream sstream;
       sstream << std::hex << std::setfill('0') << std::setw(4) << attribute;

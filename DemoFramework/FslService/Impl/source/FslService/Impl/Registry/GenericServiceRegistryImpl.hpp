@@ -53,7 +53,7 @@ namespace Fsl
     std::shared_ptr<ProviderIdGenerator> m_providerIdGenerator;
     std::shared_ptr<InterfaceCollisionChecker> m_interfaceCollisionChecker;
     const ServiceTypeEx TheServiceType;
-    bool m_isLocked;
+    bool m_isLocked{false};
     RegisteredServiceDeque m_services;
     ServiceOptionParserDeque m_serviceOptionParsers;
 
@@ -63,8 +63,6 @@ namespace Fsl
       : m_providerIdGenerator(std::move(providerIdGenerator))
       , m_interfaceCollisionChecker(std::move(interfaceCollisionChecker))
       , TheServiceType(serviceType)
-      , m_isLocked(false)
-
     {
     }
 

@@ -48,8 +48,8 @@ namespace fmt
     template <typename FormatContext>
     auto format(const Fsl::Viewport& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={} Width={} Height={} MinDepth={} MaxDepth={}}}", value.X, value.Y, value.Width, value.Height,
-                       value.MinDepth, value.MaxDepth);
+      return format_to(ctx.out(), "{{X={} Y={} Width={} Height={} MinDepth={} MaxDepth={}}}", value.X(), value.Y(), value.Width(), value.Height(),
+                       value.MinDepth(), value.MaxDepth());
     }
   };
 }

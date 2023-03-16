@@ -40,90 +40,124 @@ namespace Fsl
 {
   struct PxViewport
   {
-    int32_t X{0};
-    int32_t Y{0};
-    int32_t Width{0};
-    int32_t Height{0};
+  private:
+    int32_t m_x{0};
+    int32_t m_y{0};
+    int32_t m_width{0};
+    int32_t m_height{0};
+    float m_minDepth{0};
+    float m_maxDepth{0};
 
+  public:
     constexpr PxViewport() noexcept = default;
 
-
-    constexpr explicit PxViewport(const PxRectangle& bounds) noexcept
+    explicit constexpr PxViewport(const PxRectangle& bounds) noexcept
       : PxViewport(bounds.X(), bounds.Y(), bounds.Width(), bounds.Height())
     {
     }
 
-    constexpr PxViewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height) noexcept
-      : X(x)
-      , Y(y)
-      , Width(width >= 0 ? width : 0)
-      , Height(height >= 0 ? height : 0)
+    constexpr PxViewport(const PxRectangle& src, const float minDepth, const float maxDepth) noexcept
+      : PxViewport(src.Left(), src.Top(), src.Width(), src.Height(), minDepth, maxDepth)
     {
     }
 
-    float GetAspectRatio() const
+    constexpr PxViewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height, const float minDepth = 0.0f,
+                         const float maxDepth = 1.0f) noexcept
+      : m_x(x)
+      , m_y(y)
+      , m_width(width >= 0 ? width : 0)
+      , m_height(height >= 0 ? height : 0)
+      , m_minDepth(minDepth)
+      , m_maxDepth(maxDepth)
     {
-      if ((Height != 0) && (Width != 0))
-      {
-        return static_cast<float>(Width) / static_cast<float>(Height);
-      }
-      return 0.0f;
+    }
+
+    constexpr int32_t X() const noexcept
+    {
+      return m_x;
+    }
+
+    constexpr int32_t Y() const noexcept
+    {
+      return m_y;
+    }
+
+    constexpr int32_t Width() const noexcept
+    {
+      return m_width;
+    }
+
+    constexpr int32_t Height() const noexcept
+    {
+      return m_height;
+    }
+
+    constexpr float MinDepth() const noexcept
+    {
+      return m_minDepth;
+    }
+
+    constexpr float MaxDepth() const noexcept
+    {
+      return m_maxDepth;
     }
 
     constexpr int32_t Left() const
     {
-      return X;
+      return m_x;
     }
 
     constexpr int32_t Top() const
     {
-      return Y;
+      return m_y;
     }
 
     constexpr int32_t Right() const
     {
-      return X + Width;
+      return m_x + m_width;
     }
 
     constexpr int32_t Bottom() const
     {
-      return Y + Height;
+      return m_y + m_height;
     }
 
     constexpr PxPoint2 Location() const
     {
-      return {X, Y};
+      return {m_x, m_y};
     }
 
     constexpr PxSize2D GetSize() const
     {
-      return {Width, Height};
+      return {m_width, m_height};
     }
 
-    constexpr PxRectangle GetBounds() const
+    constexpr float GetAspectRatio() const
     {
-      return {X, Y, Width, Height};
-    }
-
-    constexpr void SetBounds(const PxRectangle& value)
-    {
-      X = value.X();
-      Y = value.Y();
-      Width = value.Width();
-      Height = value.Height();
+      return m_width != 0 && m_height != 0 ? static_cast<float>(m_width) / static_cast<float>(m_height) : 0.0f;
     }
 
     constexpr bool operator==(const PxViewport& rhs) const noexcept
     {
-      return X == rhs.X && Y == rhs.Y && Width == rhs.Width && Height == rhs.Height;
+      return m_x == rhs.m_x && m_y == rhs.m_y && m_width == rhs.m_width && m_height == rhs.m_height && m_minDepth == rhs.m_minDepth &&
+             m_maxDepth == rhs.m_maxDepth;
     }
 
     constexpr bool operator!=(const PxViewport& rhs) const noexcept
     {
       return !(*this == rhs);
     }
+
+    constexpr PxRectangle GetBounds() noexcept
+    {
+      return {m_x, m_y, m_width, m_height};
+    }
+
+    constexpr static PxViewport SetBounds(PxViewport& src, const PxRectangle& rectangle) noexcept
+    {
+      return {rectangle, src.MinDepth(), src.MaxDepth()};
+    }
   };
 }
-
 
 #endif

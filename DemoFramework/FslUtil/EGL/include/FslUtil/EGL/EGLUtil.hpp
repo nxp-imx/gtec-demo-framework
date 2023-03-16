@@ -33,29 +33,26 @@
 
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/EGL/CheckError.hpp>
-#include <vector>
 #include <EGL/egl.h>
+#include <vector>
 
-namespace Fsl
+namespace Fsl::EGLUtil
 {
-  namespace EGLUtil
-  {
-    //! @brief Get a list of all extensions
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
+  //! @brief Get a list of all extensions
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
 
-    //! @brief Check if the given EGL extension is available
-    //! @note Do not expect mind blowing performance from this!
-    //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
+  //! @brief Check if the given EGL extension is available
+  //! @note Do not expect mind blowing performance from this!
+  //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
 
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
 
-    //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls
-    std::vector<EGLenum> GetConfigAttribs();
-  }
+  //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls
+  std::vector<EGLenum> GetConfigAttribs();
 }
 
 #endif

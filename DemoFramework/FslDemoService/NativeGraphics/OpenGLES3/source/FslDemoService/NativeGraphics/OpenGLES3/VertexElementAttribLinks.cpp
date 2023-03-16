@@ -93,6 +93,7 @@ namespace Fsl::GLES3
       result.Entries[i] = vertexElementAttribConfigs[i];
     }
     // sort the entries based on attrib index (low to high)
+    // NOLINTNEXTLINE(readability-qualified-auto)
     auto itrEnd = std::next(result.Entries.begin(), UncheckedNumericCast<std::ptrdiff_t>(convertedSize));
     std::sort(result.Entries.begin(), itrEnd,
               [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool

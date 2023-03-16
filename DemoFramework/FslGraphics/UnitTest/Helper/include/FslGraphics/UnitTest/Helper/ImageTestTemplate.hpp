@@ -34,6 +34,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
+#include <FslGraphics/Log/FmtPixelFormat.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/PixelFormatLayout.hpp>
 #include <FslUnitTest/FormatDebugInfo.hpp>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslUnitTest.TestPackages.VariantExtend.P1" CreationYear="2023">
+    <Requirement Name="Test_TestPackage" Type="feature"/>
+    <Dependency Name="FslUnitTest.TestPackages.VariantExtend.P0"/>
+    <Platform Name="*">
+      <Variant Name="FSL_TEST_VARIANT_EXTEND" Extend="true">
+        <Option Name="Option1">
+          <Define Name="FSL_TEST_VARIANT_EXTEND_TEST_DEFINE_O1A" Access="Public"/>
+        </Option>
+        <Option Name="Option2">
+          <Define Name="FSL_TEST_VARIANT_EXTEND_TEST_DEFINE_O2B" Access="Public"/>
+        </Option>
+      </Variant>
+    </Platform>
+  </Library>
+</FslBuildGen>

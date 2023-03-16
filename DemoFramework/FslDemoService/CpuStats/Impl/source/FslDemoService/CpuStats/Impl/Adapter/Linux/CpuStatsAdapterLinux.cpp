@@ -117,7 +117,7 @@ namespace Fsl
       return false;
     }
 
-    rUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / totalUsage) * 100.0f;
+    rUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / static_cast<double>(totalUsage)) * 100.0f;
     return true;
   }
 
@@ -151,7 +151,7 @@ namespace Fsl
     {
       m_appProcessLast = processTimes;
       m_lastAppTime = currentAppTime;
-      m_appCpuUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / deltaTime) * 100.0f;
+      m_appCpuUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / static_cast<double>(deltaTime)) * 100.0f;
     }
     else
     {

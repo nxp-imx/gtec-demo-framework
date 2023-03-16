@@ -61,10 +61,10 @@ namespace Fsl
     Color operator()(TGenerator& g) const
     {
       const float val = m_dist(g);
-      const int32_t colR = std::max(std::min(static_cast<int32_t>(m_min.R()) + static_cast<int32_t>(m_deltaR * val), 255), 0);
-      const int32_t colG = std::max(std::min(static_cast<int32_t>(m_min.G()) + static_cast<int32_t>(m_deltaG * val), 255), 0);
-      const int32_t colB = std::max(std::min(static_cast<int32_t>(m_min.B()) + static_cast<int32_t>(m_deltaB * val), 255), 0);
-      const int32_t colA = std::max(std::min(static_cast<int32_t>(m_min.A()) + static_cast<int32_t>(m_deltaA * val), 255), 0);
+      const int32_t colR = std::max(std::min(static_cast<int32_t>(m_min.R()) + static_cast<int32_t>(static_cast<float>(m_deltaR) * val), 255), 0);
+      const int32_t colG = std::max(std::min(static_cast<int32_t>(m_min.G()) + static_cast<int32_t>(static_cast<float>(m_deltaG) * val), 255), 0);
+      const int32_t colB = std::max(std::min(static_cast<int32_t>(m_min.B()) + static_cast<int32_t>(static_cast<float>(m_deltaB) * val), 255), 0);
+      const int32_t colA = std::max(std::min(static_cast<int32_t>(m_min.A()) + static_cast<int32_t>(static_cast<float>(m_deltaA) * val), 255), 0);
       return {colR, colG, colB, colA};
     }
   };

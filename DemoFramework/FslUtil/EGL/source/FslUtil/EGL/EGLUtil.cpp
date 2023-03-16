@@ -29,106 +29,103 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/EGL/EGLUtil.hpp>
-#include <FslUtil/EGL/EGLCheck.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <FslUtil/EGL/EGLCheck.hpp>
+#include <FslUtil/EGL/EGLUtil.hpp>
+#include <EGL/egl.h>
 #include <algorithm>
 #include <vector>
-#include <EGL/egl.h>
 
-namespace Fsl
+namespace Fsl::EGLUtil
 {
-  namespace EGLUtil
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  std::vector<StringViewLite> GetExtensions(const EGLDisplay display)
   {
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    std::vector<StringViewLite> GetExtensions(const EGLDisplay display)
+    const auto* const pszExtensions = eglQueryString(display, EGL_EXTENSIONS);
+    EGL_CHECK_FOR_ERROR();
+    if (pszExtensions == nullptr)
     {
-      const auto* const pszExtensions = eglQueryString(display, EGL_EXTENSIONS);
-      EGL_CHECK_FOR_ERROR();
-      if (pszExtensions == nullptr)
-      {
-        throw std::runtime_error("Failed to retrieve EGL extensions");
-      }
-
-      return StringUtil::Split(pszExtensions, ' ', true);
+      throw std::runtime_error("Failed to retrieve EGL extensions");
     }
 
+    return StringUtil::Split(pszExtensions, ' ', true);
+  }
 
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    bool HasExtension(const EGLDisplay display, const char* const pszExtensionName)
+
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  bool HasExtension(const EGLDisplay display, const char* const pszExtensionName)
+  {
+    const auto extensions = GetExtensions(display);
+    return std::find(extensions.begin(), extensions.end(), StringViewLite(pszExtensionName)) != extensions.end();
+  }
+
+
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy)
+  {
+    EGLint numConfigs = 0;
+    if (eglGetConfigs(dpy, nullptr, 0, &numConfigs) != EGL_TRUE)
     {
-      const auto extensions = GetExtensions(display);
-      return std::find(extensions.begin(), extensions.end(), StringViewLite(pszExtensionName)) != extensions.end();
+      throw EGLGraphicsException("eglGetConfigs", eglGetError(), __FILE__, __LINE__);
     }
 
-
-    // NOLINTNEXTLINE(misc-misplaced-const)
-    std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy)
+    std::vector<EGLConfig> result(numConfigs);
+    if (eglGetConfigs(dpy, result.data(), static_cast<EGLint>(result.size()), &numConfigs) != EGL_TRUE || numConfigs < 0)
     {
-      EGLint numConfigs = 0;
-      if (eglGetConfigs(dpy, nullptr, 0, &numConfigs) != EGL_TRUE)
-      {
-        throw EGLGraphicsException("eglGetConfigs", eglGetError(), __FILE__, __LINE__);
-      }
-
-      std::vector<EGLConfig> result(numConfigs);
-      if (eglGetConfigs(dpy, result.data(), static_cast<EGLint>(result.size()), &numConfigs) != EGL_TRUE || numConfigs < 0)
-      {
-        throw EGLGraphicsException("eglGetConfigs", eglGetError(), __FILE__, __LINE__);
-      }
-      if (static_cast<std::size_t>(numConfigs) < result.size())
-      {
-        result.resize(numConfigs);
-      }
-      return result;
+      throw EGLGraphicsException("eglGetConfigs", eglGetError(), __FILE__, __LINE__);
     }
-
-    std::vector<EGLenum> GetConfigAttribs()
+    if (static_cast<std::size_t>(numConfigs) < result.size())
     {
-      std::vector<EGLenum> result = {EGL_ALPHA_MASK_SIZE,
-                                     EGL_ALPHA_SIZE,
-                                     EGL_BIND_TO_TEXTURE_RGB,
-                                     EGL_BIND_TO_TEXTURE_RGBA,
-                                     EGL_BLUE_SIZE,
-                                     EGL_BUFFER_SIZE,
-                                     EGL_COLOR_BUFFER_TYPE,
-                                     EGL_CONFIG_CAVEAT,
-                                     EGL_CONFIG_ID,
-                                     EGL_CONFORMANT,
-                                     EGL_DEPTH_SIZE,
-                                     EGL_GREEN_SIZE,
-                                     EGL_LEVEL,
-                                     EGL_LUMINANCE_SIZE,
+      result.resize(numConfigs);
+    }
+    return result;
+  }
+
+  std::vector<EGLenum> GetConfigAttribs()
+  {
+    std::vector<EGLenum> result = {EGL_ALPHA_MASK_SIZE,
+                                   EGL_ALPHA_SIZE,
+                                   EGL_BIND_TO_TEXTURE_RGB,
+                                   EGL_BIND_TO_TEXTURE_RGBA,
+                                   EGL_BLUE_SIZE,
+                                   EGL_BUFFER_SIZE,
+                                   EGL_COLOR_BUFFER_TYPE,
+                                   EGL_CONFIG_CAVEAT,
+                                   EGL_CONFIG_ID,
+                                   EGL_CONFORMANT,
+                                   EGL_DEPTH_SIZE,
+                                   EGL_GREEN_SIZE,
+                                   EGL_LEVEL,
+                                   EGL_LUMINANCE_SIZE,
 #ifdef EGL_MAX_PBUFFER_WIDTH
-                                     EGL_MAX_PBUFFER_WIDTH,
+                                   EGL_MAX_PBUFFER_WIDTH,
 #endif
 #ifdef EGL_MAX_PBUFFER_HEIGHT
-                                     EGL_MAX_PBUFFER_HEIGHT,
+                                   EGL_MAX_PBUFFER_HEIGHT,
 #endif
-      // EGL_MATCH_NATIVE_PIXMAP,  // can not be queried
+    // EGL_MATCH_NATIVE_PIXMAP,  // can not be queried
 #ifdef EGL_MAX_PBUFFER_PIXELS
-                                     EGL_MAX_PBUFFER_PIXELS,
+                                   EGL_MAX_PBUFFER_PIXELS,
 #endif
-                                     EGL_MAX_SWAP_INTERVAL,
-                                     EGL_MIN_SWAP_INTERVAL,
-                                     EGL_NATIVE_RENDERABLE,
+                                   EGL_MAX_SWAP_INTERVAL,
+                                   EGL_MIN_SWAP_INTERVAL,
+                                   EGL_NATIVE_RENDERABLE,
 #ifdef EGL_NATIVE_VISUAL_ID
-                                     EGL_NATIVE_VISUAL_ID,
+                                   EGL_NATIVE_VISUAL_ID,
 #endif
 #ifdef EGL_NATIVE_VISUAL_TYPE
-                                     EGL_NATIVE_VISUAL_TYPE,
+                                   EGL_NATIVE_VISUAL_TYPE,
 #endif
-                                     EGL_RED_SIZE,
-                                     EGL_RENDERABLE_TYPE,
-                                     EGL_SAMPLE_BUFFERS,
-                                     EGL_SAMPLES,
-                                     EGL_STENCIL_SIZE,
-                                     EGL_SURFACE_TYPE,
-                                     EGL_TRANSPARENT_TYPE,
-                                     EGL_TRANSPARENT_RED_VALUE,
-                                     EGL_TRANSPARENT_GREEN_VALUE,
-                                     EGL_TRANSPARENT_BLUE_VALUE};
-      return result;
-    }
+                                   EGL_RED_SIZE,
+                                   EGL_RENDERABLE_TYPE,
+                                   EGL_SAMPLE_BUFFERS,
+                                   EGL_SAMPLES,
+                                   EGL_STENCIL_SIZE,
+                                   EGL_SURFACE_TYPE,
+                                   EGL_TRANSPARENT_TYPE,
+                                   EGL_TRANSPARENT_RED_VALUE,
+                                   EGL_TRANSPARENT_GREEN_VALUE,
+                                   EGL_TRANSPARENT_BLUE_VALUE};
+    return result;
   }
 }

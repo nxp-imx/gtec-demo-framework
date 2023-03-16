@@ -51,7 +51,7 @@ namespace Fsl::BitmapImageConfig
 
     static image_t MakeImage(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     {
-      return Bitmap(extent, pixelFormat, origin);
+      return {extent, pixelFormat, origin};
     }
 
     static PxExtent2D GetExtent(const image_t& image)

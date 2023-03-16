@@ -38,8 +38,8 @@ namespace Fsl
 {
   inline std::ostream& operator<<(std::ostream& o, const Viewport& value)
   {
-    return o << "{X=" << value.X << " Y=" << value.Y << " Width=" << value.Width << " Height=" << value.Height << " MinDepth=" << value.MinDepth
-             << " MaxDepth=" << value.MaxDepth << "}";
+    return o << "{X=" << value.X() << " Y=" << value.Y() << " Width=" << value.Width() << " Height=" << value.Height()
+             << " MinDepth=" << value.MinDepth() << " MaxDepth=" << value.MaxDepth() << "}";
   }
 }
 

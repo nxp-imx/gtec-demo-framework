@@ -204,18 +204,18 @@ namespace Fsl::Vulkan
       switch (materialInfo.ViewportMode)
       {
       case BasicViewportMode::CustomOriginTopLeft:
-        viewport.x = static_cast<float>(materialInfo.Viewport.X);
-        viewport.y = static_cast<float>(materialInfo.Viewport.Y);
-        viewport.width = static_cast<float>(materialInfo.Viewport.Width);
-        viewport.height = static_cast<float>(materialInfo.Viewport.Height);
+        viewport.x = static_cast<float>(materialInfo.Viewport.X());
+        viewport.y = static_cast<float>(materialInfo.Viewport.Y());
+        viewport.width = static_cast<float>(materialInfo.Viewport.Width());
+        viewport.height = static_cast<float>(materialInfo.Viewport.Height());
         break;
       case BasicViewportMode::CustomOriginBottomLeft:
         {
           const int32_t newY = UncheckedNumericCast<int32_t>(screenExtentPx.Height) - materialInfo.Viewport.Bottom();
-          viewport.x = static_cast<float>(materialInfo.Viewport.X);
+          viewport.x = static_cast<float>(materialInfo.Viewport.X());
           viewport.y = static_cast<float>(newY);
-          viewport.width = static_cast<float>(materialInfo.Viewport.Width);
-          viewport.height = static_cast<float>(materialInfo.Viewport.Height);
+          viewport.width = static_cast<float>(materialInfo.Viewport.Width());
+          viewport.height = static_cast<float>(materialInfo.Viewport.Height());
           break;
         }
       case BasicViewportMode::Fullscreen:

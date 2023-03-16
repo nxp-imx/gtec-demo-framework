@@ -29,10 +29,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 
 namespace Fsl
 {

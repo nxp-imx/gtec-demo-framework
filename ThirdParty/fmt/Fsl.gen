@@ -3,9 +3,8 @@
   <ExternalLibrary Name="fmt" CreationYear="2019">
     <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_ENABLE_FMT" Access="Public"/>
-    <Define Name="FMT_DEPRECATED_OSTREAM " Access="Public"/>
     <Platform Name="Android;Ubuntu;Windows;QNX;Emscripten" Supported="true">
-      <Dependency Name="Recipe.fmt_8_1"/>
+      <Dependency Name="Recipe.fmt_9_1"/>
     </Platform>    
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="fmt" Access="Public" Type="StaticLib"/>

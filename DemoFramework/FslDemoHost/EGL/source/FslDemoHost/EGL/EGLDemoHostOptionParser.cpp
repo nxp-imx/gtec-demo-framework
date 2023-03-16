@@ -126,25 +126,25 @@ namespace Fsl
       m_logExtensions = true;
       return OptionParseResult::Parsed;
     case CommandId::LogConfigs:
-    {
-      uint32_t value = 0;
-      StringParseUtil::Parse(value, strOptArg);
-      switch (value)
       {
-      case 0:
-        m_configLogMode = ConfigLogMode::Off;
-        break;
-      case 1:
-        m_configLogMode = ConfigLogMode::All;
-        break;
-      case 2:
-        m_configLogMode = ConfigLogMode::HDR;
-        break;
-      default:
-        throw NotSupportedException("LogConfigs supports values in the range 0-2");
+        uint32_t value = 0;
+        StringParseUtil::Parse(value, strOptArg);
+        switch (value)
+        {
+        case 0:
+          m_configLogMode = ConfigLogMode::Off;
+          break;
+        case 1:
+          m_configLogMode = ConfigLogMode::All;
+          break;
+        case 2:
+          m_configLogMode = ConfigLogMode::HDR;
+          break;
+        default:
+          throw NotSupportedException("LogConfigs supports values in the range 0-2");
+        }
+        return OptionParseResult::Parsed;
       }
-      return OptionParseResult::Parsed;
-    }
     default:
       return ADemoHostOptionParser::Parse(cmdId, strOptArg);
     }

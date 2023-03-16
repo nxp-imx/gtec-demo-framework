@@ -253,7 +253,7 @@ namespace Fsl::Arguments
     case ParseResult::UnsupportedNumberOfArguments:
       throw CommandListIsInvalidErrorException("UnsupportedNumberOfArguments");
     default:
-      throw std::runtime_error(fmt::format("Unhandled ParseResult {0}", res));
+      throw std::runtime_error(fmt::format("Unhandled ParseResult {0}", static_cast<int32_t>(res)));
     }
   }
 

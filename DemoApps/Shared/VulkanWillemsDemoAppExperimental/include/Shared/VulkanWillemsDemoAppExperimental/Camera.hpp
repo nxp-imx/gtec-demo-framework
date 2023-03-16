@@ -141,9 +141,9 @@ namespace Fsl::Willems
         if (Moving())
         {
           glm::vec3 camFront;
-          camFront.x = -cos(glm::radians(Rotation.x)) * sin(glm::radians(Rotation.y));
-          camFront.y = sin(glm::radians(Rotation.x));
-          camFront.z = cos(glm::radians(Rotation.x)) * cos(glm::radians(Rotation.y));
+          camFront.x = -std::cos(glm::radians(Rotation.x)) * std::sin(glm::radians(Rotation.y));
+          camFront.y = std::sin(glm::radians(Rotation.x));
+          camFront.z = std::cos(glm::radians(Rotation.x)) * std::cos(glm::radians(Rotation.y));
           camFront = glm::normalize(camFront);
 
           float moveSpeed = deltaTime * MovementSpeed;
@@ -185,9 +185,9 @@ namespace Fsl::Willems
         const float range = 1.0f - deadZone;
 
         glm::vec3 camFront;
-        camFront.x = -cos(glm::radians(Rotation.x)) * sin(glm::radians(Rotation.y));
-        camFront.y = sin(glm::radians(Rotation.x));
-        camFront.z = cos(glm::radians(Rotation.x)) * cos(glm::radians(Rotation.y));
+        camFront.x = -std::cos(glm::radians(Rotation.x)) * std::sin(glm::radians(Rotation.y));
+        camFront.y = std::sin(glm::radians(Rotation.x));
+        camFront.z = std::cos(glm::radians(Rotation.x)) * std::cos(glm::radians(Rotation.y));
         camFront = glm::normalize(camFront);
 
         float moveSpeed = deltaTime * MovementSpeed * 2.0f;

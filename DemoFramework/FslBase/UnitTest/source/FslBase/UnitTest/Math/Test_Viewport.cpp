@@ -50,12 +50,12 @@ TEST(TestMath_Viewport, Construct_Default)
 {
   Viewport value;
 
-  EXPECT_EQ(value.X, 0);
-  EXPECT_EQ(value.Y, 0);
-  EXPECT_EQ(value.Width, 0);
-  EXPECT_EQ(value.Height, 0);
-  EXPECT_EQ(value.MinDepth, 0.0f);
-  EXPECT_EQ(value.MaxDepth, 0.0f);
+  EXPECT_EQ(value.X(), 0);
+  EXPECT_EQ(value.Y(), 0);
+  EXPECT_EQ(value.Width(), 0);
+  EXPECT_EQ(value.Height(), 0);
+  EXPECT_EQ(value.MinDepth(), 0.0f);
+  EXPECT_EQ(value.MaxDepth(), 0.0f);
   EXPECT_EQ(value.GetAspectRatio(), 0.0f);
 }
 
@@ -68,12 +68,12 @@ TEST(TestMath_Viewport, Construct)
   const int32_t height = 21;
   Viewport value(x, y, width, height);
 
-  EXPECT_EQ(value.X, x);
-  EXPECT_EQ(value.Y, y);
-  EXPECT_EQ(value.Width, width);
-  EXPECT_EQ(value.Height, height);
-  EXPECT_EQ(value.MinDepth, 0.0f);
-  EXPECT_EQ(value.MaxDepth, 1.0f);
+  EXPECT_EQ(value.X(), x);
+  EXPECT_EQ(value.Y(), y);
+  EXPECT_EQ(value.Width(), width);
+  EXPECT_EQ(value.Height(), height);
+  EXPECT_EQ(value.MinDepth(), 0.0f);
+  EXPECT_EQ(value.MaxDepth(), 1.0f);
   EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(width) / static_cast<float>(height));
 }
 
@@ -83,11 +83,27 @@ TEST(TestMath_Viewport, Construct_Rectangle)
   const Rectangle rect(1, 2, 20, 21);
   Viewport value(rect);
 
-  EXPECT_EQ(value.X, rect.X());
-  EXPECT_EQ(value.Y, rect.Y());
-  EXPECT_EQ(value.Width, rect.Width());
-  EXPECT_EQ(value.Height, rect.Height());
-  EXPECT_EQ(value.MinDepth, 0.0f);
-  EXPECT_EQ(value.MaxDepth, 1.0f);
+  EXPECT_EQ(value.X(), rect.X());
+  EXPECT_EQ(value.Y(), rect.Y());
+  EXPECT_EQ(value.Width(), rect.Width());
+  EXPECT_EQ(value.Height(), rect.Height());
+  EXPECT_EQ(value.MinDepth(), 0.0f);
+  EXPECT_EQ(value.MaxDepth(), 1.0f);
+  EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()));
+}
+
+TEST(TestMath_Viewport, Construct_Rectangle2)
+{
+  constexpr float minDepth = 32.0f;
+  constexpr float maxDepth = 42.0f;
+  Rectangle rect(1, 2, 20, 21);
+  Viewport value(rect, minDepth, maxDepth);
+
+  EXPECT_EQ(value.X(), rect.X());
+  EXPECT_EQ(value.Y(), rect.Y());
+  EXPECT_EQ(value.Width(), rect.Width());
+  EXPECT_EQ(value.Height(), rect.Height());
+  EXPECT_EQ(value.MinDepth(), minDepth);
+  EXPECT_EQ(value.MaxDepth(), maxDepth);
   EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()));
 }

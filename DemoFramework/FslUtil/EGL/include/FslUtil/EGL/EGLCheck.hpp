@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/EGL/CheckError.hpp>
 #include <FslUtil/EGL/DebugStrings.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
 #include <EGL/egl.h>
 
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)

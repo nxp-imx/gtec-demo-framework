@@ -50,7 +50,8 @@
 * Visual Studio 2019 16.5.x might not pickup the environment variables and paths it was launched with. This is a visual studio bug.
   Setting ```set ClearDevCommandPromptEnvVars=false``` before calling ```vcvarsall.bat``` can be used as a workaround until they fix it ([issue-link](https://developercommunity.visualstudio.com/content/problem/951981/environment-paths-not-respected.html)).
 * CMake versions below 3.22 might report MSVC_TOOLSET_VERSION as 142 when it should be 143. See this [bug](https://gitlab.kitware.com/cmake/cmake/-/merge_requests/6497). Some versions of cmake shipping with VS2022 has this bug, to workaround it make sure that your cmake 3.22 install is in the path before the VS2022 version.
-
+* Python default app issue: "Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings"
+  See [this](https://stackoverflow.com/questions/65348890/python-was-not-found-run-without-arguments-to-install-from-the-microsoft-store)
 
 * The generated project files do not detect changes to the build environment automatically.
   So its your job to run FslBuildGen when you change it!

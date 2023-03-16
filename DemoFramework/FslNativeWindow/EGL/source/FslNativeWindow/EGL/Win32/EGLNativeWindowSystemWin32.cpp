@@ -31,8 +31,8 @@
  ****************************************************************************************************************************************************/
 
 #include "EGLNativeWindowSystemWin32.hpp"
-#include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
+#include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
 
 namespace Fsl
 {

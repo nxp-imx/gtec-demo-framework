@@ -40,12 +40,12 @@ namespace Fsl
   {
   public:
     AsynchronousServiceProxyFactoryTemplate0()
-      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(T)))
+      : AsynchronousServiceProxyFactoryBase(typeid(T))
     {
     }
 
     explicit AsynchronousServiceProxyFactoryTemplate0(const ServiceCaps::Flags flags)
-      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(T)), flags)
+      : AsynchronousServiceProxyFactoryBase(typeid(T), flags)
     {
     }
 
@@ -61,12 +61,12 @@ namespace Fsl
   {
   public:
     AsynchronousServiceProxyFactoryTemplate()
-      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(TItf)))
+      : AsynchronousServiceProxyFactoryBase(typeid(TItf))
     {
     }
 
     explicit AsynchronousServiceProxyFactoryTemplate(const ServiceCaps::Flags flags)
-      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(TItf)), flags)
+      : AsynchronousServiceProxyFactoryBase(typeid(TItf), flags)
     {
     }
 
@@ -93,7 +93,7 @@ namespace Fsl
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
     {
-      return std::shared_ptr<AServiceOptionParser>();
+      return {};
     }
 
 
@@ -104,8 +104,8 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf1)));
-      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf2)));
+      rServiceInterfaceTypeDeque.push_back(typeid(TItf1));
+      rServiceInterfaceTypeDeque.push_back(typeid(TItf2));
     }
 
 
@@ -136,9 +136,9 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf1)));
-      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf2)));
-      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf3)));
+      rServiceInterfaceTypeDeque.push_back(typeid(TItf1));
+      rServiceInterfaceTypeDeque.push_back(typeid(TItf2));
+      rServiceInterfaceTypeDeque.push_back(typeid(TItf3));
     }
 
 

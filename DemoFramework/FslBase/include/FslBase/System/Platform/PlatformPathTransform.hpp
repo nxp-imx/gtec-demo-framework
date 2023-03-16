@@ -54,14 +54,11 @@ namespace Fsl::PlatformPathTransform
 #else
 
 // For systems that support UTF8 natively
-namespace Fsl
+namespace Fsl::PlatformPathTransform
 {
-  namespace PlatformPathTransform
+  inline const std::string& ToSystemPath(const IO::Path& path)
   {
-    inline const std::string& ToSystemPath(const IO::Path& path)
-    {
-      return path.ToUTF8String();
-    }
+    return path.ToUTF8String();
   }
 }
 
