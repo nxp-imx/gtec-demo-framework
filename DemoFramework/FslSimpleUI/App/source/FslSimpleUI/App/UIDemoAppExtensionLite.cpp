@@ -46,7 +46,7 @@
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <utility>
 
-//#define LOCAL_TIME_DRAW
+// #define LOCAL_TIME_DRAW
 #ifdef LOCAL_TIME_DRAW
 #include <FslBase/System/HighResolutionTimer.hpp>
 #endif

@@ -33,7 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxVector2.hpp>
-//#include <FslSimpleUI/Base/PxAvailableSize.hpp>
+// #include <FslSimpleUI/Base/PxAvailableSize.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 
 namespace Fsl

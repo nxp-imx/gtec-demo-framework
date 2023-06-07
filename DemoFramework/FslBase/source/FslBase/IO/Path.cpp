@@ -37,7 +37,7 @@
 #include <cassert>
 #include <utility>
 #include "../System/Platform/Platform.hpp"
-//#include <locale>
+// #include <locale>
 
 namespace Fsl::IO
 {

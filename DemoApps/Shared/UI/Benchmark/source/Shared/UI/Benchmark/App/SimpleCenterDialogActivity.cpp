@@ -36,7 +36,7 @@
 #include <FslSimpleUI/Base/Control/Slider.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <Shared/UI/Benchmark/App/SimpleCenterDialogActivity.hpp>
-//#include <FslSimpleUI/Base/Control/Switch.hpp>
+// #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>

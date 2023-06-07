@@ -35,7 +35,7 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
-//#include <FslBase/System/HighResolutionTimer.hpp>
+// #include <FslBase/System/HighResolutionTimer.hpp>
 #include <Shared/UI/Benchmark/Persistence/Input/AppInputCommandListPersistence.hpp>
 
 namespace Fsl

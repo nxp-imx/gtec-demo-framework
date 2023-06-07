@@ -30,27 +30,27 @@
  *
  ****************************************************************************************************************************************************/
 
-//#ifdef FSL_USE_ANDROID_GLCONTEXT
-//# include <FslDemoHost/EGL/Android/EGLAndroidDemoHostSetup.hpp>
-//  namespace Fsl
-//  {
-//    typedef EGLAndroidDemoHostSetup PlatformEGLDemoHost;
-//  }
-//#else
-//# include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
-//  namespace Fsl
-//  {
-//    typedef EGLDemoHostSetup PlatformEGLDemoHost;
-//  }
-//#endif
+// #ifdef FSL_USE_ANDROID_GLCONTEXT
+// # include <FslDemoHost/EGL/Android/EGLAndroidDemoHostSetup.hpp>
+//   namespace Fsl
+//   {
+//     typedef EGLAndroidDemoHostSetup PlatformEGLDemoHost;
+//   }
+// #else
+// # include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
+//   namespace Fsl
+//   {
+//     typedef EGLDemoHostSetup PlatformEGLDemoHost;
+//   }
+// #endif
 
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
 #include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-//#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
-//#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
+// #include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
+// #include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
 #include "../PlatformConfig.hpp"
 #include "ImageLibraryServiceAndroidFactory.hpp"
 
@@ -64,14 +64,14 @@ namespace Fsl
     // registry.Register(DemoHostFeatureName::OpenGLES, PlatformEGLDemoHost::Get());
 
 
-    //#ifdef FSL_ENABLE_GRAPHICS_ES2
-    //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES2, INativeGraphicsService>
-    //    >(ServicePriorityList::NativeGraphicsService());
-    //#endif
-    //#ifdef FSL_ENABLE_GRAPHICS_ES3
-    //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES3, INativeGraphicsService>
-    //    >(ServicePriorityList::NativeGraphicsService());
-    //#endif
+    // #ifdef FSL_ENABLE_GRAPHICS_ES2
+    //     serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES2, INativeGraphicsService>
+    //     >(ServicePriorityList::NativeGraphicsService());
+    // #endif
+    // #ifdef FSL_ENABLE_GRAPHICS_ES3
+    //     serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES3, INativeGraphicsService>
+    //     >(ServicePriorityList::NativeGraphicsService());
+    // #endif
 
     const auto imageServiceGroup = serviceRegistry.GetServiceGroupByName(ServiceGroupName::Image());
     serviceRegistry.Register<ImageLibraryServiceAndroidFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);

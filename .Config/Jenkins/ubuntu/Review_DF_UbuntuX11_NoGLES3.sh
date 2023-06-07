@@ -8,7 +8,7 @@ fi
 source $WORKSPACE/.Config/Jenkins/ubuntu/PrepareJenkinsEnvironment.sh
 
 if [ ! -n "${FSL_CI_FEATURES+1}" ]; then
-export FSL_CI_FEATURES=[EarlyAccess,EGL,GoogleBenchmark,GoogleUnitTest,OpenCL1.2,OpenCV4,OpenGLES2,OpenVX,OpenVX1.2,Vulkan,Lib_NlohmannJson]
+export FSL_CI_FEATURES=[ConsoleHost,WindowHost,Test_RequireUserInputToExit,EarlyAccess,EGL,GoogleBenchmark,GoogleUnitTest,OpenCL1.2,OpenCV4,OpenGLES2,OpenVX,OpenVX1.2,Vulkan,Lib_NlohmannJson]
 fi
 
 FslBuild.py --noGitHash -t sdk -vv --BuildTime --UseFeatures $FSL_CI_FEATURES $FSL_CI_BUILD_PARAM

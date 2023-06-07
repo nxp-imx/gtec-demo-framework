@@ -66,9 +66,9 @@
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
 
-//#if __GNUC__ <= 5
-//#error GCC5 is unsupported as it has known issues with constexpr.
-//#endif
+// #if __GNUC__ <= 5
+// #error GCC5 is unsupported as it has known issues with constexpr.
+// #endif
 
 #elif defined(__QNXNTO__)
 

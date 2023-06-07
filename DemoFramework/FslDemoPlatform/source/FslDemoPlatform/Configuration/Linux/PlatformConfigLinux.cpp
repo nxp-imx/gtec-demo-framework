@@ -30,15 +30,15 @@
  *
  ****************************************************************************************************************************************************/
 
-//#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
+// #include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
 #include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-//#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
-//#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
-//#include <FslNativeGraphicsVG/NativeGraphicsServiceVG.hpp>
+// #include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
+// #include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
+// #include <FslNativeGraphicsVG/NativeGraphicsServiceVG.hpp>
 #include <memory>
 #include "../PlatformConfig.hpp"
 
@@ -52,18 +52,18 @@ namespace Fsl
     // eglHostFeatures.push_back(DemoHostFeatureName::OpenVG);
     // registry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
 
-    //#ifdef FSL_ENABLE_GRAPHICS_ES2
-    //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES2, INativeGraphicsService>
-    //    >(ServicePriorityList::NativeGraphicsService());
-    //#endif
-    //#ifdef FSL_ENABLE_GRAPHICS_ES3
-    //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES3, INativeGraphicsService>
-    //    >(ServicePriorityList::NativeGraphicsService());
-    //#endif
-    //#ifdef FSL_ENABLE_GRAPHICS_OPENVG
-    //    //serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceVG, INativeGraphicsService>
-    //    >(ServicePriorityList::NativeGraphicsService());
-    //#endif
+    // #ifdef FSL_ENABLE_GRAPHICS_ES2
+    //     serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES2, INativeGraphicsService>
+    //     >(ServicePriorityList::NativeGraphicsService());
+    // #endif
+    // #ifdef FSL_ENABLE_GRAPHICS_ES3
+    //     serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES3, INativeGraphicsService>
+    //     >(ServicePriorityList::NativeGraphicsService());
+    // #endif
+    // #ifdef FSL_ENABLE_GRAPHICS_OPENVG
+    //     //serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceVG, INativeGraphicsService>
+    //     >(ServicePriorityList::NativeGraphicsService());
+    // #endif
 
     auto cpuStatsServiceFactory = std::make_shared<CpuStatsServiceFactory>([]() { return std::make_unique<CpuStatsAdapterLinux>(); });
     serviceRegistry.Register(cpuStatsServiceFactory);

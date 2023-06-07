@@ -1,6 +1,6 @@
 #ifndef G2D_EIGHTLAYERS_EIGHTLAYERS_HPP
 #define G2D_EIGHTLAYERS_EIGHTLAYERS_HPP
-//#define OLD_BOARD
+// #define OLD_BOARD
 /****************************************************************************************************************************************************
  * Copyright (c) 2014 Freescale Semiconductor, Inc.
  * All rights reserved.

@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Extent2D.hpp>
 #include <FslBase/Math/Point2U.hpp>
-//#include <FslBase/Math/Vector2.hpp>
+// #include <FslBase/Math/Vector2.hpp>
 #include <algorithm>
 
 namespace Fsl

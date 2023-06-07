@@ -32,7 +32,7 @@ SOFTWARE.
 #include <FslBase/Math/Vector3.hpp>
 #include <algorithm>
 #include <cstddef>
-//#include <FslBase/OptimizationFlag.hpp>
+// #include <FslBase/OptimizationFlag.hpp>
 
 namespace Fsl
 {

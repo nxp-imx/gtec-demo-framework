@@ -48,7 +48,7 @@
 #include "Log/FmtRenderDrawSpriteType.hpp"
 #include "MeshManager.hpp"
 
-//#define LOCAL_SANITY_CHECK
+// #define LOCAL_SANITY_CHECK
 #ifdef LOCAL_SANITY_CHECK
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define SANITY_CHECK() SanityCheck();

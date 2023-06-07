@@ -595,7 +595,7 @@ namespace Fsl
 
   // Due to lack of constexpr we use this nasty macro
   // So because of the macros be sure to keep all real code above this so you dont get any interference from them
-  //#define LOCAL_GET_PIXELFORMAT_ID(X) ((static_cast<uint32_t>((X)) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)) -
+  // #define LOCAL_GET_PIXELFORMAT_ID(X) ((static_cast<uint32_t>((X)) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)) -
   // static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE))
   constexpr uint32_t LOCAL_GET_PIXELFORMAT_ID(const PixelFormat pf)
   {

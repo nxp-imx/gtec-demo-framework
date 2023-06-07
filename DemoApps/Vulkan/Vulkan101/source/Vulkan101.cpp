@@ -38,7 +38,7 @@
 #include <RapidVulkan/Check.hpp>
 #include <algorithm>
 #include <array>
-//#include <vulkan/vulkan.h>
+// #include <vulkan/vulkan.h>
 
 namespace Fsl
 {

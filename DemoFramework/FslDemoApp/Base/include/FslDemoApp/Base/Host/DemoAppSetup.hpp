@@ -34,8 +34,8 @@
 #include <FslDemoApp/Base/CustomDemoAppConfig.hpp>
 #include <memory>
 #include <string>
-//#include <FslDemoApp/Base/ADemoOptionParser.hpp>
-//#include <FslDemoApp/Shared/Host/IDemoAppFactory.hpp>
+// #include <FslDemoApp/Base/ADemoOptionParser.hpp>
+// #include <FslDemoApp/Shared/Host/IDemoAppFactory.hpp>
 
 namespace Fsl
 {

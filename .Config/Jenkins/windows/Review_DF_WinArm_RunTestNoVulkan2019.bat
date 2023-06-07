@@ -1,7 +1,7 @@
 @echo off
 
 if not defined FSL_CI_FEATURES (
-set FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.2]
+set FSL_CI_FEATURES=[ConsoleHost,WindowHost,Test_RequireUserInputToExit,EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.2]
 )
 
 call "%WORKSPACE%\.Config\Jenkins\windows\PrepareJenkinsEnvironment2019.bat"

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <cassert>
 #include <cstddef>

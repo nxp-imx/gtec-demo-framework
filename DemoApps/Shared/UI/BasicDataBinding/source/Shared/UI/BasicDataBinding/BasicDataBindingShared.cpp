@@ -38,7 +38,7 @@
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <Shared/UI/BasicDataBinding/BasicDataBindingShared.hpp>
-//#include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
+// #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
@@ -48,8 +48,8 @@
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 
 
-//#include <FslDataBinding/Base/DataBindingServiceDebug.hpp>
-//#include <FslBase/IO/Path.hpp>
+// #include <FslDataBinding/Base/DataBindingServiceDebug.hpp>
+// #include <FslBase/IO/Path.hpp>
 
 namespace Fsl
 {

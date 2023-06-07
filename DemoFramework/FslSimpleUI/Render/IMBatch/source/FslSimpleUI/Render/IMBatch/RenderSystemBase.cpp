@@ -36,7 +36,7 @@
 #include <FslBase/NumericCast.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-//#include <FslBase/System/HighResolutionTimer.hpp>
+// #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Basic/BasicCameraInfo.hpp>
 #include <FslGraphics/Render/Basic/IBasicRenderSystem.hpp>

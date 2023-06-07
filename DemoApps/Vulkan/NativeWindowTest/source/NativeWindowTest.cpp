@@ -112,18 +112,21 @@ namespace Fsl
 
 
     void CheckPhysicalDeviceSurfaceCapabilitiesPostSwapchain(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface,
-                                                             const VkExtent2D windowExtent, const bool /*swapchainDependentSurface*/)
+                                                             const VkExtent2D windowExtent, const bool swapchainDependentSurface)
     {
       VkSurfaceCapabilitiesKHR surfaceCapabilities{};
       RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
       LogSurfaceCapabilities(surfaceCapabilities);
 
-      if (surfaceCapabilities.currentExtent.width != windowExtent.width || surfaceCapabilities.currentExtent.height != windowExtent.height)
+      if (!swapchainDependentSurface)
       {
-        std::stringstream errStream;
-        errStream << "VulkanDriverError: surfaceCapabilities.currentExtent (" << surfaceCapabilities.currentExtent
-                  << ") did not match the window extent (" << windowExtent << ") as expected after the swapchain has been created";
-        throw RapidVulkan::VulkanException(errStream.str(), __FILE__, __LINE__);
+        if (surfaceCapabilities.currentExtent.width != windowExtent.width || surfaceCapabilities.currentExtent.height != windowExtent.height)
+        {
+          std::stringstream errStream;
+          errStream << "VulkanDriverError: surfaceCapabilities.currentExtent (" << surfaceCapabilities.currentExtent
+                    << ") did not match the window extent (" << windowExtent << ") as expected after the swapchain has been created";
+          throw RapidVulkan::VulkanException(errStream.str(), __FILE__, __LINE__);
+        }
       }
     }
   }

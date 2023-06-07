@@ -1,9 +1,9 @@
 #version 300 es
-//#ifdef GL_FRAGMENT_PRECISION_HIGH
-//  precision highp float;
-//#else
+// #ifdef GL_FRAGMENT_PRECISION_HIGH
+//   precision highp float;
+// #else
 precision mediump float;
-//#endif
+// #endif
 
 uniform int texCount;
 uniform sampler2D texUnit1;

@@ -61,11 +61,9 @@ namespace Fsl
     // Workaround for "wl_array_for_each" not being C++ safe (or safe in general) and wayland failing to fix it for 3+ years
     // at this point
 #define LOCAL_WL_ARRAY_FOR_EACH(pos, array, type) \
-	for (pos = (type)(array)->data; \
-	     (const char *) pos < ((const char *) (array)->data + (array)->size); \
-	     (pos)++)
+  for (pos = (type)(array)->data; (const char*)pos < ((const char*)(array)->data + (array)->size); (pos)++)
 
-   
+
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
 
     struct MouseEvent
@@ -252,7 +250,8 @@ namespace Fsl
       }
 
       FSLLOG3_VERBOSE5("HandleToplevelConfigure width {} height {} fullscreen {} maximized {}", width, height, window->fullscreen, window->maximized);
-      FSLLOG3_VERBOSE5("HandleToplevelConfigure active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height, window->geometry.width, window->geometry.height);
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height,
+                       window->geometry.width, window->geometry.height);
 
       if (width > 0 && height > 0)
       {
@@ -269,7 +268,8 @@ namespace Fsl
         window->geometry = window->window_size;
       }
 
-      FSLLOG3_VERBOSE5("HandleToplevelConfigure1 active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height, window->geometry.width, window->geometry.height);
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure1 active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height,
+                       window->geometry.width, window->geometry.height);
 
       if (window->native && !window->fullscreen)
       {
@@ -277,7 +277,8 @@ namespace Fsl
           window->resizeWindowCallback(window->native, width, height, 0, 0);
       }
 
-      FSLLOG3_VERBOSE5("HandleToplevelConfigure2 active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height, window->geometry.width, window->geometry.height);
+      FSLLOG3_VERBOSE5("HandleToplevelConfigure2 active config. Window {}x{} geometry {}x{}", window->window_size.width, window->window_size.height,
+                       window->geometry.width, window->geometry.height);
 
       {    // Let the framework know that we might have been resized
         std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
@@ -302,7 +303,7 @@ namespace Fsl
     const struct xdg_wm_base_listener wm_base_listener = {
       HandlePing,
     };
-    
+
     const struct xdg_surface_listener xdg_surface_listener = {HandleSurfaceConfigure};
 
 #ifdef __GNUC__

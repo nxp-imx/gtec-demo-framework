@@ -33,7 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 
-//#include <linux/mxcfb.h>
+// #include <linux/mxcfb.h>
 #include <linux/fb.h>
 
 namespace Fsl

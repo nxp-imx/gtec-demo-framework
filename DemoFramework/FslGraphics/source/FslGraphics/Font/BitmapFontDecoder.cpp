@@ -36,7 +36,7 @@
 #include <FslBase/Math/Pixel/PxRectangleU32.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslGraphics/Font/BitmapFontDecoder.hpp>
-//#include <FslBase/Math/Pixel/TypeConverter.hpp>
+// #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/IO/File.hpp>
 #include <fmt/format.h>
 #include <utility>

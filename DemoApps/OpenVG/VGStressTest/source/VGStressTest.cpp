@@ -341,9 +341,9 @@ namespace Fsl
     m_stroke2 = vgCreatePaint();
     vgSetPaint(m_stroke2, VG_STROKE_PATH);
 
-    //#ifdef GC355_PROFILER
-    //    initGC355Profiler();
-    //#endif
+    // #ifdef GC355_PROFILER
+    //     initGC355Profiler();
+    // #endif
     {
       const RawBitmap logo = Logo::GetBitmap();
 
@@ -435,9 +435,9 @@ namespace Fsl
     vgDestroyPaint(m_stroke2);
     vgDestroyPaint(m_stroke);
     vgDestroyImage(m_imgPattern);
-    //#ifdef GC355_PROFILER
-    //    stopGC355Profiler();
-    //#endif
+    // #ifdef GC355_PROFILER
+    //     stopGC355Profiler();
+    // #endif
 
     // if (vgGetError() == VG_NO_ERROR) // only error to catch in this test, rest is caught by EGL setup and framework
     //  mVGS_test_pass = true;

@@ -38,9 +38,9 @@
 #include <FslGraphics/Render/Basic/Material/BasicMaterialInfo.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/TextureFlags.hpp>
-//#include <FslGraphics/Render/Basic/BasicMaterialCreateInfo.hpp>
-//#include <FslGraphics/Render/Basic/IBasicDynamicBuffer.hpp>
-//#include <FslGraphics/Render/Basic/IBasicStaticBuffer.hpp>
+// #include <FslGraphics/Render/Basic/BasicMaterialCreateInfo.hpp>
+// #include <FslGraphics/Render/Basic/IBasicDynamicBuffer.hpp>
+// #include <FslGraphics/Render/Basic/IBasicStaticBuffer.hpp>
 #include <FslGraphics/Vertices/ReadOnlyFlexVertexSpan.hpp>
 #include <memory>
 

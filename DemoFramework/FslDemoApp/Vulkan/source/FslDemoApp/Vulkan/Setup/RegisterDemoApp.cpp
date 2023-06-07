@@ -40,13 +40,13 @@
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
-//#include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
+// #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-//#include <FslUtil/Vulkan1_0/Exceptions.hpp>
-//#include <FslUtil/Vulkan1_0/DebugStrings.hpp>
+// #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+// #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
 #include <sstream>
 
 namespace Fsl

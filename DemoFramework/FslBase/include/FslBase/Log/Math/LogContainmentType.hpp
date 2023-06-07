@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Debug/Math/DebugContainmentType.hpp>
 #include <ostream>
 

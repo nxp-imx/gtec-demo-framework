@@ -77,13 +77,13 @@ namespace Fsl
 
   //  int64_t Platform::GetPerformanceFrequency()
   //  {
-  //#error not implemented
+  // #error not implemented
   //  }
   //
   //
   //  int64_t Platform::GetPerformanceCounter()
   //  {
-  //#error not implemented
+  // #error not implemented
   //    //struct timespec currentTime;
   //    //clock_gettime(CLOCK_MONOTONIC, &currentTime);
   //    //uint64_t time = currentTime.tv_sec;

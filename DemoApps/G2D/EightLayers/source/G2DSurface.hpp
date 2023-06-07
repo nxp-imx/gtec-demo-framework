@@ -35,7 +35,7 @@
 #include <g2d.h>
 #include <string>
 
-//#include <linux/mxcfb.h>
+// #include <linux/mxcfb.h>
 #include <linux/fb.h>
 
 namespace Fsl

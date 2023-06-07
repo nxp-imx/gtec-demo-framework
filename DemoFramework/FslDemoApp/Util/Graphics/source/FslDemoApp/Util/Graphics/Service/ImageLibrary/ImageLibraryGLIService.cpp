@@ -45,9 +45,9 @@
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include "GLIConversionHelper.hpp"
 
-//#include <gli/convert.hpp>
+// #include <gli/convert.hpp>
 
-//#include <gli/convert.hpp>
+// #include <gli/convert.hpp>
 #include <gli/load.hpp>
 
 namespace Fsl

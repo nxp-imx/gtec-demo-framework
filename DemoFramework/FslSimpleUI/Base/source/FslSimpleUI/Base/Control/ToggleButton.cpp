@@ -52,7 +52,7 @@
 #include <cassert>
 #include <cmath>
 
-//#include <FslBase/Log/Math/Pixel/FmtPxVector2.hpp>
+// #include <FslBase/Log/Math/Pixel/FmtPxVector2.hpp>
 
 
 namespace Fsl::UI

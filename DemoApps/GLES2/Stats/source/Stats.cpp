@@ -65,13 +65,13 @@ namespace Fsl
   }
 }
 
-//#include <iostream>
+// #include <iostream>
 //
-// void* operator new(std::size_t n)
+//  void* operator new(std::size_t n)
 //{
-//  // This is potentially dangerous if cout allocates memory using new
-//  //std::cout << "[new " << n << "]\n";
-//  //// FSLLOG3_INFO("[new {}]", n);
-//  // We also currently dont overload delete so if the default dont use free this wont work
-//  return malloc(n);
-//}
+//   // This is potentially dangerous if cout allocates memory using new
+//   //std::cout << "[new " << n << "]\n";
+//   //// FSLLOG3_INFO("[new {}]", n);
+//   // We also currently dont overload delete so if the default dont use free this wont work
+//   return malloc(n);
+// }

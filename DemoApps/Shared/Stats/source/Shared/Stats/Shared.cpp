@@ -48,7 +48,7 @@
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <Shared/Stats/Shared.hpp>
-//#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+// #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 
 #include <cassert>
 

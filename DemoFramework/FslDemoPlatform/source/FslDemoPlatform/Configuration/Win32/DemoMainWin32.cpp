@@ -98,9 +98,9 @@ int main(int argc, char* argv[])
     CloseHandle(g_currentMainThread);
     throw;
   }
-  //#if !defined(NDEBUG)
-  //  _CrtDumpMemoryLeaks();
-  //#endif
+  // #if !defined(NDEBUG)
+  //   _CrtDumpMemoryLeaks();
+  // #endif
   return result;
 }
 #endif

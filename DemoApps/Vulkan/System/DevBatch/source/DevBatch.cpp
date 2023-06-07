@@ -36,7 +36,7 @@
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxRectangleU16.hpp>
 #include <FslBase/UncheckedNumericCast.hpp>
-//#include <FslBase/Log/Math/Pixel/FmtPxRectangleU32.hpp>
+// #include <FslBase/Log/Math/Pixel/FmtPxRectangleU32.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>

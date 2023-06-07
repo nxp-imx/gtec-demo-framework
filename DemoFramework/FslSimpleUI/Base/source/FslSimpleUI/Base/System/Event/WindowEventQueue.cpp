@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <cassert>
 
-//#define LOCAL_LOG_ENABLED 1
+// #define LOCAL_LOG_ENABLED 1
 #ifdef LOCAL_LOG_ENABLED
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) FSLLOG3_INFO(X)

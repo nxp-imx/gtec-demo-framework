@@ -34,7 +34,7 @@
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslGraphics/Texture/TextureTypeUtil.hpp>
-//#include <FslGraphics/RawTextureUtil.hpp>
+// #include <FslGraphics/RawTextureUtil.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>

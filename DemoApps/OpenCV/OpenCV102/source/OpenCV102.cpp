@@ -46,6 +46,11 @@ namespace Fsl
   using namespace cv;
   namespace
   {
+    namespace LocalConfig
+    {
+      constexpr auto WindowName = "Edge map";
+    }
+
     Mat image, gray, edge, cedge;
     // define a trackbar callback
     void onTrackbar(int edgeThresh, void* /*data*/)
@@ -55,7 +60,7 @@ namespace Fsl
       Canny(edge, edge, edgeThresh, edgeThresh * 3, 3);
       cedge = Scalar::all(0);
       image.copyTo(cedge, edge);
-      imshow("Edge map", cedge);
+      imshow(LocalConfig::WindowName, cedge);
     }
   }
 
@@ -64,7 +69,6 @@ namespace Fsl
     : DemoAppConsole(config)
   {
   }
-
 
   OpenCV102::~OpenCV102() = default;
 
@@ -88,9 +92,12 @@ namespace Fsl
     cedge.create(image.size(), image.type());
     cvtColor(image, gray, COLOR_BGR2GRAY);
     // Create a window
-    namedWindow("Edge map", 1);
+    namedWindow(LocalConfig::WindowName, 1);
+
     // create a toolbar
-    createTrackbar("Canny threshold", "Edge map", &edgeThresh, 100, onTrackbar);
+    createTrackbar("Canny threshold:", LocalConfig::WindowName, nullptr, 100, onTrackbar);
+    setTrackbarPos("Canny threshold:", LocalConfig::WindowName, edgeThresh);
+
     // Show the image
     onTrackbar(edgeThresh, nullptr);
     // Wait for a key stroke;

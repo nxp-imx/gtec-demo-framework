@@ -31,8 +31,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
-//#include <FslBase/Log/Log3Fmt.hpp>
-//#include <FslBase/Log/Math/FmtVector2.hpp>
+// #include <FslBase/Log/Log3Fmt.hpp>
+// #include <FslBase/Log/Math/FmtVector2.hpp>
 #include <cmath>
 
 // Workaround for issues with std::isinf and std::isnan on qnx
