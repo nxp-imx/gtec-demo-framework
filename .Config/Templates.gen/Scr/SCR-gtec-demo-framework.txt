@@ -18,6 +18,7 @@ Origin:                       NXP (BSD-3-clause)
                                 "OpenGL(R) ES 3.0 Programming Guide" book samples (MIT) - http://github.com/zemanel/opengles-book-samples/
                                 Norbert Nopper VKTS Examples (MIT) - https://github.com/McNopper/Vulkan
                                 Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
+                                nehe.gamedev.net by Jeff Molofee - https://nehe.gamedev.net/
                               Imagery Sources in Demo Apps:
                                 Emil Persson (CC-BY-3.0) - http://www.humus.name
                                 CDmir (CC0-1.0) - http://opengameart.org/content/old-deer-male
