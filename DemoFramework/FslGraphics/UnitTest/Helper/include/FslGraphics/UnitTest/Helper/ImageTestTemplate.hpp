@@ -73,7 +73,7 @@ namespace Fsl
       case BitmapOrigin::Undefined:
         return y;
       case BitmapOrigin::LowerLeft:
-        return TImageConfig::GetExtent(image).Height - 1 - y;
+        return TImageConfig::GetExtent(image).Height.Value - 1 - y;
       default:
         throw NotSupportedException("Unsupported BitmapOrigin");
       }
@@ -82,7 +82,7 @@ namespace Fsl
     static image_t GetBasic4X1(BitmapOrigin origin = BitmapOrigin::Undefined)
     {
       const bool ignoreOrigin = false;
-      image_t image = TImageConfig::MakeImage(PxExtent2D(4, 1), TImageConfig::ActivePixelFormat, origin);
+      image_t image = TImageConfig::MakeImage(PxExtent2D::Create(4, 1), TImageConfig::ActivePixelFormat, origin);
       TImageConfig::SetPixel(image, 0, 0, TImageConfig::color_template_t::R(), ignoreOrigin);
       TImageConfig::SetPixel(image, 1, 0, TImageConfig::color_template_t::G(), ignoreOrigin);
       TImageConfig::SetPixel(image, 2, 0, TImageConfig::color_template_t::B(), ignoreOrigin);
@@ -92,7 +92,7 @@ namespace Fsl
 
     static image_t GetBasic4X2(BitmapOrigin origin = BitmapOrigin::Undefined, const bool ignoreOrigin = false)
     {
-      image_t image = TImageConfig::MakeImage(PxExtent2D(4, 2), TImageConfig::ActivePixelFormat, origin);
+      image_t image = TImageConfig::MakeImage(PxExtent2D::Create(4, 2), TImageConfig::ActivePixelFormat, origin);
       TImageConfig::SetPixel(image, 0, 0, TImageConfig::color_template_t::R(), ignoreOrigin);
       TImageConfig::SetPixel(image, 1, 0, TImageConfig::color_template_t::G(), ignoreOrigin);
       TImageConfig::SetPixel(image, 2, 0, TImageConfig::color_template_t::B(), ignoreOrigin);
@@ -108,11 +108,11 @@ namespace Fsl
     static ::testing::AssertionResult CheckIsBasic4X1(const image_t& image)
     {
       const PxExtent2D imageExtent = TImageConfig::GetExtent(image);
-      if (imageExtent.Width != 4 || imageExtent.Height != 1 || image.GetPixelFormat() != TImageConfig::ActivePixelFormat)
+      if (imageExtent.Width.Value != 4 || imageExtent.Height.Value != 1 || image.GetPixelFormat() != TImageConfig::ActivePixelFormat)
       {
         std::string strError = fmt::format("Image.");
-        FormatDebugInfoTwoValues<uint32_t>(strError, " Width", imageExtent.Width, 4);
-        FormatDebugInfoTwoValues<uint32_t>(strError, " Height", imageExtent.Height, 1);
+        FormatDebugInfoTwoValues<uint32_t>(strError, " Width", imageExtent.Width.Value, 4);
+        FormatDebugInfoTwoValues<uint32_t>(strError, " Height", imageExtent.Height.Value, 1);
         FormatDebugInfoTwoValues(strError, " PixelFormat", image.GetPixelFormat(), TImageConfig::ActivePixelFormat);
         return ::testing::AssertionFailure() << strError;
       }
@@ -141,11 +141,11 @@ namespace Fsl
     static ::testing::AssertionResult CheckIsBasic4X2(const image_t& image, const BitmapOrigin checkOrigin = BitmapOrigin::Undefined)
     {
       const PxExtent2D imageExtent = TImageConfig::GetExtent(image);
-      if (imageExtent.Width != 4 || imageExtent.Height != 2 || image.GetPixelFormat() != TImageConfig::ActivePixelFormat)
+      if (imageExtent.Width.Value != 4 || imageExtent.Height.Value != 2 || image.GetPixelFormat() != TImageConfig::ActivePixelFormat)
       {
         std::string strError = fmt::format("image.");
-        FormatDebugInfoTwoValues<uint32_t>(strError, " Width", imageExtent.Width, 4);
-        FormatDebugInfoTwoValues<uint32_t>(strError, " Height", imageExtent.Height, 2);
+        FormatDebugInfoTwoValues<uint32_t>(strError, " Width", imageExtent.Width.Value, 4);
+        FormatDebugInfoTwoValues<uint32_t>(strError, " Height", imageExtent.Height.Value, 2);
         FormatDebugInfoTwoValues(strError, " PixelFormat", image.GetPixelFormat(), TImageConfig::ActivePixelFormat);
         return ::testing::AssertionFailure() << strError;
       }

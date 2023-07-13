@@ -4,7 +4,7 @@
 
 add_custom_command(
   OUTPUT ##PACKAGE_CONTENTBUILDER_OUTPUT_FILES##
-  COMMAND FslBuildContent.py -p ##PLATFORM_NAME## --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate --input "##PACKAGE_PATH##"##EXTRA_ARGS####CUSTOM_ARGS##
+  COMMAND FslBuildContent.py -p ##PLATFORM_NAME## --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##] --Validate --input "##PACKAGE_PATH##"##EXTRA_ARGS####CUSTOM_ARGS##
   DEPENDS ##PACKAGE_CONTENTBUILDER_INPUT_FILES##
   COMMENT "Building content"
 )

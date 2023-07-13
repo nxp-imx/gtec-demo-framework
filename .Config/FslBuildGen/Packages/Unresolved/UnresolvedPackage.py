@@ -40,6 +40,7 @@ from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageDependency import UnresolvedPackageDependency
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavor import UnresolvedPackageFlavor
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorExtension import UnresolvedPackageFlavorExtension
 from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.Packages.CompanyName import CompanyName
@@ -132,6 +133,12 @@ class UnresolvedPackage(object):
 
     def TryGetFlavorByName(self, flavorName: PackageFlavorName) -> Optional[UnresolvedPackageFlavor]:
         for flavor in self.ResolvedPlatform.Flavors:
+            if flavor.Name == flavorName:
+                return flavor
+        return None
+
+    def TryGetFlavorExtensionByName(self, flavorName: PackageFlavorName) -> Optional[UnresolvedPackageFlavorExtension]:
+        for flavor in self.ResolvedPlatform.FlavorExtensions:
             if flavor.Name == flavorName:
                 return flavor
         return None

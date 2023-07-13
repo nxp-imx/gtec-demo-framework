@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/FmtPxValueU.hpp>
 #include <FslBase/Math/Pixel/PxPoint2U.hpp>
 #include <fmt/format.h>
 

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXPOINT2U_HPP
 #define FSLBASE_MATH_PIXEL_PXPOINT2U_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <cassert>
 
 namespace Fsl
 {
   struct PxPoint2U
   {
-    using value_type = uint32_t;
+    using value_type = PxValueU;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type X{0};
     value_type Y{0};
@@ -83,7 +85,7 @@ namespace Fsl
 
     constexpr PxPoint2U& operator/=(const value_type arg)
     {
-      assert(arg > 0u);
+      assert(arg > value_type(0u));
       X /= arg;
       Y /= arg;
       return *this;
@@ -103,6 +105,11 @@ namespace Fsl
     static constexpr PxPoint2U Zero() noexcept
     {
       return {};
+    }
+
+    static constexpr PxPoint2U Create(const raw_value_type x, const raw_value_type y) noexcept
+    {
+      return {PxValueU(x), PxValueU(y)};
     }
   };
 
@@ -135,8 +142,10 @@ namespace Fsl
 
   inline constexpr PxPoint2U operator/(const PxPoint2U& lhs, const PxPoint2U::value_type rhs)
   {
-    assert(rhs > 0u);
+    assert(rhs > PxPoint2U::value_type(0u));
     return {lhs.X / rhs, lhs.Y / rhs};
   }
+
 }
+
 #endif

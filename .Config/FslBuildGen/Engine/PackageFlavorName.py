@@ -31,16 +31,19 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen import Util
-from FslBuildGen.Exceptions import InvalidPackageFlavorNameException
+from typing import Optional
+#from FslBuildGen import Util
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageName import UnresolvedPackageName
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorUnqualifiedName import UnresolvedPackageFlavorUnqualifiedName
+#from FslBuildGen.Exceptions import InvalidPackageFlavorNameException
 
 class PackageFlavorName(object):
-    def __init__(self, name: str) -> None:
+    def __init__(self, ownerPackageName: UnresolvedPackageName, name: UnresolvedPackageFlavorUnqualifiedName) -> None:
         super().__init__()
-        if not Util.IsValidFlavorName(name):
-            raise InvalidPackageFlavorNameException(name)
 
-        self.Value = name
+        self.OwnerPackageName = ownerPackageName
+        self.Value = "{0}.{1}".format(ownerPackageName.Value, name) if len(name.Value) > 0 else ownerPackageName.Value
+        self.Id = self.Value.upper()
 
     def CompareTo(self, other: 'PackageFlavorName') -> int:
         if self.Value < other.Value:
@@ -80,3 +83,17 @@ class PackageFlavorName(object):
 
     def __repr__(self) -> str:
         return "PackageFlavorName({0})".format(self.Value)
+
+    @staticmethod
+    def FromString(value: str) -> 'PackageFlavorName':
+        res = PackageFlavorName.TryFromString(value)
+        if res is None:
+            raise Exception("Invalid package flavor name '{0}', package flavor names must contain atleast one '.'".format(value))
+        return res
+
+    @staticmethod
+    def TryFromString(value: str) -> Optional['PackageFlavorName']:
+        lastDotIndex = value.rfind('.')
+        if lastDotIndex < 0:
+            return None
+        return PackageFlavorName(UnresolvedPackageName(value[:lastDotIndex]), UnresolvedPackageFlavorUnqualifiedName(value[lastDotIndex+1:]))

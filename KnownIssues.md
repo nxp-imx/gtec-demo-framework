@@ -45,6 +45,81 @@
 * If you get the error "RapidVulkan/System/Log.hpp: fatal error: FslBase/Log/BasicLog.hpp: No such file or directory" the Yocto sdk you are using contains a old incompatible version of RapidVulkan.
   Adding ```--Recipes [Recipe.RapidVulkan_1_2_148]``` to the build command might enable it to compile and work, but it potentially has issues as the RapidVulkan headers will be located at two different locations in the build.
 
+### Wayland XDG shell
+
+Since XDG shell unfortunately does not provide a versioned library of their code but instead require us to run their “wayland-scanner” tool on their xml file to generate their non app specific code, we unfortunately need to introduce a more complex build process which introduce new points of failure while compiling the apps. 
+
+This could be
+
+*	The build fails to locate the correct ‘wayland-scanner’ executable file
+*	The build fails to locate the correct ‘stable/xdg-shell/xdg-shell.xml’ xml file
+
+The build will log the found locations:
+
+```bash
+-- WAYLAND_PROTOCOLS_DIR: '<path>'
+-- WAYLAND_SCANNER:       '<path>'
+-- DF_WAYLAND_SCANNER:    '<path>'
+```
+
+We rely on CMake and PkgConfig to locate the correct paths but that may now always work especially when cross-compiling.
+So its especially important when cross compiling to verify that the found path points to the Yocto host root-fs tools and not the actual hosts tools.
+
+A incorrect cross compile using the incorrect host tools would output something like:
+
+```bash
+-- WAYLAND_PROTOCOLS_DIR: '~/sdk/4.9.51-mx8-beta/sysroots/aarch64-poky-linux/usr/share/wayland-protocols'
+-- WAYLAND_SCANNER:       '/usr/bin/wayland-scanner'
+-- DF_WAYLAND_SCANNER:    '/usr/bin/wayland-scanner'
+```
+
+To help 'guide' the build you can specific the FSL_HOST_ROOTFS environment variable which will be 'prepended' to the path 
+
+```bash
+export FSL_HOST_ROOTFS=~/sdk/4.9.51-mx8-beta/sysroots/x86_64-poky-linux
+```
+
+So you get log output like this instead:
+
+```bash
+-- WAYLAND_PROTOCOLS_DIR: '~/sdk/4.9.51-mx8-beta/sysroots/aarch64-poky-linux/usr/share/wayland-protocols'
+-- WAYLAND_SCANNER:       '/usr/bin/wayland-scanner'
+-- DF_WAYLAND_SCANNER:    '~/sdk/4.9.51-mx8-beta/sysroots/x86_64-poky-linux/x86_64-pokysdk-linux/usr/bin/wayland-scanner'
+```
+
+It's unfortunately possible to generate a compiling app that renders incorrectly due to the new build complexities so double check the reported paths. 
+
+If the paths are present in your build log its probably because the code was compilled 'successfully' before and will only be recompiled if modified. 
+
+#### Force recompiling the demo framework Wayland_XDG package
+
+There is unfortuantley not a easy way to force compile something that was unchanged, so deleting the compiled libary will be necessary for now. The build package that runs the wayland-scanner and generates the library is located at ```ThirdParty\Recipe\Wayland_XDG```. You can go to that directory and execute 
+
+```bash 
+FslBuildExternal.py -vv
+```
+
+It will output the location of the cached library, look for
+
+```
+Rescanning content of '~/InstallCache.DF/Yocto/Ninja_3_6/Wayland_XDG-1.0'
+```
+
+Removing the directory mentioned in **YOUR** log will allow you to recompiled the library with ```FslBuildExternal.py```.
+
+Alternatively changes done to Fsl.gen or CMakeLists.txt will also trigger a rebuild.
+
+#### Override PKGConfig completely 
+
+You can override the PKGConfig search completely by defining 
+
+```
+FslBuild.py --CMakeConfigGlobalArgs="-DWAYLAND_SCANNER <your-path> -DWAYLAND_PROTOCOLS_DIR=<your-path>"
+```
+
+Unfortunately you will have to specific this override to all build tools every time.
+
+
 ## Windows
 
 * Visual Studio 2019 16.5.x might not pickup the environment variables and paths it was launched with. This is a visual studio bug.

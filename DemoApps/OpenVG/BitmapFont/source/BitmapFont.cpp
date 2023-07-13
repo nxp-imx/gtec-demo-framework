@@ -50,7 +50,7 @@ namespace Fsl
   {
     // Create the parent image
     Bitmap bitmap;
-    EmbeddedFont8x8::CreateFontBitmap(bitmap, PixelFormat::R8G8B8A8_UNORM, PxPoint2(), RectangleSizeRestrictionFlag::Power2);
+    EmbeddedFont8x8::CreateFontBitmap(bitmap, PixelFormat::R8G8B8A8_UNORM, PxSize2D(), RectangleSizeRestrictionFlag::Power2);
 
     // Other filtering possibilities:
     // VG_IMAGE_QUALITY_NONANTIALIASED
@@ -73,20 +73,20 @@ namespace Fsl
     const auto imageHeight = UncheckedNumericCast<int32_t>(bitmap.Height());
     const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
     std::array<VGfloat, 2> origin = {0.0f, 0.0f};
-    std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.Width()), 0.0f};
+    std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.RawWidth()), 0.0f};
     int32_t srcX = 0;
     int32_t srcY = 0;
     for (uint16_t i = 0; i < numChars; ++i)
     {
-      const VGFont childImage = vgChildImage(parentImage, srcX, imageHeight - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
+      const VGFont childImage = vgChildImage(parentImage, srcX, imageHeight - srcY - fontSize.RawHeight(), fontSize.RawWidth(), fontSize.RawHeight());
       vgSetGlyphToImage(m_font, firstChar + i, childImage, origin.data(), escapement.data());
       m_fontImages[i].Reset(childImage, fontSize);
 
-      srcX += fontSize.Width();
-      if ((srcX + fontSize.Width()) > imageWidth)
+      srcX += fontSize.RawWidth();
+      if ((srcX + fontSize.RawWidth()) > imageWidth)
       {
         srcX = 0;
-        srcY += fontSize.Height();
+        srcY += fontSize.RawHeight();
       }
     }
   }
@@ -113,7 +113,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     // Draw one glyph
     {

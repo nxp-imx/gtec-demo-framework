@@ -119,7 +119,7 @@ namespace Fsl
     // Composite the final image
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     {
-      glViewport(0, 0, m_screenResolution.Width(), m_screenResolution.Height());
+      glViewport(0, 0, m_screenResolution.RawWidth(), m_screenResolution.RawHeight());
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);

@@ -111,8 +111,8 @@ namespace Fsl
       };
 
 
-      int32_t m_chartEntryWidthPx;
-      int32_t m_chartLabelSpacingPx;
+      PxSize1D m_chartEntryWidthPx;
+      PxSize1D m_chartLabelSpacingPx;
 
       std::vector<GridLineRecord> m_gridLineRecords;
       uint32_t m_gridLineRecordCount{0};
@@ -125,7 +125,7 @@ namespace Fsl
 
     public:
       AreaChartGridLineManager(TransitionCache& rTransitionCache, const TimeSpan transitionTime, const TimeSpan transitionTimespanLabels,
-                               const int32_t chartEntryWidthPx, const int32_t chartLabelSpacingPx);
+                               const PxSize1D chartEntryWidthPx, const PxSize1D chartLabelSpacingPx);
 
 
       const std::shared_ptr<ChartDataView>& GetDataView() const
@@ -138,19 +138,19 @@ namespace Fsl
       bool SetGridLines(const std::shared_ptr<IChartGridLines>& gridLines);
       bool SetDataView(const std::shared_ptr<ChartDataView>& data);
 
-      int32_t GetChartEntryWidth() const
+      PxSize1D GetChartEntryWidth() const
       {
         return m_chartEntryWidthPx;
       }
 
-      void SetChartEntryWidth(const int32_t chartEntryWidthPx);
+      void SetChartEntryWidth(const PxSize1D chartEntryWidthPx);
 
-      int32_t GetChartLabelSpacing() const
+      PxSize1D GetChartLabelSpacing() const
       {
         return m_chartLabelSpacingPx;
       }
 
-      void SetChartLabelSpacing(const int32_t chartLabelSpacingPx);
+      void SetChartLabelSpacing(const PxSize1D chartLabelSpacingPx);
 
       void ExtractDrawData(Render::ChartDataWindowDrawData& rDst, const PxSize2D renderSizePx, const NineSliceSprite* const pBackgroundSprite,
                            const SpriteFont* const pFont, const bool matchDataViewEntries);
@@ -164,7 +164,7 @@ namespace Fsl
 
       static void DetermineVisibility(Render::ChartDataWindowDrawData& rDst, Span<GridLineRecord> gridLines, const ViewRecord& viewRecord,
                                       const PxSize2D renderSizePx, const NineSliceSprite* const pBackgroundSprite, const SpriteFont* const pFont,
-                                      const int32_t chartEntryWidthPx, const int32_t chartLabelSpacingPx);
+                                      const PxSize1D chartEntryWidthPx, const PxSize1D chartLabelSpacingPx);
 
 
       static ChartDataRecord ExtractChartData(const IChartGridLines* const pGridLines, const MinMax<uint32_t> minMax);

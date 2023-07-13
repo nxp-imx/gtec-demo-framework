@@ -42,9 +42,12 @@ from FslBuildGen.Xml.Project.XmlClangTidyPlatformDefines import XmlClangTidyPlat
 from FslBuildGen.Xml.Project.XmlClangTidyPlatformStrictChecks import XmlClangTidyPlatformStrictChecks
 
 class XmlClangTidyPlatform(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, "Name")
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         self.Compiler = self.__TryReadCompiler(log, xmlElement)  # Optional[type: XmlClangTidyPlatformCompiler]
         self.Defines = self.__TryReadDefines(log, xmlElement)    # Optional[type: XmlClangTidyPlatformDefines]
         self.StrictChecks = self.__TryReadStrictChecks(log, xmlElement)    # Optional[type: XmlClangTidyPlatformStrictChecks]

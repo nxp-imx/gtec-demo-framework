@@ -98,7 +98,7 @@ class PackageName(object):
     @staticmethod
     def __CreateFullName(packageName: UnresolvedPackageName, flavorSelections: PackageFlavorSelections) -> str:
         if flavorSelections is not None and len(flavorSelections.Selections) >= 1:
-            return "{0}__{1}".format(packageName, PackageName.__GetFlavorConfigName(flavorSelections.Selections))
+            return "{0}___{1}".format(packageName, PackageName.__GetFlavorConfigName(flavorSelections.Selections))
         return packageName.Value
 
     @staticmethod
@@ -106,7 +106,7 @@ class PackageName(object):
         tmp = []  # type: List[str]
         for flavorSelection in flavorSelections:
             tmp.append(flavorSelection.Option.Value)
-        return "_".join(tmp)
+        return "__".join(tmp)
 
     @staticmethod
     def __ToPackageFlavorSelections(flavorConfigs: List[UnresolvedPackageFlavorConfig]) -> PackageFlavorSelections:

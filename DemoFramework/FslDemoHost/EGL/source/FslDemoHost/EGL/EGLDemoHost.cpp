@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/Image/IImageServiceControl.hpp>
@@ -60,7 +61,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-//#include <EGL/eglext.h>
+// #include <EGL/eglext.h>
 #include "Service/EGLHost/EGLHostService.hpp"
 
 #if 1
@@ -416,8 +417,8 @@ namespace Fsl
       FSLLOG3_INFO("EGL display configs: {}", configs.size());
       std::size_t index = 0;
       std::size_t foundCount = 0;
-      const auto attribs = EGLUtil::GetConfigAttribs();
-      for (auto* const config : configs)
+      const std::vector<EGLenum> attribs = EGLUtil::GetConfigAttribs();
+      for (EGLConfig config : configs)
       {
         if (!hdrFilter || IsHDRConfig(display, config))
         {
@@ -425,8 +426,9 @@ namespace Fsl
           FSLLOG3_INFO("*** Config index {}", index);
           for (const auto attribute : attribs)
           {
+            const auto attr = NumericCast<EGLint>(attribute);
             EGLint value = 0;
-            if (eglGetConfigAttrib(display, config, attribute, &value) == EGL_TRUE)
+            if (eglGetConfigAttrib(display, config, attr, &value) == EGL_TRUE)
             {
               FSLLOG3_INFO("- {}: {}", EGLStringUtil::GetConfigEnumToString(attribute), EGLStringUtil::GetConfigAttribToString(attribute, value));
             }
@@ -479,7 +481,7 @@ namespace Fsl
       // Do a basic validation on the app's custom EGL config attribs
       CopyConfig(rAppAttribs, appAttribs);
 
-      if (!(rAppAttribs.empty() || ((rAppAttribs.size() % 2) == 1 && rAppAttribs.back() == EGL_NONE)))
+      if (!rAppAttribs.empty() && ((rAppAttribs.size() % 2) != 1 || rAppAttribs.back() != EGL_NONE))
       {
         throw std::invalid_argument("eglConfigAttribs is in a unexpected format");
       }
@@ -917,11 +919,11 @@ namespace Fsl
     assert(m_hConfig != LocalConfig::EmptyValueEGLConfig);
     assert(m_window);
 
-    const auto size = GetEGLSurfaceResolution(m_hDisplay, m_hSurface);
+    const Point2 size = GetEGLSurfaceResolution(m_hDisplay, m_hSurface);
 
     auto nativeWindowMetrics = (m_window ? m_window->GetWindowMetrics() : NativeWindowMetrics());
 
-    PxExtent2D extent(std::max(size.X, 0), std::max(size.Y, 0));
+    auto extent = PxExtent2D::Create(std::max(size.X, 0), std::max(size.Y, 0));
     return {extent, nativeWindowMetrics.ExactDpi, nativeWindowMetrics.DensityDpi};
   }
 
@@ -1063,11 +1065,13 @@ namespace Fsl
       // Take a copy of the final user desired config so we can use it for logging purposes later.
       std::vector<EGLint> finalConfigAttribsCopy = m_finalConfigAttribs;
 
+      LOCAL_LOG("Asking EGL to chose via eglChooseConfig");
       EGLint numConfigs = 0;
       EGL_CHECK(eglChooseConfig(m_hDisplay, m_finalConfigAttribs.data(), &m_hConfig, 1, &numConfigs));
 
       if (numConfigs != 1)
       {
+        LOCAL_LOG("EGL provided multiple possible configurations");
         // eglChooseConfig might fail to find HDR requests, so we fallback to our own search
         bool configSelected = false;
         bool isHDRRequest = IsHDRRequest(m_appEglConfigAttribs);
@@ -1083,6 +1087,10 @@ namespace Fsl
             throw EGLGraphicsException("Failed to find a compatible EGL config");
           }
         }
+      }
+      else
+      {
+        LOCAL_LOG("EGL only found one configuration so we are using it.");
       }
 
       if (m_logSelectedConfig)

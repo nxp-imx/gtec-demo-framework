@@ -42,6 +42,7 @@ from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageDependency import UnresolvedPackageDependency
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavor import UnresolvedPackageFlavor
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorExtension import UnresolvedPackageFlavorExtension
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorOption import UnresolvedPackageFlavorOption
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageName import UnresolvedPackageName
 from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
@@ -82,7 +83,7 @@ FilterElementType = TypeVar('FilterElementType', UnresolvedExternalDependency, U
 class UnresolvedFactory(object):
 
     @staticmethod
-    def CreateUnresolvedPackageFlavorOption(createContext: FactoryCreateContext, name: PackageFlavorOptionName,
+    def CreateUnresolvedPackageFlavorOption(createContext: FactoryCreateContext, name: PackageFlavorOptionName, supported: bool,
                                             introducedByPackageName: UnresolvedPackageName, directRequirements: List[UnresolvedPackageRequirement],
                                             directDependencies: List[UnresolvedPackageDependency], externalDependencies: List[UnresolvedExternalDependency],
                                             directDefines: List[UnresolvedPackageDefine]) -> UnresolvedPackageFlavorOption:
@@ -90,19 +91,20 @@ class UnresolvedFactory(object):
         directDependencies = UnresolvedFilter.FilterOnConditions(createContext.Log, createContext.GeneratorInfo, directDependencies, "Dependency")
         externalDependencies = UnresolvedFilter.FilterOnConditions(createContext.Log, createContext.GeneratorInfo, externalDependencies, "ExternalDependency")
 
-        return UnresolvedPackageFlavorOption(name, introducedByPackageName, directRequirements, directDependencies, externalDependencies, directDefines)
+        return UnresolvedPackageFlavorOption(name, supported, introducedByPackageName, directRequirements, directDependencies, externalDependencies, directDefines)
 
     @staticmethod
     def CreatePackagePlatform(createContext: FactoryCreateContext,
                               name: str, directRequirements: List[UnresolvedPackageRequirement], directDependencies: List[UnresolvedPackageDependency],
                               variants: List[UnresolvedPackageVariant], supported: bool,
                               externalDependencies: List[UnresolvedExternalDependency], directDefines: List[UnresolvedPackageDefine],
-                              directExperimentalRecipe: Optional[XmlExperimentalRecipe], flavors: List[UnresolvedPackageFlavor]) -> PackagePlatform:
+                              directExperimentalRecipe: Optional[XmlExperimentalRecipe], flavors: List[UnresolvedPackageFlavor],
+                              flavorExtensions: List[UnresolvedPackageFlavorExtension]) -> PackagePlatform:
 
         directDependencies = UnresolvedFilter.FilterOnConditions(createContext.Log, createContext.GeneratorInfo, directDependencies, "Dependency")
         externalDependencies = UnresolvedFilter.FilterOnConditions(createContext.Log, createContext.GeneratorInfo, externalDependencies, "ExternalDependency")
         return PackagePlatform(name, directRequirements, directDependencies, variants, supported, externalDependencies, directDefines,
-                               directExperimentalRecipe, flavors)
+                               directExperimentalRecipe, flavors, flavorExtensions)
 
     @staticmethod
     def CreateUnresolvedPackage(createContext: FactoryCreateContext, packageProjectContext: PackageProjectContext,

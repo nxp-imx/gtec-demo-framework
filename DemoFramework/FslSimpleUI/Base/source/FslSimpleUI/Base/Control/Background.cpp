@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Sprite/NineSliceSprite.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
@@ -40,6 +43,15 @@
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <cassert>
+
+namespace Fsl::UI
+{
+  using TClass = Background;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyBackgroundColor = TFactory::Create<Color, TClass, &TClass::GetBackgroundColor, &TClass::SetBackgroundColor>("BackgroundColor");
+}
 
 namespace Fsl::UI
 {
@@ -59,20 +71,22 @@ namespace Fsl::UI
     }
   }
 
-  void Background::SetBackgroundColor(const Color& value)
+  bool Background::SetBackgroundColor(const Color value)
   {
-    if (value != m_backgroundColor)
+    const bool changed = m_propertyBackgroundColor.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_backgroundColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
   void Background::WinDraw(const UIDrawContext& context)
   {
     ContentControl::WinDraw(context);
 
-    context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * m_backgroundColor);
+    const auto finalColor = GetFinalBaseColor() * m_propertyBackgroundColor.Get();
+    context.CommandBuffer.Draw(m_background.Get(), context.TargetRect.Location(), RenderSizePx(), finalColor);
   }
 
 
@@ -132,4 +146,28 @@ namespace Fsl::UI
     }
     return desiredSizePx;
   }
+
+  DataBinding::DataBindingInstanceHandle Background::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyBackgroundColor, m_propertyBackgroundColor));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult Background::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                     const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyBackgroundColor, m_propertyBackgroundColor));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void Background::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyBackgroundColor);
+  }
+
 }

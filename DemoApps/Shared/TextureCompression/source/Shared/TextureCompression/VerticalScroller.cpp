@@ -88,13 +88,13 @@ namespace Fsl::UI
       PxSize2D contentDesiredSizePx = GetContentDesiredSizePx();
       contentDesiredSizePx.SetWidth(finalSizePx.Width());
       contentDesiredSizePx.AddHeight(scrollPaddingPx.SumY());
-      const auto scrollArea = (contentDesiredSizePx.Height() - finalSizePx.Height());
+      const PxValue scrollArea = (contentDesiredSizePx.Height() - finalSizePx.Height());
       const float pos =
-        scrollArea > 0 ? -(((std::cos(m_animationPosition + MathHelper::RADS180) + 1.0f) / 2.0f) * static_cast<float>(scrollArea)) : 0.0f;
+        scrollArea.Value > 0 ? -(((std::cos(m_animationPosition + MathHelper::RADS180) + 1.0f) / 2.0f) * static_cast<float>(scrollArea.Value)) : 0.0f;
       const int32_t posPx = TypeConverter::UncheckedChangeTo<int32_t>(pos);
-      ContentControl::CustomArrange(contentDesiredSizePx, PxPoint2(0, posPx));
+      ContentControl::CustomArrange(contentDesiredSizePx, PxPoint2::Create(0, posPx));
 
-      m_animationSpeed = scrollArea > 0 ? (1.0f / static_cast<float>(scrollArea)) * 600.0f : 0.0f;
+      m_animationSpeed = scrollArea.Value > 0 ? (1.0f / static_cast<float>(scrollArea.Value)) * 600.0f : 0.0f;
       m_animationSpeed = std::min(m_animationSpeed, 4.0f);
       return finalSizePx;
     }
@@ -105,7 +105,7 @@ namespace Fsl::UI
 
   PxSize2D VerticalScroller::MeasureOverride(const PxAvailableSize& availableSizePx)
   {
-    PxSize2D desiredSizePx = ContentControl::MeasureOverride(PxAvailableSize(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx));
+    PxSize2D desiredSizePx = ContentControl::MeasureOverride(PxAvailableSize(availableSizePx.Width(), PxAvailableSize1D::InfiniteSpacePx()));
     if (desiredSizePx.Height() > availableSizePx.Height())
     {
       // Enable scrolling

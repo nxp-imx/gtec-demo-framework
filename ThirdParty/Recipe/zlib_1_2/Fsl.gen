@@ -38,7 +38,7 @@
       </ExperimentalRecipe>
     </Platform>
 
-    <Platform Name="Windows" Supported="true" FindTargetName="ZLIB::ZLIB">
+    <Platform Name="Windows" Supported="true">
       <ExperimentalRecipe Name="ZLIB" Version="1.2.13">
         <Pipeline>
           <Download URL="https://zlib.net/zlib-1.2.13.tar.gz" Hash="b3a24de97a8fdbc835b9833169501030b8977031bcb54b3b3ac13740f846ab30"/>

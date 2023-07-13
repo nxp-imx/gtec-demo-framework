@@ -41,6 +41,7 @@ from FslBuildGen import PackageListUtil
 #from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
+from FslBuildGen.Build.BuildFlavorUtil import BuildFlavorUtil
 from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.BuildExternal import RecipeBuilder
@@ -124,7 +125,7 @@ class ToolFlowBuildGen(AToolAppFlow):
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         if localToolConfig.DryRun:
             config.ForceDisableAllWrite()
@@ -138,7 +139,7 @@ class ToolFlowBuildGen(AToolAppFlow):
         self.ToolAppContext.PluginConfigContext.SetLegacyGeneratorType(localToolConfig.GenType)
 
 
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                  localToolConfig.Generator, buildVariantConfig,
@@ -151,6 +152,8 @@ class ToolFlowBuildGen(AToolAppFlow):
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(platformGeneratorPlugin.CMakeConfig), currentDirPath, localToolConfig.Recursive)
 
+
+        BuildFlavorUtil.LogFlavorSettings(config, config.VariantConstraints)
 
         packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, variableContext,
                                                  self.ErrorHelpManager, theFiles, platformGeneratorPlugin, localToolConfig.BuildPackageFilters,
@@ -195,7 +198,7 @@ class ToolFlowBuildGen(AToolAppFlow):
                 localToolConfigForAllExe = None
 
                 Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
-                                      toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantsDict,
+                                      toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantConstraints,
                                       localToolConfig.RemainingArgs, localToolConfigForAllExe, platformGeneratorPlugin,
                                       localToolConfigEnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
                                       localToolConfigCommand, True)

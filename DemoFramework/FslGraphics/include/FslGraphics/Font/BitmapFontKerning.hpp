@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <cstdint>
 
 namespace Fsl
@@ -39,11 +40,11 @@ namespace Fsl
   {
     uint32_t First{};
     uint32_t Second{};
-    int32_t AmountPx{};
+    PxValue AmountPx{};
 
     constexpr BitmapFontKerning() = default;
 
-    constexpr BitmapFontKerning(const uint32_t first, const uint32_t second, const int32_t amountPx)
+    constexpr BitmapFontKerning(const uint32_t first, const uint32_t second, const PxValue amountPx)
       : First(first)
       , Second(second)
       , AmountPx(amountPx)

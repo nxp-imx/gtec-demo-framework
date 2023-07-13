@@ -40,6 +40,7 @@ namespace Fsl
   struct DpThicknessU
   {
     using value_type = DpValueU;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type Left{0};
     value_type Top{0};

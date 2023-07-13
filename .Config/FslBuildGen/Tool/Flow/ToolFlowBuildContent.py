@@ -51,6 +51,7 @@ from FslBuildGen.DataTypes import PackageType
 #from FslBuildGen.Generator import PluginConfig
 #from FslBuildGen.Log import Log
 #from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.Packages.Package import Package
@@ -114,10 +115,10 @@ class ToolFlowBuildContent(AToolAppFlow):
         featureList = localToolConfig.BuildPackageFilters.FeatureNameList
 
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         # Get the platform and see if its supported
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                    buildVariantConfig, variableContext.UserSetVariables,
@@ -185,7 +186,8 @@ class ToolFlowBuildContent(AToolAppFlow):
         noPackageFilters = PackageFilters()
 
         theFiles = MainFlow.DoGetFiles(config, toolMiniConfig, currentDir, recursive)
-        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, noPackageFilters)
+        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, noPackageFilters,
+                                          engineResolveConfig = EngineResolveConfig.CreateDefaultFlavor())
         return PackageListUtil.GetTopLevelPackage(packages)
 
 
@@ -201,9 +203,12 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
+        argConfig.AddGeneratorSelection = True
         argConfig.SupportBuildTime = True
         argConfig.AddUseFeatures = True
+        argConfig.AddBuildFiltering = True
         argConfig.AddBuildThreads = True
+        argConfig.AddBuildVariants = True
         argConfig.AllowRecursive = True
         return argConfig
 

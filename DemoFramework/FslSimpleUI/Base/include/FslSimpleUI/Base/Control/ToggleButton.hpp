@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_TOGGLEBUTTON_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_TOGGLEBUTTON_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
 #include <FslBase/Transition/TransitionVector2.hpp>
 #include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
 #include <FslSimpleUI/Base/Mesh/SizedSpriteMesh.hpp>
-#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
 #include <memory>
 #include <string>
 #include <utility>
@@ -53,12 +53,14 @@ namespace Fsl
 
     class ToggleButton : public BaseWindow
     {
+      using base_type = BaseWindow;
+
       struct FontRecord
       {
-        SpriteFontMesh Mesh;
-        Color CheckedColor{DefaultColor::Palette::Font};
-        Color UncheckedColor{DefaultColor::Palette::Font};
-        Color DisabledColor{DefaultColor::Palette::FontDisabled};
+        SimpleSpriteFontMesh Mesh;
+        DataBinding::TypedDependencyProperty<Color> PropertyColorChecked{DefaultColor::Palette::Font};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorUnchecked{DefaultColor::Palette::Font};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorDisabled{DefaultColor::Palette::FontDisabled};
         TransitionColor CurrentColor;
 
         explicit FontRecord(const std::shared_ptr<IMeshManager>& meshManager, const std::shared_ptr<SpriteFont>& font,
@@ -73,10 +75,10 @@ namespace Fsl
       struct GraphicsRecord
       {
         SizedSpriteMesh Mesh;
-        Color CheckedColor{DefaultColor::ToggleButton::CursorChecked};
-        Color UncheckedColor{DefaultColor::ToggleButton::CursorChecked};
-        Color CheckedDisabledColor{DefaultColor::ToggleButton::CursorCheckedDisabled};
-        Color UncheckedDisabledColor{DefaultColor::ToggleButton::CursorUncheckedDisabled};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorChecked{DefaultColor::ToggleButton::CursorChecked};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorUnchecked{DefaultColor::ToggleButton::CursorChecked};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorCheckedDisabled{DefaultColor::ToggleButton::CursorCheckedDisabled};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorUncheckedDisabled{DefaultColor::ToggleButton::CursorUncheckedDisabled};
         TransitionColor CurrentColor;
 
         explicit GraphicsRecord(const std::shared_ptr<IMeshManager>& meshManager, TransitionCache& rTransitionCache, const TimeSpan& time,
@@ -129,20 +131,37 @@ namespace Fsl
       HoverOverlayRecord m_hoverOverlay;
       SpriteFontMeasureInfo m_cachedFontMeasureInfo;
 
-      ItemAlignment m_imageAlignment{ItemAlignment::Near};
-      bool m_isChecked{false};
-      bool m_isEnabled{true};
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyImageAlignment{ItemAlignment::Near};
+      DataBinding::TypedDependencyProperty<bool> m_propertyIsChecked{false};
+      DataBinding::TypedDependencyProperty<bool> m_propertyIsEnabled{true};
+      DataBinding::TypedDependencyProperty<StringViewLite> m_propertyText;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyFontColorChecked;
+      static DataBinding::DependencyPropertyDefinition PropertyFontColorUnchecked;
+      static DataBinding::DependencyPropertyDefinition PropertyFontColorDisabled;
+      static DataBinding::DependencyPropertyDefinition PropertyCursorColorChecked;
+      static DataBinding::DependencyPropertyDefinition PropertyCursorColorUnchecked;
+      static DataBinding::DependencyPropertyDefinition PropertyCursorColorCheckedDisabled;
+      static DataBinding::DependencyPropertyDefinition PropertyCursorColorUncheckedDisabled;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorChecked;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorUnchecked;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorCheckedDisabled;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorUncheckedDisabled;
+      static DataBinding::DependencyPropertyDefinition PropertyImageAlignment;
+      static DataBinding::DependencyPropertyDefinition PropertyIsChecked;
+      static DataBinding::DependencyPropertyDefinition PropertyIsEnabled;
+      static DataBinding::DependencyPropertyDefinition PropertyText;
+
       explicit ToggleButton(const std::shared_ptr<WindowContext>& context);
 
-      bool IsEnabled() const
+      bool IsEnabled() const noexcept
       {
-        return m_isEnabled;
+        return m_propertyIsEnabled.Get();
       }
 
       //! @brief When disabled the slider can not be modified by the user
-      bool SetEnabled(const bool enabled);
+      bool SetEnabled(const bool value);
 
       const std::shared_ptr<SpriteFont>& GetFont() const
       {
@@ -151,28 +170,28 @@ namespace Fsl
 
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
-      const std::string& GetText() const
+      StringViewLite GetText() const noexcept
       {
-        return m_font.Mesh.GetText();
+        return m_propertyText.Get();
       }
 
-      void SetText(const StringViewLite& strView);
-      void SetText(std::string&& value);
-      void SetText(const char* const psz)
+      bool SetText(const StringViewLite strView);
+      bool SetText(std::string&& value);
+      bool SetText(const char* const psz)
       {
-        SetText(StringViewLite(psz));
+        return SetText(StringViewLite(psz));
       }
-      void SetText(const std::string& str)
+      bool SetText(const std::string& str)
       {
-        SetText(StringViewLiteUtil::AsStringViewLite(str));
-      }
-
-      ItemAlignment GetImageAlignment() const
-      {
-        return m_imageAlignment;
+        return SetText(StringViewLiteUtil::AsStringViewLite(str));
       }
 
-      bool SetImageAlignment(const ItemAlignment alignment);
+      ItemAlignment GetImageAlignment() const noexcept
+      {
+        return m_propertyImageAlignment.Get();
+      }
+
+      bool SetImageAlignment(const ItemAlignment value);
 
 
       Color GetHoverOverlayCheckedColor() const
@@ -209,71 +228,82 @@ namespace Fsl
       void SetHoverOverlaySprite(const std::shared_ptr<ISizedSprite>& value);
 
 
-      Color GetCursorCheckedColor() const
+      Color GetCursorColorChecked() const noexcept
       {
-        return m_cursor.CheckedColor;
+        return m_cursor.PropertyColorChecked.Get();
       }
-      void SetCursorCheckedColor(const Color& value);
+      bool SetCursorColorChecked(const Color value);
 
-      Color GetCursorCheckedDisabledColor() const
-      {
-        return m_cursor.CheckedDisabledColor;
-      }
-      void SetCursorCheckedDisabledColor(const Color& value);
 
-      Color GetCursorUncheckedColor() const
+      Color GetCursorColorCheckedDisabled() const noexcept
       {
-        return m_cursor.UncheckedColor;
+        return m_cursor.PropertyColorCheckedDisabled.Get();
       }
-      void SetCursorUncheckedColor(const Color& value);
+      bool SetCursorColorCheckedDisabled(const Color value);
 
-      Color GetCursorUncheckedDisabledColor() const
-      {
-        return m_cursor.UncheckedDisabledColor;
-      }
-      void SetCursorUncheckedDisabledColor(const Color& value);
 
-      Color GetBackgroundCheckedColor() const
+      Color GetCursorColorUnchecked() const noexcept
       {
-        return m_background.CheckedColor;
+        return m_cursor.PropertyColorUnchecked.Get();
       }
-      void SetBackgroundCheckedColor(const Color& value);
+      bool SetCursorColorUnchecked(const Color value);
 
-      Color GetBackgroundCheckedDisabledColor() const
-      {
-        return m_background.CheckedDisabledColor;
-      }
-      void SetBackgroundCheckedDisabledColor(const Color& value);
 
-      Color GetBackgroundUncheckedColor() const
+      Color GetCursorColorUncheckedDisabled() const noexcept
       {
-        return m_background.UncheckedColor;
+        return m_cursor.PropertyColorUncheckedDisabled.Get();
       }
-      void SetBackgroundUncheckedColor(const Color& value);
+      bool SetCursorColorUncheckedDisabled(const Color value);
 
-      Color GetBackgroundUncheckedDisabledColor() const
-      {
-        return m_background.UncheckedDisabledColor;
-      }
-      void SetBackgroundUncheckedDisabledColor(const Color& value);
 
-      Color GetFontCheckedkColor() const
+      Color GetBackgroundColorChecked() const noexcept
       {
-        return m_font.CheckedColor;
+        return m_background.PropertyColorChecked.Get();
       }
-      void SetFontCheckedkColor(const Color& value);
+      bool SetBackgroundColorChecked(const Color value);
 
-      Color GetFontUncheckColor() const
-      {
-        return m_font.UncheckedColor;
-      }
-      void SetFontUncheckColor(const Color& value);
 
-      Color GetFontDisabledColor() const
+      Color GetBackgroundColorCheckedDisabled() const noexcept
       {
-        return m_font.DisabledColor;
+        return m_background.PropertyColorCheckedDisabled.Get();
       }
-      void SetFontDisabledColor(const Color& value);
+      bool SetBackgroundColorCheckedDisabled(const Color value);
+
+
+      Color GetBackgroundColorUnchecked() const noexcept
+      {
+        return m_background.PropertyColorUnchecked.Get();
+      }
+      bool SetBackgroundColorUnchecked(const Color value);
+
+
+      Color GetBackgroundColorUncheckedDisabled() const noexcept
+      {
+        return m_background.PropertyColorUncheckedDisabled.Get();
+      }
+      bool SetBackgroundColorUncheckedDisabled(const Color value);
+
+
+      Color GetFontColorChecked() const noexcept
+      {
+        return m_font.PropertyColorChecked.Get();
+      }
+      bool SetFontColorChecked(const Color value);
+
+
+      Color GetFontColorUnchecked() const noexcept
+      {
+        return m_font.PropertyColorUnchecked.Get();
+      }
+      bool SetFontColorUnchecked(const Color value);
+
+
+      Color GetFontColorDisabled() const noexcept
+      {
+        return m_font.PropertyColorDisabled.Get();
+      }
+      bool SetFontColorDisabled(const Color value);
+
 
       const std::shared_ptr<ISizedSprite>& GetCheckedTexture() const
       {
@@ -287,12 +317,12 @@ namespace Fsl
       }
       void SetUncheckedSprite(const std::shared_ptr<ISizedSprite>& value);
 
-      bool IsChecked() const
+      bool IsChecked() const noexcept
       {
-        return m_isChecked;
+        return m_propertyIsChecked.Get();
       }
 
-      virtual void SetIsChecked(const bool value);
+      virtual bool SetIsChecked(const bool value);
 
       void Toggle();
 
@@ -304,6 +334,11 @@ namespace Fsl
 
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
 
       void UpdateAnimation(const TimeSpan& timeSpan) override;
       bool UpdateAnimationState(const bool forceCompleteAnimation) override;

@@ -77,11 +77,10 @@ namespace Fsl::IO
       // Read the entire content of the file
       if (length > 0)
       {
-        rStream.read(static_cast<char*>(pDst), NumericCast<std::streamsize>(length));
-      }
-      if (!rStream.good())
-      {
-        throw IOException(fmt::format("Failed to read entire file '{}'", path));
+        if (!rStream.read(static_cast<char*>(pDst), NumericCast<std::streamsize>(length)))
+        {
+          throw IOException(fmt::format("Failed to read entire file '{}'", path));
+        }
       }
     }
 
@@ -91,11 +90,10 @@ namespace Fsl::IO
       // Read the entire content of the file
       if (length > 0)
       {
-        rStream.write(static_cast<const char*>(pDst), NumericCast<std::streamsize>(length));
-      }
-      if (!rStream.good())
-      {
-        throw IOException(fmt::format("Failed to write entire file '{}'", path));
+        if (!rStream.write(static_cast<const char*>(pDst), NumericCast<std::streamsize>(length)))
+        {
+          throw IOException(fmt::format("Failed to write entire file '{}'", path));
+        }
       }
     }
   }
@@ -292,7 +290,7 @@ namespace Fsl::IO
       std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
       const std::size_t length = GetStreamLength(file, path);
 
-      if (fileOffsetEx >= length && !(fileOffsetEx == 0 && length == 0))
+      if (fileOffsetEx >= length && (fileOffsetEx != 0 || length != 0))
       {
         throw std::invalid_argument("fileOffsetEx can not be equal or greater than the file length");
       }
@@ -321,7 +319,7 @@ namespace Fsl::IO
       throw std::invalid_argument("pDstArray can not be null");
     }
 
-    if (dstStartIndex > cbDstArray && !(dstStartIndex == 0 && cbDstArray == 0))
+    if (dstStartIndex > cbDstArray && (dstStartIndex != 0 || cbDstArray != 0))
     {
       throw std::invalid_argument("dstStartIndex can not greater or equal to cbDstArray");
     }
@@ -339,7 +337,7 @@ namespace Fsl::IO
       std::ifstream file(PlatformPathTransform::ToSystemPath(path), std::ios::in | std::ios::binary);
       const std::size_t length = GetStreamLength(file, path);
 
-      if (fileOffsetEx >= length && !(fileOffsetEx == 0 && length == 0))
+      if (fileOffsetEx >= length && (fileOffsetEx != 0 || length != 0))
       {
         throw std::invalid_argument("fileOffset can not be equal or greater than the file length");
       }
@@ -365,7 +363,11 @@ namespace Fsl::IO
   {
     try
     {
-      std::ofstream file(PlatformPathTransform::ToSystemPath(path), std::ios::out | std::ios::binary);
+      std::ofstream file(PlatformPathTransform::ToSystemPath(path), std::ios::out | std::ios::binary | std::ios::trunc);
+      if (!file.is_open())
+      {
+        throw IOException(fmt::format("Failed to open file '{}'", path));
+      }
       // Write the entire content of the file
       StreamWrite(file, path, content.data(), content.size());
     }
@@ -380,7 +382,12 @@ namespace Fsl::IO
   {
     try
     {
-      std::ofstream file(PlatformPathTransform::ToSystemPath(path), std::ios::out | std::ios::binary);
+      std::ofstream file(PlatformPathTransform::ToSystemPath(path), std::ios::out | std::ios::binary | std::ios::trunc);
+      if (!file.is_open())
+      {
+        throw IOException(fmt::format("Failed to open file '{}'", path));
+      }
+
       // Write the entire content of the file
       StreamWrite(file, path, pContent, contentSizeInBytes);
     }

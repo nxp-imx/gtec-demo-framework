@@ -158,7 +158,7 @@ namespace Fsl::UI
   protected:
     inline static bool Check(const MeshHandle hMesh, const Color dstColor, const PxSize2D& dstSizePx) noexcept
     {
-      return hMesh.IsValid() && dstColor.A() > 0 && dstSizePx.Width() > 0 && dstSizePx.Height() > 0;
+      return hMesh.IsValid() && dstColor.A() > 0 && dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0;
     }
 
     void DoClear()

@@ -39,10 +39,14 @@ from FslBuildGen.Xml.ToolConfig.XmlConfigPackageLocation import XmlConfigPackage
 
 
 class XmlConfigPackageConfiguration(XmlBase):
+    __AttribName = 'Name'
+    __AttribPreload = 'Preload'
+
     def __init__(self, log: Log, xmlElement: ET.Element, sourceFile: str) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.Preload = self._ReadBoolAttrib(xmlElement, 'Preload', False)
+        self._CheckAttributes({self.__AttribName, self.__AttribPreload})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Preload = self._ReadBoolAttrib(xmlElement, self.__AttribPreload, False)
         self.Locations = self.__LoadLocations(log, xmlElement)  # type: List[XmlConfigPackageLocation]
         self.SourceFile = sourceFile
         self.Id = self.Name.lower()

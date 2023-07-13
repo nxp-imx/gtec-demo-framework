@@ -378,13 +378,13 @@ namespace Fsl
       int dim = 0;
       if (windowSizePx.Width() >= windowSizePx.Height())
       {
-        dim = windowSizePx.Width();
-        dstArea = Rectangle(0, (windowSizePx.Height() - windowSizePx.Width()) / 2, dim, dim);
+        dim = windowSizePx.RawWidth();
+        dstArea = Rectangle(0, (windowSizePx.Height() - windowSizePx.Width()).Value / 2, dim, dim);
       }
       else
       {
-        dim = windowSizePx.Height() / 2;
-        dstArea = Rectangle((windowSizePx.Width() - windowSizePx.Height()) / 2, 0, dim, dim);
+        dim = windowSizePx.RawHeight() / 2;
+        dstArea = Rectangle((windowSizePx.Width() - windowSizePx.Height()).Value / 2, 0, dim, dim);
       }
 
       {
@@ -409,7 +409,7 @@ namespace Fsl
       case 0:
       case 1:
         GenerateQuadricSpiral(m_test, m_config.GetQuadricSpiralRevolutionCount(),
-                              m_config.GetQuadricSpiralRevolutionChange(windowSizePx.Width(), windowSizePx.Height()), dstArea);
+                              m_config.GetQuadricSpiralRevolutionChange(windowSizePx.RawWidth(), windowSizePx.RawHeight()), dstArea);
         break;
       case 2:
         GenerateCubicSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralRevolutionCount(),
@@ -496,7 +496,7 @@ namespace Fsl
       std::array<float, 4> colorStroke2 = {1.0f, 1.0f, 1.0f, 0.1f};
 
       vgSetfv(VG_CLEAR_COLOR, 4, col.data());
-      vgClear(0, 0, windowSizePx.Width(), windowSizePx.Height());
+      vgClear(0, 0, windowSizePx.RawWidth(), windowSizePx.RawHeight());
 
       switch (m_config.GetType())
       {

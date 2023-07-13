@@ -56,7 +56,7 @@ namespace Fsl
     //! @brief Get the current position
     PxPoint2 GetPosition() const
     {
-      return {m_arg1, m_arg2};
+      return PxPoint2::Create(m_arg1, m_arg2);
     }
 
     //! @brief Get the mouse button flags

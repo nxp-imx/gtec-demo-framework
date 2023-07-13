@@ -417,8 +417,8 @@ namespace Fsl
     {
       assert(m_pMappedLocal != nullptr);
 
-      const auto fbW = static_cast<float>(m_framebufferExtent.Width);
-      const auto fbH = static_cast<float>(m_framebufferExtent.Height);
+      const auto fbW = static_cast<float>(m_framebufferExtent.Width.Value);
+      const auto fbH = static_cast<float>(m_framebufferExtent.Height.Value);
 
       const float charW = 1.5f / fbW;
       const float charH = 1.5f / fbH;
@@ -495,8 +495,8 @@ namespace Fsl
     {
       Dirty = false;
       VkViewport viewport{};
-      viewport.width = static_cast<float>(m_framebufferExtent.Width);
-      viewport.height = static_cast<float>(m_framebufferExtent.Height);
+      viewport.width = static_cast<float>(m_framebufferExtent.Width.Value);
+      viewport.height = static_cast<float>(m_framebufferExtent.Height.Value);
       viewport.minDepth = 0.0f;
       viewport.maxDepth = 1.0f;
 

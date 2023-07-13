@@ -363,7 +363,7 @@ namespace Fsl
     assert(texCube.GetFaces() == 6);
 
     PxExtent3D texExtent(texCube.GetExtent());
-    texExtent.Depth = 1;
+    texExtent.Depth = PxValueU(1);
 
     // Create a host-visible staging buffer that contains the raw image data
     VkBufferCreateInfo bufferCreateInfo{};

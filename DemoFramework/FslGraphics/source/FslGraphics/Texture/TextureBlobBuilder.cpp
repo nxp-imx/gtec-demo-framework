@@ -172,13 +172,13 @@ namespace Fsl
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
 
     std::size_t offset = 0;
-    uint32_t texel = 0;
+    // uint32_t texel = 0;
     for (uint32_t level = 0; level < m_textureInfo.Levels; ++level)
     {
       const PxExtent3D currentExtent = GetExtent(level);
-      const std::size_t stride = PixelFormatUtil::CalcMinimumStride(currentExtent.Width, bytesPerPixel);
-      const std::size_t blobSize = (stride * currentExtent.Height) * currentExtent.Depth;
-      uint32_t texel2 = currentExtent.Width * currentExtent.Height * currentExtent.Depth;
+      const std::size_t stride = PixelFormatUtil::CalcMinimumStride(currentExtent.Width.Value, bytesPerPixel);
+      const std::size_t blobSize = (stride * currentExtent.Height.Value) * currentExtent.Depth.Value;
+      // uint32_t texel2 = (currentExtent.Width * currentExtent.Height * currentExtent.Depth).Value;
       for (uint32_t layer = 0; layer < m_textureInfo.Layers; ++layer)
       {
         for (uint32_t face = 0; face < m_textureInfo.Faces; ++face)
@@ -187,7 +187,7 @@ namespace Fsl
           assert(offset <= (m_contentSize - blobSize));
           SetBlob(BlobRecord(offset, blobSize), level, face, layer);
           offset += blobSize;
-          texel += texel2;
+          // texel += texel2;
         }
       }
     }

@@ -40,6 +40,7 @@ from FslBuildGen.Xml.Project.XmlBuildDocRequirement import XmlBuildDocRequiremen
 class XmlBuildDocConfiguration(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes(set())
         self.Requirements = self.__ReadRequirements(log, xmlElement)
 
     def __ReadRequirements(self, log: Log, xmlElement: ET.Element) -> List[XmlBuildDocRequirement]:

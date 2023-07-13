@@ -48,14 +48,21 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlNewTemplate(XmlBase):
+    __AttribNoInclude = 'NoInclude'
+    __AttribForce = 'Force'
+    __AttribWarning = 'Warning'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.NoInclude = self._ReadBoolAttrib(xmlElement, 'NoInclude', False)
-        self.Force = self._ReadBoolAttrib(xmlElement, 'Force', False)
-        self.Warning = self._ReadAttrib(xmlElement, 'Warning', '')
+        self._CheckAttributes({self.__AttribNoInclude, self.__AttribForce, self.__AttribWarning})
+        self.NoInclude = self._ReadBoolAttrib(xmlElement, self.__AttribNoInclude, False)
+        self.Force = self._ReadBoolAttrib(xmlElement, self.__AttribForce, False)
+        self.Warning = self._ReadAttrib(xmlElement, self.__AttribWarning, '')
 
 
 class XmlNewTemplateFile(XmlBase):
+    __AttribVersion = 'Version'
+
     def __init__(self, log: Log, filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate config file %s", filename)
@@ -66,7 +73,8 @@ class XmlNewTemplateFile(XmlBase):
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGenConfig'")
 
         super().__init__(log, elem)
-        fileVersion = self._ReadAttrib(elem, 'Version')
+        #self._CheckAttributes({self.__AttribVersion})
+        fileVersion = self._ReadAttrib(elem, self.__AttribVersion)
         if fileVersion != '1':
             raise Exception("The template file version was not correct")
 

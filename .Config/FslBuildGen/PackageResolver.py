@@ -54,22 +54,24 @@ from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
 #from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.DataTypes import PackageRequirementTypeString
+#from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import SpecialFiles
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Engine.BasicBuildConfig import BasicBuildConfig
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Exceptions import PackageIncludeFilePathInvalidException
-from FslBuildGen.Exceptions import PackageRequirementExtendsUnusedFeatureException
+#from FslBuildGen.Exceptions import PackageRequirementExtendsUnusedFeatureException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 #from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Location.PathBuilder import PathBuilder
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
@@ -77,7 +79,7 @@ from FslBuildGen.Log import Log
 from FslBuildGen.PackageBuilder import PackageBuilder
 from FslBuildGen.PackageManager import PackageManagerFilter
 from FslBuildGen.Packages.ExceptionsXml import ExtendingVariantCanNotIntroduceNewOptionsException
-from FslBuildGen.Packages.ExceptionsXml import RequirementNameCollisionException
+#from FslBuildGen.Packages.ExceptionsXml import RequirementNameCollisionException
 from FslBuildGen.Packages.ExceptionsXml import VariantExtensionNotSupportedException
 from FslBuildGen.Packages.ExceptionsXml import VariantNameCollisionException
 from FslBuildGen.Packages.Package import Package
@@ -88,7 +90,7 @@ from FslBuildGen.Packages.Package import PackagePlatformVariantOption
 from FslBuildGen.Packages.PackageInstanceName import PackageInstanceName
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.Packages.Unresolved.Exceptions import ExternalDependencyDuplicatedException
-from FslBuildGen.Packages.Unresolved.Exceptions import RequirementUseDuplicatedException
+#from FslBuildGen.Packages.Unresolved.Exceptions import RequirementUseDuplicatedException
 from FslBuildGen.Packages.Unresolved.XmlConvert import XmlConvert
 from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.ToolConfig import ToolConfig
@@ -118,7 +120,9 @@ class PackageResolver(object):
                  configGroupException: bool,
                  toolConfig: ToolConfig, platformContext: PlatformContext, genFiles: List[XmlGenFile], autoAddRecipeExternals: bool,
                  fullResolve: bool, markExternalLibFirstUse: bool, recipeFilterManager: RecipeFilterManager,
-                 packageManagerFilter: PackageManagerFilter, writeGraph: bool) -> None:
+                 packageManagerFilter: PackageManagerFilter, externalVariantConstraints: ExternalVariantConstraints,
+                 engineResolveConfig: EngineResolveConfig,
+                 writeGraph: bool) -> None:
         """
         fullResolve
         - if this is false only the dependencies, platform, requirements and not supported will be resolved.
@@ -142,7 +146,8 @@ class PackageResolver(object):
 
             packageBuilder = PackageBuilder(log, configBuildDir, configIgnoreNotSupported, configGroupException, toolConfig,
                                             platformContext.PlatformName, platformContext.HostPlatformName, basicBuildConfig, self.__GeneratorInfo,
-                                            genFiles, packageManagerFilter, logVerbosity, writeGraph)
+                                            genFiles, packageManagerFilter, externalVariantConstraints, engineResolveConfig,
+                                            logVerbosity, writeGraph)
             packages = packageBuilder.AllPackages
 
             if fullResolve:

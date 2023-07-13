@@ -119,7 +119,7 @@ namespace Fsl
 
   void EnvScene::Draw()
   {
-    glViewport(0, 0, m_renderState.GetWindowSizePx().Width(), m_renderState.GetWindowSizePx().Height());
+    glViewport(0, 0, m_renderState.GetWindowSizePx().RawWidth(), m_renderState.GetWindowSizePx().RawHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // If enabled, cull polygons based on their winding in window coordinates

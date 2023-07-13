@@ -45,9 +45,10 @@ from FslBuildGen.BuildConfig.CMakeCompileCommandsJson import CompileCommandDefin
 from FslBuildGen.BuildExternal import CMakeHelper
 from FslBuildGen.BuildExternal.CMakeTypes import CMakeGeneratorMultiConfigCapability
 from FslBuildGen.CMakeUtil import CMakeVersion
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDefine
@@ -59,6 +60,7 @@ from FslBuildGen.Generator import GitIgnoreHelper
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Generator.GeneratorUtil import GeneratorUtil
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
@@ -152,7 +154,7 @@ class ProjectContextCacheRecord(object):
 class GeneratorCMake(GeneratorBase):
     def __init__(self, log: Log, toolConfig: ToolConfig, packages: List[Package], platformName: str, templateName: str,
                  overrideTemplateName: Optional[str], cmakeBuildPackageDir: str, sdkConfigTemplatePath: str, disableWrite: bool,
-                 generatorMode: CMakeGeneratorMode) -> None:
+                 generatorMode: CMakeGeneratorMode, externalVariantConstraints: ExternalVariantConstraints) -> None:
         super().__init__()
 
         self.__DisableWrite = disableWrite
@@ -175,15 +177,15 @@ class GeneratorCMake(GeneratorBase):
             if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
                 self.__GenerateCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName,
                                          extTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack,
-                                         uniqueEnvironmentVariables, generatorMode)
+                                         uniqueEnvironmentVariables, generatorMode, externalVariantConstraints)
             elif package.Type == PackageType.Library:
                 self.__GenerateCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName,
                                          libTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack,
-                                         uniqueEnvironmentVariables, generatorMode)
+                                         uniqueEnvironmentVariables, generatorMode, externalVariantConstraints)
             elif package.Type == PackageType.Executable:
                 self.__GenerateCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName,
                                          exeTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack,
-                                         uniqueEnvironmentVariables, generatorMode)
+                                         uniqueEnvironmentVariables, generatorMode, externalVariantConstraints)
             elif package.Type == PackageType.TopLevel:
                 self.__GenerateRootCMakeFile(log, toolConfig, cmakeBuildPackageDir, package, platformName, rootTemplate, toolProjectContextsDict,
                                              useExtendedProjectHack, uniqueEnvironmentVariables)
@@ -192,7 +194,7 @@ class GeneratorCMake(GeneratorBase):
     def __GenerateCMakeFile(self, log: Log, toolConfig: ToolConfig, cmakeBuildPackageDir: str, package: Package, platformName: str, template: CMakeGeneratorUtil.CodeTemplateCMake,
                             toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext],
                             useExtendedProjectHack: bool, uniqueEnvironmentVariables: Set[str],
-                            generatorMode: CMakeGeneratorMode) -> None:
+                            generatorMode: CMakeGeneratorMode, externalVariantConstraints: ExternalVariantConstraints) -> None:
         if package.Type == PackageType.TopLevel:
             raise Exception("Usage error")
         #if package.IsVirtual:
@@ -240,10 +242,13 @@ class GeneratorCMake(GeneratorBase):
 
         contentInBinaryDirectory = True
 
-        packageContentBuilder = CMakeGeneratorUtil.GetContentBuilder(toolConfig, package, platformName, template.PackageContentBuilder, contentInBinaryDirectory)
+        packageContentBuilder = CMakeGeneratorUtil.GetContentBuilder(toolConfig, package, platformName, template.PackageContentBuilder,
+                                                                     contentInBinaryDirectory, externalVariantConstraints)
         #packageContentBuilderOutputFiles = CMakeGeneratorUtil.GetContentBuilderOutputFiles(toolConfig, package, contentInBinaryDirectory)
 
-        packageContentSection = CMakeGeneratorUtil.GetContentSection(toolConfig, package, platformName, template.PackageContent, template.PackageContentFile, contentInBinaryDirectory)
+        packageContentSection = CMakeGeneratorUtil.GetContentSection(toolConfig, package, platformName, template.PackageContent,
+                                                                     template.PackageContentFile, contentInBinaryDirectory,
+                                                                     externalVariantConstraints)
         #packageContentSectionOutputFiles = CMakeGeneratorUtil.GetContentSectionOutputFiles(toolConfig, package, contentInBinaryDirectory)
 
         packageContentDep = CMakeGeneratorUtil.GetContentDepSection(toolConfig, package, platformName, template.PackageContentDep, contentInBinaryDirectory)
@@ -594,6 +599,8 @@ class GeneratorCMake(GeneratorBase):
         if rootDir is None:
             raise Exception("could not find root dir for package")
         relativePath = package.AbsolutePath[len(rootDir.ResolvedPathEx):]
+        relativePath = IOUtil.GetDirectoryName(relativePath)
+        relativePath = IOUtil.Join(relativePath, package.NameInfo.ShortName.Value)
 
         return IOUtil.Join(buildPath, relativePath)
 
@@ -616,10 +623,14 @@ class GeneratorCMake(GeneratorBase):
     def _GenerateVariableReport(log: Log, package: Package, configVariantOptions: List[str],
                                 isMasterBuild: bool) -> GeneratorVariableReport:
         variableReport = GeneratorVariableReport(log, configVariantOptions=configVariantOptions)
+
         # Add all the package variants
         for variantEntry in package.ResolvedAllVariantDict.values():
             variantEntryOptions = [option.Name for option in variantEntry.Options]
             variableReport.Add(variantEntry.Name, variantEntryOptions)
+
+        # Add all the package flavor selections
+        GeneratorUtil.AddFlavors(variableReport, package)
 
         # The make files generate executable files in debug mode with the postfix '_d'
         exeFileExtensionOptionList = ['_d', '']
@@ -816,7 +827,7 @@ class GeneratorCMake(GeneratorBase):
 
     @staticmethod
     def TryGetBuildExecutableInfo(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, package: Package,
-                                  generatorReport: PackageGeneratorReport, variantSettingsDict: Dict[str, str],
+                                  generatorReport: PackageGeneratorReport, externalVariantConstraints: ExternalVariantConstraints,
                                   configVariantOptions: List[str]) -> Optional[PackageGeneratorBuildExecutableInfo]:
         if package.Type != PackageType.Executable:
             return None
@@ -831,10 +842,10 @@ class GeneratorCMake(GeneratorBase):
         packageBuildPathFormatRoot = GeneratorCMake._GetPackageBuildDir(generatorConfig, cmakeConfig, package)
         packageBuildPathFormat = IOUtil.Join(packageBuildPathFormatRoot, ".fsl-build/config_${{{0}}}.json".format(LocalMagicBuildVariants.CMakeBuildConfig))
 
-        configurationFilePath = ReportVariableFormatter.Format(packageBuildPathFormat, variableReport, variantSettingsDict,
+        configurationFilePath = ReportVariableFormatter.Format(packageBuildPathFormat, variableReport, externalVariantConstraints,
                                                                executableReport.EnvironmentVariableResolveMethod)
 
-        fileRunPath = ReportVariableFormatter.Format(packageBuildPathFormatRoot, variableReport, variantSettingsDict,
+        fileRunPath = ReportVariableFormatter.Format(packageBuildPathFormatRoot, variableReport, externalVariantConstraints,
                                                      executableReport.EnvironmentVariableResolveMethod)
 
         configurationFileDict = GeneratorCMake._TryLoadConfigJson(configurationFilePath)

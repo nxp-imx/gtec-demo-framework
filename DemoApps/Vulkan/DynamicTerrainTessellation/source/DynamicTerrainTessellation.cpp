@@ -62,7 +62,7 @@ namespace Fsl
 
     public:
       HeightMap(const Bitmap& srcBitmap, const uint32_t patchSize)
-        : Dim(srcBitmap.GetExtent().Width)
+        : Dim(srcBitmap.GetExtent().Width.Value)
         , HeightData(Dim * Dim)
         , Scale(Dim / patchSize)
       {
@@ -101,13 +101,11 @@ namespace Fsl
 
     m_uboTess.TessellationFactor = TESSELLATION_FACTOR;
 
-    const auto screenExtent = GetScreenExtent();
-
     m_enableTextOverlay = true;
     m_title = "Vulkan Example - Dynamic terrain tessellation";
 
     m_camera.Type = Willems::Camera::CameraType::FirstPerson;
-    m_camera.SetPerspective(60.0f, static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height), 0.1f, 512.0f);
+    m_camera.SetPerspective(60.0f, GetWindowAspectRatio(), 0.1f, 512.0f);
     m_camera.SetRotation(glm::vec3(-12.0f, 159.0f, 0.0f));
     m_camera.SetTranslation(glm::vec3(18.0f, 22.5f, 57.5f));
 
@@ -196,7 +194,7 @@ namespace Fsl
     std::stringstream ss;
     ss << std::setprecision(2) << std::fixed << m_uboTess.TessellationFactor;
 
-    const auto screenWidth = static_cast<float>(screenExtent.Width);
+    const auto screenWidth = static_cast<float>(screenExtent.Width.Value);
 
     rTextOverlay.AddText("Tessellation factor: " + ss.str() + " (numpad +/-)", 5.0f, 85.0f, Willems::VulkanTextOverlay::TextAlign::Left);
     if (m_deviceFeatures.fillModeNonSolid != VK_FALSE)
@@ -682,7 +680,7 @@ namespace Fsl
     m_uboTess.Projection = m_camera.Matrices.Perspective;
     m_uboTess.Modelview = m_camera.Matrices.View * glm::mat4(1.0f);
     m_uboTess.LightPos.y = -0.5f - m_uboTess.DisplacementFactor;    // todo: Not used yet
-    m_uboTess.ViewportDim = glm::vec2(static_cast<float>(screenExtent.Width), static_cast<float>(screenExtent.Height));
+    m_uboTess.ViewportDim = glm::vec2(static_cast<float>(screenExtent.Width.Value), static_cast<float>(screenExtent.Height.Value));
 
     m_frustum.Update(m_uboTess.Projection * m_uboTess.Modelview);
     std::memcpy(m_uboTess.FrustumPlanes, m_frustum.Planes.data(), sizeof(glm::vec4) * 6);

@@ -40,7 +40,7 @@
 
 namespace Fsl
 {
-  SpriteFontInfo::SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
+  SpriteFontInfo::SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
                                  const uint32_t imageDpi, const bool enableKerning, const bool isSdfBased, const float sdfScale,
                                  const StringViewLite& debugName)
     : MaterialInfo(spriteMaterialInfo)

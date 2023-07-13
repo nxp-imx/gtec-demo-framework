@@ -37,7 +37,11 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlGenFileGenerate(XmlBase):
+    __AttribTemplate = 'Template'
+    __AttribTarget = 'Target'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.TemplateFile = self._ReadAttrib(xmlElement, "Template")
-        self.TargetFile = self._ReadAttrib(xmlElement, "Target")
+        self._CheckAttributes({self.__AttribTemplate, self.__AttribTarget})
+        self.TemplateFile = self._ReadAttrib(xmlElement, self.__AttribTemplate)
+        self.TargetFile = self._ReadAttrib(xmlElement, self.__AttribTarget)

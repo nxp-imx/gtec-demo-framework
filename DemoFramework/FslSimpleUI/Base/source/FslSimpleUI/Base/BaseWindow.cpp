@@ -51,6 +51,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
 
 
 namespace Fsl::UI
@@ -61,6 +62,10 @@ namespace Fsl::UI
 
   TDef TClass::PropertyWidthDp = TFactory::Create<DpLayoutSize1D, TClass, &TClass::GetWidth, &TClass::SetWidth>("Width");
   TDef TClass::PropertyHeightDp = TFactory::Create<DpLayoutSize1D, TClass, &TClass::GetHeight, &TClass::SetHeight>("Height");
+  TDef TClass::PropertyMinWidthDp = TFactory::Create<DpSize1DF, TClass, &TClass::GetMinWidth, &TClass::SetMinWidth>("MinWidth");
+  TDef TClass::PropertyMinHeightDp = TFactory::Create<DpSize1DF, TClass, &TClass::GetMinHeight, &TClass::SetMinHeight>("MinHeight");
+  TDef TClass::PropertyMaxWidthDp = TFactory::Create<DpLayoutSize1D, TClass, &TClass::GetMaxWidth, &TClass::SetMaxWidth>("MaxWidth");
+  TDef TClass::PropertyMaxHeightDp = TFactory::Create<DpLayoutSize1D, TClass, &TClass::GetMaxHeight, &TClass::SetMaxHeight>("MaxHeight");
   TDef TClass::PropertyMarginDpf = TFactory::Create<DpThicknessF, TClass, &TClass::GetMargin, &TClass::SetMargin>("Margin");
   TDef TClass::PropertyAlignmentX = TFactory::Create<ItemAlignment, TClass, &TClass::GetAlignmentX, &TClass::SetAlignmentX>("AlignmentX");
   TDef TClass::PropertyAlignmentY = TFactory::Create<ItemAlignment, TClass, &TClass::GetAlignmentY, &TClass::SetAlignmentY>("AlignmentY");
@@ -81,15 +86,18 @@ namespace Fsl::UI
       }
       return converted;
     }
+
+    inline constexpr PxAvailableSize1D ToPxAvailableSize1D(const SpriteUnitConverter& unitConverter, const DpLayoutSize1D valueDp) noexcept
+    {
+      return valueDp.HasValue() ? PxAvailableSize1D::UncheckedCreate(static_cast<int32_t>(std::round(unitConverter.ToPxRawFloat(valueDp.Value()))))
+                                : PxAvailableSize1D::InfiniteSpacePx();
+    }
   }
 
 
   BaseWindow::BaseWindow(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags initialFlags)
     : DataBinding::DependencyObject(context->UIDataBindingService)
     , m_context(context)
-    , m_propertyAlignmentX(ItemAlignment::Near)
-    , m_propertyAlignmentY(ItemAlignment::Near)
-    , m_propertyBaseColor(Color::White())
     , m_flags(initialFlags)
   {
     if (!context)
@@ -203,14 +211,14 @@ namespace Fsl::UI
           const PxSize2D renderSizePx = ArrangeOverride(arrangeSizePx);
 
           // validate the result (even though PxLayoutSize promises to be >= 0)
-          assert(renderSizePx.Width() >= 0);
-          assert(renderSizePx.Height() >= 0);
+          assert(renderSizePx.RawWidth() >= 0);
+          assert(renderSizePx.RawHeight() >= 0);
 
           // Calc alignment
           const PxSize2D actualAvailableSizePx(finalRectPx.Width() - marginPx.Width(), finalRectPx.Height() - marginPx.Height());
           const PxPoint2 deltaPx(actualAvailableSizePx.Width() - renderSizePx.Width(), actualAvailableSizePx.Height() - renderSizePx.Height());
-          const int32_t alignmentOffsetXPx = ItemAlignmentUtil::CalcAlignmentPx(alignmentX, deltaPx.X);
-          const int32_t alignmentOffsetYPx = ItemAlignmentUtil::CalcAlignmentPx(alignmentY, deltaPx.Y);
+          const PxValue alignmentOffsetXPx = ItemAlignmentUtil::CalcAlignmentPx(alignmentX, deltaPx.X);
+          const PxValue alignmentOffsetYPx = ItemAlignmentUtil::CalcAlignmentPx(alignmentY, deltaPx.Y);
 
           const PxPoint2 posPx(finalRectPx.X() + marginThicknessPx.Left() + alignmentOffsetXPx,
                                finalRectPx.Y() + marginThicknessPx.Top() + alignmentOffsetYPx);
@@ -254,22 +262,64 @@ namespace Fsl::UI
           const PxSize2D marginSizePx(marginThicknessPx.Sum());
 
           // calc local available size by removing required margin (the subtract has build in clamping so it cant become negative
-          const PxAvailableSize localAvailableSpacePx(PxAvailableSize::Subtract(availableSizePx, marginSizePx));
+          PxAvailableSize localAvailableSpacePx(PxAvailableSize::Subtract(availableSizePx, marginSizePx));
+
+          // Calc constraints
+          int32_t widthMinPx = unitConverter.ToPxInt32(m_propertyMinWidthDpf.Get());
+          int32_t heightMinPx = unitConverter.ToPxInt32(m_propertyMinHeightDpf.Get());
+          PxAvailableSize1D widthMaxPx = ToPxAvailableSize1D(unitConverter, m_propertyMaxWidthDpf.Get());
+          PxAvailableSize1D heightMaxPx = ToPxAvailableSize1D(unitConverter, m_propertyMaxHeightDpf.Get());
+
+          PxAvailableSize constraintMaxPx;
+          PxSize2D constraintMinPx;
+          {
+            const DpLayoutSize1D widthDp = m_propertyWidthDp.Get();
+            const DpLayoutSize1D heightDp = m_propertyHeightDp.Get();
+            int32_t widthForMaxPx = 0;
+            int32_t heightForMaxPx = 0;
+            int32_t widthForMinPx = 0;
+            int32_t heightForMinPx = 0;
+            if (!widthDp.HasValue())
+            {
+              widthForMaxPx = PxAvailableSizeUtil::InfiniteSpacePx;
+              widthForMinPx = 0;
+            }
+            else
+            {
+              widthForMaxPx = unitConverter.ToPxInt32(widthDp.Value());
+              widthForMinPx = widthForMaxPx;
+            }
+            if (!heightDp.HasValue())
+            {
+              heightForMaxPx = PxAvailableSizeUtil::InfiniteSpacePx;
+              heightForMinPx = 0;
+            }
+            else
+            {
+              heightForMaxPx = unitConverter.ToPxInt32(heightDp.Value());
+              heightForMinPx = heightForMaxPx;
+            }
+
+            // Calc constraints
+            constraintMaxPx = PxAvailableSize(
+              PxAvailableSize1D::UncheckedCreateRAW(MathHelper::Max(MathHelper::Min(widthForMaxPx, widthMaxPx.Value()), widthMinPx)),
+              PxAvailableSize1D::UncheckedCreateRAW(MathHelper::Max(MathHelper::Min(heightForMaxPx, heightMaxPx.Value()), heightMinPx)));
+            constraintMinPx = PxSize2D::UncheckedCreate(MathHelper::Max(MathHelper::Min(widthForMinPx, widthMaxPx.Value()), widthMinPx),
+                                                        MathHelper::Max(MathHelper::Min(heightForMinPx, heightMaxPx.Value()), heightMinPx));
+          }
+
+          // Apply constraints
+          localAvailableSpacePx = PxAvailableSize(
+            MathHelper::Max(MathHelper::Min(localAvailableSpacePx.Width(), constraintMaxPx.Width()), PxAvailableSize1D(constraintMinPx.Width())),
+            MathHelper::Max(MathHelper::Min(localAvailableSpacePx.Height(), constraintMaxPx.Height()), PxAvailableSize1D(constraintMinPx.Height())));
 
           // Calc the minimum desired content size.
           PxSize2D minContentSizePx = MeasureOverride(localAvailableSpacePx);
 
-          // Apply fixed width and height if set
-          const DpLayoutSize1D widthDp = m_propertyWidthDp.Get();
-          const DpLayoutSize1D heightDp = m_propertyHeightDp.Get();
-          if (widthDp.HasValue())
-          {
-            minContentSizePx.SetWidth(unitConverter.ToPxInt32(widthDp.Value()), OptimizationCheckFlag::NoCheck);
-          }
-          if (heightDp.HasValue())
-          {
-            minContentSizePx.SetHeight(unitConverter.ToPxInt32(heightDp.Value()), OptimizationCheckFlag::NoCheck);
-          }
+          // Apply minimum and maximum constraints
+          minContentSizePx =
+            PxSize2D(PxAvailableSize1D::MinPxSize1D(MathHelper::Max(minContentSizePx.Width(), constraintMinPx.Width()), constraintMaxPx.Width()),
+                     PxAvailableSize1D::MinPxSize1D(MathHelper::Max(minContentSizePx.Height(), constraintMinPx.Height()), constraintMaxPx.Height()));
 
           // Reapply margin to the desired space (Add ensures it wont be negative)
           PxSize2D desiredSizePx(PxSize2D::Add(minContentSizePx, marginSizePx));
@@ -304,6 +354,50 @@ namespace Fsl::UI
   bool BaseWindow::SetHeight(const DpLayoutSize1D value)
   {
     const bool changed = m_propertyHeightDp.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+
+  bool BaseWindow::SetMinWidth(const DpSize1DF value)
+  {
+    const bool changed = m_propertyMinWidthDpf.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+
+  bool BaseWindow::SetMinHeight(const DpSize1DF value)
+  {
+    const bool changed = m_propertyMinHeightDpf.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+
+  bool BaseWindow::SetMaxWidth(const DpLayoutSize1D value)
+  {
+    const bool changed = m_propertyMaxWidthDpf.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+
+  bool BaseWindow::SetMaxHeight(const DpLayoutSize1D value)
+  {
+    const bool changed = m_propertyMaxHeightDpf.Set(ThisDependencyObject(), value);
     if (changed)
     {
       PropertyUpdated(PropertyType::Layout);
@@ -539,10 +633,12 @@ namespace Fsl::UI
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
       this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyWidthDp, m_propertyWidthDp),
-      DataBinding::PropLinkRefs(PropertyHeightDp, m_propertyHeightDp), DataBinding::PropLinkRefs(PropertyMarginDpf, m_propertyMarginDpf),
+      DataBinding::PropLinkRefs(PropertyHeightDp, m_propertyHeightDp), DataBinding::PropLinkRefs(PropertyMinWidthDp, m_propertyMinWidthDpf),
+      DataBinding::PropLinkRefs(PropertyMinHeightDp, m_propertyMinHeightDpf), DataBinding::PropLinkRefs(PropertyMaxWidthDp, m_propertyMaxWidthDpf),
+      DataBinding::PropLinkRefs(PropertyMaxHeightDp, m_propertyMaxHeightDpf), DataBinding::PropLinkRefs(PropertyMarginDpf, m_propertyMarginDpf),
       DataBinding::PropLinkRefs(PropertyAlignmentX, m_propertyAlignmentX), DataBinding::PropLinkRefs(PropertyAlignmentY, m_propertyAlignmentY),
       DataBinding::PropLinkRefs(PropertyBaseColor, m_propertyBaseColor));
-    return res.IsValid() ? res : DataBinding::DependencyObject::TryGetPropertyHandleNow(sourceDef);
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
@@ -551,23 +647,27 @@ namespace Fsl::UI
   {
     auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
       this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyWidthDp, m_propertyWidthDp),
-      DataBinding::PropLinkRefs(PropertyHeightDp, m_propertyHeightDp), DataBinding::PropLinkRefs(PropertyMarginDpf, m_propertyMarginDpf),
+      DataBinding::PropLinkRefs(PropertyHeightDp, m_propertyHeightDp), DataBinding::PropLinkRefs(PropertyMinWidthDp, m_propertyMinWidthDpf),
+      DataBinding::PropLinkRefs(PropertyMinHeightDp, m_propertyMinHeightDpf), DataBinding::PropLinkRefs(PropertyMaxWidthDp, m_propertyMaxWidthDpf),
+      DataBinding::PropLinkRefs(PropertyMaxHeightDp, m_propertyMaxHeightDpf), DataBinding::PropLinkRefs(PropertyMarginDpf, m_propertyMarginDpf),
       DataBinding::PropLinkRefs(PropertyAlignmentX, m_propertyAlignmentX), DataBinding::PropLinkRefs(PropertyAlignmentY, m_propertyAlignmentY),
       DataBinding::PropLinkRefs(PropertyBaseColor, m_propertyBaseColor));
-    return res != DataBinding::PropertySetBindingResult::NotFound ? res : DataBinding::DependencyObject::TrySetBindingNow(targetDef, binding);
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
 
   void BaseWindow::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
   {
-    DataBinding::DependencyObject::ExtractAllProperties(rProperties);
+    base_type::ExtractAllProperties(rProperties);
     rProperties.push_back(PropertyWidthDp);
     rProperties.push_back(PropertyHeightDp);
+    rProperties.push_back(PropertyMinWidthDp);
+    rProperties.push_back(PropertyMinHeightDp);
+    rProperties.push_back(PropertyMaxWidthDp);
+    rProperties.push_back(PropertyMaxHeightDp);
     rProperties.push_back(PropertyMarginDpf);
     rProperties.push_back(PropertyAlignmentX);
     rProperties.push_back(PropertyAlignmentY);
     rProperties.push_back(PropertyBaseColor);
   }
-
-
 }

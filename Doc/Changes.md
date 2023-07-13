@@ -1,5 +1,24 @@
 # Latest version
 
+## Release 6.2.0
+
+* GLES2, GLES3, Vulkan UI.DeclarativeUI sample added.
+* Android changes
+  * Upgraded to match latest Android Studio.
+  * Fixed a issue with Android screen rotation support in some apps.
+  * Switched from NativeActivity to the new [Android Game Development kit](https://developer.android.com/games/agdk).
+* FslSimpleUI
+  * Improved DataBinding support.
+  * Controls now support min and max width.
+  * Hover events are now handled properly for touch input.
+* Third party dependencies  
+  * Upgraded [RapidVulkan](https://github.com/Unarmed1000/RapidVulkan/releases/tag/1.3.250.0) to 1.3.250
+  * Upgraded to [fmt](https://github.com/fmtlib/fmt/releases/tag/10.0.0) 10.
+* Build system
+  * Now utilize flavors instead of variants.
+  * FslBuildDoc now keeps the SCR file up to date.
+* Improved [Wayland XDG](https://wayland-book.com/xdg-shell-basics.html) shell support.
+
 ## Release 6.1.0
 
 * Upgraded to fmt9

@@ -243,7 +243,7 @@ namespace Fsl
   {
     if (m_appRecord.DemoExtension)
     {
-      MouseButtonEvent fakeEvent(event.GetButton(), event.IsPressed(), event.GetPosition() - m_config.AppViewportPx.Location());
+      MouseButtonEvent fakeEvent(event.GetButton(), event.IsPressed(), event.GetPosition() - m_config.AppViewportPx.Location(), event.IsTouch());
       m_appRecord.DemoExtension->OnMouseButtonEvent(fakeEvent);
       if (fakeEvent.IsHandled())
       {
@@ -256,7 +256,7 @@ namespace Fsl
   {
     if (m_appRecord.DemoExtension)
     {
-      MouseMoveEvent fakeEvent(event.GetPosition() - m_config.AppViewportPx.Location(), event.GetMouseButtonFlags());
+      MouseMoveEvent fakeEvent(event.GetPosition() - m_config.AppViewportPx.Location(), event.GetMouseButtonFlags(), event.IsTouch());
       m_appRecord.DemoExtension->OnMouseMoveEvent(fakeEvent);
       if (fakeEvent.IsHandled())
       {

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,140 +51,140 @@ namespace
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangle)
 {
-  const PxRectangle value(1, 2, 3, 4);
+  const auto value = PxRectangle::Create(1, 2, 3, 4);
 
   const auto res = TypeConverter::UncheckedTo<PxClipRectangle>(value);
 
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangle2D)
 {
-  const PxRectangle2D value(1, 2, 3, 4);
+  const auto value = PxRectangle2D::Create(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxClipRectangle>(value);
 
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangleU16)
 {
-  const PxRectangleU16 value(1, 2, 3, 4);
+  const auto value = PxRectangleU16::Create(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxClipRectangle>(value);
 
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxClipRectangle_PxRectangleU32)
 {
-  const PxRectangleU32 value(1, 2, 3, 4);
+  const auto value = PxRectangleU32::Create(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxClipRectangle>(value);
 
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxClipRectangle::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxClipRectangle::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 // --- ToPxAreaRectangleF
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangle2D)
 {
-  const PxRectangle2D value(1, 2, 3, 4);
+  const auto value = PxRectangle2D::Create(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxAreaRectangleF>(value);
 
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangleU16)
 {
-  const PxRectangleU16 value(1, 2, 3, 4);
+  const auto value = PxRectangleU16::Create(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxAreaRectangleF>(value);
 
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxAreaRectangleF_PxRectangleU32)
 {
-  const PxRectangleU32 value(1, 2, 3, 4);
+  const auto value = PxRectangleU32::Create(1, 2, 3, 4);
   const auto res = TypeConverter::UncheckedTo<PxAreaRectangleF>(value);
 
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Left()), res.Left());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Top()), res.Top());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Right()), res.Right());
-  EXPECT_EQ(static_cast<PxAreaRectangleF::value_type>(value.Bottom()), res.Bottom());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawLeft()), res.RawLeft());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawTop()), res.RawTop());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawRight()), res.RawRight());
+  EXPECT_EQ(static_cast<PxAreaRectangleF::raw_value_type>(value.RawBottom()), res.RawBottom());
 }
 
 // --- ToPxExtent2D
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxExtent2D_PxPoint2)
 {
-  const PxPoint2 value(1, 2);
+  const auto value = PxPoint2::Create(1, 2);
   const auto res = TypeConverter::UncheckedTo<PxExtent2D>(value);
 
-  EXPECT_EQ(static_cast<PxExtent2D::value_type>(value.X), res.Width);
-  EXPECT_EQ(static_cast<PxExtent2D::value_type>(value.Y), res.Height);
+  EXPECT_EQ(static_cast<PxExtent2D::raw_value_type>(value.X.Value), res.Width.Value);
+  EXPECT_EQ(static_cast<PxExtent2D::raw_value_type>(value.Y.Value), res.Height.Value);
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxExtent2D_PxSize2D)
 {
-  const PxSize2D value(1, 2);
+  const auto value = PxSize2D::Create(1, 2);
   const auto res = TypeConverter::UncheckedTo<PxExtent2D>(value);
 
-  EXPECT_EQ(static_cast<PxExtent2D::value_type>(value.Width()), res.Width);
-  EXPECT_EQ(static_cast<PxExtent2D::value_type>(value.Height()), res.Height);
+  EXPECT_EQ(static_cast<PxExtent2D::raw_value_type>(value.RawWidth()), res.Width.Value);
+  EXPECT_EQ(static_cast<PxExtent2D::raw_value_type>(value.RawHeight()), res.Height.Value);
 }
 
 // --- ToPxPoint2
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxPoint2_PxExtent2D)
 {
-  const PxExtent2D value(1, 2);
+  const auto value = PxExtent2D::Create(1, 2);
   const auto res = TypeConverter::UncheckedTo<PxPoint2>(value);
 
-  EXPECT_EQ(static_cast<PxPoint2::value_type>(value.Width), res.X);
-  EXPECT_EQ(static_cast<PxPoint2::value_type>(value.Height), res.Y);
+  EXPECT_EQ(static_cast<PxPoint2::raw_value_type>(value.Width.Value), res.X.Value);
+  EXPECT_EQ(static_cast<PxPoint2::raw_value_type>(value.Height.Value), res.Y.Value);
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxPoint2_PxSize2D)
 {
-  const PxSize2D value(1, 2);
+  const auto value = PxSize2D::Create(1, 2);
   const auto res = TypeConverter::UncheckedTo<PxPoint2>(value);
 
-  EXPECT_EQ(static_cast<PxPoint2::value_type>(value.Width()), res.X);
-  EXPECT_EQ(static_cast<PxPoint2::value_type>(value.Height()), res.Y);
+  EXPECT_EQ(static_cast<PxPoint2::raw_value_type>(value.RawWidth()), res.X.Value);
+  EXPECT_EQ(static_cast<PxPoint2::raw_value_type>(value.RawHeight()), res.Y.Value);
 }
 
 // --- ToPxSize2D
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxSize2D_PxPoint2)
 {
-  const PxPoint2 value(1, 2);
+  const auto value = PxPoint2::Create(1, 2);
   const auto res = TypeConverter::UncheckedTo<PxSize2D>(value);
 
-  EXPECT_EQ(static_cast<PxSize2D::value_type>(value.X), res.Width());
-  EXPECT_EQ(static_cast<PxSize2D::value_type>(value.Y), res.Height());
+  EXPECT_EQ(static_cast<PxSize2D::raw_value_type>(value.X.Value), res.RawWidth());
+  EXPECT_EQ(static_cast<PxSize2D::raw_value_type>(value.Y.Value), res.RawHeight());
 }
 
 TEST(TestMathPixel_TypeConverter, UncheckedToPxSize2D_PxExtent2D)
 {
-  const PxExtent2D value(1, 2);
+  const auto value = PxExtent2D::Create(1, 2);
   const auto res = TypeConverter::UncheckedTo<PxSize2D>(value);
 
-  EXPECT_EQ(static_cast<PxSize2D::value_type>(value.Width), res.Width());
-  EXPECT_EQ(static_cast<PxSize2D::value_type>(value.Height), res.Height());
+  EXPECT_EQ(static_cast<PxSize2D::raw_value_type>(value.Width.Value), res.RawWidth());
+  EXPECT_EQ(static_cast<PxSize2D::raw_value_type>(value.Height.Value), res.RawHeight());
 }

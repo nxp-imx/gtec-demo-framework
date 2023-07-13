@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_SPRITE_SPRITEUNITCONVERTER_HPP
 #define FSLGRAPHICS_SPRITE_SPRITEUNITCONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,6 +87,16 @@ namespace Fsl
       return ToPxInt32(DpValue(valueDp));
     }
 
+    inline PxSize1D DpToPxSize1D(const int32_t valueDpf) const
+    {
+      return ToPxSize1D(DpSize1D::Create(valueDpf));
+    }
+
+    inline PxSize1D DpToPxSize1D(const float valueDpf) const
+    {
+      return ToPxSize1D(DpSize1DF::Create(valueDpf));
+    }
+
     inline int32_t DpToPxInt32(const float valueDpf) const
     {
       return ToPxInt32(DpValueF(valueDpf));
@@ -118,15 +128,21 @@ namespace Fsl
       return static_cast<int32_t>(std::round(valuePxf));
     }
 
+    inline PxSize1D PxfToPxSize1D(const float valuePxf) const
+    {
+      return PxSize1D::Create(static_cast<int32_t>(std::round(valuePxf)));
+    }
+
+
     inline PxExtent2D ToPxExtent2D(const DpExtent2D& valueDp) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return {valueDp.Width.Value, valueDp.Height.Value};
+        return PxExtent2D::Create(valueDp.Width.Value, valueDp.Height.Value);
       }
 
       return TypeConverter::UncheckedChangeTo<PxExtent2D>(
-        PxVector2(static_cast<float>(valueDp.Width.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Height.Value) * m_scaleDpToPxf));
+        PxVector2::Create(static_cast<float>(valueDp.Width.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Height.Value) * m_scaleDpToPxf));
     }
 
     inline int32_t ToDpInt32(const PxValue valuePx) const
@@ -185,28 +201,65 @@ namespace Fsl
       return TypeConverter::UncheckedChangeTo<DpValueU>(DpValueF(static_cast<float>(valuePx.Value) * m_scalePxToDpf));
     }
 
+    inline DpSize1DF ToDpSize1DF(const PxValue valuePx) const
+    {
+      return DpSize1DF(ToDpValueF(valuePx));
+    }
+
+    inline DpSize1DF ToDpSize1DF(const PxValueF valuePx) const
+    {
+      return DpSize1DF(ToDpValueF(valuePx));
+    }
+
+    inline DpSize1DF ToDpSize1DF(const PxValueU valuePx) const
+    {
+      return DpSize1DF(ToDpValueF(valuePx));
+    }
+
     DpPoint2 ToDpPoint2(const PxPoint2 valuePx) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return DpPoint2::Create(valuePx.X, valuePx.Y);
+        return DpPoint2::Create(valuePx.X.Value, valuePx.Y.Value);
       }
-      const float scaledX = std::round(static_cast<float>(valuePx.X) * m_scalePxToDpf);
-      const float scaledY = std::round(static_cast<float>(valuePx.Y) * m_scalePxToDpf);
+      const float scaledX = std::round(static_cast<float>(valuePx.X.Value) * m_scalePxToDpf);
+      const float scaledY = std::round(static_cast<float>(valuePx.Y.Value) * m_scalePxToDpf);
       assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<DpPoint2::raw_value_type>::max()));
       assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<DpPoint2::raw_value_type>::max()));
-      return DpPoint2::Create(static_cast<DpPoint2::value_type::value_type>(scaledX), static_cast<DpPoint2::value_type::value_type>(scaledY));
+      return DpPoint2::Create(static_cast<DpPoint2::raw_value_type>(scaledX), static_cast<DpPoint2::raw_value_type>(scaledY));
     }
 
+
+    DpSize1D ToDpSize1D(const PxSize1D sizePx) const
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return DpSize1D::Create(sizePx.RawValue(), OptimizationCheckFlag::NoCheck);
+      }
+      const float scaled = std::round(static_cast<float>(sizePx.RawValue()) * m_scalePxToDpf);
+      assert(scaled >= 0.0f && scaled <= float(std::numeric_limits<DpSize2D::raw_value_type>::max()));
+      return DpSize1D::Create(static_cast<DpSize2D::raw_value_type>(scaled));
+    }
+
+    DpSize1DF ToDpSize1DF(const PxSize1D sizePx) const
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return DpSize1DF::Create(static_cast<DpSize1DF::raw_value_type>(sizePx.RawValue()), OptimizationCheckFlag::NoCheck);
+      }
+      const float scaled = static_cast<float>(sizePx.RawValue()) * m_scalePxToDpf;
+      assert(scaled >= 0.0f && scaled <= float(std::numeric_limits<DpSize2D::raw_value_type>::max()));
+      return DpSize1DF::Create(scaled);
+    }
 
     DpSize2D ToDpSize2D(const PxPoint2 valuePx) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return DpSize2D::Create(valuePx.X, valuePx.Y);
+        return DpSize2D::Create(valuePx.X.Value, valuePx.Y.Value);
       }
-      const float scaledX = std::round(static_cast<float>(valuePx.X) * m_scalePxToDpf);
-      const float scaledY = std::round(static_cast<float>(valuePx.Y) * m_scalePxToDpf);
+      const float scaledX = std::round(static_cast<float>(valuePx.X.Value) * m_scalePxToDpf);
+      const float scaledY = std::round(static_cast<float>(valuePx.Y.Value) * m_scalePxToDpf);
       assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<DpSize2D::raw_value_type>::max()));
       assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<DpSize2D::raw_value_type>::max()));
       return DpSize2D::Create(static_cast<DpSize2D::raw_value_type>(scaledX), static_cast<DpSize2D::raw_value_type>(scaledY));
@@ -214,25 +267,22 @@ namespace Fsl
 
     DpSize2D ToDpSize2D(const PxSize2D valuePx) const
     {
-      if (m_densityDpi == SpriteDpConfig::BaseDpi)
-      {
-        return DpSize2D::Create(valuePx.Width(), valuePx.Height());
-      }
-      const auto scaledX = std::round(static_cast<float>(valuePx.Width()) * m_scalePxToDpf);
-      const auto scaledY = std::round(static_cast<float>(valuePx.Height()) * m_scalePxToDpf);
-      assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<DpSize2D::raw_value_type>::max()));
-      assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<DpSize2D::raw_value_type>::max()));
-      return DpSize2D::Create(static_cast<DpSize2D::raw_value_type>(scaledX), static_cast<DpSize2D::raw_value_type>(scaledY));
+      return {ToDpSize1D(valuePx.Width()), ToDpSize1D(valuePx.Height())};
     }
 
+    DpSize2DF ToDpSize2DF(const PxSize2D valuePx) const
+    {
+      return {ToDpSize1DF(valuePx.Width()), ToDpSize1DF(valuePx.Height())};
+    }
 
     DpExtent2D ToDpExtent2D(const PxExtent2D valuePx) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return DpExtent2D::Create(valuePx.Width, valuePx.Height);
+        return DpExtent2D::Create(valuePx.Width.Value, valuePx.Height.Value);
       }
-      auto scaledDpf = DpPoint2F::Create(static_cast<float>(valuePx.Width) * m_scalePxToDpf, static_cast<float>(valuePx.Height) * m_scalePxToDpf);
+      auto scaledDpf =
+        DpPoint2F::Create(static_cast<float>(valuePx.Width.Value) * m_scalePxToDpf, static_cast<float>(valuePx.Height.Value) * m_scalePxToDpf);
       return TypeConverter::UncheckedChangeTo<DpExtent2D>(scaledDpf);
     }
 
@@ -240,11 +290,11 @@ namespace Fsl
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return DpThicknessU::Create(valuePx.Left, valuePx.Top, valuePx.Right, valuePx.Bottom);
+        return DpThicknessU::Create(valuePx.Left.Value, valuePx.Top.Value, valuePx.Right.Value, valuePx.Bottom.Value);
       }
       auto thicknessDpf =
-        DpThicknessF::Create(static_cast<float>(valuePx.Left) * m_scalePxToDpf, static_cast<float>(valuePx.Top) * m_scalePxToDpf,
-                             static_cast<float>(valuePx.Right) * m_scalePxToDpf, static_cast<float>(valuePx.Bottom) * m_scalePxToDpf);
+        DpThicknessF::Create(static_cast<float>(valuePx.Left.Value) * m_scalePxToDpf, static_cast<float>(valuePx.Top.Value) * m_scalePxToDpf,
+                             static_cast<float>(valuePx.Right.Value) * m_scalePxToDpf, static_cast<float>(valuePx.Bottom.Value) * m_scalePxToDpf);
       return TypeConverter::UncheckedChangeTo<DpThicknessU>(thicknessDpf);
     }
 
@@ -272,6 +322,11 @@ namespace Fsl
     inline int32_t ToPxInt32(const DpSize1DF valueDpf) const
     {
       return TypeConverter::UncheckedChangeTo<PxValue>(PxValueF(valueDpf.RawValue() * m_scaleDpToPxf)).Value;
+    }
+
+    inline float ToPxRawFloat(const DpValueF valueDpf) const
+    {
+      return valueDpf.Value * m_scaleDpToPxf;
     }
 
     inline PxValue ToPxValue(const DpValue valueDp) const
@@ -306,17 +361,17 @@ namespace Fsl
     }
 
 
-    inline PxValueU ToPxValueU(const DpValue valueDp) const
+    PxValueU ToPxValueU(const DpValue valueDp) const
     {
       return TypeConverter::UncheckedChangeTo<PxValueU>(PxValueF(static_cast<float>(valueDp.Value) * m_scaleDpToPxf));
     }
 
-    inline PxValueU ToPxValueU(const DpValueF valueDpf) const
+    PxValueU ToPxValueU(const DpValueF valueDpf) const
     {
       return TypeConverter::UncheckedChangeTo<PxValueU>(PxValueF(valueDpf.Value * m_scaleDpToPxf));
     }
 
-    inline PxValueU ToPxValueU(const DpValueU valueDp) const
+    PxValueU ToPxValueU(const DpValueU valueDp) const
     {
       return TypeConverter::UncheckedChangeTo<PxValueU>(PxValueF(static_cast<float>(valueDp.Value) * m_scaleDpToPxf));
     }
@@ -326,37 +381,39 @@ namespace Fsl
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return {valueDp.X.Value, valueDp.Y.Value};
+        return PxPoint2::Create(valueDp.X.Value, valueDp.Y.Value);
       }
-
-      const float scaledX = std::round(static_cast<float>(valueDp.X.Value) * m_scaleDpToPxf);
-      const float scaledY = std::round(static_cast<float>(valueDp.Y.Value) * m_scaleDpToPxf);
-      assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<PxPoint2::value_type>::max()));
-      assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<PxPoint2::value_type>::max()));
-      return {static_cast<PxPoint2::value_type>(scaledX), static_cast<PxPoint2::value_type>(scaledY)};
+      return TypeConverter::UncheckedChangeTo<PxPoint2>(
+        PxVector2::Create(static_cast<float>(valueDp.X.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Y.Value) * m_scaleDpToPxf));
     }
 
-    inline PxPoint2 ToPxPoint2(const DpPoint2F valueDpf) const
+    PxPoint2 ToPxPoint2(const DpPoint2F valueDpf) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return TypeConverter::UncheckedChangeTo<PxPoint2>(PxVector2(valueDpf.X.Value, valueDpf.Y.Value));
+        return TypeConverter::UncheckedChangeTo<PxPoint2>(PxVector2::Create(valueDpf.X.Value, valueDpf.Y.Value));
       }
-      return TypeConverter::UncheckedChangeTo<PxPoint2>(PxVector2(valueDpf.X.Value * m_scaleDpToPxf, valueDpf.Y.Value * m_scaleDpToPxf));
+      return TypeConverter::UncheckedChangeTo<PxPoint2>(PxVector2::Create(valueDpf.X.Value * m_scaleDpToPxf, valueDpf.Y.Value * m_scaleDpToPxf));
     }
 
     PxPoint2 ToPxPoint2(const DpSize2D valueDp) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return {valueDp.Width().RawValue(), valueDp.Height().RawValue()};
+        return PxPoint2::Create(valueDp.Width().RawValue(), valueDp.Height().RawValue());
       }
+      return TypeConverter::UncheckedChangeTo<PxPoint2>(PxVector2::Create(static_cast<float>(valueDp.Width().RawValue()) * m_scaleDpToPxf,
+                                                                          static_cast<float>(valueDp.Height().RawValue()) * m_scaleDpToPxf));
+    }
 
-      const float scaledX = std::round(static_cast<float>(valueDp.Width().RawValue()) * m_scaleDpToPxf);
-      const float scaledY = std::round(static_cast<float>(valueDp.Height().RawValue()) * m_scaleDpToPxf);
-      assert(scaledX >= 0.0f && scaledX <= float(std::numeric_limits<PxPoint2::value_type>::max()));
-      assert(scaledY >= 0.0f && scaledY <= float(std::numeric_limits<PxPoint2::value_type>::max()));
-      return {static_cast<PxPoint2::value_type>(scaledX), static_cast<PxPoint2::value_type>(scaledY)};
+    PxSize2D ToPxSize2D(const DpSize2D valueDp) const
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return PxSize2D::UncheckedCreate(valueDp.Width().RawValue(), valueDp.Height().RawValue());
+      }
+      return TypeConverter::UncheckedChangeTo<PxSize2D>(PxSize2DF::UncheckedCreate(static_cast<float>(valueDp.Width().RawValue()) * m_scaleDpToPxf,
+                                                                                   static_cast<float>(valueDp.Height().RawValue()) * m_scaleDpToPxf));
     }
 
     PxSize1D ToPxSize1D(const DpSize1D valueDp) const
@@ -373,7 +430,7 @@ namespace Fsl
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF::Create(valueDpf.Value().Value, OptimizationCheckFlag::NoCheck));
+        return TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF::UncheckedCreate(valueDpf.Value().Value));
       }
       return TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF::Create(valueDpf.Value().Value * m_scaleDpToPxf));
     }
@@ -382,40 +439,40 @@ namespace Fsl
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return TypeConverter::UncheckedTo<PxSize2D>(PxExtent2D(valueDp.Width.Value, valueDp.Height.Value));
+        return TypeConverter::UncheckedTo<PxSize2D>(PxExtent2D::Create(valueDp.Width.Value, valueDp.Height.Value));
       }
       return TypeConverter::UncheckedChangeTo<PxSize2D>(
-        PxVector2(static_cast<float>(valueDp.Width.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Height.Value) * m_scaleDpToPxf));
+        PxVector2::Create(static_cast<float>(valueDp.Width.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Height.Value) * m_scaleDpToPxf));
     }
 
     PxSize2D ToPxSize2D(const DpSize2DF valueDpf) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return TypeConverter::UncheckedChangeTo<PxSize2D>(
-          PxSize2DF(valueDpf.Width().RawValue(), valueDpf.Height().RawValue(), OptimizationCheckFlag::NoCheck));
+        return TypeConverter::UncheckedChangeTo<PxSize2D>(PxSize2DF::UncheckedCreate(valueDpf.RawWidth(), valueDpf.RawHeight()));
       }
       return TypeConverter::UncheckedChangeTo<PxSize2D>(
-        PxSize2DF(valueDpf.Width().RawValue() * m_scaleDpToPxf, valueDpf.Height().RawValue() * m_scaleDpToPxf));
+        PxSize2DF::UncheckedCreate(valueDpf.RawWidth() * m_scaleDpToPxf, valueDpf.RawHeight() * m_scaleDpToPxf));
+    }
+
+    PxSize1DF ToPxSize1DF(const DpSize1DF valueDpf) const
+    {
+      if (m_densityDpi == SpriteDpConfig::BaseDpi)
+      {
+        return PxSize1DF::UncheckedCreate(valueDpf.Value().Value);
+      }
+      return PxSize1DF::Create(valueDpf.Value().Value * m_scaleDpToPxf);
     }
 
     PxThickness ToPxThickness(const DpThickness& valueDp) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return {valueDp.Left().Value, valueDp.Top().Value, valueDp.Right().Value, valueDp.Bottom().Value};
+        return PxThickness::UncheckedCreate(valueDp.RawLeft(), valueDp.RawTop(), valueDp.RawRight(), valueDp.RawBottom());
       }
-
-      const float scaledL = std::round(static_cast<float>(valueDp.Left().Value) * m_scaleDpToPxf);
-      const float scaledT = std::round(static_cast<float>(valueDp.Top().Value) * m_scaleDpToPxf);
-      const float scaledR = std::round(static_cast<float>(valueDp.Right().Value) * m_scaleDpToPxf);
-      const float scaledB = std::round(static_cast<float>(valueDp.Bottom().Value) * m_scaleDpToPxf);
-      assert(scaledL >= 0.0f && scaledL <= float(std::numeric_limits<PxThickness::value_type>::max()));
-      assert(scaledT >= 0.0f && scaledT <= float(std::numeric_limits<PxThickness::value_type>::max()));
-      assert(scaledR >= 0.0f && scaledR <= float(std::numeric_limits<PxThickness::value_type>::max()));
-      assert(scaledB >= 0.0f && scaledB <= float(std::numeric_limits<PxThickness::value_type>::max()));
-      return {static_cast<PxThickness::value_type>(scaledL), static_cast<PxThickness::value_type>(scaledT),
-              static_cast<PxThickness::value_type>(scaledR), static_cast<PxThickness::value_type>(scaledB)};
+      return TypeConverter::UncheckedChangeTo<PxThickness>(
+        PxThicknessF::Create(static_cast<float>(valueDp.RawLeft()) * m_scaleDpToPxf, static_cast<float>(valueDp.RawTop()) * m_scaleDpToPxf,
+                             static_cast<float>(valueDp.RawRight()) * m_scaleDpToPxf, static_cast<float>(valueDp.RawBottom()) * m_scaleDpToPxf));
     }
 
 
@@ -424,36 +481,35 @@ namespace Fsl
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
         return TypeConverter::UncheckedChangeTo<PxThickness>(
-          PxThicknessF(valueDpf.Left().Value, valueDpf.Top().Value, valueDpf.Right().Value, valueDpf.Bottom().Value));
+          PxThicknessF::Create(valueDpf.RawLeft(), valueDpf.RawTop(), valueDpf.RawRight(), valueDpf.RawBottom()));
       }
-
-      return TypeConverter::UncheckedChangeTo<PxThickness>(PxThicknessF(valueDpf.Left().Value * m_scaleDpToPxf, valueDpf.Top().Value * m_scaleDpToPxf,
-                                                                        valueDpf.Right().Value * m_scaleDpToPxf,
-                                                                        valueDpf.Bottom().Value * m_scaleDpToPxf));
+      return TypeConverter::UncheckedChangeTo<PxThickness>(
+        PxThicknessF::Create(valueDpf.RawLeft() * m_scaleDpToPxf, valueDpf.RawTop() * m_scaleDpToPxf, valueDpf.RawRight() * m_scaleDpToPxf,
+                             valueDpf.RawBottom() * m_scaleDpToPxf));
     }
-
 
     inline PxThickness ToPxThickness(const DpThicknessU& valueDp) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return {UncheckedNumericCast<PxThickness::value_type>(valueDp.Left.Value), UncheckedNumericCast<PxThickness::value_type>(valueDp.Top.Value),
-                UncheckedNumericCast<PxThickness::value_type>(valueDp.Right.Value),
-                UncheckedNumericCast<PxThickness::value_type>(valueDp.Bottom.Value)};
+        return PxThickness::Create(UncheckedNumericCast<PxThickness::raw_value_type>(valueDp.Left.Value),
+                                   UncheckedNumericCast<PxThickness::raw_value_type>(valueDp.Top.Value),
+                                   UncheckedNumericCast<PxThickness::raw_value_type>(valueDp.Right.Value),
+                                   UncheckedNumericCast<PxThickness::raw_value_type>(valueDp.Bottom.Value));
       }
 
       return TypeConverter::UncheckedChangeTo<PxThickness>(
-        PxThicknessF(static_cast<float>(valueDp.Left.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Top.Value) * m_scaleDpToPxf,
-                     static_cast<float>(valueDp.Right.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Bottom.Value) * m_scaleDpToPxf));
+        PxThicknessF::Create(static_cast<float>(valueDp.Left.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Top.Value) * m_scaleDpToPxf,
+                             static_cast<float>(valueDp.Right.Value) * m_scaleDpToPxf, static_cast<float>(valueDp.Bottom.Value) * m_scaleDpToPxf));
     }
 
     PxVector2 ToPxVector2(const DpPoint2F valueDpf) const
     {
       if (m_densityDpi == SpriteDpConfig::BaseDpi)
       {
-        return {valueDpf.X.Value, valueDpf.Y.Value};
+        return PxVector2::Create(valueDpf.X.Value, valueDpf.Y.Value);
       }
-      return {valueDpf.X.Value * m_scaleDpToPxf, valueDpf.Y.Value * m_scaleDpToPxf};
+      return PxVector2::Create(valueDpf.X.Value * m_scaleDpToPxf, valueDpf.Y.Value * m_scaleDpToPxf);
     }
 
 

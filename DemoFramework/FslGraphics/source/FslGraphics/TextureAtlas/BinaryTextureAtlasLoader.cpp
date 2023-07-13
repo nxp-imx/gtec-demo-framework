@@ -210,15 +210,21 @@ namespace Fsl
 
     PxRectangleU32 ReadRectangleU(ReadOnlySpan<uint8_t>& rSpan)
     {
-      return {ValueCompression::ReadSimpleUInt32(rSpan), ValueCompression::ReadSimpleUInt32(rSpan), ValueCompression::ReadSimpleUInt32(rSpan),
-              ValueCompression::ReadSimpleUInt32(rSpan)};
+      const uint32_t x = ValueCompression::ReadSimpleUInt32(rSpan);
+      const uint32_t y = ValueCompression::ReadSimpleUInt32(rSpan);
+      const uint32_t width = ValueCompression::ReadSimpleUInt32(rSpan);
+      const uint32_t height = ValueCompression::ReadSimpleUInt32(rSpan);
+      return PxRectangleU32::Create(x, y, width, height);
     }
 
 
     PxThicknessU ReadThicknessU(ReadOnlySpan<uint8_t>& rSpan)
     {
-      return {ValueCompression::ReadSimpleUInt32(rSpan), ValueCompression::ReadSimpleUInt32(rSpan), ValueCompression::ReadSimpleUInt32(rSpan),
-              ValueCompression::ReadSimpleUInt32(rSpan)};
+      const uint32_t left = ValueCompression::ReadSimpleUInt32(rSpan);
+      const uint32_t top = ValueCompression::ReadSimpleUInt32(rSpan);
+      const uint32_t right = ValueCompression::ReadSimpleUInt32(rSpan);
+      const uint32_t bottom = ValueCompression::ReadSimpleUInt32(rSpan);
+      return PxThicknessU::Create(left, top, right, bottom);
     }
 
     IO::Path ReadPath(ReadOnlySpan<uint8_t>& rSpan)
@@ -281,8 +287,8 @@ namespace Fsl
 
       const auto rectanglePx = TypeConverter::UncheckedTo<PxRectangleU32>(trimmedRect);
 
-      PxThicknessU trimPx(static_cast<uint32_t>(trimLeft), static_cast<uint32_t>(trimTop), static_cast<uint32_t>(trimRight),
-                          static_cast<uint32_t>(trimBottom));
+      const auto trimPx = PxThicknessU::Create(static_cast<uint32_t>(trimLeft), static_cast<uint32_t>(trimTop), static_cast<uint32_t>(trimRight),
+                                               static_cast<uint32_t>(trimBottom));
 
       rTextureAtlas.SetEntry(index, rectanglePx, trimPx, BTAFormat::DEFAULT_DP, std::move(path));
     }

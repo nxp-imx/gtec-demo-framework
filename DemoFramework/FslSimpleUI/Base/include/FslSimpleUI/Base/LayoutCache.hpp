@@ -50,8 +50,8 @@ namespace Fsl::UI
     PxRectangle ArrangeLastFinalRectPx;
 
     LayoutCache()
-      : MeasureLastAvailableSizePx(-1, -1)
-      , ArrangeLastFinalRectPx(-10000, -10000, 0, 0)
+      : MeasureLastAvailableSizePx(PxAvailableSize1D::Create(-1), PxAvailableSize1D::Create(-1))
+      , ArrangeLastFinalRectPx(PxValue(-10000), PxValue(-10000), PxSize1D(), PxSize1D())
     {
     }
   };

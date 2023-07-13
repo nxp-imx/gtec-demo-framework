@@ -49,6 +49,7 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 #from FslBuildGen.Log import Log
 #from FslBuildGen.PackageConfig import PlatformNameString
 #from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
@@ -110,11 +111,11 @@ class ToolFlowBuildExternal(AToolAppFlow):
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         platform = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                   buildVariantConfig, variableContext.UserSetVariables,
@@ -128,7 +129,8 @@ class ToolFlowBuildExternal(AToolAppFlow):
             self.Log.LogPrintVerbose(1, "Doing a void build")
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
                                             platform, variableContext)
-        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
+        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters,
+                                          engineResolveConfig=EngineResolveConfig.CreateDefaultFlavor())
         #packages = DoExperimentalGetRecipes(generatorContext, config, [])
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
@@ -201,7 +203,9 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         #argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
+        argConfig.AddBuildFiltering = True
         argConfig.AddBuildThreads = True
+        argConfig.AddBuildVariants = True
         argConfig.AllowRecursive = True
         return argConfig
 

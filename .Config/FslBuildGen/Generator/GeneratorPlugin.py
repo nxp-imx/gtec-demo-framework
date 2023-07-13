@@ -40,6 +40,7 @@ from FslBuildGen.DataTypes import BuildVariantType
 from FslBuildGen.DataTypes import LegacyGeneratorType
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import UnsupportedException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Generator.GeneratorDot import GeneratorDot
 from FslBuildGen.Generator.GeneratorGitIgnore import GeneratorGitIgnore
@@ -58,6 +59,14 @@ GENERATOR_TYPES = {
     "experimental" : LegacyGeneratorType.Experimental
 }
 
+class GenerateContext(object):
+    def __init__(self, platformContext: PlatformContext, config: Config, packages: List[Package],
+                 variantConstraints: ExternalVariantConstraints) -> None:
+        super().__init__()
+        self.PlatformContext = platformContext
+        self.Config = config
+        self.Packages = packages
+        self.VariantConstraints = variantConstraints
 
 
 class GeneratorPlugin(GeneratorPluginBase2):
@@ -109,14 +118,14 @@ class GeneratorPlugin(GeneratorPluginBase2):
 
 
 
-    def Generate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
+    def Generate(self, generateContext: GenerateContext) -> List[Package]:
         """ General generate method, does a bit of processing then calls the plugin DoGenerate method """
-        if not config.ToolConfig.DefaultPackageLanguage in self.SupportedPackageLanguages:
-            raise UnsupportedException("The package language '{0}' is not supported by the generator '{1}'".format(PackageLanguage.ToString(config.ToolConfig.DefaultPackageLanguage), self.PlatformName))
-        return self.DoGenerate(platformContext, config, packages)
+        if not generateContext.Config.ToolConfig.DefaultPackageLanguage in self.SupportedPackageLanguages:
+            raise UnsupportedException("The package language '{0}' is not supported by the generator '{1}'".format(PackageLanguage.ToString(generateContext.Config.ToolConfig.DefaultPackageLanguage), self.PlatformName))
+        return self.DoGenerate(generateContext)
 
 
-    def DoGenerate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
+    def DoGenerate(self, generateContext: GenerateContext) -> List[Package]:
         return []
 
 

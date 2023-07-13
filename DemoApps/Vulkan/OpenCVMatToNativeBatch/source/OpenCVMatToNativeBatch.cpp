@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,7 @@ namespace Fsl
         const auto sizeTex1 = m_texTest.GetSize();
 
         Vector2 dst1;
-        Vector2 dst2(0, sizeTex1.Height());
+        Vector2 dst2(0, sizeTex1.RawHeight());
 
         DrawImages(dst1, m_texTest, m_texTestR, m_texTestG, m_texTestB, "Reference");
         DrawImages(dst2, m_texTestMat, m_texTestMatR, m_texTestMatG, m_texTestMatB, "OpenCV");
@@ -181,31 +181,31 @@ namespace Fsl
     const auto sizeTexB = texB.GetSize();
 
     // Show the reference color images centered just after the image
-    const int32_t heightCaptionRGB = sizeTexR.Height() + sizeTexG.Height() + sizeTexB.Height() + sizeTextCaption.Height();
-    const int32_t yAdjust = (sizeTex1.Height() - heightCaptionRGB) / 2;
+    const PxSize1D heightCaptionRGB = sizeTexR.Height() + sizeTexG.Height() + sizeTexB.Height() + sizeTextCaption.Height();
+    const PxValue yAdjust = (sizeTex1.Height() - heightCaptionRGB) / PxValue::Create(2);
 
-    const auto sizeTex1Width = static_cast<float>(sizeTex1.Width());
+    const auto sizeTex1Width = static_cast<float>(sizeTex1.RawWidth());
     dstPosR.X += sizeTex1Width;
     dstPosG.X += sizeTex1Width;
     dstPosB.X += sizeTex1Width;
 
-    dstPosR.Y += static_cast<float>(yAdjust + sizeTextCaption.Height());
-    dstPosG.Y += static_cast<float>(yAdjust + sizeTextCaption.Height() + sizeTexR.Height());
-    dstPosB.Y += static_cast<float>(yAdjust + sizeTextCaption.Height() + sizeTexR.Height() + sizeTexG.Height());
+    dstPosR.Y += static_cast<float>((yAdjust + sizeTextCaption.Height()).Value);
+    dstPosG.Y += static_cast<float>((yAdjust + sizeTextCaption.Height() + sizeTexR.Height()).Value);
+    dstPosB.Y += static_cast<float>((yAdjust + sizeTextCaption.Height() + sizeTexR.Height() + sizeTexG.Height()).Value);
 
     m_nativeBatch->Draw(tex1, dstPos1, Color::White());
     m_nativeBatch->Draw(texR, dstPosR, Color::White());
     m_nativeBatch->Draw(texG, dstPosG, Color::White());
     m_nativeBatch->Draw(texB, dstPosB, Color::White());
 
-    Vector2 dstPosText1(sizeTex1.Width(), dstPosition.Y + static_cast<float>(yAdjust));
+    Vector2 dstPosText1(sizeTex1.RawWidth(), dstPosition.Y + static_cast<float>(yAdjust.Value));
     Vector2 dstPosTextR = dstPosR;
     Vector2 dstPosTextG = dstPosG;
     Vector2 dstPosTextB = dstPosB;
 
-    dstPosTextR.X += static_cast<float>(sizeTexR.Width());
-    dstPosTextG.X += static_cast<float>(sizeTexG.Width());
-    dstPosTextB.X += static_cast<float>(sizeTexB.Width());
+    dstPosTextR.X += static_cast<float>(sizeTexR.RawWidth());
+    dstPosTextG.X += static_cast<float>(sizeTexG.RawWidth());
+    dstPosTextB.X += static_cast<float>(sizeTexB.RawWidth());
 
     // BEWARE its very bad for render performance to switch blend state before we finish rendering all the Opaque elements,
     // but its simpler in this example, so we reset the state back after we rendered the text

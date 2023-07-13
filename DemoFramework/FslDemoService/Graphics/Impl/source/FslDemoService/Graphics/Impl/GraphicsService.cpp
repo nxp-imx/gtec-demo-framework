@@ -119,7 +119,8 @@ namespace Fsl
       throw UsageErrorException("Not linked to native service");
     }
 
-    const Rectangle srcRectangle(0, 0, NumericCast<int32_t>(m_windowMetrics.ExtentPx.Width), NumericCast<int32_t>(m_windowMetrics.ExtentPx.Height));
+    const Rectangle srcRectangle(0, 0, NumericCast<int32_t>(m_windowMetrics.ExtentPx.Width.Value),
+                                 NumericCast<int32_t>(m_windowMetrics.ExtentPx.Height.Value));
     Capture(rBitmap, desiredPixelFormat, srcRectangle);
   }
 

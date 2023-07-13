@@ -75,6 +75,6 @@ namespace Fsl::GLES2
     // Create a renderbuffer and allocate storage for it
     GL_CHECK(glGenRenderbuffers(1, &m_handle));
     GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_handle));
-    GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.Width(), size.Height()));
+    GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.RawWidth(), size.RawHeight()));
   }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -162,9 +162,9 @@ namespace Fsl
   {
     m_nativeBatch->Begin();
 
-    constexpr const PxPoint2 spacePx(20, 20);
+    constexpr const PxPoint2 spacePx = PxPoint2::Create(20, 20);
 
-    const float errorOffsetPxf = m_slider->GetValue();
+    const PxSize1DF errorOffsetPxf = PxSize1DF::Create(m_slider->GetValue());
 
     PxPoint2 offsetPx = spacePx;
     auto sizePx = DrawScaleMatrix(offsetPx, spacePx, m_testTextures.Text320dp, Color::White(), errorOffsetPxf);
@@ -175,8 +175,8 @@ namespace Fsl
     m_uiExtension->Draw();
   }
 
-  PxPoint2 Shared::DrawScaleMatrix(const PxPoint2& offsetPx, const PxPoint2& spacePx, const AtlasTexture2D& srcTexture, const Color& color,
-                                   const float errorOffsetPxf)
+  PxPoint2 Shared::DrawScaleMatrix(const PxPoint2 offsetPx, const PxPoint2 spacePx, const AtlasTexture2D& srcTexture, const Color color,
+                                   const PxSize1DF errorOffsetPxf)
   {
     //              FULL SIZE   FULL SIZE    -0.5 size    -0.5 size
     // Y       X  | 0.0, 0.0f | 0.5f, 0.0f | 0.0f, 0.5f | 0.5f, 0.5f
@@ -195,40 +195,40 @@ namespace Fsl
 
     const PxPoint2 cellSize(texSize + spacePx);
 
-    const int offsetYPx = offsetPx.Y + font->GetInfo().ScaledLineSpacingPx;
+    const PxValue offsetYPx = offsetPx.Y + PxSize1D(font->GetInfo().ScaledLineSpacingPx);
 
-    const int gridX0Correct = (offsetPx.X);
-    const int gridX1Correct = (offsetPx.X + (cellSize.X * 1));
-    const int gridX2Correct = (offsetPx.X + (cellSize.X * 2));
-    const int gridX3Correct = (offsetPx.X + (cellSize.X * 3));
-    const int gridX4Correct = (offsetPx.X + (cellSize.X * 4));
+    const PxValue gridX0Correct = (offsetPx.X);
+    const PxValue gridX1Correct = (offsetPx.X + (cellSize.X * PxValue::Create(1)));
+    const PxValue gridX2Correct = (offsetPx.X + (cellSize.X * PxValue::Create(2)));
+    const PxValue gridX3Correct = (offsetPx.X + (cellSize.X * PxValue::Create(3)));
+    const PxValue gridX4Correct = (offsetPx.X + (cellSize.X * PxValue::Create(4)));
 
-    const int gridY0Correct = (offsetYPx);
-    const int gridY1Correct = (offsetYPx + (cellSize.Y * 1));
-    const int gridY2Correct = (offsetYPx + (cellSize.Y * 2));
-    const int gridY3Correct = (offsetYPx + (cellSize.Y * 3));
-    const int gridY4Correct = (offsetYPx + (cellSize.Y * 4));
+    const PxValue gridY0Correct = (offsetYPx);
+    const PxValue gridY1Correct = (offsetYPx + (cellSize.Y * PxValue::Create(1)));
+    const PxValue gridY2Correct = (offsetYPx + (cellSize.Y * PxValue::Create(2)));
+    const PxValue gridY3Correct = (offsetYPx + (cellSize.Y * PxValue::Create(3)));
+    const PxValue gridY4Correct = (offsetYPx + (cellSize.Y * PxValue::Create(4)));
 
 
-    const auto gridX0 = static_cast<float>(gridX0Correct);
-    const auto gridX1 = static_cast<float>(gridX1Correct) + errorOffsetPxf;
-    const auto gridX2 = static_cast<float>(gridX2Correct);
-    const auto gridX3 = static_cast<float>(gridX3Correct) + errorOffsetPxf;
+    const auto gridX0 = PxValueF(gridX0Correct);
+    const auto gridX1 = PxValueF(gridX1Correct) + errorOffsetPxf;
+    const auto gridX2 = PxValueF(gridX2Correct);
+    const auto gridX3 = PxValueF(gridX3Correct) + errorOffsetPxf;
 
-    const auto gridY0 = static_cast<float>(gridY0Correct);
-    const auto gridY1 = static_cast<float>(gridY1Correct) + errorOffsetPxf;
-    const auto gridY2 = static_cast<float>(gridY2Correct);
-    const auto gridY3 = static_cast<float>(gridY3Correct) + errorOffsetPxf;
+    const auto gridY0 = PxValueF(gridY0Correct);
+    const auto gridY1 = PxValueF(gridY1Correct) + errorOffsetPxf;
+    const auto gridY2 = PxValueF(gridY2Correct);
+    const auto gridY3 = PxValueF(gridY3Correct) + errorOffsetPxf;
 
-    const auto gridWidth0 = static_cast<float>(texSize.Width());
-    const auto gridWidth1 = static_cast<float>(texSize.Width());
-    const auto gridWidth2 = static_cast<float>(texSize.Width()) - errorOffsetPxf;
-    const auto gridWidth3 = static_cast<float>(texSize.Width()) - errorOffsetPxf;
+    const auto gridWidth0 = PxValueF(texSize.Width());
+    const auto gridWidth1 = PxValueF(texSize.Width());
+    const auto gridWidth2 = PxValueF(texSize.Width()) - errorOffsetPxf;
+    const auto gridWidth3 = PxValueF(texSize.Width()) - errorOffsetPxf;
 
-    const auto gridHeight0 = static_cast<float>(texSize.Height());
-    const auto gridHeight1 = static_cast<float>(texSize.Height());
-    const auto gridHeight2 = static_cast<float>(texSize.Height()) - errorOffsetPxf;
-    const auto gridHeight3 = static_cast<float>(texSize.Height()) - errorOffsetPxf;
+    const auto gridHeight0 = PxValueF(texSize.Height());
+    const auto gridHeight1 = PxValueF(texSize.Height());
+    const auto gridHeight2 = PxValueF(texSize.Height()) - errorOffsetPxf;
+    const auto gridHeight3 = PxValueF(texSize.Height()) - errorOffsetPxf;
 
     // Correct
     m_nativeBatch->Draw(srcTexture, PxAreaRectangleF(gridX0, gridY0, gridWidth0, gridHeight0), color);
@@ -256,23 +256,23 @@ namespace Fsl
     const auto* pFont = font.get();
     if (pFont != nullptr)
     {
-      Vector2 dstPos(static_cast<float>(gridX0Correct), static_cast<float>(offsetPx.Y));
+      Vector2 dstPos(static_cast<float>(gridX0Correct.Value), static_cast<float>(offsetPx.Y.Value));
 
       m_buffer.clear();
-      fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth0);
+      fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth0.Value);
 
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
-      dstPos.X = static_cast<float>(gridX1Correct);
+      dstPos.X = static_cast<float>(gridX1Correct.Value);
       m_buffer.clear();
-      fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth1);
+      fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf.RawValue(), (errorOffsetPxf + gridWidth1).Value);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
-      dstPos.X = static_cast<float>(gridX2Correct);
+      dstPos.X = static_cast<float>(gridX2Correct.Value);
       m_buffer.clear();
-      fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth2);
+      fmt::format_to(std::back_inserter(m_buffer), "0.00-{:.2f}", gridWidth2.Value);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
-      dstPos.X = static_cast<float>(gridX3Correct);
+      dstPos.X = static_cast<float>(gridX3Correct.Value);
       m_buffer.clear();
-      fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf, errorOffsetPxf + gridWidth3);
+      fmt::format_to(std::back_inserter(m_buffer), "{:.2f}-{:.2f}", errorOffsetPxf.RawValue(), (errorOffsetPxf + gridWidth3).Value);
       m_nativeBatch->DrawString(*pFont, StringViewLite(m_buffer.data(), m_buffer.size()), dstPos, Color::White());
     }
     return {gridX4Correct, gridY4Correct};

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/LogPxSize1D.hpp>
 #include <FslBase/Math/Pixel/PxThickness.hpp>
 #include <ostream>
 

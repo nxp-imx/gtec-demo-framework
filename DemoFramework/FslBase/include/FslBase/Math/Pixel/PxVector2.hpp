@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVECTOR2_HPP
 #define FSLBASE_MATH_PIXEL_PXVECTOR2_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <algorithm>
+#include <FslBase/Math/Pixel/PxSize1DF.hpp>
+#include <FslBase/Math/Pixel/PxValueF.hpp>
 
 namespace Fsl
 {
-  struct PxSize2DF;
-
   struct PxVector2
   {
-    using value_type = float;
+    using value_type = PxValueF;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type X{0};
     value_type Y{0};
@@ -53,10 +53,28 @@ namespace Fsl
     {
     }
 
+    constexpr PxVector2(const value_type x, const PxSize1DF y) noexcept
+      : X(x)
+      , Y(y.Value())
+    {
+    }
+
+    constexpr PxVector2(const PxSize1DF x, const value_type y) noexcept
+      : X(x.Value())
+      , Y(y)
+    {
+    }
+
+    constexpr PxVector2(const PxSize1DF x, const PxSize1DF y) noexcept
+      : X(x.Value())
+      , Y(y.Value())
+    {
+    }
+
     //! @brief Calculates the length of the vector squared.
     constexpr float LengthSquared() const
     {
-      return (X * X) + (Y * Y);
+      return (X.Value * X.Value) + (Y.Value * Y.Value);
     }
 
 
@@ -67,8 +85,6 @@ namespace Fsl
       return *this;
     }
 
-    PxVector2& operator+=(const PxSize2DF& arg) noexcept;
-
     constexpr PxVector2& operator-=(const PxVector2 arg) noexcept
     {
       X -= arg.X;
@@ -76,16 +92,12 @@ namespace Fsl
       return *this;
     }
 
-    PxVector2& operator-=(const PxSize2DF& arg) noexcept;
-
     constexpr PxVector2& operator*=(const PxVector2 arg) noexcept
     {
       X *= arg.X;
       Y *= arg.Y;
       return *this;
     }
-
-    PxVector2& operator*=(const PxSize2DF& arg) noexcept;
 
     constexpr PxVector2& operator*=(const value_type arg) noexcept
     {
@@ -118,14 +130,19 @@ namespace Fsl
     }
 
 
-    static constexpr PxVector2 Min(const PxVector2 val0, const PxVector2 val1)
+    static constexpr PxVector2 Min(const PxVector2 val0, const PxVector2 val1) noexcept
     {
-      return {std::min(val0.X, val1.X), std::min(val0.Y, val1.Y)};
+      return {value_type::Min(val0.X, val1.X), value_type::Min(val0.Y, val1.Y)};
     }
 
-    static constexpr PxVector2 Max(const PxVector2 val0, const PxVector2 val1)
+    static constexpr PxVector2 Max(const PxVector2 val0, const PxVector2 val1) noexcept
     {
-      return {std::max(val0.X, val1.X), std::max(val0.Y, val1.Y)};
+      return {value_type::Max(val0.X, val1.X), value_type::Max(val0.Y, val1.Y)};
+    }
+
+    static constexpr PxVector2 Create(const raw_value_type x, const raw_value_type y) noexcept
+    {
+      return {value_type(x), value_type(y)};
     }
   };
 

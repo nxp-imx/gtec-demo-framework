@@ -38,6 +38,8 @@ namespace Fsl::UI
 {
   class SimpleLayout : public Layout
   {
+    using base_type = Layout;
+
   public:
     using collection_type = GenericWindowCollection<GenericWindowCollectionRecordBase>;
 

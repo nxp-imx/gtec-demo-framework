@@ -246,8 +246,8 @@ namespace Fsl::Vulkan
     }
 
     // Then we check the input parameters
-    if ((static_cast<uint32_t>(sizePx.Width()) != m_deviceResource.CachedScreenExtentPx.Width ||
-         static_cast<uint32_t>(sizePx.Height()) != m_deviceResource.CachedScreenExtentPx.Height) &&
+    if ((static_cast<uint32_t>(sizePx.RawWidth()) != m_deviceResource.CachedScreenExtentPx.Width.Value ||
+         static_cast<uint32_t>(sizePx.RawHeight()) != m_deviceResource.CachedScreenExtentPx.Height.Value) &&
         m_activeFrame.CurrentState != FrameState::DrawVoidFrame)
     {
       throw NotSupportedException("Dynamic changes of the screen resolution is not supported");
@@ -491,8 +491,8 @@ namespace Fsl::Vulkan
       m_deviceResource.CachedScreenExtentPx = screenExtentPx;
 
       // Setup the shader
-      const auto screenWidth = static_cast<float>(screenExtentPx.Width);
-      const auto screenHeight = static_cast<float>(screenExtentPx.Height);
+      const auto screenWidth = static_cast<float>(screenExtentPx.Width.Value);
+      const auto screenHeight = static_cast<float>(screenExtentPx.Height.Value);
       const float screenOffsetX = screenWidth / 2.0f;
       const float screenOffsetY = screenHeight / 2.0f;
 

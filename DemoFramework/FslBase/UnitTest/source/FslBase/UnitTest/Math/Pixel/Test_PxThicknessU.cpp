@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,22 +47,23 @@ namespace
 TEST(TestMathPixel_PxThicknessU, Default)
 {
   PxThicknessU value;
+  constexpr auto size0U = PxValueU(0);
 
-  EXPECT_EQ(0u, value.Left);
-  EXPECT_EQ(0u, value.Top);
-  EXPECT_EQ(0u, value.Right);
-  EXPECT_EQ(0u, value.Bottom);
-  EXPECT_EQ(0u, value.SumX());
-  EXPECT_EQ(0u, value.SumY());
+  EXPECT_EQ(size0U, value.Left);
+  EXPECT_EQ(size0U, value.Top);
+  EXPECT_EQ(size0U, value.Right);
+  EXPECT_EQ(size0U, value.Bottom);
+  EXPECT_EQ(size0U, value.SumX());
+  EXPECT_EQ(size0U, value.SumY());
 }
 
 
 TEST(TestMathPixel_PxThicknessU, Values)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  constexpr const auto left = PxValueU(1);
+  constexpr const auto top = PxValueU(2);
+  constexpr const auto right = PxValueU(3);
+  constexpr const auto bottom = PxValueU(4);
   PxThicknessU value(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left);
@@ -75,10 +76,10 @@ TEST(TestMathPixel_PxThicknessU, Values)
 
 TEST(TestMathPixel_PxThicknessU, OperatorEqual)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  constexpr const auto left = PxValueU(1);
+  constexpr const auto top = PxValueU(2);
+  constexpr const auto right = PxValueU(3);
+  constexpr const auto bottom = PxValueU(4);
   PxThicknessU value1(left, top, right, bottom);
   PxThicknessU value2(left, top, right, bottom);
 
@@ -88,12 +89,12 @@ TEST(TestMathPixel_PxThicknessU, OperatorEqual)
 
 TEST(TestMathPixel_PxThicknessU, OperatorNotEqual)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  constexpr const auto left = PxValueU(1);
+  constexpr const auto top = PxValueU(2);
+  constexpr const auto right = PxValueU(3);
+  constexpr const auto bottom = PxValueU(4);
   PxThicknessU value1(left, top, right, bottom);
-  PxThicknessU value2(left, top, right, 5);
+  PxThicknessU value2(left, top, right, PxValueU(5));
 
   EXPECT_NE(value1, value2);
 }

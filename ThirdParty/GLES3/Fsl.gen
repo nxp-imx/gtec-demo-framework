@@ -3,16 +3,6 @@
   <ExternalLibrary Name="GLES3" CreationYear="2014">
     <Requirement Name="OpenGLES3" Type="feature" Version="3" Extends="OpenGLES"/>
     <Dependency Name="GLES"/>
-    <!--
-    <Platform Name="Windows">
-      <Variant Name="EGLBackend">
-        <Option Name="Vivante">
-          <ExternalDependency Name="libEGL" Include="$(FSL_GLES_EMULATOR_PATH)/inc" Access="Public" Location="$(FSL_GLES_EMULATOR_PATH)/lib" Type="StaticLib"/>
-          <ExternalDependency Name="libGLESv3" Include="$(FSL_GLES_EMULATOR_PATH)/inc" Access="Public" Location="$(FSL_GLES_EMULATOR_PATH)/lib" Type="StaticLib"/>
-        </Option>
-      </Variant>
-    </Platform>
-    -->
     <Platform Name="Android">
       <ExternalDependency Name="GLESv3" Type="StaticLib"/>
     </Platform>

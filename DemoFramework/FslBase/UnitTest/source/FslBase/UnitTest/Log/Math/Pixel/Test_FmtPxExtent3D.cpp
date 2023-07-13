@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxExtent3D, Log)
 {
-  PxExtent3D value(1, 2, 3);
+  const auto value = PxExtent3D::Create(1, 2, 3);
 
   EXPECT_EQ(std::string("{Width=1 Height=2 Depth=3}"), fmt::format("{}", value));
 }

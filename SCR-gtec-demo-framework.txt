@@ -1,11 +1,11 @@
 Package:                      gtec-demo-framework.git
-Version:                      6.1.1
+Version:                      6.2.0
 Outgoing License:             BSD-3-Clause 
 License File:                 License.md
 Package Category:             Graphics
 Type of Content:              source
 Description and comments:     Graphics sample applications
-Release Location:             https://github.com/NXPmicro/gtec-demo-framework -b 6.1.1
+Release Location:             https://github.com/NXPmicro/gtec-demo-framework -b 6.2.0
 Origin:                       NXP (BSD-3-clause)
                               Demo Framework
                                 Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
@@ -18,6 +18,7 @@ Origin:                       NXP (BSD-3-clause)
                                 "OpenGL(R) ES 3.0 Programming Guide" book samples (MIT) - http://github.com/zemanel/opengles-book-samples/
                                 Norbert Nopper VKTS Examples (MIT) - https://github.com/McNopper/Vulkan
                                 Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
+                                nehe.gamedev.net by Jeff Molofee - https://nehe.gamedev.net/
                               Imagery Sources in Demo Apps:
                                 Emil Persson (CC-BY-3.0) - http://www.humus.name
                                 CDmir (CC0-1.0) - http://opengameart.org/content/old-deer-male

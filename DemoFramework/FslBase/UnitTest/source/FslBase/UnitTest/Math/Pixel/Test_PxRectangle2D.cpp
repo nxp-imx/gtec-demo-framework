@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,57 +56,124 @@ TEST(TestMathPixel_PxRectangle2D, Empty)
 
 TEST(TestMathPixel_PxRectangle2D, Construct)
 {
-  int32_t offsetX = 1;
-  int32_t offsetY = 2;
-  uint32_t width = 10;
-  uint32_t height = 20;
+  PxValue offsetX(1);
+  PxValue offsetY(2);
+  PxValueU width(10);
+  PxValueU height(20);
   PxRectangle2D value(offsetX, offsetY, width, height);
 
   EXPECT_EQ(PxPoint2(offsetX, offsetY), value.Offset);
   EXPECT_EQ(PxExtent2D(width, height), value.Extent);
   EXPECT_EQ(offsetX, value.Left());
   EXPECT_EQ(offsetY, value.Top());
-  EXPECT_EQ(static_cast<int32_t>(offsetX + width), value.Right());
-  EXPECT_EQ(static_cast<int32_t>(offsetY + height), value.Bottom());
+  EXPECT_EQ(static_cast<int32_t>(offsetX.Value + width.Value), value.RawRight());
+  EXPECT_EQ(static_cast<int32_t>(offsetY.Value + height.Value), value.RawBottom());
 }
 
 TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom)
 {
-  int32_t left = 1;
-  int32_t top = 2;
-  int32_t right = 10;
-  int32_t bottom = 20;
+  PxValue left(1);
+  PxValue top(2);
+  PxValue right(10);
+  PxValue bottom(20);
   auto value = PxRectangle2D::FromLeftTopRightBottom(left, top, right, bottom);
 
   EXPECT_EQ(PxPoint2(left, top), value.Offset);
-  EXPECT_EQ(PxExtent2D(static_cast<uint32_t>(right - left), static_cast<uint32_t>(bottom - top)), value.Extent);
+  EXPECT_EQ(PxExtent2D::Create(static_cast<uint32_t>(right.Value - left.Value), static_cast<uint32_t>(bottom.Value - top.Value)), value.Extent);
+}
+
+TEST(TestMathPixel_PxRectangle2D, CreateFromLeftTopRightBottom)
+{
+  PxValue left(1);
+  PxValue top(2);
+  PxValue right(10);
+  PxValue bottom(20);
+  auto value = PxRectangle2D::CreateFromLeftTopRightBottom(left.Value, top.Value, right.Value, bottom.Value);
+
+  EXPECT_EQ(PxPoint2(left, top), value.Offset);
+  EXPECT_EQ(PxExtent2D::Create(static_cast<uint32_t>(right.Value - left.Value), static_cast<uint32_t>(bottom.Value - top.Value)), value.Extent);
+}
+
+TEST(TestMathPixel_PxRectangle2D, UncheckedFromLeftTopRightBottom)
+{
+  PxValue left(1);
+  PxValue top(2);
+  PxValue right(10);
+  PxValue bottom(20);
+  auto value = PxRectangle2D::UncheckedFromLeftTopRightBottom(left, top, right, bottom);
+
+  EXPECT_EQ(PxPoint2(left, top), value.Offset);
+  EXPECT_EQ(PxExtent2D::Create(static_cast<uint32_t>(right.Value - left.Value), static_cast<uint32_t>(bottom.Value - top.Value)), value.Extent);
+}
+
+TEST(TestMathPixel_PxRectangle2D, UncheckedCreateFromLeftTopRightBottom)
+{
+  PxValue left(1);
+  PxValue top(2);
+  PxValue right(10);
+  PxValue bottom(20);
+  auto value = PxRectangle2D::UncheckedCreateFromLeftTopRightBottom(left.Value, top.Value, right.Value, bottom.Value);
+
+  EXPECT_EQ(PxPoint2(left, top), value.Offset);
+  EXPECT_EQ(PxExtent2D::Create(static_cast<uint32_t>(right.Value - left.Value), static_cast<uint32_t>(bottom.Value - top.Value)), value.Extent);
 }
 
 TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_XMinXMax)
 {
-  constexpr int32_t left = std::numeric_limits<int32_t>::min();
-  constexpr int32_t top = 2;
-  constexpr int32_t right = std::numeric_limits<int32_t>::max();
-  constexpr int32_t bottom = 20;
+  constexpr PxValue left(std::numeric_limits<int32_t>::min());
+  constexpr PxValue top(2);
+  constexpr PxValue right(std::numeric_limits<int32_t>::max());
+  constexpr PxValue bottom(20);
   auto value = PxRectangle2D::FromLeftTopRightBottom(left, top, right, bottom);
 
-  constexpr PxExtent2D expectedExtent(static_cast<uint32_t>(static_cast<uint64_t>(right) - static_cast<uint64_t>(left)),
-                                      static_cast<uint32_t>(static_cast<uint64_t>(bottom) - static_cast<uint64_t>(top)));
+  constexpr auto expectedExtent = PxExtent2D::Create(static_cast<uint32_t>(static_cast<uint64_t>(right.Value) - static_cast<uint64_t>(left.Value)),
+                                                     static_cast<uint32_t>(static_cast<uint64_t>(bottom.Value) - static_cast<uint64_t>(top.Value)));
 
   EXPECT_EQ(PxPoint2(left, top), value.Offset);
   EXPECT_EQ(expectedExtent, value.Extent);
 }
 
+TEST(TestMathPixel_PxRectangle2D, UnchekedFromLeftTopRightBottom_XMinXMax)
+{
+  constexpr PxValue left(std::numeric_limits<int32_t>::min());
+  constexpr PxValue top(2);
+  constexpr PxValue right(std::numeric_limits<int32_t>::max());
+  constexpr PxValue bottom(20);
+  auto value = PxRectangle2D::UncheckedFromLeftTopRightBottom(left, top, right, bottom);
+
+  constexpr auto expectedExtent = PxExtent2D::Create(static_cast<uint32_t>(static_cast<uint64_t>(right.Value) - static_cast<uint64_t>(left.Value)),
+                                                     static_cast<uint32_t>(static_cast<uint64_t>(bottom.Value) - static_cast<uint64_t>(top.Value)));
+
+  EXPECT_EQ(PxPoint2(left, top), value.Offset);
+  EXPECT_EQ(expectedExtent, value.Extent);
+}
+
+
 TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_YMinYMax)
 {
-  constexpr int32_t left = 1;
-  constexpr int32_t top = std::numeric_limits<int32_t>::min();
-  constexpr int32_t right = 10;
-  constexpr int32_t bottom = std::numeric_limits<int32_t>::max();
+  constexpr PxValue left(1);
+  constexpr PxValue top(std::numeric_limits<int32_t>::min());
+  constexpr PxValue right(10);
+  constexpr PxValue bottom(std::numeric_limits<int32_t>::max());
   auto value = PxRectangle2D::FromLeftTopRightBottom(left, top, right, bottom);
 
-  constexpr PxExtent2D expectedExtent(static_cast<uint32_t>(static_cast<uint64_t>(right) - static_cast<uint64_t>(left)),
-                                      static_cast<uint32_t>(static_cast<uint64_t>(bottom) - static_cast<uint64_t>(top)));
+  constexpr auto expectedExtent = PxExtent2D::Create(static_cast<uint32_t>(static_cast<uint64_t>(right.Value) - static_cast<uint64_t>(left.Value)),
+                                                     static_cast<uint32_t>(static_cast<uint64_t>(bottom.Value) - static_cast<uint64_t>(top.Value)));
+
+  EXPECT_EQ(PxPoint2(left, top), value.Offset);
+  EXPECT_EQ(expectedExtent, value.Extent);
+}
+
+TEST(TestMathPixel_PxRectangle2D, UncheckedFromLeftTopRightBottom_YMinYMax)
+{
+  constexpr PxValue left(1);
+  constexpr PxValue top(std::numeric_limits<int32_t>::min());
+  constexpr PxValue right(10);
+  constexpr PxValue bottom(std::numeric_limits<int32_t>::max());
+  auto value = PxRectangle2D::UncheckedFromLeftTopRightBottom(left, top, right, bottom);
+
+  constexpr auto expectedExtent = PxExtent2D::Create(static_cast<uint32_t>(static_cast<uint64_t>(right.Value) - static_cast<uint64_t>(left.Value)),
+                                                     static_cast<uint32_t>(static_cast<uint64_t>(bottom.Value) - static_cast<uint64_t>(top.Value)));
 
   EXPECT_EQ(PxPoint2(left, top), value.Offset);
   EXPECT_EQ(expectedExtent, value.Extent);
@@ -115,36 +182,45 @@ TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_YMinYMax)
 
 TEST(TestMathPixel_PxRectangle2D, FromLeftTopRightBottom_Invalid)
 {
-  auto rectangle0 = PxRectangle2D::FromLeftTopRightBottom(1, 2, -10, 20);
-  auto rectangle1 = PxRectangle2D::FromLeftTopRightBottom(1, 2, 10, -20);
+  const auto left = PxValue::Create(1);
+  const auto top = PxValue::Create(2);
 
-  EXPECT_EQ(PxPoint2(1, 2), rectangle0.Offset);
-  EXPECT_EQ(PxPoint2(1, 2), rectangle1.Offset);
-  EXPECT_EQ(PxExtent2D(0, 18), rectangle0.Extent);
-  EXPECT_EQ(PxExtent2D(9, 0), rectangle1.Extent);
+  const auto right0 = PxValue::Create(-10);
+  const auto right1 = PxValue::Create(10);
+
+  const auto bottom0 = PxValue::Create(20);
+  const auto bottom1 = PxValue::Create(-20);
+
+  auto rectangle0 = PxRectangle2D::FromLeftTopRightBottom(left, top, right0, bottom0);
+  auto rectangle1 = PxRectangle2D::FromLeftTopRightBottom(left, top, right1, bottom1);
+
+  EXPECT_EQ(PxPoint2(left, top), rectangle0.Offset);
+  EXPECT_EQ(PxPoint2(left, top), rectangle1.Offset);
+  EXPECT_EQ(PxExtent2D::Create(0, 18), rectangle0.Extent);
+  EXPECT_EQ(PxExtent2D::Create(9, 0), rectangle1.Extent);
 }
 
 TEST(TestMathPixel_PxRectangle2D, Center)
 {
-  uint16_t x = 10;
-  uint16_t y = 12;
-  uint32_t width = 10;
-  uint32_t height = 20;
+  PxValue x(10);
+  PxValue y(12);
+  PxValueU width(10);
+  PxValueU height(20);
   PxRectangle2D value(x, y, width, height);
 
   EXPECT_EQ(PxPoint2(x, y), value.Offset);
   EXPECT_EQ(PxExtent2D(width, height), value.Extent);
 
-  EXPECT_EQ(PxPoint2(x + (width / 2), y + (height / 2)), value.Center());
+  EXPECT_EQ(PxPoint2::Create(x.Value + (width.Value / 2), y.Value + (height.Value / 2)), value.Center());
 }
 
 TEST(TestMathPixel_PxRectangle2D, Contains_int32_int32)
 {
-  uint16_t x = 10;
-  uint16_t y = 12;
-  uint32_t width = 10;
-  uint32_t height = 20;
-  PxRectangle2D value(x, y, width, height);
+  const int32_t x(10);
+  const int32_t y(12);
+  const uint16_t width = 10;
+  const uint16_t height = 10;
+  const auto value = PxRectangle2D::Create(x, y, width, height);
 
   EXPECT_TRUE(value.Contains(x, y));
   EXPECT_TRUE(value.Contains(x + width - 1, y));
@@ -157,31 +233,49 @@ TEST(TestMathPixel_PxRectangle2D, Contains_int32_int32)
   EXPECT_FALSE(value.Contains(x + width, y));
 }
 
+TEST(TestMathPixel_PxRectangle2D, Contains_PxValue_PxValue)
+{
+  const int32_t x(10);
+  const int32_t y(12);
+  const uint16_t width = 10;
+  const uint16_t height = 10;
+  const auto value = PxRectangle2D::Create(x, y, width, height);
+
+  EXPECT_TRUE(value.Contains(PxValue(x), PxValue(y)));
+  EXPECT_TRUE(value.Contains(PxValue(x + width - 1), PxValue(y)));
+  EXPECT_TRUE(value.Contains(PxValue(x), PxValue(y + height - 1)));
+  EXPECT_TRUE(value.Contains(PxValue(x + width - 1), PxValue(y + height - 1)));
+
+  EXPECT_FALSE(value.Contains(PxValue(x - 1), PxValue(y)));
+  EXPECT_FALSE(value.Contains(PxValue(x), PxValue(y - 1)));
+  EXPECT_FALSE(value.Contains(PxValue(x), PxValue(y + height)));
+  EXPECT_FALSE(value.Contains(PxValue(x + width), PxValue(y)));
+}
 
 TEST(TestMathPixel_PxRectangle2D, Contains_PxPoint2)
 {
-  uint16_t x = 10;
-  uint16_t y = 12;
-  uint32_t width = 10;
-  uint32_t height = 20;
-  PxRectangle2D value(x, y, width, height);
+  const int32_t x(10);
+  const int32_t y(12);
+  const uint16_t width = 10;
+  const uint16_t height = 10;
+  const auto value = PxRectangle2D::Create(x, y, width, height);
 
-  EXPECT_TRUE(value.Contains(PxPoint2(x, y)));
-  EXPECT_TRUE(value.Contains(PxPoint2(x + width - 1, y)));
-  EXPECT_TRUE(value.Contains(PxPoint2(x, y + height - 1)));
-  EXPECT_TRUE(value.Contains(PxPoint2(x + width - 1, y + height - 1)));
+  EXPECT_TRUE(value.Contains(PxPoint2::Create(x, y)));
+  EXPECT_TRUE(value.Contains(PxPoint2::Create(x + width - 1, y)));
+  EXPECT_TRUE(value.Contains(PxPoint2::Create(x, y + height - 1)));
+  EXPECT_TRUE(value.Contains(PxPoint2::Create(x + width - 1, y + height - 1)));
 
-  EXPECT_FALSE(value.Contains(PxPoint2(x - 1, y)));
-  EXPECT_FALSE(value.Contains(PxPoint2(x, y - 1)));
-  EXPECT_FALSE(value.Contains(PxPoint2(x, y + height)));
-  EXPECT_FALSE(value.Contains(PxPoint2(x + width, y)));
+  EXPECT_FALSE(value.Contains(PxPoint2::Create(x - 1, y)));
+  EXPECT_FALSE(value.Contains(PxPoint2::Create(x, y - 1)));
+  EXPECT_FALSE(value.Contains(PxPoint2::Create(x, y + height)));
+  EXPECT_FALSE(value.Contains(PxPoint2::Create(x + width, y)));
 }
 
 TEST(TestMathPixel_PxRectangle2D, Intersects)
 {
-  PxRectangle2D rect1(0, 0, 10, 10);
-  PxRectangle2D rect2(1, 1, 9, 9);
-  PxRectangle2D rect3(11, 0, 10, 10);
+  PxRectangle2D rect1 = PxRectangle2D::Create(0, 0, 10, 10);
+  PxRectangle2D rect2 = PxRectangle2D::Create(1, 1, 9, 9);
+  PxRectangle2D rect3 = PxRectangle2D::Create(11, 0, 10, 10);
 
   auto res1 = PxRectangle2D::Intersect(rect1, rect2);
   auto res2 = PxRectangle2D::Intersect(rect2, rect1);
@@ -195,14 +289,14 @@ TEST(TestMathPixel_PxRectangle2D, Intersects)
 
 TEST(TestMathPixel_PxRectangle2D, Union)
 {
-  const PxRectangle2D rect1(0, 0, 5, 5);
-  const PxRectangle2D rect2(0, -1, 4, 5);
+  const auto rect1 = PxRectangle2D::Create(0, 0, 5, 5);
+  const auto rect2 = PxRectangle2D::Create(0, -1, 4, 5);
 
   auto res = PxRectangle2D::Union(rect1, rect2);
 
   // 0, 5 |  0, 4
   // 0, 5 | -1, 4
-  EXPECT_EQ(PxRectangle2D::FromLeftTopRightBottom(0, -1, 5, 5), res);
+  EXPECT_EQ(PxRectangle2D::CreateFromLeftTopRightBottom(0, -1, 5, 5), res);
 }
 
 
@@ -234,14 +328,14 @@ TEST(TestMathPixel_PxRectangle2D, Intersects_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr PxRectangle2D rectB(4, 3, 6u, 5u);
+    constexpr auto rectB = PxRectangle2D::Create(4, 3, 6u, 5u);
 
     for (int32_t y = 0; y < 10; ++y)
     {
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        PxRectangle2D rectA(x, y, 4u, 3u);
+        const auto rectA = PxRectangle2D::Create(x, y, 4u, 3u);
         EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
         EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
       }
@@ -278,14 +372,14 @@ TEST(TestMathPixel_PxRectangle2D, Intersect_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr PxRectangle2D rectB(4, 3, 6u, 5u);
+    constexpr auto rectB = PxRectangle2D::Create(4, 3, 6u, 5u);
 
     for (int32_t y = 0; y < 10; ++y)
     {
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        PxRectangle2D rectA(x, y, 4u, 3u);
+        auto rectA = PxRectangle2D::Create(x, y, 4u, 3u);
 
         auto res1 = PxRectangle2D::Intersect(rectA, rectB);
         auto res2 = PxRectangle2D::Intersect(rectB, rectA);
@@ -307,13 +401,13 @@ TEST(TestMathPixel_PxRectangle2D, Intersect_BruteForce)
 
 TEST(TestMathPixel_PxRectangle2D, Union_BruteForce)
 {
-  constexpr PxRectangle2D rectB(4, 3, 6u, 5u);
+  constexpr auto rectB = PxRectangle2D::Create(4, 3, 6u, 5u);
 
   for (int32_t y = 0; y < 10; ++y)
   {
     for (int32_t x = 0; x < 11; ++x)
     {
-      PxRectangle2D rectA(x, y, 4u, 3u);
+      auto rectA = PxRectangle2D::Create(x, y, 4u, 3u);
 
       auto res1 = PxRectangle2D::Union(rectA, rectB);
       auto res2 = PxRectangle2D::Union(rectB, rectA);

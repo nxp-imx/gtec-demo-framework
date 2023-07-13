@@ -47,7 +47,7 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxTrimmedImage, Log)
 {
-  constexpr PxTrimmedImage value(PxSize2D(1, 2), PxThicknessF(3.0f, 4.0f, 5.0f, 6.0f), PxSize2DF(7.0f, 8.0f));
+  constexpr PxTrimmedImage value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f), PxSize2DF::Create(7.0f, 8.0f));
 
   std::stringstream stream;
   stream << value;

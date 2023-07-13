@@ -9,8 +9,8 @@
     <Platform Name="Android">
       <Dependency Name="FslUtil.EGL"/>
       <Dependency Name="gli" Access="Private"/>
-      <Dependency Name="Platform.Android.Glue" Access="Private"/>
-      <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
+      <Dependency Name="Platform.Android.GameActivity" Access="Private"/>
+      <!--Dependency Name="Platform.Android.NDKHelper" Access="Private"/-->
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
       <Dependency Name="half" Access="Private"/>
     </Platform>

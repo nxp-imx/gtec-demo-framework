@@ -59,8 +59,8 @@ namespace Fsl::Graphics3D
       Vector2 scaledPoint;
 
       // Adjust point coords and scale down to range of [-1 ... 1]
-      scaledPoint.X = (static_cast<float>(point.X) * screenResolutionBounds.X) - 1.0f;
-      scaledPoint.Y = 1.0f - (static_cast<float>(point.Y) * screenResolutionBounds.Y);
+      scaledPoint.X = (static_cast<float>(point.X.Value) * screenResolutionBounds.X) - 1.0f;
+      scaledPoint.Y = 1.0f - (static_cast<float>(point.Y.Value) * screenResolutionBounds.Y);
 
       // Compute the square of the length of the vector to the point from the center
       const float length = (scaledPoint.X * scaledPoint.X) + (scaledPoint.Y * scaledPoint.Y);
@@ -117,7 +117,7 @@ namespace Fsl::Graphics3D
 
   void ArcballCamera::SetScreenResolution(const PxPoint2& screenResolution)
   {
-    if (screenResolution.X < 1 || screenResolution.Y < 1)
+    if (screenResolution.X.Value < 1 || screenResolution.Y.Value < 1)
     {
       throw std::invalid_argument("Invalid resolution");
     }
@@ -127,8 +127,8 @@ namespace Fsl::Graphics3D
   void ArcballCamera::SetScreenResolution(const PxSize2D& screenResolution)
   {
     // Set adjustment factor for width/height
-    m_screenResolutionBounds = Vector2(1.0f / ((static_cast<float>(screenResolution.Width()) - 1.0f) * 0.5f),
-                                       1.0f / ((static_cast<float>(screenResolution.Height()) - 1.0f) * 0.5f));
+    m_screenResolutionBounds = Vector2(1.0f / ((static_cast<float>(screenResolution.RawWidth()) - 1.0f) * 0.5f),
+                                       1.0f / ((static_cast<float>(screenResolution.RawHeight()) - 1.0f) * 0.5f));
   }
 
 

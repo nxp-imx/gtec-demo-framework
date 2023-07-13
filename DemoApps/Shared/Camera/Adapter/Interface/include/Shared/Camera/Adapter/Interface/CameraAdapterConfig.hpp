@@ -48,7 +48,7 @@ namespace Fsl::Helios
     CameraAdapterConfig() = default;
 
     CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat)
-      : CameraAdapterConfig(extent, activePixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, activePixelFormat))
+      : CameraAdapterConfig(extent, activePixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width.Value, activePixelFormat))
     {
     }
 

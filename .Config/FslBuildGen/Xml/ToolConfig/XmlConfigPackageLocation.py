@@ -42,18 +42,25 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlConfigPackageLocationBlacklist(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlConfigPackageLocation(XmlBase):
+    __AttribName = 'Name'
+    __AttribScanMethod = 'ScanMethod'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes({self.__AttribName, self.__AttribScanMethod})
         defaultScanMethod = ScanMethod.Directory
-        self.Name = self._ReadAttrib(xmlElement, 'Name') # type: str
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName) # type: str
         self.Blacklist = self.__LoadBlacklist(xmlElement)
-        self.ScanMethod = ScanMethod.FromString(self._ReadAttrib(xmlElement, 'ScanMethod', ScanMethod.ToString(defaultScanMethod)))
+        self.ScanMethod = ScanMethod.FromString(self._ReadAttrib(xmlElement, self.__AttribScanMethod, ScanMethod.ToString(defaultScanMethod)))
         self.Id = self.Name.lower() if self.Name is not None else None
         self.ResolvedActualPath = None
 

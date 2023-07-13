@@ -64,9 +64,9 @@ namespace Fsl
 
   namespace MeshInstancingConfig
   {
-    constexpr uint32_t ModelMaxInstancesX = 10;
-    constexpr uint32_t ModelMaxInstancesY = 10;
-    constexpr uint32_t ModelMaxInstancesZ = 10;
+    constexpr uint32_t ModelMaxInstancesX = 5;
+    constexpr uint32_t ModelMaxInstancesY = 5;
+    constexpr uint32_t ModelMaxInstancesZ = 5;
     constexpr uint32_t ModelMaxInstances = ModelMaxInstancesX * ModelMaxInstancesY * ModelMaxInstancesZ;
   }
 

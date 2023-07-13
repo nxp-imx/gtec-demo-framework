@@ -102,7 +102,7 @@ TYPED_TEST(TestFixtureFslGraphics_Bitmap, CheckScopedDirectReadAccess)
   EXPECT_EQ(rawBitmap.Height(), height);
   EXPECT_EQ(rawBitmap.Stride(), minStride);
   EXPECT_EQ(rawBitmap.GetByteSize(), bufferLength);
-  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D(width, height));
+  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D::Create(width, height));
   EXPECT_EQ(rawBitmap.GetOrigin(), expectedBitmapOrigin);
   EXPECT_EQ(rawBitmap.GetPixelFormat(), pixelFormat);
   EXPECT_EQ(rawBitmap.GetPixelFormatLayout(), pixelLayout);
@@ -151,7 +151,7 @@ TYPED_TEST(TestFixtureFslGraphics_Bitmap, CheckScopedDirectReadWriteAccess)
   EXPECT_EQ(rawBitmap.Height(), height);
   EXPECT_EQ(rawBitmap.Stride(), minStride);
   EXPECT_EQ(rawBitmap.GetByteSize(), bufferLength);
-  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D(width, height));
+  EXPECT_EQ(rawBitmap.GetExtent(), PxExtent2D::Create(width, height));
   EXPECT_EQ(rawBitmap.GetOrigin(), expectedBitmapOrigin);
   EXPECT_EQ(rawBitmap.GetPixelFormat(), pixelFormat);
   EXPECT_EQ(rawBitmap.GetPixelFormatLayout(), pixelLayout);

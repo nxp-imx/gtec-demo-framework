@@ -32,6 +32,7 @@
 
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/ITag.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
@@ -41,12 +42,10 @@
 #include <android/log.h>
 #include <android/native_window_jni.h>
 #include <android/sensor.h>
-#include <android_native_app_glue.h>
 #include <errno.h>
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #include <jni.h>
 #include <memory>
-#include "NDKHelper.h"
-
 
 #define SYNC_CLASS_NAME "com/freescale/demoplatform/DemoHelper"
 
@@ -58,16 +57,16 @@ namespace Fsl
     pAppState->activity->vm->AttachCurrentThread(&jni, nullptr);
 
     // Default class retrieval
-    jclass clazz = jni->GetObjectClass(pAppState->activity->clazz);
+    jclass clazz = jni->GetObjectClass(pAppState->activity->javaGameActivity);
     jmethodID methodID0 = jni->GetMethodID(clazz, "GetCommandLineArgumentCount", "()I");
     jmethodID methodID1 = jni->GetMethodID(clazz, "TryGetCommandLineArgument", "(I)Ljava/lang/String;");
-    jint argCount = jni->CallIntMethod(pAppState->activity->clazz, methodID0);
+    jint argCount = jni->CallIntMethod(pAppState->activity->javaGameActivity, methodID0);
 
     std::vector<std::string> args(argCount >= 0 ? argCount : 0);
 
     for (jint i = 0; i < argCount; ++i)
     {
-      jstring argument = (jstring)jni->CallObjectMethod(pAppState->activity->clazz, methodID1, i);
+      jstring argument = (jstring)jni->CallObjectMethod(pAppState->activity->javaGameActivity, methodID1, i);
       const char* pszArgument = jni->GetStringUTFChars(argument, nullptr);
       args[i].assign(pszArgument);
       jni->ReleaseStringUTFChars(argument, pszArgument);
@@ -79,20 +78,20 @@ namespace Fsl
     return args;
   }
 
-  int AndroidMain(android_app* state, const char* const pszHelperClassName)
+  int AndroidMain(android_app* state)
   {
     // LogConfig::SetLogLevel(LogType::Verbose4);
 
     // Init helper functions
-    ndk_helper::JNIHelper::Init(state->activity, pszHelperClassName);
     JNIUtil::Init(state->activity, SYNC_CLASS_NAME);
 
-    const std::string externalFilesDir = ndk_helper::JNIHelper::GetInstance()->GetExternalFilesDir();
+    const std::string externalFilesDir = JNIUtil::GetInstance()->GetExternalFilesDir();
 
     const IO::Path baseDir(JNIUtil::GetInstance()->SyncNow());
     const IO::Path contentDir = IO::Path::Combine(baseDir, "fsl-content");
     const IO::Path saveDir = IO::Path::Combine(baseDir, "fsl-save");
 
+    FSLLOG3_INFO("PersistentDataPath: {}", saveDir);
 
 #ifdef USE_NDK_PROFILER
     monstartup("libDemoNativeActivity.so");

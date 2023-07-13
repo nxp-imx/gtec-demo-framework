@@ -40,7 +40,7 @@ import os
 import os.path
 import subprocess
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase

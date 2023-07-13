@@ -19,8 +19,8 @@
         </Installation>
       </ExperimentalRecipe>
     </Platform>
-    <Platform Name="Windows" Supported="true" Find="true">
-      <ExperimentalRecipe Name="benchmark" Version="1.6" FindTargetName="benchmark::benchmark benchmark::benchmark_main">
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="benchmark" Version="1.6" FindTargetName="benchmark::benchmark benchmark::benchmark_main" Find="true">
         <Pipeline>
           <Download URL="https://github.com/google/benchmark/archive/refs/tags/v1.6.1.tar.gz" To="googlebenchmark-1.6.1.tar.gz" Hash="6132883bc8c9b0df5375b16ab520fac1a85dc9e4cf5be59480448ece74b278d4"/>
           <Unpack File="googlebenchmark-1.6.1.tar.gz" OutputPath="benchmark-1.6.1"/>

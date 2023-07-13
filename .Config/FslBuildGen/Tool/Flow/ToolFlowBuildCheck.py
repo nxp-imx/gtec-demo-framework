@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
@@ -66,7 +67,10 @@ from FslBuildGen.DataTypes import ClangTidyProfile
 from FslBuildGen.DataTypes import ClangTidyProfileString
 from FslBuildGen.DataTypes import PackageLanguage
 #from FslBuildGen.Generator import PluginConfig
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Generator.GeneratorPlugin import GenerateContext
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.GitUtil import GitUtil
 from FslBuildGen.Log import Log
@@ -248,11 +252,11 @@ class ToolFlowBuildCheck(AToolAppFlow):
         #localToolConfig.Legacy = True
 
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         # create a config we control and that can be used to just build the tool recipe's
         configToolCheck = Config(self.Log, toolConfig, PluginSharedValues.TYPE_DEFAULT,
-                                 localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                                 localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
         if localToolConfig.DryRun:
             config.ForceDisableAllWrite()
             configToolCheck.ForceDisableAllWrite()
@@ -273,7 +277,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         packageFilters = localToolConfig.BuildPackageFilters
 
         # Get the platform and see if its supported
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         if localToolConfig.Legacy and applyClangTidy and config.ToolConfig.CMakeConfiguration is not None:
             # For the LEGACY clangTidy implementation we disable allow find package for the build checks for now as we dont use cmake for those
             # We basically have to update the tidy pass to utilize ninja+cmake for the tidy pass so that find_package will work
@@ -332,6 +336,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         if self.Log.Verbosity >= 4:
             self.Log.LogPrint("Closest '{0}' file path: '{1}'".format(toolConfig.GenFileName, closestGenFilePath))
 
+        engineResolveConfig = EngineResolveConfig.CreateDefault()
         packageProcess = None   # type: Optional[MainFlow.PackageLoadAndResolveProcess]
         packages = None
         discoverFeatureList = '*' in packageFilters.FeatureNameList
@@ -342,13 +347,14 @@ class ToolFlowBuildCheck(AToolAppFlow):
                 packageProcess = self.__CreatePackageProcess(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), closestGenFilePath, localToolConfig.Recursive,
                                                              generatorContext.Platform, toolPackageNames)
                 doFullResolve = formatTool == FormatTool.DotnetFormat
-                packageProcess.Resolve(generatorContext, packageFilters, applyClangTidy, doFullResolve)
+                packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints,
+                                       applyClangTidy, doFullResolve)
                 packages = packageProcess.Packages
                 topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
                 if discoverFeatureList:
                     packageFilters.FeatureNameList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
                 if formatTool == FormatTool.DotnetFormat:
-                    generator.Generate(generatorContext, config, packageProcess.Packages)
+                    generator.Generate(GenerateContext(generatorContext, config, packageProcess.Packages, config.VariantConstraints))
 
 
         customPackageFileFilter = None   # type: Optional[CustomPackageFileFilter]
@@ -359,7 +365,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
                                                              generatorContext.Platform, toolPackageNames)
             if not packageProcess.IsFullResolve or packages is None:
                 # For now this requires a full resolve (but basically it only requires basic + files)
-                packages = packageProcess.Resolve(generatorContext, packageFilters, applyClangTidy, True)
+                packages = packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints, applyClangTidy, True)
 
             topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
             RecipeBuilder.ValidateInstallationForPackages(config, config.SDKPath, generatorContext, topLevelPackage.ResolvedBuildOrder)
@@ -373,8 +379,10 @@ class ToolFlowBuildCheck(AToolAppFlow):
         if applyClangTidy or applyFormat or localToolConfig.ScanSource or localToolConfig.ScanLicense:
             addExternals = applyClangTidy
             filteredPackageList, theTopLevelPackage = self.__PreparePackages(self.Log, localToolConfig,
-                                                                             packageProcess, generatorContext, packageFilters, addExternals,
-                                                                             packages, config.IsSDKBuild, applyClangTidy, config)
+                                                                             packageProcess, generatorContext, packageFilters,
+                                                                             config.VariantConstraints, addExternals,
+                                                                             packages, config.IsSDKBuild, applyClangTidy, config,
+                                                                             engineResolveConfig)
             if len(filteredPackageList) <= 0:
                 self.Log.DoPrint("No supported packages left to process")
                 return
@@ -408,14 +416,16 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
     def __PreparePackages(self, log: Log, localToolConfig: LocalToolConfig,
                           packageProcess: Optional[MainFlow.PackageLoadAndResolveProcess],
-                          generatorContext: GeneratorContext, packageFilters: PackageFilters, addExternals: bool,
+                          generatorContext: GeneratorContext, packageFilters: PackageFilters,
+                          unresolvedExternalFlavorConstraintsDict: ExternalVariantConstraints, addExternals: bool,
                           packages: Optional[List[Package]], isSdkBuild: bool,
-                          applyClangTidy: bool, config: Config) -> Tuple[List[Package], Package]:
+                          applyClangTidy: bool, config: Config, engineResolveConfig: EngineResolveConfig) -> Tuple[List[Package], Package]:
         if packages is None or packageProcess is None:
             raise Exception("Packages can not be None")
         if not packageProcess.IsFullResolve:
             # For now this requires a full resolve (but basically it only requires basic + files)
-            packages = packageProcess.Resolve(generatorContext, packageFilters, addExternals, True)
+            packages = packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig,
+                                              unresolvedExternalFlavorConstraintsDict, addExternals, True)
 
         if applyClangTidy:
             if packages is None:
@@ -427,8 +437,13 @@ class ToolFlowBuildCheck(AToolAppFlow):
             specifiedPackages = list(packages)
         else:
             packageDict = {}
+            # Due to flavors a package file can lead to more than one package
             for package in packages:
-                packageDict[package.Name] = package
+                sourcePackageName = package.NameInfo.SourceName
+                if sourcePackageName not in packageDict:
+                    packageDict[sourcePackageName] = package
+                else:
+                    log.LogPrintVerbose(4, "Skipping '{0}' as it shared source name '{1}' was added as '{2}'".format(package.Name, sourcePackageName, packageDict[sourcePackageName]))
             for entry in packageProcess.FoundInputFiles:
                 packageName = entry.PackageName
                 if packageName in packageDict:
@@ -450,7 +465,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         if localToolConfig.Legacy:
             # Generate the build files (so that the run scripts exist)
             log.LogPrint("Generating build files")
-            generator.Generate(generatorContext, config, tidyPackageList)
+            generator.Generate(GenerateContext(generatorContext, config, tidyPackageList, config.VariantConstraints))
 
         clangFormatFilename = None if toolConfig.ClangFormatConfiguration is None else toolConfig.ClangFormatConfiguration.CustomFormatFile
 
@@ -465,7 +480,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
                                                             localToolConfig.BuildPackageFilters.RecipeFilterManager)
 
         PerformClangTidy.Run(log, toolConfig, localToolConfig.UserSetVariables, generatorContext.Generator.PlatformId,
-                             topLevelPackage, tidyPackageList, localToolConfig.BuildVariantsDict, pythonScriptRoot,
+                             topLevelPackage, tidyPackageList, localToolConfig.BuildVariantConstraints, pythonScriptRoot,
                              generatorContext, config.SDKConfigTemplatePath, packageRecipeResultManager, performClangTidyConfig,
                              customPackageFileFilter, clangFormatFilename, localToolConfig.BuildThreads, localToolConfig.Legacy,
                              tidyBuildGeneratorConfig)

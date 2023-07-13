@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -203,18 +203,18 @@ TEST(TestMathPixel_PxSize1DF, Add_PxValueF_PxSize1DF)
 {
   const auto val1 = PxValueF::Create(10);
   const auto val2 = PxSize1DF::Create(5);
-  PxSize1DF val3 = PxSize1DF::Add(val1, val2);
+  PxValueF val3 = PxSize1DF::Add(val1, val2);
 
-  EXPECT_EQ(PxSize1DF::Create(15), val3);
+  EXPECT_FLOAT_EQ(PxSize1DF::Create(15).RawValue(), val3.Value);
 }
 
 TEST(TestMathPixel_PxSize1DF, Add_PxSize1DF_PxValueF)
 {
   const auto val1 = PxSize1DF::Create(10);
   const auto val2 = PxValueF::Create(5);
-  PxSize1DF val3 = PxSize1DF::Add(val1, val2);
+  PxValueF val3 = PxSize1DF::Add(val1, val2);
 
-  EXPECT_EQ(PxSize1DF::Create(15), val3);
+  EXPECT_FLOAT_EQ(PxSize1DF::Create(15).RawValue(), val3.Value);
 }
 
 
@@ -857,9 +857,9 @@ TEST(TestMathPixel_PxSize1DF, OpAdd_PxValueF_PxSize1DF)
 {
   const auto val1 = PxValueF::Create(10);
   const auto val2 = PxSize1DF::Create(1);
-  const PxSize1DF sum = val1 + val2;
+  const PxValueF sum = val1 + val2;
 
-  EXPECT_EQ(val1 + val2.Value(), sum.Value());
+  EXPECT_FLOAT_EQ(val1.Value + val2.RawValue(), sum.Value);
 }
 
 
@@ -867,9 +867,9 @@ TEST(TestMathPixel_PxSize1DF, OpAdd_PxValueF_Negative_PxSize1DF)
 {
   const auto val1 = PxValueF::Create(-10);
   const auto val2 = PxSize1DF::Create(100);
-  const PxSize1DF sum = val1 + val2;
+  const PxValueF sum = val1 + val2;
 
-  EXPECT_EQ(val1 + val2.Value(), sum.Value());
+  EXPECT_FLOAT_EQ(val1.Value + val2.RawValue(), sum.Value);
 }
 
 
@@ -877,9 +877,9 @@ TEST(TestMathPixel_PxSize1DF, OpAdd_PxSize1DF_PxValueF)
 {
   const auto val1 = PxSize1DF::Create(10);
   const auto val2 = PxValueF::Create(1);
-  const PxSize1DF sum = val1 + val2;
+  const PxValueF sum = val1 + val2;
 
-  EXPECT_EQ(val1.Value() + val2, sum.Value());
+  EXPECT_FLOAT_EQ(val1.RawValue() + val2.Value, sum.Value);
 }
 
 
@@ -887,9 +887,9 @@ TEST(TestMathPixel_PxSize1DF, OpAdd_PxSize1DF_PxValueF_Negative)
 {
   const auto val1 = PxSize1DF::Create(10);
   const auto val2 = PxValueF::Create(-1);
-  const PxSize1DF sum = val1 + val2;
+  const PxValueF sum = val1 + val2;
 
-  EXPECT_EQ(val1.Value() + val2, sum.Value());
+  EXPECT_FLOAT_EQ(val1.RawValue() + val2.Value, sum.Value);
 }
 
 
@@ -899,7 +899,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_PxSize1DF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(1);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ(val1.Value() - val2.Value(), sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() - val2.RawValue(), sum.Value);
 }
 
 
@@ -909,7 +909,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_PxValueF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(1);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ(val1 - val2.Value(), sum);
+  EXPECT_FLOAT_EQ(val1.Value - val2.RawValue(), sum.Value);
 }
 
 
@@ -919,7 +919,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_PxSize1DF_PxValueF)
   const auto val2 = PxValueF::Create(1);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ(val1.Value() - val2, sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() - val2.Value, sum.Value);
 }
 
 
@@ -929,7 +929,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_PxValueF_Negative_PxSize1DF)
   const auto val2 = PxSize1DF::Create(100);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ((val1 - val2.Value()), sum);
+  EXPECT_FLOAT_EQ(val1.Value - val2.RawValue(), sum.Value);
 }
 
 
@@ -939,7 +939,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_PxSize1DF_PxValueF_Negative)
   const auto val2 = PxValueF::Create(-1);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ(val1.Value() - val2, sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() - val2.Value, sum.Value);
 }
 
 
@@ -949,7 +949,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_NegativeResult_PxSize1DF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(11);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ((val1.Value() - val2.Value()), sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() - val2.RawValue(), sum.Value);
 }
 
 
@@ -959,7 +959,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_NegativeResult_PxValueF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(11);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ((val1 - val2.Value()), sum);
+  EXPECT_FLOAT_EQ(val1.Value - val2.RawValue(), sum.Value);
 }
 
 
@@ -969,7 +969,7 @@ TEST(TestMathPixel_PxSize1DF, OpSub_NegativeResult_PxSize1DF_PxValueF)
   const auto val2 = PxValueF::Create(11);
   const PxValueF sum = val1 - val2;
 
-  EXPECT_EQ((val1.Value() - val2), sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() - val2.Value, sum.Value);
 }
 
 
@@ -979,7 +979,7 @@ TEST(TestMathPixel_PxSize1DF, OpMul_PxSize1DF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(2);
   const PxSize1DF sum = val1 * val2;
 
-  EXPECT_EQ(val1.Value() * val2.Value(), sum.Value());
+  EXPECT_FLOAT_EQ(val1.RawValue() * val2.RawValue(), sum.RawValue());
 }
 
 
@@ -989,7 +989,7 @@ TEST(TestMathPixel_PxSize1DF, OpMul_PxValueF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(2);
   const PxValueF sum = val1 * val2;
 
-  EXPECT_EQ(val1 * val2.Value(), sum);
+  EXPECT_FLOAT_EQ(val1.Value * val2.RawValue(), sum.Value);
 }
 
 
@@ -999,7 +999,7 @@ TEST(TestMathPixel_PxSize1DF, OpMul_PxSize1DF_PxValueF)
   const auto val2 = PxValueF::Create(2);
   const PxValueF sum = val1 * val2;
 
-  EXPECT_EQ(val1.Value() * val2, sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() * val2.Value, sum.Value);
 }
 
 
@@ -1009,7 +1009,7 @@ TEST(TestMathPixel_PxSize1DF, OpMul_PxSize1DF_PxValueF_Negative)
   const auto val2 = PxValueF::Create(-2);
   const PxValueF sum = val1 * val2;
 
-  EXPECT_EQ((val1.Value() * val2), sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() * val2.Value, sum.Value);
 }
 
 TEST(TestMathPixel_PxSize1DF, OpDiv_PxSize1DF_PxSize1DF)
@@ -1018,7 +1018,7 @@ TEST(TestMathPixel_PxSize1DF, OpDiv_PxSize1DF_PxSize1DF)
   const auto val2 = PxSize1DF::Create(2);
   const PxSize1DF sum = val1 / val2;
 
-  EXPECT_EQ(val1.Value() / val2.Value(), sum.Value());
+  EXPECT_FLOAT_EQ(val1.RawValue() / val2.RawValue(), sum.RawValue());
 }
 
 TEST(TestMathPixel_PxSize1DF, OpDiv_PxSize1DF_PxValueF)
@@ -1027,7 +1027,7 @@ TEST(TestMathPixel_PxSize1DF, OpDiv_PxSize1DF_PxValueF)
   const auto val2 = PxValueF::Create(2);
   const PxValueF sum = val1 / val2;
 
-  EXPECT_EQ(val1.Value() / val2, sum);
+  EXPECT_FLOAT_EQ(val1.RawValue() / val2.Value, sum.Value);
 }
 
 TEST(TestMathPixel_PxSize1DF, OpDiv_PxSize1DF_PxValueF_Negative)
@@ -1036,5 +1036,5 @@ TEST(TestMathPixel_PxSize1DF, OpDiv_PxSize1DF_PxValueF_Negative)
   const auto val2 = PxValueF::Create(-2);
   const PxValueF sum = val1 / val2;
 
-  EXPECT_EQ((val1.Value() / val2), sum);
+  EXPECT_FLOAT_EQ((val1.RawValue() / val2.Value), sum.Value);
 }

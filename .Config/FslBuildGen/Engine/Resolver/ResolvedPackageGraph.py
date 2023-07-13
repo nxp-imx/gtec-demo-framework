@@ -91,6 +91,7 @@ class ResolvedPackageGraph(object):
         self.__uniqueNodeDict = dict() # type: Dict[ResolvedPackage, ResolvedPackageGraphNode]
         self.__instanceNodeDict = dict() # type: Dict[PackageName, ResolvedPackageGraphNode]
         self.__nodes = [] # type: List[ResolvedPackageGraphNode]
+        self.HasExternalContraints = False
 
     def DebugNodes(self) -> List[ResolvedPackageGraphNode]:
         return self.__nodes
@@ -125,3 +126,9 @@ class ResolvedPackageGraph(object):
             toNode = toObj
 
         fromNode.AddEdge(toNode, edgeType, constraint, desc)
+
+    def FindNodesWithNoIncomingDependencies(self) -> List[ResolvedPackageGraphNode]:
+        return [entry for entry in self.__nodes if len(entry.From) <= 0]
+
+    def FindNodesWithNoOutgoingDependencies(self) -> List[ResolvedPackageGraphNode]:
+        return [entry for entry in self.__nodes if len(entry.To) <= 0]

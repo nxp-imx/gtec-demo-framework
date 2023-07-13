@@ -39,6 +39,8 @@ namespace Fsl::UI
   //! For most purposes the 'button' code is identical to the ButtonBase implementation
   class Button : public ContentControl
   {
+    using base_type = ContentControl;
+
     bool m_isEnabled{true};
     bool m_isDown{false};
 

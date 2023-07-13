@@ -54,9 +54,9 @@ namespace Fsl
     inline PxExtent3D CalcExtent(const PxExtent3D& startExtent, const std::size_t level)
     {
       return level == 0 ? startExtent
-                        : PxExtent3D(std::max(startExtent.Width >> level, static_cast<uint32_t>(1u)),
-                                     std::max(startExtent.Height >> level, static_cast<uint32_t>(1u)),
-                                     std::max(startExtent.Depth >> level, static_cast<uint32_t>(1u)));
+                        : PxExtent3D::Create(std::max(startExtent.Width.Value >> level, static_cast<uint32_t>(1u)),
+                                             std::max(startExtent.Height.Value >> level, static_cast<uint32_t>(1u)),
+                                             std::max(startExtent.Depth.Value >> level, static_cast<uint32_t>(1u)));
     }
 
     //! @brief Returns the total texel count
@@ -67,16 +67,16 @@ namespace Fsl
 
       const std::size_t contentByteSize = srcContent.size();
 
-      uint32_t totalTexelCount = 0;
+      PxValueU totalTexelCount;
       PxExtent3D currentExtent = extent;
       for (uint32_t level = 0; level < textureInfo.Levels; ++level)
       {
-        if (level > 0 && (extent.Width == 0 || extent.Height == 0 || extent.Depth == 0))
+        if (level > 0 && (extent.Width.Value == 0 || extent.Height.Value == 0 || extent.Depth.Value == 0))
         {
           throw std::invalid_argument("The number of levels and the start extend causes zero sized extents at some levels");
         }
 
-        const uint32_t currentTexelCount = (currentExtent.Width * currentExtent.Height * currentExtent.Depth);
+        const PxValueU currentTexelCount = (currentExtent.Width * currentExtent.Height * currentExtent.Depth);
         for (uint32_t layer = 0; layer < textureInfo.Layers; ++layer)
         {
           for (uint32_t face = 0; face < textureInfo.Faces; ++face)
@@ -95,8 +95,8 @@ namespace Fsl
 
             if (!isCompressed)
             {
-              const auto stride = static_cast<std::size_t>(PixelFormatUtil::CalcMinimumStride(currentExtent.Width, pixelFormat));
-              const auto expectedSize = currentExtent.Height * stride;
+              const auto stride = static_cast<std::size_t>(PixelFormatUtil::CalcMinimumStride(currentExtent.Width.Value, pixelFormat));
+              const auto expectedSize = currentExtent.Height.Value * stride;
               if (expectedSize != blob.Size)
               {
                 throw std::invalid_argument("Content of the given pixelFormat and extent does not fit the blob size, invalid blob");
@@ -105,11 +105,11 @@ namespace Fsl
             totalTexelCount += currentTexelCount;
           }
         }
-        currentExtent.Width = std::max(currentExtent.Width >> 1, static_cast<uint32_t>(1u));
-        currentExtent.Height = std::max(currentExtent.Height >> 1, static_cast<uint32_t>(1u));
-        currentExtent.Depth = std::max(currentExtent.Depth >> 1, static_cast<uint32_t>(1u));
+        currentExtent.Width = PxValueU::Create(std::max(currentExtent.Width.Value >> 1, static_cast<uint32_t>(1u)));
+        currentExtent.Height = PxValueU::Create(std::max(currentExtent.Height.Value >> 1, static_cast<uint32_t>(1u)));
+        currentExtent.Depth = PxValueU::Create(std::max(currentExtent.Depth.Value >> 1, static_cast<uint32_t>(1u)));
       }
-      return totalTexelCount;
+      return totalTexelCount.Value;
     }
 
     // Dummy area we use to get a content pointer for zero sized bitmaps size the vector data methods returns a nullptr
@@ -372,7 +372,7 @@ namespace Fsl
   PxExtent2D Texture::GetExtent2D(const std::size_t level) const
   {
     auto res = GetExtent(level);
-    if (res.Depth != 1u)
+    if (res.Depth.Value != 1u)
     {
       throw UsageErrorException("GetExtent2D called on a non 2d texture");
     }
@@ -392,7 +392,7 @@ namespace Fsl
     }
 
     const PxExtent3D levelExtent = CalcExtent(m_extent, level);
-    return PixelFormatUtil::CalcMinimumStride(levelExtent.Width, m_pixelFormat);
+    return PixelFormatUtil::CalcMinimumStride(levelExtent.Width.Value, m_pixelFormat);
   }
 
 
@@ -484,24 +484,24 @@ namespace Fsl
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
     const PxExtent3D levelExtent = CalcExtent(m_extent, level);
-    const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
-    if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
+    const auto levelWidthInBytes = (levelExtent.Width.Value * bytesPerPixel);
+    if (x >= levelWidthInBytes || y >= levelExtent.Height.Value || z >= levelExtent.Depth.Value)
     {
       FSLLOG3_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
-      FSLLOG3_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
-      FSLLOG3_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(y >= levelExtent.Height.Value, "y is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(z >= levelExtent.Depth.Value, "z is out of bounds");
       return;
     }
 
-    const uint32_t actualY = ignoreOrigin ? y : (m_bitmapOrigin == BitmapOrigin::UpperLeft ? y : levelExtent.Height - 1 - y);
+    const uint32_t actualY = ignoreOrigin ? y : (m_bitmapOrigin == BitmapOrigin::UpperLeft ? y : levelExtent.Height.Value - 1 - y);
 
     const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
     const auto& rBlobRecord = m_blobs[index];
 
-    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width, bytesPerPixel);
+    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width.Value, bytesPerPixel);
 
     // slizeSize is the size of one 2d image.
-    const auto sliceSize = levelExtent.Height * stride;
+    const auto sliceSize = levelExtent.Height.Value * stride;
 
     m_content[rBlobRecord.Offset + (sliceSize * z) + (stride * actualY) + x] = value;
   }
@@ -520,24 +520,24 @@ namespace Fsl
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
     const PxExtent3D levelExtent = CalcExtent(m_extent, level);
-    const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
-    if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
+    const auto levelWidthInBytes = (levelExtent.Width.Value * bytesPerPixel);
+    if (x >= levelWidthInBytes || y >= levelExtent.Height.Value || z >= levelExtent.Depth.Value)
     {
       FSLLOG3_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
-      FSLLOG3_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
-      FSLLOG3_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(y >= levelExtent.Height.Value, "y is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(z >= levelExtent.Depth.Value, "z is out of bounds");
       return 0;
     }
 
-    const uint32_t actualY = ignoreOrigin ? y : (m_bitmapOrigin == BitmapOrigin::UpperLeft ? y : levelExtent.Height - 1 - y);
+    const uint32_t actualY = ignoreOrigin ? y : (m_bitmapOrigin == BitmapOrigin::UpperLeft ? y : levelExtent.Height.Value - 1 - y);
 
     const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
     const auto& rBlobRecord = m_blobs[index];
 
-    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width, bytesPerPixel);
+    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width.Value, bytesPerPixel);
 
     // slizeSize is the size of one 2d image.
-    const auto sliceSize = levelExtent.Height * stride;
+    const auto sliceSize = levelExtent.Height.Value * stride;
 
     return m_content[rBlobRecord.Offset + (sliceSize * z) + (stride * actualY) + x];
   }
@@ -754,8 +754,8 @@ namespace Fsl
 
     try
     {
-      const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
-      const std::size_t totalByteSize = (extent.Height * minStride);
+      const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat);
+      const std::size_t totalByteSize = (extent.Height.Value * minStride);
 
       m_content.resize(totalByteSize);
       m_blobs.resize(1);
@@ -772,11 +772,11 @@ namespace Fsl
     }
 
     // We don't copy the content here size we 'moved' the source into this object
-    m_extent = PxExtent3D(extent.Width, extent.Height, 1u);
+    m_extent = PxExtent3D(extent.Width, extent.Height, PxValueU(1u));
     m_pixelFormat = pixelFormat;
     m_textureType = TextureType::Tex2D;
     m_textureInfo = TextureInfo(1, 1, 1);
-    m_totalTexels = extent.Width * extent.Height;
+    m_totalTexels = (extent.Width * extent.Height).Value;
     m_bitmapOrigin = CheckBitmapOrigin(origin);
   }
 
@@ -790,8 +790,8 @@ namespace Fsl
       Reset();
     }
 
-    const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
-    const std::size_t totalByteSize = (extent.Height * minStride);
+    const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat);
+    const std::size_t totalByteSize = (extent.Height.Value * minStride);
     if (content.size() != totalByteSize)
     {
       throw std::invalid_argument("the content buffer size is does not match the described content");
@@ -812,11 +812,11 @@ namespace Fsl
     }
 
     // We don't copy the content here size we 'moved' the source into this object
-    m_extent = PxExtent3D(extent.Width, extent.Height, 1u);
+    m_extent = PxExtent3D(extent.Width, extent.Height, PxValueU(1u));
     m_pixelFormat = pixelFormat;
     m_textureType = TextureType::Tex2D;
     m_textureInfo = TextureInfo(1, 1, 1);
-    m_totalTexels = extent.Width * extent.Height;
+    m_totalTexels = extent.Width.Value * extent.Height.Value;
     m_bitmapOrigin = CheckBitmapOrigin(origin);
   }
 
@@ -835,7 +835,7 @@ namespace Fsl
       return {m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(),
               m_extent,      m_pixelFormat,    m_textureInfo,    m_bitmapOrigin};
     }
-    assert((m_extent.Width * m_extent.Height * m_extent.Depth) == 0u);
+    assert((m_extent.Width * m_extent.Height * m_extent.Depth).Value == 0u);
     return {m_textureType, &g_dummyAreaForZeroSizedBitmaps, 0u, m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
             m_bitmapOrigin};
   }
@@ -855,7 +855,7 @@ namespace Fsl
       return {m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(),
               m_extent,      m_pixelFormat,    m_textureInfo,    m_bitmapOrigin};
     }
-    assert((m_extent.Width * m_extent.Height * m_extent.Depth) == 0u);
+    assert((m_extent.Width * m_extent.Height * m_extent.Depth).Value == 0u);
     return {m_textureType, &g_dummyAreaForZeroSizedBitmaps, m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
             m_bitmapOrigin};
   }

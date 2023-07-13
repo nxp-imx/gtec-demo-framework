@@ -194,7 +194,7 @@ class PreResolver(object):
                 else:
                     for introPackageName in requirement2.IntroducedByPackages:
                         uniqueIntroPackage = uniqueRequirementFullIds[requirement2.FullId]
-                        if not introPackageName in uniqueIntroPackage.IntroducedByPackages:
+                        if introPackageName not in uniqueIntroPackage.IntroducedByPackages:
                             uniqueIntroPackage.IntroducedByPackages.add(introPackageName)
 
         # Add this package's direct used requirements to
@@ -209,7 +209,7 @@ class PreResolver(object):
             else:
                 for introPackageName in requirement3.IntroducedByPackages:
                     uniqueIntroPackage = uniqueRequirementFullIds[requirement3.FullId]
-                    if not introPackageName in uniqueIntroPackage.IntroducedByPackages:
+                    if introPackageName not in uniqueIntroPackage.IntroducedByPackages:
                         uniqueIntroPackage.IntroducedByPackages.add(introPackageName)
 
         resResolvedAllRequirements.sort(key=lambda s: s.Id)

@@ -62,6 +62,6 @@ if not defined FSL_CI_TEST_REPORTS (
 )
 
 if not defined FSL_CI_FEATURES (
-set FSL_CI_FEATURES=[ConsoleHost,WindowHost,Test_RequireUserInputToExit,EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.2,Vulkan]
+set FSL_CI_FEATURES=[ConsoleHost,WindowHost,Test_RequireUserInputToExit,EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.2,Vulkan,Lib_NlohmannJson,Lib_pugixml]
 )
 

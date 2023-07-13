@@ -51,10 +51,15 @@ namespace Fsl
       }
     }
 
-    MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags);
+    MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags, const bool isTouch);
 
     //! @brief Get the current position
     PxPoint2 GetPosition() const;
+
+    bool IsTouch() const noexcept
+    {
+      return m_arg3 != 0;
+    }
 
     //! @brief Get the mouse button flags
     VirtualMouseButtonFlags GetMouseButtonFlags() const;

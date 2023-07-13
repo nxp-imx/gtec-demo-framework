@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,14 +93,14 @@ namespace Fsl
     auto contentManager = GetContentManager();
 
 
-    const int32_t line0YPx = 0;
+    const PxSize1D line0YPx = PxSize1D::Create(0);
     const SpriteNativeAreaCalc& spriteNativeAreaCalc = m_shared.GetUIDemoAppExtension()->GetSpriteNativeAreaCalc();
     const uint32_t densityDpi = config.WindowMetrics.DensityDpi;
 
     m_resources.Normal =
       PrepareExample(*contentManager, line0YPx, LocalConfig::TextVertShader, LocalConfig::TextFragShader, LocalConfig::NormalFontPath,
                      LocalConfig::NormalFontAtlasTexturePath, LocalConfig::TextLine0, spriteNativeAreaCalc, densityDpi, m_positionsScratchpad);
-    const int32_t line1YPx = m_resources.Normal.Font.Font.LineSpacingPx();
+    const auto line1YPx = m_resources.Normal.Font.Font.LineSpacingPx();
     m_resources.Sdf =
       PrepareExample(*contentManager, line1YPx, LocalConfig::TextVertShader, LocalConfig::TextSdfFragShader, LocalConfig::SdfFontPath,
                      LocalConfig::SdfFontAtlasTexturePath, LocalConfig::TextLine0, spriteNativeAreaCalc, densityDpi, m_positionsScratchpad);
@@ -137,8 +137,8 @@ namespace Fsl
   void SdfFonts::Update(const DemoTime& demoTime)
   {
     // Setup the shader
-    const auto screenWidth = static_cast<float>(GetWindowSizePx().Width());
-    const auto screenHeight = static_cast<float>(GetWindowSizePx().Height());
+    const auto screenWidth = static_cast<float>(GetWindowSizePx().RawWidth());
+    const auto screenHeight = static_cast<float>(GetWindowSizePx().RawHeight());
     const float screenOffsetX = screenWidth / 2.0f;
     const float screenOffsetY = screenHeight / 2.0f;
 
@@ -160,15 +160,15 @@ namespace Fsl
 
     auto contentOffset = m_shared.GetContentOffset();
     const auto fontDrawConfig = m_shared.GetFontDrawConfig();
+    const auto fontScale = PxSize1DF::Create(fontDrawConfig.FontScale);
     const auto fontSdfMode = m_shared.GetSdfMode();
     const auto& fontSdfShader = SelectShaderRecord(fontSdfMode);
 
-    const PxPoint2 line0Px(contentOffset.X, contentOffset.Y + 0);
+    const PxPoint2 line0Px(contentOffset.X, contentOffset.Y);
     const PxPoint2 line1Px(contentOffset.X, line0Px.Y + m_resources.Normal.Font.Font.LineSpacingPx());
     const PxPoint2 line2Px(contentOffset.X, line1Px.Y + m_resources.Sdf.Font.Font.LineSpacingPx());
     const PxPoint2 line3Px(
-      contentOffset.X,
-      line2Px.Y + static_cast<int32_t>(std::round(static_cast<float>(m_resources.Normal.Font.Font.LineSpacingPx()) * fontDrawConfig.FontScale)));
+      contentOffset.X, line2Px.Y + TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF(m_resources.Normal.Font.Font.LineSpacingPx()) * fontScale));
 
     const bool enableKerning = m_shared.GetKerningEnabled();
     const BitmapFontConfig fontConfigNormal(1.0f, enableKerning);
@@ -182,13 +182,12 @@ namespace Fsl
     RegenerateMeshOnDemand(m_resources.Sdf.ScaledMesh, line3Px, m_resources.Sdf.Font, fontConfigScaled, LocalConfig::TextLine0,
                            m_positionsScratchpad);
 
-    const auto baseLine0Px = line0Px + PxPoint2(0, m_resources.Normal.Font.Font.BaseLinePx());
-    const auto baseLine1Px = line1Px + PxPoint2(0, m_resources.Sdf.Font.Font.BaseLinePx());
+    const auto baseLine0Px = line0Px + PxPoint2(PxValue(0), m_resources.Normal.Font.Font.BaseLinePx());
+    const auto baseLine1Px = line1Px + PxPoint2(PxValue(0), m_resources.Sdf.Font.Font.BaseLinePx());
     const auto baseLine2Px =
-      line2Px +
-      PxPoint2(0, static_cast<int32_t>(std::round(static_cast<float>(m_resources.Normal.Font.Font.BaseLinePx()) * fontDrawConfig.FontScale)));
+      line2Px + PxPoint2(PxValue(0), TypeConverter::UncheckedChangeTo<PxSize1D>((PxSize1DF(m_resources.Normal.Font.Font.BaseLinePx()) * fontScale)));
     const auto baseLine3Px =
-      line3Px + PxPoint2(0, static_cast<int32_t>(std::round(static_cast<float>(m_resources.Sdf.Font.Font.BaseLinePx()) * fontDrawConfig.FontScale)));
+      line3Px + PxPoint2(PxValue(0), TypeConverter::UncheckedChangeTo<PxSize1D>((PxSize1DF(m_resources.Sdf.Font.Font.BaseLinePx()) * fontScale)));
 
     // Draw baselines
     {
@@ -284,8 +283,8 @@ namespace Fsl
     }
     if (shader.Location.ShadowOffset != GLES2::GLValues::INVALID_LOCATION)
     {
-      auto maxOffsetX = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().Width());
-      auto maxOffsetY = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().Height());
+      auto maxOffsetX = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().RawWidth());
+      auto maxOffsetY = static_cast<float>(fontDrawConfig.FontSdfSpread) / static_cast<float>(texture.GetSize().RawHeight());
       auto shadowOffsetX = fontDrawConfig.ShadowOffset.X != 0.0f ? maxOffsetX * fontDrawConfig.ShadowOffset.X : 0.0f;
       auto shadowOffsetY = fontDrawConfig.ShadowOffset.Y != 0.0f ? -(maxOffsetY * fontDrawConfig.ShadowOffset.Y) : 0.0f;
       glUniform2f(shader.Location.ShadowOffset, shadowOffsetX, shadowOffsetY);
@@ -310,7 +309,7 @@ namespace Fsl
   }
 
 
-  SdfFonts::ExampleRecord SdfFonts::PrepareExample(const IContentManager& contentManager, const int32_t lineYPx, const IO::Path& vertShaderPath,
+  SdfFonts::ExampleRecord SdfFonts::PrepareExample(const IContentManager& contentManager, const PxSize1D lineYPx, const IO::Path& vertShaderPath,
                                                    const IO::Path& fragShaderPath, const IO::Path& bitmapFontPath,
                                                    const IO::Path& fontAtlasTexturePath, const StringViewLite& strView,
                                                    const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
@@ -327,8 +326,8 @@ namespace Fsl
 
     FSLLOG3_INFO("- Generating mesh");
     const BitmapFontConfig fontConfig(1.0f);
-    result.Mesh = GenerateMesh(PxPoint2(0, lineYPx), result.Font, fontConfig, result.Shader, strView, rPositionsScratchpad);
-    result.ScaledMesh = GenerateMesh(PxPoint2(0, lineYPx), result.Font, fontConfig, result.Shader, strView, rPositionsScratchpad);
+    result.Mesh = GenerateMesh(PxPoint2(PxValue(0), lineYPx), result.Font, fontConfig, result.Shader, strView, rPositionsScratchpad);
+    result.ScaledMesh = GenerateMesh(PxPoint2(PxValue(0), lineYPx), result.Font, fontConfig, result.Shader, strView, rPositionsScratchpad);
     return result;
   }
 
@@ -350,7 +349,7 @@ namespace Fsl
     return result;
   }
 
-  SdfFonts::MeshRecord SdfFonts::GenerateMesh(const PxPoint2& dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
+  SdfFonts::MeshRecord SdfFonts::GenerateMesh(const PxPoint2 dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
                                               const ShaderRecord& shader, const StringViewLite& strView,
                                               std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad)
   {

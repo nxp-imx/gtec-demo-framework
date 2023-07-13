@@ -43,6 +43,7 @@ from FslBuildGen.Engine.Resolver.InstanceConfig import InstanceConfig
 from FslBuildGen.Engine.Resolver.PackageDependency import PackageDependency
 from FslBuildGen.Engine.Resolver.PackageName import PackageName
 from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageFlavor
+from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageFlavorExtension
 from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageFlavorOption
 from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageTemplate
 from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageTemplateDependency
@@ -69,7 +70,7 @@ class PackageResolver(object):
 
 
     def Resolve(self, unresolvedPackage: UnresolvedBasicPackage) -> ResolvedPackageTemplate:
-        # Since we are resolving this package, it should be present in the dict yet
+        # Since we are resolving this package, it should not be present in the dict yet
         if unresolvedPackage.Name.Value in self.__PackageTemplateDict:
             raise Exception("Internal error package '{0}' already resolved".format(unresolvedPackage.Name))
 
@@ -77,23 +78,22 @@ class PackageResolver(object):
         allInstancesConfigurations = self.__GenerateInstancesConfigurations(unresolvedPackage)
 
         packageFlavors = PackageResolver.__ResolveFlavors(unresolvedPackage, self.__PackageTemplateDict) # type: List[ResolvedPackageFlavor]
+        packageFlavorExtensions = PackageResolver.__ResolveFlavorExtensions(unresolvedPackage, self.__PackageTemplateDict) # type: List[ResolvedPackageFlavorExtension]
 
         newTemplateName = PackageName.CreateName(unresolvedPackage.Name)
         newTemplate = ResolvedPackageTemplate(newTemplateName, unresolvedPackage.Type, directDependencies, allInstancesConfigurations,
-                                              packageFlavors)
+                                              packageFlavors, packageFlavorExtensions)
         self.__PackageTemplateDict[newTemplate.Name.Value] = Record(newTemplate)
 
         if self.__Log.Verbosity >= LocalVerbosityLevel.Trace:
             self.__Log.LogPrint("- Name: {0} Combinations: {1}".format(newTemplate.Name, len(newTemplate.InstanceConfigs)))
-
-        self.__Log.PushIndent()
-        try:
-            for instanceConfig in newTemplate.InstanceConfigs:
-                strDirectDependency = ", ".join([str(dep) for dep in instanceConfig.DirectDependencies]) # type: str
-                if self.__Log.Verbosity >= LocalVerbosityLevel.Trace:
+            self.__Log.PushIndent()
+            try:
+                for instanceConfig in newTemplate.InstanceConfigs:
+                    strDirectDependency = ", ".join([str(dep) for dep in instanceConfig.DirectDependencies]) # type: str
                     self.__Log.LogPrint("- {0}<{1}> directDependencies: [{2}]".format(unresolvedPackage.Name, instanceConfig.Description, strDirectDependency))
-        finally:
-            self.__Log.PopIndent()
+            finally:
+                self.__Log.PopIndent()
         return newTemplate
 
     @staticmethod
@@ -112,9 +112,29 @@ class PackageResolver(object):
                 else:
                     resolvedDependencies = []
 
-                options.append(ResolvedPackageFlavorOption(flavorOption.Name, resolvedDependencies))
-            packageFlavors.append(ResolvedPackageFlavor(flavor.Name, options))
+                options.append(ResolvedPackageFlavorOption(flavorOption.Name, resolvedDependencies, flavorOption.Supported))
+            packageFlavors.append(ResolvedPackageFlavor(flavor.Name, flavor.QuickName, options))
         return packageFlavors
+
+    @staticmethod
+    def __ResolveFlavorExtensions(unresolvedPackage: UnresolvedBasicPackage, packageTemplateDict: Dict[str, Record]) -> List[ResolvedPackageFlavorExtension]:
+        packageFlavorExtensions = [] # type: List[ResolvedPackageFlavorExtension]
+        for flavor in unresolvedPackage.FlavorExtensions:
+            options = [] # type: List[ResolvedPackageFlavorOption]
+            for flavorOption in flavor.Options:
+                if len(flavorOption.DirectDependencies) > 0:
+                    resolvedDependencies = [] # type List[ResolvedPackageTemplateDependency]
+                    for srcDep in flavorOption.DirectDependencies:
+                        if srcDep.Name.Value not in packageTemplateDict:
+                            raise Exception("Unknown dependency '{0}".format(srcDep.Name))
+                        depRecord = packageTemplateDict[srcDep.Name.Value]
+                        resolvedDependencies.append(ResolvedPackageTemplateDependency(depRecord.PackageTemplate, srcDep.FlavorConstraints))
+                else:
+                    resolvedDependencies = []
+
+                options.append(ResolvedPackageFlavorOption(flavorOption.Name, resolvedDependencies, flavorOption.Supported))
+            packageFlavorExtensions.append(ResolvedPackageFlavorExtension(flavor.Name, options))
+        return packageFlavorExtensions
 
     def __GenerateFlavorPermutations(self, instanceConfigs: List[InstanceConfig], permutation: List[PackageFlavorSelection],
                                      permutationDirectDependencies: List[PackageDependency], flavors: List[UnresolvedPackageFlavor],
@@ -128,7 +148,7 @@ class PackageResolver(object):
                     self.__Log.LogPrint("- Package {0} InstanceConfig: '{1}' DirectDependencies: [{2}]".format(unresolvedPackage.Name, instanceConfig.Description, strDependencies))
                 instanceConfigs.append(instanceConfig)
             elif self.__Log.Verbosity >= LocalVerbosityLevel.Trace:
-                self.__Log.LogPrint("- Pakage {0} Permutation: '{1}' rejected due to constraints: {2}".format(unresolvedPackage.Name, flavorSelections.Description, flavorConstraints))
+                self.__Log.LogPrint("- Package {0} Permutation: '{1}' rejected due to constraints: {2}".format(unresolvedPackage.Name, flavorSelections.Description, flavorConstraints))
             return
 
         flavor = flavors[flavorIndex]

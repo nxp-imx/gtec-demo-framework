@@ -76,7 +76,7 @@ namespace Fsl
 
     {    // prepare the vertex buffer
       // We scale the UV coordinates so that we get a 1-1 pixel mapping on the screen
-      const float scaleX = static_cast<float>(screenResolution.X) / static_cast<float>(m_texture.GetSize().Width());
+      const float scaleX = static_cast<float>(screenResolution.X) / static_cast<float>(m_texture.GetSize().RawWidth());
       const float aspect = (static_cast<float>(screenResolution.Y) / static_cast<float>(screenResolution.X));
       const float u1 = 0.0f;
       const float u2 = scaleX;

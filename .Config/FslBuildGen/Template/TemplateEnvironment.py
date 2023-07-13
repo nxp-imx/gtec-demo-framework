@@ -34,6 +34,7 @@
 from typing import Dict
 from typing import Optional
 from FslBuildGen.Config import Config
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Packages.Package import Package
 
 class TemplateEnvironment(object):
@@ -48,7 +49,8 @@ class TemplateEnvironment(object):
         self.Dict[key] = value
 
 
-    def SetPackage(self, package: Package, androidProjectPath: Optional[str]) -> None:
+    def SetPackage(self, package: Package, androidProjectPath: Optional[str],
+                    externalVariantConstraints: ExternalVariantConstraints) -> None:
         if package.PackageLocation is None or package.ContentPath is None or package.AbsolutePath is None:
             raise Exception("Invalid package")
 
@@ -64,11 +66,12 @@ class TemplateEnvironment(object):
         packageContentPath = package.ContentPath.AbsoluteDirPath
         #androidProjectDir = buildCMakeFile.replace("##PACKAGE_ANDROID_PROJECT_PATH##", androidProjectDir)
         self.SetPackageValues(location, package.Name, package.NameInfo.ShortName.Value, package.AbsolutePath,
-                              targetName, sourceName, packageContentPath, platformProjectId, creationYear, companyName, androidProjectPath)
+                              targetName, sourceName, externalVariantConstraints.AsString(),
+                              packageContentPath, platformProjectId, creationYear, companyName, androidProjectPath)
 
 
     def SetPackageValues(self, packageLocation: str, packageName: str, packageShortName: str, packagePath: str,
-                         packageTargetName: str, packageSourceName: str, packageContentPath: Optional[str],
+                         packageTargetName: str, packageSourceName: str, strVariantList: str, packageContentPath: Optional[str],
                          platformProjectId: Optional[str], creationYear: Optional[str], companyName: str,
                          androidProjectPath: Optional[str] = None) -> None:
         platformProjectId = platformProjectId if platformProjectId != None else "ERROR_PLATFORM_PROJECT_ID_NOT_DEFINED"
@@ -81,6 +84,8 @@ class TemplateEnvironment(object):
         self.Dict["##PACKAGE_PATH##"] = packagePath
         if packageContentPath is not None:
             self.Dict["##PACKAGE_CONTENT_PATH##"] = packageContentPath
+        self.Dict["##VARIANT_LIST##"] = strVariantList
+
         self.Dict["##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"] = platformProjectId
         self.Dict["##PACKAGE_CREATION_YEAR##"] = creationYear if creationYear != None else self.Dict["##CURRENT_YEAR##"]
         self.Dict["##PACKAGE_COMPANY_NAME##"] = companyName

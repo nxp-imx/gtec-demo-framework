@@ -393,7 +393,7 @@ namespace Fsl
         std::vector<uint8_t> content(widthEx * heightEx * bytesPerPixel);
         ilCopyPixels(0, 0, 0, width, height, 1, activeImageFormat.Format, activeImageFormat.Type, content.data());
 
-        ResetObject(rImageContainer, std::move(content), PxExtent2D(width, height), activePixelFormat, bitmapOrigin);
+        ResetObject(rImageContainer, std::move(content), PxExtent2D::Create(width, height), activePixelFormat, bitmapOrigin);
       }
 
       devilError = ilGetError();

@@ -19,14 +19,13 @@
 
 // The code here is based on JNIHelper from the NDK
 
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <android/log.h>
-#include <android_native_app_glue.h>
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #include <jni.h>
 #include <mutex>
 #include <string>
 #include <vector>
-#include "NDKHelper.h"
 
 namespace Fsl
 {
@@ -35,7 +34,7 @@ namespace Fsl
   private:
     std::string app_name_;
 
-    ANativeActivity* activity_{nullptr};
+    GameActivity* activity_{nullptr};
     jobject jni_util_java_ref_{};
     jclass jni_util_java_class_{};
 
@@ -44,7 +43,6 @@ namespace Fsl
     // each methods locks the mutex for a thread safety
     mutable std::mutex mutex_;
 
-    jstring GetExternalFilesDirJString(JNIEnv* env);
     jclass RetrieveClass(JNIEnv* jni, const char* class_name);
 
     JNIUtil();
@@ -54,15 +52,15 @@ namespace Fsl
 
   public:
     /*
-     * To load your own Java classes, JNIUtil requires to be initialized with a ANativeActivity handle.
+     * To load your own Java classes, JNIUtil requires to be initialized with a GameActivity handle.
      * This methods need to be called before any call to the util class.
      * Static member of the class
      *
      * arguments:
-     * in: activity, pointer to ANativeActivity. Used internally to set up JNI environment
+     * in: activity, pointer to GameActivity. Used internally to set up JNI environment
      * in: util_class_name, pointer to Java side util class name. (e.g. "com/sample/util/NDKutil" in samples )
      */
-    static void Init(ANativeActivity* activity, const char* util_class_name);
+    static void Init(GameActivity* activity, const char* util_class_name);
 
     /*
     * Retrieve the singleton object of the util.
@@ -71,6 +69,8 @@ namespace Fsl
     * Methods in the class are designed as thread safe.
     */
     static JNIUtil* GetInstance();
+
+    std::string GetExternalFilesDir();
 
     //! @brief Returns the base path that content can be written to
     const std::string SyncNow();

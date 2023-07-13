@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUTHELPERPXFCONVERTER_HPP
 #define FSLSIMPLEUI_BASE_LAYOUTHELPERPXFCONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslSimpleUI/Base/PxAvailableSize.hpp>
@@ -42,17 +43,18 @@
 
 namespace Fsl::UI::LayoutHelperPxfConverter
 {
-  inline PxPoint2 ToPxPoint2(const PxAvailableSize& value)
+  inline PxPoint2 ToPxPoint2(const PxAvailableSize value)
   {
-    return {value.Width(), value.Height()};
+    assert(value.IsNormal());
+    return PxPoint2::Create(value.RawWidth(), value.RawHeight());
   }
 
-  inline PxAvailableSize ToPxAvailableSize(const PxPoint2& value)
+  inline PxAvailableSize ToPxAvailableSize(const PxPoint2 value)
   {
-    return {value.X, value.Y};
+    return PxAvailableSize::Create(value.X.Value, value.Y.Value);
   }
 
-  inline PxAvailableSize ToPxAvailableSize(const PxSize2D& value)
+  inline PxAvailableSize ToPxAvailableSize(const PxSize2D value)
   {
     return {value.Width(), value.Height()};
   }
@@ -66,8 +68,8 @@ namespace Fsl::UI::LayoutHelperPxfConverter
     assert(!std::isinf(value.Bottom()) && !std::isnan(value.Bottom()));
     assert(value.Left() <= value.Right() && value.Top() <= value.Bottom());
     assert(value.Width() >= 0.0f && value.Height() >= 0.0f);
-    return {static_cast<int32_t>(std::round(value.Left())), static_cast<int32_t>(std::round(value.Top())),
-            static_cast<int32_t>(std::round(value.Width())), static_cast<int32_t>(std::round(value.Height()))};
+    return PxRectangle::Create(static_cast<int32_t>(std::round(value.Left())), static_cast<int32_t>(std::round(value.Top())),
+                               static_cast<int32_t>(std::round(value.Width())), static_cast<int32_t>(std::round(value.Height())));
   }
 
 
@@ -92,15 +94,15 @@ namespace Fsl::UI::LayoutHelperPxfConverter
 
 
   //! @brief Convert a input pxf value to PxPoint with awareness of the magic inf + nan values.
-  inline PxPoint2 PxfToPxPoint2(const Vector2& value)
+  inline PxPoint2 PxfToPxPoint2(const Vector2 value)
   {
-    return {PxfToPxInt32(value.X), PxfToPxInt32(value.Y)};
+    return {PxValue(PxfToPxInt32(value.X)), PxValue(PxfToPxInt32(value.Y))};
   }
 
   //! @brief Convert a input pxf value to PxPoint with awareness of the magic inf + nan values.
-  inline Vector2 PxToPxfVector2(const PxPoint2& value)
+  inline Vector2 PxToPxfVector2(const PxPoint2 value)
   {
-    return {PxToPxfFloat(value.X), PxToPxfFloat(value.Y)};
+    return {PxToPxfFloat(value.X.Value), PxToPxfFloat(value.Y.Value)};
   }
 }
 

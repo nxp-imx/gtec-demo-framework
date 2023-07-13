@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ namespace Fsl::UI
                                 const RenderBasicImageInfo& renderInfo, const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines,
                                 const Color mainColor)
     {
-      const float dstX1Pxf = dstPositionPxf.X + static_cast<float>(dstSizePx.Width());
+      const float dstX1Pxf = dstPositionPxf.X.Value + static_cast<float>(dstSizePx.RawWidth());
       // const int32_t heightPx = dstSizePx.Height();
       // const int32_t maxYPx = heightPx - 1;    // -1 because we don't start the last pixel at height
 
@@ -113,9 +113,9 @@ namespace Fsl::UI
 
         rBuilder.SetColor(Color::Premultiply(Color::ApplyAlpha(mainColor, record.Alpha)));
 
-        const int32_t offsetYPx = record.LinePositionPx;
-        rBuilder.AddRect(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(offsetYPx), dstX1Pxf,
-                         dstPositionPxf.Y + static_cast<float>(offsetYPx + 1), renderInfo.TextureArea);
+        const int32_t offsetYPx = record.LinePositionPx.Value;
+        rBuilder.AddRect(dstPositionPxf.X.Value, dstPositionPxf.Y.Value + static_cast<float>(offsetYPx), dstX1Pxf,
+                         dstPositionPxf.Y.Value + static_cast<float>(offsetYPx + 1), renderInfo.TextureArea);
       }
     }
 
@@ -123,33 +123,34 @@ namespace Fsl::UI
                                    const RenderNineSliceInfo& renderInfo,
                                    const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const Color mainColor)
     {
-      const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, static_cast<float>(dstSizePx.Width()),
-                                             static_cast<float>(dstSizePx.Height()));
+      const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, PxSize1DF(dstSizePx.Width()), PxSize1DF(dstSizePx.Height()));
 
       // const PxVector2 dstOffsetPxf(dstPositionPxf + renderInfo.ScaledTrimMarginPxf.TopLeft());
-      const float dstX0Pxf = dstPositionPxf.X + (renderInfo.ScaledTrimMarginPxf.Top());
-      const float dstY0Pxf = dstPositionPxf.Y + (renderInfo.ScaledTrimMarginPxf.Left());
-      const float dstX1Pxf = dstPositionPxf.X + (renderInfo.ScaledTrimMarginPxf.Top() + renderInfo.ScaledTrimmedNineSlicePxf.Top());
-      const float dstY1Pxf = dstPositionPxf.Y + (renderInfo.ScaledTrimMarginPxf.Left() + renderInfo.ScaledTrimmedNineSlicePxf.Left());
+      const float dstX0Pxf = dstPositionPxf.X.Value + (renderInfo.ScaledTrimMarginPxf.RawTop());
+      const float dstY0Pxf = dstPositionPxf.Y.Value + (renderInfo.ScaledTrimMarginPxf.RawLeft());
+      const float dstX1Pxf = dstPositionPxf.X.Value + (renderInfo.ScaledTrimMarginPxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop());
+      const float dstY1Pxf = dstPositionPxf.Y.Value + (renderInfo.ScaledTrimMarginPxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft());
 
       const auto gridLineCount = UncheckedNumericCast<uint32_t>(gridLines.size());
       for (uint32_t i = 0; i < gridLineCount; ++i)
       {
         const Render::ChartDataWindowDrawData::GridLineRecord& gridLineEntry = gridLines[i];
-        const float renderWidthPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.Width()) - renderInfo.ScaledTrimMarginPxf.Bottom();
-        const float renderHeightPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.Height()) - renderInfo.ScaledTrimMarginPxf.Right();
+        const float renderWidthPxf =
+          static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawWidth()) - renderInfo.ScaledTrimMarginPxf.RawBottom();
+        const float renderHeightPxf =
+          static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawHeight()) - renderInfo.ScaledTrimMarginPxf.RawRight();
         if (renderWidthPxf > 0 && renderHeightPxf > 0)
         {
           rBuilder.SetColor(Color::Premultiply(Color::ApplyAlpha(mainColor, gridLineEntry.Alpha)));
 
-          const auto xOffsetPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.Left());
-          const auto yOffsetPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.Top());
-          const float dstX2Pxf = dstPositionPxf.X + (renderWidthPxf - renderInfo.ScaledTrimmedNineSlicePxf.Bottom());
-          const float dstY2Pxf = dstPositionPxf.Y + (renderHeightPxf - renderInfo.ScaledTrimmedNineSlicePxf.Right());
-          const float dstX3Pxf = dstPositionPxf.X + (renderWidthPxf);
-          const float dstY3Pxf = dstPositionPxf.Y + (renderHeightPxf);
+          const auto xOffsetPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawLeft());
+          const auto yOffsetPxf = static_cast<float>(gridLineEntry.LabelBackgroundRectanglePx.RawTop());
+          const float dstX2Pxf = dstPositionPxf.X.Value + (renderWidthPxf - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom());
+          const float dstY2Pxf = dstPositionPxf.Y.Value + (renderHeightPxf - renderInfo.ScaledTrimmedNineSlicePxf.RawRight());
+          const float dstX3Pxf = dstPositionPxf.X.Value + (renderWidthPxf);
+          const float dstY3Pxf = dstPositionPxf.Y.Value + (renderHeightPxf);
 
-          if (yOffsetPxf >= 0 && (yOffsetPxf + renderHeightPxf) <= static_cast<float>(dstSizePx.Height()))
+          if (yOffsetPxf >= 0 && (yOffsetPxf + renderHeightPxf) <= static_cast<float>(dstSizePx.RawHeight()))
           {
             rBuilder.AddNineSlice(dstX0Pxf + xOffsetPxf, dstY0Pxf + yOffsetPxf, dstX1Pxf + xOffsetPxf, dstY1Pxf + yOffsetPxf, dstX2Pxf + xOffsetPxf,
                                   dstY2Pxf + yOffsetPxf, dstX3Pxf + xOffsetPxf, dstY3Pxf + yOffsetPxf, renderInfo.TextureArea);
@@ -166,58 +167,57 @@ namespace Fsl::UI
     void DrawCustomGridLabelsNow(ScopedCustomUITextMeshBuilder2D& rTextBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
                                  const ReadOnlySpan<Render::ChartDataWindowDrawData::GridLineRecord> gridLines, const Color mainColor)
     {
-      const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, static_cast<float>(dstSizePx.Width()),
-                                             static_cast<float>(dstSizePx.Height()));
+      const PxAreaRectangleF clipRectanglePx(dstPositionPxf.X, dstPositionPxf.Y, PxSize1DF(dstSizePx.Width()), PxSize1DF(dstSizePx.Height()));
 
-      const float dstX0Pxf = dstPositionPxf.X;
-      const float dstY0Pxf = dstPositionPxf.Y;
+      const PxValueF dstX0Pxf = dstPositionPxf.X;
+      const PxValueF dstY0Pxf = dstPositionPxf.Y;
 
       const auto gridLineCount = UncheckedNumericCast<uint32_t>(gridLines.size());
       for (uint32_t i = 0; i < gridLineCount; ++i)
       {
         const Render::ChartDataWindowDrawData::GridLineRecord& record = gridLines[i];
         const auto strView = StringViewLiteUtil::AsStringViewLite(record.Label);
-        const int32_t xPositionPx = record.LabelOffsetPx.X;
-        const int32_t yPositionPx = record.LabelOffsetPx.Y;
+        const PxValue xPositionPx = record.LabelOffsetPx.X;
+        const PxValue yPositionPx = record.LabelOffsetPx.Y;
 
         rTextBuilder.SetColor(Color::Premultiply(Color::ApplyAlpha(mainColor, record.Alpha)));
 
-        if (yPositionPx >= 0 && (yPositionPx + record.LabelSizePx.Height()) <= dstSizePx.Height())
+        if (yPositionPx.Value >= 0 && (yPositionPx + record.LabelSizePx.Height()) <= dstSizePx.Height())
         {
-          rTextBuilder.AddString(PxVector2(dstX0Pxf + static_cast<float>(xPositionPx), dstY0Pxf + static_cast<float>(yPositionPx)), strView);
+          rTextBuilder.AddString(PxVector2(dstX0Pxf + PxValueF(xPositionPx), dstY0Pxf + PxValueF(yPositionPx)), strView);
         }
         else
         {
-          rTextBuilder.AddString(PxVector2(dstX0Pxf + static_cast<float>(xPositionPx), dstY0Pxf + static_cast<float>(yPositionPx)), strView,
-                                 clipRectanglePx);
+          rTextBuilder.AddString(PxVector2(dstX0Pxf + PxValueF(xPositionPx), dstY0Pxf + PxValueF(yPositionPx)), strView, clipRectanglePx);
         }
       }
     }
 
-    void DrawGraphSegmentNow(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const int32_t dstXPosCurrent, const int32_t maxYPx,
-                             const uint32_t channelCount, const ChartDataEntry& entry, const float dataRenderScalePxf, const int32_t entryPixelWidth,
+    void DrawGraphSegmentNow(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxValue dstXPosCurrent, const PxValue maxYPx,
+                             const uint32_t channelCount, const ChartDataEntry& entry, const float dataRenderScalePxf, const PxSize1D entryPixelWidth,
                              std::array<Color, UI::Render::ChartDataWindowDrawDataConfig::MaxStackedEntries> premultipliedColors,
                              const NativeTextureArea& textureArea)
     {
-      int32_t lastPx = maxYPx + 1;
+      PxValue lastPx = maxYPx + PxValue(1);
       float topPxf = 0;
       for (uint32_t entryIndex = 0; entryIndex < channelCount; ++entryIndex)
       {
         const float renderData = static_cast<float>(entry.Values[entryIndex]) * dataRenderScalePxf;
         topPxf += renderData;
-        const auto scaledTopDataSizePx = static_cast<int32_t>(MathHelper::Clamp(topPxf, 0.0f, static_cast<float>(0x10000000)));
-        const int32_t yModPx = maxYPx - scaledTopDataSizePx;
+        const auto scaledTopDataSizePx = PxValue(static_cast<int32_t>(MathHelper::Clamp(topPxf, 0.0f, static_cast<float>(0x10000000))));
+        const PxValue yModPx = maxYPx - scaledTopDataSizePx;
         assert(lastPx >= yModPx);
 
-        const int32_t drawYModPx0 = MathHelper::Clamp(yModPx, 0, maxYPx);
-        const int32_t drawYModPx1 = MathHelper::Clamp(lastPx, 0, maxYPx);
-        const int32_t clippedEntryHeightPx = drawYModPx1 - drawYModPx0;
-        if (clippedEntryHeightPx > 0)
+        const PxValue drawYModPx0 = MathHelper::Clamp(yModPx, PxValue(0), maxYPx);
+        const PxValue drawYModPx1 = MathHelper::Clamp(lastPx, PxValue(0), maxYPx);
+        const PxValue clippedEntryHeightPx = drawYModPx1 - drawYModPx0;
+        if (clippedEntryHeightPx.Value > 0)
         {
           rBuilder.SetColor(premultipliedColors[entryIndex]);
-          rBuilder.AddRect(dstPositionPxf.X + static_cast<float>(dstXPosCurrent), dstPositionPxf.Y + static_cast<float>(drawYModPx0),
-                           dstPositionPxf.X + static_cast<float>(dstXPosCurrent + entryPixelWidth),
-                           dstPositionPxf.Y + static_cast<float>(drawYModPx1), textureArea);
+          rBuilder.AddRect(dstPositionPxf.X.Value + static_cast<float>(dstXPosCurrent.Value),
+                           dstPositionPxf.Y.Value + static_cast<float>(drawYModPx0.Value),
+                           dstPositionPxf.X.Value + static_cast<float>(dstXPosCurrent.Value + entryPixelWidth.RawValue()),
+                           dstPositionPxf.Y.Value + static_cast<float>(drawYModPx1.Value), textureArea);
         }
         lastPx = yModPx;
       }
@@ -234,19 +234,18 @@ namespace Fsl::UI
 
         // const float dstY1Pxf = dstPositionPxf.Y + float(dstSizePx.Height());
 
-        const int32_t entryPixelWidth = pChartWindow->Chart.EntryWidthPx;
-
-        const int32_t maxYPx = dstSizePx.Height() - 1;    // -1 because we don't start the last pixel at height
-        const auto totalElementCount = UncheckedNumericCast<int32_t>(dataInfo.TotalElementCount);
-        const int32_t maxPixels = std::min(totalElementCount * entryPixelWidth, dstSizePx.Width());
-        const int32_t entriesToDraw = maxPixels / entryPixelWidth;
-        const int32_t leftoverPixels = maxPixels % entryPixelWidth;
+        const PxSize1D entryPixelWidth = pChartWindow->Chart.EntryWidthPx;
+        const PxValue maxYPx = PxValue(dstSizePx.RawHeight() - 1);    // -1 because we don't start the last pixel at height
+        const auto totalElementCount = PxSize1D::UncheckedCreate(UncheckedNumericCast<int32_t>(dataInfo.TotalElementCount));
+        const PxSize1D maxPixels = std::min(totalElementCount * entryPixelWidth, dstSizePx.Width());
+        const int32_t entriesToDraw = maxPixels.RawValue() / entryPixelWidth.RawValue();
+        const PxSize1D leftoverPixels = maxPixels % entryPixelWidth;
 
         assert(pChartWindow->ChartCache.Valid);
         const Render::ChartDataWindowDrawData::ChartRecord& chart = pChartWindow->Chart;
         // const uint32_t chartViewMax = chart.ViewMax;
 
-        int32_t dstXPos = dstSizePx.Width();
+        PxValue dstXPos = dstSizePx.Width().Value();
         auto entriesLeft = UncheckedNumericCast<uint32_t>(entriesToDraw);
         std::size_t lastSegmentOffset = 0;
         uint32_t segmentIndex = dataInfo.SegmentCount;
@@ -259,18 +258,18 @@ namespace Fsl::UI
             dataSpan = dataSpan.subspan(lastSegmentOffset, spanAreaToDrawEntries);
           }
           const auto dataSpanEntries = UncheckedNumericCast<uint32_t>(dataSpan.size());
-          dstXPos -= UncheckedNumericCast<int32_t>(dataSpanEntries * entryPixelWidth);
-          int32_t dstXPosCurrent = dstXPos + ((UncheckedNumericCast<int32_t>(dataSpanEntries) - 1) * entryPixelWidth);
+          dstXPos -= PxValue(UncheckedNumericCast<int32_t>(dataSpanEntries)) * entryPixelWidth;
+          PxValue dstXPosCurrent = dstXPos + (PxValue(UncheckedNumericCast<int32_t>(dataSpanEntries) - 1) * entryPixelWidth);
           for (uint32_t dataSpanIndex = dataSpanEntries; dataSpanIndex > 0; --dataSpanIndex)
           {
             const auto i = dataSpanIndex - 1;
             DrawGraphSegmentNow(rBuilder, dstPositionPxf, dstXPosCurrent, maxYPx, dataInfo.ChannelCount, dataSpan[i], chart.DataRenderScale,
                                 entryPixelWidth, pChartWindow->ChartCache.Premultiplied, renderInfo.TextureArea);
-            dstXPosCurrent -= entryPixelWidth;
+            dstXPosCurrent -= entryPixelWidth.Value();
           }
           entriesLeft -= dataSpanEntries;
         }
-        if (entriesLeft == 0 && leftoverPixels > 0)
+        if (entriesLeft == 0 && leftoverPixels.RawValue() > 0)
         {
           if (lastSegmentOffset <= 0)
           {
@@ -287,8 +286,8 @@ namespace Fsl::UI
           ReadOnlySpan<ChartDataEntry> dataSpan = pData->SegmentDataAsReadOnlySpan(segmentIndex).subspan(lastSegmentOffset, 1);
           if (!dataSpan.empty())
           {
-            DrawGraphSegmentNow(rBuilder, dstPositionPxf, 0, maxYPx, dataInfo.ChannelCount, dataSpan[0], chart.DataRenderScale, leftoverPixels,
-                                pChartWindow->ChartCache.Premultiplied, renderInfo.TextureArea);
+            DrawGraphSegmentNow(rBuilder, dstPositionPxf, PxValue(0), maxYPx, dataInfo.ChannelCount, dataSpan[0], chart.DataRenderScale,
+                                leftoverPixels, pChartWindow->ChartCache.Premultiplied, renderInfo.TextureArea);
           }
         }
       }
@@ -359,8 +358,8 @@ namespace Fsl::UI
   AreaChart::AreaChart(const std::shared_ptr<BaseWindowContext>& context)
     : BaseWindow(context)
     , m_gridLineManager(context->UITransitionCache, LocalConfig::ViewChangeTime, LocalConfig::LabelFadeTime,
-                        context->UnitConverter.DpToPxInt32(LocalConfig::ChartBarWidthDp),
-                        context->UnitConverter.DpToPxInt32(LocalConfig::ChartLabelSpacingDp))
+                        context->UnitConverter.DpToPxSize1D(LocalConfig::ChartBarWidthDp),
+                        context->UnitConverter.DpToPxSize1D(LocalConfig::ChartLabelSpacingDp))
     , m_chartWindowDrawData(std::make_shared<Render::ChartDataWindowDrawData>(context->UnitConverter))
     , m_graphMesh(context->TheUIContext.Get()->MeshManager, 6)
     , m_gridLinesMesh(context->TheUIContext.Get()->MeshManager, LocalConfig::MaxGridLinesVertices, LocalConfig::MaxGridLinesIndices)
@@ -543,8 +542,8 @@ namespace Fsl::UI
 
     m_chartWindowDrawData->Canvas.OnResolutionChanged(context->UnitConverter);
 
-    m_gridLineManager.SetChartEntryWidth(context->UnitConverter.DpToPxInt32(LocalConfig::ChartBarWidthDp));
-    m_gridLineManager.SetChartLabelSpacing(context->UnitConverter.DpToPxInt32(LocalConfig::ChartLabelSpacingDp));
+    m_gridLineManager.SetChartEntryWidth(context->UnitConverter.DpToPxSize1D(LocalConfig::ChartBarWidthDp));
+    m_gridLineManager.SetChartLabelSpacing(context->UnitConverter.DpToPxSize1D(LocalConfig::ChartLabelSpacingDp));
   }
 
 
@@ -552,8 +551,8 @@ namespace Fsl::UI
   {
     PxSize2D renderSizePx = RenderSizePx();
     // const uint32_t dataIOnfo = 1;
-    const int32_t maxEntries =
-      renderSizePx.Width() / m_gridLineManager.GetChartEntryWidth() + ((renderSizePx.Width() % m_gridLineManager.GetChartEntryWidth()) > 0 ? 1 : 0);
+    const int32_t maxEntries = renderSizePx.RawWidth() / m_gridLineManager.GetChartEntryWidth().RawValue() +
+                               ((renderSizePx.RawWidth() % m_gridLineManager.GetChartEntryWidth().RawValue()) > 0 ? 1 : 0);
 
     auto dataView = m_gridLineManager.GetDataView();
     const uint32_t maxStackedEntries = dataView ? dataView->DataInfo().ChannelCount : 1;
@@ -617,7 +616,7 @@ namespace Fsl::UI
     auto res = DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
                                                             PropLinkRefs(PropertyMatchDataViewEntries, m_propertyMatchDataViewEntries),
                                                             PropLinkRefs(PropertyDataView, m_propertyDataView));
-    return res.IsValid() ? res : BaseWindow::TryGetPropertyHandleNow(sourceDef);
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
@@ -628,7 +627,7 @@ namespace Fsl::UI
     auto res = DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
                                                      PropLinkRefs(PropertyMatchDataViewEntries, m_propertyMatchDataViewEntries),
                                                      PropLinkRefs(PropertyDataView, m_propertyDataView));
-    return res != PropertySetBindingResult::NotFound ? res : BaseWindow::TrySetBindingNow(targetDef, binding);
+    return res != PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
 

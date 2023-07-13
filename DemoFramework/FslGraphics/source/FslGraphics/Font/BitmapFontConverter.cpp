@@ -208,15 +208,15 @@ namespace Fsl
             {
               // The texture atlas contained information about the glyph so lets use that
               const auto atlasRect = atlasChars[atlasCharIndex].TextureInfo.TrimmedRectPx;
-              assert(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left <= uint32_t(std::numeric_limits<int16_t>::max() / 2));
-              assert(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top <= uint32_t(std::numeric_limits<int16_t>::max() / 2));
+              assert(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left.Value <= uint32_t(std::numeric_limits<int16_t>::max() / 2));
+              assert(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top.Value <= uint32_t(std::numeric_limits<int16_t>::max() / 2));
               basicKerning.OffsetXPx =
-                NumericCast<int16_t>(basicKerning.OffsetXPx + NumericCast<int32_t>(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left));
+                NumericCast<int16_t>(basicKerning.OffsetXPx + NumericCast<int32_t>(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Left.Value));
               basicKerning.OffsetYPx =
-                NumericCast<int16_t>(basicKerning.OffsetYPx + NumericCast<int32_t>(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top));
+                NumericCast<int16_t>(basicKerning.OffsetYPx + NumericCast<int32_t>(atlasChars[atlasCharIndex].TextureInfo.TrimMarginPx.Top.Value));
 
               rFontChars[dstGlyphIndex] =
-                BitmapFontChar(rangeGlyphId, atlasRect, PxPoint2(basicKerning.OffsetXPx, basicKerning.OffsetYPx), basicKerning.LayoutWidthPx);
+                BitmapFontChar(rangeGlyphId, atlasRect, PxPoint2::Create(basicKerning.OffsetXPx, basicKerning.OffsetYPx), basicKerning.LayoutWidthPx);
               ++atlasCharIndex;
             }
             else
@@ -274,8 +274,8 @@ namespace Fsl
     {
       auto desc = basicFontKerning.GetDesc();
       const uint16_t size = desc.LineSpacing;    // We dont have a better number for this parameter
-      const uint16_t lineSpacingPx = desc.LineSpacing;
-      const uint16_t baseLinePx = desc.BaseLine;
+      const auto lineSpacingPx = PxValueU16(NumericCast<uint16_t>(desc.LineSpacing));
+      const auto baseLinePx = PxValueU16(NumericCast<uint16_t>(desc.BaseLine));
 
       uint16_t defaultDpi = 0;
       auto chars = ExtractChars(textureAtlas, basicFontKerning, defaultDpi);

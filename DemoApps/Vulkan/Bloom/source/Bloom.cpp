@@ -47,12 +47,12 @@ namespace Fsl
     const constexpr float DEFAULT_ZOOM = 10;
     const constexpr float DEFAULT_X_ROTATION = MathHelper::TO_RADS * 20.0f;
 
-    const constexpr uint32_t SIZE_MOD = 2;
-    const constexpr uint32_t SIZE_16 = 16 * SIZE_MOD;
-    const constexpr uint32_t SIZE_32 = 32 * SIZE_MOD;
-    const constexpr uint32_t SIZE_64 = 64 * SIZE_MOD;
-    const constexpr uint32_t SIZE_128 = 128 * SIZE_MOD;
-    const constexpr uint32_t SIZE_256 = 256 * SIZE_MOD;
+    constexpr uint32_t SIZE_MOD = 2;
+    constexpr uint32_t SIZE_16 = 16 * SIZE_MOD;
+    constexpr uint32_t SIZE_32 = 32 * SIZE_MOD;
+    constexpr uint32_t SIZE_64 = 64 * SIZE_MOD;
+    constexpr uint32_t SIZE_128 = 128 * SIZE_MOD;
+    constexpr uint32_t SIZE_256 = 256 * SIZE_MOD;
 
     const constexpr uint32_t VERTEX_BUFFER_BIND_ID = 0;
 
@@ -63,7 +63,7 @@ namespace Fsl
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
       // Ensure that we can reuse the depth buffer for offscreen rendering even when the 'screen resolution' would be lower
-      setup.DepthBufferMinimumExtent = PxExtent2D(SIZE_256, SIZE_256);
+      setup.DepthBufferMinimumExtent = PxExtent2D::Create(SIZE_256, SIZE_256);
       return setup;
     }
 
@@ -1067,14 +1067,14 @@ namespace Fsl
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(screenExtent.Width);
-    viewport.height = static_cast<float>(screenExtent.Height);
+    viewport.width = static_cast<float>(screenExtent.Width.Value);
+    viewport.height = static_cast<float>(screenExtent.Height.Value);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(hCmdBuffer, 0, 1, &viewport);
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = VkExtent2D{screenExtent.Width, screenExtent.Height};
+    scissor.extent = VkExtent2D{screenExtent.Width.Value, screenExtent.Height.Value};
     vkCmdSetScissor(hCmdBuffer, 0, 1, &scissor);
 
     if (m_menuUI.IsFinalSceneEnabled())

@@ -443,7 +443,7 @@ namespace Fsl
       const auto expectedBitmapSize = static_cast<uint32_t>(calculatedSize);
       if (bitmapHeader.Compression != BmpCompression::RGB)
       {
-        if (bitmapHeader.ImageSize != expectedBitmapSize && !(allowZero && bitmapHeader.ImageSize == 0u))
+        if (bitmapHeader.ImageSize != expectedBitmapSize && (!allowZero || bitmapHeader.ImageSize != 0u))
         {
           throw FormatException("The bitmap size is incorrect");
         }
@@ -496,7 +496,7 @@ namespace Fsl
 
       // Ensure that the bitmap can hold the image (dont modify because we fill eventual padding with content from the bmp)
       const PixelFormat pf = bitmapHeader.ActivePixelFormat;
-      rBitmap.Reset(PxExtent2D(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(),
+      rBitmap.Reset(PxExtent2D::Create(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(),
                     BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minimumBmpStride, bitmapHeader, originHint);
@@ -516,7 +516,8 @@ namespace Fsl
 
       // Ensure that the bitmap can hold the image (We use dont modify because there is no padding to clear and everything will be overwritten)
       const PixelFormat pf = bitmapHeader.ActivePixelFormat;
-      rBitmap.Reset(PxExtent2D(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(PxExtent2D::Create(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minStride, rBitmap.GetOrigin(),
+                    BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minStride, bitmapHeader, originHint);
     }
@@ -540,8 +541,8 @@ namespace Fsl
 
     void WriteBitmapInfoHeader(std::ofstream& stream, const RawBitmap& bitmap, const uint32_t cbBitmap)
     {
-      const auto width = NumericCast<int32_t>(bitmap.GetExtent().Width);
-      const auto height = NumericCast<int32_t>(bitmap.GetExtent().Height);
+      const auto width = NumericCast<int32_t>(bitmap.GetExtent().Width.Value);
+      const auto height = NumericCast<int32_t>(bitmap.GetExtent().Height.Value);
 
       std::array<uint8_t, SIZE_BITMAPV2INFOHEADER> bitmapHeader{};
       ByteArrayUtil::WriteUInt32LE(bitmapHeader.data(), bitmapHeader.size(), BITMAPINFOHEADER_OFFSET_Size, SIZE_BITMAPINFOHEADER);

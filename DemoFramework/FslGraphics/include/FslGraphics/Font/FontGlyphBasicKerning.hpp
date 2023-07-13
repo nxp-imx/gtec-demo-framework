@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxValueU16.hpp>
 
 namespace Fsl
 {
@@ -39,10 +40,10 @@ namespace Fsl
   {
     int16_t OffsetXPx{0};
     int16_t OffsetYPx{0};
-    uint16_t LayoutWidthPx{0};
+    PxValueU16 LayoutWidthPx{0};
 
     constexpr FontGlyphBasicKerning() noexcept = default;
-    constexpr FontGlyphBasicKerning(const int16_t offsetXPx, const int16_t offsetYPx, const uint16_t layoutWidthPx)
+    constexpr FontGlyphBasicKerning(const int16_t offsetXPx, const int16_t offsetYPx, const PxValueU16 layoutWidthPx)
       : OffsetXPx(offsetXPx)
       , OffsetYPx(offsetYPx)
       , LayoutWidthPx(layoutWidthPx)

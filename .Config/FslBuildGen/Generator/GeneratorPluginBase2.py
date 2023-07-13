@@ -34,6 +34,7 @@ from typing import Dict
 from typing import Optional
 from typing import List
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
@@ -79,9 +80,9 @@ class GeneratorPluginBase2(GeneratorPluginBase):
 
     def TryGetBuildExecutableInfo(self, log: Log, generatorConfig: GeneratorConfig,
                                   package: Package, generatorReport: PackageGeneratorReport,
-                                  variantSettingsDict: Dict[str, str]) -> Optional[PackageGeneratorBuildExecutableInfo]:
+                                  externalVariantConstraints: ExternalVariantConstraints) -> Optional[PackageGeneratorBuildExecutableInfo]:
         """ Get information about the executable build during 'development' (and not the final installed one) """
-        return self._DoTryGetBuildExecutableInfo(log, generatorConfig, package, generatorReport, variantSettingsDict)
+        return self._DoTryGetBuildExecutableInfo(log, generatorConfig, package, generatorReport, externalVariantConstraints)
 
     def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> TheGeneratorBuildReport:
         log.LogPrintWarning("Generator {0} does not support build reports".format(self.PlatformName))
@@ -93,5 +94,5 @@ class GeneratorPluginBase2(GeneratorPluginBase):
 
     def _DoTryGetBuildExecutableInfo(self, log: Log, generatorConfig: GeneratorConfig,
                                      package: Package, generatorReport: PackageGeneratorReport,
-                                     variantSettingsDict: Dict[str, str]) -> Optional[PackageGeneratorBuildExecutableInfo]:
+                                     externalVariantConstraints: ExternalVariantConstraints) -> Optional[PackageGeneratorBuildExecutableInfo]:
         return None

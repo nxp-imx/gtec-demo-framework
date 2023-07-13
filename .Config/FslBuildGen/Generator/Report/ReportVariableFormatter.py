@@ -42,6 +42,7 @@ import os
 #from FslBuildGen import IOUtil
 #from FslBuildGen import Util
 #from FslBuildGen.Log import Log
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import InvalidVariableOptionNameException
@@ -131,7 +132,7 @@ def TryGetEnvironmentVariableResolveMethod(environmentVariableResolveMethod: For
 
 class ReportVariableFormatter(object):
     @staticmethod
-    def Format(strFormat: str, generatorVariableReport: GeneratorVariableReport,
+    def Format2(strFormat: str, generatorVariableReport: GeneratorVariableReport,
                userVariantSettingDict: Dict[str, str],
                environmentVariableResolveMethod: FormatStringEnvironmentVariableResolveMethod = FormatStringEnvironmentVariableResolveMethod.Lookup) -> str:
         environmentVariableResolver = TryGetEnvironmentVariableResolveMethod(environmentVariableResolveMethod)
@@ -161,6 +162,36 @@ class ReportVariableFormatter(object):
         scratchpadFormatList = parsedFormatString.SplitList # type: List[str]
         return GetFormattedString(scratchpadFormatList, variableList, variableOptionIndices, parsedFormatString.EnvCommandList, linkedCommandDict)
 
+    @staticmethod
+    def Format(strFormat: str, generatorVariableReport: GeneratorVariableReport,
+               externalVariantConstraints: ExternalVariantConstraints,
+               environmentVariableResolveMethod: FormatStringEnvironmentVariableResolveMethod = FormatStringEnvironmentVariableResolveMethod.Lookup) -> str:
+        environmentVariableResolver = TryGetEnvironmentVariableResolveMethod(environmentVariableResolveMethod)
+        parsedFormatString = ParsedFormatString(strFormat, generatorVariableReport, environmentVariableResolver)
+        sourceVariableDict, linkedVariables = CreateLookupDict(parsedFormatString.VarCommandList, generatorVariableReport)
+        linkedCommandDict = GetLinkedCommandList(linkedVariables, sourceVariableDict)
+
+        variableList = []           # type: List[LookupVariableCommand]
+        variableOptionIndices = []  # type: List[int]
+        # the ordering of the sourceVariableDict.values is pretty random, but it doesnt matter
+        for command in sourceVariableDict.values():
+            if command.Report.LinkTargetName is None:
+                variableList.append(command)
+                userDefinedOptionName = externalVariantConstraints.TryGetOptionStringByNameString(command.Name)
+                if userDefinedOptionName is not None:
+                    if userDefinedOptionName not in command.Report.Options:
+                        raise InvalidVariableOptionNameException(command.Name, userDefinedOptionName, str(command.Report.Options))
+                    variableOptionIndex = command.Report.Options.index(userDefinedOptionName)
+                else:
+                    defaultOptionIndex = generatorVariableReport.TryGetDefaultOptionIndex(command.Name)
+                    variableOptionIndex = 0 if defaultOptionIndex is None else defaultOptionIndex
+                variableOptionIndices.append(variableOptionIndex)
+            elif externalVariantConstraints.TryGetOptionStringByNameString(command.Name) is not None:
+                raise Exception("A linked variable '{0}' was found in the user feature list, this indicates a internal error".format(command.Name))
+
+        # Substitute the (env) variables with their values
+        scratchpadFormatList = parsedFormatString.SplitList # type: List[str]
+        return GetFormattedString(scratchpadFormatList, variableList, variableOptionIndices, parsedFormatString.EnvCommandList, linkedCommandDict)
 
     @staticmethod
     def GetAllKnownCombinations(strFormat: str, generatorVariableReport: GeneratorVariableReport) -> List[str]:

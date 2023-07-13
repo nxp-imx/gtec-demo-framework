@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_DP_DPTHICKNESSF_HPP
 #define FSLBASE_MATH_DP_DPTHICKNESSF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ namespace Fsl
   struct DpThicknessF
   {
     using value_type = DpValueF;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_left{};
@@ -91,6 +92,26 @@ namespace Fsl
     constexpr value_type Bottom() const noexcept
     {
       return m_bottom;
+    }
+
+    constexpr raw_value_type RawLeft() const noexcept
+    {
+      return m_left.Value;
+    }
+
+    constexpr raw_value_type RawTop() const noexcept
+    {
+      return m_top.Value;
+    }
+
+    constexpr raw_value_type RawRight() const noexcept
+    {
+      return m_right.Value;
+    }
+
+    constexpr raw_value_type RawBottom() const noexcept
+    {
+      return m_bottom.Value;
     }
 
     constexpr DpPoint2F TopLeft() const

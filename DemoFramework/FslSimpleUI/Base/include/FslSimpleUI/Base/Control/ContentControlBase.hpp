@@ -39,11 +39,15 @@ namespace Fsl::UI
 {
   class ContentControlBase : public BaseWindow
   {
+    using base_type = BaseWindow;
+
     std::shared_ptr<BaseWindow> m_content;
-    DpThickness m_paddingDp;
+    DataBinding::TypedDependencyProperty<DpThicknessF> m_propertyPaddingDp;
     bool m_isInitialized;
 
   public:
+    static DataBinding::DependencyPropertyDefinition PropertyPadding;
+
     explicit ContentControlBase(const std::shared_ptr<BaseWindowContext>& context);
 
     void WinInit() override;
@@ -62,11 +66,12 @@ namespace Fsl::UI
     //! @brief This includes any padding set
     PxSize2D GetContentDesiredSizePx() const;
 
-    DpThickness DoGetPadding() const
+    DpThicknessF DoGetPadding() const noexcept
     {
-      return m_paddingDp;
+      return m_propertyPaddingDp.Get();
     }
-    void DoSetPadding(const DpThickness& valueDp);
+
+    bool DoSetPadding(const DpThicknessF value);
 
     std::shared_ptr<BaseWindow> DoGetContent() const
     {
@@ -79,6 +84,11 @@ namespace Fsl::UI
 
     //! @brief Alternative method to ArrangeOverride that can be called to tweak the content offset
     PxSize2D CustomArrange(const PxSize2D& finalSizePx, const PxPoint2& positionOffset);
+
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+    DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                           const DataBinding::Binding& binding) override;
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
   };
 }
 

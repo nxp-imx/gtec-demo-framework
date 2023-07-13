@@ -129,7 +129,7 @@ namespace Fsl
     , m_uiExtension(createInfo.UIExtension)
     , m_gpuProfilerSupported(createInfo.GpuProfiler)
     , m_renderRecords(ReadOnlySpanUtil::ToVector(RenderConfig::Get()))
-    , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), m_windowMetrics.ExtentPx.Width,
+    , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), m_windowMetrics.ExtentPx.Width.Value,
                                              CustomControlFactory::MaxCpuProfileDataEntries(), UI::ChartData::Constraints(0, {})))
     , m_dataAverage(LocalConfig::AverageEntries)
     , m_anim(m_uiControlFactory->GetContext()->UITransitionCache, UI::DefaultAnim::ColorChangeTime)
@@ -425,7 +425,7 @@ namespace Fsl
     m_uiProfile.StatsOverlay2.MainLayout->SetBaseColor(m_anim.OverlayColorStats.GetValue());
 
     assert(m_uiProfile.BottomSlidingPanel);
-    m_uiProfile.BottomSlidingPanel->SetShow(m_settings->UI.ShowChart);
+    m_uiProfile.BottomSlidingPanel->SetShown(m_settings->UI.ShowChart);
 
     m_testAppHost->AppUpdate(demoTime);
 
@@ -768,7 +768,7 @@ namespace Fsl
     auto bottomSlidingPanel = std::make_shared<UI::SlidingPanel>(context);
     bottomSlidingPanel->SetDirection(UI::SlideDirection::Down);
     bottomSlidingPanel->SetContent(bottomBar.Main);
-    bottomSlidingPanel->SetShow(settings.ShowChart);
+    bottomSlidingPanel->SetShown(settings.ShowChart);
     bottomSlidingPanel->FinishAnimation();
 
     auto uiMainLayout = std::make_shared<UI::ComplexStackLayout>(context);

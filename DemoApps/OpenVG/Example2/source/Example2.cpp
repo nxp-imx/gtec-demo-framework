@@ -79,8 +79,8 @@ namespace Fsl
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    float scaleX = static_cast<float>(currentSizePx.Width()) / 1280.0f;
-    float scaleY = static_cast<float>(currentSizePx.Height()) / 1080.0f;
+    float scaleX = static_cast<float>(currentSizePx.RawWidth()) / 1280.0f;
+    float scaleY = static_cast<float>(currentSizePx.RawHeight()) / 1080.0f;
     std::vector<Vector2> vgTrianglePoints;
     std::vector<Vector2> vgQuadCurvePoints;
     std::vector<Vector2> vgCubicCurvePoints;
@@ -167,7 +167,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     // Set transformation matrix mode
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_PATH_USER_TO_SURFACE);

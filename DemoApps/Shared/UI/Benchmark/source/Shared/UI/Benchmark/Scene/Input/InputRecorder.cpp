@@ -118,7 +118,7 @@ namespace Fsl
 
         // FSLLOG3_INFO("MouseButtonEvent up at window #{}, RectPx: {}, EventPosPx: {}", m_recording.MouseButton.WindowId.Value, windowRectanglePx,
         //             eventPositionPx);
-        m_commandList.AddMouseButtonUp(m_recording.MouseButton.WindowId, windowRectanglePx, eventPositionPx);
+        m_commandList.AddMouseButtonUp(m_recording.MouseButton.WindowId, windowRectanglePx, eventPositionPx, event.IsTouch());
         m_recording.MouseButton = {};
       }
 
@@ -133,7 +133,7 @@ namespace Fsl
           const auto windowRectanglePx = m_info->GetWindowRectanglePx(customWindowId);
           // FSLLOG3_INFO("MouseButtonEvent down at window #{}, RectPx: {}, EventPosPx: {}", customWindowId.Value, windowRectanglePx,
           // eventPositionPx);
-          m_commandList.AddMouseButtonDown(m_recording.MouseButton.WindowId, windowRectanglePx, eventPositionPx);
+          m_commandList.AddMouseButtonDown(m_recording.MouseButton.WindowId, windowRectanglePx, eventPositionPx, event.IsTouch());
         }
       }
     }
@@ -152,7 +152,7 @@ namespace Fsl
         const auto windowRectanglePx = m_info->GetWindowRectanglePx(m_recording.MouseButton.WindowId);
         // FSLLOG3_INFO("MouseButtonMove at window #{}, RectPx: {}, EventPosPx: {}", m_recording.MouseButton.WindowId.Value, windowRectanglePx,
         //             eventPositionPx);
-        m_commandList.AddMouseMoveWhileDown(m_recording.MouseButton.WindowId, windowRectanglePx, eventPositionPx);
+        m_commandList.AddMouseMoveWhileDown(m_recording.MouseButton.WindowId, windowRectanglePx, eventPositionPx, event.IsTouch());
         clearMove = false;
       }
       else if (event.IsHandled())
@@ -163,7 +163,7 @@ namespace Fsl
           const auto windowRectanglePx = m_info->GetWindowRectanglePx(customWindowId);
           // FSLLOG3_INFO("MouseMove at window #{}, RectPx: {}, EventPosPx: {}", customWindowId.Value, windowRectanglePx, eventPositionPx);
           m_recording.MouseMove = Record(customWindowId);
-          m_commandList.AddMouseMove(customWindowId, windowRectanglePx, eventPositionPx);
+          m_commandList.AddMouseMove(customWindowId, windowRectanglePx, eventPositionPx, event.IsTouch());
           clearMove = false;
         }
       }

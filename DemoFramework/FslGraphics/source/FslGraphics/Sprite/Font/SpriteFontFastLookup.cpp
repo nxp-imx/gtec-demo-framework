@@ -67,7 +67,7 @@ namespace Fsl
       NativeTextureArea textureArea = spriteNativeAreaCalc.CalcNativeTextureArea(src.SrcTextureRectPx, textureExtentPx);
       PxSize2DF scaledSizePxf = unitConverter.CalcScaledPxSize2DF(src.SrcTextureRectPx.GetExtent(), imageDpi);
       PxVector2 offsetPxf = unitConverter.CalcScaledOffsetPxVector2(src.OffsetPx, imageDpi);
-      float xAdvancePxf = unitConverter.CalcScaledOffsetValuePxf(src.XAdvancePx, imageDpi);
+      float xAdvancePxf = unitConverter.CalcScaledOffsetValuePxf(src.XAdvancePx.Value, imageDpi);
 
       dst[i] = SpriteFontCharInfo(CoreFontCharInfo(src.Id, TypeConverter::To<PxRectangleU16>(src.SrcTextureRectPx), src.OffsetPx, src.XAdvancePx),
                                   RenderFontCharInfo(textureArea, scaledSizePxf, offsetPxf, xAdvancePxf));

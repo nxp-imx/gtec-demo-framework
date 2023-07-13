@@ -430,8 +430,8 @@ namespace Fsl
     {    // Setup the orthographic matrix for 2d rendering
       const PxSize2D sizePx = metrics.GetSizePx();
 
-      const auto screenWidth = static_cast<float>(sizePx.Width());
-      const auto screenHeight = static_cast<float>(sizePx.Height());
+      const auto screenWidth = static_cast<float>(sizePx.RawWidth());
+      const auto screenHeight = static_cast<float>(sizePx.RawHeight());
       const float screenOffsetX = screenWidth / 2.0f;
       const float screenOffsetY = screenHeight / 2.0f;
 
@@ -468,8 +468,8 @@ namespace Fsl
     // Setup the orthographic matrix for 2d rendering
     const PxSize2D sizePx = metrics.GetSizePx();
 
-    const auto screenWidth = static_cast<float>(sizePx.Width());
-    const auto screenHeight = static_cast<float>(sizePx.Height());
+    const auto screenWidth = static_cast<float>(sizePx.RawWidth());
+    const auto screenHeight = static_cast<float>(sizePx.RawHeight());
     const float screenOffsetX = screenWidth / 2.0f;
     const float screenOffsetY = screenHeight / 2.0f;
 

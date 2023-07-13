@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_UNITTEST_HELPER_SPRITE_MATERIAL_TEST_SPRITEMATERIALIMPL_HPP
 #define FSLGRAPHICS_UNITTEST_HELPER_SPRITE_MATERIAL_TEST_SPRITEMATERIALIMPL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,18 +63,20 @@ namespace Fsl
       return m_extentPx;
     }
 
-    static constexpr NativeTextureArea TestCalcNativeTextureArea(const PxExtent2D& extentPx, const PxRectangleU16& imageRectanglePx)
+    static constexpr NativeTextureArea TestCalcNativeTextureArea(const PxExtent2D extentPx, const PxRectangleU16 imageRectanglePx)
     {
       if (imageRectanglePx.Right() > extentPx.Width || imageRectanglePx.Bottom() > extentPx.Height)
       {
         throw std::invalid_argument("the supplied imageRectangle does not fit inside the given extent");
       }
 
-      return {imageRectanglePx.Left() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Left()) / static_cast<float>(extentPx.Width),
-              imageRectanglePx.Top() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Top()) / static_cast<float>(extentPx.Height),
-              imageRectanglePx.Right() >= extentPx.Width ? 1.0f : static_cast<float>(imageRectanglePx.Right()) / static_cast<float>(extentPx.Width),
-              imageRectanglePx.Bottom() >= extentPx.Height ? 1.0f
-                                                           : static_cast<float>(imageRectanglePx.Bottom()) / static_cast<float>(extentPx.Height)};
+      return {imageRectanglePx.RawLeft() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.RawLeft()) / static_cast<float>(extentPx.Width.Value),
+              imageRectanglePx.RawTop() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.RawTop()) / static_cast<float>(extentPx.Height.Value),
+              imageRectanglePx.Right() >= extentPx.Width ? 1.0f
+                                                         : static_cast<float>(imageRectanglePx.RawRight()) / static_cast<float>(extentPx.Width.Value),
+              imageRectanglePx.Bottom() >= extentPx.Height
+                ? 1.0f
+                : static_cast<float>(imageRectanglePx.RawBottom()) / static_cast<float>(extentPx.Height.Value)};
     }
 
     static constexpr NativeTextureArea TestCalcNativeTextureArea(const PxExtent2D& extentPx, const PxRectangleU32& imageRectanglePx)
@@ -84,11 +86,13 @@ namespace Fsl
         throw std::invalid_argument("the supplied imageRectangle does not fit inside the given extent");
       }
 
-      return {imageRectanglePx.Left() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Left()) / static_cast<float>(extentPx.Width),
-              imageRectanglePx.Top() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Top()) / static_cast<float>(extentPx.Height),
-              imageRectanglePx.Right() >= extentPx.Width ? 1.0f : static_cast<float>(imageRectanglePx.Right()) / static_cast<float>(extentPx.Width),
-              imageRectanglePx.Bottom() >= extentPx.Height ? 1.0f
-                                                           : static_cast<float>(imageRectanglePx.Bottom()) / static_cast<float>(extentPx.Height)};
+      return {imageRectanglePx.RawLeft() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.RawLeft()) / static_cast<float>(extentPx.Width.Value),
+              imageRectanglePx.RawTop() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.RawTop()) / static_cast<float>(extentPx.Height.Value),
+              imageRectanglePx.Right() >= extentPx.Width ? 1.0f
+                                                         : static_cast<float>(imageRectanglePx.RawRight()) / static_cast<float>(extentPx.Width.Value),
+              imageRectanglePx.Bottom() >= extentPx.Height
+                ? 1.0f
+                : static_cast<float>(imageRectanglePx.RawBottom()) / static_cast<float>(extentPx.Height.Value)};
     }
   };
 }

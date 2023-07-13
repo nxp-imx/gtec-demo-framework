@@ -202,7 +202,7 @@ class EvaluateConditionInterpreter(object):
                 variableReport.Add(variableKey, ["{0}".format(variableValue)])
             else:
                 raise Exception("Not supported")
-        processedCondition = ReportVariableFormatter.Format(condition, variableReport, {})
+        processedCondition = ReportVariableFormatter.Format2(condition, variableReport, {})
 
 
         # Do some validation on the condition to ensure it only contains the elements we want and support

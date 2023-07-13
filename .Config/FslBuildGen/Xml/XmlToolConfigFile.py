@@ -59,41 +59,62 @@ from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfi
 
 
 class XmlConfigFileGenFile(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlConfigFileTemplateFolder(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 
 class XmlConfigFileAddTemplateImportDirectory(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlConfigContentBuilderAddExtension(XmlBase):
+    __AttribName = 'Name'
+    __AttribDescription = 'Description'
+    __AttribPostfixedOutputExtension = 'PostfixedOutputExtension'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.Description = self._ReadAttrib(xmlElement, 'Description')
-        self.PostfixedOutputExtension = self._ReadAttrib(xmlElement, 'PostfixedOutputExtension', '')
+        self._CheckAttributes({self.__AttribName, self.__AttribDescription, self.__AttribPostfixedOutputExtension})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Description = self._ReadAttrib(xmlElement, self.__AttribDescription)
+        self.PostfixedOutputExtension = self._ReadAttrib(xmlElement, self.__AttribPostfixedOutputExtension, '')
 
 
 class XmlConfigContentBuilder(XmlBase):
+    __AttribName = 'Name'
+    __AttribExecutable = 'Executable'
+    __AttribParameters = 'Parameters'
+    __AttribFeatureRequirements = 'FeatureRequirements'
+    __AttribDescription = 'Description'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
-        self.Executable = self._ReadAttrib(xmlElement, 'Executable')  # type: str
-        self.Parameters = self._ReadAttrib(xmlElement, 'Parameters')  # type: str
-        self.FeatureRequirements = self._ReadAttrib(xmlElement, 'FeatureRequirements', '')  # type: str
+        self._CheckAttributes({self.__AttribName, self.__AttribExecutable, self.__AttribParameters, self.__AttribFeatureRequirements, self.__AttribDescription})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type: str
+        self.Executable = self._ReadAttrib(xmlElement, self.__AttribExecutable)  # type: str
+        self.Parameters = self._ReadAttrib(xmlElement, self.__AttribParameters)  # type: str
+        self.FeatureRequirements = self._ReadAttrib(xmlElement, self.__AttribFeatureRequirements, '')  # type: str
         self.DefaultExtensions = self.__LoadDefaultExtensions(log, xmlElement)  # type: List[XmlConfigContentBuilderAddExtension]
-        self.Description = self._ReadAttrib(xmlElement, 'Description')  # type: str
+        self.Description = self._ReadAttrib(xmlElement, self.__AttribDescription)  # type: str
 
 
     def __LoadDefaultExtensions(self, log: Log, xmlElement: ET.Element) -> List[XmlConfigContentBuilderAddExtension]:
@@ -107,6 +128,7 @@ class XmlConfigContentBuilder(XmlBase):
 class XmlConfigContentBuilderConfiguration(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes(set())
         self.ContentBuilders = self.__LoadContentBuilders(log, xmlElement)  # type: List[XmlConfigContentBuilder]
 
 
@@ -125,6 +147,8 @@ class FakeXmlConfigContentBuilderConfiguration(XmlConfigContentBuilderConfigurat
 
 
 class XmlToolConfigFile(XmlBase):
+    __AttribVersion = 'Version'
+
     def __init__(self, log: Log, filename: str, projectRootConfig: XmlProjectRootConfigFile) -> None:
         if projectRootConfig is None:
             raise Exception("projectRootConfig can not be None")
@@ -137,8 +161,9 @@ class XmlToolConfigFile(XmlBase):
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGenConfig'")
 
         super().__init__(log, elem)
+        #self._CheckAttributes({self.__AttribVersion})
         currentVersion = '2'
-        fileVersion = self._ReadAttrib(elem, 'Version')
+        fileVersion = self._ReadAttrib(elem, self.__AttribVersion)
         if fileVersion != currentVersion:
             raise XmlException("The file was not of the expected version {0}".format(currentVersion))
 

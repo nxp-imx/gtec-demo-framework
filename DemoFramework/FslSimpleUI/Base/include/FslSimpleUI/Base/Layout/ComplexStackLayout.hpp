@@ -48,8 +48,8 @@ namespace Fsl
     struct ComplexStackLayoutWindowRecord : GenericWindowCollectionRecordBase
     {
       LayoutUnitType UnitType{LayoutUnitType::Auto};
-      int32_t PositionPx{};
-      int32_t SizePx{};
+      PxValue PositionPx{};
+      PxSize1D SizePx{};
       float LayoutSizeMagic{};
 
       explicit ComplexStackLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
@@ -62,24 +62,28 @@ namespace Fsl
 
     class ComplexStackLayout : public ComplexLayout<ComplexStackLayoutWindowRecord>
     {
-      LayoutOrientation m_orientation;
+      using base_type = ComplexLayout<ComplexStackLayoutWindowRecord>;
+
+      DataBinding::TypedDependencyProperty<LayoutOrientation> m_propertyOrientation;
+      DataBinding::TypedDependencyProperty<DpSize1DF> m_propertySpacingDp;
       std::deque<LayoutLength> m_layoutLength;
-      DpSize1DF m_spacingDp{};
 
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+      static DataBinding::DependencyPropertyDefinition PropertySpacing;
+
       explicit ComplexStackLayout(const std::shared_ptr<BaseWindowContext>& context);
 
-      LayoutOrientation GetLayoutOrientation() const
+      LayoutOrientation GetOrientation() const
       {
-        return m_orientation;
+        return m_propertyOrientation.Get();
       }
-
-      void SetOrientation(const LayoutOrientation& value);
+      bool SetOrientation(const LayoutOrientation value);
 
       DpSize1DF GetSpacing() const
       {
-        return m_spacingDp;
+        return m_propertySpacingDp.Get();
       }
       bool SetSpacing(const DpSize1DF value);
 
@@ -100,12 +104,17 @@ namespace Fsl
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
+
     private:
-      PxSize2D CalcFixedStarSizeHorizontal(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx);
-      PxSize2D CalcFixedStarSizeVertical(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx);
-      void FinalizePositionAndStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars);
-      void ArrangeHorizontal(const int32_t finalSizeYPx);
-      void ArrangeVertical(const int32_t finalSizeXPx);
+      PxSize2D CalcFixedStarSizeHorizontal(const SpriteUnitConverter& unitConverter, const PxSize2D finalSizePx);
+      PxSize2D CalcFixedStarSizeVertical(const SpriteUnitConverter& unitConverter, const PxSize2D finalSizePx);
+      void FinalizePositionAndStarSizes(const SpriteUnitConverter& unitConverter, const PxSize1D spaceLeftPx, const float totalStars);
+      void ArrangeHorizontal(const PxSize1D finalSizeYPx);
+      void ArrangeVertical(const PxSize1D finalSizeXPx);
     };
   }
 }

@@ -56,7 +56,7 @@ namespace Fsl::UI::Render
   {
     struct GridLineRecord
     {
-      int32_t LinePositionPx{0};
+      PxValue LinePositionPx{0};
       PxPoint2 LabelOffsetPx;
       PxSize2D LabelSizePx;
       PxRectangle LabelBackgroundRectanglePx;
@@ -69,7 +69,7 @@ namespace Fsl::UI::Render
       uint32_t ViewMax{0};
       float DataRenderScale{1.0f};
       //! The width of a chart entry in pixels
-      int32_t EntryWidthPx{1};
+      PxSize1D EntryWidthPx{PxSize1D::Create(1)};
     };
 
     ChartCanvas1D Canvas;

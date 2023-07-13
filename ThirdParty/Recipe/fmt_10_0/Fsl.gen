@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.fmt_10_0" CreationYear="2022">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Android;Ubuntu;QNX;Emscripten" Supported="true">
+      <ExperimentalRecipe Name="fmt" Version="10.0.0" Find="false">
+        <Pipeline>
+          <Download URL="https://github.com/fmtlib/fmt/releases/download/10.0.0/fmt-10.0.0.zip" To="fmt-10.0.0.zip" Hash="4943cb165f3f587f26da834d3056ee8733c397e024145ca7d2a8a96bb71ac281"/> 
+          <Unpack File="fmt-10.0.0.zip" OutputPath="fmt-10.0.0"/>
+          <CMakeBuild Project="fmt" Target="install" Configuration="release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libfmt.a"/>
+          <Path Name="include/fmt/format.h" Method="IsFile"/>
+          <Path Name="include/fmt/printf.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    
+    <Platform Name="Windows" Supported="true">
+      <!-- Disabled find as clang tidy fails to locate headers-->
+      <ExperimentalRecipe Name="fmt" Version="10.0.0" Find="false">
+        <Pipeline>
+          <Download URL="https://github.com/fmtlib/fmt/releases/download/10.0.0/fmt-10.0.0.zip" To="fmt-10.0.0.zip" Hash="4943cb165f3f587f26da834d3056ee8733c397e024145ca7d2a8a96bb71ac281"/> 
+          <Unpack File="fmt-10.0.0.zip" OutputPath="fmt-10.0.0"/>
+          <CMakeBuild Project="fmt" Target="install" Configuration="debug;release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/fmt.lib" DebugName="lib/fmtd.lib"/>
+          <Path Name="include/fmt/format.h" Method="IsFile"/>
+          <Path Name="include/fmt/printf.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

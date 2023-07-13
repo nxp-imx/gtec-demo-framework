@@ -38,9 +38,9 @@ namespace Fsl
 {
   namespace EqualHelper
   {
-    inline static bool IsAlmostEqual(const PxVector2& lhs, const PxVector2& rhs)
+    inline static bool IsAlmostEqual(const PxVector2 lhs, const PxVector2 rhs)
     {
-      return IsAlmostEqual(lhs.X, rhs.X) && IsAlmostEqual(lhs.Y, rhs.Y);
+      return IsAlmostEqual(lhs.X.Value, rhs.X.Value) && IsAlmostEqual(lhs.Y.Value, rhs.Y.Value);
     }
   };
 }

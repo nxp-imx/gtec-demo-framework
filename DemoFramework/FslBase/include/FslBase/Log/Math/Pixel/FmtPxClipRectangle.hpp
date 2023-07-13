@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/FmtPxValue.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <fmt/format.h>
 

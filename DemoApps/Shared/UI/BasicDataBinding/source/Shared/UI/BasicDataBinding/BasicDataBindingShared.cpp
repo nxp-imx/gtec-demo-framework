@@ -198,7 +198,7 @@ namespace Fsl
     const auto& context = uiFactory.GetContext();
     auto exampleLayout = std::make_shared<UI::UniformWrapLayout>(context);
     exampleLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
-    exampleLayout->SetSpacing(DpPoint2F::Create(4, 4));
+    exampleLayout->SetSpacing(DpSize2DF::Create(4, 4));
 
     auto example1 = CreateExample1UI(uiFactory);
     auto example2 = CreateExample2UI(uiFactory);

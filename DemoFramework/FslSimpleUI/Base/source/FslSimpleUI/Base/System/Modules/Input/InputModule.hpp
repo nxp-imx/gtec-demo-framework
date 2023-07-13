@@ -64,11 +64,11 @@ namespace Fsl
       bool IsIdle() const noexcept;
 
       //! @brief Notify the input module that the mouse is moving
-      bool MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx);
+      bool MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx, const bool isTouch);
 
       //! @brief Send a click event
       bool SendClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                          const PxPoint2& screenPositionPx);
+                          const PxPoint2& screenPositionPx, const bool isTouch);
     };
   }
 }

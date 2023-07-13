@@ -112,7 +112,7 @@ namespace Fsl
       const auto y = ValueCompression::ReadSimpleUInt32(rSpan);
       const auto width = ValueCompression::ReadSimpleUInt32(rSpan);
       const auto height = ValueCompression::ReadSimpleUInt32(rSpan);
-      return {x, y, width, height};
+      return PxRectangleU32::Create(x, y, width, height);
     }
 
 
@@ -120,7 +120,7 @@ namespace Fsl
     {
       const auto x = ValueCompression::ReadSimpleInt32(rSpan);
       const auto y = ValueCompression::ReadSimpleInt32(rSpan);
-      return {x, y};
+      return PxPoint2::Create(x, y);
     }
 
     BitmapFontChar DecodeChar(ReadOnlySpan<uint8_t>& rSpan)
@@ -128,7 +128,7 @@ namespace Fsl
       const auto id = ValueCompression::ReadSimpleUInt32(rSpan);
       const PxRectangleU32 srcTextureRectPx = ReadPxRectangleU(rSpan);
       const auto offsetPx = ReadPxPoint2(rSpan);
-      const auto xAdvancePx = ValueCompression::ReadSimpleUInt16(rSpan);
+      const auto xAdvancePx = PxValueU16(ValueCompression::ReadSimpleUInt16(rSpan));
       return {id, srcTextureRectPx, offsetPx, xAdvancePx};
     }
 
@@ -136,7 +136,7 @@ namespace Fsl
     {
       const uint32_t first = ValueCompression::ReadSimpleUInt32(rSpan);
       const uint32_t second = ValueCompression::ReadSimpleUInt32(rSpan);
-      const auto amountPx = NumericCast<int16_t>(ValueCompression::ReadSimpleInt32(rSpan));
+      const auto amountPx = PxValue::Create(ValueCompression::ReadSimpleInt32(rSpan));
       return {first, second, amountPx};
     }
 
@@ -177,8 +177,8 @@ namespace Fsl
     auto name = ReadString(remainingContent);
     auto dpi = ValueCompression::ReadSimpleUInt16(remainingContent);
     auto size = ValueCompression::ReadSimpleUInt16(remainingContent);
-    auto lineSpacingPx = ValueCompression::ReadSimpleUInt16(remainingContent);
-    auto baseLinePx = ValueCompression::ReadSimpleUInt16(remainingContent);
+    auto lineSpacingPx = PxValueU16(ValueCompression::ReadSimpleUInt16(remainingContent));
+    auto baseLinePx = PxValueU16(ValueCompression::ReadSimpleUInt16(remainingContent));
     uint16_t sdfSpread = 0;
     uint16_t sdfDesiredBaseLinePx = 0;
     uint16_t paddingLeft = 0;
@@ -204,8 +204,8 @@ namespace Fsl
       throw FormatException("Failed to read all content");
     }
 
-    const float sdfScale = sdfDesiredBaseLinePx == 0 ? 1.0f : static_cast<float>(sdfDesiredBaseLinePx) / static_cast<float>(baseLinePx);
-    const PxThicknessU16 paddingPx(paddingLeft, paddingTop, paddingRight, paddingBottom);
+    const float sdfScale = sdfDesiredBaseLinePx == 0 ? 1.0f : static_cast<float>(sdfDesiredBaseLinePx) / static_cast<float>(baseLinePx.Value);
+    const auto paddingPx = PxThicknessU16::Create(paddingLeft, paddingTop, paddingRight, paddingBottom);
     BitmapFont::SdfParams sdfParams(sdfSpread, sdfScale);
     return {std::move(name),        dpi,      size,      lineSpacingPx,    baseLinePx,         paddingPx,
             std::move(textureName), fontType, sdfParams, std::move(chars), std::move(kernings)};

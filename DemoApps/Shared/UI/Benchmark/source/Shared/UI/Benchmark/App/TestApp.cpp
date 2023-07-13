@@ -312,7 +312,7 @@ namespace Fsl
     middleLayout->SetAlignmentX(UI::ItemAlignment::Center);
     middleLayout->SetAlignmentY(UI::ItemAlignment::Center);
     middleLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
-    middleLayout->SetSpacing(DpPoint2F::Create(4.0f, 4.0f));
+    middleLayout->SetSpacing(DpSize2DF::Create(4.0f, 4.0f));
     middleLayout->AddChild(window0);
     middleLayout->AddChild(window1);
     middleLayout->AddChild(window2);

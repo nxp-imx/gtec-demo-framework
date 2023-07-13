@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ namespace Fsl::UI
     void DrawCustomBoxPlots(UIRawBasicMeshBuilder2D& rBuilder, const PxVector2 dstPositionPxf, const PxSize2D dstSizePx,
                             const RenderBasicImageInfo& renderInfo, const ICustomDrawData* const pCustomDrawData)
     {
-      if (dstSizePx.Height() < 2)
+      if (dstSizePx.Height() < PxSize1D::Create(2))
       {
         return;
       }
@@ -126,7 +126,7 @@ namespace Fsl::UI
         // ABBBBBCCDDEEEFFFFFG
         // ABBBBBCCDDEEEFFFFFG
         // AA   CCCDDEEEE   GG
-        int32_t startOffsetPx = 0;
+        PxValue startOffsetPx;
         auto startPositionPxf = dstPositionPxf;
         const auto baseColor = rBuilder.GetColor();
         const auto medianColor = Color::Premultiply(pDrawData->MedianColor * baseColor);
@@ -138,7 +138,7 @@ namespace Fsl::UI
 
           const auto barMiddlePx = (pDrawData->DrawInfo.MaxSizePx.RawValue() + 1) / 2;
 
-          startOffsetPx += pDrawData->DrawInfo.NextBarPx.RawValue();
+          startOffsetPx += pDrawData->DrawInfo.NextBarPx;
 
 
           const auto outlierMinPx = canvas.CanvasAxisToPx(spanEntry.BoxPlot.OutlierMin);
@@ -157,136 +157,136 @@ namespace Fsl::UI
 
           if (canvas.GetLayoutOrientation() == LayoutOrientation::Horizontal)
           {
-            const float dstX0Pxf = startPositionPxf.X + static_cast<float>(minPx);
+            const float dstX0Pxf = startPositionPxf.X.Value + static_cast<float>(minPx);
             const float dstX1Pxf = dstX0Pxf + sizeOfOneDpInPxf;
-            const float dstX2Pxf = startPositionPxf.X + static_cast<float>(q1Px);
-            const float dstX3Pxf = startPositionPxf.X + static_cast<float>(q2Px);
+            const float dstX2Pxf = startPositionPxf.X.Value + static_cast<float>(q1Px);
+            const float dstX3Pxf = startPositionPxf.X.Value + static_cast<float>(q2Px);
             const float dstX4Pxf = dstX3Pxf + sizeOfOneDpInPxf;
-            const float dstX5Pxf = startPositionPxf.X + static_cast<float>(q3Px);
-            const float dstX6Pxf = startPositionPxf.X + static_cast<float>(maxPx);
+            const float dstX5Pxf = startPositionPxf.X.Value + static_cast<float>(q3Px);
+            const float dstX6Pxf = startPositionPxf.X.Value + static_cast<float>(maxPx);
             const float dstX7Pxf = dstX6Pxf + sizeOfOneDpInPxf;
 
             {
-              const float dstX0OutlerMinPxf = startPositionPxf.X + static_cast<float>(outlierMinPx.Value);
+              const float dstX0OutlerMinPxf = startPositionPxf.X.Value + static_cast<float>(outlierMinPx.Value);
               const float dstX1OutlerMinPxf = dstX0OutlerMinPxf + sizeOfOneDpInPxf;
-              const float dstX0OutlerMaxPxf = startPositionPxf.X + static_cast<float>(outlierMaxPx.Value);
+              const float dstX0OutlerMaxPxf = startPositionPxf.X.Value + static_cast<float>(outlierMaxPx.Value);
               const float dstX1OutlerMaxPxf = dstX0OutlerMaxPxf + sizeOfOneDpInPxf;
 
               const int32_t halfHeightPx = pDrawData->DrawInfo.OutlierSizePx.RawValue() / 2;
-              const float dstY0Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstY1Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstY0Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstY1Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               // Min outlier box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0OutlerMinPxf, dstY0Pxf, dstX1OutlerMinPxf, dstY1Pxf),
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0OutlerMinPxf, dstY0Pxf, dstX1OutlerMinPxf, dstY1Pxf),
                                renderInfo.TextureArea);
               // Max outlier box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0OutlerMaxPxf, dstY0Pxf, dstX1OutlerMaxPxf, dstY1Pxf),
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0OutlerMaxPxf, dstY0Pxf, dstX1OutlerMaxPxf, dstY1Pxf),
                                renderInfo.TextureArea);
             }
             {
               const int32_t halfHeightPx = pDrawData->DrawInfo.LineSizePx.RawValue() / 2;
-              const float dstY0Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstY1Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstY0Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstY1Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               // left line
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX1Pxf, dstY0Pxf, dstX2Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX1Pxf, dstY0Pxf, dstX2Pxf, dstY1Pxf), renderInfo.TextureArea);
               // right line
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX5Pxf, dstY0Pxf, dstX6Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX5Pxf, dstY0Pxf, dstX6Pxf, dstY1Pxf), renderInfo.TextureArea);
             }
             {
               const int32_t halfHeightPx = pDrawData->DrawInfo.BoxSizePx.RawValue() / 2;
-              const float dstY0Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstY1Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstY0Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstY1Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               // q1 box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX2Pxf, dstY0Pxf, dstX3Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX2Pxf, dstY0Pxf, dstX3Pxf, dstY1Pxf), renderInfo.TextureArea);
               // q3 box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX4Pxf, dstY0Pxf, dstX5Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX4Pxf, dstY0Pxf, dstX5Pxf, dstY1Pxf), renderInfo.TextureArea);
 
               // q2 box
               rBuilder.SetColor(medianColor);
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX3Pxf, dstY0Pxf, dstX4Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX3Pxf, dstY0Pxf, dstX4Pxf, dstY1Pxf), renderInfo.TextureArea);
             }
 
             {    // left and right whisker
               const int32_t halfHeightPx = pDrawData->DrawInfo.WhiskerSizePx.RawValue() / 2;
-              const float dstY0Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstY1Pxf = startPositionPxf.Y + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstY0Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstY1Pxf = startPositionPxf.Y.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               rBuilder.SetColor(primaryColor);
               // min box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf), renderInfo.TextureArea);
               // max box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX6Pxf, dstY0Pxf, dstX7Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX6Pxf, dstY0Pxf, dstX7Pxf, dstY1Pxf), renderInfo.TextureArea);
             }
-            startPositionPxf.Y = dstPositionPxf.Y + static_cast<float>(startOffsetPx);
+            startPositionPxf.Y = dstPositionPxf.Y + PxValueF(startOffsetPx);
           }
           else
           {
-            const int32_t yOffsetPx = dstSizePx.Height() - 1;
-            const float dstY0Pxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - minPx);
+            const int32_t yOffsetPx = dstSizePx.RawHeight() - 1;
+            const float dstY0Pxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - minPx);
             const float dstY1Pxf = dstY0Pxf - sizeOfOneDpInPxf;
-            const float dstY2Pxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - q1Px);
-            const float dstY3Pxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - q2Px);
+            const float dstY2Pxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - q1Px);
+            const float dstY3Pxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - q2Px);
             const float dstY4Pxf = dstY3Pxf - sizeOfOneDpInPxf;
-            const float dstY5Pxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - q3Px);
-            const float dstY6Pxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - maxPx);
+            const float dstY5Pxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - q3Px);
+            const float dstY6Pxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - maxPx);
             const float dstY7Pxf = dstY6Pxf - sizeOfOneDpInPxf;
 
 
             {
-              const float dstY0OutlerMinPxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - outlierMinPx.Value);
+              const float dstY0OutlerMinPxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - outlierMinPx.Value);
               const float dstY1OutlerMinPxf = dstY0OutlerMinPxf - sizeOfOneDpInPxf;
-              const float dstY0OutlerMaxPxf = startPositionPxf.Y + static_cast<float>(yOffsetPx - outlierMaxPx.Value);
+              const float dstY0OutlerMaxPxf = startPositionPxf.Y.Value + static_cast<float>(yOffsetPx - outlierMaxPx.Value);
               const float dstY1OutlerMaxPxf = dstY0OutlerMaxPxf - sizeOfOneDpInPxf;
 
               const int32_t halfHeightPx = pDrawData->DrawInfo.OutlierSizePx.RawValue() / 2;
-              const float dstX0Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstX1Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstX0Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstX1Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               // Min outlier box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY1OutlerMinPxf, dstX1Pxf, dstY0OutlerMinPxf),
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY1OutlerMinPxf, dstX1Pxf, dstY0OutlerMinPxf),
                                renderInfo.TextureArea);
               // Max outlier box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY1OutlerMaxPxf, dstX1Pxf, dstY0OutlerMaxPxf),
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY1OutlerMaxPxf, dstX1Pxf, dstY0OutlerMaxPxf),
                                renderInfo.TextureArea);
             }
             {
               const int32_t halfHeightPx = pDrawData->DrawInfo.LineSizePx.RawValue() / 2;
-              const float dstX0Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstX1Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstX0Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstX1Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               // left line
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY2Pxf, dstX1Pxf, dstY1Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY2Pxf, dstX1Pxf, dstY1Pxf), renderInfo.TextureArea);
               // right line
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY6Pxf, dstX1Pxf, dstY5Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY6Pxf, dstX1Pxf, dstY5Pxf), renderInfo.TextureArea);
             }
             {
               const int32_t halfHeightPx = pDrawData->DrawInfo.BoxSizePx.RawValue() / 2;
-              const float dstX0Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstX1Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstX0Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstX1Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               // q1 box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY3Pxf, dstX1Pxf, dstY2Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY3Pxf, dstX1Pxf, dstY2Pxf), renderInfo.TextureArea);
               // q3 box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY5Pxf, dstX1Pxf, dstY4Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY5Pxf, dstX1Pxf, dstY4Pxf), renderInfo.TextureArea);
 
               // q2 box
               rBuilder.SetColor(medianColor);
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY4Pxf, dstX1Pxf, dstY3Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY4Pxf, dstX1Pxf, dstY3Pxf), renderInfo.TextureArea);
             }
             {    // left and right whisker
               const int32_t halfHeightPx = pDrawData->DrawInfo.WhiskerSizePx.RawValue() / 2;
-              const float dstX0Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx - halfHeightPx);
-              const float dstX1Pxf = startPositionPxf.X + static_cast<float>(barMiddlePx + halfHeightPx + 1);
+              const float dstX0Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx - halfHeightPx);
+              const float dstX1Pxf = startPositionPxf.X.Value + static_cast<float>(barMiddlePx + halfHeightPx + 1);
 
               rBuilder.SetColor(primaryColor);
               // min box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY1Pxf, dstX1Pxf, dstY0Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY1Pxf, dstX1Pxf, dstY0Pxf), renderInfo.TextureArea);
               // max box
-              rBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(dstX0Pxf, dstY7Pxf, dstX1Pxf, dstY6Pxf), renderInfo.TextureArea);
+              rBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(dstX0Pxf, dstY7Pxf, dstX1Pxf, dstY6Pxf), renderInfo.TextureArea);
             }
-            startPositionPxf.X = dstPositionPxf.X + static_cast<float>(startOffsetPx);
+            startPositionPxf.X = dstPositionPxf.X + PxValueF(startOffsetPx);
           }
         }
       }
@@ -498,7 +498,7 @@ namespace Fsl::UI
       PropLinkRefs(PropertySpacing, m_propertySpacing), PropLinkRefs(PropertyBoxSize, m_propertyBoxSize),
       PropLinkRefs(PropertyWhiskerSize, m_propertyWhiskerSize), PropLinkRefs(PropertyOutlierSize, m_propertyOutlierSize),
       PropLinkRefs(PropertyDataView, m_propertyDataView));
-    return res.IsValid() ? res : BaseWindow::TryGetPropertyHandleNow(sourceDef);
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
@@ -511,7 +511,7 @@ namespace Fsl::UI
       PropLinkRefs(PropertySpacing, m_propertySpacing), PropLinkRefs(PropertyBoxSize, m_propertyBoxSize),
       PropLinkRefs(PropertyWhiskerSize, m_propertyWhiskerSize), PropLinkRefs(PropertyOutlierSize, m_propertyOutlierSize),
       PropLinkRefs(PropertyDataView, m_propertyDataView));
-    return res != PropertySetBindingResult::NotFound ? res : BaseWindow::TrySetBindingNow(targetDef, binding);
+    return res != PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
 

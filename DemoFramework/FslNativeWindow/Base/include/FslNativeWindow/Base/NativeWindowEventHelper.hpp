@@ -73,18 +73,21 @@ namespace Fsl
     static void DecodeInputKeyEvent(const NativeWindowEvent& event, VirtualKey::Enum& rVirtualKey, bool& rIsPressed, uint32_t& rDeviceId);
 
     //! @brief Create a input mouse button event
-    static NativeWindowEvent EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position);
+    static NativeWindowEvent EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position,
+                                                         const bool isTouch = false);
 
     //! @brief Decode a input mouse button event
-    static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, PxPoint2& rPosition);
+    static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, PxPoint2& rPosition,
+                                            bool& rIsTouch);
 
     //! @brief Create a input mouse move event
     static NativeWindowEvent
       EncodeInputMouseMoveEvent(const PxPoint2& position,
-                                const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
+                                const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined),
+                                const bool isTouch = false);
 
     //! @brief Decode a input mouse move event
-    static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags);
+    static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags, bool& rIsTouch);
 
     //! @brief Create a input mouse wheel event
     static NativeWindowEvent EncodeInputMouseWheelEvent(const int32_t delta, const PxPoint2& position);

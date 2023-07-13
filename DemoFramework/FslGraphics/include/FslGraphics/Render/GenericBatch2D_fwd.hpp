@@ -794,19 +794,18 @@ namespace Fsl
     {
       // If left and right is below zero clipping will occur (we consider this a error, hence the reason for the assert)
       // width and height should always be >= 0 in a Rectangle
-      assert(value.Width() >= 0);
-      assert(value.Height() >= 0);
-      auto clippedLeft = std::max(value.Left(), 0);
-      auto clippedTop = std::max(value.Top(), 0);
-      auto clippedRight = std::max(value.Right(), clippedLeft);
-      auto clippedBottom = std::max(value.Bottom(), clippedTop);
+      assert(value.Width() >= PxSize1D());
+      assert(value.Height() >= PxSize1D());
+      auto clippedLeft = std::max(value.RawLeft(), 0);
+      auto clippedTop = std::max(value.RawTop(), 0);
+      auto clippedRight = std::max(value.RawRight(), clippedLeft);
+      auto clippedBottom = std::max(value.RawBottom(), clippedTop);
       assert(clippedLeft >= 0 && clippedTop >= 0 && clippedLeft <= clippedRight && clippedTop <= clippedBottom);
-      assert((clippedRight - clippedLeft) <= value.Width());
-      assert((clippedBottom - clippedTop) <= value.Height());
-      return PxRectangleU32::FromLeftTopRightBottom(static_cast<PxRectangleU32::value_type>(clippedLeft),
-                                                    static_cast<PxRectangleU32::value_type>(clippedTop),
-                                                    static_cast<PxRectangleU32::value_type>(clippedRight),
-                                                    static_cast<PxRectangleU32::value_type>(clippedBottom), OptimizationCheckFlag::NoCheck);
+      assert((clippedRight - clippedLeft) <= value.Width().RawValue());
+      assert((clippedBottom - clippedTop) <= value.Height().RawValue());
+      return PxRectangleU32::UncheckedCreateFromLeftTopRightBottom(
+        static_cast<PxRectangleU32::raw_value_type>(clippedLeft), static_cast<PxRectangleU32::raw_value_type>(clippedTop),
+        static_cast<PxRectangleU32::raw_value_type>(clippedRight), static_cast<PxRectangleU32::raw_value_type>(clippedBottom));
     }
 
 

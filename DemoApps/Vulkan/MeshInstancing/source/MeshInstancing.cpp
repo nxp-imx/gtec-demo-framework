@@ -355,9 +355,7 @@ namespace Fsl
   {
     if (viewChanged)
     {
-      const auto screenExtent = GetScreenExtent();
-
-      const float aspect = static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height);
+      const float aspect = GetWindowAspectRatio();
       m_uboVS.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
       m_uboVS.View = glm::translate(glm::mat4(1.0f), m_cameraPos + glm::vec3(0.0f, 0.0f, m_zoom));
       m_uboVS.View = glm::rotate(m_uboVS.View, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));

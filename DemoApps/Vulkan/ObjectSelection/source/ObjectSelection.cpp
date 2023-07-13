@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -573,7 +573,7 @@ namespace Fsl
   {
     const PxSize2D windowSizePx = GetWindowSizePx();
 
-    m_viewPort = Viewport(Rectangle(0, 0, windowSizePx.Width(), windowSizePx.Height()));
+    m_viewPort = Viewport(Rectangle(0, 0, windowSizePx.RawWidth(), windowSizePx.RawHeight()));
 
     m_matrixView = m_camera.GetViewMatrix();
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), m_viewPort.GetAspectRatio(), 0.1f, 500.0f);
@@ -712,7 +712,7 @@ namespace Fsl
     {    // Mouse camera rotation
       const auto mouseState = m_mouse->GetState();
 
-      Vector3 sourcePos(static_cast<float>(mouseState.Position.X), static_cast<float>(mouseState.Position.Y), 0.0f);
+      Vector3 sourcePos(static_cast<float>(mouseState.Position.X.Value), static_cast<float>(mouseState.Position.Y.Value), 0.0f);
       m_mousePositionNear = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
       sourcePos.Z = 1.0f;
       m_mousePositionFar = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
@@ -729,7 +729,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }
@@ -758,7 +758,7 @@ namespace Fsl
 
   bool ObjectSelection::CheckCollision(const PxPoint2& screenSpacePosition)
   {
-    Vector3 sourcePos(static_cast<float>(screenSpacePosition.X), static_cast<float>(screenSpacePosition.Y), 0.0f);
+    Vector3 sourcePos(static_cast<float>(screenSpacePosition.X.Value), static_cast<float>(screenSpacePosition.Y.Value), 0.0f);
 
     // Unproject a point on the near and far plane
     const auto nearPoint = ViewportUtil::Unproject(m_viewPort, sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
@@ -814,7 +814,6 @@ namespace Fsl
       const bool forceBind = m_menuUI.IsForceBindEnabled();
       uint32_t oldMeshIndex = std::numeric_limits<uint32_t>::max();
       uint32_t transformOffset = 0;
-      uint32_t i = 0;
       for (auto& rEntry : m_resources.Objects)
       {
         assert(transformOffset < frame.ObjectTransformVertUboBuffer.GetAllocationSize());
@@ -825,7 +824,6 @@ namespace Fsl
         DrawMesh(m_resources.Meshes[rEntry.MeshIndex], (forceBind || oldMeshIndex != rEntry.MeshIndex), commandBuffer);
         oldMeshIndex = rEntry.MeshIndex;
         transformOffset += segmentStride;
-        ++i;
       }
     }
   }
@@ -949,8 +947,8 @@ namespace Fsl
                                                           const Vulkan::VUTexture& texture)
   {
     const auto textureExtent = texture.GetExtent();
-    const PxSize2D tex1Size(UncheckedNumericCast<int32_t>(textureExtent.width), UncheckedNumericCast<int32_t>(textureExtent.height));
-    TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+    const auto tex1Size = PxSize2D::Create(UncheckedNumericCast<int32_t>(textureExtent.width), UncheckedNumericCast<int32_t>(textureExtent.height));
+    TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
     const NativeTextureArea texRepeatArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, 15 / 5, 15 / 5));
     const auto mesh =
       Procedural::SegmentedQuadGenerator::GenerateStrip(Vector3(0, 0, 0), 1000 / 5.0f, 1000 / 5.0f, 1, 1, texRepeatArea, WindingOrder::CCW);
@@ -962,8 +960,8 @@ namespace Fsl
                                       const Vulkan::VUTexture& texture)
   {
     const auto textureExtent = texture.GetExtent();
-    const PxSize2D tex1Size(UncheckedNumericCast<int32_t>(textureExtent.width), UncheckedNumericCast<int32_t>(textureExtent.height));
-    TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+    const auto tex1Size = PxSize2D::Create(UncheckedNumericCast<int32_t>(textureExtent.width), UncheckedNumericCast<int32_t>(textureExtent.height));
+    TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
 
     const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, 1, 1));
 

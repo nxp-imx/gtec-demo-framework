@@ -44,9 +44,14 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlGenFileFlavor(XmlBase):
+    __AttribName = 'Name'
+    __AttribQuickName = 'QuickName'
+
     def __init__(self, log: Log, requirementTypes: List[str], xmlElement: ET.Element, ownerPackageName: str) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName, self.__AttribQuickName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.QuickName = self._TryReadAttrib(xmlElement, self.__AttribQuickName)
         self.IntroducedByPackageName = ownerPackageName
         #elementType = self._ReadAttrib(xmlElement, 'Type', 'Normal')
         self.Options = self.__GetXMLFlavorOptions(requirementTypes, xmlElement, ownerPackageName)

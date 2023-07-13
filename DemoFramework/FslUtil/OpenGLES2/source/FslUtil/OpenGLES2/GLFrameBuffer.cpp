@@ -192,8 +192,8 @@ namespace Fsl::GLES2
     GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureParameters.WrapS));
     GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureParameters.WrapT));
 
-    GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, texImageParams.InternalFormat, size.Width(), size.Height(), 0, texImageParams.Format, texImageParams.Type,
-                          nullptr));
+    GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, texImageParams.InternalFormat, size.RawWidth(), size.RawHeight(), 0, texImageParams.Format,
+                          texImageParams.Type, nullptr));
     GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hTex, 0));
 
     // Test the framebuffer for completeness. This test only needs to be performed when the framebuffer's configuration changes.

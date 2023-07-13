@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,9 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/Control/BackgroundLabelButton.hpp>
@@ -43,6 +46,38 @@
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Render/Base/DrawCommandBuffer.hpp>
 #include <cassert>
+
+namespace Fsl::UI
+{
+  using TClass = BackgroundLabelButton;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyBackgroundHoverOverlayColorUp =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundHoverOverlayColorUp, &TClass::SetBackgroundHoverOverlayColorUp>(
+      "BackgroundHoverOverlayColorUp");
+  TDef TClass::PropertyBackgroundHoverOverlayColorDown =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundHoverOverlayColorDown, &TClass::SetBackgroundHoverOverlayColorDown>(
+      "BackgroundHoverOverlayColorDown");
+  TDef TClass::PropertyBackgroundColorHoverUp =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorHoverUp, &TClass::SetBackgroundColorHoverUp>("BackgroundColorHoverUp");
+  TDef TClass::PropertyBackgroundColorUp =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorUp, &TClass::SetBackgroundColorUp>("BackgroundColorUp");
+  TDef TClass::PropertyBackgroundColorDown =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorDown, &TClass::SetBackgroundColorDown>("BackgroundColorDown");
+  TDef TClass::PropertyBackgroundColorDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorDisabled, &TClass::SetBackgroundColorDisabled>("BackgroundColorDisabled");
+  TDef TClass::PropertyFontColorUp = TFactory::Create<Color, TClass, &TClass::GetFontColorUp, &TClass::SetFontColorUp>("FontColorUp");
+  TDef TClass::PropertyFontColorDown = TFactory::Create<Color, TClass, &TClass::GetFontColorDown, &TClass::SetFontColorDown>("FontColorDown");
+  TDef TClass::PropertyFontColorDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetFontColorDisabled, &TClass::SetFontColorDisabled>("FontColorDisabled");
+  TDef TClass::PropertyPadding = TFactory::Create<DpThicknessF, TClass, &TClass::GetPadding, &TClass::SetPadding>("Padding");
+  TDef TClass::PropertyContentAlignmentX =
+    TFactory::Create<ItemAlignment, TClass, &TClass::GetContentAlignmentX, &TClass::SetContentAlignmentX>("ContentAlignmentX");
+  TDef TClass::PropertyContentAlignmentY =
+    TFactory::Create<ItemAlignment, TClass, &TClass::GetContentAlignmentY, &TClass::SetContentAlignmentY>("ContentAlignmentY");
+  TDef TClass::PropertyContent = TFactory::Create<StringViewLite, TClass, &TClass::GetContent, &TClass::SetContent>("Content");
+}
 
 namespace Fsl::UI
 {
@@ -59,36 +94,6 @@ namespace Fsl::UI
   {
     Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::MouseOver));
     UpdateAnimationState(true);
-  }
-
-
-  void BackgroundLabelButton::SetContentAlignmentX(const ItemAlignment& value)
-  {
-    if (value != m_contentAlignmentX)
-    {
-      m_contentAlignmentX = value;
-      PropertyUpdated(PropertyType::Alignment);
-    }
-  }
-
-
-  void BackgroundLabelButton::SetContentAlignmentY(const ItemAlignment& value)
-  {
-    if (value != m_contentAlignmentY)
-    {
-      m_contentAlignmentY = value;
-      PropertyUpdated(PropertyType::Alignment);
-    }
-  }
-
-
-  void BackgroundLabelButton::SetPadding(const DpThickness& valueDp)
-  {
-    if (valueDp != m_paddingDp)
-    {
-      m_paddingDp = valueDp;
-      PropertyUpdated(PropertyType::Layout);
-    }
   }
 
 
@@ -117,20 +122,27 @@ namespace Fsl::UI
   }
 
 
-  void BackgroundLabelButton::SetContent(const StringViewLite& strView)
+  bool BackgroundLabelButton::SetContent(const StringViewLite value)
   {
-    if (m_fontMesh.SetText(strView))
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
+    if (changed)
     {
+      m_fontMesh.SetText(value);
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
-  void BackgroundLabelButton::SetContent(std::string&& value)
+
+  bool BackgroundLabelButton::SetContent(std::string&& value)
   {
-    if (m_fontMesh.SetText(std::move(value)))
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), std::move(value));
+    if (changed)
     {
+      m_fontMesh.SetText(m_propertyContent.Get());
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
 
@@ -143,89 +155,136 @@ namespace Fsl::UI
   }
 
 
-  void BackgroundLabelButton::SetBackgroundHoverOverlayColorUp(const Color& value)
+  bool BackgroundLabelButton::SetBackgroundHoverOverlayColorUp(const Color value)
   {
-    if (value != m_backgroundColorHoverOverlayUp)
+    const bool changed = m_propertyBackgroundHoverOverlayColorUp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_backgroundColorHoverOverlayUp = value;
       PropertyUpdated(PropertyType::Other);
     }
-  }
-
-  void BackgroundLabelButton::SetBackgroundHoverOverlayColorDown(const Color& value)
-  {
-    if (value != m_backgroundColorHoverOverlayDown)
-    {
-      m_backgroundColorHoverOverlayDown = value;
-      PropertyUpdated(PropertyType::Other);
-    }
+    return changed;
   }
 
 
-  void BackgroundLabelButton::SetBackgroundColorHoverUp(const Color& value)
+  bool BackgroundLabelButton::SetBackgroundHoverOverlayColorDown(const Color value)
   {
-    if (value != m_backgroundColorHoverUp)
+    const bool changed = m_propertyBackgroundHoverOverlayColorDown.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_backgroundColorHoverUp = value;
       PropertyUpdated(PropertyType::Other);
     }
-  }
-
-  void BackgroundLabelButton::SetBackgroundColorUp(const Color& value)
-  {
-    if (value != m_backgroundColorUp)
-    {
-      m_backgroundColorUp = value;
-      PropertyUpdated(PropertyType::Other);
-    }
-  }
-
-  void BackgroundLabelButton::SetBackgroundColorDown(const Color& value)
-  {
-    if (value != m_backgroundColorDown)
-    {
-      m_backgroundColorDown = value;
-      PropertyUpdated(PropertyType::Other);
-    }
-  }
-
-  void BackgroundLabelButton::SetBackgroundColorDisabled(const Color& value)
-  {
-    if (value != m_backgroundColorDisabled)
-    {
-      m_backgroundColorDisabled = value;
-      PropertyUpdated(PropertyType::Other);
-    }
+    return changed;
   }
 
 
-  void BackgroundLabelButton::SetFontColorUp(const Color& value)
+  bool BackgroundLabelButton::SetBackgroundColorHoverUp(const Color value)
   {
-    if (value != m_fontColorUp)
+    const bool changed = m_propertyBackgroundColorHoverUp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_fontColorUp = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void BackgroundLabelButton::SetFontColorDown(const Color& value)
+  bool BackgroundLabelButton::SetBackgroundColorUp(const Color value)
   {
-    if (value != m_fontColorDown)
+    const bool changed = m_propertyBackgroundColorUp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_fontColorDown = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
-  void BackgroundLabelButton::SetFontColorDisabled(const Color& value)
+
+  bool BackgroundLabelButton::SetBackgroundColorDown(const Color value)
   {
-    if (value != m_fontColorDisabled)
+    const bool changed = m_propertyBackgroundColorDown.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_fontColorDisabled = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
+
+
+  bool BackgroundLabelButton::SetBackgroundColorDisabled(const Color value)
+  {
+    const bool changed = m_propertyBackgroundColorDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
+
+  bool BackgroundLabelButton::SetFontColorUp(const Color value)
+  {
+    const bool changed = m_propertyFontColorUp.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
+
+  bool BackgroundLabelButton::SetFontColorDown(const Color value)
+  {
+    const bool changed = m_propertyFontColorDown.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
+
+  bool BackgroundLabelButton::SetFontColorDisabled(const Color value)
+  {
+    const bool changed = m_propertyFontColorDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
+  }
+
+  bool BackgroundLabelButton::SetPadding(const DpThicknessF value)
+  {
+    const bool changed = m_propertyPaddingDp.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+
+  bool BackgroundLabelButton::SetContentAlignmentX(const ItemAlignment value)
+  {
+    const bool changed = m_propertyContentAlignmentX.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Alignment);
+    }
+    return changed;
+  }
+
+
+  bool BackgroundLabelButton::SetContentAlignmentY(const ItemAlignment value)
+  {
+    const bool changed = m_propertyContentAlignmentY.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Alignment);
+    }
+    return changed;
+  }
+
 
   void BackgroundLabelButton::WinDraw(const UIDrawContext& context)
   {
@@ -258,20 +317,20 @@ namespace Fsl::UI
     }
 
 
-    if (m_fontMesh.IsValid() && !m_fontMesh.GetText().empty())
+    if (m_fontMesh.IsValid() && !m_propertyContent.Get().empty())
     {
       const PxThickness contentMarginPx =
         PxThickness::Max(m_backgroundHover.GetRenderContentMarginPx(), m_backgroundNormal.GetRenderContentMarginPx());
 
-      const PxThickness paddingPx = m_windowContext->UnitConverter.ToPxThickness(m_paddingDp);
-      const int32_t widthPx = renderSizePx.Width() - contentMarginPx.SumX() - paddingPx.SumX() - m_labelMeasureInfo.MeasureSizePx.Width();
-      const int32_t heightPx = renderSizePx.Height() - contentMarginPx.SumY() - paddingPx.SumY() - m_labelMeasureInfo.MeasureSizePx.Height();
-      const int32_t offsetXPx = ItemAlignmentUtil::CalcAlignmentPx(m_contentAlignmentX, widthPx);
-      const int32_t offsetYPx = ItemAlignmentUtil::CalcAlignmentPx(m_contentAlignmentY, heightPx);
+      const PxThickness paddingPx = m_windowContext->UnitConverter.ToPxThickness(m_propertyPaddingDp.Get());
+      const PxValue widthPx = renderSizePx.Width() - contentMarginPx.SumX() - paddingPx.SumX() - m_labelMeasureInfo.MeasureSizePx.Width();
+      const PxValue heightPx = renderSizePx.Height() - contentMarginPx.SumY() - paddingPx.SumY() - m_labelMeasureInfo.MeasureSizePx.Height();
+      const PxValue offsetXPx = ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentX.Get(), widthPx);
+      const PxValue offsetYPx = ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentY.Get(), heightPx);
 
       auto posPxf = context.TargetRect.TopLeft();
-      posPxf.X += static_cast<float>(contentMarginPx.Left() + paddingPx.Left() + offsetXPx);
-      posPxf.Y += static_cast<float>(contentMarginPx.Top() + paddingPx.Top() + offsetYPx);
+      posPxf.X += TypeConverter::UncheckedTo<PxValueF>(contentMarginPx.Left() + paddingPx.Left() + offsetXPx);
+      posPxf.Y += TypeConverter::UncheckedTo<PxValueF>(contentMarginPx.Top() + paddingPx.Top() + offsetYPx);
 
       context.CommandBuffer.Draw(m_fontMesh.Get(), posPxf, m_labelMeasureInfo.MinimalSizePx, finalColor * m_fontCurrentColor.GetValue());
     }
@@ -294,8 +353,8 @@ namespace Fsl::UI
   {
     FSL_PARAM_NOT_USED(availableSizePx);
 
-    auto paddingPx = m_windowContext->UnitConverter.ToPxThickness(m_paddingDp);
-    m_labelMeasureInfo = m_fontMesh.ComplexMeasure();
+    auto paddingPx = m_windowContext->UnitConverter.ToPxThickness(m_propertyPaddingDp.Get());
+    m_labelMeasureInfo = m_fontMesh.ComplexMeasure(m_propertyContent.Get());
     PxSize2D desiredSizePx = paddingPx.Sum() + m_labelMeasureInfo.MeasureSizePx;
 
     const auto backgroundHoverInfo = m_backgroundHover.GetRenderContentInfo();
@@ -311,6 +370,69 @@ namespace Fsl::UI
     return desiredSizePx;
   }
 
+
+  DataBinding::DataBindingInstanceHandle BackgroundLabelButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef,
+      DataBinding::PropLinkRefs(PropertyBackgroundHoverOverlayColorUp, m_propertyBackgroundHoverOverlayColorUp),
+      DataBinding::PropLinkRefs(PropertyBackgroundHoverOverlayColorDown, m_propertyBackgroundHoverOverlayColorDown),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorHoverUp, m_propertyBackgroundColorHoverUp),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUp, m_propertyBackgroundColorUp),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDown, m_propertyBackgroundColorDown),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDisabled, m_propertyBackgroundColorDisabled),
+      DataBinding::PropLinkRefs(PropertyFontColorUp, m_propertyFontColorUp),
+      DataBinding::PropLinkRefs(PropertyFontColorDown, m_propertyFontColorDown),
+      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_propertyFontColorDisabled),
+      DataBinding::PropLinkRefs(PropertyPadding, m_propertyPaddingDp),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY),
+      DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult BackgroundLabelButton::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                                const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding,
+      DataBinding::PropLinkRefs(PropertyBackgroundHoverOverlayColorUp, m_propertyBackgroundHoverOverlayColorUp),
+      DataBinding::PropLinkRefs(PropertyBackgroundHoverOverlayColorDown, m_propertyBackgroundHoverOverlayColorDown),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorHoverUp, m_propertyBackgroundColorHoverUp),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUp, m_propertyBackgroundColorUp),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDown, m_propertyBackgroundColorDown),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorDisabled, m_propertyBackgroundColorDisabled),
+      DataBinding::PropLinkRefs(PropertyFontColorUp, m_propertyFontColorUp),
+      DataBinding::PropLinkRefs(PropertyFontColorDown, m_propertyFontColorDown),
+      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_propertyFontColorDisabled),
+      DataBinding::PropLinkRefs(PropertyPadding, m_propertyPaddingDp),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
+      DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY),
+      DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void BackgroundLabelButton::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyBackgroundHoverOverlayColorUp);
+    rProperties.push_back(PropertyBackgroundHoverOverlayColorDown);
+    rProperties.push_back(PropertyBackgroundColorHoverUp);
+    rProperties.push_back(PropertyBackgroundColorUp);
+    rProperties.push_back(PropertyBackgroundColorDown);
+    rProperties.push_back(PropertyBackgroundColorDisabled);
+    rProperties.push_back(PropertyFontColorUp);
+    rProperties.push_back(PropertyFontColorDown);
+    rProperties.push_back(PropertyFontColorDisabled);
+    rProperties.push_back(PropertyPadding);
+    rProperties.push_back(PropertyContentAlignmentX);
+    rProperties.push_back(PropertyContentAlignmentY);
+    rProperties.push_back(PropertyContent);
+  }
+
+
   void BackgroundLabelButton::UpdateAnimation(const TimeSpan& timeSpan)
   {
     ButtonBase::UpdateAnimation(timeSpan);
@@ -318,6 +440,7 @@ namespace Fsl::UI
     m_backgroundCurrentHoverOverlayColor.Update(timeSpan);
     m_fontCurrentColor.Update(timeSpan);
   }
+
 
   bool BackgroundLabelButton::UpdateAnimationState(const bool forceCompleteAnimation)
   {
@@ -329,11 +452,11 @@ namespace Fsl::UI
     const auto& backgroundColor = GetBackgroundColor(isEnabled, isDown, m_isHovering);
     m_backgroundCurrentColor.SetValue(backgroundColor);
 
-    const auto& overlayBaseColor = !isDown ? m_backgroundColorHoverOverlayUp : m_backgroundColorHoverOverlayDown;
+    const auto& overlayBaseColor = !isDown ? m_propertyBackgroundHoverOverlayColorUp.Get() : m_propertyBackgroundHoverOverlayColorDown.Get();
     const auto overlayColor = isEnabled && m_isHovering ? overlayBaseColor : Color::ClearA(overlayBaseColor);
     m_backgroundCurrentHoverOverlayColor.SetValue(overlayColor);
 
-    const auto& fontColor = (isEnabled ? (!isDown ? m_fontColorUp : m_fontColorDown) : m_fontColorDisabled);
+    const auto& fontColor = (isEnabled ? (!isDown ? m_propertyFontColorUp.Get() : m_propertyFontColorDown.Get()) : m_propertyFontColorDisabled.Get());
     m_fontCurrentColor.SetValue(fontColor);
 
     if (forceCompleteAnimation)
@@ -356,11 +479,10 @@ namespace Fsl::UI
     {
       if (!isDown)
       {
-        return !isHovering ? m_backgroundColorUp : m_backgroundColorHoverUp;
+        return !isHovering ? m_propertyBackgroundColorUp.Get() : m_propertyBackgroundColorHoverUp.Get();
       }
-      return m_backgroundColorDown;
+      return m_propertyBackgroundColorDown.Get();
     }
-    return m_backgroundColorDisabled;
+    return m_propertyBackgroundColorDisabled.Get();
   }
-
 }

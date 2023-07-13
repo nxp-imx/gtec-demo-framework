@@ -263,7 +263,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

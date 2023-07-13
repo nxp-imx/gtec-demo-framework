@@ -38,18 +38,20 @@ namespace Fsl::UI
 {
   class ContentControl : public ContentControlBase
   {
+    using base_type = ContentControlBase;
+
   public:
     explicit ContentControl(const std::shared_ptr<BaseWindowContext>& context);
 
 
-    DpThickness GetPadding() const
+    DpThicknessF GetPadding() const noexcept
     {
       return DoGetPadding();
     }
 
-    void SetPadding(const DpThickness& value)
+    bool SetPadding(const DpThicknessF value)
     {
-      DoSetPadding(value);
+      return DoSetPadding(value);
     }
 
     std::shared_ptr<BaseWindow> GetContent() const

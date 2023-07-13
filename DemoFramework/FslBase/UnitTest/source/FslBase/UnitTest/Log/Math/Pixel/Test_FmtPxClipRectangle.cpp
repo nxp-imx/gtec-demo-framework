@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_Pixel_FmtPxClipRectangle, Log)
 {
-  auto value = PxClipRectangle::FromLeftTopRightBottom(1, 2, 15, 25);
+  auto value = PxClipRectangle::CreateFromLeftTopRightBottom(1, 2, 15, 25);
 
   EXPECT_EQ(std::string("{Left=1 Top=2 Right=15 Bottom=25}"), fmt::format("{}", value));
 }

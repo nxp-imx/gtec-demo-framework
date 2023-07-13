@@ -37,8 +37,13 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlCommonFslBuild import XmlCommonFslBuild
 
 class XmlGenFileFlavorOption(XmlCommonFslBuild):
+    __AttribName = 'Name'
+    __AttribSupported = 'Supported'
+
     def __init__(self, log: Log, requirementTypes: List[str], xmlElement: ET.Element, ownerPackageName: str) -> None:
         super().__init__(log, requirementTypes, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName, self.__AttribSupported})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Supported = self._ReadBoolAttrib(xmlElement, self.__AttribSupported, True)
         self.IntroducedByPackageName = ownerPackageName
         self.DirectRequirements = self._GetXMLRequirements(xmlElement)

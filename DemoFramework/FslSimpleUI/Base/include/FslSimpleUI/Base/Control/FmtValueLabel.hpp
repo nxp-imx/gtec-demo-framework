@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_FMTVALUELABEL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_FMTVALUELABEL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,13 +50,14 @@ namespace Fsl::UI
   template <typename TValue>
   class FmtValueLabel : public LabelBase
   {
+    using base_type = LabelBase;
+
   public:
     using value_type = TValue;
 
   private:
     std::string m_format;
     mutable fmt::memory_buffer m_buffer;
-    mutable bool m_cacheIsValid{false};
 
     typename DataBinding::TypedDependencyProperty<value_type> m_propertyContent;
 
@@ -87,7 +88,7 @@ namespace Fsl::UI
       }
 
       m_format.assign(value.data(), value.size());
-      m_cacheIsValid = false;
+      RebuildCache();
       PropertyUpdated(PropertyType::Content);
       return true;
     }
@@ -101,7 +102,7 @@ namespace Fsl::UI
       }
 
       m_format = strFormat;
-      m_cacheIsValid = false;
+      RebuildCache();
       PropertyUpdated(PropertyType::Content);
       return true;
     }
@@ -116,7 +117,7 @@ namespace Fsl::UI
       }
 
       m_format = std::move(strFormat);
-      m_cacheIsValid = false;
+      RebuildCache();
       PropertyUpdated(PropertyType::Content);
       return true;
     }
@@ -131,7 +132,7 @@ namespace Fsl::UI
       const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
       if (changed)
       {
-        m_cacheIsValid = false;
+        RebuildCache();
         PropertyUpdated(PropertyType::Content);
       }
       return changed;
@@ -147,12 +148,6 @@ namespace Fsl::UI
   protected:
     StringViewLite DoGetContent() const override
     {
-      if (!m_cacheIsValid)
-      {
-        m_buffer.clear();
-        fmt::format_to(std::back_inserter(m_buffer), m_format, GetContent());
-        m_cacheIsValid = true;
-      }
       return StringViewLite(m_buffer.data(), m_buffer.size());
     }
 
@@ -166,7 +161,7 @@ namespace Fsl::UI
     {
       auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
                                                                            DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
-      return res.IsValid() ? res : LabelBase::TryGetPropertyHandleNow(sourceDef);
+      return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
     }
 
     DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
@@ -174,14 +169,22 @@ namespace Fsl::UI
     {
       auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
                                                                     DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
-      return res != DataBinding::PropertySetBindingResult::NotFound ? res : LabelBase::TrySetBindingNow(targetDef, binding);
+      return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
     }
 
 
     void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) final
     {
-      LabelBase::ExtractAllProperties(rProperties);
+      base_type::ExtractAllProperties(rProperties);
       rProperties.push_back(FmtValueLabel::PropertyContent);
+    }
+
+  private:
+    void RebuildCache()
+    {
+      m_buffer.clear();
+      fmt::format_to(std::back_inserter(m_buffer), m_format, GetContent());
+      DoSetContent(DoGetContent());
     }
   };
 }

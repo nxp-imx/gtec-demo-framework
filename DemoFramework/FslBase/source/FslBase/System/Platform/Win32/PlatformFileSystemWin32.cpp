@@ -107,8 +107,8 @@ namespace Fsl::IO
               const Path strFilename(PlatformWin32::Narrow(std::wstring(fd.cFileName)));
               rResult.push_back(std::make_shared<Path>(Path::Combine(path, strFilename)));
             }
-            else if (includeSubdirectories && !(fd.cFileName[0] == L'.' && fd.cFileName[1] == 0) &&
-                     !(fd.cFileName[0] == L'.' && fd.cFileName[1] == L'.' && fd.cFileName[2] == 0))
+            else if (includeSubdirectories && (fd.cFileName[0] != L'.' || fd.cFileName[1] != 0) &&
+                     (fd.cFileName[0] != L'.' || fd.cFileName[1] != L'.' || fd.cFileName[2] != 0))
             {
               const Path strFilename(PlatformWin32::Narrow(std::wstring(fd.cFileName)));
               const Path subDir = Path::Combine(path, strFilename);

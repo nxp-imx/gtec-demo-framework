@@ -37,18 +37,20 @@ namespace Fsl::UI
 {
   class CheckBox final : public ToggleButton
   {
+    using base_type = ToggleButton;
+
   public:
     explicit CheckBox(const std::shared_ptr<WindowContext>& context)
       : ToggleButton(context)
     {
-      SetCursorCheckedColor(DefaultColor::CheckBox::CursorChecked);
-      SetCursorCheckedDisabledColor(DefaultColor::CheckBox::CursorCheckedDisabled);
-      SetCursorUncheckedColor(DefaultColor::CheckBox::CursorUnchecked);
-      SetCursorUncheckedDisabledColor(DefaultColor::CheckBox::CursorUncheckedDisabled);
-      SetBackgroundCheckedColor(DefaultColor::CheckBox::BackgroundChecked);
-      SetBackgroundCheckedDisabledColor(DefaultColor::CheckBox::BackgroundCheckedDisabled);
-      SetBackgroundUncheckedColor(DefaultColor::CheckBox::BackgroundUnchecked);
-      SetBackgroundUncheckedDisabledColor(DefaultColor::CheckBox::BackgroundUncheckedDisabled);
+      SetCursorColorChecked(DefaultColor::CheckBox::CursorChecked);
+      SetCursorColorCheckedDisabled(DefaultColor::CheckBox::CursorCheckedDisabled);
+      SetCursorColorUnchecked(DefaultColor::CheckBox::CursorUnchecked);
+      SetCursorColorUncheckedDisabled(DefaultColor::CheckBox::CursorUncheckedDisabled);
+      SetBackgroundColorChecked(DefaultColor::CheckBox::BackgroundChecked);
+      SetBackgroundColorCheckedDisabled(DefaultColor::CheckBox::BackgroundCheckedDisabled);
+      SetBackgroundColorUnchecked(DefaultColor::CheckBox::BackgroundUnchecked);
+      SetBackgroundColorUncheckedDisabled(DefaultColor::CheckBox::BackgroundUncheckedDisabled);
       SetHoverOverlayCheckedColor(DefaultColor::CheckBox::HoverOverlayChecked);
       SetHoverOverlayUncheckedColor(DefaultColor::CheckBox::HoverOverlayUnchecked);
     }

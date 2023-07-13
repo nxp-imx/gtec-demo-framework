@@ -49,8 +49,8 @@ TEST(Test_AtlasNineSlicePatchInfo, Construct_Default)
 
 TEST(Test_AtlasNineSlicePatchInfo, Construct)
 {
-  constexpr PxThicknessU nineSlicePx(1, 2, 3, 4);
-  constexpr PxThicknessU contentMarginPx(5, 6, 7, 8);
+  constexpr auto nineSlicePx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto contentMarginPx = PxThicknessU::Create(5, 6, 7, 8);
   constexpr AtlasNineSliceFlags flags{AtlasNineSliceFlags::Transparent};
   constexpr AtlasNineSlicePatchInfo value(nineSlicePx, contentMarginPx, flags);
 

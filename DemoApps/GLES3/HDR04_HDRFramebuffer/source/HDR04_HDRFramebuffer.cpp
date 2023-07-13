@@ -223,8 +223,8 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(widowSizePx.Width())));
-    const GLint remainderX = std::min(std::max(widowSizePx.Width() - splitX, 0), widowSizePx.Width());
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(widowSizePx.RawWidth())));
+    const GLint remainderX = std::min(std::max(widowSizePx.RawWidth() - splitX, 0), widowSizePx.RawWidth());
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -245,7 +245,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(0, 0, splitX, widowSizePx.Height());
+        glScissor(0, 0, splitX, widowSizePx.RawHeight());
       }
       auto& rTonemapProgram = m_useDebugPattern ? m_resources.ProgramTonemapLinearDebug : m_resources.ProgramTonemapLinear;
       DrawTonemappedScene(rTonemapProgram, m_resources.HdrFrameBuffer);
@@ -254,7 +254,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(splitX, 0, remainderX, widowSizePx.Height());
+        glScissor(splitX, 0, remainderX, widowSizePx.RawHeight());
       }
       auto& rTonemapProgram = m_useDebugPattern ? m_resources.ProgramTonemapDebug : m_resources.ProgramTonemap;
       DrawTonemappedScene(rTonemapProgram, m_resources.HdrFrameBuffer);
@@ -293,7 +293,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

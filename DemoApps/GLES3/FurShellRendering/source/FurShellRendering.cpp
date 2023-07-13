@@ -152,7 +152,7 @@ namespace Fsl
     Procedural::BasicMesh CreateMesh(const ProceduralConfig& proceduralConfig, const PxSize2D& tex1Size, const Point2& textureRepeatCount,
                                      const int torusMajorSegments, const int torusMinorSegments, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect, textureRepeatCount.X, textureRepeatCount.Y));
       if (proceduralConfig.Primitive == ProceduralPrimitive::Box)
       {
@@ -357,15 +357,15 @@ namespace Fsl
       const Vector2 atlasSize(TypeConverter::UncheckedTo<Vector2>(m_resources.TexDescriptionAtlas.GetSize()));
 
       // texSize.X / tex
-      float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X) / res.X);
-      float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width) / res.X);
-      float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y) / res.Y);
-      float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height) / res.Y);
+      float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X.Value) / res.X);
+      float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width.Value) / res.X);
+      float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y.Value) / res.Y);
+      float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height.Value) / res.Y);
 
-      float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Left()) / atlasSize.X;
-      float v1 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Top()) / atlasSize.Y);
-      float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Right()) / atlasSize.X;
-      float v2 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Bottom()) / atlasSize.Y);
+      float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawLeft()) / atlasSize.X;
+      float v1 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawTop()) / atlasSize.Y);
+      float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawRight()) / atlasSize.X;
+      float v2 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawBottom()) / atlasSize.Y);
 
       BuildVB(m_resources.VBDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
 

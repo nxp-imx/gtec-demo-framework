@@ -221,7 +221,7 @@ namespace Fsl::SimpleUIApp
                                                 textureCreationInfo.PreferredChannelOrder);
 
       const auto textureExtentPx = texture.GetExtent();
-      if (textureExtentPx.Depth != 1u)
+      if (textureExtentPx.Depth.Value != 1u)
       {
         throw std::invalid_argument("Must be a 2d texture");
       }
@@ -385,7 +385,7 @@ namespace Fsl::SimpleUIApp
 
     PrepareCreateResult prepareCreateResult =
       PrepareCreateTexture(m_textureLookup, rContentManager, atlasPath, textureCreationInfo, flags, GetDensityDpi(), m_options.TestPatternMode);
-    assert(prepareCreateResult.TextureResult.SrcTexture.GetExtent().Depth == 1u);
+    assert(prepareCreateResult.TextureResult.SrcTexture.GetExtent().Depth.Value == 1u);
 
     const PxExtent2D extent = prepareCreateResult.TextureResult.SrcTexture.GetExtent2D();
     const PixelFormat pixelFormat = prepareCreateResult.TextureResult.SrcTexture.GetPixelFormat();
@@ -411,7 +411,7 @@ namespace Fsl::SimpleUIApp
 
     PrepareCreateResult prepareCreateResult =
       PrepareCreateTexture(m_textureLookup, rContentManager, atlasPath, textureCreationInfo, flags, GetDensityDpi(), m_options.TestPatternMode);
-    assert(prepareCreateResult.TextureResult.SrcTexture.GetExtent().Depth == 1u);
+    assert(prepareCreateResult.TextureResult.SrcTexture.GetExtent().Depth.Value == 1u);
 
     const PxExtent2D extent = prepareCreateResult.TextureResult.SrcTexture.GetExtent2D();
     const PixelFormat pixelFormat = prepareCreateResult.TextureResult.SrcTexture.GetPixelFormat();
@@ -608,7 +608,7 @@ namespace Fsl::SimpleUIApp
       const bool isAtlas = UIAppResourceFlagUtil::IsFlagged(rEntry.Flags, UIAppResourceFlag::Atlas);
       PrepareTextureResult result =
         PrepareTexture(rContentManager, rEntry.PathInfo, isAtlas, rEntry.Dpi, rEntry.CreationInfo, m_options.TestPatternMode);
-      assert(result.SrcTexture.GetExtent().Depth == 1u);
+      assert(result.SrcTexture.GetExtent().Depth.Value == 1u);
       {
         RawTexture srcRawTexture;
         Texture::ScopedDirectAccess directAccess(result.SrcTexture, srcRawTexture);

@@ -77,7 +77,7 @@ namespace Fsl
 
   }
 
-  BitmapFont::BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
+  BitmapFont::BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
                          const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
                          std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings)
     : m_name(std::move(name))
@@ -111,18 +111,20 @@ namespace Fsl
   }
 
 
-  BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-                         const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
-                         const ReadOnlySpan<BitmapFontChar> chars, const ReadOnlySpan<BitmapFontKerning> kernings)
+  BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx,
+                         const PxValueU16 baseLinePx, const PxThicknessU16& paddingPx, const StringViewLite textureName,
+                         const BitmapFontType fontType, const SdfParams& sdfParams, const ReadOnlySpan<BitmapFontChar> chars,
+                         const ReadOnlySpan<BitmapFontKerning> kernings)
     : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, StringViewLiteUtil::ToString(textureName),
                  fontType, sdfParams, ReadOnlySpanUtil::ToVector(chars), ReadOnlySpanUtil::ToVector(kernings))
   {
   }
 
 
-  BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
-                         const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
-                         std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings)
+  BitmapFont::BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx,
+                         const PxValueU16 baseLinePx, const PxThicknessU16& paddingPx, const StringViewLite textureName,
+                         const BitmapFontType fontType, const SdfParams& sdfParams, std::vector<BitmapFontChar> chars,
+                         std::vector<BitmapFontKerning> kernings)
     : BitmapFont(StringViewLiteUtil::ToString(name), dpi, size, lineSpacingPx, baseLinePx, paddingPx, StringViewLiteUtil::ToString(textureName),
                  fontType, sdfParams, std::move(chars), std::move(kernings))
   {

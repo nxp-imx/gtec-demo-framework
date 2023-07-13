@@ -71,6 +71,20 @@ class ResolvedPackageInstance(ResolvedPackage):
 
         ResolvedPackageInstance.__SanityCheckDependencies(directDependencies, self.Name)
 
+    def IsSupported(self) -> bool:
+        for flavorSelection in self.FlavorSelections.Selections:
+            flavor = self.FlavorTemplate.TryGetFlavor(flavorSelection.Name)
+            if flavor is not None:
+                flavorOption = flavor.GetOptionByName(flavorSelection.Option)
+                if not flavorOption.Supported:
+                    return False
+            else:
+                flavorExtension = self.FlavorTemplate.TryGetFlavorExtension(flavorSelection.Name)
+                if flavorExtension is not None:
+                    flavorExtensionOption = flavorExtension.TryGetOptionByName(flavorSelection.Option)
+                    if flavorExtensionOption is not None and not flavorExtensionOption.Supported:
+                        return False
+        return True
 
     @staticmethod
     def __SanityCheckDependencies(directDependencies: List[ResolvedPackageInstanceDependency], name: PackageName) -> None:

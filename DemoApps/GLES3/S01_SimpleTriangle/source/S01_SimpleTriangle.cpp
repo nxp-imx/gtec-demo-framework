@@ -68,13 +68,13 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    glViewport(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     // Clear the color-buffer and depth-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     const Matrix matProj =
-      Matrix::CreatePerspective(static_cast<float>(currentSizePx.Width()), static_cast<float>(currentSizePx.Height()), 1.0f, 1000.0f);
+      Matrix::CreatePerspective(static_cast<float>(currentSizePx.RawWidth()), static_cast<float>(currentSizePx.RawHeight()), 1.0f, 1000.0f);
     const Matrix matModelView = Matrix::CreateTranslation(0, 0, -1);
 
     // Set the shader program

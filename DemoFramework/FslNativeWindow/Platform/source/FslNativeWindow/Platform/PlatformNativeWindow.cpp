@@ -165,7 +165,7 @@ namespace Fsl
       rExtent = {};
       return false;
     }
-    rExtent = TypeConverter::UncheckedTo<PxExtent2D>(PxPoint2(std::max(size.X, 0), std::max(size.Y, 0)));
+    rExtent = TypeConverter::UncheckedTo<PxExtent2D>(size);
     return true;
   }
 

@@ -50,18 +50,28 @@ namespace Fsl
     //         generic button class this one performs better.
     class SimpleImageButton final : public ButtonBase
     {
+      using base_type = ButtonBase;
+
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SizedSpriteMesh m_content;
-      ItemScalePolicy m_scalePolicy;
-      Color m_upColor{DefaultColor::Button::Up};
-      Color m_downColor{DefaultColor::Button::Down};
-      Color m_disabledColor{DefaultColor::Button::BackgroundDisabled};
+
+      DataBinding::TypedDependencyProperty<ItemScalePolicy> m_propertyScalePolicy{ItemScalePolicy::FitKeepAR};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorUp{DefaultColor::Button::Up};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorDown{DefaultColor::Button::Down};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorDisabled{DefaultColor::Button::BackgroundDisabled};
+
       TransitionColor m_currentColor;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyScalePolicy;
+      static DataBinding::DependencyPropertyDefinition PropertyColorUp;
+      static DataBinding::DependencyPropertyDefinition PropertyColorDown;
+      static DataBinding::DependencyPropertyDefinition PropertyColorDisabled;
+
+
       explicit SimpleImageButton(const std::shared_ptr<WindowContext>& context);
 
       const std::shared_ptr<ISizedSprite>& GetContent() const
@@ -71,36 +81,46 @@ namespace Fsl
       void SetContent(const std::shared_ptr<ISizedSprite>& value);
       void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
-      ItemScalePolicy GetScalePolicy() const
+      ItemScalePolicy GetScalePolicy() const noexcept
       {
-        return m_scalePolicy;
+        return m_propertyScalePolicy.Get();
       }
-      void SetScalePolicy(const ItemScalePolicy value);
+      bool SetScalePolicy(const ItemScalePolicy value);
 
-      Color SetUpColor() const
 
+      Color GetColorUp() const noexcept
       {
-        return m_upColor;
+        return m_propertyColorUp.Get();
       }
-      void SetUpColor(const Color& value);
 
-      Color GetDownColor() const
-      {
-        return m_downColor;
-      }
-      void SetDownColor(const Color& value);
+      bool SetColorUp(const Color value);
 
-      Color GetDisabledColor() const
+
+      Color GetColorDown() const noexcept
       {
-        return m_disabledColor;
+        return m_propertyColorDown.Get();
       }
-      void SetDisabledColor(const Color& value);
+
+      bool SetColorDown(const Color value);
+
+
+      Color GetColorDisabled() const noexcept
+      {
+        return m_propertyColorDisabled.Get();
+      }
+      bool SetColorDisabled(const Color value);
+
 
       void WinDraw(const UIDrawContext& context) final;
 
     protected:
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
 
       void UpdateAnimation(const TimeSpan& timeSpan) final;
       bool UpdateAnimationState(const bool forceCompleteAnimation) final;

@@ -38,10 +38,17 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlGenFileExternalDependencyPackageManager(XmlBase):
+    __AttribName = 'Name'
+    __AttribVersion = 'Version'
+    __AttribPackageTargetFramework = 'PackageTargetFramework'
+    __AttribPrivateAssets = 'PrivateAssets'
+    __AttribIncludeAssets = 'IncludeAssets'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
-        self.Version = self._TryReadAttrib(xmlElement, 'Version')  # type: Optional[str]
-        self.PackageTargetFramework = self._TryReadAttrib(xmlElement, 'PackageTargetFramework')  # type: Optional[str]
-        self.PrivateAssets = self._TryReadAttrib(xmlElement, 'PrivateAssets')  # type: Optional[str]
-        self.IncludeAssets = self._TryReadAttrib(xmlElement, 'IncludeAssets')  # type: Optional[str]
+        self._CheckAttributes({self.__AttribName, self.__AttribVersion, self.__AttribPackageTargetFramework, self.__AttribPrivateAssets, self.__AttribIncludeAssets})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type: str
+        self.Version = self._TryReadAttrib(xmlElement, self.__AttribVersion)  # type: Optional[str]
+        self.PackageTargetFramework = self._TryReadAttrib(xmlElement, self.__AttribPackageTargetFramework)  # type: Optional[str]
+        self.PrivateAssets = self._TryReadAttrib(xmlElement, self.__AttribPrivateAssets)  # type: Optional[str]
+        self.IncludeAssets = self._TryReadAttrib(xmlElement, self.__AttribIncludeAssets)  # type: Optional[str]

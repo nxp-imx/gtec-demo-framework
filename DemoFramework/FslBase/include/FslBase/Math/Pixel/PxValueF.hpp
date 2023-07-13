@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVALUEF_HPP
 #define FSLBASE_MATH_PIXEL_PXVALUEF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 
 namespace Fsl
 {
   struct PxValueF
   {
     using value_type = float;
+    using raw_value_type = float;
 
     value_type Value{0};
 
@@ -45,6 +48,16 @@ namespace Fsl
 
     inline explicit constexpr PxValueF(const value_type value) noexcept
       : Value(value)
+    {
+    }
+
+    inline explicit constexpr PxValueF(const PxValue value) noexcept
+      : Value(static_cast<float>(value.Value))
+    {
+    }
+
+    inline explicit constexpr PxValueF(const PxSize1D value) noexcept
+      : Value(static_cast<float>(value.RawValue()))
     {
     }
 
@@ -92,14 +105,12 @@ namespace Fsl
     //! equal to std::min but its both constexpr and noexcept
     static constexpr PxValueF Min(const PxValueF val0, const PxValueF val1) noexcept
     {
-      // Both values are known to be >= 0
       return PxValueF(val0.Value <= val1.Value ? val0.Value : val1.Value);
     }
 
     //! equal to std::max but its both constexpr and noexcept
     static constexpr PxValueF Max(const PxValueF val0, const PxValueF val1) noexcept
     {
-      // Both values are known to be >= 0
       return PxValueF(val0.Value >= val1.Value ? val0.Value : val1.Value);
     }
 

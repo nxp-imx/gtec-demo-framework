@@ -40,7 +40,7 @@ namespace Fsl::Clip2DUtil
   //! @brief Given a input array of coordinates where each successive coordinate in the array is >= the previous one
   //!        produce a ReadOnlySpan the encompasses the entries that fit inside the clipReangePxf (x is minimum, y is maximum).
   template <std::size_t TEntries>
-  constexpr ReadOnlySpan<PxVector2> Clip(std::array<PxVector2, TEntries>& rCoordsPxf, const PxVector2& clipRangePxf) noexcept
+  constexpr ReadOnlySpan<PxVector2> Clip(std::array<PxVector2, TEntries>& rCoordsPxf, const PxVector2 clipRangePxf) noexcept
   {
     static_assert(TEntries > 0, "the array must contain at least one entry");
     std::size_t startIndex = 0;
@@ -59,11 +59,11 @@ namespace Fsl::Clip2DUtil
       if (rCoordsPxf[index].X < clipRangePxf.X)
       {
         // we need to clip the coordinate
-        const float clippedDeltaPxf = clipRangePxf.X - rCoordsPxf[index].X;
-        const float deltaPxf = rCoordsPxf[index + 1u].X - rCoordsPxf[index].X;
+        const float clippedDeltaPxf = clipRangePxf.X.Value - rCoordsPxf[index].X.Value;
+        const float deltaPxf = rCoordsPxf[index + 1u].X.Value - rCoordsPxf[index].X.Value;
         const float percentageLeft = deltaPxf > 0.0f ? clippedDeltaPxf / deltaPxf : 0.0f;
-        const float newY = (rCoordsPxf[index + 1u].Y - rCoordsPxf[index].Y) * percentageLeft;
-        rCoordsPxf[index] = PxVector2(clipRangePxf.X, rCoordsPxf[index].Y + newY);
+        const float newY = (rCoordsPxf[index + 1u].Y.Value - rCoordsPxf[index].Y.Value) * percentageLeft;
+        rCoordsPxf[index] = PxVector2::Create(clipRangePxf.X.Value, rCoordsPxf[index].Y.Value + newY);
       }
       startIndex = index;
       ++index;
@@ -77,11 +77,11 @@ namespace Fsl::Clip2DUtil
       {
         // we need to clip the end coordinate
         const std::size_t prevIndex = index - 1u;
-        const float clippedDeltaPxf = clipRangePxf.Y - rCoordsPxf[prevIndex].X;
-        const float deltaPxf = rCoordsPxf[index].X - rCoordsPxf[prevIndex].X;
+        const float clippedDeltaPxf = clipRangePxf.Y.Value - rCoordsPxf[prevIndex].X.Value;
+        const float deltaPxf = rCoordsPxf[index].X.Value - rCoordsPxf[prevIndex].X.Value;
         const float percentageLeft = deltaPxf > 0.0f ? clippedDeltaPxf / deltaPxf : 0.0f;
-        const float newY = (rCoordsPxf[index].Y - rCoordsPxf[prevIndex].Y) * percentageLeft;
-        rCoordsPxf[index] = PxVector2(clipRangePxf.Y, rCoordsPxf[prevIndex].Y + newY);
+        const float newY = (rCoordsPxf[index].Y.Value - rCoordsPxf[prevIndex].Y.Value) * percentageLeft;
+        rCoordsPxf[index] = PxVector2::Create(clipRangePxf.Y.Value, rCoordsPxf[prevIndex].Y.Value + newY);
         ++index;
       }
     }

@@ -31,11 +31,23 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Control/ContentControlBase.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <cassert>
+
+namespace Fsl::UI
+{
+  using TClass = ContentControlBase;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyPadding = TFactory::Create<DpThicknessF, TClass, &TClass::DoGetPadding, &TClass::DoSetPadding>("Padding");
+}
 
 namespace Fsl::UI
 {
@@ -71,19 +83,20 @@ namespace Fsl::UI
 
   PxSize2D ContentControlBase::GetContentDesiredSizePx() const
   {
-    auto paddingPx = GetContext()->UnitConverter.ToPxThickness(m_paddingDp);
+    auto paddingPx = GetContext()->UnitConverter.ToPxThickness(m_propertyPaddingDp.Get());
     auto paddingSizePx = paddingPx.Sum();
     return m_content ? PxSize2D::Add(m_content->DesiredSizePx(), paddingSizePx) : paddingSizePx;
   }
 
 
-  void ContentControlBase::DoSetPadding(const DpThickness& valueDp)
+  bool ContentControlBase::DoSetPadding(const DpThicknessF value)
   {
-    if (valueDp != m_paddingDp)
+    const bool changed = m_propertyPaddingDp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_paddingDp = valueDp;
       PropertyUpdated(PropertyType::Layout);
     }
+    return changed;
   }
 
 
@@ -125,7 +138,7 @@ namespace Fsl::UI
   PxSize2D ContentControlBase::MeasureOverride(const PxAvailableSize& availableSizePx)
   {
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-    const auto paddingPx = unitConverter.ToPxThickness(m_paddingDp);
+    const auto paddingPx = unitConverter.ToPxThickness(m_propertyPaddingDp.Get());
 
     PxSize2D contentDesiredSizePx;
     if (m_content)
@@ -148,11 +161,35 @@ namespace Fsl::UI
       return finalSizePx;
     }
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-    const auto paddingPx = unitConverter.ToPxThickness(m_paddingDp);
+    const auto paddingPx = unitConverter.ToPxThickness(m_propertyPaddingDp.Get());
     const PxSize2D localFinalSizePx(PxSize2D::Subtract(finalSizePx, paddingPx.Sum()));
 
     // Arrange the control inside this one
     pContent->Arrange(PxRectangle(positionOffsetPx + paddingPx.TopLeft(), localFinalSizePx));
     return finalSizePx;
+  }
+
+
+  DataBinding::DataBindingInstanceHandle ContentControlBase::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyPadding, m_propertyPaddingDp));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult ContentControlBase::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                             const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyPadding, m_propertyPaddingDp));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void ContentControlBase::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyPadding);
   }
 }

@@ -73,7 +73,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersion = Version(3, 5, 3, 1)
+CurrentVersion = Version(3, 6, 2, 5)
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -205,7 +205,7 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
         toolAppConfig.BuildPackageFilters.RecipeFilterManager = ParseUtil.ParseRecipeList(args.Recipes)
 
     if toolCommonArgConfig.AddBuildVariants:
-        toolAppConfig.BuildVariantsDict = ParseUtil.ParseVariantDict(args.Variants)
+        toolAppConfig.BuildVariantConstraints = ParseUtil.ParseExternalVariantConstraints(args.Variants)
 
     if toolCommonArgConfig.AddBuildThreads:
         toolAppConfig.BuildThreads = BuildThreads.FromString(args.BuildThreads)

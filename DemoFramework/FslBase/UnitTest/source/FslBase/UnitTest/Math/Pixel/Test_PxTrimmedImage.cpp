@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,9 @@ TEST(TestMathPixel_PxTrimmedImage, Construct_Default)
 
 TEST(TestMathPixel_PxTrimmedImage, Construct)
 {
-  constexpr PxSize2D sizePx(1, 2);
-  constexpr PxThicknessF trimMarginPxf(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr PxSize2DF trimmedSizePxf(7.0f, 8.0f);
+  constexpr auto sizePx = PxSize2D::Create(1, 2);
+  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto trimmedSizePxf = PxSize2DF::Create(7.0f, 8.0f);
 
   PxTrimmedImage value(sizePx, trimMarginPxf, trimmedSizePxf);
 
@@ -65,9 +65,9 @@ TEST(TestMathPixel_PxTrimmedImage, Construct)
 
 TEST(TestMathPixel_PxTrimmedImage, OpEqual)
 {
-  constexpr PxSize2D sizePx(1, 2);
-  constexpr PxThicknessF trimMarginPxf(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr PxSize2DF trimmedSizePxf(7.0f, 8.0f);
+  constexpr auto sizePx = PxSize2D::Create(1, 2);
+  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto trimmedSizePxf = PxSize2DF::Create(7.0f, 8.0f);
 
   PxTrimmedImage value0(sizePx, trimMarginPxf, trimmedSizePxf);
   PxTrimmedImage value1(sizePx, trimMarginPxf, trimmedSizePxf);
@@ -77,18 +77,24 @@ TEST(TestMathPixel_PxTrimmedImage, OpEqual)
 
 TEST(TestMathPixel_PxTrimmedImage, NotOpEqual)
 {
-  constexpr PxSize2D sizePx(1, 2);
-  constexpr PxThicknessF trimMarginPxf(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr PxSize2DF trimmedSizePxf(7.0f, 8.0f);
+  constexpr auto sizePx = PxSize2D::Create(1, 2);
+  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto trimmedSizePxf = PxSize2DF::Create(7.0f, 8.0f);
 
   PxTrimmedImage value(sizePx, trimMarginPxf, trimmedSizePxf);
 
-  EXPECT_NE(PxTrimmedImage(PxSize2D(42, sizePx.Height()), trimMarginPxf, trimmedSizePxf), value);
-  EXPECT_NE(PxTrimmedImage(PxSize2D(sizePx.Width(), 42), trimMarginPxf, trimmedSizePxf), value);
-  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(42.0f, trimMarginPxf.Top(), trimMarginPxf.Right(), trimMarginPxf.Bottom()), trimmedSizePxf), value);
-  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(trimMarginPxf.Left(), 42.0f, trimMarginPxf.Right(), trimMarginPxf.Bottom()), trimmedSizePxf), value);
-  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), 42.0f, trimMarginPxf.Bottom()), trimmedSizePxf), value);
-  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), trimMarginPxf.Right(), 42.0f), trimmedSizePxf), value);
-  EXPECT_NE(PxTrimmedImage(sizePx, trimMarginPxf, PxSize2DF(42.0f, trimmedSizePxf.Height())), value);
-  EXPECT_NE(PxTrimmedImage(sizePx, trimMarginPxf, PxSize2DF(trimmedSizePxf.Width(), 42.0f)), value);
+  const auto size42Px = PxSize1D::Create(42);
+  const auto size42Pxf = PxSize1DF::Create(42);
+
+  EXPECT_NE(PxTrimmedImage(PxSize2D(size42Px, sizePx.Height()), trimMarginPxf, trimmedSizePxf), value);
+  EXPECT_NE(PxTrimmedImage(PxSize2D(sizePx.Width(), size42Px), trimMarginPxf, trimmedSizePxf), value);
+  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(size42Pxf, trimMarginPxf.Top(), trimMarginPxf.Right(), trimMarginPxf.Bottom()), trimmedSizePxf),
+            value);
+  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(trimMarginPxf.Left(), size42Pxf, trimMarginPxf.Right(), trimMarginPxf.Bottom()), trimmedSizePxf),
+            value);
+  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), size42Pxf, trimMarginPxf.Bottom()), trimmedSizePxf),
+            value);
+  EXPECT_NE(PxTrimmedImage(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), trimMarginPxf.Right(), size42Pxf), trimmedSizePxf), value);
+  EXPECT_NE(PxTrimmedImage(sizePx, trimMarginPxf, PxSize2DF(size42Pxf, trimmedSizePxf.Height())), value);
+  EXPECT_NE(PxTrimmedImage(sizePx, trimMarginPxf, PxSize2DF(trimmedSizePxf.Width(), size42Pxf)), value);
 }

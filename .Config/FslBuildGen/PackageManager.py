@@ -39,10 +39,12 @@ import xml.etree.ElementTree as ET
 from FslBuildGen import PackageConfig
 from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.Build.Filter import RequirementFilter
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.BasicBuildConfig import BasicBuildConfig
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
+from FslBuildGen.Engine.GraphImageSaveInfo import GraphImageSaveInfo
 from FslBuildGen.Engine.Resolver.PackageManager2 import PackageManager2
 from FslBuildGen.Engine.Resolver.PreResolver import PreResolver
 from FslBuildGen.Engine.Resolver.PreResolvePackageResult import PreResolvePackageResult
@@ -53,6 +55,7 @@ from FslBuildGen.Exceptions import DependencyNotFoundException
 from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Exceptions import InvalidDependencyException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Log import Log
 from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.PackageFilters import PackageFilters
@@ -98,7 +101,8 @@ class ProjectContextCache(object):
 class PackageManager(object):
     def __init__(self, log: Log, configBuildDir: str, configIgnoreNotSupported: bool, toolConfig: ToolConfig, platformName: str,
                  hostPlatformName: str, basicBuildConfig: BasicBuildConfig, generatorInfo: GeneratorInfo, genFiles: List[XmlGenFile],
-                 packageManagerFilter: PackageManagerFilter, writeGraph: bool) -> None:
+                 packageManagerFilter: PackageManagerFilter, externalVariantConstraints: ExternalVariantConstraints,
+                 engineResolveConfig: EngineResolveConfig, writeGraph: bool) -> None:
         super().__init__()
 
         self.__GeneratorInfo = generatorInfo
@@ -109,7 +113,10 @@ class PackageManager(object):
         # Handle flavor package resolving.
         unresolvedInput = self.__CreateInitialUnresolvedPackageList(configIgnoreNotSupported, toolConfig, platformName, hostPlatformName, genFiles,
                                                                     createContext)
-        unresolvedPackages = PackageManager2.Resolve2(basicBuildConfig, createContext, unresolvedInput, writeGraph)
+
+        graphImageSaveInfo = GraphImageSaveInfo(toolConfig.ProjectInfo.Contexts) if writeGraph else None
+        unresolvedPackages = PackageManager2.Resolve2(basicBuildConfig, createContext, unresolvedInput, externalVariantConstraints,
+                                                      engineResolveConfig, graphImageSaveInfo)
         unresolvedPackages = PackageManager.__Filter(log, unresolvedPackages, packageManagerFilter)
 
         uniqueDict = {}  # type: Dict[PackageInstanceName, Package]
@@ -282,8 +289,9 @@ class PackageManager(object):
             #topLevelPackage = PackageListUtil.GetTopLevelPackage(sourcePackageBuildOrder)
             requestedPackages = PreResolvePackageResultUtil.TryGetPackageListFromFilenames(sourcePackageBuildOrder, packageManagerFilter.RequestedFiles, False)
 
-            # Remove all packages that were not imported because of a user requirement
-            sourcePackageBuildOrder = PackageManager.__FilterNotUserRequested(log, sourcePackageBuildOrder, requestedPackages)
+            #if filterHack == FilterHack.TrimFlavors:
+            #    # Remove all packages that were not imported because of a user requirement
+            #    sourcePackageBuildOrder = PackageManager.__FilterNotUserRequested(log, sourcePackageBuildOrder, requestedPackages)
 
             if not packageManagerFilter.PackageFilters.ContainsFilters():
                 return sourcePackageBuildOrder
@@ -294,30 +302,30 @@ class PackageManager(object):
         finally:
             log.PopIndent()
 
-    @staticmethod
-    def __FilterNotUserRequested(log: Log, sourcePackageBuildOrder: List[PreResolvePackageResult],
-                                 requestedPackages: Optional[List[PreResolvePackageResult]]) -> List[PreResolvePackageResult]:
-        if requestedPackages is None or len(requestedPackages) <= 0:
-            return sourcePackageBuildOrder
+    #@staticmethod
+    #def __FilterNotUserRequested(log: Log, sourcePackageBuildOrder: List[PreResolvePackageResult],
+    #                             requestedPackages: Optional[List[PreResolvePackageResult]]) -> List[PreResolvePackageResult]:
+    #    if requestedPackages is None or len(requestedPackages) <= 0:
+    #        return sourcePackageBuildOrder
 
-        userRequestedPackageNameSet = set()
-        for preResolvePackageResult in requestedPackages:
-            package = preResolvePackageResult.SourcePackage
-            if not package.NameInfo.FullName in userRequestedPackageNameSet:
-                userRequestedPackageNameSet.add(package.NameInfo.FullName)
-                for depPreResolvePackageResult in preResolvePackageResult.ResolvedBuildOrder:
-                    if not depPreResolvePackageResult.SourcePackage.NameInfo.FullName in userRequestedPackageNameSet:
-                        userRequestedPackageNameSet.add(depPreResolvePackageResult.SourcePackage.NameInfo.FullName)
+    #    userRequestedPackageNameSet = set()
+    #    for preResolvePackageResult in requestedPackages:
+    #        package = preResolvePackageResult.SourcePackage
+    #        if not package.NameInfo.FullName in userRequestedPackageNameSet:
+    #            userRequestedPackageNameSet.add(package.NameInfo.FullName)
+    #            for depPreResolvePackageResult in preResolvePackageResult.ResolvedBuildOrder:
+    #                if not depPreResolvePackageResult.SourcePackage.NameInfo.FullName in userRequestedPackageNameSet:
+    #                    userRequestedPackageNameSet.add(depPreResolvePackageResult.SourcePackage.NameInfo.FullName)
 
-        # This one liner
-        #    return [entry for entry in sourcePackageBuildOrder if entry.SourcePackage.NameInfo.FullName in userRequestedPackageNameSet]
-        # Was expanded because we need to log information
+    #    # This one liner
+    #    #    return [entry for entry in sourcePackageBuildOrder if entry.SourcePackage.NameInfo.FullName in userRequestedPackageNameSet]
+    #    # Was expanded because we need to log information
 
-        logResult = log.Verbosity > 2
-        result = []
-        for entry in sourcePackageBuildOrder:
-            if entry.SourcePackage.NameInfo.FullName in userRequestedPackageNameSet:
-                result.append(entry)
-            elif logResult:
-                log.LogPrint("- {0} (Removed because it was not requested by the user)".format(entry.SourcePackage.NameInfo.FullName))
-        return result
+    #    logResult = log.Verbosity > 2
+    #    result = []
+    #    for entry in sourcePackageBuildOrder:
+    #        if entry.SourcePackage.NameInfo.FullName in userRequestedPackageNameSet:
+    #            result.append(entry)
+    #        elif logResult:
+    #            log.LogPrint("- {0} (Removed because it was not requested by the user)".format(entry.SourcePackage.NameInfo.FullName))
+    #    return result

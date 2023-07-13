@@ -128,7 +128,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     PxSize2D sizePx = GetWindowSizePx();
-    glViewport(0, 0, sizePx.Width(), sizePx.Height());
+    glViewport(0, 0, sizePx.RawWidth(), sizePx.RawHeight());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Bind the VAO

@@ -639,8 +639,8 @@ namespace Fsl
 
     // Update dynamic viewport state
     VkViewport viewport{};
-    viewport.width = static_cast<float>(screenExtent.Width);
-    viewport.height = static_cast<float>(screenExtent.Height);
+    viewport.width = static_cast<float>(screenExtent.Width.Value);
+    viewport.height = static_cast<float>(screenExtent.Height.Value);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(hCmdBuffer, 0, 1, &viewport);

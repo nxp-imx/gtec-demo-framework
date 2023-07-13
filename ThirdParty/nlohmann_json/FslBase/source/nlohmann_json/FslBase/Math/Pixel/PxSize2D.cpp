@@ -44,15 +44,15 @@ namespace Fsl
 
   void to_json(nlohmann::json& j, const PxSize2D& src)
   {
-    j = nlohmann::json{{LocalNames::Width, src.Width()}, {LocalNames::Height, src.Height()}};
+    j = nlohmann::json{{LocalNames::Width, src.RawWidth()}, {LocalNames::Height, src.RawHeight()}};
   }
 
   void from_json(const nlohmann::json& j, PxSize2D& rDst)
   {
-    PxSize2D::value_type width{};
-    PxSize2D::value_type height{};
+    PxSize2D::raw_value_type width{};
+    PxSize2D::raw_value_type height{};
     j.at(LocalNames::Width).get_to(width);
     j.at(LocalNames::Height).get_to(height);
-    rDst = PxSize2D(width, height);
+    rDst = PxSize2D::Create(width, height);
   }
 }

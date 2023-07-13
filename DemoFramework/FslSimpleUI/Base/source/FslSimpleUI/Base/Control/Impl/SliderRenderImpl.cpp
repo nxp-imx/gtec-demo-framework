@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Sprite/IContentSprite.hpp>
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
@@ -68,7 +69,7 @@ namespace Fsl::UI
 
 
   void SliderRenderImpl::Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor,
-                              const int32_t cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter)
+                              const PxValue cursorPositionPx, const bool isDragging, const SpriteUnitConverter& spriteUnitConverter)
   {
     FSL_PARAM_NOT_USED(isDragging);
 
@@ -96,7 +97,7 @@ namespace Fsl::UI
 
       if (m_arrangeCache.Orientation == LayoutOrientation::Horizontal)
       {
-        PxVector2 cursorPositionPxf(dstPositionPxf.X + static_cast<float>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
+        PxVector2 cursorPositionPxf(dstPositionPxf.X + TypeConverter::UncheckedTo<PxValueF>(cursorPositionPx - cursorOriginPx.X), dstPositionPxf.Y);
 
         // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
         commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
@@ -110,7 +111,7 @@ namespace Fsl::UI
       }
       else
       {
-        PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + static_cast<float>(cursorPositionPx - cursorOriginPx.Y));
+        PxVector2 cursorPositionPxf(dstPositionPxf.X, dstPositionPxf.Y + TypeConverter::UncheckedTo<PxValueF>(cursorPositionPx - cursorOriginPx.Y));
 
         // ImageImpl::Draw(batch, pSprite, cursorPositionPxf, cursorCulor);
         commandBuffer.Draw(m_cursor.Sprite.Get(), cursorPositionPxf, cursorRenderSizePx, finalColor * cursorColor);
@@ -145,7 +146,7 @@ namespace Fsl::UI
   SliderPixelSpanInfo SliderRenderImpl::Arrange(const PxSize2D finalSizePx, const LayoutOrientation orientation,
                                                 const LayoutDirection layoutDirection, const SpriteUnitConverter& spriteUnitConverter)
   {
-    const PxPoint2 cursorSizePx(spriteUnitConverter.ToPxPoint2(m_cursor.SizeDp));
+    const PxSize2D cursorSizePx(spriteUnitConverter.ToPxSize2D(m_cursor.SizeDp));
     const PxSize2D cursorRenderSizePx = m_cursor.Sprite.FastGetRenderSizePx();
     const bool reverseDirection = (layoutDirection != LayoutDirection::NearToFar);
 
@@ -164,17 +165,19 @@ namespace Fsl::UI
     SliderPixelSpanInfo spanInfo;
     if (orientation == LayoutOrientation::Horizontal)
     {
-      const int32_t virtualCursorLengthPx = (cursorSizePx.X > 0 ? cursorSizePx.X : cursorRenderSizePx.Width());
-      const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Left();
+      const PxSize1D virtualCursorLengthPx = (cursorSizePx.RawWidth() > 0 ? cursorSizePx.Width() : cursorRenderSizePx.Width());
+      const PxSize1D startPx = (virtualCursorLengthPx / PxSize1D::UncheckedCreate(2)) + backgroundContentMarginPx.Left();
 
-      spanInfo = SliderPixelSpanInfo(startPx, finalSizePx.Width() - virtualCursorLengthPx - backgroundContentMarginPx.SumX(), reverseDirection);
+      PxSize1D spanLengthPx(finalSizePx.Width() - virtualCursorLengthPx - backgroundContentMarginPx.SumX());
+      spanInfo = SliderPixelSpanInfo(startPx.Value(), spanLengthPx, reverseDirection);
     }
     else
     {
-      const int32_t virtualCursorLengthPx = (cursorSizePx.Y > 0 ? cursorSizePx.Y : cursorRenderSizePx.Height());
-      const int32_t startPx = (virtualCursorLengthPx / 2) + backgroundContentMarginPx.Top();
+      const PxSize1D virtualCursorLengthPx = (cursorSizePx.RawHeight() > 0 ? cursorSizePx.Height() : cursorRenderSizePx.Height());
+      const PxSize1D startPx = (virtualCursorLengthPx / PxSize1D::UncheckedCreate(2)) + backgroundContentMarginPx.Top();
 
-      spanInfo = SliderPixelSpanInfo(startPx, finalSizePx.Height() - virtualCursorLengthPx - backgroundContentMarginPx.SumY(), !reverseDirection);
+      PxSize1D spanLengthPx(finalSizePx.Height() - virtualCursorLengthPx - backgroundContentMarginPx.SumY());
+      spanInfo = SliderPixelSpanInfo(startPx.Value(), spanLengthPx, !reverseDirection);
     }
     m_arrangeCache = ArrangeCache(finalSizePx, orientation, layoutDirection, spanInfo);
     return spanInfo;

@@ -37,18 +37,20 @@ namespace Fsl::UI
 {
   class Switch final : public ToggleButton
   {
+    using base_type = ToggleButton;
+
   public:
     explicit Switch(const std::shared_ptr<WindowContext>& context)
       : ToggleButton(context)
     {
-      SetCursorCheckedColor(DefaultColor::Switch::CursorChecked);
-      SetCursorCheckedDisabledColor(DefaultColor::Switch::CursorCheckedDisabled);
-      SetCursorUncheckedColor(DefaultColor::Switch::CursorUnchecked);
-      SetCursorUncheckedDisabledColor(DefaultColor::Switch::CursorUncheckedDisabled);
-      SetBackgroundCheckedColor(DefaultColor::Switch::BackgroundChecked);
-      SetBackgroundCheckedDisabledColor(DefaultColor::Switch::BackgroundCheckedDisabled);
-      SetBackgroundUncheckedColor(DefaultColor::Switch::BackgroundUnchecked);
-      SetBackgroundUncheckedDisabledColor(DefaultColor::Switch::BackgroundUncheckedDisabled);
+      SetCursorColorChecked(DefaultColor::Switch::CursorChecked);
+      SetCursorColorCheckedDisabled(DefaultColor::Switch::CursorCheckedDisabled);
+      SetCursorColorUnchecked(DefaultColor::Switch::CursorUnchecked);
+      SetCursorColorUncheckedDisabled(DefaultColor::Switch::CursorUncheckedDisabled);
+      SetBackgroundColorChecked(DefaultColor::Switch::BackgroundChecked);
+      SetBackgroundColorCheckedDisabled(DefaultColor::Switch::BackgroundCheckedDisabled);
+      SetBackgroundColorUnchecked(DefaultColor::Switch::BackgroundUnchecked);
+      SetBackgroundColorUncheckedDisabled(DefaultColor::Switch::BackgroundUncheckedDisabled);
       SetHoverOverlayCheckedColor(DefaultColor::Switch::HoverOverlayChecked);
       SetHoverOverlayUncheckedColor(DefaultColor::Switch::HoverOverlayUnchecked);
     }

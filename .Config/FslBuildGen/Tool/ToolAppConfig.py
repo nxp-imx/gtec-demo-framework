@@ -37,6 +37,7 @@ from typing import Optional
 from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.DataTypes import GeneratorType
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Tool.UserCMakeConfig import UserCMakeConfig
@@ -75,7 +76,7 @@ class ToolAppConfig(object):
         self.VSVersion = None  # type: Optional[int]
 
         self.BuildPackageFilters = PackageFilters()
-        self.BuildVariantsDict = {}  # type: Dict[str, str]
+        self.BuildVariantConstraints = ExternalVariantConstraints({})
         self.Recursive = False
 
         self.CMakeBuildDir = DefaultValue.CMakeBuildDir
@@ -102,7 +103,7 @@ class ToolAppConfig(object):
         self.VSVersion = toolAppConfig.VSVersion
 
         self.BuildPackageFilters = toolAppConfig.BuildPackageFilters
-        self.BuildVariantsDict = toolAppConfig.BuildVariantsDict
+        self.BuildVariantConstraints = toolAppConfig.BuildVariantConstraints
         self.Recursive = toolAppConfig.Recursive
 
         self.CMakeBuildDir = toolAppConfig.CMakeBuildDir

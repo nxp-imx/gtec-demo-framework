@@ -18,7 +18,7 @@
     </Platform>
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
-      <Variant Name="WindowSystem" Extend="true">
+      <FlavorExtension Name="WindowSystem.Impl">
         <Option Name="FB">
           <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
@@ -41,7 +41,7 @@
         <Option Name="X11">
           <Define Name="EGL_USE_X11" Access="Public"/>
         </Option>
-      </Variant>
+      </FlavorExtension>
     </Platform>
     <Platform Name="Windows" Supported="true"/>
     <Platform Name="Emscripten" Supported="true"/>

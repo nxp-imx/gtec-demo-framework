@@ -218,7 +218,7 @@ namespace Fsl
       {
         const Color fontColor(color, color, color, color);
         const auto dim = pFont->MeasureString(m_render[i].Name.c_str());
-        const float position = ((static_cast<float>(endX - startX - dim.Width()) / 2.0f) + static_cast<float>(startX));
+        const float position = ((static_cast<float>(endX - startX - dim.RawWidth()) / 2.0f) + static_cast<float>(startX));
         m_nativeBatch->DrawString(*pFont, m_render[i].Name, Vector2(position, 0), fontColor);
       }
       startX = endX;
@@ -270,7 +270,7 @@ namespace Fsl
 
     if (activeSegments > 0)
     {
-      const auto segmentSize = static_cast<float>(extent.Width) / static_cast<float>(activeSegments);
+      const auto segmentSize = static_cast<float>(extent.Width.Value) / static_cast<float>(activeSegments);
       uint32_t sceneFlags = m_sceneRenderFlags;
       float currentSplitX = segmentSize;
       for (std::size_t i = 0; i < m_render.size(); ++i)

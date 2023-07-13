@@ -203,7 +203,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }
@@ -319,10 +319,10 @@ namespace Fsl
     // Bind the vertex array
     m_resources.VertexArray.Bind();
 
-    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.Width())));
-    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * static_cast<float>(windowSizePx.Height())));
-    const GLint remainderX = windowSizePx.Width() - splitX;
-    const GLint remainderY = windowSizePx.Height() - splitY;
+    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.RawWidth())));
+    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * static_cast<float>(windowSizePx.RawHeight())));
+    const GLint remainderX = windowSizePx.RawWidth() - splitX;
+    const GLint remainderY = windowSizePx.RawHeight() - splitY;
 
     glBindTexture(GL_TEXTURE_2D, m_resources.TexLinear.Get());
 
@@ -352,7 +352,7 @@ namespace Fsl
     m_resources.VertexArray.Unbind();
 
     // Restore the viewport
-    glViewport(0, 0, windowSizePx.Width(), windowSizePx.Height());
+    glViewport(0, 0, windowSizePx.RawWidth(), windowSizePx.RawHeight());
   }
 
 

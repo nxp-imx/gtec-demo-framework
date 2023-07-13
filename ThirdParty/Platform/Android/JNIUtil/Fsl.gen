@@ -5,8 +5,8 @@
     <Platform Name="Android" Supported="true">
       <Dependency Name="FslBase"/>
       <Dependency Name="FslGraphics"/>
-      <Dependency Name="Platform.Android.Glue"/>
-      <Dependency Name="Platform.Android.NDKHelper"/>
+      <Dependency Name="Platform.Android.GameActivity"/>
+      <!--Dependency Name="Platform.Android.NDKHelper" Access="Private"/-->
     </Platform>
   </Library>
 </FslBuildGen>

@@ -64,10 +64,13 @@ namespace Fsl::GLES2
       uint32_t ReferenceCount{0};
       uint32_t CameraChangeId{0};
 
+      NativeShaderComboKey ComboKey;
+
       Record() = default;
 
       explicit Record(GLProgram program, const GLint locMatModelViewProj, const GLint locTexture, const GLint locSmoothing,
-                      const GLint locVertexPosition, const GLint locVertexColor, const GLint locVertexTextureCoord)
+                      const GLint locVertexPosition, const GLint locVertexColor, const GLint locVertexTextureCoord,
+                      const NativeShaderComboKey comboKey)
         : Program(std::move(program))
         , LocMatModelViewProj(locMatModelViewProj)
         , LocTexture(locTexture)
@@ -76,6 +79,7 @@ namespace Fsl::GLES2
         , LocVertexColor(locVertexColor)
         , LocVertexTextureCoord(locVertexTextureCoord)
         , ReferenceCount(1)
+        , ComboKey(comboKey)
       {
       }
     };

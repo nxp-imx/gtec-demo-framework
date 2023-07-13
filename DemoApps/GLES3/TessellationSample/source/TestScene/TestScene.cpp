@@ -135,8 +135,8 @@ namespace Fsl
     {
       BasicMesh tmpMesh;
       WindingOrder::Enum windingOrder = WindingOrder::CCW;
-      PxSize2D tex1Size(128, 128);
-      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      constexpr PxSize2D tex1Size(PxSize2D::Create(128, 128));
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect));
       const std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
       // tmpMesh = BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas, 6, windingOrder);

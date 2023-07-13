@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Dp/DpExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxValueU16.hpp>
 #include <FslGraphics/Font/BitmapFontConfig.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 
@@ -53,10 +54,10 @@ namespace Fsl
     DpExtent2D AtlasTextureExtentDp;
 
     //! This is the actual distance in pixels between each line of text.
-    uint16_t LineSpacingPx{};
+    PxValueU16 LineSpacingPx;
 
     //! The actual number of pixels from the absolute top of the line to the base of the characters.
-    uint16_t BaseLinePx{};
+    PxValueU16 BaseLinePx;
 
     uint32_t ImageDpi{};
 
@@ -69,13 +70,13 @@ namespace Fsl
     BitmapFontConfig FontConfig;
 
     //! This is the distance in pixels between each line of text.
-    uint16_t ScaledLineSpacingPx{};
+    PxValueU16 ScaledLineSpacingPx{};
 
     //! The number of pixels from the absolute top of the line to the base of the characters.
-    uint16_t ScaledBaseLinePx{};
+    PxValueU16 ScaledBaseLinePx{};
 
     SpriteFontInfo() = default;
-    SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const uint16_t lineSpacingPx, const uint16_t baseLinePx, const uint32_t imageDpi,
+    SpriteFontInfo(const SpriteMaterialInfo& spriteMaterialInfo, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx, const uint32_t imageDpi,
                    const bool enableKerning, const bool isSdfBased, const float sdfScale, const StringViewLite& debugName);
 
 

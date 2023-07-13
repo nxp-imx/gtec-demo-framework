@@ -202,7 +202,7 @@ namespace Fsl
     m_coverBigAlbums[1].ScaleY = 1;
     m_coverBigAlbums[1].CoverFlowState = 0;
     const PxSize2D currentSizePx = GetWindowSizePx();
-    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
     // slot_coordinates.resize(8);
     slot_coordinates[0] = Vector2(0.0f, 0.0f);
@@ -269,7 +269,7 @@ namespace Fsl
 
     int j = 0;
     const PxSize2D currentSizePx = GetWindowSizePx();
-    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
     // Set matrix transformation mode
     vgSeti(VG_BLEND_MODE, VG_BLEND_SRC_OVER);
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_IMAGE_USER_TO_SURFACE);

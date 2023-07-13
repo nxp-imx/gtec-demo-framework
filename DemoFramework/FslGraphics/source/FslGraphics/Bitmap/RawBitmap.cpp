@@ -39,10 +39,10 @@
 
 namespace Fsl
 {
-  RawBitmap::RawBitmap(const void* const pContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  RawBitmap::RawBitmap(const void* const pContent, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     : m_pContent(pContent)
     , m_extent(extent)
-    , m_stride(PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat))
+    , m_stride(PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat))
     , m_pixelFormat(pixelFormat)
     , m_origin(origin)
   {
@@ -53,7 +53,7 @@ namespace Fsl
   }
 
 
-  RawBitmap::RawBitmap(const void* const pContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+  RawBitmap::RawBitmap(const void* const pContent, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride,
                        const BitmapOrigin origin)
     : m_pContent(pContent)
     , m_extent(extent)
@@ -65,7 +65,7 @@ namespace Fsl
     {
       throw std::invalid_argument("pContent can not be null");
     }
-    if (stride < PixelFormatUtil::CalcMinimumStride(m_extent.Width, pixelFormat))
+    if (stride < PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, pixelFormat))
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
@@ -73,7 +73,7 @@ namespace Fsl
 
 
   RawBitmap::RawBitmap(const RawBitmapArea& rawBitmapArea, const PixelFormat pixelFormat, const BitmapOrigin origin)
-    : RawBitmap(rawBitmapArea.Content, rawBitmapArea.Extent.Width, rawBitmapArea.Extent.Height, pixelFormat,
+    : RawBitmap(rawBitmapArea.Content, rawBitmapArea.Extent.Width.Value, rawBitmapArea.Extent.Height.Value, pixelFormat,
                 static_cast<int32_t>(rawBitmapArea.Stride), origin)
   {
     if (rawBitmapArea.Stride > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))

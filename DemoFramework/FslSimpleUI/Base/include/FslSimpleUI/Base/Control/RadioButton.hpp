@@ -41,6 +41,8 @@ namespace Fsl::UI
 
   class RadioButton final : public ToggleButton
   {
+    using base_type = ToggleButton;
+
     std::shared_ptr<RadioGroup> m_radioGroup;
 
   public:
@@ -56,7 +58,7 @@ namespace Fsl::UI
 
     bool SetRadioGroup(const std::shared_ptr<RadioGroup>& radioGroup);
 
-    void SetIsChecked(const bool value) final;
+    bool SetIsChecked(const bool value) final;
 
   private:
     void ForceUnchecked();

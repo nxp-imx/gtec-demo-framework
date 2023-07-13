@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics2D/Procedural/Batcher/ImmediateModeBatcher.hpp>
+#include "Preprocess/Linear/LinearPreprocessor.hpp"
 #include "RenderSystemBase.hpp"
 
 namespace Fsl::UI::RenderIMBatch
@@ -39,12 +40,15 @@ namespace Fsl::UI::RenderIMBatch
   class RenderSystem final : public RenderSystemBase
   {
     ImmediateModeBatcher m_batcher;
+    LinearPreprocessor m_preprocessor;
 
   public:
     RenderSystem(const RenderSystem&) = delete;
     RenderSystem& operator=(const RenderSystem&) = delete;
 
     explicit RenderSystem(const RenderSystemCreateInfo& createInfo);
+
+    void OnConfigurationChanged(const BasicWindowMetrics& windowMetrics) override;
 
     void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
   };

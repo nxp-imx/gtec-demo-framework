@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
 
 namespace Fsl::UI::ItemAlignmentUtil
@@ -52,7 +53,6 @@ namespace Fsl::UI::ItemAlignmentUtil
     }
   }
 
-
   constexpr inline int32_t CenterPx(const int32_t deltaPx) noexcept
   {
     // +1 or -1 before divide ensures that this is equal to doing a "round"
@@ -67,6 +67,15 @@ namespace Fsl::UI::ItemAlignmentUtil
     return static_cast<uint16_t>((static_cast<int32_t>(deltaPx) + 1) / 2);
   }
 
+  constexpr inline PxValue CenterPx(const PxValue deltaPx) noexcept
+  {
+    return PxValue::Create(CenterPx(deltaPx.Value));
+  }
+
+  constexpr inline PxValue CalcAlignmentPx(const ItemAlignment alignment, const PxValue deltaPx) noexcept
+  {
+    return PxValue::Create(CalcAlignmentPx(alignment, deltaPx.Value));
+  }
 }
 
 #endif

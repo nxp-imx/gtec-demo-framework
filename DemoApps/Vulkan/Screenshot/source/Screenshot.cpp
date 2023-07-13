@@ -144,7 +144,7 @@ namespace Fsl
       assert(subResourceLayout.offset <= image.AllocationSize);
 
       const uint8_t* pImageMemory = static_cast<const uint8_t*>(pImage) + subResourceLayout.offset;
-      const PxExtent2D extent(image.Extent.width, image.Extent.height);
+      const auto extent = PxExtent2D::Create(image.Extent.width, image.Extent.height);
       // Calculate the content size adjusting for the offset
       assert(subResourceLayout.rowPitch <= std::numeric_limits<uint32_t>::max());
       const auto stride = UncheckedNumericCast<uint32_t>(subResourceLayout.rowPitch);

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Platform.Android.GameActivity" AllowCheck="true" CreationYear="2023">
+    <Default.Platform.Supported Value="true"/>
+    <Platform Name="Android" Supported="true">
+      <FindPackage Name="game-activity"/>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

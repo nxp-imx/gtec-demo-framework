@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_PXAVAILABLESIZE_HPP
 #define FSLSIMPLEUI_BASE_PXAVAILABLESIZE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/OptimizationFlag.hpp>
+#include <FslSimpleUI/Base/PxAvailableSize1D.hpp>
 #include <FslSimpleUI/Base/PxAvailableSizeUtil.hpp>
 #include <algorithm>
 #include <cassert>
@@ -46,122 +47,131 @@ namespace Fsl::UI
   //! care has to be taken when working with it.
   struct PxAvailableSize
   {
-    using value_type = int32_t;
+    using value_type = PxAvailableSize1D;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
-    value_type m_width{0};
-    value_type m_height{0};
+    value_type m_width;
+    value_type m_height;
 
   public:
     constexpr PxAvailableSize() noexcept = default;
 
-    constexpr value_type Width() const
+    constexpr value_type Width() const noexcept
     {
       return m_width;
     }
 
-    constexpr value_type Height() const
+    constexpr value_type Height() const noexcept
     {
       return m_height;
     }
 
-    constexpr PxAvailableSize(const PxSize1D width, const PxSize1D height) noexcept
-      : m_width(width.RawValue())
-      , m_height(height.RawValue())
+    constexpr raw_value_type RawWidth() const noexcept
     {
-      assert(PxAvailableSizeUtil::IsNormalValue(m_width));
-      assert(PxAvailableSizeUtil::IsNormalValue(m_height));
+      return m_width.Value();
     }
 
-    constexpr PxAvailableSize(const value_type width, const value_type height) noexcept
-      : m_width(PxAvailableSizeUtil::IsNormalValue(width) ? std::max(width, 0) : width)
-      , m_height(PxAvailableSizeUtil::IsNormalValue(height) ? std::max(height, 0) : height)
+    constexpr raw_value_type RawHeight() const noexcept
     {
+      return m_height.Value();
     }
 
-    constexpr PxAvailableSize(const value_type width, const value_type height, const OptimizationCheckFlag /*unused*/) noexcept
+    constexpr PxAvailableSize(const PxAvailableSize1D width, const PxAvailableSize1D height) noexcept
       : m_width(width)
       , m_height(height)
     {
-      assert(width >= 0);
-      assert(height >= 0);
+    }
+
+    constexpr PxAvailableSize(const PxSize1D width, const PxAvailableSize1D height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+    constexpr PxAvailableSize(const PxAvailableSize1D width, const PxSize1D height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+
+    constexpr PxAvailableSize(const PxSize1D width, const PxSize1D height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
     }
 
     //! When using this constructor we expect a normal value this is not in the magic NaN or Infinity ranges!
     constexpr explicit PxAvailableSize(const PxPoint2 value) noexcept
-      : m_width(std::max(value.X, 0))
-      , m_height(std::max(value.Y, 0))
+      : m_width(value.X)
+      , m_height(value.Y)
     {
-      assert(PxAvailableSizeUtil::IsNormalValue(value.X));
-      assert(PxAvailableSizeUtil::IsNormalValue(value.Y));
     }
 
     constexpr explicit PxAvailableSize(const PxSize2D value) noexcept
       : m_width(value.Width())
       , m_height(value.Height())
     {
-      assert(PxAvailableSizeUtil::IsNormalValue(value.Width()));
-      assert(PxAvailableSizeUtil::IsNormalValue(value.Height()));
     }
 
 
-    constexpr void SetNormalWidth(const int32_t valuePx)
+    constexpr void SetNormalWidth(const int32_t valuePx) noexcept
     {
-      assert(PxAvailableSizeUtil::IsNormalValue(valuePx));
-      m_width = std::max(valuePx, 0);
+      m_width.SetNormalValue(valuePx);
     }
 
-    constexpr void SetNormalWidth(const int32_t valuePx, const OptimizationCheckFlag /*unused*/)
+    constexpr void SetNormalHeight(const int32_t valuePx) noexcept
     {
-      assert(valuePx >= 0);
-      assert(PxAvailableSizeUtil::IsNormalValue(valuePx));
-      m_width = valuePx;
+      m_height.SetNormalValue(valuePx);
     }
 
-    constexpr void SetNormalHeight(const int32_t valuePx)
+    constexpr void UncheckedSetNormalWidth(const int32_t valuePx) noexcept
     {
-      assert(PxAvailableSizeUtil::IsNormalValue(valuePx));
-      m_height = std::max(valuePx, 0);
+      m_height.UncheckedSetNormalValue(valuePx);
     }
 
-    constexpr void SetNormalHeight(const int32_t valuePx, const OptimizationCheckFlag /*unused*/)
+    constexpr void UncheckedSetNormalHeight(const int32_t valuePx) noexcept
     {
-      assert(valuePx >= 0);
-      assert(PxAvailableSizeUtil::IsNormalValue(valuePx));
-      m_height = valuePx;
+      m_height.UncheckedSetNormalValue(valuePx);
     }
 
-    constexpr PxSize2D ToPxSize2D() const
+    constexpr PxSize2D ToPxSize2D() const noexcept
     {
-      assert(IsNormal());
-      return {m_width, m_height};
+      return {m_width.ToPxSize1D(), m_height.ToPxSize1D()};
     }
 
-    // constexpr PxPoint2 ToRealSizePxPoint2() const
-    //{
-    //  assert(IsNormal());
-    //  return {m_width, m_height};
-    //}
 
-
-    inline constexpr bool IsInfinityWidth() const
+    constexpr PxSize1D ToPxWidth() const noexcept
     {
-      return PxAvailableSizeUtil::IsConsideredInfiniteSpace(m_width);
+      return m_width.ToPxSize1D();
+    }
+
+
+    constexpr PxSize1D ToPxHeight() const noexcept
+    {
+      return m_height.ToPxSize1D();
+    }
+
+
+    inline constexpr bool IsInfinityWidth() const noexcept
+    {
+      return m_width.IsInfinity();
     }
 
     inline constexpr bool IsInfinityHeight() const
     {
-      return PxAvailableSizeUtil::IsConsideredInfiniteSpace(m_height);
+      return m_height.IsInfinity();
     }
 
     inline constexpr bool IsNormalWidth() const
     {
-      return PxAvailableSizeUtil::IsNormalValue(m_width);
+      return m_width.IsNormal();
     }
 
     inline constexpr bool IsNormalHeight() const
     {
-      return PxAvailableSizeUtil::IsNormalValue(m_height);
+      return m_height.IsNormal();
     }
 
     inline constexpr bool IsNormal() const
@@ -169,7 +179,7 @@ namespace Fsl::UI
       return IsNormalWidth() && IsNormalHeight();
     }
 
-    inline constexpr bool ContainsInfinity() const
+    inline constexpr bool ContainsInfinity() const noexcept
     {
       return IsInfinityWidth() || IsInfinityHeight();
     }
@@ -184,46 +194,51 @@ namespace Fsl::UI
       return m_width != rhs.m_width || m_height != rhs.m_height;
     }
 
+    inline static constexpr PxAvailableSize Create(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {PxAvailableSize1D::Create(width), PxAvailableSize1D::Create(height)};
+    }
+
+    inline static constexpr PxAvailableSize UncheckedCreate(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {PxAvailableSize1D::UncheckedCreate(width), PxAvailableSize1D::UncheckedCreate(height)};
+    }
+
+
     // @brief Returns a PxAvailableSize with all components being zero (0, 0)
     static constexpr PxAvailableSize Zero() noexcept
     {
       return {};
     }
 
-    static constexpr PxAvailableSize Add(const PxAvailableSize sizePx, const PxAvailableSize valuePx)
+    static constexpr PxAvailableSize Add(const PxAvailableSize sizePx, const PxAvailableSize valuePx) noexcept
     {
-      return {PxAvailableSizeUtil::Add_LayoutSize_LayoutSize(sizePx.m_width, valuePx.m_width),
-              PxAvailableSizeUtil::Add_LayoutSize_LayoutSize(sizePx.m_height, valuePx.m_height)};
+      return {PxAvailableSize1D::Add(sizePx.m_width, valuePx.m_width), PxAvailableSize1D::Add(sizePx.m_height, valuePx.m_height)};
     }
 
-    static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxAvailableSize valuePx)
+    static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxAvailableSize valuePx) noexcept
     {
-      return {PxAvailableSizeUtil::Sub_LayoutSize_LayoutSize(sizePx.m_width, valuePx.m_width),
-              PxAvailableSizeUtil::Sub_LayoutSize_LayoutSize(sizePx.m_height, valuePx.m_height)};
+      return {PxAvailableSize1D::Subtract(sizePx.m_width, valuePx.m_width), PxAvailableSize1D::Subtract(sizePx.m_height, valuePx.m_height)};
     }
 
-    static constexpr PxAvailableSize Add(const PxAvailableSize sizePx, const PxPoint2 valuePx)
+    static constexpr PxAvailableSize Add(const PxAvailableSize sizePx, const PxPoint2 valuePx) noexcept
     {
-      return {PxAvailableSizeUtil::Add_LayoutSize_Number(sizePx.m_width, valuePx.X),
-              PxAvailableSizeUtil::Add_LayoutSize_Number(sizePx.m_height, valuePx.Y)};
+      return {PxAvailableSize1D::Add(sizePx.m_width, PxValue(valuePx.X)), PxAvailableSize1D::Add(sizePx.m_height, valuePx.Y)};
     }
 
-    static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxPoint2 valuePx)
+    static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxPoint2 valuePx) noexcept
     {
-      return {PxAvailableSizeUtil::Sub_LayoutSize_Number(sizePx.m_width, valuePx.X),
-              PxAvailableSizeUtil::Sub_LayoutSize_Number(sizePx.m_height, valuePx.Y)};
+      return {PxAvailableSize1D::Subtract(sizePx.m_width, PxValue(valuePx.X)), PxAvailableSize1D::Subtract(sizePx.m_height, valuePx.Y)};
     }
 
-    static constexpr PxAvailableSize Add(const PxAvailableSize sizePx, const PxSize2D valuePx)
+    static constexpr PxAvailableSize Add(const PxAvailableSize sizePx, const PxSize2D valuePx) noexcept
     {
-      return {PxAvailableSizeUtil::Sub_LayoutSize_Number(sizePx.m_width, valuePx.Width()),
-              PxAvailableSizeUtil::Sub_LayoutSize_Number(sizePx.m_height, valuePx.Height())};
+      return {PxAvailableSize1D::Add(sizePx.m_width, valuePx.Width()), PxAvailableSize1D::Add(sizePx.m_height, valuePx.Height())};
     }
 
-    static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxSize2D valuePx)
+    static constexpr PxAvailableSize Subtract(const PxAvailableSize sizePx, const PxSize2D valuePx) noexcept
     {
-      return {PxAvailableSizeUtil::Sub_LayoutSize_Number(sizePx.m_width, valuePx.Width()),
-              PxAvailableSizeUtil::Sub_LayoutSize_Number(sizePx.m_height, valuePx.Height())};
+      return {PxAvailableSize1D::Subtract(sizePx.m_width, valuePx.Width()), PxAvailableSize1D::Subtract(sizePx.m_height, valuePx.Height())};
     }
   };
 }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="pugixml" CreationYear="2022">
+    <Default.Platform.Supported Value="false"/>
+    <Requirement Name="Lib_pugixml" Type="feature"/>
+    <Define Name="FSL_ENABLE_PUGIXML" Access="Public"/>
+    <Platform Name="Android;Ubuntu;Windows;QNX;Emscripten" Supported="true">
+      <Dependency Name="Recipe.pugixml_1_13"/>
+    </Platform>    
+    <Platform Name="Yocto" Supported="true">
+      <ExternalDependency Name="pugixml" Access="Public" Type="StaticLib"/>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

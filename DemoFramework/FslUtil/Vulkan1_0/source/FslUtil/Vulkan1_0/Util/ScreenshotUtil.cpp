@@ -195,7 +195,7 @@ namespace Fsl::Vulkan::ScreenshotUtil
       assert(subResourceLayout.offset <= image.AllocationSize);
 
       const uint8_t* pImageMemory = static_cast<const uint8_t*>(pImage) + subResourceLayout.offset;
-      const PxExtent2D extent(image.Extent.width, image.Extent.height);
+      const auto extent = PxExtent2D::Create(image.Extent.width, image.Extent.height);
       assert(subResourceLayout.rowPitch <= std::numeric_limits<uint32_t>::max());
       const auto stride = static_cast<uint32_t>(subResourceLayout.rowPitch);
 

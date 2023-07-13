@@ -532,7 +532,7 @@ namespace Fsl
       {
         m_graphicsService->SetWindowMetrics(windowMetrics);
       }
-      if (!applyFirewall && ((windowMetrics.ExtentPx != PxExtent2D(0, 0)) || isConsoleBasedApp))
+      if (!applyFirewall && ((windowMetrics.ExtentPx != PxExtent2D::Create(0, 0)) || isConsoleBasedApp))
       {
         m_record = AppRecord(m_demoAppSetup.Factory->Allocate(m_demoAppConfig));
       }

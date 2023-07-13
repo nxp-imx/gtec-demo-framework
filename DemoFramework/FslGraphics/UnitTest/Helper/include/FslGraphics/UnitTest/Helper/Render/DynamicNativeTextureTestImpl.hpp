@@ -60,14 +60,16 @@ namespace Fsl
 
     NativeTextureArea CalcNativeTextureArea(const PxRectangleU32& imageRectanglePx) const override
     {
-      assert(static_cast<float>(m_extentPx.Width) >= 0.0f);
-      assert(static_cast<float>(m_extentPx.Height) >= 0.0f);
-      return {imageRectanglePx.Left() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Left()) / static_cast<float>(m_extentPx.Width),
-              imageRectanglePx.Top() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Top()) / static_cast<float>(m_extentPx.Height),
-              imageRectanglePx.Right() >= m_extentPx.Width ? 1.0f
-                                                           : static_cast<float>(imageRectanglePx.Right()) / static_cast<float>(m_extentPx.Width),
-              imageRectanglePx.Bottom() >= m_extentPx.Height ? 1.0f
-                                                             : static_cast<float>(imageRectanglePx.Bottom()) / static_cast<float>(m_extentPx.Height)};
+      assert(static_cast<float>(m_extentPx.Width.Value) > 0.0f);
+      assert(static_cast<float>(m_extentPx.Height.Value) > 0.0f);
+      return {imageRectanglePx.RawLeft() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.RawLeft()) / static_cast<float>(m_extentPx.Width.Value),
+              imageRectanglePx.RawTop() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.RawTop()) / static_cast<float>(m_extentPx.Height.Value),
+              imageRectanglePx.Right() >= m_extentPx.Width
+                ? 1.0f
+                : static_cast<float>(imageRectanglePx.RawRight()) / static_cast<float>(m_extentPx.Width.Value),
+              imageRectanglePx.Bottom() >= m_extentPx.Height
+                ? 1.0f
+                : static_cast<float>(imageRectanglePx.RawBottom()) / static_cast<float>(m_extentPx.Height.Value)};
     }
 
     //! @brief Set the data of the texture

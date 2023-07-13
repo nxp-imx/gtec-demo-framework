@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,19 +49,21 @@ namespace Fsl
     //! @brief This is the recommended image control. It is DP aware so it will render the image so it fits the users display.
     class Image : public BaseWindow
     {
-      using color_type = Color;
+      using base_type = BaseWindow;
 
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
       SizedSpriteMesh m_content;
-      DataBinding::TypedDependencyProperty<color_type> m_propertyContentColor{Color::White()};
-      ItemScalePolicy m_scalePolicy;
-      bool m_rotate90{false};
+      DataBinding::TypedDependencyProperty<Color> m_propertyContentColor{Color::White()};
+      DataBinding::TypedDependencyProperty<ItemScalePolicy> m_propertyScalePolicy{ItemScalePolicy::FitKeepAR};
+      DataBinding::TypedDependencyProperty<bool> m_propertyRotateImageCW;
 
     public:
       static DataBinding::DependencyPropertyDefinition PropertyContentColor;
+      static DataBinding::DependencyPropertyDefinition PropertyScalePolicy;
+      static DataBinding::DependencyPropertyDefinition PropertyRotateImageCW;
 
       explicit Image(const std::shared_ptr<WindowContext>& context);
 
@@ -73,26 +75,26 @@ namespace Fsl
       void SetContent(const std::shared_ptr<ISizedSprite>& value);
       void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
-      Color GetContentColor() const
+      Color GetContentColor() const noexcept
       {
         return m_propertyContentColor.Get();
       }
 
       bool SetContentColor(const Color value);
 
-      ItemScalePolicy GetScalePolicy() const
+      ItemScalePolicy GetScalePolicy() const noexcept
       {
-        return m_scalePolicy;
+        return m_propertyScalePolicy.Get();
       }
 
-      void SetScalePolicy(const ItemScalePolicy value);
+      bool SetScalePolicy(const ItemScalePolicy value);
 
-      bool GetRotateImageCW() const
+      bool GetRotateImageCW() const noexcept
       {
-        return m_rotate90;
+        return m_propertyRotateImageCW.Get();
       }
 
-      void SetRotateImageCW(const bool enabled);
+      bool SetRotateImageCW(const bool value);
 
 
       void WinDraw(const UIDrawContext& context) override;
@@ -104,6 +106,7 @@ namespace Fsl
       DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
       DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
                                                              const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
     };
   }
 }

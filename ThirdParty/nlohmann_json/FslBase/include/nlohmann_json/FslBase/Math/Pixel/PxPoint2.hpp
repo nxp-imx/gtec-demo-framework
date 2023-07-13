@@ -36,7 +36,8 @@
 
 namespace Fsl
 {
-  NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(PxPoint2, X, Y)
+  void to_json(nlohmann::json& j, const PxPoint2& src);
+  void from_json(const nlohmann::json& j, PxPoint2& rDst);
 }
 
 #endif

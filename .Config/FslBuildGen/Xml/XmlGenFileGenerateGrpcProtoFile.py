@@ -39,10 +39,14 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlGenFileGenerateGrpcProtoFile(XmlBase):
+    __AttribInclude = 'Include'
+    __AttribGrpcServices = 'GrpcServices'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Include = self._ReadAttrib(xmlElement, "Include")
-        grpcServices =  self._TryReadAttrib(xmlElement, 'GrpcServices')  # type: Optional[str]
+        self._CheckAttributes({self.__AttribInclude, self.__AttribGrpcServices})
+        self.Include = self._ReadAttrib(xmlElement, self.__AttribInclude)
+        grpcServices =  self._TryReadAttrib(xmlElement, self.__AttribGrpcServices)  # type: Optional[str]
         self.GrpcServices = self.__ParseGrpcServices(grpcServices)
 
     def __ParseGrpcServices(self, value: Optional[str]) -> Optional[GrpcServices]:

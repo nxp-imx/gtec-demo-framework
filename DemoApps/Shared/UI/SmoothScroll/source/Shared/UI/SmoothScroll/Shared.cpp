@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -233,33 +233,33 @@ namespace Fsl
 
     const auto& circleTexture = !useTestAtlas ? m_texCircle : m_texCircleTest;
 
-    Vector2 position0(static_cast<float>(rectTopLeftPx.Left()), m_position0 + static_cast<float>(rectTopLeftPx.Top()));
-    Vector2 position1(static_cast<float>(rectTopRightPx.Left()), std::round(m_position0) + static_cast<float>(rectTopRightPx.Top()));
-    Vector2 position2(m_position1 + static_cast<float>(rectMiddleTopPx.Left()), static_cast<float>(rectMiddleTopPx.Top()));
-    Vector2 position3(std::round(m_position1) + static_cast<float>(rectMiddleBottomPx.Left()), static_cast<float>(rectMiddleBottomPx.Top()));
+    Vector2 position0(static_cast<float>(rectTopLeftPx.RawLeft()), m_position0 + static_cast<float>(rectTopLeftPx.RawTop()));
+    Vector2 position1(static_cast<float>(rectTopRightPx.RawLeft()), std::round(m_position0) + static_cast<float>(rectTopRightPx.RawTop()));
+    Vector2 position2(m_position1 + static_cast<float>(rectMiddleTopPx.RawLeft()), static_cast<float>(rectMiddleTopPx.RawTop()));
+    Vector2 position3(std::round(m_position1) + static_cast<float>(rectMiddleBottomPx.RawLeft()), static_cast<float>(rectMiddleBottomPx.RawTop()));
 
-    const int32_t linesHeightPx = bitmapFont.LineSpacingPx() * 4;
-    const int32_t linewidth = bitmapFont.MeasureString(LocalConfig::TextLine0).Width();
+    const int32_t linesHeightPx = bitmapFont.LineSpacingPx().RawValue() * 4;
+    const int32_t linewidth = bitmapFont.MeasureString(LocalConfig::TextLine0).RawWidth();
 
-    if (m_position0 < static_cast<float>(rectTopLeftPx.Top()))
+    if (m_position0 < static_cast<float>(rectTopLeftPx.RawTop()))
     {
-      m_position0 = static_cast<float>(rectTopLeftPx.Top());
+      m_position0 = static_cast<float>(rectTopLeftPx.RawTop());
       m_direction0 = 1;
     }
-    if (m_position0 > static_cast<float>(rectTopLeftPx.Bottom() - linesHeightPx))
+    if (m_position0 > static_cast<float>(rectTopLeftPx.RawBottom() - linesHeightPx))
     {
-      m_position0 = static_cast<float>(rectTopLeftPx.Bottom() - linesHeightPx);
+      m_position0 = static_cast<float>(rectTopLeftPx.RawBottom() - linesHeightPx);
       m_direction0 = -1;
     }
 
-    if (m_position1 < static_cast<float>(rectMiddleBottomPx.Left()))
+    if (m_position1 < static_cast<float>(rectMiddleBottomPx.RawLeft()))
     {
-      m_position1 = static_cast<float>(rectMiddleBottomPx.Left());
+      m_position1 = static_cast<float>(rectMiddleBottomPx.RawLeft());
       m_direction1 = 1;
     }
-    if (m_position1 > static_cast<float>(rectMiddleBottomPx.Right() - linewidth))
+    if (m_position1 > static_cast<float>(rectMiddleBottomPx.RawRight() - linewidth))
     {
-      m_position1 = static_cast<float>(rectMiddleBottomPx.Right() - linewidth);
+      m_position1 = static_cast<float>(rectMiddleBottomPx.RawRight() - linewidth);
       m_direction1 = -1;
     }
 
@@ -270,7 +270,7 @@ namespace Fsl
 
       if (drawCircle)
       {
-        PxRectangleU32 srcCircleRect(0, 0, m_texCircle.GetExtent().Width, m_texCircle.GetExtent().Height);
+        PxRectangleU32 srcCircleRect(PxValueU(0), PxValueU(0), m_texCircle.GetExtent().Width, m_texCircle.GetExtent().Height);
         const uint8_t color = (drawText ? 0x20 : 0xFF);
         Color circleColor(color, color, color, color);
         rNativeBatch.Draw(circleTexture, position0, srcCircleRect, circleColor, rectTopLeftPx);
@@ -320,9 +320,9 @@ namespace Fsl
                         const BitmapFontConfig& fontConfig, const Vector2& positionPxf, const Color& fontColor, const PxClipRectangle& clipRectPx)
   {
     Vector2 pos0Pxf(positionPxf.X, positionPxf.Y);
-    Vector2 pos1Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx()));
-    Vector2 pos2Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx() * 2));
-    Vector2 pos3Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx() * 3));
+    Vector2 pos1Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx().RawValue()));
+    Vector2 pos2Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx().RawValue() * 2));
+    Vector2 pos3Pxf(positionPxf.X, positionPxf.Y + static_cast<float>(font.LineSpacingPx().RawValue() * 3));
 
     rNativeBatch.DrawString(srcTexture, font, fontConfig, LocalConfig::TextLine0, pos0Pxf, fontColor, clipRectPx);
     rNativeBatch.DrawString(srcTexture, font, fontConfig, LocalConfig::TextLine1, pos1Pxf, fontColor, clipRectPx);

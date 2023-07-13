@@ -41,56 +41,60 @@ namespace Fsl::MathHelper
 {
   namespace
   {
-    inline PxExtent2D CalcOptimalSizePow2(const uint32_t totalArea, const PxExtent2D& unitSize, const uint32_t unitCount)
+    inline PxExtent2D CalcOptimalSizePow2(const PxValueU totalArea, const PxExtent2D unitSize, const PxValueU unitCount)
     {
-      auto newSize = MathHelper::ToPowerOfTwo(static_cast<uint32_t>(std::ceil(::sqrt(totalArea))));
+      uint32_t newSize = MathHelper::ToPowerOfTwo(static_cast<uint32_t>(std::ceil(std::sqrt(totalArea.Value))));
 
-      const auto unitsX = newSize / unitSize.Width;
-      const auto unitsY = newSize / unitSize.Height;
+      const uint32_t unitsX = newSize / unitSize.Width.Value;
+      const uint32_t unitsY = newSize / unitSize.Height.Value;
 
-      auto newSizeY = newSize;
-      if ((unitsX * unitsY) < unitCount)
+      uint32_t newSizeY = newSize;
+      if ((unitsX * unitsY) < unitCount.Value)
       {
-        newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.Width);
+        newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.Width.Value);
       }
-      else if (((unitsX * unitsY) / 2) >= unitCount)
+      else if (((unitsX * unitsY) / 2) >= unitCount.Value)
       {
         newSizeY /= 2;
       }
-      return {newSize, newSizeY};
+      return PxExtent2D::Create(newSize, newSizeY);
     }
 
 
-    inline PxExtent2D CalcOptimalSizeSquare(const uint32_t totalArea, const PxExtent2D& unitSize, const uint32_t unitCount)
+    inline PxExtent2D CalcOptimalSizeSquare(const PxValueU totalArea, const PxExtent2D unitSize, const PxValueU unitCount)
     {
-      auto newSize = static_cast<uint32_t>(std::ceil(std::sqrt(totalArea)));
+      assert(unitSize.Width.Value > 0);
+      assert(unitSize.Height.Value > 0);
+      const PxValueU newSize(static_cast<uint32_t>(std::ceil(std::sqrt(totalArea.Value))));
 
-      const uint32_t unitsX = newSize / unitSize.Width;
-      const uint32_t unitsY = newSize / unitSize.Height;
+      const PxValueU unitsX = newSize / unitSize.Width;
+      const PxValueU unitsY = newSize / unitSize.Height;
       if ((unitsX * unitsY) < unitCount)
       {
-        uint32_t result1 = (unitsX + 1) * unitSize.Width;
-        uint32_t result2 = (unitsY + 1) * unitSize.Height;
-        uint32_t result = std::min(result1, result2);
+        PxValueU result1 = (unitsX + PxValueU(1)) * unitSize.Width;
+        PxValueU result2 = (unitsY + PxValueU(1)) * unitSize.Height;
+        PxValueU result = PxValueU::Min(result1, result2);
         return {result, result};
       }
 
-      uint32_t result = unitsX * unitSize.Width;
+      PxValueU result = unitsX * unitSize.Width;
       return {result, result};
     }
 
 
-    inline PxExtent2D CalcOptimalSizeSquarePow2(const uint32_t totalArea, const PxExtent2D& unitSize, const uint32_t unitCount)
+    inline PxExtent2D CalcOptimalSizeSquarePow2(const PxValueU totalArea, const PxExtent2D unitSize, const PxValueU unitCount)
     {
-      auto newSize = MathHelper::ToPowerOfTwo(static_cast<uint32_t>(std::ceil(std::sqrt(totalArea))));
+      assert(unitSize.Width.Value > 0);
+      assert(unitSize.Height.Value > 0);
+      uint32_t newSize = MathHelper::ToPowerOfTwo(static_cast<uint32_t>(std::ceil(std::sqrt(totalArea.Value))));
 
-      const uint32_t unitsX = newSize / unitSize.Width;
-      const uint32_t unitsY = newSize / unitSize.Height;
-      if ((unitsX * unitsY) < unitCount)
+      const uint32_t unitsX = newSize / unitSize.Width.Value;
+      const uint32_t unitsY = newSize / unitSize.Height.Value;
+      if ((unitsX * unitsY) < unitCount.Value)
       {
-        newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.Width);
+        newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.Width.Value);
       }
-      return {newSize, newSize};
+      return PxExtent2D::Create(newSize, newSize);
     }
 
     float WrapMax(const float value, const float max)
@@ -156,27 +160,28 @@ namespace Fsl::MathHelper
     return result;
   }
 
-  Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags)
+  Point2 CalcOptimalSize(const Point2 unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags)
   {
     assert(unitSize.X > 0);
     assert(unitSize.Y > 0);
     assert(unitCount > 0);
-    auto res = CalcOptimalSize(TypeConverter::UncheckedTo<PxExtent2D>(unitSize), static_cast<uint32_t>(std::max(unitCount, 0)), restrictionFlags);
+    auto res =
+      CalcOptimalSize(TypeConverter::UncheckedTo<PxExtent2D>(unitSize), PxValueU(static_cast<uint32_t>(std::max(unitCount, 0))), restrictionFlags);
     return TypeConverter::UncheckedTo<Point2>(res);
   }
 
-  PxSize2D CalcOptimalSize(const PxSize2D& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags)
+  PxSize2D CalcOptimalSize(const PxSize2D unitSize, const PxSize1D unitCount, const RectangleSizeRestrictionFlag restrictionFlags)
   {
-    assert(unitSize.Width() > 0);
-    assert(unitSize.Height() > 0);
-    assert(unitCount > 0);
-    auto res = CalcOptimalSize(TypeConverter::UncheckedTo<PxExtent2D>(unitSize), static_cast<uint32_t>(std::max(unitCount, 0)), restrictionFlags);
+    assert(unitSize.RawWidth() > 0);
+    assert(unitSize.RawHeight() > 0);
+    assert(unitCount.RawValue() > 0);
+    auto res = CalcOptimalSize(TypeConverter::UncheckedTo<PxExtent2D>(unitSize), TypeConverter::UncheckedTo<PxValueU>(unitCount), restrictionFlags);
     return TypeConverter::UncheckedTo<PxSize2D>(res);
   }
 
-  PxExtent2D CalcOptimalSize(const PxExtent2D& unitSize, const uint32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags)
+  PxExtent2D CalcOptimalSize(const PxExtent2D unitSize, const PxValueU unitCount, const RectangleSizeRestrictionFlag restrictionFlags)
   {
-    assert(unitCount > 0);
+    assert(unitCount.Value > 0);
 
     const auto areaOfChar = unitSize.Width * unitSize.Height;
     const auto totalArea = areaOfChar * unitCount;

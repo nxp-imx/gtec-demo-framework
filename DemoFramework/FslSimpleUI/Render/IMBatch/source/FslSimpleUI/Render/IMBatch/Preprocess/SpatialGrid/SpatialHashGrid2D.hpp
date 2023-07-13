@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_SPATIALGRID_SPATIALHASHGRID2D_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_SPATIALGRID_SPATIALHASHGRID2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,6 +65,7 @@ namespace Fsl
       , m_shiftX(shiftX)
       , m_shiftY(shiftY)
     {
+      // FSLLOG3_INFO("gridCellCountX:{} gridCellCountY:{} shiftX:{} shiftY:{}", gridCellCountX, gridCellCountY, shiftX, shiftY);
       if (gridCellCountX <= 0)
       {
         throw std::invalid_argument("gridCellCountX must be > 0");
@@ -116,10 +117,10 @@ namespace Fsl
 
     bool TryAdd(const PxAreaRectangleF& rectangle, const uint32_t originalZPos)
     {
-      const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
-      const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
-      const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
-      const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+      const int32_t startCellX = static_cast<int32_t>(rectangle.RawLeft()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.RawRight() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.RawTop()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.RawBottom() + 1.0f) >> m_shiftY) + 1;
 
       const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
       if (add)
@@ -144,13 +145,40 @@ namespace Fsl
       return add;
     }
 
+    void UncheckedAdd(const PxAreaRectangleF& rectangle, const uint32_t originalZPos)
+    {
+      const int32_t startCellX = static_cast<int32_t>(rectangle.RawLeft()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.RawRight() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.RawTop()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.RawBottom() + 1.0f) >> m_shiftY) + 1;
+
+      assert(startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0);
+
+      const uint32_t startX = startCellX >= 0 ? static_cast<uint32_t>(startCellX) : 0;
+      const uint32_t startY = startCellY >= 0 ? static_cast<uint32_t>(startCellY) : 0;
+      const uint32_t endX = endCellX <= m_gridCellCountX ? static_cast<uint32_t>(endCellX) : m_gridCellCountX;
+      const uint32_t endY = endCellY <= m_gridCellCountY ? static_cast<uint32_t>(endCellY) : m_gridCellCountY;
+      assert(startX <= endX);
+      assert(startY <= endY);
+      Record* pDst = m_entries.data();
+      for (uint32_t y = startY; y < endY; ++y)
+      {
+        for (uint32_t x = startX; x < endX; ++x)
+        {
+          assert((x + (y * m_gridCellCountX)) < m_entries.size());
+          pDst[x + (y * m_gridCellCountX)].Bucket.push_back(originalZPos);
+        }
+      }
+      m_lookup.push_back(originalZPos);
+    }
+
 
     bool TryInsertAfterZPos(const uint32_t insertAfterRemappedZPos, const PxAreaRectangleF& rectangle, const uint32_t originalZPos)
     {
-      const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
-      const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
-      const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
-      const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+      const int32_t startCellX = static_cast<int32_t>(rectangle.RawLeft()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.RawRight() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.RawTop()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.RawBottom() + 1.0f) >> m_shiftY) + 1;
 
       const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
       if (add)

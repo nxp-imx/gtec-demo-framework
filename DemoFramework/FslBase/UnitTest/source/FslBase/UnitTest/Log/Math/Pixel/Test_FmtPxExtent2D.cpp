@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxExtent2D, Log)
 {
-  PxExtent2D value(1, 2);
+  auto value = PxExtent2D::Create(1, 2);
 
   EXPECT_EQ(std::string("{Width=1 Height=2}"), fmt::format("{}", value));
 }

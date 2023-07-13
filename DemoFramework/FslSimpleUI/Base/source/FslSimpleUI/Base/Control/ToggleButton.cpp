@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,10 @@
 #include <FslBase/Math/Dp/TypeConverter_Math.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
@@ -54,6 +58,43 @@
 
 // #include <FslBase/Log/Math/Pixel/FmtPxVector2.hpp>
 
+namespace Fsl::UI
+{
+  using TClass = ToggleButton;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyFontColorChecked =
+    TFactory::Create<Color, TClass, &TClass::GetFontColorChecked, &TClass::SetFontColorChecked>("FontColorChecked");
+  TDef TClass::PropertyFontColorUnchecked =
+    TFactory::Create<Color, TClass, &TClass::GetFontColorUnchecked, &TClass::SetFontColorChecked>("FontColorUnchecked");
+  TDef TClass::PropertyFontColorDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetFontColorDisabled, &TClass::SetFontColorDisabled>("FontColorDisabled");
+  TDef TClass::PropertyCursorColorChecked =
+    TFactory::Create<Color, TClass, &TClass::GetCursorColorChecked, &TClass::SetCursorColorChecked>("CursorColorChecked");
+  TDef TClass::PropertyCursorColorUnchecked =
+    TFactory::Create<Color, TClass, &TClass::GetCursorColorUnchecked, &TClass::SetCursorColorUnchecked>("CursorColorUnchecked");
+  TDef TClass::PropertyCursorColorCheckedDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetCursorColorCheckedDisabled, &TClass::SetCursorColorCheckedDisabled>("CursorColorCheckedDisabled");
+  TDef TClass::PropertyCursorColorUncheckedDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetCursorColorUncheckedDisabled, &TClass::SetCursorColorUncheckedDisabled>(
+      "CursorColorUncheckedDisabled");
+  TDef TClass::PropertyBackgroundColorChecked =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorChecked, &TClass::SetBackgroundColorChecked>("BackgroundColorChecked");
+  TDef TClass::PropertyBackgroundColorUnchecked =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorUnchecked, &TClass::SetBackgroundColorUnchecked>("BackgroundColorUnchecked");
+  TDef TClass::PropertyBackgroundColorCheckedDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorCheckedDisabled, &TClass::SetBackgroundColorCheckedDisabled>(
+      "BackgroundColorCheckedDisabled");
+  TDef TClass::PropertyBackgroundColorUncheckedDisabled =
+    TFactory::Create<Color, TClass, &TClass::GetBackgroundColorUncheckedDisabled, &TClass::SetBackgroundColorUncheckedDisabled>(
+      "BackgroundColorUncheckedDisabled");
+  TDef TClass::PropertyImageAlignment =
+    TFactory::Create<ItemAlignment, TClass, &TClass::GetImageAlignment, &TClass::SetImageAlignment>("ImageAlignment");
+  TDef TClass::PropertyIsChecked = TFactory::Create<bool, TClass, &TClass::IsChecked, &TClass::SetIsChecked>("Checked");
+  TDef TClass::PropertyIsEnabled = TFactory::Create<bool, TClass, &TClass::IsEnabled, &TClass::SetEnabled>("Enabled");
+  TDef TClass::PropertyText = TFactory::Create<StringViewLite, TClass, &TClass::GetText, &TClass::SetText>("Text");
+}
 
 namespace Fsl::UI
 {
@@ -75,26 +116,24 @@ namespace Fsl::UI
   }
 
 
-  bool ToggleButton::SetEnabled(const bool enabled)
+  bool ToggleButton::SetEnabled(const bool value)
   {
-    if (enabled != m_isEnabled)
+    const bool changed = m_propertyIsEnabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_isEnabled = enabled;
       PropertyUpdated(PropertyType::Content);
-      return true;
     }
-    return false;
+    return changed;
   }
 
-  bool ToggleButton::SetImageAlignment(const ItemAlignment alignment)
+  bool ToggleButton::SetImageAlignment(const ItemAlignment value)
   {
-    if (alignment != m_imageAlignment)
+    const bool changed = m_propertyImageAlignment.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_imageAlignment = alignment;
       PropertyUpdated(PropertyType::Other);
-      return true;
     }
-    return false;
+    return changed;
   }
 
 
@@ -112,20 +151,26 @@ namespace Fsl::UI
   }
 
 
-  void ToggleButton::SetText(const StringViewLite& strView)
+  bool ToggleButton::SetText(const StringViewLite strView)
   {
-    if (m_font.Mesh.SetText(strView))
+    const bool changed = m_propertyText.Set(ThisDependencyObject(), strView);
+    if (changed)
     {
+      m_font.Mesh.SetText(strView);
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
-  void ToggleButton::SetText(std::string&& value)
+  bool ToggleButton::SetText(std::string&& value)
   {
-    if (m_font.Mesh.SetText(std::move(value)))
+    const bool changed = m_propertyText.Set(ThisDependencyObject(), std::move(value));
+    if (changed)
     {
+      m_font.Mesh.SetText(m_propertyText.Get());
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
   void ToggleButton::SetHoverOverlayCheckedColor(const Color& value)
@@ -173,113 +218,125 @@ namespace Fsl::UI
   }
 
 
-  void ToggleButton::SetCursorCheckedColor(const Color& value)
+  bool ToggleButton::SetCursorColorChecked(const Color value)
   {
-    if (value != m_cursor.CheckedColor)
+    const bool changed = m_cursor.PropertyColorChecked.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_cursor.CheckedColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
+  }
+
+  bool ToggleButton::SetCursorColorUnchecked(const Color value)
+  {
+    const bool changed = m_cursor.PropertyColorUnchecked.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      PropertyUpdated(PropertyType::Other);
+    }
+    return changed;
   }
 
 
-  void ToggleButton::SetCursorCheckedDisabledColor(const Color& value)
+  bool ToggleButton::SetCursorColorCheckedDisabled(const Color value)
   {
-    if (value != m_cursor.CheckedDisabledColor)
+    const bool changed = m_cursor.PropertyColorCheckedDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_cursor.CheckedDisabledColor = value;
       PropertyUpdated(PropertyType::Other);
     }
-  }
-
-  void ToggleButton::SetCursorUncheckedColor(const Color& value)
-  {
-    if (value != m_cursor.UncheckedColor)
-    {
-      m_cursor.UncheckedColor = value;
-      PropertyUpdated(PropertyType::Other);
-    }
+    return changed;
   }
 
 
-  void ToggleButton::SetCursorUncheckedDisabledColor(const Color& value)
+  bool ToggleButton::SetCursorColorUncheckedDisabled(const Color value)
   {
-    if (value != m_cursor.UncheckedDisabledColor)
+    const bool changed = m_cursor.PropertyColorUncheckedDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_cursor.UncheckedDisabledColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetBackgroundCheckedColor(const Color& value)
+  bool ToggleButton::SetBackgroundColorChecked(const Color value)
   {
-    if (value != m_background.CheckedColor)
+    const bool changed = m_background.PropertyColorChecked.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_background.CheckedColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetBackgroundCheckedDisabledColor(const Color& value)
+  bool ToggleButton::SetBackgroundColorUnchecked(const Color value)
   {
-    if (value != m_background.CheckedDisabledColor)
+    const bool changed = m_background.PropertyColorUnchecked.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_background.CheckedDisabledColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetBackgroundUncheckedColor(const Color& value)
+  bool ToggleButton::SetBackgroundColorCheckedDisabled(const Color value)
   {
-    if (value != m_background.UncheckedColor)
+    const bool changed = m_background.PropertyColorCheckedDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_background.UncheckedColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetBackgroundUncheckedDisabledColor(const Color& value)
+  bool ToggleButton::SetBackgroundColorUncheckedDisabled(const Color value)
   {
-    if (value != m_background.UncheckedDisabledColor)
+    const bool changed = m_background.PropertyColorUncheckedDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_background.UncheckedDisabledColor = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetFontCheckedkColor(const Color& value)
+  bool ToggleButton::SetFontColorChecked(const Color value)
   {
-    if (value != m_font.CheckedColor)
+    const bool changed = m_font.PropertyColorChecked.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_font.CheckedColor = value;
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetFontUncheckColor(const Color& value)
+  bool ToggleButton::SetFontColorUnchecked(const Color value)
   {
-    if (value != m_font.UncheckedColor)
+    const bool changed = m_font.PropertyColorUnchecked.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_font.UncheckedColor = value;
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
 
-  void ToggleButton::SetFontDisabledColor(const Color& value)
+  bool ToggleButton::SetFontColorDisabled(const Color value)
   {
-    if (value != m_font.DisabledColor)
+    const bool changed = m_font.PropertyColorDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_font.DisabledColor = value;
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
+
 
   void ToggleButton::SetCheckedSprite(const std::shared_ptr<ISizedSprite>& value)
   {
@@ -298,11 +355,11 @@ namespace Fsl::UI
   }
 
 
-  void ToggleButton::SetIsChecked(const bool value)
+  bool ToggleButton::SetIsChecked(const bool value)
   {
-    if (value != m_isChecked)
+    const bool changed = m_propertyIsChecked.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_isChecked = value;
       PropertyUpdated(PropertyType::Content);
 
       if (IsReadyToSendEvents())
@@ -310,11 +367,13 @@ namespace Fsl::UI
         SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0));
       }
     }
+    return changed;
   }
+
 
   void ToggleButton::Toggle()
   {
-    SetIsChecked(!m_isChecked);
+    SetIsChecked(!IsChecked());
   }
 
 
@@ -329,37 +388,37 @@ namespace Fsl::UI
     // Draw the text if it has been set
     {
       const Color fontColor = m_font.CurrentColor.GetValue();
-      if (m_font.Mesh.IsValid() && !m_font.Mesh.GetText().empty() && fontColor.A() > 0)
+      if (m_font.Mesh.IsValid() && !m_propertyText.Get().empty() && fontColor.A() > 0)
       {
-        int32_t centeredYPx = 0;
+        PxValue centeredYPx;
         if (m_cachedFontMeasureInfo.MeasureSizePx.Height() < renderSizePx.Height())
         {
           // Center the round to nearest pixel
           centeredYPx = ItemAlignmentUtil::CenterPx(renderSizePx.Height() - m_cachedFontMeasureInfo.MeasureSizePx.Height());
         }
-        const PxVector2 dstPositionPxf(positionPxf.X, positionPxf.Y + static_cast<float>(centeredYPx));
+        const PxVector2 dstPositionPxf(positionPxf.X, positionPxf.Y + PxValueF(centeredYPx));
         context.CommandBuffer.Draw(m_font.Mesh.Get(), dstPositionPxf, m_cachedFontMeasureInfo.MinimalSizePx, finalColor * fontColor);
       }
     }
 
     // Draw the ToggleButton
     {
-      int32_t offsetXPx = m_cachedFontMeasureInfo.MeasureSizePx.Width();
+      PxValue offsetXPx = m_cachedFontMeasureInfo.MeasureSizePx.Width().Value();
       {
         const PxSize2D sizeTex = GetMaxSpriteSize();
         offsetXPx += ItemAlignmentUtil::CalcAlignmentPx(
-          m_imageAlignment, std::max(renderSizePx.Width() - m_cachedFontMeasureInfo.MeasureSizePx.Width(), 0) - sizeTex.Width());
+          m_propertyImageAlignment.Get(), PxSize1D(renderSizePx.Width() - m_cachedFontMeasureInfo.MeasureSizePx.Width()) - sizeTex.Width());
       }
 
       if (m_background.Mesh.IsValid())    // Background mesh
       {
-        int32_t centeredYPx = 0;
+        PxValue centeredYPx;
         const auto backgroundSpriteRenderSizePx = m_background.Mesh.FastGetRenderSizePx();
         if (backgroundSpriteRenderSizePx.Height() < renderSizePx.Height())
         {
           centeredYPx = ItemAlignmentUtil::CenterPx(renderSizePx.Height() - backgroundSpriteRenderSizePx.Height());
         }
-        const PxVector2 dstPositionPxf(positionPxf.X + static_cast<float>(offsetXPx), positionPxf.Y + static_cast<float>(centeredYPx));
+        const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(offsetXPx), positionPxf.Y + PxValueF(centeredYPx));
 
         // Draw the background mesh
         context.CommandBuffer.Draw(m_background.Mesh.Get(), dstPositionPxf, backgroundSpriteRenderSizePx,
@@ -371,22 +430,21 @@ namespace Fsl::UI
         const PxVector2 cursorPositionPxf =
           m_windowContext->UnitConverter.ToPxVector2(TypeConverter::To<DpPoint2F>(m_hoverOverlay.CurrentPositionDp.GetValue()));
 
-        int32_t centeredYPx = 0;
+        PxValue centeredYPx;
         const PxSize2D cursorSpriteRenderSizePx = m_cursor.Mesh.FastGetRenderSizePx();
         {
-          const PxSize2DF cursorOriginPxf(TypeConverter::To<PxSize2DF>(cursorSpriteRenderSizePx) / 2);
+          const PxSize2DF cursorOriginPxf(TypeConverter::To<PxSize2DF>(cursorSpriteRenderSizePx) / PxSize1DF::Create(2));
           const PxPoint2 adjustedCursorPositionPx =
-            PxPoint2(offsetXPx, 0) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - cursorOriginPxf);
+            PxPoint2(offsetXPx, PxValue()) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - cursorOriginPxf);
 
-          const PxVector2 dstPositionPxf(positionPxf.X + static_cast<float>(adjustedCursorPositionPx.X),
-                                         positionPxf.Y + static_cast<float>(adjustedCursorPositionPx.Y));
+          const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(adjustedCursorPositionPx.X), positionPxf.Y + PxValueF(adjustedCursorPositionPx.Y));
 
           // Draw the cursor mesh
           context.CommandBuffer.Draw(m_cursor.Mesh.Get(), dstPositionPxf, cursorSpriteRenderSizePx, finalColor * m_cursor.CurrentColor.GetValue());
         }
 
         // Draw the overlay (if enabled)
-        if (m_isEnabled && (m_hoverOverlay.IsHovering || !m_hoverOverlay.CurrentColor.IsCompleted()) && m_hoverOverlay.Mesh.IsValid())
+        if (m_propertyIsEnabled.Get() && (m_hoverOverlay.IsHovering || !m_hoverOverlay.CurrentColor.IsCompleted()) && m_hoverOverlay.Mesh.IsValid())
         {
           bool showOverlay = true;
           if (m_hoverOverlay.IsConstrainToGraphics)
@@ -397,12 +455,13 @@ namespace Fsl::UI
           }
           if (showOverlay)
           {
-            const PxSize2DF overlayOriginPxf(TypeConverter::To<PxSize2DF>(m_hoverOverlay.Mesh.GetSpriteObject().GetRenderSizePx()) / 2);
+            const PxSize2DF overlayOriginPxf(TypeConverter::To<PxSize2DF>(m_hoverOverlay.Mesh.GetSpriteObject().GetRenderSizePx()) /
+                                             PxSize1DF::Create(2));
             const PxPoint2 adjustedOverlayPositionPx =
-              PxPoint2(offsetXPx, 0) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - overlayOriginPxf);
+              PxPoint2(offsetXPx, PxValue()) + TypeConverter::UncheckedChangeTo<PxPoint2>(cursorPositionPxf - overlayOriginPxf);
 
-            const PxVector2 dstPositionPxf(positionPxf.X + static_cast<float>(adjustedOverlayPositionPx.X),
-                                           positionPxf.Y + static_cast<float>(adjustedOverlayPositionPx.Y));
+            const PxVector2 dstPositionPxf(positionPxf.X + PxValueF(adjustedOverlayPositionPx.X),
+                                           positionPxf.Y + PxValueF(adjustedOverlayPositionPx.Y));
 
             // Draw the overlay mesh
             context.CommandBuffer.Draw(m_hoverOverlay.Mesh.Get(), dstPositionPxf, m_hoverOverlay.Mesh.FastGetRenderSizePx(),
@@ -417,12 +476,12 @@ namespace Fsl::UI
   {
     FSL_PARAM_NOT_USED(args);
 
-    if (m_isEnabled && !theEvent->IsHandled())
+    if (m_propertyIsEnabled.Get() && !theEvent->IsHandled())
     {
       theEvent->Handled();
       if (theEvent->IsBegin() && !theEvent->IsRepeat())
       {
-        SetIsChecked(!m_isChecked);
+        Toggle();
       }
     }
   }
@@ -452,7 +511,7 @@ namespace Fsl::UI
   {
     FSL_PARAM_NOT_USED(availableSizePx);
 
-    m_cachedFontMeasureInfo = m_font.Mesh.ComplexMeasure();
+    m_cachedFontMeasureInfo = m_font.Mesh.ComplexMeasure(m_propertyText.Get());
     PxSize2D sizePx = m_cachedFontMeasureInfo.MeasureSizePx;
     const PxSize2D sizeTexPx = GetMaxSpriteSize();
 
@@ -461,6 +520,68 @@ namespace Fsl::UI
 
     return sizePx;
   }
+
+  DataBinding::DataBindingInstanceHandle ToggleButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_font.PropertyColorDisabled),
+      DataBinding::PropLinkRefs(PropertyCursorColorChecked, m_cursor.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyCursorColorUnchecked, m_cursor.PropertyColorUnchecked),
+      DataBinding::PropLinkRefs(PropertyCursorColorCheckedDisabled, m_cursor.PropertyColorCheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyCursorColorUncheckedDisabled, m_cursor.PropertyColorUncheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorChecked, m_background.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUnchecked, m_background.PropertyColorUnchecked),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorCheckedDisabled, m_background.PropertyColorCheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUncheckedDisabled, m_background.PropertyColorUncheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyImageAlignment, m_propertyImageAlignment), DataBinding::PropLinkRefs(PropertyIsChecked, m_propertyIsChecked),
+      DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult ToggleButton::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                       const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyFontColorChecked, m_font.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyFontColorDisabled, m_font.PropertyColorDisabled),
+      DataBinding::PropLinkRefs(PropertyCursorColorChecked, m_cursor.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyCursorColorUnchecked, m_cursor.PropertyColorUnchecked),
+      DataBinding::PropLinkRefs(PropertyCursorColorCheckedDisabled, m_cursor.PropertyColorCheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyCursorColorUncheckedDisabled, m_cursor.PropertyColorUncheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorChecked, m_background.PropertyColorChecked),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUnchecked, m_background.PropertyColorUnchecked),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorCheckedDisabled, m_background.PropertyColorCheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyBackgroundColorUncheckedDisabled, m_background.PropertyColorUncheckedDisabled),
+      DataBinding::PropLinkRefs(PropertyImageAlignment, m_propertyImageAlignment), DataBinding::PropLinkRefs(PropertyIsChecked, m_propertyIsChecked),
+      DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled), DataBinding::PropLinkRefs(PropertyText, m_propertyText));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void ToggleButton::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyFontColorChecked);
+    rProperties.push_back(PropertyFontColorUnchecked);
+    rProperties.push_back(PropertyFontColorDisabled);
+    rProperties.push_back(PropertyCursorColorChecked);
+    rProperties.push_back(PropertyCursorColorUnchecked);
+    rProperties.push_back(PropertyCursorColorCheckedDisabled);
+    rProperties.push_back(PropertyCursorColorUncheckedDisabled);
+    rProperties.push_back(PropertyBackgroundColorChecked);
+    rProperties.push_back(PropertyBackgroundColorUnchecked);
+    rProperties.push_back(PropertyBackgroundColorCheckedDisabled);
+    rProperties.push_back(PropertyBackgroundColorUncheckedDisabled);
+    rProperties.push_back(PropertyImageAlignment);
+    rProperties.push_back(PropertyIsChecked);
+    rProperties.push_back(PropertyIsEnabled);
+    rProperties.push_back(PropertyText);
+  }
+
 
   PxSize2D ToggleButton::GetMaxSpriteSize() const
   {
@@ -483,19 +604,22 @@ namespace Fsl::UI
   {
     const bool isEnabled = IsEnabled();
     // Determine if the hover overlay should be shown or not
-    const Color hoverOverlayColor = m_isChecked ? m_hoverOverlay.Checked.PrimaryColor : m_hoverOverlay.Unchecked.PrimaryColor;
+    const bool isChecked = m_propertyIsChecked.Get();
+    const Color hoverOverlayColor = isChecked ? m_hoverOverlay.Checked.PrimaryColor : m_hoverOverlay.Unchecked.PrimaryColor;
     const bool showHoverOverlay = m_hoverOverlay.IsHovering && isEnabled;
     m_hoverOverlay.CurrentColor.SetValue(showHoverOverlay ? hoverOverlayColor : Color::ClearA(hoverOverlayColor));
-    m_hoverOverlay.CurrentPositionDp.SetValue(m_isChecked ? TypeConverter::To<Vector2>(m_hoverOverlay.Checked.PositionDp)
-                                                          : TypeConverter::To<Vector2>(m_hoverOverlay.Unchecked.PositionDp));
+    m_hoverOverlay.CurrentPositionDp.SetValue(isChecked ? TypeConverter::To<Vector2>(m_hoverOverlay.Checked.PositionDp)
+                                                        : TypeConverter::To<Vector2>(m_hoverOverlay.Unchecked.PositionDp));
 
-    m_font.CurrentColor.SetValue(isEnabled ? (m_isChecked ? m_font.CheckedColor : m_font.UncheckedColor) : m_font.DisabledColor);
+    m_font.CurrentColor.SetValue(isEnabled ? (isChecked ? m_font.PropertyColorChecked.Get() : m_font.PropertyColorUnchecked.Get())
+                                           : m_font.PropertyColorDisabled.Get());
 
-    m_cursor.CurrentColor.SetValue(isEnabled ? (m_isChecked ? m_cursor.CheckedColor : m_cursor.UncheckedColor)
-                                             : (m_isChecked ? m_cursor.CheckedDisabledColor : m_cursor.UncheckedDisabledColor));
-    m_background.CurrentColor.SetValue(isEnabled ? (m_isChecked ? m_background.CheckedColor : m_background.UncheckedColor)
-                                                 : (m_isChecked ? m_background.CheckedDisabledColor : m_background.UncheckedDisabledColor));
-
+    m_cursor.CurrentColor.SetValue(isEnabled
+                                     ? (isChecked ? m_cursor.PropertyColorChecked.Get() : m_cursor.PropertyColorUnchecked.Get())
+                                     : (isChecked ? m_cursor.PropertyColorCheckedDisabled.Get() : m_cursor.PropertyColorUncheckedDisabled.Get()));
+    m_background.CurrentColor.SetValue(
+      isEnabled ? (isChecked ? m_background.PropertyColorChecked.Get() : m_background.PropertyColorUnchecked.Get())
+                : (isChecked ? m_background.PropertyColorCheckedDisabled.Get() : m_background.PropertyColorUncheckedDisabled.Get()));
 
     if (forceCompleteAnimation)
     {

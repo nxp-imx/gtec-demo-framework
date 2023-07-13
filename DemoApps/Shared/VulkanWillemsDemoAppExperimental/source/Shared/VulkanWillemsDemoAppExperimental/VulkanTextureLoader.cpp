@@ -145,9 +145,9 @@ namespace Fsl::Willems
 
       assert(texFaces <= texture.GetFaces());
       assert(texLayers <= texture.GetLayers());
-      assert(texExtent.width == texture.GetExtent().Width);
-      assert(texExtent.height == texture.GetExtent().Height);
-      assert(texExtent.depth <= texture.GetExtent().Depth);
+      assert(texExtent.width == texture.GetExtent().Width.Value);
+      assert(texExtent.height == texture.GetExtent().Height.Value);
+      assert(texExtent.depth <= texture.GetExtent().Depth.Value);
       return {texExtent, texMipLevels, texFaces, texLayers, static_cast<float>(texMipLevels)};
     }
 

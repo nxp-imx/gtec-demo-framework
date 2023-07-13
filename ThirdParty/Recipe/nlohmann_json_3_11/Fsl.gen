@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.nlohmann_json_3_11" CreationYear="2021">
+    <Platform Name="*">
+      <ExperimentalRecipe Name="nlohmann_json" Version="3.11.2" Find="true">
+        <Pipeline>
+          <Download URL="https://github.com/nlohmann/json/archive/refs/tags/v3.11.2.tar.gz" To="nlohmann_json-3.11.2.tar.gz" Hash="d69f9deb6a75e2580465c6c4c5111b89c4dc2fa94e3a85fcd2ffcd9a143d9273"/>
+          <Unpack File="nlohmann_json-3.11.2.tar.gz" OutputPath="json-3.11.2"/>
+          <CMakeBuild Project="nlohmann_json" Target="install" Configuration="release" Options="-DJSON_BuildTests=OFF" OutputPath="_Install"/>        
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <Path Name="include/nlohmann/json.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+      </Platform>
+    <Platform Name="Android;Emscripten">
+      <ExperimentalRecipe Name="nlohmann_json" Version="3.11.2" Find="false">
+        <Pipeline>
+          <Download URL="https://github.com/nlohmann/json/archive/refs/tags/v3.11.2.tar.gz" To="nlohmann_json-3.11.2.tar.gz" Hash="d69f9deb6a75e2580465c6c4c5111b89c4dc2fa94e3a85fcd2ffcd9a143d9273"/>
+          <Unpack File="nlohmann_json-3.11.2.tar.gz" OutputPath="json-3.11.2"/>
+          <CMakeBuild Project="nlohmann_json" Target="install" Configuration="release" Options="-DJSON_BuildTests=OFF" OutputPath="_Install"/>        
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <Path Name="include/nlohmann/json.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

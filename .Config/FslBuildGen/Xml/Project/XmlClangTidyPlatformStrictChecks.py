@@ -40,6 +40,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 class XmlClangTidyPlatformStrictChecks(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes(set())
         text = xmlElement.text if xmlElement.text is not None else ""
         self.Checks = self.__ParseText(text)
 

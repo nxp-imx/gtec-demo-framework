@@ -31,6 +31,7 @@
 
 #include "ResultScene.hpp"
 #include <FslBase/Log/Common/FmtVersionInfo.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxSize1D.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/NumericCast.hpp>
 #include <FslSimpleUI/Base/Control/Background.hpp>

@@ -619,7 +619,7 @@ namespace Fsl
     {
       vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineTonemapper[i].Get());
       auto endX = static_cast<uint32_t>(rRenderRecords[i].SplitX.GetValue());
-      VkRect2D scissor{{static_cast<int32_t>(startX), 0}, {endX - startX, res.Height}};
+      VkRect2D scissor{{static_cast<int32_t>(startX), 0}, {endX - startX, res.Height.Value}};
       vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
       startX = endX;
 
@@ -657,7 +657,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderPixelSpanInfo.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderResultFlags.hpp>
 #include <algorithm>
@@ -54,7 +55,7 @@ namespace Fsl::UI
     {
       DragState State{DragState::Idle};
       float StartPercentage{};
-      int32_t LastPx{};
+      PxValue LastPx;
     };
 
     DragInfo m_dragInfo;
@@ -87,7 +88,7 @@ namespace Fsl::UI
       return m_percentage;
     }
 
-    int32_t GetPositionPx(const float percentage) const
+    PxValue GetPositionPx(const float percentage) const
     {
       return m_spanInfo.CalcPercentageToPxPosition(percentage);
     }
@@ -141,7 +142,7 @@ namespace Fsl::UI
 
     //! @brief Begin a drag operation (if a existing drag operation is in progress it is canceled)
     //! @param startPositionPx the pixel position that was touched to initiate the drag (relative to this)
-    bool TryBeginDrag(const int32_t startPositionPx)
+    bool TryBeginDrag(const PxValue startPositionPx)
     {
       if (!m_isEnabled)
       {
@@ -161,7 +162,7 @@ namespace Fsl::UI
 
     //! @brief Continue a drag operation
     //! @param newPositionPx the pixel position that was touched (relative to this)
-    bool TryDrag(const int32_t newPositionPx)
+    bool TryDrag(const PxValue newPositionPx)
     {
       if (!m_isEnabled || !IsDragging())
       {
@@ -172,7 +173,7 @@ namespace Fsl::UI
       return true;
     }
 
-    bool EndDrag(const int32_t positionPx)
+    bool EndDrag(const PxValue positionPx)
     {
       if (!m_isEnabled || !IsDragging())
       {

@@ -54,7 +54,7 @@ namespace Fsl::Vulkan
     //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
     //! @param size the size of the texture
     VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const PxSize2D& size)
-      : VUTextureInfo(imageInfo, PxExtent3D(static_cast<uint32_t>(size.Width()), static_cast<uint32_t>(size.Height()), 1))
+      : VUTextureInfo(imageInfo, PxExtent3D::Create(static_cast<uint32_t>(size.RawWidth()), static_cast<uint32_t>(size.RawHeight()), 1))
     {
     }
 
@@ -62,7 +62,7 @@ namespace Fsl::Vulkan
     //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
     //! @param size the size of the texture
     VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const PxExtent2D& extent)
-      : VUTextureInfo(imageInfo, PxExtent3D(extent.Width, extent.Height, 1u))
+      : VUTextureInfo(imageInfo, PxExtent3D(extent, PxValueU(1u)))
     {
     }
 
@@ -79,7 +79,7 @@ namespace Fsl::Vulkan
     //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
     //! @param size the size of the texture
     VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const VkExtent2D& extent)
-      : VUTextureInfo(imageInfo, PxExtent3D(extent.width, extent.height, 1u))
+      : VUTextureInfo(imageInfo, PxExtent3D::Create(extent.width, extent.height, 1u))
     {
     }
 
@@ -88,7 +88,7 @@ namespace Fsl::Vulkan
     //! @param size the size of the texture
     VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const VkExtent3D& extent)
       : ImageInfo(imageInfo)
-      , Extent(extent.width, extent.height, extent.depth)
+      , Extent(PxExtent3D::Create(extent.width, extent.height, extent.depth))
     {
     }
 
@@ -97,7 +97,7 @@ namespace Fsl::Vulkan
     //! @param size the size of the texture
     VUTextureInfo(const VkSampler sampler, const VkImageView imageView, const VkImageLayout imageLayout, const VkExtent3D& extent)
       : ImageInfo{sampler, imageView, imageLayout}
-      , Extent(extent.width, extent.height, extent.depth)
+      , Extent(PxExtent3D::Create(extent.width, extent.height, extent.depth))
     {
     }
 

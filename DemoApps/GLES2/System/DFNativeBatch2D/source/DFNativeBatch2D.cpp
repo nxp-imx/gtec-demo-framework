@@ -91,7 +91,9 @@ namespace Fsl
 
     const std::shared_ptr<INativeGraphics> native = m_graphics->GetNativeGraphics();
     const PxSize2D windowSizePx = GetWindowSizePx();
-    const int32_t offsetY = m_scene1.GetGridOffsetY();
+    const PxValue offsetY = m_scene1.GetGridOffsetY().Value();
+
+    constexpr auto size2Px = PxSize1D::Create(2);
 
     m_nativeBatch->Begin(BlendState::Opaque);
 
@@ -99,19 +101,21 @@ namespace Fsl
 
     // GLES2 native texture handle
     m_nativeBatch->Draw(GLES2::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()),
-                        PxRectangle(windowSizePx.Width() - 256, offsetY + 256, 256, 256), Color::White());
+                        PxRectangle(windowSizePx.Width() - PxSize1D::UncheckedCreate(256), offsetY + PxSize1D::UncheckedCreate(256),
+                                    PxSize1D::UncheckedCreate(256), PxSize1D::UncheckedCreate(256)),
+                        Color::White());
 
     // GLES2 native texture
-    PxRectangle dstRect(windowSizePx.Width() - nativeTexSize.Width() - 128 * 2, offsetY + 256 * 0 + 128, nativeTexSize.Width() / 2,
-                        nativeTexSize.Height() / 2);
-    m_nativeBatch->Draw(m_nativeTexture, Vector2(windowSizePx.Width() - nativeTexSize.Width() - 128 * 2, offsetY), Color::White());
+    PxRectangle dstRect(windowSizePx.Width() - nativeTexSize.Width() - PxSize1D::UncheckedCreate(128 * 2),
+                        offsetY + PxSize1D::UncheckedCreate(256 * 0 + 128), nativeTexSize.Width() / size2Px, nativeTexSize.Height() / size2Px);
+    m_nativeBatch->Draw(m_nativeTexture, Vector2(windowSizePx.RawWidth() - nativeTexSize.RawWidth() - (128 * 2), offsetY.Value), Color::White());
     m_nativeBatch->Draw(m_nativeTexture, dstRect, Color::White());
 
     // API independent texture
     const PxSize2D texSize = m_texture2D.GetSize();
-    m_nativeBatch->Draw(m_texture2D, Vector2(windowSizePx.Width() - texSize.Width(), offsetY), Color::White());
-    dstRect = PxRectangle(windowSizePx.Width() - texSize.Width() - texSize.Width() / 2, offsetY + texSize.Height(), texSize.Width() / 2,
-                          texSize.Height() / 2);
+    m_nativeBatch->Draw(m_texture2D, Vector2(windowSizePx.RawWidth() - texSize.RawWidth(), offsetY.Value), Color::White());
+    dstRect = PxRectangle(windowSizePx.Width() - texSize.Width() - (texSize.Width() / size2Px), offsetY + texSize.Height(), texSize.Width() / size2Px,
+                          texSize.Height() / size2Px);
     m_nativeBatch->Draw(m_texture2D, dstRect, Color::White());
 
     m_nativeBatch->End();

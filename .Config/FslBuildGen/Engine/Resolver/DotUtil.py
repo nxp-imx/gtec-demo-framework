@@ -39,6 +39,7 @@ from enum import Enum
 import os
 import subprocess
 from FslBuildGen import IOUtil
+from FslBuildGen.Engine.GraphImageSaveInfo import GraphImageSaveInfo
 from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
 from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
 from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
@@ -66,8 +67,9 @@ class RenderMode(Enum):
 class DotUtil(object):
 
     @staticmethod
-    def __ToDotFile(graph: ResolvedPackageGraph) -> List[str]:
+    def __ToDotFile(graph: ResolvedPackageGraph, graphImageSaveInfo: GraphImageSaveInfo) -> List[str]:
         renderMode = RenderMode.Full
+        showDependenciesToBasePackages = False
 
         instanceNodes = []  # type: List[ResolvedPackageGraphNode]
         templateNodes = []  # type: List[ResolvedPackageGraphNode]
@@ -80,6 +82,9 @@ class DotUtil(object):
         nodeNameDict = {}  # type: Dict[ResolvedPackage, str]
         for node in allNodes:
             nodeNameDict[node.Source] = DotUtil.__ToNodeName(node.Source, renderMode != RenderMode.Raw)
+
+        # Find all base packages
+        basePackages = DotUtil.__FindBasePackages(graphImageSaveInfo, allNodes)
 
 
         res = [] # type: List[str]
@@ -105,50 +110,71 @@ class DotUtil(object):
         if renderMode == RenderMode.Raw:
             for node in allNodes:
                 for toRecord in node.To:
-                    if isinstance(toRecord.Node.Source, ResolvedPackageInstance):
+                    if (isinstance(toRecord.Node.Source, ResolvedPackageInstance) and
+                        (showDependenciesToBasePackages or toRecord.Node.Source.Name.Value not in basePackages)):
                         res.append("  {0} -> {1}".format(nodeNameDict[node.Source], nodeNameDict[toRecord.Node.Source]))
         elif renderMode == RenderMode.Full or renderMode == RenderMode.Instances:
             for node in instanceNodes:
                 for toRecord in node.To:
-                    if isinstance(toRecord.Node.Source, ResolvedPackageInstance) and DotUtil.__IsFirstDependencyReference(node.To, toRecord.Node):
+                    if (isinstance(toRecord.Node.Source, ResolvedPackageInstance) and
+                        DotUtil.__IsFirstDependencyReference(node.To, toRecord.Node) and
+                        (showDependenciesToBasePackages or toRecord.Node.Source.Name.Value not in basePackages)):
                         res.append("  {0} -> {1}".format(nodeNameDict[node.Source], nodeNameDict[toRecord.Node.Source]))
 
         res.append("  edge [color=Blue, style=dashed]")
 
         edgeTypeFilter = EdgeType.Template
         if renderMode == RenderMode.Full or renderMode == RenderMode.Raw:
-            DotUtil.__AddEdgesFull(nodeNameDict, allNodes, res, edgeTypeFilter, False)
+            DotUtil.__AddEdgesFull(nodeNameDict, allNodes, res, edgeTypeFilter, False, showDependenciesToBasePackages, basePackages)
         elif renderMode == RenderMode.Templates:
-            DotUtil.__AddEdgesTemplates(nodeNameDict, allNodes, res, edgeTypeFilter, True)
+            DotUtil.__AddEdgesTemplates(nodeNameDict, allNodes, res, edgeTypeFilter, True, showDependenciesToBasePackages, basePackages)
 
         res.append("  edge [color=Orange, style=dotted]")
         edgeTypeFilter = EdgeType.TemplateFlavor
         if renderMode == RenderMode.Full or renderMode == RenderMode.Raw:
-            DotUtil.__AddEdgesFull(nodeNameDict, allNodes, res, edgeTypeFilter, False)
+            DotUtil.__AddEdgesFull(nodeNameDict, allNodes, res, edgeTypeFilter, False, showDependenciesToBasePackages, basePackages)
         elif renderMode == RenderMode.Templates:
-            DotUtil.__AddEdgesTemplates(nodeNameDict, allNodes, res, edgeTypeFilter, True)
+            DotUtil.__AddEdgesTemplates(nodeNameDict, allNodes, res, edgeTypeFilter, True, showDependenciesToBasePackages, basePackages)
 
         res.append("}")
         return res
 
+
+    @staticmethod
+    def __FindBasePackages(graphImageSaveInfo: GraphImageSaveInfo, allNodes: List[ResolvedPackageGraphNode]) -> Set[str]:
+        packageDict = {} # type: Dict[str, ResolvedPackage]
+        for srcNode in allNodes:
+            packageDict[srcNode.Source.Name.Value] = srcNode.Source
+
+        basePackages = set() # type: Set[str]
+        for projectContext in graphImageSaveInfo.ProjectContexts:
+            for basePackage in projectContext.BasePackages:
+                basePackages.add(packageDict[basePackage.Name].Name.Value)
+                basePackages.add(packageDict[basePackage.Name].Name.Value + "<>")
+        return basePackages
+
     @staticmethod
     def __AddEdgesTemplates(nodeNameDict: Dict[ResolvedPackage, str], allNodes: List[ResolvedPackageGraphNode], res: List[str],
-                            edgeTypeFilter: EdgeType, removeInherited: bool) -> None:
+                            edgeTypeFilter: EdgeType, removeInherited: bool,
+                            showDependenciesToBasePackages: bool, basePackages: Set[str]) -> None:
         for node in allNodes:
             for toRecord in node.To:
                 if (toRecord.Type == edgeTypeFilter and isinstance(node.Source, ResolvedPackageTemplate) and
-                        isinstance(toRecord.Node.Source, ResolvedPackageTemplate) and
-                        (not removeInherited or DotUtil.__IsFirstDependencyReference(node.To, toRecord.Node))):
+                    isinstance(toRecord.Node.Source, ResolvedPackageTemplate) and
+                    (not removeInherited or DotUtil.__IsFirstDependencyReference(node.To, toRecord.Node)) and
+                    (showDependenciesToBasePackages or toRecord.Node.Source.Name.Value not in basePackages)):
                     res.append("  {0} -> {1}".format(nodeNameDict[node.Source], nodeNameDict[toRecord.Node.Source]))
 
     @staticmethod
     def __AddEdgesFull(nodeNameDict: Dict[ResolvedPackage, str], allNodes: List[ResolvedPackageGraphNode], res: List[str], edgeTypeFilter: EdgeType,
-                       removeInherited: bool) -> None:
+                       removeInherited: bool, showDependenciesToBasePackages: bool, basePackages: Set[str]) -> None:
         for node in allNodes:
             for toRecord in node.To:
                 if toRecord.Type == edgeTypeFilter:
                     toPackage = toRecord.Node.Source
-                    if isinstance(toPackage, ResolvedPackageTemplate) and (not removeInherited or DotUtil.__IsFirstDependencyReference(node.To, toRecord.Node)):
+                    if( isinstance(toPackage, ResolvedPackageTemplate) and
+                        (not removeInherited or DotUtil.__IsFirstDependencyReference(node.To, toRecord.Node)) and
+                        (showDependenciesToBasePackages or toRecord.Node.Source.Name.Value not in basePackages)):
                         strEdge = "  {0} -> {1}".format(nodeNameDict[node.Source], nodeNameDict[toPackage])
 
                         label = None # type: Optional[str]
@@ -388,8 +414,8 @@ class DotUtil(object):
         return None
 
     @staticmethod
-    def ToFile(log: Log, filename: str, graph: ResolvedPackageGraph) -> None:
-        lines = DotUtil.__ToDotFile(graph)
+    def ToFile(log: Log, filename: str, graph: ResolvedPackageGraph, graphImageSaveInfo: GraphImageSaveInfo) -> None:
+        lines = DotUtil.__ToDotFile(graph, graphImageSaveInfo)
         content = "\n".join(lines)
 
         dotFilename = "{0}.dot".format(filename)

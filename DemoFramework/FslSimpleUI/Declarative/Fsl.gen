@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslSimpleUI.Declarative" CreationYear="2022">
+    <Dependency Name="FslSimpleUI.Base"/>
+    <Dependency Name="FslSimpleUI.Theme.Base"/>
+    <Dependency Name="pugixml" Access="Private"/>
+  </Library>
+</FslBuildGen>

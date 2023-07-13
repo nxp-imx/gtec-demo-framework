@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@ namespace
 TEST(TestMathPixel_PxVector2, Zero)
 {
   EXPECT_EQ(PxVector2(), PxVector2::Zero());
-  EXPECT_EQ(0, PxVector2::Zero().X);
-  EXPECT_EQ(0, PxVector2::Zero().Y);
+  EXPECT_EQ(0, PxVector2::Zero().X.Value);
+  EXPECT_EQ(0, PxVector2::Zero().Y.Value);
 }
 
 
@@ -54,14 +54,14 @@ TEST(TestMathPixel_PxVector2, Construct_Default)
   PxVector2 value;
 
   EXPECT_EQ(PxVector2(), value);
-  EXPECT_EQ(0, value.X);
-  EXPECT_EQ(0, value.Y);
+  EXPECT_EQ(0, value.X.Value);
+  EXPECT_EQ(0, value.Y.Value);
 }
 
 TEST(TestMathPixel_PxVector2, Construct)
 {
-  const float x = 3;
-  const float y = 2;
+  const PxValueF x(3);
+  const PxValueF y(2);
   PxVector2 value(x, y);
 
   EXPECT_EQ(x, value.X);
@@ -70,10 +70,10 @@ TEST(TestMathPixel_PxVector2, Construct)
 
 TEST(TestMathPixel_PxVector2, OpPlusEqual)
 {
-  const float x0 = 5;
-  const float y0 = 4;
-  const float x1 = 3;
-  const float y1 = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF x1(3);
+  const PxValueF y1(2);
   PxVector2 value0(x0, y0);
   PxVector2 value1(x1, y1);
 
@@ -81,17 +81,17 @@ TEST(TestMathPixel_PxVector2, OpPlusEqual)
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_FLOAT_EQ(x1 + x0, value1.X);
-  EXPECT_FLOAT_EQ(y1 + y0, value1.Y);
+  EXPECT_FLOAT_EQ(x1.Value + x0.Value, value1.X.Value);
+  EXPECT_FLOAT_EQ(y1.Value + y0.Value, value1.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpSubEqual)
 {
-  const float x0 = 5;
-  const float y0 = 4;
-  const float x1 = 3;
-  const float y1 = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF x1(3);
+  const PxValueF y1(2);
   PxVector2 value0(x0, y0);
   PxVector2 value1(x1, y1);
 
@@ -99,17 +99,17 @@ TEST(TestMathPixel_PxVector2, OpSubEqual)
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_FLOAT_EQ(x1 - x0, value1.X);
-  EXPECT_FLOAT_EQ(y1 - y0, value1.Y);
+  EXPECT_FLOAT_EQ(x1.Value - x0.Value, value1.X.Value);
+  EXPECT_FLOAT_EQ(y1.Value - y0.Value, value1.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpMulEqual)
 {
-  const float x0 = 5;
-  const float y0 = 4;
-  const float x1 = 3;
-  const float y1 = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF x1(3);
+  const PxValueF y1(2);
   PxVector2 value0(x0, y0);
   PxVector2 value1(x1, y1);
 
@@ -117,44 +117,44 @@ TEST(TestMathPixel_PxVector2, OpMulEqual)
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_FLOAT_EQ(x1 * x0, value1.X);
-  EXPECT_FLOAT_EQ(y1 * y0, value1.Y);
+  EXPECT_FLOAT_EQ(x1.Value * x0.Value, value1.X.Value);
+  EXPECT_FLOAT_EQ(y1.Value * y0.Value, value1.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpMulEqual_Const)
 {
-  const float x0 = 5;
-  const float y0 = 4;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
   PxVector2 value0(x0, y0);
 
-  const float mulBy = 2;
+  const PxValueF mulBy(2);
   value0 *= mulBy;
 
-  EXPECT_FLOAT_EQ(x0 * mulBy, value0.X);
-  EXPECT_FLOAT_EQ(y0 * mulBy, value0.Y);
+  EXPECT_FLOAT_EQ(x0.Value * mulBy.Value, value0.X.Value);
+  EXPECT_FLOAT_EQ(y0.Value * mulBy.Value, value0.Y.Value);
 }
 
 TEST(TestMathPixel_PxVector2, OpDivEqual_Const)
 {
-  const float x0 = 50;
-  const float y0 = 40;
+  const PxValueF x0(50);
+  const PxValueF y0(40);
   PxVector2 value0(x0, y0);
 
-  const float divBy = 2;
+  const PxValueF divBy(2);
 
   value0 /= divBy;
 
-  EXPECT_FLOAT_EQ(x0 / divBy, value0.X);
-  EXPECT_FLOAT_EQ(y0 / divBy, value0.Y);
+  EXPECT_FLOAT_EQ(x0.Value / divBy.Value, value0.X.Value);
+  EXPECT_FLOAT_EQ(y0.Value / divBy.Value, value0.Y.Value);
 }
 
 TEST(TestMathPixel_PxVector2, OpAdd)
 {
-  const float x0 = 5;
-  const float y0 = 4;
-  const float x1 = 3;
-  const float y1 = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF x1(3);
+  const PxValueF y1(2);
   PxVector2 value0(x0, y0);
   PxVector2 value1(x1, y1);
 
@@ -164,17 +164,17 @@ TEST(TestMathPixel_PxVector2, OpAdd)
   EXPECT_EQ(y0, value0.Y);
   EXPECT_EQ(x1, value1.X);
   EXPECT_EQ(y1, value1.Y);
-  EXPECT_FLOAT_EQ(x1 + x0, value3.X);
-  EXPECT_FLOAT_EQ(y1 + y0, value3.Y);
+  EXPECT_FLOAT_EQ(x1.Value + x0.Value, value3.X.Value);
+  EXPECT_FLOAT_EQ(y1.Value + y0.Value, value3.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpSub)
 {
-  const float x0 = 5;
-  const float y0 = 4;
-  const float x1 = 3;
-  const float y1 = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF x1(3);
+  const PxValueF y1(2);
   PxVector2 value0(x0, y0);
   PxVector2 value1(x1, y1);
 
@@ -184,17 +184,17 @@ TEST(TestMathPixel_PxVector2, OpSub)
   EXPECT_EQ(y0, value0.Y);
   EXPECT_EQ(x1, value1.X);
   EXPECT_EQ(y1, value1.Y);
-  EXPECT_FLOAT_EQ(x1 - x0, value3.X);
-  EXPECT_FLOAT_EQ(y1 - y0, value3.Y);
+  EXPECT_FLOAT_EQ(x1.Value - x0.Value, value3.X.Value);
+  EXPECT_FLOAT_EQ(y1.Value - y0.Value, value3.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpMul)
 {
-  const float x0 = 5;
-  const float y0 = 4;
-  const float x1 = 3;
-  const float y1 = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF x1(3);
+  const PxValueF y1(2);
   PxVector2 value0(x0, y0);
   PxVector2 value1(x1, y1);
 
@@ -204,54 +204,54 @@ TEST(TestMathPixel_PxVector2, OpMul)
   EXPECT_EQ(y0, value0.Y);
   EXPECT_EQ(x1, value1.X);
   EXPECT_EQ(y1, value1.Y);
-  EXPECT_FLOAT_EQ(x1 * x0, value3.X);
-  EXPECT_FLOAT_EQ(y1 * y0, value3.Y);
+  EXPECT_FLOAT_EQ(x1.Value * x0.Value, value3.X.Value);
+  EXPECT_FLOAT_EQ(y1.Value * y0.Value, value3.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpMul_Const)
 {
-  const float x0 = 4;
-  const float y0 = 3;
-  const float mul = 2;
+  const PxValueF x0(5);
+  const PxValueF y0(4);
+  const PxValueF mul(2);
   PxVector2 value0(x0, y0);
 
   auto value2 = value0 * mul;
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_FLOAT_EQ(x0 * mul, value2.X);
-  EXPECT_FLOAT_EQ(y0 * mul, value2.Y);
+  EXPECT_FLOAT_EQ(x0.Value * mul.Value, value2.X.Value);
+  EXPECT_FLOAT_EQ(y0.Value * mul.Value, value2.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpMul_Const2)
 {
-  const float x0 = 4;
-  const float y0 = 3;
-  const float mul = 2;
+  const PxValueF x0(4);
+  const PxValueF y0(3);
+  const PxValueF mul(2);
   PxVector2 value0(x0, y0);
 
   auto value2 = mul * value0;
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_FLOAT_EQ(mul * x0, value2.X);
-  EXPECT_FLOAT_EQ(mul * y0, value2.Y);
+  EXPECT_FLOAT_EQ(mul.Value * x0.Value, value2.X.Value);
+  EXPECT_FLOAT_EQ(mul.Value * y0.Value, value2.Y.Value);
 }
 
 
 TEST(TestMathPixel_PxVector2, OpDiv_Const)
 {
-  const float x0 = 40;
-  const float y0 = 30;
-  const float divBy = 2;
+  const PxValueF x0(40);
+  const PxValueF y0(30);
+  const PxValueF divBy(2);
   PxVector2 value0(x0, y0);
 
   const auto value2 = value0 / divBy;
 
   EXPECT_EQ(x0, value0.X);
   EXPECT_EQ(y0, value0.Y);
-  EXPECT_FLOAT_EQ(x0 / divBy, value2.X);
-  EXPECT_FLOAT_EQ(y0 / divBy, value2.Y);
+  EXPECT_FLOAT_EQ(x0.Value / divBy.Value, value2.X.Value);
+  EXPECT_FLOAT_EQ(y0.Value / divBy.Value, value2.Y.Value);
 }

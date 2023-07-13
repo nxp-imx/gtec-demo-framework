@@ -54,12 +54,18 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.Context.VariableContext import VariableContext
 from FslBuildGen.DataTypes import BuildVariantConfig
-from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import GeneratorType
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
+#from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
+from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorName import UnresolvedPackageFlavorName
 from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator import PluginConfig
 #from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Generator.GeneratorPlugin import GenerateContext
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.Generator.PluginConfigContext import PluginConfigContext
 from FslBuildGen.Log import Log
@@ -104,7 +110,6 @@ def DoGetFiles(config: Config, toolMiniConfig: ToolMinimalConfig,
             theFiles.append(theFile)
     return theFiles
 
-
 class PackageLoadAndResolveProcess(object):
     def __init__(self, config: Config,
                  packageLoader: Optional[PackageLoader] = None,
@@ -143,6 +148,8 @@ class PackageLoadAndResolveProcess(object):
 
     def Resolve(self, platformContext: PlatformContext,
                 packageFilters: PackageFilters,
+                engineResolveConfig: EngineResolveConfig,
+                externalVariantConstraints: ExternalVariantConstraints,
                 autoAddRecipeExternals: bool = True,
                 fullResolve: bool = True) -> List[Package]:
         sourceGenFiles = self.LoadedGenFiles
@@ -162,7 +169,8 @@ class PackageLoadAndResolveProcess(object):
         packageResolver = PackageResolver(log, configBuildDir, configIsDryRun, configIgnoreNotSupported, configAllowVariantExtension,
                                           configGroupException, toolConfig, platformContext, sourceGenFiles, autoAddRecipeExternals, fullResolve,
                                           self.MarkExternalLibFirstUse,
-                                          packageFilters.RecipeFilterManager, packageManagerFilter, self.__writeGraph)
+                                          packageFilters.RecipeFilterManager, packageManagerFilter, externalVariantConstraints,
+                                          engineResolveConfig, self.__writeGraph)
         self.IsFullResolve = fullResolve
         self.Packages = packageResolver.Packages
         return self.Packages
@@ -170,23 +178,24 @@ class PackageLoadAndResolveProcess(object):
 
 def DoGetPackages(generatorContext: GeneratorContext, config: Config, filePathList: List[str],
                   packageFilters: PackageFilters, autoAddRecipeExternals: bool = True,
-                  forceImportPackageNames: Optional[List[str]] = None) -> List[Package]:
-
+                  forceImportPackageNames: Optional[List[str]] = None,
+                  engineResolveConfig: Optional[EngineResolveConfig] = None) -> List[Package]:
+    if engineResolveConfig is None:
+        engineResolveConfig = EngineResolveConfig.CreateDefault()
     process = PackageLoadAndResolveProcess(config)
     process.Load(filePathList, generatorContext.Platform, forceImportPackageNames)
-    process.Resolve(generatorContext, packageFilters, autoAddRecipeExternals)
+    process.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints, autoAddRecipeExternals)
     return process.Packages
 
 
 def __ResolveAndGenerate(config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager,
                          platformGeneratorPlugin: GeneratorPlugin, packageLoader: PackageLoader,
-                         packageFilters: PackageFilters, isSDKBuild: bool, writeGraph: bool) -> List[Package]:
+                         packageFilters: PackageFilters, engineResolveConfig: EngineResolveConfig, isSDKBuild: bool, writeGraph: bool) -> List[Package]:
     generatorContext = GeneratorContext(config, errorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
                                         platformGeneratorPlugin, variableContext)
 
-
     process = PackageLoadAndResolveProcess(config, packageLoader, platformGeneratorPlugin, writeGraph=writeGraph)
-    process.Resolve(generatorContext, packageFilters)
+    process.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints)
 
     if not isSDKBuild:
         for package in process.Packages:
@@ -195,7 +204,7 @@ def __ResolveAndGenerate(config: Config, variableContext: VariableContext, error
                 notSupportedNames = Util.ExtractNames(notSupported)
                 config.DoPrintWarning("{0} was marked as not supported on this platform by package: {1}".format(package.Name, notSupportedNames))
 
-    return platformGeneratorPlugin.Generate(generatorContext, config, process.Packages)
+    return platformGeneratorPlugin.Generate(GenerateContext(generatorContext, config, process.Packages, config.VariantConstraints))
 
 
 def DoGenerateBuildFiles(pluginConfigContext: PluginConfigContext, config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager,
@@ -205,8 +214,10 @@ def DoGenerateBuildFiles(pluginConfigContext: PluginConfigContext, config: Confi
 
     isSDKBuild = len(files) <= 0
     packageLoader = PackageLoader(config, files, platformGeneratorPlugin)
+    engineResolveConfig = EngineResolveConfig.CreateDefault()
+    engineResolveConfig = EngineResolveConfig.CreateDefaultFlavor()
     return __ResolveAndGenerate(config, variableContext, errorHelpManager, platformGeneratorPlugin, packageLoader, packageFilters,
-                                isSDKBuild, writeGraph)
+                                engineResolveConfig, isSDKBuild, writeGraph)
 
 
 def DoGenerateBuildFilesNoAll(config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager,
@@ -216,11 +227,14 @@ def DoGenerateBuildFilesNoAll(config: Config, variableContext: VariableContext, 
     config.LogPrint("- Generating build files")
     isSDKBuild = len(files) <= 0
     packageLoader = PackageLoader(config, files, platformGeneratorPlugin)
-    return __ResolveAndGenerate(config, variableContext, errorHelpManager, platformGeneratorPlugin, packageLoader, packageFilters, isSDKBuild, False)
+    engineResolveConfig = EngineResolveConfig.CreateDefault()
+    return __ResolveAndGenerate(config, variableContext, errorHelpManager, platformGeneratorPlugin, packageLoader, packageFilters,
+                                engineResolveConfig, isSDKBuild, False)
 
 
 def DoGenerateBuildFilesNow(pluginConfigContext: PluginConfigContext, config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager, files: List[str],
-                            platformGeneratorPlugin: GeneratorPlugin, packageFilters: PackageFilters) -> Optional[Tuple[List[Package], GeneratorPlugin]]:
+                            platformGeneratorPlugin: GeneratorPlugin, packageFilters: PackageFilters,
+                            engineResolveConfig: EngineResolveConfig) -> Optional[Tuple[List[Package], GeneratorPlugin]]:
     config.LogPrint("- Generating build files")
 
     isSDKBuild = len(files) <= 0
@@ -228,10 +242,10 @@ def DoGenerateBuildFilesNow(pluginConfigContext: PluginConfigContext, config: Co
     res = None # type: Optional[Tuple[List[Package], GeneratorPlugin]]
     for entry in pluginConfigContext.GetGeneratorPlugins():
         if entry.PlatformName.lower() == platformGeneratorPlugin.OriginalPlatformId and (not entry.InDevelopment):
-            packages = __ResolveAndGenerate(config, variableContext, errorHelpManager, entry, copy.deepcopy(packageLoader), packageFilters, isSDKBuild, False)
+            packages = __ResolveAndGenerate(config, variableContext, errorHelpManager, entry, copy.deepcopy(packageLoader), packageFilters,
+                                            engineResolveConfig, isSDKBuild, False)
             res = (packages, entry)
     return res
-
 
 def ToUnitTestPath(config: Config, path: str) -> str:
     if config.TestPath is None:
@@ -277,7 +291,8 @@ def CustomUnitTestRootsToUnitTestPaths(config: Config, paths: ToolConfigPackageC
     return res2
 
 
-def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: Optional[List[str]] = None) -> Config:
+def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: Optional[List[str]] = None,
+                            externalConstraints: Optional[ExternalVariantConstraints] = None) -> Config:
     strToolAppTitle = "UnitTest"
     log = Log(strToolAppTitle, 0)
     currentDir = IOUtil.GetEnvironmentVariableForDirectory("FSL_GRAPHICS_INTERNAL")
@@ -286,7 +301,7 @@ def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: O
     projectRootConfig = ToolAppMain.GetProjectRootConfig(localToolConfig, basicConfig, currentDir)
     buildPlatformType = PlatformUtil.DetectBuildPlatformType()
     toolConfig = ToolConfig(localToolConfig, buildPlatformType, Version(1, 3, 3, 7), basicConfig, projectRootConfig.ToolConfigFile, projectRootConfig)
-    config = Config(log, toolConfig, PluginSharedValues.TYPE_UNIT_TEST, None, True)
+    config = Config(log, toolConfig, PluginSharedValues.TYPE_UNIT_TEST, externalConstraints, True)
     config.ForceDisableAllWrite()
     if enableTestMode:
         config.SetTestMode()
@@ -298,7 +313,10 @@ def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: O
 #    generatorCMakeConfig = GeneratorCMakeConfig()
 #    return generatorCMakeConfig
 
-def __TestGenerateBuildFilesAllPlatforms(config: Config, files: List[str], variableContext: Optional[VariableContext]=None) -> Dict[str, List[Package]]:
+def __TestGenerateBuildFilesAllPlatforms(config: Config, files: List[str], engineResolveConfig: Optional[EngineResolveConfig],
+                                         variableContext: Optional[VariableContext]=None) -> Dict[str, List[Package]]:
+    if engineResolveConfig is None:
+        engineResolveConfig = EngineResolveConfig.CreateDefault()
     if variableContext is None:
         variableContext = VariableContextHelper.CreateDefault(config.ToolConfig)
     res = {} # type: Dict[str, List[Package]]
@@ -314,7 +332,8 @@ def __TestGenerateBuildFilesAllPlatforms(config: Config, files: List[str], varia
         platform = pluginConfigContext.GetGeneratorPluginById(platformId, GeneratorType.Default, buildVariantConfig, variableContext.UserSetVariables,
                                                               config.ToolConfig.DefaultPackageLanguage, config.ToolConfig.CMakeConfiguration,
                                                               None, False)
-        resultTuple = DoGenerateBuildFilesNow(pluginConfigContext, config, variableContext, errorHelpManager, files, platform, packageFilters)
+        resultTuple = DoGenerateBuildFilesNow(pluginConfigContext, config, variableContext, errorHelpManager, files, platform, packageFilters,
+                                              engineResolveConfig)
         if resultTuple is not None:
             res[platformId] = resultTuple[0]
     return res
@@ -342,35 +361,40 @@ def TEST_AddPackageRoots(config: Config, customUnitTestRoots: ToolConfigPackageC
     activePackageConfiguration.AddLocations(unitTestRootList)
 
 
-def SimpleTestHookOneFile(theFile: str) -> Dict[str, List[Package]]:
+def SimpleTestHookOneFile(theFile: str,
+                          engineResolveConfig: Optional[EngineResolveConfig] = None) -> Dict[str, List[Package]]:
     config = GetDefaultConfigForTest()
     theFile = ToUnitTestPath(config, theFile)
-    return __TestGenerateBuildFilesAllPlatforms(config, [theFile])
+    return __TestGenerateBuildFilesAllPlatforms(config, [theFile], engineResolveConfig)
 
 
-def SimpleTestHookFiles(theFiles: List[str]) -> Dict[str, List[Package]]:
+def SimpleTestHookFiles(theFiles: List[str],
+                        engineResolveConfig: Optional[EngineResolveConfig] = None) -> Dict[str, List[Package]]:
     config = GetDefaultConfigForTest()
     theFiles = ToUnitTestPaths(config, theFiles)
-    return __TestGenerateBuildFilesAllPlatforms(config, theFiles)
+    return __TestGenerateBuildFilesAllPlatforms(config, theFiles, engineResolveConfig)
 
 
-def SimpleTestHookFilesWithCustomPackageRoot(theFiles: List[str], customUnitTestRoots: List[str]) -> Dict[str, List[Package]]:
+def SimpleTestHookFilesWithCustomPackageRoot(theFiles: List[str], customUnitTestRoots: List[str],
+                                             engineResolveConfig: Optional[EngineResolveConfig] = None) -> Dict[str, List[Package]]:
     config = GetDefaultConfigForTest()
     TEST_AddPackageRoots(config, customUnitTestRoots)
     theFiles = ToUnitTestPaths(config, theFiles)
-    return __TestGenerateBuildFilesAllPlatforms(config, theFiles)
+    return __TestGenerateBuildFilesAllPlatforms(config, theFiles, engineResolveConfig)
 
 
-def SimpleTestHookOneFileEx(theFile: str, config: Config) -> Dict[str, List[Package]]:
+def SimpleTestHookOneFileEx(theFile: str, config: Config,
+                            engineResolveConfig: Optional[EngineResolveConfig] = None) -> Dict[str, List[Package]]:
     config.ForceDisableAllWrite()
     theFile = ToUnitTestPath(config, theFile)
-    return __TestGenerateBuildFilesAllPlatforms(config, [theFile])
+    return __TestGenerateBuildFilesAllPlatforms(config, [theFile], engineResolveConfig)
 
 
-def SimpleTestHookFilesEx(theFiles: List[str], config: Config) -> Dict[str, List[Package]]:
+def SimpleTestHookFilesEx(theFiles: List[str], config: Config,
+                          engineResolveConfig: Optional[EngineResolveConfig] = None) -> Dict[str, List[Package]]:
     config.ForceDisableAllWrite()
     theFiles = ToUnitTestPaths(config, theFiles)
-    return __TestGenerateBuildFilesAllPlatforms(config, theFiles)
+    return __TestGenerateBuildFilesAllPlatforms(config, theFiles, engineResolveConfig)
 
 
 def SimpleTestHookGetPackageLoaderOneFileEx(file: str, config: Config) -> List[PackageLoader]:

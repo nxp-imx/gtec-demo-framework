@@ -378,9 +378,7 @@ namespace Fsl
 
   void Gears::UpdateUniformBuffers()
   {
-    const auto screenExtent = GetScreenExtent();
-
-    const float aspect = static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height);
+    const float aspect = GetWindowAspectRatio();
     const glm::mat4 perspective = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
 
     for (auto& rGear : m_gears)

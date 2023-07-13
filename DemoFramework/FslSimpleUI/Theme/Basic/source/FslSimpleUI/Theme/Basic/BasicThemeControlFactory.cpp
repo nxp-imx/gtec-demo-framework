@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,13 +57,13 @@ namespace Fsl::UI::Theme
   {
     namespace LocalConfig
     {
-      constexpr const DpValue PaddingLowDp(2);
-      constexpr const DpValue PaddingHighDp(10);
-      constexpr const DpValue PaddingWinDp(4);
+      constexpr const DpValueF PaddingLowDp(2);
+      constexpr const DpValueF PaddingHighDp(10);
+      constexpr const DpValueF PaddingWinDp(4);
 
-      constexpr const DpThickness PaddingLR(PaddingHighDp, PaddingLowDp, PaddingHighDp, PaddingLowDp);
-      constexpr const DpThickness PaddingTB(PaddingLowDp, PaddingHighDp, PaddingLowDp, PaddingHighDp);
-      constexpr const DpThickness PaddingWindowDp(PaddingWinDp, PaddingWinDp, PaddingWinDp, PaddingWinDp);
+      constexpr const DpThicknessF PaddingLR(PaddingHighDp, PaddingLowDp, PaddingHighDp, PaddingLowDp);
+      constexpr const DpThicknessF PaddingTB(PaddingLowDp, PaddingHighDp, PaddingLowDp, PaddingHighDp);
+      constexpr const DpThicknessF PaddingWindowDp(PaddingWinDp, PaddingWinDp, PaddingWinDp, PaddingWinDp);
 
       constexpr const auto CheckBoxCursorChecked = DpPoint2::Create(24, 24);
       constexpr const auto CheckBoxCursorUnchecked = DpPoint2::Create(24, 24);
@@ -245,10 +245,10 @@ namespace Fsl::UI::Theme
     {
     case ElementType::LeftBar:
     case ElementType::RightBar:
-      return TypeConverter::To<DpThicknessF>(LocalConfig::PaddingLR);
+      return LocalConfig::PaddingLR;
     case ElementType::TopBar:
     case ElementType::BottomBar:
-      return TypeConverter::To<DpThicknessF>(LocalConfig::PaddingTB);
+      return LocalConfig::PaddingTB;
     default:
       return {};
     }
@@ -310,9 +310,9 @@ namespace Fsl::UI::Theme
     }
     auto newControl = std::make_shared<ImageButton>(m_context);
     newControl->SetContent(std::move(sprite));
-    newControl->SetUpColor(m_colors.ImageButton.ImageUp);
-    newControl->SetDownColor(m_colors.ImageButton.ImageDown);
-    newControl->SetDisabledColor(m_colors.ImageButton.ImageDisabled);
+    newControl->SetColorUp(m_colors.ImageButton.ImageUp);
+    newControl->SetColorDown(m_colors.ImageButton.ImageDown);
+    newControl->SetColorDisabled(m_colors.ImageButton.ImageDisabled);
     newControl->SetScalePolicy(ItemScalePolicy::NoScaling);
     newControl->SetBackgroundColorHoverUp(m_colors.ImageButton.BackgroundHoverUp);
     newControl->SetBackgroundColorUp(m_colors.ImageButton.BackgroundUp);
@@ -355,9 +355,9 @@ namespace Fsl::UI::Theme
     }
     auto newControl = std::make_shared<SimpleImageButton>(m_context);
     newControl->SetContent(std::move(sprite));
-    newControl->SetUpColor(m_colors.ImageButton.ImageUp);
-    newControl->SetDownColor(m_colors.ImageButton.ImageDown);
-    newControl->SetDisabledColor(m_colors.ImageButton.ImageDisabled);
+    newControl->SetColorUp(m_colors.ImageButton.ImageUp);
+    newControl->SetColorDown(m_colors.ImageButton.ImageDown);
+    newControl->SetColorDisabled(m_colors.ImageButton.ImageDisabled);
     newControl->SetScalePolicy(ItemScalePolicy::NoScaling);
     newControl->FinishAnimation();
     return newControl;
@@ -453,17 +453,17 @@ namespace Fsl::UI::Theme
 
     newControl->SetHoverOverlayCheckedColor(m_colors.CheckBox.HoverChecked);
     newControl->SetHoverOverlayUncheckedColor(m_colors.CheckBox.HoverUnchecked);
-    newControl->SetCursorCheckedColor(m_colors.CheckBox.CursorChecked);
-    newControl->SetCursorCheckedDisabledColor(m_colors.CheckBox.CursorCheckedDisabled);
-    newControl->SetCursorUncheckedColor(m_colors.CheckBox.CursorUnchecked);
-    newControl->SetCursorUncheckedDisabledColor(m_colors.CheckBox.CursorUncheckedDisabled);
-    newControl->SetBackgroundCheckedColor(m_colors.CheckBox.BackgroundChecked);
-    newControl->SetBackgroundCheckedDisabledColor(m_colors.CheckBox.BackgroundCheckedDisabled);
-    newControl->SetBackgroundUncheckedColor(m_colors.CheckBox.BackgroundUnchecked);
-    newControl->SetBackgroundUncheckedDisabledColor(m_colors.CheckBox.BackgroundUncheckedDisabled);
-    newControl->SetFontCheckedkColor(m_colors.CheckBox.CheckedFont);
-    newControl->SetFontUncheckColor(m_colors.CheckBox.UncheckedFont);
-    newControl->SetFontDisabledColor(m_colors.DefaultFont.PrimaryDisabled);
+    newControl->SetCursorColorChecked(m_colors.CheckBox.CursorChecked);
+    newControl->SetCursorColorCheckedDisabled(m_colors.CheckBox.CursorCheckedDisabled);
+    newControl->SetCursorColorUnchecked(m_colors.CheckBox.CursorUnchecked);
+    newControl->SetCursorColorUncheckedDisabled(m_colors.CheckBox.CursorUncheckedDisabled);
+    newControl->SetBackgroundColorChecked(m_colors.CheckBox.BackgroundChecked);
+    newControl->SetBackgroundColorCheckedDisabled(m_colors.CheckBox.BackgroundCheckedDisabled);
+    newControl->SetBackgroundColorUnchecked(m_colors.CheckBox.BackgroundUnchecked);
+    newControl->SetBackgroundColorUncheckedDisabled(m_colors.CheckBox.BackgroundUncheckedDisabled);
+    newControl->SetFontColorChecked(m_colors.CheckBox.CheckedFont);
+    newControl->SetFontColorUnchecked(m_colors.CheckBox.UncheckedFont);
+    newControl->SetFontColorDisabled(m_colors.DefaultFont.PrimaryDisabled);
 
     newControl->FinishAnimation();
     return newControl;
@@ -510,17 +510,17 @@ namespace Fsl::UI::Theme
 
     newControl->SetHoverOverlayCheckedColor(m_colors.RadioButton.HoverChecked);
     newControl->SetHoverOverlayUncheckedColor(m_colors.RadioButton.HoverUnchecked);
-    newControl->SetCursorCheckedColor(m_colors.RadioButton.CursorChecked);
-    newControl->SetCursorCheckedDisabledColor(m_colors.RadioButton.CursorCheckedDisabled);
-    newControl->SetCursorUncheckedColor(m_colors.RadioButton.CursorUnchecked);
-    newControl->SetCursorUncheckedDisabledColor(m_colors.RadioButton.CursorUncheckedDisabled);
-    newControl->SetBackgroundCheckedColor(m_colors.RadioButton.BackgroundChecked);
-    newControl->SetBackgroundCheckedDisabledColor(m_colors.RadioButton.BackgroundCheckedDisabled);
-    newControl->SetBackgroundUncheckedColor(m_colors.RadioButton.BackgroundUnchecked);
-    newControl->SetBackgroundUncheckedDisabledColor(m_colors.RadioButton.BackgroundUncheckedDisabled);
-    newControl->SetFontCheckedkColor(m_colors.RadioButton.CheckedFont);
-    newControl->SetFontUncheckColor(m_colors.RadioButton.UncheckedFont);
-    newControl->SetFontDisabledColor(m_colors.DefaultFont.PrimaryDisabled);
+    newControl->SetCursorColorChecked(m_colors.RadioButton.CursorChecked);
+    newControl->SetCursorColorCheckedDisabled(m_colors.RadioButton.CursorCheckedDisabled);
+    newControl->SetCursorColorUnchecked(m_colors.RadioButton.CursorUnchecked);
+    newControl->SetCursorColorUncheckedDisabled(m_colors.RadioButton.CursorUncheckedDisabled);
+    newControl->SetBackgroundColorChecked(m_colors.RadioButton.BackgroundChecked);
+    newControl->SetBackgroundColorCheckedDisabled(m_colors.RadioButton.BackgroundCheckedDisabled);
+    newControl->SetBackgroundColorUnchecked(m_colors.RadioButton.BackgroundUnchecked);
+    newControl->SetBackgroundColorUncheckedDisabled(m_colors.RadioButton.BackgroundUncheckedDisabled);
+    newControl->SetFontColorChecked(m_colors.RadioButton.CheckedFont);
+    newControl->SetFontColorUnchecked(m_colors.RadioButton.UncheckedFont);
+    newControl->SetFontColorDisabled(m_colors.DefaultFont.PrimaryDisabled);
 
 
     newControl->FinishAnimation();
@@ -562,17 +562,17 @@ namespace Fsl::UI::Theme
 
     newControl->SetHoverOverlayCheckedColor(m_colors.Switch.HoverChecked);
     newControl->SetHoverOverlayUncheckedColor(m_colors.Switch.HoverUnchecked);
-    newControl->SetCursorCheckedColor(m_colors.Switch.CursorChecked);
-    newControl->SetCursorCheckedDisabledColor(m_colors.Switch.CursorCheckedDisabled);
-    newControl->SetCursorUncheckedColor(m_colors.Switch.CursorUnchecked);
-    newControl->SetCursorUncheckedDisabledColor(m_colors.Switch.CursorUncheckedDisabled);
-    newControl->SetBackgroundCheckedColor(m_colors.Switch.BackgroundChecked);
-    newControl->SetBackgroundCheckedDisabledColor(m_colors.Switch.BackgroundCheckedDisabled);
-    newControl->SetBackgroundUncheckedColor(m_colors.Switch.BackgroundUnchecked);
-    newControl->SetBackgroundUncheckedDisabledColor(m_colors.Switch.BackgroundUncheckedDisabled);
-    newControl->SetFontCheckedkColor(m_colors.Switch.CheckedFont);
-    newControl->SetFontUncheckColor(m_colors.Switch.UncheckedFont);
-    newControl->SetFontDisabledColor(m_colors.DefaultFont.PrimaryDisabled);
+    newControl->SetCursorColorChecked(m_colors.Switch.CursorChecked);
+    newControl->SetCursorColorCheckedDisabled(m_colors.Switch.CursorCheckedDisabled);
+    newControl->SetCursorColorUnchecked(m_colors.Switch.CursorUnchecked);
+    newControl->SetCursorColorUncheckedDisabled(m_colors.Switch.CursorUncheckedDisabled);
+    newControl->SetBackgroundColorChecked(m_colors.Switch.BackgroundChecked);
+    newControl->SetBackgroundColorCheckedDisabled(m_colors.Switch.BackgroundCheckedDisabled);
+    newControl->SetBackgroundColorUnchecked(m_colors.Switch.BackgroundUnchecked);
+    newControl->SetBackgroundColorUncheckedDisabled(m_colors.Switch.BackgroundUncheckedDisabled);
+    newControl->SetFontColorChecked(m_colors.Switch.CheckedFont);
+    newControl->SetFontColorUnchecked(m_colors.Switch.UncheckedFont);
+    newControl->SetFontColorDisabled(m_colors.DefaultFont.PrimaryDisabled);
 
     newControl->FinishAnimation();
     return newControl;
@@ -947,6 +947,61 @@ namespace Fsl::UI::Theme
                                                                         const SliderConfig& config)
   {
     return DoCreateSlider(m_context, *m_resources, m_colors.Slider, orientation, value, config);
+  }
+
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
+  // CreateSliderFmtValue<uint8_t>
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+  std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> BasicThemeControlFactory::CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                                                  const ConstrainedValue<uint8_t>& value,
+                                                                                                  const SliderConfig& config)
+  {
+    const Color fontColor = m_colors.DefaultFont.Primary;
+    const Color fontDisabledColor = m_colors.DefaultFont.PrimaryDisabled;
+    return DoCreateSliderFmtValue(m_context, *m_resources, fontColor, fontDisabledColor, m_colors.Slider, orientation, value, config);
+  }
+
+
+  std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> BasicThemeControlFactory::CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                                                  const ConstrainedValue<uint8_t>& value,
+                                                                                                  const StringViewLite& strFormat,
+                                                                                                  const SliderConfig& config)
+  {
+    auto newControl = CreateSliderFmtValue(orientation, value, config);
+    newControl->SetFormatString(strFormat);
+    newControl->FinishAnimation();
+    return newControl;
+  }
+
+
+  std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> BasicThemeControlFactory::CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                                                  const ConstrainedValue<uint8_t>& value,
+                                                                                                  std::string&& strFormat, const SliderConfig& config)
+  {
+    auto newControl = CreateSliderFmtValue(orientation, value, config);
+    newControl->SetFormatString(strFormat);
+    newControl->FinishAnimation();
+    return newControl;
+  }
+
+
+  std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> BasicThemeControlFactory::CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                                                  const ConstrainedValue<uint8_t>& value,
+                                                                                                  const char* const pszFormat,
+                                                                                                  const SliderConfig& config)
+  {
+    return CreateSliderFmtValue(orientation, value, StringViewLite(pszFormat), config);
+  }
+
+
+  std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> BasicThemeControlFactory::CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                                                  const ConstrainedValue<uint8_t>& value,
+                                                                                                  const std::string& strFormat,
+                                                                                                  const SliderConfig& config)
+  {
+    return CreateSliderFmtValue(orientation, value, StringViewLiteUtil::AsStringViewLite(strFormat), config);
   }
 
   // ---------------------------------------------------------------------------------------------------------------------------------------------

@@ -38,12 +38,18 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.Project.XmlCMakePlatform import XmlCMakePlatform
 
 class XmlCMakeConfiguration(XmlBase):
+    __AttribDefaultBuildDir = 'DefaultBuildDir'
+    __AttribNinjaRecipe = 'NinjaRecipe'
+    __AttribDefaultInstallPrefix = 'DefaultInstallPrefix'
+    __AttribMinVersion = 'MinVersion'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.DefaultBuildDir = self._ReadAttrib(xmlElement, "DefaultBuildDir")
-        self.NinjaRecipePackageName = self._ReadAttrib(xmlElement, "NinjaRecipe")
-        self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, "DefaultInstallPrefix")
-        self.MinVersion = self._TryReadAttrib(xmlElement, "MinVersion")
+        self._CheckAttributes({self.__AttribDefaultBuildDir, self.__AttribNinjaRecipe, self.__AttribDefaultInstallPrefix, self.__AttribMinVersion})
+        self.DefaultBuildDir = self._ReadAttrib(xmlElement, self.__AttribDefaultBuildDir)
+        self.NinjaRecipePackageName = self._ReadAttrib(xmlElement, self.__AttribNinjaRecipe)
+        self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, self.__AttribDefaultInstallPrefix)
+        self.MinVersion = self._TryReadAttrib(xmlElement, self.__AttribMinVersion)
         self.Platforms = self.__ReadPlatforms(log, xmlElement)
 
     def __ReadPlatforms(self, log: Log, xmlElement: ET.Element) -> List[XmlCMakePlatform]:

@@ -28,65 +28,90 @@
 //---------------------------------------------------------------------------
 namespace Fsl
 {
-  class ScopedAttachCurrentThread
+  namespace
   {
-    std::lock_guard<std::mutex> m_lock;
-    ANativeActivity* m_pActivity;
-    JNIEnv* m_pEnv{nullptr};
-
-  public:
-    /*
-     * Attach current thread
-     * In Android, the thread doesn't have to be 'Detach' current thread
-     * as application process is only killed and VM does not shut down
-     */
-    ScopedAttachCurrentThread(std::mutex& rMutex, ANativeActivity* pActivity)
-      : m_lock(rMutex)
-      , m_pActivity(pActivity)
+    class ScopedAttachCurrentThread
     {
-      assert(pActivity != nullptr);
+      std::lock_guard<std::mutex> m_lock;
+      GameActivity* m_pActivity;
+      JNIEnv* m_pEnv{nullptr};
 
-      if (pActivity->vm->GetEnv((void**)&m_pEnv, JNI_VERSION_1_4) == JNI_OK)
+    public:
+      /*
+       * Attach current thread
+       * In Android, the thread doesn't have to be 'Detach' current thread
+       * as application process is only killed and VM does not shut down
+       */
+      ScopedAttachCurrentThread(std::mutex& rMutex, GameActivity* pActivity)
+        : m_lock(rMutex)
+        , m_pActivity(pActivity)
       {
-        return;
+        assert(pActivity != nullptr);
+
+        if (pActivity->vm->GetEnv((void**)&m_pEnv, JNI_VERSION_1_4) == JNI_OK)
+        {
+          return;
+        }
+
+        pActivity->vm->AttachCurrentThread(&m_pEnv, nullptr);
+        pthread_key_t key;
+        if (pthread_key_create(&key, DetachCurrentThreadDtor) == 0)
+        {
+          pthread_setspecific(key, (void*)pActivity);
+        }
       }
 
-      pActivity->vm->AttachCurrentThread(&m_pEnv, nullptr);
-      pthread_key_t key;
-      if (pthread_key_create(&key, DetachCurrentThreadDtor) == 0)
+      ~ScopedAttachCurrentThread()
       {
-        pthread_setspecific(key, (void*)pActivity);
+        m_pEnv = nullptr;
+        if (m_pActivity != nullptr)
+        {
+          m_pActivity->vm->DetachCurrentThread();
+        }
       }
-    }
 
-    ~ScopedAttachCurrentThread()
-    {
-      m_pEnv = nullptr;
-      if (m_pActivity != nullptr)
+      JNIEnv* Get() const
       {
-        m_pActivity->vm->DetachCurrentThread();
+        return m_pEnv;
       }
-    }
 
-    JNIEnv* Get() const
-    {
-      return m_pEnv;
-    }
-
-  private:
-    /*
-     * Unregister this thread from the VM
-     */
-    static void DetachCurrentThreadDtor(void* p)
-    {
-      LOGI("detached current thread");
-      if (p != nullptr)
+    private:
+      /*
+       * Unregister this thread from the VM
+       */
+      static void DetachCurrentThreadDtor(void* p)
       {
-        ANativeActivity* activity = (ANativeActivity*)p;
-        activity->vm->DetachCurrentThread();
+        FSLLOG3_INFO("detached current thread");
+        if (p != nullptr)
+        {
+          GameActivity* activity = (GameActivity*)p;
+          activity->vm->DetachCurrentThread();
+        }
       }
+    };
+
+    jstring GetExternalFilesDirJString(GameActivity* pActivity, JNIEnv* env)
+    {
+      if (pActivity == nullptr)
+      {
+        return nullptr;
+      }
+
+      jstring obj_Path = nullptr;
+      // Invoking getExternalFilesDir() java API
+      // Retrieve class information
+      jclass context = env->FindClass("android/content/Context");
+      jmethodID mid = env->GetMethodID(context, "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
+      jobject obj_File = env->CallObjectMethod(pActivity->javaGameActivity, mid, NULL);
+      if (obj_File)
+      {
+        jclass cls_File = env->FindClass("java/io/File");
+        jmethodID mid_getPath = env->GetMethodID(cls_File, "getPath", "()Ljava/lang/String;");
+        obj_Path = (jstring)env->CallObjectMethod(obj_File, mid_getPath);
+      }
+      return obj_Path;
     }
-  };
+  }
 
 
   //-------------------------------------------------------------------------
@@ -119,7 +144,7 @@ namespace Fsl
   //-------------------------------------------------------------------------
   // Init
   //-------------------------------------------------------------------------
-  void JNIUtil::Init(ANativeActivity* activity, const char* util_class_name)
+  void JNIUtil::Init(GameActivity* activity, const char* util_class_name)
   {
     JNIUtil& util = *GetInstance();
     util.activity_ = activity;
@@ -128,10 +153,10 @@ namespace Fsl
     JNIEnv* env = scopedEnv.Get();
 
     // Retrieve app name
-    jclass android_content_Context = env->GetObjectClass(util.activity_->clazz);
+    jclass android_content_Context = env->GetObjectClass(util.activity_->javaGameActivity);
     jmethodID midGetPackageName = env->GetMethodID(android_content_Context, "getPackageName", "()Ljava/lang/String;");
 
-    jstring packageName = (jstring)env->CallObjectMethod(util.activity_->clazz, midGetPackageName);
+    jstring packageName = (jstring)env->CallObjectMethod(util.activity_->javaGameActivity, midGetPackageName);
     const char* appname = env->GetStringUTFChars(packageName, nullptr);
     util.app_name_ = std::string(appname);
 
@@ -147,12 +172,32 @@ namespace Fsl
     env->DeleteLocalRef(cls);
   }
 
+  std::string JNIUtil::GetExternalFilesDir()
+  {
+    if (activity_ == nullptr)
+    {
+      FSLLOG3_ERROR("JNIutil has not been initialized. Call init() to initialize the util");
+      return std::string();
+    }
+
+    ScopedAttachCurrentThread scopedEnv(mutex_, activity_);
+    JNIEnv* env = scopedEnv.Get();
+
+    jstring strPath = GetExternalFilesDirJString(activity_, env);
+    const char* path = env->GetStringUTFChars(strPath, NULL);
+    std::string s(path);
+
+    env->ReleaseStringUTFChars(strPath, path);
+    env->DeleteLocalRef(strPath);
+    return s;
+  }
+
 
   const std::string JNIUtil::SyncNow()
   {
     if (activity_ == nullptr)
     {
-      LOGI("JNIutil has not been initialized. Call init() to initialize the util");
+      FSLLOG3_ERROR("JNIutil has not been initialized. Call init() to initialize the util");
       return std::string();
     }
 
@@ -160,7 +205,7 @@ namespace Fsl
     JNIEnv* env = scopedEnv.Get();
 
     jmethodID mid = env->GetMethodID(jni_util_java_class_, "SyncNow", "(Landroid/content/Context;)Ljava/lang/String;");
-    jstring str_path = (jstring)env->CallObjectMethod(jni_util_java_ref_, mid, activity_->clazz);
+    jstring str_path = (jstring)env->CallObjectMethod(jni_util_java_ref_, mid, activity_->javaGameActivity);
 
     std::string s;
     if (str_path != nullptr)
@@ -179,7 +224,7 @@ namespace Fsl
   {
     if (activity_ == nullptr)
     {
-      LOGI("JNIutil has not been initialized. Call init() to initialize the util");
+      FSLLOG3_ERROR("JNIutil has not been initialized. Call init() to initialize the util");
       return false;
     }
 
@@ -191,7 +236,7 @@ namespace Fsl
       // First we try to open the file
       jmethodID mid = env->GetMethodID(jni_util_java_class_, "TryOpen", "(Landroid/content/Context;Ljava/lang/String;)Landroid/graphics/Bitmap;");
       jstring javaPath = env->NewStringUTF(path.c_str());
-      jobject javaBitmap = env->CallObjectMethod(jni_util_java_ref_, mid, activity_->clazz, javaPath);
+      jobject javaBitmap = env->CallObjectMethod(jni_util_java_ref_, mid, activity_->javaGameActivity, javaPath);
       env->DeleteLocalRef(javaPath);
       if (javaBitmap != nullptr)
       {
@@ -213,8 +258,8 @@ namespace Fsl
             jint* pPixels = env->GetIntArrayElements(javaPixelArray, 0);
             try
             {
-              const PxExtent2D bitmapExtent(bitmapWidth, bitmapHeight);
-              const std::size_t cbBitmap = std::size_t(4) * bitmapExtent.Width * bitmapExtent.Height;
+              const auto bitmapExtent = PxExtent2D::Create(bitmapWidth, bitmapHeight);
+              const std::size_t cbBitmap = std::size_t(4) * bitmapExtent.Width.Value * bitmapExtent.Height.Value;
               rBitmap.Reset(pPixels, cbBitmap, bitmapExtent, PixelFormat::B8G8R8A8_UINT);
               loadCompleted = true;
             }
@@ -243,7 +288,7 @@ namespace Fsl
   {
     if (activity_ == nullptr)
     {
-      LOGI("JNIutil has not been initialized. Call init() to initialize the util");
+      FSLLOG3_ERROR("JNIutil has not been initialized. Call init() to initialize the util");
       return false;
     }
 
@@ -251,7 +296,7 @@ namespace Fsl
     JNIEnv* env = scopedEnv.Get();
 
     jmethodID mid = env->GetMethodID(jni_util_java_class_, "IsDisplayHDRCompatible", "()Z");
-    jboolean result = env->CallBooleanMethod(jni_util_java_ref_, mid, activity_->clazz);
+    jboolean result = env->CallBooleanMethod(jni_util_java_ref_, mid, activity_->javaGameActivity);
 
     return result == JNI_TRUE;
   }
@@ -261,7 +306,7 @@ namespace Fsl
   {
     jclass activity_class = jni->FindClass(CLASS_NAME);
     jmethodID get_class_loader = jni->GetMethodID(activity_class, "getClassLoader", "()Ljava/lang/ClassLoader;");
-    jobject cls = jni->CallObjectMethod(activity_->clazz, get_class_loader);
+    jobject cls = jni->CallObjectMethod(activity_->javaGameActivity, get_class_loader);
     jclass class_loader = jni->FindClass("java/lang/ClassLoader");
     jmethodID find_class = jni->GetMethodID(class_loader, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
 

@@ -45,28 +45,28 @@ TEST(TestFont_BitmapFontKerning, Construct_Default)
   BitmapFontKerning value;
   EXPECT_EQ(0u, value.First);
   EXPECT_EQ(0u, value.Second);
-  EXPECT_EQ(0, value.AmountPx);
+  EXPECT_EQ(PxValue(0), value.AmountPx);
 }
 
 
 TEST(TestFont_BitmapFontKerning, Construct)
 {
-  BitmapFontKerning value(1u, 2u, -1);
+  BitmapFontKerning value(1u, 2u, PxValue(-1));
   EXPECT_EQ(1u, value.First);
   EXPECT_EQ(2u, value.Second);
-  EXPECT_EQ(-1, value.AmountPx);
+  EXPECT_EQ(PxValue::Create(-1), value.AmountPx);
 }
 
 
 TEST(TestFont_BitmapFontKerning, OpEqual)
 {
-  EXPECT_EQ(BitmapFontKerning(1u, 2u, -1), BitmapFontKerning(1u, 2u, -1));
+  EXPECT_EQ(BitmapFontKerning(1u, 2u, PxValue::Create(-1)), BitmapFontKerning(1u, 2u, PxValue::Create(-1)));
 }
 
 
 TEST(TestFont_BitmapFontKerning, OpNotEqual)
 {
-  EXPECT_NE(BitmapFontKerning(2u, 2u, -1), BitmapFontKerning(1u, 2u, -1));
-  EXPECT_NE(BitmapFontKerning(1u, 3u, -1), BitmapFontKerning(1u, 2u, -1));
-  EXPECT_NE(BitmapFontKerning(1u, 2u, -2), BitmapFontKerning(1u, 2u, -1));
+  EXPECT_NE(BitmapFontKerning(2u, 2u, PxValue::Create(-1)), BitmapFontKerning(1u, 2u, PxValue::Create(-1)));
+  EXPECT_NE(BitmapFontKerning(1u, 3u, PxValue::Create(-1)), BitmapFontKerning(1u, 2u, PxValue::Create(-1)));
+  EXPECT_NE(BitmapFontKerning(1u, 2u, PxValue::Create(-2)), BitmapFontKerning(1u, 2u, PxValue::Create(-1)));
 }

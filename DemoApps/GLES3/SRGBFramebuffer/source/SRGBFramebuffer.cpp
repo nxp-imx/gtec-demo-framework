@@ -210,11 +210,11 @@ namespace Fsl
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
 
-    const float aspectL = m_splitSceneWidthL.GetValue() / static_cast<float>(windowSizePx.Height());
+    const float aspectL = m_splitSceneWidthL.GetValue() / static_cast<float>(windowSizePx.RawHeight());
     m_matrixProjectionL = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectL, 0.1f, 100.0f);
     m_matrixWorldViewL = matrixWorld * matrixView;
 
-    const float aspectR = m_splitSceneWidthR.GetValue() / static_cast<float>(windowSizePx.Height());
+    const float aspectR = m_splitSceneWidthR.GetValue() / static_cast<float>(windowSizePx.RawHeight());
     m_matrixProjectionR = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectR, 0.1f, 100.0f);
     m_matrixWorldViewR = matrixWorld * matrixView;
   }
@@ -253,7 +253,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }
@@ -350,13 +350,13 @@ namespace Fsl
     // Android build complains about std::round (so this makes all happy)
     using namespace std;
     const auto splitX = static_cast<GLint>(round(m_splitX.GetValue()));
-    const GLint remainderX = windowSizePx.Width() - splitX;
+    const GLint remainderX = windowSizePx.RawWidth() - splitX;
 
     glBindTexture(GL_TEXTURE_2D, m_texLinear.Get());
 
 
     // left (gamma correction enabled, rgb texture)
-    glViewport(0, 0, splitX, windowSizePx.Height());
+    glViewport(0, 0, splitX, windowSizePx.RawHeight());
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glActiveTexture(GL_TEXTURE0);
@@ -365,14 +365,14 @@ namespace Fsl
     // Bottom right (gamma correction, srgb texture)
     glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, m_matrixWorldViewR.DirectAccess());
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matrixProjectionR.DirectAccess());
-    glViewport(splitX, 0, remainderX, windowSizePx.Height());
+    glViewport(splitX, 0, remainderX, windowSizePx.RawHeight());
     // glUniform1i(m_hGamma, true);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_vertexArray.Unbind();
 
     // Restore the viewport
-    glViewport(0, 0, windowSizePx.Width(), windowSizePx.Height());
+    glViewport(0, 0, windowSizePx.RawWidth(), windowSizePx.RawHeight());
   }
 
 

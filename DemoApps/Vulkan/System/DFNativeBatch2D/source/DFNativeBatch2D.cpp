@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,32 +129,35 @@ namespace Fsl
       {
         const std::shared_ptr<INativeGraphics> native = m_graphics->GetNativeGraphics();
         const PxSize2D windowSizePx = GetWindowSizePx();
-        const int32_t offsetY = m_scene1->GetGridOffsetY();
+        const PxValue offsetY = m_scene1->GetGridOffsetY().Value();
 
         m_nativeBatch->Begin(BlendState::Opaque);
 
         auto nativeTexExtent = m_nativeTexture.GetExtent();
         const Point2 nativeTexSize(UncheckedNumericCast<int32_t>(nativeTexExtent.width), UncheckedNumericCast<int32_t>(nativeTexExtent.height));
 
+        constexpr PxSize1D size256Px = PxSize1D::Create(256);
+        constexpr PxSize1D size2Px = PxSize1D::Create(2);
+
         // Vulkan native texture handle
         // While VUTextures support automatic conversion to Vulkan::VUTextureInfo, this shows how to fill out a VUTextureInfo manually
         auto textureInfo = Vulkan::VUTextureInfo(m_nativeTexture.Sampler().Get(), m_nativeTexture.ImageView().Get(),
                                                  m_nativeTexture.Image().GetImageLayout(), m_nativeTexture.Image().GetExtent());
-        m_nativeBatch->Draw(textureInfo, PxRectangle(windowSizePx.Width() - 256, offsetY + 256, 256, 256), Color::White());
+        m_nativeBatch->Draw(textureInfo, PxRectangle(windowSizePx.Width() - size256Px, offsetY + size256Px, size256Px, size256Px), Color::White());
 
         // Vulkan native texture
-        m_nativeBatch->Draw(m_nativeTexture, Vector2(windowSizePx.Width() - nativeTexSize.X - 128 * 2, offsetY), Color::White());
-        m_nativeBatch->Draw(
-          m_nativeTexture,
-          PxRectangle(windowSizePx.Width() - nativeTexSize.X - 128 * 2, offsetY + 256 * 0 + 128, nativeTexSize.X / 2, nativeTexSize.Y / 2),
-          Color::White());
+        m_nativeBatch->Draw(m_nativeTexture, Vector2(windowSizePx.RawWidth() - nativeTexSize.X - 128 * 2, offsetY.Value), Color::White());
+        m_nativeBatch->Draw(m_nativeTexture,
+                            PxRectangle::Create(windowSizePx.RawWidth() - nativeTexSize.X - (128 * 2), offsetY.Value + (256 * 0) + 128,
+                                                nativeTexSize.X / 2, nativeTexSize.Y / 2),
+                            Color::White());
 
         // API independent texture
         const auto texSize = m_texture2D.GetSize();
-        m_nativeBatch->Draw(m_texture2D, Vector2(windowSizePx.Width() - texSize.Width(), offsetY), Color::White());
+        m_nativeBatch->Draw(m_texture2D, Vector2(windowSizePx.RawWidth() - texSize.RawWidth(), offsetY.Value), Color::White());
         m_nativeBatch->Draw(m_texture2D,
-                            PxRectangle(windowSizePx.Width() - texSize.Width() - texSize.Width() / 2, offsetY + texSize.Height(), texSize.Width() / 2,
-                                        texSize.Height() / 2),
+                            PxRectangle(windowSizePx.Width() - texSize.Width() - (texSize.Width() / size2Px), offsetY + texSize.Height(),
+                                        texSize.Width() / size2Px, texSize.Height() / size2Px),
                             Color::White());
 
         m_nativeBatch->End();

@@ -467,7 +467,7 @@ namespace Fsl
 
     m_matrixProjection =
       Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
-                                           static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
+                                           static_cast<float>(windowSizePx.RawWidth()) / static_cast<float>(windowSizePx.RawHeight()), 1, 1000.0f) *
       vulkanClipMatrix;
     m_uboData.MatWorldView = m_matrixWorld * m_matrixView;
     m_uboData.MatWorldViewProjection = m_uboData.MatWorldView * m_matrixProjection;

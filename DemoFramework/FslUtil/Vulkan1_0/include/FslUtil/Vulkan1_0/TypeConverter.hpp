@@ -36,6 +36,7 @@
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/TypeConverter.hpp>
 #include <FslGraphics/Render/Basic/BasicCompareOp.hpp>
 #include <FslGraphics/Render/Basic/BasicCullMode.hpp>
@@ -66,7 +67,7 @@ namespace Fsl::TypeConverter
   template <>
   constexpr inline PxExtent2D UncheckedTo<PxExtent2D, VkExtent2D>(const VkExtent2D& value) noexcept
   {
-    return {value.width, value.height};
+    return PxExtent2D::Create(value.width, value.height);
   }
 
   // PxExtent3D
@@ -74,7 +75,7 @@ namespace Fsl::TypeConverter
   template <>
   constexpr inline PxExtent3D UncheckedTo<PxExtent3D, VkExtent3D>(const VkExtent3D& value) noexcept
   {
-    return {value.width, value.height, value.depth};
+    return PxExtent3D::Create(value.width, value.height, value.depth);
   }
 
   // VkExtent2D
@@ -88,7 +89,7 @@ namespace Fsl::TypeConverter
   template <>
   constexpr inline VkExtent2D UncheckedTo<VkExtent2D, PxExtent2D>(const PxExtent2D& value) noexcept
   {
-    return {value.Width, value.Height};
+    return {value.Width.Value, value.Height.Value};
   }
 
   // VkExtent3D
@@ -102,7 +103,7 @@ namespace Fsl::TypeConverter
   template <>
   constexpr inline VkExtent3D UncheckedTo<VkExtent3D, PxExtent3D>(const PxExtent3D& value) noexcept
   {
-    return {value.Width, value.Height, value.Depth};
+    return {value.Width.Value, value.Height.Value, value.Depth.Value};
   }
 
   // VkCullModeFlags

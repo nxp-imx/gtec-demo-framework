@@ -114,7 +114,7 @@ namespace Fsl
       throw std::invalid_argument("spriteMaterialInfo must be valid");
     }
 
-    if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+    if (textureInfo.TrimMarginPx.SumX().Value != 0u || textureInfo.TrimMarginPx.SumY().Value != 0u)
     {
       throw UsageErrorException("BasicImageSprite image can not contain trim");
     }
@@ -161,7 +161,7 @@ namespace Fsl
       auto* pImageSprite = dynamic_cast<BasicImageSprite*>(pSprite);
       if (pImageSprite != nullptr)
       {
-        if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+        if (textureInfo.TrimMarginPx.SumX().Value != 0u || textureInfo.TrimMarginPx.SumY().Value != 0u)
         {
           throw UsageErrorException("BasicImageSprite image can not contain trim");
         }
@@ -238,7 +238,7 @@ namespace Fsl
       throw std::invalid_argument("spriteMaterialInfo must be valid");
     }
 
-    if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+    if (textureInfo.TrimMarginPx.SumX().Value != 0u || textureInfo.TrimMarginPx.SumY().Value != 0u)
     {
       throw UsageErrorException("BasicNineSliceSprite image can not contain trim");
     }
@@ -284,7 +284,7 @@ namespace Fsl
       throw std::invalid_argument("transparentSpriteMaterialInfo must be valid");
     }
 
-    if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+    if (textureInfo.TrimMarginPx.SumX().Value != 0u || textureInfo.TrimMarginPx.SumY().Value != 0u)
     {
       throw UsageErrorException("BasicNineSliceSprite image can not contain trim");
     }
@@ -339,7 +339,7 @@ namespace Fsl
       auto* pNineSliceSprite = dynamic_cast<BasicNineSliceSprite*>(pSprite);
       if (pNineSliceSprite != nullptr)
       {
-        if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+        if (textureInfo.TrimMarginPx.SumX().Value != 0u || textureInfo.TrimMarginPx.SumY().Value != 0u)
         {
           throw UsageErrorException("BasicImageSprite image can not contain trim");
         }
@@ -384,7 +384,7 @@ namespace Fsl
       auto* pNineSliceSprite = dynamic_cast<OptimizedBasicNineSliceSprite*>(pSprite);
       if (pNineSliceSprite != nullptr)
       {
-        if (textureInfo.TrimMarginPx.SumX() != 0u || textureInfo.TrimMarginPx.SumY() != 0u)
+        if (textureInfo.TrimMarginPx.SumX().Value != 0u || textureInfo.TrimMarginPx.SumY().Value != 0u)
         {
           throw UsageErrorException("BasicImageSprite image can not contain trim");
         }

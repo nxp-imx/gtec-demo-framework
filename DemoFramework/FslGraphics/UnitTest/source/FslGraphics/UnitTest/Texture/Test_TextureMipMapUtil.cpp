@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ namespace
 
   uint32_t GetR8G8B8A8Pixel(const Texture& texture, const uint32_t level, const uint32_t face, const uint32_t layer, const PxPoint2& point)
   {
-    const uint32_t r = texture.GetUInt8(level, face, layer, (point.X * 4) + 0, point.Y, 0, false);
-    const uint32_t g = texture.GetUInt8(level, face, layer, (point.X * 4) + 1, point.Y, 0, false);
-    const uint32_t b = texture.GetUInt8(level, face, layer, (point.X * 4) + 2, point.Y, 0, false);
-    const uint32_t a = texture.GetUInt8(level, face, layer, (point.X * 4) + 3, point.Y, 0, false);
+    const uint32_t r = texture.GetUInt8(level, face, layer, (point.X.Value * 4) + 0, point.Y.Value, 0, false);
+    const uint32_t g = texture.GetUInt8(level, face, layer, (point.X.Value * 4) + 1, point.Y.Value, 0, false);
+    const uint32_t b = texture.GetUInt8(level, face, layer, (point.X.Value * 4) + 2, point.Y.Value, 0, false);
+    const uint32_t a = texture.GetUInt8(level, face, layer, (point.X.Value * 4) + 3, point.Y.Value, 0, false);
     const uint32_t result = r | (g << 8) | (b << 16) | (a << 24);
     return result;
   }
@@ -88,10 +88,10 @@ TEST(TestTexture_TextureMipMapUtil, GenerateMipMaps_From1X1Bitmap_Box)
   EXPECT_EQ(src.GetOrigin(), result.GetBitmapOrigin());
   EXPECT_EQ(src.GetPixelFormat(), result.GetPixelFormat());
   EXPECT_EQ(src.GetExtent(), result.GetExtent2D());
-  EXPECT_EQ(1u, result.GetExtent().Depth);
+  EXPECT_EQ(PxValueU(1u), result.GetExtent().Depth);
 
   // Check mip0
-  EXPECT_EQ(pixelColor, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 0)));
+  EXPECT_EQ(pixelColor, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 0)));
 }
 
 TEST(TestTexture_TextureMipMapUtil, GenerateMipMaps_From1X1Bitmap_Nearest)
@@ -108,10 +108,10 @@ TEST(TestTexture_TextureMipMapUtil, GenerateMipMaps_From1X1Bitmap_Nearest)
   EXPECT_EQ(src.GetOrigin(), result.GetBitmapOrigin());
   EXPECT_EQ(src.GetPixelFormat(), result.GetPixelFormat());
   EXPECT_EQ(src.GetExtent(), result.GetExtent2D());
-  EXPECT_EQ(1u, result.GetExtent().Depth);
+  EXPECT_EQ(PxValueU(1u), result.GetExtent().Depth);
 
   // Check mip0
-  EXPECT_EQ(pixelColor, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 0)));
+  EXPECT_EQ(pixelColor, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 0)));
 }
 
 TEST(TestTexture_TextureMipMapUtil, GenerateMipMaps_From2X2Bitmap_Box)
@@ -134,16 +134,16 @@ TEST(TestTexture_TextureMipMapUtil, GenerateMipMaps_From2X2Bitmap_Box)
   EXPECT_EQ(src.GetOrigin(), result.GetBitmapOrigin());
   EXPECT_EQ(src.GetPixelFormat(), result.GetPixelFormat());
   EXPECT_EQ(src.GetExtent(), result.GetExtent2D());
-  EXPECT_EQ(1u, result.GetExtent().Depth);
+  EXPECT_EQ(PxValueU(1u), result.GetExtent().Depth);
 
   // Check mip0
-  EXPECT_EQ(pixelColor00, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 0)));
-  EXPECT_EQ(pixelColor10, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(1, 0)));
-  EXPECT_EQ(pixelColor01, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 1)));
-  EXPECT_EQ(pixelColor11, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(1, 1)));
+  EXPECT_EQ(pixelColor00, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 0)));
+  EXPECT_EQ(pixelColor10, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(1, 0)));
+  EXPECT_EQ(pixelColor01, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 1)));
+  EXPECT_EQ(pixelColor11, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(1, 1)));
   // Check mip1
   const uint32_t mip1Color00 = BoxFilter(pixelColor00, pixelColor10, pixelColor01, pixelColor11);
-  EXPECT_EQ(mip1Color00, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2(0, 0)));
+  EXPECT_EQ(mip1Color00, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2::Create(0, 0)));
 }
 
 
@@ -192,37 +192,37 @@ TEST(TestTexture_TextureMipMapUtil, GenerateMipMaps_From4X4Bitmap_Box)
   EXPECT_EQ(src.GetOrigin(), result.GetBitmapOrigin());
   EXPECT_EQ(src.GetPixelFormat(), result.GetPixelFormat());
   EXPECT_EQ(src.GetExtent(), result.GetExtent2D());
-  EXPECT_EQ(1u, result.GetExtent().Depth);
+  EXPECT_EQ(PxValueU(1u), result.GetExtent().Depth);
 
   // Check mip0
-  EXPECT_EQ(pixelColor00, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 0)));
-  EXPECT_EQ(pixelColor10, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(1, 0)));
-  EXPECT_EQ(pixelColor20, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(2, 0)));
-  EXPECT_EQ(pixelColor30, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(3, 0)));
-  EXPECT_EQ(pixelColor01, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 1)));
-  EXPECT_EQ(pixelColor11, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(1, 1)));
-  EXPECT_EQ(pixelColor21, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(2, 1)));
-  EXPECT_EQ(pixelColor31, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(3, 1)));
-  EXPECT_EQ(pixelColor02, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 2)));
-  EXPECT_EQ(pixelColor12, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(1, 2)));
-  EXPECT_EQ(pixelColor22, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(2, 2)));
-  EXPECT_EQ(pixelColor32, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(3, 2)));
-  EXPECT_EQ(pixelColor03, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(0, 3)));
-  EXPECT_EQ(pixelColor13, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(1, 3)));
-  EXPECT_EQ(pixelColor23, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(2, 3)));
-  EXPECT_EQ(pixelColor33, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2(3, 3)));
+  EXPECT_EQ(pixelColor00, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 0)));
+  EXPECT_EQ(pixelColor10, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(1, 0)));
+  EXPECT_EQ(pixelColor20, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(2, 0)));
+  EXPECT_EQ(pixelColor30, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(3, 0)));
+  EXPECT_EQ(pixelColor01, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 1)));
+  EXPECT_EQ(pixelColor11, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(1, 1)));
+  EXPECT_EQ(pixelColor21, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(2, 1)));
+  EXPECT_EQ(pixelColor31, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(3, 1)));
+  EXPECT_EQ(pixelColor02, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 2)));
+  EXPECT_EQ(pixelColor12, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(1, 2)));
+  EXPECT_EQ(pixelColor22, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(2, 2)));
+  EXPECT_EQ(pixelColor32, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(3, 2)));
+  EXPECT_EQ(pixelColor03, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(0, 3)));
+  EXPECT_EQ(pixelColor13, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(1, 3)));
+  EXPECT_EQ(pixelColor23, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(2, 3)));
+  EXPECT_EQ(pixelColor33, GetR8G8B8A8Pixel(result, 0, 0, 0, PxPoint2::Create(3, 3)));
 
   // Check mip1
   const uint32_t mip1Color00 = BoxFilter(pixelColor00, pixelColor10, pixelColor01, pixelColor11);
   const uint32_t mip1Color10 = BoxFilter(pixelColor20, pixelColor30, pixelColor21, pixelColor31);
   const uint32_t mip1Color01 = BoxFilter(pixelColor02, pixelColor12, pixelColor03, pixelColor13);
   const uint32_t mip1Color11 = BoxFilter(pixelColor22, pixelColor32, pixelColor23, pixelColor33);
-  EXPECT_EQ(mip1Color00, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2(0, 0)));
-  EXPECT_EQ(mip1Color10, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2(1, 0)));
-  EXPECT_EQ(mip1Color01, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2(0, 1)));
-  EXPECT_EQ(mip1Color11, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2(1, 1)));
+  EXPECT_EQ(mip1Color00, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2::Create(0, 0)));
+  EXPECT_EQ(mip1Color10, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2::Create(1, 0)));
+  EXPECT_EQ(mip1Color01, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2::Create(0, 1)));
+  EXPECT_EQ(mip1Color11, GetR8G8B8A8Pixel(result, 1, 0, 0, PxPoint2::Create(1, 1)));
 
   // Check mip2
   const uint32_t mip2Color00 = BoxFilter(mip1Color00, mip1Color10, mip1Color01, mip1Color11);
-  EXPECT_EQ(mip2Color00, GetR8G8B8A8Pixel(result, 2, 0, 0, PxPoint2(0, 0)));
+  EXPECT_EQ(mip2Color00, GetR8G8B8A8Pixel(result, 2, 0, 0, PxPoint2::Create(0, 0)));
 }

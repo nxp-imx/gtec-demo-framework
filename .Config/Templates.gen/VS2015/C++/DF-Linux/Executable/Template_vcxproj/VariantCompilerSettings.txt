@@ -6,7 +6,7 @@
     <Link>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##]</Command>
+      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##]</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|ARM'">
@@ -17,7 +17,7 @@
     <Link>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##]</Command>
+      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##]</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x86'">
@@ -28,7 +28,7 @@
     <Link>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##]</Command>
+      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##]</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x86'">
@@ -39,7 +39,7 @@
     <Link>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##]</Command>
+      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##]</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>  
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">
@@ -50,7 +50,7 @@
     <Link>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##]</Command>
+      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##]</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">
@@ -61,6 +61,6 @@
     <Link>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##]</Command>
+      <Command>$(FSL_GRAPHICS_SDK)\.Config\FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##]</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>

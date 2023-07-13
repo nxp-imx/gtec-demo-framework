@@ -47,8 +47,8 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxTrimmedNineSlice, Log)
 {
-  constexpr PxTrimmedNineSlice value(PxSize2D(1, 2), PxThicknessF(3.0f, 4.0f, 5.0f, 6.0f), PxThicknessF(7.0f, 8.0f, 9.0f, 10.0f),
-                                     PxThickness(11, 12, 13, 14));
+  constexpr PxTrimmedNineSlice value(PxSize2D::Create(1, 2), PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f),
+                                     PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f), PxThickness::Create(11, 12, 13, 14));
 
   std::stringstream stream;
   stream << value;

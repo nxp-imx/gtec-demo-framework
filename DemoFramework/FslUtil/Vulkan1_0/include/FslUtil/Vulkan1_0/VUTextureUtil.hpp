@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUTEXTUREUTIL_HPP
 #define FSLUTIL_VULKAN1_0_VUTEXTUREUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,43 +51,44 @@ namespace Fsl::Vulkan::VUTextureUtil
   //! @brief Get the native texture area of the given textureRectangle
   constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxSize2D& textureSize)
   {
-    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
-            srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height()),
-            srcRect.Right() == UncheckedNumericCast<uint32_t>(textureSize.Width())
+    assert(static_cast<float>(textureSize.RawWidth()) >= 0.0f);
+    assert(static_cast<float>(textureSize.RawHeight()) >= 0.0f);
+    return {srcRect.RawLeft() == 0 ? 0.0f : static_cast<float>(srcRect.RawLeft()) / static_cast<float>(textureSize.RawWidth()),
+            srcRect.RawTop() == 0 ? 0.0f : static_cast<float>(srcRect.RawTop()) / static_cast<float>(textureSize.RawHeight()),
+            srcRect.RawRight() == UncheckedNumericCast<uint32_t>(textureSize.RawWidth())
               ? 1.0f
-              : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
-            srcRect.Bottom() == UncheckedNumericCast<uint32_t>(textureSize.Height())
+              : static_cast<float>(srcRect.RawRight()) / static_cast<float>(textureSize.RawWidth()),
+            srcRect.RawBottom() == UncheckedNumericCast<uint32_t>(textureSize.RawHeight())
               ? 1.0f
-              : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height())};
+              : static_cast<float>(srcRect.RawBottom()) / static_cast<float>(textureSize.RawHeight())};
   }
 
   //! @brief Get the native texture area of the given textureRectangle
   constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize)
   {
-    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
-            srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height()),
-            srcRect.Right() == textureSize.Width() ? 1.0f : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
-            srcRect.Bottom() == textureSize.Height() ? 1.0f : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height())};
+    assert(static_cast<float>(textureSize.RawWidth()) >= 0.0f);
+    assert(static_cast<float>(textureSize.RawHeight()) >= 0.0f);
+    return {srcRect.RawLeft() == 0 ? 0.0f : static_cast<float>(srcRect.RawLeft()) / static_cast<float>(textureSize.RawWidth()),
+            srcRect.RawTop() == 0 ? 0.0f : static_cast<float>(srcRect.RawTop()) / static_cast<float>(textureSize.RawHeight()),
+            srcRect.RawRight() == textureSize.RawWidth() ? 1.0f : static_cast<float>(srcRect.RawRight()) / static_cast<float>(textureSize.RawWidth()),
+            srcRect.RawBottom() == textureSize.RawHeight() ? 1.0f
+                                                           : static_cast<float>(srcRect.RawBottom()) / static_cast<float>(textureSize.RawHeight())};
   }
 
   //! @brief Get the native texture area of the given textureRectangle
   constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize, const int timesX, const int timesY)
   {
-    assert(timesX == 1 || (timesX != 1 && (srcRect.X() == 0 || srcRect.Width() == textureSize.Width())));
-    assert(timesY == 1 || (timesY != 1 && (srcRect.Y() == 0 || srcRect.Height() == textureSize.Height())));
+    assert(timesX == 1 || (timesX != 1 && (srcRect.X().Value == 0 || srcRect.Width() == textureSize.Width())));
+    assert(timesY == 1 || (timesY != 1 && (srcRect.Y().Value == 0 || srcRect.Height() == textureSize.Height())));
 
-    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
-            srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height()),
-            srcRect.Right() == textureSize.Width() ? static_cast<float>(timesX)
-                                                   : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
-            srcRect.Bottom() == textureSize.Height() ? static_cast<float>(timesY)
-                                                     : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height())};
+    assert(static_cast<float>(textureSize.RawWidth()) >= 0.0f);
+    assert(static_cast<float>(textureSize.RawHeight()) >= 0.0f);
+    return {srcRect.RawLeft() == 0 ? 0.0f : static_cast<float>(srcRect.RawLeft()) / static_cast<float>(textureSize.RawWidth()),
+            srcRect.RawTop() == 0 ? 0.0f : static_cast<float>(srcRect.RawTop()) / static_cast<float>(textureSize.RawHeight()),
+            srcRect.RawRight() == textureSize.RawWidth() ? static_cast<float>(timesX)
+                                                         : static_cast<float>(srcRect.RawRight()) / static_cast<float>(textureSize.RawWidth()),
+            srcRect.RawBottom() == textureSize.RawHeight() ? static_cast<float>(timesY)
+                                                           : static_cast<float>(srcRect.RawBottom()) / static_cast<float>(textureSize.RawHeight())};
   }
 
 

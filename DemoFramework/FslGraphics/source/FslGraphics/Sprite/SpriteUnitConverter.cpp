@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,18 +62,9 @@ namespace Fsl
     {
       throw std::invalid_argument("imageDpi can not be zero");
     }
-
-    // if (imageDpi == m_densityDpi)
-    //{
-    //  return TypeConverter::To<PxSize2D>(extentPx);
-    //}
-
     const float scaleFactor = CalcImageDensityScale(imageDpi);
-    const float widthPx = std::round(static_cast<float>(extentPx.Width) * scaleFactor);
-    const float heightPx = std::round(static_cast<float>(extentPx.Height) * scaleFactor);
-    assert(widthPx >= 0.0f && widthPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    assert(heightPx >= 0.0f && heightPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    return {static_cast<PxSize2D::value_type>(widthPx), static_cast<PxSize2D::value_type>(heightPx)};
+    return TypeConverter::UncheckedChangeTo<PxSize2D>(
+      PxSize2DF::Create(static_cast<float>(extentPx.Width.Value) * scaleFactor, static_cast<float>(extentPx.Height.Value) * scaleFactor));
   }
 
 
@@ -84,17 +75,12 @@ namespace Fsl
       throw std::invalid_argument("imageDpi can not be zero");
     }
 
-    // if (imageDpi == m_densityDpi)
-    //{
-    //  return TypeConverter::To<PxSize2D>(extentPx);
-    //}
-
     const float scaleFactor = CalcImageDensityScale(imageDpi);
-    const float widthPx = static_cast<float>(extentPx.Width) * scaleFactor;
-    const float heightPx = static_cast<float>(extentPx.Height) * scaleFactor;
-    assert(widthPx >= 0.0f && widthPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    assert(heightPx >= 0.0f && heightPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    return {widthPx, heightPx};
+    const float widthPx = static_cast<float>(extentPx.Width.Value) * scaleFactor;
+    const float heightPx = static_cast<float>(extentPx.Height.Value) * scaleFactor;
+    assert(widthPx >= 0.0f && widthPx <= float(std::numeric_limits<PxSize2D::raw_value_type>::max()));
+    assert(heightPx >= 0.0f && heightPx <= float(std::numeric_limits<PxSize2D::raw_value_type>::max()));
+    return PxSize2DF::UncheckedCreate(widthPx, heightPx);
   }
 
 
@@ -105,48 +91,16 @@ namespace Fsl
       throw std::invalid_argument("imageDpi can not be zero");
     }
 
-    // if (imageDpi == m_densityDpi)
-    //{
-    //  return thicknessPx;
-    //}
-
     const float scaleFactor = CalcImageDensityScale(imageDpi);
-    const float trimLPx = std::round(static_cast<float>(thicknessPx.Left()) * scaleFactor);
-    const float trimTPx = std::round(static_cast<float>(thicknessPx.Top()) * scaleFactor);
-    const float trimRPx = std::round(static_cast<float>(thicknessPx.Right()) * scaleFactor);
-    const float trimBPx = std::round(static_cast<float>(thicknessPx.Bottom()) * scaleFactor);
-    assert(trimLPx >= 0.0f && trimLPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimTPx >= 0.0f && trimTPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimRPx >= 0.0f && trimRPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimBPx >= 0.0f && trimBPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    return {static_cast<PxThickness::value_type>(trimLPx), static_cast<PxThickness::value_type>(trimTPx),
-            static_cast<PxThickness::value_type>(trimRPx), static_cast<PxThickness::value_type>(trimBPx)};
+    return TypeConverter::UncheckedChangeTo<PxThickness>(PxThicknessF::Create(
+      static_cast<float>(thicknessPx.Left().RawValue()) * scaleFactor, static_cast<float>(thicknessPx.Top().RawValue()) * scaleFactor,
+      static_cast<float>(thicknessPx.Right().RawValue()) * scaleFactor, static_cast<float>(thicknessPx.Bottom().RawValue()) * scaleFactor));
   }
 
 
   PxThickness SpriteUnitConverter::CalcScaledPxThickness(const PxThicknessU& thicknessPx, const uint32_t imageDpi) const
   {
-    if (imageDpi == 0)
-    {
-      throw std::invalid_argument("imageDpi can not be zero");
-    }
-
-    // if (imageDpi == m_densityDpi)
-    //{
-    //  return TypeConverter::To<PxThickness>(thicknessPx);
-    //}
-
-    const float scaleFactor = CalcImageDensityScale(imageDpi);
-    const float trimLPx = std::round(static_cast<float>(thicknessPx.Left) * scaleFactor);
-    const float trimTPx = std::round(static_cast<float>(thicknessPx.Top) * scaleFactor);
-    const float trimRPx = std::round(static_cast<float>(thicknessPx.Right) * scaleFactor);
-    const float trimBPx = std::round(static_cast<float>(thicknessPx.Bottom) * scaleFactor);
-    assert(trimLPx >= 0.0f && trimLPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimTPx >= 0.0f && trimTPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimRPx >= 0.0f && trimRPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimBPx >= 0.0f && trimBPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    return {static_cast<PxThickness::value_type>(trimLPx), static_cast<PxThickness::value_type>(trimTPx),
-            static_cast<PxThickness::value_type>(trimRPx), static_cast<PxThickness::value_type>(trimBPx)};
+    return TypeConverter::UncheckedChangeTo<PxThickness>(CalcScaledPxThicknessF(thicknessPx, imageDpi));
   }
 
 
@@ -156,47 +110,16 @@ namespace Fsl
     {
       throw std::invalid_argument("imageDpi can not be zero");
     }
-
-    // if (imageDpi == m_densityDpi)
-    //{
-    //  return TypeConverter::To<PxThickness>(thicknessPx);
-    //}
-
     const float scaleFactor = CalcImageDensityScale(imageDpi);
-    const float trimLPx = static_cast<float>(thicknessPx.Left) * scaleFactor;
-    const float trimTPx = static_cast<float>(thicknessPx.Top) * scaleFactor;
-    const float trimRPx = static_cast<float>(thicknessPx.Right) * scaleFactor;
-    const float trimBPx = static_cast<float>(thicknessPx.Bottom) * scaleFactor;
-    assert(trimLPx >= 0.0f && trimLPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimTPx >= 0.0f && trimTPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimRPx >= 0.0f && trimRPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(trimBPx >= 0.0f && trimBPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    return {trimLPx, trimTPx, trimRPx, trimBPx};
+    return PxThicknessF::Create(static_cast<float>(thicknessPx.Left.Value) * scaleFactor, static_cast<float>(thicknessPx.Top.Value) * scaleFactor,
+                                static_cast<float>(thicknessPx.Right.Value) * scaleFactor,
+                                static_cast<float>(thicknessPx.Bottom.Value) * scaleFactor);
   }
 
 
   PxThicknessU SpriteUnitConverter::CalcScaledPxThicknessU(const PxThicknessU& thicknessPx, const uint32_t imageDpi) const
   {
-    if (imageDpi == 0)
-    {
-      throw std::invalid_argument("imageDpi can not be zero");
-    }
-    // if (imageDpi == m_densityDpi)
-    //{
-    //  return thicknessPx;
-    //}
-
-    const float scaleFactor = CalcImageDensityScale(imageDpi);
-    const float trimLPx = std::round(static_cast<float>(thicknessPx.Left) * scaleFactor);
-    const float trimTPx = std::round(static_cast<float>(thicknessPx.Top) * scaleFactor);
-    const float trimRPx = std::round(static_cast<float>(thicknessPx.Right) * scaleFactor);
-    const float trimBPx = std::round(static_cast<float>(thicknessPx.Bottom) * scaleFactor);
-    assert(trimLPx >= 0.0f && trimLPx <= float(std::numeric_limits<PxThicknessU::value_type>::max()));
-    assert(trimTPx >= 0.0f && trimTPx <= float(std::numeric_limits<PxThicknessU::value_type>::max()));
-    assert(trimRPx >= 0.0f && trimRPx <= float(std::numeric_limits<PxThicknessU::value_type>::max()));
-    assert(trimBPx >= 0.0f && trimBPx <= float(std::numeric_limits<PxThicknessU::value_type>::max()));
-    return {static_cast<PxThicknessU::value_type>(trimLPx), static_cast<PxThicknessU::value_type>(trimTPx),
-            static_cast<PxThicknessU::value_type>(trimRPx), static_cast<PxThicknessU::value_type>(trimBPx)};
+    return TypeConverter::UncheckedChangeTo<PxThicknessU>(CalcScaledPxThicknessF(thicknessPx, imageDpi));
   }
 
 
@@ -212,12 +135,13 @@ namespace Fsl
     }
     float scaleFactor = CalcImageDensityScale(imageDpi);
 
-    const float roundedNewWidthPx = std::round(static_cast<float>(extentPx.Width) * scaleFactor);
-    const float roundedNewHeightPx = std::round(static_cast<float>(extentPx.Height) * scaleFactor);
+    const float roundedNewWidthPx = std::round(static_cast<float>(extentPx.Width.Value) * scaleFactor);
+    const float roundedNewHeightPx = std::round(static_cast<float>(extentPx.Height.Value) * scaleFactor);
 
-    assert(roundedNewWidthPx >= 0.0f && roundedNewWidthPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    assert(roundedNewHeightPx >= 0.0f && roundedNewHeightPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    PxSize2D roundedScaledSizePx(static_cast<PxSize2D::value_type>(roundedNewWidthPx), static_cast<PxSize2D::value_type>(roundedNewHeightPx));
+    assert(roundedNewWidthPx >= 0.0f && roundedNewWidthPx <= float(std::numeric_limits<PxSize2D::raw_value_type>::max()));
+    assert(roundedNewHeightPx >= 0.0f && roundedNewHeightPx <= float(std::numeric_limits<PxSize2D::raw_value_type>::max()));
+    const auto roundedScaledSizePx =
+      PxSize2D::Create(static_cast<PxSize2D::raw_value_type>(roundedNewWidthPx), static_cast<PxSize2D::raw_value_type>(roundedNewHeightPx));
     if (extentPx == trimmedExtentPx)
     {
       // Quick exit for 'no trim'
@@ -226,13 +150,16 @@ namespace Fsl
     }
 
     // Figure out the actually used scale factor for each axis to ensure the trim and trimmed size are calculated to match this rounding
-    const float finalScaleX = static_cast<float>(roundedScaledSizePx.Width()) / static_cast<float>(extentPx.Width);
-    const float finalScaleY = static_cast<float>(roundedScaledSizePx.Height()) / static_cast<float>(extentPx.Height);
+    const float finalScaleX = static_cast<float>(roundedScaledSizePx.RawWidth()) / static_cast<float>(extentPx.Width.Value);
+    const float finalScaleY = static_cast<float>(roundedScaledSizePx.RawHeight()) / static_cast<float>(extentPx.Height.Value);
 
     // Scale the trim margin
-    PxThicknessF scaledTrimMarginPxf(static_cast<float>(trimMarginPx.Left) * finalScaleX, static_cast<float>(trimMarginPx.Top) * finalScaleY,
-                                     static_cast<float>(trimMarginPx.Right) * finalScaleX, static_cast<float>(trimMarginPx.Bottom) * finalScaleY);
-    PxSize2DF scaledTrimmedSizePxf(static_cast<float>(trimmedExtentPx.Width) * finalScaleX, static_cast<float>(trimmedExtentPx.Height) * finalScaleY);
+    const auto scaledTrimMarginPxf =
+      PxThicknessF::Create(static_cast<float>(trimMarginPx.Left.Value) * finalScaleX, static_cast<float>(trimMarginPx.Top.Value) * finalScaleY,
+                           static_cast<float>(trimMarginPx.Right.Value) * finalScaleX, static_cast<float>(trimMarginPx.Bottom.Value) * finalScaleY);
+
+    auto scaledTrimmedSizePxf = PxSize2DF::Create(static_cast<float>(trimmedExtentPx.Width.Value) * finalScaleX,
+                                                  static_cast<float>(trimmedExtentPx.Height.Value) * finalScaleY);
     return {roundedScaledSizePx, scaledTrimMarginPxf, scaledTrimmedSizePxf};
   }
 
@@ -247,41 +174,43 @@ namespace Fsl
     }
     float scaleFactor = CalcImageDensityScale(imageDpi);
 
-    const float roundedNewWidthPx = std::round(static_cast<float>(extentPx.Width) * scaleFactor);
-    const float roundedNewHeightPx = std::round(static_cast<float>(extentPx.Height) * scaleFactor);
+    const float roundedNewWidthPx = std::round(static_cast<float>(extentPx.Width.Value) * scaleFactor);
+    const float roundedNewHeightPx = std::round(static_cast<float>(extentPx.Height.Value) * scaleFactor);
 
-    assert(roundedNewWidthPx >= 0.0f && roundedNewWidthPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    assert(roundedNewHeightPx >= 0.0f && roundedNewHeightPx <= float(std::numeric_limits<PxSize2D::value_type>::max()));
-    PxSize2D roundedScaledSizePx(static_cast<PxSize2D::value_type>(roundedNewWidthPx), static_cast<PxSize2D::value_type>(roundedNewHeightPx));
+    assert(roundedNewWidthPx >= 0.0f && roundedNewWidthPx <= float(std::numeric_limits<PxSize2D::raw_value_type>::max()));
+    assert(roundedNewHeightPx >= 0.0f && roundedNewHeightPx <= float(std::numeric_limits<PxSize2D::raw_value_type>::max()));
+    const auto roundedScaledSizePx =
+      PxSize2D::Create(static_cast<PxSize2D::raw_value_type>(roundedNewWidthPx), static_cast<PxSize2D::raw_value_type>(roundedNewHeightPx));
 
     // Figure out the actually used scale factor for each axis to ensure the trim and trimmed size are calculated to match this rounding
-    const float finalScaleX = static_cast<float>(roundedScaledSizePx.Width()) / static_cast<float>(extentPx.Width);
-    const float finalScaleY = static_cast<float>(roundedScaledSizePx.Height()) / static_cast<float>(extentPx.Height);
+    const float finalScaleX = static_cast<float>(roundedScaledSizePx.RawWidth()) / static_cast<float>(extentPx.Width.Value);
+    const float finalScaleY = static_cast<float>(roundedScaledSizePx.RawHeight()) / static_cast<float>(extentPx.Height.Value);
 
     // Scale the trim margin
-    PxThicknessF scaledTrimMarginPxf(static_cast<float>(trimMarginPx.Left) * finalScaleX, static_cast<float>(trimMarginPx.Top) * finalScaleY,
-                                     static_cast<float>(trimMarginPx.Right) * finalScaleX, static_cast<float>(trimMarginPx.Bottom) * finalScaleY);
+    const auto scaledTrimMarginPxf =
+      PxThicknessF::Create(static_cast<float>(trimMarginPx.Left.Value) * finalScaleX, static_cast<float>(trimMarginPx.Top.Value) * finalScaleY,
+                           static_cast<float>(trimMarginPx.Right.Value) * finalScaleX, static_cast<float>(trimMarginPx.Bottom.Value) * finalScaleY);
 
     // Scale the trimmed nine slice
-    PxThicknessF scaledTrimmedNineSlicePxf(
-      static_cast<float>(trimmedNineSlicePx.Left) * finalScaleX, static_cast<float>(trimmedNineSlicePx.Top) * finalScaleY,
-      static_cast<float>(trimmedNineSlicePx.Right) * finalScaleX, static_cast<float>(trimmedNineSlicePx.Bottom) * finalScaleY);
+    const auto scaledTrimmedNineSlicePxf = PxThicknessF::Create(
+      static_cast<float>(trimmedNineSlicePx.Left.Value) * finalScaleX, static_cast<float>(trimmedNineSlicePx.Top.Value) * finalScaleY,
+      static_cast<float>(trimmedNineSlicePx.Right.Value) * finalScaleX, static_cast<float>(trimmedNineSlicePx.Bottom.Value) * finalScaleY);
 
 
     // Scale the content margin
-    const float scaledContentLPx = std::round(static_cast<float>(contentMarginPx.Left) * finalScaleX);
-    const float scaledContentTPx = std::round(static_cast<float>(contentMarginPx.Top) * finalScaleY);
-    const float scaledContentRPx = std::round(static_cast<float>(contentMarginPx.Right) * finalScaleX);
-    const float scaledContentBPx = std::round(static_cast<float>(contentMarginPx.Bottom) * finalScaleY);
+    const float scaledContentLPx = std::round(static_cast<float>(contentMarginPx.Left.Value) * finalScaleX);
+    const float scaledContentTPx = std::round(static_cast<float>(contentMarginPx.Top.Value) * finalScaleY);
+    const float scaledContentRPx = std::round(static_cast<float>(contentMarginPx.Right.Value) * finalScaleX);
+    const float scaledContentBPx = std::round(static_cast<float>(contentMarginPx.Bottom.Value) * finalScaleY);
 
-    assert(scaledContentLPx >= 0.0f && scaledContentLPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(scaledContentTPx >= 0.0f && scaledContentTPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(scaledContentRPx >= 0.0f && scaledContentRPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    assert(scaledContentBPx >= 0.0f && scaledContentBPx <= float(std::numeric_limits<PxThickness::value_type>::max()));
-    PxThickness roundedScaledContentMarginPx(
-      static_cast<PxThickness::value_type>(scaledContentLPx), static_cast<PxThickness::value_type>(scaledContentTPx),
-      static_cast<PxThickness::value_type>(scaledContentRPx), static_cast<PxThickness::value_type>(scaledContentBPx));
+    assert(scaledContentLPx >= 0.0f && scaledContentLPx <= float(std::numeric_limits<PxThickness::raw_value_type>::max()));
+    assert(scaledContentTPx >= 0.0f && scaledContentTPx <= float(std::numeric_limits<PxThickness::raw_value_type>::max()));
+    assert(scaledContentRPx >= 0.0f && scaledContentRPx <= float(std::numeric_limits<PxThickness::raw_value_type>::max()));
+    assert(scaledContentBPx >= 0.0f && scaledContentBPx <= float(std::numeric_limits<PxThickness::raw_value_type>::max()));
 
+    const auto roundedScaledContentMarginPx =
+      PxThickness::Create(static_cast<PxThickness::raw_value_type>(scaledContentLPx), static_cast<PxThickness::raw_value_type>(scaledContentTPx),
+                          static_cast<PxThickness::raw_value_type>(scaledContentRPx), static_cast<PxThickness::raw_value_type>(scaledContentBPx));
 
     return {roundedScaledSizePx, scaledTrimMarginPxf, scaledTrimmedNineSlicePxf, roundedScaledContentMarginPx};
   }
@@ -295,12 +224,13 @@ namespace Fsl
     }
     if (imageDpi == SpriteDpConfig::BaseDpi)
     {
-      return DpExtent2D::Create(imageExtentPx.Width, imageExtentPx.Height);
+      return DpExtent2D::Create(imageExtentPx.Width.Value, imageExtentPx.Height.Value);
     }
     const float scalePxToDp = static_cast<float>(SpriteDpConfig::BaseDpi) / static_cast<float>(imageDpi);
     return TypeConverter::UncheckedChangeTo<DpExtent2D>(
-      DpSize2DF::Create(static_cast<float>(imageExtentPx.Width) * scalePxToDp, static_cast<float>(imageExtentPx.Height) * scalePxToDp));
+      DpSize2DF::Create(static_cast<float>(imageExtentPx.Width.Value) * scalePxToDp, static_cast<float>(imageExtentPx.Height.Value) * scalePxToDp));
   }
+
 
   DpThicknessU SpriteUnitConverter::CalcDpThicknessU(const PxThicknessU& thicknessPx, const uint32_t imageDpi)
   {
@@ -310,13 +240,13 @@ namespace Fsl
     }
     if (imageDpi == SpriteDpConfig::BaseDpi)
     {
-      return DpThicknessU::Create(thicknessPx.Left, thicknessPx.Top, thicknessPx.Right, thicknessPx.Bottom);
+      return DpThicknessU::Create(thicknessPx.Left.Value, thicknessPx.Top.Value, thicknessPx.Right.Value, thicknessPx.Bottom.Value);
     }
     const float scalePxToDp = static_cast<float>(SpriteDpConfig::BaseDpi) / static_cast<float>(imageDpi);
 
     return TypeConverter::UncheckedChangeTo<DpThicknessU>(
-      DpThicknessF::Create(static_cast<float>(thicknessPx.Left) * scalePxToDp, static_cast<float>(thicknessPx.Top) * scalePxToDp,
-                           static_cast<float>(thicknessPx.Right) * scalePxToDp, static_cast<float>(thicknessPx.Bottom) * scalePxToDp));
+      DpThicknessF::Create(static_cast<float>(thicknessPx.Left.Value) * scalePxToDp, static_cast<float>(thicknessPx.Top.Value) * scalePxToDp,
+                           static_cast<float>(thicknessPx.Right.Value) * scalePxToDp, static_cast<float>(thicknessPx.Bottom.Value) * scalePxToDp));
   }
 
 
@@ -333,7 +263,7 @@ namespace Fsl
     }
 
     const float scaleFactor = CalcImageDensityScale(imageDpi);
-    return {static_cast<float>(offsetPx.X) * scaleFactor, static_cast<float>(offsetPx.Y) * scaleFactor};
+    return PxVector2::Create(static_cast<float>(offsetPx.X.Value) * scaleFactor, static_cast<float>(offsetPx.Y.Value) * scaleFactor);
   }
 
 

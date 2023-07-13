@@ -33,12 +33,14 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 
 namespace Fsl
 {
   struct PxThicknessU
   {
-    using value_type = uint32_t;
+    using value_type = PxValueU;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type Left{0};
     value_type Top{0};
@@ -77,6 +79,12 @@ namespace Fsl
     constexpr bool operator!=(const PxThicknessU& rhs) const noexcept
     {
       return !(*this == rhs);
+    }
+
+    static constexpr PxThicknessU Create(const raw_value_type left, const raw_value_type top, const raw_value_type right,
+                                         const raw_value_type bottom) noexcept
+    {
+      return {value_type(left), value_type(top), value_type(right), value_type(bottom)};
     }
   };
 }

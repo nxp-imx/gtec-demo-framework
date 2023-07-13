@@ -40,9 +40,12 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.Project.XmlExperimentalPlatformRecipes_DefaultValue import XmlExperimentalPlatformRecipes_DefaultValue
 
 class XmlExperimentalPlatform(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         self.Id = self.Name.lower()
         self.Recipes = self.__ReadRecipes(log, xmlElement)
 

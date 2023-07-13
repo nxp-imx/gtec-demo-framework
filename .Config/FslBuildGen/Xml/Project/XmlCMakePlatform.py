@@ -39,9 +39,15 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlCMakePlatform(XmlBase):
+    __AttribName = 'Name'
+    __AttribDefaultGeneratorName = 'DefaultGeneratorName'
+    __AttribDefaultInstallPrefix = 'DefaultInstallPrefix'
+    __AttribAllowFindPackage = 'AllowFindPackage'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, "Name")
-        self.DefaultGeneratorName = self._TryReadAttrib(xmlElement, "DefaultGeneratorName")
-        self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, "DefaultInstallPrefix")
-        self.AllowFindPackage = self._TryReadBoolAttrib(xmlElement, "AllowFindPackage", None)
+        self._CheckAttributes({self.__AttribName, self.__AttribDefaultGeneratorName, self.__AttribDefaultInstallPrefix, self.__AttribAllowFindPackage})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.DefaultGeneratorName = self._TryReadAttrib(xmlElement, self.__AttribDefaultGeneratorName)
+        self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, self.__AttribDefaultInstallPrefix)
+        self.AllowFindPackage = self._ReadBoolAttrib(xmlElement, self.__AttribAllowFindPackage, True)

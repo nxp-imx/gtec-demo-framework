@@ -72,13 +72,15 @@ namespace Fsl
     m_texTest = m_uiExtension->GetAtlasTexture2D("Player/Stop");
 
 
-    auto screenResolution = config.ScreenResolution;
-    const auto safeX = static_cast<int32_t>(static_cast<float>(screenResolution.X) * 0.10f);
-    const auto safeY = static_cast<int32_t>(static_cast<float>(screenResolution.Y) * 0.10f);
-    m_boundaryRect = PxRectangle(safeX, safeY, screenResolution.X - (2 * safeX), screenResolution.Y - (2 * safeY));
+    auto screenResolution = config.WindowMetrics.GetSizePx();
+    const auto safePercentage = PxSize1DF::Create(0.10f);
+    const auto safeX = TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF(screenResolution.Width()) * safePercentage);
+    const auto safeY = TypeConverter::UncheckedChangeTo<PxSize1D>(PxSize1DF(screenResolution.Height()) * safePercentage);
+    constexpr auto size2Px = PxSize1D::Create(2);
+    m_boundaryRect = PxRectangle(safeX, safeY, screenResolution.Width() - (size2Px * safeX), screenResolution.Height() - (size2Px * safeY));
 
-    auto offsetX = static_cast<float>(safeX);
-    auto offsetY = static_cast<float>(safeY);
+    auto offsetX = static_cast<float>(safeX.RawValue());
+    auto offsetY = static_cast<float>(safeY.RawValue());
     auto p0 = Particle(offsetX + 100.0f, offsetY + 100.0f, offsetX + 85.0f, offsetY + 95.0f);
     auto p1 = Particle(offsetX + 200.0f, offsetY + 100.0f, offsetX + 200.0f, offsetY + 100.0f);
     auto p2 = Particle(offsetX + 200.0f, offsetY + 200.0f, offsetX + 200.0f, offsetY + 200.0f);
@@ -171,10 +173,10 @@ namespace Fsl
 
   void VerletIntegration101::ConstrainPoints(std::deque<Particle>& particles, const PxRectangle& boundaryRect, const float friction)
   {
-    const auto boundaryLeft = static_cast<float>(boundaryRect.Left());
-    const auto boundaryTop = static_cast<float>(boundaryRect.Top());
-    const auto boundaryRight = static_cast<float>(boundaryRect.Right() - 1);
-    const auto boundaryBottom = static_cast<float>(boundaryRect.Bottom() - 1);
+    const auto boundaryLeft = static_cast<float>(boundaryRect.RawLeft());
+    const auto boundaryTop = static_cast<float>(boundaryRect.RawTop());
+    const auto boundaryRight = static_cast<float>(boundaryRect.RawRight() - 1);
+    const auto boundaryBottom = static_cast<float>(boundaryRect.RawBottom() - 1);
 
     const float bounce = 0.90f;
 
@@ -220,7 +222,7 @@ namespace Fsl
   void VerletIntegration101::DrawParticles(const std::deque<Particle>& particles)
   {
     const Vector2 scale(0.2f, 0.2f);
-    const Vector2 origin(static_cast<float>(m_texBall.GetSize().Width()) * 0.5f, static_cast<float>(m_texBall.GetSize().Height()) * 0.5f);
+    const Vector2 origin(static_cast<float>(m_texBall.GetSize().RawWidth()) * 0.5f, static_cast<float>(m_texBall.GetSize().RawHeight()) * 0.5f);
     const auto color = Color::White();
 
     for (auto itr = particles.begin(); itr != particles.end(); ++itr)

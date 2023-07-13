@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxValueU16.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
@@ -74,18 +75,18 @@ namespace Fsl
 
   public:
     explicit TextureAtlasScene(const ServiceProvider& serviceProvider, const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi);
-    int32_t GetGridOffsetY() const;
+    PxSize1D GetGridOffsetY() const;
     void OnKeyEvent(const KeyEvent& event);
     void Update(const DemoTime& demoTime);
     void Draw(const PxSize2D& windowSizePx);
 
   private:
-    void DrawStrings(const BaseTexture2D& atlasTexture, const TextureAtlasSpriteFont& font, const char* const psz, const int32_t areaWidth);
+    void DrawStrings(const BaseTexture2D& atlasTexture, const TextureAtlasSpriteFont& font, const char* const psz, const PxSize1D areaWidth);
     void DrawAtlasTextureSimpleRotationUsingDstPos(const Point2& dstOffset);
     void DrawAtlasTextureSimpleUsingDstPos(const Point2& dstOffset);
     void DrawAtlasTextureSimpleUsingDstRectangle(const Point2& dstOffset);
-    void DrawGrid(const int32_t cellWidth, const int32_t cellHeight, const int32_t areaWidth, const int32_t areaHeight, const Color& colorBorder,
-                  const Color& colorCenter, const Point2& offset);
+    void DrawGrid(const PxSize1D cellWidth, const PxSize1D cellHeight, const PxSize1D areaWidth, const PxSize1D areaHeight, const Color colorBorder,
+                  const Color colorCenter, const Point2 offset);
     void DrawTargetingRect(const PxRectangle& dstRect, const Color& colorBorder, const Color& colorCenter);
     void DrawRect(const PxRectangle& dstRect, const Color& color);
   };

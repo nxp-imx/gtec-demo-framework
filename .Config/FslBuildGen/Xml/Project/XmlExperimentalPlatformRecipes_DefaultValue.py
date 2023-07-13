@@ -37,6 +37,9 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlExperimentalPlatformRecipes_DefaultValue(XmlBase):
+    __AttribValue = 'Value'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Value = self._ReadAttrib(xmlElement, 'Value')
+        self._CheckAttributes({self.__AttribValue})
+        self.Value = self._ReadAttrib(xmlElement, self.__AttribValue)

@@ -92,7 +92,7 @@ namespace Fsl
 
   PxSize2D EmbeddedFont8x8::CharacterSize()
   {
-    return {8, 8};
+    return PxSize2D::Create(8, 8);
   }
 
   void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, uint8_t* pDst, const int32_t dstLength)
@@ -121,7 +121,7 @@ namespace Fsl
     pDst[7] = g_monochromeFont[srcIndex + 7];
   }
 
-  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const PxPoint2& dstPos)
+  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const PxPoint2 dstPos)
   {
     RawBitmapEx rawBitmap;
     Bitmap::ScopedDirectAccess directAccess(rDstBitmap, rawBitmap);
@@ -129,7 +129,7 @@ namespace Fsl
   }
 
 
-  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const PxPoint2& dstPos)
+  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const PxPoint2 dstPos)
   {
     if (theCharacter < MinCharacter() || theCharacter > MaxCharacter())
     {
@@ -140,16 +140,16 @@ namespace Fsl
       throw std::invalid_argument("dst bitmap was invalid");
     }
 
-    if (dstPos.X < 0 || dstPos.Y < 0)
+    if (dstPos.X.Value < 0 || dstPos.Y.Value < 0)
     {
       throw std::invalid_argument("dst coordinates can not be negative");
     }
 
-    const auto dstPosX = static_cast<uint32_t>(dstPos.X);
-    const auto dstPosY = static_cast<uint32_t>(dstPos.Y);
+    const auto dstPosX = static_cast<uint32_t>(dstPos.X.Value);
+    const auto dstPosY = static_cast<uint32_t>(dstPos.Y.Value);
 
     const PxSize2D characterSize = CharacterSize();
-    if ((dstPosX + characterSize.Width()) > rDstBitmap.Width() || (dstPosY + characterSize.Height()) > rDstBitmap.Height())
+    if ((dstPosX + characterSize.RawWidth()) > rDstBitmap.Width() || (dstPosY + characterSize.RawHeight()) > rDstBitmap.Height())
     {
       throw std::invalid_argument("dst coordinates would be outside the bitmap");
     }
@@ -157,7 +157,7 @@ namespace Fsl
 
     const auto dstStride = NumericCast<int32_t>(rDstBitmap.Stride());
     uint8_t* pDst = static_cast<uint8_t*>(rDstBitmap.Content()) + (dstStride * dstPosY);
-    const uint8_t* const pDstEnd = pDst + (dstStride * characterSize.Height());
+    const uint8_t* const pDstEnd = pDst + (dstStride * characterSize.RawHeight());
     const int srcIndex = (theCharacter - MinCharacter()) * 8;
     const uint8_t* pSrc = g_monochromeFont.data() + srcIndex;
 
@@ -266,7 +266,7 @@ namespace Fsl
   }
 
 
-  void EmbeddedFont8x8::CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const PxPoint2& padding,
+  void EmbeddedFont8x8::CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const PxSize2D padding,
                                          const RectangleSizeRestrictionFlag restrictionFlags)
   {
     CreateFontBitmap(rDstBitmap, dstPixelFormat, MinCharacter(), CharacterCount(), padding, restrictionFlags);
@@ -274,9 +274,9 @@ namespace Fsl
 
 
   void EmbeddedFont8x8::CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const uint8_t startCharacter, const uint8_t length,
-                                         const PxPoint2& padding, const RectangleSizeRestrictionFlag restrictionFlags)
+                                         const PxSize2D padding, const RectangleSizeRestrictionFlag restrictionFlags)
   {
-    if (padding.X < 0 || padding.Y < 0)
+    if (padding.RawWidth() < 0 || padding.RawHeight() < 0)
     {
       throw std::invalid_argument("padding can not be negative");
     }
@@ -290,18 +290,18 @@ namespace Fsl
       return;
     }
 
-    const auto characterSize = CharacterSize();
-    const int charWidth = characterSize.Width() + padding.X;
-    const int charHeight = characterSize.Height() + padding.Y;
-    const PxSize2D bitmapSize = MathHelper::CalcOptimalSize(PxSize2D(charWidth, charHeight), length, restrictionFlags);
+    const PxSize2D characterSize = CharacterSize();
+    const PxSize1D charWidth = characterSize.Width() + padding.Width();
+    const PxSize1D charHeight = characterSize.Height() + padding.Height();
+    const PxSize2D bitmapSize = MathHelper::CalcOptimalSize(PxSize2D(charWidth, charHeight), PxSize1D::Create(length), restrictionFlags);
     rDstBitmap.Reset(TypeConverter::UncheckedTo<PxExtent2D>(bitmapSize), dstPixelFormat);
 
-    const int32_t charsX = bitmapSize.Width() / charWidth;
+    const int32_t charsX = (bitmapSize.Width() / charWidth).RawValue();
     const int32_t numFullLines = length / charsX;
     const int32_t charsLeft = length % charsX;
 
     uint8_t character = startCharacter;
-    int dstY = 0;
+    auto dstY = PxSize1D::Create(0);
 
     RawBitmapEx rawBitmap;
     Bitmap::ScopedDirectAccess directAccess(rDstBitmap, rawBitmap);
@@ -309,7 +309,7 @@ namespace Fsl
     // Copy the full lines
     for (int j = 0; j < numFullLines; ++j)
     {
-      int dstX = 0;
+      auto dstX = PxSize1D::Create(0);
       for (int i = 0; i < charsX; ++i)
       {
         ExtractCharacter(character, rawBitmap, PxPoint2(dstX, dstY));
@@ -320,7 +320,7 @@ namespace Fsl
     }
     // copy the leftover chars
     {
-      int dstX = 0;
+      auto dstX = PxSize1D::Create(0);
       for (int i = 0; i < charsLeft; ++i)
       {
         ExtractCharacter(character, rawBitmap, PxPoint2(dstX, dstY));

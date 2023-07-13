@@ -64,7 +64,7 @@ namespace
     constexpr uint32_t RandomChunkCount = 512;
     constexpr uint32_t Seed = 1337;
 
-    constexpr PxSize2D SizePx(1920, 1080);
+    constexpr PxSize2D SizePx = PxSize2D::Create(1920, 1080);
   }
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -85,8 +85,8 @@ namespace
     std::uniform_real_distribution<float> randomWidth2(20.0f, 400.0f);
     std::uniform_real_distribution<float> randomHeight(10.0f, 100.0f);
 
-    const float scaleX = static_cast<float>(sizePx.Width()) / LocalConfig::SizePx.Width();
-    const float scaleY = static_cast<float>(sizePx.Height()) / LocalConfig::SizePx.Height();
+    const float scaleX = static_cast<float>(sizePx.RawWidth()) / LocalConfig::SizePx.RawWidth();
+    const float scaleY = static_cast<float>(sizePx.RawHeight()) / LocalConfig::SizePx.RawHeight();
 
     uint32_t index = 0;
     for (auto& rRecord : rRecords)
@@ -95,7 +95,7 @@ namespace
       const float posY = randomPositionY(random) * scaleY;
       const float width = ((index % 3) != 0 ? randomWidth1(random) : randomWidth2(random)) * scaleX;
       const float height = randomHeight(random) * scaleY;
-      rRecord.Rect = PxAreaRectangleF(posX, posY, width, height);
+      rRecord.Rect = PxAreaRectangleF::Create(posX, posY, width, height);
       rRecord.Id = index;
       ++index;
     }
@@ -196,7 +196,7 @@ namespace
   template <int32_t TCellSize, typename TGrid>
   void BM_Grid_TryAdd(benchmark::State& state)
   {
-    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.Width(), LocalConfig::SizePx.Height(), TCellSize, TCellSize);
+    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
@@ -217,7 +217,7 @@ namespace
   template <int32_t TCellSize, typename TGrid>
   void BM_Grid_TryUncheckedAdd(benchmark::State& state)
   {
-    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.Width(), LocalConfig::SizePx.Height(), TCellSize, TCellSize);
+    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
@@ -238,7 +238,7 @@ namespace
   template <int32_t TCellSize, typename TGrid>
   void BM_Grid_TryInsertAfterZPos(benchmark::State& state)
   {
-    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.Width(), LocalConfig::SizePx.Height(), TCellSize, TCellSize);
+    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
@@ -259,7 +259,7 @@ namespace
   template <int32_t TCellSize, typename TGrid>
   void BM_Grid_Clear(benchmark::State& state)
   {
-    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.Width(), LocalConfig::SizePx.Height(), TCellSize, TCellSize);
+    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
     FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
 
@@ -281,7 +281,7 @@ namespace
   template <int32_t TCellSize, typename TGrid>
   void BM_Grid_TryGetChunkEntriesRandom(benchmark::State& state)
   {
-    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.Width(), LocalConfig::SizePx.Height(), TCellSize, TCellSize);
+    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     {
       std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
       FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);
@@ -305,7 +305,7 @@ namespace
   template <int32_t TCellSize, typename TGrid>
   void BM_Grid_UncheckedGetChunkEntriesRandom(benchmark::State& state)
   {
-    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.Width(), LocalConfig::SizePx.Height(), TCellSize, TCellSize);
+    auto grid = CreateGrid<TGrid>(LocalConfig::SizePx.RawWidth(), LocalConfig::SizePx.RawHeight(), TCellSize, TCellSize);
     {
       std::vector<DrawRecord> testData(LocalConfig::ObjectCount);
       FillVector(testData, LocalConfig::Seed, LocalConfig::SizePx);

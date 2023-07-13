@@ -342,16 +342,18 @@ class PipelineCommandCombine(PipelineCommand):
         for command in commandList:
             dstSubDir = "{:04}".format(commandIndex)
             commandDstRootPath = IOUtil.Join(pipelineInfo.DstRootPath, dstSubDir)
-            theList.append(self.__CreateCommand(log, command, pipelineInfo, commandDstRootPath, sourceRecipeName))
+            theList.append(self.__CreateCommand(log, command, pipelineInfo, commandDstRootPath, pipelineInfo.DstRootPathReadOnly, sourceRecipeName))
             commandIndex = commandIndex + 1
         return theList
 
 
-    def __CreateCommand(self, log: Log, sourceCommand: XmlRecipePipelineCommand, pipelineInfo: PipelineInfo, dstRootPath: str, sourceRecipeName: str) -> PipelineCommand:
+    def __CreateCommand(self, log: Log, sourceCommand: XmlRecipePipelineCommand, pipelineInfo: PipelineInfo, dstRootPath: str, dstRootPathReadOnly: bool, sourceRecipeName: str) -> PipelineCommand:
         if sourceCommand.CommandType == BuildRecipePipelineCommand.CMakeBuild:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCMakeBuild):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCMakeBuild")
-            info = PipelineInfo(pipelineInfo.Tasks, pipelineInfo.SourcePackage, pipelineInfo.PathBuilder, pipelineInfo.SrcRootPath, dstRootPath, combinedDstRootPath=pipelineInfo.DstRootPath)
+            info = PipelineInfo(pipelineInfo.Tasks, pipelineInfo.SourcePackage, pipelineInfo.PathBuilder, pipelineInfo.SrcRootPath,
+                                pipelineInfo.SrcRootPathReadOnly, dstRootPath, dstRootPathReadOnly,
+                                combinedDstRootPath=pipelineInfo.DstRootPath)
             return PipelineCommandCMakeBuild(log, sourceCommand, info, False)
         raise Exception("Unsupported combined command '{0}' in '{1}'".format(sourceCommand.CommandType, sourceRecipeName))
 
@@ -390,7 +392,10 @@ class PipelineCommandInstall(PipelineCommand):
             return
         self.LogPrint("Installing from '{0}' to '{1}'".format(self.Info.SrcRootPath, self.Info.DstRootPath))
 
-        shutil.move(self.Info.SrcRootPath, self.Info.DstRootPath)
+        if not self.Info.SrcRootPathReadOnly:
+            shutil.move(self.Info.SrcRootPath, self.Info.DstRootPath)
+        else:
+            shutil.copytree(self.Info.SrcRootPath, self.Info.DstRootPath)
 
 
 class PipelineCommandBuilder(object):
@@ -412,6 +417,7 @@ class PipelineCommandBuilder(object):
         self.__SourcePackage = None  # type: Optional[Package]
         self.__SourceRecipe = None  # type: Optional[PackageExperimentalRecipe]
         self.__CommandInputRootPath = None  # type: Optional[str]
+        self.__CommandInputRootPathReadOnly = True
         self.__PipelineInstallPath = None  # type: Optional[str]
 
 
@@ -425,6 +431,7 @@ class PipelineCommandBuilder(object):
         self.__SourcePackage = sourcePackage
         self.__SourceRecipe = sourceRecipe
         self.__CommandInputRootPath = sourcePackage.AbsolutePath
+        self.__CommandInputRootPathReadOnly = True
         self.__PipelineInstallPath = sourceRecipe.ResolvedInstallLocation.ResolvedPath if sourceRecipe.ResolvedInstallLocation is not None else None
 
 
@@ -432,20 +439,20 @@ class PipelineCommandBuilder(object):
         if self.__CommandList is None or self.__CommandInputRootPath is None:
             raise Exception("Usage error, Add called outside begin/end block")
 
-        command = self.__CreateCommand(sourceCommand, self.__CommandInputRootPath)
+        command = self.__CreateCommand(sourceCommand, self.__CommandInputRootPath, self.__CommandInputRootPathReadOnly)
         command.Skip = skip
         self.__CommandList.append(command)
         if not skip:
             # The next command in the pipeline uses the 'output' from the previous command as input
             self.__CommandInputRootPath = command.FinalDstPath
-
+            self.__CommandInputRootPathReadOnly = command.Info.DstRootPathReadOnly
 
     def End(self) -> List[PipelineCommand]:
         if self.__SourcePackage is None or self.__PathBuilder is None or self.__CommandInputRootPath is None or self.__PipelineInstallPath is None or self.__CommandList is None or self.__SourceRecipe is None:
             raise Exception("Usage error, End called outside begin/end block")
 
         # Add a final install command to finish the pipe
-        installInfo = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, self.__CommandInputRootPath, self.__PipelineInstallPath)
+        installInfo = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, self.__CommandInputRootPath, self.__CommandInputRootPathReadOnly, self.__PipelineInstallPath, False)
         pipelineInstallCommand = PipelineCommandInstall(self.__Log, installInfo)
         self.__CommandList.append(pipelineInstallCommand)
 
@@ -459,6 +466,7 @@ class PipelineCommandBuilder(object):
         self.__SourcePackage = None
         self.__SourceRecipe = None
         self.__CommandInputRootPath = None
+        self.__CommandInputRootPathReadOnly = True
         self.__PipelineInstallPath = None
         return result
 
@@ -474,7 +482,7 @@ class PipelineCommandBuilder(object):
         return IOUtil.Join(rootPath, stepString)
 
 
-    def __CreateCommand(self, sourceCommand: XmlRecipePipelineCommand, srcRootPath: str) -> PipelineCommand:
+    def __CreateCommand(self, sourceCommand: XmlRecipePipelineCommand, srcRootPath: str, srcRootPathReadOnly: bool) -> PipelineCommand:
         if self.__SourcePackage is None or self.__SourceRecipe is None:
             raise Exception("Invalid state")
 
@@ -493,22 +501,22 @@ class PipelineCommandBuilder(object):
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Unpack:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandUnpack):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandUnpack")
-            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
+            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPathReadOnly, self.__GetTempDirectoryName(sourceCommand), False)
             return PipelineCommandUnpack(self.__Log, sourceCommand, info)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.CMakeBuild:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCMakeBuild):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCMakeBuild")
-            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
+            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPathReadOnly, self.__GetTempDirectoryName(sourceCommand), False)
             return PipelineCommandCMakeBuild(self.__Log, sourceCommand, info, True)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Combine:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCombine):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCombine")
-            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
+            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPathReadOnly, self.__GetTempDirectoryName(sourceCommand), False)
             return PipelineCommandCombine(self.__Log, sourceCommand, info, self.__SourceRecipe.FullName)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Copy:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCopy):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCopy")
-            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
+            info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPathReadOnly, self.__GetTempDirectoryName(sourceCommand), False)
             return PipelineCommandCopy(self.__Log, sourceCommand, info, self.__SourceRecipe.FullName)
         raise Exception("Unsupported command '{0}' ({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.__SourceRecipe.FullName))
 
@@ -523,13 +531,13 @@ class PipelineCommandBuilder(object):
             targetFilename = PipelineCommandDownload.GetTargetFilename(sourceCommand)
             cachePath = IOUtil.Join(readonlyCacheRootDir, targetFilename)
             if PipelineCommandDownload.IsValidCacheFile(cachePath, sourceCommand):
-                info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, readonlyCacheRootDir, readonlyCacheRootDir)
+                info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, readonlyCacheRootDir, True, readonlyCacheRootDir, True)
                 return PipelineCommandNOP(self.__Log, sourceCommand, info)
 
         if self.__PathBuilder.DownloadCacheRootPath is None:
             raise Exception("Invalid State")
 
-        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__PathBuilder.DownloadCacheRootPath, allowDownloads=self.__AllowDownloads)
+        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, True, self.__PathBuilder.DownloadCacheRootPath, True, allowDownloads=self.__AllowDownloads)
         return PipelineCommandDownload(self.__Log, sourceCommand, info)
 
 
@@ -541,14 +549,14 @@ class PipelineCommandBuilder(object):
         if not readonlyCacheRootDir is None:
             cachePath = IOUtil.Join(readonlyCacheRootDir, self.__SourceRecipe.FullName)
             if IOUtil.IsDirectory(cachePath):
-                info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, cachePath, cachePath)
+                info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, cachePath, True, cachePath, True)
                 return PipelineCommandNOP(self.__Log, sourceCommand, info)
 
         if self.__PathBuilder.DownloadCacheRootPath is None:
             raise Exception("Invalid State")
 
         dstPath = IOUtil.Join(self.__PathBuilder.DownloadCacheRootPath, self.__SourceRecipe.FullName)
-        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, dstPath, allowDownloads=self.__AllowDownloads)
+        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, True, dstPath, True, allowDownloads=self.__AllowDownloads)
         return PipelineCommandGitClone(self.__Log, sourceCommand, info)
 
 
@@ -557,5 +565,5 @@ class PipelineCommandBuilder(object):
             raise Exception("Invalid state")
 
         # We basically setup a NOP command that points to the source package location which will allow the pipeline to work with that
-        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPath, allowDownloads=self.__AllowDownloads)
+        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, True, srcRootPath, True, allowDownloads=self.__AllowDownloads)
         return PipelineCommandNOP(self.__Log, sourceCommand, info)

@@ -171,7 +171,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    glViewport(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     // Clear background.
     glClearColor(0.0f, 0.5f, 0.5f, 1.0f);

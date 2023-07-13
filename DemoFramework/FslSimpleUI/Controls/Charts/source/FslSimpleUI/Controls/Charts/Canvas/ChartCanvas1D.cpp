@@ -102,7 +102,7 @@ namespace Fsl::UI
   {
     FSL_PARAM_NOT_USED(availableSizePx);
     const auto axisMinimumSizePx = CalculateAxisMinimumPixelSize();
-    const auto finalHeightPx = itemHeightPx * PxValue(entries) + (spacingPx * PxSize1D::Create(entries - 1));
+    const PxValue finalHeightPx = itemHeightPx * PxValue(entries) + (spacingPx * PxSize1D::Create(entries - 1));
 
     return m_orientation == LayoutOrientation::Horizontal ? PxSize2D(axisMinimumSizePx, finalHeightPx) : PxSize2D(finalHeightPx, axisMinimumSizePx);
   }

@@ -101,7 +101,7 @@ namespace Fsl
   {
     UpdateInput(demoTime);
 
-    float aspectRatio = static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height());
+    float aspectRatio = static_cast<float>(windowSizePx.RawWidth()) / static_cast<float>(windowSizePx.RawHeight());
     m_matView = m_camera.GetViewMatrix();
     m_matProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 0.001f, 500.0f);
 
@@ -151,7 +151,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

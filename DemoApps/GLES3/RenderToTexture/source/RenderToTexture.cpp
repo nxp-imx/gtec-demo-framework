@@ -228,14 +228,14 @@ namespace Fsl
     glUseProgram(m_mainProgram.Get());
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    const auto aspectRatio = GetWindowAspectRatio();
+    glViewport(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_model = glm::mat4(1.0f);
     m_view = glm::lookAt(glm::vec3(2.0f, 4.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    m_proj =
-      glm::perspective(glm::radians(39.6f), static_cast<float>(currentSizePx.Width()) / static_cast<float>(currentSizePx.Height()), 0.1f, 1000.0f);
+    m_proj = glm::perspective(glm::radians(39.6f), aspectRatio, 0.1f, 1000.0f);
     m_MVP = m_proj * m_view * m_model;
 
     glUniformMatrix4fv(m_MVPLoc, 1, 0, glm::value_ptr(m_MVP));

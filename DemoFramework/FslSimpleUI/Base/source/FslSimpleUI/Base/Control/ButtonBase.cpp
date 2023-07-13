@@ -101,7 +101,7 @@ namespace Fsl::UI
         // Only accept the press if the mouse/finger is still on top of the button
         auto pos = PointFromScreen(theEvent->GetScreenPosition());
         auto size = RenderExtentPx();
-        PxRectangle2D hitRect(0, 0, size.Width, size.Height);
+        PxRectangle2D hitRect(PxValue(0), PxValue(0), size.Width, size.Height);
         if (hitRect.Contains(pos))
         {
           wasCanceled = false;

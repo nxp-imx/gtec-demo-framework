@@ -504,7 +504,7 @@ namespace Fsl
 
     auto wrapLayout = std::make_shared<UI::WrapLayout>(createContext.WindowContext);
     wrapLayout->SetOrientation(UI::LayoutOrientation::Horizontal);
-    wrapLayout->SetSpacing(DpPoint2F::Create(4, 4));
+    wrapLayout->SetSpacing(DpSize2DF::Create(4, 4));
     wrapLayout->SetAlignmentX(UI::ItemAlignment::Center);
     wrapLayout->SetAlignmentY(UI::ItemAlignment::Center);
 

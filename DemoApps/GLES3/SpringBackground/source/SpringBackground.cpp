@@ -180,7 +180,7 @@ namespace Fsl
       m_mousePosition = event.GetPosition();
       if (event.IsPressed())
       {
-        Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
+        Vector3 mousePos(static_cast<float>(m_mousePosition.X.Value), static_cast<float>(m_mousePosition.Y.Value), 0.0f);
         if (!m_explostionType)
         {
           m_gridScene->ApplyExplosiveForce(30, mousePos, 300);
@@ -196,7 +196,7 @@ namespace Fsl
       m_mousePosition = event.GetPosition();
       if (event.IsPressed())
       {
-        Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
+        Vector3 mousePos(static_cast<float>(m_mousePosition.X.Value), static_cast<float>(m_mousePosition.Y.Value), 0.0f);
         m_gridScene->ApplyImplosiveForce(500, mousePos, 300);
       }
       break;
@@ -216,7 +216,7 @@ namespace Fsl
   {
     if (m_isLeftButtonDown)
     {
-      Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
+      Vector3 mousePos(static_cast<float>(m_mousePosition.X.Value), static_cast<float>(m_mousePosition.Y.Value), 0.0f);
       Vector3 mousePosDeep(mousePos.X, mousePos.Y, 50);
       Vector3 delta = mousePos - m_oldMouse;
 
@@ -233,9 +233,9 @@ namespace Fsl
     {
       auto windowSizePx = GetWindowSizePx();
       const float boundaryLeft = 0;
-      const auto boundaryRight = static_cast<float>(windowSizePx.Width());
+      const auto boundaryRight = static_cast<float>(windowSizePx.RawWidth());
       const float boundaryTop = 0;
-      const auto boundaryBottom = static_cast<float>(windowSizePx.Height());
+      const auto boundaryBottom = static_cast<float>(windowSizePx.RawHeight());
       const float bounce = 1.0f;
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)
       {
@@ -286,7 +286,7 @@ namespace Fsl
 
   void SpringBackground::Update(const DemoTime& demoTime)
   {
-    Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
+    Vector3 mousePos(static_cast<float>(m_mousePosition.X.Value), static_cast<float>(m_mousePosition.Y.Value), 0.0f);
     m_oldMouse = mousePos;
 
     m_gridScene->Update(demoTime);
@@ -314,7 +314,7 @@ namespace Fsl
 
       const Color ballColor = Color::White();
       Vector2 scale(1, 1);
-      Vector2 origin(static_cast<float>(m_texBall.GetSize().Width()) * 0.5f, static_cast<float>(m_texBall.GetSize().Height()) * 0.5f);
+      Vector2 origin(static_cast<float>(m_texBall.GetSize().RawWidth()) * 0.5f, static_cast<float>(m_texBall.GetSize().RawHeight()) * 0.5f);
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)
       {
         m_batch->Draw(m_texBall, itr->Position, ballColor, origin, scale);

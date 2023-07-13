@@ -36,10 +36,10 @@ namespace Fsl::UI::Theme
 {
   enum class WindowType
   {
-    Normal,
-    Transparent,
-    DialogNormal,
-    DialogTransparent
+    Normal = 0,
+    Transparent = 1,
+    DialogNormal = 2,
+    DialogTransparent = 3
   };
 }
 

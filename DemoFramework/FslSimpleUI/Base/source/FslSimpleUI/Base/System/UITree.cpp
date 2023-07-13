@@ -224,7 +224,7 @@ namespace Fsl::UI
       auto res = rootWindow->GetScreenResolutionPx();
       m_rootWindow = rootWindow;
       m_root = std::make_shared<TreeNode>(m_rootWindow);
-      m_rootRectPx = PxRectangle(0, 0, res.Width(), res.Height());
+      m_rootRectPx = PxRectangle(PxValue(0), PxValue(0), res.Width(), res.Height());
 
       m_dict.emplace(m_root->GetWindowPointer(), m_root);
 
@@ -380,7 +380,7 @@ namespace Fsl::UI
       const ResolutionChangedInfo resChangeInfo(densityDpi);
       m_root->OnResolutionChanged(resChangeInfo);
       auto sizePx = TypeConverter::UncheckedTo<PxPoint2>(extentPx);
-      m_rootRectPx = PxRectangle(0, 0, sizePx.X, sizePx.Y);
+      m_rootRectPx = PxRectangle(PxValue(0), PxValue(0), sizePx.X, sizePx.Y);
       m_layoutIsDirty = true;
     }
   }

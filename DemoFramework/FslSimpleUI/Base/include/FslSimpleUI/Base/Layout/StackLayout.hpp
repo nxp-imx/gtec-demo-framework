@@ -40,6 +40,8 @@ namespace Fsl::UI
 {
   class StackLayout : public SimpleLayout
   {
+    using base_type = SimpleLayout;
+
     DataBinding::TypedDependencyProperty<LayoutOrientation> m_propertyOrientation;
     DataBinding::TypedDependencyProperty<DpSize1DF> m_propertySpacingDp;
 

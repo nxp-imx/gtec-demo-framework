@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,10 +53,10 @@ TEST(TestMathPixel_PxTrimmedNineSlice, Construct_Default)
 
 TEST(TestMathPixel_PxTrimmedNineSlice, Construct)
 {
-  constexpr PxSize2D sizePx(1, 2);
-  constexpr PxThicknessF trimMarginPxf(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr PxThicknessF trimmedNineSlicePxf(7.0f, 8.0f, 9.0f, 10.0f);
-  constexpr PxThickness contentMarginPx(11, 12, 13, 14);
+  constexpr auto sizePx = PxSize2D::Create(1, 2);
+  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto trimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
+  constexpr auto contentMarginPx = PxThickness::Create(11, 12, 13, 14);
 
   PxTrimmedNineSlice value(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
 
@@ -68,10 +68,10 @@ TEST(TestMathPixel_PxTrimmedNineSlice, Construct)
 
 TEST(TestMathPixel_PxTrimmedNineSlice, OpEqual)
 {
-  constexpr PxSize2D sizePx(1, 2);
-  constexpr PxThicknessF trimMarginPxf(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr PxThicknessF trimmedNineSlicePxf(7.0f, 8.0f, 9.0f, 10.0f);
-  constexpr PxThickness contentMarginPx(11, 12, 13, 14);
+  constexpr auto sizePx = PxSize2D::Create(1, 2);
+  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto trimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
+  constexpr auto contentMarginPx = PxThickness::Create(11, 12, 13, 14);
 
   PxTrimmedNineSlice value0(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
   PxTrimmedNineSlice value1(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
@@ -81,55 +81,59 @@ TEST(TestMathPixel_PxTrimmedNineSlice, OpEqual)
 
 TEST(TestMathPixel_PxTrimmedNineSlice, NotOpEqual)
 {
-  constexpr PxSize2D sizePx(1, 2);
-  constexpr PxThicknessF trimMarginPxf(3.0f, 4.0f, 5.0f, 6.0f);
-  constexpr PxThicknessF trimmedNineSlicePxf(7.0f, 8.0f, 9.0f, 10.0f);
-  constexpr PxThickness contentMarginPx(11, 12, 13, 14);
+  constexpr auto sizePx = PxSize2D::Create(1, 2);
+  constexpr auto trimMarginPxf = PxThicknessF::Create(3.0f, 4.0f, 5.0f, 6.0f);
+  constexpr auto trimmedNineSlicePxf = PxThicknessF::Create(7.0f, 8.0f, 9.0f, 10.0f);
+  constexpr auto contentMarginPx = PxThickness::Create(11, 12, 13, 14);
 
   PxTrimmedNineSlice value(sizePx, trimMarginPxf, trimmedNineSlicePxf, contentMarginPx);
 
-  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(42, sizePx.Height()), trimMarginPxf, trimmedNineSlicePxf, contentMarginPx), value);
-  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(sizePx.Width(), 42), trimMarginPxf, trimmedNineSlicePxf, contentMarginPx), value);
+  constexpr auto size42Px = PxSize1D::Create(42);
+  constexpr auto size42Pxf = PxSize1DF::Create(42);
 
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(42, trimMarginPxf.Top(), trimMarginPxf.Right(), trimMarginPxf.Bottom()), trimmedNineSlicePxf,
-                               contentMarginPx),
-            value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), 42, trimMarginPxf.Right(), trimMarginPxf.Bottom()), trimmedNineSlicePxf,
-                               contentMarginPx),
-            value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), 42, trimMarginPxf.Bottom()), trimmedNineSlicePxf,
-                               contentMarginPx),
-            value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), trimMarginPxf.Right(), 42), trimmedNineSlicePxf,
-                               contentMarginPx),
-            value);
+  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(size42Px, sizePx.Height()), trimMarginPxf, trimmedNineSlicePxf, contentMarginPx), value);
+  EXPECT_NE(PxTrimmedNineSlice(PxSize2D(sizePx.Width(), size42Px), trimMarginPxf, trimmedNineSlicePxf, contentMarginPx), value);
 
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(42, trimmedNineSlicePxf.Top(), trimmedNineSlicePxf.Right(), trimmedNineSlicePxf.Bottom()),
-                               contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(size42Pxf, trimMarginPxf.Top(), trimMarginPxf.Right(), trimMarginPxf.Bottom()),
+                               trimmedNineSlicePxf, contentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(trimmedNineSlicePxf.Left(), 42, trimmedNineSlicePxf.Right(), trimmedNineSlicePxf.Bottom()),
-                               contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), size42Pxf, trimMarginPxf.Right(), trimMarginPxf.Bottom()),
+                               trimmedNineSlicePxf, contentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(trimmedNineSlicePxf.Left(), trimmedNineSlicePxf.Top(), 42, trimmedNineSlicePxf.Bottom()),
-                               contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), size42Pxf, trimMarginPxf.Bottom()),
+                               trimmedNineSlicePxf, contentMarginPx),
             value);
-  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
-                               PxThicknessF(trimmedNineSlicePxf.Left(), trimmedNineSlicePxf.Top(), trimmedNineSlicePxf.Right(), 42), contentMarginPx),
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, PxThicknessF(trimMarginPxf.Left(), trimMarginPxf.Top(), trimMarginPxf.Right(), size42Pxf), trimmedNineSlicePxf,
+                               contentMarginPx),
             value);
 
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
+                               PxThicknessF(size42Pxf, trimmedNineSlicePxf.Top(), trimmedNineSlicePxf.Right(), trimmedNineSlicePxf.Bottom()),
+                               contentMarginPx),
+            value);
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
+                               PxThicknessF(trimmedNineSlicePxf.Left(), size42Pxf, trimmedNineSlicePxf.Right(), trimmedNineSlicePxf.Bottom()),
+                               contentMarginPx),
+            value);
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
+                               PxThicknessF(trimmedNineSlicePxf.Left(), trimmedNineSlicePxf.Top(), size42Pxf, trimmedNineSlicePxf.Bottom()),
+                               contentMarginPx),
+            value);
+  EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf,
+                               PxThicknessF(trimmedNineSlicePxf.Left(), trimmedNineSlicePxf.Top(), trimmedNineSlicePxf.Right(), size42Pxf),
+                               contentMarginPx),
+            value);
+
   EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(42, contentMarginPx.Top(), contentMarginPx.Right(), contentMarginPx.Bottom())),
+                               PxThickness(size42Px, contentMarginPx.Top(), contentMarginPx.Right(), contentMarginPx.Bottom())),
             value);
   EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(contentMarginPx.Left(), 42, contentMarginPx.Right(), contentMarginPx.Bottom())),
+                               PxThickness(contentMarginPx.Left(), size42Px, contentMarginPx.Right(), contentMarginPx.Bottom())),
             value);
   EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(contentMarginPx.Left(), contentMarginPx.Top(), 42, contentMarginPx.Bottom())),
+                               PxThickness(contentMarginPx.Left(), contentMarginPx.Top(), size42Px, contentMarginPx.Bottom())),
             value);
   EXPECT_NE(PxTrimmedNineSlice(sizePx, trimMarginPxf, trimmedNineSlicePxf,
-                               PxThickness(contentMarginPx.Left(), contentMarginPx.Top(), contentMarginPx.Right(), 42)),
+                               PxThickness(contentMarginPx.Left(), contentMarginPx.Top(), contentMarginPx.Right(), size42Px)),
             value);
 }

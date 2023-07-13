@@ -201,8 +201,8 @@ namespace Fsl
     const auto handleVersion = static_cast<uint16_t>(handle.Value & 0xFFFF);
     const uint32_t handleIndex = handle.Value >> 16;
 
-    return !(handleIndex >= static_cast<uint32_t>(m_customCounters.size()) || !m_customCounters[handleIndex].IsInUse ||
-             m_customCounters[handleIndex].Version != handleVersion);
+    return handleIndex < static_cast<uint32_t>(m_customCounters.size()) && m_customCounters[handleIndex].IsInUse &&
+           m_customCounters[handleIndex].Version == handleVersion;
   }
 
 

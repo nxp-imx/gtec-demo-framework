@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWMESHBUILDER2D_HPP
 #define FSLGRAPHICS2D_PROCEDURAL_BUILDER_INLINERAWMESHBUILDER2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -242,6 +242,59 @@ namespace Fsl
 
         // pDst[3] = TVertex(x1, y1, m_zPos, m_color, textureCoords.X1, textureCoords.Y1);
         pDst[3].Position = vertex_position_type(x1, y1, m_zPos);
+        pDst[3].Color = m_color;
+        pDst[3].TextureCoordinate = vertex_uv_type(textureCoords.X1, textureCoords.Y1);
+      }
+      {
+        index_pointer pDst = m_pIndexData + m_indexCount;
+        const index_value_type indexOffset = m_indexVertexOffset + m_vertexCount;
+        pDst[0] = indexOffset + 1;    // B
+        pDst[1] = indexOffset + 0;    // A
+        pDst[2] = indexOffset + 3;    // D
+
+        pDst[3] = indexOffset + 3;    // D
+        pDst[4] = indexOffset + 0;    // A
+        pDst[5] = indexOffset + 2;    // C
+      }
+
+      m_vertexCount += 4;
+      m_indexCount += 3 * 2;
+    }
+
+    //! @brief  Add a simple quad mesh
+    //! @note   Mesh example:
+    //!         X X
+    //!         0 1
+    //!
+    //!         A-C Y0
+    //!         |\|
+    //!         B-D Y1
+    inline constexpr void AddRect(const PxValueF x0, const PxValueF y0, const PxValueF x1, const PxValueF y1,
+                                  const NativeTextureArea& textureCoords) noexcept
+    {
+      assert((m_vertexCount + 4) <= m_vertexCapacity);
+      assert((m_indexCount + 6) <= m_indexCapacity);
+
+      // 0123
+      // ABCD
+      {
+        vertex_pointer pDst = m_pVertexData + m_vertexCount;
+        // pDst[0] = TVertex(x0, y0, m_zPos, m_color, textureCoords.X0, textureCoords.Y0);
+        pDst[0].Position = vertex_position_type(x0.Value, y0.Value, m_zPos);
+        pDst[0].Color = m_color;
+        pDst[0].TextureCoordinate = vertex_uv_type(textureCoords.X0, textureCoords.Y0);
+        // pDst[1] = TVertex(x0, y1, m_zPos, m_color, textureCoords.X0, textureCoords.Y1);
+        pDst[1].Position = vertex_position_type(x0.Value, y1.Value, m_zPos);
+        pDst[1].Color = m_color;
+        pDst[1].TextureCoordinate = vertex_uv_type(textureCoords.X0, textureCoords.Y1);
+
+        // pDst[2] = TVertex(x1, y0, m_zPos, m_color, textureCoords.X1, textureCoords.Y0);
+        pDst[2].Position = vertex_position_type(x1.Value, y0.Value, m_zPos);
+        pDst[2].Color = m_color;
+        pDst[2].TextureCoordinate = vertex_uv_type(textureCoords.X1, textureCoords.Y0);
+
+        // pDst[3] = TVertex(x1, y1, m_zPos, m_color, textureCoords.X1, textureCoords.Y1);
+        pDst[3].Position = vertex_position_type(x1.Value, y1.Value, m_zPos);
         pDst[3].Color = m_color;
         pDst[3].TextureCoordinate = vertex_uv_type(textureCoords.X1, textureCoords.Y1);
       }
@@ -1355,10 +1408,10 @@ namespace Fsl
       PxVector2 clipXPxf(clippedTargetRectPxf.Left(), clippedTargetRectPxf.Right());
       PxVector2 clipYPxf(clippedTargetRectPxf.Top(), clippedTargetRectPxf.Bottom());
 
-      std::array<PxVector2, 4> coordsX = {PxVector2(x0, texCoordNineSlice.X0), PxVector2(x1, texCoordNineSlice.X1),
-                                          PxVector2(x2, texCoordNineSlice.X2), PxVector2(x3, texCoordNineSlice.X3)};
-      std::array<PxVector2, 4> coordsY = {PxVector2(y0, texCoordNineSlice.Y0), PxVector2(y1, texCoordNineSlice.Y1),
-                                          PxVector2(y2, texCoordNineSlice.Y2), PxVector2(y3, texCoordNineSlice.Y3)};
+      std::array<PxVector2, 4> coordsX = {PxVector2::Create(x0, texCoordNineSlice.X0), PxVector2::Create(x1, texCoordNineSlice.X1),
+                                          PxVector2::Create(x2, texCoordNineSlice.X2), PxVector2::Create(x3, texCoordNineSlice.X3)};
+      std::array<PxVector2, 4> coordsY = {PxVector2::Create(y0, texCoordNineSlice.Y0), PxVector2::Create(y1, texCoordNineSlice.Y1),
+                                          PxVector2::Create(y2, texCoordNineSlice.Y2), PxVector2::Create(y3, texCoordNineSlice.Y3)};
 
       ReadOnlySpan<PxVector2> spanX = Clip2DUtil::Clip(coordsX, clipXPxf);
       ReadOnlySpan<PxVector2> spanY = Clip2DUtil::Clip(coordsY, clipYPxf);
@@ -1375,9 +1428,9 @@ namespace Fsl
             {
               //*pDst = TVertex(vertex_position_type(spanX[indexX].X, spanY[indexY].X, m_zPos), m_color,
               //                          vertex_uv_type(spanX[indexX].Y, spanY[indexY].Y));
-              pDst->Position = vertex_position_type(spanX[indexX].X, spanY[indexY].X, m_zPos);
+              pDst->Position = vertex_position_type(spanX[indexX].X.Value, spanY[indexY].X.Value, m_zPos);
               pDst->Color = m_color;
-              pDst->TextureCoordinate = vertex_uv_type(spanX[indexX].Y, spanY[indexY].Y);
+              pDst->TextureCoordinate = vertex_uv_type(spanX[indexX].Y.Value, spanY[indexY].Y.Value);
               ++pDst;
             }
           }

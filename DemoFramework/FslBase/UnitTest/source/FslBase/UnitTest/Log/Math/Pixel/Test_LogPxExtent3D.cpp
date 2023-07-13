@@ -47,7 +47,7 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxExtent3D, Log)
 {
-  PxExtent3D value(1, 2, 3);
+  const auto value = PxExtent3D::Create(1, 2, 3);
 
   std::stringstream stream;
   stream << value;

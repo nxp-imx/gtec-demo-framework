@@ -462,7 +462,6 @@ namespace Fsl
   {
     return DpSize1DF::Divide(lhs, rhs);
   }
-
 }
 
 #endif

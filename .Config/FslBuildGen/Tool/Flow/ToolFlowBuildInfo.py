@@ -47,6 +47,7 @@ from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
 #from FslBuildGen.Generator import PluginConfig
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 #from FslBuildGen.Log import Log
 #from FslBuildGen.PackageConfig import PlatformNameString
@@ -77,6 +78,7 @@ class DefaultValue(object):
     ListRequirements = False
     ListVariants = False
     Stats = False
+    Details = False
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
     SaveJson = None # type: Optional[str]
     IncludeGeneratorReport = False
@@ -97,6 +99,7 @@ class LocalToolConfig(ToolAppConfig):
         self.ListRequirements = DefaultValue.ListRequirements
         self.ListVariants = DefaultValue.ListVariants
         self.Stats = DefaultValue.Stats
+        self.Details = DefaultValue.Details
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
         self.SaveJson = DefaultValue.SaveJson
         self.IncludeGeneratorReport = DefaultValue.IncludeGeneratorReport
@@ -131,6 +134,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
         localToolConfig.ListRequirements = args.ListRequirements
         localToolConfig.ListVariants = args.ListVariants
         localToolConfig.Stats = args.stats
+        localToolConfig.Details = args.details
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.SaveJson = args.SaveJson
         localToolConfig.IncludeGeneratorReport = args.IncludeGeneratorReport
@@ -140,7 +144,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         #if localToolConfig.DryRun:
         #    config.ForceDisableAllWrite()
@@ -151,7 +155,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                    buildVariantConfig, variableContext.UserSetVariables,
@@ -162,10 +166,14 @@ class ToolFlowBuildInfo(AToolAppFlow):
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(generator.CMakeConfig), currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
                                             generator, variableContext)
-        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
+        # As we want to get info for all flavors we remove the limits
+        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False,
+                                          engineResolveConfig=EngineResolveConfig.CreateNoLimit())
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
         requestedFiles = None if config.IsSDKBuild else theFiles
+
+        packageNameDetails = Builder.PackageNameDetails.ShowExactPackageName if localToolConfig.Details else Builder.PackageNameDetails.ShowTemplateName
 
         if localToolConfig.SaveJson is not None:
             if localToolConfig.BuildPackageFilters.ExtensionNameList is None:
@@ -183,16 +191,16 @@ class ToolFlowBuildInfo(AToolAppFlow):
                                                 localToolConfig.IncludeGeneratorReport)
 
         if localToolConfig.ListFeatures:
-            Builder.ShowFeatureList(self.Log, topLevelPackage, requestedFiles)
+            Builder.ShowFeatureList(self.Log, topLevelPackage, requestedFiles, packageNameDetails)
         if localToolConfig.ListVariants:
             requestedFiles = None if config.IsSDKBuild else theFiles
             Builder.ShowVariantList(self.Log, topLevelPackage, requestedFiles, generator)
         if localToolConfig.ListBuildVariants:
             Builder.ShowBuildVariantList(self.Log, generator)
         if localToolConfig.ListExtensions:
-            Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles)
+            Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles, packageNameDetails)
         if localToolConfig.ListRequirements:
-            Builder.ShowRequirementList(self.Log, topLevelPackage, requestedFiles)
+            Builder.ShowRequirementList(self.Log, topLevelPackage, requestedFiles, packageNameDetails)
         if localToolConfig.ListRecipes:
             RecipeInfo.ShowRecipeList(self.Log, topLevelPackage, requestedFiles)
         if localToolConfig.Stats:
@@ -260,6 +268,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--ListRequirements', action='store_true', help='List all requirements')
 
         parser.add_argument('--stats', action='store_true', help='Show stats')
+        parser.add_argument('--details', action='store_true', help='Provide extended details')
 
         parser.add_argument('-t', '--type', default=DefaultValue.PackageConfigurationType, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')
 

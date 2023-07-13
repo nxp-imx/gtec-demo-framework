@@ -101,39 +101,45 @@ namespace Fsl
 
 
   NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed,
-                                                                         const PxPoint2& position)
+                                                                         const PxPoint2& position, const bool isTouch)
   {
     const int32_t arg1 = button;
     const int32_t arg2 = (isPressed ? VirtualKeyFlag::IsPressed : 0);
     const int32_t arg3 = EncodePosition(position);
+    const int32_t arg4 = isTouch ? 1 : 0;
 
-    return {NativeWindowEventType::InputMouseButton, arg1, arg2, arg3};
+    return {NativeWindowEventType::InputMouseButton, arg1, arg2, arg3, arg4};
   }
 
 
   void NativeWindowEventHelper::DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed,
-                                                            PxPoint2& rPosition)
+                                                            PxPoint2& rPosition, bool& rIsTouch)
   {
     assert(event.Type == NativeWindowEventType::InputMouseButton);
     rButton = static_cast<VirtualMouseButton::Enum>(event.Arg1);
     rIsPressed = (event.Arg2 & VirtualKeyFlag::IsPressed) == VirtualKeyFlag::IsPressed;
     rPosition = DecodePosition(event.Arg3);
+    rIsTouch = event.Arg4 != 0;
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& buttonFlags)
+  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& buttonFlags,
+                                                                       const bool isTouch)
   {
     const int32_t arg1 = EncodePosition(position);
     const int32_t arg2 = EncodeVirtualMouseButtonFlags(buttonFlags);
-    return {NativeWindowEventType::InputMouseMove, arg1, arg2};
+    const int32_t arg3 = isTouch ? 1 : 0;
+    return {NativeWindowEventType::InputMouseMove, arg1, arg2, arg3};
   }
 
 
-  void NativeWindowEventHelper::DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags)
+  void NativeWindowEventHelper::DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags,
+                                                          bool& rIsTouch)
   {
     assert(event.Type == NativeWindowEventType::InputMouseMove);
     rPosition = DecodePosition(event.Arg1);
     rFlags = DecodeVirtualMouseButtonFlags(event.Arg2);
+    rIsTouch = event.Arg3 != 0;
   }
 
 
@@ -156,8 +162,8 @@ namespace Fsl
 
   NativeWindowEvent NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& buttonFlags)
   {
-    const int32_t arg1 = position.X;
-    const int32_t arg2 = position.Y;
+    const int32_t arg1 = position.X.Value;
+    const int32_t arg2 = position.Y.Value;
     const int32_t arg3 = EncodeVirtualMouseButtonFlags(buttonFlags);
     return {NativeWindowEventType::InputRawMouseMove, arg1, arg2, arg3};
   }
@@ -166,22 +172,22 @@ namespace Fsl
   void NativeWindowEventHelper::DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags)
   {
     assert(event.Type == NativeWindowEventType::InputRawMouseMove);
-    rPosition = PxPoint2(event.Arg1, event.Arg2);
+    rPosition = PxPoint2::Create(event.Arg1, event.Arg2);
     rFlags = DecodeVirtualMouseButtonFlags(event.Arg3);
   }
 
 
   int32_t NativeWindowEventHelper::EncodePosition(const PxPoint2& position)
   {
-    if (position.X < std::numeric_limits<int16_t>::min() || position.X > std::numeric_limits<int16_t>::max())
+    if (position.X.Value < std::numeric_limits<int16_t>::min() || position.X.Value > std::numeric_limits<int16_t>::max())
     {
       throw UsageErrorException("the x-position is expected to fit inside a int16");
     }
-    if (position.Y < std::numeric_limits<int16_t>::min() || position.Y > std::numeric_limits<int16_t>::max())
+    if (position.Y.Value < std::numeric_limits<int16_t>::min() || position.Y.Value > std::numeric_limits<int16_t>::max())
     {
       throw UsageErrorException("the y-position is expected to fit inside a int16");
     }
-    return ((position.Y & 0xFFFF) << 16) | (position.X & 0xFFFF);
+    return ((position.Y.Value & 0xFFFF) << 16) | (position.X.Value & 0xFFFF);
   }
 
 
@@ -189,7 +195,7 @@ namespace Fsl
   {
     const auto x = static_cast<int16_t>(encodedPosition & 0xFFFF);
     const auto y = static_cast<int16_t>((encodedPosition >> 16) & 0xFFFF);
-    return {x, y};
+    return PxPoint2::Create(x, y);
   }
 
 

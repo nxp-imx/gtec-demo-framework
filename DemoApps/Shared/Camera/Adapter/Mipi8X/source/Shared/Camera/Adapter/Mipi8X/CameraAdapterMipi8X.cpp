@@ -384,7 +384,7 @@ namespace Fsl
       if (!allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent))
       {
         FSLLOG3_INFO("FIX: Using fixed default size");
-        m_extent = PxExtent2D(640, 480);
+        m_extent = PxExtent2D::Create(640, 480);
       }
 
       int ret;
@@ -392,7 +392,7 @@ namespace Fsl
       g_cam_num = m_cam_num;
 
       // Only 1 camera will be initialized
-      init_video_channel(0, m_extent.Width, m_extent.Height);
+      init_video_channel(0, m_extent.Width.Value, m_extent.Height.Value);
       ret = v4l_capture_setup(0);
 
 
@@ -432,7 +432,7 @@ namespace Fsl
     {
       // The camera class will have checked these so we just have asserts here.
       assert(rTargetBitmap.GetExtent() == m_extent);
-      assert(rTargetBitmap.Stride() == PixelFormatUtil::CalcMinimumStride(m_extent.Width, m_pixelFormat));
+      assert(rTargetBitmap.Stride() == PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, m_pixelFormat));
       assert(rTargetBitmap.GetPixelFormat() == m_pixelFormat);
       rFrameId = 0;
 

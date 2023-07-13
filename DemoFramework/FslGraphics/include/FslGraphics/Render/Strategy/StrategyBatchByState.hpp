@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_STRATEGY_STRATEGYBATCHBYSTATE_HPP
 #define FSLGRAPHICS_RENDER_STRATEGY_STRATEGYBATCHBYSTATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -301,26 +301,26 @@ namespace Fsl
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
       assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
 
-      m_addQuad.pNextDstVertex->Position.X = vec0.X;
-      m_addQuad.pNextDstVertex->Position.Y = vec0.Y;
+      m_addQuad.pNextDstVertex->Position.X = vec0.X.Value;
+      m_addQuad.pNextDstVertex->Position.Y = vec0.Y.Value;
       m_addQuad.pNextDstVertex->TextureCoordinate.X = texCoords0.X;
       m_addQuad.pNextDstVertex->TextureCoordinate.Y = texCoords0.Y;
       m_addQuad.pNextDstVertex->Color = color;
 
-      (m_addQuad.pNextDstVertex + 1)->Position.X = vec1.X;
-      (m_addQuad.pNextDstVertex + 1)->Position.Y = vec1.Y;
+      (m_addQuad.pNextDstVertex + 1)->Position.X = vec1.X.Value;
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = vec1.Y.Value;
       (m_addQuad.pNextDstVertex + 1)->TextureCoordinate.X = texCoords1.X;
       (m_addQuad.pNextDstVertex + 1)->TextureCoordinate.Y = texCoords0.Y;
       (m_addQuad.pNextDstVertex + 1)->Color = color;
 
-      (m_addQuad.pNextDstVertex + 2)->Position.X = vec2.X;
-      (m_addQuad.pNextDstVertex + 2)->Position.Y = vec2.Y;
+      (m_addQuad.pNextDstVertex + 2)->Position.X = vec2.X.Value;
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = vec2.Y.Value;
       (m_addQuad.pNextDstVertex + 2)->TextureCoordinate.X = texCoords0.X;
       (m_addQuad.pNextDstVertex + 2)->TextureCoordinate.Y = texCoords1.Y;
       (m_addQuad.pNextDstVertex + 2)->Color = color;
 
-      (m_addQuad.pNextDstVertex + 3)->Position.X = vec3.X;
-      (m_addQuad.pNextDstVertex + 3)->Position.Y = vec3.Y;
+      (m_addQuad.pNextDstVertex + 3)->Position.X = vec3.X.Value;
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = vec3.Y.Value;
       (m_addQuad.pNextDstVertex + 3)->TextureCoordinate.X = texCoords1.X;
       (m_addQuad.pNextDstVertex + 3)->TextureCoordinate.Y = texCoords1.Y;
       (m_addQuad.pNextDstVertex + 3)->Color = color;
@@ -386,23 +386,23 @@ namespace Fsl
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
       assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
 
-      m_addQuad.pNextDstVertex->Position.X = dstRect.Left();
-      m_addQuad.pNextDstVertex->Position.Y = dstRect.Top();
+      m_addQuad.pNextDstVertex->Position.X = dstRect.RawLeft();
+      m_addQuad.pNextDstVertex->Position.Y = dstRect.RawTop();
       m_addQuad.pNextDstVertex->TextureCoordinate = Vector2(srcArea.X0, srcArea.Y0);
       m_addQuad.pNextDstVertex->Color = color;
 
-      (m_addQuad.pNextDstVertex + 1)->Position.X = dstRect.Right();
-      (m_addQuad.pNextDstVertex + 1)->Position.Y = dstRect.Top();
+      (m_addQuad.pNextDstVertex + 1)->Position.X = dstRect.RawRight();
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = dstRect.RawTop();
       (m_addQuad.pNextDstVertex + 1)->TextureCoordinate = Vector2(srcArea.X1, srcArea.Y0);
       (m_addQuad.pNextDstVertex + 1)->Color = color;
 
-      (m_addQuad.pNextDstVertex + 2)->Position.X = dstRect.Left();
-      (m_addQuad.pNextDstVertex + 2)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 2)->Position.X = dstRect.RawLeft();
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = dstRect.RawBottom();
       (m_addQuad.pNextDstVertex + 2)->TextureCoordinate = Vector2(srcArea.X0, srcArea.Y1);
       (m_addQuad.pNextDstVertex + 2)->Color = color;
 
-      (m_addQuad.pNextDstVertex + 3)->Position.X = dstRect.Right();
-      (m_addQuad.pNextDstVertex + 3)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 3)->Position.X = dstRect.RawRight();
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = dstRect.RawBottom();
       (m_addQuad.pNextDstVertex + 3)->TextureCoordinate = Vector2(srcArea.X1, srcArea.Y1);
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 
@@ -426,23 +426,23 @@ namespace Fsl
       assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
       assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
 
-      m_addQuad.pNextDstVertex->Position.X = dstRect.Left();
-      m_addQuad.pNextDstVertex->Position.Y = dstRect.Top();
+      m_addQuad.pNextDstVertex->Position.X = dstRect.RawLeft();
+      m_addQuad.pNextDstVertex->Position.Y = dstRect.RawTop();
       m_addQuad.pNextDstVertex->TextureCoordinate = srcArea.TopLeft;
       m_addQuad.pNextDstVertex->Color = color;
 
-      (m_addQuad.pNextDstVertex + 1)->Position.X = dstRect.Right();
-      (m_addQuad.pNextDstVertex + 1)->Position.Y = dstRect.Top();
+      (m_addQuad.pNextDstVertex + 1)->Position.X = dstRect.RawRight();
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = dstRect.RawTop();
       (m_addQuad.pNextDstVertex + 1)->TextureCoordinate = srcArea.TopRight;
       (m_addQuad.pNextDstVertex + 1)->Color = color;
 
-      (m_addQuad.pNextDstVertex + 2)->Position.X = dstRect.Left();
-      (m_addQuad.pNextDstVertex + 2)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 2)->Position.X = dstRect.RawLeft();
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = dstRect.RawBottom();
       (m_addQuad.pNextDstVertex + 2)->TextureCoordinate = srcArea.BottomLeft;
       (m_addQuad.pNextDstVertex + 2)->Color = color;
 
-      (m_addQuad.pNextDstVertex + 3)->Position.X = dstRect.Right();
-      (m_addQuad.pNextDstVertex + 3)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 3)->Position.X = dstRect.RawRight();
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = dstRect.RawBottom();
       (m_addQuad.pNextDstVertex + 3)->TextureCoordinate = srcArea.BottomRight;
       (m_addQuad.pNextDstVertex + 3)->Color = color;
 

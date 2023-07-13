@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -172,19 +172,19 @@ namespace Fsl::UI::RenderIMBatch
       {
         const PxSize2D& dstSizePx = cmd.GetDstSizePx();
         // The zero sized elements should already have been removed
-        assert(dstSizePx.Width() > 0 && dstSizePx.Height() > 0);
+        assert(dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0);
         assert(meshRecord.Sprite);
         const PxVector2& dstPositionPxf = cmd.GetDstPositionPxf();
         const RenderBasicNineSliceInfo& renderInfo = meshRecord.Sprite->GetRenderInfo();
         const auto& scaledNineSlicePx = renderInfo.ScaledNineSlicePx;
-        const float dstX0Pxf = dstPositionPxf.X;
-        const float dstY0Pxf = dstPositionPxf.Y;
-        const float dstX1Pxf = dstX0Pxf + static_cast<float>(scaledNineSlicePx.Left());
-        const float dstY1Pxf = dstY0Pxf + static_cast<float>(scaledNineSlicePx.Top());
-        const float dstX2Pxf = dstX0Pxf + static_cast<float>(dstSizePx.Width() - scaledNineSlicePx.Right());
-        const float dstY2Pxf = dstY0Pxf + static_cast<float>(dstSizePx.Height() - scaledNineSlicePx.Bottom());
-        const float dstX3Pxf = dstX0Pxf + static_cast<float>(dstSizePx.Width());
-        const float dstY3Pxf = dstY0Pxf + static_cast<float>(dstSizePx.Height());
+        const float dstX0Pxf = dstPositionPxf.X.Value;
+        const float dstY0Pxf = dstPositionPxf.Y.Value;
+        const float dstX1Pxf = dstX0Pxf + static_cast<float>(scaledNineSlicePx.RawLeft());
+        const float dstY1Pxf = dstY0Pxf + static_cast<float>(scaledNineSlicePx.RawTop());
+        const float dstX2Pxf = dstX0Pxf + static_cast<float>(dstSizePx.RawWidth() - scaledNineSlicePx.RawRight());
+        const float dstY2Pxf = dstY0Pxf + static_cast<float>(dstSizePx.RawHeight() - scaledNineSlicePx.RawBottom());
+        const float dstX3Pxf = dstX0Pxf + static_cast<float>(dstSizePx.RawWidth());
+        const float dstY3Pxf = dstY0Pxf + static_cast<float>(dstSizePx.RawHeight());
 
         builder.AddNineSlice(dstX0Pxf, dstY0Pxf, dstX1Pxf, dstY1Pxf, dstX2Pxf, dstY2Pxf, dstX3Pxf, dstY3Pxf, renderInfo.TextureArea);
       }
@@ -211,7 +211,7 @@ namespace Fsl::UI::RenderIMBatch
 
         const PxVector2& dstPositionPxf = cmd.GetDstPositionPxf();
         const PxSize2D& dstSizePx = cmd.GetDstSizePx();
-        if (dstSizePx.Width() > 0 && dstSizePx.Height() > 0)
+        if (dstSizePx.RawWidth() > 0 && dstSizePx.RawHeight() > 0)
         {
           if (dstSizePx == renderInfo.ScaledSizePx)
           {
@@ -224,13 +224,13 @@ namespace Fsl::UI::RenderIMBatch
           else
           {
             // We need to apply the scaling and trim
-            const float finalScalingX = static_cast<float>(dstSizePx.Width()) / static_cast<float>(renderInfo.ScaledSizePx.Width());
-            const float finalScalingY = static_cast<float>(dstSizePx.Height()) / static_cast<float>(renderInfo.ScaledSizePx.Height());
+            const PxSize1DF finalScalingX = PxSize1DF(dstSizePx.Width()) / PxSize1DF(renderInfo.ScaledSizePx.Width());
+            const PxSize1DF finalScalingY = PxSize1DF(dstSizePx.Height()) / PxSize1DF(renderInfo.ScaledSizePx.Height());
 
             PxAreaRectangleF dstRectanglePxf(dstPositionPxf.X + (renderInfo.ScaledTrimMarginPxf.Left() * finalScalingX),
                                              dstPositionPxf.Y + (renderInfo.ScaledTrimMarginPxf.Top() * finalScalingY),
-                                             static_cast<float>(dstSizePx.Width()) - (renderInfo.ScaledTrimMarginPxf.SumX() * finalScalingX),
-                                             static_cast<float>(dstSizePx.Height()) - (renderInfo.ScaledTrimMarginPxf.SumY() * finalScalingY));
+                                             PxSize1DF(dstSizePx.Width()) - (renderInfo.ScaledTrimMarginPxf.SumX() * finalScalingX),
+                                             PxSize1DF(dstSizePx.Height()) - (renderInfo.ScaledTrimMarginPxf.SumY() * finalScalingY));
 
             builder.AddRect(dstRectanglePxf, renderInfo.TextureArea);
           }
@@ -253,7 +253,7 @@ namespace Fsl::UI::RenderIMBatch
       // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
       // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
       // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.Width() > 0 && processedCmd.DstAreaRectanglePxf.Height() > 0)
+      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
       {
         assert(meshRecord.Sprite);
         const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
@@ -261,12 +261,12 @@ namespace Fsl::UI::RenderIMBatch
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
                                                       Color::Premultiply(processedCmd.FinalColor));
         {
-          builder.AddNineSlice(processedCmd.DstAreaRectanglePxf.Left(), processedCmd.DstAreaRectanglePxf.Top(),
-                               processedCmd.DstAreaRectanglePxf.Left() + renderInfo.ScaledTrimmedNineSlicePxf.Left(),
-                               processedCmd.DstAreaRectanglePxf.Top() + renderInfo.ScaledTrimmedNineSlicePxf.Top(),
-                               processedCmd.DstAreaRectanglePxf.Right() - renderInfo.ScaledTrimmedNineSlicePxf.Right(),
-                               processedCmd.DstAreaRectanglePxf.Bottom() - renderInfo.ScaledTrimmedNineSlicePxf.Bottom(),
-                               processedCmd.DstAreaRectanglePxf.Right(), processedCmd.DstAreaRectanglePxf.Bottom(), renderInfo.TextureArea);
+          builder.AddNineSlice(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                               processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                               processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                               processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                               processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                               processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(), renderInfo.TextureArea);
         }
         rBatcher.EndMeshBuild(builder);
       }
@@ -281,7 +281,7 @@ namespace Fsl::UI::RenderIMBatch
       // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
       // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
       // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.Width() > 0 && processedCmd.DstAreaRectanglePxf.Height() > 0)
+      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
       {
         assert(meshRecord.Sprite);
         const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
@@ -289,12 +289,12 @@ namespace Fsl::UI::RenderIMBatch
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
                                                       Color::Premultiply(processedCmd.FinalColor));
         {
-          builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.Left(), processedCmd.DstAreaRectanglePxf.Top(),
-                                            processedCmd.DstAreaRectanglePxf.Left() + renderInfo.ScaledTrimmedNineSlicePxf.Top(),
-                                            processedCmd.DstAreaRectanglePxf.Top() + renderInfo.ScaledTrimmedNineSlicePxf.Left(),
-                                            processedCmd.DstAreaRectanglePxf.Right() - renderInfo.ScaledTrimmedNineSlicePxf.Bottom(),
-                                            processedCmd.DstAreaRectanglePxf.Bottom() - renderInfo.ScaledTrimmedNineSlicePxf.Right(),
-                                            processedCmd.DstAreaRectanglePxf.Right(), processedCmd.DstAreaRectanglePxf.Bottom(),
+          builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                            processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                            processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                            processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
                                             renderInfo.TextureArea);
         }
         rBatcher.EndMeshBuild(builder);
@@ -336,7 +336,7 @@ namespace Fsl::UI::RenderIMBatch
       // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
       // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
       // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.Width() > 0 && processedCmd.DstAreaRectanglePxf.Height() > 0)
+      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
       {
         auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
                                                       static_cast<float>(LocalConfig::ZStart - processedCmd.LegacyCommandSpanIndex),
@@ -345,14 +345,14 @@ namespace Fsl::UI::RenderIMBatch
           assert(meshRecord.Sprite);
           const auto& renderInfo = meshRecord.Sprite->GetRenderInfo();
 
-          const float dstX0Pxf = processedCmd.DstAreaRectanglePxf.Left();
-          const float dstY0Pxf = processedCmd.DstAreaRectanglePxf.Top();
-          const float dstX1Pxf = processedCmd.DstAreaRectanglePxf.Left() + renderInfo.ScaledTrimmedNineSlicePxf.Left();
-          const float dstY1Pxf = processedCmd.DstAreaRectanglePxf.Top() + renderInfo.ScaledTrimmedNineSlicePxf.Top();
-          const float dstX2Pxf = processedCmd.DstAreaRectanglePxf.Right() - renderInfo.ScaledTrimmedNineSlicePxf.Right();
-          const float dstY2Pxf = processedCmd.DstAreaRectanglePxf.Bottom() - renderInfo.ScaledTrimmedNineSlicePxf.Bottom();
-          const float dstX3Pxf = processedCmd.DstAreaRectanglePxf.Right();
-          const float dstY3Pxf = processedCmd.DstAreaRectanglePxf.Bottom();
+          const float dstX0Pxf = processedCmd.DstAreaRectanglePxf.RawLeft();
+          const float dstY0Pxf = processedCmd.DstAreaRectanglePxf.RawTop();
+          const float dstX1Pxf = processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft();
+          const float dstY1Pxf = processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop();
+          const float dstX2Pxf = processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight();
+          const float dstY2Pxf = processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom();
+          const float dstX3Pxf = processedCmd.DstAreaRectanglePxf.RawRight();
+          const float dstY3Pxf = processedCmd.DstAreaRectanglePxf.RawBottom();
 
           // Optimization fix: Once we decouple the rendering commands from the original command entry the preprocessor
           //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
@@ -379,7 +379,7 @@ namespace Fsl::UI::RenderIMBatch
       // assert(processedCmd.DstAreaRectanglePxf.Width() > 0);
       // assert(processedCmd.DstAreaRectanglePxf.Height() > 0);
       // FIX: remove this check, it should be done during pre-process, this will save a lot more
-      if (processedCmd.DstAreaRectanglePxf.Width() > 0 && processedCmd.DstAreaRectanglePxf.Height() > 0)
+      if (processedCmd.DstAreaRectanglePxf.RawWidth() > 0 && processedCmd.DstAreaRectanglePxf.RawHeight() > 0)
 
       {
         auto builder = rBatcher.BeginMeshBuildCustomZ(processedCmd.MaterialId, meshRecord.VertexCapacity, meshRecord.IndexCapacity,
@@ -393,23 +393,23 @@ namespace Fsl::UI::RenderIMBatch
           //                   can just rewrite the command type and schedule a normal nineslice operation instead since its compatible.
           if (!ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderIgnoreOpacity))
           {
-            builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.Left(), processedCmd.DstAreaRectanglePxf.Top(),
-                                              processedCmd.DstAreaRectanglePxf.Left() + renderInfo.ScaledTrimmedNineSlicePxf.Top(),
-                                              processedCmd.DstAreaRectanglePxf.Top() + renderInfo.ScaledTrimmedNineSlicePxf.Left(),
-                                              processedCmd.DstAreaRectanglePxf.Right() - renderInfo.ScaledTrimmedNineSlicePxf.Bottom(),
-                                              processedCmd.DstAreaRectanglePxf.Bottom() - renderInfo.ScaledTrimmedNineSlicePxf.Right(),
-                                              processedCmd.DstAreaRectanglePxf.Right(), processedCmd.DstAreaRectanglePxf.Bottom(),
+            builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                              processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                              processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                              processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                              processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                              processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
                                               renderInfo.TextureArea, renderInfo.Flags,
                                               ProcessedCommandFlagsUtil::IsEnabled(processedCmd.Flags, ProcessedCommandFlags::RenderOpaque));
           }
           else
           {
-            builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.Left(), processedCmd.DstAreaRectanglePxf.Top(),
-                                              processedCmd.DstAreaRectanglePxf.Left() + renderInfo.ScaledTrimmedNineSlicePxf.Top(),
-                                              processedCmd.DstAreaRectanglePxf.Top() + renderInfo.ScaledTrimmedNineSlicePxf.Left(),
-                                              processedCmd.DstAreaRectanglePxf.Right() - renderInfo.ScaledTrimmedNineSlicePxf.Bottom(),
-                                              processedCmd.DstAreaRectanglePxf.Bottom() - renderInfo.ScaledTrimmedNineSlicePxf.Right(),
-                                              processedCmd.DstAreaRectanglePxf.Right(), processedCmd.DstAreaRectanglePxf.Bottom(),
+            builder.AddNineSliceUVRotated90CW(processedCmd.DstAreaRectanglePxf.RawLeft(), processedCmd.DstAreaRectanglePxf.RawTop(),
+                                              processedCmd.DstAreaRectanglePxf.RawLeft() + renderInfo.ScaledTrimmedNineSlicePxf.RawTop(),
+                                              processedCmd.DstAreaRectanglePxf.RawTop() + renderInfo.ScaledTrimmedNineSlicePxf.RawLeft(),
+                                              processedCmd.DstAreaRectanglePxf.RawRight() - renderInfo.ScaledTrimmedNineSlicePxf.RawBottom(),
+                                              processedCmd.DstAreaRectanglePxf.RawBottom() - renderInfo.ScaledTrimmedNineSlicePxf.RawRight(),
+                                              processedCmd.DstAreaRectanglePxf.RawRight(), processedCmd.DstAreaRectanglePxf.RawBottom(),
                                               renderInfo.TextureArea);
           }
         }
@@ -791,26 +791,41 @@ namespace Fsl::UI::RenderIMBatch
   RenderSystem::RenderSystem(const RenderSystemCreateInfo& createInfo)
     : RenderSystemBase(createInfo)
     , m_batcher(createInfo.DefaultVertexCapacity, createInfo.DefaultIndexCapacity)
+    , m_preprocessor(GetAllowDepthBuffer(), GetWindowMetrics().GetSizePx())
   {
+  }
+
+
+  void RenderSystem::OnConfigurationChanged(const BasicWindowMetrics& windowMetrics)
+  {
+    RenderSystemBase::OnConfigurationChanged(windowMetrics);
+    m_preprocessor.OnConfigurationChanged(GetWindowMetrics().GetSizePx());
   }
 
 
   void RenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
   {
     const BasicCameraInfo cameraInfo(GetMatrixProjection());
-    LinearPreprocessor preprocessor(GetAllowDepthBuffer());
+
+    m_preprocessor.SetAllowDepthBuffer(GetAllowDepthBuffer());
+
     DoDraw(DoGetStats(), GetRenderSystem(), DoGetMeshManager(), GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
-           preprocessor, pPerformanceCapture, 0xFFFFFFFF);
+           m_preprocessor, pPerformanceCapture, 0xFFFFFFFF);
   }
 
 
   DefaultRenderSystem::DefaultRenderSystem(const RenderSystemCreateInfo& createInfo)
     : RenderSystemBase(createInfo)
     , m_batcher(createInfo.DefaultVertexCapacity, createInfo.DefaultIndexCapacity)
-    , m_preprocessor(createInfo.AllowDepthBuffer)
+    , m_preprocessor(createInfo.AllowDepthBuffer, GetWindowMetrics().GetSizePx())
   {
   }
 
+  void DefaultRenderSystem::OnConfigurationChanged(const BasicWindowMetrics& windowMetrics)
+  {
+    RenderSystemBase::OnConfigurationChanged(windowMetrics);
+    m_preprocessor.OnConfigurationChanged(GetWindowMetrics().GetSizePx());
+  }
 
   void DefaultRenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
   {
@@ -826,7 +841,7 @@ namespace Fsl::UI::RenderIMBatch
     : RenderSystemBase(createInfo)
     , m_batcher(createInfo.DefaultVertexCapacity, createInfo.DefaultIndexCapacity)
     , m_config(true, true, GetAllowDepthBuffer(), DrawReorderMethod::LinearConstrained)
-    , m_preprocessor(createInfo.AllowDepthBuffer)
+    , m_preprocessor(createInfo.AllowDepthBuffer, GetWindowMetrics().GetSizePx())
     , m_spatialGridPreprocessor(createInfo.WindowMetrics.GetSizePx(), createInfo.AllowDepthBuffer)
   {
     SetConfig(m_config);
@@ -836,6 +851,7 @@ namespace Fsl::UI::RenderIMBatch
   void FlexRenderSystem::OnConfigurationChanged(const BasicWindowMetrics& windowMetrics)
   {
     RenderSystemBase::OnConfigurationChanged(windowMetrics);
+    m_preprocessor.OnConfigurationChanged(windowMetrics.GetSizePx());
     m_spatialGridPreprocessor.OnConfigurationChanged(windowMetrics.GetSizePx());
   }
 

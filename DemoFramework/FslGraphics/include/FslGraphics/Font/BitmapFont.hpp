@@ -83,10 +83,10 @@ namespace Fsl
     uint16_t m_size{};
 
     //! This is the distance in pixels between each line of text.
-    uint16_t m_lineSpacingPx{};
+    PxValueU16 m_lineSpacingPx{};
 
     //! The number of pixels from the absolute top of the line to the base of the characters.
-    uint16_t m_baseLinePx{};
+    PxValueU16 m_baseLinePx{};
 
     PxThicknessU16 m_paddingPx;
 
@@ -104,15 +104,15 @@ namespace Fsl
   public:
     BitmapFont() = default;
 
-    BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
+    BitmapFont(std::string name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
                const PxThicknessU16& paddingPx, std::string textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
                std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
 
-    BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
+    BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
                const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
                const ReadOnlySpan<BitmapFontChar> chars, const ReadOnlySpan<BitmapFontKerning> kernings);
 
-    BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const uint16_t lineSpacingPx, const uint16_t baseLinePx,
+    BitmapFont(const StringViewLite name, const uint16_t dpi, const uint16_t size, const PxValueU16 lineSpacingPx, const PxValueU16 baseLinePx,
                const PxThicknessU16& paddingPx, const StringViewLite textureName, const BitmapFontType fontType, const SdfParams& sdfParams,
                std::vector<BitmapFontChar> chars, std::vector<BitmapFontKerning> kernings);
 
@@ -137,12 +137,12 @@ namespace Fsl
       return m_size;
     }
 
-    uint16_t GetLineSpacingPx() const
+    PxValueU16 GetLineSpacingPx() const
     {
       return m_lineSpacingPx;
     }
 
-    uint16_t GetBaseLinePx() const
+    PxValueU16 GetBaseLinePx() const
     {
       return m_baseLinePx;
     }

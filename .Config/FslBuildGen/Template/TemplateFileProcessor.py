@@ -36,6 +36,7 @@ from typing import List
 from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.Config import Config
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Template.TemplateEnvironment import TemplateEnvironment
 from FslBuildGen.Template.TemplateFileRecord import TemplateFileRecord
@@ -53,9 +54,12 @@ class TemplateFileProcessor(object):
                 templateFileRecordManager: TemplateFileRecordManager,
                 dstPath: str,
                 package: Optional[Package],
+                externalVariantConstraints: Optional[ExternalVariantConstraints],
                 dstFilenameModifier: Optional[Callable[[str], str]] = None) -> None:
         if package is not None:
-            self.Environment.SetPackage(package, dstPath)
+            if externalVariantConstraints is None:
+                raise Exception("Internal error")
+            self.Environment.SetPackage(package, dstPath, externalVariantConstraints)
 
         # create folder structure
         IOUtil.SafeMakeDirs(dstPath)

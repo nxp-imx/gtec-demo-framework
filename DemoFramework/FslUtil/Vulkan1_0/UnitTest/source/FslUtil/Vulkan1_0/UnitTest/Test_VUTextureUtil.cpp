@@ -43,7 +43,7 @@ namespace
 
 TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_One)
 {
-  TextureRectangle rect(PxRectangle(0, 0, 128, 256), PxSize2D(128, 256));
+  TextureRectangle rect(PxRectangle::Create(0, 0, 128, 256), PxSize2D::Create(128, 256));
 
   auto result = Vulkan::VUTextureUtil::CalcTextureArea(rect, 1, 1);
   EXPECT_EQ(0.0f, result.X0);
@@ -54,7 +54,7 @@ TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_One)
 
 TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_SameXY)
 {
-  TextureRectangle rect(PxRectangle(0, 0, 128, 256), PxSize2D(128, 256));
+  TextureRectangle rect(PxRectangle::Create(0, 0, 128, 256), PxSize2D::Create(128, 256));
 
   auto result = Vulkan::VUTextureUtil::CalcTextureArea(rect, 5, 5);
   EXPECT_EQ(0.0f, result.X0);
@@ -66,7 +66,7 @@ TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_SameXY)
 
 TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_Diff_X_Y)
 {
-  TextureRectangle rect(PxRectangle(0, 0, 128, 256), PxSize2D(128, 256));
+  TextureRectangle rect(PxRectangle::Create(0, 0, 128, 256), PxSize2D::Create(128, 256));
 
   auto result = Vulkan::VUTextureUtil::CalcTextureArea(rect, 4, 5);
   EXPECT_EQ(0.0f, result.X0);
@@ -78,7 +78,7 @@ TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_Diff_X_Y)
 
 TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_NegativeX_Y)
 {
-  TextureRectangle rect(PxRectangle(0, 0, 128, 256), PxSize2D(128, 256));
+  TextureRectangle rect(PxRectangle::Create(0, 0, 128, 256), PxSize2D::Create(128, 256));
 
   auto result = Vulkan::VUTextureUtil::CalcTextureArea(rect, -4, 5);
   EXPECT_EQ(0.0f, result.X0);
@@ -90,7 +90,7 @@ TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_NegativeX_Y)
 
 TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_NegativeX_NegativeY)
 {
-  TextureRectangle rect(PxRectangle(0, 0, 128, 256), PxSize2D(128, 256));
+  TextureRectangle rect(PxRectangle::Create(0, 0, 128, 256), PxSize2D::Create(128, 256));
 
   auto result = Vulkan::VUTextureUtil::CalcTextureArea(rect, 4, -5);
   EXPECT_EQ(0.0f, result.X0);
@@ -102,7 +102,7 @@ TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_NegativeX_Negat
 
 TEST(TestFixtureFslUtil_Vulkan1_0_VUTextureUtil, CalcTextureArea_NonRepeatable)
 {
-  TextureRectangle rect(PxRectangle(50, 100, 200, 400), PxSize2D(400, 800));
+  TextureRectangle rect(PxRectangle::Create(50, 100, 200, 400), PxSize2D::Create(400, 800));
 
   auto result = Vulkan::VUTextureUtil::CalcTextureArea(rect, 1, 1);
   EXPECT_FLOAT_EQ((50.0f / 400.0f), result.X0);

@@ -113,21 +113,21 @@ namespace Fsl
     void Reset(const SpriteNativeAreaCalc& spriteNativeAreaCalc, const PxExtent2D textureExtentPx, const ITextureAtlas& textureAtlas,
                const IFontBasicKerning& basicFontKerning, const uint32_t densityDpi);
 
-    int32_t BaseLinePx() const
+    PxSize1D BaseLinePx() const
     {
-      return m_lookup.GetBaseLinePx();
+      return PxSize1D(m_lookup.GetBaseLinePx());
     }
 
     //! @brief Get the baseline in pixels for the given font config
-    int32_t BaseLinePx(const BitmapFontConfig& fontConfig) const;
+    PxValueU16 BaseLinePx(const BitmapFontConfig& fontConfig) const;
 
-    int32_t LineSpacingPx() const
+    PxSize1D LineSpacingPx() const
     {
-      return m_lookup.GetLineSpacingPx();
+      return PxSize1D(m_lookup.GetLineSpacingPx());
     }
 
     //! @brief Get the line spacing in pixels for the given font config
-    int32_t LineSpacingPx(const BitmapFontConfig& fontConfig) const;
+    PxValueU16 LineSpacingPx(const BitmapFontConfig& fontConfig) const;
 
 
     //! @brief Measure the string size in pixels

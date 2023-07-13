@@ -60,34 +60,48 @@ g_CMAKE_PACKAGE_NAME = "Recipe.BuildTool.CMake"
 g_GIT_PACKAGE_NAME = "Recipe.BuildTool.Git"
 
 class XmlRecipeFileDependency(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlRecipeValidateCommand(XmlBase):
+    _AttribHelp = 'Help'
+
     def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: BuildRecipeValidateCommand) -> None:
         super().__init__(log, xmlElement)
         self.CommandName = commandName
         self.CommandType = commandType
-        self.Help = self._TryReadAttrib(xmlElement, 'Help')
+        self.Help = self._TryReadAttrib(xmlElement, self._AttribHelp)
 
 
 class XmlRecipeValidateCommandEnvironmentVariable(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribMethod = 'Method'
+    __AttribAllowEndSlash = 'AllowEndSlash'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "EnvironmentVariable", BuildRecipeValidateCommand.EnvironmentVariable)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
-        method = self._ReadAttrib(xmlElement, 'Method')
-        self.AllowEndSlash = self._ReadBoolAttrib(xmlElement, 'AllowEndSlash', False)  # type: bool
+        self._CheckAttributes({self.__AttribName, self.__AttribMethod, self.__AttribAllowEndSlash, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type: str
+        method = self._ReadAttrib(xmlElement, self.__AttribMethod)
+        self.AllowEndSlash = self._ReadBoolAttrib(xmlElement, self.__AttribAllowEndSlash, False)  # type: bool
 
         self.Method = BuildRecipeValidateMethod.FromString(method)  # type: int
 
 
 class XmlRecipeValidateCommandPath(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribMethod = 'Method'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Path", BuildRecipeValidateCommand.Path)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        method = self._ReadAttrib(xmlElement, 'Method')
+        self._CheckAttributes({self.__AttribName, self.__AttribMethod, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        method = self._ReadAttrib(xmlElement, self.__AttribMethod)
 
         self.Method = BuildRecipeValidateMethod.FromString(method)
 
@@ -100,10 +114,14 @@ class XmlRecipeValidateCommandPath(XmlRecipeValidateCommand):
 
 
 class XmlRecipeValidateCommandFindFileInPath(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribExpectedPath = 'ExpectedPath'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindFileInPath)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.ExpectedPath = self._TryReadAttrib(xmlElement, 'ExpectedPath')
+        self._CheckAttributes({self.__AttribName, self.__AttribExpectedPath, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.ExpectedPath = self._TryReadAttrib(xmlElement, self.__AttribExpectedPath)
 
         if '\\' in self.Name or '/' in self.Name:
             raise Exception("A filename can not contain backslash '\\' or slash '/': '{0}'".format(self.Name))
@@ -119,11 +137,16 @@ class XmlRecipeValidateCommandFindFileInPath(XmlRecipeValidateCommand):
 
 
 class XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning(XmlBase):
+    __AttribStartVersion = 'StartVersion'
+    __AttribEndVersion = 'EndVersion'
+    __AttribHelp = 'Help'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.StartVersion = self._ReadAttrib(xmlElement, 'StartVersion')
-        self.EndVersion = self._TryReadAttrib(xmlElement, 'EndVersion')
-        self.Help = self._ReadAttrib(xmlElement, 'Help')
+        self._CheckAttributes({self.__AttribStartVersion, self.__AttribEndVersion, self.__AttribHelp})
+        self.StartVersion = self._ReadAttrib(xmlElement, self.__AttribStartVersion)
+        self.EndVersion = self._TryReadAttrib(xmlElement, self.__AttribEndVersion)
+        self.Help = self._ReadAttrib(xmlElement, self.__AttribHelp)
 
         trimmed = self.StartVersion.strip()
         if trimmed != self.StartVersion:
@@ -135,14 +158,23 @@ class XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning(XmlBase)
 
 
 class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribAlternatives = 'Alternatives'
+    __AttribExpectedPath = 'ExpectedPath'
+    __AttribMinVersion = 'MinVersion'
+    __AttribVersionCommand = 'VersionCommand'
+    __AttribVersionRegEx = 'VersionRegEx'
+
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindExecutableFileInPath)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        alternatives = self._TryReadAttrib(xmlElement, 'Alternatives')
-        self.ExpectedPath = self._TryReadAttrib(xmlElement, 'ExpectedPath')
-        self.MinVersion = self._TryReadAttrib(xmlElement, 'MinVersion')
-        self.VersionCommand = self._TryReadAttrib(xmlElement, 'VersionCommand')
-        self.VersionRegEx = self._TryReadAttrib(xmlElement, 'VersionRegEx')
+        self._CheckAttributes({self.__AttribName, self.__AttribAlternatives, self.__AttribExpectedPath, self.__AttribMinVersion, self.__AttribVersionCommand, self.__AttribVersionRegEx, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        alternatives = self._TryReadAttrib(xmlElement, self.__AttribAlternatives)
+        self.ExpectedPath = self._TryReadAttrib(xmlElement, self.__AttribExpectedPath)
+        self.MinVersion = self._TryReadAttrib(xmlElement, self.__AttribMinVersion)
+        self.VersionCommand = self._TryReadAttrib(xmlElement, self.__AttribVersionCommand)
+        self.VersionRegEx = self._TryReadAttrib(xmlElement, self.__AttribVersionRegEx)
 
         self.AddOnErrorWarning = self.__ParseAddOnErrorWarning(log, xmlElement)
 
@@ -209,9 +241,12 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
 
 
 class XmlRecipeValidateCommandAddHeaders(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "AddHeaders", BuildRecipeValidateCommand.AddHeaders)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
         if '\\' in self.Name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
@@ -221,10 +256,14 @@ class XmlRecipeValidateCommandAddHeaders(XmlRecipeValidateCommand):
 
 
 class XmlRecipeValidateCommandAddLib(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribDebugName = 'DebugName'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "AddLib", BuildRecipeValidateCommand.AddLib)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
-        self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name)  # type:str
+        self._CheckAttributes({self.__AttribName, self.__AttribDebugName, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type:str
+        self.DebugName = self._ReadAttrib(xmlElement, self.__AttribDebugName, self.Name)  # type:str
 
         if '\\' in self.Name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
@@ -237,10 +276,14 @@ class XmlRecipeValidateCommandAddLib(XmlRecipeValidateCommand):
 
 
 class XmlRecipeValidateCommandAddDLL(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribDebugName = 'DebugName'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "AddDLL", BuildRecipeValidateCommand.AddDLL)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
-        self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name)  # type:str
+        self._CheckAttributes({self.__AttribName, self.__AttribDebugName, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type:str
+        self.DebugName = self._ReadAttrib(xmlElement, self.__AttribDebugName, self.Name)  # type:str
 
         if '\\' in self.Name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
@@ -253,12 +296,18 @@ class XmlRecipeValidateCommandAddDLL(XmlRecipeValidateCommand):
 
 
 class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):
+    __AttribName = 'Name'
+    __AttribMinVersion = 'MinVersion'
+    __AttribVersionCommand = 'VersionCommand'
+    __AttribVersionRegEx = 'VersionRegEx'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "AddTool", BuildRecipeValidateCommand.AddTool)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
-        self.MinVersion = self._TryReadAttrib(xmlElement, 'MinVersion')
-        self.VersionCommand = self._TryReadAttrib(xmlElement, 'VersionCommand')
-        self.VersionRegEx = self._TryReadAttrib(xmlElement, 'VersionRegEx')
+        self._CheckAttributes({self.__AttribName, self.__AttribMinVersion, self.__AttribVersionCommand, self.__AttribVersionRegEx, self._AttribHelp})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type:str
+        self.MinVersion = self._TryReadAttrib(xmlElement, self.__AttribMinVersion)
+        self.VersionCommand = self._TryReadAttrib(xmlElement, self.__AttribVersionCommand)
+        self.VersionRegEx = self._TryReadAttrib(xmlElement, self.__AttribVersionRegEx)
         if '\\' in self.Name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
         if self.Name.endswith('/'):
@@ -291,6 +340,7 @@ class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):
 class XmlRecipeInstallation(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes(set())
         self.CommandList = self.__GetCommandList(log, xmlElement)
 
     def __GetCommandList(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipeValidateCommand]:
@@ -334,40 +384,57 @@ class XmlRecipePipelineJoinCommand(XmlRecipePipelineBasicCommand):
 
 
 class XmlRecipePipelineJoinCommandCopy(XmlRecipePipelineJoinCommand):
+    __AttribFrom = 'From'
+    __AttribTo = 'To'
+    __AttribOverwrite = 'Overwrite'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Copy", BuildRecipePipelineCommand.JoinCopy)
-        self.From = self._ReadAttrib(xmlElement, 'From')
-        self.To = self._ReadAttrib(xmlElement, 'To')
-        self.Overwrite = self._ReadBoolAttrib(xmlElement, 'Overwrite', False)
+        self._CheckAttributes({self.__AttribFrom, self.__AttribTo, self.__AttribOverwrite})
+        self.From = self._ReadAttrib(xmlElement, self.__AttribFrom)
+        self.To = self._ReadAttrib(xmlElement, self.__AttribTo)
+        self.Overwrite = self._ReadBoolAttrib(xmlElement, self.__AttribOverwrite, False)
 
 
 class XmlRecipePipelineJoinCommandDelete(XmlRecipePipelineJoinCommand):
+    __AttribPath = 'Path'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Delete", BuildRecipePipelineCommand.JoinDelete)
-        self.Path = self._ReadAttrib(xmlElement, 'Path')
+        self._CheckAttributes({self.__AttribPath})
+        self.Path = self._ReadAttrib(xmlElement, self.__AttribPath)
 
 
 class XmlRecipePipelineJoinCommandUnpack(XmlRecipePipelineJoinCommand):
+    __AttribFrom = 'From'
+    __AttribTo = 'To'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Unpack", BuildRecipePipelineCommand.JoinUnpack)
-        self.From = self._ReadAttrib(xmlElement, 'From')
-        self.To = self._ReadAttrib(xmlElement, 'To', '')
+        self._CheckAttributes({self.__AttribFrom, self.__AttribTo})
+        self.From = self._ReadAttrib(xmlElement, self.__AttribFrom)
+        self.To = self._ReadAttrib(xmlElement, self.__AttribTo, '')
 
 
 class XmlRecipePipelineJoinCommandGitApply(XmlRecipePipelineJoinCommand):
+    __AttribFrom = 'From'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "GitApply", BuildRecipePipelineCommand.JoinGitApply, buildToolPackageName=g_GIT_PACKAGE_NAME)
-        self.From = self._ReadAttrib(xmlElement, 'From')
+        self._CheckAttributes({self.__AttribFrom})
+        self.From = self._ReadAttrib(xmlElement, self.__AttribFrom)
 
 
 class XmlRecipePipelineCommand(XmlRecipePipelineBasicCommand):
+    _AttribOutputPath = 'OutputPath'
+
     def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: BuildRecipePipelineCommand,
                  outputPathAllowed: bool = True, buildToolPackageName: Optional[str] = None, allowJoinCommandList: bool = True) -> None:
         super().__init__(log, xmlElement, commandName, commandType, buildToolPackageName)
         self.JoinCommandList = self.__GetJoinCommandList(log, xmlElement) if allowJoinCommandList else []
         self.OutputPath = None  # type: Optional[str]
         if outputPathAllowed:
-            self.OutputPath = self._ReadAttrib(xmlElement, 'OutputPath', '')
+            self.OutputPath = self._ReadAttrib(xmlElement, self._AttribOutputPath, '')
 
 
     def __GetJoinCommandList(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipePipelineJoinCommand]:
@@ -401,27 +468,38 @@ class XmlRecipePipelineFetchCommand(XmlRecipePipelineCommand):
 
 
 class XmlRecipePipelineFetchCommandGitClone(XmlRecipePipelineFetchCommand):
+    __AttribURL = 'URL'
+    __AttribTag = 'Tag'
+    __AttribHash = 'Hash'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "GitClone", BuildRecipePipelineCommand.GitClone, buildToolPackageName=g_GIT_PACKAGE_NAME, allowJoinCommandList=False)
-        self.URL = self._ReadAttrib(xmlElement, 'URL')
-        self.Tag = self._ReadAttrib(xmlElement, 'Tag', '')
-        self.Hash = self._TryReadAttrib(xmlElement, 'Hash')
+        self._CheckAttributes({self._AttribOutputPath, self.__AttribURL, self.__AttribTag, self.__AttribHash})
+        self.URL = self._ReadAttrib(xmlElement, self.__AttribURL)
+        self.Tag = self._ReadAttrib(xmlElement, self.__AttribTag, '')
+        self.Hash = self._TryReadAttrib(xmlElement, self.__AttribHash)
 
         #if len(self.URL) <= 0:
         #    raise Exception
 
 
 class XmlRecipePipelineFetchCommandDownload(XmlRecipePipelineFetchCommand):
+    __AttribURL = 'URL'
+    __AttribTo = 'To'
+    __AttribHash = 'Hash'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Download", BuildRecipePipelineCommand.Download, allowJoinCommandList=False)
-        self.URL = self._ReadAttrib(xmlElement, 'URL')
-        self.To = self._TryReadAttrib(xmlElement, 'To')
-        self.Hash = self._TryReadAttrib(xmlElement, 'Hash')
+        self._CheckAttributes({self._AttribOutputPath, self.__AttribURL, self.__AttribTo, self.__AttribHash})
+        self.URL = self._ReadAttrib(xmlElement, self.__AttribURL)
+        self.To = self._TryReadAttrib(xmlElement, self.__AttribTo)
+        self.Hash = self._TryReadAttrib(xmlElement, self.__AttribHash)
 
 
 class XmlRecipePipelineFetchCommandSource(XmlRecipePipelineFetchCommand):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Source", BuildRecipePipelineCommand.Source, allowJoinCommandList=False)
+        self._CheckAttributes({self._AttribOutputPath})
 
 
 class XmlRecipePipelineBuildCommand(XmlRecipePipelineCommand):
@@ -429,21 +507,32 @@ class XmlRecipePipelineBuildCommand(XmlRecipePipelineCommand):
 
 
 class XmlRecipePipelineCommandUnpack(XmlRecipePipelineBuildCommand):
+    __AttribFile = 'File'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Unpack", BuildRecipePipelineCommand.Unpack)
-        self.File = self._ReadAttrib(xmlElement, 'File')
+        self._CheckAttributes({self._AttribOutputPath, self.__AttribFile})
+        self.File = self._ReadAttrib(xmlElement, self.__AttribFile)
 
 
 class XmlRecipePipelineCommandCMakeBuild(XmlRecipePipelineBuildCommand):
+    __AttribSource = 'Source'
+    __AttribProject = 'Project'
+    __AttribTarget = 'Target'
+    __AttribConfiguration = 'Configuration'
+    __AttribOptions = 'Options'
+    __AttribOutputPath = 'OutputPath'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "CMakeBuild", BuildRecipePipelineCommand.CMakeBuild, False, buildToolPackageName=g_CMAKE_PACKAGE_NAME)
-        self.Source = self._TryReadAttrib(xmlElement, 'Source')
-        self.Project = self._ReadAttrib(xmlElement, 'Project')
-        target = self._ReadAttrib(xmlElement, 'Target')
-        configuration = self._ReadAttrib(xmlElement, 'Configuration')
-        self.Options = self._ReadAttrib(xmlElement, 'Options', '')
+        self._CheckAttributes({self._AttribOutputPath, self.__AttribSource, self.__AttribProject, self.__AttribTarget, self.__AttribConfiguration, self.__AttribOptions, self.__AttribOutputPath})
+        self.Source = self._TryReadAttrib(xmlElement, self.__AttribSource)
+        self.Project = self._ReadAttrib(xmlElement, self.__AttribProject)
+        target = self._ReadAttrib(xmlElement, self.__AttribTarget)
+        configuration = self._ReadAttrib(xmlElement, self.__AttribConfiguration)
+        self.Options = self._ReadAttrib(xmlElement, self.__AttribOptions, '')
         self.Target = CMakeTargetType.FromString(target)
-        self.OutputPath = self._ReadAttrib(xmlElement, 'OutputPath')
+        self.OutputPath = self._ReadAttrib(xmlElement, self.__AttribOutputPath)
 
         self.ConfigurationList = self.__ParseConfiguration(configuration)
 
@@ -458,9 +547,12 @@ class XmlRecipePipelineCommandCMakeBuild(XmlRecipePipelineBuildCommand):
 
 
 class XmlRecipePipelineCommandCombine(XmlRecipePipelineBuildCommand):
+    __AttribOutputPath = 'OutputPath'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Combine", BuildRecipePipelineCommand.Combine, False, allowJoinCommandList=False)
-        self.OutputPath = self._TryReadAttrib(xmlElement, 'OutputPath')
+        self._CheckAttributes({self._AttribOutputPath, self.__AttribOutputPath})
+        self.OutputPath = self._TryReadAttrib(xmlElement, self.__AttribOutputPath)
         self.CommandList = self.__GetCombineCommandList(log, xmlElement)
         if len(self.CommandList) <= 0:
             raise Exception("A Combine command must contain at least one commands")
@@ -490,6 +582,7 @@ class XmlRecipePipelineCommandCombine(XmlRecipePipelineBuildCommand):
 class XmlRecipePipelineCommandCopy(XmlRecipePipelineBuildCommand):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "Copy", BuildRecipePipelineCommand.Copy)
+        self._CheckAttributes({self._AttribOutputPath})
 
 
 def _TryAllocatePipelineFetchCommand(log: Log, xmlElement: ET.Element) -> Optional[XmlRecipePipelineFetchCommand]:
@@ -551,16 +644,24 @@ class XmlRecipePipeline(XmlBase):
 
 
 class XmlExperimentalRecipe(XmlBase):
+    __AttribName = 'Name'
+    __AttribVersion = 'Version'
+    __AttribExternalInstallDirectory = 'ExternalInstallDirectory'
+    __AttribFindVersion = 'FindVersion'
+    __AttribFindTargetName = 'FindTargetName'
+    __AttribFind = 'Find'
+
     def __init__(self, log: Log, xmlElement: ET.Element, defaultName: str) -> None:
         super().__init__(log, xmlElement)
-        self.ShortName = self._ReadAttrib(xmlElement, 'Name', defaultName)
-        self.Version = self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
+        self._CheckAttributes({self.__AttribName, self.__AttribVersion, self.__AttribExternalInstallDirectory, self.__AttribFindVersion, self.__AttribFindTargetName, self.__AttribFind})
+        self.ShortName = self._ReadAttrib(xmlElement, self.__AttribName, defaultName)
+        self.Version = self._TryReadAttribAsVersion(xmlElement, self.__AttribVersion)  # type: Optional[Version]
         self.Pipeline = self.__TryGetPipeline(xmlElement)
         self.ValidateInstallation = self.__TryGetValidateInstallation(log, xmlElement)
-        self.ExternalInstallDirectory = self._TryReadAttrib(xmlElement, 'ExternalInstallDirectory')
-        self.FindVersion = self._TryReadAttribAsVersion(xmlElement, 'FindVersion') # type: Optional[Version]
-        self.FindTargetName = self._TryReadAttrib(xmlElement, 'FindTargetName')
-        findResult = self._TryReadBoolAttrib(xmlElement, "Find", None)
+        self.ExternalInstallDirectory = self._TryReadAttrib(xmlElement, self.__AttribExternalInstallDirectory)
+        self.FindVersion = self._TryReadAttribAsVersion(xmlElement, self.__AttribFindVersion) # type: Optional[Version]
+        self.FindTargetName = self._TryReadAttrib(xmlElement, self.__AttribFindTargetName)
+        findResult = self._ReadBoolAttrib(xmlElement, self.__AttribFind, False)
         self.Find = False if findResult is None else findResult
 
         if self.FindVersion is not None:

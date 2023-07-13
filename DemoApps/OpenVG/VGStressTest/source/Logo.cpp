@@ -38,7 +38,7 @@ namespace Fsl
 {
   RawBitmap Logo::GetBitmap()
   {
-    return {gpImageData, PxExtent2D(256, 256), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft};
+    return {gpImageData, PxExtent2D::Create(256, 256), PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft};
   }
 
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)

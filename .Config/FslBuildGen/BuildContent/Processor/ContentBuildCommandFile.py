@@ -58,7 +58,7 @@ class ContentBuildCommandFile(object):
 
         fileContent = IOUtil.TryReadFile(sourceFilename)
         if fileContent is not None:
-            log.LogPrint("Parsing command file '{0}'".format(sourceFilename))
+            log.LogPrintVerbose(3, "Parsing command file '{0}'".format(sourceFilename))
             jsonContent = self.__ParseJsonFile(fileContent)
             self.__ValidateJsonContent(jsonContent, sourceFilename)
             self.Commands = self.__ParseContent(log, jsonContent[self.__RootElement], sourceFilename, pathVariables)
@@ -93,7 +93,7 @@ class ContentBuildCommandFile(object):
                     newCommand = self.__ParseContentSync(log, jsonContent[key], sourceFilename, key, pathVariables)  # type: Command
                     commands.append(newCommand)
                 elif key == "Content.SyncList":
-                    commands += self.__ParseContentSyncList(log, jsonContent[key], sourceFilename, key, pathVariables) 
+                    commands += self.__ParseContentSyncList(log, jsonContent[key], sourceFilename, key, pathVariables)
                 elif key == "ContentBuild.Sync":
                     newCommand = self.__ParseContentBuildSync(log, jsonContent[key], sourceFilename, key, pathVariables)
                     commands.append(newCommand)

@@ -159,8 +159,8 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(windowSizePx.Width())));
-    const GLint remainderX = std::min(std::max(windowSizePx.Width() - splitX, 0), windowSizePx.Width());
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(windowSizePx.RawWidth())));
+    const GLint remainderX = std::min(std::max(windowSizePx.RawWidth() - splitX, 0), windowSizePx.RawWidth());
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -176,7 +176,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(0, 0, splitX, windowSizePx.Height());
+        glScissor(0, 0, splitX, windowSizePx.RawHeight());
       }
       DrawScene(m_resources.ProgramLDR);
     }
@@ -184,7 +184,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(splitX, 0, remainderX, windowSizePx.Height());
+        glScissor(splitX, 0, remainderX, windowSizePx.RawHeight());
       }
       DrawScene(m_resources.ProgramHDR);
     }
@@ -222,7 +222,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

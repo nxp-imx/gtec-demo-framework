@@ -90,8 +90,8 @@ namespace Fsl
       scale *= m_info.SdfScale;
     }
     m_info.FontConfig.Scale = scale;
-    m_info.ScaledLineSpacingPx = TypeConverter::ChangeTo<uint16_t>(static_cast<float>(m_info.LineSpacingPx) * scale);
-    m_info.ScaledBaseLinePx = TypeConverter::ChangeTo<uint16_t>(static_cast<float>(m_info.BaseLinePx) * scale);
+    m_info.ScaledLineSpacingPx = TypeConverter::ChangeTo<PxValueU16>(PxValueF(static_cast<float>(m_info.LineSpacingPx.Value) * scale));
+    m_info.ScaledBaseLinePx = TypeConverter::ChangeTo<PxValueU16>(PxValueF(static_cast<float>(m_info.BaseLinePx.Value) * scale));
   }
 
   PxSize2D SpriteFont::MeasureString(const StringViewLite& strView) const

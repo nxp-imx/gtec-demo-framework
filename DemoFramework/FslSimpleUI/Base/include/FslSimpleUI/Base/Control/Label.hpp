@@ -39,6 +39,8 @@ namespace Fsl::UI
 {
   class Label : public LabelBase
   {
+    using base_type = LabelBase;
+
     DataBinding::TypedDependencyProperty<StringViewLite> m_propertyContent;
 
   public:
@@ -46,7 +48,10 @@ namespace Fsl::UI
 
     explicit Label(const std::shared_ptr<WindowContext>& context);
 
-    StringViewLite GetContent() const;
+    StringViewLite GetContent() const noexcept
+    {
+      return m_propertyContent.Get();
+    }
 
     bool SetContent(const char* const psz)
     {

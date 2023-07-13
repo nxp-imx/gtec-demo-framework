@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,41 +44,41 @@ namespace
 TEST(TestControlLogic_SliderPixelSpanInfo, Construct_Default)
 {
   UI::SliderPixelSpanInfo spanInfo;
-  EXPECT_EQ(0, spanInfo.GetStartPx());
-  EXPECT_EQ(0, spanInfo.GetLengthPx());
+  EXPECT_EQ(PxValue(0), spanInfo.GetStartPx());
+  EXPECT_EQ(PxValue(0), spanInfo.GetLengthPx());
   EXPECT_FALSE(spanInfo.IsReversedDirection());
 }
 
 TEST(TestControlLogic_SliderPixelSpanInfo, Construct)
 {
-  UI::SliderPixelSpanInfo spanInfo(1, 10, false);
-  EXPECT_EQ(1, spanInfo.GetStartPx());
-  EXPECT_EQ(10, spanInfo.GetLengthPx());
+  UI::SliderPixelSpanInfo spanInfo(PxValue(1), PxSize1D::Create(10), false);
+  EXPECT_EQ(PxValue(1), spanInfo.GetStartPx());
+  EXPECT_EQ(PxValue(10), spanInfo.GetLengthPx());
   EXPECT_FALSE(spanInfo.IsReversedDirection());
 }
 
 TEST(TestControlLogic_SliderPixelSpanInfo, OpEqual)
 {
-  EXPECT_TRUE(UI::SliderPixelSpanInfo(1, 10, false) == UI::SliderPixelSpanInfo(1, 10, false));
-  EXPECT_FALSE(UI::SliderPixelSpanInfo(1, 10, false) == UI::SliderPixelSpanInfo(2, 10, false));
-  EXPECT_FALSE(UI::SliderPixelSpanInfo(1, 10, false) == UI::SliderPixelSpanInfo(1, 11, false));
-  EXPECT_FALSE(UI::SliderPixelSpanInfo(1, 10, false) == UI::SliderPixelSpanInfo(1, 10, true));
+  EXPECT_TRUE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) == UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false));
+  EXPECT_FALSE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) == UI::SliderPixelSpanInfo(PxValue(2), PxSize1D::Create(10), false));
+  EXPECT_FALSE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) == UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(11), false));
+  EXPECT_FALSE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) == UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), true));
 };
 
 TEST(TestControlLogic_SliderPixelSpanInfo, OpNotEqual)
 {
-  EXPECT_FALSE(UI::SliderPixelSpanInfo(1, 10, false) != UI::SliderPixelSpanInfo(1, 10, false));
-  EXPECT_TRUE(UI::SliderPixelSpanInfo(1, 10, false) != UI::SliderPixelSpanInfo(2, 10, false));
-  EXPECT_TRUE(UI::SliderPixelSpanInfo(1, 10, false) != UI::SliderPixelSpanInfo(1, 11, false));
-  EXPECT_TRUE(UI::SliderPixelSpanInfo(1, 10, false) != UI::SliderPixelSpanInfo(1, 10, true));
+  EXPECT_FALSE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) != UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false));
+  EXPECT_TRUE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) != UI::SliderPixelSpanInfo(PxValue(2), PxSize1D::Create(10), false));
+  EXPECT_TRUE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) != UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(11), false));
+  EXPECT_TRUE(UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), false) != UI::SliderPixelSpanInfo(PxValue(1), PxSize1D::Create(10), true));
 };
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, Construct_Reverse)
 {
-  UI::SliderPixelSpanInfo spanInfo(1, 10, true);
-  EXPECT_EQ(1, spanInfo.GetStartPx());
-  EXPECT_EQ(10, spanInfo.GetLengthPx());
+  UI::SliderPixelSpanInfo spanInfo(PxValue(1), PxSize1D::Create(10), true);
+  EXPECT_EQ(PxValue(1), spanInfo.GetStartPx());
+  EXPECT_EQ(PxValue(10), spanInfo.GetLengthPx());
   EXPECT_TRUE(spanInfo.IsReversedDirection());
 }
 
@@ -86,137 +86,137 @@ TEST(TestControlLogic_SliderPixelSpanInfo, Construct_Reverse)
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage)
 {
-  UI::SliderPixelSpanInfo spanInfo(0, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(0), PxSize1D::Create(21), false);
 
-  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(0));
-  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(1));
-  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(2));
+  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(PxValue(0)));
+  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(PxValue(1)));
+  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(PxValue(2)));
 
-  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(3));
-  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(4));
-  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(5));
-  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(6));
-  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(7));
+  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(PxValue(3)));
+  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(PxValue(4)));
+  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(PxValue(5)));
+  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(PxValue(6)));
+  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(PxValue(7)));
 
-  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(8));
-  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(9));
-  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(10));
-  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(11));
-  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(12));
+  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(PxValue(8)));
+  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(PxValue(9)));
+  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(PxValue(10)));
+  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(PxValue(11)));
+  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(PxValue(12)));
 
-  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(13));
-  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(14));
-  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(15));
-  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(16));
-  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(17));
+  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(PxValue(13)));
+  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(PxValue(14)));
+  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(PxValue(15)));
+  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(PxValue(16)));
+  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(PxValue(17)));
 
-  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(18));
-  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(19));
-  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(20));
+  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(PxValue(18)));
+  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(PxValue(19)));
+  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(PxValue(20)));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_Offset)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), false);
 
-  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(10));
-  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(11));
-  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(12));
+  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(PxValue(10)));
+  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(PxValue(11)));
+  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(PxValue(12)));
 
-  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(13));
-  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(14));
-  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(15));
-  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(16));
-  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(17));
+  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(PxValue(13)));
+  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(PxValue(14)));
+  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(PxValue(15)));
+  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(PxValue(16)));
+  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(PxValue(17)));
 
-  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(18));
-  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(19));
-  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(20));
-  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(21));
-  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(22));
+  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(PxValue(18)));
+  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(PxValue(19)));
+  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(PxValue(20)));
+  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(PxValue(21)));
+  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(PxValue(22)));
 
-  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(23));
-  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(24));
-  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(25));
-  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(26));
-  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(27));
+  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(PxValue(23)));
+  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(PxValue(24)));
+  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(PxValue(25)));
+  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(PxValue(26)));
+  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(PxValue(27)));
 
-  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(28));
-  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(29));
-  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(30));
+  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(PxValue(28)));
+  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(PxValue(29)));
+  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(PxValue(30)));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_OutOfRange_Low)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), false);
 
-  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(9));
-  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(0));
-  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(std::numeric_limits<int32_t>::min()));
+  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(PxValue(9)));
+  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(PxValue(0)));
+  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(PxValue(std::numeric_limits<int32_t>::min())));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_OutOfRange_High)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), false);
 
-  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(31));
-  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(32));
-  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(std::numeric_limits<int32_t>::max()));
+  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(PxValue(31)));
+  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(PxValue(32)));
+  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(PxValue(std::numeric_limits<int32_t>::max())));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), false);
 
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(0 / 20.0f));
-  EXPECT_EQ(11, spanInfo.CalcPercentageToPxPosition(1 / 20.0f));
-  EXPECT_EQ(12, spanInfo.CalcPercentageToPxPosition(2 / 20.0f));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(0 / 20.0f));
+  EXPECT_EQ(PxValue(11), spanInfo.CalcPercentageToPxPosition(1 / 20.0f));
+  EXPECT_EQ(PxValue(12), spanInfo.CalcPercentageToPxPosition(2 / 20.0f));
 
-  EXPECT_EQ(13, spanInfo.CalcPercentageToPxPosition(3 / 20.0f));
-  EXPECT_EQ(14, spanInfo.CalcPercentageToPxPosition(4 / 20.0f));
-  EXPECT_EQ(15, spanInfo.CalcPercentageToPxPosition(5 / 20.0f));
-  EXPECT_EQ(16, spanInfo.CalcPercentageToPxPosition(6 / 20.0f));
-  EXPECT_EQ(17, spanInfo.CalcPercentageToPxPosition(7 / 20.0f));
+  EXPECT_EQ(PxValue(13), spanInfo.CalcPercentageToPxPosition(3 / 20.0f));
+  EXPECT_EQ(PxValue(14), spanInfo.CalcPercentageToPxPosition(4 / 20.0f));
+  EXPECT_EQ(PxValue(15), spanInfo.CalcPercentageToPxPosition(5 / 20.0f));
+  EXPECT_EQ(PxValue(16), spanInfo.CalcPercentageToPxPosition(6 / 20.0f));
+  EXPECT_EQ(PxValue(17), spanInfo.CalcPercentageToPxPosition(7 / 20.0f));
 
-  EXPECT_EQ(18, spanInfo.CalcPercentageToPxPosition(8 / 20.0f));
-  EXPECT_EQ(19, spanInfo.CalcPercentageToPxPosition(9 / 20.0f));
-  EXPECT_EQ(20, spanInfo.CalcPercentageToPxPosition(10 / 20.0f));
-  EXPECT_EQ(21, spanInfo.CalcPercentageToPxPosition(11 / 20.0f));
-  EXPECT_EQ(22, spanInfo.CalcPercentageToPxPosition(12 / 20.0f));
+  EXPECT_EQ(PxValue(18), spanInfo.CalcPercentageToPxPosition(8 / 20.0f));
+  EXPECT_EQ(PxValue(19), spanInfo.CalcPercentageToPxPosition(9 / 20.0f));
+  EXPECT_EQ(PxValue(20), spanInfo.CalcPercentageToPxPosition(10 / 20.0f));
+  EXPECT_EQ(PxValue(21), spanInfo.CalcPercentageToPxPosition(11 / 20.0f));
+  EXPECT_EQ(PxValue(22), spanInfo.CalcPercentageToPxPosition(12 / 20.0f));
 
-  EXPECT_EQ(23, spanInfo.CalcPercentageToPxPosition(13 / 20.0f));
-  EXPECT_EQ(24, spanInfo.CalcPercentageToPxPosition(14 / 20.0f));
-  EXPECT_EQ(25, spanInfo.CalcPercentageToPxPosition(15 / 20.0f));
-  EXPECT_EQ(26, spanInfo.CalcPercentageToPxPosition(16 / 20.0f));
-  EXPECT_EQ(27, spanInfo.CalcPercentageToPxPosition(17 / 20.0f));
+  EXPECT_EQ(PxValue(23), spanInfo.CalcPercentageToPxPosition(13 / 20.0f));
+  EXPECT_EQ(PxValue(24), spanInfo.CalcPercentageToPxPosition(14 / 20.0f));
+  EXPECT_EQ(PxValue(25), spanInfo.CalcPercentageToPxPosition(15 / 20.0f));
+  EXPECT_EQ(PxValue(26), spanInfo.CalcPercentageToPxPosition(16 / 20.0f));
+  EXPECT_EQ(PxValue(27), spanInfo.CalcPercentageToPxPosition(17 / 20.0f));
 
-  EXPECT_EQ(28, spanInfo.CalcPercentageToPxPosition(18 / 20.0f));
-  EXPECT_EQ(29, spanInfo.CalcPercentageToPxPosition(19 / 20.0f));
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(20 / 20.0f));
+  EXPECT_EQ(PxValue(28), spanInfo.CalcPercentageToPxPosition(18 / 20.0f));
+  EXPECT_EQ(PxValue(29), spanInfo.CalcPercentageToPxPosition(19 / 20.0f));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(20 / 20.0f));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition_OutOfRange_Low)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), false);
 
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(-0.1f));
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(-1.0f));
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::min()));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(-0.1f));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(-1.0f));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::min()));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition_OutOfRange_High)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, false);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), false);
 
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(1.0f));
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(1.2f));
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::max()));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(1.0f));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(1.2f));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::max()));
 }
 
 
@@ -224,137 +224,137 @@ TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition_OutOfRange
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_Reversed)
 {
-  UI::SliderPixelSpanInfo spanInfo(0, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(0), PxSize1D::Create(21), true);
 
-  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(0));
-  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(1));
-  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(2));
+  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(PxValue(0)));
+  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(PxValue(1)));
+  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(PxValue(2)));
 
-  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(3));
-  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(4));
-  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(5));
-  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(6));
-  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(7));
+  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(PxValue(3)));
+  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(PxValue(4)));
+  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(PxValue(5)));
+  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(PxValue(6)));
+  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(PxValue(7)));
 
-  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(8));
-  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(9));
-  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(10));
-  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(11));
-  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(12));
+  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(PxValue(8)));
+  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(PxValue(9)));
+  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(PxValue(10)));
+  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(PxValue(11)));
+  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(PxValue(12)));
 
-  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(13));
-  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(14));
-  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(15));
-  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(16));
-  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(17));
+  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(PxValue(13)));
+  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(PxValue(14)));
+  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(PxValue(15)));
+  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(PxValue(16)));
+  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(PxValue(17)));
 
-  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(18));
-  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(19));
-  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(20));
+  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(PxValue(18)));
+  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(PxValue(19)));
+  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(PxValue(20)));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_Reversed_Offset)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), true);
 
-  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(10));
-  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(11));
-  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(12));
+  EXPECT_FLOAT_EQ(20 / 20.0f, spanInfo.CalculatePercentage(PxValue(10)));
+  EXPECT_FLOAT_EQ(19 / 20.0f, spanInfo.CalculatePercentage(PxValue(11)));
+  EXPECT_FLOAT_EQ(18 / 20.0f, spanInfo.CalculatePercentage(PxValue(12)));
 
-  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(13));
-  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(14));
-  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(15));
-  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(16));
-  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(17));
+  EXPECT_FLOAT_EQ(17 / 20.0f, spanInfo.CalculatePercentage(PxValue(13)));
+  EXPECT_FLOAT_EQ(16 / 20.0f, spanInfo.CalculatePercentage(PxValue(14)));
+  EXPECT_FLOAT_EQ(15 / 20.0f, spanInfo.CalculatePercentage(PxValue(15)));
+  EXPECT_FLOAT_EQ(14 / 20.0f, spanInfo.CalculatePercentage(PxValue(16)));
+  EXPECT_FLOAT_EQ(13 / 20.0f, spanInfo.CalculatePercentage(PxValue(17)));
 
-  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(18));
-  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(19));
-  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(20));
-  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(21));
-  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(22));
+  EXPECT_FLOAT_EQ(12 / 20.0f, spanInfo.CalculatePercentage(PxValue(18)));
+  EXPECT_FLOAT_EQ(11 / 20.0f, spanInfo.CalculatePercentage(PxValue(19)));
+  EXPECT_FLOAT_EQ(10 / 20.0f, spanInfo.CalculatePercentage(PxValue(20)));
+  EXPECT_FLOAT_EQ(9 / 20.0f, spanInfo.CalculatePercentage(PxValue(21)));
+  EXPECT_FLOAT_EQ(8 / 20.0f, spanInfo.CalculatePercentage(PxValue(22)));
 
-  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(23));
-  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(24));
-  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(25));
-  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(26));
-  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(27));
+  EXPECT_FLOAT_EQ(7 / 20.0f, spanInfo.CalculatePercentage(PxValue(23)));
+  EXPECT_FLOAT_EQ(6 / 20.0f, spanInfo.CalculatePercentage(PxValue(24)));
+  EXPECT_FLOAT_EQ(5 / 20.0f, spanInfo.CalculatePercentage(PxValue(25)));
+  EXPECT_FLOAT_EQ(4 / 20.0f, spanInfo.CalculatePercentage(PxValue(26)));
+  EXPECT_FLOAT_EQ(3 / 20.0f, spanInfo.CalculatePercentage(PxValue(27)));
 
-  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(28));
-  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(29));
-  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(30));
+  EXPECT_FLOAT_EQ(2 / 20.0f, spanInfo.CalculatePercentage(PxValue(28)));
+  EXPECT_FLOAT_EQ(1 / 20.0f, spanInfo.CalculatePercentage(PxValue(29)));
+  EXPECT_FLOAT_EQ(0 / 20.0f, spanInfo.CalculatePercentage(PxValue(30)));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_Reversed_OutOfRange_Low)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), true);
 
-  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(9));
-  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(0));
-  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(std::numeric_limits<int32_t>::min()));
+  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(PxValue(9)));
+  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(PxValue(0)));
+  EXPECT_FLOAT_EQ(1.0f, spanInfo.CalculatePercentage(PxValue(std::numeric_limits<int32_t>::min())));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalculatePercentage_Reversed_OutOfRange_High)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), true);
 
-  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(31));
-  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(32));
-  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(std::numeric_limits<int32_t>::max()));
+  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(PxValue(31)));
+  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(PxValue(32)));
+  EXPECT_FLOAT_EQ(0.0f, spanInfo.CalculatePercentage(PxValue(std::numeric_limits<int32_t>::max())));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition_Reversed)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), true);
 
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(0 / 20.0f));
-  EXPECT_EQ(29, spanInfo.CalcPercentageToPxPosition(1 / 20.0f));
-  EXPECT_EQ(28, spanInfo.CalcPercentageToPxPosition(2 / 20.0f));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(0 / 20.0f));
+  EXPECT_EQ(PxValue(29), spanInfo.CalcPercentageToPxPosition(1 / 20.0f));
+  EXPECT_EQ(PxValue(28), spanInfo.CalcPercentageToPxPosition(2 / 20.0f));
 
-  EXPECT_EQ(27, spanInfo.CalcPercentageToPxPosition(3 / 20.0f));
-  EXPECT_EQ(26, spanInfo.CalcPercentageToPxPosition(4 / 20.0f));
-  EXPECT_EQ(25, spanInfo.CalcPercentageToPxPosition(5 / 20.0f));
-  EXPECT_EQ(24, spanInfo.CalcPercentageToPxPosition(6 / 20.0f));
-  EXPECT_EQ(23, spanInfo.CalcPercentageToPxPosition(7 / 20.0f));
+  EXPECT_EQ(PxValue(27), spanInfo.CalcPercentageToPxPosition(3 / 20.0f));
+  EXPECT_EQ(PxValue(26), spanInfo.CalcPercentageToPxPosition(4 / 20.0f));
+  EXPECT_EQ(PxValue(25), spanInfo.CalcPercentageToPxPosition(5 / 20.0f));
+  EXPECT_EQ(PxValue(24), spanInfo.CalcPercentageToPxPosition(6 / 20.0f));
+  EXPECT_EQ(PxValue(23), spanInfo.CalcPercentageToPxPosition(7 / 20.0f));
 
-  EXPECT_EQ(22, spanInfo.CalcPercentageToPxPosition(8 / 20.0f));
-  EXPECT_EQ(21, spanInfo.CalcPercentageToPxPosition(9 / 20.0f));
-  EXPECT_EQ(20, spanInfo.CalcPercentageToPxPosition(10 / 20.0f));
-  EXPECT_EQ(19, spanInfo.CalcPercentageToPxPosition(11 / 20.0f));
-  EXPECT_EQ(18, spanInfo.CalcPercentageToPxPosition(12 / 20.0f));
+  EXPECT_EQ(PxValue(22), spanInfo.CalcPercentageToPxPosition(8 / 20.0f));
+  EXPECT_EQ(PxValue(21), spanInfo.CalcPercentageToPxPosition(9 / 20.0f));
+  EXPECT_EQ(PxValue(20), spanInfo.CalcPercentageToPxPosition(10 / 20.0f));
+  EXPECT_EQ(PxValue(19), spanInfo.CalcPercentageToPxPosition(11 / 20.0f));
+  EXPECT_EQ(PxValue(18), spanInfo.CalcPercentageToPxPosition(12 / 20.0f));
 
-  EXPECT_EQ(17, spanInfo.CalcPercentageToPxPosition(13 / 20.0f));
-  EXPECT_EQ(16, spanInfo.CalcPercentageToPxPosition(14 / 20.0f));
-  EXPECT_EQ(15, spanInfo.CalcPercentageToPxPosition(15 / 20.0f));
-  EXPECT_EQ(14, spanInfo.CalcPercentageToPxPosition(16 / 20.0f));
-  EXPECT_EQ(13, spanInfo.CalcPercentageToPxPosition(17 / 20.0f));
+  EXPECT_EQ(PxValue(17), spanInfo.CalcPercentageToPxPosition(13 / 20.0f));
+  EXPECT_EQ(PxValue(16), spanInfo.CalcPercentageToPxPosition(14 / 20.0f));
+  EXPECT_EQ(PxValue(15), spanInfo.CalcPercentageToPxPosition(15 / 20.0f));
+  EXPECT_EQ(PxValue(14), spanInfo.CalcPercentageToPxPosition(16 / 20.0f));
+  EXPECT_EQ(PxValue(13), spanInfo.CalcPercentageToPxPosition(17 / 20.0f));
 
-  EXPECT_EQ(12, spanInfo.CalcPercentageToPxPosition(18 / 20.0f));
-  EXPECT_EQ(11, spanInfo.CalcPercentageToPxPosition(19 / 20.0f));
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(20 / 20.0f));
+  EXPECT_EQ(PxValue(12), spanInfo.CalcPercentageToPxPosition(18 / 20.0f));
+  EXPECT_EQ(PxValue(11), spanInfo.CalcPercentageToPxPosition(19 / 20.0f));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(20 / 20.0f));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition_Reversed_OutOfRange_Low)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), true);
 
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(-0.1f));
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(-1.0f));
-  EXPECT_EQ(30, spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::min()));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(-0.1f));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(-1.0f));
+  EXPECT_EQ(PxValue(30), spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::min()));
 }
 
 
 TEST(TestControlLogic_SliderPixelSpanInfo, CalcPercentageToPxPosition_Reversed_OutOfRange_High)
 {
-  UI::SliderPixelSpanInfo spanInfo(10, 21, true);
+  UI::SliderPixelSpanInfo spanInfo(PxValue(10), PxSize1D::Create(21), true);
 
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(1.0f));
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(1.2f));
-  EXPECT_EQ(10, spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::max()));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(1.0f));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(1.2f));
+  EXPECT_EQ(PxValue(10), spanInfo.CalcPercentageToPxPosition(std::numeric_limits<float>::max()));
 }
 
 

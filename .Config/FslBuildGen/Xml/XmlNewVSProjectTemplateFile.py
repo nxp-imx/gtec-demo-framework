@@ -45,16 +45,24 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlNewVSProjectTemplate(XmlBase):
+    __AttribName = 'Name'
+    __AttribDescription = 'Description'
+    __AttribPackageLanguage = 'PackageLanguage'
+    __AttribProjectExtension = 'ProjectExtension'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.Description = self._ReadAttrib(xmlElement, 'Description')
-        packageLanguage = self._ReadAttrib(xmlElement, 'PackageLanguage')
+        self._CheckAttributes({self.__AttribName, self.__AttribDescription, self.__AttribPackageLanguage, self.__AttribProjectExtension})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Description = self._ReadAttrib(xmlElement, self.__AttribDescription)
+        packageLanguage = self._ReadAttrib(xmlElement, self.__AttribPackageLanguage)
         self.PackageLanguage = PackageLanguage.FromString(packageLanguage)
-        self.ProjectExtension = self._ReadAttrib(xmlElement, 'ProjectExtension', 'vcxproj')
+        self.ProjectExtension = self._ReadAttrib(xmlElement, self.__AttribProjectExtension, 'vcxproj')
 
 
 class XmlNewVSProjectTemplateFile(XmlBase):
+    __AttribVersion = 'Version'
+
     def __init__(self, log: Log, filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate config file %s", filename)
@@ -69,7 +77,8 @@ class XmlNewVSProjectTemplateFile(XmlBase):
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGeneratorVSProjectTemplate'")
 
         super().__init__(log, elem)
-        strVersion = self._ReadAttrib(elem, 'Version')
+        #self._CheckAttributes({self.__AttribVersion})
+        strVersion = self._ReadAttrib(elem, self.__AttribVersion)
         if strVersion != "1":
             raise Exception("Unsupported version")
 

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_GRIDLAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_GRIDLAYOUT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/MathHelper_MinMax.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 #include <FslSimpleUI/Base/Layout/GridRowColumnDefinition.hpp>
 
@@ -49,6 +52,8 @@ namespace Fsl::UI
 
   class GridLayout : public ComplexLayout<GridWindowCollectionRecord>
   {
+    using base_type = ComplexLayout<GridWindowCollectionRecord>;
+
     enum class InternalGridUnitType
     {
       //! Fixed size
@@ -90,13 +95,13 @@ namespace Fsl::UI
     struct GridRowColumnDefinitionEx : public GridRowColumnDefinitionBase
     {
       InternalGridUnitType MeasureUnitType{InternalGridUnitType::Fixed};
-      int32_t MeasureSizePx{};
+      PxAvailableSize1D MeasureSizePx{};
       //! The minimum size of the final cell
-      int32_t MinimumSizePx{};
+      PxSize1D MinimumSizePx{};
       //! The minimum arrange size of the final cell
-      int32_t ArrangeMinimumSizePx{};
+      PxSize1D ArrangeMinimumSizePx{};
       //! Used for temporary storing the MinimumSize during measure and also as a cell offset during arrange
-      int32_t TempValue{};
+      PxValue TempValue{};
 
       explicit constexpr GridRowColumnDefinitionEx(const GridColumnDefinition& ex)
         : GridRowColumnDefinitionBase(ex)
@@ -108,26 +113,27 @@ namespace Fsl::UI
       }
 
       //! @brief Applies the newMinSize if its larger than the existing min size
-      inline void ApplyMeasureMinSize(const int32_t newMinSizePx)
+      inline void ApplyMeasureMinSize(const PxSize1D newMinSizePx) noexcept
       {
-        MinimumSizePx = std::max(MinimumSizePx, newMinSizePx);
+        MinimumSizePx = MathHelper::Max(MinimumSizePx, newMinSizePx);
       }
 
-      inline void ClearArrangeMinSize()
+
+      inline void ClearArrangeMinSize() noexcept
       {
         ArrangeMinimumSizePx = MinimumSizePx;
       }
 
-      inline void SetArrangeMinSize(const int32_t newMinSizePx)
+      inline void SetArrangeMinSize(const PxSize1D newMinSizePx) noexcept
       {
         // it is correct that we use MinimumSizePx as the one we validate against
-        ArrangeMinimumSizePx = std::max(MinimumSizePx, newMinSizePx);
+        ArrangeMinimumSizePx = MathHelper::Max(MinimumSizePx, newMinSizePx);
       }
 
-      inline int32_t CalcMeasureMinSize(const int32_t newMinSizePx)
-      {
-        return std::max(MinimumSizePx, newMinSizePx);
-      }
+      // inline PxSize1D CalcMeasureMinSize(const PxSize1D newMinSizePx) noexcept
+      //{
+      //   return MathHelper::Max(MinimumSizePx, newMinSizePx);
+      // }
     };
 
     std::deque<GridRowColumnDefinitionEx> m_definitionsX;
@@ -185,9 +191,9 @@ namespace Fsl::UI
     PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
   private:
-    void BasicMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx);
-    void SemiComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx);
-    void ComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx);
+    void BasicMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize availableSizePx);
+    void SemiComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize availableSizePx);
+    void ComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize availableSizePx);
 
     PxSize2D ResolveMeasureSize();
 
@@ -201,10 +207,10 @@ namespace Fsl::UI
                            const bool ignoreDesiredX);
     void MeasureCellGroup2(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex, const PxAvailableSize& availableSizePx);
     void MeasureCellGroup3(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex, const PxAvailableSize& availableSizePx);
-    static void ResolveStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx);
+    static void ResolveStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const PxAvailableSize1D totalAvailableSpacePx);
     PxSize2D FinalizeSizes(const PxSize2D& finalSizePx);
     static void ResetMinimumSize(std::deque<GridRowColumnDefinitionEx>& rDefinitions);
-    static void FinalizeStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx);
+    static void FinalizeStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const PxSize1D totalAvailableSpacePx);
     void StoreMinSizeX(const uint32_t groupStartIndex);
     void StoreMinSizeY(const uint32_t groupStartIndex);
     static void RestoreMinSize(std::deque<GridRowColumnDefinitionEx>& rDefinitions);

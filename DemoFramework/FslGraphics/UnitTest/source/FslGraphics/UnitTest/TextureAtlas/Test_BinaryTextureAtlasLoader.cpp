@@ -71,10 +71,10 @@ TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load)
 
   const auto& entry0 = atlas.GetEntry(0);
   EXPECT_EQ(UTF8String("Banners"), entry0.Name);
-  EXPECT_EQ(PxPoint2(-15, -7), entry0.TextureInfo.OffsetPx);
-  EXPECT_EQ(PxExtent2D(1920, 1080), entry0.TextureInfo.ExtentPx);
-  EXPECT_EQ(PxThicknessU(17, 9, 1426, 873), entry0.TextureInfo.TrimMarginPx);
-  EXPECT_EQ(PxRectangleU32(2, 2, 477, 198), entry0.TextureInfo.TrimmedRectPx);
+  EXPECT_EQ(PxPoint2::Create(-15, -7), entry0.TextureInfo.OffsetPx);
+  EXPECT_EQ(PxExtent2D::Create(1920, 1080), entry0.TextureInfo.ExtentPx);
+  EXPECT_EQ(PxThicknessU::Create(17, 9, 1426, 873), entry0.TextureInfo.TrimMarginPx);
+  EXPECT_EQ(PxRectangleU32::Create(2, 2, 477, 198), entry0.TextureInfo.TrimmedRectPx);
   EXPECT_EQ(DEFAULT_DP, entry0.TextureInfo.Dpi);
 }
 

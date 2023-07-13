@@ -65,19 +65,19 @@ namespace Fsl::Helios
     FSLLOG3_VERBOSE("Format: {}", defaultFormat);
     FSLLOG3_VERBOSE("FPS: {}", defaultFPS);
 
-    const PxExtent2D defaultExtent(static_cast<uint32_t>(defaultWidth), static_cast<uint32_t>(defaultHeight));
+    const PxExtent2D defaultExtent(PxExtent2D::Create(static_cast<uint32_t>(defaultWidth), static_cast<uint32_t>(defaultHeight)));
 
     // Only modify
     if (allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent) && defaultExtent != allocateInfo.Extent)
     {
       FSLLOG3_VERBOSE("Trying to set custom resolution: {}", allocateInfo.Extent);
       // WARNING: this is not something that works for all open cv cameras
-      m_cap.set(cv::CAP_PROP_FRAME_WIDTH, m_config.Extent.Width);
-      m_cap.set(cv::CAP_PROP_FRAME_HEIGHT, m_config.Extent.Height);
+      m_cap.set(cv::CAP_PROP_FRAME_WIDTH, m_config.Extent.Width.Value);
+      m_cap.set(cv::CAP_PROP_FRAME_HEIGHT, m_config.Extent.Height.Value);
 
       const double actualWidth = m_cap.get(cv::CAP_PROP_FRAME_WIDTH);
       const double actualHeight = m_cap.get(cv::CAP_PROP_FRAME_HEIGHT);
-      const PxExtent2D actualExtent(static_cast<uint32_t>(actualWidth), static_cast<uint32_t>(actualHeight));
+      const PxExtent2D actualExtent(PxExtent2D::Create(static_cast<uint32_t>(actualWidth), static_cast<uint32_t>(actualHeight)));
       if (actualExtent != allocateInfo.Extent)
       {
         FSLLOG3_WARNING("Failed to set custom resolution using: {}", actualExtent);
@@ -150,16 +150,16 @@ namespace Fsl::Helios
     {
     case BitmapOrigin::Undefined:
     case BitmapOrigin::UpperLeft:
-      std::memcpy(rTargetBitmap.Content(), m_vidFrame.ptr(), m_config.Extent.Height * m_config.Stride);
+      std::memcpy(rTargetBitmap.Content(), m_vidFrame.ptr(), m_config.Extent.Height.Value * m_config.Stride);
       break;
     case BitmapOrigin::LowerLeft:
       {
         // Do a 'horizontal' flip during the copy
         auto* pDst = static_cast<uint8_t*>(rTargetBitmap.Content());
         const auto* const pSrcStart = static_cast<const uint8_t*>(m_vidFrame.ptr());
-        const uint8_t* pSrc = pSrcStart + ((m_config.Extent.Height - 1) * m_config.Stride);
+        const uint8_t* pSrc = pSrcStart + ((m_config.Extent.Height.Value - 1) * m_config.Stride);
         const auto stride = m_config.Stride;
-        const auto bytesPerScanline = PixelFormatUtil::CalcMinimumStride(m_config.Extent.Width, m_config.ActivePixelFormat);
+        const auto bytesPerScanline = PixelFormatUtil::CalcMinimumStride(m_config.Extent.Width.Value, m_config.ActivePixelFormat);
         while (pSrc >= pSrcStart)
         {
           std::memcpy(pDst, pSrc, bytesPerScanline);

@@ -43,12 +43,18 @@ from FslBuildGen.Xml.Exceptions import XmlRequirementStringException
 from FslBuildGen.Xml.Exceptions import XmlRequirementTypeExtensionRequiresAValidExtendFieldException
 
 class XmlGenFileRequirement(XmlBase):
+    __AttribName = 'Name'
+    __AttribType = 'Type'
+    __AttribExtends = 'Extends'
+    __AttribVersion = 'Version'
+
     def __init__(self, log: Log, requirementTypes: List[str], xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')        # type: str
-        self.Type = self._ReadAttrib(xmlElement, 'Type')        # type: str
-        self.Extends = self._ReadAttrib(xmlElement, 'Extends', '') # type: str
-        self.Version = self._ReadAttrib(xmlElement, 'Version', '') # type: str
+        self._CheckAttributes({self.__AttribName, self.__AttribType, self.__AttribExtends, self.__AttribVersion})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)        # type: str
+        self.Type = self._ReadAttrib(xmlElement, self.__AttribType)        # type: str
+        self.Extends = self._ReadAttrib(xmlElement, self.__AttribExtends, '') # type: str
+        self.Version = self._ReadAttrib(xmlElement, self.__AttribVersion, '') # type: str
 
         if not Util.IsValidRequirementName(self.Name):
             raise XmlRequirementNameException(xmlElement, self.Name)

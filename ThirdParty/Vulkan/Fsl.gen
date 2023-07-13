@@ -4,7 +4,7 @@
     <Dependency Name="VulkanBase"/>
     <Dependency Name="WindowSystem"/>
     <Platform Name="Yocto">
-      <Variant Name="WindowSystem" Extend="true">
+      <FlavorExtension Name="WindowSystem.Impl">
         <Option Name="FB" />
         <Option Name="Wayland" >
           <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>
@@ -19,7 +19,7 @@
           <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>
         </Option>
         <Option Name="X11" Supported="false"/>
-      </Variant>
+      </FlavorExtension>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

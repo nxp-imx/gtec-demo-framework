@@ -432,7 +432,7 @@ namespace Fsl
     m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    const float aspectRatio = static_cast<float>(currentSizePx.Width()) / static_cast<float>(currentSizePx.Height());
+    const float aspectRatio = static_cast<float>(currentSizePx.RawWidth()) / static_cast<float>(currentSizePx.RawHeight());
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(75.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
 

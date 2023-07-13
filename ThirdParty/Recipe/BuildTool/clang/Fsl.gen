@@ -3,8 +3,8 @@
   <ToolRecipe Name="Recipe.BuildTool.clang" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="clang" Alternatives="clang-10" MinVersion="10.0" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang 10.0+ (http://releases.llvm.org/download.html)"/>
-        <FindExecutableFileInPath Name="clang++" Alternatives="clang++-10" MinVersion="10.0" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang++ 10.0+ (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang" Alternatives="clang-15" MinVersion="15.0" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang 15.0+ (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang++" Alternatives="clang++-15" MinVersion="15.0" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang++ 15.0+ (http://releases.llvm.org/download.html)"/>
       </Installation>
     </ExperimentalRecipe>
   </ToolRecipe>

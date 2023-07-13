@@ -59,6 +59,8 @@ namespace Fsl
     template <typename T>
     class Histogram : public BaseWindow
     {
+      using base_type = BaseWindow;
+
       struct BarGraphics
       {
         NineSliceAtlasTexture2D NineSliceTexture;

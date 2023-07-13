@@ -241,9 +241,9 @@ namespace Fsl
       rCmdBuffers.CmdBeginRenderPass(currentFrameIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         const auto resPx = GetWindowSizePx();
-        const auto halfWidth = resPx.Width() / 2;
-        PxRectangle leftRect(0, 0, halfWidth, resPx.Height());
-        PxRectangle rightRect(halfWidth, 0, halfWidth, resPx.Height());
+        const PxSize1D halfWidth = resPx.Width() / PxSize1D::Create(2);
+        PxRectangle leftRect(PxValue(0), PxValue(0), halfWidth, resPx.Height());
+        PxRectangle rightRect(halfWidth, PxValue::Create(0), halfWidth, resPx.Height());
 
         m_nativeBatch->Begin();
         m_nativeBatch->Draw(m_texSrc, leftRect, Color::White());

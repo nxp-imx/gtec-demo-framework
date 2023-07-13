@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.1.1
+# DemoFramework 6.2.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -120,13 +120,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 
 ## Reasoning
 
-While writing this we currently have thirty-eight OpenGL ES 2 samples, sixty-eight OpenGL ES 3.x samples,
-sixty-one Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-three OpenVX sample and five other samples. Which is *190 sample applications*.
+While writing this we currently have forty-two OpenGL ES 2 samples, seventy-five OpenGL ES 3.x samples,
+sixty-six Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and six other samples. Which is *207 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 190 * 4 = *760 build files* for the samples alone.
-Maintaining 760 or even just 190 build files would be an extremely time consuming and error prone process.
+maintain 207 * 4 = *828 build files* for the samples alone.
+Maintaining 828 or even just 207 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -897,6 +897,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 Simple example of UI chart rendering.
 
 
+### [Declarative](DemoApps/GLES2/UI/Declarative)
+
+<a href="DemoApps/GLES2/UI/Declarative/Example.jpg"><img src="DemoApps/GLES2/UI/Declarative/Example.jpg" height="108px" title="GLES2.UI.Declarative"></a>
+
+Experimental declarative UI that use the new data-binding capability to create UI from a XML file.
+
+
 ### [DpiScale](DemoApps/GLES2/UI/DpiScale)
 
 <a href="DemoApps/GLES2/UI/DpiScale/Example.jpg"><img src="DemoApps/GLES2/UI/DpiScale/Example.jpg" height="108px" title="GLES2.UI.DpiScale"></a>
@@ -1592,6 +1599,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 <a href="DemoApps/GLES3/UI/Charts/Example.jpg"><img src="DemoApps/GLES3/UI/Charts/Example.jpg" height="108px" title="GLES3.UI.Charts"></a>
 
 Simple example of UI chart rendering.
+
+
+### [Declarative](DemoApps/GLES3/UI/Declarative)
+
+<a href="DemoApps/GLES3/UI/Declarative/Example.jpg"><img src="DemoApps/GLES3/UI/Declarative/Example.jpg" height="108px" title="GLES3.UI.Declarative"></a>
+
+Experimental declarative UI that use the new data-binding capability to create UI from a XML file.
 
 
 ### [DpiScale](DemoApps/GLES3/UI/DpiScale)
@@ -2357,6 +2371,13 @@ This application has been designed for a **1920x1080dp** screen and will provide
 <a href="DemoApps/Vulkan/UI/Charts/Example.jpg"><img src="DemoApps/Vulkan/UI/Charts/Example.jpg" height="108px" title="Vulkan.UI.Charts"></a>
 
 Simple example of UI chart rendering.
+
+
+### [Declarative](DemoApps/Vulkan/UI/Declarative)
+
+<a href="DemoApps/Vulkan/UI/Declarative/Example.jpg"><img src="DemoApps/Vulkan/UI/Declarative/Example.jpg" height="108px" title="Vulkan.UI.Declarative"></a>
+
+Experimental declarative UI that use the new data-binding capability to create UI from a XML file.
 
 
 ### [DpiScale](DemoApps/Vulkan/UI/DpiScale)

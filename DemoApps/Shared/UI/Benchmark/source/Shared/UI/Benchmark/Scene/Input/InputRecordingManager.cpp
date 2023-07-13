@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,10 +70,9 @@ namespace Fsl
                                                                const bool forceDefaultSequence)
     {
       // Try to load the custom recording first
-      std::optional<AppInputCommandList> res;
       if (!forceDefaultSequence)
       {
-        res = AppInputCommandListPersistence::TryLoad(persistentDataFile);
+        std::optional<AppInputCommandList> res = AppInputCommandListPersistence::TryLoad(persistentDataFile);
         if (res.has_value())
         {
           FSLLOG3_INFO("Custom input recording loaded from '{}'", persistentDataFile);
@@ -81,15 +80,16 @@ namespace Fsl
         }
       }
 
-      // fall back to load the default recording
-      auto contentManager = serviceProvider.Get<IContentManager>();
-      auto contentPath = contentManager->GetContentPath();
-      auto defaultRecordingPath = IO::Path::Combine(contentPath, LocalConfig::DefaultInputRecordingFilename);
+      {    // fall back to load the default recording
+        auto contentManager = serviceProvider.Get<IContentManager>();
+        auto contentPath = contentManager->GetContentPath();
+        auto defaultRecordingPath = IO::Path::Combine(contentPath, LocalConfig::DefaultInputRecordingFilename);
 
-      res = AppInputCommandListPersistence::TryLoad(defaultRecordingPath);
-      FSLLOG3_WARNING_IF(!res.has_value(), "Default input recording not found at '{}'", defaultRecordingPath);
-      FSLLOG3_INFO_IF(res.has_value(), "Default input recording loaded from '{}'", defaultRecordingPath);
-      return res;
+        std::optional<AppInputCommandList> res = AppInputCommandListPersistence::TryLoad(defaultRecordingPath);
+        FSLLOG3_WARNING_IF(!res.has_value(), "Default input recording not found at '{}'", defaultRecordingPath);
+        FSLLOG3_INFO_IF(res.has_value(), "Default input recording loaded from '{}'", defaultRecordingPath);
+        return res;
+      }
     }
   }
 

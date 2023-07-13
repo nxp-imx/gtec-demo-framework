@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangleU16.hpp>
+#include <FslBase/Math/Pixel/PxValueU16.hpp>
 
 namespace Fsl
 {
@@ -48,10 +49,10 @@ namespace Fsl
     PxPoint2 OffsetPx;
 
     /// How much the current position should be advanced after drawing the character.
-    uint16_t XAdvancePx{};
+    PxValueU16 XAdvancePx{};
 
     constexpr CoreFontCharInfo() = default;
-    constexpr CoreFontCharInfo(const uint32_t id, const PxRectangleU16 srcTextureRectPx, const PxPoint2& offsetPx, const uint16_t xAdvancePx)
+    constexpr CoreFontCharInfo(const uint32_t id, const PxRectangleU16 srcTextureRectPx, const PxPoint2 offsetPx, const PxValueU16 xAdvancePx)
       : Id(id)
       , SrcTextureRectPx(srcTextureRectPx)
       , OffsetPx(offsetPx)

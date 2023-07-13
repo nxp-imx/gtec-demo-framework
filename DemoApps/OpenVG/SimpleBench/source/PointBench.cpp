@@ -361,7 +361,7 @@ namespace Fsl
     m_imageColorParent.Reset(bitmap, VG_IMAGE_QUALITY_FASTER);
     for (uint32_t i = 0; i < colorCount; ++i)
     {
-      m_imageColors[i].Reset(vgChildImage(m_imageColorParent.GetHandle(), UncheckedNumericCast<int32_t>(i), 0, 1, 1), PxSize2D(1, 1));
+      m_imageColors[i].Reset(vgChildImage(m_imageColorParent.GetHandle(), UncheckedNumericCast<int32_t>(i), 0, 1, 1), PxSize2D::Create(1, 1));
     }
 
     m_paint.Reset(vgCreatePaint());

@@ -91,8 +91,8 @@ namespace Fsl
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    float scaleX = static_cast<float>(currentSizePx.Width()) / 1280.0f;
-    float scaleY = static_cast<float>(currentSizePx.Height()) / 1080.0f;
+    float scaleX = static_cast<float>(currentSizePx.RawWidth()) / 1280.0f;
+    float scaleY = static_cast<float>(currentSizePx.RawHeight()) / 1080.0f;
     std::vector<Vector2> vgTrianglePoints;
     std::vector<Vector2> vgQuadCurvePoints;
     std::vector<Vector2> vgCubicCurvePoints;
@@ -172,7 +172,7 @@ namespace Fsl
   void Example3::Update(const DemoTime& demoTime)
   {
     const PxSize2D screenSizePx = GetWindowSizePx();
-    const auto scissorLimit = static_cast<VGfloat>(std::min(screenSizePx.Width(), screenSizePx.Height()));
+    const auto scissorLimit = static_cast<VGfloat>(std::min(screenSizePx.RawWidth(), screenSizePx.RawHeight()));
     if (1 == m_scissors_direction)
     {
       m_scissor_rectangle += 125.0f * demoTime.DeltaTime;
@@ -274,7 +274,7 @@ namespace Fsl
     }
     const PxSize2D currentSize = GetWindowSizePx();
     vgSeti(VG_SCISSORING, VG_FALSE);
-    vgClear(0, 0, currentSize.Width(), currentSize.Height());
+    vgClear(0, 0, currentSize.RawWidth(), currentSize.RawHeight());
     vgSeti(VG_SCISSORING, VG_TRUE);
     vgSetiv(VG_SCISSOR_RECTS, UncheckedNumericCast<VGint>(g_coord.size()), g_coord.data());
 

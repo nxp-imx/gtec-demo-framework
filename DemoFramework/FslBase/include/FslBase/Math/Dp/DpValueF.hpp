@@ -38,6 +38,7 @@ namespace Fsl
   struct DpValueF
   {
     using value_type = float;
+    using raw_value_type = float;
 
     value_type Value{0};
 

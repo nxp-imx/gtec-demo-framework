@@ -31,38 +31,51 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper_MinMax.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/PxAvailableSizeUtil.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <algorithm>
 #include <cassert>
 #include <cmath>
 
 namespace Fsl::UI
 {
+  using TClass = ComplexStackLayout;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyOrientation = TFactory::Create<LayoutOrientation, TClass, &TClass::GetOrientation, &TClass::SetOrientation>("Orientation");
+  TDef TClass::PropertySpacing = TFactory::Create<DpSize1DF, TClass, &TClass::GetSpacing, &TClass::SetSpacing>("Spacing");
+}
+
+namespace Fsl::UI
+{
   ComplexStackLayout::ComplexStackLayout(const std::shared_ptr<BaseWindowContext>& context)
     : ComplexLayout<ComplexStackLayoutWindowRecord>(context)
-    , m_orientation(LayoutOrientation::Vertical)
+    , m_propertyOrientation(LayoutOrientation::Vertical)
   {
   }
 
-  void ComplexStackLayout::SetOrientation(const LayoutOrientation& value)
+  bool ComplexStackLayout::SetOrientation(const LayoutOrientation value)
   {
-    if (value != m_orientation)
+    const bool changed = m_propertyOrientation.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_orientation = value;
       PropertyUpdated(PropertyType::Layout);
     }
+    return changed;
   }
 
 
   bool ComplexStackLayout::SetSpacing(const DpSize1DF value)
   {
-    bool changed = value != m_spacingDp;
+    const bool changed = m_propertySpacingDp.Set(ThisDependencyObject(), value);
     if (changed)
     {
-      m_spacingDp = value;
       PropertyUpdated(PropertyType::Layout);
     }
     return changed;
@@ -103,7 +116,7 @@ namespace Fsl::UI
   {
     PxSize2D resultSizePx;
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-    if (m_orientation == LayoutOrientation::Horizontal)
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
       resultSizePx = CalcFixedStarSizeHorizontal(unitConverter, finalSizePx);
       ArrangeHorizontal(finalSizePx.Height());
@@ -120,17 +133,18 @@ namespace Fsl::UI
   PxSize2D ComplexStackLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
   {
     PxSize2D desiredSizePx;
-    PxPoint2 minSizePx;
+    PxSize1D minSizeXPx;
+    PxSize1D minSizeYPx;
 
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
     auto layoutLengthItr = m_layoutLength.begin();
-    const PxSize1D spacingPx = unitConverter.ToPxSize1D(m_spacingDp);
+    const PxSize1D spacingPx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
     bool isFirstShared = true;
-    if (m_orientation == LayoutOrientation::Horizontal)
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
       // Fake that we have unlimited space in X and keep Y constrained.
-      const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
+      const PxAvailableSize fakeAvailableSizePx(PxAvailableSize1D::InfiniteSpacePx(), availableSizePx.Height());
       LayoutLength layoutLength;
       for (auto itr = begin(); itr != end(); ++itr)
       {
@@ -149,7 +163,7 @@ namespace Fsl::UI
           break;
         case LayoutUnitType::Fixed:
           {
-            const int32_t fixedLayoutLengthPx = unitConverter.DpToPxInt32(layoutLength.Value());
+            const PxSize1D fixedLayoutLengthPx = unitConverter.DpToPxSize1D(layoutLength.Value());
             const PxAvailableSize fixedAvailableSizePx(fixedLayoutLengthPx, availableSizePx.Height());
             itr->Window->Measure(fixedAvailableSizePx);
             desiredSizePx = itr->Window->DesiredSizePx();
@@ -158,7 +172,7 @@ namespace Fsl::UI
           }
         case LayoutUnitType::Px:
           {
-            const int32_t fixedLayoutLengthPx = unitConverter.PxfToPxInt32(layoutLength.Value());
+            const PxSize1D fixedLayoutLengthPx = unitConverter.PxfToPxSize1D(layoutLength.Value());
             const PxAvailableSize fixedAvailableSizePx(fixedLayoutLengthPx, availableSizePx.Height());
             itr->Window->Measure(fixedAvailableSizePx);
             desiredSizePx = itr->Window->DesiredSizePx();
@@ -182,21 +196,21 @@ namespace Fsl::UI
           desiredSizePx = PxSize2D(pSharedSizeGroup->MeasureSizePx(desiredSizePx.Width()), desiredSizePx.Height());
         }
 
-        minSizePx.X += desiredSizePx.Width() + spacingPx.RawValue();
-        if (desiredSizePx.Height() > minSizePx.Y)
+        minSizeXPx += desiredSizePx.Width() + spacingPx;
+        if (desiredSizePx.Height() > minSizeYPx)
         {
-          minSizePx.Y = desiredSizePx.Height();
+          minSizeYPx = desiredSizePx.Height();
         }
       }
       if (!empty())
       {
-        minSizePx.X -= spacingPx.RawValue();
+        minSizeXPx -= spacingPx;
       }
     }
     else
     {
       // Fake that we have unlimited space in Y and keep X constrained.
-      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
+      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSize1D::InfiniteSpacePx());
       LayoutLength layoutLength;
       for (auto itr = begin(); itr != end(); ++itr)
       {
@@ -215,20 +229,20 @@ namespace Fsl::UI
           break;
         case LayoutUnitType::Fixed:
           {
-            const int32_t fixedLayoutLengthPx = unitConverter.DpToPxInt32(layoutLength.Value());
+            const PxAvailableSize1D fixedLayoutLengthPx = PxAvailableSize1D::UncheckedCreate(unitConverter.DpToPxInt32(layoutLength.Value()));
             const PxAvailableSize fixedAvailableSizePx(availableSizePx.Width(), fixedLayoutLengthPx);
             itr->Window->Measure(fixedAvailableSizePx);
             desiredSizePx = itr->Window->DesiredSizePx();
-            desiredSizePx.SetHeight(fixedLayoutLengthPx);
+            desiredSizePx.SetHeight(fixedLayoutLengthPx.ToPxSize1D());
             break;
           }
         case LayoutUnitType::Px:
           {
-            const int32_t fixedLayoutLengthPx = unitConverter.PxfToPxInt32(layoutLength.Value());
+            const PxAvailableSize1D fixedLayoutLengthPx = PxAvailableSize1D::UncheckedCreate(unitConverter.PxfToPxInt32(layoutLength.Value()));
             const PxAvailableSize fixedAvailableSizePx(availableSizePx.Width(), fixedLayoutLengthPx);
             itr->Window->Measure(fixedAvailableSizePx);
             desiredSizePx = itr->Window->DesiredSizePx();
-            desiredSizePx.SetHeight(fixedLayoutLengthPx);
+            desiredSizePx.SetHeight(fixedLayoutLengthPx.ToPxSize1D());
             break;
           }
         default:
@@ -248,33 +262,59 @@ namespace Fsl::UI
           desiredSizePx = PxSize2D(desiredSizePx.Width(), pSharedSizeGroup->MeasureSizePx(desiredSizePx.Height()));
         }
 
-        minSizePx.Y += desiredSizePx.Height() + spacingPx.RawValue();
-        if (desiredSizePx.Width() > minSizePx.X)
+        minSizeYPx += desiredSizePx.Height() + spacingPx;
+        if (desiredSizePx.Width() > minSizeXPx)
         {
-          minSizePx.X = desiredSizePx.Width();
+          minSizeXPx = desiredSizePx.Width();
         }
       }
       if (!empty())
       {
-        minSizePx.Y -= spacingPx.RawValue();
+        minSizeYPx -= spacingPx;
       }
     }
 
-    assert(PxAvailableSizeUtil::IsNormalValue(minSizePx.X));
-    assert(PxAvailableSizeUtil::IsNormalValue(minSizePx.Y));
-    return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
+    assert(PxAvailableSizeUtil::IsNormalValue(minSizeXPx.RawValue()));
+    assert(PxAvailableSizeUtil::IsNormalValue(minSizeYPx.RawValue()));
+    return {minSizeXPx, minSizeYPx};
+  }
+
+  DataBinding::DataBindingInstanceHandle ComplexStackLayout::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                         DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
-  PxSize2D ComplexStackLayout::CalcFixedStarSizeHorizontal(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx)
+  DataBinding::PropertySetBindingResult ComplexStackLayout::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                             const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                  DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void ComplexStackLayout::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    ComplexLayout<ComplexStackLayoutWindowRecord>::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyOrientation);
+    rProperties.push_back(PropertySpacing);
+  }
+
+
+  PxSize2D ComplexStackLayout::CalcFixedStarSizeHorizontal(const SpriteUnitConverter& unitConverter, const PxSize2D finalSizePx)
   {
     auto layoutLengthItr = m_layoutLength.begin();
 
-    const auto spacingPx = unitConverter.ToPxSize1D(m_spacingDp).RawValue();
+    const auto spacingPx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
 
     // Run through each element and give it the space it desired in Y, but only finalSize.X in X
     float totalStars = 0;
-    int32_t totalSizePx = 0;
+    PxSize1D totalSizePx;
     LayoutLength layoutLength{};
     for (auto itr = begin(); itr != end(); ++itr)
     {
@@ -292,19 +332,19 @@ namespace Fsl::UI
         totalSizePx += itr->SizePx;
         break;
       case LayoutUnitType::Fixed:
-        itr->SizePx = unitConverter.DpToPxInt32(layoutLength.Value());
+        itr->SizePx = unitConverter.DpToPxSize1D(layoutLength.Value());
         itr->LayoutSizeMagic = 0;
         totalSizePx += itr->SizePx;
         break;
       case LayoutUnitType::Px:
-        itr->SizePx = unitConverter.PxfToPxInt32(layoutLength.Value());
+        itr->SizePx = unitConverter.PxfToPxSize1D(layoutLength.Value());
         itr->LayoutSizeMagic = 0;
         totalSizePx += itr->SizePx;
         break;
       case LayoutUnitType::Star:
         {
           totalStars += layoutLength.Value();
-          itr->SizePx = 0;    // this will be filled later by FinalizePositionAndStarSizes
+          itr->SizePx = {};    // this will be filled later by FinalizePositionAndStarSizes
           itr->LayoutSizeMagic = layoutLength.Value();
           break;
         }
@@ -321,7 +361,7 @@ namespace Fsl::UI
     }
 
     // We now know the total size and total stars
-    const int32_t sizeLeftPx = std::max(finalSizePx.Width() - totalSizePx, 0);
+    const PxSize1D sizeLeftPx(finalSizePx.Width() - totalSizePx);
     FinalizePositionAndStarSizes(unitConverter, sizeLeftPx, totalStars);
     if (finalSizePx.Width() >= totalSizePx && totalStars > 0)
     {
@@ -331,15 +371,15 @@ namespace Fsl::UI
   }
 
 
-  PxSize2D ComplexStackLayout::CalcFixedStarSizeVertical(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx)
+  PxSize2D ComplexStackLayout::CalcFixedStarSizeVertical(const SpriteUnitConverter& unitConverter, const PxSize2D finalSizePx)
   {
     auto layoutLengthItr = m_layoutLength.begin();
 
-    const auto spacingPx = unitConverter.ToPxSize1D(m_spacingDp).RawValue();
+    const auto spacingPx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
 
     // Run through each element and give it the space it desired in Y, but only finalSize.X in X
     float totalStars = 0;
-    int32_t totalSizePx = 0;
+    PxSize1D totalSizePx;
     for (auto itr = begin(); itr != end(); ++itr)
     {
       LayoutLength layoutLength;
@@ -357,19 +397,19 @@ namespace Fsl::UI
         totalSizePx += itr->SizePx;
         break;
       case LayoutUnitType::Fixed:
-        itr->SizePx = unitConverter.DpToPxInt32(layoutLength.Value());
+        itr->SizePx = unitConverter.DpToPxSize1D(layoutLength.Value());
         itr->LayoutSizeMagic = 0.0f;
         totalSizePx += itr->SizePx;
         break;
       case LayoutUnitType::Px:
-        itr->SizePx = unitConverter.PxfToPxInt32(layoutLength.Value());
+        itr->SizePx = unitConverter.PxfToPxSize1D(layoutLength.Value());
         itr->LayoutSizeMagic = 0.0f;
         totalSizePx += itr->SizePx;
         break;
       case LayoutUnitType::Star:
         {
           totalStars += layoutLength.Value();
-          itr->SizePx = 0;    // this will be filled later by FinalizePositionAndStarSizes
+          itr->SizePx = {};    // this will be filled later by FinalizePositionAndStarSizes
           itr->LayoutSizeMagic = layoutLength.Value();
           break;
         }
@@ -386,7 +426,7 @@ namespace Fsl::UI
     }
 
     // We now know the total size and total stars
-    const int32_t sizeLeftPx = std::max(finalSizePx.Height() - totalSizePx, 0);
+    const PxSize1D sizeLeftPx(finalSizePx.Height() - totalSizePx);
     FinalizePositionAndStarSizes(unitConverter, sizeLeftPx, totalStars);
     if (finalSizePx.Width() >= totalSizePx && totalStars > 0)
     {
@@ -396,19 +436,19 @@ namespace Fsl::UI
   }
 
 
-  void ComplexStackLayout::FinalizePositionAndStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars)
+  void ComplexStackLayout::FinalizePositionAndStarSizes(const SpriteUnitConverter& unitConverter, const PxSize1D spaceLeftPx, const float totalStars)
   {
     // Assign size to the star areas
-    const auto spacingPx = unitConverter.ToPxSize1D(m_spacingDp).RawValue();
-    int32_t positionPx = 0;
-    int32_t maxSpaceLeftPx = spaceLeftPx;
+    const auto spacingPx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
+    PxValue positionPx;
+    PxSize1D maxSpaceLeftPx = spaceLeftPx;
     for (auto itr = begin(); itr != end(); ++itr)
     {
       if (itr->UnitType == LayoutUnitType::Star)
       {
         assert(totalStars > 0.0f);
-        const auto finalSizePxf = std::round((itr->LayoutSizeMagic / totalStars) * static_cast<float>(spaceLeftPx));
-        const auto finalSizePx = std::min(static_cast<int32_t>(finalSizePxf), maxSpaceLeftPx);
+        const auto finalSizePxf = std::round((itr->LayoutSizeMagic / totalStars) * static_cast<float>(spaceLeftPx.RawValue()));
+        const auto finalSizePx = MathHelper::Min(PxSize1D::Create(static_cast<int32_t>(finalSizePxf)), maxSpaceLeftPx);
         itr->SizePx = finalSizePx;
         assert(maxSpaceLeftPx >= finalSizePx);
         maxSpaceLeftPx -= finalSizePx;
@@ -419,22 +459,22 @@ namespace Fsl::UI
   }
 
 
-  void ComplexStackLayout::ArrangeHorizontal(const int32_t finalSizeYPx)
+  void ComplexStackLayout::ArrangeHorizontal(const PxSize1D finalSizeYPx)
   {
     // Run through each element and give it the space it desired in X, but only finalSizeY in Y
     for (auto itr = begin(); itr != end(); ++itr)
     {
-      itr->Window->Arrange(PxRectangle(itr->PositionPx, 0, itr->SizePx, finalSizeYPx));
+      itr->Window->Arrange(PxRectangle(itr->PositionPx, PxValue(0), itr->SizePx, finalSizeYPx));
     }
   }
 
 
-  void ComplexStackLayout::ArrangeVertical(const int32_t finalSizeXPx)
+  void ComplexStackLayout::ArrangeVertical(const PxSize1D finalSizeXPx)
   {
     // Run through each element and give it the space it desired in Y, but only finalSizeX in X
     for (auto itr = begin(); itr != end(); ++itr)
     {
-      itr->Window->Arrange(PxRectangle(0, itr->PositionPx, finalSizeXPx, itr->SizePx));
+      itr->Window->Arrange(PxRectangle(PxValue(0), itr->PositionPx, finalSizeXPx, itr->SizePx));
     }
   }
 }

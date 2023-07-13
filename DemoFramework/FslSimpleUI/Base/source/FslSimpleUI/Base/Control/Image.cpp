@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
@@ -51,7 +52,9 @@ namespace Fsl::UI
   using TDef = DataBinding::DependencyPropertyDefinition;
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
-  TDef TClass::PropertyContentColor = TFactory::Create<TClass::color_type, TClass, &TClass::GetContentColor, &TClass::SetContentColor>("Color");
+  TDef TClass::PropertyContentColor = TFactory::Create<Color, TClass, &TClass::GetContentColor, &TClass::SetContentColor>("Color");
+  TDef TClass::PropertyScalePolicy = TFactory::Create<ItemScalePolicy, TClass, &TClass::GetScalePolicy, &TClass::SetScalePolicy>("ScalePolicy");
+  TDef TClass::PropertyRotateImageCW = TFactory::Create<bool, TClass, &TClass::GetRotateImageCW, &TClass::SetRotateImageCW>("RotateImageCW");
 }
 
 namespace Fsl::UI
@@ -60,7 +63,6 @@ namespace Fsl::UI
     : BaseWindow(context)
     , m_windowContext(context)
     , m_content(context->TheUIContext.Get()->MeshManager)
-    , m_scalePolicy(ItemScalePolicy::FitKeepAR)
   {
     Enable(WindowFlags::DrawEnabled);
   }
@@ -93,23 +95,25 @@ namespace Fsl::UI
     return changed;
   }
 
-  void Image::SetScalePolicy(const ItemScalePolicy value)
+  bool Image::SetScalePolicy(const ItemScalePolicy value)
   {
-    if (value != m_scalePolicy)
+    const bool changed = m_propertyScalePolicy.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_scalePolicy = value;
       PropertyUpdated(PropertyType::ScalePolicy);
     }
+    return changed;
   }
 
 
-  void Image::SetRotateImageCW(const bool enabled)
+  bool Image::SetRotateImageCW(const bool value)
   {
-    if (enabled != m_rotate90)
+    const bool changed = m_propertyRotateImageCW.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_rotate90 = enabled;
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
   }
 
 
@@ -117,7 +121,7 @@ namespace Fsl::UI
   {
     BaseWindow::WinDraw(context);
 
-    if (!m_rotate90)
+    if (!m_propertyRotateImageCW.Get())
     {
       context.CommandBuffer.Draw(m_content.Get(), context.TargetRect.Location(), RenderSizePx(), GetFinalBaseColor() * GetContentColor());
     }
@@ -128,12 +132,26 @@ namespace Fsl::UI
   }
 
 
+  PxSize2D Image::ArrangeOverride(const PxSize2D& finalSizePx)
+  {
+    return m_content.Measure(finalSizePx, m_propertyScalePolicy.Get(), m_propertyRotateImageCW.Get());
+  }
+
+
+  PxSize2D Image::MeasureOverride(const PxAvailableSize& /*availableSizePx*/)
+  {
+    PxSize2D desiredSizePx = m_content.Measure();
+    return !m_propertyRotateImageCW.Get() ? desiredSizePx : PxSize2D::Flip(desiredSizePx);
+  }
+
+
   DataBinding::DataBindingInstanceHandle Image::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
   {
     using namespace DataBinding;
-    auto res = DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
-                                                            PropLinkRefs(PropertyContentColor, m_propertyContentColor));
-    return res.IsValid() ? res : Fsl::UI::BaseWindow::TryGetPropertyHandleNow(sourceDef);
+    auto res = DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef, PropLinkRefs(PropertyContentColor, m_propertyContentColor),
+      PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy), PropLinkRefs(PropertyRotateImageCW, m_propertyRotateImageCW));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
@@ -141,21 +159,18 @@ namespace Fsl::UI
                                                                 const DataBinding::Binding& binding)
   {
     using namespace DataBinding;
-    auto res = DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
-                                                     PropLinkRefs(PropertyContentColor, m_propertyContentColor));
-    return res != PropertySetBindingResult::NotFound ? res : Fsl::UI::BaseWindow::TrySetBindingNow(targetDef, binding);
+    auto res = DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding, PropLinkRefs(PropertyContentColor, m_propertyContentColor),
+      PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy), PropLinkRefs(PropertyRotateImageCW, m_propertyRotateImageCW));
+    return res != PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
 
-  PxSize2D Image::ArrangeOverride(const PxSize2D& finalSizePx)
+  void Image::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
   {
-    return m_content.Measure(finalSizePx, m_scalePolicy, m_rotate90);
-  }
-
-
-  PxSize2D Image::MeasureOverride(const PxAvailableSize& /*availableSizePx*/)
-  {
-    PxSize2D desiredSizePx = m_content.Measure();
-    return !m_rotate90 ? desiredSizePx : PxSize2D::Flip(desiredSizePx);
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyContentColor);
+    rProperties.push_back(PropertyScalePolicy);
+    rProperties.push_back(PropertyRotateImageCW);
   }
 }

@@ -67,14 +67,14 @@ namespace Fsl
     glBindFramebuffer(GL_FRAMEBUFFER, m_userData.fbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDrawBuffers(UncheckedNumericCast<GLsizei>(attachments.size()), attachments.data());
-    DrawGeometry(sizePx.Width(), sizePx.Height());
+    DrawGeometry(sizePx.RawWidth(), sizePx.RawHeight());
 
     // OSTEP6 SECOND: copy the four output buffers into four window quadrants
     // with framebuffer blits
 
     // Restore the default framebuffer
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebuffer);
-    BlitTextures(sizePx.Width(), sizePx.Height());
+    BlitTextures(sizePx.RawWidth(), sizePx.RawHeight());
   }
 
 

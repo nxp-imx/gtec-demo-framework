@@ -149,7 +149,7 @@ namespace Fsl
 
     inline constexpr void AddRect(const PxAreaRectangleF& areaRectPxf, const NativeTextureArea& textureCoords) noexcept
     {
-      AddRect(areaRectPxf.Left(), areaRectPxf.Top(), areaRectPxf.Right(), areaRectPxf.Bottom(), textureCoords);
+      AddRect(areaRectPxf.RawLeft(), areaRectPxf.RawTop(), areaRectPxf.RawRight(), areaRectPxf.RawBottom(), textureCoords);
     }
 
 

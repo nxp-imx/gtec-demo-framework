@@ -33,6 +33,9 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
@@ -45,6 +48,17 @@
 
 namespace Fsl::UI
 {
+  using TClass = LabelButton;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyColorUp = TFactory::Create<Color, TClass, &TClass::GetColorUp, &TClass::SetColorUp>("ColorUp");
+  TDef TClass::PropertyColorDown = TFactory::Create<Color, TClass, &TClass::GetColorDown, &TClass::SetColorDown>("ColorDown");
+  TDef TClass::PropertyContent = TFactory::Create<StringViewLite, TClass, &TClass::GetContent, &TClass::SetContent>("Content");
+}
+
+namespace Fsl::UI
+{
   LabelButton::LabelButton(const std::shared_ptr<WindowContext>& context)
     : ButtonBase(context)
     , m_windowContext(context)
@@ -54,12 +68,27 @@ namespace Fsl::UI
   }
 
 
-  void LabelButton::SetContent(const std::string& value)
+  bool LabelButton::SetContent(const StringViewLite value)
   {
-    if (m_fontMesh.SetText(value))
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
+    if (changed)
     {
+      m_fontMesh.SetText(value);
       PropertyUpdated(PropertyType::Content);
     }
+    return changed;
+  }
+
+
+  bool LabelButton::SetContent(const std::string& value)
+  {
+    const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
+      m_fontMesh.SetText(StringViewLiteUtil::AsStringViewLite(value));
+      PropertyUpdated(PropertyType::Content);
+    }
+    return changed;
   }
 
 
@@ -72,23 +101,25 @@ namespace Fsl::UI
   }
 
 
-  void LabelButton::SetColorUp(const Color& value)
+  bool LabelButton::SetColorUp(const Color value)
   {
-    if (value != m_colorUp)
+    const bool changed = m_propertyColorUp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_colorUp = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
-  void LabelButton::SetColorDown(const Color& value)
+  bool LabelButton::SetColorDown(const Color value)
   {
-    if (value != m_colorDown)
+    const bool changed = m_propertyColorDown.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_colorDown = value;
       PropertyUpdated(PropertyType::Other);
     }
+    return changed;
   }
 
 
@@ -98,7 +129,7 @@ namespace Fsl::UI
 
     if (m_fontMesh.IsValid())
     {
-      const auto color = !IsDown() ? m_colorUp : m_colorDown;
+      const auto color = !IsDown() ? m_propertyColorUp.Get() : m_propertyColorDown.Get();
       context.CommandBuffer.Draw(m_fontMesh.Get(), context.TargetRect.TopLeft(), m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
     }
   }
@@ -113,8 +144,36 @@ namespace Fsl::UI
   PxSize2D LabelButton::MeasureOverride(const PxAvailableSize& availableSizePx)
   {
     FSL_PARAM_NOT_USED(availableSizePx);
-    const auto measureInfo = m_fontMesh.ComplexMeasure();
+    const auto measureInfo = m_fontMesh.ComplexMeasure(m_propertyContent.Get());
     m_cachedMeasureMinimalFontSizePx = measureInfo.MinimalSizePx;
     return measureInfo.MeasureSizePx;
+  }
+
+
+  DataBinding::DataBindingInstanceHandle LabelButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp),
+      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown), DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult LabelButton::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                      const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp),
+      DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown), DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void LabelButton::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyColorUp);
+    rProperties.push_back(PropertyColorDown);
+    rProperties.push_back(PropertyContent);
   }
 }

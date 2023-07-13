@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,8 +77,8 @@ namespace Fsl
       std::uniform_real_distribution<float> randomWidth2(20.0f, 400.0f);
       std::uniform_real_distribution<float> randomHeight(10.0f, 100.0f);
 
-      const float scaleX = static_cast<float>(sizePx.Width()) / LocalConfig::VirtualSize;
-      const float scaleY = static_cast<float>(sizePx.Height()) / LocalConfig::VirtualSize;
+      const float scaleX = static_cast<float>(sizePx.RawWidth()) / LocalConfig::VirtualSize;
+      const float scaleY = static_cast<float>(sizePx.RawHeight()) / LocalConfig::VirtualSize;
 
       uint32_t index = 0;
       for (auto& rRecord : rRecords)
@@ -206,14 +206,14 @@ namespace Fsl
 
     const auto sizePx = windowMetrics.GetSizePx();
 
-    const uint32_t desiredStepSizeX = BitsUtil::NextPowerOfTwo(sizePx.Width() / 16);
-    const uint32_t desiredStepSizeY = BitsUtil::NextPowerOfTwo(sizePx.Height() / 16);
+    const uint32_t desiredStepSizeX = BitsUtil::NextPowerOfTwo(sizePx.RawWidth() / 16);
+    const uint32_t desiredStepSizeY = BitsUtil::NextPowerOfTwo(sizePx.RawHeight() / 16);
     const uint32_t shiftX = BitsUtil::IndexOf(desiredStepSizeX);
     const uint32_t shiftY = BitsUtil::IndexOf(desiredStepSizeY);
     const uint32_t stepsX = 1 << shiftX;
     const uint32_t stepsY = 1 << shiftY;
-    m_resData.GridStepsX = ((sizePx.Width() / stepsX) + ((sizePx.Width() % stepsX) != 0 ? 1 : 0));
-    m_resData.GridStepsY = ((sizePx.Height() / stepsY) + ((sizePx.Height() % stepsY) != 0 ? 1 : 0));
+    m_resData.GridStepsX = ((sizePx.RawWidth() / stepsX) + ((sizePx.RawWidth() % stepsX) != 0 ? 1 : 0));
+    m_resData.GridStepsY = ((sizePx.RawHeight() / stepsY) + ((sizePx.RawHeight() % stepsY) != 0 ? 1 : 0));
     m_resData.GridWidthPx = m_resData.GridStepsX * stepsX;
     m_resData.GridHeightPx = m_resData.GridStepsY * stepsY;
 
@@ -232,14 +232,14 @@ namespace Fsl
     }
 
     {
-      const float scaleX = static_cast<float>(sizePx.Width()) / LocalConfig::VirtualSize;
-      const float scaleY = static_cast<float>(sizePx.Height()) / LocalConfig::VirtualSize;
+      const float scaleX = static_cast<float>(sizePx.RawWidth()) / LocalConfig::VirtualSize;
+      const float scaleY = static_cast<float>(sizePx.RawHeight()) / LocalConfig::VirtualSize;
       const float width = 400 * scaleX;
       const float height = 200 * scaleY;
       const uint32_t widthPx = TypeConverter::ChangeTo<uint32_t>(width);
       const uint32_t heightPx = TypeConverter::ChangeTo<uint32_t>(height);
-      m_resData.Offset = PxPoint2(TypeConverter::ChangeTo<int32_t>((LocalConfig::VirtualSize / 2) * scaleX),
-                                  TypeConverter::ChangeTo<int32_t>((LocalConfig::VirtualSize / 2) * scaleY));
+      m_resData.Offset = PxPoint2::Create(TypeConverter::ChangeTo<int32_t>((LocalConfig::VirtualSize / 2) * scaleX),
+                                          TypeConverter::ChangeTo<int32_t>((LocalConfig::VirtualSize / 2) * scaleY));
       m_resData.CandidateArea = Rectangle2D(0, 0, widthPx, heightPx);
     }
   }
@@ -250,11 +250,11 @@ namespace Fsl
     FSL_PARAM_NOT_USED(demoTime);
     const auto sizePxf = TypeConverter::To<PxSize2DF>(m_windowMetrics.GetSizePx());
 
-    const float screenOffsetX = sizePxf.Width() / 2.0f;
-    const float screenOffsetY = sizePxf.Height() / 2.0f;
+    const float screenOffsetX = sizePxf.RawWidth() / 2.0f;
+    const float screenOffsetY = sizePxf.RawHeight() / 2.0f;
 
     m_projectionMatrix = Matrix::CreateTranslation(-screenOffsetX, -screenOffsetY, 2.0f) * Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
-                         Matrix::CreateOrthographic(sizePxf.Width(), sizePxf.Height(), 1.0f, 100.0f);
+                         Matrix::CreateOrthographic(sizePxf.RawWidth(), sizePxf.RawHeight(), 1.0f, 100.0f);
   }
 
 

@@ -74,10 +74,10 @@ namespace Fsl
     const auto cameraExtent = m_camera.GetExtent();
     const auto cameraStride = m_camera.GetStride();
     // Try to find a OpenGL ES 3 texture configuration that matches the camera pixel format and stride
-    m_cameraTextureConfig = GLRawBitmapUtil::Convert(m_camera.GetPixelFormat(), cameraExtent.Width, cameraStride, true);
+    m_cameraTextureConfig = GLRawBitmapUtil::Convert(m_camera.GetPixelFormat(), cameraExtent.Width.Value, cameraStride, true);
 
     // Allocate space for the target bitmap
-    m_bitmapBuffer.resize(cameraExtent.Height * cameraStride);
+    m_bitmapBuffer.resize(cameraExtent.Height.Value * cameraStride);
 
     // RawBitmap(pContent, width, height, pixelFormat, stride, origin)
 
@@ -95,10 +95,10 @@ namespace Fsl
     m_textureLoc = glGetUniformLocation(hProgram, "s_texture");
 
     // Assign the vertex info to cover the whole display under an orthogonal projection
-    m_cameraPlaneVertices[4] = static_cast<float>(currentSizePx.Height());
-    m_cameraPlaneVertices[6] = static_cast<float>(currentSizePx.Width());
-    m_cameraPlaneVertices[7] = static_cast<float>(currentSizePx.Height());
-    m_cameraPlaneVertices[9] = static_cast<float>(currentSizePx.Width());
+    m_cameraPlaneVertices[4] = static_cast<float>(currentSizePx.RawHeight());
+    m_cameraPlaneVertices[6] = static_cast<float>(currentSizePx.RawWidth());
+    m_cameraPlaneVertices[7] = static_cast<float>(currentSizePx.RawHeight());
+    m_cameraPlaneVertices[9] = static_cast<float>(currentSizePx.RawWidth());
 
     // Create the VAO and VBO for the quad
     glGenVertexArrays(1, &m_cameraVAO);
@@ -130,13 +130,13 @@ namespace Fsl
     glBindTexture(GL_TEXTURE_2D, m_textureHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, currentSizePx.Width(), currentSizePx.Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, currentSizePx.RawWidth(), currentSizePx.RawHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // Now set the uniform values
     glUseProgram(hProgram);
 
-    m_projMatrix = glm::ortho(0.0f, static_cast<float>(currentSizePx.Width()), 0.0f, static_cast<float>(currentSizePx.Height()), 0.1f, 100.0f);
+    m_projMatrix = glm::ortho(0.0f, static_cast<float>(currentSizePx.RawWidth()), 0.0f, static_cast<float>(currentSizePx.RawHeight()), 0.1f, 100.0f);
     glUniformMatrix4fv(m_projMatrixLoc, 1, GL_FALSE, glm::value_ptr(m_projMatrix));
 
     m_viewMatrix = glm::lookAt(glm::vec3(0.0, 0.0, 2.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -168,8 +168,8 @@ namespace Fsl
     {
       const auto cameraSize = m_camera.GetSize();
       // Update the texture if it changed
-      glTexImage2D(GL_TEXTURE_2D, 0, m_cameraTextureConfig.InternalFormat, cameraSize.Width(), cameraSize.Height(), 0, m_cameraTextureConfig.Format,
-                   m_cameraTextureConfig.Type, targetBitmap.Content());
+      glTexImage2D(GL_TEXTURE_2D, 0, m_cameraTextureConfig.InternalFormat, cameraSize.RawWidth(), cameraSize.RawHeight(), 0,
+                   m_cameraTextureConfig.Format, m_cameraTextureConfig.Type, targetBitmap.Content());
     }
 
     // Show the new frame

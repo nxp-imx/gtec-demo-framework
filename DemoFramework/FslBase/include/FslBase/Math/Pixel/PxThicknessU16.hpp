@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXTHICKNESSU16_HPP
 #define FSLBASE_MATH_PIXEL_PXTHICKNESSU16_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,12 +33,18 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxValueU16.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 
 namespace Fsl
 {
   struct PxThicknessU16
   {
-    using value_type = uint16_t;
+    using value_type = PxValueU16;
+    using size_type = PxValueU;
+
+    using raw_value_type = value_type::raw_value_type;
+    using raw_size_type = size_type::raw_value_type;
 
     value_type Left{0};
     value_type Top{0};
@@ -55,19 +61,19 @@ namespace Fsl
     {
     }
 
-    constexpr value_type SumX() const noexcept
+    constexpr size_type SumX() const noexcept
     {
       return Left + Right;
     }
 
-    constexpr value_type SumY() const noexcept
+    constexpr size_type SumY() const noexcept
     {
       return Top + Bottom;
     }
 
     constexpr PxExtent2D Sum() const noexcept
     {
-      return {static_cast<uint32_t>(Left) + static_cast<uint32_t>(Right), static_cast<uint32_t>(Top) + static_cast<uint32_t>(Bottom)};
+      return {Left + Right, Top + Bottom};
     }
 
     constexpr bool operator==(const PxThicknessU16& rhs) const noexcept
@@ -77,6 +83,12 @@ namespace Fsl
     constexpr bool operator!=(const PxThicknessU16& rhs) const noexcept
     {
       return !(*this == rhs);
+    }
+
+    static constexpr PxThicknessU16 Create(const raw_value_type left, const raw_value_type top, const raw_value_type right,
+                                           const raw_value_type bottom) noexcept
+    {
+      return {value_type(left), value_type(top), value_type(right), value_type(bottom)};
     }
   };
 }

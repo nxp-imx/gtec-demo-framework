@@ -59,8 +59,8 @@ namespace Fsl
 
   void Shared::Update(const DemoTime& demoTime, const PxSize2D& windowSizePx)
   {
-    const auto sx = static_cast<float>(windowSizePx.Width());
-    const auto sy = static_cast<float>(windowSizePx.Height());
+    const auto sx = static_cast<float>(windowSizePx.RawWidth());
+    const auto sy = static_cast<float>(windowSizePx.RawHeight());
 
     // Red
     m_controlPoints[0] = Vector2(0, 0);
@@ -125,7 +125,7 @@ namespace Fsl
   void Shared::Draw()
   {
     const PxSize2D fontSize = m_basic2D->FontSize();
-    const auto fontHeight = static_cast<float>(fontSize.Height());
+    const auto fontHeight = static_cast<float>(fontSize.RawHeight());
 
     m_basic2D->Begin();
 

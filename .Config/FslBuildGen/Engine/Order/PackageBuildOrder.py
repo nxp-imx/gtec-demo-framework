@@ -38,18 +38,28 @@ from typing import Tuple
 import difflib
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.ComplexExternalFlavorConstraints import ComplexExternalFlavorConstraints
+from FslBuildGen.Engine.ExternalFlavorConstraints import ExternalFlavorConstraints
 from FslBuildGen.Engine.Order.DependencyGraph import DependencyGraph
 from FslBuildGen.Engine.Order.DependencyGraph import DependencyGraphNode
 from FslBuildGen.Engine.Order.EvaluationPackage import EvaluationPackage
 from FslBuildGen.Engine.Order.EvaluationPackage import FlavorInfo
+from FslBuildGen.Engine.Order.Exceptions import ExtendingFlavorCanNotIntroduceNewOptionsException
+from FslBuildGen.Engine.Order.Exceptions import FlavorExtendParentUndefinedException
+from FslBuildGen.Engine.Order.Exceptions import FlavorNameCollisionException
 from FslBuildGen.Engine.Order.Exceptions import PackageDependencyNotFoundException
+from FslBuildGen.Engine.Order.Exceptions import PackageFlavorDependencyConstraintInvalidException
 from FslBuildGen.Engine.Order.Exceptions import PackageFlavorOptionDependencyNotFoundException
+from FslBuildGen.Engine.Order.Exceptions import PackageFlavorExtensionOptionDependencyNotFoundException
 from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
 from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
+from FslBuildGen.Engine.PackageFlavorSelection import PackageFlavorSelection
+from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
 from FslBuildGen.Engine.Unresolved.UnresolvedBasicPackage import UnresolvedBasicPackage
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageName import UnresolvedPackageName
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageDependency import UnresolvedPackageDependency
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavor import UnresolvedPackageFlavor
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorExtension import UnresolvedPackageFlavorExtension
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorOption import UnresolvedPackageFlavorOption
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Log import Log
@@ -59,6 +69,9 @@ class LocalVerbosityLevel(object):
     Info = 3
     Debug = 4
     Trace = 5
+
+class LocalStrings(object):
+    FlavorConstraintPackageName = "SYS_EXTERNAL_FLAVOR_CONSTRAINT_ON"
 
 class ResolveDepRecord(object):
     def __init__(self, unresolved: UnresolvedBasicPackage, resolved: EvaluationPackage) -> None:
@@ -82,7 +95,8 @@ class ConstraintRecord(object):
 class PackageBuildOrder(object):
 
     @staticmethod
-    def ResolveBuildOrder(log: Log, allPackages: List[UnresolvedBasicPackage]) -> List[UnresolvedBasicPackage]:
+    def ResolveBuildOrder(log: Log, allPackages: List[UnresolvedBasicPackage],
+                          flavorConstraints: ComplexExternalFlavorConstraints) -> List[UnresolvedBasicPackage]:
         log.LogPrintVerbose(LocalVerbosityLevel.Info, "Resolve build order")
         log.PushIndent()
         try:
@@ -98,13 +112,14 @@ class PackageBuildOrder(object):
 
                 log.LogPrintVerbose(LocalVerbosityLevel.Info, "Determining build order for {0} packages".format(len(allPackages)))
 
-                graph, topLevelNode = PackageBuildOrder.__CreateDependencyGraph(log, evaluationPackages)
+                graph, topLevelNode = PackageBuildOrder.__CreateDependencyGraph(log, evaluationPackages, flavorConstraints)
 
                 buildOrder = graph.DetermineBuildOrder(topLevelNode.Source)
                 for entry in buildOrder:
                     finalBuildOrder.append(entry.SourcePackage)
                 finalBuildOrder.append(topLevelNode.Source.SourcePackage)
 
+            PackageBuildOrder.__CheckFlavors(log, finalBuildOrder);
             PackageBuildOrder.__ValidateConstraints(log, finalBuildOrder)
             return finalBuildOrder
         finally:
@@ -176,6 +191,15 @@ class PackageBuildOrder(object):
                             depRecord = packageNameToNodeDict[dep.Name]
                             record.Resolved.DirectDependencies.append(EvaluationPackage.DependencyRecord(depRecord.Resolved, FlavorInfo(flavor.Name, flavorOption.Name)))
 
+            for flavorExtension in package.FlavorExtensions:
+                for flavorOption in flavorExtension.Options:
+                    for dep in flavorOption.DirectDependencies:
+                        if dep.Name not in packageNameToNodeDict:
+                            exceptionList = PackageBuildOrder.__AddException(exceptionList, PackageBuildOrder.__CreatePackageFlavorExtensionOptionDependencyNotFoundException(package, flavorExtension, flavorOption, dep, allPackages))
+                        else:
+                            depRecord = packageNameToNodeDict[dep.Name]
+                            record.Resolved.DirectDependencies.append(EvaluationPackage.DependencyRecord(depRecord.Resolved, FlavorInfo(flavor.Name, flavorOption.Name)))
+
             record.Resolved.Seal()
             res.append(record.Resolved)
 
@@ -202,20 +226,22 @@ class PackageBuildOrder(object):
 
 
     @staticmethod
-    def __CreateDependencyGraph(log: Log, allPackages: List[EvaluationPackage]) -> Tuple[DependencyGraph, DependencyGraphNode]:
+    def __CreateDependencyGraph(log: Log, allPackages: List[EvaluationPackage],
+                                flavorConstraints: ComplexExternalFlavorConstraints) -> Tuple[DependencyGraph, DependencyGraphNode]:
         graph = DependencyGraph(allPackages)
 
         # Add the final top level node so we can determine the global build order
-        node = PackageBuildOrder.__CreateTopLevelNode(log, graph)  # type: DependencyGraphNode
+        node = PackageBuildOrder.__CreateTopLevelNode(log, graph, flavorConstraints)  # type: DependencyGraphNode
 
         return (graph, node)
 
     @staticmethod
-    def __CreateTopLevelNode(log: Log, graph: DependencyGraph) -> DependencyGraphNode:
+    def __CreateTopLevelNode(log: Log, graph: DependencyGraph,
+                            flavorConstraints: ComplexExternalFlavorConstraints) -> DependencyGraphNode:
         log.LogPrintVerbose(LocalVerbosityLevel.Info, "Creating top level node to determine global build order")
 
         # Extract the top level nodes
-        topLevelPackage = PackageBuildOrder.__CreateTopLevelPackage(log, graph)  # type: EvaluationPackage
+        topLevelPackage = PackageBuildOrder.__CreateTopLevelPackage(log, graph, flavorConstraints)  # type: EvaluationPackage
 
         # Add the top level node to the graph with all it dependency edges
         node = graph.AddNode(topLevelPackage)
@@ -223,7 +249,8 @@ class PackageBuildOrder(object):
         return node
 
     @staticmethod
-    def __CreateTopLevelPackage(log: Log, graph: DependencyGraph) -> EvaluationPackage:
+    def __CreateTopLevelPackage(log: Log, graph: DependencyGraph,
+                                flavorConstraints: ComplexExternalFlavorConstraints) -> EvaluationPackage:
         # Extract the top level nodes and add them as direct dependencies to a 'top level node' (so we can determine the global build order)
         topLevelNodes = graph.FindNodesWithNoIncomingDependencies() # type: List[DependencyGraphNode]
 
@@ -236,11 +263,53 @@ class PackageBuildOrder(object):
 
         unresolvedDirectDependencies = []  # type: List[UnresolvedPackageDependency]
         packageDirectDependencies = [] # type: List[EvaluationPackage.DependencyRecord]
-        for package in topLevelNodes:
-            packageDirectDependencies.append(EvaluationPackage.DependencyRecord(package.Source, None))
-            unresolvedDirectDependencies.append(UnresolvedPackageDependency(package.Source.Name, AccessType.Public, ))
-        newTopLevel = UnresolvedBasicPackage(UnresolvedPackageName(PackageNameMagicString.TopLevelName), PackageType.TopLevel, unresolvedDirectDependencies, [])
+        if not flavorConstraints.HasConstraints():
+            for srcNode in topLevelNodes:
+                packageDirectDependencies.append(EvaluationPackage.DependencyRecord(srcNode.Source, None))
+                unresolvedDirectDependencies.append(UnresolvedPackageDependency(srcNode.Source.Name, AccessType.Public))
+        else:
+            for srcNode in topLevelNodes:
+                flavorInfo = PackageBuildOrder.__ToFlavorInfo(flavorConstraints.GetFlavorConstraints(srcNode.Source.Name.Value))
+                if log.Verbosity >= 4:
+                    log.LogPrint("- '{0}' applying constraints '{1}'".format(srcNode.Source.Name, PackageBuildOrder.__ToString(flavorInfo)))
+                externalConstraintNode = PackageBuildOrder.__CreateExternalFlavorConstraintNode(graph, srcNode, flavorInfo);
+                packageDirectDependencies.append(EvaluationPackage.DependencyRecord(externalConstraintNode.Source, None))
+                unresolvedDirectDependencies.append(UnresolvedPackageDependency(externalConstraintNode.Source.Name, AccessType.Public))
+
+        newTopLevel = UnresolvedBasicPackage(UnresolvedPackageName(PackageNameMagicString.TopLevelName), PackageType.TopLevel, unresolvedDirectDependencies, [], [])
         return EvaluationPackage(newTopLevel.Name, newTopLevel, packageDirectDependencies)
+
+    @staticmethod
+    def __ToString(flavorInfoList: List[FlavorInfo]) -> str:
+        strFlavor = ["{0}={1}".format(entry.FlavorName.Value, entry.FlavorOption.Value) for entry in flavorInfoList]
+        return ", ".join(strFlavor)
+
+    @staticmethod
+    def __CreateExternalFlavorConstraintNode(graph: DependencyGraph, graphRootNode: DependencyGraphNode,
+                                             flavorInfo: List[FlavorInfo]) -> DependencyGraphNode:
+        # When we are using external flavor constraints we basically add some internal ExternalFlavorConstraint nodes in front of the root nodes that
+        # contain the flavor dependency constraints. The only packages that satisfy the constraints will be the nodes that these internal constraint
+        # nodes depend upon.
+        flavorConstraints = PackageBuildOrder.__CreatePackageFlavorSelections(flavorInfo)
+        constrainedDirectDependency = UnresolvedPackageDependency(graphRootNode.Source.Name, AccessType.Public, flavorConstraints)
+        constraintPackageName = UnresolvedPackageName("{0}_{1}".format(LocalStrings.FlavorConstraintPackageName, graphRootNode.Source.Name.Value), True)
+        constraintSourcePackage = UnresolvedBasicPackage(constraintPackageName, PackageType.ExternalFlavorConstraint, [constrainedDirectDependency], [], [])
+        directDependencies = [ EvaluationPackage.DependencyRecord(graphRootNode.Source, None) ]
+        constraintPackage = EvaluationPackage(constraintPackageName, constraintSourcePackage, directDependencies)
+
+        # Add the constract node to the graph with all it dependency edges
+        constraintNode = graph.AddNode(constraintPackage);
+        graph.AddPackageDirectDependencies(constraintNode);
+        return constraintNode;
+
+    @staticmethod
+    def __CreatePackageFlavorSelections(flavorInfo: List[FlavorInfo]) -> PackageFlavorSelections:
+        selections = [PackageFlavorSelection(info.FlavorName, info.FlavorOption) for info in flavorInfo]
+        return PackageFlavorSelections(selections)
+
+    @staticmethod
+    def __ToFlavorInfo(flavorConstraints: ExternalFlavorConstraints) -> List[FlavorInfo]:
+        return [FlavorInfo(key, value) for key, value in flavorConstraints.Dict.items()]
 
 
     @staticmethod
@@ -254,6 +323,13 @@ class PackageBuildOrder(object):
                                                                debugAllPackages: List[UnresolvedBasicPackage]) -> Exception:
         topCandidates = PackageBuildOrder.__BuildPackageCandidateString(dep.Name, debugAllPackages) # type: str
         return PackageFlavorOptionDependencyNotFoundException("Package '{0}' flavor '{1}' option '{2}' dependency to '{3}' not found, did you mean '{4}'".format(package.Name, flavor.Name, flavorOption, dep.Name, topCandidates))
+
+    @staticmethod
+    def __CreatePackageFlavorExtensionOptionDependencyNotFoundException(package: UnresolvedBasicPackage, flavorExtension: UnresolvedPackageFlavorExtension,
+                                                               flavorOption: UnresolvedPackageFlavorOption, dep: UnresolvedPackageDependency,
+                                                               debugAllPackages: List[UnresolvedBasicPackage]) -> Exception:
+        topCandidates = PackageBuildOrder.__BuildPackageCandidateString(dep.Name, debugAllPackages) # type: str
+        return PackageFlavorExtensionOptionDependencyNotFoundException("Package '{0}' flavor '{1}' option '{2}' dependency to '{3}' not found, did you mean '{4}'".format(package.Name, flavorExtension.Name, flavorOption, dep.Name, topCandidates))
 
     @staticmethod
     def __BuildPackageCandidateString(unresolvedPackageName: UnresolvedPackageName, debugAllPackages: List[UnresolvedBasicPackage]) -> str:
@@ -279,6 +355,49 @@ class PackageBuildOrder(object):
         exceptionList.append(exception)
         return exceptionList
 
+
+    # -----------------------------------------------------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def __CheckFlavors(log: Log, finalBuildOrder: List[UnresolvedBasicPackage]) -> None:
+        log.LogPrintVerbose(LocalVerbosityLevel.Info, "Checking flavors")
+
+        # Create a dict of all the original flavor definitions for quick lookup when we do a basic verification of the flavor extensions
+        flavorDefinitionDict = {} # type: Dict[str, UnresolvedPackageFlavor]
+        for package in finalBuildOrder:
+            for flavor in package.Flavors:
+                if not flavor.Name.Id in flavorDefinitionDict:
+                    flavorDefinitionDict[flavor.Name.Id] = flavor
+                else:
+                    previousDefinition = flavorDefinitionDict[flavor.Name.Id];
+                    raise FlavorNameCollisionException(previousDefinition, flavor)
+
+        # Now validate all the flavor extensions by checking
+        # - its a known flavor that can be extended
+        # - the flavor options are valid
+        for package in finalBuildOrder:
+            for flavorExtension in package.FlavorExtensions:
+                if flavorExtension.Name.Id not in flavorDefinitionDict:
+                    # The parent we are trying to extend is unknown
+                    raise FlavorExtendParentUndefinedException(flavorExtension)
+                else:
+                    # Validate each option is valid
+                    flavorDefinition = flavorDefinitionDict[flavorExtension.Name.Id]
+                    invalidOptions = PackageBuildOrder.__TryGetFlavorInvalidOptions(flavorDefinition, flavorExtension)
+                    if invalidOptions is not None and len(invalidOptions) > 0:
+                        raise ExtendingFlavorCanNotIntroduceNewOptionsException(flavorDefinition, flavorExtension, invalidOptions)
+
+
+    @staticmethod
+    def __TryGetFlavorInvalidOptions(baseFlavor: UnresolvedPackageFlavor, extendingVariant: UnresolvedPackageFlavorExtension) -> Optional[List[PackageFlavorOptionName]]:
+        res = None  # type: Optional[List[PackageFlavorOptionName]]
+        for entry in extendingVariant.Options:
+            if baseFlavor.TryGetOptionByName(entry.Name) is None:
+                if res is None:
+                    res  = []
+                res.append(entry.Name)
+        return res
+
     # -----------------------------------------------------------------------------------------------------------------------------------------------
 
     @staticmethod
@@ -299,6 +418,7 @@ class PackageBuildOrder(object):
                                      depStack: List[UnresolvedPackageName], package: UnresolvedBasicPackage) -> None:
         if package.Type == PackageType.TopLevel:
             return
+        PackageBuildOrder.__CheckConstraintExists(lookupDict, package)
         constraintDict = dict() # type: Dict[PackageFlavorName, ConstraintRecord]
         depStack.clear()
         PackageBuildOrder.__ProcessDependencyConstraints(constraintDict, depStack, package, lookupDict)
@@ -319,6 +439,18 @@ class PackageBuildOrder(object):
             constraintsLocDesc = ", ".join([", ".join(error[1]) for error in errors]) # type: str
             raise Exception("Mutually exclusive constraints encountered while resolving '{0}' constraints=({1})".format(package.Name, constraintsLocDesc))
 
+    @staticmethod
+    def __CheckConstraintExists(lookupDict: Dict[UnresolvedPackageName, UnresolvedBasicPackage], package: UnresolvedBasicPackage) -> None:
+        for dep in package.DirectDependencies:
+            for depConstraint in dep.FlavorConstraints.Selections:
+                if depConstraint.Name.OwnerPackageName not in lookupDict:
+                    raise Exception("Dependency to unknown package '{0}'".format(depConstraint.Name.OwnerPackageName));
+                targetPackage = lookupDict[depConstraint.Name.OwnerPackageName]
+                targetFlavor = targetPackage.TryGetFlavor(depConstraint.Name);
+                if targetFlavor is None:
+                    raise Exception("Dependency to unknown flavor '{0}' in package '{1}'".format(depConstraint.Name, depConstraint.Name.OwnerPackageName))
+                if not targetFlavor.IsValidOptionName(depConstraint.Option):
+                    raise PackageFlavorDependencyConstraintInvalidException(package.Name, depConstraint, targetFlavor)
 
     @staticmethod
     def __ProcessDependencyConstraints(constraintDict: Dict[PackageFlavorName, ConstraintRecord],

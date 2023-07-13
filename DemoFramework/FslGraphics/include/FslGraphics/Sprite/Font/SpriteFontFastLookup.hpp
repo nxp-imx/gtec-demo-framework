@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_SPRITE_FONT_SPRITEFONTFASTLOOKUP_HPP
 #define FSLGRAPHICS_SPRITE_FONT_SPRITEFONTFASTLOOKUP_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxValueU16.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Font/BasicFlatHashTable.hpp>
 #include <FslGraphics/Font/BitmapFontChar.hpp>
@@ -53,10 +54,10 @@ namespace Fsl
     BitmapFontKerningFastLookup m_kerningLookup;
 
     //! This is the distance in pixels between each line of text.
-    uint16_t m_lineSpacingPx{};
+    PxValueU16 m_lineSpacingPx{};
 
     //! The number of pixels from the absolute top of the line to the base of the characters.
-    uint16_t m_baseLinePx{};
+    PxValueU16 m_baseLinePx{};
 
     //! The name of the font type
     BitmapFontType m_fontType{BitmapFontType::Bitmap};
@@ -78,8 +79,8 @@ namespace Fsl
         m_fontType = other.m_fontType;
 
         // Remove the data from other
-        other.m_lineSpacingPx = 0;
-        other.m_baseLinePx = 0;
+        other.m_lineSpacingPx = {};
+        other.m_baseLinePx = {};
         other.m_fontType = BitmapFontType::Bitmap;
       }
       return *this;
@@ -93,8 +94,8 @@ namespace Fsl
       , m_baseLinePx(other.m_baseLinePx)
       , m_fontType(other.m_fontType)
     {
-      other.m_lineSpacingPx = 0;
-      other.m_baseLinePx = 0;
+      other.m_lineSpacingPx = {};
+      other.m_baseLinePx = {};
       other.m_fontType = BitmapFontType::Bitmap;
     }
 
@@ -118,18 +119,18 @@ namespace Fsl
     }
 
     //! Lookup the kerning adjustment for the second glyph when its following the first.
-    inline int32_t GetKerning(const uint32_t first, const uint32_t second) const
+    inline PxValue GetKerning(const uint32_t first, const uint32_t second) const
     {
       const auto* pEntry = m_kerningLookup.TryGet(first, second);
-      return pEntry != nullptr ? pEntry->AmountPx : 0;
+      return pEntry != nullptr ? pEntry->AmountPx : PxValue();
     }
 
-    inline uint16_t GetLineSpacingPx() const
+    inline PxValueU16 GetLineSpacingPx() const noexcept
     {
       return m_lineSpacingPx;
     }
 
-    inline uint16_t GetBaseLinePx() const
+    inline PxValueU16 GetBaseLinePx() const noexcept
     {
       return m_baseLinePx;
     }
@@ -143,8 +144,8 @@ namespace Fsl
     {
       m_charLookup = {};
       m_kerningLookup = {};
-      m_lineSpacingPx = 0;
-      m_baseLinePx = 0;
+      m_lineSpacingPx = {};
+      m_baseLinePx = {};
       m_fontType = BitmapFontType::Bitmap;
     }
 

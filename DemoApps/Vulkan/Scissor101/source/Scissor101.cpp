@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -364,8 +364,7 @@ namespace Fsl
 
     m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
 
-    const PxSize2D currentSizePx = GetWindowSizePx();
-    const float aspectRatio = static_cast<float>(currentSizePx.Width()) / static_cast<float>(currentSizePx.Height());
+    const float aspectRatio = GetWindowAspectRatio();
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(75.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
 
@@ -414,16 +413,16 @@ namespace Fsl
 
     {    // Do some funky double sinus movement we can use for a bit of unpredictable clipping
       const auto sizePx = GetWindowSizePx();
-      const Vector2 dist(sizePx.Width(), sizePx.Height());
+      const Vector2 dist(sizePx.RawWidth(), sizePx.RawHeight());
 
       const auto clip1X = (2.0f + (std::sin(m_angle1A.X) + std::sin(m_angle1B.X))) * dist.X / 4.0f;
       const auto clip1Y = (2.0f + (std::sin(m_angle1A.Y) + std::sin(m_angle1B.Y))) * dist.Y / 4.0f;
       const auto clip2X = (2.0f + (std::sin(m_angle2A.X) + std::sin(m_angle2B.X))) * dist.X / 4.0f;
       const auto clip2Y = (2.0f + (std::sin(m_angle2A.Y) + std::sin(m_angle2B.Y))) * dist.Y / 4.0f;
-      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), sizePx.Width());
-      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), sizePx.Height());
-      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), sizePx.Width());
-      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), sizePx.Height());
+      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), sizePx.RawWidth());
+      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), sizePx.RawHeight());
+      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), sizePx.RawWidth());
+      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), sizePx.RawHeight());
 
       m_angle1A += m_speed1A * demoTime.DeltaTime;
       m_angle1B += m_speed1B * demoTime.DeltaTime;
@@ -499,10 +498,10 @@ namespace Fsl
   {
     auto sizePx = GetWindowSizePx();
 
-    assert(m_clip1.X >= 0 && m_clip1.X <= sizePx.Width());
-    assert(m_clip1.Y >= 0 && m_clip1.Y <= sizePx.Height());
-    assert(m_clip2.X >= 0 && m_clip2.X <= sizePx.Width());
-    assert(m_clip2.Y >= 0 && m_clip2.Y <= sizePx.Height());
+    assert(m_clip1.X >= 0 && m_clip1.X <= sizePx.RawWidth());
+    assert(m_clip1.Y >= 0 && m_clip1.Y <= sizePx.RawHeight());
+    assert(m_clip2.X >= 0 && m_clip2.X <= sizePx.RawWidth());
+    assert(m_clip2.Y >= 0 && m_clip2.Y <= sizePx.RawHeight());
 
     Point2 nearClip = m_clip1;
     Point2 farClip = m_clip2;
@@ -519,16 +518,16 @@ namespace Fsl
 
     int32_t clipX = m_clipX ? nearClip.X : 0;
     int32_t clipY = m_clipY ? nearClip.Y : 0;
-    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : sizePx.Width();
-    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : sizePx.Height();
+    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : sizePx.RawWidth();
+    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : sizePx.RawHeight();
 
-    if (clipX < 0 || (clipX + clipWidth) > sizePx.Width() || clipY < 0 || (clipY + clipHeight) > sizePx.Height())
+    if (clipX < 0 || (clipX + clipWidth) > sizePx.RawWidth() || clipY < 0 || (clipY + clipHeight) > sizePx.RawHeight())
     {
       FSLLOG3_ERROR("Scissor rect out of bounds");
       clipX = 0;
       clipY = 0;
-      clipWidth = sizePx.Width();
-      clipHeight = sizePx.Height();
+      clipWidth = sizePx.RawWidth();
+      clipHeight = sizePx.RawHeight();
     }
 
     VkRect2D scissor{};

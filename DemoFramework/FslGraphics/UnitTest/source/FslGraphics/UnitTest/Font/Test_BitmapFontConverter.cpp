@@ -94,8 +94,8 @@ namespace
       const auto& entry = atlas.GetEntry(i);
       if (entry.Name == glyphPath)
       {
-        return {PxPoint2(NumericCast<PxPoint2::value_type>(entry.TextureInfo.TrimMarginPx.Left),
-                         NumericCast<PxPoint2::value_type>(entry.TextureInfo.TrimMarginPx.Top)),
+        return {PxPoint2::Create(NumericCast<PxPoint2::raw_value_type>(entry.TextureInfo.TrimMarginPx.Left.Value),
+                                 NumericCast<PxPoint2::raw_value_type>(entry.TextureInfo.TrimMarginPx.Top.Value)),
                 entry.TextureInfo.TrimmedRectPx};
       }
     }
@@ -117,8 +117,8 @@ TEST_F(TestFont_BitmapFontConverter, Convert)
   EXPECT_EQ(font.GetName(), bitmapFont.GetName());
   EXPECT_EQ(font.GetPathName(), bitmapFont.GetTextureName());
   EXPECT_EQ(font.GetDesc().LineSpacing, bitmapFont.GetSize());
-  EXPECT_EQ(font.GetDesc().LineSpacing, bitmapFont.GetLineSpacingPx());
-  EXPECT_EQ(font.GetDesc().BaseLine, bitmapFont.GetBaseLinePx());
+  EXPECT_EQ(font.GetDesc().LineSpacing, bitmapFont.GetLineSpacingPx().Value);
+  EXPECT_EQ(font.GetDesc().BaseLine, bitmapFont.GetBaseLinePx().Value);
   EXPECT_EQ(BitmapFontType::Bitmap, bitmapFont.GetFontType());
   EXPECT_EQ(NumericCast<std::size_t>(font.Count()), bitmapFont.GetCharCount());
 
@@ -143,8 +143,8 @@ TEST_F(TestFont_BitmapFontConverter, Convert)
       // Find the atlas entry and use that to compare the rest
 
       AtlasCharInfo atlasInfo = FindAtlasEntry(atlasPath, atlas, rangeCharId);
-      atlasInfo.OffsetPx.X += entry.OffsetXPx;
-      atlasInfo.OffsetPx.Y += entry.OffsetYPx;
+      atlasInfo.OffsetPx.X += PxValue(entry.OffsetXPx);
+      atlasInfo.OffsetPx.Y += PxValue(entry.OffsetYPx);
 
       EXPECT_EQ(atlasInfo.OffsetPx, convertedEntry.OffsetPx);
       EXPECT_EQ(atlasInfo.SrcTextureRectPx, convertedEntry.SrcTextureRectPx);

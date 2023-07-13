@@ -230,7 +230,8 @@ namespace Fsl
 
       // Finally create a custom texture record which we store a weak pointer to
       const auto materialInfo = m_materialManager.GetMaterialInfo(dynmamicSpriteMaterialId);
-      const PxRectangleU16 imageRectanglePx(0, 0, materialInfo.MaterialInfo.ExtentPx.Width, materialInfo.MaterialInfo.ExtentPx.Height);
+      const auto imageRectanglePx =
+        PxRectangleU16::Create(0, 0, materialInfo.MaterialInfo.ExtentPx.Width.Value, materialInfo.MaterialInfo.ExtentPx.Height.Value);
 
       // a texture sprite is always showed at 1:1 pixel ratio no matter the DPI and its DPI will never be modified
       const uint32_t densityDpi = m_manager.GetDensityDpi();

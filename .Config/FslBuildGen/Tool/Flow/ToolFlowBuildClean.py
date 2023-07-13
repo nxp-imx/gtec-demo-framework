@@ -100,7 +100,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         # Disable downloads and writes
         if config.ToolConfig.Experimental is not None:
@@ -116,7 +116,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                    buildVariantConfig, variableContext.UserSetVariables,

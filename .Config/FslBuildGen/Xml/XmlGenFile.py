@@ -93,6 +93,7 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileImportTemplate
 from FslBuildGen.Xml.XmlStuff import XmlGenFilePlatform
 from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
 from FslBuildGen.Xml.Flavor.XmlGenFileFlavor import XmlGenFileFlavor
+from FslBuildGen.Xml.Flavor.XmlGenFileFlavorExtension import XmlGenFileFlavorExtension
 
 class XmlGenFile(XmlCommonFslBuild):
     def __init__(self, log: Log, toolConfig: ToolConfig, defaultPackageLanguage: PackageLanguage) -> None:
@@ -282,7 +283,7 @@ class XmlGenFile(XmlCommonFslBuild):
 
     def __GenerateClones(self, platformNamesStr: str, child: ET.Element, defaultValues: LocalPackageDefaultValues,
                          requirements: List[XmlGenFileRequirement], dependencies: List[XmlGenFileDependency],
-                         flavors: List[XmlGenFileFlavor], variants: List[XmlGenFileVariant],
+                         flavors: List[XmlGenFileFlavor], flavorExtensions: List[XmlGenFileFlavorExtension], variants: List[XmlGenFileVariant],
                          experimentalRecipe: Optional[XmlExperimentalRecipe]) -> List[XmlGenFilePlatform]:
 
         platformNames = platformNamesStr.split(PackageString.PLATFORM_SEPARATOR)      # type: List[str]
@@ -294,7 +295,8 @@ class XmlGenFile(XmlCommonFslBuild):
             if not name in PackageConfig.APPROVED_PLATFORM_NAMES:
                 raise XmlUnsupportedPlatformException(child, "{0}' from '{1}".format(name, platformNamesStr))
 
-            xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, flavors, variants, experimentalRecipe)
+            xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, flavors, flavorExtensions,
+                                             variants, experimentalRecipe)
             xmlPlatform.SYS_SetName(name)
             expandedPlatformList.append(xmlPlatform)
         return expandedPlatformList
@@ -322,14 +324,16 @@ class XmlGenFile(XmlCommonFslBuild):
                 dependencies = self._GetXMLDependencies(child)
                 requirements = self._GetXMLRequirements(child)
                 flavors = self.__GetXMLFlavors(requirementTypes, child, ownerPackageName)
+                flavorExtensions = self.__GetXMLFlavorExtensions(requirementTypes, child, ownerPackageName)
                 variants = self.__GetXMLVariants(child, ownerPackageName)
                 experimentalRecipe = self._TryGetExperimentalRecipe(child, ownerPackageName, allowRecipes)
                 dependencies, resED = self.__ProcessExperimentalRecipeDependencies(directDependencies, dependencies, experimentalRecipe, [])
-                xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, flavors, variants, experimentalRecipe)
+                xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, flavors, flavorExtensions, variants,
+                                                 experimentalRecipe)
 
                 if PackageString.PLATFORM_SEPARATOR in xmlPlatform.Name:
-                    xmlPlatforms = self.__GenerateClones(xmlPlatform.Name, child, defaultValues, requirements, dependencies, flavors, variants,
-                                                         experimentalRecipe)
+                    xmlPlatforms = self.__GenerateClones(xmlPlatform.Name, child, defaultValues, requirements, dependencies, flavors,
+                                                         flavorExtensions, variants, experimentalRecipe)
                     for clonePlatform in xmlPlatforms:
                         self._AddPlatform(platforms, clonePlatform, resED)
                 else:
@@ -449,6 +453,13 @@ class XmlGenFile(XmlCommonFslBuild):
                 elements.append(XmlGenFileFlavor(self.Log, requirementTypes, child, ownerPackageName))
         return elements
 
+    def __GetXMLFlavorExtensions(self, requirementTypes: List[str], elem: ET.Element, ownerPackageName: str) -> List[XmlGenFileFlavorExtension]:
+        elements = []
+        for child in elem:
+            if child.tag == 'FlavorExtension':
+                elements.append(XmlGenFileFlavorExtension(self.Log, requirementTypes, child, ownerPackageName))
+        return elements
+
     def __GetXMLVariants(self, elem: ET.Element, ownerPackageName: str) -> List[XmlGenFileVariant]:
         elements = []
         for child in elem:
@@ -484,8 +495,10 @@ class XmlGenFile(XmlCommonFslBuild):
             self.__ValidateNames(platformNameDict, platform.DirectDependencies, errorMsg)
             for flavor in platform.Flavors:
                 for flavorOption in flavor.Options:
-                    platformFlavorNameDict = copy.copy(platformNameDict)
-                    self.__ValidateNames(platformFlavorNameDict, flavorOption.DirectDependencies, errorMsg)
+                    self.__ValidateNames(copy.copy(platformNameDict), flavorOption.DirectDependencies, errorMsg)
+            for flavorExtension in platform.FlavorExtensions:
+                for flavorOption in flavorExtension.Options:
+                    self.__ValidateNames(copy.copy(platformNameDict), flavorOption.DirectDependencies, errorMsg)
 
         errorMsg = "ExternalDependency defined multiple times '{0}'"
         nameDict.clear()
@@ -495,8 +508,10 @@ class XmlGenFile(XmlCommonFslBuild):
             self.__ValidateNames(platformNameDict, platform.ExternalDependencies, errorMsg)
             for flavor in platform.Flavors:
                 for flavorOption in flavor.Options:
-                    platformFlavorNameDict = copy.copy(platformNameDict)
-                    self.__ValidateNames(platformNameDict, flavorOption.ExternalDependencies, errorMsg)
+                    self.__ValidateNames(copy.copy(platformNameDict), flavorOption.ExternalDependencies, errorMsg)
+            for flavorExtension in platform.FlavorExtensions:
+                for flavorOption in flavorExtension.Options:
+                    self.__ValidateNames(copy.copy(platformNameDict), flavorOption.ExternalDependencies, errorMsg)
 
 
     def __ValidateDefines(self) -> None:
@@ -508,8 +523,10 @@ class XmlGenFile(XmlCommonFslBuild):
             self.__ValidateNames(platformNameDict, platform.DirectDefines, errorMsg)
             for flavor in platform.Flavors:
                 for flavorOption in flavor.Options:
-                    platformFlavorNameDict = copy.copy(platformNameDict)
-                    self.__ValidateNames(platformFlavorNameDict, flavorOption.DirectDefines, errorMsg)
+                    self.__ValidateNames(copy.copy(platformNameDict), flavorOption.DirectDefines, errorMsg)
+            for flavorExtension in platform.FlavorExtensions:
+                for flavorOption in flavorExtension.Options:
+                    self.__ValidateNames(copy.copy(platformNameDict), flavorOption.DirectDefines, errorMsg)
 
 
     def __ValidateNames(self, rNameDict: Dict[str, Union[XmlGenFileDependency, XmlGenFileExternalDependency, XmlGenFileDefine]],

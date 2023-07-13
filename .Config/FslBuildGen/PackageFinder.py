@@ -93,7 +93,7 @@ class PackageFinder(object):
         return resultFileList
 
     def __LocateInputFileLocation(self, file: str) -> ToolConfigPackageLocation:
-        print(file)
+        # print(file)
         for location in self.__InitialSearchLocations:
             if file.startswith(location.ResolvedPathEx):
                 return location

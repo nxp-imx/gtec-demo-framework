@@ -41,7 +41,8 @@ from FslBuildGen.Packages.Package import Package
 class PipelineInfo(object):
     def __init__(self, tasks: PipelineTasks, sourcePackage: Package,
                  pathBuilder: RecipePathBuilder,
-                 srcRootPath: str, dstRootPath: str, allowDownloads: bool = True,
+                 srcRootPath: str, srcRootPathReadOnly: bool, dstRootPath: str, dstRootPathReadOnly: bool,
+                 allowDownloads: bool = True,
                  combinedDstRootPath: Optional[str] = None) -> None:
         super().__init__()
         if sourcePackage.ResolvedDirectExperimentalRecipe is None:
@@ -52,7 +53,9 @@ class PipelineInfo(object):
         self.PathBuilder = pathBuilder
         self.RecipeAbsolutePath = sourcePackage.AbsolutePath
         self.SrcRootPath = srcRootPath
+        self.SrcRootPathReadOnly = srcRootPathReadOnly
         self.DstRootPath = dstRootPath
+        self.DstRootPathReadOnly = dstRootPathReadOnly
         self.CombinedDstRootPath = combinedDstRootPath if combinedDstRootPath is not None else dstRootPath
         self.Tasks = tasks
         self.AllowDownloads = allowDownloads

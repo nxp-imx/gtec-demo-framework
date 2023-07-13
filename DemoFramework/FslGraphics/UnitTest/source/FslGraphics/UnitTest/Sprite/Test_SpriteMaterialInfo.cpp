@@ -49,7 +49,7 @@ TEST(TestSprite_SpriteMaterialInfo, Constuct)
 TEST(TestSprite_SpriteMaterialInfo, Constuct_Values)
 {
   constexpr SpriteMaterialId id(12);
-  constexpr PxExtent2D extent(42, 1337);
+  constexpr auto extent = PxExtent2D::Create(42, 1337);
   auto spriteMaterial = std::make_shared<SpriteMaterialImpl>(id, extent);
 
   constexpr bool isOpaque = true;

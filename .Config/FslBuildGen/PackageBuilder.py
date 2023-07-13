@@ -35,16 +35,18 @@ from typing import List
 from typing import Optional
 #from typing import Set
 #from FslBuildGen import PackageListUtil
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DependencyGraph import DependencyGraph
 from FslBuildGen.DependencyGraph import DependencyGraphNode
 from FslBuildGen.Engine.BasicBuildConfig import BasicBuildConfig
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.Exceptions import CircularDependencyException
 from FslBuildGen.Exceptions import CircularDependencyInDependentModuleException
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -60,14 +62,17 @@ from FslBuildGen.Xml.XmlBase2 import FakeXmlGenFileDependency
 class PackageBuilder(object):
     def __init__(self, log: Log, configBuildDir: str, configIgnoreNotSupported: bool, configGroupException: bool, toolConfig: ToolConfig,
                  platformName: str, hostPlatformName: str, basicBuildConfig: BasicBuildConfig, generatorInfo: GeneratorInfo,
-                 genFiles: List[XmlGenFile], packageManagerFilter: PackageManagerFilter, logVerbosity: int = 1, writeGraph: bool = False) -> None:
+                 genFiles: List[XmlGenFile], packageManagerFilter: PackageManagerFilter,
+                 externalVariantConstraints: ExternalVariantConstraints, engineResolveConfig: EngineResolveConfig,
+                 logVerbosity: int = 1, writeGraph: bool = False) -> None:
         super().__init__()
 
         # create top level package and resolve build order
         log.LogPrintVerbose(logVerbosity, "Validating dependencies")
 
         packageManager = PackageManager(log, configBuildDir, configIgnoreNotSupported, toolConfig, platformName, hostPlatformName, basicBuildConfig,
-                                        generatorInfo, genFiles, packageManagerFilter, writeGraph)
+                                        generatorInfo, genFiles, packageManagerFilter, externalVariantConstraints, engineResolveConfig,
+                                        writeGraph)
         packages = packageManager.Packages
 
         # Build a graph containing all packages
@@ -271,7 +276,7 @@ class PackageBuilder(object):
                         addedDict[dep.Name] = dep
                         foundDep = self.__TryFindDep(package.ResolvedDirectDependencies, dep)
                         if foundDep is not None:
-                            log.DoPrintWarning("Requested dependency access to '{0}', overwritten by dependency from '{1}'".format(dep.Name, directDep.Name))
+                            log.DoPrintWarning("Package '{0}' requested dependency access to '{1}', overwritten by dependency from '{2}'".format(package.Name, dep.Name, directDep.Name))
                             package.ResolvedDirectDependencies.remove(foundDep)
                             package.ResolvedDirectDependencies.append(dep)
 

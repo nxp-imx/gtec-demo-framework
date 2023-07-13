@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>
+      Describes the Fsl.gen format
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:simpleType name="_TP_LayoutOrientation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Horizontal" />
+      <xs:enumeration value="Vertical" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="_TP_ItemAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Near" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Far" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="_T_GridColumnDefinition">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Width" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_GridRowDefinition">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Height" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:group name="_G_GridColumnDefinition">
+    <xs:choice>
+      <xs:element name="GridColumnDefinition" type="_T_GridColumnDefinition"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="_G_GridRowDefinition">
+    <xs:choice>
+      <xs:element name="GridRowDefinition" type="_T_GridRowDefinition"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_GridColumnDefinitionList">
+    <xs:sequence>
+      <xs:group ref="_G_GridColumnDefinition" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="_G_GridRowDefinitionList">
+    <xs:sequence>
+      <xs:group ref="_G_GridRowDefinition" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:complexType name="_T_GridLayoutColumnDefinitions">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_GridColumnDefinitionList"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_GridLayoutRowDefinitions">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_GridRowDefinitionList"/>
+  </xs:complexType>
+
+
+  <xs:group name="_G_GridColumnDefinitions">
+    <xs:choice>
+      <xs:element name="GridLayout.ColumnDefinitions" type="_T_GridLayoutColumnDefinitions"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="_G_GridRowDefinitions">
+    <xs:choice>
+      <xs:element name="GridLayout.RowDefinitions" type="_T_GridLayoutRowDefinitions"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:group name="_G_GridLayoutColumnDefinitions">
+    <xs:sequence>
+      <xs:group ref="_G_GridColumnDefinitions" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="_G_GridLayoutRowDefinitions">
+    <xs:sequence>
+      <xs:group ref="_G_GridRowDefinitions" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="_G_GridContentList">
+    <xs:sequence>
+      <xs:group ref="_G_GridLayoutColumnDefinitions" minOccurs="0" maxOccurs="1"/>
+      <xs:group ref="_G_GridLayoutRowDefinitions" minOccurs="0" maxOccurs="1"/>
+      <xs:group ref="_G_WindowElement" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:complexType name="_T_GridLayout">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_GridContentList"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_FillLayout">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowList"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_StackLayout">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowList"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+    <xs:attribute name="Spacing" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_UniformStackLayout">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowList"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+    <xs:attribute name="Spacing" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_UniformWrapLayout">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowList"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+    <!--<xs:attribute name="Spacing" type="xs:string" use="optional"/>-->
+  </xs:complexType>
+
+  <xs:complexType name="_T_WrapLayout">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowList"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+    <!--<xs:attribute name="Spacing" type="xs:string" use="optional"/>-->
+  </xs:complexType>
+
+  <xs:complexType name="_T_BackgroundWindow">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowElement"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_LeftBar">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowElement"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_TopBar">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowElement"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_RightBar">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowElement"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_BottomBar">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_WindowElement"/>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_Label">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="ContentAlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="ContentAlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Content" type="xs:string" use="optional"/>
+
+    <xs:attribute name="GridLayout.Column" type="xs:string" use="optional"/>
+    <xs:attribute name="GridLayout.Row" type="xs:string" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_SliderUInt8">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Value" type="xs:string" use="optional"/>
+    <xs:attribute name="Constraint" type="xs:string" use="optional"/>
+    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
+
+    <xs:attribute name="GridLayout.Column" type="xs:string" use="optional"/>
+    <xs:attribute name="GridLayout.Row" type="xs:string" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_FmtValueLabelUInt8">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="AlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="AlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="ContentAlignmentX" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="ContentAlignmentY" type="_TP_ItemAlignment" use="optional"/>
+    <xs:attribute name="Content" type="xs:string" use="optional"/>
+    <xs:attribute name="Orientation" type="_TP_LayoutOrientation" use="optional"/>
+
+    <xs:attribute name="GridLayout.Column" type="xs:string" use="optional"/>
+    <xs:attribute name="GridLayout.Row" type="xs:string" use="optional"/>
+    <xs:attribute name="Name" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:group name="_G_WindowElement">
+    <xs:choice>
+      <xs:element name="BackgroundWindow" type="_T_BackgroundWindow"/>
+      <xs:element name="LeftBar" type="_T_LeftBar"/>
+      <xs:element name="TopBar" type="_T_TopBar"/>
+      <xs:element name="BottomBar" type="_T_BottomBar"/>
+      <xs:element name="RightBar" type="_T_RightBar"/>
+      <xs:element name="FillLayout" type="_T_FillLayout"/>
+      <xs:element name="GridLayout" type="_T_GridLayout"/>
+      <xs:element name="StackLayout" type="_T_StackLayout"/>
+      <xs:element name="UniformStackLayout" type="_T_UniformStackLayout"/>
+      <xs:element name="UniformWrapLayout" type="_T_UniformWrapLayout"/>
+      <xs:element name="WrapLayout" type="_T_WrapLayout"/>
+      <xs:element name="Label" type="_T_Label"/>
+      <xs:element name="SliderUInt8" type="_T_SliderUInt8"/>
+      <xs:element name="FmtValueLabelUInt8" type="_T_FmtValueLabelUInt8"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_WindowList">
+    <xs:sequence>
+      <xs:group ref="_G_WindowElement" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:group name="_G_BaseWindowElement">
+    <xs:choice>
+      <xs:element name="FillLayout" type="_T_FillLayout"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="_T_BaseWindow">
+    <xs:annotation>
+    </xs:annotation>
+    <xs:group ref="_G_BaseWindowElement"/>
+  </xs:complexType>
+
+  <xs:group name="_G_RootElement">
+    <xs:choice>
+      <xs:element name="FillLayout" type="_T_FillLayout"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="_T_DeclarativeUITest">
+    <xs:group ref="_G_RootElement"/>
+  </xs:complexType>
+
+  <xs:element name="DeclarativeUITest" type="_T_DeclarativeUITest"/>
+</xs:schema>

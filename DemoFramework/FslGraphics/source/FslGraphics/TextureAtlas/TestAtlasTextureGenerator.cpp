@@ -46,10 +46,10 @@ namespace Fsl::TestAtlasTextureGenerator
       constexpr const uint32_t colorRed = 0xFFFF0000;
       constexpr const uint32_t colorBlue = 0xFF0000FF;
 
-      const uint32_t xStart = dstRect.X;
-      const uint32_t xEnd = xStart + dstRect.Width;
-      const uint32_t yStart = dstRect.Y;
-      const uint32_t yEnd = yStart + dstRect.Height;
+      const uint32_t xStart = dstRect.X.Value;
+      const uint32_t xEnd = xStart + dstRect.Width.Value;
+      const uint32_t yStart = dstRect.Y.Value;
+      const uint32_t yEnd = yStart + dstRect.Height.Value;
 
       uint32_t yMagic = 0;
       for (uint32_t y = yStart; y < yEnd; ++y)
@@ -76,7 +76,7 @@ namespace Fsl::TestAtlasTextureGenerator
     }
     rBitmap.Clear();
 
-    FillWithTestPattern(rBitmap, PxRectangleU32(0, 0, rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
+    FillWithTestPattern(rBitmap, PxRectangleU32(PxValueU(0), PxValueU(0), rBitmap.GetExtent().Width, rBitmap.GetExtent().Height));
   }
 
 
@@ -96,7 +96,7 @@ namespace Fsl::TestAtlasTextureGenerator
     for (uint32_t i = 0; i < count; ++i)
     {
       const NamedAtlasTexture& rEntry = sourceAtlas.GetEntry(i);
-      if (rEntry.TextureInfo.TrimmedRectPx.Right() > rBitmap.Width() || rEntry.TextureInfo.TrimmedRectPx.Bottom() > rBitmap.Height())
+      if (rEntry.TextureInfo.TrimmedRectPx.RawRight() > rBitmap.Width() || rEntry.TextureInfo.TrimmedRectPx.RawBottom() > rBitmap.Height())
       {
         throw NotSupportedException("rBitmap could not contain the source atlas entries");
       }

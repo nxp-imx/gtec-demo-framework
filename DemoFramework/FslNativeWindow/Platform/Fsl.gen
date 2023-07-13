@@ -7,8 +7,8 @@
       <Dependency Name="Platform.Windows.XInput"/>
     </Platform>
     <Platform Name="Android">
-      <Dependency Name="Platform.Android.Glue" Access="Private"/>
+      <Dependency Name="Platform.Android.GameActivity" Access="Public"/>
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
     </Platform>
-    </Library>
+  </Library>
 </FslBuildGen>

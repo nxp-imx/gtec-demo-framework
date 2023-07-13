@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerService.hpp>
@@ -73,6 +74,7 @@ namespace Fsl
     , m_persistentDataPath(std::move(persistentDataPath))
     , m_imageService(serviceProvider.TryGet<IImageService>())
   {
+    FSLLOG3_VERBOSE3("PersistentDataPath: {}", m_persistentDataPath);
   }
 
 

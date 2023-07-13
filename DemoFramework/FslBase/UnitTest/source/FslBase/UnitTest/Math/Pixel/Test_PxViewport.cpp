@@ -76,30 +76,30 @@ TEST(TestMathPixel_PxViewport, Construct)
 
 TEST(TestMathPixel_PxViewport, Construct_Rectangle)
 {
-  const PxRectangle rect(1, 2, 20, 21);
+  const auto rect = PxRectangle::Create(1, 2, 20, 21);
   PxViewport value(rect);
 
-  EXPECT_EQ(value.X(), rect.X());
-  EXPECT_EQ(value.Y(), rect.Y());
-  EXPECT_EQ(value.Width(), rect.Width());
-  EXPECT_EQ(value.Height(), rect.Height());
+  EXPECT_EQ(value.X(), rect.X().Value);
+  EXPECT_EQ(value.Y(), rect.Y().Value);
+  EXPECT_EQ(value.Width(), rect.RawWidth());
+  EXPECT_EQ(value.Height(), rect.RawHeight());
   EXPECT_EQ(value.MinDepth(), 0.0f);
   EXPECT_EQ(value.MaxDepth(), 1.0f);
-  EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()));
+  EXPECT_FLOAT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width().RawValue()) / static_cast<float>(rect.Height().RawValue()));
 }
 
 TEST(TestMathPixel_PxViewport, Construct_Rectangle2)
 {
   constexpr float minDepth = 32.0f;
   constexpr float maxDepth = 42.0f;
-  PxRectangle rect(1, 2, 20, 21);
+  auto rect = PxRectangle::Create(1, 2, 20, 21);
   PxViewport value(rect, minDepth, maxDepth);
 
-  EXPECT_EQ(value.X(), rect.X());
-  EXPECT_EQ(value.Y(), rect.Y());
-  EXPECT_EQ(value.Width(), rect.Width());
-  EXPECT_EQ(value.Height(), rect.Height());
+  EXPECT_EQ(value.X(), rect.X().Value);
+  EXPECT_EQ(value.Y(), rect.Y().Value);
+  EXPECT_EQ(value.Width(), rect.RawWidth());
+  EXPECT_EQ(value.Height(), rect.RawHeight());
   EXPECT_EQ(value.MinDepth(), minDepth);
   EXPECT_EQ(value.MaxDepth(), maxDepth);
-  EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()));
+  EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width().RawValue()) / static_cast<float>(rect.Height().RawValue()));
 }

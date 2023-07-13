@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,41 +47,42 @@ namespace
 TEST(TestMathPixel_PxThicknessF, Default)
 {
   PxThicknessF value;
+  constexpr auto size0Pxf = PxSize1DF::Create(0);
 
-  EXPECT_EQ(0.0f, value.Left());
-  EXPECT_EQ(0.0f, value.Top());
-  EXPECT_EQ(0.0f, value.Right());
-  EXPECT_EQ(0.0f, value.Bottom());
-  EXPECT_EQ(0.0f, value.SumX());
-  EXPECT_EQ(0.0f, value.SumY());
+  EXPECT_EQ(size0Pxf, value.Left());
+  EXPECT_EQ(size0Pxf, value.Top());
+  EXPECT_EQ(size0Pxf, value.Right());
+  EXPECT_EQ(size0Pxf, value.Bottom());
+  EXPECT_EQ(size0Pxf, value.SumX());
+  EXPECT_EQ(size0Pxf, value.SumY());
   EXPECT_EQ(PxSize2DF(), value.Sum());
 }
 
 
 TEST(TestMathPixel_PxThicknessF, Values)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left());
   EXPECT_EQ(top, value.Top());
   EXPECT_EQ(right, value.Right());
   EXPECT_EQ(bottom, value.Bottom());
-  EXPECT_FLOAT_EQ(left + right, value.SumX());
-  EXPECT_FLOAT_EQ(top + bottom, value.SumY());
-  EXPECT_FLOAT_EQ(left + right, value.Sum().Width());
-  EXPECT_FLOAT_EQ(top + bottom, value.Sum().Height());
+  EXPECT_FLOAT_EQ((left + right).RawValue(), value.SumX().RawValue());
+  EXPECT_FLOAT_EQ((top + bottom).RawValue(), value.SumY().RawValue());
+  EXPECT_FLOAT_EQ((left + right).RawValue(), value.Sum().RawWidth());
+  EXPECT_FLOAT_EQ((top + bottom).RawValue(), value.Sum().RawHeight());
 }
 
 TEST(TestMathPixel_PxThicknessF, TopLeft)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
   EXPECT_EQ(PxVector2(left, top), value.TopLeft());
@@ -89,10 +90,10 @@ TEST(TestMathPixel_PxThicknessF, TopLeft)
 
 TEST(TestMathPixel_PxThicknessF, TopRight)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
   EXPECT_EQ(PxVector2(right, top), value.TopRight());
@@ -100,10 +101,10 @@ TEST(TestMathPixel_PxThicknessF, TopRight)
 
 TEST(TestMathPixel_PxThicknessF, BottomLeft)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
   EXPECT_EQ(PxVector2(left, bottom), value.BottomLeft());
@@ -111,10 +112,10 @@ TEST(TestMathPixel_PxThicknessF, BottomLeft)
 
 TEST(TestMathPixel_PxThicknessF, BottomRight)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
   EXPECT_EQ(PxVector2(right, bottom), value.BottomRight());
@@ -122,46 +123,46 @@ TEST(TestMathPixel_PxThicknessF, BottomRight)
 
 TEST(TestMathPixel_PxThicknessF, Sum)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
-  EXPECT_FLOAT_EQ(left + right, value.Sum().Width());
-  EXPECT_FLOAT_EQ(top + bottom, value.Sum().Height());
+  EXPECT_FLOAT_EQ((left + right).RawValue(), value.Sum().RawWidth());
+  EXPECT_FLOAT_EQ((top + bottom).RawValue(), value.Sum().RawHeight());
 }
 
 
 TEST(TestMathPixel_PxThicknessF, SumX)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
-  EXPECT_FLOAT_EQ(left + right, value.SumX());
+  EXPECT_FLOAT_EQ((left + right).RawValue(), value.SumX().RawValue());
 }
 
 TEST(TestMathPixel_PxThicknessF, SumY)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value(left, top, right, bottom);
 
-  EXPECT_FLOAT_EQ(top + bottom, value.SumY());
+  EXPECT_FLOAT_EQ((top + bottom).RawValue(), value.SumY().RawValue());
 }
 
 
 TEST(TestMathPixel_PxThicknessF, OperatorEqual)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value1(left, top, right, bottom);
   PxThicknessF value2(left, top, right, bottom);
 
@@ -171,12 +172,12 @@ TEST(TestMathPixel_PxThicknessF, OperatorEqual)
 
 TEST(TestMathPixel_PxThicknessF, OperatorNotEqual)
 {
-  constexpr const float left = 1;
-  constexpr const float top = 2;
-  constexpr const float right = 3;
-  constexpr const float bottom = 4;
+  constexpr const auto left = PxSize1DF::Create(1);
+  constexpr const auto top = PxSize1DF::Create(2);
+  constexpr const auto right = PxSize1DF::Create(3);
+  constexpr const auto bottom = PxSize1DF::Create(4);
   PxThicknessF value1(left, top, right, bottom);
-  PxThicknessF value2(left, top, right, 5);
+  PxThicknessF value2(left, top, right, PxSize1DF::Create(5));
 
   EXPECT_NE(value1, value2);
 }

@@ -93,8 +93,9 @@ namespace Fsl
     nativeBatch->Draw(m_nativeTexture, Vector2(0, 0), Color::White());
 
     // GLES3 native texture handle at top right corner scaled to a 4th of its size
-    PxPoint2 scaledSize(nativeTextureSize.Width() / 4, nativeTextureSize.Height() / 4);
-    PxRectangle dstRectangle(resPx.Width() - scaledSize.X, 0, scaledSize.X, scaledSize.Y);
+    constexpr PxSize1D div4 = PxSize1D::Create(4);
+    PxPoint2 scaledSize(nativeTextureSize.Width() / div4, nativeTextureSize.Height() / div4);
+    PxRectangle dstRectangle(resPx.Width() - scaledSize.X, PxValue(0), scaledSize.X, scaledSize.Y);
     nativeBatch->Draw(GLES3::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()), dstRectangle, Color::White());
 
     // API independent texture

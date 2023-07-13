@@ -143,7 +143,7 @@ namespace Fsl
       return;
     }
 
-    const bool isHandled = m_uiManager->SendMouseButtonEvent(event.GetPosition(), event.IsPressed());
+    const bool isHandled = m_uiManager->SendMouseButtonEvent(event.GetPosition(), event.IsPressed(), event.IsTouch());
     if (isHandled && !event.IsHandled())
     {
       event.Handled();
@@ -153,7 +153,7 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    const bool isHandled = m_uiManager->SendMouseMoveEvent(event.GetPosition());
+    const bool isHandled = m_uiManager->SendMouseMoveEvent(event.GetPosition(), event.IsTouch());
     if (isHandled && !event.IsHandled())
     {
       event.Handled();

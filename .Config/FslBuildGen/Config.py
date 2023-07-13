@@ -31,16 +31,20 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Dict
+#from typing import Dict
 from typing import Optional
 import datetime
 from FslBuildGen import IOUtil
 from FslBuildGen.BasicConfig import BasicConfig
-from FslBuildGen.DataTypes import BuildPlatformType
+#from FslBuildGen.DataTypes import BuildPlatformType
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Log import Log
-from FslBuildGen.PlatformUtil import PlatformUtil
+#from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.SharedGeneration import ToolEnvironmentVariableName
 from FslBuildGen.ToolConfig import ToolConfig
+
+
+#externalVariantConstraints = ExternalVariantConstraints.ToExternalVariantConstraints()
 
 class BaseConfig(BasicConfig):
     def __init__(self, log: Log, toolConfig: ToolConfig) -> None:
@@ -67,7 +71,7 @@ class BaseConfig(BasicConfig):
 class Config(BaseConfig):
     def __init__(self, log: Log,
                  toolConfig: ToolConfig, srcType: str,
-                 variantsDict: Optional[Dict[str, str]], allowDevelopmentPlugins: bool) -> None:
+                 variantsDict: Optional[ExternalVariantConstraints], allowDevelopmentPlugins: bool) -> None:
         super().__init__(log, toolConfig)
 
 
@@ -90,7 +94,7 @@ class Config(BaseConfig):
         self.DisableSourceDirCheck = False  # type: bool
         self.IgnoreNotSupported = False  # type: bool
         self.IsDryRun = False  # type: bool
-        self.VariantsDict = variantsDict if variantsDict else {}
+        self.VariantConstraints = variantsDict if variantsDict else ExternalVariantConstraints(dict())
 
         if self.IsQuery:
             self.Type = "sdk"

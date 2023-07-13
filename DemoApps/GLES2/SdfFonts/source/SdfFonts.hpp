@@ -140,7 +140,7 @@ namespace Fsl
     static void DrawTextMesh(const MeshRecord& mesh, const GLES2::GLTexture& texture, const ShaderRecord& shader, const Matrix& projection,
                              const FontDrawConfig& fontDrawConfig);
 
-    static ExampleRecord PrepareExample(const IContentManager& contentManager, const int32_t lineYPx, const IO::Path& vertShaderPath,
+    static ExampleRecord PrepareExample(const IContentManager& contentManager, const PxSize1D lineYPx, const IO::Path& vertShaderPath,
                                         const IO::Path& fragShaderPath, const IO::Path& bitmapFontPath, const IO::Path& fontAtlasTexturePath,
                                         const StringViewLite& strView, const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
                                         std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
@@ -148,7 +148,7 @@ namespace Fsl
     static ShaderRecord GenerateShaderRecord(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath);
 
 
-    static MeshRecord GenerateMesh(const PxPoint2& dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
+    static MeshRecord GenerateMesh(const PxPoint2 dstPositionPx, const FontRecord& fontRecord, const BitmapFontConfig& fontConfig,
                                    const ShaderRecord& shader, const StringViewLite& strView,
                                    std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);
     static void RegenerateMeshOnDemand(MeshRecord& rMeshRecord, const PxPoint2& dstPositionPx, const FontRecord& fontRecord,

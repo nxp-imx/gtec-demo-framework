@@ -36,6 +36,7 @@ from typing import Dict
 from typing import Optional
 #from FslBuildGen.Build.CaptureEnvironmentVariablesFromScript import CaptureEnvironmentVariablesFromScript
 from FslBuildGen.DataTypes import VariantType
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackagePlatformVariant
@@ -51,31 +52,31 @@ class BuildVariantUtil(object):
     @staticmethod
     def ValidateUserVariantSettings(log: Log,
                                     topLevelPackage: Package,
-                                    userVariantSettingDict: Dict[str, str]) -> None:
+                                    externalVariantConstraints: ExternalVariantConstraints) -> None:
         variantDict = BuildVariantUtil.BuildCompleteVariantDict(topLevelPackage)
-        for key, value in list(userVariantSettingDict.items()):
-            if key in variantDict:
-                variant = variantDict[key]
-                if not value in variant.OptionDict:
+        for flavorName, flavorOption in externalVariantConstraints.Dict.items():
+            if flavorName.Value in variantDict:
+                variant = variantDict[flavorName.Value]
+                if not flavorOption.Value in variant.OptionDict:
                     validValues = list(variant.OptionDict.keys())
                     validValues.sort()
-                    raise Exception("Variant '{0}' expects one of the following values: '{1}' not '{2}'".format(key, ','.join(validValues), value))
-            elif key != ToolAddedVariant.CONFIG:
-                log.LogPrintWarning("WARNING: Unused variant setting '{0}'".format(key))
+                    raise Exception("Variant '{0}' expects one of the following values: '{1}' not '{2}'".format(flavorName.Value, ','.join(validValues), flavorOption.Value))
+            elif flavorName.Value != ToolAddedVariant.CONFIG:
+                log.LogPrintWarning("WARNING: Unused variant setting '{0}'".format(flavorName.Value))
+
+    #@staticmethod
+    #def LogVariantSettings(log: Log, variantSettingsDict: Dict[str, str]) -> None:
+    #    if len(variantSettingsDict) <= 0:
+    #        return
+    #    names = list(variantSettingsDict.keys())
+    #    names.sort()
+    #    result = []
+    #    for name in names:
+    #        result.append("{0}={1}".format(name, variantSettingsDict[name]))
+    #    log.LogPrint("Variant settings: {0}".format(", ".join(result)))
 
     @staticmethod
-    def LogVariantSettings(log: Log, variantSettingsDict: Dict[str, str]) -> None:
-        if len(variantSettingsDict) <= 0:
-            return
-        names = list(variantSettingsDict.keys())
-        names.sort()
-        result = []
-        for name in names:
-            result.append("{0}={1}".format(name, variantSettingsDict[name]))
-        log.LogPrint("Variant settings: {0}".format(", ".join(result)))
-
-    @staticmethod
-    def TryLocateVariant(package: Package, key: str) -> Optional[PackagePlatformVariant]:
+    def __TryLocateVariant(package: Package, key: str) -> Optional[PackagePlatformVariant]:
         if key in package.ResolvedAllVariantDict:
             return package.ResolvedAllVariantDict[key]
         # try a manual search for 'virtual keys'
@@ -88,19 +89,19 @@ class BuildVariantUtil(object):
     def ExtendEnvironmentDictWithVariants(log: Log,
                                           buildEnv: Dict[str, str],
                                           package: Package,
-                                          userVariantSettingDict: Dict[str, str]) -> None:
-        for key, value in list(userVariantSettingDict.items()):
-            variant = BuildVariantUtil.TryLocateVariant(package, key)
+                                          externalVariantConstraints: ExternalVariantConstraints) -> None:
+        for flavorName, flavorOption in externalVariantConstraints.Dict.items():
+            variant = BuildVariantUtil.__TryLocateVariant(package, flavorName.Value)
             if variant is not None:
-                if variant.Type == VariantType.Virtual or (value in variant.OptionDict):
-                    envName = "{0}{1}".format(GEN_BUILD_ENV_VARIANT_SETTING, key.upper())
+                if variant.Type == VariantType.Virtual or (flavorOption.Value in variant.OptionDict):
+                    envName = "{0}{1}".format(GEN_BUILD_ENV_VARIANT_SETTING, flavorName.Value.upper())
                     if envName in buildEnv:
                         raise Exception("The environment variable {0} has allready been defined".format(envName))
-                    buildEnv[envName] = value
+                    buildEnv[envName] = flavorOption.Value
                 else:
                     validValues = list(variant.OptionDict.keys())
                     validValues.sort()
-                    log.DoPrintWarning("Variant '{0}' expects one of the following values: '{1}' not '{2}'".format(key, ','.join(validValues), value))
+                    log.DoPrintWarning("Variant '{0}' expects one of the following values: '{1}' not '{2}'".format(flavorName.Value, ','.join(validValues), flavorOption.Value))
 
     #@staticmethod
     #def ExtractRelevantVariantSettingsDict(config: Config,
@@ -123,7 +124,7 @@ class BuildVariantUtil(object):
 
     @staticmethod
     def CreateCompleteStaticVariantSettings(resolvedAllVariantDict: Dict[str, PackagePlatformVariant],
-                                            variantsSelectionDict: Dict[str, str]) -> Dict[str, str]:
+                                            externalVariantConstraints: ExternalVariantConstraints) -> Dict[str, str]:
         """
         Create a settings dict variant options in the resolvedAllVariantDict.
         We will use the supplied settings from variantsSelectionDict when available and chose a default option when not.
@@ -135,13 +136,12 @@ class BuildVariantUtil(object):
         for variant in resolvedAllVariantDict.values():
             if variant.Type == VariantType.Normal:
                 value = ""
-                if variant.Name in variantsSelectionDict:
-                    value = variantsSelectionDict[variant.Name]
-                else:
+                strOptionName = externalVariantConstraints.TryGetOptionStringByNameString(variant.Name)
+                if strOptionName is None:
                     if len(variant.Options) <= 0:
                         raise Exception("Invalid variant, no options available")
-                    value = variant.Options[0].Name
-                resultDict[variant.Name] = value
+                    strOptionName = variant.Options[0].Name
+                resultDict[variant.Name] = strOptionName
         return resultDict
 
     #@staticmethod

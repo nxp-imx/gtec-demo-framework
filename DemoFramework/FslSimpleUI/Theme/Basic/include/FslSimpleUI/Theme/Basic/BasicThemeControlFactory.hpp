@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_THEME_BASIC_BASICTHEMECONTROLFACTORY_HPP
 #define FSLSIMPLEUI_THEME_BASIC_BASICTHEMECONTROLFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -280,6 +280,25 @@ namespace Fsl
         std::shared_ptr<Slider<float>> CreateSlider(const LayoutOrientation orientation, const ConstrainedValue<float>& value,
                                                     const SliderConfig& config) final;
 
+
+        // ----- CreateSliderFmtValue<uint8_t>
+
+        //! @brief Create a slider.
+        //! @note  It will default to stretch in the layout direction.
+        std::shared_ptr<SliderAndFmtValueLabel<uint8_t>>
+          CreateSliderFmtValue(const LayoutOrientation orientation, const ConstrainedValue<uint8_t>& value, const SliderConfig& config) final;
+        std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                              const ConstrainedValue<uint8_t>& value, const StringViewLite& strFormat,
+                                                                              const SliderConfig& config) final;
+        std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                              const ConstrainedValue<uint8_t>& value, std::string&& strFormat,
+                                                                              const SliderConfig& config) final;
+        std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                              const ConstrainedValue<uint8_t>& value, const char* const pszFormat,
+                                                                              const SliderConfig& config) final;
+        std::shared_ptr<SliderAndFmtValueLabel<uint8_t>> CreateSliderFmtValue(const LayoutOrientation orientation,
+                                                                              const ConstrainedValue<uint8_t>& value, const std::string& strFormat,
+                                                                              const SliderConfig& config) final;
 
         // ----- CreateSliderFmtValue<int32_t>
 

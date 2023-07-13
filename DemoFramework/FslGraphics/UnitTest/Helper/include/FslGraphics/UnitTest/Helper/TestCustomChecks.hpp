@@ -77,7 +77,7 @@ namespace Fsl
 
   inline ::testing::AssertionResult ExtentEquals(const Texture& tex, const uint32_t width, const uint32_t height, const uint32_t depth)
   {
-    return ExtentEquals(tex, PxExtent3D(width, height, depth));
+    return ExtentEquals(tex, PxExtent3D::Create(width, height, depth));
   }
 }
 

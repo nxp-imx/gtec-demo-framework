@@ -211,7 +211,7 @@ namespace Fsl::Vulkan
         break;
       case BasicViewportMode::CustomOriginBottomLeft:
         {
-          const int32_t newY = UncheckedNumericCast<int32_t>(screenExtentPx.Height) - materialInfo.Viewport.Bottom();
+          const int32_t newY = UncheckedNumericCast<int32_t>(screenExtentPx.Height.Value) - materialInfo.Viewport.Bottom();
           viewport.x = static_cast<float>(materialInfo.Viewport.X());
           viewport.y = static_cast<float>(newY);
           viewport.width = static_cast<float>(materialInfo.Viewport.Width());
@@ -219,8 +219,8 @@ namespace Fsl::Vulkan
           break;
         }
       case BasicViewportMode::Fullscreen:
-        viewport.width = static_cast<float>(screenExtentPx.Width);
-        viewport.height = static_cast<float>(screenExtentPx.Height);
+        viewport.width = static_cast<float>(screenExtentPx.Width.Value);
+        viewport.height = static_cast<float>(screenExtentPx.Height.Value);
         break;
       default:
         throw NotSupportedException("Unsupported viewport mode");

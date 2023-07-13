@@ -44,6 +44,12 @@ def ExtractNames(entries: Any) -> List[str]:
         resList.append(entry.Name)
     return resList
 
+# TODO: add a proper type to entries. It is a type that contains the Name attribute of type str
+def ExtractValues(entries: Any) -> List[str]:
+    resList = []
+    for entry in entries:
+        resList.append(entry.Value)
+    return resList
 
 # TODO: add a proper type to entries. It is a type that contains the Package attribute and the package attribute is of type Package
 def ExtractNonVirtualNames(entries: Any) -> List[str]:
@@ -119,11 +125,14 @@ def IsValidNameStartCharacter(ch: str) -> bool:
 
 
 def IsValidNameEndCharacter(ch: str) -> bool:
-    return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_'))
+    return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9'))
 
 
 def IsValidNameCharacter(ch: str) -> bool:
     return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_'))
+
+def IsValidFlavorOptionNameCharacter(ch: str) -> bool:
+    return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_') or (ch == '-'))
 
 
 def IsValidPackageNameCharacter(ch: str) -> bool:
@@ -158,6 +167,13 @@ def IsValidCompanyName(name: str) -> bool:
         return False
     return True
 
+
+
+def IsValidConstraintFlavorName(name: str) -> bool:
+    if len(name) < 3 or '.' not in name:
+        return False
+    return IsValidPackageName(name)
+
 def IsValidFlavorName(name: str) -> bool:
     if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
         return False
@@ -167,13 +183,34 @@ def IsValidFlavorName(name: str) -> bool:
             return False
     return True
 
-def IsValidFlavorOptionName(name: str) -> bool:
+def IsValidUnresolvedPackageFlavorName(name: str) -> bool:
+    return IsValidPackageName(name)
+
+def IsValidUnresolvedPackageFlavorUnqualifiedName(name: str) -> bool:
     if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
         return False
 
     for ch in name:
         if not IsValidNameCharacter(ch):
             return False
+    return True
+
+def IsValidFlavorExtensionName(name: str) -> bool:
+    return IsValidConstraintFlavorName(name)
+
+
+def IsValidFlavorOptionName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+
+    previousChar = ' '
+    for ch in name:
+        if not IsValidFlavorOptionNameCharacter(ch):
+            return False
+        # Double underscores are reserved for internal use
+        if ch == '_' and previousChar == '_':
+            return False
+        previousChar = ch
     return True
 
 
@@ -401,7 +438,7 @@ def GetPackageSourceAndFlavorNames(name: str) -> Tuple[str, str]:
     """
     extract the namespace and pure name
     """
-    index = name.rfind('__')
+    index = name.rfind('___')
     if index < 0:
         return name, ''
-    return name[:index], name[index+2:]
+    return name[:index], name[index+3:]

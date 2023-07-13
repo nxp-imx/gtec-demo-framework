@@ -83,8 +83,8 @@ namespace Fsl
   Shared::Shared(const DemoAppConfig& config, const bool chartSupported)
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
-    , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), config.WindowMetrics.ExtentPx.Width, LocalConfig::MaxProfileDataEntries,
-                                             UI::ChartData::Constraints(0, {})))
+    , m_data(std::make_shared<UI::ChartData>(m_uiExtension->GetDataBinding(), config.WindowMetrics.ExtentPx.Width.Value,
+                                             LocalConfig::MaxProfileDataEntries, UI::ChartData::Constraints(0, {})))
     , m_dataAverage(LocalConfig::AverageEntries)
   {
     // Configure the chart channel meta data

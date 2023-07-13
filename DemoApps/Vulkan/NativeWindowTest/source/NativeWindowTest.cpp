@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,7 +118,19 @@ namespace Fsl
       RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
       LogSurfaceCapabilities(surfaceCapabilities);
 
-      if (!swapchainDependentSurface)
+      if (swapchainDependentSurface)
+      {
+        if (surfaceCapabilities.currentExtent.width != 0xFFFFFFFF || surfaceCapabilities.currentExtent.height != 0xFFFFFFFF)
+        {
+          std::stringstream errStream;
+          errStream << "VulkanDriverError: driver did not report surfaceCapabilities.currentExtent.width == 0xFFFFFFFF && "
+                    << "surfaceCapabilities.currentExtent.height == 0xFFFFFFFF as required by the standard for this window system. "
+                    << "It reported surfaceCapabilities.currentExtent " << surfaceCapabilities.currentExtent;
+
+          throw RapidVulkan::VulkanException(errStream.str(), __FILE__, __LINE__);
+        }
+      }
+      else
       {
         if (surfaceCapabilities.currentExtent.width != windowExtent.width || surfaceCapabilities.currentExtent.height != windowExtent.height)
         {
@@ -139,11 +151,11 @@ namespace Fsl
     PxPoint2 actualSize;
     if (GetNativeWindow()->TryGetActualSize(actualSize))
     {
-      if (UncheckedNumericCast<uint32_t>(actualSize.X) != windowExtent.width)
+      if (UncheckedNumericCast<uint32_t>(actualSize.X.Value) != windowExtent.width)
       {
         FSLLOG3_WARNING("actual native window width does not match reported width: {} != {}", actualSize.X, windowExtent.width);
       }
-      if (UncheckedNumericCast<uint32_t>(actualSize.Y) != windowExtent.height)
+      if (UncheckedNumericCast<uint32_t>(actualSize.Y.Value) != windowExtent.height)
       {
         FSLLOG3_WARNING("actual native window height does not match reported height: {} != {}", actualSize.Y, windowExtent.height);
       }

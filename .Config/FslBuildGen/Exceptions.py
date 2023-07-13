@@ -283,6 +283,9 @@ class InvalidUnresolvedPackageNameException(Exception):
     def __init__(self, name: str) -> None:
         super().__init__("'{0}' is not a valid unresolved package name".format(name))
 
+class InvalidUnresolvedPackageFlavorNameException(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__("'{0}' is not a valid unresolved flavor name".format(name))
 
 class InvalidPackageNameException(Exception):
     def __init__(self, name: str) -> None:

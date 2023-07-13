@@ -38,6 +38,6 @@ from typing import Optional
 class GeneratorInfo(object):
     def __init__(self, isCMakeGenerator: bool, allowFindPackage: bool, validVariabelDict: Optional[Dict[str, object]], variableContext: VariableContext) -> None:
         self.IsCMakeGenerator = isCMakeGenerator
-        self.AllowFindPackage = False if not isCMakeGenerator else allowFindPackage
+        self.AllowFindPackage = allowFindPackage
         self.ValidVariabelDict = validVariabelDict
         self.VariableContext = variableContext

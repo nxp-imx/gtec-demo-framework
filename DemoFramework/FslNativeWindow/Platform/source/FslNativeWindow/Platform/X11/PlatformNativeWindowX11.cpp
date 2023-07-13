@@ -479,8 +479,7 @@ namespace Fsl
         }
       case ButtonPress:
         {
-          mousePosition.X = event.xbutton.x;
-          mousePosition.Y = event.xbutton.y;
+          mousePosition = PxPoint2::Create(event.xbutton.x, event.xbutton.y);
           if (event.xbutton.button < Button4)
           {
             // Regular Mouse Buttons
@@ -510,8 +509,7 @@ namespace Fsl
         }
       case ButtonRelease:
         {
-          mousePosition.X = event.xbutton.x;
-          mousePosition.Y = event.xbutton.y;
+          mousePosition = PxPoint2::Create(event.xbutton.x, event.xbutton.y);
           mouseButton = MouseToVirtualMouse(event.xbutton.button);
           if (eventQueue)
           {
@@ -539,8 +537,7 @@ namespace Fsl
         }
       case MotionNotify:
         {
-          mousePosition.X = event.xmotion.x;
-          mousePosition.Y = event.xmotion.y;
+          mousePosition = PxPoint2::Create(event.xmotion.x, event.xmotion.y);
           if (eventQueue)
           {
             eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(mousePosition));
@@ -671,7 +668,7 @@ namespace Fsl
       XRRSelectInput(m_platformDisplay, m_platformWindow, RRScreenChangeNotifyMask);
     }
 
-    m_cachedWindowSize = PxPoint2(windowWidth, windowHeight);
+    m_cachedWindowSize = PxPoint2::Create(windowWidth, windowHeight);
     TryUpdateDPI(m_platformDisplay, m_platformWindow, m_cachedScreenDPI);
 
     {    // Post the activation message to let the framework know we are ready
@@ -699,7 +696,7 @@ namespace Fsl
 
   void PlatformNativeWindowX11::OnConfigureNotify(const XConfigureEvent& event, const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
   {
-    PxPoint2 newSize(event.width, event.height);
+    PxPoint2 newSize(PxPoint2::Create(event.width, event.height));
     if (newSize == m_cachedWindowSize)
     {
       return;

@@ -113,10 +113,10 @@ namespace Fsl
 
     bool TryAdd(const PxAreaRectangleF& rectangle, const uint32_t id)
     {
-      const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
-      const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
-      const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
-      const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+      const int32_t startCellX = static_cast<int32_t>(rectangle.RawLeft()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.RawRight() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.RawTop()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.RawBottom() + 1.0f) >> m_shiftY) + 1;
 
       const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
       if (add)
@@ -142,10 +142,10 @@ namespace Fsl
 
     bool TryInsertAfterZPos(const uint32_t insertAfterZPos, const PxAreaRectangleF& rectangle, const uint32_t newZpos)
     {
-      const int32_t startCellX = static_cast<int32_t>(rectangle.Left()) >> m_shiftX;
-      const int32_t endCellX = (static_cast<int32_t>(rectangle.Right() + 1.0f) >> m_shiftX) + 1;
-      const int32_t startCellY = static_cast<int32_t>(rectangle.Top()) >> m_shiftY;
-      const int32_t endCellY = (static_cast<int32_t>(rectangle.Bottom() + 1.0f) >> m_shiftY) + 1;
+      const int32_t startCellX = static_cast<int32_t>(rectangle.RawLeft()) >> m_shiftX;
+      const int32_t endCellX = (static_cast<int32_t>(rectangle.RawRight() + 1.0f) >> m_shiftX) + 1;
+      const int32_t startCellY = static_cast<int32_t>(rectangle.RawTop()) >> m_shiftY;
+      const int32_t endCellY = (static_cast<int32_t>(rectangle.RawBottom() + 1.0f) >> m_shiftY) + 1;
 
       const bool add = startCellX < m_gridCellCountX && endCellX > 0 && startCellY < m_gridCellCountY && endCellY > 0;
       if (add)

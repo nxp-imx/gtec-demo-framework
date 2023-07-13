@@ -37,11 +37,6 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   DpiScale::DpiScale(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_shared(config)

@@ -46,6 +46,7 @@ namespace Fsl
     PxRectangle WindowRectPx;
     //! @brief Mouse position in screen space
     PxPoint2 MousePositionPx;
+    bool IsTouch{false};
 
     InputCommandRecord() noexcept = default;
 
@@ -56,12 +57,13 @@ namespace Fsl
     }
 
     InputCommandRecord(const uint32_t frameIndex, const InputCommandId commandId, const CustomWindowId windowId, const PxRectangle windowRectPx,
-                       const PxPoint2 mousePosition) noexcept
+                       const PxPoint2 mousePosition, const bool isTouch) noexcept
       : FrameIndex(frameIndex)
       , CommandId(commandId)
       , WindowId(windowId)
       , WindowRectPx(windowRectPx)
       , MousePositionPx(mousePosition)
+      , IsTouch(isTouch)
     {
     }
   };

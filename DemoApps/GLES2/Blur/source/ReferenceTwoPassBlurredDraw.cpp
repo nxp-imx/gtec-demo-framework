@@ -66,7 +66,7 @@ namespace Fsl
     , m_screenResolution(config.WindowMetrics.GetSizePx())
     , m_framebufferOrg(m_screenResolution, GLTextureParameters(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams,
                        GL_DEPTH_COMPONENT16)
-    , m_framebufferBlur(PxSize2D(m_screenResolution.Width() / 2, m_screenResolution.Height()),
+    , m_framebufferBlur(PxSize2D(m_screenResolution.Width() / PxSize1D::Create(2), m_screenResolution.Height()),
                         GLTextureParameters(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams)
   {
     if (!m_batch2D)
@@ -107,7 +107,7 @@ namespace Fsl
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferBlur.Get());
     {
-      glViewport(0, 0, m_framebufferBlur.GetSize().Width(), m_framebufferBlur.GetSize().Height());
+      glViewport(0, 0, m_framebufferBlur.GetSize().RawWidth(), m_framebufferBlur.GetSize().RawHeight());
       glClear(GL_COLOR_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);
@@ -123,7 +123,7 @@ namespace Fsl
     // Composite the final image
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     {
-      glViewport(0, 0, m_screenResolution.Width(), m_screenResolution.Height());
+      glViewport(0, 0, m_screenResolution.RawWidth(), m_screenResolution.RawHeight());
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);

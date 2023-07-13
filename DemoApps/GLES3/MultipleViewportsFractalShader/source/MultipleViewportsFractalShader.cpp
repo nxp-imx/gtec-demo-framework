@@ -76,11 +76,11 @@ namespace Fsl
     const auto sizePx = GetWindowSizePx();
 
     const int32_t x0 = 0;
-    const int32_t x1 = sizePx.Width() / 2;
-    const int32_t x2 = sizePx.Width();
+    const int32_t x1 = sizePx.RawWidth() / 2;
+    const int32_t x2 = sizePx.RawWidth();
     const int32_t y0 = 0;
-    const int32_t y1 = sizePx.Height() / 2;
-    const int32_t y2 = sizePx.Height();
+    const int32_t y1 = sizePx.RawHeight() / 2;
+    const int32_t y2 = sizePx.RawHeight();
 
     // Top left
     glViewport(x0, y1, x1 - x0, y2 - y1);
@@ -99,6 +99,6 @@ namespace Fsl
     m_scene3.Draw();
 
     // Restore the viewport
-    glViewport(0, 0, sizePx.Width(), sizePx.Height());
+    glViewport(0, 0, sizePx.RawWidth(), sizePx.RawHeight());
   }
 }

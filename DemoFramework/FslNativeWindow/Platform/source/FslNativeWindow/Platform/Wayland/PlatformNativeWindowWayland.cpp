@@ -402,8 +402,8 @@ namespace Fsl
         wl_surface_commit(display->cursor_surface);
       }
 
-      display->mousePosition.X = sx / 256;
-      display->mousePosition.Y = sy / 256;
+      display->mousePosition.X = PxValue::Create(sx / 256);
+      display->mousePosition.Y = PxValue::Create(sy / 256);
     }
 
 
@@ -417,8 +417,8 @@ namespace Fsl
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
       struct display* display = (struct display*)data;
 
-      display->mousePosition.X = sx / 256;
-      display->mousePosition.Y = sy / 256;
+      display->mousePosition.X = PxValue::Create(sx / 256);
+      display->mousePosition.Y = PxValue::Create(sy / 256);
       if (eventQueue)
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(display->mousePosition));
     }
@@ -1125,8 +1125,8 @@ namespace Fsl
     swindow.display = &sdisplay;
     sdisplay.window = &swindow;
 
-    sdisplay.mousePosition.X = 0;
-    sdisplay.mousePosition.Y = 0;
+    sdisplay.mousePosition.X = PxValue(0);
+    sdisplay.mousePosition.Y = PxValue(0);
 
     if (swindow.fullscreen && sdisplay.shell)
     {
@@ -1229,7 +1229,7 @@ namespace Fsl
       return false;
     }
 
-    rSize = PxPoint2(width, height);
+    rSize = PxPoint2::Create(width, height);
     return true;
   }
 

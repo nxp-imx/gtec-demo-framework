@@ -62,6 +62,7 @@ namespace Fsl
       : public BaseWindow
       , public DataBinding::IObjectObserver
     {
+      using base_type = BaseWindow;
       using dataview_prop_type = std::shared_ptr<ChartDataView>;
 
       struct DataViewCache

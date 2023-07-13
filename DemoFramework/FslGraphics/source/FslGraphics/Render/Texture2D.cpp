@@ -121,7 +121,7 @@ namespace Fsl
     {
       throw std::invalid_argument("bitmap is invalid");
     }
-    if (texture.GetExtent().Width < 1 || texture.GetExtent().Height < 1 || texture.GetExtent().Depth != 1)
+    if (texture.GetExtent().Width.Value < 1 || texture.GetExtent().Height.Value < 1 || texture.GetExtent().Depth.Value != 1)
     {
       throw std::invalid_argument("bitmap size is invalid");
     }

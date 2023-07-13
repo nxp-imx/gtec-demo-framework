@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/LogPxSize1D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxValue.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <ostream>
 

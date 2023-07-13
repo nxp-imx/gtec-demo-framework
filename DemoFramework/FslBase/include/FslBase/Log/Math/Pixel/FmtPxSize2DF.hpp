@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/FmtPxSize1DF.hpp>
 #include <FslBase/Math/Pixel/PxSize2DF.hpp>
 #include <fmt/format.h>
 

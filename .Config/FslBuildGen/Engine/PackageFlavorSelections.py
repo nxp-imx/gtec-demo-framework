@@ -44,9 +44,7 @@ class PackageFlavorSelections(object):
           selections.sort(key=lambda s: s.Name.Value.upper())
         self.Selections = selections
         self.Description = ", ".join([str(entry) for entry in selections])
-
         self.__SanityCheck(self.Selections)
-
 
     def __str__(self) -> str:
         return self.Description
@@ -60,7 +58,6 @@ class PackageFlavorSelections(object):
             if res >= 0:
                 return i if res == 0 else -1
         return -1
-
 
     def __SanityCheck(self, selections: List[PackageFlavorSelection]) -> None:
         if len(selections) > 0:

@@ -42,6 +42,6 @@ namespace Fsl
 
   float AScene::GetAspectRatio() const
   {
-    return m_sizePx.Height() != 0 ? static_cast<float>(m_sizePx.Width()) / static_cast<float>(m_sizePx.Height()) : 1.0f;
+    return m_sizePx.RawHeight() != 0 ? static_cast<float>(m_sizePx.RawWidth()) / static_cast<float>(m_sizePx.RawHeight()) : 1.0f;
   }
 }

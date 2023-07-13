@@ -552,12 +552,12 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    const float aspectL = m_splitSceneWidthL.GetValue() / static_cast<float>(windowSizePx.Height());
+    const float aspectL = m_splitSceneWidthL.GetValue() / static_cast<float>(windowSizePx.RawHeight());
 
     m_vertexUboDataL.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectL, 0.1f, 100.0f) * vulkanClipMatrix;
     m_vertexUboDataL.MatModelView = matrixWorld * matrixView;
 
-    const float aspectR = m_splitSceneWidthR.GetValue() / static_cast<float>(windowSizePx.Height());
+    const float aspectR = m_splitSceneWidthR.GetValue() / static_cast<float>(windowSizePx.RawHeight());
     m_vertexUboDataR.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectR, 0.1f, 100.0f) * vulkanClipMatrix;
     m_vertexUboDataR.MatModelView = matrixWorld * matrixView;
 
@@ -642,7 +642,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }
@@ -721,8 +721,8 @@ namespace Fsl
     vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
     const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue()));
-    const int32_t remainderX = windowSizePx.Width() - splitX;
-    const auto height = static_cast<float>(windowSizePx.Height());
+    const int32_t remainderX = windowSizePx.RawWidth() - splitX;
+    const auto height = static_cast<float>(windowSizePx.RawHeight());
 
     //// bottom left (no gamma correction, rgb texture)
     // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineNoGamma.Get());

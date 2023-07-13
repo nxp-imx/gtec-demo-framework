@@ -42,6 +42,7 @@ namespace Fsl
   struct DpPoint2F
   {
     using value_type = DpValueF;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type X{0};
     value_type Y{0};

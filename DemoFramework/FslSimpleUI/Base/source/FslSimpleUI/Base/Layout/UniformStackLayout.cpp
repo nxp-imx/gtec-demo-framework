@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Layout/UniformStackLayout.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
@@ -39,29 +43,39 @@
 
 namespace Fsl::UI
 {
+  using TClass = UniformStackLayout;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyOrientation = TFactory::Create<LayoutOrientation, TClass, &TClass::GetOrientation, &TClass::SetOrientation>("Orientation");
+  TDef TClass::PropertySpacing = TFactory::Create<DpSize1DF, TClass, &TClass::GetSpacing, &TClass::SetSpacing>("Spacing");
+}
+
+namespace Fsl::UI
+{
   UniformStackLayout::UniformStackLayout(const std::shared_ptr<BaseWindowContext>& context)
     : SimpleLayout(context)
-    , m_orientation(LayoutOrientation::Vertical)
+    , m_propertyOrientation(LayoutOrientation::Vertical)
   {
   }
 
 
-  void UniformStackLayout::SetOrientation(const LayoutOrientation& value)
+  bool UniformStackLayout::SetOrientation(const LayoutOrientation value)
   {
-    if (value != m_orientation)
+    const bool changed = m_propertyOrientation.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_orientation = value;
       PropertyUpdated(PropertyType::Layout);
     }
+    return changed;
   }
 
 
   bool UniformStackLayout::SetSpacing(const DpSize1DF value)
   {
-    bool changed = value != m_spacingDp;
+    const bool changed = m_propertySpacingDp.Set(ThisDependencyObject(), value);
     if (changed)
     {
-      m_spacingDp = value;
       PropertyUpdated(PropertyType::Layout);
     }
     return changed;
@@ -71,14 +85,14 @@ namespace Fsl::UI
   PxSize2D UniformStackLayout::ArrangeOverride(const PxSize2D& finalSizePx)
   {
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-    const auto spacePx = unitConverter.ToPxSize1D(m_spacingDp).RawValue();
-    if (m_orientation == LayoutOrientation::Horizontal)
+    const auto spacePx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
       // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
-      int32_t posPx = 0;
+      PxSize1D posPx;
       for (auto itr = begin(); itr != end(); ++itr)
       {
-        itr->Window->Arrange(PxRectangle(posPx, 0, m_maxSizePx, finalSizePx.Height()));
+        itr->Window->Arrange(PxRectangle(posPx, PxValue(0), m_maxSizePx, finalSizePx.Height()));
         posPx += m_maxSizePx + spacePx;
       }
       if (!empty())
@@ -90,10 +104,10 @@ namespace Fsl::UI
 
 
     // Run through each element and give it the space it desired in Y, but only finalSize.X in X
-    int32_t posPx = 0;
+    PxSize1D posPx;
     for (auto itr = begin(); itr != end(); ++itr)
     {
-      itr->Window->Arrange(PxRectangle(0, posPx, finalSizePx.Width(), m_maxSizePx));
+      itr->Window->Arrange(PxRectangle(PxValue(0), posPx, finalSizePx.Width(), m_maxSizePx));
       posPx += m_maxSizePx + spacePx;
     }
     if (!empty())
@@ -108,13 +122,13 @@ namespace Fsl::UI
   {
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
-    const PxSize1D spacePx = unitConverter.ToPxSize1D(m_spacingDp);
+    const PxSize1D spacePx = unitConverter.ToPxSize1D(m_propertySpacingDp.Get());
     PxSize2D finalSizePx;
     PxSize2D maxSizePx;
-    if (m_orientation == LayoutOrientation::Horizontal)
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
       // Fake that we have unlimited space in X and keep Y constrained.
-      const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
+      const PxAvailableSize fakeAvailableSizePx(PxAvailableSize1D::InfiniteSpacePx(), availableSizePx.Height());
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Measure(fakeAvailableSizePx);
@@ -124,14 +138,16 @@ namespace Fsl::UI
       if (!empty())
       {
         const auto childCount = UncheckedNumericCast<int32_t>(GetChildCount());
-        finalSizePx = PxSize2D((maxSizePx.Width() * childCount) + (spacePx.RawValue() * (childCount - 1)), maxSizePx.Height());
+        assert(childCount > 0);
+        finalSizePx = {(maxSizePx.Width() * PxSize1D::UncheckedCreate(childCount)) + (spacePx * PxSize1D::UncheckedCreate(childCount - 1)),
+                       maxSizePx.Height()};
       }
       m_maxSizePx = maxSizePx.Width();
     }
     else
     {
       // Fake that we have unlimited space in Y and keep X constrained.
-      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
+      const auto fakeAvailableSizePx = PxAvailableSize(availableSizePx.Width(), PxAvailableSize1D::InfiniteSpacePx());
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Measure(fakeAvailableSizePx);
@@ -141,10 +157,39 @@ namespace Fsl::UI
       if (!empty())
       {
         const auto childCount = UncheckedNumericCast<int32_t>(GetChildCount());
-        finalSizePx = PxSize2D(maxSizePx.Width(), (maxSizePx.Height() * childCount) + (spacePx.RawValue() * (childCount - 1)));
+        assert(childCount > 0);
+        finalSizePx = {maxSizePx.Width(),
+                       (maxSizePx.Height() * PxSize1D::UncheckedCreate(childCount)) + (spacePx * PxSize1D::UncheckedCreate(childCount - 1))};
       }
       m_maxSizePx = maxSizePx.Height();
     }
     return finalSizePx;
+  }
+
+
+  DataBinding::DataBindingInstanceHandle UniformStackLayout::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                         DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult UniformStackLayout::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                             const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                  DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void UniformStackLayout::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyOrientation);
+    rProperties.push_back(PropertySpacing);
   }
 }

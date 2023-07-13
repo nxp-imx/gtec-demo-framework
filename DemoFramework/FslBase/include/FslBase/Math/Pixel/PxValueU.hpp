@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVALUEU_HPP
 #define FSLBASE_MATH_PIXEL_PXVALUEU_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ namespace Fsl
   struct PxValueU
   {
     using value_type = uint32_t;
+    using raw_value_type = uint32_t;
 
     value_type Value{0};
 
@@ -123,6 +124,25 @@ namespace Fsl
     {
       return {};
     }
+
+    //! equal to std::min but its both constexpr and noexcept
+    static constexpr PxValueU Min(const PxValueU val0, const PxValueU val1) noexcept
+    {
+      // Both values are known to be >= 0
+      return PxValueU(val0.Value <= val1.Value ? val0.Value : val1.Value);
+    }
+
+    //! equal to std::max but its both constexpr and noexcept
+    static constexpr PxValueU Max(const PxValueU val0, const PxValueU val1) noexcept
+    {
+      // Both values are known to be >= 0
+      return PxValueU(val0.Value >= val1.Value ? val0.Value : val1.Value);
+    }
+
+    inline static constexpr PxValueU Create(const raw_value_type value) noexcept
+    {
+      return PxValueU(value);
+    }
   };
 
 
@@ -161,6 +181,8 @@ namespace Fsl
   //{
   //   return PxValueU(lhs.Value / rhs);
   // }
+
+
 }
 
 #endif

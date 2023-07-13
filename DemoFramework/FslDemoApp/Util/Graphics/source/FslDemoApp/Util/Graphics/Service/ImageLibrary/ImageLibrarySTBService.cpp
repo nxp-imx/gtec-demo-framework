@@ -179,8 +179,8 @@ namespace Fsl
       try
       {
         const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R32G32B32_SFLOAT : PixelFormat::R32G32B32A32_SFLOAT);
-        PxExtent2D extent(width, height);
-        const std::size_t cbContent = (sizeof(float) * channels) * extent.Width * extent.Height;
+        auto extent = PxExtent2D::Create(width, height);
+        const std::size_t cbContent = (sizeof(float) * channels) * extent.Width.Value * extent.Height.Value;
 
         rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
         return true;
@@ -212,8 +212,8 @@ namespace Fsl
       try
       {
         const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R8G8B8_UINT : PixelFormat::R8G8B8A8_UINT);
-        PxExtent2D extent(width, height);
-        const std::size_t cbContent = channels * extent.Width * extent.Height;
+        auto extent = PxExtent2D::Create(width, height);
+        const std::size_t cbContent = channels * extent.Width.Value * extent.Height.Value;
 
         rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
         return true;

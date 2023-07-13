@@ -108,6 +108,7 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
     ```bash
     export FSL_PLATFORM_NAME=Yocto
     export ROOTFS=~/sdk/4.9.51-mx8-beta/sysroots/aarch64-poky-linux
+    export FSL_HOST_ROOTFS=~/sdk/4.9.51-mx8-beta/sysroots/x86_64-poky-linux
     ```
 
    Another possible error you can encounter is that the FslBuild.py scripts fail to include the 'typing' library.

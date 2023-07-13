@@ -217,7 +217,7 @@ namespace Fsl
     m_displayMetrics = windowMetrics;
     UpdateResourceScale();
 
-    m_uiRecord.Stats.LabelResPx->SetContent(fmt::format("{}x{}px", windowMetrics.ExtentPx.Width, windowMetrics.ExtentPx.Height));
+    m_uiRecord.Stats.LabelResPx->SetContent(fmt::format("{}x{}px", windowMetrics.ExtentPx.Width.Value, windowMetrics.ExtentPx.Height.Value));
     m_uiRecord.Stats.LabelResDp->SetContent(fmt::format("{}x{}dp", windowMetrics.SizeDp.X, windowMetrics.SizeDp.Y));
     m_uiRecord.Stats.LabelDpi->SetContent(fmt::format("{}x{}", windowMetrics.ExactDpi.X, windowMetrics.ExactDpi.Y));
     m_uiRecord.Stats.LabelDensityDpi->SetContent(fmt::format("{}", windowMetrics.DensityDpi));

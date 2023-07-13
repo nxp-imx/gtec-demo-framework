@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,18 +47,18 @@ namespace
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_LeftOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(0, 0, 8, 15);
+  auto srcRectOrg = PxRectangleU32::Create(0, 0, 8, 15);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_FALSE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(0u, srcRect.X);
-  EXPECT_EQ(0u, srcRect.Y);
-  EXPECT_EQ(0u, srcRect.Width);
-  EXPECT_EQ(0u, srcRect.Height);
+  EXPECT_EQ(PxValueU(0u), srcRect.X);
+  EXPECT_EQ(PxValueU(0u), srcRect.Y);
+  EXPECT_EQ(PxValueU(0u), srcRect.Width);
+  EXPECT_EQ(PxValueU(0u), srcRect.Height);
   EXPECT_EQ(Vector2(0, 0), srcOrigin);
 }
 
@@ -66,18 +66,18 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_LeftOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_RightOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(11, 0, 7, 15);
+  auto srcRectOrg = PxRectangleU32::Create(11, 0, 7, 15);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_FALSE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(0u, srcRect.X);
-  EXPECT_EQ(0u, srcRect.Y);
-  EXPECT_EQ(0u, srcRect.Width);
-  EXPECT_EQ(0u, srcRect.Height);
+  EXPECT_EQ(PxValueU(0u), srcRect.X);
+  EXPECT_EQ(PxValueU(0u), srcRect.Y);
+  EXPECT_EQ(PxValueU(0u), srcRect.Width);
+  EXPECT_EQ(PxValueU(0u), srcRect.Height);
   EXPECT_EQ(Vector2(0, 0), srcOrigin);
 }
 
@@ -85,18 +85,18 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_RightOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_TopOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(0, 0, 18, 6);
+  auto srcRectOrg = PxRectangleU32::Create(0, 0, 18, 6);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_FALSE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(0u, srcRect.X);
-  EXPECT_EQ(0u, srcRect.Y);
-  EXPECT_EQ(0u, srcRect.Width);
-  EXPECT_EQ(0u, srcRect.Height);
+  EXPECT_EQ(PxValueU(0u), srcRect.X);
+  EXPECT_EQ(PxValueU(0u), srcRect.Y);
+  EXPECT_EQ(PxValueU(0u), srcRect.Width);
+  EXPECT_EQ(PxValueU(0u), srcRect.Height);
   EXPECT_EQ(Vector2(0, 0), srcOrigin);
 }
 
@@ -104,18 +104,18 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_TopOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_BottomOfTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(0, 10, 18, 5);
+  auto srcRectOrg = PxRectangleU32::Create(0, 10, 18, 5);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_FALSE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(0u, srcRect.X);
-  EXPECT_EQ(0u, srcRect.Y);
-  EXPECT_EQ(0u, srcRect.Width);
-  EXPECT_EQ(0u, srcRect.Height);
+  EXPECT_EQ(PxValueU(0u), srcRect.X);
+  EXPECT_EQ(PxValueU(0u), srcRect.Y);
+  EXPECT_EQ(PxValueU(0u), srcRect.Width);
+  EXPECT_EQ(PxValueU(0u), srcRect.Height);
   EXPECT_EQ(Vector2(0, 0), srcOrigin);
 }
 
@@ -123,18 +123,18 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_BottomOfTrim)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullSrc)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(0, 0, 18, 15);
+  auto srcRectOrg = PxRectangleU32::Create(0, 0, 18, 15);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_TRUE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(1u, srcRect.X);
-  EXPECT_EQ(2u, srcRect.Y);
-  EXPECT_EQ(3u, srcRect.Width);
-  EXPECT_EQ(4u, srcRect.Height);
+  EXPECT_EQ(PxValueU(1u), srcRect.X);
+  EXPECT_EQ(PxValueU(2u), srcRect.Y);
+  EXPECT_EQ(PxValueU(3u), srcRect.Width);
+  EXPECT_EQ(PxValueU(4u), srcRect.Height);
   EXPECT_EQ(Vector2(-8, -6), srcOrigin);
 }
 
@@ -142,35 +142,35 @@ TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullSrc)
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullyInsideTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(8, 6, 2, 3);
+  auto srcRectOrg = PxRectangleU32::Create(8, 6, 2, 3);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_TRUE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(1u, srcRect.X);
-  EXPECT_EQ(2u, srcRect.Y);
-  EXPECT_EQ(2u, srcRect.Width);
-  EXPECT_EQ(3u, srcRect.Height);
+  EXPECT_EQ(PxValueU(1u), srcRect.X);
+  EXPECT_EQ(PxValueU(2u), srcRect.Y);
+  EXPECT_EQ(PxValueU(2u), srcRect.Width);
+  EXPECT_EQ(PxValueU(3u), srcRect.Height);
   EXPECT_EQ(Vector2(0, 0), srcOrigin);
 }
 
 TEST(Test_AtlasTextureInfoUtil, AdjustSourceRect_Trim_FullTrim)
 {
   // src rect(-7, -4, 18, 15) on texture
-  AtlasTextureInfo atlasTextureInfo(PxRectangleU32(1, 2, 3, 4), PxThicknessU(8, 6, 7, 5), TEST_DP);
+  AtlasTextureInfo atlasTextureInfo(PxRectangleU32::Create(1, 2, 3, 4), PxThicknessU::Create(8, 6, 7, 5), TEST_DP);
 
-  PxRectangleU32 srcRectOrg(8, 6, 3, 4);
+  auto srcRectOrg = PxRectangleU32::Create(8, 6, 3, 4);
 
   Vector2 srcOrigin;
   auto srcRect = srcRectOrg;
   EXPECT_TRUE(AtlasTextureInfoUtil::AdjustSourceRect(srcRect, atlasTextureInfo, srcOrigin));
 
-  EXPECT_EQ(1u, srcRect.X);
-  EXPECT_EQ(2u, srcRect.Y);
-  EXPECT_EQ(3u, srcRect.Width);
-  EXPECT_EQ(4u, srcRect.Height);
+  EXPECT_EQ(PxValueU(1u), srcRect.X);
+  EXPECT_EQ(PxValueU(2u), srcRect.Y);
+  EXPECT_EQ(PxValueU(3u), srcRect.Width);
+  EXPECT_EQ(PxValueU(4u), srcRect.Height);
   EXPECT_EQ(Vector2(0, 0), srcOrigin);
 }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Control/SlidingPanel.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+
+namespace Fsl::UI
+{
+  using TClass = SlidingPanel;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyDirection = TFactory::Create<SlideDirection, TClass, &TClass::GetDirection, &TClass::SetDirection>("Direction");
+  TDef TClass::PropertyShown = TFactory::Create<bool, TClass, &TClass::IsShown, &TClass::SetShown>("Shown");
+}
+
 
 namespace Fsl::UI
 {
@@ -47,46 +62,42 @@ namespace Fsl::UI
 
     PxPoint2 CalcOffset(const SlideDirection direction, const float visible, const PxSize2D sizePx)
     {
-      PxPoint2 offsetPx;
+      const auto visiblePxf = PxSize1DF::Create(1.0f - visible);
       switch (direction)
       {
       case SlideDirection::Left:
-        offsetPx = PxPoint2(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(-sizePx.Width()) * (1.0f - visible)), 0);
-        break;
-      case SlideDirection::Right:
-        offsetPx = {};
-        break;
+        return {-TypeConverter::UncheckedChangeTo<PxValue>(TypeConverter::UncheckedTo<PxSize1DF>(sizePx.Width()) * visiblePxf), PxValue()};
       case SlideDirection::Up:
-        offsetPx = PxPoint2(0, TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(-sizePx.Height()) * (1.0f - visible)));
-        break;
+        return {PxValue(), -TypeConverter::UncheckedChangeTo<PxValue>(TypeConverter::UncheckedTo<PxSize1DF>(sizePx.Height()) * visiblePxf)};
+      case SlideDirection::Right:
       case SlideDirection::Down:
       default:
-        offsetPx = {};
-        break;
+        return {};
       }
-      return offsetPx;
     }
 
     PxSize2D CalcSize(const SlideDirection direction, const float visible, const PxSize2D sizePx)
     {
-      PxSize2D modifiedSizePx;
+      if (visible <= 0.001f)
+      {
+        return {};
+      }
+      if (visible >= 0.999f)
+      {
+        return sizePx;
+      }
+
+      const auto visiblePxf = PxSize1DF::Create(visible);
       switch (direction)
       {
       case SlideDirection::Left:
-        modifiedSizePx = PxSize2D(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Width()) * visible), sizePx.Height());
-        break;
       case SlideDirection::Right:
-        modifiedSizePx = PxSize2D(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Width()) * visible), sizePx.Height());
-        break;
+        return {TypeConverter::UncheckedChangeTo<PxSize1D>(TypeConverter::UncheckedTo<PxSize1DF>(sizePx.Width()) * visiblePxf), sizePx.Height()};
       case SlideDirection::Up:
-        modifiedSizePx = PxSize2D(sizePx.Width(), TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Height()) * visible));
-        break;
       case SlideDirection::Down:
       default:
-        modifiedSizePx = PxSize2D(sizePx.Width(), TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(sizePx.Height()) * visible));
-        break;
+        return {sizePx.Width(), TypeConverter::UncheckedChangeTo<PxSize1D>(TypeConverter::UncheckedTo<PxSize1DF>(sizePx.Height()) * visiblePxf)};
       }
-      return modifiedSizePx;
     }
   }
 
@@ -98,40 +109,36 @@ namespace Fsl::UI
     m_animation.SetActualValue(LocalConfig::Visible);
   }
 
-  bool SlidingPanel::SetShow(const bool isVisible)
+  bool SlidingPanel::SetShown(const bool value)
   {
-    const auto state = isVisible ? State::Shown : State::Hidden;
-    if (m_state == state)
+    const bool changed = m_propertyShown.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      return false;
+      if (value)
+      {
+        SetContentVisibility(ItemVisibility::Visible);
+      }
+      PropertyUpdated(PropertyType::Layout);
     }
-    m_state = state;
-    if (m_state == State::Shown)
-    {
-      SetContentVisibility(ItemVisibility::Visible);
-    }
-
-    PropertyUpdated(PropertyType::Layout);
-    return true;
+    return changed;
   }
 
 
-  bool SlidingPanel::SetDirection(const SlideDirection direction)
+  bool SlidingPanel::SetDirection(const SlideDirection value)
   {
-    if (direction == m_slideDirection)
+    const bool changed = m_propertyDirection.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      return false;
+      PropertyUpdated(PropertyType::Layout);
     }
-    m_slideDirection = direction;
-    PropertyUpdated(PropertyType::Layout);
-    return true;
+    return changed;
   }
 
 
   PxSize2D SlidingPanel::ArrangeOverride(const PxSize2D& finalSizePx)
   {
     auto localFinalSizePx = m_desiredSizePx;
-    switch (m_slideDirection)
+    switch (m_propertyDirection.Get())
     {
     case SlideDirection::Left:
     case SlideDirection::Right:
@@ -140,11 +147,12 @@ namespace Fsl::UI
     case SlideDirection::Up:
     case SlideDirection::Down:
       localFinalSizePx.SetWidth(finalSizePx.Width());
+      break;
     default:
       break;
     }
 
-    PxPoint2 offsetPx = CalcOffset(m_slideDirection, m_animation.GetValue(), localFinalSizePx);
+    PxPoint2 offsetPx = CalcOffset(m_propertyDirection.Get(), m_animation.GetValue(), localFinalSizePx);
     ContentControl::CustomArrange(localFinalSizePx, offsetPx);
     return finalSizePx;
   }
@@ -153,9 +161,35 @@ namespace Fsl::UI
   PxSize2D SlidingPanel::MeasureOverride(const PxAvailableSize& availableSizePx)
   {
     m_desiredSizePx = ContentControl::MeasureOverride(availableSizePx);
-    return CalcSize(m_slideDirection, m_animation.GetValue(), m_desiredSizePx);
+    return CalcSize(m_propertyDirection.Get(), m_animation.GetValue(), m_desiredSizePx);
   }
 
+
+  DataBinding::DataBindingInstanceHandle SlidingPanel::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyDirection, m_propertyDirection),
+                                                                         DataBinding::PropLinkRefs(PropertyShown, m_propertyShown));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult SlidingPanel::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                       const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyDirection, m_propertyDirection),
+                                                                  DataBinding::PropLinkRefs(PropertyShown, m_propertyShown));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void SlidingPanel::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyDirection);
+    rProperties.push_back(PropertyShown);
+  }
 
   void SlidingPanel::UpdateAnimation(const TimeSpan& timeSpan)
   {
@@ -170,7 +204,8 @@ namespace Fsl::UI
 
   bool SlidingPanel::UpdateAnimationState(const bool forceCompleteAnimation)
   {
-    m_animation.SetValue(m_state == State::Shown ? LocalConfig::Visible : LocalConfig::Hidden);
+    const auto shown = m_propertyShown.Get();
+    m_animation.SetValue(shown ? LocalConfig::Visible : LocalConfig::Hidden);
 
     bool isAnimating = ContentControl::UpdateAnimationState(forceCompleteAnimation);
     if (forceCompleteAnimation)
@@ -178,7 +213,7 @@ namespace Fsl::UI
       m_animation.ForceComplete();
     }
     bool isAnimating2 = !m_animation.IsCompleted();
-    if (!isAnimating2 && m_state == State::Hidden)
+    if (!isAnimating2 && !shown)
     {
       SetContentVisibility(ItemVisibility::Collapsed);
     }

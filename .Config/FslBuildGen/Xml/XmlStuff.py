@@ -77,6 +77,7 @@ from FslBuildGen.Xml.Exceptions import XmlUnsupportedVirtualVariantNameException
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedVirtualVariantOptionNameException
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Flavor.XmlGenFileFlavor import XmlGenFileFlavor
+from FslBuildGen.Xml.Flavor.XmlGenFileFlavorExtension import XmlGenFileFlavorExtension
 from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.XmlBase2 import XmlBase2
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
@@ -92,25 +93,36 @@ class LocalPackageDefaultValues(object):
 
 
 class XmlGenFileImportTemplate(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlGenFileVariantOption(XmlBase2):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element, ownerPackageName: str) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         self.IntroducedByPackageName = ownerPackageName
 
 
 class XmlGenFileVariant(XmlBase):
+    __AttribName = 'Name'
+    __AttribExtend = 'Extend'
+    __AttribType = 'Type'
+
     def __init__(self, log: Log, xmlElement: ET.Element, ownerPackageName: str) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName, self.__AttribExtend, self.__AttribType})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         self.IntroducedByPackageName = ownerPackageName
-        self.AllowExtend = self._ReadBoolAttrib(xmlElement, 'Extend', False)
-        elementType = self._ReadAttrib(xmlElement, 'Type', 'Normal')
+        self.AllowExtend = self._ReadBoolAttrib(xmlElement, self.__AttribExtend, False)
+        elementType = self._ReadAttrib(xmlElement, self.__AttribType, 'Normal')
         self.Options = self.__GetXMLVariantOptions(xmlElement, ownerPackageName)
         self.Type = self.__ExtractType(elementType)
         self.OptionDict = self.__BuildOptionDict()  # type: Dict[str, XmlGenFileVariantOption]
@@ -176,20 +188,25 @@ class XmlGenFileVariant(XmlBase):
 
 
 class XmlGenFilePlatform(XmlBase2):
+    __AttribName = 'Name'
+    __AttribProjectId = 'ProjectId'
+    __AttribSupported = 'Supported'
+
     def __init__(self, log: Log, xmlElement: ET.Element, defaultValues: LocalPackageDefaultValues,
                  requirements: List[XmlGenFileRequirement], dependencies: List[XmlGenFileDependency], flavors: List[XmlGenFileFlavor],
-                 variants: List[XmlGenFileVariant], experimentalRecipe: Optional[XmlExperimentalRecipe]) -> None:
+                 flavorExtensions: List[XmlGenFileFlavorExtension], variants: List[XmlGenFileVariant],
+                 experimentalRecipe: Optional[XmlExperimentalRecipe]) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName, self.__AttribProjectId, self.__AttribSupported})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         self.DirectRequirements = requirements
         self.DirectDependencies = dependencies
         self.DirectExperimentalRecipe = experimentalRecipe
         self.Flavors = flavors
+        self.FlavorExtensions = flavorExtensions
         self.Variants = variants
-        self.ProjectId = self._TryReadAttrib(xmlElement, 'ProjectId')
-        self.Supported = self._ReadBoolAttrib(xmlElement, 'Supported', defaultValues.Platform_Supported)
-        if self._HasAttrib(xmlElement, 'NotSupported'):
-            raise Exception("The attribute NotSupported was replaced with the Supported attribute. Please update your file")
+        self.ProjectId = self._TryReadAttrib(xmlElement, self.__AttribProjectId)
+        self.Supported = self._ReadBoolAttrib(xmlElement, self.__AttribSupported, defaultValues.Platform_Supported)
 
         #self.DirectVariantDependencyUnion = self.__CreateVariantDependencyUnion(variants)
 
@@ -218,12 +235,15 @@ class FakeXmlGenFilePlatform(XmlGenFilePlatform):
     def __init__(self, log: Log, platformName: str,
                  defaultValues: LocalPackageDefaultValues) -> None:
         fakeXmlElement = FakeXmlElementFactory.CreateWithName("Platform", platformName)
-        super().__init__(log, fakeXmlElement, defaultValues, [], [], [], [], None)
+        super().__init__(log, fakeXmlElement, defaultValues, [], [], [], [], [], None)
 
 
 class XmlGenFileBuildCustomization(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes({self.__AttribName})
         self.Name = xmlElement.tag
         self.ValueString = self._ReadAttrib(xmlElement, 'Value')
 

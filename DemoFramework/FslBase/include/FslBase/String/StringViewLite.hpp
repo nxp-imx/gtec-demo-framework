@@ -1,7 +1,7 @@
 #ifndef FSLBASE_STRING_STRINGVIEWLITE_HPP
 #define FSLBASE_STRING_STRINGVIEWLITE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -539,5 +539,18 @@ namespace Fsl
     return rhs <= lhs;
   }
 }
+
+
+// namespace std
+// {
+//   template <>
+//   struct hash<Fsl::StringViewLite>
+//   {
+//     inline std::size_t operator()(const Fsl::StringViewLite& value) const
+//     {
+//       return hash<std::string_view>()(value.AsStringView());
+//     }
+//   };
+// }
 
 #endif

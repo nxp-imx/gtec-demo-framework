@@ -48,7 +48,9 @@ class UnresolvedFilter(object):
     def FilterOnConditions(log: Log, generatorInfo: GeneratorInfo, sourceList: List[FilterElementType], debugHelp: str) -> List[FilterElementType]:
         result = [] # type: List[FilterElementType]
         for element in sourceList:
-            if element.IfCondition is None or ElementIfConditionUtil.CheckCondition(element.IfCondition, generatorInfo, debugHelp):
+            if element.IfCondition is None:
+                result.append(element)
+            elif ElementIfConditionUtil.CheckCondition(element.IfCondition, generatorInfo, debugHelp):
                 result.append(element)
             else:
                 log.LogPrintVerbose(2, "Skipped {0} name '{1}' because of condition '{2}'".format(debugHelp, element.Name, element.IfCondition))

@@ -33,6 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/NativeNineSliceTextureArea.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
@@ -52,8 +53,10 @@ namespace Fsl::NineSliceSpriteInfoUtil
     }
 
     // We calculate everything in integers so we are doing pixel perfect slicing
-    const PxRectangleU16 imageRectangleInnerPx(imageRectanglePx.X + nineSlicePx.Left, imageRectanglePx.Y + nineSlicePx.Top,
-                                               imageRectanglePx.Width - nineSlicePx.SumX(), imageRectanglePx.Height - nineSlicePx.SumY());
+    const PxRectangleU16 imageRectangleInnerPx(TypeConverter::UncheckedTo<PxRectangleU16::value_type>(imageRectanglePx.X + nineSlicePx.Left),
+                                               TypeConverter::UncheckedTo<PxRectangleU16::value_type>(imageRectanglePx.Y + nineSlicePx.Top),
+                                               TypeConverter::UncheckedTo<PxRectangleU16::value_type>(imageRectanglePx.Width - nineSlicePx.SumX()),
+                                               TypeConverter::UncheckedTo<PxRectangleU16::value_type>(imageRectanglePx.Height - nineSlicePx.SumY()));
 
     // then we calculate the texture coordinates of the inner and outer rectangle
     const NativeTextureArea areaOuter = spriteNativeAreaCalc.CalcNativeTextureArea(imageRectanglePx, spriteMaterialInfo.ExtentPx);

@@ -36,6 +36,7 @@ from typing import Optional
 from typing import Set
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
+from FslBuildGen.Engine.PackageFlavorQuickName import PackageFlavorQuickName
 from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
 from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
 from FslBuildGen.Engine.Resolver.InstanceConfig import InstanceConfig
@@ -54,21 +55,50 @@ class ResolvedPackageTemplateDependency(object):
 
 
 class ResolvedPackageFlavorOption(object):
-    def __init__(self, name: PackageFlavorOptionName, directDependencies: List[ResolvedPackageTemplateDependency]) -> None:
+    def __init__(self, name: PackageFlavorOptionName, directDependencies: List[ResolvedPackageTemplateDependency], supported: bool) -> None:
         super().__init__()
         self.Name = name
         self.DirectDependencies = directDependencies
+        self.Supported = supported
 
     def __str__(self) -> str:
         return "Name:{0} DirectDepCount:{1}".format(self.Name, len(self.DirectDependencies))
 
 
 class ResolvedPackageFlavor(object):
+    def __init__(self, name: PackageFlavorName, quickName: Optional[PackageFlavorQuickName], options: List[ResolvedPackageFlavorOption]) -> None:
+        super().__init__()
+        self.Name = name
+        self.QuickName = quickName
+        self.Options = options
+        self.Description = ResolvedPackageFlavor.__OptionString(self.Options)
+
+    def TryGetOptionByName(self, name: PackageFlavorOptionName) -> Optional[ResolvedPackageFlavorOption]:
+        for flavorOption in self.Options:
+            if flavorOption.Name == name:
+                return flavorOption
+        return None
+
+    def GetOptionByName(self, name: PackageFlavorOptionName) -> ResolvedPackageFlavorOption:
+        result = self.TryGetOptionByName(name)
+        if result is None:
+            raise Exception("flavor option not found")
+        return result
+
+    def __str__(self) -> str:
+        return "{0}:{{{1}}}".format(self.Name, self.Description)
+
+    @staticmethod
+    def __OptionString(options: List[ResolvedPackageFlavorOption]) -> str:
+        return ",".join([option.Name.Value for option in options])
+
+
+class ResolvedPackageFlavorExtension(object):
     def __init__(self, name: PackageFlavorName, options: List[ResolvedPackageFlavorOption]) -> None:
         super().__init__()
         self.Name = name
         self.Options = options
-        self.Description = ResolvedPackageFlavor.__OptionString(self.Options)
+        self.Description = self.__OptionString(self.Options)
 
     def TryGetOptionByName(self, name: PackageFlavorOptionName) -> Optional[ResolvedPackageFlavorOption]:
         for flavorOption in self.Options:
@@ -86,10 +116,10 @@ class ResolvedPackageFlavor(object):
 
 
 
-
 class ResolvedPackageTemplate(ResolvedPackage):
     def __init__(self, name: PackageName, packageType: PackageType, directDependencies: List[ResolvedPackageTemplateDependency],
-                 instanceConfigs: List[InstanceConfig], packageFlavors: List[ResolvedPackageFlavor]) -> None:
+                 instanceConfigs: List[InstanceConfig], packageFlavors: List[ResolvedPackageFlavor],
+                 packageFlavorExtensions: List[ResolvedPackageFlavorExtension]) -> None:
         super().__init__(name, packageType)
 
         if len(directDependencies) > 0:
@@ -103,6 +133,7 @@ class ResolvedPackageTemplate(ResolvedPackage):
         self.DirectDependencies = directDependencies
         self.InstanceConfigs = instanceConfigs
         self.PackageFlavors = packageFlavors
+        self.PackageFlavorExtensions = packageFlavorExtensions
         if len(self.InstanceConfigs) <= 0:
             raise Exception("No instance configs")
 
@@ -120,6 +151,21 @@ class ResolvedPackageTemplate(ResolvedPackage):
         if flavor is None:
             raise Exception("Package '{0}' unknown flavor name: {1} ({2})".format(self.Name, name, self.PackageFlavors))
         return flavor
+
+    def TryGetFlavorExtension(self, name: PackageFlavorName) -> Optional[ResolvedPackageFlavorExtension]:
+        for flavorExtension in self.PackageFlavorExtensions:
+            if flavorExtension.Name == name:
+                return flavorExtension
+        return None
+
+    def GetFlavorExtension(self, name: PackageFlavorName) -> ResolvedPackageFlavorExtension:
+        flavorExtension = self.TryGetFlavorExtension(name)
+        if flavorExtension is None:
+            raise Exception("Package '{0}' unknown flavor extension name: {1} ({2})".format(self.Name, name, self.PackageFlavors))
+        return flavorExtension
+
+    def GetFlavorOption(self, name: PackageFlavorName, flavorOptionName: PackageFlavorOptionName) -> ResolvedPackageFlavorOption:
+        return self.GetFlavor(name).GetOptionByName(flavorOptionName)
 
     @staticmethod
     def __SanityCheckDependencies(directDependencies: List[ResolvedPackageTemplateDependency], name: PackageName) -> None:

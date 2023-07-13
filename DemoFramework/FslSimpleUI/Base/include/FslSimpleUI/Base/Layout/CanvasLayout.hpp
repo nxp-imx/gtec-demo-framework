@@ -48,6 +48,8 @@ namespace Fsl::UI
 
   class CanvasLayout : public ComplexLayout<CanvasLayoutWindowRecord>
   {
+    using base_type = ComplexLayout<CanvasLayoutWindowRecord>;
+
   public:
     explicit CanvasLayout(const std::shared_ptr<BaseWindowContext>& context);
 

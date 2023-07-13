@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxPoint2U, Log)
 {
-  PxPoint2U value(1, 2);
+  const auto value = PxPoint2U::Create(1, 2);
 
   EXPECT_EQ(std::string("{X=1 Y=2}"), fmt::format("{}", value));
 }

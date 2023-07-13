@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -219,10 +219,10 @@ namespace Fsl
       const auto clip1Y = (2.0f + (std::sin(m_angle1A.Y) + std::sin(m_angle1B.Y))) * dist.Y / 4.0f;
       const auto clip2X = (2.0f + (std::sin(m_angle2A.X) + std::sin(m_angle2B.X))) * dist.X / 4.0f;
       const auto clip2Y = (2.0f + (std::sin(m_angle2A.Y) + std::sin(m_angle2B.Y))) * dist.Y / 4.0f;
-      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), resolutionPx.Width());
-      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), resolutionPx.Height());
-      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), resolutionPx.Width());
-      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), resolutionPx.Height());
+      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), resolutionPx.RawWidth());
+      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), resolutionPx.RawHeight());
+      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), resolutionPx.RawWidth());
+      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), resolutionPx.RawHeight());
 
       m_angle1A += m_speed1A * demoTime.DeltaTime;
       m_angle1B += m_speed1B * demoTime.DeltaTime;
@@ -251,10 +251,10 @@ namespace Fsl
     glCullFace(GL_BACK);
     glDisable(GL_CULL_FACE);
 
-    assert(m_clip1.X >= 0 && m_clip1.X <= windowSizePx.Width());
-    assert(m_clip1.Y >= 0 && m_clip1.Y <= windowSizePx.Height());
-    assert(m_clip2.X >= 0 && m_clip2.X <= windowSizePx.Width());
-    assert(m_clip2.Y >= 0 && m_clip2.Y <= windowSizePx.Height());
+    assert(m_clip1.X >= 0 && m_clip1.X <= windowSizePx.RawWidth());
+    assert(m_clip1.Y >= 0 && m_clip1.Y <= windowSizePx.RawHeight());
+    assert(m_clip2.X >= 0 && m_clip2.X <= windowSizePx.RawWidth());
+    assert(m_clip2.Y >= 0 && m_clip2.Y <= windowSizePx.RawHeight());
 
     Point2 nearClip = m_clip1;
     Point2 farClip = m_clip2;
@@ -271,10 +271,10 @@ namespace Fsl
 
     int32_t clipX = m_clipX ? nearClip.X : 0;
     int32_t clipY = m_clipY ? nearClip.Y : 0;
-    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : windowSizePx.Width();
-    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : windowSizePx.Height();
+    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : windowSizePx.RawWidth();
+    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : windowSizePx.RawHeight();
 
-    if (clipX < 0 || (clipX + clipWidth) > windowSizePx.Width() || clipY < 0 || (clipY + clipHeight) > windowSizePx.Height())
+    if (clipX < 0 || (clipX + clipWidth) > windowSizePx.RawWidth() || clipY < 0 || (clipY + clipHeight) > windowSizePx.RawHeight())
     {
       throw std::runtime_error("Scissor rect out of bounds");
     }
@@ -283,11 +283,11 @@ namespace Fsl
 
     if (m_options->ForceInvalidWidth)
     {
-      clipWidth += (windowSizePx.Width() - (clipX + clipWidth)) + 10;
+      clipWidth += (windowSizePx.RawWidth() - (clipX + clipWidth)) + 10;
     }
     if (m_options->ForceInvalidHeight)
     {
-      clipHeight += (windowSizePx.Height() - (clipY + clipHeight)) + 10;
+      clipHeight += (windowSizePx.RawHeight() - (clipY + clipHeight)) + 10;
     }
 
     glScissor(clipX, clipY, clipWidth, clipHeight);

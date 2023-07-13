@@ -494,18 +494,18 @@ namespace Fsl
         switch (option.SourceOption.HasArg)
         {
         case OptionArgument::OptionNone:
-          commands.emplace_back(Command(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::Switch));
+          commands.emplace_back(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::Switch);
           break;
         case OptionArgument::OptionRequired:
           if (!option.SourceOption.IsPositional)
           {
-            commands.emplace_back(Command(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::Value));
+            commands.emplace_back(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::Value);
           }
           else
           {
             const bool required = (option.SourceOption.HasArg == OptionArgument::OptionRequired);
-            commands.emplace_back(
-              Command(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::PositionalValue, required));
+            commands.emplace_back(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::PositionalValue,
+                                  required);
           }
           break;
         default:

@@ -37,6 +37,8 @@ namespace Fsl::UI
 {
   class Layout : public BaseWindow
   {
+    using base_type = BaseWindow;
+
   public:
     explicit Layout(const std::shared_ptr<BaseWindowContext>& context);
 

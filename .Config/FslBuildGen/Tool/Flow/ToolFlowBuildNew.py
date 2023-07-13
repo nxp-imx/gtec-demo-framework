@@ -63,6 +63,7 @@ from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import MagicStrings
 from FslBuildGen.DataTypes import PackageLanguage
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.Generator import GeneratorVCUtil
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
@@ -294,7 +295,8 @@ def ParsePackages(generatorContext: GeneratorContext, config: Config, toolMiniCo
     theFiles = MainFlow.DoGetFiles(config, toolMiniConfig, currentDir)
     # We set autoAddRecipeExternals to false since we are not actually interested in building this,
     # so therefore we dont want to do any checks for the externals before someone tries to build it
-    return MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
+    return MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False,
+                                  engineResolveConfig=EngineResolveConfig.CreateDefaultFlavor())
 
 
 def GenerateProject(config: Config, localConfig: LocalConfig, configVariant: ConfigVariant, visualStudioGUID: str, genFileOnly: bool) -> None:
@@ -303,14 +305,15 @@ def GenerateProject(config: Config, localConfig: LocalConfig, configVariant: Con
     packageShortName = configVariant.PackageShortName
     packageTargetName = configVariant.PackageTargetName
     packageCompany = config.ToolConfig.DefaultCompany
+    strVariantList = config.VariantConstraints.AsString()
 
     templateFileRecordManager = TemplateFileRecordManager(localConfig.TemplatePathProjectType)
     templateFileProcessor = TemplateFileProcessor(config, "PlatformNotDefined", genFileOnly)
     templateFileProcessor.Environment.SetPackageValues(configVariant.ProjectPath, packageName, packageShortName, configVariant.ProjectPath,
-                                                       packageTargetName, packageTargetName, None, visualStudioGUID, config.CurrentYearString,
+                                                       packageTargetName, packageTargetName, strVariantList, None, visualStudioGUID, config.CurrentYearString,
                                                        packageCompany)
     #templateFileProcessor.Environment.Set("##FEATURE_LIST##", featureList)
-    templateFileProcessor.Process(config, templateFileRecordManager, configVariant.ProjectPath, None)
+    templateFileProcessor.Process(config, templateFileRecordManager, configVariant.ProjectPath, None, None)
 
     #IOUtil.SafeMakeDirs(configVariant.ProjectPath)
     #IOUtil.SafeMakeDirs(configVariant.ProjectPathSource)
@@ -425,7 +428,7 @@ class ToolFlowBuildNew(AToolAppFlow):
                                 localToolConfig: LocalToolConfig,
                                 templateDict: Dict[str, List[XmlNewTemplateFile]],
                                 performSanityCheck: bool = False) -> None:
-        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
         config.PrintTitle()
 
         sortedLanguages = list(templateDict.keys())
@@ -446,7 +449,7 @@ class ToolFlowBuildNew(AToolAppFlow):
                      templateDict: Dict[str, List[XmlNewTemplateFile]],
                      performSanityCheck: bool = False) -> None:
 
-        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
         #config.ForceDisableAllWrite()
 
         config.PrintTitle()
@@ -458,7 +461,7 @@ class ToolFlowBuildNew(AToolAppFlow):
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         if not localToolConfig.NoParse:
             # Get the generator and see if its supported on this platform
-            buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+            buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
             generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                        buildVariantConfig, variableContext.UserSetVariables,
                                                                                        config.ToolConfig.DefaultPackageLanguage,
@@ -495,10 +498,10 @@ class ToolFlowBuildNew(AToolAppFlow):
         if not localToolConfig.NoBuildGen:
             config.DoPrint("Generating build files")
             projectConfig = Config(self.Log, toolConfig, PluginSharedValues.TYPE_DEFAULT,
-                                   localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                                   localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
             theFiles = MainFlow.DoGetFiles(projectConfig, toolConfig.GetMinimalConfig(generator.CMakeConfig), configVariant.ProjectPath)
-            buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+            buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
             platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                      localToolConfig.Generator, buildVariantConfig,
                                                                                                      variableContext.UserSetVariables,
@@ -546,7 +549,7 @@ class ToolFlowBuildNew(AToolAppFlow):
                 print(("Generating sanity project for template '{0}' ended successfully".format(localToolConfig.Template)))
 
             isBuilding = True
-            config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+            config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
             print(("Building sanity projects for all template begin {0}".format(localToolConfig.Template)))
             self.__BuildNow(config, currentDir, True)
             print(("Building sanity project for template end {0}".format(localToolConfig.Template)))

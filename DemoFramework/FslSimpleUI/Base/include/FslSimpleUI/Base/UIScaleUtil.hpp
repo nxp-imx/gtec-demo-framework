@@ -32,50 +32,39 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Pixel/PxVector2.hpp>
-// #include <FslSimpleUI/Base/PxAvailableSize.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxSize2DF.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 
-namespace Fsl
+namespace Fsl::UI
 {
-  struct PxPoint2;
-  struct PxSize2D;
-
-  namespace UI
+  class UIScaleUtil
   {
-    class UIScaleUtil
-    {
-    public:
-      //! @brief Try to calc the scaling factor based on the requested targetSize, srcSize and scale policy
-      //! @return true if ok, false if the inputSize becomes impossible to scale to the output size or if one of the components of the output size is
-      //! zero
-      static bool TryCalcScaling(PxVector2& rScaling, const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy);
-      static bool TryCalcScaling(PxVector2& rScaling, const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy);
+  public:
+    //! @brief Try to calc the scaling factor based on the requested targetSize, srcSize and scale policy
+    //! @return true if ok, false if the inputSize becomes impossible to scale to the output size or if one of the components of the output size is
+    //! zero
+    static bool TryCalcScaling(PxSize2DF& rScaling, const PxSize2DF targetSize, const PxSize2D srcSize, const ItemScalePolicy scalePolicy);
+    static bool TryCalcScaling(PxSize2DF& rScaling, const PxSize2DF targetSize, const PxSize2DF srcSize, const ItemScalePolicy scalePolicy);
 
-      //! @brief Try to calc the size based on the requested targetSize, srcSize and scale policy
-      //! @return true if ok, false if one if one of the components of the output size is zero
-      static bool TryCalcSize(PxVector2& rSize, const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy);
-      static bool TryCalcSize(PxVector2& rSize, const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy);
+    //! @brief Try to calc the size based on the requested targetSize, srcSize and scale policy
+    //! @return true if ok, false if one if one of the components of the output size is zero
+    static bool TryCalcSize(PxSize2DF& rSize, const PxSize2DF targetSize, const PxSize2D srcSize, const ItemScalePolicy scalePolicy);
+    static bool TryCalcSize(PxSize2DF& rSize, const PxSize2DF targetSize, const PxSize2DF srcSize, const ItemScalePolicy scalePolicy);
 
-      //! @brief Try to calc the size based on the requested targetSize, srcSize and scale policy
-      //! @return true if ok, false if one if one of the components of the output size is zero
-      static bool TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy);
-      static bool TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy);
+    //! @brief Try to calc the size based on the requested targetSize, srcSize and scale policy
+    //! @return true if ok, false if one if one of the components of the output size is zero
+    static bool TryCalcSize(PxSize2D& rSize, const PxSize2D targetSize, const PxSize2D srcSize, const ItemScalePolicy scalePolicy);
+    static bool TryCalcSize(PxSize2D& rSize, const PxSize2D targetSize, const PxSize2DF srcSize, const ItemScalePolicy scalePolicy);
 
-      /*    static bool TryCalcSize(PxAvailableSize& rSize, const PxAvailableSize& targetSize, const PxAvailableSize& srcSize,
-                                  const ItemScalePolicy scalePolicy);
-      */
-      static bool TryCalcSize(PxSize2D& rSize, const PxSize2D& targetSize, const PxSize2D& srcSize, const ItemScalePolicy scalePolicy);
+    //! @brief Calc the scaling factor based on the requested targetSize, srcSize and scale policy
+    static PxSize2DF CalcScaling(const PxSize2DF targetSize, const PxSize2D srcSize, const ItemScalePolicy scalePolicy);
+    static PxSize2DF CalcScaling(const PxSize2DF targetSize, const PxSize2DF srcSize, const ItemScalePolicy scalePolicy);
 
-      //! @brief Calc the scaling factor based on the requested targetSize, srcSize and scale policy
-      static PxVector2 CalcScaling(const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy);
-      static PxVector2 CalcScaling(const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy);
-
-      //! @brief Calc the size based on the requested targetSize, srcSize and scale policy
-      static PxVector2 CalcSize(const PxVector2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy);
-      static PxVector2 CalcSize(const PxVector2& targetSize, const PxVector2& srcSize, const ItemScalePolicy scalePolicy);
-    };
-  }
+    //! @brief Calc the size based on the requested targetSize, srcSize and scale policy
+    static PxSize2DF CalcSize(const PxSize2DF targetSize, const PxSize2D srcSize, const ItemScalePolicy scalePolicy);
+    static PxSize2DF CalcSize(const PxSize2DF targetSize, const PxSize2DF srcSize, const ItemScalePolicy scalePolicy);
+  };
 }
 
 #endif

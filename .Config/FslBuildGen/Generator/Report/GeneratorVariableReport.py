@@ -140,7 +140,7 @@ class GeneratorVariableReport(VariableDict):
                 currentDef = theDict[variableName]
                 if not self.__HasSameOptions(variableOptionList, currentDef.Options):
                     if self.__Log is not None:
-                        self.__Log.LogPrintWarning("Overriding the auto variable '{0}' and the option list is different. New: {1}, old: {2}".format(variableName, variableOptionList, currentDef.Options))
+                        self.__Log.LogPrintVerbose(2, "Overriding the auto variable '{0}' and the option list is different. New: {1}, old: {2}".format(variableName, variableOptionList, currentDef.Options))
                     theDict[variableName] = VariableReport(variableName, variableOptionList, currentDef.LinkTargetName)
                 return
             raise VariableAlreadyDefinedException("The variable '{0}' has already been added".format(variableName))

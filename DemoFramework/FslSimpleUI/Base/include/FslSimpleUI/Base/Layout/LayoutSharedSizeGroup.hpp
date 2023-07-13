@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 
 namespace Fsl::UI
 {
@@ -40,14 +41,14 @@ namespace Fsl::UI
   {
   public:
     //! The current measured minimum size of the shared group
-    int32_t MinimumSizePx;
+    PxSize1D MinimumSizePx;
 
     inline void ClearMeasure()
     {
-      MinimumSizePx = 0;
+      MinimumSizePx = {};
     }
 
-    inline int32_t MeasureSizePx(const int32_t desiredSizePx)
+    inline PxSize1D MeasureSizePx(const PxSize1D desiredSizePx)
     {
       if (desiredSizePx > MinimumSizePx)
       {

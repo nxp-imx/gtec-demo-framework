@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@ namespace
 TEST(TestMathPixel_PxPoint2, Zero)
 {
   EXPECT_EQ(PxPoint2(), PxPoint2::Zero());
-  EXPECT_EQ(0, PxPoint2::Zero().X);
-  EXPECT_EQ(0, PxPoint2::Zero().Y);
+  EXPECT_EQ(0, PxPoint2::Zero().X.Value);
+  EXPECT_EQ(0, PxPoint2::Zero().Y.Value);
 }
 
 
@@ -54,14 +54,14 @@ TEST(TestMathPixel_PxPoint2, Construct_Default)
   PxPoint2 value;
 
   EXPECT_EQ(PxPoint2(), value);
-  EXPECT_EQ(0, value.X);
-  EXPECT_EQ(0, value.Y);
+  EXPECT_EQ(0, value.X.Value);
+  EXPECT_EQ(0, value.Y.Value);
 }
 
 TEST(TestMathPixel_PxPoint2, Construct)
 {
-  const int32_t x = 3;
-  const int32_t y = 2;
+  const PxValue x(3);
+  const PxValue y(2);
   PxPoint2 value(x, y);
 
   EXPECT_EQ(x, value.X);
@@ -70,10 +70,10 @@ TEST(TestMathPixel_PxPoint2, Construct)
 
 TEST(TestMathPixel_PxPoint2, OpPlusEqual)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
+  const PxValue x0(5);
+  const PxValue y0(4);
+  const PxValue x1(3);
+  const PxValue y1(2);
   PxPoint2 value0(x0, y0);
   PxPoint2 value1(x1, y1);
 
@@ -88,10 +88,10 @@ TEST(TestMathPixel_PxPoint2, OpPlusEqual)
 
 TEST(TestMathPixel_PxPoint2, OpSubEqual)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
+  const PxValue x0(5);
+  const PxValue y0(4);
+  const PxValue x1(3);
+  const PxValue y1(2);
   PxPoint2 value0(x0, y0);
   PxPoint2 value1(x1, y1);
 
@@ -106,10 +106,10 @@ TEST(TestMathPixel_PxPoint2, OpSubEqual)
 
 TEST(TestMathPixel_PxPoint2, OpMulEqual)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
+  const PxValue x0(5);
+  const PxValue y0(4);
+  const PxValue x1(3);
+  const PxValue y1(2);
   PxPoint2 value0(x0, y0);
   PxPoint2 value1(x1, y1);
 
@@ -124,11 +124,11 @@ TEST(TestMathPixel_PxPoint2, OpMulEqual)
 
 TEST(TestMathPixel_PxPoint2, OpMulEqual_Const)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
+  const PxValue x0(5);
+  const PxValue y0(4);
   PxPoint2 value0(x0, y0);
 
-  const int32_t mulBy = 2;
+  const PxValue mulBy(2);
   value0 *= mulBy;
 
   EXPECT_EQ(x0 * mulBy, value0.X);
@@ -137,11 +137,11 @@ TEST(TestMathPixel_PxPoint2, OpMulEqual_Const)
 
 TEST(TestMathPixel_PxPoint2, OpDivEqual_Const)
 {
-  const int32_t x0 = 50;
-  const int32_t y0 = 40;
+  const PxValue x0(50);
+  const PxValue y0(40);
   PxPoint2 value0(x0, y0);
 
-  const int32_t divBy = 2;
+  const PxValue divBy(2);
 
   value0 /= divBy;
 
@@ -151,10 +151,10 @@ TEST(TestMathPixel_PxPoint2, OpDivEqual_Const)
 
 TEST(TestMathPixel_PxPoint2, OpAdd)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
+  const PxValue x0(5);
+  const PxValue y0(4);
+  const PxValue x1(3);
+  const PxValue y1(2);
   PxPoint2 value0(x0, y0);
   PxPoint2 value1(x1, y1);
 
@@ -171,10 +171,10 @@ TEST(TestMathPixel_PxPoint2, OpAdd)
 
 TEST(TestMathPixel_PxPoint2, OpSub)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
+  const PxValue x0(5);
+  const PxValue y0(4);
+  const PxValue x1(3);
+  const PxValue y1(2);
   PxPoint2 value0(x0, y0);
   PxPoint2 value1(x1, y1);
 
@@ -191,10 +191,10 @@ TEST(TestMathPixel_PxPoint2, OpSub)
 
 TEST(TestMathPixel_PxPoint2, OpMul)
 {
-  const int32_t x0 = 5;
-  const int32_t y0 = 4;
-  const int32_t x1 = 3;
-  const int32_t y1 = 2;
+  const PxValue x0(5);
+  const PxValue y0(4);
+  const PxValue x1(3);
+  const PxValue y1(2);
   PxPoint2 value0(x0, y0);
   PxPoint2 value1(x1, y1);
 
@@ -211,9 +211,9 @@ TEST(TestMathPixel_PxPoint2, OpMul)
 
 TEST(TestMathPixel_PxPoint2, OpMul_Const)
 {
-  const int32_t x0 = 4;
-  const int32_t y0 = 3;
-  const int32_t mul = 2;
+  const PxValue x0(4);
+  const PxValue y0(3);
+  const PxValue mul(2);
   PxPoint2 value0(x0, y0);
 
   auto value2 = value0 * mul;
@@ -227,9 +227,9 @@ TEST(TestMathPixel_PxPoint2, OpMul_Const)
 
 TEST(TestMathPixel_PxPoint2, OpMul_Const2)
 {
-  const int32_t x0 = 4;
-  const int32_t y0 = 3;
-  const int32_t mul = 2;
+  const PxValue x0(4);
+  const PxValue y0(3);
+  const PxValue mul(2);
   PxPoint2 value0(x0, y0);
 
   auto value2 = mul * value0;
@@ -243,9 +243,9 @@ TEST(TestMathPixel_PxPoint2, OpMul_Const2)
 
 TEST(TestMathPixel_PxPoint2, OpDiv_Const)
 {
-  const int32_t x0 = 40;
-  const int32_t y0 = 30;
-  const int32_t divBy = 2;
+  const PxValue x0(40);
+  const PxValue y0(30);
+  const PxValue divBy(2);
   PxPoint2 value0(x0, y0);
 
   const auto value2 = value0 / divBy;

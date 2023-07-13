@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxVector2, Log)
 {
-  PxVector2 value(1.1f, 2.1f);
+  const auto value = PxVector2::Create(1.1f, 2.1f);
 
   EXPECT_EQ(std::string("{X=1.1 Y=2.1}"), fmt::format("{}", value));
 }

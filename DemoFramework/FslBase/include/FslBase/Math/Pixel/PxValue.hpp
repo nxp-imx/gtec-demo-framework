@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVALUE_HPP
 #define FSLBASE_MATH_PIXEL_PXVALUE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ namespace Fsl
   struct PxValue
   {
     using value_type = int32_t;
+    using raw_value_type = int32_t;
 
     value_type Value{0};
 
@@ -88,6 +89,34 @@ namespace Fsl
     //   Value /= arg;
     //   return *this;
     // }
+
+    inline constexpr const PxValue& operator++() noexcept
+    {
+      ++Value;
+      return *this;
+    }
+
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
+    inline constexpr PxValue operator++(int) noexcept
+    {
+      PxValue temp(*this);
+      ++Value;
+      return temp;
+    }
+
+    inline constexpr const PxValue& operator--() noexcept
+    {
+      --Value;
+      return *this;
+    }
+
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
+    inline constexpr PxValue operator--(int) noexcept
+    {
+      PxValue temp(*this);
+      --Value;
+      return temp;
+    }
 
     //! equal to std::min but its both constexpr and noexcept
     static constexpr PxValue Min(const PxValue val0, const PxValue val1) noexcept
@@ -190,6 +219,14 @@ namespace Fsl
   {
     return PxValue(lhs.Value / rhs.Value);
   }
+
+  // op modulo
+
+  inline constexpr PxValue operator%(const PxValue lhs, const PxValue rhs)
+  {
+    return PxValue(lhs.Value % rhs.Value);
+  }
+
 }
 
 #endif

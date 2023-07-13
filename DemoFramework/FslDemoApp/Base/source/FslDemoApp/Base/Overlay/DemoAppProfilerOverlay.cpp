@@ -152,14 +152,14 @@ namespace Fsl
         }
 
         const PxSize2D fontSize = basic2D->FontSize();
-        Vector2 dstPos(0.0f, static_cast<float>(windowMetrics.ExtentPx.Height - fontSize.Height()));
+        Vector2 dstPos(0.0f, static_cast<float>(windowMetrics.ExtentPx.Height.Value - fontSize.RawHeight()));
         if (m_scracthpad.size() > 0)
         {
           basic2D->DrawString(StringViewLite(m_scracthpad.data(), m_scracthpad.size()), dstPos);
         }
 
         {    // Render text for the custom counters
-          dstPos.X += static_cast<float>((m_scracthpad.size() + 1) * fontSize.Width());
+          dstPos.X += static_cast<float>((m_scracthpad.size() + 1) * fontSize.RawWidth());
           auto itr = m_customCounters.begin();
           while (itr != m_customCounters.end())
           {
@@ -168,9 +168,9 @@ namespace Fsl
             if (m_scracthpad.size() > 0u)
             {
               basic2D->DrawString(StringViewLite(m_scracthpad.data(), m_scracthpad.size()), dstPos);
-              dstPos.X += static_cast<float>(m_scracthpad.size() * fontSize.Width());
+              dstPos.X += static_cast<float>(m_scracthpad.size() * fontSize.RawWidth());
               basic2D->DrawString(itr->Name, dstPos);
-              dstPos.X += static_cast<float>((itr->Name.size() + 1) * fontSize.Width());
+              dstPos.X += static_cast<float>((itr->Name.size() + 1) * fontSize.RawWidth());
             }
             ++itr;
           }
@@ -178,8 +178,8 @@ namespace Fsl
       }
 
       const Point2 graphSize = m_graphTotal.GetSize();
-      const Vector2 dstPosGraph(static_cast<float>(windowMetrics.ExtentPx.Width - graphSize.X),
-                                static_cast<float>(windowMetrics.ExtentPx.Height - graphSize.Y));
+      const Vector2 dstPosGraph(static_cast<float>(windowMetrics.ExtentPx.Width.Value - graphSize.X),
+                                static_cast<float>(windowMetrics.ExtentPx.Height.Value - graphSize.Y));
 
       UpdateAndDrawCustomCounters(basic2D, dstPosGraph);
 

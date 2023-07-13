@@ -421,7 +421,7 @@ namespace Fsl
 
   void SoftISP::CopyToBMP(Bitmap& bitmap, const IO::Path& fileName, const void* ptr)
   {
-    bitmap.Reset(ptr, m_imgSize * 4, PxExtent2D(static_cast<int32_t>(m_imgWid), static_cast<int32_t>(m_imgHei)), PixelFormat::B8G8R8A8_UNORM,
+    bitmap.Reset(ptr, m_imgSize * 4, PxExtent2D::Create(static_cast<int32_t>(m_imgWid), static_cast<int32_t>(m_imgHei)), PixelFormat::B8G8R8A8_UNORM,
                  BitmapOrigin::UpperLeft);
     GetPersistentDataManager()->Write(fileName, bitmap);
   }

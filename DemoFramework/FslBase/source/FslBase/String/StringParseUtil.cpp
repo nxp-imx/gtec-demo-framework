@@ -171,14 +171,14 @@ namespace Fsl
     {
       if (strView.empty())
       {
-        throw FormatException("array not in the correct format");
+        throw FormatException("array not in the correct format, empty string");
       }
 
       const char* pszCurrent = strView.data();
       const char* const pszEnd = pszCurrent + strView.size();
       if (strView.size() < 3 || *pszCurrent != '[' || *(pszEnd - 1) != ']')
       {
-        throw FormatException("array not in the correct format");
+        throw FormatException(fmt::format("array not in the correct format '{}'", strView.AsStringView()));
       }
 
       ++pszCurrent;
@@ -188,7 +188,7 @@ namespace Fsl
         const auto count = strcspn(pszCurrent, ",]");
         if (index >= dst.size())
         {
-          throw FormatException("array not in the correct format");
+          throw FormatException(fmt::format("array not in the correct format '{}'", strView.AsStringView()));
         }
         const auto charactersConsumed = StringParseUtil::Parse(dst[index], StringViewLite(pszCurrent, count));
         assert(charactersConsumed == count);
@@ -198,7 +198,7 @@ namespace Fsl
 
       if (pszCurrent != pszEnd)
       {
-        throw FormatException("array not in the correct format");
+        throw FormatException(fmt::format("array not in the correct format '{}'", strView.AsStringView()));
       }
       return index;
     }
@@ -376,7 +376,7 @@ namespace Fsl
     {
       throw FormatException("Point2 not in the correct format");
     }
-    rResult = PxSize2D(values[0], values[1]);
+    rResult = PxSize2D::Create(values[0], values[1]);
     return res.CharactersConsumed;
   }
 

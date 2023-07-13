@@ -46,11 +46,12 @@
 #include <android/log.h>
 #include <android/native_window_jni.h>
 #include <android/sensor.h>
-#include <android_native_app_glue.h>
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #include <algorithm>
 #include <thread>
 
 // #define LOCAL_DEBUG_THREADS 1
+// #define LOCAL_DEBUG_INPUT 1
 
 #ifdef LOCAL_DEBUG_THREADS
 #include <fmt/ostream.h>
@@ -58,6 +59,15 @@
 #else
 #define LOCAL_THREAD_PRINT(X) \
   {                           \
+  }
+#endif
+
+#ifdef LOCAL_DEBUG_INPUT
+#include <fmt/ostream.h>
+#define LOCAL_INPUT_PRINT(...) FSLLOG3_INFO(__VA_ARGS__)
+#else
+#define LOCAL_INPUT_PRINT(...) \
+  {                            \
   }
 #endif
 
@@ -71,21 +81,6 @@ namespace Fsl
     bool g_isSuspended = false;
     bool g_isActivated = false;
     bool g_isTouchDown = false;
-
-
-    void ShowUI(android_app* pAppState)
-    {
-      JNIEnv* jni;
-      pAppState->activity->vm->AttachCurrentThread(&jni, nullptr);
-
-      // Default class retrieval
-      jclass clazz = jni->GetObjectClass(pAppState->activity->clazz);
-      jmethodID methodID = jni->GetMethodID(clazz, "showUI", "()V");
-      jni->CallVoidMethod(pAppState->activity->clazz, methodID);
-
-      pAppState->activity->vm->DetachCurrentThread();
-    }
-
 
     void PostActivated(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, bool activate)
     {
@@ -177,9 +172,6 @@ namespace Fsl
 
       switch (cmd)
       {
-      case APP_CMD_INPUT_CHANGED:
-        FSLLOG3_VERBOSE3("APP_CMD_INPUT_CHANGED");
-        break;
       case APP_CMD_INIT_WINDOW:
         FSLLOG3_VERBOSE3("APP_CMD_INIT_WINDOW");
         CmdInitWindow(pAppState, eventQueue);
@@ -581,87 +573,133 @@ namespace Fsl
       }
     }
 
-    bool InputCatcherGamepad(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, android_app* pAppState, struct AInputEvent* event)
+    void HandlePointerDown(INativeWindowEventQueue& eventQueue, const GameActivityMotionEvent& motionEvent, const int32_t motionPointerIndex)
     {
-      if (AInputEvent_getType(event) != AINPUT_EVENT_TYPE_MOTION || AInputEvent_getSource(event) != AINPUT_SOURCE_JOYSTICK)
-        return false;
-      // Left thumbstick
-      // gamePadState.axisLeft.x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
-      // gamePadState.axisLeft.y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
-      // Right thumbstick
-      // gamePadState.axisRight.x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Z, 0);
-      // gamePadState.axisRight.y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RZ, 0);
-      // return true;
-      return false;
-    }
-
-
-    bool InputCatcherKeys(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, android_app* pAppState, struct AInputEvent* event)
-    {
-      if (AInputEvent_getType(event) != AINPUT_EVENT_TYPE_KEY)
-        return false;
-
-      const int32_t keyCode = AKeyEvent_getKeyCode(event);
-      const int32_t action = AKeyEvent_getAction(event);
-
-      const auto virtualKey = TryConvertKeys(keyCode);
-      if (virtualKey == VirtualKey::Undefined)
-        return false;
-
-      const bool isPressed = (action == AKEY_EVENT_ACTION_DOWN);
-
-      const NativeWindowEvent newEvent = NativeWindowEventHelper::EncodeInputKeyEvent(virtualKey, isPressed);
-      eventQueue->PostEvent(newEvent);
-      return true;
-    }
-
-
-    bool InputCatcherMotion(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, android_app* pAppState, struct AInputEvent* event)
-    {
-      const auto source = AInputEvent_getSource(event);
-      const bool validSource = (source == AINPUT_SOURCE_TOUCHSCREEN || source == AINPUT_SOURCE_MOUSE);
-      if (!validSource || AInputEvent_getType(event) != AINPUT_EVENT_TYPE_MOTION)
-        return false;
-
-      const auto action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
-      const auto posX = AMotionEvent_getX(event, 0);
-      const auto posY = AMotionEvent_getY(event, 0);
-      const PxPoint2 position(static_cast<int32_t>(posX), static_cast<int32_t>(posY));
-
-      switch (action)
+      if (motionPointerIndex == 0)
       {
-      case AMOTION_EVENT_ACTION_DOWN:
         if (!g_isTouchDown)
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, true, position));
-        g_isTouchDown = true;
-        return true;
-      case AMOTION_EVENT_ACTION_UP:
-        if (g_isTouchDown)
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, false, position));
-        g_isTouchDown = false;
-        return true;
-      case AMOTION_EVENT_ACTION_MOVE:
-        if (g_isTouchDown)
-          eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(position));
-        return true;
-      default:
-        return false;
+        {
+          const auto position = PxPoint2::Create(
+            static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_X)),
+            static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_Y)));
+          eventQueue.PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, true, position, true));
+          g_isTouchDown = true;
+          LOCAL_INPUT_PRINT("MousePointerDown at {},{}", position.X.Value, position.Y.Value);
+        }
+        else
+        {
+          LOCAL_INPUT_PRINT("MousePointerDown repeat received and ignored");
+        }
       }
     }
 
-
-    int32_t InputCatcher(android_app* pAppState, struct AInputEvent* event)
+    void HandlePointerUp(INativeWindowEventQueue& eventQueue, const GameActivityMotionEvent& motionEvent, const int32_t motionPointerIndex)
     {
+      if (motionPointerIndex == 0)
+      {
+        if (g_isTouchDown)
+        {
+          const auto position = PxPoint2::Create(
+            static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_X)),
+            static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_Y)));
+          eventQueue.PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, false, position, true));
+          g_isTouchDown = false;
+          LOCAL_INPUT_PRINT("MousePointerUp at {},{}", position.X.Value, position.Y.Value);
+        }
+        else
+        {
+          LOCAL_INPUT_PRINT("MousePointerUp repeat received and ignored");
+        }
+      }
+    }
+
+    void HandlePointerMovement(INativeWindowEventQueue& eventQueue, const GameActivityMotionEvent& motionEvent, const int32_t motionPointerIndex)
+    {
+      if (motionPointerIndex == 0 && g_isTouchDown)
+      {
+        const auto position = PxPoint2::Create(
+          static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_X)),
+          static_cast<int32_t>(GameActivityPointerAxes_getAxisValue(&motionEvent.pointers[motionPointerIndex], AMOTION_EVENT_AXIS_Y)));
+        eventQueue.PostEvent(
+          NativeWindowEventHelper::EncodeInputMouseMoveEvent(position, VirtualMouseButtonFlags(VirtualMouseButton::Undefined), true));
+        LOCAL_INPUT_PRINT("MousePointerMovement at {},{}", position.X.Value, position.Y.Value);
+      }
+      else
+      {
+        LOCAL_INPUT_PRINT("MousePointerMovement ignored");
+      }
+    }
+
+    void HandleInput(android_app* pAppState)
+    {
+      // auto pNativeWindow = static_cast<PlatformNativeWindowAndroid*>(pAppState->userData);
+      // if(pNativeWindow == nullptr)
+      // {
+      //  return;
+      // }
+      auto ib = android_app_swap_input_buffers(pAppState);
+      if (!ib)
+      {
+        return;
+      }
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
       if (!eventQueue)
-        return 0;
+      {
+        return;
+      }
 
-      bool handled = false;
+      if (ib->motionEventsCount > 0)
+      {
+        for (uint64_t i = 0; i < ib->motionEventsCount; ++i)
+        {
+          const GameActivityMotionEvent& motionEvent = ib->motionEvents[i];
+          int32_t motionPointerIndex = 0;
+          switch (motionEvent.action & AMOTION_EVENT_ACTION_MASK)
+          {
+          case AMOTION_EVENT_ACTION_POINTER_DOWN:
+            // Retrieve the index for the starting and the ending of any secondary pointers
+            motionPointerIndex = (motionEvent.action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+            HandlePointerDown(*eventQueue, motionEvent, motionPointerIndex);
+            break;
+          case AMOTION_EVENT_ACTION_POINTER_UP:
+            // Retrieve the index for the starting and the ending of any secondary pointers
+            motionPointerIndex = (motionEvent.action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+            HandlePointerUp(*eventQueue, motionEvent, motionPointerIndex);
+            break;
+          case AMOTION_EVENT_ACTION_DOWN:
+            HandlePointerDown(*eventQueue, motionEvent, motionPointerIndex);
+            break;
+          case AMOTION_EVENT_ACTION_UP:
+            HandlePointerUp(*eventQueue, motionEvent, motionPointerIndex);
+            break;
+          case AMOTION_EVENT_ACTION_MOVE:
+            // Process the move action: the new coordinates for all active touch pointers
+            // are inside the motionEvent.pointers[]. Compare with our internally saved
+            // coordinates to find out which pointers are actually moved. Note that there is
+            // no index embedded inside motionEvent->action for AMOTION_EVENT_ACTION_MOVE (there
+            // might be multiple pointers moved at the same time).
+            HandlePointerMovement(*eventQueue, motionEvent, motionPointerIndex);
+            break;
+          }
+        }
+        android_app_clear_motion_events(ib);
+      }
 
-      handled = InputCatcherGamepad(eventQueue, pAppState, event);
-      handled = (!handled ? InputCatcherKeys(eventQueue, pAppState, event) : true);
-      handled = (!handled ? InputCatcherMotion(eventQueue, pAppState, event) : true);
-      return handled > 0 ? 1 : 0;
+      // Process the KeyEvent in a similar way.
+      if (ib->keyEventsCount > 0)
+      {
+        for (uint64_t i = 0; i < ib->keyEventsCount; ++i)
+        {
+          const auto& keyEvent = ib->keyEvents[i];
+          const auto virtualKey = TryConvertKeys(keyEvent.keyCode);
+          if (virtualKey != VirtualKey::Undefined)
+          {
+            const bool isPressed = ((keyEvent.action & AMOTION_EVENT_ACTION_MASK) == AKEY_EVENT_ACTION_DOWN);
+            const NativeWindowEvent newEvent = NativeWindowEventHelper::EncodeInputKeyEvent(virtualKey, isPressed);
+            eventQueue->PostEvent(newEvent);
+          }
+        }
+      }
     }
 
 
@@ -681,8 +719,6 @@ namespace Fsl
           source->process(pAppState, source);
         }
 
-        //          g_engine.ProcessSensors( id );
-
         // Check if we are exiting.
         if (pAppState->destroyRequested != 0)
         {
@@ -690,6 +726,9 @@ namespace Fsl
           return false;
         }
       }
+
+      // Process input events if there are any.
+      HandleInput(pAppState);
       return true;
     }
 
@@ -731,7 +770,7 @@ namespace Fsl
 
     // Configure the callback handlers
     m_pAppState->onAppCmd = CmdCatcher;
-    m_pAppState->onInputEvent = InputCatcher;
+    // m_pAppState->onInputEvent = InputCatcher; // FIX: NEW
     // m_pAppState->activity->callbacks->onConfigurationChanged = OnActivity_onConfigurationChanged();
   }
 
@@ -741,7 +780,7 @@ namespace Fsl
     g_eventQueue.reset();
     g_hWindow = nullptr;
     m_pAppState->onAppCmd = nullptr;
-    m_pAppState->onInputEvent = nullptr;
+    // m_pAppState->onInputEvent = nullptr; // FIX: NEW
     m_pAppState->userData = nullptr;
   }
 
@@ -804,9 +843,6 @@ namespace Fsl
         FSLLOG3_VERBOSE("NativeWindow onWindowCreated");
         windowParams.OnWindowCreated(m_platformWindow, m_pAppState);
       }
-
-      FSLLOG3_VERBOSE("NativeWindow show UI");
-      ShowUI(windowParams.AppState);
 
       FSLLOG3_VERBOSE("NativeWindow ready");
     }

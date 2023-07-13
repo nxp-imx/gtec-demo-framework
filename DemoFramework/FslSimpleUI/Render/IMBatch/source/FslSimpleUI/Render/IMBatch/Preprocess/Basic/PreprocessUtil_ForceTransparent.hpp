@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_BASIC_PREPROCESSUTIL_FORCETRANSPARENT_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_BASIC_PREPROCESSUTIL_FORCETRANSPARENT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,8 +86,8 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
           assert(dstTransparentIndex < capacity);
           pDst[dstTransparentIndex] =
             ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
-                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
+                                                    PxSize1DF(command.DstSizePx.Height())),
                                    command.DstColor, dstTransparentIndex, i);
           ++dstTransparentIndex;
           break;
@@ -98,8 +98,8 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
           assert(dstTransparentIndex < capacity);
           pDst[dstTransparentIndex] =
             ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
-                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
+                                                    PxSize1DF(command.DstSizePx.Height())),
                                    command.DstColor, dstTransparentIndex, i);
           ++dstTransparentIndex;
           break;
@@ -113,8 +113,8 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
           assert(dstTransparentIndex < capacity);
           pDst[dstTransparentIndex] =
             ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
-                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
+                                                    PxSize1DF(command.DstSizePx.Height())),
                                    command.DstColor, dstTransparentIndex, i);
           ++dstTransparentIndex;
           break;
@@ -126,18 +126,18 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
           const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
           const auto materialId = materialLookup.GetMaterialIndex(meshRecord.MaterialHandle);
           assert(dstTransparentIndex < capacity);
-          pDst[dstTransparentIndex] =
-            ProcessedCommandRecord(materialId,
-                                   command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
-                                     ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
-                                                        command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
-                                                        static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX(),
-                                                        static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumY())
-                                     : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
-                                                        command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
-                                                        static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY(),
-                                                        static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX()),
-                                   command.DstColor, dstTransparentIndex, i);
+          pDst[dstTransparentIndex] = ProcessedCommandRecord(
+            materialId,
+            command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
+              ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
+                                 command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX()),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumY()))
+              : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
+                                 command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY()),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX())),
+            command.DstColor, dstTransparentIndex, i);
           ++dstTransparentIndex;
           break;
         }
@@ -147,8 +147,8 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
           assert(dstTransparentIndex < capacity);
           pDst[dstTransparentIndex] =
             ProcessedCommandRecord(materialLookup.GetMaterialIndex(meshRecord.MaterialHandle),
-                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, static_cast<float>(command.DstSizePx.Width()),
-                                                    static_cast<float>(command.DstSizePx.Height())),
+                                   PxAreaRectangleF(command.DstPositionPxf.X, command.DstPositionPxf.Y, PxSize1DF(command.DstSizePx.Width()),
+                                                    PxSize1DF(command.DstSizePx.Height())),
                                    command.DstColor, dstTransparentIndex, i);
           ++dstTransparentIndex;
           break;
@@ -159,15 +159,16 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil
           assert(meshRecord.Transparency != MeshTransparencyFlags::NoFlags);
           assert(meshRecord.Sprite);
           const PxThicknessF& scaledImageTrimMarginPxf = meshRecord.Sprite->GetRenderInfo().ScaledTrimMarginPxf;
-          const auto dstRectanglePxf = command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
-                                         ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
-                                                            command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
-                                                            static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX(),
-                                                            static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumY())
-                                         : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
-                                                            command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
-                                                            static_cast<float>(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY(),
-                                                            static_cast<float>(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX());
+          const auto dstRectanglePxf =
+            command.Type != DrawCommandType::DrawRot90CWAtOffsetAndSize
+              ? PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Left(),
+                                 command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Top(),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumX()),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumY()))
+              : PxAreaRectangleF(command.DstPositionPxf.X + scaledImageTrimMarginPxf.Top(),
+                                 command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY()),
+                                 PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX()));
           if (command.DstColor.A() == 0xFF)
           {
             if (MeshTransparencyFlagsUtil::IsEnabled(meshRecord.Transparency, MeshTransparencyFlags::Opaque))

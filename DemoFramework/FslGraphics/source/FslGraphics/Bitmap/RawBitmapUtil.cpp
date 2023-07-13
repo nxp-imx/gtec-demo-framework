@@ -343,7 +343,7 @@ namespace Fsl
     uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     // The buffers can not overlap
-    if (!(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if (pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("MemoryCopy does not support overlapping buffers");
     }
@@ -404,7 +404,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Swizzle24From012To210 does not support overlapping buffers");
     }
@@ -465,7 +465,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Swizzle24 does not support overlapping buffers");
     }
@@ -526,7 +526,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Swizzle32 does not support overlapping buffers");
     }
@@ -588,7 +588,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Swizzle32 does not support overlapping buffers");
     }
@@ -646,7 +646,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Swizzle32 does not support overlapping buffers");
     }
@@ -704,7 +704,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Average24To8 does not support overlapping buffers");
     }
@@ -760,7 +760,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
-    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Average32To8 does not support overlapping buffers");
     }
@@ -812,7 +812,7 @@ namespace Fsl
     const uint32_t dstStride = rDstBitmap.Stride();
 
     // The buffers can not overlap
-    if (!(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if (pSrc < pDstEnd && pSrcEnd > pDst)
     {
       throw UsageErrorException("Swizzle32 does not support overlapping buffers");
     }

@@ -34,13 +34,15 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxPoint2U.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <cassert>
 
 namespace Fsl
 {
   struct PxExtent3D
   {
-    using value_type = uint32_t;
+    using value_type = PxValueU;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type Width{0};
     value_type Height{0};
@@ -108,7 +110,7 @@ namespace Fsl
 
     constexpr PxExtent3D& operator/=(const value_type arg)
     {
-      assert(arg > 0u);
+      assert(arg.Value > 0u);
       Width /= arg;
       Height /= arg;
       Depth /= arg;
@@ -129,6 +131,11 @@ namespace Fsl
     static constexpr PxExtent3D Zero() noexcept
     {
       return {};
+    }
+
+    inline static constexpr PxExtent3D Create(const raw_value_type width, const raw_value_type height, const raw_value_type depth) noexcept
+    {
+      return {value_type(width), value_type(height), value_type(depth)};
     }
   };
 
@@ -162,7 +169,7 @@ namespace Fsl
 
   inline constexpr PxExtent3D operator/(const PxExtent3D& lhs, const PxExtent3D::value_type rhs)
   {
-    assert(rhs > 0u);
+    assert(rhs > PxExtent3D::value_type(0u));
     return {lhs.Width / rhs, lhs.Height / rhs, lhs.Depth / rhs};
   }
 }

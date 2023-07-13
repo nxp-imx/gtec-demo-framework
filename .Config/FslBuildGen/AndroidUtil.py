@@ -43,7 +43,7 @@ g_cachedNDKVersionString = None # type: Optional[str]
 class AndroidUtil(object):
     @staticmethod
     def GetTargetSDKVersion() -> int:
-        return 31
+        return 33
 
     @staticmethod
     def GetMinimumSDKVersion() -> int:

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ namespace Fsl
   {
     m_cachedWindowMetrics = windowMetrics;
     // Ensure that we have enough timing entries
-    const std::size_t desiredCapacity = windowMetrics.GetSizePx().Width() * static_cast<std::size_t>(2);
+    const std::size_t desiredCapacity = windowMetrics.GetSizePx().RawWidth() * static_cast<std::size_t>(2);
     m_timing.EnsureCapacity(desiredCapacity);
     ResetAnim();
   }
@@ -79,7 +79,7 @@ namespace Fsl
         // Its important that we start the animation here to keep everything in sync
         m_animationRecords = {};
         m_animationRecords.IsEnabled = true;
-        m_animationRecords.Anim0.SpeedPerSecond = static_cast<float>(m_cachedWindowMetrics.GetSizePx().Width() * 2);
+        m_animationRecords.Anim0.SpeedPerSecond = static_cast<float>(m_cachedWindowMetrics.GetSizePx().RawWidth() * 2);
         m_animationRecords.Anim0.FixedSpeedPerFrame = m_animationRecords.Anim0.SpeedPerSecond / static_cast<float>(cappedRefreshRate);
 
         m_animationRecords.Anim1.SpeedPerSecond = static_cast<float>(cappedRefreshRate) * LocalConfig::SmallBlockResolution1;
@@ -103,17 +103,17 @@ namespace Fsl
         // Reset the camera position to keep the precision high
         m_animationRecords.Anim0.Clear();
       }
-      if (m_animationRecords.Anim1.AnimBox0 >= m_cachedWindowMetrics.GetSizePx().Width() &&
-          m_animationRecords.Anim1.AnimBox1 >= m_cachedWindowMetrics.GetSizePx().Width() &&
-          m_animationRecords.Anim1.AnimBox2 >= m_cachedWindowMetrics.GetSizePx().Width())
+      if (m_animationRecords.Anim1.AnimBox0 >= m_cachedWindowMetrics.GetSizePx().RawWidth() &&
+          m_animationRecords.Anim1.AnimBox1 >= m_cachedWindowMetrics.GetSizePx().RawWidth() &&
+          m_animationRecords.Anim1.AnimBox2 >= m_cachedWindowMetrics.GetSizePx().RawWidth())
       {
         // Reset animation
         m_animationRecords.Anim1.Clear();
         m_timing.ClearCount();
       }
-      if (m_animationRecords.Anim2.AnimBox0 >= m_cachedWindowMetrics.GetSizePx().Width() &&
-          m_animationRecords.Anim2.AnimBox1 >= m_cachedWindowMetrics.GetSizePx().Width() &&
-          m_animationRecords.Anim2.AnimBox2 >= m_cachedWindowMetrics.GetSizePx().Width())
+      if (m_animationRecords.Anim2.AnimBox0 >= m_cachedWindowMetrics.GetSizePx().RawWidth() &&
+          m_animationRecords.Anim2.AnimBox1 >= m_cachedWindowMetrics.GetSizePx().RawWidth() &&
+          m_animationRecords.Anim2.AnimBox2 >= m_cachedWindowMetrics.GetSizePx().RawWidth())
       {
         // Reset animation
         m_animationRecords.Anim2.Clear();
@@ -153,24 +153,24 @@ namespace Fsl
       m_animationRecords.Anim1.AnimBox3 += static_cast<double>(m_animationRecords.Anim1.SpeedPerSecond) * demoTime.DeltaTime;
       m_animationRecords.Anim2.AnimBox3 += static_cast<double>(m_animationRecords.Anim2.SpeedPerSecond) * demoTime.DeltaTime;
 
-      m_animationRecords.Anim0.CameraPosition = static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimCamera));
+      m_animationRecords.Anim0.CameraPosition = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimCamera)));
       m_animationRecords.Anim0.Box0Position = m_animationRecords.Anim0.CameraPosition;
-      m_animationRecords.Anim0.Box1Position = static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimBox1));
-      m_animationRecords.Anim0.Box2Position = static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimBox2));
-      m_animationRecords.Anim0.Box3Position = static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimBox3));
+      m_animationRecords.Anim0.Box1Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimBox1)));
+      m_animationRecords.Anim0.Box2Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimBox2)));
+      m_animationRecords.Anim0.Box3Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim0.AnimBox3)));
 
-      m_animationRecords.Anim1.Box0Position = static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox0));
-      m_animationRecords.Anim1.Box1Position = static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox1));
-      m_animationRecords.Anim1.Box2Position = static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox2));
-      m_animationRecords.Anim1.Box3Position = static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox3));
+      m_animationRecords.Anim1.Box0Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox0)));
+      m_animationRecords.Anim1.Box1Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox1)));
+      m_animationRecords.Anim1.Box2Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox2)));
+      m_animationRecords.Anim1.Box3Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim1.AnimBox3)));
 
       m_timing.Add(TimingRecords(m_animationRecords.Anim1.Box0Position, m_animationRecords.Anim1.Box1Position, m_animationRecords.Anim1.Box2Position,
                                  m_animationRecords.Anim1.Box3Position));
 
-      m_animationRecords.Anim2.Box0Position = static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox0));
-      m_animationRecords.Anim2.Box1Position = static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox1));
-      m_animationRecords.Anim2.Box2Position = static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox2));
-      m_animationRecords.Anim2.Box3Position = static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox3));
+      m_animationRecords.Anim2.Box0Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox0)));
+      m_animationRecords.Anim2.Box1Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox1)));
+      m_animationRecords.Anim2.Box2Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox2)));
+      m_animationRecords.Anim2.Box3Position = PxValue::Create(static_cast<int32_t>(std::round(m_animationRecords.Anim2.AnimBox3)));
     }
   }
 

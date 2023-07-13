@@ -109,8 +109,8 @@ namespace Fsl
       // bool SendKeyEvent(const KeyEvent& event);
       //! @brief Send a mouse button event
       //! @note Returns true if the event was handled by a UIElement
-      bool SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown);
-      bool SendMouseMoveEvent(const PxPoint2& positionPx);
+      bool SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown, const bool isTouch);
+      bool SendMouseMoveEvent(const PxPoint2& positionPx, const bool isTouch);
       // bool SendMouseWheelEvent(const MouseWheelEvent& event);
 
       //! Check if the UI system is considered idle

@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXPOINT2_HPP
 #define FSLBASE_MATH_PIXEL_PXPOINT2_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,15 +32,16 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <algorithm>
 
 namespace Fsl
 {
-  struct PxSize2D;
-
   struct PxPoint2
   {
-    using value_type = int32_t;
+    using value_type = PxValue;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type X{0};
     value_type Y{0};
@@ -53,6 +54,24 @@ namespace Fsl
     {
     }
 
+    constexpr PxPoint2(const value_type x, const PxSize1D y) noexcept
+      : X(x)
+      , Y(y.Value())
+    {
+    }
+
+    constexpr PxPoint2(const PxSize1D x, const value_type y) noexcept
+      : X(x.Value())
+      , Y(y)
+    {
+    }
+
+    constexpr PxPoint2(const PxSize1D x, const PxSize1D y) noexcept
+      : X(x.Value())
+      , Y(y.Value())
+    {
+    }
+
     constexpr PxPoint2& operator+=(const PxPoint2 arg) noexcept
     {
       X += arg.X;
@@ -60,7 +79,6 @@ namespace Fsl
       return *this;
     }
 
-    PxPoint2& operator+=(const PxSize2D& arg) noexcept;
 
     constexpr PxPoint2& operator-=(const PxPoint2 arg) noexcept
     {
@@ -69,16 +87,12 @@ namespace Fsl
       return *this;
     }
 
-    PxPoint2& operator-=(const PxSize2D& arg) noexcept;
-
     constexpr PxPoint2& operator*=(const PxPoint2 arg) noexcept
     {
       X *= arg.X;
       Y *= arg.Y;
       return *this;
     }
-
-    PxPoint2& operator*=(const PxSize2D& arg) noexcept;
 
     constexpr PxPoint2& operator*=(const value_type arg) noexcept
     {
@@ -120,6 +134,11 @@ namespace Fsl
     {
       return {std::max(val0.X, val1.X), std::max(val0.Y, val1.Y)};
     }
+
+    inline static constexpr PxPoint2 Create(const raw_value_type x, const raw_value_type y) noexcept
+    {
+      return {value_type(x), value_type(y)};
+    }
   };
 
 
@@ -156,7 +175,6 @@ namespace Fsl
   {
     return {lhs.X / rhs, lhs.Y / rhs};
   }
-
 }
 
 #endif

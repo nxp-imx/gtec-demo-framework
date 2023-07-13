@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslBase/Log/Math/Pixel/FmtPxRectangle.hpp>
+#include <FslBase/Math/Pixel/PxSize1DF.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <Shared/UI/Benchmark/UIModule/ICustomWindowInfoModule.hpp>
@@ -351,7 +353,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseButtonEvent(MouseButtonEvent(VirtualMouseButton::Left, true, positionPx.value()));
+      m_proxy.OnMouseButtonEvent(MouseButtonEvent(VirtualMouseButton::Left, true, positionPx.value(), entry.IsTouch));
     }
   }
 
@@ -361,7 +363,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseButtonEvent(MouseButtonEvent(VirtualMouseButton::Left, false, positionPx.value()));
+      m_proxy.OnMouseButtonEvent(MouseButtonEvent(VirtualMouseButton::Left, false, positionPx.value(), entry.IsTouch));
     }
   }
 
@@ -371,7 +373,7 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseMoveEvent(MouseMoveEvent(positionPx.value(), VirtualMouseButtonFlags(VirtualMouseButton::Left)));
+      m_proxy.OnMouseMoveEvent(MouseMoveEvent(positionPx.value(), VirtualMouseButtonFlags(VirtualMouseButton::Left), entry.IsTouch));
     }
   }
 
@@ -381,16 +383,16 @@ namespace Fsl
     if (positionPx.has_value())
     {
       assert(m_proxy.IsReady());
-      m_proxy.OnMouseMoveEvent(MouseMoveEvent(positionPx.value(), VirtualMouseButtonFlags()));
+      m_proxy.OnMouseMoveEvent(MouseMoveEvent(positionPx.value(), VirtualMouseButtonFlags(), entry.IsTouch));
     }
   }
 
   void SceneDemoAppExtensionProxy::GenerateFakeMouseClear(const InputCommandRecord& entry)
   {
     FSL_PARAM_NOT_USED(entry);
-    const PxPoint2 positionPx(-25000, -25000);
+    const auto positionPx = PxPoint2::Create(-25000, -25000);
     assert(m_proxy.IsReady());
-    m_proxy.OnMouseMoveEvent(MouseMoveEvent(positionPx, VirtualMouseButtonFlags()));
+    m_proxy.OnMouseMoveEvent(MouseMoveEvent(positionPx, VirtualMouseButtonFlags(), entry.IsTouch));
   }
 
 
@@ -403,16 +405,16 @@ namespace Fsl
 
       PxPoint2 newPositionPx = entry.MousePositionPx - entry.WindowRectPx.TopLeft();
 
-      if (entry.WindowRectPx.Width() > 0 && windowRectanglePx.Width() != entry.WindowRectPx.Width())
+      if (entry.WindowRectPx.RawWidth() > 0 && windowRectanglePx.Width() != entry.WindowRectPx.Width())
       {
         // The window dimensions were changed, so lets rescale the coordinate
-        const float scaleFactor = static_cast<float>(windowRectanglePx.Width()) / static_cast<float>(entry.WindowRectPx.Width());
-        newPositionPx.X = static_cast<int32_t>(std::round(static_cast<float>(newPositionPx.X) * scaleFactor));
+        const PxSize1DF scaleFactor = PxSize1DF(windowRectanglePx.Width()) / PxSize1DF(entry.WindowRectPx.Width());
+        newPositionPx.X = TypeConverter::UncheckedChangeTo<PxValue>(PxValueF(newPositionPx.X) * scaleFactor);
       }
-      if (entry.WindowRectPx.Height() > 0 && windowRectanglePx.Height() != entry.WindowRectPx.Height())
+      if (entry.WindowRectPx.RawHeight() > 0 && windowRectanglePx.Height() != entry.WindowRectPx.Height())
       {
-        const float scaleFactor = static_cast<float>(windowRectanglePx.Height()) / static_cast<float>(entry.WindowRectPx.Height());
-        newPositionPx.Y = static_cast<int32_t>(std::round(static_cast<float>(newPositionPx.Y) * scaleFactor));
+        const PxSize1DF scaleFactor = PxSize1DF(windowRectanglePx.Height()) / PxSize1DF(entry.WindowRectPx.Height());
+        newPositionPx.Y = TypeConverter::UncheckedChangeTo<PxValue>(PxValueF(newPositionPx.Y) * scaleFactor);
       }
 
       newPositionPx += windowRectanglePx.TopLeft();

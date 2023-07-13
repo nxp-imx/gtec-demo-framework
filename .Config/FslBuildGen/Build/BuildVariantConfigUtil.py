@@ -36,13 +36,15 @@ from typing import Dict
 #from typing import Optional
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import BuildVariantConfigDefaults
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.SharedGeneration import ToolAddedVariant
 
 class BuildVariantConfigUtil(object):
     @staticmethod
-    def GetBuildVariantConfig(variantSettingsDict: Dict[str, str]) -> BuildVariantConfig:
-        if ToolAddedVariant.CONFIG in variantSettingsDict:
-            return BuildVariantConfigUtil.ParseBuildConfigString(variantSettingsDict[ToolAddedVariant.CONFIG])
+    def GetBuildVariantConfig(externalVariantConstraints: ExternalVariantConstraints) -> BuildVariantConfig:
+        option = externalVariantConstraints.TryGetOptionStringByNameString(ToolAddedVariant.CONFIG)
+        if option is not None:
+            return BuildVariantConfigUtil.ParseBuildConfigString(option)
         return BuildVariantConfigDefaults.DefaultSetting
 
     @staticmethod

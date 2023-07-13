@@ -217,7 +217,7 @@ namespace Fsl
     auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(format);
     auto textureArray = GetContentManager()->ReadTexture(filename, pixelFormat);
     auto texExtent = textureArray.GetExtent();
-    texExtent.Depth = 1;
+    texExtent.Depth = PxValueU(1);
 
     // textureArray.width = tex2DArray.dimensions().x;
     // textureArray.height = tex2DArray.dimensions().y;
@@ -306,8 +306,8 @@ namespace Fsl
         bufferCopyRegion.imageSubresource.mipLevel = 0;
         bufferCopyRegion.imageSubresource.baseArrayLayer = layer;
         bufferCopyRegion.imageSubresource.layerCount = 1;
-        bufferCopyRegion.imageExtent.width = blobExtent.Width;
-        bufferCopyRegion.imageExtent.height = blobExtent.Height;
+        bufferCopyRegion.imageExtent.width = blobExtent.Width.Value;
+        bufferCopyRegion.imageExtent.height = blobExtent.Height.Value;
         bufferCopyRegion.imageExtent.depth = 1;
         bufferCopyRegion.bufferOffset = blobRecord.Offset;
 
@@ -480,11 +480,10 @@ namespace Fsl
 
   void TexturingArrays::UpdateUniformBufferMatrices()
   {
-    const auto screenExtent = GetScreenExtent();
     // Only updates the uniform buffer block part containing the global matrices
 
     // Projection
-    const float aspect = static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height);
+    const float aspect = GetWindowAspectRatio();
     m_uboVS.Matrices.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
 
     // View

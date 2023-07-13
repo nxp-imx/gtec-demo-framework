@@ -37,7 +37,10 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlClangTidyPlatformCompiler(XmlBase):
+    __AttribFlags = 'Flags'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        flags = self._ReadAttrib(xmlElement, "Flags")
+        self._CheckAttributes({self.__AttribFlags})
+        flags = self._ReadAttrib(xmlElement, self.__AttribFlags)
         self.Flags = flags.split(';')

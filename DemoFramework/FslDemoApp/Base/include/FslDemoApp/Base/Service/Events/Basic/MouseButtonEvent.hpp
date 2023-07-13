@@ -41,6 +41,13 @@ namespace Fsl
   // Basic events must be exactly the same size as a BasicEvent (so they can have no member variables).
   class MouseButtonEvent : public BasicEvent
   {
+    enum class Flags : int32_t
+    {
+      NoFlags = 0,
+      Pressed = 1,
+      Touch = 2
+    };
+
   public:
     explicit MouseButtonEvent(const BasicEvent& encodedEvent)
       : BasicEvent(encodedEvent)
@@ -51,7 +58,7 @@ namespace Fsl
       }
     }
 
-    MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position);
+    MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position, const bool isTouch);
 
     //! @brief Get the button that was modified
     VirtualMouseButton::Enum GetButton() const;
@@ -59,11 +66,19 @@ namespace Fsl
     //! @brief Get the state of the button
     bool IsPressed() const
     {
-      return m_arg2 != 0;
+      return (m_arg2 & static_cast<int32_t>(Flags::Pressed)) != 0;
+    }
+
+    bool IsTouch() const
+    {
+      return (m_arg2 & static_cast<int32_t>(Flags::Touch)) != 0;
     }
 
     //! @brief Get the position it occurred at
     PxPoint2 GetPosition() const;
+
+  private:
+    static constexpr int32_t Encode(const bool isPressed, const bool isTouch) noexcept;
   };
 }
 

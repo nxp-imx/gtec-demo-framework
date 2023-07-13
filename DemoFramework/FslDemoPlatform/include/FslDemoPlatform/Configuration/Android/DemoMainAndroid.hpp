@@ -36,7 +36,7 @@ struct android_app;
 
 namespace Fsl
 {
-  int AndroidMain(android_app* state, const char* const pszHelperClassName);
+  int AndroidMain(android_app* state);
 }
 
 #endif

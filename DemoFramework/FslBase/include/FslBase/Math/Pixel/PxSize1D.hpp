@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE1D_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE1D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,21 +43,22 @@ namespace Fsl
   struct PxSize1D
   {
     using value_type = PxValue;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_value{};
 
-    explicit constexpr PxSize1D(const value_type::value_type value) noexcept
+    explicit constexpr PxSize1D(const raw_value_type value) noexcept
       : m_value(value >= 0 ? value : 0)
     {
-      assert(value >= 0);
+      assert(m_value >= value_type(0));
     }
 
     //! If this constructor is used is extremely important to be 100% sure the value are positive.
-    explicit constexpr PxSize1D(const value_type::value_type value, const OptimizationCheckFlag /*unused*/) noexcept
+    explicit constexpr PxSize1D(const raw_value_type value, const OptimizationCheckFlag /*unused*/) noexcept
       : m_value(value)
     {
-      assert(value >= 0);
+      assert(m_value >= value_type(0));
     }
 
   public:
@@ -72,22 +73,56 @@ namespace Fsl
     explicit constexpr PxSize1D(const value_type value, const OptimizationCheckFlag /*unused*/) noexcept
       : m_value(value)
     {
-      assert(value >= value_type());
+      assert(m_value >= value_type());
     }
+
+    // inline constexpr operator value_type() const noexcept
+    //{
+    //   return m_value;
+    // }
 
     constexpr inline value_type Value() const noexcept
     {
       return m_value;
     }
 
-    constexpr inline value_type::value_type RawValue() const noexcept
+    constexpr inline raw_value_type RawValue() const noexcept
     {
       return m_value.Value;
     }
 
+    inline constexpr const PxSize1D& operator++() noexcept
+    {
+      ++m_value;
+      return *this;
+    }
+
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
+    inline constexpr PxSize1D operator++(int) noexcept
+    {
+      PxSize1D temp(*this);
+      ++m_value;
+      return temp;
+    }
+
+    inline constexpr const PxSize1D& operator--() noexcept
+    {
+      m_value = m_value.Value > 0 ? --m_value : m_value;
+      return *this;
+    }
+
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
+    inline constexpr PxSize1D operator--(int) noexcept
+    {
+      PxSize1D temp(*this);
+      m_value = m_value.Value > 0 ? --m_value : m_value;
+      return temp;
+    }
+
+
     constexpr inline void Add(const PxSize1D valuePx) noexcept
     {
-      assert(m_value.Value <= (std::numeric_limits<value_type::value_type>::max() - valuePx.m_value.Value));
+      assert(m_value.Value <= (std::numeric_limits<raw_value_type>::max() - valuePx.m_value.Value));
 
       // Both values are known to be >= 0
       m_value = m_value + valuePx.m_value;
@@ -115,20 +150,20 @@ namespace Fsl
     static constexpr PxSize1D Add(const PxSize1D sizePx, const PxSize1D valuePx) noexcept
     {
       // Check for overflow
-      assert(sizePx.m_value.Value <= (std::numeric_limits<value_type::value_type>::max() - valuePx.m_value.Value));
+      assert(sizePx.m_value.Value <= (std::numeric_limits<raw_value_type>::max() - valuePx.m_value.Value));
 
       // Both values are known to be >= 0
       return PxSize1D(sizePx.m_value + valuePx.m_value, OptimizationCheckFlag::NoCheck);
     }
 
-    static constexpr PxSize1D Add(const value_type sizePx, const PxSize1D valuePx) noexcept
+    static constexpr value_type Add(const value_type sizePx, const PxSize1D valuePx) noexcept
     {
-      return PxSize1D(sizePx + valuePx.m_value);
+      return value_type(sizePx + valuePx.m_value);
     }
 
-    static constexpr PxSize1D Add(const PxSize1D sizePx, const value_type valuePx) noexcept
+    static constexpr value_type Add(const PxSize1D sizePx, const value_type valuePx) noexcept
     {
-      return PxSize1D(sizePx.m_value + valuePx);
+      return value_type(sizePx.m_value + valuePx);
     }
 
     static constexpr value_type Subtract(const PxSize1D sizePx, const PxSize1D valuePx) noexcept
@@ -173,6 +208,20 @@ namespace Fsl
       return PxSize1D(sizePx.m_value / value.m_value, OptimizationCheckFlag::NoCheck);
     }
 
+    static constexpr value_type Divide(const value_type valuePx, const PxSize1D sizePx)
+    {
+      assert(sizePx.Value() != value_type());
+      return valuePx / sizePx.m_value;
+    }
+
+
+    static constexpr PxSize1D Modulo(const PxSize1D sizePx, const PxSize1D value)
+    {
+      // Both values are known to be >= 0
+      assert(value.m_value != value_type());
+      return PxSize1D(sizePx.m_value % value.m_value, OptimizationCheckFlag::NoCheck);
+    }
+
     static constexpr value_type Divide(const PxSize1D sizePx, const value_type value)
     {
       assert(value != value_type());
@@ -182,7 +231,7 @@ namespace Fsl
     constexpr PxSize1D operator+=(const PxSize1D valuePx) noexcept
     {
       // m_value is >= 0 and valuePx >= 0
-      assert(m_value.Value <= (std::numeric_limits<value_type::value_type>::max() - valuePx.m_value.Value));
+      assert(m_value.Value <= (std::numeric_limits<raw_value_type>::max() - valuePx.m_value.Value));
       m_value += valuePx.m_value;
       return *this;
     }
@@ -214,19 +263,19 @@ namespace Fsl
       return PxSize1D(value_type::Min(val0.m_value, val1.m_value), OptimizationCheckFlag::NoCheck);
     }
 
-    static constexpr PxSize1D Min(const PxSize1D::value_type val0, const PxSize1D val1) noexcept
+    static constexpr PxSize1D Min(const value_type val0, const PxSize1D val1) noexcept
     {
       // One of the values might be < 0
       return PxSize1D(value_type::Min(val0, val1.m_value));
     }
 
-    static constexpr PxSize1D Min(const PxSize1D val0, const PxSize1D::value_type val1) noexcept
+    static constexpr PxSize1D Min(const PxSize1D val0, const value_type val1) noexcept
     {
       // One of the values might be < 0
       return PxSize1D(value_type::Min(val0.m_value, val1));
     }
 
-    static constexpr PxSize1D Min(const PxSize1D::value_type val0, const PxSize1D::value_type val1) noexcept
+    static constexpr PxSize1D Min(const value_type val0, const value_type val1) noexcept
     {
       // Both values might be < 0
       return PxSize1D(value_type::Min(val0, val1));
@@ -238,19 +287,19 @@ namespace Fsl
       return PxSize1D(value_type::Max(val0.m_value, val1.m_value), OptimizationCheckFlag::NoCheck);
     }
 
-    static constexpr PxSize1D Max(const PxSize1D::value_type val0, const PxSize1D val1) noexcept
+    static constexpr PxSize1D Max(const value_type val0, const PxSize1D val1) noexcept
     {
       // One of the values are >= 0
       return PxSize1D(value_type::Max(val0, val1.m_value), OptimizationCheckFlag::NoCheck);
     }
 
-    static constexpr PxSize1D Max(const PxSize1D val0, const PxSize1D::value_type val1) noexcept
+    static constexpr PxSize1D Max(const PxSize1D val0, const value_type val1) noexcept
     {
       // One of the values are >= 0
       return PxSize1D(value_type::Max(val0.m_value, val1), OptimizationCheckFlag::NoCheck);
     }
 
-    static constexpr PxSize1D Max(const PxSize1D::value_type val0, const PxSize1D::value_type val1) noexcept
+    static constexpr PxSize1D Max(const value_type val0, const value_type val1) noexcept
     {
       // Both values might be < 0
       return PxSize1D(value_type::Max(val0, val1));
@@ -279,17 +328,28 @@ namespace Fsl
       return PxSize1D(value);
     }
 
+    inline static constexpr PxSize1D Create(const raw_value_type value) noexcept
+    {
+      return PxSize1D(value);
+    }
+
     inline static constexpr PxSize1D Create(const value_type value, const OptimizationCheckFlag /*flag*/) noexcept
     {
       return PxSize1D(value, OptimizationCheckFlag::NoCheck);
     }
 
-    inline static constexpr PxSize1D Create(const value_type::value_type value) noexcept
+    inline static constexpr PxSize1D Create(const raw_value_type value, const OptimizationCheckFlag /*flag*/) noexcept
     {
-      return PxSize1D(value);
+      return PxSize1D(value, OptimizationCheckFlag::NoCheck);
     }
 
-    inline static constexpr PxSize1D Create(const value_type::value_type value, const OptimizationCheckFlag /*flag*/) noexcept
+
+    inline static constexpr PxSize1D UncheckedCreate(const value_type value) noexcept
+    {
+      return PxSize1D(value, OptimizationCheckFlag::NoCheck);
+    }
+
+    inline static constexpr PxSize1D UncheckedCreate(const raw_value_type value) noexcept
     {
       return PxSize1D(value, OptimizationCheckFlag::NoCheck);
     }
@@ -405,12 +465,12 @@ namespace Fsl
     return PxSize1D::Add(lhs, rhs);
   }
 
-  inline constexpr PxSize1D operator+(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
+  inline constexpr PxSize1D::value_type operator+(const PxSize1D::value_type lhs, const PxSize1D rhs) noexcept
   {
     return PxSize1D::Add(lhs, rhs);
   }
 
-  inline constexpr PxSize1D operator+(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
+  inline constexpr PxSize1D::value_type operator+(const PxSize1D lhs, const PxSize1D::value_type rhs) noexcept
   {
     return PxSize1D::Add(lhs, rhs);
   }
@@ -461,6 +521,42 @@ namespace Fsl
     return PxSize1D::Divide(lhs, rhs);
   }
 
+  inline constexpr PxSize1D::value_type operator/(const PxSize1D::value_type lhs, const PxSize1D rhs)
+  {
+    return PxSize1D::Divide(lhs, rhs);
+  }
+
+
+  // op modulo
+
+  inline constexpr PxSize1D operator%(const PxSize1D lhs, const PxSize1D rhs)
+  {
+    return PxSize1D::Modulo(lhs, rhs);
+  }
+
+  // op +=
+
+  inline constexpr PxValue operator+=(PxValue& rLhs, const PxSize1D rhs) noexcept
+  {
+    rLhs += rhs.Value();
+    return rLhs;
+  }
+
+  // op -=
+
+  inline constexpr PxValue operator-=(PxValue& rLhs, const PxSize1D rhs) noexcept
+  {
+    rLhs -= rhs.Value();
+    return rLhs;
+  }
+
+  // op *=
+
+  inline constexpr PxValue operator*=(PxValue& rLhs, const PxSize1D rhs) noexcept
+  {
+    rLhs *= rhs.Value();
+    return rLhs;
+  }
 }
 
 #endif

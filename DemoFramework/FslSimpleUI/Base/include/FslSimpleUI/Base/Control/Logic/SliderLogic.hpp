@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderConstrainedValue.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderDragLogic.hpp>
 #include <FslSimpleUI/Base/Control/Logic/SliderResultFlags.hpp>
@@ -99,7 +100,7 @@ namespace Fsl::UI
     }
 
     //! @brief Get the pixel position inside the 'span'
-    int32_t GetPositionPx() const
+    PxValue GetPositionPx() const
     {
       return m_drag.GetPositionPx(m_value.GetPercentage());
     }
@@ -186,7 +187,7 @@ namespace Fsl::UI
       return false;
     }
 
-    bool TryBeginDrag(const int32_t startPositionPx)
+    bool TryBeginDrag(const PxValue startPositionPx)
     {
       if (!m_drag.IsDragging())
       {
@@ -201,7 +202,7 @@ namespace Fsl::UI
       return false;
     }
 
-    bool TryDrag(const int32_t newPositionPx)
+    bool TryDrag(const PxValue newPositionPx)
     {
       if (m_drag.TryDrag(newPositionPx))
       {
@@ -212,7 +213,7 @@ namespace Fsl::UI
       return false;
     }
 
-    bool EndDrag(const int32_t positionPx)
+    bool EndDrag(const PxValue positionPx)
     {
       if (m_drag.EndDrag(positionPx))
       {

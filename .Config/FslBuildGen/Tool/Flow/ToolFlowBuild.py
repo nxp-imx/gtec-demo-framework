@@ -72,6 +72,7 @@ class DefaultValue(object):
     Variants = None
     Type = PluginSharedValues.TYPE_DEFAULT
     Command = CommandType.ToString(CommandType.Build)
+    Details = False
 
 
 class LocalToolConfig(ToolAppConfig):
@@ -89,6 +90,7 @@ class LocalToolConfig(ToolAppConfig):
         self.ListVariants = DefaultValue.ListVariants
         self.PackageConfigurationType = DefaultValue.Type
         self.Command = CommandType.FromString(DefaultValue.Command)
+        self.Details = DefaultValue.Details
 
 
 def GetDefaultLocalConfig() -> LocalToolConfig:
@@ -118,13 +120,14 @@ class ToolFlowBuild(AToolAppFlow):
         localToolConfig.ListVariants = args.ListVariants
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.Command = CommandType.FromString(args.Command)
+        localToolConfig.Details = args.details
 
         self.Process(currentDirPath, toolConfig, localToolConfig)
 
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-                        localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+                        localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         if localToolConfig.DryRun:
             config.ForceDisableAllWrite()
@@ -132,7 +135,7 @@ class ToolFlowBuild(AToolAppFlow):
             config.IgnoreNotSupported = True
 
         # Get the platform and see if its supported
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
                                                                                                  localToolConfig.Generator, buildVariantConfig,
@@ -158,23 +161,24 @@ class ToolFlowBuild(AToolAppFlow):
         requestedFiles = None if config.IsSDKBuild else theFiles
 
         # We need the generator to be able to examine its support
+        packageNameDetails = Builder.PackageNameDetails.ShowExactPackageName if localToolConfig.Details else Builder.PackageNameDetails.ShowTemplateName
 
         if localToolConfig.ListFeatures or localToolConfig.ListVariants or localToolConfig.ListExtensions or localToolConfig.ListRequirements:
             if localToolConfig.ListFeatures:
-                Builder.ShowFeatureList(self.Log, topLevelPackage, requestedFiles)
+                Builder.ShowFeatureList(self.Log, topLevelPackage, requestedFiles, packageNameDetails)
             if localToolConfig.ListVariants:
                 Builder.ShowVariantList(self.Log, topLevelPackage, requestedFiles, platformGeneratorPlugin)
             if localToolConfig.ListExtensions:
-                Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles)
+                Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles, packageNameDetails)
             if localToolConfig.ListRequirements:
-                Builder.ShowRequirementList(self.Log, topLevelPackage, requestedFiles)
+                Builder.ShowRequirementList(self.Log, topLevelPackage, requestedFiles, packageNameDetails)
         else:
             if localToolConfig.BuildPackageFilters is None or localToolConfig.BuildPackageFilters.ExtensionNameList is None:
                 raise Exception("localToolConfig.BuildPackageFilters.ExtensionNameList not set")
             requestedPackages = BuildHelper.FindRequestedPackages(config, packages, requestedFiles)
 
             Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
-                                  toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantsDict,
+                                  toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantConstraints,
                                   localToolConfig.RemainingArgs, localToolConfig.ForAllExe, platformGeneratorPlugin,
                                   localToolConfig.EnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
                                   localToolConfig.Command, True)
@@ -219,6 +223,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--ContentBuilder', default=defaultContentBuilder, help='Enable/disable the content builder')
         parser.add_argument('--ForAllExe', default=DefaultValue.ForAllExe, help='For each executable run the given command. (EXE) = the full path to the executable. (EXE_NAME) = name of the executable. (EXE_PATH) = the executables dir. (PACKAGE_PATH) = full path to package (CONTENT_PATH) = full path to package content directory. *Experimental*')
         parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: {0}. Beware install is not supported by all build backends'.format(", ".join(allCommandTypes)))
+        parser.add_argument('--details', action='store_true', help='Provide extended details (affects the --List operations)')
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

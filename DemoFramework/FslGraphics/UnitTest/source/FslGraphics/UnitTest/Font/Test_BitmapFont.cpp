@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,8 +46,8 @@ TEST(TestFont_BitmapFont, Construct_Default)
   EXPECT_EQ("", font.GetName());
   EXPECT_EQ("", font.GetTextureName());
   EXPECT_EQ(0u, font.GetSize());
-  EXPECT_EQ(0u, font.GetLineSpacingPx());
-  EXPECT_EQ(0u, font.GetBaseLinePx());
+  EXPECT_EQ(0u, font.GetLineSpacingPx().Value);
+  EXPECT_EQ(0u, font.GetBaseLinePx().Value);
   EXPECT_EQ(BitmapFontType::Bitmap, font.GetFontType());
   EXPECT_EQ(ReadOnlySpan<BitmapFontChar>(), font.GetChars());
   EXPECT_EQ(ReadOnlySpan<BitmapFontKerning>(), font.GetKernings());
@@ -59,15 +59,15 @@ TEST(TestFont_BitmapFont, Construct)
   const StringViewLite name("font name");
   const uint16_t dpi = 160;
   const uint16_t size = 42;
-  const uint16_t lineSpacingPx = 21;
-  const uint16_t baseLinePx = 18;
-  const PxThicknessU16 paddingPx(1, 2, 3, 4);
+  const auto lineSpacingPx = PxValueU16(21);
+  const auto baseLinePx = PxValueU16(18);
+  const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
   const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontKerning kerning0(0u, 1u, PxValue::Create(-1));
 
   std::vector<BitmapFontChar> chars = {char0};
   std::vector<BitmapFontKerning> kernings = {kerning0};
@@ -93,17 +93,17 @@ TEST(TestFont_BitmapFont, Construct_SortChars)
   const StringViewLite name("font name");
   const uint16_t dpi = 160;
   const uint16_t size = 42;
-  const uint16_t lineSpacingPx = 21;
-  const uint16_t baseLinePx = 18;
-  const PxThicknessU16 paddingPx(1, 2, 3, 4);
+  const auto lineSpacingPx = PxValueU16(21);
+  const auto baseLinePx = PxValueU16(18);
+  const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
   const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(3u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontChar char1(2u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontChar char2(1u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
+  constexpr const BitmapFontChar char0(3u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontChar char1(2u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontChar char2(1u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontKerning kerning0(0u, 1u, PxValue::Create(-1));
 
   std::vector<BitmapFontChar> chars = {char0, char1, char2};
   std::vector<BitmapFontChar> sortedChars = {char2, char1, char0};
@@ -130,20 +130,20 @@ TEST(TestFont_BitmapFont, SortedKernings)
   const StringViewLite name("font name");
   const uint16_t dpi = 160;
   const uint16_t size = 42;
-  const uint16_t lineSpacingPx = 21;
-  const uint16_t baseLinePx = 18;
-  const PxThicknessU16 paddingPx(1, 2, 3, 4);
+  const auto lineSpacingPx = PxValueU16(21);
+  const auto baseLinePx = PxValueU16(18);
+  const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
   const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
 
-  constexpr const BitmapFontKerning kerning0(3u, 0u, -1);
-  constexpr const BitmapFontKerning kerning1(0u, 0u, -2);
-  constexpr const BitmapFontKerning kerning2(2u, 1u, -3);
-  constexpr const BitmapFontKerning kerning3(2u, 0u, -4);
-  constexpr const BitmapFontKerning kerning4(2u, 5u, -4);
+  constexpr const BitmapFontKerning kerning0(3u, 0u, PxValue::Create(-1));
+  constexpr const BitmapFontKerning kerning1(0u, 0u, PxValue::Create(-2));
+  constexpr const BitmapFontKerning kerning2(2u, 1u, PxValue::Create(-3));
+  constexpr const BitmapFontKerning kerning3(2u, 0u, PxValue::Create(-4));
+  constexpr const BitmapFontKerning kerning4(2u, 5u, PxValue::Create(-4));
 
   std::vector<BitmapFontChar> chars = {char0};
   std::vector<BitmapFontKerning> kernings = {kerning0, kerning1, kerning2, kerning3, kerning4};
@@ -169,16 +169,16 @@ TEST(TestFont_BitmapFont, Construct_DuplicatedChar)
   const StringViewLite name("font name");
   const uint16_t dpi = 160;
   const uint16_t size = 42;
-  const uint16_t lineSpacingPx = 21;
-  const uint16_t baseLinePx = 18;
-  const PxThicknessU16 paddingPx(1, 2, 3, 4);
+  const auto lineSpacingPx = PxValueU16(21);
+  const auto baseLinePx = PxValueU16(18);
+  const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
   const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontChar char1(1u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontChar char1(1u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontKerning kerning0(0u, 1u, PxValue(-1));
 
   std::vector<BitmapFontChar> chars = {char0, char1, char0};
   std::vector<BitmapFontKerning> kernings = {kerning0};
@@ -193,16 +193,16 @@ TEST(TestFont_BitmapFont, Construct_DuplicatedKerning)
   const StringViewLite name("font name");
   const uint16_t dpi = 160;
   const uint16_t size = 42;
-  const uint16_t lineSpacingPx = 21;
-  const uint16_t baseLinePx = 18;
-  const PxThicknessU16 paddingPx(1, 2, 3, 4);
+  const auto lineSpacingPx = PxValueU16(21);
+  const auto baseLinePx = PxValueU16(18);
+  const auto paddingPx = PxThicknessU16::Create(1, 2, 3, 4);
   const StringViewLite textureName("font texture name");
   const BitmapFontType fontType = BitmapFontType::SDF;
   const BitmapFont::SdfParams sdfParams(2, 1.0f);
 
-  constexpr const BitmapFontChar char0(0u, PxRectangleU32(1, 2, 3, 4), PxPoint2(5, 6), 7);
-  constexpr const BitmapFontKerning kerning0(0u, 1u, -1);
-  constexpr const BitmapFontKerning kerning1(1u, 0u, -2);
+  constexpr const BitmapFontChar char0(0u, PxRectangleU32::Create(1, 2, 3, 4), PxPoint2::Create(5, 6), PxValueU16(7));
+  constexpr const BitmapFontKerning kerning0(0u, 1u, PxValue(-1));
+  constexpr const BitmapFontKerning kerning1(1u, 0u, PxValue(-2));
 
   std::vector<BitmapFontChar> chars = {char0};
   std::vector<BitmapFontKerning> kernings = {kerning0, kerning1, kerning0};

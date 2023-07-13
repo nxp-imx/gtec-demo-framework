@@ -42,8 +42,9 @@ namespace Fsl
   namespace
   {
     const std::array<NamedAtlasTexture, 2> g_entries = {
-      NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(PxRectangleU32(2, 2, 556, 180), PxThicknessU(16, 9, 1348, 891), 160)),
-      NamedAtlasTexture("Banner_Mandelbrot", AtlasTextureInfo(PxRectangleU32(2, 184, 585, 46), PxThicknessU(18, 184 - 171, 1317, 1021), 160)),
+      NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(PxRectangleU32::Create(2, 2, 556, 180), PxThicknessU::Create(16, 9, 1348, 891), 160)),
+      NamedAtlasTexture("Banner_Mandelbrot",
+                        AtlasTextureInfo(PxRectangleU32::Create(2, 184, 585, 46), PxThicknessU::Create(18, 184 - 171, 1317, 1021), 160)),
     };
   }
 

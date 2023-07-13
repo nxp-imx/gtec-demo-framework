@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMAGEBUTTON_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMAGEBUTTON_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,15 +50,17 @@ namespace Fsl
     //         generic button class this one performs better.
     class ImageButton final : public ButtonBase
     {
+      using base_type = ButtonBase;
+
       struct Background
       {
         SizedSpriteMesh Sprite;
         SizedSpriteMesh HoverSprite;
-        Color HoverUpColor{DefaultColor::Button::BackgroundHoverUp};
-        Color UpColor{DefaultColor::Button::BackgroundUp};
-        Color DownColor{DefaultColor::Button::BackgroundDown};
-        Color DisabledColor{DefaultColor::Button::BackgroundDisabled};
-        ItemScalePolicy ScalePolicy{ItemScalePolicy::NoScaling};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorHoverUp{DefaultColor::Button::BackgroundHoverUp};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorUp{DefaultColor::Button::BackgroundUp};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorDown{DefaultColor::Button::BackgroundDown};
+        DataBinding::TypedDependencyProperty<Color> PropertyColorDisabled{DefaultColor::Button::BackgroundDisabled};
+        DataBinding::TypedDependencyProperty<ItemScalePolicy> PropertyScalePolicy{ItemScalePolicy::NoScaling};
 
         explicit Background(const std::shared_ptr<IMeshManager>& meshManager)
           : Sprite(meshManager)
@@ -73,10 +75,11 @@ namespace Fsl
       Background m_background;
       // BackgroundHoverOverlay m_backgroundHoverOverlay;
 
-      ItemScalePolicy m_scalePolicy{ItemScalePolicy::NoScaling};
-      Color m_upColor{DefaultColor::Button::Up};
-      Color m_downColor{DefaultColor::Button::Down};
-      Color m_disabledColor{DefaultColor::Button::BackgroundDisabled};
+      DataBinding::TypedDependencyProperty<ItemScalePolicy> m_propertyScalePolicy{ItemScalePolicy::NoScaling};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorUp{DefaultColor::Button::Up};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorDown{DefaultColor::Button::Down};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorDisabled{DefaultColor::Button::BackgroundDisabled};
+
 
       bool m_isHovering{false};
 
@@ -84,6 +87,16 @@ namespace Fsl
       TransitionColor m_backgroundCurrentColor;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorHoverUp;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorUp;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorDown;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundColorDisabled;
+      static DataBinding::DependencyPropertyDefinition PropertyBackgroundScalePolicy;
+      static DataBinding::DependencyPropertyDefinition PropertyScalePolicy;
+      static DataBinding::DependencyPropertyDefinition PropertyColorUp;
+      static DataBinding::DependencyPropertyDefinition PropertyColorDown;
+      static DataBinding::DependencyPropertyDefinition PropertyColorDisabled;
+
       explicit ImageButton(const std::shared_ptr<WindowContext>& context);
 
       const std::shared_ptr<ISizedSprite>& GetContent() const
@@ -93,56 +106,71 @@ namespace Fsl
       void SetContent(const std::shared_ptr<ISizedSprite>& value);
       void SetContent(std::shared_ptr<ISizedSprite>&& value);
 
-      Color GetBackgroundColorHoverUp() const
+
+      Color GetBackgroundColorHoverUp() const noexcept
       {
-        return m_background.HoverUpColor;
+        return m_background.PropertyColorHoverUp.Get();
       }
 
-      void SetBackgroundColorHoverUp(const Color& value);
+      bool SetBackgroundColorHoverUp(const Color value);
 
-      Color GetBackgroundColorUp() const
+
+      Color GetBackgroundColorUp() const noexcept
       {
-        return m_background.UpColor;
+        return m_background.PropertyColorUp.Get();
       }
-      void SetBackgroundColorUp(const Color& value);
+      bool SetBackgroundColorUp(const Color value);
 
-      Color GetBackgroundColorDown() const
+
+      Color GetBackgroundColorDown() const noexcept
       {
-        return m_background.DownColor;
+        return m_background.PropertyColorDown.Get();
       }
-      void SetBackgroundColorDown(const Color& value);
+      bool SetBackgroundColorDown(const Color value);
 
-      Color GetBackgroundColorDisabled() const
+
+      Color GetBackgroundColorDisabled() const noexcept
       {
-        return m_background.DisabledColor;
+        return m_background.PropertyColorDisabled.Get();
       }
-      void SetBackgroundColorDisabled(const Color& value);
+      bool SetBackgroundColorDisabled(const Color value);
 
 
-      ItemScalePolicy GetScalePolicy() const
+      ItemScalePolicy GetBackgroundScalePolicy() const noexcept
       {
-        return m_scalePolicy;
+        return m_background.PropertyScalePolicy.Get();
       }
-      void SetScalePolicy(const ItemScalePolicy value);
+      bool SetBackgroundScalePolicy(const ItemScalePolicy value);
 
-      Color SetUpColor() const
 
+      ItemScalePolicy GetScalePolicy() const noexcept
       {
-        return m_upColor;
+        return m_propertyScalePolicy.Get();
       }
-      void SetUpColor(const Color& value);
+      bool SetScalePolicy(const ItemScalePolicy value);
 
-      Color GetDownColor() const
-      {
-        return m_downColor;
-      }
-      void SetDownColor(const Color& value);
 
-      Color GetDisabledColor() const
+      Color GetColorUp() const noexcept
       {
-        return m_disabledColor;
+        return m_propertyColorUp.Get();
       }
-      void SetDisabledColor(const Color& value);
+
+      bool SetColorUp(const Color value);
+
+
+      Color GetColorDown() const noexcept
+      {
+        return m_propertyColorDown.Get();
+      }
+      bool SetColorDown(const Color value);
+
+
+      Color GetColorDisabled() const
+      {
+        return m_propertyColorDisabled.Get();
+      }
+      bool SetColorDisabled(const Color value);
+
 
       const std::shared_ptr<ISizedSprite>& GetBackground() const
       {
@@ -166,6 +194,11 @@ namespace Fsl
 
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
 
       void UpdateAnimation(const TimeSpan& timeSpan) final;
       bool UpdateAnimationState(const bool forceCompleteAnimation) final;

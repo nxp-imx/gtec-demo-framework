@@ -48,6 +48,7 @@ from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -61,6 +62,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 from FslBuildGen.Tool.Flow import ToolFlowBuild
+from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 from FslBuildGen.VariableContextHelper import VariableContextHelper
 
 
@@ -592,8 +594,23 @@ class ToolFlowBuildDoc(AToolAppFlow):
                 return rootDir
         return None
 
+    def ProcessSCRFile(self, config: Config, projectContext: ToolConfigProjectContext, scrFilePath: str) -> None:
+        templatePath = IOUtil.Join(config.SDKConfigTemplatePath, "Scr")
+        filename = IOUtil.GetFileName(scrFilePath)
+        fileTemplatePath = IOUtil.Join(templatePath, filename)
+        templateFileContent = IOUtil.TryReadFile(fileTemplatePath)
+        if templateFileContent is not None:
+            projectVersion = "{0}.{1}.{2}".format(projectContext.ProjectVersion.Major, projectContext.ProjectVersion.Minor, projectContext.ProjectVersion.Patch)
+            finalContent = templateFileContent
+            finalContent = finalContent.replace("##PROJECT_NAME##", projectContext.ProjectName)
+            finalContent = finalContent.replace("##PROJECT_VERSION##", projectVersion)
+
+            if not config.IsDryRun:
+                IOUtil.WriteFileUTF8(scrFilePath, finalContent)
+
+
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
-        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
         if localToolConfig.DryRun:
             config.ForceDisableAllWrite()
 
@@ -605,7 +622,7 @@ class ToolFlowBuildDoc(AToolAppFlow):
         config.PrintTitle()
 
         # Get the generator and see if its supported
-        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantConstraints)
         variableContext = VariableContextHelper.Create(toolConfig, localToolConfig.UserSetVariables)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                    buildVariantConfig, variableContext.UserSetVariables,
@@ -622,7 +639,8 @@ class ToolFlowBuildDoc(AToolAppFlow):
         theFiles = MainFlow.DoGetFiles(config, minimalConfig, currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
                                             generator, variableContext)
-        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
+        packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters,
+                                          engineResolveConfig = EngineResolveConfig.CreateDefaultFlavor())
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
         #featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
 
@@ -658,6 +676,12 @@ class ToolFlowBuildDoc(AToolAppFlow):
                     if filename != readmePath:
                         config.LogPrintVerbose(1, "Processing file '{0}'".format(filename))
                         self.ProcessMDFile(config, filename, localToolConfig)
+
+            scrFilesCandidates = IOUtil.GetFilesAt(rootDir.ResolvedPath, True)
+            for scrFilePath in scrFilesCandidates:
+                if scrFilePath.endswith(".txt") and IOUtil.GetFileName(scrFilePath).startswith("SCR-"):
+                    self.ProcessSCRFile(config, projectContext, scrFilePath);
+
 
     def ProcessMDFile(self, config: Config, filename: str, localToolConfig: LocalToolConfig) -> None:
         packageReadMeLines = TryLoadReadMe(config, filename)
@@ -703,7 +727,6 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--ToCDepth', default=str(DefaultValue.ToCDepth), help='The headline depth to include, defaults to {0} (1-4)'.format(DefaultValue.ToCDepth))
         parser.add_argument('--ExtractArguments', default=DefaultValue.ExtractArguments, help='Build the app and execute it to extract the command line arguments ("*" for all or "." for current dirs package)')
         parser.add_argument('--NoMdScan', action='store_true', help='Dont scan for all "md" files and generate a table of content')
-
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:
         return ToolFlowBuildDoc(toolAppContext)

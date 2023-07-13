@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_LOGIC_SLIDERPIXELSPANINFO_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_LOGIC_SLIDERPIXELSPANINFO_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/MathHelper_Clamp.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <cmath>
 
 namespace Fsl::UI
@@ -40,27 +41,27 @@ namespace Fsl::UI
   struct SliderPixelSpanInfo
   {
   private:
-    int32_t m_startPx{};
-    int32_t m_lengthPx{};
+    PxValue m_startPx{};
+    PxSize1D m_lengthPx{};
     bool m_reverseDirection{false};
 
   public:
     constexpr SliderPixelSpanInfo() noexcept = default;
 
     //! @brief Create a pixel span info
-    constexpr explicit SliderPixelSpanInfo(const int32_t startPx, const int32_t lengthPx, const bool reverseDirection = false) noexcept
+    constexpr explicit SliderPixelSpanInfo(const PxValue startPx, const PxSize1D lengthPx, const bool reverseDirection = false) noexcept
       : m_startPx(startPx)
       , m_lengthPx(lengthPx)
       , m_reverseDirection(reverseDirection)
     {
     }
 
-    constexpr int32_t GetStartPx() const
+    constexpr PxValue GetStartPx() const
     {
       return m_startPx;
     }
 
-    constexpr int32_t GetLengthPx() const
+    constexpr PxSize1D GetLengthPx() const
     {
       return m_lengthPx;
     }
@@ -71,7 +72,7 @@ namespace Fsl::UI
     }
 
     //! @brief Calculate the percentage of the span the position represents
-    constexpr float CalculatePercentage(const int32_t positionPx) const
+    constexpr float CalculatePercentage(const PxValue positionPx) const
     {
       // const auto clampedTickInterval(MathHelper::Clamp(pxTickInterval, 1, std::max(m_lengthPx, 1)));
 
@@ -79,18 +80,18 @@ namespace Fsl::UI
       // clamp the position to be inside
       auto relativePositionPx = MathHelper::Clamp(positionPx, m_startPx, m_startPx + includedEndPx) - m_startPx;
       // Calculate the percentage
-      auto percentage = (includedEndPx > 0 ? (static_cast<float>(relativePositionPx) / static_cast<float>(includedEndPx)) : 0.0f);
+      auto percentage = (includedEndPx.Value > 0 ? (static_cast<float>(relativePositionPx.Value) / static_cast<float>(includedEndPx.Value)) : 0.0f);
 
       return static_cast<float>(!m_reverseDirection ? percentage : (1.0 - percentage));
     }
 
-    int32_t CalcPercentageToPxPosition(const float percentage) const
+    PxValue CalcPercentageToPxPosition(const float percentage) const
     {
       float cappedPercentage = MathHelper::Clamp(percentage, 0.0f, 1.0f);
       cappedPercentage = !m_reverseDirection ? cappedPercentage : (1.0f - cappedPercentage);
 
       const auto includedEndPx = GetIncludedEndPx();
-      const auto positionPx = static_cast<int32_t>(std::round(cappedPercentage * static_cast<float>(includedEndPx))) + m_startPx;
+      const auto positionPx = PxValue(static_cast<int32_t>(std::round(cappedPercentage * static_cast<float>(includedEndPx.Value))) + m_startPx.Value);
       return MathHelper::Clamp(positionPx, m_startPx, m_startPx + includedEndPx);
     }
 
@@ -107,9 +108,9 @@ namespace Fsl::UI
   private:
     // The last included pixel in the span range (this is what we need to ensure that all slider values can be selected)
     // beware this is relative to zero not m_startPx
-    constexpr int32_t GetIncludedEndPx() const
+    constexpr PxValue GetIncludedEndPx() const
     {
-      return m_lengthPx > 0 ? (m_lengthPx - 1) : 0;
+      return m_lengthPx > PxValue(0) ? (m_lengthPx - PxValue(1)) : PxValue(0);
     }
   };
 }

@@ -49,7 +49,7 @@ namespace Fsl::UISpriteToTextureUtil
 
     const BasicImageSpriteInfo& info = fillSprite->GetInfo();
 
-    const PxRectangleU32 fillRect(info.ImageInfo.RectanglePx.GetCenter().X, info.ImageInfo.RectanglePx.GetCenter().Y, 1, 1);
+    const PxRectangleU32 fillRect(info.ImageInfo.RectanglePx.GetCenter().X, info.ImageInfo.RectanglePx.GetCenter().Y, PxValueU(1), PxValueU(1));
 
     const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
     if (pMaterial == nullptr)
@@ -70,7 +70,8 @@ namespace Fsl::UISpriteToTextureUtil
 
     const ImageSpriteInfo& info = fillSprite->GetInfo();
 
-    const PxRectangleU32 fillRect(info.ImageInfo.TrimmedRectanglePx.GetCenter().X, info.ImageInfo.TrimmedRectanglePx.GetCenter().Y, 1, 1);
+    const PxRectangleU32 fillRect(info.ImageInfo.TrimmedRectanglePx.GetCenter().X, info.ImageInfo.TrimmedRectanglePx.GetCenter().Y, PxValueU(1),
+                                  PxValueU(1));
 
     const auto* pMaterial = dynamic_cast<const BasicSpriteMaterial*>(info.MaterialInfo.Material.get());
     if (pMaterial == nullptr)

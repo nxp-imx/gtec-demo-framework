@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,14 +50,18 @@ namespace Fsl::AppInputCommandListIO
 {
   namespace
   {
+    enum class VersionId : uint32_t
+    {
+      Version1 = 1,
+      Version2 = 2
+    };
+
     namespace Header
     {
-      constexpr const uint32_t Version1 = 1;
-
       // LCN, since this is written as little endian it becomes NCL in the file
       constexpr const uint32_t Magic = 0x004C434E;
-      constexpr const uint32_t MinVersion = Version1;
-      constexpr const uint32_t MaxVersion = Version1;
+      constexpr const uint32_t MinVersion = static_cast<uint32_t>(VersionId::Version1);
+      constexpr const uint32_t MaxVersion = static_cast<uint32_t>(VersionId::Version2);
 
       constexpr const uint32_t HeaderOffsetMagic = 0;
       constexpr const uint32_t HeaderOffsetVersion = 4;
@@ -65,7 +69,7 @@ namespace Fsl::AppInputCommandListIO
       constexpr const uint32_t SizeOfHeader = 4 * 3;
     }
 
-    ReadOnlySpan<uint8_t> ReadAndValidateHeader(const ReadOnlySpan<uint8_t>& header, uint32_t& rVersion)
+    ReadOnlySpan<uint8_t> ReadAndValidateHeader(const ReadOnlySpan<uint8_t>& header, VersionId& rVersion)
     {
       auto magic = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetMagic);
       auto version = ByteSpanUtil::ReadUInt32LE(header, Header::HeaderOffsetVersion);
@@ -84,7 +88,7 @@ namespace Fsl::AppInputCommandListIO
       {
         throw FormatException("content is not of the expected size");
       }
-      rVersion = version;
+      rVersion = static_cast<VersionId>(version);
       return remainingSpan;
     }
 
@@ -112,48 +116,55 @@ namespace Fsl::AppInputCommandListIO
     {
       assert(span.size() >= Header::SizeOfHeader);
       ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetMagic, Header::Magic);
-      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetVersion, Header::Version1);
+      ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetVersion, static_cast<uint32_t>(VersionId::Version2));
       ByteSpanUtil::WriteUInt32LE(span, Header::HeaderOffsetContentSize, 0);
       return span.subspan(Header::SizeOfHeader);
     }
 
     Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxRectangle& value)
     {
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Left());
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Top());
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Width());
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Height());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.RawLeft());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.RawTop());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.RawWidth());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.RawHeight());
       return dstSpan;
     }
 
     PxRectangle ReadPxRectangle(ReadOnlySpan<uint8_t>& rSrcSpan)
     {
-      return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan),
-              ValueCompression::ReadSimpleInt32(rSrcSpan)};
+      const auto x = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      const auto y = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      const auto width = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      const auto height = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      return PxRectangle::Create(x, y, width, height);
     }
 
     Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxPoint2& value)
     {
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.X);
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Y);
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.X.Value);
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Y.Value);
       return dstSpan;
     }
 
     PxPoint2 ReadPxPoint2(ReadOnlySpan<uint8_t>& rSrcSpan)
     {
-      return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan)};
+      const auto x = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      const auto y = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      return PxPoint2::Create(x, y);
     }
 
     Span<uint8_t> Write(Span<uint8_t> dstSpan, const PxSize2D& value)
     {
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Width());
-      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.Height());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.RawWidth());
+      dstSpan = ValueCompression::WriteSimpleInt32(dstSpan, value.RawHeight());
       return dstSpan;
     }
 
     PxSize2D ReadPxSize2D(ReadOnlySpan<uint8_t>& rSrcSpan)
     {
-      return {ValueCompression::ReadSimpleInt32(rSrcSpan), ValueCompression::ReadSimpleInt32(rSrcSpan)};
+      const auto width = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      const auto height = ValueCompression::ReadSimpleInt32(rSrcSpan);
+      return PxSize2D::Create(width, height);
     }
 
 
@@ -182,21 +193,27 @@ namespace Fsl::AppInputCommandListIO
       dstSpan = ValueCompression::WriteSimpleUInt64(dstSpan, record.WindowId.Value);
       dstSpan = Write(dstSpan, record.WindowRectPx);
       dstSpan = Write(dstSpan, record.MousePositionPx);
+      dstSpan = ValueCompression::WriteSimpleUInt32(dstSpan, record.IsTouch ? 1u : 0u);
       return dstSpan;
     }
 
-    InputCommandRecord ReadInputCommandRecord(ReadOnlySpan<uint8_t>& rSrcSpan)
+    InputCommandRecord ReadInputCommandRecord(ReadOnlySpan<uint8_t>& rSrcSpan, const VersionId currentVersion)
     {
       const uint32_t frameIndex = ValueCompression::ReadSimpleUInt32(rSrcSpan);
       const InputCommandId commandId = ReadInputCommandId(rSrcSpan);
       const uint64_t windowId = ValueCompression::ReadSimpleUInt64(rSrcSpan);
       const PxRectangle windowRectPx = ReadPxRectangle(rSrcSpan);
       const PxPoint2 mousePositionPx = ReadPxPoint2(rSrcSpan);
-      return {frameIndex, commandId, CustomWindowId(windowId), windowRectPx, mousePositionPx};
+      bool isTouch = false;
+      if (currentVersion >= VersionId::Version2)
+      {
+        isTouch = ValueCompression::ReadSimpleUInt32(rSrcSpan) != 0;
+      }
+      return {frameIndex, commandId, CustomWindowId(windowId), windowRectPx, mousePositionPx, isTouch};
     }
 
 
-    AppInputCommandList ReadAppInputCommandList(ReadOnlySpan<uint8_t>& rSrcSpan)
+    AppInputCommandList ReadAppInputCommandList(ReadOnlySpan<uint8_t>& rSrcSpan, const VersionId currentVersion)
     {
       const PxSize2D recordResolution = ReadPxSize2D(rSrcSpan);
       const uint32_t recordDensityDpi = ValueCompression::ReadSimpleUInt32(rSrcSpan);
@@ -205,7 +222,7 @@ namespace Fsl::AppInputCommandListIO
       std::vector<InputCommandRecord> commandList(commandListCount);
       for (uint32_t i = 0; i < commandListCount; ++i)
       {
-        commandList[i] = ReadInputCommandRecord(rSrcSpan);
+        commandList[i] = ReadInputCommandRecord(rSrcSpan, currentVersion);
       }
       return {recordResolution, recordDensityDpi, std ::move(commandList), frameCount};
     }
@@ -253,9 +270,9 @@ namespace Fsl::AppInputCommandListIO
 
   AppInputCommandList Decode(const ReadOnlySpan<uint8_t>& content)
   {
-    uint32_t currentVersion{0};
+    VersionId currentVersion{0};
     auto remainingContent = ReadAndValidateHeader(content, currentVersion);
-    AppInputCommandList commandList = ReadAppInputCommandList(remainingContent);
+    AppInputCommandList commandList = ReadAppInputCommandList(remainingContent, currentVersion);
     if (!remainingContent.empty())
     {
       throw InvalidFormatException("All content was not consumed");

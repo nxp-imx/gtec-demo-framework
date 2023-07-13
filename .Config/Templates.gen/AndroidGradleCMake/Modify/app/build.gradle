@@ -16,7 +16,7 @@ android {
             cmake {
                 arguments "-DANDROID_STL=c++_shared"
                 cppFlags "-std=c++17 -frtti -fexceptions"
-                version "3.10.2"
+                version "3.18.1"
             }
         }
         
@@ -37,15 +37,18 @@ android {
             path "src/main/cpp/CMakeLists.txt"
         }
     }
+    buildFeatures.prefab true
+    namespace 'com.freescale.##PREFIXED_PROJECT_NAME_L##'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.core:core:1.9.0'
+    implementation 'androidx.games:games-activity:2.0.2'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     // Use relinker as recommended by the android documentation at
     // https://developer.android.com/ndk/guides/cpp-support.html#c_runtime_libraries
     // https://github.com/KeepSafe/ReLinker
@@ -54,9 +57,9 @@ dependencies {
 
 task buildContentFiles(type: Exec) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--input', '##PACKAGE_PATH##'
+        commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--Variants', '[##VARIANT_LIST##]', '--input', '##PACKAGE_PATH##'
     } else {
-        commandLine "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--input', '##PACKAGE_PATH##'
+        commandLine "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '-p', 'android', '--Variants', '[##VARIANT_LIST##]', '--input', '##PACKAGE_PATH##'
     }
 }
 

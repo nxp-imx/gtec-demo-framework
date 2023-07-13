@@ -75,7 +75,7 @@ namespace Fsl
 
       // Create the parent image
       Bitmap bitmap;
-      EmbeddedFont8x8::CreateFontBitmap(bitmap, PixelFormat::R8G8B8A8_UNORM, PxPoint2(), RectangleSizeRestrictionFlag::Power2);
+      EmbeddedFont8x8::CreateFontBitmap(bitmap, PixelFormat::R8G8B8A8_UNORM, PxSize2D(), RectangleSizeRestrictionFlag::Power2);
 
       // Other filtering possibilities:
       // VG_IMAGE_QUALITY_NONANTIALIASED
@@ -97,21 +97,22 @@ namespace Fsl
       const auto imageWidth = UncheckedNumericCast<int32_t>(bitmap.Width());
       const auto imageHeight = UncheckedNumericCast<int32_t>(bitmap.Height());
       const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
-      std::array<VGfloat, 2> origin = {0.0f, static_cast<VGfloat>(fontSize.Height())};
-      std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.Width()), 0.0f};
+      std::array<VGfloat, 2> origin = {0.0f, static_cast<VGfloat>(fontSize.RawHeight())};
+      std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.RawWidth()), 0.0f};
       int32_t srcX = 0;
       int32_t srcY = 0;
       for (uint16_t i = 0; i < numChars; ++i)
       {
-        const VGFont childImage = vgChildImage(parentImage, srcX, imageHeight - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
+        const VGFont childImage =
+          vgChildImage(parentImage, srcX, imageHeight - srcY - fontSize.RawHeight(), fontSize.RawWidth(), fontSize.RawHeight());
         vgSetGlyphToImage(m_font.GetHandle(), firstChar + i, childImage, origin.data(), escapement.data());
         m_fontImages[i].Reset(childImage, fontSize);
 
-        srcX += fontSize.Width();
-        if ((srcX + fontSize.Width()) > imageWidth)
+        srcX += fontSize.RawWidth();
+        if ((srcX + fontSize.RawWidth()) > imageWidth)
         {
           srcX = 0;
-          srcY += fontSize.Height();
+          srcY += fontSize.RawHeight();
         }
       }
       FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
@@ -174,7 +175,7 @@ namespace Fsl
       // Benchmarking has shown that vgClear is fairly fast for single dot rendering on most platforms
       // On some creating and destroying a VGPath is faster (especially as the dot count increase)
 
-      const VGint screenHeight = m_pxCurrentSize.Height() - 1;
+      const VGint screenHeight = m_pxCurrentSize.RawHeight() - 1;
       const Vector2* pSrcCoord = pSrc;
       const Vector2* const pSrcCoordEnd = pSrcCoord + length;
       while (pSrcCoord < pSrcCoordEnd)
@@ -206,7 +207,7 @@ namespace Fsl
       const char* const pSrcEnd = pSrc + strView.size();
       int32_t numGlyphs = 0;
 
-      const auto charWidth = static_cast<float>(m_fontSize.Width());
+      const auto charWidth = static_cast<float>(m_fontSize.RawWidth());
 
       VGfloat dstX = dstPosition.X;
 
@@ -245,7 +246,7 @@ namespace Fsl
       vgSetfv(VG_GLYPH_ORIGIN, static_cast<VGint>(m_zeroOrigin.size()), m_zeroOrigin.data());
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_GLYPH_USER_TO_SURFACE);
       vgLoadIdentity();
-      vgTranslate(dstX, (static_cast<float>(m_pxCurrentSize.Height()) - dstPosition.Y));
+      vgTranslate(dstX, (static_cast<float>(m_pxCurrentSize.RawHeight()) - dstPosition.Y));
       vgDrawGlyphs(m_font.GetHandle(), numGlyphs, m_glyphs.data(), m_xAdjust.data(), nullptr, VG_FILL_PATH, VG_TRUE);
     }
 

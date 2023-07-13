@@ -82,7 +82,7 @@ namespace Fsl
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
       // This allows us to reuse the main depth buffer even when the actual 'screen' is too small for our offscreen buffer
-      setup.DepthBufferMinimumExtent = PxExtent2D(SIZE_OFFSCREEN, SIZE_OFFSCREEN);
+      setup.DepthBufferMinimumExtent = PxExtent2D::Create(SIZE_OFFSCREEN, SIZE_OFFSCREEN);
       return setup;
     }
 

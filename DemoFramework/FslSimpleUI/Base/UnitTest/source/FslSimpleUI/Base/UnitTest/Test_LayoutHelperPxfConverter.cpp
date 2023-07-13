@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,16 +116,16 @@ TEST(Test_LayoutHelperPxfConverter, PxToPxfFloat_InfinityEnd)
 
 TEST(Test_LayoutHelperPxfConverter, PxfToPxPoint2_Vector2)
 {
-  EXPECT_EQ(PxPoint2(-10, 10), UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(-10, 10)));
-  EXPECT_EQ(PxPoint2(0, 1), UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(0, 1)));
-  EXPECT_EQ(PxPoint2(10, -10), UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(10, -10)));
+  EXPECT_EQ(PxPoint2::Create(-10, 10), UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(-10, 10)));
+  EXPECT_EQ(PxPoint2::Create(0, 1), UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(0, 1)));
+  EXPECT_EQ(PxPoint2::Create(10, -10), UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(10, -10)));
 }
 
 TEST(Test_LayoutHelperPxfConverter, PxfToPxPoint2_Vector2_Infinity)
 {
-  EXPECT_EQ(PxPoint2(UI::PxAvailableSizeUtil::InfiniteSpacePx, 10),
+  EXPECT_EQ(PxPoint2::Create(UI::PxAvailableSizeUtil::InfiniteSpacePx, 10),
             UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(std::numeric_limits<float>::infinity(), 10)));
-  EXPECT_EQ(PxPoint2(10, UI ::PxAvailableSizeUtil::InfiniteSpacePx),
+  EXPECT_EQ(PxPoint2::Create(10, UI ::PxAvailableSizeUtil::InfiniteSpacePx),
             UI::LayoutHelperPxfConverter::PxfToPxPoint2(Vector2(10, std::numeric_limits<float>::infinity())));
 }
 
@@ -139,15 +139,15 @@ TEST(Test_LayoutHelperPxfConverter, PxfToPxPoint2_Vector2_Infinity)
 
 TEST(Test_LayoutHelperPxfConverter, PxToPxfVector2_PxPoint2)
 {
-  EXPECT_EQ(Vector2(-10, 10), UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2(-10, 10)));
-  EXPECT_EQ(Vector2(0, 1), UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2(0, 1)));
-  EXPECT_EQ(Vector2(10, -10), UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2(10, -10)));
+  EXPECT_EQ(Vector2(-10, 10), UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2::Create(-10, 10)));
+  EXPECT_EQ(Vector2(0, 1), UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2::Create(0, 1)));
+  EXPECT_EQ(Vector2(10, -10), UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2::Create(10, -10)));
 }
 
 TEST(Test_LayoutHelperPxfConverter, PxToPxfVector2_PxPoint2_Infinity)
 {
-  auto val0 = UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2(UI::PxAvailableSizeUtil::InfiniteSpacePx, 10));
-  auto val1 = UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2(10, UI ::PxAvailableSizeUtil::InfiniteSpacePx));
+  auto val0 = UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2::Create(UI::PxAvailableSizeUtil::InfiniteSpacePx, 10));
+  auto val1 = UI::LayoutHelperPxfConverter::PxToPxfVector2(PxPoint2::Create(10, UI ::PxAvailableSizeUtil::InfiniteSpacePx));
 
   EXPECT_TRUE(std::isinf(val0.X));
   EXPECT_EQ(10.0f, val0.Y);
@@ -170,15 +170,15 @@ TEST(Test_LayoutHelperPxfConverter, PxToPxfVector2_PxPoint2_Infinity)
 
 TEST(Test_LayoutHelperPxfConverter, PxfToPxRectangle_Rect)
 {
-  EXPECT_EQ(PxRectangle(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.0f, 2.0f, 3.0f, 4.0f)));
-  EXPECT_EQ(PxRectangle(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.1f, 2.1f, 3.1f, 4.1f)));
-  EXPECT_EQ(PxRectangle(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.2f, 2.2f, 3.2f, 4.2f)));
-  EXPECT_EQ(PxRectangle(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.3f, 2.3f, 3.3f, 4.3f)));
-  EXPECT_EQ(PxRectangle(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.4f, 2.4f, 3.4f, 4.4f)));
-  EXPECT_EQ(PxRectangle(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.5f, 2.5f, 3.5f, 4.5f)));
-  EXPECT_EQ(PxRectangle(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.6f, 2.6f, 3.6f, 4.6f)));
-  EXPECT_EQ(PxRectangle(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.7f, 2.7f, 3.7f, 4.7f)));
-  EXPECT_EQ(PxRectangle(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.8f, 2.8f, 3.8f, 4.8f)));
-  EXPECT_EQ(PxRectangle(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.9f, 2.9f, 3.9f, 4.9f)));
-  EXPECT_EQ(PxRectangle(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(2.0f, 3.0f, 4.0f, 5.0f)));
+  EXPECT_EQ(PxRectangle::Create(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.0f, 2.0f, 3.0f, 4.0f)));
+  EXPECT_EQ(PxRectangle::Create(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.1f, 2.1f, 3.1f, 4.1f)));
+  EXPECT_EQ(PxRectangle::Create(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.2f, 2.2f, 3.2f, 4.2f)));
+  EXPECT_EQ(PxRectangle::Create(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.3f, 2.3f, 3.3f, 4.3f)));
+  EXPECT_EQ(PxRectangle::Create(1, 2, 3, 4), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.4f, 2.4f, 3.4f, 4.4f)));
+  EXPECT_EQ(PxRectangle::Create(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.5f, 2.5f, 3.5f, 4.5f)));
+  EXPECT_EQ(PxRectangle::Create(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.6f, 2.6f, 3.6f, 4.6f)));
+  EXPECT_EQ(PxRectangle::Create(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.7f, 2.7f, 3.7f, 4.7f)));
+  EXPECT_EQ(PxRectangle::Create(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.8f, 2.8f, 3.8f, 4.8f)));
+  EXPECT_EQ(PxRectangle::Create(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(1.9f, 2.9f, 3.9f, 4.9f)));
+  EXPECT_EQ(PxRectangle::Create(2, 3, 4, 5), UI::LayoutHelperPxfConverter::PxfToPxRectangle(Rect(2.0f, 3.0f, 4.0f, 5.0f)));
 }

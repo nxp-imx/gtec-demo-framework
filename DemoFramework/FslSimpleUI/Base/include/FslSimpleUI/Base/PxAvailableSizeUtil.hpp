@@ -32,7 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <algorithm>
+#include <FslBase/Math/MathHelper_MinMax.hpp>
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <cassert>
 #include <limits>
 
@@ -41,13 +42,14 @@ namespace Fsl::UI
   namespace PxAvailableSizeUtil
   {
     using layout_value_t = int32_t;
+    using normal_value_t = PxValue;
 
     // We use a range of positive numbers to simulate infinity and the infinity value we supply will be in the middle of this range.
     // As the range is fairly big and the expected numbers we work with are fairly small it should allow for code with slight errors
     // in the infinity handling to still produce a 'infinity' value when adding or subtracting from infinity.
-    // (unless they subtract infinity or nan)
-    constexpr const layout_value_t InfiniteSpaceBeginPx = std::numeric_limits<int32_t>::max() / 2;
-    constexpr const layout_value_t InfiniteSpaceEndPx = std::numeric_limits<int32_t>::max();
+    // (unless they subtract infinity)
+    constexpr const layout_value_t InfiniteSpaceBeginPx = std::numeric_limits<layout_value_t>::max() / 2;
+    constexpr const layout_value_t InfiniteSpaceEndPx = std::numeric_limits<layout_value_t>::max();
     constexpr const layout_value_t InfiniteSpacePx = InfiniteSpaceBeginPx + ((InfiniteSpaceEndPx - InfiniteSpaceBeginPx) / 2);
 
 
@@ -57,38 +59,38 @@ namespace Fsl::UI
     constexpr const layout_value_t MaxPx = InfiniteSpaceBeginPx - 1;
 
     //! @brief Check if the given layout available space value is considered to be infinite space.
-    constexpr inline bool IsConsideredInfiniteSpace(const layout_value_t x)
+    constexpr inline bool IsConsideredInfiniteSpace(const layout_value_t x) noexcept
     {
       return x >= InfiniteSpaceBeginPx;
     }
 
-    //! @brief Check that this value is not nan and not inf
-    constexpr inline bool IsNormalValue(const layout_value_t x)
+    //! @brief Check that this value is not inf
+    constexpr inline bool IsNormalValue(const layout_value_t x) noexcept
     {
       return x >= MinPx && x <= MaxPx;
     }
 
 
-    inline constexpr int32_t Add_LayoutSize_Number(const layout_value_t& sizePx, const int32_t& valuePx)
+    inline constexpr layout_value_t Add_LayoutSize_Number(const layout_value_t sizePx, const normal_value_t valuePx) noexcept
     {
-      assert(!IsNormalValue(sizePx) || ((sizePx + valuePx) < InfiniteSpaceBeginPx));
-      return IsNormalValue(sizePx) ? std::max(sizePx + valuePx, 0) : sizePx;
+      assert(!IsNormalValue(sizePx) || ((sizePx + valuePx.Value) < InfiniteSpaceBeginPx));
+      return IsNormalValue(sizePx) ? MathHelper::Max(sizePx + valuePx.Value, static_cast<layout_value_t>(0)) : sizePx;
     }
 
-    inline constexpr int32_t Sub_LayoutSize_Number(const layout_value_t& sizePx, const int32_t& valuePx)
+    inline constexpr layout_value_t Sub_LayoutSize_Number(const layout_value_t sizePx, const normal_value_t valuePx) noexcept
     {
-      assert(!IsNormalValue(sizePx) || ((sizePx + valuePx) < InfiniteSpaceBeginPx));
-      return IsNormalValue(sizePx) ? std::max(sizePx - valuePx, 0) : sizePx;
+      assert(!IsNormalValue(sizePx) || ((sizePx + valuePx.Value) < InfiniteSpaceBeginPx));
+      return IsNormalValue(sizePx) ? MathHelper::Max(sizePx - valuePx.Value, static_cast<layout_value_t>(0)) : sizePx;
     }
 
-    inline constexpr int32_t Add_LayoutSize_LayoutSize(const layout_value_t& sizePx, const layout_value_t& valuePx)
+    inline constexpr layout_value_t Add_LayoutSize_LayoutSize(const layout_value_t sizePx, const layout_value_t valuePx) noexcept
     {
       if (IsNormalValue(sizePx))
       {
         if (IsNormalValue(valuePx))
         {
           assert((sizePx + valuePx) < InfiniteSpaceBeginPx);
-          return std::max(sizePx + valuePx, 0);
+          return MathHelper::Max(sizePx + valuePx, 0);
         }
         return valuePx;
       }
@@ -96,14 +98,14 @@ namespace Fsl::UI
       return sizePx;
     }
 
-    inline constexpr int32_t Sub_LayoutSize_LayoutSize(const layout_value_t& sizePx, const layout_value_t& valuePx)
+    inline constexpr layout_value_t Sub_LayoutSize_LayoutSize(const layout_value_t sizePx, const layout_value_t valuePx) noexcept
     {
       if (IsNormalValue(sizePx))
       {
         if (IsNormalValue(valuePx))
         {
           assert((sizePx + valuePx) < InfiniteSpaceBeginPx);
-          return std::max(sizePx - valuePx, 0);
+          return MathHelper::Max(sizePx - valuePx, 0);
         }
         return valuePx;
       }

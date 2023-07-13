@@ -189,8 +189,8 @@ namespace Fsl::Vulkan::ConfigHelper
     inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
     VkViewport viewport{};
-    viewport.width = static_cast<float>(screenExtentPx.Width);
-    viewport.height = static_cast<float>(screenExtentPx.Height);
+    viewport.width = static_cast<float>(screenExtentPx.Width.Value);
+    viewport.height = static_cast<float>(screenExtentPx.Height.Value);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     VkRect2D scissor{};

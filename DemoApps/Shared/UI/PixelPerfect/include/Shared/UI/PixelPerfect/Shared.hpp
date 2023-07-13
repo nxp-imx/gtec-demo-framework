@@ -104,8 +104,8 @@ namespace Fsl
     void Draw();
 
   private:
-    PxPoint2 DrawScaleMatrix(const PxPoint2& offsetPx, const PxPoint2& spacePx, const AtlasTexture2D& srcTexture, const Color& color,
-                             const float errorOffsetPxf);
+    PxPoint2 DrawScaleMatrix(const PxPoint2 offsetPx, const PxPoint2 spacePx, const AtlasTexture2D& srcTexture, const Color color,
+                             const PxSize1DF errorOffsetPxf);
     void SetDefaultValues();
     void DecreaseSlider();
     void IncreaseSlider();

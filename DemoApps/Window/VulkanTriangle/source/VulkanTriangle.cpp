@@ -114,7 +114,7 @@ namespace Fsl
     {
       result = vkAcquireNextImageKHR(m_device.Get(), m_swapchain.Get(), UINT64_MAX, m_imageAcquiredSemaphore.Get(), VK_NULL_HANDLE, &currentBuffer);
     }
-    if (!(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR))
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     {
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {

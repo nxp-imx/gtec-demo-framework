@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,17 +48,17 @@ TEST(TestMathPixel_PxExtent3D, Construct_Default)
 {
   const PxExtent3D value;
 
-  EXPECT_EQ(0u, value.Width);
-  EXPECT_EQ(0u, value.Height);
-  EXPECT_EQ(0u, value.Depth);
+  EXPECT_EQ(0u, value.Width.Value);
+  EXPECT_EQ(0u, value.Height.Value);
+  EXPECT_EQ(0u, value.Depth.Value);
 }
 
 
 TEST(TestMathPixel_PxExtent3D, Construct_Unsigned)
 {
-  const uint32_t width = 320;
-  const uint32_t height = 240;
-  const uint32_t depth = 120;
+  const PxValueU width(320);
+  const PxValueU height(240);
+  const PxValueU depth(120);
   const PxExtent3D value(width, height, depth);
 
   EXPECT_EQ(width, value.Width);
@@ -69,8 +69,8 @@ TEST(TestMathPixel_PxExtent3D, Construct_Unsigned)
 
 TEST(TestMathPixel_PxExtent3D, Construct_PxPoint2U)
 {
-  const PxPoint2U point(320, 240);
-  const uint32_t depth = 120;
+  const auto point = PxPoint2U::Create(320, 240);
+  const PxValueU depth(120);
   PxExtent3D value(point, depth);
 
   EXPECT_EQ(point.X, value.Width);
@@ -81,8 +81,8 @@ TEST(TestMathPixel_PxExtent3D, Construct_PxPoint2U)
 
 TEST(TestMathPixel_PxExtent3D, Construct_PxExtent2D)
 {
-  const PxExtent2D point(320, 240);
-  const uint32_t depth = 120;
+  const PxExtent2D point = PxExtent2D::Create(320, 240);
+  const PxValueU depth(120);
   PxExtent3D value(point, depth);
 
   EXPECT_EQ(point.Width, value.Width);
@@ -93,14 +93,14 @@ TEST(TestMathPixel_PxExtent3D, Construct_PxExtent2D)
 
 TEST(TestMathPixel_PxExtent3D, AddEquals)
 {
-  uint32_t width1 = 320;
-  uint32_t height1 = 240;
-  uint32_t depth1 = 120;
+  PxValueU width1(320);
+  PxValueU height1(240);
+  PxValueU depth1(120);
   PxExtent3D value1(width1, height1, depth1);
 
-  uint32_t width2 = 200;
-  uint32_t height2 = 100;
-  uint32_t depth2 = 50;
+  PxValueU width2(200);
+  PxValueU height2(100);
+  PxValueU depth2(50);
   PxExtent3D value2(width2, height2, depth2);
 
   value2 += value1;
@@ -116,14 +116,14 @@ TEST(TestMathPixel_PxExtent3D, AddEquals)
 
 TEST(TestMathPixel_PxExtent3D, SubEquals)
 {
-  uint32_t width1 = 320;
-  uint32_t height1 = 240;
-  uint32_t depth1 = 120;
+  PxValueU width1(320);
+  PxValueU height1(240);
+  PxValueU depth1(120);
   PxExtent3D value1(width1, height1, depth1);
 
-  uint32_t width2 = 2000;
-  uint32_t height2 = 1000;
-  uint32_t depth2 = 500;
+  PxValueU width2(2000);
+  PxValueU height2(1000);
+  PxValueU depth2(500);
   PxExtent3D value2(width2, height2, depth2);
 
   value2 -= value1;
@@ -138,14 +138,14 @@ TEST(TestMathPixel_PxExtent3D, SubEquals)
 
 TEST(TestMathPixel_PxExtent3D, MultEquals)
 {
-  uint32_t width1 = 2;
-  uint32_t height1 = 4;
-  uint32_t depth1 = 5;
+  PxValueU width1(2);
+  PxValueU height1(4);
+  PxValueU depth1(5);
   PxExtent3D value1(width1, height1, depth1);
 
-  uint32_t width2 = 200;
-  uint32_t height2 = 100;
-  uint32_t depth2 = 50;
+  PxValueU width2(200);
+  PxValueU height2(100);
+  PxValueU depth2(50);
   PxExtent3D value2(width2, height2, depth2);
 
   value2 *= value1;
@@ -160,11 +160,11 @@ TEST(TestMathPixel_PxExtent3D, MultEquals)
 
 TEST(TestMathPixel_PxExtent3D, MultEqual)
 {
-  int multBy = 2;
+  PxValueU multBy(2);
 
-  uint32_t width = 200;
-  uint32_t height = 100;
-  uint32_t depth = 50;
+  PxValueU width(200);
+  PxValueU height(100);
+  PxValueU depth(50);
   PxExtent3D value(width, height, depth);
 
   value *= multBy;
@@ -177,11 +177,11 @@ TEST(TestMathPixel_PxExtent3D, MultEqual)
 
 TEST(TestMathPixel_PxExtent3D, DivEqual)
 {
-  const uint32_t divBy = 2;
+  const PxValueU divBy(2);
 
-  const uint32_t width = 200;
-  const uint32_t height = 100;
-  const uint32_t depth = 50;
+  const PxValueU width(200);
+  const PxValueU height(100);
+  const PxValueU depth(50);
   PxExtent3D value(width, height, depth);
 
   value /= divBy;
@@ -193,8 +193,8 @@ TEST(TestMathPixel_PxExtent3D, DivEqual)
 
 TEST(TestMathPixel_PxExtent3D, Equal)
 {
-  PxExtent3D value1(320, 240, 120);
-  PxExtent3D value2(320, 240, 120);
+  const auto value1 = PxExtent3D::Create(320, 240, 120);
+  const auto value2 = PxExtent3D::Create(320, 240, 120);
 
   EXPECT_EQ(value1, value2);
 }
@@ -202,9 +202,9 @@ TEST(TestMathPixel_PxExtent3D, Equal)
 
 TEST(TestMathPixel_PxExtent3D, NotEqual)
 {
-  PxExtent3D value1(320, 240, 100);
-  PxExtent3D value2(320, 241, 101);
-  PxExtent3D value3(321, 240, 102);
+  const auto value1 = PxExtent3D::Create(320, 240, 100);
+  const auto value2 = PxExtent3D::Create(320, 241, 101);
+  const auto value3 = PxExtent3D::Create(321, 240, 102);
 
   EXPECT_NE(value1, value2);
   EXPECT_NE(value1, value3);
@@ -215,55 +215,55 @@ TEST(TestMathPixel_PxExtent3D, Zero)
 {
   PxExtent3D value = PxExtent3D::Zero();
 
-  EXPECT_EQ(0u, value.Width);
-  EXPECT_EQ(0u, value.Height);
-  EXPECT_EQ(0u, value.Depth);
+  EXPECT_EQ(0u, value.Width.Value);
+  EXPECT_EQ(0u, value.Height.Value);
+  EXPECT_EQ(0u, value.Depth.Value);
 }
 
 
 TEST(TestMathPixel_PxExtent3D, OpAdd)
 {
-  PxExtent3D value1(2, 3, 4);
-  PxExtent3D value2(40, 80, 120);
+  const auto value1 = PxExtent3D::Create(2, 3, 4);
+  const auto value2 = PxExtent3D::Create(40, 80, 120);
 
-  EXPECT_EQ(PxExtent3D(42, 83, 124), value1 + value2);
-  EXPECT_EQ(PxExtent3D(42, 83, 124), value2 + value1);
+  EXPECT_EQ(PxExtent3D::Create(42, 83, 124), value1 + value2);
+  EXPECT_EQ(PxExtent3D::Create(42, 83, 124), value2 + value1);
 }
 
 
 TEST(TestMathPixel_PxExtent3D, OpSub)
 {
-  PxExtent3D value1(2, 3, 4);
-  PxExtent3D value2(40, 80, 120);
-  PxExtent3D value3(140, 181, 202);
+  const auto value1 = PxExtent3D::Create(2, 3, 4);
+  const auto value2 = PxExtent3D::Create(40, 80, 120);
+  const auto value3 = PxExtent3D::Create(140, 181, 202);
 
-  EXPECT_EQ(PxExtent3D(38, 77, 116), value2 - value1);
-  EXPECT_EQ(PxExtent3D(100, 101, 82), value3 - value2);
+  EXPECT_EQ(PxExtent3D::Create(38, 77, 116), value2 - value1);
+  EXPECT_EQ(PxExtent3D::Create(100, 101, 82), value3 - value2);
 }
 
 
 TEST(TestMathPixel_PxExtent3D, OpMul_PxExtend2D)
 {
-  PxExtent3D value1(2, 3, 4);
-  PxExtent3D value2(41, 80, 120);
+  const auto value1 = PxExtent3D::Create(2, 3, 4);
+  const auto value2 = PxExtent3D::Create(41, 80, 120);
 
-  EXPECT_EQ(PxExtent3D(82, 240, 480), value1 * value2);
-  EXPECT_EQ(PxExtent3D(82, 240, 480), value2 * value1);
+  EXPECT_EQ(PxExtent3D::Create(82, 240, 480), value1 * value2);
+  EXPECT_EQ(PxExtent3D::Create(82, 240, 480), value2 * value1);
 }
 
 
 TEST(TestMathPixel_PxExtent3D, OpMul_Const)
 {
-  PxExtent3D value1(2, 3, 4);
+  const auto value1 = PxExtent3D::Create(2, 3, 4);
 
-  EXPECT_EQ(PxExtent3D(4, 6, 8), value1 * 2u);
-  EXPECT_EQ(PxExtent3D(4, 6, 8), 2u * value1);
+  EXPECT_EQ(PxExtent3D::Create(4, 6, 8), value1 * PxValueU(2u));
+  EXPECT_EQ(PxExtent3D::Create(4, 6, 8), PxValueU(2u) * value1);
 }
 
 
 TEST(TestMathPixel_PxExtent3D, OpDiv_Const)
 {
-  PxExtent3D value1(20, 40, 60);
+  const auto value1 = PxExtent3D::Create(20, 40, 60);
 
-  EXPECT_EQ(PxExtent3D(10, 20, 30), value1 / 2u);
+  EXPECT_EQ(PxExtent3D::Create(10, 20, 30), value1 / PxValueU(2u));
 }

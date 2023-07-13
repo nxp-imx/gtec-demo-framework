@@ -47,7 +47,7 @@ namespace
 
 TEST(TestLog_Math_Pixel_LogPxAreaRectangleF, Log)
 {
-  auto value = PxAreaRectangleF::FromLeftTopRightBottom(1.0f, 2.0f, 10.0f, 20.0f);
+  auto value = PxAreaRectangleF::CreateFromLeftTopRightBottom(1.0f, 2.0f, 10.0f, 20.0f);
 
   std::stringstream stream;
   stream << value;

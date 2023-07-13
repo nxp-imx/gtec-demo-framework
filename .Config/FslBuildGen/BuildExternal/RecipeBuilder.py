@@ -62,6 +62,7 @@ from FslBuildGen.BuildExternal.State.BuildInfoFileUtil import BuildInfoFileUtil
 from FslBuildGen.BuildExternal.State.RecipePackageStateCache import RecipePackageStateCache
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
 #from FslBuildGen.ErrorHelpManager import ErrorHelpManager
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -307,7 +308,7 @@ def BuildPackages(log: Log, configSDKPath: str, configIsDryRun: bool, toolConfig
     PlatformUtil.CheckBuildPlatform(generatorContext.Platform.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
-    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.Platform.PlatformName, {},
+    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.Platform.PlatformName, ExternalVariantConstraints({}),
                                     generatorContext.GeneratorInfo.VariableContext.UserSetVariables, CommandType.Build, [], None, None, 0)
 
     try:

@@ -31,6 +31,9 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslGraphics/Sprite/ISizedSprite.hpp>
 #include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
 #include <FslSimpleUI/Base/DefaultAnim.hpp>
@@ -42,11 +45,22 @@
 
 namespace Fsl::UI
 {
+  using TClass = SimpleImageButton;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyScalePolicy = TFactory::Create<ItemScalePolicy, TClass, &TClass::GetScalePolicy, &TClass::SetScalePolicy>("ScalePolicy");
+  TDef TClass::PropertyColorUp = TFactory::Create<Color, TClass, &TClass::GetColorUp, &TClass::SetColorUp>("ColorUp");
+  TDef TClass::PropertyColorDown = TFactory::Create<Color, TClass, &TClass::GetColorDown, &TClass::SetColorDown>("ColorDown");
+  TDef TClass::PropertyColorDisabled = TFactory::Create<Color, TClass, &TClass::GetColorDisabled, &TClass::SetColorDisabled>("ColorDisabled");
+}
+
+namespace Fsl::UI
+{
   SimpleImageButton::SimpleImageButton(const std::shared_ptr<WindowContext>& context)
     : ButtonBase(context)
     , m_windowContext(context)
     , m_content(context->TheUIContext.Get()->MeshManager)
-    , m_scalePolicy(ItemScalePolicy::FitKeepAR)
     , m_currentColor(context->UITransitionCache, DefaultAnim::ColorChangeTime, DefaultAnim::ColorChangeTransitionType)
   {
     m_currentColor.SetActualValue(DefaultColor::Button::Up);
@@ -71,51 +85,47 @@ namespace Fsl::UI
   }
 
 
-  void SimpleImageButton::SetScalePolicy(const ItemScalePolicy value)
+  bool SimpleImageButton::SetScalePolicy(const ItemScalePolicy value)
   {
-    if (value == m_scalePolicy)
+    const bool changed = m_propertyScalePolicy.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      return;
+      PropertyUpdated(PropertyType::ScalePolicy);
     }
-
-    m_scalePolicy = value;
-    PropertyUpdated(PropertyType::ScalePolicy);
+    return changed;
   }
 
 
-  void SimpleImageButton::SetUpColor(const Color& value)
+  bool SimpleImageButton::SetColorUp(const Color value)
   {
-    if (value == m_upColor)
+    const bool changed = m_propertyColorUp.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      return;
+      PropertyUpdated(PropertyType::Other);
     }
-
-    m_upColor = value;
-    PropertyUpdated(PropertyType::Other);
+    return changed;
   }
 
 
-  void SimpleImageButton::SetDownColor(const Color& value)
+  bool SimpleImageButton::SetColorDown(const Color value)
   {
-    if (value == m_downColor)
+    const bool changed = m_propertyColorDown.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      return;
+      PropertyUpdated(PropertyType::Other);
     }
-
-    m_downColor = value;
-    PropertyUpdated(PropertyType::Other);
+    return changed;
   }
 
 
-  void SimpleImageButton::SetDisabledColor(const Color& value)
+  bool SimpleImageButton::SetColorDisabled(const Color value)
   {
-    if (value == m_disabledColor)
+    const bool changed = m_propertyColorDisabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      return;
+      PropertyUpdated(PropertyType::Other);
     }
-
-    m_disabledColor = value;
-    PropertyUpdated(PropertyType::Other);
+    return changed;
   }
 
 
@@ -130,7 +140,7 @@ namespace Fsl::UI
 
   PxSize2D SimpleImageButton::ArrangeOverride(const PxSize2D& finalSizePx)
   {
-    return m_content.Measure(finalSizePx, m_scalePolicy);
+    return m_content.Measure(finalSizePx, m_propertyScalePolicy.Get());
   }
 
 
@@ -151,7 +161,7 @@ namespace Fsl::UI
   {
     const bool isEnabled = IsEnabled();
 
-    auto color = isEnabled ? (!IsDown() ? m_upColor : m_downColor) : m_disabledColor;
+    auto color = isEnabled ? (!IsDown() ? m_propertyColorUp.Get() : m_propertyColorDown.Get()) : m_propertyColorDisabled.Get();
     m_currentColor.SetValue(color);
 
     if (forceCompleteAnimation)
@@ -161,6 +171,37 @@ namespace Fsl::UI
 
     const bool isAnimating = !m_currentColor.IsCompleted();
     return isAnimating;
+  }
+
+
+  DataBinding::DataBindingInstanceHandle SimpleImageButton::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy),
+      DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp), DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown),
+      DataBinding::PropLinkRefs(PropertyColorDisabled, m_propertyColorDisabled));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult SimpleImageButton::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                            const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+      this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyScalePolicy, m_propertyScalePolicy),
+      DataBinding::PropLinkRefs(PropertyColorUp, m_propertyColorUp), DataBinding::PropLinkRefs(PropertyColorDown, m_propertyColorDown),
+      DataBinding::PropLinkRefs(PropertyColorDisabled, m_propertyColorDisabled));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void SimpleImageButton::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyScalePolicy);
+    rProperties.push_back(PropertyColorUp);
+    rProperties.push_back(PropertyColorDown);
+    rProperties.push_back(PropertyColorDisabled);
   }
 
 }

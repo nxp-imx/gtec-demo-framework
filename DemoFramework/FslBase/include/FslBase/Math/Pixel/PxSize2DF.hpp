@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE2DF_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE2DF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,8 @@ namespace Fsl
   //! A immutable float based size that will never be negative!
   struct PxSize2DF
   {
-    using value_type = float;
+    using value_type = PxSize1DF;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_width{};
@@ -53,75 +54,116 @@ namespace Fsl
   public:
     constexpr PxSize2DF() noexcept = default;
 
+
     explicit constexpr PxSize2DF(const PxVector2 value) noexcept
-      : m_width(value.X >= 0 ? value.X : 0)
-      , m_height(value.Y >= 0 ? value.Y : 0)
+      : m_width(PxSize1DF::Create(value.X))
+      , m_height(PxSize1DF::Create(value.Y))
     {
     }
 
     constexpr PxSize2DF(const value_type width, const value_type height) noexcept
-      : m_width(width >= 0.0f ? width : 0.0f)
-      , m_height(height >= 0.0f ? height : 0.0f)
-    {
-    }
-
-    //! If this constructor is used is extremely important to be 100% sure the width and height are positive.
-    constexpr PxSize2DF(const value_type width, const value_type height, const OptimizationCheckFlag /*unused*/) noexcept
       : m_width(width)
       , m_height(height)
     {
-      assert(width >= 0);
-      assert(height >= 0);
     }
 
-    constexpr inline value_type Width() const
+    constexpr PxSize2DF(const value_type::value_type width, const value_type height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+    constexpr PxSize2DF(const value_type width, const value_type::value_type height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+    constexpr PxSize2DF(const value_type::value_type width, const value_type::value_type height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+    constexpr inline PxVector2 Value() const noexcept
+    {
+      return {m_width, m_height};
+    }
+
+    constexpr inline value_type Width() const noexcept
     {
       return m_width;
     }
 
-    constexpr inline value_type Height() const
+    constexpr inline value_type Height() const noexcept
     {
       return m_height;
     }
 
-    constexpr inline void SetWidth(const value_type width)
+
+    constexpr inline raw_value_type RawWidth() const noexcept
     {
-      m_width = std::max(width, 0.0f);
+      return m_width.RawValue();
     }
 
-    constexpr inline void SetHeight(const value_type height)
+    constexpr inline raw_value_type RawHeight() const noexcept
     {
-      m_height = std::max(height, 0.0f);
+      return m_height.RawValue();
     }
 
-    constexpr inline void SetWidth(const value_type width, const OptimizationCheckFlag /*unused*/)
+    constexpr inline void SetWidth(const value_type width) noexcept
     {
-      assert(width >= 0.0f);
       m_width = width;
     }
 
-    constexpr inline void SetHeight(const value_type height, const OptimizationCheckFlag /*unused*/)
+    constexpr inline void SetHeight(const value_type height) noexcept
     {
-      assert(height >= 0.0f);
       m_height = height;
     }
 
+    constexpr inline void SetWidth(const value_type::value_type width) noexcept
+    {
+      m_width = value_type(width);
+    }
+
+    constexpr inline void SetHeight(const value_type::value_type height) noexcept
+    {
+      m_height = value_type(height);
+    }
+
+
     constexpr inline void AddWidth(const value_type width)
     {
-      m_width = std::max(m_width + width, 0.0f);
+      m_width = m_width + width;
     }
 
     constexpr inline void AddHeight(const value_type height)
     {
-      m_height = std::max(m_height + height, 0.0f);
+      m_height = m_height + height;
     }
 
-    constexpr inline void SetMax(const PxSize2DF value)
+
+    constexpr inline void AddWidth(const value_type::value_type width)
     {
-      m_width = std::max(m_width, value.m_width);
-      m_height = std::max(m_height, value.m_height);
+      m_width += width;
     }
 
+    constexpr inline void AddHeight(const value_type::value_type height)
+    {
+      m_height += height;
+    }
+
+    constexpr inline void SetMax(const PxSize2DF value) noexcept
+    {
+      m_width = value_type::Max(m_width, value.m_width);
+      m_height = value_type::Max(m_height, value.m_height);
+    }
+
+    //! @brief Calculates the length of the size squared.
+    constexpr float LengthSquared() const
+    {
+      return (m_width.RawValue() * m_width.RawValue()) + (m_height.RawValue() * m_height.RawValue());
+    }
 
     constexpr bool operator==(const PxSize2DF rhs) const noexcept
     {
@@ -135,10 +177,7 @@ namespace Fsl
 
     static constexpr PxSize2DF Add(const PxSize2DF sizePx, const PxSize2DF valuePx)
     {
-      // check for overflow
-      assert(sizePx.m_width <= (std::numeric_limits<value_type>::max() - valuePx.m_width));
-      assert(sizePx.m_height <= (std::numeric_limits<value_type>::max() - valuePx.m_height));
-      return {sizePx.m_width + valuePx.m_width, sizePx.m_height + valuePx.m_height, OptimizationCheckFlag::NoCheck};
+      return {sizePx.m_width + valuePx.m_width, sizePx.m_height + valuePx.m_height};
     }
 
     static constexpr PxVector2 Subtract(const PxSize2DF sizePx, const PxSize2DF valuePx)
@@ -146,22 +185,13 @@ namespace Fsl
       return {sizePx.m_width - valuePx.m_width, sizePx.m_height - valuePx.m_height};
     }
 
-    static constexpr PxSize2DF Divide(const PxSize2DF sizePx, const PxSize1DF value)
-    {
-      assert(value.Value().Value != 0.0f);
-      return {sizePx.m_width / value.RawValue(), sizePx.m_height / value.RawValue(), OptimizationCheckFlag::NoCheck};
-    }
-
     static constexpr PxSize2DF Divide(const PxSize2DF sizePx, const value_type value)
     {
-      assert(value != 0.0f);
-      return {sizePx.m_width / value, sizePx.m_height / value, OptimizationCheckFlag::NoCheck};
+      return {sizePx.m_width / value, sizePx.m_height / value};
     }
 
     constexpr PxSize2DF& operator+=(const PxSize2DF valuePx) noexcept
     {
-      assert(m_width <= (std::numeric_limits<value_type>::max() - valuePx.m_width));
-      assert(m_height <= (std::numeric_limits<value_type>::max() - valuePx.m_height));
       m_width += valuePx.m_width;
       m_height += valuePx.m_height;
       return *this;
@@ -169,19 +199,30 @@ namespace Fsl
 
     constexpr PxSize2DF& operator-=(const PxSize2DF valuePx) noexcept
     {
-      m_width = std::max(m_width - valuePx.m_width, 0.0f);
-      m_height = std::max(m_height - valuePx.m_height, 0.0f);
+      m_width -= valuePx.m_width;
+      m_height -= valuePx.m_height;
       return *this;
     }
 
-    static constexpr PxSize2DF Min(const PxSize2DF val0, const PxSize2DF val1)
+    static constexpr PxSize2DF Min(const PxSize2DF val0, const PxSize2DF val1) noexcept
     {
-      return {std::min(val0.m_width, val1.m_width), std::min(val0.m_height, val1.m_height)};
+      return {value_type::Min(val0.m_width, val1.m_width), value_type::Min(val0.m_height, val1.m_height)};
     }
 
-    static constexpr PxSize2DF Max(const PxSize2DF val0, const PxSize2DF val1)
+    static constexpr PxSize2DF Max(const PxSize2DF val0, const PxSize2DF val1) noexcept
     {
-      return {std::max(val0.m_width, val1.m_width), std::max(val0.m_height, val1.m_height)};
+      return {value_type::Max(val0.m_width, val1.m_width), value_type::Max(val0.m_height, val1.m_height)};
+    }
+
+    inline static constexpr PxSize2DF Create(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {PxSize1DF::Create(width), PxSize1DF::Create(height)};
+    }
+
+    //! If this is used is extremely important to be 100% sure the width and height are positive.
+    inline static constexpr PxSize2DF UncheckedCreate(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {PxSize1DF::UncheckedCreate(width), PxSize1DF::UncheckedCreate(height)};
     }
   };
 
@@ -231,6 +272,32 @@ namespace Fsl
   {
     return {lhs.Width() * rhs.X, lhs.Height() * rhs.Y};
   }
+
+
+  // op +=
+
+  inline constexpr PxVector2 operator+=(PxVector2& rLhs, const PxSize2DF rhs) noexcept
+  {
+    rLhs += rhs.Value();
+    return rLhs;
+  }
+
+  // op -=
+
+  inline constexpr PxVector2 operator-=(PxVector2& rLhs, const PxSize2DF rhs) noexcept
+  {
+    rLhs -= rhs.Value();
+    return rLhs;
+  }
+
+  // op *=
+
+  inline constexpr PxVector2 operator*=(PxVector2& rLhs, const PxSize2DF rhs) noexcept
+  {
+    rLhs *= rhs.Value();
+    return rLhs;
+  }
+
 }
 
 #endif

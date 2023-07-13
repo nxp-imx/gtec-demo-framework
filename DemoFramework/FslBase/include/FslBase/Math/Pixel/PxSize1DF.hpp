@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE1DF_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE1DF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslBase/Math/Pixel/PxValueF.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <cassert>
 #include <limits>
@@ -43,6 +45,7 @@ namespace Fsl
   struct PxSize1DF
   {
     using value_type = PxValueF;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_value{};
@@ -68,12 +71,27 @@ namespace Fsl
     {
     }
 
+    explicit constexpr PxSize1DF(const PxSize1D value) noexcept
+      : m_value(static_cast<float>(value.RawValue()))
+    {
+    }
+
+    explicit constexpr PxSize1DF(const PxValueU value) noexcept
+      : m_value(static_cast<float>(value.Value))
+    {
+    }
+
     //! If this constructor is used is extremely important to be 100% sure the value are positive.
     explicit constexpr PxSize1DF(const value_type value, const OptimizationCheckFlag /*unused*/) noexcept
       : m_value(value)
     {
       assert(value >= value_type());
     }
+
+    // inline constexpr operator value_type() const noexcept
+    //{
+    //   return m_value;
+    // }
 
     constexpr inline value_type Value() const noexcept
     {
@@ -121,14 +139,14 @@ namespace Fsl
       return PxSize1DF(sizePx.m_value + valuePx.m_value, OptimizationCheckFlag::NoCheck);
     }
 
-    static constexpr PxSize1DF Add(const value_type sizePx, const PxSize1DF valuePx) noexcept
+    static constexpr value_type Add(const value_type sizePx, const PxSize1DF valuePx) noexcept
     {
-      return PxSize1DF(sizePx + valuePx.m_value);
+      return sizePx + valuePx.m_value;
     }
 
-    static constexpr PxSize1DF Add(const PxSize1DF sizePx, const value_type valuePx) noexcept
+    static constexpr value_type Add(const PxSize1DF sizePx, const value_type valuePx) noexcept
     {
-      return PxSize1DF(sizePx.m_value + valuePx);
+      return sizePx.m_value + valuePx;
     }
 
     static constexpr value_type Subtract(const PxSize1DF sizePx, const PxSize1DF valuePx) noexcept
@@ -190,6 +208,13 @@ namespace Fsl
       // m_value is >= 0 and valuePx >= 0
       assert(m_value.Value <= (std::numeric_limits<value_type::value_type>::max() - valuePx.m_value.Value));
       m_value += valuePx.m_value;
+      return *this;
+    }
+
+    constexpr PxSize1DF operator*=(const PxSize1DF valuePx) noexcept
+    {
+      m_value *= valuePx.m_value;
+      assert(m_value.Value >= 0.0f);
       return *this;
     }
 
@@ -295,7 +320,12 @@ namespace Fsl
       return PxSize1DF(value_type(value));
     }
 
-    inline static constexpr PxSize1DF Create(const value_type::value_type value, const OptimizationCheckFlag /*flag*/) noexcept
+    inline static constexpr PxSize1DF UncheckedCreate(const value_type::value_type value) noexcept
+    {
+      return PxSize1DF(value, OptimizationCheckFlag::NoCheck);
+    }
+
+    inline static constexpr PxSize1DF UncheckedCreate(const value_type value) noexcept
     {
       return PxSize1DF(value, OptimizationCheckFlag::NoCheck);
     }
@@ -411,12 +441,12 @@ namespace Fsl
     return PxSize1DF::Add(lhs, rhs);
   }
 
-  inline constexpr PxSize1DF operator+(const PxSize1DF::value_type lhs, const PxSize1DF rhs) noexcept
+  inline constexpr PxSize1DF::value_type operator+(const PxSize1DF::value_type lhs, const PxSize1DF rhs) noexcept
   {
     return PxSize1DF::Add(lhs, rhs);
   }
 
-  inline constexpr PxSize1DF operator+(const PxSize1DF lhs, const PxSize1DF::value_type rhs) noexcept
+  inline constexpr PxSize1DF::value_type operator+(const PxSize1DF lhs, const PxSize1DF::value_type rhs) noexcept
   {
     return PxSize1DF::Add(lhs, rhs);
   }

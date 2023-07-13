@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDERANDFMTVALUELABEL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDERANDFMTVALUELABEL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,8 @@ namespace Fsl::UI
   template <typename TValue>
   class SliderAndFmtValueLabel final : public ContentControlBase
   {
+    using base_type = ContentControlBase;
+
   public:
     using value_type = TValue;
 
@@ -56,8 +58,9 @@ namespace Fsl::UI
     bool m_cacheValid{false};
     value_type m_cachedMinValue{0};
     value_type m_cachedMaxValue{0};
-    Color m_fontColor{DefaultColor::Palette::Font};
-    Color m_fontDisabledColor{DefaultColor::Palette::FontDisabled};
+
+    typename DataBinding::TypedDependencyProperty<Color> m_propertyFontColor{DefaultColor::Palette::Font};
+    typename DataBinding::TypedDependencyProperty<Color> m_propertyFontDisabledColor{DefaultColor::Palette::FontDisabled};
 
   public:
     explicit SliderAndFmtValueLabel(const std::shared_ptr<WindowContext>& context)
@@ -118,7 +121,7 @@ namespace Fsl::UI
       return m_slider->GetOrientation();
     }
 
-    LayoutDirection GetDirection() const
+    LayoutDirection GetDirection() const noexcept
     {
       return m_slider->GetDirection();
     }
@@ -174,9 +177,9 @@ namespace Fsl::UI
       return false;
     }
 
-    void SetDirection(const LayoutDirection direction)
+    bool SetDirection(const LayoutDirection direction)
     {
-      m_slider->SetDirection(direction);
+      return m_slider->SetDirection(direction);
     }
 
     bool GetEnableVerticalGraphicsRotation() const
@@ -225,34 +228,37 @@ namespace Fsl::UI
     // -----
 
 
-    const Color& GetFontColor() const
+    Color GetFontColor() const noexcept
     {
-      return m_fontColor;
+      return m_propertyFontColor.Get();
     }
 
-    void SetFontColor(const Color& value)
+    bool SetFontColor(const Color value)
     {
-      if (value != m_fontColor)
+      const bool changed = m_propertyFontColor.Set(ThisDependencyObject(), value);
+      if (changed)
       {
-        m_fontColor = value;
         PatchLabelFontColor();
         PropertyUpdated(PropertyType::Other);
       }
+      return changed;
     }
 
-    const Color& GetFontDisabledColor() const
+
+    Color GetFontDisabledColor() const noexcept
     {
-      return m_fontDisabledColor;
+      return m_propertyFontDisabledColor.Get();
     }
 
-    void SetFontDisabledColor(const Color& value)
+    bool SetFontDisabledColor(const Color value)
     {
-      if (value != m_fontDisabledColor)
+      const bool changed = m_propertyFontDisabledColor.Set(ThisDependencyObject(), value);
+      if (changed)
       {
-        m_fontDisabledColor = value;
         PatchLabelFontColor();
         PropertyUpdated(PropertyType::Other);
       }
+      return changed;
     }
 
     // ---
@@ -417,6 +423,19 @@ namespace Fsl::UI
     inline static typename DataBinding::DependencyPropertyDefinition PropertyValue =
       DataBinding::DependencyPropertyDefinitionFactory::Create<value_type, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetValue,
                                                                &SliderAndFmtValueLabel::SetValue>("Value");
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyOrientation =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutOrientation, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetOrientation,
+                                                               &SliderAndFmtValueLabel::SetOrientation>("Orientation");
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyDirection =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutDirection, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetDirection,
+                                                               &SliderAndFmtValueLabel::SetDirection>("Direction");
+
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyFontColor =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<Color, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetFontColor,
+                                                               &SliderAndFmtValueLabel::SetFontColor>("FontColor");
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyFontDisabledColor =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<Color, SliderAndFmtValueLabel, &SliderAndFmtValueLabel::GetFontDisabledColor,
+                                                               &SliderAndFmtValueLabel::SetFontDisabledColor>("FontDisabledColor");
 
   protected:
     void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
@@ -439,7 +458,18 @@ namespace Fsl::UI
       {
         return m_slider->GetPropertyHandle(Slider<value_type>::PropertyValue);
       }
-      return ContentControlBase::TryGetPropertyHandleNow(sourceDef);
+      if (sourceDef == PropertyOrientation)
+      {
+        return m_slider->GetPropertyHandle(Slider<value_type>::PropertyOrientation);
+      }
+      if (sourceDef == PropertyDirection)
+      {
+        return m_slider->GetPropertyHandle(Slider<value_type>::PropertyDirection);
+      }
+      auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+        this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
+        DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor));
+      return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
     }
 
     DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
@@ -449,13 +479,28 @@ namespace Fsl::UI
       {
         return m_slider->TrySetBinding(Slider<value_type>::PropertyValue, binding);
       }
-      return ContentControlBase::TrySetBindingNow(targetDef, binding);
+      if (targetDef == PropertyOrientation)
+      {
+        return m_slider->TrySetBinding(Slider<value_type>::PropertyOrientation, binding);
+      }
+      if (targetDef == PropertyDirection)
+      {
+        return m_slider->TrySetBinding(Slider<value_type>::PropertyDirection, binding);
+      }
+      auto res = DataBinding::DependencyObjectHelper::TrySetBinding(
+        this, ThisDependencyObject(), targetDef, binding, DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
+        DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor));
+      return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
     }
 
     void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override
     {
+      base_type::ExtractAllProperties(rProperties);
       rProperties.push_back(PropertyValue);
-      ContentControlBase::ExtractAllProperties(rProperties);
+      rProperties.push_back(PropertyOrientation);
+      rProperties.push_back(PropertyDirection);
+      rProperties.push_back(PropertyFontColor);
+      rProperties.push_back(PropertyFontDisabledColor);
     }
 
   private:
@@ -470,7 +515,7 @@ namespace Fsl::UI
       const auto maxValue = m_slider->GetMaxValue();
       if (!m_cacheValid || minValue != m_cachedMinValue || maxValue != m_cachedMaxValue)
       {
-        // const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+        const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
         m_cacheValid = true;
         // The way we 'find' the max render size of the number is not a sure thing.
@@ -489,21 +534,21 @@ namespace Fsl::UI
         if (m_slider->GetOrientation() == LayoutOrientation::Horizontal)
         {
           // Since we recalc this on resize, we might as well just use the final px sizes
-          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, static_cast<float>(finalSizePx.Width())));
-          // m_label->SetHeight(DpLayoutSize1D(finalSizeDp.Height()));
+          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, static_cast<float>(finalSizePx.RawWidth())));
+          m_layout->SetMinHeight(unitConverter.ToDpSize1DF(PxSize1D::Create(finalSizePx.Height())));
         }
         else
         {
           // Since we recalc this on resize, we might as well just use the final px sizes
-          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, static_cast<float>(finalSizePx.Height())));
-          // m_label->SetWidth(DpLayoutSize1D(finalSizeDp.Width()));
+          m_layout->PushLayoutLength(LayoutLength(LayoutUnitType::Px, static_cast<float>(finalSizePx.RawHeight())));
+          m_layout->SetMinWidth(unitConverter.ToDpSize1DF(PxSize1D::Create(finalSizePx.Width())));
         }
       }
     }
 
     void PatchLabelFontColor()
     {
-      m_label->SetFontColor(m_slider->IsEnabled() ? m_fontColor : m_fontDisabledColor);
+      m_label->SetFontColor(m_slider->IsEnabled() ? m_propertyFontColor.Get() : m_propertyFontDisabledColor.Get());
     }
   };
 }

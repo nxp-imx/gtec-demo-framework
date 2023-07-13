@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,37 +48,39 @@ TEST(TestMathPixel_PxThicknessU16, Default)
 {
   PxThicknessU16 value;
 
-  EXPECT_EQ(0u, value.Left);
-  EXPECT_EQ(0u, value.Top);
-  EXPECT_EQ(0u, value.Right);
-  EXPECT_EQ(0u, value.Bottom);
-  EXPECT_EQ(0u, value.SumX());
-  EXPECT_EQ(0u, value.SumY());
+  const auto size0Px = PxValueU16(0);
+
+  EXPECT_EQ(size0Px, value.Left);
+  EXPECT_EQ(size0Px, value.Top);
+  EXPECT_EQ(size0Px, value.Right);
+  EXPECT_EQ(size0Px, value.Bottom);
+  EXPECT_EQ(size0Px, value.SumX());
+  EXPECT_EQ(size0Px, value.SumY());
 }
 
 
 TEST(TestMathPixel_PxThicknessU16, Values)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  constexpr auto left = PxValueU16(1);
+  constexpr auto top = PxValueU16(2);
+  constexpr auto right = PxValueU16(3);
+  constexpr auto bottom = PxValueU16(4);
   PxThicknessU16 value(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left);
   EXPECT_EQ(top, value.Top);
   EXPECT_EQ(right, value.Right);
   EXPECT_EQ(bottom, value.Bottom);
-  EXPECT_EQ(left + right, value.SumX());
-  EXPECT_EQ(top + bottom, value.SumY());
+  EXPECT_EQ((left.Value + right.Value), value.SumX().Value);
+  EXPECT_EQ((top.Value + bottom.Value), value.SumY().Value);
 }
 
 TEST(TestMathPixel_PxThicknessU16, OperatorEqual)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  constexpr auto left = PxValueU16(1);
+  constexpr auto top = PxValueU16(2);
+  constexpr auto right = PxValueU16(3);
+  constexpr auto bottom = PxValueU16(4);
   PxThicknessU16 value1(left, top, right, bottom);
   PxThicknessU16 value2(left, top, right, bottom);
 
@@ -88,12 +90,12 @@ TEST(TestMathPixel_PxThicknessU16, OperatorEqual)
 
 TEST(TestMathPixel_PxThicknessU16, OperatorNotEqual)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 3;
-  uint32_t bottom = 4;
+  constexpr auto left = PxValueU16(1);
+  constexpr auto top = PxValueU16(2);
+  constexpr auto right = PxValueU16(3);
+  constexpr auto bottom = PxValueU16(4);
   PxThicknessU16 value1(left, top, right, bottom);
-  PxThicknessU16 value2(left, top, right, 5);
+  PxThicknessU16 value2(left, top, right, PxValueU16(5));
 
   EXPECT_NE(value1, value2);
 }

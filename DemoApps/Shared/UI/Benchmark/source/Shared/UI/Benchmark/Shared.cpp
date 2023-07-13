@@ -160,7 +160,14 @@ namespace Fsl
 
     // Store the settings
     assert(m_settings);
-    AppSettingsPersistence::Save(m_settingsPath, *m_settings);
+    try
+    {
+      AppSettingsPersistence::Save(m_settingsPath, *m_settings);
+    }
+    catch (std::exception& ex)
+    {
+      FSLLOG3_ERROR("Failed to save '{}' due to '{}'", m_settingsPath, ex.what());
+    }
   }
 
 

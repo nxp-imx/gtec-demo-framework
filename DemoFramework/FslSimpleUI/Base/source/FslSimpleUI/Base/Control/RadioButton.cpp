@@ -56,13 +56,13 @@ namespace Fsl::UI
     return false;
   }
 
-  void RadioButton::SetIsChecked(const bool value)
+  bool RadioButton::SetIsChecked(const bool value)
   {
     if (ToggleButton::IsChecked() || !value)
     {
       // The radio button is already checked or trying to set a radiobutton to false
       // -> do nothing
-      return;
+      return false;
     }
 
     // Force uncheck all other members of the group
@@ -80,7 +80,7 @@ namespace Fsl::UI
         }
       }
     }
-    ToggleButton::SetIsChecked(value);
+    return ToggleButton::SetIsChecked(value);
   }
 
 

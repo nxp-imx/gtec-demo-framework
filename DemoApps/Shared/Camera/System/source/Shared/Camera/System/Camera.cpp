@@ -46,7 +46,7 @@ namespace Fsl::Helios
     {
       throw std::invalid_argument("CameraConfig.NativePixelFormat can not be PixelFormat::Undefined");
     }
-    if (cameraConfig.NativeStride < PixelFormatUtil::CalcMinimumStride(m_cameraConfig.Extent.Width, m_cameraConfig.NativePixelFormat))
+    if (cameraConfig.NativeStride < PixelFormatUtil::CalcMinimumStride(m_cameraConfig.Extent.Width.Value, m_cameraConfig.NativePixelFormat))
     {
       throw std::invalid_argument("CameraConfig.NativeStride is smaller than allowed");
     }

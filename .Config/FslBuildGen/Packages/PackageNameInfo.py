@@ -49,6 +49,10 @@ class PackageNameInfo(object):
         self.FlavorName = flavorName
         self.ShortName = PackageShortName(shortName)
         self.Namespace = PackageNamespaceName(namespace)
+        self.PrintName = fullName.Value
+
+    def PatchPrintName(self, name: str) -> None:
+        self.PrintName = name
 
     def __str__(self) -> str:
         return "FullName:{0} ShortName:{1} Namespace:{2} sourceName:{3} flavorName{4}".format(self.FullName, self.ShortName, self.Namespace, self.SourceName, self.FlavorName)

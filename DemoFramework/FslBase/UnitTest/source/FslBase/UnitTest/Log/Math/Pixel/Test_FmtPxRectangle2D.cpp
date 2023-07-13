@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxRectangle2D, Log)
 {
-  PxRectangle2D value(PxPoint2(1, 2), PxExtent2D(10, 20));
+  const auto value = PxRectangle2D(PxPoint2::Create(1, 2), PxExtent2D::Create(10, 20));
 
   EXPECT_EQ(std::string("{Offset={X=1 Y=2} Extent={Width=10 Height=20}}"), fmt::format("{}", value));
 }

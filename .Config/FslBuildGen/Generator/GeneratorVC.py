@@ -57,8 +57,9 @@ from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.DataTypes import VisualStudioVersion
 from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Exceptions import UnsupportedException
-from FslBuildGen.Location.ResolvedPath import ResolvedPath
-from FslBuildGen.Generator import GitIgnoreHelper
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
+#from FslBuildGen.Location.ResolvedPath import ResolvedPath
+#from FslBuildGen.Generator import GitIgnoreHelper
 from FslBuildGen.Generator.ExceptionsVC import PackageDuplicatedWindowsVisualStudioProjectIdException
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
@@ -150,7 +151,8 @@ class LocalMagicBuildVariantOption:
     Release = "Release"
 
 class GeneratorVC(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], generatorConfig: GeneratorVSConfig, activeThirdPartyLibsDir: Optional[str]) -> None:
+    def __init__(self, config: Config, packages: List[Package], generatorConfig: GeneratorVSConfig, variantConstraints: ExternalVariantConstraints,
+                 activeThirdPartyLibsDir: Optional[str]) -> None:
         super().__init__()
         self.__ActiveThirdPartyLibsDir = activeThirdPartyLibsDir
 
@@ -174,17 +176,18 @@ class GeneratorVC(GeneratorBase):
             #                                    template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
             if package.Type == PackageType.Library:
                 self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, template.GetLibraryTemplate(package),
-                                                template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
+                                                template.GetBatTemplate(), variantConstraints, generatorConfig.VsVersion, windows10SDKVersion)
             elif package.Type == PackageType.Executable:
                 self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, template.GetExecutableTemplate(package),
-                                                template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
+                                                template.GetBatTemplate(), variantConstraints, generatorConfig.VsVersion, windows10SDKVersion)
             elif package.Type == PackageType.HeaderLibrary:
                 headerLibTemplate = template.TryGetHeaderLibraryTemplate()
                 if headerLibTemplate is not None:
                     self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, headerLibTemplate,
-                                                    template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
+                                                    template.GetBatTemplate(), variantConstraints, generatorConfig.VsVersion, windows10SDKVersion)
                 else:
-                    self.__GenerateRunProjectFile(config, package, generatorConfig.PlatformName, template.GetBatTemplate(), generatorConfig.VsVersion)
+                    self.__GenerateRunProjectFile(config, package, generatorConfig.PlatformName, template.GetBatTemplate(), variantConstraints,
+                                                  generatorConfig.VsVersion)
 
         self.__ValidateProjectIds(packages)
         config.LogPrintVerbose(1, "  Projects generated")
@@ -241,6 +244,7 @@ class GeneratorVC(GeneratorBase):
                                    platformName: str,
                                    template : CodeTemplateVC,
                                    batTemplate: CodeTemplateProjectBatFiles,
+                                   variantConstraints: ExternalVariantConstraints,
                                    vsVersion: int,
                                    windows10SDKVersion: Optional[str]) -> None:
 
@@ -253,6 +257,8 @@ class GeneratorVC(GeneratorBase):
         variantHelper = VariantHelper(package)
         targetName = GeneratorVCUtil.GetTargetName(package)
 
+        strVariantList = variantConstraints.AsString()
+
         strCurrentYear = config.CurrentYearString
         strPackageCreationYear = strCurrentYear if package.CreationYear is None else package.CreationYear
         strPackageCompanyName = package.CompanyName.Value
@@ -260,7 +266,7 @@ class GeneratorVC(GeneratorBase):
         slnSnippet1 = self.__GenerateSLNPackageVariantConfig(variantHelper, template.SLNSnippet1, package)
         slnSnippet2 = self.__GenerateSLNPackageVariants(variantHelper, template.SLNSnippet2)
         libDep1SLN = self.__GenerateSLNDependencies1(package)
-        libDep2SLN = self.__GenerateSLNDependencies2(config, package, template.SLNAddProject, template.ProjectExtension)
+        libDep2SLN = self.__GenerateSLNDependencies2(config, package, template.SLNAddProject, template.ProjectExtension, strVariantList)
         libDep3SLN = self.__GenerateSLNDependencies3(variantHelper, template.SLNSnippet2, package)
         solutionFolderDefinitions = self.__GenerateFolderDefinitions(config, package, template.SLNSnippet3)
         solutionFolderEntries = self.__GenerateFolderEntries(config, package, template.SLNSnippet4, template.SLNSnippet4_1)
@@ -278,6 +284,7 @@ class GeneratorVC(GeneratorBase):
         build = build.replace("##CURRENT_YEAR##", strCurrentYear)
         build = build.replace("##PACKAGE_CREATION_YEAR##", strPackageCreationYear)
         build = build.replace("##PACKAGE_COMPANY_NAME##", strPackageCompanyName)
+        build = build.replace("##VARIANT_LIST##", strVariantList)
         buildSLN = build
 
         projectionConfigurations = self.__GenerateProjectConfigurations(variantHelper, template.VariantProjectConfiguration, package)
@@ -347,6 +354,7 @@ class GeneratorVC(GeneratorBase):
         build = build.replace("##PACKAGE_CREATION_YEAR##", strPackageCreationYear)
         build = build.replace("##PACKAGE_COMPANY_NAME##", strPackageCompanyName)
         build = build.replace("##WINDOWS_TARGET_PLATFORM_VERSION##", strWindowsTargetPlatformVersion)
+        build = build.replace("##VARIANT_LIST##", strVariantList)
 
         addConfigGroup = ""
         addConfigs = ""
@@ -369,8 +377,11 @@ class GeneratorVC(GeneratorBase):
         filterFile = self.__TryGenerateFilterFile(config, package, template, targetName)
 
         # generate bat file
-        buildProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateBuildBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, targetName, strFeatureList, platformName)
-        runProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, targetName, strFeatureList, platformName)
+
+        buildProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateBuildBat, batTemplate.TemplateSnippetErrorCheck,
+                                                           vsVersion, targetName, strFeatureList, strVariantList, platformName)
+        runProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck,
+                                                         vsVersion, targetName, strFeatureList, strVariantList, platformName)
 
 
         dstName = package.Name
@@ -404,13 +415,14 @@ class GeneratorVC(GeneratorBase):
 
         templateFileProcessor = TemplateFileProcessor(config, platformName)
         templateFileProcessor.Environment.Set("##FEATURE_LIST##", strFeatureList)
-        templateFileProcessor.Process(config, template.TemplateFileRecordManager, package.AbsolutePath, package)
+        templateFileProcessor.Process(config, template.TemplateFileRecordManager, package.AbsolutePath, package, variantConstraints)
 
 
     def __GenerateRunProjectFile(self, config: Config,
                                  package: Package,
                                  platformName: str,
                                  batTemplate: CodeTemplateProjectBatFiles,
+                                 variantConstraints: ExternalVariantConstraints,
                                  vsVersion: int) -> None:
         if (package.AbsolutePath is None or package.ResolvedBuildPath is None):
             raise Exception("Invalid package")
@@ -418,7 +430,9 @@ class GeneratorVC(GeneratorBase):
         targetName = GeneratorVCUtil.GetTargetName(package)
         featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
         strFeatureList = ",".join(featureList)
-        runProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, targetName, strFeatureList, platformName)
+        strVariantList = variantConstraints.AsString()
+        runProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck,
+                                                         vsVersion, targetName, strFeatureList, strVariantList, platformName)
         buildBasePath = IOUtil.Join(package.AbsolutePath, package.ResolvedBuildPath)
         dstFileRunProject = IOUtil.Join(buildBasePath, LocalMagicFilenames.RunProject)
         if not config.DisableWrite:
@@ -573,6 +587,7 @@ class GeneratorVC(GeneratorBase):
                                    vsVersion: int,
                                    targetName: str,
                                    strFeatureList: str,
+                                   strVariantList: str,
                                    platformName: str) -> Optional[str]:
         buildProjectFile = self.__TryGenerateProjectBatFile(config, package, templateBat, templateSnippetErrorCheck, vsVersion, platformName, True)
         if buildProjectFile is None:
@@ -580,6 +595,7 @@ class GeneratorVC(GeneratorBase):
 
         buildProjectFile = buildProjectFile.replace("##PACKAGE_TARGET_NAME##", targetName)
         buildProjectFile = buildProjectFile.replace("##FEATURE_LIST##", strFeatureList)
+        buildProjectFile = buildProjectFile.replace("##VARIANT_LIST##", strVariantList)
         return buildProjectFile
 
 
@@ -1021,7 +1037,7 @@ class GeneratorVC(GeneratorBase):
         return not package.IsVirtual or (self.UsingLinuxTools and package.Type == PackageType.HeaderLibrary)
 
 
-    def __GenerateSLNDependencies2(self, config: Config, package: Package, templateAddProject: str, projectExtension: str) -> str:
+    def __GenerateSLNDependencies2(self, config: Config, package: Package, templateAddProject: str, projectExtension: str, strVariantList: str) -> str:
         strContent = ""
         for entry in package.ResolvedBuildOrder:
             if self.__IsProject(entry) and entry.ResolvedPlatform is not None and package != entry:
@@ -1039,6 +1055,7 @@ class GeneratorVC(GeneratorBase):
                 content = content.replace("##PACKAGE_TARGET_NAME##", projectName)
                 content = content.replace("##PACKAGE_PROJECT_FILE##", projectPath)
                 content = content.replace("##PACKAGE_PLATFORM_PROJECT_ID##", projectId)
+                content = content.replace("##VARIANT_LIST##", strVariantList)
                 strContent += "\n" + content
         return strContent
 

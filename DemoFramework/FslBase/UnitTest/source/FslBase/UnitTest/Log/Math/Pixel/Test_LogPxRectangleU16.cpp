@@ -47,7 +47,7 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxRectangleU16, Log)
 {
-  PxRectangleU16 value(1, 2, 10, 20);
+  const auto value = PxRectangleU16::Create(1, 2, 10, 20);
 
   std::stringstream stream;
   stream << value;

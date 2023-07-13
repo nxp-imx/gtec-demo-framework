@@ -32,9 +32,11 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+from typing import Set
 import xml.etree.ElementTree as ET
 from FslBuildGen.DataTypes import BoolStringHelper
 from FslBuildGen.Log import Log
+from FslBuildGen.MatchUtil import MatchUtil
 from FslBuildGen.Version import Version
 from FslBuildGen.Xml.XmlBaseInfo import XmlBaseInfo
 from FslBuildGen.Xml.Exceptions import XmlException2
@@ -45,6 +47,17 @@ class XmlBase(XmlBaseInfo):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         # pylint: disable=useless-super-delegation
         super().__init__(log, xmlElement)
+
+    def _CheckAttributes(self, validAttributesSet: Set[str]) -> None:
+        for attributeName in self.XMLElement.attrib.keys():
+            if attributeName not in validAttributesSet:
+                if len(validAttributesSet) > 0:
+                    validAttributeList = list(validAttributesSet)
+                    validAttributeList.sort()
+                    candidateStr = MatchUtil.BuildCandidateListString(attributeName, validAttributeList, 1)
+                    raise XmlException2("Element '{0}', found invalid attribute '{1}', did you mean '{2}'. Valid attributes are: {3}".format(self.XMLElement.tag, attributeName, candidateStr, ", ".join(validAttributeList)))
+                else:
+                    raise XmlException2("Element '{0}', found invalid attribute '{1}', this element can not contain attributes".format(self.XMLElement.tag, attributeName))
 
 
     def _GetElement(self, xmlElement: ET.Element, elementName: str) -> ET.Element:
@@ -91,7 +104,11 @@ class XmlBase(XmlBaseInfo):
         value = self._TryReadAttrib(xmlElement, attribName, None)
         if value is None:
             return defaultValue
-        return BoolStringHelper.TryFromString(value)
+
+        res = BoolStringHelper.TryFromString(value)
+        if res == None:
+            self.Log.DoPrintWarning("Failed to parse as bool attribute: '{0}, using default settings".format(value));
+        return res;
 
 
     def _ReadBoolAttrib(self, xmlElement: ET.Element, attribName: str, defaultValue: Optional[bool] = None) -> bool:

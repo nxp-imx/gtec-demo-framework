@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/MathHelper_MinMax.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
 #include <algorithm>
@@ -40,19 +41,19 @@ namespace Fsl
 {
   namespace
   {
-    constexpr PxExtent3D DoGetExtent(const PxExtent3D& maxExtent, const std::size_t level)
+    constexpr PxExtent3D DoGetExtent(const PxExtent3D& maxExtent, const std::size_t level) noexcept
     {
       return level == 0 ? maxExtent
-                        : PxExtent3D(std::max(maxExtent.Width >> level, static_cast<uint32_t>(1u)),
-                                     std::max(maxExtent.Height >> level, static_cast<uint32_t>(1u)),
-                                     std::max(maxExtent.Depth >> level, static_cast<uint32_t>(1u)));
+                        : PxExtent3D::Create(MathHelper::Max(maxExtent.Width.Value >> level, static_cast<uint32_t>(1u)),
+                                             MathHelper::Max(maxExtent.Height.Value >> level, static_cast<uint32_t>(1u)),
+                                             MathHelper::Max(maxExtent.Depth.Value >> level, static_cast<uint32_t>(1u)));
     }
   }
 
 
   RawTexture::RawTexture(const void* const pContent, const std::size_t contentByteSize, const PxExtent2D& extent, const PixelFormat pixelFormat,
                          const BitmapOrigin& bitmapOrigin)
-    : RawTexture(TextureType::Tex2D, pContent, contentByteSize, nullptr, 0u, PxExtent3D(extent, 1u), pixelFormat, TextureInfo(1u, 1u, 1u),
+    : RawTexture(TextureType::Tex2D, pContent, contentByteSize, nullptr, 0u, PxExtent3D(extent, PxValueU(1u)), pixelFormat, TextureInfo(1u, 1u, 1u),
                  bitmapOrigin)
   {
   }
@@ -138,7 +139,7 @@ namespace Fsl
     }
 
     const auto extent = DoGetExtent(m_extent, level);
-    return PixelFormatUtil::CalcMinimumStride(extent.Width, m_pixelFormat);
+    return PixelFormatUtil::CalcMinimumStride(extent.Width.Value, m_pixelFormat);
   }
 
   PxExtent3D RawTexture::GetExtent(const std::size_t level) const
@@ -159,7 +160,7 @@ namespace Fsl
   PxExtent2D RawTexture::GetExtent2D(const std::size_t level) const
   {
     auto res = GetExtent(level);
-    if (res.Depth != 1u)
+    if (res.Depth.Value != 1u)
     {
       throw UsageErrorException("GetExtent2D called on a non 2d texture");
     }

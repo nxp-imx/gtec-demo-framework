@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,8 +62,8 @@ namespace Fsl::UI
       const uint32_t GrowBy = 32;
     }
 
-    inline void SetEntry(Render::ChartDataWindowDrawData::GridLineRecord& rRec, const uint8_t alpha, const int32_t gridLineYPositionPx,
-                         const PxPoint2 backgroundOffsetPx, const int32_t labelBackgroundXOffsetPx, const int32_t fontBaseLinePx,
+    inline void SetEntry(Render::ChartDataWindowDrawData::GridLineRecord& rRec, const uint8_t alpha, const PxValue gridLineYPositionPx,
+                         const PxPoint2 backgroundOffsetPx, const PxValue labelBackgroundXOffsetPx, const PxValue fontBaseLinePx,
                          const PxSize2D labelSizePx, const PxSize2D finalSizePx, const StringViewLite& labelStrView)
     {
       rRec.Alpha = alpha;
@@ -173,8 +173,8 @@ namespace Fsl::UI
   // -----------------------------------------------------------------------------------------------------------------------------------------------
 
   AreaChartGridLineManager::AreaChartGridLineManager(TransitionCache& rTransitionCache, const TimeSpan transitionTime,
-                                                     const TimeSpan transitionTimespanLabels, const int32_t chartEntryWidthPx,
-                                                     const int32_t chartLabelSpacingPx)
+                                                     const TimeSpan transitionTimespanLabels, const PxSize1D chartEntryWidthPx,
+                                                     const PxSize1D chartLabelSpacingPx)
     : m_chartEntryWidthPx(chartEntryWidthPx)
     , m_chartLabelSpacingPx(chartLabelSpacingPx)
     , m_gridLineRecords(RenderAreaChartConfig::MaxGridLines)
@@ -215,12 +215,12 @@ namespace Fsl::UI
   }
 
 
-  void AreaChartGridLineManager::SetChartEntryWidth(const int32_t chartEntryWidthPx)
+  void AreaChartGridLineManager::SetChartEntryWidth(const PxSize1D chartEntryWidthPx)
   {
     m_chartEntryWidthPx = chartEntryWidthPx;
   }
 
-  void AreaChartGridLineManager::SetChartLabelSpacing(const int32_t chartLabelSpacingPx)
+  void AreaChartGridLineManager::SetChartLabelSpacing(const PxSize1D chartLabelSpacingPx)
   {
     m_chartLabelSpacingPx = chartLabelSpacingPx;
   }
@@ -235,9 +235,10 @@ namespace Fsl::UI
       {    // Update the 'chart data window size' to match what we can draw
         if (matchDataViewEntries)
         {
-          assert(rDst.Chart.EntryWidthPx > 0);
-          const int32_t windowMaxEntries = (renderSizePx.Width() / m_chartEntryWidthPx) + ((renderSizePx.Width() % m_chartEntryWidthPx) > 0 ? 1 : 0);
-          m_dataView->SetMaxViewEntries(windowMaxEntries);
+          assert(rDst.Chart.EntryWidthPx.RawValue() > 0);
+          const PxSize1D windowMaxEntries = (renderSizePx.Width() / m_chartEntryWidthPx) +
+                                            ((renderSizePx.Width() % m_chartEntryWidthPx).RawValue() > 0 ? PxSize1D::Create(1) : PxSize1D());
+          m_dataView->SetMaxViewEntries(windowMaxEntries.RawValue());
         }
 
         // Update the min max
@@ -351,37 +352,38 @@ namespace Fsl::UI
   void AreaChartGridLineManager::DetermineVisibility(Render::ChartDataWindowDrawData& rDst, Span<GridLineRecord> gridLines,
                                                      const ViewRecord& viewRecord, const PxSize2D renderSizePx,
                                                      const NineSliceSprite* const pBackgroundSprite, const SpriteFont* const pFont,
-                                                     const int32_t chartEntryWidthPx, const int32_t chartLabelSpacingPx)
+                                                     const PxSize1D chartEntryWidthPx, const PxSize1D chartLabelSpacingPx)
   {
     // FIX: supply this from outside
-    const int32_t backgroundXOffsetPx = chartEntryWidthPx * 4;
+    const PxSize1D backgroundXOffsetPx = chartEntryWidthPx * PxSize1D::Create(4);
 
     const auto gridLineCount = UncheckedNumericCast<uint32_t>(gridLines.size());
 
-    const int32_t renderHeightPx = renderSizePx.Height();
-    const int32_t maxYPx = renderHeightPx - 1;    // -1 because we don't start the last pixel at height
+    const PxSize1D renderHeightPx = renderSizePx.Height();
+    assert(renderHeightPx.RawValue() > 0);
+    const PxSize1D maxYPx = PxSize1D::UncheckedCreate(renderHeightPx - PxSize1D::Create(1));    // -1 because we don't start the last pixel at height
 
     const MinMax<uint32_t> viewMinMax = viewRecord.ViewMinMax();
     const uint32_t viewMin = viewMinMax.Min();
     const uint32_t viewMax = viewMinMax.Max();
     const uint32_t delta = viewMax - viewMin;
-    const float dataRenderScale = delta > 0 ? static_cast<float>(maxYPx) / static_cast<float>(delta) : 1.0f;
+    const float dataRenderScale = delta > 0 ? static_cast<float>(maxYPx.RawValue()) / static_cast<float>(delta) : 1.0f;
 
     uint32_t dstGridLineIndex = 0;
     uint32_t dstFadingGridLineIndex = 0;
     if (gridLineCount > 0)
     {    // Generate the grid line + label entries
       assert(gridLineCount <= gridLines.size());
-      const int32_t fontBaseLinePx = (pFont != nullptr ? pFont->GetInfo().ScaledBaseLinePx : 0);
-      const int32_t fontlineSpacingPx = (pFont != nullptr ? pFont->GetInfo().ScaledLineSpacingPx : 0);
+      const PxValue fontBaseLinePx(pFont != nullptr ? pFont->GetInfo().ScaledBaseLinePx : PxValueU16(0));
+      const PxSize1D fontlineSpacingPx(pFont != nullptr ? pFont->GetInfo().ScaledLineSpacingPx : PxValueU16(0));
       const RenderNineSliceInfo backgroundRenderInfo(pBackgroundSprite != nullptr ? pBackgroundSprite->GetRenderInfo() : RenderNineSliceInfo());
       const PxSize2D contentMarginSumPx = backgroundRenderInfo.ScaledContentMarginPx.Sum();
-      const int32_t labelBackgroundXOffsetPx = backgroundXOffsetPx + backgroundRenderInfo.ScaledContentMarginPx.Left();
+      const PxValue labelBackgroundXOffsetPx = (backgroundXOffsetPx + backgroundRenderInfo.ScaledContentMarginPx.Left()).Value();
 
-      const int32_t maxCaptionEntryHeightPx = (fontlineSpacingPx + backgroundRenderInfo.ScaledContentMarginPx.SumY()) + chartLabelSpacingPx;
+      const PxSize1D maxCaptionEntryHeightPx = (fontlineSpacingPx + backgroundRenderInfo.ScaledContentMarginPx.SumY()) + chartLabelSpacingPx;
 
 
-      int32_t lastGridLineYPositionPx = maxYPx + fontlineSpacingPx + backgroundRenderInfo.ScaledContentMarginPx.Top();
+      PxValue lastGridLineYPositionPx = (maxYPx + fontlineSpacingPx + backgroundRenderInfo.ScaledContentMarginPx.Top()).Value();
       const auto maxDstxGridLines = UncheckedNumericCast<uint32_t>(rDst.GridLines.size());
       const auto maxFadingDstxGridLines = UncheckedNumericCast<uint32_t>(rDst.FadingGridLines.size());
       for (uint32_t i = 0; i < gridLineCount && dstGridLineIndex < maxDstxGridLines; ++i)
@@ -391,13 +393,13 @@ namespace Fsl::UI
         if (position >= viewMin && position <= viewMax)
         {
           const StringViewLite labelStrView = StringViewLiteUtil::AsStringViewLite(rSrcGridLineEntry.Label);
-          const int32_t gridLineYPositionPx =
-            maxYPx - TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(position - viewMin) * dataRenderScale);
+          const PxValue gridLineYPositionPx =
+            maxYPx - PxValue(TypeConverter::UncheckedChangeTo<int32_t>(static_cast<float>(position - viewMin) * dataRenderScale));
 
           const PxSize2D labelSizePx(pFont != nullptr ? PxSize2D(pFont->MeasureString(labelStrView).Width(), pFont->GetInfo().ScaledLineSpacingPx)
                                                       : PxSize2D());
           const PxSize2D finalSizePx = PxSize2D::Max(backgroundRenderInfo.ScaledSizePx, labelSizePx + contentMarginSumPx);
-          const int32_t backgroundYOffsetPx = gridLineYPositionPx - fontBaseLinePx - backgroundRenderInfo.ScaledContentMarginPx.Top();
+          const PxValue backgroundYOffsetPx = gridLineYPositionPx - fontBaseLinePx - backgroundRenderInfo.ScaledContentMarginPx.Top();
 
           {    // Update grid lines
             const bool canFitsAndShouldBeShown =

@@ -95,6 +95,8 @@ public class DemoHelper {
       java.lang.Process p = Runtime.getRuntime().exec("getprop sys.hwc.hdr.supported");
       BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
       String valueStr = in.readLine();
+      if(valueStr.length() <= 0)
+        return false;
       final int value = Integer.parseInt(valueStr);
       // If the value is 1 the connected sink is HDR-compatible.
       if (value == 1)

@@ -371,7 +371,7 @@ namespace Fsl::GLES3
     GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureParameters.WrapS));
     GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureParameters.WrapT));
 
-    m_extent = PxExtent3D(bitmap.GetExtent(), 1);
+    m_extent = PxExtent3D(bitmap.GetExtent(), PxValueU(1));
     m_target = GL_TEXTURE_2D;
   }
 
@@ -511,7 +511,7 @@ namespace Fsl::GLES3
     GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, textureParameters.WrapT));
     GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, textureParameters.WrapR));
 
-    m_extent = PxExtent3D(texWidth, texHeight, 1);
+    m_extent = PxExtent3D::Create(texWidth, texHeight, 1);
     m_target = GL_TEXTURE_CUBE_MAP;
   }
 
@@ -629,19 +629,19 @@ namespace Fsl::GLES3
           for (uint32_t level = 0; level < textureInfo.Levels; ++level)
           {
             const auto extent = texture.GetExtent(level);
-            const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
+            const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width.Value, srcBytesPerPixel);
 
             const auto rawBlob = texture.GetTextureBlob(level, face);
 
-            const auto result =
-              GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride, TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
+            const auto result = GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width.Value, srcStride,
+                                                         TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
 
             // Verify our nasty little assumption
             assert(pFaceTargetMapping[face].Face == face);
 
             GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, result.Alignment));
-            GL_CHECK(glTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width, extent.Height, 0, result.Format,
-                                  result.Type, pContent + rawBlob.Offset));
+            GL_CHECK(glTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width.Value, extent.Height.Value, 0,
+                                  result.Format, result.Type, pContent + rawBlob.Offset));
           }
         }
       }
@@ -653,12 +653,12 @@ namespace Fsl::GLES3
           {
             const auto extent = texture.GetExtent(level);
             const auto rawBlob = texture.GetTextureBlob(level, face);
-            const auto result = GLRawBitmapUtil::ConvertCompressed(srcPixelFormat, extent.Width);
+            const auto result = GLRawBitmapUtil::ConvertCompressed(srcPixelFormat, extent.Width.Value);
             // Verify our nasty little assumption
             assert(pFaceTargetMapping[face].Face == face);
 
             GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, result.Alignment));
-            GL_CHECK(glCompressedTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width, extent.Height, 0,
+            GL_CHECK(glCompressedTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width.Value, extent.Height.Value, 0,
                                             static_cast<GLsizei>(rawBlob.Size), pContent + rawBlob.Offset));
           }
         }
@@ -690,7 +690,7 @@ namespace Fsl::GLES3
 
   PxSize2D GLTexture::GetSize() const
   {
-    FSLLOG3_DEBUG_WARNING_IF(m_extent.Depth != 1, "GetSize called on a 3D texture, use GetExtent")
+    FSLLOG3_DEBUG_WARNING_IF(m_extent.Depth.Value != 1, "GetSize called on a 3D texture, use GetExtent")
     return TypeConverter::UncheckedTo<PxSize2D>(PxExtent2D(m_extent.Width, m_extent.Height));
   }
 

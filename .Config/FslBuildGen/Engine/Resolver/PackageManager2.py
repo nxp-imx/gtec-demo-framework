@@ -34,6 +34,7 @@
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Set
 from typing import Tuple
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import PackageInstanceType
@@ -41,21 +42,36 @@ from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.BasicBuildConfig import BasicBuildConfig
 from FslBuildGen.Engine.Cache.JsonProjectIdCache import JsonProjectIdCache
 from FslBuildGen.Engine.Cache.ProjectIdCache import ProjectIdCache
+from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
+#from FslBuildGen.Engine.ExternalFlavorConstraints import ExternalFlavorConstraints
+from FslBuildGen.Engine.GraphImageSaveInfo import GraphImageSaveInfo
+from FslBuildGen.Engine.Order.Exceptions import FlavorCanNotExtendPackageItsNotDependentUponException
+#from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
+#from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
+from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
 from FslBuildGen.Engine.Resolver.DotUtil import DotUtil
+from FslBuildGen.Engine.Resolver.ExternalConstraintResolver import ExternalConstraintResolver
+from FslBuildGen.Engine.Resolver.InstanceConfig import InstanceConfig
 from FslBuildGen.Engine.Resolver.PackageGraphBuilder import PackageGraphBuilder
+from FslBuildGen.Engine.Resolver.PackageName import PackageName
 from FslBuildGen.Engine.Resolver.PreResolver import PreResolver
 from FslBuildGen.Engine.Resolver.PreResolvePackageResult import PreResolvePackageResult
-from FslBuildGen.Engine.Resolver.ResolvedPackageInstance import ResolvedPackageInstance
-from FslBuildGen.Engine.Resolver.ResolvedPackageInstance import ResolvedPackageInstanceDependency
 from FslBuildGen.Engine.Resolver.ProcessedFactory import ProcessedFactory
 from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackage
 from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackageFlags
 from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackagePaths
 from FslBuildGen.Engine.Resolver.ProcessedPackageDependency import ProcessedPackageDependency
+from FslBuildGen.Engine.Resolver.ResolvedPackageGraph import ResolvedPackageGraph
+from FslBuildGen.Engine.Resolver.ResolvedPackageGraph import ResolvedPackageGraphNode
+from FslBuildGen.Engine.Resolver.ResolvedPackageInstance import ResolvedPackageInstance
+from FslBuildGen.Engine.Resolver.ResolvedPackageInstance import ResolvedPackageInstanceDependency
+from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageTemplate
 from FslBuildGen.Engine.Unresolved.UnresolvedBasicPackage import UnresolvedBasicPackage
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageDependency import UnresolvedPackageDependency
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavor import UnresolvedPackageFlavor
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorExtension import UnresolvedPackageFlavorExtension
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageName import UnresolvedPackageName
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator import GeneratorVCUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.PackageCustomInfo import PackageCustomInfo
@@ -72,6 +88,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackage import UnresolvedPackageP
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 
+
 class LocalVerbosityLevel(object):
     Info = 3
     Debug = 4
@@ -80,12 +97,13 @@ class LocalVerbosityLevel(object):
 
 class PackageManager2(object):
     @staticmethod
-    def Resolve(log: Log, allPackages: List[UnresolvedBasicPackage], dump: bool = False) -> List[ResolvedPackageInstance]:
+    def Resolve(log: Log, allPackages: List[UnresolvedBasicPackage],
+                externalVariantConstraints: ExternalVariantConstraints,
+                engineResolveConfig: EngineResolveConfig,
+                graphImageSaveInfo: Optional[GraphImageSaveInfo] = None) -> List[ResolvedPackageInstance]:
         log.LogPrintVerbose(LocalVerbosityLevel.Info, "Initial package resolve")
         log.PushIndent()
         try:
-            res = [] # type: List[ResolvedPackageInstance]
-
             # Build a package dictionary for quick lookup
             allPackageDict = dict() # type: Dict[str, UnresolvedBasicPackage]
 
@@ -94,18 +112,6 @@ class PackageManager2(object):
                 allPackages.sort(key=lambda s: s.Name.Value.upper())
 
             log.LogPrintVerbose(LocalVerbosityLevel.Debug, "Available packages")
-            #numTopLevel = 0
-            #for package in allPackages:
-            #    if package.Type == PackageType.TopLevel:
-            #        numTopLevel = numTopLevel + 1
-            #    else:
-            #        log.LogPrintVerbose(LocalVerbosityLevel.Debug, "- {0}".format(package))
-            #        allPackageDict[package.Name.Value] = package
-
-            #if numTopLevel != 1:
-            #    raise Exception("Missing a top level package");
-
-            #graph = PackageGraphBuilder.Build(log, list(allPackageDict.values()))
 
             for package in allPackages:
                 if package.Type == PackageType.TopLevel:
@@ -114,15 +120,27 @@ class PackageManager2(object):
                     log.LogPrint("- {0}".format(package))
                 allPackageDict[package.Name.Value] = package
 
-            graph = PackageGraphBuilder.Build(log, allPackages)
+            flavorConstraints = ExternalConstraintResolver.Resolve(log, allPackageDict, externalVariantConstraints);
 
-            for node in graph.DebugNodes():
-                packageInstance = node.Source
-                if isinstance(packageInstance, ResolvedPackageInstance):
-                    res.append(packageInstance)
+            graph = PackageGraphBuilder.Build(log, allPackages, flavorConstraints, engineResolveConfig)
 
-            if dump:
-                DotUtil.ToFile(log, "AllDependencies", graph)
+            res = [] # type: List[ResolvedPackageInstance]
+            if graph.HasExternalContraints:
+                allowedPackageSet = PackageManager2.__FilterPackagesBasedOnConstraints(graph);
+                for node in graph.DebugNodes():
+                    packageInstance = node.Source
+                    if isinstance(packageInstance, ResolvedPackageInstance) and packageInstance in allowedPackageSet:
+                        res.append(packageInstance)
+            else:
+                for node in graph.DebugNodes():
+                    packageInstance = node.Source
+                    if isinstance(packageInstance, ResolvedPackageInstance):
+                        res.append(packageInstance)
+
+            PackageManager2.__SanityCheckFlavorExtend(res, allPackages)
+
+            if graphImageSaveInfo is not None:
+                DotUtil.ToFile(log, "AllDependencies", graph, graphImageSaveInfo)
 
             return res
         finally:
@@ -130,7 +148,9 @@ class PackageManager2(object):
 
     @staticmethod
     def Resolve2(basicBuildConfig: BasicBuildConfig, createContext: FactoryCreateContext, allPackages: List[UnresolvedPackage],
-                 dump: bool = False) -> List[PreResolvePackageResult]:
+                 externalVariantConstraints: ExternalVariantConstraints,
+                 engineResolveConfig: EngineResolveConfig,
+                 graphImageSaveInfo: Optional[GraphImageSaveInfo] = None) -> List[PreResolvePackageResult]:
         allUnresolvedPackages = PackageManager2.__ToUnresolvedBasicPackages(allPackages)
 
         # Prepare the project id cache
@@ -141,7 +161,8 @@ class PackageManager2(object):
         projectIdCache = ProjectIdCache(jsonProjectIdCache)
         PackageManager2.__UpdateProjectIdCache(createContext.Log, projectIdCache, allPackages)
 
-        resolvedInstanceBuildOrder = PackageManager2.Resolve(createContext.Log, allUnresolvedPackages, dump)
+        resolvedInstanceBuildOrder = PackageManager2.Resolve(createContext.Log, allUnresolvedPackages, externalVariantConstraints,
+                                                             engineResolveConfig, graphImageSaveInfo)
 
         resolvedBuildOrder = PackageManager2.__CreatePackageList(createContext, allPackages, resolvedInstanceBuildOrder, projectIdCache)
 
@@ -157,10 +178,11 @@ class PackageManager2(object):
         for package in allPackages:
             directDependencies = package.DirectDependencies
             flavors = package.ResolvedPlatform.Flavors
-            unresolvedBasicPackage = UnresolvedBasicPackage(UnresolvedPackageName(package.NameInfo.FullName.Value), package.Type, directDependencies, flavors)
+            flavorExtensions = package.ResolvedPlatform.FlavorExtensions
+            unresolvedBasicPackage = UnresolvedBasicPackage(UnresolvedPackageName(package.NameInfo.FullName.Value), package.Type, directDependencies,
+                                                            flavors, flavorExtensions)
             allUnresolvedPackages.append(unresolvedBasicPackage)
         return allUnresolvedPackages
-
 
     @staticmethod
     def __CreatePackageList(createContext: FactoryCreateContext, allPackages: List[UnresolvedPackage],
@@ -240,6 +262,8 @@ class PackageManager2(object):
 
         resolvedPlatform = PackageManager2.__PatchResolvedPlatform(createContext, originalPackage.ResolvedPlatform, newVisualStudioProjectGUID)
         directPlatformSupported = originalPackage.DirectPlatformSupported
+        if directPlatformSupported and not instance.IsSupported():
+            directPlatformSupported = False
 
         customInfo = PackageManager2.__PatchPackageCustomInfo(originalPackage.CustomInfo, newVisualStudioProjectGUID)
 
@@ -249,7 +273,8 @@ class PackageManager2(object):
                                               packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, generateList,
                                               generateGrpcProtoFileList, directDependencies,
                                               directRequirements, directDefines, externalDependencies, path, templateType, buildCustomization,
-                                              directExperimentalRecipe, resolvedPlatform, directPlatformSupported, customInfo, traceContext)
+                                              directExperimentalRecipe, instance.FlavorSelections, instance.FlavorTemplate,
+                                              resolvedPlatform, directPlatformSupported, customInfo, traceContext)
 
     @staticmethod
     def __ExtractInstanceRequirementsAndDefinesAndExtDeps(instance: ResolvedPackageInstance,
@@ -264,6 +289,7 @@ class PackageManager2(object):
         if len(instance.FlavorSelections.Selections) > 0:
             # Run through all flavors and extract their defines
             for selection in instance.FlavorSelections.Selections:
+                # handle flavors
                 flavor = instance.FlavorTemplate.TryGetFlavor(selection.Name)
                 if flavor is not None:
                     flavorOption = flavor.TryGetOptionByName(selection.Option)
@@ -295,6 +321,37 @@ class PackageManager2(object):
                             onlyOriginalExternalDeps = False
                             finalExternalDependencies = list(finalExternalDependencies)
                         finalExternalDependencies += originalFlavorOption.ExternalDependencies
+
+                # handle flavor extensions
+                flavorExtension = instance.FlavorTemplate.TryGetFlavorExtension(selection.Name)
+                if flavorExtension is not None:
+                    flavorOption = flavorExtension.TryGetOptionByName(selection.Option)
+                    if flavorOption is not None:
+                        originalFlavorExtension = originalPackage.TryGetFlavorExtensionByName(selection.Name)
+                        if originalFlavorExtension is None:
+                            raise Exception("Package '{0}' unknown flavor extension: '{1}'".format(instance.Name, selection.Name))
+
+                        originalFlavorOption = originalFlavorExtension.TryGetOptionByName(selection.Option)
+                        if originalFlavorOption is not None:
+                            if len(originalFlavorOption.DirectRequirements) > 0:
+                                if onlyOriginalRequirements:
+                                    onlyOriginalRequirements = False
+                                    finalDirectRequirements = list(finalDirectRequirements)
+                                finalDirectRequirements += originalFlavorOption.DirectRequirements
+
+                            if len(originalFlavorOption.DirectDefines) > 0:
+                                if onlyOriginalDefines:
+                                    onlyOriginalDefines = False
+                                    finalDirectDefines = list(finalDirectDefines)
+                                finalDirectDefines += originalFlavorOption.DirectDefines
+
+                            if len(originalFlavorOption.ExternalDependencies) > 0:
+                                if onlyOriginalExternalDeps:
+                                    onlyOriginalExternalDeps = False
+                                    finalExternalDependencies = list(finalExternalDependencies)
+                                finalExternalDependencies += originalFlavorOption.ExternalDependencies
+
+
 
         return (finalDirectRequirements, finalDirectDefines, finalExternalDependencies)
 
@@ -347,10 +404,16 @@ class PackageManager2(object):
         customInfo = unresolvedPackage.CustomInfo
         traceContext = unresolvedPackage.TraceContext
 
+        resolvedFlavorSelections = PackageFlavorSelections(list())
+        resolvedPackageName = PackageName(nameInfo.FullName.Value, nameInfo.FullName.Value, UnresolvedPackageName(nameInfo.FullName.Value), resolvedFlavorSelections)
+        fakeInstanceConfig = InstanceConfig(resolvedFlavorSelections, [])
+        resolvedFlavorTemplate = ResolvedPackageTemplate(resolvedPackageName, packageType, [], [fakeInstanceConfig], [], [])
+
         return ProcessedFactory.CreatePackage(createContext.Log, createContext.GeneratorInfo, packageProjectContext, nameInfo, companyName,
                                               creationYear, packageFile, sourceFileHash, packageType, packageFlags, packageLanguage, generateList,
                                               generateGrpcProtoFileList, directDependencies, directRequirements, directDefines, externalDependencies,
-                                              path, templateType, buildCustomization, directExperimentalRecipe, resolvedPlatform,
+                                              path, templateType, buildCustomization, directExperimentalRecipe, resolvedFlavorSelections,
+                                              resolvedFlavorTemplate, resolvedPlatform,
                                               directPlatformSupported, customInfo, traceContext)
 
 
@@ -392,8 +455,9 @@ class PackageManager2(object):
         directExperimentalRecipe = sourcePlatform.DirectExperimentalRecipe
         # flavors has been resolved
         flavors = [] # type: List[UnresolvedPackageFlavor]
+        flavorExtensions = [] # type: List[UnresolvedPackageFlavorExtension]
         return UnresolvedFactory.CreatePackagePlatform(createContext, name, directRequirements, directDependencies, variants, supported,
-                                                       externalDependencies, directDefines, directExperimentalRecipe, flavors)
+                                                       externalDependencies, directDefines, directExperimentalRecipe, flavors, flavorExtensions)
 
     @staticmethod
     def __PatchPackageCustomInfo(customInfo: PackageCustomInfo, newVisualStudioProjectGUID: Optional[str]) -> PackageCustomInfo:
@@ -410,4 +474,78 @@ class PackageManager2(object):
     def __PatchPackageNameInfo(originalNameInfo: PackageNameInfo, instance: ResolvedPackageInstance) -> PackageNameInfo:
         if instance.Name.SmartValue == originalNameInfo.FullName.Value:
             return originalNameInfo
-        return PackageNameInfo(PackageInstanceName(instance.Name.SmartValue))
+        nameInfo = PackageNameInfo(PackageInstanceName(instance.Name.SmartValue))
+        nameInfo.PatchPrintName("{0}<{1}>".format(nameInfo.SourceName, instance.FlavorSelections.Description))
+        return nameInfo
+
+
+    @staticmethod
+    def __BuildAppliedExtensionDict(finalResolvedBuildOrder: List[ResolvedPackageInstance]) -> Dict[str, Set[str]]:
+        extensionAppliedDict = dict() # type: Dict[str, Set[str]]
+        for package in finalResolvedBuildOrder:
+            originalPackageName = package.FlavorTemplate.Name.Value;
+            for flavorSelection in package.FlavorSelections.Selections:
+                if not originalPackageName in extensionAppliedDict:
+                    flavorSet = set() # type: Set[str]
+                    extensionAppliedDict[originalPackageName] = flavorSet
+                else:
+                    flavorSet = extensionAppliedDict[originalPackageName]
+                flavorSet.add(flavorSelection.Name.Value)
+        return extensionAppliedDict
+
+
+    @staticmethod
+    def __SanityCheckFlavorExtend(finalResolvedBuildOrder: List[ResolvedPackageInstance], sourcePackages: List[UnresolvedBasicPackage]) -> None:
+        extensionAppliedDict = PackageManager2.__BuildAppliedExtensionDict(finalResolvedBuildOrder);
+
+        packageUnusedFlavorExtensionsDict = dict() # type: Dict[str, Set[str]]
+
+        for srcPackage in sourcePackages:
+            if len(srcPackage.FlavorExtensions) > 0:
+                if srcPackage.Name.Value not in extensionAppliedDict:
+                    # not flavor extension used at all
+                    if srcPackage.Name.Value not in packageUnusedFlavorExtensionsDict:
+                        unsusedFlavorSet = set() # type: Set[str]
+                        packageUnusedFlavorExtensionsDict[srcPackage.Name.Value] = unsusedFlavorSet
+                    else:
+                        unsusedFlavorSet = packageUnusedFlavorExtensionsDict[srcPackage.Name.Value]
+
+                    for flavorExtension in srcPackage.FlavorExtensions:
+                        unsusedFlavorSet.add(flavorExtension.Name.Value);
+                    pass
+                else:
+                    usedFlavorSet = extensionAppliedDict[srcPackage.Name.Value]
+                    for flavorExtension in srcPackage.FlavorExtensions:
+                        if not flavorExtension.Name.Value in usedFlavorSet:
+                            if srcPackage.Name.Value not in packageUnusedFlavorExtensionsDict:
+                                unsusedFlavorSet = set()
+                                packageUnusedFlavorExtensionsDict[srcPackage.Name.Value] = unsusedFlavorSet
+                            else:
+                                unsusedFlavorSet.add(flavorExtension.Name.Value);
+                            unsusedFlavorSet.add(flavorExtension.Name.Value);
+
+        if len(packageUnusedFlavorExtensionsDict) > 0:
+            raise FlavorCanNotExtendPackageItsNotDependentUponException.CreateComplex(packageUnusedFlavorExtensionsDict);
+
+    @staticmethod
+    def __FilterPackagesBasedOnConstraints(graph: ResolvedPackageGraph) -> Set[ResolvedPackageInstance]:
+        # When we are using external flavor constraints we basically add some internal ExternalFlavorConstraint nodes in front of the root nodes that
+        # contain the flavor dependency constraints. The only packages that satisfy the constraints will be the nodes that these internal constraint
+        # nodes depend upon.
+        # So run through all root nodes and for each with the type ExternalFlavorConstraint we add all their dependency nodes to the 'allowSet'.
+        # This can then be used to remove all nodes that are not in the set later.
+
+        allowSet = set() # type: Set[ResolvedPackageInstance]
+        rootNodes = graph.FindNodesWithNoIncomingDependencies()
+        for node in rootNodes:
+            if node.Source.Type == PackageType.ExternalFlavorConstraint:
+                PackageManager2.__RecursivelyAddDependencies(node, allowSet)
+        return allowSet;
+
+
+    @staticmethod
+    def __RecursivelyAddDependencies(node: ResolvedPackageGraphNode, allowSet: Set[ResolvedPackageInstance]) -> None:
+        for dependency in node.To:
+            if isinstance(dependency.Node.Source, ResolvedPackageInstance):
+                allowSet.add(dependency.Node.Source)
+                PackageManager2.__RecursivelyAddDependencies(dependency.Node, allowSet)

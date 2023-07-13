@@ -2,7 +2,7 @@
 #define FSLDEMOSERVICE_CPUSTATS_IMPL_ADAPTER_LINUX_PROCFILEUTIL_HPP
 #ifdef __linux__
 /****************************************************************************************************************************************************
- * Copyright 2019 NXP
+ * Copyright 2019, 2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

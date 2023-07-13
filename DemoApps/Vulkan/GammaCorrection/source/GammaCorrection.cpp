@@ -594,7 +594,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }
@@ -694,10 +694,10 @@ namespace Fsl
     const VkDeviceSize offsets = 0;
     vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
-    const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.Width())));
-    const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * static_cast<float>(windowSizePx.Height())));
-    const int32_t remainderX = windowSizePx.Width() - splitX;
-    const int32_t remainderY = windowSizePx.Height() - splitY;
+    const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * static_cast<float>(windowSizePx.RawWidth())));
+    const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * static_cast<float>(windowSizePx.RawHeight())));
+    const int32_t remainderX = windowSizePx.RawWidth() - splitX;
+    const int32_t remainderY = windowSizePx.RawHeight() - splitY;
 
     // bottom left (no gamma correction, rgb texture)
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineNoGamma.Get());

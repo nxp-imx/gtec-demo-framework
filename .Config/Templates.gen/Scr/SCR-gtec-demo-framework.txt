@@ -1,0 +1,36 @@
+Package:                      gtec-demo-framework.git
+Version:                      ##PROJECT_VERSION##
+Outgoing License:             BSD-3-Clause 
+License File:                 License.md
+Package Category:             Graphics
+Type of Content:              source
+Description and comments:     Graphics sample applications
+Release Location:             https://github.com/NXPmicro/gtec-demo-framework -b ##PROJECT_VERSION##
+Origin:                       NXP (BSD-3-clause)
+                              Demo Framework
+                                Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
+                                MonoXNA - The Mono Xna Team (MIT) - https://code.google.com/archive/p/monoxna/
+                                MonoGame - The MonoGame Team - (MS-PL) - https://github.com/MonoGame/MonoGame
+                                Wayland - Benjamin Franzke (Seetex License) - http://cgit.freedesktop.org/~krh/wayland/
+                                Open Sans - Steve Matteson (Apache-2.0) - https://fonts.google.com/specimen/Open+Sans
+                              Demo Apps
+                                Vivante Corporation (MIT)
+                                "OpenGL(R) ES 3.0 Programming Guide" book samples (MIT) - http://github.com/zemanel/opengles-book-samples/
+                                Norbert Nopper VKTS Examples (MIT) - https://github.com/McNopper/Vulkan
+                                Sascha Willems - Vulkan demo (MIT) - https://github.com/SaschaWillems/Vulkan
+                              Imagery Sources in Demo Apps:
+                                Emil Persson (CC-BY-3.0) - http://www.humus.name
+                                CDmir (CC0-1.0) - http://opengameart.org/content/old-deer-male
+                                Questquest Game icons - Justin Nichol (CC-BY-SA-4.0) - http://freeforall.cc/works/questquest-game-icons/
+                                piacenti (CC-BY-3.0) - http://opengameart.org/content/knight-2
+                              Third Party Apps Included:
+                                Open Asset Import Library [assimp] (BSD-3-Clause) - https://sourceforge.net/projects/assimp/
+                                DevIL (LGPL-2.1+) - https://sourceforge.net/projects/openil/
+                                G-Truc Creation [GLI] (MIT) - https://www.g-truc.net/
+                                Khronos Group OpenVG (MIT) - https://www.khronos.org/openvg/
+                                libpng (libpng) - https://sourceforge.net/projects/libpng/
+                                libjpeg (IJG) - http://www.ijg.org/
+                                OpenGL Mathematics [GLM] (MIT) - https://sourceforge.net/projects/ogl-math/
+                                RapidJSON (MIT) - https://github.com/miloyip/rapidjson/
+                                SRA/SKC gettimeofday (MIT) - https://doxygen.postgresql.org/gettimeofday_8c_source.htm
+                                zlib (zlib) - http://www.zlib.net/

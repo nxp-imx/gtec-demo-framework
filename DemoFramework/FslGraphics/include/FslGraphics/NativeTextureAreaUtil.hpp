@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_NATIVETEXTUREAREAUTIL_HPP
 #define FSLGRAPHICS_NATIVETEXTUREAREAUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,28 +43,35 @@ namespace Fsl
     //! @brief Calculate a texture area that fits with the default way to do it in Vulkan
     inline constexpr NativeTextureArea FastCalcNativeTextureArea(const PxRectangleU32& imageRectanglePx, const PxExtent2D textureExtentPx) noexcept
     {
-      return {imageRectanglePx.Left() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Left()) / static_cast<float>(textureExtentPx.Width),
-              imageRectanglePx.Top() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Top()) / static_cast<float>(textureExtentPx.Height),
-              imageRectanglePx.Right() >= textureExtentPx.Width
-                ? 1.0f
-                : static_cast<float>(imageRectanglePx.Right()) / static_cast<float>(textureExtentPx.Width),
-              imageRectanglePx.Bottom() >= textureExtentPx.Height
-                ? 1.0f
-                : static_cast<float>(imageRectanglePx.Bottom()) / static_cast<float>(textureExtentPx.Height)};
+      return {
+        imageRectanglePx.Left() == PxValueU(0) ? 0.0f
+                                               : static_cast<float>(imageRectanglePx.RawLeft()) / static_cast<float>(textureExtentPx.Width.Value),
+        imageRectanglePx.Top() == PxValueU(0) ? 0.0f
+                                              : static_cast<float>(imageRectanglePx.RawTop()) / static_cast<float>(textureExtentPx.Height.Value),
+        imageRectanglePx.Right() >= textureExtentPx.Width
+          ? 1.0f
+          : static_cast<float>(imageRectanglePx.RawRight()) / static_cast<float>(textureExtentPx.Width.Value),
+        imageRectanglePx.Bottom() >= textureExtentPx.Height
+          ? 1.0f
+          : static_cast<float>(imageRectanglePx.RawBottom()) / static_cast<float>(textureExtentPx.Height.Value)};
     }
 
     //! @brief Calculate a texture area that fits with the default way to do it in OpenGL
     inline constexpr NativeTextureArea FastCalcNativeTextureAreaYFlipped(const PxRectangleU32& imageRectanglePx,
                                                                          const PxExtent2D textureExtentPx) noexcept
     {
-      return {imageRectanglePx.Left() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Left()) / static_cast<float>(textureExtentPx.Width),
-              1.0f - (imageRectanglePx.Top() == 0 ? 0.0f : static_cast<float>(imageRectanglePx.Top()) / static_cast<float>(textureExtentPx.Height)),
+      return {imageRectanglePx.Left() == PxValueU(0)
+                ? 0.0f
+                : static_cast<float>(imageRectanglePx.RawLeft()) / static_cast<float>(textureExtentPx.Width.Value),
+              1.0f - (imageRectanglePx.Top() == PxValueU(0)
+                        ? 0.0f
+                        : static_cast<float>(imageRectanglePx.RawTop()) / static_cast<float>(textureExtentPx.Height.Value)),
               imageRectanglePx.Right() >= textureExtentPx.Width
                 ? 1.0f
-                : static_cast<float>(imageRectanglePx.Right()) / static_cast<float>(textureExtentPx.Width),
+                : static_cast<float>(imageRectanglePx.RawRight()) / static_cast<float>(textureExtentPx.Width.Value),
               1.0f - (imageRectanglePx.Bottom() >= textureExtentPx.Height
                         ? 1.0f
-                        : static_cast<float>(imageRectanglePx.Bottom()) / static_cast<float>(textureExtentPx.Height))};
+                        : static_cast<float>(imageRectanglePx.RawBottom()) / static_cast<float>(textureExtentPx.Height.Value))};
     }
 
     //! @brief Calculate a texture area that fits with the default way to do it in Vulkan

@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_OPENGLES3_TEXTUREUTIL_HPP
 #define FSLUTIL_OPENGLES3_TEXTUREUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,40 +44,42 @@ namespace Fsl::GLES3::TextureUtil
   //! @brief Get the native texture area of the given textureRectangle
   constexpr inline NativeTextureArea CalcTextureArea(const PxRectangleU32& srcRect, const PxSize2D& textureSize)
   {
-    return {srcRect.Left() == 0u ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
-            1.0f - (srcRect.Top() == 0u ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height())),
-            srcRect.Right() == static_cast<uint32_t>(textureSize.Width())
+    return {srcRect.RawLeft() == 0u ? 0.0f : static_cast<float>(srcRect.RawLeft()) / static_cast<float>(textureSize.RawWidth()),
+            1.0f - (srcRect.RawTop() == 0u ? 0.0f : static_cast<float>(srcRect.RawTop()) / static_cast<float>(textureSize.RawHeight())),
+            srcRect.RawRight() == static_cast<uint32_t>(textureSize.RawWidth())
               ? 1.0f
-              : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
-            1.0f - (srcRect.Bottom() == static_cast<uint32_t>(textureSize.Height())
+              : static_cast<float>(srcRect.RawRight()) / static_cast<float>(textureSize.RawWidth()),
+            1.0f - (srcRect.RawBottom() == static_cast<uint32_t>(textureSize.RawHeight())
                       ? 1.0f
-                      : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height()))};
+                      : static_cast<float>(srcRect.RawBottom()) / static_cast<float>(textureSize.RawHeight()))};
   }
 
   //! @brief Get the native texture area of the given textureRectangle
   constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize)
   {
-    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
-            1.0f - (srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height())),
-            srcRect.Right() == textureSize.Width() ? 1.0f : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
-            1.0f -
-              (srcRect.Bottom() == textureSize.Height() ? 1.0f : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height()))};
+    return {srcRect.RawLeft() == 0 ? 0.0f : static_cast<float>(srcRect.RawLeft()) / static_cast<float>(textureSize.RawWidth()),
+            1.0f - (srcRect.RawTop() == 0 ? 0.0f : static_cast<float>(srcRect.RawTop()) / static_cast<float>(textureSize.RawHeight())),
+            srcRect.RawRight() == textureSize.RawWidth() ? 1.0f : static_cast<float>(srcRect.RawRight()) / static_cast<float>(textureSize.RawWidth()),
+            1.0f - (srcRect.RawBottom() == textureSize.RawHeight()
+                      ? 1.0f
+                      : static_cast<float>(srcRect.RawBottom()) / static_cast<float>(textureSize.RawHeight()))};
   }
 
   //! @brief Get the native texture area of the given textureRectangle
   constexpr inline NativeTextureArea CalcTextureArea(const PxRectangle& srcRect, const PxSize2D& textureSize, const int timesX, const int timesY)
   {
-    assert(timesX == 1 || (timesX != 1 && (srcRect.Width() == 0 || srcRect.Width() == textureSize.Width())));
-    assert(timesY == 1 || (timesY != 1 && (srcRect.Height() == 0 || srcRect.Height() == textureSize.Height())));
+    assert(timesX == 1 || (timesX != 1 && (srcRect.RawWidth() == 0 || srcRect.Width() == textureSize.Width())));
+    assert(timesY == 1 || (timesY != 1 && (srcRect.RawHeight() == 0 || srcRect.Height() == textureSize.Height())));
 
-    assert(static_cast<float>(textureSize.Width()) >= 0.0f);
-    assert(static_cast<float>(textureSize.Height()) >= 0.0f);
-    return {srcRect.Left() == 0 ? 0.0f : static_cast<float>(srcRect.Left()) / static_cast<float>(textureSize.Width()),
-            1.0f - (srcRect.Top() == 0 ? 0.0f : static_cast<float>(srcRect.Top()) / static_cast<float>(textureSize.Height())),
-            srcRect.Right() == textureSize.Width() ? 1.0f * static_cast<float>(timesX)
-                                                   : static_cast<float>(srcRect.Right()) / static_cast<float>(textureSize.Width()),
-            1.0f - (srcRect.Bottom() == textureSize.Height() ? 1.0f * static_cast<float>(timesY)
-                                                             : static_cast<float>(srcRect.Bottom()) / static_cast<float>(textureSize.Height()))};
+    assert(static_cast<float>(textureSize.RawWidth()) >= 0.0f);
+    assert(static_cast<float>(textureSize.RawHeight()) >= 0.0f);
+    return {srcRect.RawLeft() == 0 ? 0.0f : static_cast<float>(srcRect.RawLeft()) / static_cast<float>(textureSize.RawWidth()),
+            1.0f - (srcRect.RawTop() == 0 ? 0.0f : static_cast<float>(srcRect.RawTop()) / static_cast<float>(textureSize.RawHeight())),
+            srcRect.RawRight() == textureSize.RawWidth() ? 1.0f * static_cast<float>(timesX)
+                                                         : static_cast<float>(srcRect.RawRight()) / static_cast<float>(textureSize.RawWidth()),
+            1.0f - (srcRect.RawBottom() == textureSize.RawHeight()
+                      ? 1.0f * static_cast<float>(timesY)
+                      : static_cast<float>(srcRect.RawBottom()) / static_cast<float>(textureSize.RawHeight()))};
   }
 
 

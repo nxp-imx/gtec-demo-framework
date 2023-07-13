@@ -42,6 +42,7 @@ from FslBuildGen.Xml.XmlCommonFslBuild import XmlCommonFslBuild
 
 
 class XmlGenFslBuildTemplate(XmlCommonFslBuild):
+
     def __init__(self, log: Log, requirementTypes: List[str], filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate gen file %s", filename)
@@ -52,6 +53,7 @@ class XmlGenFslBuildTemplate(XmlCommonFslBuild):
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildTemplate'")
 
         super().__init__(log, requirementTypes, xmlElement)
+        #self._CheckAttributes(set())
 
         self.Name = IOUtil.GetFileNameWithoutExtension(filename)
         self.DirectRequirements = self._GetXMLRequirements(xmlElement)

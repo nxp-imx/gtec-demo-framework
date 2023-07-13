@@ -19,7 +19,7 @@
       <!--ExternalDependency Name="Shcore.lib" Type="StaticLib"/-->
     </Platform>
     <Platform Name="Yocto" Supported="true">
-      <Variant Name="WindowSystem">
+      <Flavor Name="Impl" QuickName="WindowSystem">
         <Option Name="FB">
           <Define Name="FSL_WINDOWSYSTEM_FRAMEBUFFER" Access="Public"/>
         </Option>
@@ -40,21 +40,21 @@
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND_IVI" Access="Public"/>
         </Option>
         <Option Name="Wayland_XDG">
+          <Dependency Name="Recipe.Wayland_XDG" Access="Public"/>
           <ExternalDependency Name="wayland-client" Type="StaticLib"/>
           <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
-          <ExternalDependency Name="df-wayland-xdg-application-stable-latest" Type="StaticLib"/>
           <!-- Since this is just a small tweak to the wayland backend, we reuse the old define and create a new one -->
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND_XDG" Access="Public"/>
         </Option>
         <Option Name="Wayland_XDG_IVI">
+          <Dependency Name="Recipe.Wayland_XDG" Access="Public"/>
           <ExternalDependency Name="wayland-client" Type="StaticLib"/>
           <ExternalDependency Name="ilmCommon" Type="StaticLib"/>
           <ExternalDependency Name="ilmClient" Type="StaticLib"/>
           <ExternalDependency Name="ilmControl" Type="StaticLib"/>
           <ExternalDependency Name="ivi-application" Type="StaticLib"/>
           <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
-          <ExternalDependency Name="df-wayland-xdg-application-stable-latest" Type="StaticLib"/>
           <!-- Since this is just a small tweak to the wayland backend, we reuse the old define and create a new one -->
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
           <Define Name="FSL_WINDOWSYSTEM_WAYLAND_IVI" Access="Public"/>
@@ -65,7 +65,7 @@
           <ExternalDependency Name="X11" Type="StaticLib"/>
           <Define Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
         </Option>
-      </Variant>
+      </Flavor>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

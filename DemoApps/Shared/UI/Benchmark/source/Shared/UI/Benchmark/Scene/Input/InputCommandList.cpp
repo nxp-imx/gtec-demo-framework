@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,24 +112,27 @@ namespace Fsl
   }
 
 
-  void InputCommandList::AddMouseButtonUp(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition)
+  void InputCommandList::AddMouseButtonUp(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition,
+                                          const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseUp, windowId, windowRectPx, mousePosition));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseUp, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseButtonDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition)
+  void InputCommandList::AddMouseButtonDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition,
+                                            const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDown, windowId, windowRectPx, mousePosition));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDown, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseMoveWhileDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition)
+  void InputCommandList::AddMouseMoveWhileDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition,
+                                               const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDownMove, windowId, windowRectPx, mousePosition));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseDownMove, windowId, windowRectPx, mousePosition, isTouch));
   }
 
-  void InputCommandList::AddMouseMove(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition)
+  void InputCommandList::AddMouseMove(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch)
   {
-    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseMove, windowId, windowRectPx, mousePosition));
+    Enqueue(InputCommandRecord(m_frameIndex, InputCommandId::MouseMove, windowId, windowRectPx, mousePosition, isTouch));
   }
 
   void InputCommandList::AddMouseMoveDone()

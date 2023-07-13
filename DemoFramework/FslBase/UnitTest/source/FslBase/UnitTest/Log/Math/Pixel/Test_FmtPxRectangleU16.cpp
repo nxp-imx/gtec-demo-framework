@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxRectangleU16, Log)
 {
-  PxRectangleU16 value(1, 2, 10, 20);
+  auto value = PxRectangleU16::Create(1, 2, 10, 20);
 
   EXPECT_EQ(std::string("{X=1 Y=2 Width=10 Height=20}"), fmt::format("{}", value));
 }

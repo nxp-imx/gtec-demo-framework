@@ -130,10 +130,10 @@ namespace Fsl
     }
 
     const auto fontSize = m_basic2D->FontSize();
-    if (fontSize.Height() > 0)
+    if (fontSize.RawHeight() > 0)
     {
       // This is not a efficient way to render the a 'console' but its simple
-      const auto maxLines = static_cast<uint32_t>(sizePx.Width() / fontSize.Height());
+      const auto maxLines = static_cast<uint32_t>(sizePx.RawWidth() / fontSize.RawHeight());
 
       while (m_console.size() > maxLines)
       {
@@ -143,7 +143,7 @@ namespace Fsl
       m_basic2D->Begin();
 
 
-      PxPoint2 posPx(0, sizePx.Height() - fontSize.Height() * static_cast<int32_t>(m_console.size()));
+      PxPoint2 posPx(PxValue(0), sizePx.Height() - fontSize.Height() * PxSize1D::Create(static_cast<int32_t>(m_console.size())));
       for (uint32_t i = 0; i < m_console.size(); ++i)
       {
         m_basic2D->DrawString(m_console[i], posPx);

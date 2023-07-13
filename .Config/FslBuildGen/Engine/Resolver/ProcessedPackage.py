@@ -37,7 +37,9 @@ from typing import Optional
 #from FslBuildGen import Util
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
 from FslBuildGen.Engine.Resolver.ProcessedPackageDependency import ProcessedPackageDependency
+from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageTemplate
 from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.Packages.CompanyName import CompanyName
@@ -90,6 +92,7 @@ class ProcessedPackage(object):
                  directRequirements: List[UnresolvedPackageRequirement], directDefines: List[UnresolvedPackageDefine],
                  externalDependencies: List[UnresolvedExternalDependency], path: ProcessedPackagePaths, templateType: str,
                  buildCustomization: Dict[str, XmlGenFileBuildCustomization], directExperimentalRecipe: Optional[XmlExperimentalRecipe],
+                 resolvedFlavorSelections: PackageFlavorSelections, resolvedFlavorTemplate: ResolvedPackageTemplate,
                  resolvedPlatform: PackagePlatform, directPlatformSupported: bool, customInfo: PackageCustomInfo,
                  traceContext: PackageTraceContext) -> None:
         super().__init__()
@@ -120,6 +123,8 @@ class ProcessedPackage(object):
         self.BuildCustomization = buildCustomization
         self.DirectExperimentalRecipe = directExperimentalRecipe
 
+        self.ResolvedFlavorSelections = resolvedFlavorSelections
+        self.ResolvedFlavorTemplate = resolvedFlavorTemplate
         self.ResolvedPlatform = resolvedPlatform
         # This setting only indicates what this package tries to set the flag to (it is not the final dependency based resolved result)
         self.DirectPlatformSupported = directPlatformSupported

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,12 +49,12 @@ namespace
     assert(startSrc.Right() >= clippedSrc.Right());
     assert(startSrc.Bottom() >= clippedSrc.Bottom());
 
-    auto left = static_cast<float>(srcRect.Left());
-    auto top = static_cast<float>(srcRect.Top());
-    auto right = static_cast<float>(srcRect.Right());
-    auto bottom = static_cast<float>(srcRect.Bottom());
+    auto left = PxValueF(static_cast<float>(srcRect.RawLeft()));
+    auto top = PxValueF(static_cast<float>(srcRect.RawTop()));
+    auto right = PxValueF(static_cast<float>(srcRect.RawRight()));
+    auto bottom = PxValueF(static_cast<float>(srcRect.RawBottom()));
 
-    if (startSrc.Width() > 0)
+    if (startSrc.Width() > PxValueF())
     {
       const auto leftChanged = (clippedSrc.Left() - startSrc.Left()) / startSrc.Width();
       const auto rightChanged = (startSrc.Right() - clippedSrc.Right()) / startSrc.Width();
@@ -64,11 +64,11 @@ namespace
     }
     else
     {
-      left = 0;
-      right = 0;
+      left = PxValueF();
+      right = PxValueF();
     }
 
-    if (startSrc.Height() > 0)
+    if (startSrc.Height() > PxValueF())
     {
       const auto topChanged = (clippedSrc.Top() - startSrc.Top()) / startSrc.Height();
       const auto bottomChanged = (startSrc.Bottom() - clippedSrc.Bottom()) / startSrc.Height();
@@ -77,8 +77,8 @@ namespace
     }
     else
     {
-      top = 0;
-      bottom = 0;
+      top = PxValueF();
+      bottom = PxValueF();
     }
     if (bottom < top || right < left)
     {
@@ -116,16 +116,16 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
     };
-    constexpr PxAreaRectangleF rectB(4, 3, 6, 5);
+    constexpr auto rectB = PxAreaRectangleF::Create(4, 3, 6, 5);
 
-    PxAreaRectangleF srcRect(10, 20, 40, 80);
+    auto srcRect = PxAreaRectangleF::Create(10, 20, 40, 80);
 
     for (int32_t y = 0; y < 10; ++y)
     {
       const int32_t yOffset = y * 11;
       for (int32_t x = 0; x < 11; ++x)
       {
-        PxAreaRectangleF rectA(static_cast<float>(x), static_cast<float>(y), 4, 3);
+        auto rectA = PxAreaRectangleF::Create(static_cast<float>(x), static_cast<float>(y), 4, 3);
         auto resA = rectA;
         auto resSrcA = srcRect;
         auto resB = rectB;
@@ -149,15 +149,15 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
           auto expectedSrcA = CalcClippedSrcRect(rectA, resA, srcRect);
           auto expectedSrcB = CalcClippedSrcRect(rectB, resB, srcRect);
 
-          EXPECT_FLOAT_EQ(expectedSrcA.Left(), resSrcA.Left());
-          EXPECT_FLOAT_EQ(expectedSrcA.Top(), resSrcA.Top());
-          EXPECT_FLOAT_EQ(expectedSrcA.Right(), resSrcA.Right());
-          EXPECT_FLOAT_EQ(expectedSrcA.Bottom(), resSrcA.Bottom());
+          EXPECT_FLOAT_EQ(expectedSrcA.RawLeft(), resSrcA.RawLeft());
+          EXPECT_FLOAT_EQ(expectedSrcA.RawTop(), resSrcA.RawTop());
+          EXPECT_FLOAT_EQ(expectedSrcA.RawRight(), resSrcA.RawRight());
+          EXPECT_FLOAT_EQ(expectedSrcA.RawBottom(), resSrcA.RawBottom());
 
-          EXPECT_FLOAT_EQ(expectedSrcB.Left(), resSrcB.Left());
-          EXPECT_FLOAT_EQ(expectedSrcB.Top(), resSrcB.Top());
-          EXPECT_FLOAT_EQ(expectedSrcB.Right(), resSrcB.Right());
-          EXPECT_FLOAT_EQ(expectedSrcB.Bottom(), resSrcB.Bottom());
+          EXPECT_FLOAT_EQ(expectedSrcB.RawLeft(), resSrcB.RawLeft());
+          EXPECT_FLOAT_EQ(expectedSrcB.RawTop(), resSrcB.RawTop());
+          EXPECT_FLOAT_EQ(expectedSrcB.RawRight(), resSrcB.RawRight());
+          EXPECT_FLOAT_EQ(expectedSrcB.RawBottom(), resSrcB.RawBottom());
         }
       }
     }
@@ -166,18 +166,18 @@ TEST(TestRender_Batch2DUtil, Clip_BruteForce)
 
 TEST(TestRender_Batch2DUtil, Clip_Now)
 {
-  PxAreaRectangleF toClipRect = PxAreaRectangleF::FromLeftTopRightBottom(170, 799, 181, 813);
+  PxAreaRectangleF toClipRect = PxAreaRectangleF::CreateFromLeftTopRightBottom(170, 799, 181, 813);
   NativeTextureArea textureArea(0.921875000f, 0.662109375f, 0.943359375f, 0.634765625f);
-  const PxAreaRectangleF clipRect = PxAreaRectangleF::FromLeftTopRightBottom(161, 805, 1916, 1068);
+  const PxAreaRectangleF clipRect = PxAreaRectangleF::CreateFromLeftTopRightBottom(161, 805, 1916, 1068);
 
   EXPECT_TRUE(Batch2DUtil::Clip(toClipRect, textureArea, clipRect));
 }
 
 TEST(TestRender_Batch2DUtil, Clip_Top)
 {
-  PxAreaRectangleF toClipRect = PxAreaRectangleF::FromLeftTopRightBottom(10, 20, 50, 120);
+  PxAreaRectangleF toClipRect = PxAreaRectangleF::CreateFromLeftTopRightBottom(10, 20, 50, 120);
   NativeTextureArea textureArea(100, 200, 900, 10200);
-  const PxAreaRectangleF clipRect = PxAreaRectangleF::FromLeftTopRightBottom(0, 40, 1000, 1000);
+  const PxAreaRectangleF clipRect = PxAreaRectangleF::CreateFromLeftTopRightBottom(0, 40, 1000, 1000);
 
   EXPECT_TRUE(Batch2DUtil::Clip(toClipRect, textureArea, clipRect));
 
@@ -192,9 +192,9 @@ TEST(TestRender_Batch2DUtil, Clip_Top)
 
 TEST(TestRender_Batch2DUtil, Clip_Top_ReversedTexCoord)
 {
-  PxAreaRectangleF toClipRect = PxAreaRectangleF::FromLeftTopRightBottom(10, 20, 50, 120);
+  PxAreaRectangleF toClipRect = PxAreaRectangleF::CreateFromLeftTopRightBottom(10, 20, 50, 120);
   NativeTextureArea textureArea(100, 10200, 900, 200);
-  const PxAreaRectangleF clipRect = PxAreaRectangleF::FromLeftTopRightBottom(0, 40, 1000, 1000);
+  const PxAreaRectangleF clipRect = PxAreaRectangleF::CreateFromLeftTopRightBottom(0, 40, 1000, 1000);
 
   EXPECT_TRUE(Batch2DUtil::Clip(toClipRect, textureArea, clipRect));
 

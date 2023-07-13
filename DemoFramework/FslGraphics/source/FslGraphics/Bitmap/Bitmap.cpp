@@ -128,7 +128,7 @@ namespace Fsl
 
   Bitmap::Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
                  const BitmapOrigin bitmapOrigin)
-    : Bitmap(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat), bitmapOrigin)
+    : Bitmap(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat), bitmapOrigin)
   {
   }
 
@@ -142,11 +142,11 @@ namespace Fsl
     {
       throw std::invalid_argument("pContent can not be null");
     }
-    if (stride < PixelFormatUtil::CalcMinimumStride(m_extent.Width, pixelFormat))
+    if (stride < PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, pixelFormat))
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
-    const std::size_t extentHeight = extent.Height;
+    const std::size_t extentHeight = extent.Height.Value;
     if (cbContent != (stride * extentHeight))
     {
       throw std::invalid_argument("The image buffer is not of the expected size for a image of that pixel format with the given stride");
@@ -224,7 +224,7 @@ namespace Fsl
 
   uint32_t Bitmap::GetPreferredStride(const PixelFormat pixelFormat) const
   {
-    return (pixelFormat == m_pixelFormat ? m_stride : PixelFormatUtil::CalcMinimumStride(m_extent.Width, pixelFormat, m_strideRequirement));
+    return (pixelFormat == m_pixelFormat ? m_stride : PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, pixelFormat, m_strideRequirement));
   }
 
 
@@ -297,7 +297,7 @@ namespace Fsl
   void Bitmap::Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
                      const BitmapOrigin bitmapOrigin)
   {
-    Reset(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat), bitmapOrigin);
+    Reset(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat), bitmapOrigin);
   }
 
 
@@ -312,11 +312,11 @@ namespace Fsl
     {
       throw std::invalid_argument("pContent can not be null");
     }
-    if (stride < PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat))
+    if (stride < PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat))
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
-    const std::size_t extentHeight = extent.Height;
+    const std::size_t extentHeight = extent.Height.Value;
     if (cbContent != (stride * extentHeight))
     {
       throw std::invalid_argument("The image buffer is not of the expected size for a image of that pixel format with the given stride");
@@ -350,7 +350,7 @@ namespace Fsl
 
   void Bitmap::Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
   {
-    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
+    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, pixelFormat);
     Reset(std::move(content), extent, pixelFormat, minStride, bitmapOrigin);
   }
 
@@ -362,21 +362,21 @@ namespace Fsl
     {
       throw UsageErrorException("The bitmap is locked");
     }
-    if (m_extent.Width > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) ||
-        m_extent.Height > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
+    if (m_extent.Width.Value > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()) ||
+        m_extent.Height.Value > static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
     {
       throw std::invalid_argument("Width or height exceeded limit");
     }
 
 
     const uint32_t bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(pixelFormat);
-    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, bytesPerPixel);
+    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, bytesPerPixel);
     if (stride < minStride)
     {
       throw std::invalid_argument("stride is smaller than the width allows");
     }
 
-    const std::size_t extentHeight = extent.Height;
+    const std::size_t extentHeight = extent.Height.Value;
     const std::size_t totalByteSize = (extentHeight * stride);
     if (content.size() != totalByteSize)
     {
@@ -401,14 +401,14 @@ namespace Fsl
 
   void Bitmap::SetNativePixel(const int32_t x, const int32_t y, const uint32_t color)
   {
-    if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_extent.Width || static_cast<uint32_t>(y) >= m_extent.Height)
+    if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_extent.Width.Value || static_cast<uint32_t>(y) >= m_extent.Height.Value)
     {
       return;
     }
 
-    assert(m_extent.Width <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    assert(m_extent.Height <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height) - 1 - y);
+    assert(m_extent.Width.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+    assert(m_extent.Height.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height.Value) - 1 - y);
 
     auto* pDst = reinterpret_cast<uint8_t*>(m_content.data());
     switch (PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat))
@@ -445,14 +445,14 @@ namespace Fsl
 
   uint32_t Bitmap::GetNativePixel(const int32_t x, const int32_t y) const
   {
-    if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_extent.Width || static_cast<uint32_t>(y) >= m_extent.Height)
+    if (x < 0 || y < 0 || static_cast<uint32_t>(x) >= m_extent.Width.Value || static_cast<uint32_t>(y) >= m_extent.Height.Value)
     {
       return 0;
     }
 
-    assert(m_extent.Width <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    assert(m_extent.Height <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height) - 1 - y);
+    assert(m_extent.Width.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+    assert(m_extent.Height.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+    const int32_t actualY = (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height.Value) - 1 - y);
 
     const auto* pSrc = reinterpret_cast<const uint8_t*>(m_content.data());
     switch (PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat))
@@ -482,30 +482,30 @@ namespace Fsl
 
   void Bitmap::SetUInt8(const uint32_t x, const uint32_t y, const uint8_t value, const bool ignoreOrigin)
   {
-    const auto byteWidth = m_bytesPerPixel * m_extent.Width;
-    if (x >= byteWidth || y >= m_extent.Height)
+    const auto byteWidth = m_bytesPerPixel * m_extent.Width.Value;
+    if (x >= byteWidth || y >= m_extent.Height.Value)
     {
       FSLLOG3_DEBUG_WARNING("SetUInt8 out of bounds x: {} y: {}", x, y);
       return;
     }
 
-    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : m_extent.Height - 1 - y);
+    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : m_extent.Height.Value - 1 - y);
     m_content[x + (actualY * m_stride)] = value;
   }
 
 
   uint8_t Bitmap::GetUInt8(const uint32_t x, const uint32_t y, const bool ignoreOrigin) const
   {
-    const auto byteWidth = m_bytesPerPixel * m_extent.Width;
-    if (x >= byteWidth || y >= m_extent.Height)
+    const auto byteWidth = m_bytesPerPixel * m_extent.Width.Value;
+    if (x >= byteWidth || y >= m_extent.Height.Value)
     {
       FSLLOG3_DEBUG_WARNING("GetUInt8 out of bounds x: {}, y: {}", x, y);
       return 0;
     }
 
-    assert(m_extent.Width <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    assert(m_extent.Height <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height) - 1 - y);
+    assert(m_extent.Width.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+    assert(m_extent.Height.Value <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+    const std::size_t actualY = ignoreOrigin ? y : (m_origin == BitmapOrigin::UpperLeft ? y : static_cast<int32_t>(m_extent.Height.Value) - 1 - y);
     return m_content[x + (actualY * m_stride)];
   }
 
@@ -557,8 +557,8 @@ namespace Fsl
       {
         return {pData, m_extent, m_pixelFormat, m_stride, m_origin};
       }
-      assert(m_extent.Width == 0u);
-      assert(m_extent.Height == 0u);
+      assert(m_extent.Width.Value == 0u);
+      assert(m_extent.Height.Value == 0u);
       return {&g_dummyAreaForZeroSizedBitmaps, m_extent, m_pixelFormat, 0u, m_origin};
     }
     catch (const std::exception&)
@@ -583,8 +583,8 @@ namespace Fsl
       {
         return {pData, m_extent, m_pixelFormat, m_stride, m_origin};
       }
-      assert(m_extent.Width == 0u);
-      assert(m_extent.Height == 0u);
+      assert(m_extent.Width.Value == 0u);
+      assert(m_extent.Height.Value == 0u);
       return {&g_dummyAreaForZeroSizedBitmaps, PxExtent2D(), m_pixelFormat, 0u, m_origin};
     }
     catch (const std::exception&)
@@ -625,7 +625,7 @@ namespace Fsl
   void Bitmap::ResizeToFit(const PxExtent2D& extent, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride)
   {
     const uint32_t bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(pixelFormat);
-    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, bytesPerPixel, strideRequirement);
+    const uint32_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width.Value, bytesPerPixel, strideRequirement);
     uint32_t chosenStride = 0;
 
     if (stride == 0)
@@ -634,7 +634,7 @@ namespace Fsl
     }
     else
     {
-      if (!PixelFormatUtil::IsValidStride(extent.Width, bytesPerPixel, strideRequirement, stride))
+      if (!PixelFormatUtil::IsValidStride(extent.Width.Value, bytesPerPixel, strideRequirement, stride))
       {
         throw std::invalid_argument("Supplied stride does not obey the StrideRequirement");
       }
@@ -643,7 +643,7 @@ namespace Fsl
     }
 
     const std::size_t cbChosenStride = chosenStride;
-    const std::size_t totalByteSize = extent.Height * cbChosenStride;
+    const std::size_t totalByteSize = extent.Height.Value * cbChosenStride;
     if (m_content.size() != totalByteSize)
     {
       m_content.resize(totalByteSize);
@@ -666,7 +666,7 @@ namespace Fsl
       std::fill(m_content.begin(), m_content.end(), static_cast<uint8_t>(0));
       break;
     case BitmapClearMethod::DontClear:
-      if (PixelFormatUtil::CalcMinimumStride(m_extent.Width, m_pixelFormat) != m_stride)
+      if (PixelFormatUtil::CalcMinimumStride(m_extent.Width.Value, m_pixelFormat) != m_stride)
       {
         RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
         RawBitmapUtil::ClearPadding(dstBitmap);

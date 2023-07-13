@@ -205,8 +205,8 @@ namespace Fsl
       }
 
       const auto pos = event.GetPosition();
-      m_mousePos.x = static_cast<float>(pos.X);
-      m_mousePos.y = static_cast<float>(pos.Y);
+      m_mousePos.x = static_cast<float>(pos.X.Value);
+      m_mousePos.y = static_cast<float>(pos.Y.Value);
 
       switch (event.GetButton())
       {
@@ -237,7 +237,7 @@ namespace Fsl
 
       const auto pos = event.GetPosition();
       const auto mouseButtonFlags = event.GetMouseButtonFlags();
-      const Vector2 newPos(pos.X, pos.Y);
+      const Vector2 newPos(pos.X.Value, pos.Y.Value);
 
       m_mouseButtons.Left = mouseButtonFlags.IsLeftButtonPressed();
       m_mouseButtons.Middle = mouseButtonFlags.IsMiddleButtonPressed();
@@ -268,7 +268,7 @@ namespace Fsl
         m_camera.Translate(glm::vec3(-dx * mod, -dy * mod, 0.0f));
         m_viewChanged = true;
       }
-      m_mousePos = glm::vec2(static_cast<float>(pos.X), static_cast<float>(pos.Y));
+      m_mousePos = glm::vec2(static_cast<float>(pos.X.Value), static_cast<float>(pos.Y.Value));
     }
 
 
@@ -442,7 +442,7 @@ namespace Fsl
 
     void VulkanWillemsDemoApp::SetupDepthStencil(const VkFormat depthFormat)
     {
-      const auto screenExtent = TypeConverter::UncheckedTo<VkExtent3D>(PxExtent3D(GetScreenExtent(), 1));
+      const auto screenExtent = TypeConverter::UncheckedTo<VkExtent3D>(PxExtent3D(GetScreenExtent(), PxValueU::Create(1)));
 
       VkImageCreateInfo image{};
       image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -589,8 +589,8 @@ namespace Fsl
       frameBufferCreateInfo.renderPass = m_renderPass.Get();
       frameBufferCreateInfo.attachmentCount = UncheckedNumericCast<uint32_t>(attachments.size());
       frameBufferCreateInfo.pAttachments = attachments.data();
-      frameBufferCreateInfo.width = screenExtent.Width;
-      frameBufferCreateInfo.height = screenExtent.Height;
+      frameBufferCreateInfo.width = screenExtent.Width.Value;
+      frameBufferCreateInfo.height = screenExtent.Height.Value;
       frameBufferCreateInfo.layers = 1;
 
       // Create frame buffers for every swap chain image

@@ -53,6 +53,7 @@ namespace Fsl::UI
   using TDef = DataBinding::DependencyPropertyDefinition;
   using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
 
+  TDef TClass::PropertyIsEnabled = TFactory::Create<bool, TClass, &TClass::IsEnabled, &TClass::SetEnabled>("Enabled");
   TDef TClass::PropertyFontColor = TFactory::Create<Color, TClass, &TClass::GetFontColor, &TClass::SetFontColor>("FontColor");
   TDef TClass::PropertyFontDisabledColor =
     TFactory::Create<Color, TClass, &TClass::GetFontDisabledColor, &TClass::SetFontDisabledColor>("FontDisabledColor");
@@ -67,20 +68,19 @@ namespace Fsl::UI
   LabelBase::LabelBase(const std::shared_ptr<WindowContext>& context)
     : BaseWindow(context)
     , m_windowContext(context)
-    , m_font(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
+    , m_fontMesh(context->TheUIContext.Get()->MeshManager, context->DefaultFont)
   {
     Enable(WindowFlags(WindowFlags::DrawEnabled));
   }
 
-  bool LabelBase::SetEnabled(const bool enabled)
+  bool LabelBase::SetEnabled(const bool value)
   {
-    const bool modified = enabled != m_enabled;
-    if (modified)
+    const bool changed = m_propertyIsEnabled.Set(ThisDependencyObject(), value);
+    if (changed)
     {
-      m_enabled = enabled;
       PropertyUpdated(PropertyType::Other);
     }
-    return modified;
+    return changed;
   }
 
 
@@ -108,7 +108,7 @@ namespace Fsl::UI
 
   void LabelBase::SetFont(const std::shared_ptr<SpriteFont>& value)
   {
-    if (m_font.SetSprite(value))
+    if (m_fontMesh.SetSprite(value))
     {
       PropertyUpdated(PropertyType::Content);
     }
@@ -138,23 +138,30 @@ namespace Fsl::UI
   {
     BaseWindow::WinDraw(context);
 
-    if (!m_font.IsValid() || m_font.GetText().empty())
+    const auto content = DoGetContent();
+    if (!m_fontMesh.IsValid() || content.empty())
     {
       return;
     }
 
 
-    PxSize2D stringSizePx = m_font.Measure();
+    PxSize2D stringSizePx = m_fontMesh.Measure(content);
     auto dstPosPxf = context.TargetRect.TopLeft();
 
-    auto renderSizePx = RenderSizePx();
-    dstPosPxf.X +=
-      static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentX.Get(), renderSizePx.Width() - stringSizePx.Width()));
-    dstPosPxf.Y +=
-      static_cast<float>(ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentY.Get(), renderSizePx.Height() - stringSizePx.Height()));
+    PxSize2D renderSizePx = RenderSizePx();
+    dstPosPxf.X += TypeConverter::UncheckedTo<PxValueF>(
+      ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentX.Get(), renderSizePx.Width() - stringSizePx.Width()));
+    dstPosPxf.Y += TypeConverter::UncheckedTo<PxValueF>(
+      ItemAlignmentUtil::CalcAlignmentPx(m_propertyContentAlignmentY.Get(), renderSizePx.Height() - stringSizePx.Height()));
 
-    const auto color = m_enabled ? m_propertyFontColor.Get() : m_propertyFontDisabledColor.Get();
-    context.CommandBuffer.Draw(m_font.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
+    const auto color = m_propertyIsEnabled.Get() ? m_propertyFontColor.Get() : m_propertyFontDisabledColor.Get();
+    context.CommandBuffer.Draw(m_fontMesh.Get(), dstPosPxf, m_cachedMeasureMinimalFontSizePx, GetFinalBaseColor() * color);
+  }
+
+
+  void LabelBase::DoSetContent(const StringViewLite value)
+  {
+    m_fontMesh.SetText(value);
   }
 
 
@@ -168,9 +175,7 @@ namespace Fsl::UI
   {
     FSL_PARAM_NOT_USED(availableSizePx);
     const auto content = DoGetContent();
-    m_font.SetText(content);
-
-    auto measureRes = m_font.ComplexMeasure();
+    auto measureRes = m_fontMesh.ComplexMeasure(content);
     m_cachedMeasureMinimalFontSizePx = measureRes.MinimalSizePx;
     return measureRes.MeasureSizePx;
   }
@@ -179,11 +184,12 @@ namespace Fsl::UI
   DataBinding::DataBindingInstanceHandle LabelBase::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
-      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
+      this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled),
+      DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
       DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor),
       DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
       DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
-    return res.IsValid() ? res : BaseWindow::TryGetPropertyHandleNow(sourceDef);
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
@@ -191,17 +197,19 @@ namespace Fsl::UI
                                                                     const DataBinding::Binding& binding)
   {
     auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyIsEnabled, m_propertyIsEnabled),
                                                                   DataBinding::PropLinkRefs(PropertyFontColor, m_propertyFontColor),
                                                                   DataBinding::PropLinkRefs(PropertyFontDisabledColor, m_propertyFontDisabledColor),
                                                                   DataBinding::PropLinkRefs(PropertyContentAlignmentX, m_propertyContentAlignmentX),
                                                                   DataBinding::PropLinkRefs(PropertyContentAlignmentY, m_propertyContentAlignmentY));
-    return res != DataBinding::PropertySetBindingResult::NotFound ? res : BaseWindow::TrySetBindingNow(targetDef, binding);
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
 
   void LabelBase::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
   {
-    BaseWindow::ExtractAllProperties(rProperties);
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyIsEnabled);
     rProperties.push_back(PropertyFontColor);
     rProperties.push_back(PropertyFontDisabledColor);
     rProperties.push_back(PropertyContentAlignmentX);

@@ -47,7 +47,7 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxPoint2, Log)
 {
-  PxPoint2 value(1, 2);
+  const auto value = PxPoint2::Create(1, 2);
 
   std::stringstream stream;
   stream << value;

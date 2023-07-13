@@ -536,8 +536,8 @@ namespace Fsl
       vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
-    const auto splitX = static_cast<uint32_t>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(res.Width)));
-    const uint32_t remainderX = res.Width >= splitX ? res.Width - splitX : 0u;
+    const auto splitX = static_cast<uint32_t>(std::round(m_menuUI.SplitX.GetValue() * static_cast<float>(res.Width.Value)));
+    const uint32_t remainderX = res.Width.Value >= splitX ? res.Width.Value - splitX : 0u;
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -556,7 +556,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        VkRect2D scissor{{0, 0}, {splitX, res.Height}};
+        VkRect2D scissor{{0, 0}, {splitX, res.Height.Value}};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
       }
       vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineTonemapperLDR.Get());
@@ -566,7 +566,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        VkRect2D scissor{{static_cast<int32_t>(splitX), 0}, {remainderX, res.Height}};
+        VkRect2D scissor{{static_cast<int32_t>(splitX), 0}, {remainderX, res.Height.Value}};
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
       }
       vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineTonemapperHDR.Get());
@@ -597,7 +597,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

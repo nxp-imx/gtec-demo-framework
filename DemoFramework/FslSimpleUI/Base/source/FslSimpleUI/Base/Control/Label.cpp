@@ -58,17 +58,12 @@ namespace Fsl::UI
   }
 
 
-  StringViewLite Label::GetContent() const
-  {
-    return m_propertyContent.Get();
-  }
-
-
   bool Label::SetContent(const StringViewLite value)
   {
     const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
     if (changed)
     {
+      DoSetContent(m_propertyContent.Get());
       PropertyUpdated(PropertyType::Content);
     }
     return changed;
@@ -80,6 +75,7 @@ namespace Fsl::UI
     const bool changed = m_propertyContent.Set(ThisDependencyObject(), value);
     if (changed)
     {
+      DoSetContent(m_propertyContent.Get());
       PropertyUpdated(PropertyType::Content);
     }
     return changed;
@@ -91,6 +87,7 @@ namespace Fsl::UI
     const bool changed = m_propertyContent.Set(ThisDependencyObject(), std::move(value));
     if (changed)
     {
+      DoSetContent(m_propertyContent.Get());
       PropertyUpdated(PropertyType::Content);
     }
     return changed;
@@ -101,7 +98,7 @@ namespace Fsl::UI
   {
     auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
                                                                          DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
-    return res.IsValid() ? res : LabelBase::TryGetPropertyHandleNow(sourceDef);
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
   }
 
 
@@ -110,13 +107,13 @@ namespace Fsl::UI
   {
     auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
                                                                   DataBinding::PropLinkRefs(PropertyContent, m_propertyContent));
-    return res != DataBinding::PropertySetBindingResult::NotFound ? res : LabelBase::TrySetBindingNow(targetDef, binding);
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
   }
 
 
   void Label::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
   {
-    LabelBase::ExtractAllProperties(rProperties);
+    base_type::ExtractAllProperties(rProperties);
     rProperties.push_back(PropertyContent);
   }
 }

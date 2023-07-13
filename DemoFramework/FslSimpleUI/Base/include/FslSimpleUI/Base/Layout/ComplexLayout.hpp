@@ -41,6 +41,7 @@ namespace Fsl::UI
   template <typename TEntry>
   class ComplexLayout : public Layout
   {
+    using base_type = Layout;
     using RecordType = TEntry;
 
   public:

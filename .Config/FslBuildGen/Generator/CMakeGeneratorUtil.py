@@ -48,6 +48,7 @@ from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import SpecialFiles
 from FslBuildGen.DataTypes import VariantType
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.LibUtil import LibUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -665,7 +666,8 @@ def _MakeRelativeToCurrentBinaryDirectory(files: List[str]) -> List[str]:
     return ["${CMAKE_CURRENT_BINARY_DIR}/" + filename for filename in files]
 
 
-def GetContentBuilder(toolConfig: ToolConfig, package: Package, platformName:str, snippetContentBuilder: str, contentInBinaryDirectory: bool) -> str:
+def GetContentBuilder(toolConfig: ToolConfig, package: Package, platformName:str, snippetContentBuilder: str, contentInBinaryDirectory: bool,
+                      externalVariantConstraints: ExternalVariantConstraints) -> str:
     if package.ResolvedContentBuilderAllInputFiles is None or len(package.ResolvedContentBuilderAllInputFiles) <= 0:
         return ""
     if package.ResolvedPath is None:
@@ -691,6 +693,8 @@ def GetContentBuilder(toolConfig: ToolConfig, package: Package, platformName:str
     inputFiles = "\n    ".join(inputContentFiles)
     outputFiles = "\n    ".join(outputContentFiles)
 
+    strExternalVariantConstraints = externalVariantConstraints.AsString()
+
     content = snippetContentBuilder
     content = content.replace("##PLATFORM_NAME##", platformName)
     content = content.replace("##PACKAGE_TARGET_NAME##", targetName)
@@ -700,11 +704,14 @@ def GetContentBuilder(toolConfig: ToolConfig, package: Package, platformName:str
     content = content.replace("##PACKAGE_CONTENTBUILDER_OUTPUT_FILES##", outputFiles)
     content = content.replace("##EXTRA_ARGS##", extraArgs)
     content = content.replace("##CUSTOM_ARGS##", customArgs)
+    content = content.replace("##VARIANT_LIST##", strExternalVariantConstraints)
+
     return "\n" + content
 
 
 
-def GetContentSection(toolConfig: ToolConfig, package: Package, platformName:str, snippetContentSection: str, snippetContentFile: str, contentInBinaryDirectory: bool) -> str:
+def GetContentSection(toolConfig: ToolConfig, package: Package, platformName:str, snippetContentSection: str, snippetContentFile: str,
+                      contentInBinaryDirectory: bool, externalVariantConstraints: ExternalVariantConstraints) -> str:
     if not contentInBinaryDirectory or package.ResolvedContentFiles is None or len(package.ResolvedContentFiles) <= 0:
         return ""
     if package.ResolvedPath is None:
@@ -721,6 +728,8 @@ def GetContentSection(toolConfig: ToolConfig, package: Package, platformName:str
     if contentInBinaryDirectory:
         outputContentFiles = _MakeRelativeToCurrentBinaryDirectory(outputContentFiles)
 
+    strExternalVariantConstraints = externalVariantConstraints.AsString()
+
     contentCommands = [] # type: List[str]
     for i in range(len(inputContentFiles)):
         content = snippetContentFile
@@ -729,6 +738,7 @@ def GetContentSection(toolConfig: ToolConfig, package: Package, platformName:str
         content = content.replace("##RELATIVE_INPUT_FILE##", inputContentFiles[i])
         content = content.replace("##INPUT_FILE##", "##PACKAGE_PATH##/{0}".format(inputContentFiles[i]))
         content = content.replace("##OUTPUT_FILE##", outputContentFiles[i])
+        content = content.replace("##VARIANT_LIST##", strExternalVariantConstraints)
         contentCommands.append(content)
 
     contentSection = snippetContentSection

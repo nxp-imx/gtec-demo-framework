@@ -62,7 +62,7 @@ namespace Fsl
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
       constexpr GLTextureInfo(const GLuint handle, const PxSize2D& size)
-        : GLTextureInfo(handle, PxExtent3D(size.Width(), size.Height(), 1))
+        : GLTextureInfo(handle, PxExtent3D::Create(size.RawWidth(), size.RawHeight(), 1))
       {
       }
 
@@ -70,7 +70,7 @@ namespace Fsl
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
       constexpr GLTextureInfo(const GLuint handle, const PxExtent2D& extent)
-        : GLTextureInfo(handle, PxExtent3D(extent.Width, extent.Height, 1u))
+        : GLTextureInfo(handle, PxExtent3D(extent, PxValueU(1u)))
       {
       }
 

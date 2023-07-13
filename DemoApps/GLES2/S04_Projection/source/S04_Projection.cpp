@@ -298,7 +298,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    glViewport(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     // Rotate and translate the model view matrices
     const Matrix matModelView1 = Matrix::CreateRotationY(m_angle) * m_matTranslate1;

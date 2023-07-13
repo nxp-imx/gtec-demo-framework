@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDERBASE_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDERBASE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,8 @@ namespace Fsl::UI
   template <typename T>
   class SliderBase : public BaseWindow
   {
+    using base_type = BaseWindow;
+
   public:
     using value_type = T;
 
@@ -62,10 +64,9 @@ namespace Fsl::UI
     const std::shared_ptr<WindowContext> m_windowContext;
 
   private:
-    LayoutOrientation m_orientation{LayoutOrientation::Horizontal};
-    LayoutDirection m_direction{LayoutDirection::NearToFar};
-
     SliderLogic<value_type> m_logic;
+    typename DataBinding::TypedDependencyProperty<LayoutOrientation> m_propertyOrientation{LayoutOrientation::Horizontal};
+    typename DataBinding::TypedDependencyProperty<LayoutDirection> m_propertyDirection{LayoutDirection::NearToFar};
     typename DataBinding::TypedDependencyProperty<value_type> m_propertyValue;
 
   public:
@@ -83,14 +84,14 @@ namespace Fsl::UI
       return m_logic.IsDragging();
     }
 
-    LayoutOrientation GetOrientation() const
+    LayoutOrientation GetOrientation() const noexcept
     {
-      return m_orientation;
+      return m_propertyOrientation.Get();
     }
 
-    LayoutDirection GetDirection() const
+    LayoutDirection GetDirection() const noexcept
     {
-      return m_direction;
+      return m_propertyDirection.Get();
     }
 
     bool IsEnabled() const
@@ -113,24 +114,24 @@ namespace Fsl::UI
       return m_logic.GetTickFrequency();
     }
 
-    bool SetOrientation(const LayoutOrientation orientation)
+    bool SetOrientation(const LayoutOrientation value)
     {
-      if (orientation != m_orientation)
+      const bool changed = m_propertyOrientation.Set(ThisDependencyObject(), value);
+      if (changed)
       {
-        m_orientation = orientation;
         PropertyUpdated(PropertyType::Layout);
-        return true;
       }
-      return false;
+      return changed;
     }
 
-    void SetDirection(const LayoutDirection direction)
+    bool SetDirection(const LayoutDirection value)
     {
-      if (direction != m_direction)
+      const bool changed = m_propertyDirection.Set(ThisDependencyObject(), value);
+      if (changed)
       {
-        m_direction = direction;
         PropertyUpdated(PropertyType::Layout);
       }
+      return changed;
     }
 
     //! @brief When disabled the slider can not be edited by the user
@@ -222,13 +223,13 @@ namespace Fsl::UI
       }
 
       auto pos = PointFromScreen(theEvent->GetScreenPosition());
-      auto offsetPx = (m_orientation == LayoutOrientation::Horizontal ? pos.X : pos.Y);
+      auto offsetPx = (m_propertyOrientation.Get() == LayoutOrientation::Horizontal ? pos.X : pos.Y);
       if (!m_logic.IsDragging())
       {    // Not currently dragging, so check if we should begin
         if (!IsReadOnly() && theEvent->IsBegin() && !theEvent->IsRepeat())
         {
           const auto renderExtent = RenderExtentPx();
-          PxRectangle2D barClickRect(0, 0, renderExtent.Width, renderExtent.Height);
+          PxRectangle2D barClickRect(PxValue(0), PxValue(0), renderExtent.Width, renderExtent.Height);
 
           if (barClickRect.Contains(pos))
           {
@@ -264,7 +265,7 @@ namespace Fsl::UI
       }
     }
 
-    int32_t GetCursorPositionPx() const
+    PxValue GetCursorPositionPx() const
     {
       return m_logic.GetPositionPx();
     }
@@ -305,28 +306,39 @@ namespace Fsl::UI
 
 
   public:
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyOrientation =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutOrientation, SliderBase, &SliderBase::GetOrientation,
+                                                               &SliderBase::SetOrientation>("Orientation");
+    inline static typename DataBinding::DependencyPropertyDefinition PropertyDirection =
+      DataBinding::DependencyPropertyDefinitionFactory::Create<LayoutDirection, SliderBase, &SliderBase::GetDirection, &SliderBase::SetDirection>(
+        "Direction");
     inline static typename DataBinding::DependencyPropertyDefinition PropertyValue =
       DataBinding::DependencyPropertyDefinitionFactory::Create<value_type, SliderBase, &SliderBase::GetValue, &SliderBase::SetValue>("Value");
 
   protected:
     DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) final
     {
-      auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
-                                                                           DataBinding::PropLinkRefs(SliderBase::PropertyValue, m_propertyValue));
-      return res.IsValid() ? res : BaseWindow::TryGetPropertyHandleNow(sourceDef);
+      auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(
+        this, ThisDependencyObject(), sourceDef, DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+        DataBinding::PropLinkRefs(PropertyDirection, m_propertyDirection), DataBinding::PropLinkRefs(SliderBase::PropertyValue, m_propertyValue));
+      return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
     }
 
     DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
                                                            const DataBinding::Binding& binding) final
     {
       auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                    DataBinding::PropLinkRefs(SliderBase::PropertyOrientation, m_propertyOrientation),
+                                                                    DataBinding::PropLinkRefs(SliderBase::PropertyDirection, m_propertyDirection),
                                                                     DataBinding::PropLinkRefs(SliderBase::PropertyValue, m_propertyValue));
-      return res != DataBinding::PropertySetBindingResult::NotFound ? res : BaseWindow::TrySetBindingNow(targetDef, binding);
+      return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
     }
 
     void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) final
     {
-      BaseWindow::ExtractAllProperties(rProperties);
+      base_type::ExtractAllProperties(rProperties);
+      rProperties.push_back(SliderBase::PropertyOrientation);
+      rProperties.push_back(SliderBase::PropertyDirection);
       rProperties.push_back(SliderBase::PropertyValue);
     }
   };

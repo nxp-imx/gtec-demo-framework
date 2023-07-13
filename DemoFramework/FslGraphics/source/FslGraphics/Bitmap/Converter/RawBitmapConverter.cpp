@@ -126,7 +126,7 @@ namespace Fsl
     uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     // The buffers can not overlap
-    if (!(pSrc >= pDstEnd || pSrcEnd <= pDst))
+    if (pSrc < pDstEnd && pSrcEnd > pDst)
     {
       FSLLOG3_DEBUG_WARNING("TryConvert called with overlapping buffers, this is not supported");
       return false;

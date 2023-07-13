@@ -33,17 +33,12 @@
 
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslSimpleUI/Base/Mesh/SpriteFontMeasureInfo.hpp>
 #include <FslSimpleUI/Base/Mesh/SpriteMesh.hpp>
 #include <string>
 
 namespace Fsl::UI
 {
-  struct SpriteFontMeasureInfo
-  {
-    PxSize2D MinimalSizePx;
-    PxSize2D MeasureSizePx;
-  };
-
   class SpriteFontMesh : public SpriteMesh<SpriteFont>
   {
     std::string m_text;

@@ -42,14 +42,21 @@ from FslBuildGen.Xml.Exceptions import XmlFormatException
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlGenFileFindPackage(XmlBase):
+    __AttribName = 'Name'
+    __AttribVersion = 'Version'
+    __AttribTargetName = 'TargetName'
+    __AttribPath = 'Path'
+    __AttribIf = 'If'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.Version = self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
-        self.TargetName = self._TryReadAttrib(xmlElement, 'TargetName')  # type: Optional[str]
+        self._CheckAttributes({self.__AttribName, self.__AttribVersion, self.__AttribTargetName, self.__AttribPath, self.__AttribIf})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Version = self._TryReadAttribAsVersion(xmlElement, self.__AttribVersion)  # type: Optional[Version]
+        self.TargetName = self._TryReadAttrib(xmlElement, self.__AttribTargetName)  # type: Optional[str]
         # A optional path that will be specified to cmake
-        self.Path = self._TryReadAttrib(xmlElement, 'Path')  # type: Optional[str]
-        self.IfCondition = self._TryReadAttrib(xmlElement, 'If', DependencyCondition.FindPackageAllowed)  # type: Optional[str]
+        self.Path = self._TryReadAttrib(xmlElement, self.__AttribPath)  # type: Optional[str]
+        self.IfCondition = self._TryReadAttrib(xmlElement, self.__AttribIf, DependencyCondition.FindPackageAllowed)  # type: Optional[str]
         if self.IfCondition != DependencyCondition.FindPackageAllowed:
             raise XmlFormatException("Unsupported IfCondition '{0}' on FindPackage: '{1}'. Expected {2}".format(self.Version, self.Name, DependencyCondition.FindPackageAllowed))
         if self.Path is not None and IOUtil.IsAbsolutePath(self.Path):

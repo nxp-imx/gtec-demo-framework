@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.Wayland_XDG" CreationYear="2023">
+    <Default.Platform.Supported Value="false"/>
+    <Platform Name="Ubuntu" Supported="false">
+      <ExperimentalRecipe Name="Wayland_XDG" Version="1.0" Find="true">
+        <Pipeline>
+          <Source OutputPath="Ubuntu"/>
+          <CMakeBuild Project="Wayland_XDG_DF" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libdf-wayland-xdg-application-stable-latest.a"/>
+          <Path Name="include/df-xdg-shell-client-protocol.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    <Platform Name="Yocto" Supported="true">
+      <ExperimentalRecipe Name="Wayland_XDG" Version="1.0" Find="true">
+        <Pipeline>
+          <Source/>
+          <CMakeBuild Project="Wayland_XDG_DF" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libdf-wayland-xdg-application-stable-latest.a"/>
+          <Path Name="include/df-xdg-shell-client-protocol.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

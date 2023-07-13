@@ -49,6 +49,7 @@ namespace Fsl::UI::RenderIMBatch
     DefaultRenderSystem& operator=(const DefaultRenderSystem&) = delete;
 
     explicit DefaultRenderSystem(const RenderSystemCreateInfo& createInfo);
+    void OnConfigurationChanged(const BasicWindowMetrics& windowMetrics) override;
     void Draw(RenderPerformanceCapture* const pPerformanceCapture) final;
   };
 }

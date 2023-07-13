@@ -86,18 +86,18 @@ namespace Fsl
         for (uint32_t level = 0; level < levels; ++level)
         {
           const auto extent = rawTexture.GetExtent(level);
-          const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
-          const auto fullTextureStride = srcStride * extent.Height;
+          const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width.Value, srcBytesPerPixel);
+          const auto fullTextureStride = srcStride * extent.Height.Value;
 
           for (uint32_t layer = 0; layer < layers; ++layer)
           {
             for (uint32_t face = 0; face < faces; ++face)
             {
               const auto rawBlob = rawTexture.GetTextureBlob(level, face, layer);
-              for (uint32_t z = 0; z < extent.Depth; ++z)
+              for (uint32_t z = 0; z < extent.Depth.Value; ++z)
               {
-                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width, extent.Height, srcPixelFormat, srcStride,
-                                         srcOrigin);
+                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width.Value, extent.Height.Value, srcPixelFormat,
+                                         srcStride, srcOrigin);
 
                 // TODO: use a more generic converter, this relies on the fact we know that there is only two origins
                 try
@@ -158,18 +158,18 @@ namespace Fsl
         for (uint32_t level = 0; level < levels; ++level)
         {
           const auto extent = rawTexture.GetExtent(level);
-          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
-          const auto fullTextureStride = srcStride * extent.Height;
+          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width.Value, srcBytesPerPixel);
+          const auto fullTextureStride = srcStride * extent.Height.Value;
 
           for (uint32_t layer = 0; layer < layers; ++layer)
           {
             for (uint32_t face = 0; face < faces; ++face)
             {
               const auto rawBlob = rawTexture.GetTextureBlob(level, face, layer);
-              for (uint32_t z = 0; z < extent.Depth; ++z)
+              for (uint32_t z = 0; z < extent.Depth.Value; ++z)
               {
-                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width, extent.Height, srcPixelFormat, srcStride,
-                                         srcOrigin);
+                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width.Value, extent.Height.Value, srcPixelFormat,
+                                         srcStride, srcOrigin);
 
                 if (!RawBitmapConverter::TryConvert(rawSrcBitmap, desiredPixelFormat))
                 {
@@ -220,10 +220,10 @@ namespace Fsl
         for (uint32_t level = 0; level < levels; ++level)
         {
           const auto srcExtent = rawSrcTexture.GetExtent(level);
-          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width, srcBytesPerPixel);
-          const uint32_t dstStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width, dstBytesPerPixel);
-          const uint32_t srcFullTextureStride = srcStride * srcExtent.Height;
-          const uint32_t dstFullTextureStride = dstStride * srcExtent.Height;
+          const uint32_t srcStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width.Value, srcBytesPerPixel);
+          const uint32_t dstStride = PixelFormatLayoutUtil::CalcMinimumStride(srcExtent.Width.Value, dstBytesPerPixel);
+          const uint32_t srcFullTextureStride = srcStride * srcExtent.Height.Value;
+          const uint32_t dstFullTextureStride = dstStride * srcExtent.Height.Value;
 
           for (uint32_t layer = 0; layer < layers; ++layer)
           {
@@ -231,11 +231,11 @@ namespace Fsl
             {
               const auto rawSrcBlob = rawSrcTexture.GetTextureBlob(level, face, layer);
               const auto rawDstBlob = rawDstTexture.GetTextureBlob(level, face, layer);
-              for (uint32_t z = 0; z < srcExtent.Depth; ++z)
+              for (uint32_t z = 0; z < srcExtent.Depth.Value; ++z)
               {
-                RawBitmap rawSrcBitmap(pSrcContent + rawSrcBlob.Offset + (z * srcFullTextureStride), srcExtent.Width, srcExtent.Height,
+                RawBitmap rawSrcBitmap(pSrcContent + rawSrcBlob.Offset + (z * srcFullTextureStride), srcExtent.Width.Value, srcExtent.Height.Value,
                                        srcPixelFormat, srcStride, srcOrigin);
-                RawBitmapEx rawDstBitmap(pDstContent + rawDstBlob.Offset + (z * dstFullTextureStride), srcExtent.Width, srcExtent.Height,
+                RawBitmapEx rawDstBitmap(pDstContent + rawDstBlob.Offset + (z * dstFullTextureStride), srcExtent.Width.Value, srcExtent.Height.Value,
                                          desiredPixelFormat, dstStride, srcOrigin);
 
                 // Try the raw bitmap converter
@@ -338,8 +338,9 @@ namespace Fsl
     {
       return extent;
     }
-    return {std::max(extent.Width >> level, static_cast<uint32_t>(1u)), std::max(extent.Height >> level, static_cast<uint32_t>(1u)),
-            std::max(extent.Depth >> level, static_cast<uint32_t>(1u))};
+    return PxExtent3D::Create(std::max(extent.Width.Value >> level, static_cast<uint32_t>(1u)),
+                              std::max(extent.Height.Value >> level, static_cast<uint32_t>(1u)),
+                              std::max(extent.Depth.Value >> level, static_cast<uint32_t>(1u)));
   }
 
 
@@ -349,7 +350,7 @@ namespace Fsl
     for (uint32_t level = 0; level < textureInfo.Levels; ++level)
     {
       auto currentExtend = GetExtentForLevel(extent, level);
-      totalTexels += (currentExtend.Width * currentExtend.Height * currentExtend.Depth);
+      totalTexels += (currentExtend.Width * currentExtend.Height * currentExtend.Depth).Value;
     }
     totalTexels *= textureInfo.Layers * textureInfo.Faces;
     return totalTexels;

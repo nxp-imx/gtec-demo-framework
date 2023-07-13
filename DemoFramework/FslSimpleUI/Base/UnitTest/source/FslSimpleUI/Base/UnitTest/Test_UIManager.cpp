@@ -53,7 +53,7 @@ namespace
     TestUIManager()
       : m_dataBindingService(std::make_shared<Fsl::DataBinding::DataBindingService>())
       , m_manager(m_dataBindingService, std::make_unique<UI::RenderStub::RenderSystem>(), false,
-                  BasicWindowMetrics(PxExtent2D(800, 600), Vector2(160, 160), 160))
+                  BasicWindowMetrics(PxExtent2D::Create(800, 600), Vector2(160, 160), 160))
     {
     }
   };
@@ -88,7 +88,7 @@ TEST_F(TestUIManager, GetEventSender)
 
 TEST_F(TestUIManager, SendMouseButtonEventEmpty)
 {
-  auto isHandled = m_manager.SendMouseButtonEvent(PxPoint2(0, 0), true);
+  auto isHandled = m_manager.SendMouseButtonEvent(PxPoint2::Create(0, 0), true, false);
 
   ASSERT_FALSE(isHandled);
 }
@@ -96,8 +96,8 @@ TEST_F(TestUIManager, SendMouseButtonEventEmpty)
 
 TEST_F(TestUIManager, SendMouseMoveEventEmpty)
 {
-  PxPoint2 pos(0, 0);
-  auto isHandled = m_manager.SendMouseMoveEvent(pos);
+  auto pos = PxPoint2::Create(0, 0);
+  auto isHandled = m_manager.SendMouseMoveEvent(pos, false);
 
   ASSERT_FALSE(isHandled);
 }
@@ -105,7 +105,7 @@ TEST_F(TestUIManager, SendMouseMoveEventEmpty)
 
 TEST_F(TestUIManager, ResizedEmpty)
 {
-  m_manager.Resized(BasicWindowMetrics(PxExtent2D(640, 480), Vector2(160, 160), 160));
+  m_manager.Resized(BasicWindowMetrics(PxExtent2D::Create(640, 480), Vector2(160, 160), 160));
 }
 
 

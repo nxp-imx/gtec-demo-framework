@@ -106,7 +106,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    glViewport(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, m_matTransform.DirectAccess());
 

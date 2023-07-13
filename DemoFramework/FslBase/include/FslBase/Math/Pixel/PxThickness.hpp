@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXTHICKNESS_HPP
 #define FSLBASE_MATH_PIXEL_PXTHICKNESS_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,8 @@ namespace Fsl
   //! A PxThickness can not contain negative values
   struct PxThickness
   {
-    using value_type = int32_t;
+    using value_type = PxSize1D;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_left{};
@@ -55,23 +56,135 @@ namespace Fsl
     constexpr PxThickness() noexcept = default;
 
     constexpr PxThickness(const value_type left, const value_type top, const value_type right, const value_type bottom) noexcept
-      : m_left(left >= 0 ? left : 0)
-      , m_top(top >= 0 ? top : 0)
-      , m_right(right >= 0 ? right : 0)
-      , m_bottom(bottom >= 0 ? bottom : 0)
-    {
-      assert(IsValid());
-    }
-
-    constexpr PxThickness(const value_type left, const value_type top, const value_type right, const value_type bottom,
-                          const OptimizationCheckFlag /*unused*/) noexcept
       : m_left(left)
       , m_top(top)
       , m_right(right)
       , m_bottom(bottom)
     {
-      assert(IsValid());
     }
+
+    constexpr PxThickness(const value_type left, const value_type top, const value_type right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const value_type left, const value_type top, const PxValue right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const value_type left, const value_type top, const PxValue right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+
+    constexpr PxThickness(const value_type left, const PxValue top, const value_type right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const value_type left, const PxValue top, const value_type right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const value_type left, const PxValue top, const PxValue right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const value_type left, const PxValue top, const PxValue right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const value_type top, const value_type right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const value_type top, const value_type right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const value_type top, const PxValue right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const value_type top, const PxValue right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+
+    constexpr PxThickness(const PxValue left, const PxValue top, const value_type right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const PxValue top, const value_type right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const PxValue top, const PxValue right, const value_type bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
+    constexpr PxThickness(const PxValue left, const PxValue top, const PxValue right, const PxValue bottom) noexcept
+      : m_left(left)
+      , m_top(top)
+      , m_right(right)
+      , m_bottom(bottom)
+    {
+    }
+
 
     constexpr value_type Left() const noexcept
     {
@@ -91,6 +204,27 @@ namespace Fsl
     constexpr value_type Bottom() const noexcept
     {
       return m_bottom;
+    }
+
+
+    constexpr raw_value_type RawLeft() const noexcept
+    {
+      return m_left.RawValue();
+    }
+
+    constexpr raw_value_type RawTop() const noexcept
+    {
+      return m_top.RawValue();
+    }
+
+    constexpr raw_value_type RawRight() const noexcept
+    {
+      return m_right.RawValue();
+    }
+
+    constexpr raw_value_type RawBottom() const noexcept
+    {
+      return m_bottom.RawValue();
     }
 
     constexpr PxPoint2 TopLeft() const
@@ -115,26 +249,17 @@ namespace Fsl
 
     constexpr PxSize2D Sum() const noexcept
     {
-      assert(m_left >= 0 && m_right >= 0);
-      assert(m_top >= 0 && m_bottom >= 0);
-      return {m_left + m_right, m_top + m_bottom, OptimizationCheckFlag::NoCheck};
+      return {m_left + m_right, m_top + m_bottom};
     }
 
     constexpr value_type SumX() const noexcept
     {
-      assert(m_left >= 0 && m_right >= 0);
       return m_left + m_right;
     }
 
     constexpr value_type SumY() const noexcept
     {
-      assert(m_top >= 0 && m_bottom >= 0);
       return m_top + m_bottom;
-    }
-
-    constexpr bool IsValid() const
-    {
-      return m_left >= 0 && m_right >= 0 && m_top >= 0 && m_bottom >= 0;
     }
 
     constexpr bool operator==(const PxThickness& rhs) const noexcept
@@ -148,21 +273,33 @@ namespace Fsl
 
     static constexpr PxThickness Min(const PxThickness& val0, const PxThickness& val1)
     {
-      return {std::min(val0.Left(), val1.Left()), std::min(val0.Top(), val1.Top()), std::min(val0.Right(), val1.Right()),
-              std::min(val0.Bottom(), val1.Bottom()), OptimizationCheckFlag::NoCheck};
+      return {value_type::Min(val0.Left(), val1.Left()), value_type::Min(val0.Top(), val1.Top()), value_type::Min(val0.Right(), val1.Right()),
+              value_type::Min(val0.Bottom(), val1.Bottom())};
     }
 
     static constexpr PxThickness Max(const PxThickness& val0, const PxThickness& val1)
     {
-      return {std::max(val0.Left(), val1.Left()), std::max(val0.Top(), val1.Top()), std::max(val0.Right(), val1.Right()),
-              std::max(val0.Bottom(), val1.Bottom()), OptimizationCheckFlag::NoCheck};
+      return {value_type::Max(val0.Left(), val1.Left()), value_type::Max(val0.Top(), val1.Top()), value_type::Max(val0.Right(), val1.Right()),
+              value_type::Max(val0.Bottom(), val1.Bottom())};
     }
 
     static constexpr PxThickness Max(const PxThickness& val0, const PxThickness& val1, const PxThickness& val2)
     {
-      return {std::max(std::max(val0.Left(), val1.Left()), val2.Left()), std::max(std::max(val0.Top(), val1.Top()), val2.Top()),
-              std::max(std::max(val0.Right(), val1.Right()), val2.Right()), std::max(std::max(val0.Bottom(), val1.Bottom()), val2.Bottom()),
-              OptimizationCheckFlag::NoCheck};
+      return {value_type::Max(val0.Left(), val1.Left(), val2.Left()), value_type::Max(val0.Top(), val1.Top(), val2.Top()),
+              value_type::Max(val0.Right(), val1.Right(), val2.Right()), value_type::Max(val0.Bottom(), val1.Bottom(), val2.Bottom())};
+    }
+
+    static constexpr PxThickness Create(const raw_value_type left, const raw_value_type top, const raw_value_type right,
+                                        const raw_value_type bottom) noexcept
+    {
+      return {value_type::Create(left), value_type::Create(top), value_type::Create(right), value_type::Create(bottom)};
+    }
+
+    static constexpr PxThickness UncheckedCreate(const raw_value_type left, const raw_value_type top, const raw_value_type right,
+                                                 const raw_value_type bottom) noexcept
+    {
+      return {value_type::UncheckedCreate(left), value_type::UncheckedCreate(top), value_type::UncheckedCreate(right),
+              value_type::UncheckedCreate(bottom)};
     }
   };
 }

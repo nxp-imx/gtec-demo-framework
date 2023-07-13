@@ -181,7 +181,8 @@ namespace Fsl::Vulkan
 
     PxSize2D GetSize() const
     {
-      return {UncheckedNumericCast<PxSize2D::value_type>(m_extent.width), UncheckedNumericCast<PxSize2D::value_type>(m_extent.height)};
+      return PxSize2D::Create(UncheckedNumericCast<PxSize2D::raw_value_type>(m_extent.width),
+                              UncheckedNumericCast<PxSize2D::raw_value_type>(m_extent.height));
     }
 
 

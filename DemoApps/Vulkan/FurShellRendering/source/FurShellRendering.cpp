@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2019, 2022 NXP
+ * Copyright 2019, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -248,7 +248,7 @@ namespace Fsl
     Procedural::BasicMesh CreateMesh(const ProceduralConfig& proceduralConfig, const PxSize2D& tex1Size, const Point2& textureRepeatCount,
                                      const int torusMajorSegments, const int torusMinorSegments, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, textureRepeatCount.X, textureRepeatCount.Y));
       if (proceduralConfig.Primitive == ProceduralPrimitive::Box)
       {
@@ -586,7 +586,8 @@ namespace Fsl
       }
 
       Point2 textureRepeatCount(m_config.GetTextureRepeatCountX(), m_config.GetTextureRepeatCountY());
-      PxSize2D tex1Size(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
+      auto tex1Size = PxSize2D::Create(UncheckedNumericCast<int32_t>(m_resources.Tex1.GetExtent().width),
+                                       UncheckedNumericCast<int32_t>(m_resources.Tex1.GetExtent().height));
       auto mesh = CreateMesh(proceduralConfig, tex1Size, textureRepeatCount, m_config.GetTorusMajorSegments(), m_config.GetTorusMinorSegments(),
                              m_config.GetUseTriangleStrip());
 
@@ -655,15 +656,15 @@ namespace Fsl
                               static_cast<float>(m_resources.TexDescriptionAtlas.GetExtent().height));
 
       // texSize.X / tex
-      const float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X) / res.X);
-      const float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width) / res.X);
-      const float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y) / res.Y);
-      const float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height) / res.Y);
+      const float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X.Value) / res.X);
+      const float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width.Value) / res.X);
+      const float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y.Value) / res.Y);
+      const float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height.Value) / res.Y);
 
-      const float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Left()) / atlasSize.X;
-      const float v1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Top()) / atlasSize.Y;
-      const float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Right()) / atlasSize.X;
-      const float v2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Bottom()) / atlasSize.Y;
+      const float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawLeft()) / atlasSize.X;
+      const float v1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawTop()) / atlasSize.Y;
+      const float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawRight()) / atlasSize.X;
+      const float v2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawBottom()) / atlasSize.Y;
 
       m_resources.VBDescription = BuildVB(m_bufferManager, BoxF(x1, y1, x2, y2), BoxF(u1, v1, u2, v2));
 

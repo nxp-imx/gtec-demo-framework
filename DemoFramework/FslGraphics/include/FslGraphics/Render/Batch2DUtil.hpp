@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_RENDER_BATCH2DUTIL_HPP
 #define FSLGRAPHICS_RENDER_BATCH2DUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,11 @@ namespace Fsl::Batch2DUtil
     if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
         clipRect.Top() < rToClipRect.Bottom())
     {
-      float dx = rToClipRect.Right() - rToClipRect.Left();
-      float dy = rToClipRect.Bottom() - rToClipRect.Top();
-      float dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
-      float dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
-      if (dx <= 0.0f || dy <= 0.0f)
+      auto dx = rToClipRect.Right() - rToClipRect.Left();
+      auto dy = rToClipRect.Bottom() - rToClipRect.Top();
+      auto dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
+      auto dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
+      if (dx.Value <= 0.0f || dy.Value <= 0.0f)
       {
         // The rect was clipped to zero in one direction
         return false;
@@ -67,32 +67,32 @@ namespace Fsl::Batch2DUtil
 
       if (clippedLeft < clipRect.Left())
       {
-        float dxClip = clipRect.Left() - clippedLeft;
-        float len = dxClip / dx;
+        auto dxClip = clipRect.Left() - clippedLeft;
+        auto len = dxClip / dx;
 
         clippedSrcLeft += (dsx * len);
         clippedLeft = clipRect.Left();
       }
       if (clippedRight > clipRect.Right())
       {
-        float dxClip = clippedRight - clipRect.Right();
-        float len = dxClip / dx;
+        auto dxClip = clippedRight - clipRect.Right();
+        auto len = dxClip / dx;
         clippedSrcRight -= (dsx * len);
         clippedRight = clipRect.Right();
       }
 
       if (clippedTop < clipRect.Top())
       {
-        float dyClip = clipRect.Top() - clippedTop;
-        float len = dyClip / dy;
+        auto dyClip = clipRect.Top() - clippedTop;
+        auto len = dyClip / dy;
 
         clippedSrcTop += (dsy * len);
         clippedTop = clipRect.Top();
       }
       if (clippedBottom > clipRect.Bottom())
       {
-        float dyClip = clippedBottom - clipRect.Bottom();
-        float len = dyClip / dy;
+        auto dyClip = clippedBottom - clipRect.Bottom();
+        auto len = dyClip / dy;
         clippedSrcBottom -= (dsy * len);
         clippedBottom = clipRect.Bottom();
       }
@@ -119,11 +119,11 @@ namespace Fsl::Batch2DUtil
     if (rToClipRect.Left() < clipRect.Right() && clipRect.Left() < rToClipRect.Right() && rToClipRect.Top() < clipRect.Bottom() &&
         clipRect.Top() < rToClipRect.Bottom())
     {
-      float dx = rToClipRect.Right() - rToClipRect.Left();
-      float dy = rToClipRect.Bottom() - rToClipRect.Top();
-      float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
-      float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
-      if (dx <= 0.0f || dy <= 0.0f)
+      auto dx = rToClipRect.Right() - rToClipRect.Left();
+      auto dy = rToClipRect.Bottom() - rToClipRect.Top();
+      auto dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
+      auto dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
+      if (dx.Value <= 0.0f || dy.Value <= 0.0f)
       {
         // The rect was clipped to zero in one direction
         return false;
@@ -141,33 +141,33 @@ namespace Fsl::Batch2DUtil
 
       if (clippedLeft < clipRect.Left())
       {
-        float dxClip = clipRect.Left() - clippedLeft;
-        float len = dxClip / dx;
+        auto dxClip = clipRect.Left() - clippedLeft;
+        auto len = dxClip / dx;
 
-        clippedSrcLeft += (dsx * len);
+        clippedSrcLeft += (dsx * len.Value);
         clippedLeft = clipRect.Left();
       }
       if (clippedRight > clipRect.Right())
       {
-        float dxClip = clippedRight - clipRect.Right();
-        float len = dxClip / dx;
-        clippedSrcRight -= (dsx * len);
+        auto dxClip = clippedRight - clipRect.Right();
+        auto len = dxClip / dx;
+        clippedSrcRight -= (dsx * len.Value);
         clippedRight = clipRect.Right();
       }
 
       if (clippedTop < clipRect.Top())
       {
-        float dyClip = clipRect.Top() - clippedTop;
-        float len = dyClip / dy;
+        auto dyClip = clipRect.Top() - clippedTop;
+        auto len = dyClip / dy;
 
-        clippedSrcTop += (dsy * len);
+        clippedSrcTop += (dsy * len.Value);
         clippedTop = clipRect.Top();
       }
       if (clippedBottom > clipRect.Bottom())
       {
-        float dyClip = clippedBottom - clipRect.Bottom();
-        float len = dyClip / dy;
-        clippedSrcBottom -= (dsy * len);
+        auto dyClip = clippedBottom - clipRect.Bottom();
+        auto len = dyClip / dy;
+        clippedSrcBottom -= (dsy * len.Value);
         clippedBottom = clipRect.Bottom();
       }
 
@@ -186,18 +186,18 @@ namespace Fsl::Batch2DUtil
   //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
   inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, PxAreaRectangleF& rSrcTexRect, const PxClipRectangle& clipRect)
   {
-    const auto clipRectLeft = static_cast<float>(clipRect.Left());
-    const auto clipRectTop = static_cast<float>(clipRect.Top());
-    const auto clipRectRight = static_cast<float>(clipRect.Right());
-    const auto clipRectBottom = static_cast<float>(clipRect.Bottom());
+    const auto clipRectLeft = PxValueF(static_cast<float>(clipRect.RawLeft()));
+    const auto clipRectTop = PxValueF(static_cast<float>(clipRect.RawTop()));
+    const auto clipRectRight = PxValueF(static_cast<float>(clipRect.RawRight()));
+    const auto clipRectBottom = PxValueF(static_cast<float>(clipRect.RawBottom()));
     if (rToClipRect.Left() < clipRectRight && clipRectLeft < rToClipRect.Right() && rToClipRect.Top() < clipRectBottom &&
         clipRectTop < rToClipRect.Bottom())
     {
-      float dx = rToClipRect.Right() - rToClipRect.Left();
-      float dy = rToClipRect.Bottom() - rToClipRect.Top();
-      float dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
-      float dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
-      if (dx <= 0.0f || dy <= 0.0f)
+      auto dx = rToClipRect.Right() - rToClipRect.Left();
+      auto dy = rToClipRect.Bottom() - rToClipRect.Top();
+      auto dsx = rSrcTexRect.Right() - rSrcTexRect.Left();
+      auto dsy = rSrcTexRect.Bottom() - rSrcTexRect.Top();
+      if (dx.Value <= 0.0f || dy.Value <= 0.0f)
       {
         // The rect was clipped to zero in one direction
         return false;
@@ -215,32 +215,32 @@ namespace Fsl::Batch2DUtil
 
       if (clippedLeft < clipRectLeft)
       {
-        float dxClip = clipRectLeft - clippedLeft;
-        float len = dxClip / dx;
+        auto dxClip = clipRectLeft - clippedLeft;
+        auto len = dxClip / dx;
 
         clippedSrcLeft += (dsx * len);
         clippedLeft = clipRectLeft;
       }
       if (clippedRight > clipRectRight)
       {
-        float dxClip = clippedRight - clipRectRight;
-        float len = dxClip / dx;
+        auto dxClip = clippedRight - clipRectRight;
+        auto len = dxClip / dx;
         clippedSrcRight -= (dsx * len);
         clippedRight = clipRectRight;
       }
 
       if (clippedTop < clipRectTop)
       {
-        float dyClip = clipRectTop - clippedTop;
-        float len = dyClip / dy;
+        auto dyClip = clipRectTop - clippedTop;
+        auto len = dyClip / dy;
 
         clippedSrcTop += (dsy * len);
         clippedTop = clipRectTop;
       }
       if (clippedBottom > clipRectBottom)
       {
-        float dyClip = clippedBottom - clipRectBottom;
-        float len = dyClip / dy;
+        auto dyClip = clippedBottom - clipRectBottom;
+        auto len = dyClip / dy;
         clippedSrcBottom -= (dsy * len);
         clippedBottom = clipRectBottom;
       }
@@ -265,19 +265,19 @@ namespace Fsl::Batch2DUtil
   //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
   inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeTextureArea& rSrcTexArea, const PxClipRectangle& clipRect)
   {
-    const auto clipRectLeft = static_cast<float>(clipRect.Left());
-    const auto clipRectTop = static_cast<float>(clipRect.Top());
-    const auto clipRectRight = static_cast<float>(clipRect.Right());
-    const auto clipRectBottom = static_cast<float>(clipRect.Bottom());
+    const auto clipRectLeft = PxValueF(static_cast<float>(clipRect.RawLeft()));
+    const auto clipRectTop = PxValueF(static_cast<float>(clipRect.RawTop()));
+    const auto clipRectRight = PxValueF(static_cast<float>(clipRect.RawRight()));
+    const auto clipRectBottom = PxValueF(static_cast<float>(clipRect.RawBottom()));
 
     if (rToClipRect.Left() < clipRectRight && clipRectLeft < rToClipRect.Right() && rToClipRect.Top() < clipRectBottom &&
         clipRectTop < rToClipRect.Bottom())
     {
-      float dx = rToClipRect.Right() - rToClipRect.Left();
-      float dy = rToClipRect.Bottom() - rToClipRect.Top();
-      float dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
-      float dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
-      if (dx <= 0.0f || dy <= 0.0f)
+      auto dx = rToClipRect.Right() - rToClipRect.Left();
+      auto dy = rToClipRect.Bottom() - rToClipRect.Top();
+      auto dsx = rSrcTexArea.X1 - rSrcTexArea.X0;
+      auto dsy = rSrcTexArea.Y1 - rSrcTexArea.Y0;
+      if (dx.Value <= 0.0f || dy.Value <= 0.0f)
       {
         // The rect was clipped to zero in one direction
         return false;
@@ -295,33 +295,33 @@ namespace Fsl::Batch2DUtil
 
       if (clippedLeft < clipRectLeft)
       {
-        float dxClip = clipRectLeft - clippedLeft;
-        float len = dxClip / dx;
+        auto dxClip = clipRectLeft - clippedLeft;
+        auto len = dxClip / dx;
 
-        clippedSrcX1 += (dsx * len);
+        clippedSrcX1 += (dsx * len.Value);
         clippedLeft = clipRectLeft;
       }
       if (clippedRight > clipRectRight)
       {
-        float dxClip = clippedRight - clipRectRight;
-        float len = dxClip / dx;
-        clippedSrcX2 -= (dsx * len);
+        auto dxClip = clippedRight - clipRectRight;
+        auto len = dxClip / dx;
+        clippedSrcX2 -= (dsx * len.Value);
         clippedRight = clipRectRight;
       }
 
       if (clippedTop < clipRectTop)
       {
-        float dyClip = clipRectTop - clippedTop;
-        float len = dyClip / dy;
+        auto dyClip = clipRectTop - clippedTop;
+        auto len = dyClip / dy;
 
-        clippedSrcY1 += (dsy * len);
+        clippedSrcY1 += (dsy * len.Value);
         clippedTop = clipRectTop;
       }
       if (clippedBottom > clipRectBottom)
       {
-        float dyClip = clippedBottom - clipRectBottom;
-        float len = dyClip / dy;
-        clippedSrcY2 -= (dsy * len);
+        auto dyClip = clippedBottom - clipRectBottom;
+        auto len = dyClip / dy;
+        clippedSrcY2 -= (dsy * len.Value);
         clippedBottom = clipRectBottom;
       }
 
@@ -340,19 +340,19 @@ namespace Fsl::Batch2DUtil
   //! @brief Creates a Rectangle defining the area where one rectangle overlaps another rectangle.
   inline constexpr bool Clip(PxAreaRectangleF& rToClipRect, NativeQuadTextureCoords& rSrcTexArea, const PxClipRectangle& clipRect)
   {
-    const auto clipRectLeft = static_cast<float>(clipRect.Left());
-    const auto clipRectTop = static_cast<float>(clipRect.Top());
-    const auto clipRectRight = static_cast<float>(clipRect.Right());
-    const auto clipRectBottom = static_cast<float>(clipRect.Bottom());
+    const auto clipRectLeft = PxValueF(static_cast<float>(clipRect.RawLeft()));
+    const auto clipRectTop = PxValueF(static_cast<float>(clipRect.RawTop()));
+    const auto clipRectRight = PxValueF(static_cast<float>(clipRect.RawRight()));
+    const auto clipRectBottom = PxValueF(static_cast<float>(clipRect.RawBottom()));
 
     if (rToClipRect.Left() < clipRectRight && clipRectLeft < rToClipRect.Right() && rToClipRect.Top() < clipRectBottom &&
         clipRectTop < rToClipRect.Bottom())
     {
-      float dx = rToClipRect.Right() - rToClipRect.Left();
-      float dy = rToClipRect.Bottom() - rToClipRect.Top();
+      auto dx = rToClipRect.Right() - rToClipRect.Left();
+      auto dy = rToClipRect.Bottom() - rToClipRect.Top();
       const Vector2 ds0 = rSrcTexArea.TopRight - rSrcTexArea.TopLeft;
       const Vector2 ds1 = rSrcTexArea.BottomRight - rSrcTexArea.BottomLeft;
-      if (dx <= 0.0f || dy <= 0.0f)
+      if (dx.Value <= 0.0f || dy.Value <= 0.0f)
       {
         // The rect was clipped to zero in one direction
         return false;
@@ -370,37 +370,37 @@ namespace Fsl::Batch2DUtil
 
       if (clippedLeft < clipRectLeft)
       {
-        float dxClip = clipRectLeft - clippedLeft;
-        float len = dxClip / dx;
+        auto dxClip = clipRectLeft - clippedLeft;
+        auto len = dxClip / dx;
 
-        clippedSrc0.X += (ds0.X * len);
-        clippedSrc2.X += (ds1.X * len);
+        clippedSrc0.X += (ds0.X * len.Value);
+        clippedSrc2.X += (ds1.X * len.Value);
         clippedLeft = clipRectLeft;
       }
       if (clippedRight > clipRectRight)
       {
-        float dxClip = clippedRight - clipRectRight;
-        float len = dxClip / dx;
-        clippedSrc1.X -= (ds0.X * len);
-        clippedSrc3.X -= (ds1.X * len);
+        auto dxClip = clippedRight - clipRectRight;
+        auto len = dxClip / dx;
+        clippedSrc1.X -= (ds0.X * len.Value);
+        clippedSrc3.X -= (ds1.X * len.Value);
         clippedRight = clipRectRight;
       }
 
       if (clippedTop < clipRectTop)
       {
-        float dyClip = clipRectTop - clippedTop;
-        float len = dyClip / dy;
+        auto dyClip = clipRectTop - clippedTop;
+        auto len = dyClip / dy;
 
-        clippedSrc0.Y += (ds0.Y * len);
-        clippedSrc2.Y += (ds1.Y * len);
+        clippedSrc0.Y += (ds0.Y * len.Value);
+        clippedSrc2.Y += (ds1.Y * len.Value);
         clippedTop = clipRectTop;
       }
       if (clippedBottom > clipRectBottom)
       {
-        float dyClip = clippedBottom - clipRectBottom;
-        float len = dyClip / dy;
-        clippedSrc1.Y -= (ds0.Y * len);
-        clippedSrc3.Y -= (ds1.Y * len);
+        auto dyClip = clippedBottom - clipRectBottom;
+        auto len = dyClip / dy;
+        clippedSrc1.Y -= (ds0.Y * len.Value);
+        clippedSrc3.Y -= (ds1.Y * len.Value);
         clippedBottom = clipRectBottom;
       }
 

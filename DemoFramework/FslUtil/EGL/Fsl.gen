@@ -5,7 +5,7 @@
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
     <Platform Name="Android">
-      <Dependency Name="Platform.Android.Glue" Access="Private"/>
+      <Dependency Name="Platform.Android.GameActivity" Access="Private"/>
     </Platform>
     <Platform Name="Windows" ProjectId="3770B82A-E060-4206-94D3-5113AAC96C19"/>
   </Library>

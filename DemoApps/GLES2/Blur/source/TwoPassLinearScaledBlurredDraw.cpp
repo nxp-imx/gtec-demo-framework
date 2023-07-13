@@ -96,14 +96,14 @@ namespace Fsl
 
     // The downscaled framebuffer needs to contain 'half of the kernel width' extra pixels on the left to ensure that we can use
     // them for the blur calc of the first pixel we are interested in
-    const int quadWidth = m_screenResolution.Width() / 4;
+    const int quadWidth = m_screenResolution.RawWidth() / 4;
     int blurFBWidth = quadWidth + (moddedKernelLength / 2);
     blurFBWidth += ((blurFBWidth % 16) != 0 ? (16 - (blurFBWidth % 16)) : 0);
     int addedPixels = blurFBWidth - quadWidth;
 
-    m_framebufferBlur1.Reset(PxSize2D(blurFBWidth, m_screenResolution.Height() / 2),
+    m_framebufferBlur1.Reset(PxSize2D::Create(blurFBWidth, m_screenResolution.Height() / PxSize1D::Create(2)),
                              GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
-    m_framebufferBlur2.Reset(PxSize2D(blurFBWidth, m_screenResolution.Height() / 2),
+    m_framebufferBlur2.Reset(PxSize2D::Create(blurFBWidth, m_screenResolution.Height() / PxSize1D::Create(2)),
                              GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
 
 
@@ -113,10 +113,10 @@ namespace Fsl
     m_shaders.Reset(contentManager, moddedKernelLength, moddedSigma, m_framebufferBlur1.GetSize(), m_framebufferBlur2.GetSize(),
                     TwoPassShaders::Linear, blurConfig.TheShaderType);
 
-    const float xOrg = ((static_cast<float>(m_framebufferOrg.GetSize().Width()) -
-                         ((static_cast<float>(m_framebufferOrg.GetSize().Width()) / 2.0f) + static_cast<float>(addedPixels * 2))) /
-                        static_cast<float>(m_framebufferOrg.GetSize().Width()));
-    const float xFinal = static_cast<float>(addedPixels) / static_cast<float>(m_framebufferBlur2.GetSize().Width());
+    const float xOrg = ((static_cast<float>(m_framebufferOrg.GetSize().RawWidth()) -
+                         ((static_cast<float>(m_framebufferOrg.GetSize().RawWidth()) / 2.0f) + static_cast<float>(addedPixels * 2))) /
+                        static_cast<float>(m_framebufferOrg.GetSize().RawWidth()));
+    const float xFinal = static_cast<float>(addedPixels) / static_cast<float>(m_framebufferBlur2.GetSize().RawWidth());
 
     VBHelper::BuildVB(m_vertexBufferLeft, BoxF(-1, -1, 0, 1), BoxF(0.0f, 0.0f, 0.5f, 1.0f));
     VBHelper::BuildVB(m_vertexBufferRightX, BoxF(-1, -1, 1, 1), BoxF(xOrg, 0.0f, 1.0f, 1.0f));
@@ -133,7 +133,7 @@ namespace Fsl
     // Render the 'source' image that we want to partially blur
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferOrg.Get());
     {
-      glViewport(0, 0, m_framebufferOrg.GetSize().Width(), m_framebufferOrg.GetSize().Height());
+      glViewport(0, 0, m_framebufferOrg.GetSize().RawWidth(), m_framebufferOrg.GetSize().RawHeight());
       pScene->Draw();
     }
     // Since we are only doing opaque 2d-composition type operations we can disable blend and depth testing
@@ -143,7 +143,7 @@ namespace Fsl
     // Downscale the right side of the image to 1/4 of its size (1/2w x 1/2h)
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferBlur1.Get());
     {
-      glViewport(0, 0, m_framebufferBlur1.GetSize().Width(), m_framebufferBlur1.GetSize().Height());
+      glViewport(0, 0, m_framebufferBlur1.GetSize().RawWidth(), m_framebufferBlur1.GetSize().RawHeight());
       glClear(GL_COLOR_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);
@@ -158,7 +158,7 @@ namespace Fsl
     // Blur the scaled image in X
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferBlur2.Get());
     {
-      glViewport(0, 0, m_framebufferBlur2.GetSize().Width(), m_framebufferBlur2.GetSize().Height());
+      glViewport(0, 0, m_framebufferBlur2.GetSize().RawWidth(), m_framebufferBlur2.GetSize().RawHeight());
       glClear(GL_COLOR_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);
@@ -173,7 +173,7 @@ namespace Fsl
     // Blur the scaled image in Y
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferBlur1.Get());
     {
-      glViewport(0, 0, m_framebufferBlur1.GetSize().Width(), m_framebufferBlur1.GetSize().Height());
+      glViewport(0, 0, m_framebufferBlur1.GetSize().RawWidth(), m_framebufferBlur1.GetSize().RawHeight());
       glClear(GL_COLOR_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);
@@ -188,7 +188,7 @@ namespace Fsl
     // Since we are only doing opaque non-overlapping 2d-composition type operations we can disable blend and depth testing
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     {
-      glViewport(0, 0, m_screenResolution.Width(), m_screenResolution.Height());
+      glViewport(0, 0, m_screenResolution.RawWidth(), m_screenResolution.RawHeight());
       glClear(GL_COLOR_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);

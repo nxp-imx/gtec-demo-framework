@@ -734,7 +734,7 @@ TEST_F(TestBacher_FlexibleImmediateModeBatcher, MeshBuild_AddRect_PxAreaRectangl
       EXPECT_EQ(indexCount, meshBuilder.GetRemainingIndexCapacity());
       EXPECT_EQ(indexOffset, meshBuilder.GetIndexVertexOffset());
 
-      meshBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(quad1X0, quad1Y0, quad1X1, quad1Y1), quad1TextureArea);
+      meshBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(quad1X0, quad1Y0, quad1X1, quad1Y1), quad1TextureArea);
 
       EXPECT_EQ(4u, meshBuilder.GetVertexCount());
       EXPECT_EQ(6u, meshBuilder.GetIndexCount());
@@ -756,7 +756,7 @@ TEST_F(TestBacher_FlexibleImmediateModeBatcher, MeshBuild_AddRect_PxAreaRectangl
       EXPECT_EQ(indexCount, meshBuilder.GetRemainingIndexCapacity());
       EXPECT_EQ(indexOffset, meshBuilder.GetIndexVertexOffset());
 
-      meshBuilder.AddRect(PxAreaRectangleF::FromLeftTopRightBottom(quad2X0, quad2Y0, quad2X1, quad2Y1), quad2TextureArea);
+      meshBuilder.AddRect(PxAreaRectangleF::CreateFromLeftTopRightBottom(quad2X0, quad2Y0, quad2X1, quad2Y1), quad2TextureArea);
 
       EXPECT_EQ(4u, meshBuilder.GetVertexCount());
       EXPECT_EQ(6u, meshBuilder.GetIndexCount());

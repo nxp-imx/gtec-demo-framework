@@ -36,6 +36,7 @@ from typing import Optional
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageDependency import UnresolvedPackageDependency
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavor import UnresolvedPackageFlavor
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorExtension import UnresolvedPackageFlavorExtension
 from FslBuildGen.Packages.Unresolved.UnresolvedExternalDependency import UnresolvedExternalDependency
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPackageDefine
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
@@ -46,7 +47,7 @@ class PackagePlatform(object):
     def __init__(self, name: str, directRequirements: List[UnresolvedPackageRequirement], directDependencies: List[UnresolvedPackageDependency],
                  variants: List[UnresolvedPackageVariant], supported: bool, externalDependencies: List[UnresolvedExternalDependency],
                  directDefines: List[UnresolvedPackageDefine], directExperimentalRecipe: Optional[XmlExperimentalRecipe],
-                 flavors: List[UnresolvedPackageFlavor]) -> None:
+                 flavors: List[UnresolvedPackageFlavor], flavorExtensions: List[UnresolvedPackageFlavorExtension]) -> None:
         super().__init__()
         self.Name = name
         self.DirectUsedFeatures = [requirement for requirement in directRequirements if requirement.Type == PackageRequirementTypeString.Feature]  # type: List[UnresolvedPackageRequirement]
@@ -58,3 +59,4 @@ class PackagePlatform(object):
         self.DirectDefines = directDefines  # type: List[UnresolvedPackageDefine]
         self.DirectExperimentalRecipe = directExperimentalRecipe
         self.Flavors = flavors
+        self.FlavorExtensions = flavorExtensions

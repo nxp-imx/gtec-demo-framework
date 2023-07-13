@@ -113,11 +113,11 @@ namespace Fsl
         const auto sizePx = GetWindowSizePx();
 
         const int32_t x0 = 0;
-        const int32_t x1 = sizePx.Width() / 2;
-        const int32_t x2 = sizePx.Width();
+        const int32_t x1 = sizePx.RawWidth() / 2;
+        const int32_t x2 = sizePx.RawWidth();
         const int32_t y0 = 0;
-        const int32_t y1 = sizePx.Height() / 2;
-        const int32_t y2 = sizePx.Height();
+        const int32_t y1 = sizePx.RawHeight() / 2;
+        const int32_t y2 = sizePx.RawHeight();
 
         m_scene0.Draw(currentFrameIndex, hCmdBuffer, Rectangle2D(x0, y0, x1 - x0, y2 - y1));
         m_scene1.Draw(currentFrameIndex, hCmdBuffer, Rectangle2D(x0, y1, x1 - x0, y1 - y0));

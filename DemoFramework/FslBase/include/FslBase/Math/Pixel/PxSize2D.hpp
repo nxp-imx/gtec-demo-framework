@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXSIZE2D_HPP
 #define FSLBASE_MATH_PIXEL_PXSIZE2D_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,8 @@ namespace Fsl
   //! A immutable int32_t based size that will never be negative!
   struct PxSize2D
   {
-    using value_type = int32_t;
+    using value_type = PxSize1D;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_width{};
@@ -55,43 +56,39 @@ namespace Fsl
 
 
     explicit constexpr PxSize2D(const PxPoint2 value) noexcept
-      : m_width(value.X >= 0 ? value.X : 0)
-      , m_height(value.Y >= 0 ? value.Y : 0)
+      : m_width(value_type::Create(value.X))
+      , m_height(value_type::Create(value.Y))
     {
     }
 
-
-    constexpr PxSize2D(const PxSize1D width, const PxSize1D height) noexcept
-      : m_width(width.Value().Value)
-      , m_height(height.Value().Value)
-    {
-    }
-
-    constexpr PxSize2D(const value_type width, const PxSize1D height) noexcept
-      : m_width(width >= 0 ? width : 0)
-      , m_height(height.Value().Value)
-    {
-    }
-
-    constexpr PxSize2D(const PxSize1D width, const value_type height) noexcept
-      : m_width(width.Value().Value)
-      , m_height(height >= 0 ? height : 0)
-    {
-    }
-
-    constexpr PxSize2D(const value_type width, const value_type height) noexcept
-      : m_width(width >= 0 ? width : 0)
-      , m_height(height >= 0 ? height : 0)
-    {
-    }
-
-    //! If this constructor is used is extremely important to be 100% sure the width and height are positive.
-    constexpr PxSize2D(const value_type width, const value_type height, const OptimizationCheckFlag /*unused*/) noexcept
+    constexpr PxSize2D(const value_type::value_type width, const value_type::value_type height) noexcept
       : m_width(width)
       , m_height(height)
     {
-      assert(width >= 0);
-      assert(height >= 0);
+    }
+
+    constexpr PxSize2D(const value_type::value_type width, const value_type height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+    constexpr PxSize2D(const value_type width, const value_type::value_type height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+
+    constexpr PxSize2D(const value_type width, const value_type height) noexcept
+      : m_width(width)
+      , m_height(height)
+    {
+    }
+
+    constexpr inline PxPoint2 Value() const noexcept
+    {
+      return {m_width, m_height};
     }
 
     constexpr inline value_type Width() const noexcept
@@ -104,88 +101,165 @@ namespace Fsl
       return m_height;
     }
 
+    constexpr inline raw_value_type RawWidth() const noexcept
+    {
+      return m_width.RawValue();
+    }
+
+    constexpr inline raw_value_type RawHeight() const noexcept
+    {
+      return m_height.RawValue();
+    }
+
     constexpr inline void SetWidth(const value_type width)
     {
-      m_width = std::max(width, 0);
-    }
-
-    constexpr inline void SetHeight(const value_type height)
-    {
-      m_height = std::max(height, 0);
-    }
-
-    constexpr inline void SetWidth(const value_type width, const OptimizationCheckFlag /*unused*/)
-    {
-      assert(width >= 0);
       m_width = width;
     }
 
-    constexpr inline void SetHeight(const value_type height, const OptimizationCheckFlag /*unused*/)
+
+    constexpr inline void SetHeight(const value_type height)
     {
-      assert(height >= 0);
       m_height = height;
+    }
+
+    constexpr inline void SetWidth(const PxValue width)
+    {
+      m_width = value_type(width);
+    }
+
+    constexpr inline void SetHeight(const PxValue height)
+    {
+      m_height = value_type(height);
+    }
+
+    constexpr inline void SetWidth(const raw_value_type width)
+    {
+      m_width = value_type::Create(width);
+    }
+
+    constexpr inline void SetHeight(const raw_value_type height)
+    {
+      m_height = value_type::Create(height);
+    }
+
+    constexpr inline void SetWidth(const raw_value_type width, const OptimizationCheckFlag /*unused*/)
+    {
+      m_width = value_type::Create(width, OptimizationCheckFlag::NoCheck);
+    }
+
+    constexpr inline void SetHeight(const raw_value_type height, const OptimizationCheckFlag /*unused*/)
+    {
+      m_height = value_type::Create(height, OptimizationCheckFlag::NoCheck);
     }
 
     constexpr inline void AddWidth(const value_type width)
     {
-      m_width = std::max(m_width + width, 0);
+      m_width = value_type::Add(m_width, width);
+    }
+
+    constexpr inline void AddWidth(const PxValue width)
+    {
+      m_width = value_type(value_type::Add(m_width, width));
     }
 
     constexpr inline void AddHeight(const value_type height)
     {
-      m_height = std::max(m_height + height, 0);
+      m_height = value_type::Add(m_height, height);
+    }
+
+    constexpr inline void AddHeight(const PxValue height)
+    {
+      m_height = value_type(value_type::Add(m_height, height));
     }
 
     constexpr inline void SetMax(const PxSize2D value)
     {
-      m_width = std::max(m_width, value.m_width);
-      m_height = std::max(m_height, value.m_height);
+      m_width.SetMax(value.m_width);
+      m_height.SetMax(value.m_height);
     }
 
-
-    constexpr bool operator==(const PxSize2D rhs) const noexcept
+    constexpr inline void AddWidth(const raw_value_type width)
     {
-      return m_width == rhs.m_width && m_height == rhs.m_height;
+      m_width += PxValue::Create(width);
     }
 
-    constexpr bool operator!=(const PxSize2D rhs) const noexcept
+    constexpr inline void AddHeight(const raw_value_type height)
     {
-      return m_width != rhs.m_width || m_height != rhs.m_height;
+      m_height += PxValue::Create(height);
     }
 
     static constexpr PxSize2D Add(const PxSize2D sizePx, const PxSize2D valuePx)
     {
-      // check for overflow
-      assert(sizePx.m_width <= (std::numeric_limits<value_type>::max() - valuePx.m_width));
-      assert(sizePx.m_height <= (std::numeric_limits<value_type>::max() - valuePx.m_height));
-      return {sizePx.m_width + valuePx.m_width, sizePx.m_height + valuePx.m_height, OptimizationCheckFlag::NoCheck};
+      return {value_type::Add(sizePx.m_width, valuePx.m_width), value_type::Add(sizePx.m_height, valuePx.m_height)};
+    }
+
+    static constexpr PxPoint2 Add(const PxPoint2 pointPx, const PxSize2D valuePx)
+    {
+      return {value_type::Add(PxValue(pointPx.X), valuePx.m_width), value_type::Add(PxValue(pointPx.Y), valuePx.m_height)};
+    }
+
+    static constexpr PxPoint2 Add(const PxSize2D valuePx, const PxPoint2 pointPx)
+    {
+      return {value_type::Add(valuePx.m_width, PxValue(pointPx.X)), value_type::Add(valuePx.m_height, PxValue(pointPx.Y))};
     }
 
     static constexpr PxPoint2 Subtract(const PxSize2D sizePx, const PxSize2D valuePx)
     {
-      return {sizePx.m_width - valuePx.m_width, sizePx.m_height - valuePx.m_height};
+      return {value_type::Subtract(sizePx.m_width, valuePx.m_width), value_type::Subtract(sizePx.m_height, valuePx.m_height)};
     }
 
     static constexpr PxPoint2 Subtract(const PxPoint2 sizePx, const PxSize2D valuePx)
     {
-      return {sizePx.X - valuePx.m_width, sizePx.Y - valuePx.m_height};
+      return {value_type::Subtract(PxValue(sizePx.X), valuePx.m_width), value_type::Subtract(PxValue(sizePx.Y), valuePx.m_height)};
     }
 
     static constexpr PxPoint2 Subtract(const PxSize2D sizePx, const PxPoint2 valuePx)
     {
-      return {sizePx.m_width - valuePx.X, sizePx.m_height - valuePx.Y};
+      return {value_type::Subtract(sizePx.m_width, PxValue(valuePx.X)), value_type::Subtract(sizePx.m_height, PxValue(valuePx.Y))};
     }
 
-    static constexpr PxSize2D Divide(const PxSize2D sizePx, const PxSize1D value)
+    static constexpr PxSize2D Multiply(const PxSize2D sizePx, const PxSize2D size2Px)
     {
-      assert(value.RawValue() != 0);
-      return {sizePx.m_width / value.RawValue(), sizePx.m_height / value.RawValue(), OptimizationCheckFlag::NoCheck};
+      return {value_type::Multiply(sizePx.m_width, size2Px.m_width), value_type::Multiply(sizePx.m_height, size2Px.m_height)};
+    }
+
+    static constexpr PxPoint2 Multiply(const PxPoint2 pointPx, const PxSize2D sizePx)
+    {
+      return {value_type::Multiply(PxValue(pointPx.X), sizePx.m_width), value_type::Multiply(PxValue(pointPx.Y), sizePx.m_height)};
+    }
+
+    static constexpr PxPoint2 Multiply(const PxSize2D sizePx, const PxPoint2 pointPx)
+    {
+      return {value_type::Multiply(sizePx.m_width, PxValue(pointPx.X)), value_type::Multiply(sizePx.m_height, PxValue(pointPx.Y))};
+    }
+
+    static constexpr PxSize2D Divide(const PxSize2D sizePx, const PxSize2D valuePx)
+    {
+      return {value_type::Divide(sizePx.m_width, valuePx.m_width), value_type::Divide(sizePx.m_height, valuePx.m_height)};
+    }
+
+    static constexpr PxPoint2 Divide(const PxPoint2 value, const PxSize2D sizePx)
+    {
+      return {value_type::Divide(PxValue(value.X), sizePx.m_width), value_type::Divide(PxValue(value.Y), sizePx.m_height)};
+    }
+
+    static constexpr PxPoint2 Divide(const PxSize2D sizePx, const PxPoint2 valuePx)
+    {
+      return {value_type::Divide(sizePx.m_width, PxValue(valuePx.X)), value_type::Divide(sizePx.m_height, PxValue(valuePx.Y))};
+    }
+
+    static constexpr PxSize2D Divide(const PxSize2D sizePx, const value_type value)
+    {
+      return {value_type::Divide(sizePx.m_width, value), value_type::Divide(sizePx.m_height, value)};
+    }
+
+    static constexpr PxSize2D Divide(const PxSize2D sizePx, const value_type::value_type value)
+    {
+      return {value_type::Divide(sizePx.m_width, value), value_type::Divide(sizePx.m_height, value)};
     }
 
     constexpr PxSize2D& operator+=(const PxSize2D valuePx) noexcept
     {
-      assert(m_width <= (std::numeric_limits<value_type>::max() - valuePx.m_width));
-      assert(m_height <= (std::numeric_limits<value_type>::max() - valuePx.m_height));
       m_width += valuePx.m_width;
       m_height += valuePx.m_height;
       return *this;
@@ -193,107 +267,204 @@ namespace Fsl
 
     constexpr PxSize2D& operator-=(const PxSize2D valuePx) noexcept
     {
-      m_width = std::max(m_width - valuePx.m_width, 0);
-      m_height = std::max(m_height - valuePx.m_height, 0);
+      m_width -= valuePx.m_width;
+      m_height -= valuePx.m_height;
       return *this;
     }
 
     static constexpr PxSize2D Min(const PxSize2D val0, const PxSize2D val1)
     {
-      return {std::min(val0.m_width, val1.m_width), std::min(val0.m_height, val1.m_height)};
+      return {value_type::Min(val0.m_width, val1.m_width), value_type::Min(val0.m_height, val1.m_height)};
     }
 
     static constexpr PxSize2D Max(const PxSize2D val0, const PxSize2D val1)
     {
-      return {std::max(val0.m_width, val1.m_width), std::max(val0.m_height, val1.m_height)};
+      return {value_type::Max(val0.m_width, val1.m_width), value_type::Max(val0.m_height, val1.m_height)};
     }
 
     static constexpr PxSize2D Max(const PxSize2D val0, const PxSize2D val1, const PxSize2D val2)
     {
-      return {std::max(std::max(val0.m_width, val1.m_width), val2.m_width), std::max(std::max(val0.m_height, val1.m_height), val2.m_height)};
+      return {value_type::Max(val0.m_width, val1.m_width, val2.m_width), value_type::Max(val0.m_height, val1.m_height, val2.m_height)};
     }
 
     static constexpr PxSize2D Max(const PxSize2D val0, const PxSize2D val1, const PxSize2D val2, const PxSize2D val3)
     {
-      return {std::max(std::max(std::max(val0.m_width, val1.m_width), val2.m_width), val3.m_width),
-              std::max(std::max(std::max(val0.m_height, val1.m_height), val2.m_height), val3.m_height)};
+      return {value_type::Max(val0.m_width, val1.m_width, val2.m_width, val3.m_width),
+              value_type::Max(val0.m_height, val1.m_height, val2.m_height, val3.m_height)};
     }
 
 
     static constexpr PxSize2D Flip(const PxSize2D val)
     {
       // coverity[swapped_arguments]
-      return {val.Height(), val.Width(), OptimizationCheckFlag::NoCheck};
+      return {val.Height(), val.Width()};
+    }
+
+    inline static constexpr PxSize2D Create(const raw_value_type width, const value_type height) noexcept
+    {
+      return {value_type::Create(width), height};
+    }
+
+    inline static constexpr PxSize2D Create(const value_type width, const raw_value_type height) noexcept
+    {
+      return {width, value_type::Create(height)};
+    }
+
+    inline static constexpr PxSize2D Create(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {value_type::Create(width), value_type::Create(height)};
+    }
+
+    //! If this constructor is used is extremely important to be 100% sure the width and height are positive.
+    inline static constexpr PxSize2D UncheckedCreate(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {value_type::UncheckedCreate(width), value_type::UncheckedCreate(height)};
     }
   };
+
+  // op==
+
+  constexpr bool operator==(const PxSize2D lhs, const PxSize2D rhs) noexcept
+  {
+    return lhs.Width() == rhs.Width() && lhs.Height() == rhs.Height();
+  }
+
+  // PxPoint2
+  constexpr bool operator==(const PxPoint2 lhs, const PxSize2D rhs) noexcept
+  {
+    return lhs.X == rhs.Width() && lhs.Y == rhs.Height();
+  }
+
+  constexpr bool operator==(const PxSize2D lhs, const PxPoint2 rhs) noexcept
+  {
+    return lhs.Width() == rhs.X && lhs.Height() == rhs.Y;
+  }
+
+  // op!=
+
+  constexpr bool operator!=(const PxSize2D lhs, const PxSize2D rhs) noexcept
+  {
+    return lhs.Width() != rhs.Width() || lhs.Height() != rhs.Height();
+  }
+
+  // PxPoint2
+  constexpr bool operator!=(const PxPoint2 lhs, const PxSize2D rhs) noexcept
+  {
+    return lhs.X != rhs.Width() || lhs.Y != rhs.Height();
+  }
+
+  constexpr bool operator!=(const PxSize2D lhs, const PxPoint2 rhs) noexcept
+  {
+    return lhs.Width() != rhs.X || lhs.Height() != rhs.Y;
+  }
+
+  // op add
 
   inline constexpr PxSize2D operator+(const PxSize2D lhs, const PxSize2D rhs) noexcept
   {
     return PxSize2D::Add(lhs, rhs);
   }
 
+  // PxPoint2
   inline constexpr PxPoint2 operator+(const PxPoint2 lhs, const PxSize2D rhs) noexcept
   {
-    return {lhs.X + rhs.Width(), lhs.Y + rhs.Height()};
+    return PxSize2D::Add(lhs, rhs);
   }
 
   inline constexpr PxPoint2 operator+(const PxSize2D lhs, const PxPoint2 rhs) noexcept
   {
-    return {lhs.Width() + rhs.X, lhs.Height() + rhs.Y};
+    return PxSize2D::Add(lhs, rhs);
   }
 
+  // op sub
 
   inline constexpr PxPoint2 operator-(const PxSize2D lhs, const PxSize2D rhs) noexcept
   {
-    return {lhs.Width() - rhs.Width(), lhs.Height() - rhs.Height()};
+    return PxSize2D::Subtract(lhs, rhs);
   }
 
+  // PxPoint2
   inline constexpr PxPoint2 operator-(const PxPoint2 lhs, const PxSize2D rhs) noexcept
   {
-    return {lhs.X - rhs.Width(), lhs.Y - rhs.Height()};
+    return PxSize2D::Subtract(lhs, rhs);
   }
 
   inline constexpr PxPoint2 operator-(const PxSize2D lhs, const PxPoint2 rhs) noexcept
   {
-    return {lhs.Width() - rhs.X, lhs.Height() - rhs.Y};
+    return PxSize2D::Subtract(lhs, rhs);
   }
 
+  // op multiply
 
   inline constexpr PxSize2D operator*(const PxSize2D lhs, const PxSize2D rhs) noexcept
   {
-    return {lhs.Width() * rhs.Width(), lhs.Height() * rhs.Height(), OptimizationCheckFlag::NoCheck};
+    return PxSize2D::Multiply(lhs, rhs);
   }
 
+  // PxPoint2
   inline constexpr PxPoint2 operator*(const PxPoint2 lhs, const PxSize2D rhs) noexcept
   {
-    return {lhs.X * rhs.Width(), lhs.Y * rhs.Height()};
+    return PxSize2D::Multiply(lhs, rhs);
   }
 
   inline constexpr PxPoint2 operator*(const PxSize2D lhs, const PxPoint2 rhs) noexcept
   {
-    return {lhs.Width() * rhs.X, lhs.Height() * rhs.Y};
+    return PxSize2D::Multiply(lhs, rhs);
   }
 
+  // op divide
 
   inline constexpr PxSize2D operator/(const PxSize2D lhs, const PxSize2D rhs)
   {
-    return {lhs.Width() / rhs.Width(), lhs.Height() / rhs.Height(), OptimizationCheckFlag::NoCheck};
+    return PxSize2D::Divide(lhs, rhs);
   }
 
+  // PxPoint2
   inline constexpr PxPoint2 operator/(const PxPoint2 lhs, const PxSize2D rhs)
   {
-    return {lhs.X / rhs.Width(), lhs.Y / rhs.Height()};
+    return PxSize2D::Divide(lhs, rhs);
   }
 
   inline constexpr PxPoint2 operator/(const PxSize2D lhs, const PxPoint2 rhs)
   {
-    return {lhs.Width() / rhs.X, lhs.Width() / rhs.Y};
+    return PxSize2D::Divide(lhs, rhs);
   }
 
 
-  inline constexpr PxSize2D operator/(const PxSize2D lhs, const PxSize1D rhs) noexcept
+  // PxSize2D::value_type
+  inline constexpr PxSize2D operator/(const PxSize2D lhs, const PxSize2D::value_type rhs) noexcept
   {
     return PxSize2D::Divide(lhs, rhs);
+  }
+
+  // PxPoint2::value_type
+  inline constexpr PxSize2D operator/(const PxSize2D lhs, const PxPoint2::value_type rhs) noexcept
+  {
+    return PxSize2D::Divide(lhs, rhs);
+  }
+
+  // op +=
+
+  inline constexpr PxPoint2 operator+=(PxPoint2& rLhs, const PxSize2D rhs) noexcept
+  {
+    rLhs += rhs.Value();
+    return rLhs;
+  }
+
+  // op -=
+
+  inline constexpr PxPoint2 operator-=(PxPoint2& rLhs, const PxSize2D rhs) noexcept
+  {
+    rLhs -= rhs.Value();
+    return rLhs;
+  }
+
+  // op *=
+
+  inline constexpr PxPoint2 operator*=(PxPoint2& rLhs, const PxSize2D rhs) noexcept
+  {
+    rLhs *= rhs.Value();
+    return rLhs;
   }
 }
 

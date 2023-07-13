@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDINGPANEL_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDINGPANEL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,38 +39,42 @@ namespace Fsl::UI
 {
   class SlidingPanel final : public ContentControl
   {
-    enum class State
-    {
-      Shown,
-      Hidden
-    };
+    using base_type = ContentControl;
 
     TransitionValue m_animation;
-    State m_state{State::Shown};
-    SlideDirection m_slideDirection{SlideDirection::Left};
+    DataBinding::TypedDependencyProperty<SlideDirection> m_propertyDirection{SlideDirection::Left};
+    DataBinding::TypedDependencyProperty<bool> m_propertyShown{true};
 
     PxSize2D m_desiredSizePx;
 
   public:
+    static DataBinding::DependencyPropertyDefinition PropertyDirection;
+    static DataBinding::DependencyPropertyDefinition PropertyShown;
+
     explicit SlidingPanel(const std::shared_ptr<BaseWindowContext>& context);
 
-    bool IsShown() const
+    bool IsShown() const noexcept
     {
-      return m_state == State::Shown;
+      return m_propertyShown.Get();
     }
 
-    bool SetShow(const bool isVisible);
+    bool SetShown(const bool value);
 
-    SlideDirection GetDirection() const
+    SlideDirection GetDirection() const noexcept
     {
-      return m_slideDirection;
+      return m_propertyDirection.Get();
     }
 
-    bool SetDirection(const SlideDirection direction);
+    bool SetDirection(const SlideDirection value);
 
   protected:
     PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
     PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+    DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                           const DataBinding::Binding& binding) override;
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
 
     void UpdateAnimation(const TimeSpan& timeSpan) final;
     bool UpdateAnimationState(const bool forceCompleteAnimation) final;

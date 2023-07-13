@@ -388,8 +388,8 @@ namespace Fsl
     Texture texture;
     GetContentManager()->Read(texture, fileName);
 
-    m_texture.Width = texture.GetExtent().Width;
-    m_texture.Height = texture.GetExtent().Height;
+    m_texture.Width = texture.GetExtent().Width.Value;
+    m_texture.Height = texture.GetExtent().Height.Value;
     m_texture.MipLevels = texture.GetLevels();
 
     const VkFormat format = Vulkan::VulkanConvert::ToVkFormat(texture.GetPixelFormat());

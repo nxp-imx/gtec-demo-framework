@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,12 @@ TEST(TestFont_SpriteFontCharInfo, Construct_Default)
 TEST(TestFont_SpriteFontCharInfo, Construct)
 {
   const uint32_t id = 10;
-  const PxRectangleU16 srcTextureRectPx(1, 2, 3, 4);
-  const PxPoint2 offsetPx(5, 6);
-  const uint16_t xAdvancePx = 43;
+  const auto srcTextureRectPx = PxRectangleU16::Create(1, 2, 3, 4);
+  const auto offsetPx = PxPoint2::Create(5, 6);
+  const auto xAdvancePx = PxValueU16(43);
   const NativeTextureArea nativeTex(0.1f, 0.2f, 0.3f, 0.4f);
-  const PxSize2DF scaledSizePxf(3, 4);
-  const PxVector2 offsetPxf(5.1f, 6.2f);
+  const auto scaledSizePxf = PxSize2DF::Create(3, 4);
+  const auto offsetPxf = PxVector2::Create(5.1f, 6.2f);
   const float xAdvancePxf = 42.6f;
 
   SpriteFontCharInfo value(CoreFontCharInfo(id, srcTextureRectPx, offsetPx, xAdvancePx),
@@ -73,12 +73,12 @@ TEST(TestFont_SpriteFontCharInfo, Construct)
 TEST(TestFont_SpriteFontCharInfo, OpEqual)
 {
   const uint32_t id = 10;
-  const PxRectangleU16 srcTextureRectPx(1, 2, 3, 4);
-  const PxPoint2 offsetPx(5, 6);
-  const uint16_t xAdvancePx = 43;
+  const auto srcTextureRectPx = PxRectangleU16::Create(1, 2, 3, 4);
+  const auto offsetPx = PxPoint2::Create(5, 6);
+  const auto xAdvancePx = PxValueU16(43);
   const NativeTextureArea nativeTex(0.1f, 0.2f, 0.3f, 0.4f);
-  const PxSize2DF scaledSizePxf(3, 4);
-  const PxVector2 offsetPxf(5.1f, 6.2f);
+  const auto scaledSizePxf = PxSize2DF::Create(3, 4);
+  const auto offsetPxf = PxVector2::Create(5.1f, 6.2f);
   const float xAdvancePxf = 42.6f;
 
   EXPECT_EQ(SpriteFontCharInfo(CoreFontCharInfo(id, srcTextureRectPx, offsetPx, xAdvancePx),
@@ -90,17 +90,17 @@ TEST(TestFont_SpriteFontCharInfo, OpEqual)
 TEST(TestFont_SpriteFontCharInfo, OpNotEqual)
 {
   const uint32_t id = 10;
-  const PxRectangleU16 srcTextureRectPx(1, 2, 3, 4);
-  const PxPoint2 offsetPx(5, 6);
-  const uint16_t xAdvancePx = 43;
+  const auto srcTextureRectPx = PxRectangleU16::Create(1, 2, 3, 4);
+  const auto offsetPx = PxPoint2::Create(5, 6);
+  const auto xAdvancePx = PxValueU16(43);
   const NativeTextureArea nativeTex(0.1f, 0.2f, 0.3f, 0.4f);
-  const PxSize2DF scaledSizePxf(3, 4);
-  const PxVector2 offsetPxf(5.1f, 6.2f);
+  const auto scaledSizePxf = PxSize2DF::Create(3, 4);
+  const auto offsetPxf = PxVector2::Create(5.1f, 6.2f);
   const float xAdvancePxf = 42.6f;
 
 
   auto almostSrcTextureRectPx = srcTextureRectPx;
-  almostSrcTextureRectPx.Add(PxPoint2U(1, 1));
+  almostSrcTextureRectPx.Add(PxPoint2U::Create(1, 1));
 
   EXPECT_NE(SpriteFontCharInfo(CoreFontCharInfo(id + 1, srcTextureRectPx, offsetPx, xAdvancePx),
                                RenderFontCharInfo(nativeTex, scaledSizePxf, offsetPxf, xAdvancePxf)),
@@ -111,7 +111,7 @@ TEST(TestFont_SpriteFontCharInfo, OpNotEqual)
             SpriteFontCharInfo(CoreFontCharInfo(id, srcTextureRectPx, offsetPx, xAdvancePx),
                                RenderFontCharInfo(nativeTex, scaledSizePxf, offsetPxf, xAdvancePxf)));
   EXPECT_NE(SpriteFontCharInfo(CoreFontCharInfo(id, srcTextureRectPx, offsetPx, xAdvancePx),
-                               RenderFontCharInfo(nativeTex, scaledSizePxf, PxVector2(offsetPxf.X + 1.0f, offsetPxf.Y), xAdvancePxf)),
+                               RenderFontCharInfo(nativeTex, scaledSizePxf, PxVector2(offsetPxf.X + PxValueF(1.0f), offsetPxf.Y), xAdvancePxf)),
             SpriteFontCharInfo(CoreFontCharInfo(id, srcTextureRectPx, offsetPx, xAdvancePx),
                                RenderFontCharInfo(nativeTex, scaledSizePxf, offsetPxf, xAdvancePxf)));
   EXPECT_NE(SpriteFontCharInfo(CoreFontCharInfo(id, srcTextureRectPx, offsetPx, xAdvancePx),

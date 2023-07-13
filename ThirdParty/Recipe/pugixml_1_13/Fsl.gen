@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.pugixml_1_13" CreationYear="2022">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Android" Supported="true">
+      <ExperimentalRecipe Name="pugixml" Version="1.13" Find="false">
+        <Pipeline>
+          <Download URL="https://github.com/zeux/pugixml/releases/download/v1.13/pugixml-1.13.tar.gz" Hash="40c0b3914ec131485640fa57e55bf1136446026b41db91c1bef678186a12abbe"/> 
+          <Unpack File="pugixml-1.13.tar.gz" OutputPath="pugixml-1.13"/>
+          <CMakeBuild Project="pugixml" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libpugixml.a"/>
+          <Path Name="include/pugixml.hpp" Method="IsFile"/>
+          <Path Name="include/pugiconfig.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+
+    <Platform Name="Ubuntu;QNX;Emscripten" Supported="true">
+      <ExperimentalRecipe Name="pugixml" Version="1.13" Find="true">
+        <Pipeline>
+          <Download URL="https://github.com/zeux/pugixml/releases/download/v1.13/pugixml-1.13.tar.gz" Hash="40c0b3914ec131485640fa57e55bf1136446026b41db91c1bef678186a12abbe"/> 
+          <Unpack File="pugixml-1.13.tar.gz" OutputPath="pugixml-1.13"/>
+          <CMakeBuild Project="pugixml" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libpugixml.a"/>
+          <Path Name="include/pugixml.hpp" Method="IsFile"/>
+          <Path Name="include/pugiconfig.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="pugixml" Version="1.13" Find="true">
+        <Pipeline>
+          <Download URL="https://github.com/zeux/pugixml/releases/download/v1.13/pugixml-1.13.tar.gz" Hash="40c0b3914ec131485640fa57e55bf1136446026b41db91c1bef678186a12abbe"/> 
+          <Unpack File="pugixml-1.13.tar.gz" OutputPath="pugixml-1.13"/>
+          <CMakeBuild Project="pugixml" Target="install" Configuration="debug;release" Options="-DPUGIXML_USE_POSTFIX=ON" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/pugixml.lib" DebugName="lib/pugixml_d.lib"/>
+          <Path Name="include/pugixml.hpp" Method="IsFile"/>
+          <Path Name="include/pugiconfig.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

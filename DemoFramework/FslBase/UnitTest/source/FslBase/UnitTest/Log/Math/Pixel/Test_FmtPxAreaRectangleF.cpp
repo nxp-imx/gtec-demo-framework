@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_Math_Pixel_FmtPxAreaRectangleF, Log)
 {
-  auto value = PxAreaRectangleF::FromLeftTopRightBottom(1.1f, 2.1f, 15.1f, 25.1f);
+  auto value = PxAreaRectangleF::CreateFromLeftTopRightBottom(1.1f, 2.1f, 15.1f, 25.1f);
 
   EXPECT_EQ(std::string("{Left=1.1 Top=2.1 Right=15.1 Bottom=25.1}"), fmt::format("{}", value));
 }

@@ -63,12 +63,12 @@ namespace Fsl
       constexpr const GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     }
 
-    constexpr int SIZE_MOD = 2;
-    constexpr int SIZE_16 = 16 * SIZE_MOD;
-    constexpr int SIZE_32 = 32 * SIZE_MOD;
-    constexpr int SIZE_64 = 64 * SIZE_MOD;
-    constexpr int SIZE_128 = 128 * SIZE_MOD;
-    constexpr int SIZE_256 = 256 * SIZE_MOD;
+    constexpr PxSize1D SIZE_MOD = PxSize1D::Create(2);
+    constexpr PxSize1D SIZE_16 = PxSize1D::Create(16) * SIZE_MOD;
+    constexpr PxSize1D SIZE_32 = PxSize1D::Create(32) * SIZE_MOD;
+    constexpr PxSize1D SIZE_64 = PxSize1D::Create(64) * SIZE_MOD;
+    constexpr PxSize1D SIZE_128 = PxSize1D::Create(128) * SIZE_MOD;
+    constexpr PxSize1D SIZE_256 = PxSize1D::Create(256) * SIZE_MOD;
 
     constexpr std::array<GLBindAttribLocation, 2> g_shaderAttributeArray = {GLBindAttribLocation(0, "VertexPosition"),
                                                                             GLBindAttribLocation(1, "VertexTexCoord")};
@@ -307,7 +307,7 @@ namespace Fsl
     {
       auto& fb = m_fbRender256;
       glBindFramebuffer(GL_FRAMEBUFFER, fb.Get());
-      glViewport(0, 0, fb.GetSize().Width(), fb.GetSize().Height());
+      glViewport(0, 0, fb.GetSize().RawWidth(), fb.GetSize().RawHeight());
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -371,7 +371,7 @@ namespace Fsl
 
     // Composite everything
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, windowSizePx.Width(), windowSizePx.Height());
+    glViewport(0, 0, windowSizePx.RawWidth(), windowSizePx.RawHeight());
 
     if (m_menuUI.IsFinalSceneEnabled())
     {
@@ -427,15 +427,15 @@ namespace Fsl
       int32_t dstX = 0;
       m_batch->Begin(BlendState::Opaque);
       m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Color::White());
-      dstX += m_fbRender256.GetSize().Width();
+      dstX += m_fbRender256.GetSize().RawWidth();
       m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0), Color::White());
-      dstX += m_fbBlur256A.GetSize().Width();
+      dstX += m_fbBlur256A.GetSize().RawWidth();
       m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0), Color::White());
-      dstX += m_fbBlur128A.GetSize().Width();
+      dstX += m_fbBlur128A.GetSize().RawWidth();
       m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0), Color::White());
-      dstX += m_fbBlur64A.GetSize().Width();
+      dstX += m_fbBlur64A.GetSize().RawWidth();
       m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0), Color::White());
-      dstX += m_fbBlur32A.GetSize().Width();
+      dstX += m_fbBlur32A.GetSize().RawWidth();
       m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0), Color::White());
       // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
@@ -456,7 +456,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurHTexSize >= 0)
     {
-      glUniform1f(m_locBlurHTexSize, 1.0f / static_cast<float>(src.GetSize().Width()));
+      glUniform1f(m_locBlurHTexSize, 1.0f / static_cast<float>(src.GetSize().RawWidth()));
     }
     PostProcess(dst, src);
   }
@@ -468,7 +468,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurVTexSize >= 0)
     {
-      glUniform1f(m_locBlurVTexSize, 1.0f / static_cast<float>(src.GetSize().Height()));
+      glUniform1f(m_locBlurVTexSize, 1.0f / static_cast<float>(src.GetSize().RawHeight()));
     }
     PostProcess(dst, src);
   }
@@ -486,7 +486,7 @@ namespace Fsl
     const auto& fb = dst;
     auto& vb = m_vbFullScreen;
     glBindFramebuffer(GL_FRAMEBUFFER, fb.Get());
-    glViewport(0, 0, fb.GetSize().Width(), fb.GetSize().Height());
+    glViewport(0, 0, fb.GetSize().RawWidth(), fb.GetSize().RawHeight());
     glClear(GL_COLOR_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);

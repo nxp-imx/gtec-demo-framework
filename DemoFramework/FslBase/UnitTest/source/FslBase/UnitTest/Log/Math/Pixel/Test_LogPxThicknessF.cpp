@@ -47,7 +47,7 @@ namespace
 
 TEST(TestLog_MathPixel_LogPxThicknessF, Log)
 {
-  PxThicknessF value(1, 2, 10, 20);
+  const auto value = PxThicknessF::Create(1, 2, 10, 20);
 
   std::stringstream stream;
   stream << value;

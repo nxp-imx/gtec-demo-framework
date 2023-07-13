@@ -48,10 +48,12 @@ from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator import AndroidGeneratorUtil
 from FslBuildGen.Generator import CMakeGeneratorUtil
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Generator.GeneratorUtil import GeneratorUtil
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.LibUtil import LibUtil
 from FslBuildGen.Log import Log
 #from FslBuildGen.Exceptions import *
@@ -106,7 +108,8 @@ class AndroidCMakeLib(object):
 
 # This generator does not work if there are multiple source roots :(
 class GeneratorAndroidGradleCMake(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str, androidABIList: List[str]) -> None:
+    def __init__(self, config: Config, packages: List[Package], platformName: str, androidABIList: List[str],
+                 externalVariantConstraints: ExternalVariantConstraints) -> None:
         super().__init__()
 
         cmakeMinimumVersion = config.ToolConfig.CMakeConfiguration.MinimumVersion
@@ -150,10 +153,11 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                         elif package.Type == PackageType.Executable:
                             self.__GenerateExecutable(config, package, platformName, exeTemplate, templateFileRecordManager, templateFileProcessor,
                                                       appPackageTemplateInfo, androidProjectDir, androidProjectCMakeDir,
-                                                      exeFileList, androidABIList, cmakePackageRootVariables, cmakeMinimumVersion)
+                                                      exeFileList, androidABIList, cmakePackageRootVariables, cmakeMinimumVersion,
+                                                      externalVariantConstraints)
 
         # For now we only support doing 'exe' builds using full source for everything (like the old builder)
-        if totalExeCount <= 0:
+        if totalExeCount <= 0 and not config.IsTestMode:
             config.DoPrint("No executables provided, nothing to build.")
 
 
@@ -287,13 +291,14 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                              androidProjectCMakeDir: str,
                              exeFileList: List[str],
                              androidABIList: List[str],
-                             cmakePackageRootVariables: str, cmakeMinimumVersion: CMakeVersion) -> None:
+                             cmakePackageRootVariables: str, cmakeMinimumVersion: CMakeVersion,
+                             externalVariantConstraints: ExternalVariantConstraints) -> None:
         # copy files that need to be modified
         dstFilenameModifier = self.__GetDstFilenameModifier(config, androidProjectDir, package, appPackageTemplateInfo,
                                                             template, androidProjectCMakeDir, androidABIList,
                                                             templateFileProcessor, cmakePackageRootVariables, cmakeMinimumVersion)
 
-        templateFileProcessor.Process(config, templateFileRecordManager, androidProjectDir, package, dstFilenameModifier)
+        templateFileProcessor.Process(config, templateFileRecordManager, androidProjectDir, package, externalVariantConstraints, dstFilenameModifier)
 
         if not config.DisableWrite:
             # mark files as executable
@@ -530,6 +535,9 @@ class GeneratorAndroidGradleCMakeUtil(object):
         for variantEntry in package.ResolvedAllVariantDict.values():
             variantEntryOptions = [option.Name for option in variantEntry.Options]
             variableReport.Add(variantEntry.Name, variantEntryOptions)
+
+        # Add all the package flavor selections
+        GeneratorUtil.AddFlavors(variableReport, package)
 
         # Gradle names for debug and release building
         variableReport.Add(LocalMagicBuildVariants.GradleBuildConfig, ['assembleDebug', 'assembleRelease'], ToolAddedVariant.CONFIG)

@@ -43,11 +43,11 @@ namespace
   using TestFont_BasicFlatHashTable = TestFixtureFslGraphics;
 
   const std::array<BitmapFontChar, 10> g_chars = {
-    BitmapFontChar(0, PxRectangleU32(), PxPoint2(), 0),     BitmapFontChar(0x32, PxRectangleU32(), PxPoint2(), 1),
-    BitmapFontChar(0x40, PxRectangleU32(), PxPoint2(), 2),  BitmapFontChar(0x41, PxRectangleU32(), PxPoint2(), 3),
-    BitmapFontChar(0x52, PxRectangleU32(), PxPoint2(), 4),  BitmapFontChar(0x140, PxRectangleU32(), PxPoint2(), 5),
-    BitmapFontChar(0x141, PxRectangleU32(), PxPoint2(), 6), BitmapFontChar(0x143, PxRectangleU32(), PxPoint2(), 7),
-    BitmapFontChar(0x240, PxRectangleU32(), PxPoint2(), 8), BitmapFontChar(0x243, PxRectangleU32(), PxPoint2(), 9),
+    BitmapFontChar(0, PxRectangleU32(), PxPoint2(), PxValueU16(0)),     BitmapFontChar(0x32, PxRectangleU32(), PxPoint2(), PxValueU16(1)),
+    BitmapFontChar(0x40, PxRectangleU32(), PxPoint2(), PxValueU16(2)),  BitmapFontChar(0x41, PxRectangleU32(), PxPoint2(), PxValueU16(3)),
+    BitmapFontChar(0x52, PxRectangleU32(), PxPoint2(), PxValueU16(4)),  BitmapFontChar(0x140, PxRectangleU32(), PxPoint2(), PxValueU16(5)),
+    BitmapFontChar(0x141, PxRectangleU32(), PxPoint2(), PxValueU16(6)), BitmapFontChar(0x143, PxRectangleU32(), PxPoint2(), PxValueU16(7)),
+    BitmapFontChar(0x240, PxRectangleU32(), PxPoint2(), PxValueU16(8)), BitmapFontChar(0x243, PxRectangleU32(), PxPoint2(), PxValueU16(9)),
   };
 }
 

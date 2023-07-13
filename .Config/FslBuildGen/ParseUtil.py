@@ -37,7 +37,9 @@ from typing import Optional
 #from typing import Union
 from FslBuildGen.DataTypes import FilterMethod
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
 from FslBuildGen.ExtensionListManager2 import ExtensionListManager2
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.RecipeFilterName import RecipeFilterName
 from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
@@ -173,15 +175,15 @@ def ParseBool(value: str) -> bool:
         raise Exception("Unsupported bool value '{0}'".format(value))
 
 
-def ParseVariantDict(variants: Optional[str]) -> Dict[str, str]:
+def ParseExternalVariantConstraints(variants: Optional[str]) -> ExternalVariantConstraints:
     if not variants:
-        return {}
+        return ExternalVariantConstraints({})
     if not variants.startswith('[') and not variants.endswith('['):
         raise Exception("Expected a variant list in the format '[variant=value,variant=value]' not '%s'" % (variants))
 
     variants = variants[1:-1]
     if len(variants) == 0:
-        return {}
+        return ExternalVariantConstraints({})
     entries = variants.split(',')
     variantDict = {}  # type: Dict[str, str]
     for entry in entries:
@@ -195,4 +197,4 @@ def ParseVariantDict(variants: Optional[str]) -> Dict[str, str]:
         if pair[0] in variantDict:
             raise Exception("The variant '{0}' has already been configured ('{1}')".format(pair[0], entry))
         variantDict[pair[0]] = pair[1]
-    return variantDict
+    return ExternalVariantConstraints.ToExternalVariantConstraints(variantDict)

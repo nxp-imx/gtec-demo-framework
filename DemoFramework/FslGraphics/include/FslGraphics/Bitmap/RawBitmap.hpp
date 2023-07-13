@@ -52,28 +52,28 @@ namespace Fsl
 
   public:
     constexpr RawBitmap() = default;
-    RawBitmap(const void* const pContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
-    RawBitmap(const void* const pContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin origin);
+    RawBitmap(const void* const pContent, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    RawBitmap(const void* const pContent, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin origin);
 
     RawBitmap(const void* const pContent, const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin origin)
-      : RawBitmap(pContent, PxExtent2D(width, height), pixelFormat, origin)
+      : RawBitmap(pContent, PxExtent2D::Create(width, height), pixelFormat, origin)
     {
     }
 
     RawBitmap(const void* const pContent, const uint32_t width, const uint32_t height, const PixelFormat pixelFormat, const BitmapOrigin origin)
-      : RawBitmap(pContent, PxExtent2D(width, height), pixelFormat, origin)
+      : RawBitmap(pContent, PxExtent2D::Create(width, height), pixelFormat, origin)
     {
     }
 
     RawBitmap(const void* const pContent, const int32_t width, const int32_t height, const PixelFormat pixelFormat, const uint32_t stride,
               const BitmapOrigin origin)
-      : RawBitmap(pContent, PxExtent2D(width, height), pixelFormat, stride, origin)
+      : RawBitmap(pContent, PxExtent2D::Create(width, height), pixelFormat, stride, origin)
     {
     }
 
     RawBitmap(const void* const pContent, const uint32_t width, const uint32_t height, const PixelFormat pixelFormat, const uint32_t stride,
               const BitmapOrigin origin)
-      : RawBitmap(pContent, PxExtent2D(width, height), pixelFormat, stride, origin)
+      : RawBitmap(pContent, PxExtent2D::Create(width, height), pixelFormat, stride, origin)
     {
     }
 
@@ -93,15 +93,15 @@ namespace Fsl
     }
 
     //! The width of the bitmap in pixels
-    constexpr PxExtent2D::value_type Width() const
+    constexpr PxExtent2D::raw_value_type Width() const
     {
-      return m_extent.Width;
+      return m_extent.Width.Value;
     }
 
     //! The height of the bitmap in pixels
-    constexpr PxExtent2D::value_type Height() const
+    constexpr PxExtent2D::raw_value_type Height() const
     {
-      return m_extent.Height;
+      return m_extent.Height.Value;
     }
 
     //! The number of bytes that represent one scan line of the bitmap.
@@ -114,7 +114,7 @@ namespace Fsl
     //! The number of bytes that can be stored in m_pContent
     constexpr uint32_t GetByteSize() const
     {
-      return m_extent.Height * m_stride;
+      return m_extent.Height.Value * m_stride;
     }
 
     constexpr PxExtent2D GetExtent() const

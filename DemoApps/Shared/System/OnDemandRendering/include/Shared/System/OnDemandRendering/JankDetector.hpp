@@ -1,7 +1,7 @@
 #ifndef SHARED_SYSTEM_ONDEMANDRENDERING_JANKDETECTOR_HPP
 #define SHARED_SYSTEM_ONDEMANDRENDERING_JANKDETECTOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxValue.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <cassert>
@@ -50,15 +51,15 @@ namespace Fsl
       float FixedSpeedPerFrame{0.0f};
 
       // Camera is moving at a fixed speed per update (frame rate dependent)
-      int32_t CameraPosition{0};
+      PxValue CameraPosition{0};
       // Box0 is moving at the same speed as the camera
-      int32_t Box0Position{0};
+      PxValue Box0Position{0};
       // Box1 is moving using delta time in fixed update
-      int32_t Box1Position{0};
+      PxValue Box1Position{0};
       // Box2 is moving using delta time in update
-      int32_t Box2Position{0};
+      PxValue Box2Position{0};
       // Box3 is moving using delta time in draw
-      int32_t Box3Position{0};
+      PxValue Box3Position{0};
 
       double AnimCamera{0};
       double AnimBox1{0};
@@ -80,13 +81,13 @@ namespace Fsl
       float FixedSpeedPerFrame{0.0f};
 
       // Box0 is moving at the same speed as the camera
-      int32_t Box0Position{0};
+      PxValue Box0Position{0};
       // Box1 is moving using delta time in fixed update
-      int32_t Box1Position{0};
+      PxValue Box1Position{0};
       // Box2 is moving using delta time in update
-      int32_t Box2Position{0};
+      PxValue Box2Position{0};
       // Box3 is moving using delta time in draw
-      int32_t Box3Position{0};
+      PxValue Box3Position{0};
 
       double AnimBox0{0};
       double AnimBox1{0};
@@ -105,16 +106,16 @@ namespace Fsl
     struct TimingRecords
     {
       // Box0 is moving at the same speed as the camera
-      int32_t Box0Position{0};
+      PxValue Box0Position{0};
       // Box1 is moving using delta time in fixed update
-      int32_t Box1Position{0};
+      PxValue Box1Position{0};
       // Box2 is moving using delta time in update
-      int32_t Box2Position{0};
+      PxValue Box2Position{0};
       // Box3 is moving using delta time in draw
-      int32_t Box3Position{0};
+      PxValue Box3Position{0};
 
       TimingRecords() = default;
-      TimingRecords(const int32_t box0Position, const int32_t box1Position, const int32_t box2Position, const int32_t box3Position)
+      TimingRecords(const PxValue box0Position, const PxValue box1Position, const PxValue box2Position, const PxValue box3Position)
         : Box0Position(box0Position)
         , Box1Position(box1Position)
         , Box2Position(box2Position)

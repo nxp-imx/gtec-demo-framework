@@ -73,16 +73,22 @@ namespace Fsl
       , public IWindowId
       , protected IEventListener
     {
+      using base_type = DataBinding::DependencyObject;
+
       const std::shared_ptr<BaseWindowContext> m_context;
       std::shared_ptr<ITag> m_tag;
       int32_t m_tagValue{0};
 
       DataBinding::TypedDependencyProperty<DpLayoutSize1D> m_propertyWidthDp;
       DataBinding::TypedDependencyProperty<DpLayoutSize1D> m_propertyHeightDp;
+      DataBinding::TypedDependencyProperty<DpSize1DF> m_propertyMinWidthDpf;
+      DataBinding::TypedDependencyProperty<DpSize1DF> m_propertyMinHeightDpf;
+      DataBinding::TypedDependencyProperty<DpLayoutSize1D> m_propertyMaxWidthDpf;
+      DataBinding::TypedDependencyProperty<DpLayoutSize1D> m_propertyMaxHeightDpf;
       DataBinding::TypedDependencyProperty<DpThicknessF> m_propertyMarginDpf;
-      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentX;
-      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentY;
-      DataBinding::TypedDependencyProperty<Color> m_propertyBaseColor;
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentX{ItemAlignment::Near};
+      DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyAlignmentY{ItemAlignment::Near};
+      DataBinding::TypedDependencyProperty<Color> m_propertyBaseColor{Color::White()};
 
       BaseWindowFlags m_flags;
       LayoutCache m_layoutCache;
@@ -93,6 +99,10 @@ namespace Fsl
     public:
       static DataBinding::DependencyPropertyDefinition PropertyWidthDp;
       static DataBinding::DependencyPropertyDefinition PropertyHeightDp;
+      static DataBinding::DependencyPropertyDefinition PropertyMinWidthDp;
+      static DataBinding::DependencyPropertyDefinition PropertyMinHeightDp;
+      static DataBinding::DependencyPropertyDefinition PropertyMaxWidthDp;
+      static DataBinding::DependencyPropertyDefinition PropertyMaxHeightDp;
       static DataBinding::DependencyPropertyDefinition PropertyMarginDpf;
       static DataBinding::DependencyPropertyDefinition PropertyAlignmentX;
       static DataBinding::DependencyPropertyDefinition PropertyAlignmentY;
@@ -190,6 +200,51 @@ namespace Fsl
       //! @brief Set the current height
       //! @param value the new height (set it to a negative value to use auto sizing)
       bool SetHeight(const DpLayoutSize1D value);
+
+
+      //! @brief Get the current minimum width
+      //! @return the minimum width (minWidth will be >= 0, not NaN and not positive infinity)
+      DpSize1DF GetMinWidth() const noexcept
+      {
+        return m_propertyMinWidthDpf.Get();
+      }
+
+      //! @brief Set the current minimum Width
+      //! @param value the new min width (>= 0, not nan, not positive infinity)
+      bool SetMinWidth(const DpSize1DF value);
+
+      //! @brief Get the current minimum height
+      //! @return the minimum height (minHeight will be >= 0, not NaN and not positive infinity)
+      DpSize1DF GetMinHeight() const noexcept
+      {
+        return m_propertyMinHeightDpf.Get();
+      }
+
+      //! @brief Set the current minimum height
+      //! @param value the new min height (>= 0, not nan, not positive infinity)
+      bool SetMinHeight(const DpSize1DF value);
+
+
+      //! @brief Get the current max width (Defaults to positive infinity)
+      //! @return the maximum width (maxWidth will be >= 0 and <= positive infinity, not NaN)
+      DpLayoutSize1D GetMaxWidth() const noexcept
+      {
+        return m_propertyMaxWidthDpf.Get();
+      }
+
+      //! @brief Set the current max Width.  Default is positive infinity to ensure no limits exist.
+      bool SetMaxWidth(const DpLayoutSize1D value);
+
+      //! @brief Get the current max height (Defaults to positive infinity)
+      //! @return the maximum height (maxHeight will be >= 0 and <= positive infinity, not NaN)
+      DpLayoutSize1D GetMaxHeight() const noexcept
+      {
+        return m_propertyMaxHeightDpf.Get();
+      }
+
+      //! @brief Set the current max height.  Default is positive infinity to ensure no limits exist.
+      bool SetMaxHeight(const DpLayoutSize1D value);
+
 
       DpThicknessF GetMargin() const noexcept
       {

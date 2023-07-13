@@ -93,7 +93,7 @@ namespace Fsl
     Procedural::BasicMesh CreateMesh(const PxSize2D& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
                                      const bool shareInstanceVertices, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect, textureRepeatCount, textureRepeatCount));
 
       BasicMesh mesh;
@@ -174,7 +174,7 @@ namespace Fsl
 
   void T3DStressTest::FixedUpdate(const DemoTime& /*demoTime*/)
   {
-    const PxSize2D windowSizePx = GetWindowSizePx();
+    const auto aspectRatio = GetWindowAspectRatio();
 
     Vector3 forceDirection(std::sin(m_radians), 0, 0);
     m_displacement = m_gravity + forceDirection;
@@ -188,8 +188,7 @@ namespace Fsl
     // Pull the camera back from the cube
     m_view = Matrix::CreateTranslation(0.0f, 0.0f, -m_config.GetCameraDistance());
 
-    m_perspective = Matrix::CreatePerspectiveFieldOfView(
-      MathHelper::ToRadians(45.0f), static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 100.0f);
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 1, 100.0f);
     m_MVP = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;

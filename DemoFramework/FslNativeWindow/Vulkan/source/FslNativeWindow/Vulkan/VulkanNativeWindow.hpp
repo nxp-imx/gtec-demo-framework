@@ -108,14 +108,14 @@ namespace Fsl
         return false;
       }
 
-      if (surfaceCapabilities.currentExtent.width >= static_cast<uint32_t>(std::numeric_limits<PxPoint2::value_type>::max()) ||
-          surfaceCapabilities.currentExtent.height >= static_cast<uint32_t>(std::numeric_limits<PxPoint2::value_type>::max()))
+      if (surfaceCapabilities.currentExtent.width >= static_cast<uint32_t>(std::numeric_limits<PxPoint2::raw_value_type>::max()) ||
+          surfaceCapabilities.currentExtent.height >= static_cast<uint32_t>(std::numeric_limits<PxPoint2::raw_value_type>::max()))
       {
         return false;
       }
 
-      rSize = PxPoint2(static_cast<PxPoint2::value_type>(surfaceCapabilities.currentExtent.width),
-                       static_cast<PxPoint2::value_type>(surfaceCapabilities.currentExtent.height));
+      rSize = PxPoint2::Create(static_cast<PxPoint2::raw_value_type>(surfaceCapabilities.currentExtent.width),
+                               static_cast<PxPoint2::raw_value_type>(surfaceCapabilities.currentExtent.height));
       return true;
     }
 

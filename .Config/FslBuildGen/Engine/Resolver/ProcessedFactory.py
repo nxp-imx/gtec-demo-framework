@@ -36,10 +36,12 @@ from typing import List
 from typing import Optional
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
 from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackage
 from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackageFlags
 from FslBuildGen.Engine.Resolver.ProcessedPackage import ProcessedPackagePaths
 from FslBuildGen.Engine.Resolver.ProcessedPackageDependency import ProcessedPackageDependency
+from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageTemplate
 from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageFile import PackageFile
@@ -68,7 +70,8 @@ class ProcessedFactory(object):
                       directDependencies: List[ProcessedPackageDependency], directRequirements: List[UnresolvedPackageRequirement],
                       directDefines: List[UnresolvedPackageDefine], externalDependencies: List[UnresolvedExternalDependency],
                       path: ProcessedPackagePaths, templateType: str, buildCustomization: Dict[str, XmlGenFileBuildCustomization],
-                      directExperimentalRecipe: Optional[XmlExperimentalRecipe], resolvedPlatform: PackagePlatform, directPlatformSupported: bool,
+                      directExperimentalRecipe: Optional[XmlExperimentalRecipe], resolvedFlavorSelections: PackageFlavorSelections,
+                      resolvedFlavorTemplate: ResolvedPackageTemplate, resolvedPlatform: PackagePlatform, directPlatformSupported: bool,
                       customInfo: PackageCustomInfo, traceContext: PackageTraceContext) -> ProcessedPackage:
 
         # filter based on conditions
@@ -78,4 +81,4 @@ class ProcessedFactory(object):
         return ProcessedPackage(packageProjectContext, nameInfo, companyName, creationYear, packageFile, sourceFileHash, packageType,
                                 packageFlags, packageLanguage, generateList, generateGrpcProtoFileList, directDependencies, directRequirements,
                                 directDefines, externalDependencies, path, templateType, buildCustomization, directExperimentalRecipe,
-                                resolvedPlatform, directPlatformSupported, customInfo, traceContext)
+                                resolvedFlavorSelections, resolvedFlavorTemplate, resolvedPlatform, directPlatformSupported, customInfo, traceContext)

@@ -93,7 +93,7 @@ namespace Fsl
     Procedural::BasicMesh CreateMesh(const PxSize2D& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
                                      const bool shareInstanceVertices, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect, textureRepeatCount, textureRepeatCount));
 
       BasicMesh mesh;

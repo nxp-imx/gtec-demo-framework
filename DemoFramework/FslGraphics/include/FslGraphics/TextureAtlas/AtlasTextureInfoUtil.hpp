@@ -1,7 +1,7 @@
 #ifndef FSLGRAPHICS_TEXTUREATLAS_ATLASTEXTUREINFOUTIL_HPP
 #define FSLGRAPHICS_TEXTUREATLAS_ATLASTEXTUREINFOUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,50 +45,50 @@ namespace Fsl::AtlasTextureInfoUtil
   //         BEWARE: We also assume that none of the values exceed std::numeric_limit<int32_t>::max()
   inline bool AdjustSourceRect(PxRectangleU32& rPxSrcRect, const AtlasTextureInfo& texInfo, Vector2& rOrigin)
   {
-    int32_t clippedSrcRectLeftPx = static_cast<int32_t>(rPxSrcRect.X) + texInfo.OffsetPx.X;
-    int32_t clippedSrcRectTopPx = static_cast<int32_t>(rPxSrcRect.Y) + texInfo.OffsetPx.Y;
-    int32_t clippedSrcRectRightPx = clippedSrcRectLeftPx + static_cast<int32_t>(rPxSrcRect.Width);
-    int32_t clippedSrcRectBottomPx = clippedSrcRectTopPx + static_cast<int32_t>(rPxSrcRect.Height);
+    int32_t clippedSrcRectLeftPx = static_cast<int32_t>(rPxSrcRect.X.Value) + texInfo.OffsetPx.X.Value;
+    int32_t clippedSrcRectTopPx = static_cast<int32_t>(rPxSrcRect.Y.Value) + texInfo.OffsetPx.Y.Value;
+    int32_t clippedSrcRectRightPx = clippedSrcRectLeftPx + static_cast<int32_t>(rPxSrcRect.Width.Value);
+    int32_t clippedSrcRectBottomPx = clippedSrcRectTopPx + static_cast<int32_t>(rPxSrcRect.Height.Value);
 
     // Early abort
-    if (clippedSrcRectLeftPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.Right()) ||
-        clippedSrcRectTopPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.Bottom()) ||
-        clippedSrcRectRightPx <= static_cast<int32_t>(texInfo.TrimmedRectPx.Left()) ||
-        clippedSrcRectBottomPx <= static_cast<int32_t>(texInfo.TrimmedRectPx.Top()))
+    if (clippedSrcRectLeftPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.RawRight()) ||
+        clippedSrcRectTopPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.RawBottom()) ||
+        clippedSrcRectRightPx <= static_cast<int32_t>(texInfo.TrimmedRectPx.RawLeft()) ||
+        clippedSrcRectBottomPx <= static_cast<int32_t>(texInfo.TrimmedRectPx.RawTop()))
     {
       rPxSrcRect = PxRectangleU32();
       return false;
     }
 
-    if (clippedSrcRectLeftPx < static_cast<int32_t>(texInfo.TrimmedRectPx.Left()))
+    if (clippedSrcRectLeftPx < static_cast<int32_t>(texInfo.TrimmedRectPx.RawLeft()))
     {
-      rOrigin.X -= static_cast<float>(static_cast<int32_t>(texInfo.TrimmedRectPx.Left()) - clippedSrcRectLeftPx);
-      clippedSrcRectLeftPx = static_cast<int32_t>(texInfo.TrimmedRectPx.Left());
+      rOrigin.X -= static_cast<float>(static_cast<int32_t>(texInfo.TrimmedRectPx.RawLeft()) - clippedSrcRectLeftPx);
+      clippedSrcRectLeftPx = static_cast<int32_t>(texInfo.TrimmedRectPx.RawLeft());
     }
 
-    if (clippedSrcRectTopPx < static_cast<int32_t>(texInfo.TrimmedRectPx.Top()))
+    if (clippedSrcRectTopPx < static_cast<int32_t>(texInfo.TrimmedRectPx.RawTop()))
     {
-      rOrigin.Y -= static_cast<float>(static_cast<int32_t>(texInfo.TrimmedRectPx.Top()) - clippedSrcRectTopPx);
-      clippedSrcRectTopPx = static_cast<int32_t>(texInfo.TrimmedRectPx.Top());
+      rOrigin.Y -= static_cast<float>(static_cast<int32_t>(texInfo.TrimmedRectPx.RawTop()) - clippedSrcRectTopPx);
+      clippedSrcRectTopPx = static_cast<int32_t>(texInfo.TrimmedRectPx.RawTop());
     }
 
-    if (clippedSrcRectRightPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.Right()))
+    if (clippedSrcRectRightPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.RawRight()))
     {
-      clippedSrcRectRightPx = static_cast<int32_t>(texInfo.TrimmedRectPx.Right());
+      clippedSrcRectRightPx = static_cast<int32_t>(texInfo.TrimmedRectPx.RawRight());
     }
 
-    if (clippedSrcRectBottomPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.Bottom()))
+    if (clippedSrcRectBottomPx >= static_cast<int32_t>(texInfo.TrimmedRectPx.RawBottom()))
     {
-      clippedSrcRectBottomPx = static_cast<int32_t>(texInfo.TrimmedRectPx.Bottom());
+      clippedSrcRectBottomPx = static_cast<int32_t>(texInfo.TrimmedRectPx.RawBottom());
     }
 
     assert(clippedSrcRectLeftPx >= 0);
     assert(clippedSrcRectTopPx >= 0);
     assert(clippedSrcRectRightPx >= clippedSrcRectLeftPx);
     assert(clippedSrcRectBottomPx >= clippedSrcRectTopPx);
-    rPxSrcRect = PxRectangleU32(static_cast<uint32_t>(clippedSrcRectLeftPx), static_cast<uint32_t>(clippedSrcRectTopPx),
-                                static_cast<uint32_t>(clippedSrcRectRightPx - clippedSrcRectLeftPx),
-                                static_cast<uint32_t>(clippedSrcRectBottomPx - clippedSrcRectTopPx));
+    rPxSrcRect = PxRectangleU32::Create(static_cast<uint32_t>(clippedSrcRectLeftPx), static_cast<uint32_t>(clippedSrcRectTopPx),
+                                        static_cast<uint32_t>(clippedSrcRectRightPx - clippedSrcRectLeftPx),
+                                        static_cast<uint32_t>(clippedSrcRectBottomPx - clippedSrcRectTopPx));
     return true;
   }
 

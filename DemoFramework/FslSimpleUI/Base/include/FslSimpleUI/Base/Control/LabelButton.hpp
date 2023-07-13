@@ -33,7 +33,7 @@
 
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
-#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
+#include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
 #include <string>
 
 namespace Fsl
@@ -46,24 +46,37 @@ namespace Fsl
 
     class LabelButton : public ButtonBase
     {
+      using base_type = ButtonBase;
+
       PxSize2D m_cachedMeasureMinimalFontSizePx;
 
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      SpriteFontMesh m_fontMesh;
-      Color m_colorUp{DefaultColor::Button::Up};
-      Color m_colorDown{DefaultColor::Button::Down};
+      SimpleSpriteFontMesh m_fontMesh;
+
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorUp{DefaultColor::Button::Up};
+      DataBinding::TypedDependencyProperty<Color> m_propertyColorDown{DefaultColor::Button::Down};
+      DataBinding::TypedDependencyProperty<StringViewLite> m_propertyContent;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyColorUp;
+      static DataBinding::DependencyPropertyDefinition PropertyColorDown;
+      static DataBinding::DependencyPropertyDefinition PropertyContent;
+
       explicit LabelButton(const std::shared_ptr<WindowContext>& context);
 
-      const std::string& GetContent() const
+      StringViewLite GetContent() const noexcept
       {
-        return m_fontMesh.GetText();
+        return m_propertyContent.Get();
       }
-      void SetContent(const std::string& value);
+      bool SetContent(const char* const value)
+      {
+        return SetContent(StringViewLite(value));
+      }
+      bool SetContent(const StringViewLite value);
+      bool SetContent(const std::string& value);
 
       const std::shared_ptr<SpriteFont>& GetFont() const
       {
@@ -71,23 +84,32 @@ namespace Fsl
       }
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
-      Color GetColorUp() const
-      {
-        return m_colorUp;
-      }
-      void SetColorUp(const Color& value);
 
-      Color GetColorDown() const
+      Color GetColorUp() const noexcept
       {
-        return m_colorDown;
+        return m_propertyColorUp.Get();
       }
-      void SetColorDown(const Color& value);
+
+      bool SetColorUp(const Color value);
+
+
+      Color GetColorDown() const noexcept
+      {
+        return m_propertyColorDown.Get();
+      }
+
+      bool SetColorDown(const Color value);
 
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
+
+      DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+      DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                             const DataBinding::Binding& binding) override;
+      void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
     };
   }
 }

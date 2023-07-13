@@ -148,7 +148,7 @@ namespace Fsl
       FSLLOG3_INFO("tex1Size: {} textureRepeatCount: {} vertexCount: {} instanceCount: {} shareInstanceVertices: {} useTriangleStrip: {}", tex1Size,
                    textureRepeatCount, vertexCount, instanceCount, shareInstanceVertices, useTriangleStrip);
 
-      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      TextureRectangle texRect(PxRectangle(PxValue(0), PxValue(0), tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, textureRepeatCount, textureRepeatCount));
 
       Procedural::BasicMesh mesh;
@@ -218,7 +218,8 @@ namespace Fsl
 
     {
       Point2 vertexCount(m_config.GetVertexCountX(), m_config.GetVertexCountY());
-      PxSize2D tex1Size(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
+      auto tex1Size =
+        PxSize2D::Create(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
       auto mesh = CreateMesh(tex1Size, m_config.GetTextureRepeatCount(), vertexCount, m_config.GetInstanceCount(),
                              m_config.GetShareInstanceVertices(), m_config.GetUseTriangleStrip());
       m_resources.MeshStuff = std::make_unique<MeshStuffRecord>(

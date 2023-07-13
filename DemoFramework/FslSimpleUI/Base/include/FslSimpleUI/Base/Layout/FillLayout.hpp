@@ -37,6 +37,8 @@ namespace Fsl::UI
 {
   class FillLayout : public SimpleLayout
   {
+    using base_type = SimpleLayout;
+
   public:
     explicit FillLayout(const std::shared_ptr<BaseWindowContext>& context);
 

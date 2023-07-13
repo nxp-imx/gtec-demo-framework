@@ -69,7 +69,7 @@ namespace Fsl::Vulkan
     inline VUTextureInfo ToTextureInfo() const
     {
       assert(IsValid());
-      return {Get(), VkExtent2D{m_extentPx.Width, m_extentPx.Height}};
+      return {Get(), VkExtent2D{m_extentPx.Width.Value, m_extentPx.Height.Value}};
     }
 
     //! @brief Get the native texture handle

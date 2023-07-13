@@ -38,6 +38,7 @@ namespace Fsl
   struct DpValue
   {
     using value_type = int32_t;
+    using raw_value_type = int32_t;
 
     value_type Value{0};
 

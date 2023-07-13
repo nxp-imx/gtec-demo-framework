@@ -108,9 +108,9 @@ namespace Fsl::Graphics3D
     if (rotateCamera && m_hasOldPosition)
     {
       PxPoint2 deltaPosition = currentPosition - m_oldPosition;
-      if (deltaPosition.X != 0 || deltaPosition.Y != 0)
+      if (deltaPosition.X.Value != 0 || deltaPosition.Y.Value != 0)
       {
-        Rotate(Vector2(deltaPosition.X, -deltaPosition.Y));
+        Rotate(Vector2(deltaPosition.X.Value, -deltaPosition.Y.Value));
       }
     }
     m_oldPosition = currentPosition;

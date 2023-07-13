@@ -23,7 +23,7 @@
       <ExternalDependency Name="GLESv2" Type="StaticLib"/>
     </Platform>
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="GLBase" Flavor="OpenImpl=OpenGLES"/>
+      <Dependency Name="GLBase" Flavor="GLBase.OpenImpl=OpenGLES"/>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

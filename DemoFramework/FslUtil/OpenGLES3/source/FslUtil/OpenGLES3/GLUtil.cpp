@@ -126,7 +126,7 @@ namespace Fsl::GLES3
     // We utilize PixelFormatLayout::R8G8B8A8 here since that is what glReadPixels is filling it with
     // that also allows the convert method to detect if the the supplied pixelFormat is different and then
     // convert as necessary
-    rBitmap.Reset(PxExtent2D(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
+    rBitmap.Reset(PxExtent2D::Create(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
                   BitmapClearMethod::DontClear);
 
     // glFinish();

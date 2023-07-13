@@ -1,7 +1,7 @@
 #ifndef SHARED_UI_BENCHMARK_PERSISTENCE_INPUT_APPINPUTCOMMANDLIST_HPP
 #define SHARED_UI_BENCHMARK_PERSISTENCE_INPUT_APPINPUTCOMMANDLIST_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,40 @@ namespace Fsl
     uint32_t m_frameCount{0};
 
   public:
+    AppInputCommandList& operator=(const AppInputCommandList& other) = default;
+    AppInputCommandList(const AppInputCommandList& other) = default;
+
+    // move assignment operator
+    AppInputCommandList& operator=(AppInputCommandList&& other) noexcept
+    {
+      if (this != &other)
+      {
+        // Claim ownership here
+        m_recordResolution = other.m_recordResolution;
+        m_recordDensityDpi = other.m_recordDensityDpi;
+        m_entries = std::move(other.m_entries);
+        m_frameCount = other.m_frameCount;
+
+        // Remove the data from other
+        other.m_recordResolution = {};
+        other.m_recordDensityDpi = 0;
+        other.m_frameCount = 0;
+      }
+      return *this;
+    }
+    // move constructor
+    AppInputCommandList(AppInputCommandList&& other) noexcept
+      : m_recordResolution(other.m_recordResolution)
+      , m_recordDensityDpi(other.m_recordDensityDpi)
+      , m_entries(std::move(other.m_entries))
+      , m_frameCount(other.m_frameCount)
+    {
+      // Remove the data from other
+      other.m_recordResolution = {};
+      other.m_recordDensityDpi = 0;
+      other.m_frameCount = 0;
+    }
+
     AppInputCommandList() = default;
     AppInputCommandList(const PxSize2D recordResolution, const uint32_t recordDensityDpi, const ReadOnlySpan<InputCommandRecord> entries,
                         const uint32_t frameCount);

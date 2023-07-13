@@ -35,14 +35,15 @@ from typing import List
 from typing import Optional
 from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
 from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
+from FslBuildGen.Engine.PackageFlavorQuickName import PackageFlavorQuickName
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorOption import UnresolvedPackageFlavorOption
-from FslBuildGen.Engine.Unresolved.UnresolvedPackageName import UnresolvedPackageName
 
 class UnresolvedPackageFlavor(object):
-    def __init__(self, name: PackageFlavorName, introducedByPackageName: UnresolvedPackageName, options: List[UnresolvedPackageFlavorOption]) -> None:
+    def __init__(self, name: PackageFlavorName, quickName: Optional[PackageFlavorQuickName],  options: List[UnresolvedPackageFlavorOption]) -> None:
         super().__init__()
         self.Name = name
-        self.IntroducedByPackageName = introducedByPackageName
+        self.QuickName = quickName
+        self.IntroducedByPackageName = name.OwnerPackageName
         self.Options = options
         self.Description = UnresolvedPackageFlavor.__OptionString(self.Options)
 
@@ -51,6 +52,9 @@ class UnresolvedPackageFlavor(object):
             if entry.Name == name:
                 return entry
         return None
+
+    def IsValidOptionName(self, name: PackageFlavorOptionName) -> bool:
+        return self.TryGetOptionByName(name) is not None;
 
     def __str__(self) -> str:
         return "{0}:{{{1}}}".format(self.Name, self.Description)

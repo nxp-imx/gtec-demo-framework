@@ -93,4 +93,4 @@ class CMakeBuildType(object):
             return CMakeBuildType.Release
         elif buildVariantConfig == BuildVariantConfig.Debug or buildVariantConfig == BuildVariantConfig.Coverage:
             return CMakeBuildType.Debug
-        raise Exception("Unsupported BuildVariantConfig '{0}'".format(BuildVariantConfig.ToString(buildVariantConfig)))
+        raise Exception("Unsupported BuildVariantConfig '{0}' valid configs are '{1}', '{2}' or '{3}'".format(BuildVariantConfig.ToString(buildVariantConfig), BuildVariantConfig.Debug, BuildVariantConfig.Release, BuildVariantConfig.Coverage))

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.RapidVulkan_1_3_250" CreationYear="2017">
+    <Dependency Name="VulkanBase"/>
+    <Platform Name="Android">
+      <ExperimentalRecipe Name="RapidVulkan" Version="1.3.250.0" Find="false">
+        <Pipeline>
+          <Download URL="https://github.com/Unarmed1000/RapidVulkan/archive/1.3.250.0.tar.gz" To="RapidVulkan-1.3.250.0.tar.gz" Hash="6ebe2b6aab8b4044a6519e72a126291ad168a0e6bf82945539b5f08d72484a07"/>
+          <Unpack File="RapidVulkan-1.3.250.0.tar.gz" OutputPath="RapidVulkan-1.3.250.0"/>
+          <CMakeBuild Project="RapidVulkan" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <Path Name="include/RapidVulkan/Check.hpp" Method="IsFile"/>
+          <Path Name="include/RapidVulkan/CheckError.hpp" Method="IsFile"/>
+          <Path Name="include/RapidVulkan/Device.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    <Platform Name="*">
+      <ExperimentalRecipe Name="RapidVulkan" Version="1.3.250.0" Find="true">
+        <Pipeline>
+          <Download URL="https://github.com/Unarmed1000/RapidVulkan/archive/1.3.250.0.tar.gz" To="RapidVulkan-1.3.250.0.tar.gz" Hash="6ebe2b6aab8b4044a6519e72a126291ad168a0e6bf82945539b5f08d72484a07"/>
+          <Unpack File="RapidVulkan-1.3.250.0.tar.gz" OutputPath="RapidVulkan-1.3.250.0"/>
+          <CMakeBuild Project="RapidVulkan" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <Path Name="include/RapidVulkan/Check.hpp" Method="IsFile"/>
+          <Path Name="include/RapidVulkan/CheckError.hpp" Method="IsFile"/>
+          <Path Name="include/RapidVulkan/Device.hpp" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

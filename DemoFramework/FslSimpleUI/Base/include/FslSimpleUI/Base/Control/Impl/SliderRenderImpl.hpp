@@ -286,7 +286,7 @@ namespace Fsl
 
       // ------
 
-      void Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor, const int32_t cursorPositionPx,
+      void Draw(DrawCommandBuffer& commandBuffer, const PxVector2 dstPositionPxf, const Color finalColor, const PxValue cursorPositionPx,
                 const bool isDragging, const SpriteUnitConverter& spriteUnitConverter);
 
       void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent, const bool isEnabled);

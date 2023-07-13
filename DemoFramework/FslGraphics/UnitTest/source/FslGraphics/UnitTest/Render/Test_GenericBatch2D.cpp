@@ -80,7 +80,7 @@ namespace
 TEST(TestRender_GenericBatch2D, Construct)
 {
   const auto quadRenderer = std::make_shared<DummyQuadBatch>();
-  const PxExtent2D currentExtent(1024, 768);
+  const auto currentExtent = PxExtent2D::Create(1024, 768);
 
   GenericBatch2D<std::shared_ptr<DummyQuadBatch>, DummyTextureInfo, GenericBatch2DFormat::Normal> dummy(quadRenderer, currentExtent);
 }
@@ -88,7 +88,7 @@ TEST(TestRender_GenericBatch2D, Construct)
 TEST(TestRender_GenericBatch2D, BeginEnd)
 {
   const auto quadRenderer = std::make_shared<DummyQuadBatch>();
-  const PxExtent2D currentExtent(1024, 768);
+  const auto currentExtent = PxExtent2D::Create(1024, 768);
 
   GenericBatch2D<std::shared_ptr<DummyQuadBatch>, DummyTextureInfo, GenericBatch2DFormat::Normal> dummy(quadRenderer, currentExtent);
   dummy.Begin();
@@ -98,10 +98,10 @@ TEST(TestRender_GenericBatch2D, BeginEnd)
 TEST(TestRender_GenericBatch2D, BeginDrawEnd)
 {
   const auto quadRenderer = std::make_shared<DummyQuadBatch>();
-  const PxExtent2D currentExtent(1024, 768);
+  const auto currentExtent = PxExtent2D::Create(1024, 768);
 
   GenericBatch2D<std::shared_ptr<DummyQuadBatch>, DummyTextureInfo, GenericBatch2DFormat::Normal> dummy(quadRenderer, currentExtent);
   dummy.Begin();
-  dummy.Draw(DummyTextureInfo(), PxAreaRectangleF(0, 10, 20, 30), Color::White());
+  dummy.Draw(DummyTextureInfo(), PxAreaRectangleF::Create(0, 10, 20, 30), Color::White());
   dummy.End();
 }

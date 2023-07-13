@@ -31,21 +31,22 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import Any
+#from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Set
 from typing import Tuple
-from concurrent.futures import ThreadPoolExecutor
-from enum import Enum
+#from concurrent.futures import ThreadPoolExecutor
+#from enum import Enum
 import io
-import queue
-import threading
+#import queue
+#import threading
 from FslBuildGen import IOUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
 from FslBuildGen.Build.BuildVariantUtil import BuildVariantUtil
+from FslBuildGen.Build.BuildFlavorUtil import BuildFlavorUtil
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Build.VirtualVariantEnvironmentCache import VirtualVariantEnvironmentCache
@@ -70,12 +71,14 @@ from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.DataTypes import ClangTidyProfile
-from FslBuildGen.Exceptions import AggregateException
+#from FslBuildGen.Exceptions import AggregateException
 from FslBuildGen.Exceptions import ExitException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorCMake import GeneratorCMake
 from FslBuildGen.Generator.GeneratorCMake import CMakeGeneratorMode
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
+from FslBuildGen.Generator.GeneratorPlugin import GenerateContext
 from FslBuildGen.Generator.PluginConfig import GeneratorPluginTidy
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
@@ -568,7 +571,7 @@ class CMakeHelper(object):
                         uniquePackageIncludes[package.AbsoluteSourcePath] = -1
                     for includeDir in package.ResolvedBuildAllIncludeDirs:
                         # expand and normalize the include paths
-                        includeDir = IOUtil.NormalizePath(ReportVariableFormatter.Format(includeDir, variableReport, localVariantInfo.ResolvedVariantSettingsDict))
+                        includeDir = IOUtil.NormalizePath(ReportVariableFormatter.Format2(includeDir, variableReport, localVariantInfo.ResolvedVariantSettingsDict))
                         if not IOUtil.IsAbsolutePath(includeDir):
                             includeDir = IOUtil.Join(package.AbsolutePath, includeDir)
                         if includeDir not in uniquePackageIncludes:
@@ -648,11 +651,13 @@ class CMakeHelper(object):
             variableContext = VariableContextHelper.Create(toolConfig, userSetVariables)
             generatorContext = GeneratorContext(log, tidyBuildGeneratorConfig.ErrorHelpManager, tidyBuildGeneratorConfig.RecipeFilterManager,
                                                 toolConfig.Experimental, generatorPlugin, variableContext)
-            config = Config(log, toolConfig, PluginSharedValues.TYPE_DEFAULT, localVariantInfo.ResolvedVariantSettingsDict, False)
-            generatorPlugin.Generate(generatorContext, config, allPackageList)
+
+            resolvedExternalVariantConstraints = ExternalVariantConstraints.ToExternalVariantConstraints(localVariantInfo.ResolvedVariantSettingsDict)
+            config = Config(log, toolConfig, PluginSharedValues.TYPE_DEFAULT, resolvedExternalVariantConstraints, False)
+            generatorPlugin.Generate(GenerateContext(generatorContext, config, allPackageList, resolvedExternalVariantConstraints))
 
             Builder.BuildPackages(log, cmakeBuildDir, tidyBuildGeneratorConfig.ConfigSDKPath, sdkConfigTemplatePath, False, False,
-                                  toolConfig, generatorContext, allPackageList, allPackageList, localVariantInfo.ResolvedVariantSettingsDict,
+                                  toolConfig, generatorContext, allPackageList, allPackageList, resolvedExternalVariantConstraints,
                                   [], None, generatorPlugin, False, False, numBuildThreads, CommandType.ConfigIfChanged, False, forceConfigure=forceConfigure)
 
             cmakeCompileCommandsFile = IOUtil.Join(cmakeBuildDir, 'compile_commands.json')
@@ -1100,7 +1105,7 @@ class PerformClangTidyHelper(object):
 class PerformClangTidy(object):
     @staticmethod
     def Run(log: Log, toolConfig: ToolConfig, userSetVariables: UserSetVariables, platformId: str,
-            topLevelPackage: Package, tidyPackageList: List[Package], userBuildVariantsDict: Dict[str, str],
+            topLevelPackage: Package, tidyPackageList: List[Package], externalVariantConstraints: ExternalVariantConstraints,
             pythonScriptRoot: str, generatorContext: GeneratorContext, sdkConfigTemplatePath: str,
             packageRecipeResultManager: PackageRecipeResultManager,
             performClangTidyConfig: PerformClangTidyConfig,
@@ -1135,10 +1140,10 @@ class PerformClangTidy(object):
         ninjaExeInfo = PerformClangUtil.LookupRecipeResults(packageRecipeResultManager, performClangTidyConfig.ClangTidyConfiguration.NinjaRecipePackageName,
                                                             MagicValues.NinjaCommand)
 
-        BuildVariantUtil.ValidateUserVariantSettings(log, topLevelPackage, userBuildVariantsDict)
-        BuildVariantUtil.LogVariantSettings(log, userBuildVariantsDict)
+        BuildFlavorUtil.ValidateUserFlavorSettings(log, topLevelPackage, externalVariantConstraints)
+        BuildFlavorUtil.LogFlavorSettings(log, externalVariantConstraints)
         resolvedVariantSettingsDict = BuildVariantUtil.CreateCompleteStaticVariantSettings(topLevelPackage.ResolvedAllVariantDict,
-                                                                                           userBuildVariantsDict)
+                                                                                           externalVariantConstraints)
 
         log.LogPrint("Clang version: {0}".format(clangExeInfo.Version))
         log.LogPrint("ClangTidy version: {0}".format(clangTidyExeInfo.Version))

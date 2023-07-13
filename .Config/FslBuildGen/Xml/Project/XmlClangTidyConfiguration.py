@@ -38,12 +38,17 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.Project.XmlClangTidyPlatform import XmlClangTidyPlatform
 
 class XmlClangTidyConfiguration(XmlBase):
+    __AttribFileExtensions = 'FileExtensions'
+    __AttribClangRecipe = 'ClangRecipe'
+    __AttribClangTidyRecipe = 'ClangTidyRecipe'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        fileExtensions = self._ReadAttrib(xmlElement, "FileExtensions")
+        self._CheckAttributes({self.__AttribFileExtensions, self.__AttribClangRecipe, self.__AttribClangTidyRecipe})
+        fileExtensions = self._ReadAttrib(xmlElement, self.__AttribFileExtensions)
         self.FileExtensions = fileExtensions.split(';')
-        self.ClangRecipe = self._ReadAttrib(xmlElement, "ClangRecipe")
-        self.ClangTidyRecipe = self._ReadAttrib(xmlElement, "ClangTidyRecipe")
+        self.ClangRecipe = self._ReadAttrib(xmlElement, self.__AttribClangRecipe)
+        self.ClangTidyRecipe = self._ReadAttrib(xmlElement, self.__AttribClangTidyRecipe)
         self.Platforms = self.__ReadPlatforms(log, xmlElement)
 
     def __ReadPlatforms(self, log: Log, xmlElement: ET.Element) -> List[XmlClangTidyPlatform]:

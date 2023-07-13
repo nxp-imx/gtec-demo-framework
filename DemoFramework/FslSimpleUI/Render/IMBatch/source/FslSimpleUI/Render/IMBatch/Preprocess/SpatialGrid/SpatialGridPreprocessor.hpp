@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_SPATIALGRID_SPATIALGRIDPREPROCESSOR_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_SPATIALGRID_SPATIALGRIDPREPROCESSOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2022 NXP
+ * Copyright 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@ namespace Fsl::UI::RenderIMBatch
   {
     SpatialHashGrid2D m_grid;
     MaterialCache m_cache;
+    PxSize2D m_windowSizePx;
     std::vector<ProcessedCommandRecord> m_finalEntries;
     uint32_t m_finalOpaqueCount{0};
     uint32_t m_finalTransparentCount{0};
@@ -77,12 +78,13 @@ namespace Fsl::UI::RenderIMBatch
     // }
     SpatialHashGrid2D CreateGrid(const PxSize2D windowSizePx, const int32_t cellsX, const int32_t cellsY)
     {
-      const uint32_t desiredStepSizeX = BitsUtil::NextPowerOfTwo(windowSizePx.Width() / cellsX);
-      const uint32_t desiredStepSizeY = BitsUtil::NextPowerOfTwo(windowSizePx.Height() / cellsY);
+      FSLLOG3_VERBOSE5("Width:{} Height:{} cellsX:{} cellsY:{}", windowSizePx.RawWidth(), windowSizePx.RawHeight(), cellsX, cellsY);
+      const uint32_t desiredStepSizeX = BitsUtil::NextPowerOfTwo(windowSizePx.RawWidth() / cellsX);
+      const uint32_t desiredStepSizeY = BitsUtil::NextPowerOfTwo(windowSizePx.RawHeight() / cellsY);
       const uint32_t shiftX = BitsUtil::IndexOf(desiredStepSizeX);
       const uint32_t shiftY = BitsUtil::IndexOf(desiredStepSizeY);
-      const uint32_t stepsX = (windowSizePx.Width() / desiredStepSizeX) + ((windowSizePx.Width() % desiredStepSizeX) > 0 ? 1 : 0);
-      const uint32_t stepsY = (windowSizePx.Height() / desiredStepSizeY) + ((windowSizePx.Height() % desiredStepSizeY) > 0 ? 1 : 0);
+      const uint32_t stepsX = (windowSizePx.RawWidth() / desiredStepSizeX) + ((windowSizePx.RawWidth() % desiredStepSizeX) > 0 ? 1 : 0);
+      const uint32_t stepsY = (windowSizePx.RawHeight() / desiredStepSizeY) + ((windowSizePx.RawHeight() % desiredStepSizeY) > 0 ? 1 : 0);
 
       return {UncheckedNumericCast<uint16_t>(stepsX), UncheckedNumericCast<uint16_t>(stepsY), UncheckedNumericCast<uint8_t>(shiftX),
               UncheckedNumericCast<uint8_t>(shiftY)};
@@ -98,12 +100,14 @@ namespace Fsl::UI::RenderIMBatch
       //: m_grid(16, 16, 7, 7)
       //: m_grid(32, 32, 6, 6)
       : m_grid(CreateGrid(windowSizePx, 8, 8))
+      , m_windowSizePx(windowSizePx)
       , m_allowDepthBuffer(allowDepthBuffer)
     {
     }
 
     void OnConfigurationChanged(const PxSize2D windowSizePx)
     {
+      m_windowSizePx = windowSizePx;
       m_grid = CreateGrid(windowSizePx, 8, 8);
     }
 
@@ -129,10 +133,11 @@ namespace Fsl::UI::RenderIMBatch
       Span<MaterialCacheRecord> transparentMaterialCache = m_cache.GetTransparentCacheSpan(currentMaterialCount);
 
 
-      PreprocessResult result = m_allowDepthBuffer ? PreprocessUtil2::PreprocessTwoQueues(rProcessedCommandRecords, opaqueMaterialCache,
-                                                                                          transparentMaterialCache, commandSpan, meshManager)
-                                                   : PreprocessUtil2::PreprocessForceTransparent(rProcessedCommandRecords, opaqueMaterialCache,
-                                                                                                 transparentMaterialCache, commandSpan, meshManager);
+      PreprocessResult result = m_allowDepthBuffer
+                                  ? PreprocessUtil2::PreprocessTwoQueues(rProcessedCommandRecords, opaqueMaterialCache, transparentMaterialCache,
+                                                                         commandSpan, meshManager, m_windowSizePx)
+                                  : PreprocessUtil2::PreprocessForceTransparent(rProcessedCommandRecords, opaqueMaterialCache,
+                                                                                transparentMaterialCache, commandSpan, meshManager, m_windowSizePx);
 
       const uint32_t totalCount = result.OpaqueCount + result.TransparentCount;
       if (totalCount > m_finalEntries.size())
@@ -196,8 +201,10 @@ namespace Fsl::UI::RenderIMBatch
       assert(BatchMaterialIdConfig::Invalid >= count);
       materialCache[srcSpan[0].MaterialId.Value].Index = 0;
       dstSpan[0].OriginalCommandIndex = 0;
-      m_grid.TryAdd(srcSpan[0].DstAreaRectanglePxf, 0);
+      m_grid.UncheckedAdd(srcSpan[0].DstAreaRectanglePxf, 0);
 
+      const auto clipWidthPxf = static_cast<float>(m_windowSizePx.RawWidth());
+      const auto clipHeightPxf = static_cast<float>(m_windowSizePx.RawHeight());
 
       for (uint32_t i = 1; i < count; ++i)
       {
@@ -210,62 +217,65 @@ namespace Fsl::UI::RenderIMBatch
           assert(i > 0);
           uint32_t targetIndex = static_cast<int32_t>(i) - 1;
           const uint32_t lastKnownMaterialIndex = materialCache[src.MaterialId.Value].Index;
-          // int32_t compareTargetIndex =  static_cast<int32_t>(targetIndex);
           if (lastKnownMaterialIndex < targetIndex)
           {
-            //{
-            //  while (compareTargetIndex >= 0)
-            //  {
-            //    // We use the dstSpan[x].OriginalCommandIndex as a temporary to store the original srcSpan index while reordering
-            //    // Here we are interested in using the 're-ordered' elements while we backtrack, so we need to lookup the original index
-            //    // to get access to the src record
-            //    const ProcessedCommandRecord& rPrevious = srcSpan[dstSpan[compareTargetIndex].OriginalCommandIndex];
-            //    assert(static_cast<int32_t>(materialCache[rPrevious.MaterialId.Value].Index) >= compareTargetIndex);
-
-            //    if (src.MaterialId != rPrevious.MaterialId && !src.DstAreaRectanglePxf.Intersects(rPrevious.DstAreaRectanglePxf))
-            //    {
-            //      --compareTargetIndex;
-            //    }
-            //    else
-            //    {
-            //      break;
-            //    }
-            //  }
-            //}
-
-            // The previous material did not match and we have a previous material entry, so we check all collision candidates to
-            // see if there is a collision
-            auto rangeX = m_grid.ToXCell(src.DstAreaRectanglePxf.Left(), src.DstAreaRectanglePxf.Right());
-            auto rangeY = m_grid.ToYCell(src.DstAreaRectanglePxf.Top(), src.DstAreaRectanglePxf.Bottom());
-            bool collision = false;
-            for (uint16_t gridY = rangeY.Start; gridY < rangeY.End; ++gridY)
+            float clippedDstRawL = src.DstAreaRectanglePxf.RawLeft();
+            float clippedDstRawR = src.DstAreaRectanglePxf.RawRight();
+            float clippedDstRawT = src.DstAreaRectanglePxf.RawTop();
+            float clippedDstRawB = src.DstAreaRectanglePxf.RawBottom();
+            if (clippedDstRawL < 0)
             {
-              for (uint16_t gridX = rangeX.Start; gridX < rangeX.End; ++gridX)
+              clippedDstRawL = 0;
+            }
+            if (clippedDstRawR >= clipWidthPxf)
+            {
+              clippedDstRawR = clipWidthPxf;
+            }
+            if (clippedDstRawT < 0)
+            {
+              clippedDstRawT = 0;
+            }
+            if (clippedDstRawB >= clipHeightPxf)
+            {
+              clippedDstRawB = clipHeightPxf;
+            }
+
+            {
+              // We expect that all fully outside bounds elements have been removed
+              assert(clippedDstRawL < clippedDstRawR && clippedDstRawT < clippedDstRawB);
+              // The previous material did not match and we have a previous material entry, so we check all collision candidates to
+              // see if there is a collision
+              auto rangeX = m_grid.ToXCell(clippedDstRawL, clippedDstRawR);
+              auto rangeY = m_grid.ToYCell(clippedDstRawT, clippedDstRawB);
+              bool collision = false;
+              for (uint16_t gridY = rangeY.Start; gridY < rangeY.End; ++gridY)
               {
-                ReadOnlySpan<uint32_t> candidates = m_grid.UncheckedGetChunkEntries(gridX, gridY);
-                for (std::size_t candidateIndex = candidates.size(); candidateIndex > 0; --candidateIndex)
+                for (uint16_t gridX = rangeX.Start; gridX < rangeX.End; ++gridX)
                 {
-                  const uint32_t srcIndex = candidates[candidateIndex - 1];
-                  const uint32_t remappedSrcIndex = m_grid.ToRemappedZPos(srcIndex);
-                  if (remappedSrcIndex <= lastKnownMaterialIndex)
+                  ReadOnlySpan<uint32_t> candidates = m_grid.UncheckedGetChunkEntries(gridX, gridY);
+                  for (std::size_t candidateIndex = candidates.size(); candidateIndex > 0; --candidateIndex)
                   {
-                    assert((remappedSrcIndex != lastKnownMaterialIndex) ||
-                           (remappedSrcIndex == lastKnownMaterialIndex && src.MaterialId == srcSpan[srcIndex].MaterialId));
-                    break;
-                  }
-                  if (src.DstAreaRectanglePxf.Intersects(srcSpan[srcIndex].DstAreaRectanglePxf))
-                  {
-                    collision = true;
-                    goto on_collission_exit;
+                    const uint32_t srcIndex = candidates[candidateIndex - 1];
+                    const uint32_t remappedSrcIndex = m_grid.ToRemappedZPos(srcIndex);
+                    if (remappedSrcIndex <= lastKnownMaterialIndex)
+                    {
+                      assert((remappedSrcIndex != lastKnownMaterialIndex) ||
+                             (remappedSrcIndex == lastKnownMaterialIndex && src.MaterialId == srcSpan[srcIndex].MaterialId));
+                      break;
+                    }
+                    if (src.DstAreaRectanglePxf.Intersects(srcSpan[srcIndex].DstAreaRectanglePxf))
+                    {
+                      collision = true;
+                      goto on_collission_exit;
+                    }
                   }
                 }
               }
+            on_collission_exit:
+              // lastKnownMaterialIndex is based on the remapped cached index (so the target index is also the remapped index)
+              targetIndex = !collision ? lastKnownMaterialIndex : 0xFFFFFFFF;
             }
-          on_collission_exit:
-            // lastKnownMaterialIndex is based on the remapped cached index (so the target index is also the remapped index)
-            targetIndex = !collision ? lastKnownMaterialIndex : 0xFFFFFFFF;
           }
-
           // Here we are interested in using the 're-ordered' elements while we backtrack, so we need to lookup the original index
           // to get access to the src record
           if (targetIndex == lastKnownMaterialIndex)
@@ -312,7 +322,7 @@ namespace Fsl::UI::RenderIMBatch
             // SanityCheck(m_grid, dstSpan, srcSpan, i);
             materialCache[src.MaterialId.Value].Index = i;
             dstSpan[i].OriginalCommandIndex = i;
-            m_grid.TryAdd(src.DstAreaRectanglePxf, i);
+            m_grid.UncheckedAdd(src.DstAreaRectanglePxf, i);
             previousMaterialId = src.MaterialId;
             // SanityCheck(m_grid, dstSpan, srcSpan, i + 1);
           }
@@ -322,7 +332,7 @@ namespace Fsl::UI::RenderIMBatch
           // SanityCheck(m_grid, dstSpan, srcSpan, i);
           materialCache[src.MaterialId.Value].Index = i;
           dstSpan[i].OriginalCommandIndex = i;
-          m_grid.TryAdd(src.DstAreaRectanglePxf, i);
+          m_grid.UncheckedAdd(src.DstAreaRectanglePxf, i);
           // SanityCheck(m_grid, dstSpan, srcSpan, i + 1);
         }
       }

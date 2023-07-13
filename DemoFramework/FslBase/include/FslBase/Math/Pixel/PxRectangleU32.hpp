@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXRECTANGLEU32_HPP
 #define FSLBASE_MATH_PIXEL_PXRECTANGLEU32_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Pixel/PxPoint2U.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <FslBase/OptimizationFlag.hpp>
 #include <algorithm>
 #include <cassert>
@@ -42,7 +43,8 @@ namespace Fsl
 {
   struct PxRectangleU32
   {
-    using value_type = uint32_t;
+    using value_type = PxValueU;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type X{0};
     value_type Y{0};
@@ -61,17 +63,22 @@ namespace Fsl
     static constexpr PxRectangleU32 FromLeftTopRightBottom(const value_type left, const value_type top, const value_type right,
                                                            const value_type bottom) noexcept
     {
-      return {left, top, (right >= left ? right - left : 0u), (bottom >= top ? bottom - top : 0u)};
+      return {left, top, (right >= left ? right - left : value_type(0u)), (bottom >= top ? bottom - top : value_type(0u))};
     }
 
     static constexpr PxRectangleU32 FromLeftTopRightBottom(const value_type left, const value_type top, const value_type right,
                                                            const value_type bottom, const OptimizationCheckFlag /*unused*/) noexcept
     {
+      return UncheckedFromLeftTopRightBottom(left, top, right, bottom);
+    }
+
+    static constexpr PxRectangleU32 UncheckedFromLeftTopRightBottom(const value_type left, const value_type top, const value_type right,
+                                                                    const value_type bottom) noexcept
+    {
       assert(left <= right);
       assert(top <= bottom);
       return {left, top, right - left, bottom - top};
     }
-
 
     static constexpr PxRectangleU32 Empty() noexcept
     {
@@ -96,6 +103,26 @@ namespace Fsl
     constexpr inline value_type Bottom() const noexcept
     {
       return Y + Height;
+    }
+
+    constexpr inline raw_value_type RawLeft() const noexcept
+    {
+      return X.Value;
+    }
+
+    constexpr inline raw_value_type RawTop() const noexcept
+    {
+      return Y.Value;
+    }
+
+    constexpr inline raw_value_type RawRight() const noexcept
+    {
+      return X.Value + Width.Value;
+    }
+
+    constexpr inline raw_value_type RawBottom() const noexcept
+    {
+      return Y.Value + Height.Value;
     }
 
     inline constexpr PxExtent2D GetExtent() const noexcept
@@ -167,14 +194,14 @@ namespace Fsl
     //! @brief Get the center of this rect
     constexpr PxPoint2U GetCenter() const noexcept
     {
-      return {X + (Width / 2), Y + (Height / 2)};
+      return PxPoint2U::Create(X.Value + (Width.Value / 2), Y.Value + (Height.Value / 2));
     }
 
     //! @brief Gets a value that indicates whether the Rectangle is empty
     //!        An empty rectangle has all its values set to 0.
     constexpr bool IsEmpty() const noexcept
     {
-      return ((((Width == 0) && (Height == 0)) && (X == 0)) && (Y == 0));
+      return Width.Value == 0 && Height.Value == 0 && X.Value == 0 && Y.Value == 0;
     }
 
 
@@ -219,6 +246,24 @@ namespace Fsl
     constexpr bool operator!=(const PxRectangleU32& rhs) const noexcept
     {
       return ((X != rhs.X) || (Y != rhs.Y) || (Width != rhs.Width) || (Height != rhs.Height));
+    }
+
+    inline static constexpr PxRectangleU32 Create(const raw_value_type x, const raw_value_type y, const raw_value_type width,
+                                                  const raw_value_type height) noexcept
+    {
+      return {value_type(x), value_type(y), value_type(width), value_type(height)};
+    }
+
+    inline static constexpr PxRectangleU32 CreateFromLeftTopRightBottom(const raw_value_type left, const raw_value_type top,
+                                                                        const raw_value_type right, const raw_value_type bottom) noexcept
+    {
+      return FromLeftTopRightBottom(value_type(left), value_type(top), value_type(right), value_type(bottom));
+    }
+
+    inline static constexpr PxRectangleU32 UncheckedCreateFromLeftTopRightBottom(const raw_value_type left, const raw_value_type top,
+                                                                                 const raw_value_type right, const raw_value_type bottom) noexcept
+    {
+      return UncheckedFromLeftTopRightBottom(value_type(left), value_type(top), value_type(right), value_type(bottom));
     }
   };
 }

@@ -67,7 +67,7 @@ namespace Fsl
 
     Matrix::CreateLookAt(EyeVector, LookAt, UpVec, ViewMatrix);
 
-    const float fAspect = static_cast<float>(m_windowSizePx.Width()) / static_cast<float>(m_windowSizePx.Height());
+    const float fAspect = static_cast<float>(m_windowSizePx.RawWidth()) / static_cast<float>(m_windowSizePx.RawHeight());
 
     ProjMatrix = Matrix::CreatePerspectiveFieldOfView(MathHelper::PI / 4.0f, fAspect, 1.0f, 100.0f);
   }

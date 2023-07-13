@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2018, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,8 +49,8 @@ namespace
   class TestGridLayout : public TestFixtureFslSimpleUIUITree
   {
   protected:
-    const UI::PxAvailableSize m_defaultSizePx{1920, 1080};
-    const PxRectangle m_finalRectPx{1, 2, 1920, 1080};
+    const UI::PxAvailableSize m_defaultSizePx{UI::PxAvailableSize::Create(1920, 1080)};
+    const PxRectangle m_finalRectPx{PxRectangle::Create(1, 2, 1920, 1080)};
 
   public:
     TestGridLayout() = default;
@@ -308,7 +308,7 @@ TEST_F(TestGridLayout, MeasureDefsFixedStarXFixedStar_ChildNoSizeAt1x0)
 {
   UI::GridLayout layout(m_windowContext);
 
-  // const PxSize2D controlDesiredSizePx(30, 15);
+  // const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTControl>(m_windowContext);
   layout.AddChild(child);
@@ -380,7 +380,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt0x0)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -402,8 +402,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt0x0)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Fixed x Fixed
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -412,7 +412,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt1x0)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -434,8 +434,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt1x0)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Auto x fixed
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -444,7 +444,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt2x0)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -466,8 +466,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt2x0)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Star x Fixed
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.ToPxWidth() - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -477,7 +477,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt0x1)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -499,8 +499,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt0x1)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Fixed x Auto
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -509,7 +509,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt1x1)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -531,8 +531,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt1x1)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Auto x auto
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -541,7 +541,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt2x1)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -563,8 +563,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt2x1)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Star x auto
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.ToPxWidth() - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -574,7 +574,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt0x2)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -596,8 +596,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt0x2)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Fixed x star
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -606,7 +606,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt1x2)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -628,8 +628,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt1x2)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Auto x star
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(child->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -638,7 +638,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt2x2)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   auto child = std::make_shared<UI::UTImageControl>(m_windowContext, controlDesiredSizePx);
   layout.AddChild(child);
@@ -660,8 +660,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_ChildNoSizeAt2x2)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Star x star
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.ToPxWidth() - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(child->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -670,7 +670,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_9ChildNoSizeAt2x2)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 3 * 3> children;
   for (auto& rEntry : children)
@@ -702,46 +702,46 @@ TEST_F(TestGridLayout, MeasureAllDefs_9ChildNoSizeAt2x2)
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Fixed x Fixed
-  ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxSize1D(fixedHeight));
 
   // Auto x fixed
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxInt32(fixedHeight));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxSize1D(fixedHeight));
 
   // Star x Fixed
   ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - controlDesiredSizePx.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxInt32(fixedHeight));
+            m_defaultSizePx.ToPxWidth() - controlDesiredSizePx.Width() - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Height(), g_unitConverter.DpToPxSize1D(fixedHeight));
 
   // Fixed x Auto
-  ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[3]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[3]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Auto x auto
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[4]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[4]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[4]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[4]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Star x auto
   ASSERT_EQ(children[5]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - controlDesiredSizePx.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[5]->TestLastMeasureOverrideAvailableSize.Height()));
+            m_defaultSizePx.ToPxWidth() - controlDesiredSizePx.Width() - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[5]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Fixed x star
-  ASSERT_EQ(children[6]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
+  ASSERT_EQ(children[6]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
   ASSERT_EQ(children[6]->TestLastMeasureOverrideAvailableSize.Height(),
-            m_defaultSizePx.Height() - controlDesiredSizePx.Height() - g_unitConverter.DpToPxInt32(fixedHeight));
+            m_defaultSizePx.ToPxHeight() - controlDesiredSizePx.Height() - g_unitConverter.DpToPxSize1D(fixedHeight));
 
   // Auto x star
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[7]->TestLastMeasureOverrideAvailableSize.Width()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[7]->TestLastMeasureOverrideAvailableSize.RawWidth()));
   ASSERT_EQ(children[7]->TestLastMeasureOverrideAvailableSize.Height(),
-            m_defaultSizePx.Height() - controlDesiredSizePx.Height() - g_unitConverter.DpToPxInt32(fixedHeight));
+            m_defaultSizePx.ToPxHeight() - controlDesiredSizePx.Height() - g_unitConverter.DpToPxSize1D(fixedHeight));
 
   // Star x star
   ASSERT_EQ(children[8]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - controlDesiredSizePx.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
+            m_defaultSizePx.ToPxWidth() - controlDesiredSizePx.Width() - g_unitConverter.DpToPxSize1D(fixedWidth));
   ASSERT_EQ(children[8]->TestLastMeasureOverrideAvailableSize.Height(),
-            m_defaultSizePx.Height() - controlDesiredSizePx.Height() - g_unitConverter.DpToPxInt32(fixedHeight));
+            m_defaultSizePx.ToPxHeight() - controlDesiredSizePx.Height() - g_unitConverter.DpToPxSize1D(fixedHeight));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -753,9 +753,9 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom0)
   layout.SetAlignmentX(UI::ItemAlignment::Stretch);
   layout.SetAlignmentY(UI::ItemAlignment::Stretch);
 
-  const PxSize2D controlDesiredSize0Px(35, 15);
-  const PxSize2D controlDesiredSize1Px(38, 25);
-  const PxSize2D controlDesiredSize2Px(38, 35);
+  const PxSize2D controlDesiredSize0Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(38, 25);
+  const PxSize2D controlDesiredSize2Px = PxSize2D::Create(38, 35);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 3> children;
   for (auto& rEntry : children)
@@ -790,24 +790,24 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom0)
   // Since the first row is auto we expect it to be the sum of all the heights
   layout.Measure(m_defaultSizePx);
 
-  const int32_t expectedFirstRowHeightPx =
-    std::max(std::max(controlDesiredSize0Px.Height(), controlDesiredSize1Px.Height()), controlDesiredSize2Px.Height());
+  const PxSize1D expectedFirstRowHeightPx =
+    PxSize1D::Max(controlDesiredSize0Px.Height(), controlDesiredSize1Px.Height(), controlDesiredSize2Px.Height());
 
   // We expect the grid to consume all x-space as we have a star row and column
   ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layout.DesiredSizePx().Width(), expectedFirstRowHeightPx));
 
   // Auto x Auto
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Fixed x Auto
-  ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Star x Auto
   ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - controlDesiredSize0Px.Width() - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.Height()));
+            m_defaultSizePx.ToPxWidth() - controlDesiredSize0Px.Width() - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   layout.Arrange(m_finalRectPx);
 }
@@ -817,10 +817,10 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom1)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
-  const PxSize2D controlDesiredSize0Px(35, 15);
-  const PxSize2D controlDesiredSize1Px(38, 25);
-  const PxSize2D controlDesiredSize2Px(38, 35);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
+  const PxSize2D controlDesiredSize0Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(38, 25);
+  const PxSize2D controlDesiredSize2Px = PxSize2D::Create(38, 35);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 3 * 2> children;
   for (auto& rEntry : children)
@@ -855,7 +855,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom1)
 
   layout.Measure(m_defaultSizePx);
 
-  const int32_t minWidthCell0 = std::max(controlDesiredSizePx.Width(), controlDesiredSize0Px.Width());
+  const PxSize1D minWidthCell0 = PxSize1D::Max(controlDesiredSizePx.Width(), controlDesiredSize0Px.Width());
   // const int32_t minWidthCell1 = std::max(controlDesiredSizePx.Width(), controlDesiredSize1Px.Width());
   // const int32_t minWidthCell2 = std::max(controlDesiredSizePx.Width(), controlDesiredSize2Px.Width());
   // const int32_t minHeightCell0 = std::max(controlDesiredSizePx.Width(), controlDesiredSize0Px.Width());
@@ -863,37 +863,37 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom1)
   // const int32_t minHeightCell2 = std::max(controlDesiredSizePx.Width(), controlDesiredSize2Px.Width());
 
   // Since the first row is auto we expect it to be the sum of all the heights
-  const int32_t expectedFirstRowHeightPx =
-    std::max(std::max(controlDesiredSize0Px.Height(), controlDesiredSize1Px.Height()), controlDesiredSize2Px.Height());
+  const PxSize1D expectedFirstRowHeightPx =
+    PxSize1D::Max(controlDesiredSize0Px.Height(), controlDesiredSize1Px.Height(), controlDesiredSize2Px.Height());
 
   // We expect the grid to consume all space as we have a star row and column
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Cell 0, 0: Auto x Auto
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 1, 0: Fixed x Auto
-  ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 2, 0: Star x Auto
   ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - minWidthCell0 - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.Height()));
+            m_defaultSizePx.ToPxWidth() - minWidthCell0 - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 1: Auto x Star
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[3]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - expectedFirstRowHeightPx);
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[3]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - expectedFirstRowHeightPx);
 
   // Cell 1, 1: Fixed x Star
-  ASSERT_EQ(children[4]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(children[4]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - expectedFirstRowHeightPx);
+  ASSERT_EQ(children[4]->TestLastMeasureOverrideAvailableSize.Width(), g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(children[4]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - expectedFirstRowHeightPx);
 
   // Cell 2, 1:, Star x Star
   ASSERT_EQ(children[5]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - minWidthCell0 - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(children[5]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - expectedFirstRowHeightPx);
+            m_defaultSizePx.ToPxWidth() - minWidthCell0 - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(children[5]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - expectedFirstRowHeightPx);
 
   layout.Arrange(m_finalRectPx);
 }
@@ -903,9 +903,9 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom2)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSizePx(30, 15);
-  const PxSize2D controlDesiredSize0Px(35, 15);
-  const PxSize2D controlDesiredSize1Px(38, 25);
+  const auto controlDesiredSizePx = PxSize2D::Create(30, 15);
+  const PxSize2D controlDesiredSize0Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(38, 25);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 2 * 2> children;
   for (auto& rEntry : children)
@@ -942,30 +942,30 @@ TEST_F(TestGridLayout, MeasureAllDefs_Custom2)
 
   layout.Measure(m_defaultSizePx);
 
-  const int32_t minWidthCell0 = std::max(controlDesiredSizePx.Width(), controlDesiredSize0Px.Width());
+  const PxSize1D minWidthCell0 = PxSize1D::Max(controlDesiredSizePx.Width(), controlDesiredSize0Px.Width());
   // Since the first row is auto we expect it to be the sum of all the heights
-  const int32_t expectedFirstRowHeightPx = std::max(controlDesiredSize0Px.Height(), controlDesiredSize1Px.Height());
+  const PxSize1D expectedFirstRowHeightPx = PxSize1D::Max(controlDesiredSize0Px.Height(), controlDesiredSize1Px.Height());
 
   // We expect the grid to consume all space as we have a star row and column
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
 
   // Cell 0, 0: Auto x Auto (Classification: 0)
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 2, 0: Star x Auto (Classification: 2)
   ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - minWidthCell0 - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Height()));
+            m_defaultSizePx.ToPxWidth() - minWidthCell0 - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 1: Auto x Star (Classification: 1)
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.Width()));
-  ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - expectedFirstRowHeightPx);
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.RawWidth()));
+  ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - expectedFirstRowHeightPx);
 
   // Cell 2, 0: Star x Star (Classification: 3)
   ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Width(),
-            m_defaultSizePx.Width() - minWidthCell0 - g_unitConverter.DpToPxInt32(fixedWidth));
-  ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.Height() - expectedFirstRowHeightPx);
+            m_defaultSizePx.ToPxWidth() - minWidthCell0 - g_unitConverter.DpToPxSize1D(fixedWidth));
+  ASSERT_EQ(children[3]->TestLastMeasureOverrideAvailableSize.Height(), m_defaultSizePx.ToPxHeight() - expectedFirstRowHeightPx);
 
   layout.Arrange(m_finalRectPx);
 }
@@ -975,8 +975,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_OneStarByTwoStar)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSize0Px(35, 15);
-  const PxSize2D controlDesiredSize1Px(38, 25);
+  const auto controlDesiredSize0Px = PxSize2D::Create(35, 15);
+  const auto controlDesiredSize1Px = PxSize2D::Create(38, 25);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 1 * 2> children;
   for (auto& rEntry : children)
@@ -1001,12 +1001,12 @@ TEST_F(TestGridLayout, MeasureAllDefs_OneStarByTwoStar)
 
   layout.Measure(m_defaultSizePx);
 
-  const int32_t halfHeightPx = m_defaultSizePx.Height() / 2;
+  const PxSize1D halfHeightPx = m_defaultSizePx.ToPxHeight() / PxSize1D::Create(2);
   // const int32_t minWidthCell0 = std::max(controlDesiredSize0Px.Width(), controlDesiredSize1Px.Width());
 
   // Since we have two star rows we expect the space to be equally divided
-  const int32_t expectedRow0HeightPx = std::max(halfHeightPx, controlDesiredSize0Px.Height());
-  const int32_t expectedRow1HeightPx = std::max(m_defaultSizePx.Height() - halfHeightPx, controlDesiredSize1Px.Height());
+  const PxSize1D expectedRow0HeightPx = std::max(halfHeightPx, controlDesiredSize0Px.Height());
+  const PxSize1D expectedRow1HeightPx = std::max(PxSize1D(m_defaultSizePx.ToPxHeight() - halfHeightPx), controlDesiredSize1Px.Height());
 
   // We expect the grid to consume all space as we have a star row and column
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
@@ -1022,13 +1022,13 @@ TEST_F(TestGridLayout, MeasureAllDefs_OneStarByTwoStar)
   layout.Arrange(m_finalRectPx);
 
   // Cell 0, 0: Star x Star (Classification: 3)
-  ASSERT_EQ(children[0]->WinGetContentRectanglePx().X(), 0);
-  ASSERT_EQ(children[0]->WinGetContentRectanglePx().Y(), 0);
+  ASSERT_EQ(children[0]->WinGetContentRectanglePx().X(), PxValue(0));
+  ASSERT_EQ(children[0]->WinGetContentRectanglePx().Y(), PxValue(0));
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Width(), m_defaultSizePx.Width());
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Height(), expectedRow0HeightPx);
 
   // Cell 0, 1: Star x Star (Classification: 3)
-  ASSERT_EQ(children[1]->WinGetContentRectanglePx().X(), 0);
+  ASSERT_EQ(children[1]->WinGetContentRectanglePx().X(), PxValue(0));
   ASSERT_EQ(children[1]->WinGetContentRectanglePx().Y(), expectedRow0HeightPx);
   ASSERT_EQ(children[1]->WinGetContentRectanglePx().Width(), m_defaultSizePx.Width());
   ASSERT_EQ(children[1]->WinGetContentRectanglePx().Height(), expectedRow1HeightPx);
@@ -1039,9 +1039,9 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedSize_OneStarByAutoThenTwoStars)
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSize0Px(32, 10);
-  const PxSize2D controlDesiredSize1Px(35, 15);
-  const PxSize2D controlDesiredSize2Px(38, 25);
+  const PxSize2D controlDesiredSize0Px = PxSize2D::Create(32, 10);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize2Px = PxSize2D::Create(38, 25);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 1 * 3> children;
   for (auto& rEntry : children)
@@ -1072,14 +1072,14 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedSize_OneStarByAutoThenTwoStars)
 
   layout.Measure(m_defaultSizePx);
 
-  const int32_t availableStarHeight = (m_defaultSizePx.Height() - controlDesiredSize0Px.Height());
-  const int32_t halfAvailableStarHeight = availableStarHeight / 2;
+  const PxSize1D availableStarHeight = PxSize1D(m_defaultSizePx.ToPxHeight() - controlDesiredSize0Px.Height());
+  const PxSize1D halfAvailableStarHeight = availableStarHeight / PxSize1D::Create(2);
   // const int32_t minWidthCell0 = std::max(std::max(controlDesiredSize0Px.Width(), controlDesiredSize1Px.Width()), controlDesiredSize2Px.Width());
 
   // Since we have two star rows we expect the space to be equally divided
   // const int32_t expectedRow0HeightPx = controlDesiredSize0Px.Height();
-  const int32_t expectedRow1HeightPx = std::max(halfAvailableStarHeight, controlDesiredSize1Px.Height());
-  const int32_t expectedRow2HeightPx = std::max(availableStarHeight - halfAvailableStarHeight, controlDesiredSize2Px.Height());
+  const PxSize1D expectedRow1HeightPx = std::max(halfAvailableStarHeight, controlDesiredSize1Px.Height());
+  const PxSize1D expectedRow2HeightPx = PxSize1D(std::max(availableStarHeight - halfAvailableStarHeight, controlDesiredSize2Px.Height().Value()));
 
   // We expect the grid to consume all space as we have a star row and column
   ASSERT_EQ(layout.DesiredSizePx(), m_defaultSizePx.ToPxSize2D());
@@ -1087,7 +1087,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedSize_OneStarByAutoThenTwoStars)
   // Cell 0, 0: Star x Auto (Classification: 2)
   ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
   // ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Height(), expectedRow0HeightPx);
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 1: Star x Star (Classification: 3)
   ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
@@ -1099,9 +1099,9 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedSize_OneStarByAutoThenTwoStars)
 
   layout.Arrange(m_finalRectPx);
 
-  int32_t currentYPos = 0;
+  PxSize1D currentYPos = PxSize1D::Create(0);
   // Cell 0, 0: Star x Star (Classification: 2)
-  ASSERT_EQ(children[0]->WinGetContentRectanglePx().X(), 0);
+  ASSERT_EQ(children[0]->WinGetContentRectanglePx().X(), PxValue(0));
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Y(), currentYPos);
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Width(), controlDesiredSize0Px.Width());
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Height(), controlDesiredSize0Px.Height());
@@ -1109,7 +1109,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedSize_OneStarByAutoThenTwoStars)
   currentYPos += controlDesiredSize0Px.Height();
 
   // Cell 0, 1: Star x Star (Classification: 3)
-  ASSERT_EQ(children[1]->WinGetContentRectanglePx().X(), 0);
+  ASSERT_EQ(children[1]->WinGetContentRectanglePx().X(), PxValue(0));
   ASSERT_EQ(children[1]->WinGetContentRectanglePx().Y(), currentYPos);
   ASSERT_EQ(children[1]->WinGetContentRectanglePx().Width(), m_defaultSizePx.Width());
   ASSERT_EQ(children[1]->WinGetContentRectanglePx().Height(), expectedRow1HeightPx);
@@ -1117,7 +1117,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedSize_OneStarByAutoThenTwoStars)
   currentYPos += expectedRow1HeightPx;
 
   // Cell 0, 2: Star x Star (Classification: 3)
-  ASSERT_EQ(children[2]->WinGetContentRectanglePx().X(), 0);
+  ASSERT_EQ(children[2]->WinGetContentRectanglePx().X(), PxValue(0));
   ASSERT_EQ(children[2]->WinGetContentRectanglePx().Y(), currentYPos);
   ASSERT_EQ(children[2]->WinGetContentRectanglePx().Width(), m_defaultSizePx.Width());
   ASSERT_EQ(children[2]->WinGetContentRectanglePx().Height(), expectedRow2HeightPx);
@@ -1127,9 +1127,9 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_OneStarByAutoThenTwoSt
 {
   UI::GridLayout layout(m_windowContext);
 
-  const PxSize2D controlDesiredSize0Px(32, 10);
-  const PxSize2D controlDesiredSize1Px(35, 15);
-  const PxSize2D controlDesiredSize2Px(38, 25);
+  const PxSize2D controlDesiredSize0Px = PxSize2D::Create(32, 10);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize2Px = PxSize2D::Create(38, 25);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 1 * 3> children;
   for (auto& rEntry : children)
@@ -1158,7 +1158,7 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_OneStarByAutoThenTwoSt
   layout.Set(children[1], 0, 1);
   layout.Set(children[2], 0, 2);
 
-  UI::PxAvailableSize layoutAvailableSpacePx(m_defaultSizePx.Width(), UI::PxAvailableSizeUtil::InfiniteSpacePx);
+  UI::PxAvailableSize layoutAvailableSpacePx(m_defaultSizePx.Width(), UI::PxAvailableSize1D::InfiniteSpacePx());
   layout.Measure(layoutAvailableSpacePx);
 
   // const int32_t availableStarHeight = (m_defaultSizePx.Height() - controlDesiredSize0Px.Height());
@@ -1171,25 +1171,25 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_OneStarByAutoThenTwoSt
   // const int32_t expectedRow2HeightPx = std::max(availableStarHeight - halfAvailableStarHeight, controlDesiredSize2Px.Height());
 
   // We expect the grid to consume all space as we have a star row and column
-  const int32_t minimumHeightPx = controlDesiredSize0Px.Height() + controlDesiredSize1Px.Height() + controlDesiredSize2Px.Height();
-  ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layoutAvailableSpacePx.Width(), minimumHeightPx));
+  const PxSize1D minimumHeightPx = (controlDesiredSize0Px.Height() + controlDesiredSize1Px.Height() + controlDesiredSize2Px.Height());
+  ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layoutAvailableSpacePx.ToPxWidth(), minimumHeightPx));
 
   // Cell 0, 0: Star x Auto (Classification: 2)
   ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 1: Star x Star (Classification: 3)
   ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 2: Star x Star (Classification: 3)
   ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   layout.Arrange(m_finalRectPx);
 
-  int32_t currentXPos = 0;
-  int32_t currentYPos = 0;
+  PxSize1D currentXPos = PxSize1D::Create(0);
+  PxSize1D currentYPos = PxSize1D::Create(0);
   // Cell 0, 0: Star x Star (Classification: 2)
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().X(), currentXPos);
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Y(), currentYPos);
@@ -1219,9 +1219,9 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_Stretch_OneStarByAutoT
   layout.SetAlignmentX(UI::ItemAlignment::Stretch);
   layout.SetAlignmentY(UI::ItemAlignment::Stretch);
 
-  const PxSize2D controlDesiredSize0Px(32, 10);
-  const PxSize2D controlDesiredSize1Px(35, 15);
-  const PxSize2D controlDesiredSize2Px(38, 25);
+  const PxSize2D controlDesiredSize0Px = PxSize2D::Create(32, 10);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize2Px = PxSize2D::Create(38, 25);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 1 * 3> children;
   for (auto& rEntry : children)
@@ -1250,38 +1250,38 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_Stretch_OneStarByAutoT
   layout.Set(children[1], 0, 1);
   layout.Set(children[2], 0, 2);
 
-  UI::PxAvailableSize layoutAvailableSpacePx(m_defaultSizePx.Width(), UI::PxAvailableSizeUtil::InfiniteSpacePx);
+  UI::PxAvailableSize layoutAvailableSpacePx(m_defaultSizePx.ToPxWidth(), UI::PxAvailableSize1D::InfiniteSpacePx());
   layout.Measure(layoutAvailableSpacePx);
 
-  const int32_t availableStarHeight = (m_defaultSizePx.Height() - controlDesiredSize0Px.Height());
-  const int32_t halfAvailableStarHeight = availableStarHeight / 2;
+  const PxSize1D availableStarHeight = PxSize1D(m_defaultSizePx.ToPxHeight() - controlDesiredSize0Px.Height());
+  const PxSize1D halfAvailableStarHeight = availableStarHeight / PxSize1D::Create(2);
   // const int32_t minWidthCell0 = std::max(std::max(controlDesiredSize0Px.Width(), controlDesiredSize1Px.Width()), controlDesiredSize2Px.Width());
 
   // Since we have two star rows we expect the space to be equally divided
   // const int32_t expectedRow0HeightPx = controlDesiredSize0Px.Height();
-  const int32_t expectedRow1HeightPx = std::max(halfAvailableStarHeight, controlDesiredSize1Px.Height());
-  const int32_t expectedRow2HeightPx = std::max(availableStarHeight - halfAvailableStarHeight, controlDesiredSize2Px.Height());
+  const PxSize1D expectedRow1HeightPx = std::max(halfAvailableStarHeight, controlDesiredSize1Px.Height());
+  const PxSize1D expectedRow2HeightPx = std::max(PxSize1D(availableStarHeight - halfAvailableStarHeight), controlDesiredSize2Px.Height());
 
   // We expect the grid to consume all space as we have a star row and column
-  const int32_t minimumHeightPx = controlDesiredSize0Px.Height() + controlDesiredSize1Px.Height() + controlDesiredSize2Px.Height();
-  ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layoutAvailableSpacePx.Width(), minimumHeightPx));
+  const PxSize1D minimumHeightPx = (controlDesiredSize0Px.Height() + controlDesiredSize1Px.Height() + controlDesiredSize2Px.Height());
+  ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layoutAvailableSpacePx.ToPxWidth(), minimumHeightPx));
 
   // Cell 0, 0: Star x Auto (Classification: 2)
   ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 1: Star x Star (Classification: 3)
   ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 2: Star x Star (Classification: 3)
   ASSERT_EQ(children[2]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[2]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   layout.Arrange(m_finalRectPx);
 
-  int32_t currentXPos = 0;
-  int32_t currentYPos = 0;
+  PxSize1D currentXPos = PxSize1D::Create(0);
+  PxSize1D currentYPos = PxSize1D::Create(0);
   // Cell 0, 0: Star x Star (Classification: 2)
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().X(), currentXPos);
   ASSERT_EQ(children[0]->WinGetContentRectanglePx().Y(), currentYPos);
@@ -1311,8 +1311,8 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_Stretch_OneStarByAutoT
   layout.SetAlignmentX(UI::ItemAlignment::Stretch);
   layout.SetAlignmentY(UI::ItemAlignment::Stretch);
 
-  const PxSize2D controlDesiredSize1Px(35, 15);
-  const PxSize2D controlDesiredSize2Px(38, 25);
+  const PxSize2D controlDesiredSize1Px = PxSize2D::Create(35, 15);
+  const PxSize2D controlDesiredSize2Px = PxSize2D::Create(38, 25);
 
   std::array<std::shared_ptr<UI::UTImageControl>, 1 * 2> children;
   for (auto& rEntry : children)
@@ -1336,37 +1336,37 @@ TEST_F(TestGridLayout, MeasureAllDefs_FixedWidthInfHeight_Stretch_OneStarByAutoT
   layout.Set(children[0], 0, 1);
   layout.Set(children[1], 0, 2);
 
-  UI::PxAvailableSize layoutAvailableSpacePx(m_defaultSizePx.Width(), UI::PxAvailableSizeUtil::InfiniteSpacePx);
+  UI::PxAvailableSize layoutAvailableSpacePx(m_defaultSizePx.ToPxWidth(), UI::PxAvailableSize1D::InfiniteSpacePx());
   layout.Measure(layoutAvailableSpacePx);
 
-  const int32_t availableStarHeight =
-    m_defaultSizePx.Height() - 1;    // to ensure that any rounding of the available space for stars will cause issues
-  const auto halfAvailableStarHeight = static_cast<int32_t>(std::round(static_cast<float>(availableStarHeight) / 2.0f));
+  const PxSize1D availableStarHeight =
+    PxSize1D(m_defaultSizePx.ToPxHeight() - PxValue(1));    // to ensure that any rounding of the available space for stars will cause issues
+  const auto halfAvailableStarHeight = PxSize1D::Create(static_cast<int32_t>(std::round(static_cast<float>(availableStarHeight.RawValue()) / 2.0f)));
   // const int32_t minWidthCell0 = std::max(std::max(controlDesiredSize0Px.Width(), controlDesiredSize1Px.Width()), controlDesiredSize2Px.Width());
 
   // Since we have two star rows we expect the space to be equally divided
   // const int32_t expectedRow0HeightPx = 0;
-  const int32_t expectedRow1HeightPx = std::max(halfAvailableStarHeight, controlDesiredSize1Px.Height());
-  const int32_t expectedRow2HeightPx = std::max(availableStarHeight - halfAvailableStarHeight, controlDesiredSize2Px.Height());
+  const PxSize1D expectedRow1HeightPx = std::max(halfAvailableStarHeight, controlDesiredSize1Px.Height());
+  const PxSize1D expectedRow2HeightPx = std::max(PxSize1D(availableStarHeight - halfAvailableStarHeight), controlDesiredSize2Px.Height());
 
   // We expect the grid to consume all space as we have a star row and column
-  const int32_t minimumHeightPx = controlDesiredSize1Px.Height() + controlDesiredSize2Px.Height();
-  ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layoutAvailableSpacePx.Width(), minimumHeightPx));
+  const PxSize1D minimumHeightPx = (controlDesiredSize1Px.Height() + controlDesiredSize2Px.Height());
+  ASSERT_EQ(layout.DesiredSizePx(), PxSize2D(layoutAvailableSpacePx.ToPxWidth(), minimumHeightPx));
 
   // Cell 0, 0: Star x Auto (Classification: 2)
 
   // Cell 0, 1: Star x Star (Classification: 3)
   ASSERT_EQ(children[0]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[0]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
   // Cell 0, 2: Star x Star (Classification: 3)
   ASSERT_EQ(children[1]->TestLastMeasureOverrideAvailableSize.Width(), m_defaultSizePx.Width());
-  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.Height()));
+  ASSERT_TRUE(UI::PxAvailableSizeUtil::IsConsideredInfiniteSpace(children[1]->TestLastMeasureOverrideAvailableSize.RawHeight()));
 
-  layout.Arrange(PxRectangle(m_finalRectPx.Left(), m_finalRectPx.Top(), m_finalRectPx.Width(), m_finalRectPx.Height() - 1));
+  layout.Arrange(PxRectangle(m_finalRectPx.Left(), m_finalRectPx.Top(), m_finalRectPx.Width(), m_finalRectPx.Height() - PxValue(1)));
 
-  int32_t currentXPos = 0;
-  int32_t currentYPos = 0;
+  PxSize1D currentXPos = PxSize1D::Create(0);
+  PxSize1D currentYPos = PxSize1D::Create(0);
   // Cell 0, 0: Star x Star (Classification: 2)
 
   // Cell 0, 1: Star x Star (Classification: 3)

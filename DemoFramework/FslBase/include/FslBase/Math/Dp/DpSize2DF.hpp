@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_DP_DPSIZE2DF_HPP
 #define FSLBASE_MATH_DP_DPSIZE2DF_HPP
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ namespace Fsl
   struct DpSize2DF
   {
     using value_type = DpSize1DF;
-    using raw_value_type = float;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_width{};
@@ -93,6 +93,16 @@ namespace Fsl
     constexpr inline value_type Height() const
     {
       return m_height;
+    }
+
+    constexpr inline raw_value_type RawWidth() const
+    {
+      return m_width.RawValue();
+    }
+
+    constexpr inline raw_value_type RawHeight() const
+    {
+      return m_height.RawValue();
     }
 
     constexpr inline void SetWidth(const value_type width) noexcept

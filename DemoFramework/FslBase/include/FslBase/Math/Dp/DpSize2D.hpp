@@ -45,7 +45,7 @@ namespace Fsl
   struct DpSize2D
   {
     using value_type = DpSize1D;
-    using raw_value_type = int32_t;
+    using raw_value_type = value_type::raw_value_type;
 
   private:
     value_type m_width{};

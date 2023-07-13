@@ -110,7 +110,7 @@ namespace Fsl
     vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(color.size()), color.data());
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    vgClear(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     if (!m_current)
     {

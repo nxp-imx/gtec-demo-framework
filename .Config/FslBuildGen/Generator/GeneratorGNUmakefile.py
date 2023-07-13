@@ -47,6 +47,7 @@ from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Generator import GitIgnoreHelper
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
+from FslBuildGen.Generator.GeneratorUtil import GeneratorUtil
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
@@ -319,6 +320,9 @@ class GeneratorGNUmakefileUtil(object):
         for variantEntry in package.ResolvedAllVariantDict.values():
             variantEntryOptions = [option.Name for option in variantEntry.Options]
             variableReport.Add(variantEntry.Name, variantEntryOptions)
+
+        # Add all the package flavor selections
+        GeneratorUtil.AddFlavors(variableReport, package)
 
         # The make files generate executable files in debug mode with the postfix '_d'
         exeFileExtensionOptionList = ['_d', '']

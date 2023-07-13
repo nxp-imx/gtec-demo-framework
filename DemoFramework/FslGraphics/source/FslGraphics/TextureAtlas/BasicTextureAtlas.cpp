@@ -116,11 +116,11 @@ namespace Fsl
     {
       throw std::invalid_argument("out of bounds");
     }
-    if (rectanglePx.Width >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
+    if (rectanglePx.Width.Value >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
     {
       throw NotSupportedException("Rectangle width too large");
     }
-    if (rectanglePx.Height >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
+    if (rectanglePx.Height.Value >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
     {
       throw NotSupportedException("Rectangle height too large");
     }

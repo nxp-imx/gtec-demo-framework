@@ -413,8 +413,8 @@ namespace Fsl::VulkanBasic
       {
         FSLLOG3_VERBOSE2("DemoAppVulkanBasic::BuildResources(): Creating depth image view");
         auto extent = m_swapchain.GetImageExtent();
-        extent = VkExtent2D{std::max(extent.width, m_appSetup.DepthBufferMinimumExtent.Width),
-                            std::max(extent.height, m_appSetup.DepthBufferMinimumExtent.Height)};
+        extent = VkExtent2D{std::max(extent.width, m_appSetup.DepthBufferMinimumExtent.Width.Value),
+                            std::max(extent.height, m_appSetup.DepthBufferMinimumExtent.Height.Value)};
         m_dependentResources.DepthImage = CreateBasicDepthImageView(m_device, extent, m_resources.MainCommandPool.Get());
 
         FSLLOG3_VERBOSE2("DemoAppVulkanBasic::BuildResources(): DepthBuffer PixelFormat: {}", m_dependentResources.DepthImage.Image().GetFormat());

@@ -33,7 +33,7 @@
 // Include files
 //--------------------------------------------------------------------------------
 
-#include <android_native_app_glue.h>
+#include <game-activity/native_app_glue/android_native_app_glue.h>
 #include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
 #include <FslDemoPlatform/Link/Link.hpp>
 

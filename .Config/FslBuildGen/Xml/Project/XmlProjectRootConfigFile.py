@@ -67,63 +67,93 @@ class LocalInvalidValues(object):
 
 
 class XmlConfigFileAddBasePackage(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlConfigFileAddRootDirectory(XmlBase):
+    __AttribName = 'Name'
+    __AttribCreate = 'Create'
+
     def __init__(self, log: Log, xmlElement: ET.Element, projectId: ProjectId) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName, self.__AttribCreate})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
         self.Id = self.Name.lower()
-        self.Create = self._ReadBoolAttrib(xmlElement, 'Create', False)
+        self.Create = self._ReadBoolAttrib(xmlElement, self.__AttribCreate, False)
         self.ProjectId = projectId
 
 
 class XmlClangFormatConfiguration(XmlBase):
+    __AttribFileExtensions = 'FileExtensions'
+    __AttribRecipe = 'Recipe'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        fileExtensions = self._ReadAttrib(xmlElement, "FileExtensions")
+        self._CheckAttributes({self.__AttribFileExtensions, self.__AttribRecipe})
+        fileExtensions = self._ReadAttrib(xmlElement, self.__AttribFileExtensions)
         self.FileExtensions = fileExtensions.split(';')
-        self.Recipe = self._ReadAttrib(xmlElement, "Recipe")
+        self.Recipe = self._ReadAttrib(xmlElement, self.__AttribRecipe)
 
 class XmlDotnetFormatConfiguration(XmlBase):
+    __AttribFileExtensions = 'FileExtensions'
+    __AttribRecipe = 'Recipe'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        fileExtensions = self._ReadAttrib(xmlElement, "FileExtensions")
+        self._CheckAttributes({self.__AttribFileExtensions, self.__AttribRecipe})
+        fileExtensions = self._ReadAttrib(xmlElement, self.__AttribFileExtensions)
         self.FileExtensions = fileExtensions.split(';')
-        self.Recipe = self._ReadAttrib(xmlElement, "Recipe")
+        self.Recipe = self._ReadAttrib(xmlElement, self.__AttribRecipe)
 
 class XmlConfigCompilerConfiguration(XmlBase):
+    __AttribName = 'Name'
+    __AttribPlatform = 'Platform'
+    __AttribDefaultVersion = 'DefaultVersion'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.Platform = self._ReadAttrib(xmlElement, 'Platform')
-        self.DefaultVersion = self._ReadAttrib(xmlElement, 'DefaultVersion')
+        self._CheckAttributes({self.__AttribName, self.__AttribPlatform, self.__AttribDefaultVersion})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Platform = self._ReadAttrib(xmlElement, self.__AttribPlatform)
+        self.DefaultVersion = self._ReadAttrib(xmlElement, self.__AttribDefaultVersion)
         self.Id = self.Name.lower()
 
 
 class XmlExperimentalDefaultThirdPartyInstallDirectory(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self._CheckAttributes({self.__AttribName})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
 
 
 class XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory(XmlBase):
+    __AttribName = 'Name'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes({self.__AttribName})
         self.Name = self._ReadAttrib(xmlElement, 'Name')
 
 
 class XmlExperimental(XmlBase):
+    __AttribAllowDownloads = 'AllowDownloads'
+    __AttribDisableDownloadEnv = 'DisableDownloadEnv'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes({self.__AttribAllowDownloads, self.__AttribDisableDownloadEnv})
         self.DefaultThirdPartyInstallDirectory = self.__TryLoadInstallDirectory(log, xmlElement)
         self.DefaultThirdPartyInstallReadonlyCacheDirectory = self.__TryLoadReadonlyCacheDirectory(log, xmlElement) # type: Optional[XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory]
 
-        self.AllowDownloads = self._ReadBoolAttrib(xmlElement, "AllowDownloads")
-        self.DisableDownloadEnv = self._ReadAttrib(xmlElement, "DisableDownloadEnv")
+        self.AllowDownloads = self._ReadBoolAttrib(xmlElement, self.__AttribAllowDownloads)
+        self.DisableDownloadEnv = self._ReadAttrib(xmlElement, self.__AttribDisableDownloadEnv)
         self.Platforms = self.__TryLoadPlatforms(log, xmlElement)                     # type: Dict[str, XmlExperimentalPlatform]
 
 
@@ -254,15 +284,22 @@ def _TryLoadExperimental(log: Log, xmlElement: ET.Element, filename: str) -> Opt
     return XmlExperimental(log, extendedElement)
 
 class XmlExtendedProject(XmlBase):
+    __AttribName = 'Name'
+    __AttribShortName = 'ShortName'
+    __AttribVersion = 'Version'
+    __AttribParent = 'Parent'
+    __AttribParentRoot = 'ParentRoot'
+
     def __init__(self, log: Log, xmlElement: ET.Element, filename: str) -> None:
         super().__init__(log, xmlElement)
+        self._CheckAttributes({self.__AttribName, self.__AttribShortName, self.__AttribVersion, self.__AttribParent, self.__AttribParentRoot})
         #raise Exception("ExtendedProject not implemented");
-        self.ProjectName = self._ReadAttrib(xmlElement, 'Name') # type: str
-        self.ShortProjectName = self._TryReadAttrib(xmlElement, 'ShortName') # type: Optional[str]
-        self.ProjectVersion = self._ReadAttrib(xmlElement, 'Version', "1.0.0.0") # type: str
+        self.ProjectName = self._ReadAttrib(xmlElement, self.__AttribName) # type: str
+        self.ShortProjectName = self._TryReadAttrib(xmlElement, self.__AttribShortName) # type: Optional[str]
+        self.ProjectVersion = self._ReadAttrib(xmlElement, self.__AttribVersion, "1.0.0.0") # type: str
         self.RootDirectory = IOUtil.GetDirectoryName(filename)
-        self.Parent = self._ReadAttrib(xmlElement, 'Parent')  # type: str
-        self.ParentRoot = self._ReadAttrib(xmlElement, 'ParentRoot')  # type: str
+        self.Parent = self._ReadAttrib(xmlElement, self.__AttribParent)  # type: str
+        self.ParentRoot = self._ReadAttrib(xmlElement, self.__AttribParentRoot)  # type: str
         configFilename = IOUtil.GetFileName(filename)   # type: str
         self.ParentConfigFilename = IOUtil.Join(self.ParentRoot, configFilename)  # type: str
         self.SourceFileName = filename  # type: str
@@ -284,9 +321,12 @@ class XmlExtendedProject(XmlBase):
 
 
 class XmlProjectRootConfigFile(XmlBase):
+    __AttribVersion = 'Version'
+
     def __init__(self, log: Log, filename: str) -> None:
         xmlElement = self.__LoadXml(log, filename)
         super().__init__(log, xmlElement)
+        self._CheckAttributes({self.__AttribVersion})
 
         self.__LoadFromXml(log, xmlElement, filename)
         if not self.XmlExperimental is None and self.XmlExperimental.DefaultThirdPartyInstallDirectory is None:

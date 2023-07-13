@@ -43,6 +43,8 @@ namespace Fsl::UI
   template <typename T>
   class Slider final : public SliderBase<T>
   {
+    using base_type = SliderBase<T>;
+
     SliderRenderImpl m_impl;
 
   public:

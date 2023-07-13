@@ -233,6 +233,14 @@
     <xs:attribute name="Name" type="xs:string" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="_T_FlavorExtension">
+    <xs:annotation>
+      <xs:documentation>Adds a extension of a existing inhertited flavor of this package. The flavor influces all users of it, so be careful when using it</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_FlavorCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
   <xs:complexType name="_T_Variant">
     <xs:annotation>
       <xs:documentation>Adds a variant of this package. The variant is inherited by everyone that is dependent on this package, so be careful with them</xs:documentation>
@@ -247,11 +255,13 @@
   <xs:complexType name="_T_FlavorOption">
     <xs:group ref="_G_FlavorOptionCommandList"/>
     <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Supported" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="_T_VariantOption">
     <xs:group ref="_G_VariantOptionCommandList"/>
     <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Supported" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
 
@@ -338,6 +348,12 @@
     </xs:choice>
   </xs:group>
 
+  <xs:group name="_G_FlavorExtensionElement">
+    <xs:choice>
+      <xs:element name="FlavorExtension" type="_T_FlavorExtension"/>
+    </xs:choice>
+  </xs:group>
+
   <xs:group name="_G_VariantElement">
     <xs:choice>
       <xs:element name="Variant" type="_T_Variant"/>
@@ -383,6 +399,7 @@
       <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DefineElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_FlavorElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_FlavorExtensionElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_VariantElement" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:group>
@@ -782,6 +799,7 @@
       <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DefineElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_FlavorElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_FlavorExtensionElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_VariantElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_ExperimentalRecipeElement" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>

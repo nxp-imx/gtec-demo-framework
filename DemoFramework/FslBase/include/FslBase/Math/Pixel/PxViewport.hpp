@@ -1,7 +1,7 @@
 #ifndef FSLBASE_MATH_PIXEL_PXVIEWPORT_HPP
 #define FSLBASE_MATH_PIXEL_PXVIEWPORT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021 NXP
+ * Copyright 2021, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Pixel/PxRectangle.hpp>
+#include <FslBase/Math/Pixel/PxSize1D.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
 
 namespace Fsl
@@ -52,12 +53,12 @@ namespace Fsl
     constexpr PxViewport() noexcept = default;
 
     explicit constexpr PxViewport(const PxRectangle& bounds) noexcept
-      : PxViewport(bounds.X(), bounds.Y(), bounds.Width(), bounds.Height())
+      : PxViewport(bounds.X().Value, bounds.Y().Value, bounds.Width().RawValue(), bounds.Height().RawValue())
     {
     }
 
     constexpr PxViewport(const PxRectangle& src, const float minDepth, const float maxDepth) noexcept
-      : PxViewport(src.Left(), src.Top(), src.Width(), src.Height(), minDepth, maxDepth)
+      : PxViewport(src.RawLeft(), src.RawTop(), src.RawWidth(), src.RawHeight(), minDepth, maxDepth)
     {
     }
 
@@ -67,6 +68,17 @@ namespace Fsl
       , m_y(y)
       , m_width(width >= 0 ? width : 0)
       , m_height(height >= 0 ? height : 0)
+      , m_minDepth(minDepth)
+      , m_maxDepth(maxDepth)
+    {
+    }
+
+    constexpr PxViewport(const int32_t x, const int32_t y, const PxSize1D width, const PxSize1D height, const float minDepth = 0.0f,
+                         const float maxDepth = 1.0f) noexcept
+      : m_x(x)
+      , m_y(y)
+      , m_width(width.RawValue())
+      , m_height(height.RawValue())
       , m_minDepth(minDepth)
       , m_maxDepth(maxDepth)
     {
@@ -124,12 +136,12 @@ namespace Fsl
 
     constexpr PxPoint2 Location() const
     {
-      return {m_x, m_y};
+      return PxPoint2::Create(m_x, m_y);
     }
 
     constexpr PxSize2D GetSize() const
     {
-      return {m_width, m_height};
+      return PxSize2D::UncheckedCreate(m_width, m_height);
     }
 
     constexpr float GetAspectRatio() const
@@ -150,10 +162,10 @@ namespace Fsl
 
     constexpr PxRectangle GetBounds() noexcept
     {
-      return {m_x, m_y, m_width, m_height};
+      return PxRectangle::UncheckedCreate(m_x, m_y, m_width, m_height);
     }
 
-    constexpr static PxViewport SetBounds(PxViewport& src, const PxRectangle& rectangle) noexcept
+    constexpr static PxViewport SetBounds(const PxViewport& src, const PxRectangle& rectangle) noexcept
     {
       return {rectangle, src.MinDepth(), src.MaxDepth()};
     }

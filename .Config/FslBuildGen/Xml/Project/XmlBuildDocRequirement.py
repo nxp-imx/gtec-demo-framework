@@ -37,7 +37,11 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlBuildDocRequirement(XmlBase):
+    __AttribName = 'Name'
+    __AttribSkip = 'Skip'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, "Name")
-        self.Skip = self._ReadBoolAttrib(xmlElement, "Skip", False) # type: bool
+        self._CheckAttributes({self.__AttribName, self.__AttribSkip})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.Skip = self._ReadBoolAttrib(xmlElement, self.__AttribSkip, False) # type: bool

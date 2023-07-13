@@ -40,6 +40,7 @@ class GeneratorPluginBase(object):
         self.PlatformId = platformName.lower()  # type: str
         self.ToolVersion = 0  # type: int
         self.IsCMake = False
+        # self.IsCMakeAndroid = False
         self.CMakeConfig = None     # type: Optional[GeneratorCMakeConfig]     # This is the configuration that should be used by cmake (recipe builders and normal)
 
     def SYS_SetCMakeConfig(self, cmakeConfig: Optional[GeneratorCMakeConfig]) -> None:

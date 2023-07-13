@@ -45,14 +45,19 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlNewVSProjectTemplateCustomizationBuildOutput(XmlBase):
+    __AttribLocation = 'Location'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        location = self._ReadAttrib(xmlElement, 'Location')
+        self._CheckAttributes({self.__AttribLocation})
+        location = self._ReadAttrib(xmlElement, self.__AttribLocation)
         if '\\' in location:
             raise Exception("'\\' is now allowed in location use '/' instead ('{0}')".format(location))
         self.Location = location
 
 class XmlNewVSProjectTemplateCustomizationFile(XmlBase):
+    __AttribVersion = 'Version'
+
     def __init__(self, log: Log, filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate config file %s", filename)
@@ -63,7 +68,8 @@ class XmlNewVSProjectTemplateCustomizationFile(XmlBase):
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGeneratorVSProjectTemplateCustomization'")
 
         super().__init__(log, elem)
-        strVersion = self._ReadAttrib(elem, 'Version')
+        #self._CheckAttributes({self.__AttribVersion})
+        strVersion = self._ReadAttrib(elem, self.__AttribVersion)
         if strVersion != "1":
             raise Exception("Unsupported version")
 

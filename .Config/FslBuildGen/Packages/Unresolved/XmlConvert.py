@@ -37,11 +37,14 @@ from typing import Optional
 from FslBuildGen import PackageConfig
 from FslBuildGen.Engine.PackageFlavorName import PackageFlavorName
 from FslBuildGen.Engine.PackageFlavorOptionName import PackageFlavorOptionName
+from FslBuildGen.Engine.PackageFlavorQuickName import PackageFlavorQuickName
 from FslBuildGen.Engine.PackageFlavorSelection import PackageFlavorSelection
 from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
 from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelectionsEmpty
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageDependency import UnresolvedPackageDependency
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavor import UnresolvedPackageFlavor
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorExtension import UnresolvedPackageFlavorExtension
+from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorUnqualifiedName import UnresolvedPackageFlavorUnqualifiedName
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageFlavorOption import UnresolvedPackageFlavorOption
 from FslBuildGen.Engine.Unresolved.UnresolvedPackageName import UnresolvedPackageName
 from FslBuildGen.Packages.CompanyName import CompanyName
@@ -66,6 +69,7 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import Unresol
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariant import UnresolvedPackageVariant
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageVariantOption import UnresolvedPackageVariantOption
 from FslBuildGen.Xml.Flavor.XmlGenFileFlavor import XmlGenFileFlavor
+from FslBuildGen.Xml.Flavor.XmlGenFileFlavorExtension import XmlGenFileFlavorExtension
 from FslBuildGen.Xml.Flavor.XmlGenFileFlavorOption import XmlGenFileFlavorOption
 from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
@@ -85,15 +89,17 @@ class XmlConvert(object):
     def CreateFromXmlGenFilePlatform(createContext: FactoryCreateContext, name: str, xmlGenFilePlatform: XmlGenFilePlatform) -> 'PackagePlatform':
         if xmlGenFilePlatform is not None and xmlGenFilePlatform.Name != name:
             raise Exception("the xmlGenFilePlatform.Name and name must be equal")
+
         variants = XmlConvert.ToUnresolvedPackageVariantList(xmlGenFilePlatform.Variants)
         directRequirements = XmlConvert.ToUnresolvedPackageRequirementList(xmlGenFilePlatform.DirectRequirements)
         directDependencies = XmlConvert.ToUnresolvedPackageDependencyList(xmlGenFilePlatform.DirectDependencies, False)
         externalDependencies = XmlConvert.ToUnresolvedExternalDependencyList(xmlGenFilePlatform.ExternalDependencies)
         directDefines = XmlConvert.ToUnresolvedPackageDefineList(xmlGenFilePlatform.DirectDefines)
         flavors = XmlConvert.__GenerateFlavors(createContext, xmlGenFilePlatform.Flavors)
+        flavorExtensions = XmlConvert.__GenerateFlavorExtensions(createContext, xmlGenFilePlatform.FlavorExtensions)
         return UnresolvedFactory.CreatePackagePlatform(createContext, name, directRequirements, directDependencies,
                                                        variants, xmlGenFilePlatform.Supported, externalDependencies, directDefines,
-                                                       xmlGenFilePlatform.DirectExperimentalRecipe, flavors)
+                                                       xmlGenFilePlatform.DirectExperimentalRecipe, flavors, flavorExtensions)
 
     @staticmethod
     def ToUnresolvedPackageDefine(xmlDefine: XmlGenFileDefine) -> UnresolvedPackageDefine:
@@ -150,7 +156,7 @@ class XmlConvert(object):
 
         res = [] # type: List[PackageFlavorSelection]
         for key, value in constraintsDict.items():
-            res.append(PackageFlavorSelection(PackageFlavorName(key), PackageFlavorOptionName(value)))
+            res.append(PackageFlavorSelection(PackageFlavorName.FromString(key), PackageFlavorOptionName(value)))
         return PackageFlavorSelections(res)
 
     @staticmethod
@@ -247,7 +253,21 @@ class XmlConvert(object):
         res = [] # type: List[UnresolvedPackageFlavor]
         for xmlFlavor in xmlFlavors:
             options = XmlConvert.__GenerateFlavorOptions(createContext, xmlFlavor.Options)
-            flavor = UnresolvedPackageFlavor(PackageFlavorName(xmlFlavor.Name), UnresolvedPackageName(xmlFlavor.IntroducedByPackageName), options)
+            introducedByPackageName = UnresolvedPackageName(xmlFlavor.IntroducedByPackageName)
+            flavorName = PackageFlavorName(introducedByPackageName, UnresolvedPackageFlavorUnqualifiedName(xmlFlavor.Name))
+            flavorQuickName = PackageFlavorQuickName(UnresolvedPackageFlavorUnqualifiedName(xmlFlavor.QuickName)) if xmlFlavor.QuickName is not None else None
+            flavor = UnresolvedPackageFlavor(flavorName, flavorQuickName, options)
+            res.append(flavor)
+        return res
+
+    @staticmethod
+    def __GenerateFlavorExtensions(createContext: FactoryCreateContext, xmlFlavorExtensions: List[XmlGenFileFlavorExtension]) -> List[UnresolvedPackageFlavorExtension]:
+        res = [] # type: List[UnresolvedPackageFlavorExtension]
+        for xmlFlavorExtension in xmlFlavorExtensions:
+            options = XmlConvert.__GenerateFlavorOptions(createContext, xmlFlavorExtension.Options)
+            introducedByPackageName = UnresolvedPackageName(xmlFlavorExtension.IntroducedByPackageName)
+            flavorName = PackageFlavorName.FromString(xmlFlavorExtension.Name)
+            flavor = UnresolvedPackageFlavorExtension(flavorName, introducedByPackageName, options)
             res.append(flavor)
         return res
 
@@ -256,12 +276,13 @@ class XmlConvert(object):
         res = [] # type: List[UnresolvedPackageFlavorOption]
         for xmlFlavorOption in xmlFlavorOptions:
             name = PackageFlavorOptionName(xmlFlavorOption.Name)
+            supported = xmlFlavorOption.Supported
             introducedByPackageName = UnresolvedPackageName(xmlFlavorOption.IntroducedByPackageName)
             directRequirements = XmlConvert.ToUnresolvedPackageRequirementList(xmlFlavorOption.DirectRequirements)
             directDependencies = XmlConvert.ToUnresolvedPackageDependencyList(xmlFlavorOption.DirectDependencies, False)
             externalDependencies = XmlConvert.ToUnresolvedExternalDependencyList(xmlFlavorOption.ExternalDependencies)
             directDefines = XmlConvert.ToUnresolvedPackageDefineList(xmlFlavorOption.DirectDefines)
-            flavorOption = UnresolvedFactory.CreateUnresolvedPackageFlavorOption(createContext, name, introducedByPackageName, directRequirements,
+            flavorOption = UnresolvedFactory.CreateUnresolvedPackageFlavorOption(createContext, name, supported, introducedByPackageName, directRequirements,
                                                                                  directDependencies, externalDependencies, directDefines)
             res.append(flavorOption)
         return res

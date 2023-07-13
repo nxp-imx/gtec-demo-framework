@@ -339,9 +339,7 @@ namespace Fsl
 
   void DisplacementMapping::UpdateUniformBuffers()
   {
-    const auto screenExtent = GetScreenExtent();
-
-    const float aspect = static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height);
+    const float aspect = GetWindowAspectRatio();
     // Tessellation eval
     glm::mat4 viewMatrix = glm::mat4(1.0f);
     m_uboTE.Projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 256.0f);

@@ -36,6 +36,7 @@
 #include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/ThicknessF.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
@@ -54,7 +55,7 @@ namespace Fsl::UI::Draw9SliceUtil
     }
 
     const PxSize2D textureSize = texture.GetSize();
-    if (textureSize.Width() < nineSlice.SumX() || textureSize.Height() < nineSlice.SumY())
+    if (textureSize.RawWidth() < nineSlice.SumX() || textureSize.RawHeight() < nineSlice.SumY())
     {
       FSLLOG3_WARNING("The nine slice is incompatible with the image");
       return;
@@ -80,69 +81,69 @@ namespace Fsl::UI::Draw9SliceUtil
     // |  |              |  |
     //--------------------------------------------------------------------------------------------------------------------------------------------
 
-    const int32_t srcLeftWidth = nineSlice.SliceFromTopLeftX();
-    const int32_t srcTopHeight = nineSlice.SliceFromTopLeftY();
-    const int32_t srcCenterWidth = textureSize.Width() - nineSlice.SumX();
-    const int32_t srcCenterHeight = textureSize.Height() - nineSlice.SumY();
-    const int32_t srcRightWidth = nineSlice.SliceFromBottomRightX();
-    const int32_t srcBottomHeight = nineSlice.SliceFromBottomRightY();
+    const PxSize1D srcLeftWidth = PxSize1D::UncheckedCreate(nineSlice.SliceFromTopLeftX());
+    const PxSize1D srcTopHeight = PxSize1D::UncheckedCreate(nineSlice.SliceFromTopLeftY());
+    const PxSize1D srcCenterWidth = PxSize1D::UncheckedCreate(textureSize.RawWidth() - nineSlice.SumX());
+    const PxSize1D srcCenterHeight = PxSize1D::UncheckedCreate(textureSize.RawHeight() - nineSlice.SumY());
+    const PxSize1D srcRightWidth = PxSize1D::UncheckedCreate(nineSlice.SliceFromBottomRightX());
+    const PxSize1D srcBottomHeight = PxSize1D::UncheckedCreate(nineSlice.SliceFromBottomRightY());
 
-    const auto rect0Width = static_cast<float>(srcLeftWidth);
-    const auto rect0Height = static_cast<float>(srcTopHeight);
-    const auto rect4Width = static_cast<float>(srcCenterWidth);
-    const auto rect4Height = static_cast<float>(srcCenterHeight);
-    const auto rect8Width = static_cast<float>(srcRightWidth);
-    const auto rect8Height = static_cast<float>(srcBottomHeight);
+    const PxSize1DF rect0Width(srcLeftWidth);
+    const PxSize1DF rect0Height(srcTopHeight);
+    const PxSize1DF rect4Width(srcCenterWidth);
+    const PxSize1DF rect4Height(srcCenterHeight);
+    const PxSize1DF rect8Width(srcRightWidth);
+    const PxSize1DF rect8Height(srcBottomHeight);
 
-    float bgLeft = rect0Width;
-    float bgTop = rect0Height;
-    float bgRight = rect8Width;
-    float bgBottom = rect8Height;
-    float bgSizeX = bgLeft + bgRight + rect4Width;
-    float bgSizeY = bgTop + bgBottom + rect4Height;
+    PxSize1DF bgLeft = rect0Width;
+    PxSize1DF bgTop = rect0Height;
+    PxSize1DF bgRight = rect8Width;
+    PxSize1DF bgBottom = rect8Height;
+    PxSize1DF bgSizeX(bgLeft + bgRight + rect4Width);
+    PxSize1DF bgSizeY(bgTop + bgBottom + rect4Height);
     {
-      PxVector2 bgScale;
-      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+      PxSize2DF bgScale;
+      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.Size(), PxSize2DF(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
       {
         return;
       }
 
-      bgLeft *= bgScale.X;
-      bgRight *= bgScale.X;
-      bgTop *= bgScale.Y;
-      bgBottom *= bgScale.Y;
+      bgLeft *= bgScale.Width();
+      bgRight *= bgScale.Width();
+      bgTop *= bgScale.Height();
+      bgBottom *= bgScale.Height();
     }
 
-    const float dstXA = dstRectanglePxf.Left();
-    const float dstYA = dstRectanglePxf.Top();
-    const float dstXB = dstXA + bgLeft;
-    const float dstYB = dstYA + bgTop;
-    const float dstXD = dstRectanglePxf.Right();
-    const float dstYD = dstRectanglePxf.Bottom();
-    const float dstXC = dstXD - bgRight;
-    const float dstYC = dstYD - bgBottom;
+    const PxValueF dstXA = dstRectanglePxf.Left();
+    const PxValueF dstYA = dstRectanglePxf.Top();
+    const PxValueF dstXB = dstXA + bgLeft;
+    const PxValueF dstYB = dstYA + bgTop;
+    const PxValueF dstXD = dstRectanglePxf.Right();
+    const PxValueF dstYD = dstRectanglePxf.Bottom();
+    const PxValueF dstXC = dstXD - bgRight;
+    const PxValueF dstYC = dstYD - bgBottom;
 
     PxAreaRectangleF finalDstRectPxf;
 
-    const int32_t srcRightStart = srcLeftWidth + srcCenterWidth;
-    const int32_t srcBottomStart = srcTopHeight + srcCenterHeight;
+    const PxSize1D srcRightStart = srcLeftWidth + srcCenterWidth;
+    const PxSize1D srcBottomStart = srcTopHeight + srcCenterHeight;
 
 
     // TOP_LEFT CORNER: xa, ya, xb, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYA, dstXB, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(0, 0, srcLeftWidth, srcTopHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(PxValue(0), PxValue(0), srcLeftWidth, srcTopHeight), color);
 
     // TOP: xb, ya, xc, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYA, dstXC, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcLeftWidth, PxValue(0), srcCenterWidth, srcTopHeight), color);
 
     // TOP_RIGHT CORNER: xc, ya, xd, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYA, dstXD, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcRightStart, 0, srcRightWidth, srcTopHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcRightStart, PxValue(0), srcRightWidth, srcTopHeight), color);
 
     // LEFT SIDE: xa, yb, xb, yc
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYB, dstXB, dstYC);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(PxValue(0), srcTopHeight, srcLeftWidth, srcCenterHeight), color);
 
     // CENTER: xb, yb, xc, yc
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYB, dstXC, dstYC);
@@ -154,7 +155,7 @@ namespace Fsl::UI::Draw9SliceUtil
 
     // BOTTOM_LEFT CORNER: xa, yc, xb, yd
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYC, dstXB, dstYD);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(PxValue(0), srcBottomStart, srcLeftWidth, srcBottomHeight), color);
 
     // BOTTOM: xb, yc, xc, yd
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYC, dstXC, dstYD);
@@ -174,7 +175,7 @@ namespace Fsl::UI::Draw9SliceUtil
     }
 
     const PxSize2D textureSize = texture.GetSize();
-    if (textureSize.Width() < nineSlice.SumX() || textureSize.Height() < nineSlice.SumY())
+    if (textureSize.RawWidth() < nineSlice.SumX() || textureSize.RawHeight() < nineSlice.SumY())
     {
       FSLLOG3_WARNING("The nine slice is incompatible with the image");
       return;
@@ -200,69 +201,69 @@ namespace Fsl::UI::Draw9SliceUtil
     // |  |              |  |
     //--------------------------------------------------------------------------------------------------------------------------------------------
 
-    const int32_t srcLeftWidth = nineSlice.SliceFromTopLeftX();
-    const int32_t srcTopHeight = nineSlice.SliceFromTopLeftY();
-    const int32_t srcCenterWidth = textureSize.Width() - nineSlice.SumX();
-    const int32_t srcCenterHeight = textureSize.Height() - nineSlice.SumY();
-    const int32_t srcRightWidth = nineSlice.SliceFromBottomRightX();
-    const int32_t srcBottomHeight = nineSlice.SliceFromBottomRightY();
+    const PxSize1D srcLeftWidth = PxSize1D::UncheckedCreate(nineSlice.SliceFromTopLeftX());
+    const PxSize1D srcTopHeight = PxSize1D::UncheckedCreate(nineSlice.SliceFromTopLeftY());
+    const PxSize1D srcCenterWidth = PxSize1D::UncheckedCreate(textureSize.RawWidth() - nineSlice.SumX());
+    const PxSize1D srcCenterHeight = PxSize1D::UncheckedCreate(textureSize.RawHeight() - nineSlice.SumY());
+    const PxSize1D srcRightWidth = PxSize1D::UncheckedCreate(nineSlice.SliceFromBottomRightX());
+    const PxSize1D srcBottomHeight = PxSize1D::UncheckedCreate(nineSlice.SliceFromBottomRightY());
 
-    const auto rect0Width = static_cast<float>(srcLeftWidth);
-    const auto rect0Height = static_cast<float>(srcTopHeight);
-    const auto rect4Width = static_cast<float>(srcCenterWidth);
-    const auto rect4Height = static_cast<float>(srcCenterHeight);
-    const auto rect8Width = static_cast<float>(srcRightWidth);
-    const auto rect8Height = static_cast<float>(srcBottomHeight);
+    const PxSize1DF rect0Width(srcLeftWidth);
+    const PxSize1DF rect0Height(srcTopHeight);
+    const PxSize1DF rect4Width(srcCenterWidth);
+    const PxSize1DF rect4Height(srcCenterHeight);
+    const PxSize1DF rect8Width(srcRightWidth);
+    const PxSize1DF rect8Height(srcBottomHeight);
 
-    float bgLeft = std::max(rect0Width, static_cast<float>(minimumBackgroundMarginPx.Left()));
-    float bgTop = std::max(rect0Height, static_cast<float>(minimumBackgroundMarginPx.Top()));
-    float bgRight = std::max(rect8Width, static_cast<float>(minimumBackgroundMarginPx.Right()));
-    float bgBottom = std::max(rect8Height, static_cast<float>(minimumBackgroundMarginPx.Bottom()));
-    float bgSizeX = bgLeft + bgRight + rect4Width;
-    float bgSizeY = bgTop + bgBottom + rect4Height;
+    PxSize1DF bgLeft = std::max(rect0Width, PxSize1DF(minimumBackgroundMarginPx.Left()));
+    PxSize1DF bgTop = std::max(rect0Height, PxSize1DF(minimumBackgroundMarginPx.Top()));
+    PxSize1DF bgRight = std::max(rect8Width, PxSize1DF(minimumBackgroundMarginPx.Right()));
+    PxSize1DF bgBottom = std::max(rect8Height, PxSize1DF(minimumBackgroundMarginPx.Bottom()));
+    PxSize1DF bgSizeX = bgLeft + bgRight + rect4Width;
+    PxSize1DF bgSizeY = bgTop + bgBottom + rect4Height;
     {
-      PxVector2 bgScale;
-      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+      PxSize2DF bgScale;
+      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.Size(), PxSize2DF(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
       {
         return;
       }
 
-      bgLeft *= bgScale.X;
-      bgRight *= bgScale.X;
-      bgTop *= bgScale.Y;
-      bgBottom *= bgScale.Y;
+      bgLeft *= bgScale.Width();
+      bgRight *= bgScale.Width();
+      bgTop *= bgScale.Height();
+      bgBottom *= bgScale.Height();
     }
 
-    const float dstXA = dstRectanglePxf.Left();
-    const float dstYA = dstRectanglePxf.Top();
-    const float dstXB = dstXA + bgLeft;
-    const float dstYB = dstYA + bgTop;
-    const float dstXD = dstRectanglePxf.Right();
-    const float dstYD = dstRectanglePxf.Bottom();
-    const float dstXC = dstXD - bgRight;
-    const float dstYC = dstYD - bgBottom;
+    const PxValueF dstXA = dstRectanglePxf.Left();
+    const PxValueF dstYA = dstRectanglePxf.Top();
+    const PxValueF dstXB = dstXA + bgLeft;
+    const PxValueF dstYB = dstYA + bgTop;
+    const PxValueF dstXD = dstRectanglePxf.Right();
+    const PxValueF dstYD = dstRectanglePxf.Bottom();
+    const PxValueF dstXC = dstXD - bgRight;
+    const PxValueF dstYC = dstYD - bgBottom;
 
     PxAreaRectangleF finalDstRectPxf;
 
-    const int32_t srcRightStart = srcLeftWidth + srcCenterWidth;
-    const int32_t srcBottomStart = srcTopHeight + srcCenterHeight;
+    const PxSize1D srcRightStart = srcLeftWidth + srcCenterWidth;
+    const PxSize1D srcBottomStart = srcTopHeight + srcCenterHeight;
 
 
     // TOP_LEFT CORNER: xa, ya, xb, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYA, dstXB, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(0, 0, srcLeftWidth, srcTopHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(PxValue(0), PxValue(0), srcLeftWidth, srcTopHeight), color);
 
     // TOP: xb, ya, xc, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYA, dstXC, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcLeftWidth, PxValue(0), srcCenterWidth, srcTopHeight), color);
 
     // TOP_RIGHT CORNER: xc, ya, xd, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYA, dstXD, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcRightStart, 0, srcRightWidth, srcTopHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(srcRightStart, PxValue(0), srcRightWidth, srcTopHeight), color);
 
     // LEFT SIDE: xa, yb, xb, yc
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYB, dstXB, dstYC);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(PxValue(0), srcTopHeight, srcLeftWidth, srcCenterHeight), color);
 
     // CENTER: xb, yb, xc, yc
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYB, dstXC, dstYC);
@@ -274,7 +275,7 @@ namespace Fsl::UI::Draw9SliceUtil
 
     // BOTTOM_LEFT CORNER: xa, yc, xb, yd
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYC, dstXB, dstYD);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangle(PxValue(0), srcBottomStart, srcLeftWidth, srcBottomHeight), color);
 
     // BOTTOM: xb, yc, xc, yd
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYC, dstXC, dstYD);
@@ -294,7 +295,7 @@ namespace Fsl::UI::Draw9SliceUtil
     }
 
     const PxSize2D textureSize = texture.GetSize();
-    if (textureSize.Width() < nineSlice.SumX() || textureSize.Height() < nineSlice.SumY())
+    if (textureSize.RawWidth() < nineSlice.SumX() || textureSize.RawHeight() < nineSlice.SumY())
     {
       FSLLOG3_WARNING("The nine slice is incompatible with the image");
       return;
@@ -322,64 +323,66 @@ namespace Fsl::UI::Draw9SliceUtil
     // |  |              |  |
     //--------------------------------------------------------------------------------------------------------------------------------------------
 
-    const int32_t srcLeftWidth = nineSlice.SliceFromTopLeftX();
-    const int32_t srcTopHeight = nineSlice.SliceFromTopLeftY();
-    const int32_t srcCenterWidth = textureSize.Width() - nineSlice.SumX();
-    const int32_t srcCenterHeight = textureSize.Height() - nineSlice.SumY();
-    const int32_t srcRightWidth = nineSlice.SliceFromBottomRightX();
-    const int32_t srcBottomHeight = nineSlice.SliceFromBottomRightY();
+    const PxValueU srcLeftWidth(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromTopLeftX()));
+    const PxValueU srcTopHeight(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromTopLeftY()));
+    const PxValueU srcCenterWidth(UncheckedNumericCast<PxValueU::raw_value_type>(textureSize.RawWidth() - nineSlice.SumX()));
+    const PxValueU srcCenterHeight(UncheckedNumericCast<PxValueU::raw_value_type>(textureSize.RawHeight() - nineSlice.SumY()));
+    const PxValueU srcRightWidth(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromBottomRightX()));
+    const PxValueU srcBottomHeight(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromBottomRightY()));
 
-    const auto rect0Width = static_cast<float>(srcTopHeight);
-    const auto rect0Height = static_cast<float>(srcLeftWidth);
-    const auto rect4Width = static_cast<float>(srcCenterHeight);
-    const auto rect4Height = static_cast<float>(srcCenterWidth);
-    const auto rect8Width = static_cast<float>(srcBottomHeight);
-    const auto rect8Height = static_cast<float>(srcRightWidth);
+    const PxSize1DF rect0Width(srcTopHeight);
+    const PxSize1DF rect0Height(srcLeftWidth);
+    const PxSize1DF rect4Width(srcCenterHeight);
+    const PxSize1DF rect4Height(srcCenterWidth);
+    const PxSize1DF rect8Width(srcBottomHeight);
+    const PxSize1DF rect8Height(srcRightWidth);
 
-    float bgLeft = rect0Width;
-    float bgTop = rect0Height;
-    float bgRight = rect8Width;
-    float bgBottom = rect8Height;
-    float bgSizeX = bgLeft + bgRight + rect4Width;
-    float bgSizeY = bgTop + bgBottom + rect4Height;
+    PxSize1DF bgLeft = rect0Width;
+    PxSize1DF bgTop = rect0Height;
+    PxSize1DF bgRight = rect8Width;
+    PxSize1DF bgBottom = rect8Height;
+    PxSize1DF bgSizeX = bgLeft + bgRight + rect4Width;
+    PxSize1DF bgSizeY = bgTop + bgBottom + rect4Height;
     {
-      PxVector2 bgScale;
-      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+      PxSize2DF bgScale;
+      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.Size(), PxSize2DF(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
       {
         return;
       }
 
-      bgLeft *= bgScale.X;
-      bgRight *= bgScale.X;
-      bgTop *= bgScale.Y;
-      bgBottom *= bgScale.Y;
+      bgLeft *= bgScale.Width();
+      bgRight *= bgScale.Width();
+      bgTop *= bgScale.Height();
+      bgBottom *= bgScale.Height();
     }
 
-    const float dstXA = dstRectanglePxf.Left();
-    const float dstYA = dstRectanglePxf.Top();
-    const float dstXB = dstXA + bgLeft;
-    const float dstYB = dstYA + bgTop;
-    const float dstXD = dstRectanglePxf.Right();
-    const float dstYD = dstRectanglePxf.Bottom();
-    const float dstXC = dstXD - bgRight;
-    const float dstYC = dstYD - bgBottom;
+    const PxValueF dstXA = dstRectanglePxf.Left();
+    const PxValueF dstYA = dstRectanglePxf.Top();
+    const PxValueF dstXB = dstXA + bgLeft;
+    const PxValueF dstYB = dstYA + bgTop;
+    const PxValueF dstXD = dstRectanglePxf.Right();
+    const PxValueF dstYD = dstRectanglePxf.Bottom();
+    const PxValueF dstXC = dstXD - bgRight;
+    const PxValueF dstYC = dstYD - bgBottom;
 
     PxAreaRectangleF finalDstRect;
 
-    const int32_t srcRightStart = srcLeftWidth + srcCenterWidth;
-    const int32_t srcBottomStart = srcTopHeight + srcCenterHeight;
+    const PxValueU srcRightStart(srcLeftWidth + srcCenterWidth);
+    const PxValueU srcBottomStart(srcTopHeight + srcCenterHeight);
 
     // TOP_LEFT CORNER: xa, ya, xb, yb
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYA, dstXB, dstYB);
-    batch2D->Draw(texture, finalDstRect, PxRectangleU32(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRect, PxRectangleU32(PxValueU(0), srcBottomStart, srcLeftWidth, srcBottomHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // TOP: xb, ya, xc, yb
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYA, dstXC, dstYB);
-    batch2D->Draw(texture, finalDstRect, PxRectangleU32(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRect, PxRectangleU32(PxValueU(0), srcTopHeight, srcLeftWidth, srcCenterHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // TOP_RIGHT CORNER: xc, ya, xd, yb
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYA, dstXD, dstYB);
-    batch2D->Draw(texture, finalDstRect, PxRectangleU32(0, 0, srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRect, PxRectangleU32(PxValueU(0), PxValueU(0), srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
 
     // LEFT SIDE: xa, yb, xb, yc
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYB, dstXB, dstYC);
@@ -393,7 +396,8 @@ namespace Fsl::UI::Draw9SliceUtil
 
     // RIGHT SIDE: xc, yb, xd, yc
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYB, dstXD, dstYC);
-    batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcLeftWidth, PxValueU(0), srcCenterWidth, srcTopHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // BOTTOM_LEFT CORNER: xa, yc, xb, yd
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYC, dstXB, dstYD);
@@ -407,7 +411,8 @@ namespace Fsl::UI::Draw9SliceUtil
 
     // BOTTOM_RIGHT CORNER: xc, yc, xd, yd
     finalDstRect = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYC, dstXD, dstYD);
-    batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcRightStart, 0, srcRightWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRect, PxRectangleU32(srcRightStart, PxValueU(0), srcRightWidth, srcTopHeight), color,
+                  BatchEffect::Rotate90Clockwise);
   }
 
   inline static void WinDrawRotated90CW(const std::shared_ptr<INativeBatch2D>& batch2D, const PxAreaRectangleF& dstRectanglePxf,
@@ -420,7 +425,7 @@ namespace Fsl::UI::Draw9SliceUtil
     }
 
     const PxSize2D textureSize = texture.GetSize();
-    if (textureSize.Width() < nineSlice.SumX() || textureSize.Height() < nineSlice.SumY())
+    if (textureSize.RawWidth() < nineSlice.SumX() || textureSize.RawHeight() < nineSlice.SumY())
     {
       FSLLOG3_WARNING("The nine slice is incompatible with the image");
       return;
@@ -446,64 +451,67 @@ namespace Fsl::UI::Draw9SliceUtil
     // |  |              |  |
     //--------------------------------------------------------------------------------------------------------------------------------------------
 
-    const int32_t srcLeftWidth = nineSlice.SliceFromTopLeftX();
-    const int32_t srcTopHeight = nineSlice.SliceFromTopLeftY();
-    const int32_t srcCenterWidth = textureSize.Width() - nineSlice.SumX();
-    const int32_t srcCenterHeight = textureSize.Height() - nineSlice.SumY();
-    const int32_t srcRightWidth = nineSlice.SliceFromBottomRightX();
-    const int32_t srcBottomHeight = nineSlice.SliceFromBottomRightY();
+    const PxValueU srcLeftWidth(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromTopLeftX()));
+    const PxValueU srcTopHeight(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromTopLeftY()));
+    const PxValueU srcCenterWidth(UncheckedNumericCast<PxValueU::raw_value_type>(textureSize.RawWidth() - nineSlice.SumX()));
+    const PxValueU srcCenterHeight(UncheckedNumericCast<PxValueU::raw_value_type>(textureSize.RawHeight() - nineSlice.SumY()));
+    const PxValueU srcRightWidth(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromBottomRightX()));
+    const PxValueU srcBottomHeight(UncheckedNumericCast<PxValueU::raw_value_type>(nineSlice.SliceFromBottomRightY()));
 
-    const auto rect0Width = static_cast<float>(srcTopHeight);
-    const auto rect0Height = static_cast<float>(srcLeftWidth);
-    const auto rect4Width = static_cast<float>(srcCenterHeight);
-    const auto rect4Height = static_cast<float>(srcCenterWidth);
-    const auto rect8Width = static_cast<float>(srcBottomHeight);
-    const auto rect8Height = static_cast<float>(srcRightWidth);
+    const PxSize1DF rect0Width(srcTopHeight);
+    const PxSize1DF rect0Height(srcLeftWidth);
+    const PxSize1DF rect4Width(srcCenterHeight);
+    const PxSize1DF rect4Height(srcCenterWidth);
+    const PxSize1DF rect8Width(srcBottomHeight);
+    const PxSize1DF rect8Height(srcRightWidth);
 
-    float bgLeft = std::max(rect0Width, minimumBackgroundMargin.Top());
-    float bgTop = std::max(rect0Height, minimumBackgroundMargin.Left());
-    float bgRight = std::max(rect8Width, minimumBackgroundMargin.Bottom());
-    float bgBottom = std::max(rect8Height, minimumBackgroundMargin.Right());
-    float bgSizeX = bgLeft + bgRight + rect4Width;
-    float bgSizeY = bgTop + bgBottom + rect4Height;
+    PxSize1DF bgLeft = std::max(rect0Width, PxSize1DF::UncheckedCreate(minimumBackgroundMargin.Top()));
+    PxSize1DF bgTop = std::max(rect0Height, PxSize1DF::UncheckedCreate(minimumBackgroundMargin.Left()));
+    PxSize1DF bgRight = std::max(rect8Width, PxSize1DF::UncheckedCreate(minimumBackgroundMargin.Bottom()));
+    PxSize1DF bgBottom = std::max(rect8Height, PxSize1DF::UncheckedCreate(minimumBackgroundMargin.Right()));
+    PxSize1DF bgSizeX = bgLeft + bgRight + rect4Width;
+    PxSize1DF bgSizeY = bgTop + bgBottom + rect4Height;
     {
-      PxVector2 bgScale;
-      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.GetSize(), PxVector2(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
+      PxSize2DF bgScale;
+      if (!UIScaleUtil::TryCalcScaling(bgScale, dstRectanglePxf.Size(), PxSize2DF(bgSizeX, bgSizeY), ItemScalePolicy::DownscaleKeepAR))
       {
         return;
       }
 
-      bgLeft *= bgScale.X;
-      bgRight *= bgScale.X;
-      bgTop *= bgScale.Y;
-      bgBottom *= bgScale.Y;
+      bgLeft *= bgScale.Width();
+      bgRight *= bgScale.Width();
+      bgTop *= bgScale.Height();
+      bgBottom *= bgScale.Height();
     }
 
-    const float dstXA = dstRectanglePxf.Left();
-    const float dstYA = dstRectanglePxf.Top();
-    const float dstXB = dstXA + bgLeft;
-    const float dstYB = dstYA + bgTop;
-    const float dstXD = dstRectanglePxf.Right();
-    const float dstYD = dstRectanglePxf.Bottom();
-    const float dstXC = dstXD - bgRight;
-    const float dstYC = dstYD - bgBottom;
+    const PxValueF dstXA = dstRectanglePxf.Left();
+    const PxValueF dstYA = dstRectanglePxf.Top();
+    const PxValueF dstXB = dstXA + bgLeft;
+    const PxValueF dstYB = dstYA + bgTop;
+    const PxValueF dstXD = dstRectanglePxf.Right();
+    const PxValueF dstYD = dstRectanglePxf.Bottom();
+    const PxValueF dstXC = dstXD - bgRight;
+    const PxValueF dstYC = dstYD - bgBottom;
 
     PxAreaRectangleF finalDstRectPxf;
 
-    const int32_t srcRightStart = srcLeftWidth + srcCenterWidth;
-    const int32_t srcBottomStart = srcTopHeight + srcCenterHeight;
+    const PxValueU srcRightStart = srcLeftWidth + srcCenterWidth;
+    const PxValueU srcBottomStart = srcTopHeight + srcCenterHeight;
 
     // TOP_LEFT CORNER: xa, ya, xb, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYA, dstXB, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(0, srcBottomStart, srcLeftWidth, srcBottomHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(PxValueU(0), srcBottomStart, srcLeftWidth, srcBottomHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // TOP: xb, ya, xc, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXB, dstYA, dstXC, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(0, srcTopHeight, srcLeftWidth, srcCenterHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(PxValueU(0), srcTopHeight, srcLeftWidth, srcCenterHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // TOP_RIGHT CORNER: xc, ya, xd, yb
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYA, dstXD, dstYB);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(0, 0, srcLeftWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(PxValueU(0), PxValueU(0), srcLeftWidth, srcTopHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // LEFT SIDE: xa, yb, xb, yc
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYB, dstXB, dstYC);
@@ -517,7 +525,8 @@ namespace Fsl::UI::Draw9SliceUtil
 
     // RIGHT SIDE: xc, yb, xd, yc
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYB, dstXD, dstYC);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcLeftWidth, 0, srcCenterWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcLeftWidth, PxValueU(0), srcCenterWidth, srcTopHeight), color,
+                  BatchEffect::Rotate90Clockwise);
 
     // BOTTOM_LEFT CORNER: xa, yc, xb, yd
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXA, dstYC, dstXB, dstYD);
@@ -531,7 +540,8 @@ namespace Fsl::UI::Draw9SliceUtil
 
     // BOTTOM_RIGHT CORNER: xc, yc, xd, yd
     finalDstRectPxf = PxAreaRectangleF::FromLeftTopRightBottom(dstXC, dstYC, dstXD, dstYD);
-    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcRightStart, 0, srcRightWidth, srcTopHeight), color, BatchEffect::Rotate90Clockwise);
+    batch2D->Draw(texture, finalDstRectPxf, PxRectangleU32(srcRightStart, PxValueU(0), srcRightWidth, srcTopHeight), color,
+                  BatchEffect::Rotate90Clockwise);
   }
 }
 

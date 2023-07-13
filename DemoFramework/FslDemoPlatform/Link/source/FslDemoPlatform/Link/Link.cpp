@@ -41,8 +41,9 @@ namespace Fsl
 #ifdef FSL_PLATFORM_ANDROID
   void FslDemoPlatform_Link(CustomPlatformData* pCustomPlatformData, const char* const pszCustom)
   {
+    FSL_PARAM_NOT_USED(pszCustom);
     // Call the android main function
-    AndroidMain(pCustomPlatformData, pszCustom);
+    AndroidMain(pCustomPlatformData);
   }
 #else
   void FslDemoPlatform_Link(CustomPlatformData* pCustomPlatformData, const char* const pszCustom)

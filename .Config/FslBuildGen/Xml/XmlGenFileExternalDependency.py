@@ -46,29 +46,44 @@ from FslBuildGen.Xml.XmlGenFileExternalDependencyPackageManager import XmlGenFil
 
 
 class XmlGenFileExternalDependency(XmlBase):
+    __AttribName = 'Name'
+    __AttribDebugName = 'DebugName'
+    __AttribTargetName = 'TargetName'
+    __AttribInclude = 'Include'
+    __AttribLocation = 'Location'
+    __AttribHintPath = 'HintPath'
+    __AttribVersion = 'Version'
+    __AttribPublicKeyToken = 'PublicKeyToken'
+    __AttribProcessorArchitecture = 'ProcessorArchitecture'
+    __AttribCulture = 'Culture'
+    __AttribIf = 'If'
+    __AttribAccess = 'Access'
+    __AttribType = 'Type'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')
-        self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name) # type: str
+        self._CheckAttributes({self.__AttribName, self.__AttribDebugName, self.__AttribTargetName, self.__AttribInclude, self.__AttribLocation, self.__AttribHintPath, self.__AttribVersion, self.__AttribPublicKeyToken, self.__AttribProcessorArchitecture, self.__AttribCulture, self.__AttribIf, self.__AttribAccess, self.__AttribType})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)
+        self.DebugName = self._ReadAttrib(xmlElement, self.__AttribDebugName, self.Name) # type: str
         defaultTargetName = "{0}::{0}".format(self.Name)
-        self.TargetName = self._ReadAttrib(xmlElement, 'TargetName', defaultTargetName) # type: str
-        self.Include = self._TryReadAttrib(xmlElement, 'Include')  # type: Optional['str']
-        self.Location = self._TryReadAttrib(xmlElement, 'Location')  # type: Optional['str']
+        self.TargetName = self._ReadAttrib(xmlElement, self.__AttribTargetName, defaultTargetName) # type: str
+        self.Include = self._TryReadAttrib(xmlElement, self.__AttribInclude)  # type: Optional['str']
+        self.Location = self._TryReadAttrib(xmlElement, self.__AttribLocation)  # type: Optional['str']
         # New assembly keywords primarily used for C# assemblies
-        self.HintPath = self._TryReadAttrib(xmlElement, 'HintPath')  # type: Optional['str']
-        self.Version = self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
-        self.PublicKeyToken = self._TryReadAttrib(xmlElement, 'PublicKeyToken')  # type: Optional['str']
-        self.ProcessorArchitecture = self._TryReadAttrib(xmlElement, 'ProcessorArchitecture')  # type: Optional['str']
-        self.Culture = self._TryReadAttrib(xmlElement, 'Culture')  # type: Optional['str']
+        self.HintPath = self._TryReadAttrib(xmlElement, self.__AttribHintPath)  # type: Optional['str']
+        self.Version = self._TryReadAttribAsVersion(xmlElement, self.__AttribVersion)  # type: Optional[Version]
+        self.PublicKeyToken = self._TryReadAttrib(xmlElement, self.__AttribPublicKeyToken)  # type: Optional['str']
+        self.ProcessorArchitecture = self._TryReadAttrib(xmlElement, self.__AttribProcessorArchitecture)  # type: Optional['str']
+        self.Culture = self._TryReadAttrib(xmlElement, self.__AttribCulture)  # type: Optional['str']
         self.PackageManager = self.__TryGetPackageManager(log, xmlElement)
-        self.IfCondition = self._TryReadAttrib(xmlElement, 'If')  # type: Optional[str]
+        self.IfCondition = self._TryReadAttrib(xmlElement, self.__AttribIf)  # type: Optional[str]
         # Can only be set from code, and it indicates that this dependency is managed by a recipe or similar
         self.IsManaged = False # type: bool
-        strAccess = self._TryReadAttrib(xmlElement, 'Access')  # type: Optional['str']
+        strAccess = self._TryReadAttrib(xmlElement, self.__AttribAccess)  # type: Optional['str']
 
         access = None
         if self.Include is not None or strAccess is not None:
-            strAccess = self._ReadAttrib(xmlElement, 'Access') if access is None else access
+            strAccess = self._ReadAttrib(xmlElement, self.__AttribAccess) if access is None else access
             if strAccess == "Public":
                 access = AccessType.Public
             elif strAccess == "Private":
@@ -76,7 +91,7 @@ class XmlGenFileExternalDependency(XmlBase):
             else:
                 raise XmlFormatException("Unknown access type '{0}' on external dependency: '{1}'".format(access, self.Name))
 
-        strElementType = self._ReadAttrib(xmlElement, 'Type')
+        strElementType = self._ReadAttrib(xmlElement, self.__AttribType)
         elementType = ExternalDependencyType.TryFromString(strElementType)
         if elementType is None:
             raise XmlException(xmlElement, "Unknown external dependency type: '{0}' expected: {1}".format(strElementType,

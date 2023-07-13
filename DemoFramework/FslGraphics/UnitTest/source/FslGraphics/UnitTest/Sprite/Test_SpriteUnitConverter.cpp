@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020, 2022 NXP
+ * Copyright 2020, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -197,7 +197,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpExtent2D_PxExtent2D_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpExtent2D::Create(42, 1337), converter.ToDpExtent2D(PxExtent2D(42, 1337)));
+  EXPECT_EQ(DpExtent2D::Create(42, 1337), converter.ToDpExtent2D(PxExtent2D::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToDpPoint2_PxPoint2_1x)
@@ -205,7 +205,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpPoint2_PxPoint2_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpPoint2::Create(42, 1337), converter.ToDpPoint2(PxPoint2(42, 1337)));
+  EXPECT_EQ(DpPoint2::Create(42, 1337), converter.ToDpPoint2(PxPoint2::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToDpSize2D_PxPoint2_1x)
@@ -213,7 +213,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpSize2D_PxPoint2_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpSize2D::Create(42, 1337), converter.ToDpSize2D(PxPoint2(42, 1337)));
+  EXPECT_EQ(DpSize2D::Create(42, 1337), converter.ToDpSize2D(PxPoint2::Create(42, 1337)));
 }
 
 
@@ -222,7 +222,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpSize2D_PxSize2D_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpSize2D::Create(42, 1337), converter.ToDpSize2D(PxSize2D(42, 1337)));
+  EXPECT_EQ(DpSize2D::Create(42, 1337), converter.ToDpSize2D(PxSize2D::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToDpThicknessU_PxThicknessU_1x)
@@ -230,7 +230,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpThicknessU_PxThicknessU_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpThicknessU::Create(42, 1337, 10, 20), converter.ToDpThicknessU(PxThicknessU(42, 1337, 10, 20)));
+  EXPECT_EQ(DpThicknessU::Create(42, 1337, 10, 20), converter.ToDpThicknessU(PxThicknessU::Create(42, 1337, 10, 20)));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -360,7 +360,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpPoint2_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxPoint2(42, 1337), converter.ToPxPoint2(DpPoint2::Create(42, 1337)));
+  EXPECT_EQ(PxPoint2::Create(42, 1337), converter.ToPxPoint2(DpPoint2::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpPoint2F_1x)
@@ -368,7 +368,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpPoint2F_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxPoint2(42, 1337), converter.ToPxPoint2(DpPoint2F::Create(42, 1337)));
+  EXPECT_EQ(PxPoint2::Create(42, 1337), converter.ToPxPoint2(DpPoint2F::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpSize2D_1x)
@@ -376,7 +376,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpSize2D_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxPoint2(42, 1337), converter.ToPxPoint2(DpSize2D::Create(42, 1337)));
+  EXPECT_EQ(PxPoint2::Create(42, 1337), converter.ToPxPoint2(DpSize2D::Create(42, 1337)));
 }
 
 
@@ -385,7 +385,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_DpExtent2D_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxSize2D(42, 1337), converter.ToPxSize2D(DpExtent2D::Create(42, 1337)));
+  EXPECT_EQ(PxSize2D::Create(42, 1337), converter.ToPxSize2D(DpExtent2D::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_DpSize2DF_1x)
@@ -393,7 +393,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_DpSize2DF_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxSize2D(42, 1337), converter.ToPxSize2D(DpSize2DF::Create(42, 1337)));
+  EXPECT_EQ(PxSize2D::Create(42, 1337), converter.ToPxSize2D(DpSize2DF::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThickness_1x)
@@ -401,7 +401,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThickness_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxThickness(42, 1337, 10, 20), converter.ToPxThickness(DpThickness::Create(42, 1337, 10, 20)));
+  EXPECT_EQ(PxThickness::Create(42, 1337, 10, 20), converter.ToPxThickness(DpThickness::Create(42, 1337, 10, 20)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessF_1x)
@@ -409,7 +409,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessF_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxThickness(42, 1337, 10, 20), converter.ToPxThickness(DpThicknessF::Create(42, 1337, 10, 20)));
+  EXPECT_EQ(PxThickness::Create(42, 1337, 10, 20), converter.ToPxThickness(DpThicknessF::Create(42, 1337, 10, 20)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessU_1x)
@@ -417,7 +417,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessU_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxThickness(42, 1337, 10, 20), converter.ToPxThickness(DpThicknessU::Create(42, 1337, 10, 20)));
+  EXPECT_EQ(PxThickness::Create(42, 1337, 10, 20), converter.ToPxThickness(DpThicknessU::Create(42, 1337, 10, 20)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxVector2_DpPoint2F_1x)
@@ -425,7 +425,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxVector2_DpPoint2F_1x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxVector2(42, 1337), converter.ToPxVector2(DpPoint2F::Create(42, 1337)));
+  EXPECT_EQ(PxVector2::Create(42, 1337), converter.ToPxVector2(DpPoint2F::Create(42, 1337)));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -546,7 +546,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpExtent2D_PxExtent2D_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpExtent2D::Create(42 / 2, (1337 / 2) + 1), converter.ToDpExtent2D(PxExtent2D(42, 1337)));
+  EXPECT_EQ(DpExtent2D::Create(42 / 2, (1337 / 2) + 1), converter.ToDpExtent2D(PxExtent2D::Create(42, 1337)));
 }
 
 
@@ -555,7 +555,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpPoint2_PxPoint2_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpPoint2::Create(42 / 2, (1337 / 2) + 1), converter.ToDpPoint2(PxPoint2(42, 1337)));
+  EXPECT_EQ(DpPoint2::Create(42 / 2, (1337 / 2) + 1), converter.ToDpPoint2(PxPoint2::Create(42, 1337)));
 }
 
 
@@ -564,7 +564,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpSize2D_PxPoint2_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpSize2D::Create(42 / 2, (1337 / 2) + 1), converter.ToDpSize2D(PxPoint2(42, 1337)));
+  EXPECT_EQ(DpSize2D::Create(42 / 2, (1337 / 2) + 1), converter.ToDpSize2D(PxPoint2::Create(42, 1337)));
 }
 
 
@@ -573,7 +573,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpSize2D_PxSize2D_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpSize2D::Create(42 / 2, (1337 / 2) + 1), converter.ToDpSize2D(PxSize2D(42, 1337)));
+  EXPECT_EQ(DpSize2D::Create(42 / 2, (1337 / 2) + 1), converter.ToDpSize2D(PxSize2D::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToDpThicknessU_PxThicknessU_2x)
@@ -581,7 +581,7 @@ TEST(TestSprite_SpriteUnitConverter, ToDpThicknessU_PxThicknessU_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(DpThicknessU::Create(42 / 2, (1337 / 2) + 1, 10 / 2, 20 / 2), converter.ToDpThicknessU(PxThicknessU(42, 1337, 10, 20)));
+  EXPECT_EQ(DpThicknessU::Create(42 / 2, (1337 / 2) + 1, 10 / 2, 20 / 2), converter.ToDpThicknessU(PxThicknessU::Create(42, 1337, 10, 20)));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -684,7 +684,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxValueU_DpValue_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxValueU(1337 * 2), converter.ToPxValueU(DpValue(1337)));
+  EXPECT_EQ(PxValueU::Create(1337 * 2), converter.ToPxValueU(DpValue(1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxValueU_DpValueF_2x)
@@ -692,7 +692,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxValueU_DpValueF_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxValueU(1337 * 2), converter.ToPxValueU(DpValueF(1337)));
+  EXPECT_EQ(PxValueU::Create(1337 * 2), converter.ToPxValueU(DpValueF(1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxValueU_DpValueU_2x)
@@ -700,7 +700,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxValueU_DpValueU_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxValueU(1337 * 2), converter.ToPxValueU(DpValueU(1337)));
+  EXPECT_EQ(PxValueU::Create(1337 * 2), converter.ToPxValueU(DpValueU(1337)));
 }
 
 
@@ -709,7 +709,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpPoint2_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxPoint2(42 * 2, 1337 * 2), converter.ToPxPoint2(DpPoint2::Create(42, 1337)));
+  EXPECT_EQ(PxPoint2::Create(42 * 2, 1337 * 2), converter.ToPxPoint2(DpPoint2::Create(42, 1337)));
 }
 
 
@@ -718,7 +718,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpPoint2F_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxPoint2(42 * 2, 1337 * 2), converter.ToPxPoint2(DpPoint2F::Create(42, 1337)));
+  EXPECT_EQ(PxPoint2::Create(42 * 2, 1337 * 2), converter.ToPxPoint2(DpPoint2F::Create(42, 1337)));
 }
 
 
@@ -727,7 +727,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxPoint2_DpSize2D_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxPoint2(42 * 2, 1337 * 2), converter.ToPxPoint2(DpSize2D::Create(42, 1337)));
+  EXPECT_EQ(PxPoint2::Create(42 * 2, 1337 * 2), converter.ToPxPoint2(DpSize2D::Create(42, 1337)));
 }
 
 
@@ -736,7 +736,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_DpExtent2D_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxSize2D(42 * 2, 1337 * 2), converter.ToPxSize2D(DpExtent2D::Create(42, 1337)));
+  EXPECT_EQ(PxSize2D::Create(42 * 2, 1337 * 2), converter.ToPxSize2D(DpExtent2D::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_DpSize2DF_2x)
@@ -744,7 +744,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_DpSize2DF_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxSize2D(42 * 2, 1337 * 2), converter.ToPxSize2D(DpSize2DF::Create(42, 1337)));
+  EXPECT_EQ(PxSize2D::Create(42 * 2, 1337 * 2), converter.ToPxSize2D(DpSize2DF::Create(42, 1337)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThickness_2x)
@@ -752,7 +752,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThickness_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxThickness(42 * 2, 1337 * 2, 10 * 2, 20 * 2), converter.ToPxThickness(DpThickness::Create(42, 1337, 10, 20)));
+  EXPECT_EQ(PxThickness::Create(42 * 2, 1337 * 2, 10 * 2, 20 * 2), converter.ToPxThickness(DpThickness::Create(42, 1337, 10, 20)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessF_2x)
@@ -760,7 +760,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessF_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxThickness(42 * 2, 1337 * 2, 10 * 2, 20 * 2), converter.ToPxThickness(DpThicknessF::Create(42, 1337, 10, 20)));
+  EXPECT_EQ(PxThickness::Create(42 * 2, 1337 * 2, 10 * 2, 20 * 2), converter.ToPxThickness(DpThicknessF::Create(42, 1337, 10, 20)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessU_2x)
@@ -768,7 +768,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxThickness_DpThicknessU_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxThickness(42 * 2, 1337 * 2, 10 * 2, 20 * 2), converter.ToPxThickness(DpThicknessU::Create(42, 1337, 10, 20)));
+  EXPECT_EQ(PxThickness::Create(42 * 2, 1337 * 2, 10 * 2, 20 * 2), converter.ToPxThickness(DpThicknessU::Create(42, 1337, 10, 20)));
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxVector2_DpPoint2F_2x)
@@ -776,7 +776,7 @@ TEST(TestSprite_SpriteUnitConverter, ToPxVector2_DpPoint2F_2x)
   SpriteUnitConverter converter(SpriteDpConfig::BaseDpi * 2);
 
   // Since its the base dpi no conversion should take place
-  EXPECT_EQ(PxVector2(42 * 2, 1337 * 2), converter.ToPxVector2(DpPoint2F::Create(42, 1337)));
+  EXPECT_EQ(PxVector2::Create(42 * 2, 1337 * 2), converter.ToPxVector2(DpPoint2F::Create(42, 1337)));
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -791,8 +791,8 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale1)
   constexpr auto extent = DpExtent2D::Create(32u, 128u);
 
   auto res = converter.ToPxSize2D(extent);
-  EXPECT_EQ(NumericCast<int32_t>(extent.Width.Value), res.Width());
-  EXPECT_EQ(NumericCast<int32_t>(extent.Height.Value), res.Height());
+  EXPECT_EQ(NumericCast<int32_t>(extent.Width.Value), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(extent.Height.Value), res.RawHeight());
 }
 
 
@@ -803,8 +803,8 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale2)
   constexpr auto extent = DpExtent2D::Create(32u, 128u);
 
   auto res = converter.ToPxSize2D(extent);
-  EXPECT_EQ(NumericCast<int32_t>(extent.Width.Value * 2u), res.Width());
-  EXPECT_EQ(NumericCast<int32_t>(extent.Height.Value * 2u), res.Height());
+  EXPECT_EQ(NumericCast<int32_t>(extent.Width.Value * 2u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(extent.Height.Value * 2u), res.RawHeight());
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale0_25)
@@ -816,16 +816,16 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale0_25)
   constexpr auto extent2 = DpExtent2D::Create(2u, 3u);
 
   auto res = converter.ToPxSize2D(extent0);
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Width.Value / 4u), res.Width());
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Height.Value / 4u), res.Height());
+  EXPECT_EQ(NumericCast<int32_t>(extent0.Width.Value / 4u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(extent0.Height.Value / 4u), res.RawHeight());
 
   res = converter.ToPxSize2D(extent1);
-  EXPECT_EQ(0, res.Width());
-  EXPECT_EQ(0, res.Height());
+  EXPECT_EQ(0, res.RawWidth());
+  EXPECT_EQ(0, res.RawHeight());
 
   res = converter.ToPxSize2D(extent2);
-  EXPECT_EQ(1, res.Width());
-  EXPECT_EQ(1, res.Height());
+  EXPECT_EQ(1, res.RawWidth());
+  EXPECT_EQ(1, res.RawHeight());
 }
 
 
@@ -837,12 +837,12 @@ TEST(TestSprite_SpriteUnitConverter, ToPxSize2D_Scale0_5)
   constexpr auto extent1 = DpExtent2D::Create(31u, 127u);
 
   auto res = converter.ToPxSize2D(extent0);
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Width.Value / 2u), res.Width());
-  EXPECT_EQ(NumericCast<int32_t>(extent0.Height.Value / 2u), res.Height());
+  EXPECT_EQ(NumericCast<int32_t>(extent0.Width.Value / 2u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>(extent0.Height.Value / 2u), res.RawHeight());
 
   res = converter.ToPxSize2D(extent1);
-  EXPECT_EQ(NumericCast<int32_t>((extent1.Width.Value / 2u) + 1u), res.Width());
-  EXPECT_EQ(NumericCast<int32_t>((extent1.Height.Value / 2u) + 1u), res.Height());
+  EXPECT_EQ(NumericCast<int32_t>((extent1.Width.Value / 2u) + 1u), res.RawWidth());
+  EXPECT_EQ(NumericCast<int32_t>((extent1.Height.Value / 2u) + 1u), res.RawHeight());
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -854,8 +854,8 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale1)
   constexpr auto extent = DpExtent2D::Create(32u, 128u);
 
   auto res = converter.ToPxExtent2D(extent);
-  EXPECT_EQ(extent.Width.Value, res.Width);
-  EXPECT_EQ(extent.Height.Value, res.Height);
+  EXPECT_EQ(extent.Width.Value, res.Width.Value);
+  EXPECT_EQ(extent.Height.Value, res.Height.Value);
 }
 
 
@@ -866,8 +866,8 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale2)
   constexpr auto extent = DpExtent2D::Create(32u, 128u);
 
   auto res = converter.ToPxExtent2D(extent);
-  EXPECT_EQ(extent.Width.Value * 2u, res.Width);
-  EXPECT_EQ(extent.Height.Value * 2u, res.Height);
+  EXPECT_EQ(extent.Width.Value * 2u, res.Width.Value);
+  EXPECT_EQ(extent.Height.Value * 2u, res.Height.Value);
 }
 
 TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale0_25)
@@ -879,16 +879,16 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale0_25)
   constexpr auto extent2 = DpExtent2D::Create(2u, 3u);
 
   auto res = converter.ToPxExtent2D(extent0);
-  EXPECT_EQ(extent0.Width.Value / 4u, res.Width);
-  EXPECT_EQ(extent0.Height.Value / 4u, res.Height);
+  EXPECT_EQ(extent0.Width.Value / 4u, res.Width.Value);
+  EXPECT_EQ(extent0.Height.Value / 4u, res.Height.Value);
 
   res = converter.ToPxExtent2D(extent1);
-  EXPECT_EQ(0u, res.Width);
-  EXPECT_EQ(0u, res.Height);
+  EXPECT_EQ(PxValueU(0u), res.Width);
+  EXPECT_EQ(PxValueU(0u), res.Height);
 
   res = converter.ToPxExtent2D(extent2);
-  EXPECT_EQ(1u, res.Width);
-  EXPECT_EQ(1u, res.Height);
+  EXPECT_EQ(PxValueU(1u), res.Width);
+  EXPECT_EQ(PxValueU(1u), res.Height);
 }
 
 
@@ -900,12 +900,12 @@ TEST(TestSprite_SpriteUnitConverter, ToPxExtent2D_Scale0_5)
   constexpr auto extent1 = DpExtent2D::Create(31u, 127u);
 
   auto res = converter.ToPxExtent2D(extent0);
-  EXPECT_EQ(extent0.Width.Value / 2u, res.Width);
-  EXPECT_EQ(extent0.Height.Value / 2u, res.Height);
+  EXPECT_EQ(extent0.Width.Value / 2u, res.Width.Value);
+  EXPECT_EQ(extent0.Height.Value / 2u, res.Height.Value);
 
   res = converter.ToPxExtent2D(extent1);
-  EXPECT_EQ((extent1.Width.Value / 2u) + 1u, res.Width);
-  EXPECT_EQ((extent1.Height.Value / 2u) + 1u, res.Height);
+  EXPECT_EQ((extent1.Width.Value / 2u) + 1u, res.Width.Value);
+  EXPECT_EQ((extent1.Height.Value / 2u) + 1u, res.Height.Value);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1028,7 +1028,7 @@ TEST(TestSprite_SpriteUnitConverter, CalcImageDensityScale_2_4)
 
 TEST(TestSprite_SpriteUnitConverter, CalcImageExtentDp_ZeroDpi)
 {
-  constexpr PxExtent2D extentPx(32u, 128u);
+  constexpr auto extentPx = PxExtent2D::Create(32u, 128u);
 
   EXPECT_THROW(SpriteUnitConverter::CalcImageDpExtent2D(extentPx, 0u), std::invalid_argument);
 }
@@ -1037,22 +1037,22 @@ TEST(TestSprite_SpriteUnitConverter, CalcImageDpExtent2D)
 {
   constexpr uint32_t scaleFactor = 4;
   constexpr uint32_t imageDpi = SpriteDpConfig::BaseDpi * scaleFactor;
-  constexpr PxExtent2D extentPx(32u, 128u);
+  constexpr auto extentPx = PxExtent2D::Create(32u, 128u);
   const auto res = SpriteUnitConverter::CalcImageDpExtent2D(extentPx, imageDpi);
 
-  EXPECT_EQ(extentPx.Width / scaleFactor, res.Width.Value);
-  EXPECT_EQ(extentPx.Height / scaleFactor, res.Height.Value);
+  EXPECT_EQ(extentPx.Width.Value / scaleFactor, res.Width.Value);
+  EXPECT_EQ(extentPx.Height.Value / scaleFactor, res.Height.Value);
 }
 
 TEST(TestSprite_SpriteUnitConverter, CalcImageExtentDp2)
 {
   constexpr uint32_t scaleFactor = 4;
   constexpr uint32_t imageDpi = SpriteDpConfig::BaseDpi * scaleFactor;
-  constexpr PxExtent2D extentPx(33u, 128u);
+  constexpr auto extentPx = PxExtent2D::Create(33u, 128u);
   DpExtent2D valuePx = SpriteUnitConverter::CalcImageDpExtent2D(extentPx, imageDpi);
 
-  const float extentXDpf = std::round(static_cast<float>(extentPx.Width) / static_cast<float>(scaleFactor));
-  const float extentYDpf = std::round(static_cast<float>(extentPx.Height) / static_cast<float>(scaleFactor));
-  const auto extentDp = DpExtent2D::Create(static_cast<PxExtent2D::value_type>(extentXDpf), static_cast<PxExtent2D::value_type>(extentYDpf));
+  const float extentXDpf = std::round(static_cast<float>(extentPx.Width.Value) / static_cast<float>(scaleFactor));
+  const float extentYDpf = std::round(static_cast<float>(extentPx.Height.Value) / static_cast<float>(scaleFactor));
+  const auto extentDp = DpExtent2D::Create(static_cast<PxExtent2D::raw_value_type>(extentXDpf), static_cast<PxExtent2D::raw_value_type>(extentYDpf));
   EXPECT_EQ(extentDp, valuePx);
 }

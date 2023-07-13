@@ -55,10 +55,10 @@ namespace Fsl::AppHelper
       const auto& glyph = positions[i];
       if (glyph.TextureArea.X1 > glyph.TextureArea.X0)
       {
-        const auto dstX0 = static_cast<float>(dstPositionPx.X) + glyph.DstRectPxf.Left();
-        const auto dstY0 = static_cast<float>(dstPositionPx.Y) + glyph.DstRectPxf.Top();
-        const auto dstX1 = static_cast<float>(dstPositionPx.X) + glyph.DstRectPxf.Right();
-        const auto dstY1 = static_cast<float>(dstPositionPx.Y) + glyph.DstRectPxf.Bottom();
+        const auto dstX0 = static_cast<float>(dstPositionPx.X.Value) + glyph.DstRectPxf.RawLeft();
+        const auto dstY0 = static_cast<float>(dstPositionPx.Y.Value) + glyph.DstRectPxf.RawTop();
+        const auto dstX1 = static_cast<float>(dstPositionPx.X.Value) + glyph.DstRectPxf.RawRight();
+        const auto dstY1 = static_cast<float>(dstPositionPx.Y.Value) + glyph.DstRectPxf.RawBottom();
 
         dstVertices[dstVertexIndex + 0] = VertexPositionTexture(Vector3(dstX0, dstY0, zPos), Vector2(glyph.TextureArea.X0, glyph.TextureArea.Y0));
         dstVertices[dstVertexIndex + 1] = VertexPositionTexture(Vector3(dstX1, dstY0, zPos), Vector2(glyph.TextureArea.X1, glyph.TextureArea.Y0));

@@ -36,6 +36,6 @@
       <OptimizeReferences>true</OptimizeReferences>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
     </Link>
     <PreBuildEvent>
-      <Command>FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate</Command>
+      <Command>FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Variants [##VARIANT_LIST##] --Validate</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>

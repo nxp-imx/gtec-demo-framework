@@ -64,7 +64,7 @@ namespace Fsl::UI
     Enable(WindowFlags::ClickInput);
 
     Measure(LayoutHelperPxfConverter::ToPxAvailableSize(m_resolutionPx));
-    Arrange(PxRectangle(0, 0, m_resolutionPx.Width(), m_resolutionPx.Height()));
+    Arrange(PxRectangle(PxValue(0), PxValue(0), m_resolutionPx.Width(), m_resolutionPx.Height()));
   }
 
 

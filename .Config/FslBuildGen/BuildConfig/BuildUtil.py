@@ -41,7 +41,7 @@ class BuildUtil(object):
     def GetBuildDir(projectInfo: ToolConfigProjectInfo, buildDir: str) -> str:
         variableReport = GeneratorVariableReport()
         BuildUtil.AddCustomVariables(variableReport, projectInfo)
-        return ReportVariableFormatter.Format(buildDir, variableReport, {})
+        return ReportVariableFormatter.Format2(buildDir, variableReport, {})
 
     @staticmethod
     def AddCustomVariables(variableReport: GeneratorVariableReport, projectInfo: ToolConfigProjectInfo) -> None:

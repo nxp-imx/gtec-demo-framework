@@ -53,7 +53,7 @@ namespace Fsl::UI
     // FSLLOG3_INFO("Arrange: finalSize: {}", finalSize);
     for (auto itr = begin(); itr != end(); ++itr)
     {
-      itr->Window->Arrange(PxRectangle(0, 0, finalSizePx.Width(), finalSizePx.Height()));
+      itr->Window->Arrange(PxRectangle(PxValue(0), PxValue(0), finalSizePx.Width(), finalSizePx.Height()));
       // FSLLOG3_INFO("Arrange: RenderSize: {}", itr->Window->RenderSize());
     }
     return finalSizePx;
@@ -76,11 +76,11 @@ namespace Fsl::UI
         {
           return maxSize;
         }
-        return {maxSize.Width(), availableSizePx.Height()};
+        return {maxSize.Width(), availableSizePx.ToPxHeight()};
       }
       // height must be infinity since the width isnt
       assert(availableSizePx.IsInfinityHeight());
-      return {availableSizePx.Width(), maxSize.Height()};
+      return {availableSizePx.ToPxWidth(), maxSize.Height()};
     }
 
     if (!availableSizePx.IsNormal())

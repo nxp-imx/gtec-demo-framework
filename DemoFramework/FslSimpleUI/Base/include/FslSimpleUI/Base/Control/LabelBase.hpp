@@ -34,7 +34,7 @@
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslSimpleUI/Base/Mesh/SpriteFontMesh.hpp>
+#include <FslSimpleUI/Base/Mesh/SimpleSpriteFontMesh.hpp>
 #include <string>
 
 namespace Fsl
@@ -46,20 +46,23 @@ namespace Fsl
     class WindowContext;
     class LabelBase : public BaseWindow
     {
-      bool m_enabled{true};
+      using base_type = BaseWindow;
+
       PxSize2D m_cachedMeasureMinimalFontSizePx;
 
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      SpriteFontMesh m_font;
+      SimpleSpriteFontMesh m_fontMesh;
+      DataBinding::TypedDependencyProperty<bool> m_propertyIsEnabled{true};
       DataBinding::TypedDependencyProperty<Color> m_propertyFontColor{DefaultColor::Palette::Font};
       DataBinding::TypedDependencyProperty<Color> m_propertyFontDisabledColor{DefaultColor::Palette::FontDisabled};
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentX;
       DataBinding::TypedDependencyProperty<ItemAlignment> m_propertyContentAlignmentY;
 
     public:
+      static DataBinding::DependencyPropertyDefinition PropertyIsEnabled;
       static DataBinding::DependencyPropertyDefinition PropertyFontColor;
       static DataBinding::DependencyPropertyDefinition PropertyFontDisabledColor;
       static DataBinding::DependencyPropertyDefinition PropertyContentAlignmentX;
@@ -67,22 +70,22 @@ namespace Fsl
 
       explicit LabelBase(const std::shared_ptr<WindowContext>& context);
 
-      bool IsEnabled() const
+      bool IsEnabled() const noexcept
       {
-        return m_enabled;
+        return m_propertyIsEnabled.Get();
       }
 
-      bool SetEnabled(const bool enabled);
+      bool SetEnabled(const bool value);
 
 
-      ItemAlignment GetContentAlignmentX() const
+      ItemAlignment GetContentAlignmentX() const noexcept
       {
         return m_propertyContentAlignmentX.Get();
       };
 
       bool SetContentAlignmentX(const ItemAlignment value);
 
-      ItemAlignment GetContentAlignmentY() const
+      ItemAlignment GetContentAlignmentY() const noexcept
       {
         return m_propertyContentAlignmentY.Get();
       };
@@ -92,19 +95,19 @@ namespace Fsl
 
       const std::shared_ptr<SpriteFont>& GetFont() const
       {
-        return m_font.GetSprite();
+        return m_fontMesh.GetSprite();
       }
 
       void SetFont(const std::shared_ptr<SpriteFont>& value);
 
-      Color GetFontColor() const
+      Color GetFontColor() const noexcept
       {
         return m_propertyFontColor.Get();
       }
 
       bool SetFontColor(const Color value);
 
-      Color GetFontDisabledColor() const
+      Color GetFontDisabledColor() const noexcept
       {
         return m_propertyFontDisabledColor.Get();
       }
@@ -116,17 +119,19 @@ namespace Fsl
     protected:
       virtual StringViewLite DoGetContent() const = 0;
 
+      void DoSetContent(const StringViewLite value);
+
       PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
       PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
       PxSize2D DoMeasureRenderedString(const std::string& value) const
       {
-        return m_font.Measure(value);
+        return m_fontMesh.Measure(StringViewLiteUtil::AsStringViewLite(value));
       }
 
       PxSize2D DoMeasureRenderedString(const StringViewLite& value) const
       {
-        return m_font.Measure(value);
+        return m_fontMesh.Measure(value);
       }
 
       DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;

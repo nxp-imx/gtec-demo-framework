@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_LINEAR_LINEARPREPROCESSOR_HPP
 #define FSLSIMPLEUI_RENDER_IMBATCH_PREPROCESS_LINEAR_LINEARPREPROCESSOR_HPP
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,11 +57,18 @@ namespace Fsl::UI::RenderIMBatch
     uint32_t m_finalTransparentCount{0};
     uint16_t m_maxBacktracking{32};
     bool m_allowDepthBuffer{false};
+    PxSize2D m_windowSizePx;
 
   public:
-    explicit LinearPreprocessor(const bool allowDepthBuffer)
+    explicit LinearPreprocessor(const bool allowDepthBuffer, PxSize2D windowSizePx)
       : m_allowDepthBuffer(allowDepthBuffer)
+      , m_windowSizePx(windowSizePx)
     {
+    }
+
+    void OnConfigurationChanged(const PxSize2D windowSizePx)
+    {
+      m_windowSizePx = windowSizePx;
     }
 
     void SetAllowDepthBuffer(const bool allowDepthBuffer)
@@ -86,10 +93,11 @@ namespace Fsl::UI::RenderIMBatch
       Span<MaterialCacheRecord> transparentMaterialCache = m_cache.GetTransparentCacheSpan(currentMaterialCount);
 
 
-      PreprocessResult result = m_allowDepthBuffer ? PreprocessUtil2::PreprocessTwoQueues(rProcessedCommandRecords, opaqueMaterialCache,
-                                                                                          transparentMaterialCache, commandSpan, meshManager)
-                                                   : PreprocessUtil2::PreprocessForceTransparent(rProcessedCommandRecords, opaqueMaterialCache,
-                                                                                                 transparentMaterialCache, commandSpan, meshManager);
+      PreprocessResult result = m_allowDepthBuffer
+                                  ? PreprocessUtil2::PreprocessTwoQueues(rProcessedCommandRecords, opaqueMaterialCache, transparentMaterialCache,
+                                                                         commandSpan, meshManager, m_windowSizePx)
+                                  : PreprocessUtil2::PreprocessForceTransparent(rProcessedCommandRecords, opaqueMaterialCache,
+                                                                                transparentMaterialCache, commandSpan, meshManager, m_windowSizePx);
 
       const uint32_t totalCount = result.OpaqueCount + result.TransparentCount;
       if (totalCount > m_finalEntries.size())

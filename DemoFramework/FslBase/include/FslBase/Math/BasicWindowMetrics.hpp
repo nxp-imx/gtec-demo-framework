@@ -66,8 +66,8 @@ namespace Fsl
     constexpr BasicWindowMetrics() = default;
     constexpr BasicWindowMetrics(const PxExtent2D& extentPx, const Vector2& exactDpi, const uint32_t densityDpi)
       : ExtentPx(extentPx)
-      , SizeDp(static_cast<float>(extentPx.Width) * (160.0f / static_cast<float>(densityDpi)),
-               static_cast<float>(extentPx.Height) * (160.0f / static_cast<float>(densityDpi)))
+      , SizeDp(static_cast<float>(extentPx.Width.Value) * (160.0f / static_cast<float>(densityDpi)),
+               static_cast<float>(extentPx.Height.Value) * (160.0f / static_cast<float>(densityDpi)))
       , ExactDpi(exactDpi)
       , DensityDpi(densityDpi)
       , DensityScaleFactor(static_cast<float>(densityDpi) / 160.0f)
@@ -81,7 +81,7 @@ namespace Fsl
     //! The aspect ratio of the window
     constexpr float AspectRatio() const
     {
-      return ExtentPx.Height > 0 ? (static_cast<float>(ExtentPx.Width) / static_cast<float>(ExtentPx.Height)) : 1.0f;
+      return ExtentPx.Height > PxValueU(0) ? (static_cast<float>(ExtentPx.Width.Value) / static_cast<float>(ExtentPx.Height.Value)) : 1.0f;
     }
 
     constexpr bool IsEqualDpi(const BasicWindowMetrics& rhs) const

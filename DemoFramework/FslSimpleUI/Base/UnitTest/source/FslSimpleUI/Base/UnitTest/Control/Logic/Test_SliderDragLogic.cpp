@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,19 +47,19 @@ TEST(TestControlLogic_SliderDragLogic, Construct)
   EXPECT_TRUE(logic.IsEnabled());
 
   EXPECT_EQ(0.0f, logic.GetPercentage());
-  EXPECT_EQ(0, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(PxValue(0), logic.GetPositionPx(logic.GetPercentage()));
 
   auto spanInfo = logic.GetSpanInfo();
-  EXPECT_EQ(0, spanInfo.GetStartPx());
-  EXPECT_EQ(0, spanInfo.GetLengthPx());
+  EXPECT_EQ(PxValue(0), spanInfo.GetStartPx());
+  EXPECT_EQ(PxValue(0), spanInfo.GetLengthPx());
   EXPECT_FALSE(spanInfo.IsReversedDirection());
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, Construct_Span)
 {
-  const int32_t startPx = 10;
-  const int32_t lengthPx = 5;
+  const PxValue startPx(10);
+  const auto lengthPx = PxSize1D::Create(5);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_FALSE(logic.IsDragging());
@@ -77,8 +77,8 @@ TEST(TestControlLogic_SliderDragLogic, Construct_Span)
 
 TEST(TestControlLogic_SliderDragLogic, SetPercentage_InRange_MinValue)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   logic.SetPercentage(1.0f);
@@ -99,52 +99,52 @@ TEST(TestControlLogic_SliderDragLogic, SetPercentage_InRange_MinValue)
 
 TEST(TestControlLogic_SliderDragLogic, SetPercentage_InRange_MiddleValue)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_TRUE(logic.SetPercentage(0.5f));
 
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + ((lengthPx - 1) / 2)), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + ((lengthPx - PxValue(1)) / PxValue(2))), logic.GetPositionPx(logic.GetPercentage()));
 
   {    // Calling it again should be a no-op
     EXPECT_FALSE(logic.SetPercentage(0.5f));
 
     EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + ((lengthPx - 1) / 2)), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + ((lengthPx - PxValue(1)) / PxValue(2))), logic.GetPositionPx(logic.GetPercentage()));
   }
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, SetPercentage_InRange_MaxValue)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_TRUE(logic.SetPercentage(1.0f));
 
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 
   {    // Calling it again should be a no-op
     EXPECT_FALSE(logic.SetPercentage(1.0f));
 
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, SetPercentage_OutOfRange_Low)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   logic.SetPercentage(1.0f);
@@ -165,30 +165,30 @@ TEST(TestControlLogic_SliderDragLogic, SetPercentage_OutOfRange_Low)
 
 TEST(TestControlLogic_SliderDragLogic, SetPercentage_OutOfRange_High)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_TRUE(logic.SetPercentage(1.2f));
 
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 
   {    // Calling it again should be a no-op
     EXPECT_FALSE(logic.SetPercentage(10.0f));
 
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_InRange_MinA)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_TRUE(logic.TryBeginDrag(startPx));
@@ -200,8 +200,8 @@ TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_InRange_MinA)
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_InRange_MinB)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(0.5f);
 
@@ -213,37 +213,37 @@ TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_InRange_MinB)
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_InRange_Middle)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_InRange_Max)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 200));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(200)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_OutOfRange_Low1)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx - 1));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx - PxValue(1)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
@@ -252,11 +252,11 @@ TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_OutOfRange_Low1)
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_OutOfRange_Low2)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx - 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx - PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
@@ -265,58 +265,58 @@ TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_OutOfRange_Low2)
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_OutOfRange_High1)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_TRUE(logic.TryBeginDrag(startPx + lengthPx));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_OutOfRange_High2)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + lengthPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + lengthPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 TEST(TestControlLogic_SliderDragLogic, TryDrag_InRange)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
   EXPECT_TRUE(logic.TryDrag(startPx));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
 
-  EXPECT_TRUE(logic.TryDrag(startPx + lengthPx - 1));
+  EXPECT_TRUE(logic.TryDrag(startPx + lengthPx - PxValue(1)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 TEST(TestControlLogic_SliderDragLogic, TryDrag_NotDraging)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(0.5f);
 
@@ -332,36 +332,36 @@ TEST(TestControlLogic_SliderDragLogic, TryDrag_NotDraging)
 
 TEST(TestControlLogic_SliderDragLogic, EndDrag_InRange)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
   EXPECT_TRUE(logic.TryDrag(startPx));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
 
-  EXPECT_TRUE(logic.EndDrag(startPx + lengthPx - 1));
+  EXPECT_TRUE(logic.EndDrag(startPx + lengthPx - PxValue(1)));
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_EQ(1.0f, logic.GetPercentage());
   // lengthPx -1 as the pixel at length is not included (its out of bounds)
-  EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, CancelDrag)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(0.5f);
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
   EXPECT_TRUE(logic.TryBeginDrag(startPx));
   EXPECT_TRUE(logic.IsDragging());
@@ -371,20 +371,20 @@ TEST(TestControlLogic_SliderDragLogic, CancelDrag)
   EXPECT_TRUE(logic.TryDrag(startPx + lengthPx));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_EQ(1.0f, logic.GetPercentage());
-  EXPECT_EQ(startPx + lengthPx - 1, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + lengthPx - PxValue(1), logic.GetPositionPx(logic.GetPercentage()));
 
   // The cancel restores the pre-drag state
   EXPECT_TRUE(logic.CancelDrag());
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, EndDrag_NotDraging)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(0.5f);
 
@@ -400,8 +400,8 @@ TEST(TestControlLogic_SliderDragLogic, EndDrag_NotDraging)
 
 TEST(TestControlLogic_SliderDragLogic, CancelDrag_NotDraging)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(0.5f);
 
@@ -417,8 +417,8 @@ TEST(TestControlLogic_SliderDragLogic, CancelDrag_NotDraging)
 
 TEST(TestControlLogic_SliderDragLogic, SetEnabled)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_FALSE(logic.IsDragging());
@@ -456,8 +456,8 @@ TEST(TestControlLogic_SliderDragLogic, SetEnabled)
 
 TEST(TestControlLogic_SliderDragLogic, SetEnabled_True_CancelDrag)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
 
@@ -467,14 +467,14 @@ TEST(TestControlLogic_SliderDragLogic, SetEnabled_True_CancelDrag)
     logic.SetPercentage(1.0f);
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 
   // Initiate drag from the middle
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
   {    // Setting to enabled does nothing as we are already enabled
     auto flags = logic.SetEnabled(true);
@@ -485,13 +485,13 @@ TEST(TestControlLogic_SliderDragLogic, SetEnabled_True_CancelDrag)
 
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 TEST(TestControlLogic_SliderDragLogic, SetEnabled_False_CancelDrag)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
 
@@ -501,14 +501,14 @@ TEST(TestControlLogic_SliderDragLogic, SetEnabled_False_CancelDrag)
     logic.SetPercentage(1.0f);
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 
   // Initiate drag from the middle
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
   // Cancel the drag, restoring the pre-drag state
   auto flags = logic.SetEnabled(false);
@@ -520,15 +520,15 @@ TEST(TestControlLogic_SliderDragLogic, SetEnabled_False_CancelDrag)
     EXPECT_FALSE(logic.IsDragging());
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_Disabled)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetEnabled(false);
 
@@ -536,7 +536,7 @@ TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_Disabled)
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
 
   // The begin drag should be a 'no-op' when disabled
-  EXPECT_FALSE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_FALSE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
@@ -545,8 +545,8 @@ TEST(TestControlLogic_SliderDragLogic, TryBeginDrag_Disabled)
 
 TEST(TestControlLogic_SliderDragLogic, TryDrag_Disabled)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetEnabled(false);
 
@@ -554,7 +554,7 @@ TEST(TestControlLogic_SliderDragLogic, TryDrag_Disabled)
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
 
   // The drag should be a 'no-op' when disabled
-  EXPECT_FALSE(logic.TryDrag(startPx + 100));
+  EXPECT_FALSE(logic.TryDrag(startPx + PxValue(100)));
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
@@ -563,8 +563,8 @@ TEST(TestControlLogic_SliderDragLogic, TryDrag_Disabled)
 
 TEST(TestControlLogic_SliderDragLogic, EndDrag_Disabled)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetEnabled(false);
 
@@ -572,7 +572,7 @@ TEST(TestControlLogic_SliderDragLogic, EndDrag_Disabled)
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
 
   // The EndDrag should be a 'no-op' when disabled
-  EXPECT_FALSE(logic.EndDrag(startPx + 100));
+  EXPECT_FALSE(logic.EndDrag(startPx + PxValue(100)));
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(startPx, logic.GetPositionPx(logic.GetPercentage()));
@@ -581,8 +581,8 @@ TEST(TestControlLogic_SliderDragLogic, EndDrag_Disabled)
 
 TEST(TestControlLogic_SliderDragLogic, CancelDrag_Disabled)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetEnabled(false);
 
@@ -598,8 +598,8 @@ TEST(TestControlLogic_SliderDragLogic, CancelDrag_Disabled)
 
 TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Percentage0)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(0);
   EXPECT_EQ(0.0f, logic.GetPercentage());
@@ -608,8 +608,8 @@ TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Percentage0)
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_TRUE(logic.IsEnabled());
 
-  const int32_t newStartPx = 55;
-  const int32_t newLengthPx = 11;
+  const PxValue newStartPx(55);
+  const auto newLengthPx = PxSize1D::Create(11);
   logic.SetSpanInfo(UI::SliderPixelSpanInfo(newStartPx, newLengthPx));
   EXPECT_EQ(0.0f, logic.GetPercentage());
   EXPECT_EQ(newStartPx, logic.GetPositionPx(logic.GetPercentage()));
@@ -617,27 +617,27 @@ TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Percentage0)
 
 TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Percentage1)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
   logic.SetPercentage(1);
   EXPECT_EQ(1.0f, logic.GetPercentage());
-  EXPECT_EQ(startPx + lengthPx - 1, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + lengthPx - PxValue(1), logic.GetPositionPx(logic.GetPercentage()));
 
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_TRUE(logic.IsEnabled());
 
-  const int32_t newStartPx = 55;
-  const int32_t newLengthPx = 11;
+  const PxValue newStartPx(55);
+  const auto newLengthPx = PxSize1D::Create(11);
   EXPECT_TRUE(logic.SetSpanInfo(UI::SliderPixelSpanInfo(newStartPx, newLengthPx)));
   EXPECT_EQ(1.0f, logic.GetPercentage());
-  EXPECT_EQ(newStartPx + newLengthPx - 1, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(newStartPx + newLengthPx - PxValue(1), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Same_CancelDrag)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_FALSE(logic.IsDragging());
@@ -646,14 +646,14 @@ TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Same_CancelDrag)
     logic.SetPercentage(1.0f);
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 
   // Initiate drag from the middle
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
   {    // SetSpanInfo to the same value does nothing
     EXPECT_FALSE(logic.SetSpanInfo(UI::SliderPixelSpanInfo(startPx, lengthPx)));
@@ -661,13 +661,13 @@ TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_Same_CancelDrag)
 
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 }
 
 TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_New_CancelDrag)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx));
 
   EXPECT_FALSE(logic.IsDragging());
@@ -676,17 +676,17 @@ TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_New_CancelDrag)
     logic.SetPercentage(1.0f);
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((startPx + lengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((startPx + lengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 
   // Initiate drag from the middle
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 100));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(100)));
   EXPECT_TRUE(logic.IsDragging());
   EXPECT_FLOAT_EQ(0.5f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 100, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(100), logic.GetPositionPx(logic.GetPercentage()));
 
-  const int32_t newStartPx = 55;
-  const int32_t newLengthPx = 11;
+  const PxValue newStartPx(55);
+  const auto newLengthPx = PxSize1D::Create(11);
   {    // SetSpanInfo to a new value recalculates the percentage
     EXPECT_TRUE(logic.SetSpanInfo(UI::SliderPixelSpanInfo(newStartPx, newLengthPx)));
   }
@@ -695,22 +695,22 @@ TEST(TestControlLogic_SliderDragLogic, SetSpanInfo_New_CancelDrag)
     EXPECT_TRUE(logic.IsDragging());
     EXPECT_EQ(1.0f, logic.GetPercentage());
     // lengthPx -1 as the pixel at length is not included (its out of bounds)
-    EXPECT_EQ((newStartPx + newLengthPx - 1), logic.GetPositionPx(logic.GetPercentage()));
+    EXPECT_EQ((newStartPx + newLengthPx - PxValue(1)), logic.GetPositionPx(logic.GetPercentage()));
   }
 }
 
 
 TEST(TestControlLogic_SliderDragLogic, Construct_Span_Reversed)
 {
-  const int32_t startPx = 10;
-  const int32_t lengthPx = 5;
+  const PxValue startPx(10);
+  const auto lengthPx = PxSize1D::Create(5);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx, true));
 
   EXPECT_FALSE(logic.IsDragging());
   EXPECT_TRUE(logic.IsEnabled());
 
   EXPECT_EQ(0.0f, logic.GetPercentage());
-  EXPECT_EQ(startPx + lengthPx - 1, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + lengthPx - PxValue(1), logic.GetPositionPx(logic.GetPercentage()));
 
   auto spanInfo = logic.GetSpanInfo();
   EXPECT_EQ(startPx, spanInfo.GetStartPx());
@@ -721,8 +721,8 @@ TEST(TestControlLogic_SliderDragLogic, Construct_Span_Reversed)
 
 TEST(TestControlLogic_SliderDragLogic, SetPercentage_SpanReversed)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx, true));
 
   logic.SetPercentage(1.0f);
@@ -734,12 +734,12 @@ TEST(TestControlLogic_SliderDragLogic, SetPercentage_SpanReversed)
 
 TEST(TestControlLogic_SliderDragLogic, TryDrag_SpanReversed)
 {
-  const int32_t startPx = 100;
-  const int32_t lengthPx = 201;
+  const PxValue startPx(100);
+  const auto lengthPx = PxSize1D::Create(201);
   UI::SliderDragLogic logic(UI::SliderPixelSpanInfo(startPx, lengthPx, true));
 
-  EXPECT_TRUE(logic.TryBeginDrag(startPx + 50));
+  EXPECT_TRUE(logic.TryBeginDrag(startPx + PxValue(50)));
 
   EXPECT_FLOAT_EQ(0.75f, logic.GetPercentage());
-  EXPECT_EQ(startPx + 50, logic.GetPositionPx(logic.GetPercentage()));
+  EXPECT_EQ(startPx + PxValue(50), logic.GetPositionPx(logic.GetPercentage()));
 }

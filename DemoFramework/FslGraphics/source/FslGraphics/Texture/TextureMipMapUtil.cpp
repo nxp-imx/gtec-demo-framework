@@ -91,7 +91,7 @@ namespace Fsl
         throw std::invalid_argument("src pixel format can not be compressed");
       }
       PxExtent2D extent = src.GetExtent2D();
-      if (extent.Width != extent.Height || !MathHelper::IsPowerOfTwo(extent.Width))
+      if (extent.Width != extent.Height || !MathHelper::IsPowerOfTwo(extent.Width.Value))
       {
         throw NotSupportedException("We expect a square pow2 texture");
       }
@@ -110,7 +110,7 @@ namespace Fsl
         throw NotSupportedException(fmt::format("unsupported texture type: {}", src.GetTextureType()));
       }
 
-      const uint32_t mipLevels = CountMipMapLevels(extent.Width);
+      const uint32_t mipLevels = CountMipMapLevels(extent.Width.Value);
       const TextureInfo textureInfo(mipLevels, src.GetFaces(), src.GetLayers());
       Texture result(TextureBlobBuilder(src.GetTextureType(), src.GetExtent(), pixelFormat, textureInfo, origin, true));
       {
@@ -136,8 +136,8 @@ namespace Fsl
         if (textureInfo.Layers > 0u)
         {    // Generate the mip maps
           const uint32_t finalSrcLevel = textureInfo.Levels - 1;
-          uint32_t width = extent.Width;
-          uint32_t height = extent.Height;
+          uint32_t width = extent.Width.Value;
+          uint32_t height = extent.Height.Value;
           for (uint32_t levelIndex = 0; levelIndex < finalSrcLevel; ++levelIndex)
           {
             for (uint32_t faceIndex = 0; faceIndex < textureInfo.Faces; ++faceIndex)

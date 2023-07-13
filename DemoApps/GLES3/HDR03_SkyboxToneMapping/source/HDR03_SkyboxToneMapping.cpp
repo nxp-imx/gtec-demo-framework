@@ -192,7 +192,7 @@ namespace Fsl
     for (std::size_t i = 0; i < rRenderRecords.size(); ++i)
     {
       auto endX = static_cast<GLint>(rRenderRecords[i].SplitX.GetValue());
-      glScissor(startX, 0, endX - startX, windowSizePx.Height());
+      glScissor(startX, 0, endX - startX, windowSizePx.RawHeight());
       startX = endX;
       DrawTonemappedScene(m_resources.ProgramTonemap[i], m_resources.HdrFrameBuffer);
     }
@@ -230,7 +230,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

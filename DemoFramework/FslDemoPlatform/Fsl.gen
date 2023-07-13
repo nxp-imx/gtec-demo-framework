@@ -9,8 +9,8 @@
     <Dependency Name="FslVersion" Access="Private"/>
     <Platform Name="Android">
       <Dependency Name="FslNativeWindow.Platform"/>
-      <Dependency Name="Platform.Android.Glue" Access="Private"/>
-      <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
+      <Dependency Name="Platform.Android.GameActivity" Access="Public"/>
+      <!--Dependency Name="Platform.Android.NDKHelper" Access="Private"/-->
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
     </Platform>
     <Platform Name="Ubuntu"/>

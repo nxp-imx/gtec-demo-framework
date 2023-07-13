@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,16 +46,16 @@ TEST(TestFont_BitmapFontChar, Construct_Default)
   EXPECT_EQ(0u, value.Id);
   EXPECT_EQ(PxRectangleU32(), value.SrcTextureRectPx);
   EXPECT_EQ(PxPoint2(), value.OffsetPx);
-  EXPECT_EQ(0u, value.XAdvancePx);
+  EXPECT_EQ(PxValueU16(0u), value.XAdvancePx);
 }
 
 
 TEST(TestFont_BitmapFontChar, Construct)
 {
   const uint32_t id = 10;
-  const PxRectangleU32 srcTextureRectPx(1, 2, 3, 4);
-  const PxPoint2 offsetPx(5, 6);
-  uint16_t xAdvance = 42;
+  const auto srcTextureRectPx = PxRectangleU32::Create(1, 2, 3, 4);
+  const auto offsetPx = PxPoint2::Create(5, 6);
+  PxValueU16 xAdvance(42);
 
   BitmapFontChar value(id, srcTextureRectPx, offsetPx, xAdvance);
   EXPECT_EQ(id, value.Id);
@@ -67,9 +67,9 @@ TEST(TestFont_BitmapFontChar, Construct)
 TEST(TestFont_BitmapFontChar, OpEqual)
 {
   const uint32_t id = 10;
-  const PxRectangleU32 srcTextureRectPx(1, 2, 3, 4);
-  const PxPoint2 offsetPx(5, 6);
-  uint16_t xAdvance = 42;
+  const auto srcTextureRectPx = PxRectangleU32::Create(1, 2, 3, 4);
+  const auto offsetPx = PxPoint2::Create(5, 6);
+  PxValueU16 xAdvance(42);
 
   EXPECT_EQ(BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance), BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance));
 }
@@ -77,16 +77,16 @@ TEST(TestFont_BitmapFontChar, OpEqual)
 TEST(TestFont_BitmapFontChar, OpNotEqual)
 {
   const uint32_t id = 10;
-  const PxRectangleU32 srcTextureRectPx(1, 2, 3, 4);
-  const PxPoint2 offsetPx(5, 6);
-  uint16_t xAdvance = 42;
+  const auto srcTextureRectPx = PxRectangleU32::Create(1, 2, 3, 4);
+  const auto offsetPx = PxPoint2::Create(5, 6);
+  PxValueU16 xAdvance(42);
 
   auto almostSrcTextureRectPx = srcTextureRectPx;
-  almostSrcTextureRectPx.Add(PxPoint2U(1, 1));
+  almostSrcTextureRectPx.Add(PxPoint2U::Create(1, 1));
 
   EXPECT_NE(BitmapFontChar(id + 1, srcTextureRectPx, offsetPx, xAdvance), BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance));
   EXPECT_NE(BitmapFontChar(id, almostSrcTextureRectPx, offsetPx, xAdvance), BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance));
-  EXPECT_NE(BitmapFontChar(id, srcTextureRectPx, PxPoint2(offsetPx.X + 1, offsetPx.Y), xAdvance),
+  EXPECT_NE(BitmapFontChar(id, srcTextureRectPx, PxPoint2(offsetPx.X + PxValue(1), offsetPx.Y), xAdvance),
             BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance));
-  EXPECT_NE(BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance + 1), BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance));
+  EXPECT_NE(BitmapFontChar(id, srcTextureRectPx, offsetPx, PxValueU16(xAdvance.Value + 1)), BitmapFontChar(id, srcTextureRectPx, offsetPx, xAdvance));
 }

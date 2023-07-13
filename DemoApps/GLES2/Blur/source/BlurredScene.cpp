@@ -139,15 +139,15 @@ namespace Fsl
       const AtlasTextureInfo atlasInfo = m_texDescription.GetInfo();
 
       // texSize.X / tex
-      float x1 = -1.0f - (static_cast<float>(atlasInfo.OffsetPx.X) / res.X);
-      float x2 = x1 + (static_cast<float>(atlasInfo.TrimmedRectPx.Width) / res.X);
-      float y1 = -1.0f - (static_cast<float>(atlasInfo.OffsetPx.Y) / res.Y);
-      float y2 = y1 + (static_cast<float>(atlasInfo.TrimmedRectPx.Height) / res.Y);
+      float x1 = -1.0f - (static_cast<float>(atlasInfo.OffsetPx.X.Value) / res.X);
+      float x2 = x1 + (static_cast<float>(atlasInfo.TrimmedRectPx.Width.Value) / res.X);
+      float y1 = -1.0f - (static_cast<float>(atlasInfo.OffsetPx.Y.Value) / res.Y);
+      float y2 = y1 + (static_cast<float>(atlasInfo.TrimmedRectPx.Height.Value) / res.Y);
 
-      float u1 = static_cast<float>(atlasInfo.TrimmedRectPx.Left()) / atlasSize.X;
-      float v1 = 1.0f - (static_cast<float>(atlasInfo.TrimmedRectPx.Top()) / atlasSize.Y);
-      float u2 = static_cast<float>(atlasInfo.TrimmedRectPx.Right()) / atlasSize.X;
-      float v2 = 1.0f - (static_cast<float>(atlasInfo.TrimmedRectPx.Bottom()) / atlasSize.Y);
+      float u1 = static_cast<float>(atlasInfo.TrimmedRectPx.RawLeft()) / atlasSize.X;
+      float v1 = 1.0f - (static_cast<float>(atlasInfo.TrimmedRectPx.RawTop()) / atlasSize.Y);
+      float u2 = static_cast<float>(atlasInfo.TrimmedRectPx.RawRight()) / atlasSize.X;
+      float v2 = 1.0f - (static_cast<float>(atlasInfo.TrimmedRectPx.RawBottom()) / atlasSize.Y);
 
       VBHelper::BuildVB(m_vbDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
     }

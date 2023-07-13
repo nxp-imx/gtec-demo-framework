@@ -198,7 +198,7 @@ namespace Fsl
     rect.end_y = imgHei;
 
     RAPIDOPENVX_CHECK(vxMapImagePatch(image.Get(), &rect, 0, &map_id, &imgInfo, &imgBaseAddr, VX_READ_ONLY, VX_MEMORY_TYPE_HOST, 0));
-    bitmap.Reset(imgBaseAddr, imgHei * imgWid * 4, PxExtent2D(static_cast<int32_t>(imgWid), static_cast<int32_t>(imgHei)),
+    bitmap.Reset(imgBaseAddr, imgHei * imgWid * 4, PxExtent2D::Create(static_cast<int32_t>(imgWid), static_cast<int32_t>(imgHei)),
                  PixelFormat::B8G8R8A8_UNORM, BitmapOrigin::UpperLeft);
     GetPersistentDataManager()->Write(fileName, bitmap);
     RAPIDOPENVX_CHECK(vxUnmapImagePatch(image.Get(), map_id));

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_WRAPLAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_WRAPLAYOUT_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018, 2022 NXP
+ * Copyright 2018, 2022-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,42 +49,52 @@ namespace Fsl::UI
 
   class WrapLayout : public ComplexLayout<WrapLayoutWindowRecord>
   {
-    LayoutOrientation m_orientation;
-    DpPoint2F m_spacingDp;
+    using base_type = ComplexLayout<WrapLayoutWindowRecord>;
+
+    DataBinding::TypedDependencyProperty<LayoutOrientation> m_propertyOrientation;
+    DataBinding::TypedDependencyProperty<DpSize2DF> m_propertySpacingDp;
 
   public:
+    static DataBinding::DependencyPropertyDefinition PropertyOrientation;
+    static DataBinding::DependencyPropertyDefinition PropertySpacing;
+
     explicit WrapLayout(const std::shared_ptr<BaseWindowContext>& context);
 
-    LayoutOrientation GetLayoutOrientation() const
+    LayoutOrientation GetOrientation() const
     {
-      return m_orientation;
+      return m_propertyOrientation.Get();
     }
 
-    void SetOrientation(const LayoutOrientation& value);
+    bool SetOrientation(const LayoutOrientation value);
 
-    DpPoint2F GetSpacing() const
+    DpSize2DF GetSpacing() const
     {
-      return m_spacingDp;
+      return m_propertySpacingDp.Get();
     }
 
-    bool SetSpacing(const DpPoint2F valueDp);
+    bool SetSpacing(const DpSize2DF valueDp);
 
   protected:
     PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
     PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
+    DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
+    DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                           const DataBinding::Binding& binding) override;
+    void ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties) override;
+
     static PxSize2D MeasureHorizontalStackLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                 const collection_type::queue_type::iterator& itrEnd, const PxValue spacingXPx,
-                                                 const PxAvailableSize& availableSizePx);
+                                                 const collection_type::queue_type::iterator& itrEnd, const PxSize1D spacingXPx,
+                                                 const PxAvailableSize availableSizePx);
     static PxSize2D MeasureVerticalStackLayout(const collection_type::queue_type::iterator& itrBegin,
-                                               const collection_type::queue_type::iterator& itrEnd, const PxValue spacingYPx,
-                                               const PxAvailableSize& availableSizePx);
+                                               const collection_type::queue_type::iterator& itrEnd, const PxSize1D spacingYPx,
+                                               const PxAvailableSize availableSizePx);
     static PxSize2D MeasureHorizontalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
-                                                const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
-                                                const PxAvailableSize& availableSizePx);
+                                                const collection_type::queue_type::iterator& itrEnd, const PxSize2D spacingPx,
+                                                const PxAvailableSize availableSizePx);
     static PxSize2D MeasureVerticalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
-                                              const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
-                                              const PxAvailableSize& availableSizePx);
+                                              const collection_type::queue_type::iterator& itrEnd, const PxSize2D spacingPx,
+                                              const PxAvailableSize availableSizePx);
   };
 }
 

@@ -71,7 +71,7 @@ namespace Fsl
           const auto offsetPx = pContentWindow->PointTo(nullptr, PxPoint2());
           PxRectangle contentRectanglePx = pContentWindow->WinGetContentRectanglePx();
           contentRectanglePx.Add(offsetPx);
-          if (contentRectanglePx.Width() > 0 && contentRectanglePx.Height() > 0)
+          if (contentRectanglePx.RawWidth() > 0 && contentRectanglePx.RawHeight() > 0)
           {
             appHost->SetAppRectangle(contentRectanglePx);
           }

@@ -322,7 +322,8 @@ namespace Fsl
 
     // Tessellation eval
 
-    const auto aspectRatio = (static_cast<float>(screenExtent.Width) * (m_splitScreen ? 0.5f : 1.0f)) / static_cast<float>(screenExtent.Height);
+    const auto aspectRatio =
+      (static_cast<float>(screenExtent.Width.Value) * (m_splitScreen ? 0.5f : 1.0f)) / static_cast<float>(screenExtent.Height.Value);
 
     glm::mat4 viewMatrix = glm::mat4(1.0f);
     m_uboTE.Projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 256.0f);

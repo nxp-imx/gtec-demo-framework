@@ -135,7 +135,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const PxSize2D currentSizePx = GetWindowSizePx();
-    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
+    glViewport(0, 0, currentSizePx.RawWidth(), currentSizePx.RawHeight());
 
     // Clear background.
     glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
@@ -227,7 +227,7 @@ namespace Fsl
     m_data_index = 0;
     // Create the texture.
     // init y texture
-    PxSize2D ySize(WIDTH, HEIGHT);
+    PxSize2D ySize = PxSize2D::Create(WIDTH, HEIGHT);
     GL_CHECK(glGenTextures(1, &m_yTex));
     m_y_texture.Reset(m_yTex, ySize);
     GL_CHECK(glActiveTexture(GL_TEXTURE0));
@@ -244,7 +244,7 @@ namespace Fsl
     glTexDirectInvalidateVIV(GL_TEXTURE_2D);
 
     // init uv texture
-    PxSize2D uvSize(WIDTH / 2, HEIGHT / 2);
+    PxSize2D uvSize = PxSize2D::Create(WIDTH / 2, HEIGHT / 2);
     GL_CHECK(glGenTextures(1, &m_uvTex));
     m_uv_texture.Reset(m_uvTex, uvSize);
     GL_CHECK(glActiveTexture(GL_TEXTURE0 + 1));

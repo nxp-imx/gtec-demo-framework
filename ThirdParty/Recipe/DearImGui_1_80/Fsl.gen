@@ -2,8 +2,8 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <ExternalLibrary Name="Recipe.DearImGui_1_80" CreationYear="2021">
     <Default.Platform.Supported Value="false"/>
-    <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe Name="DearImGui" Version="1.80" Find="True">
+    <Platform Name="Windows" Supported="false">
+      <ExperimentalRecipe Name="DearImGui" Version="1.80" Find="true">
         <Pipeline>
           <Download URL="https://github.com/ocornut/imgui/archive/v1.80.tar.gz" To="DearImGui_v1.80.tar.gz" Hash="d7e4e1c7233409018437a646680316040e6977b9a635c02da93d172baad94ce9"/> 
           <Unpack File="DearImGui_v1.80.tar.gz" OutputPath="_build">

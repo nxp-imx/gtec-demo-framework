@@ -41,11 +41,12 @@ from FslBuildGen.Packages.Unresolved.UnresolvedPackageDefine import UnresolvedPa
 from FslBuildGen.Packages.Unresolved.UnresolvedPackageRequirement import UnresolvedPackageRequirement
 
 class UnresolvedPackageFlavorOption(object):
-    def __init__(self, name: PackageFlavorOptionName, introducedByPackageName: UnresolvedPackageName,
+    def __init__(self, name: PackageFlavorOptionName, supported: bool, introducedByPackageName: UnresolvedPackageName,
                  directRequirements: List[UnresolvedPackageRequirement], directDependencies: List[UnresolvedPackageDependency],
                  externalDependencies: List[UnresolvedExternalDependency], directDefines: List[UnresolvedPackageDefine]) -> None:
         super().__init__()
         self.Name = name
+        self.Supported = supported
         self.IntroducedByPackageName = introducedByPackageName
         #self.DirectUsedFeatures = [requirement for requirement in directRequirements if requirement.Type == PackageRequirementTypeString.Feature]
         self.DirectRequirements = directRequirements

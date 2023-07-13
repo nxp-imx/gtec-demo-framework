@@ -57,19 +57,19 @@ namespace Fsl
 
     //! @brief Write a character to the bitmap (convenience method)
     //! @note We currently support B8G8R8_UINT, R8G8B8_UINT, B8G8R8A8_UINT, R8G8B8A8_UINT and EX_ALPHA8_UINT
-    static void ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const PxPoint2& dstPos);
+    static void ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const PxPoint2 dstPos);
 
     //! @brief Write a character to the bitmap (convenience method)
     //! @note We currently support B8G8R8_UINT, R8G8B8_UINT, B8G8R8A8_UINT, R8G8B8A8_UINT and EX_ALPHA8_UINT
-    static void ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const PxPoint2& dstPos);
+    static void ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const PxPoint2 dstPos);
 
     //! @brief Extract all characters in the font (convenience method)
-    static void CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const PxPoint2& padding,
+    static void CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const PxSize2D padding,
                                  const RectangleSizeRestrictionFlag restrictionFlags);
 
     //! @brief Extract the supplied range of characters (convenience method)
     static void CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const uint8_t startCharacter, const uint8_t length,
-                                 const PxPoint2& padding, const RectangleSizeRestrictionFlag restrictionFlags);
+                                 const PxSize2D padding, const RectangleSizeRestrictionFlag restrictionFlags);
   };
 }
 

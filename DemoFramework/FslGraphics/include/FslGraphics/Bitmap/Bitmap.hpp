@@ -108,7 +108,7 @@ namespace Fsl
 
     //! Just some ease of use overloads
     Bitmap(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft)
-      : Bitmap(PxExtent2D(width, height), pixelFormat, bitmapOrigin)
+      : Bitmap(PxExtent2D::Create(width, height), pixelFormat, bitmapOrigin)
     {
     }
 
@@ -122,13 +122,13 @@ namespace Fsl
     //! @brief The width of the bitmap in pixels
     uint32_t Width() const
     {
-      return m_extent.Width;
+      return m_extent.Width.Value;
     }
 
     //! @brief The height of the bitmap in pixels
     uint32_t Height() const
     {
-      return m_extent.Height;
+      return m_extent.Height.Value;
     }
 
     //! @brief The size of the bitmap in pixels
@@ -183,7 +183,7 @@ namespace Fsl
     std::size_t GetByteSize() const
     {
       const std::size_t stride = m_stride;
-      return m_extent.Height * stride;
+      return m_extent.Height.Value * stride;
     }
 
     //! @brief Reset the image to the given dimensions.
@@ -233,13 +233,13 @@ namespace Fsl
     void Reset(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
                const BitmapClearMethod clearMethod = BitmapClearMethod::Clear)
     {
-      Reset(PxExtent2D(width, height), pixelFormat, bitmapOrigin, clearMethod);
+      Reset(PxExtent2D::Create(width, height), pixelFormat, bitmapOrigin, clearMethod);
     }
 
     void Reset(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft, const BitmapClearMethod clearMethod = BitmapClearMethod::Clear)
     {
-      Reset(PxExtent2D(width, height), pixelFormat, stride, bitmapOrigin, clearMethod);
+      Reset(PxExtent2D::Create(width, height), pixelFormat, stride, bitmapOrigin, clearMethod);
     }
 
     //! @bried clear the content to zero

@@ -38,7 +38,8 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Set
-from typing import Tuple
+from enum import Enum
+#from typing import Tuple
 #import json
 import os
 #import multiprocessing
@@ -53,6 +54,7 @@ from FslBuildGen.Build.BuildConfigRecord import BuildConfigRecord
 from FslBuildGen.Build.BuildConfigureCache import BuildConfigureCache
 from FslBuildGen.Build.BuildUtil import PlatformBuildTypeInfo
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
+from FslBuildGen.Build.BuildFlavorUtil import BuildFlavorUtil
 from FslBuildGen.Build.BuildVariantUtil import BuildVariantUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Build.Filter import PackageFilter
@@ -66,7 +68,7 @@ from FslBuildGen.BuildConfig.UserSetVariables import UserSetVariables
 from FslBuildGen.BuildContent.SharedValues import CONFIG_FSLBUILDCONTENT_ENABLED
 from FslBuildGen.BuildExternal import RecipeBuilder
 from FslBuildGen.BuildExternal.BuilderSettings import BuilderSettings
-from FslBuildGen.Config import Config
+#from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 #from FslBuildGen.DataTypes import BuildThreads
 #from FslBuildGen.DataTypes import BuildVariantConfig
@@ -76,6 +78,7 @@ from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Exceptions import ExitException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.OpenProject.OpenProjectCreateInfo import OpenProjectCreateInfo
 from FslBuildGen.OpenProject.OpenProjectCMakeInfo import OpenProjectCMakeInfo
 from FslBuildGen.OpenProject.OpenProjectCreateInfo import OpenProjectExecutableInfo
@@ -103,6 +106,36 @@ from FslBuildGen.Log import Log
 from FslBuildGen.ToolConfig import ToolConfig
 #from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
 #from FslBuildGen.Xml.XmlStuff import XmlGenFileVariantOption
+
+class PackageNameDetails(Enum):
+    ShowTemplateName = 0
+    ShowExactPackageName = 1
+
+class PrettyPrintHelper(object):
+    @staticmethod
+    def CreatePackageNameLookupDict(topLevelPackage: Package, packageNameDetails: PackageNameDetails) -> Dict[str, str]:
+        res = dict() # type: Dict[str, str]
+        if packageNameDetails == PackageNameDetails.ShowExactPackageName:
+            for srcPackage in topLevelPackage.ResolvedBuildOrder:
+                res[srcPackage.Name] = srcPackage.NameInfo.PrintName
+        else:
+            for srcPackage in topLevelPackage.ResolvedBuildOrder:
+                res[srcPackage.Name] = srcPackage.NameInfo.SourceName
+        return res
+
+    @staticmethod
+    def ToPrettyPackageNameList(packageNameLookupDict: Dict[str, str], stringSet: Set[str]) -> List[str]:
+        # even though we start with a unique set, the resulting 'pretty name' list might contain duplicates,
+        # so we eliminate that by converting the list to a set and then back to a sorted list
+        stringUniqueSet = set([packageNameLookupDict[entry] if entry in packageNameLookupDict else entry for entry in stringSet])
+        stringUniqueList = list(stringUniqueSet)
+        stringUniqueList.sort()
+        return stringUniqueList
+
+    @staticmethod
+    def ToPrettyPackageNameString(packageNameLookupDict: Dict[str, str], stringSet: Set[str]) -> str:
+        res = PrettyPrintHelper.ToPrettyPackageNameList(packageNameLookupDict, stringSet)
+        return ", ".join(res)
 
 
 class RunCmdInfo(object):
@@ -287,8 +320,8 @@ class Builder(object):
         if runCmdInfo is not None:
             exeInfo = OpenProjectExecutableInfo(runCmdInfo.RunCommands[0], runCmdInfo.RunPath)
 
-        sourcePath = ReportVariableFormatter.Format(openProjectReport.SourcePath, variableReport, buildConfig.VariantSettingsDict)
-        buildSourceDirectory = ReportVariableFormatter.Format(openProjectReport.BuildSourceDirectory, variableReport, buildConfig.VariantSettingsDict)
+        sourcePath = ReportVariableFormatter.Format(openProjectReport.SourcePath, variableReport, buildConfig.VariantConstraints)
+        buildSourceDirectory = ReportVariableFormatter.Format(openProjectReport.BuildSourceDirectory, variableReport, buildConfig.VariantConstraints)
 
         cmakeGeneratorName = generatorContext.CMakeConfig.CMakeFinalGeneratorName
 
@@ -297,12 +330,12 @@ class Builder(object):
         cmakeConfigVariableReport = generatorConfigReport.VariableReport
 
         cmakeConfigureArgs = cmakeConfigReport.ConfigureArgs
-        cmakeBuildDirectory = ReportVariableFormatter.Format(cmakeConfigReport.BuildDirectory, cmakeConfigVariableReport, buildConfig.VariantSettingsDict)
+        cmakeBuildDirectory = ReportVariableFormatter.Format(cmakeConfigReport.BuildDirectory, cmakeConfigVariableReport, buildConfig.VariantConstraints)
         cmakeConfigureSettingsDict = {} # type: Dict[str,object]
         cmakeInstallPrefix = ""
         for key, value in cmakeConfigReport.ConfigureSettingsDict.items():
-            key = ReportVariableFormatter.Format(key, cmakeConfigVariableReport, buildConfig.VariantSettingsDict)
-            value = ReportVariableFormatter.Format(value, cmakeConfigVariableReport, buildConfig.VariantSettingsDict)
+            key = ReportVariableFormatter.Format(key, cmakeConfigVariableReport, buildConfig.VariantConstraints)
+            value = ReportVariableFormatter.Format(value, cmakeConfigVariableReport, buildConfig.VariantConstraints)
             if key != "CMAKE_INSTALL_PREFIX":
                 cmakeConfigureSettingsDict[key] = value
             else:
@@ -386,7 +419,7 @@ class Builder(object):
         if not builderCanBuildContent:
             buildEnv[CONFIG_FSLBUILDCONTENT_ENABLED] = "false"
 
-        BuildVariantUtil.ExtendEnvironmentDictWithVariants(log, buildEnv, package, buildConfig.VariantSettingsDict)
+        BuildVariantUtil.ExtendEnvironmentDictWithVariants(log, buildEnv, package, buildConfig.VariantConstraints)
         return buildEnv
 
     def __CheckBuildConfigureModifications(self, cacheFilename: str, generatedFileSet: Set[str],
@@ -423,13 +456,13 @@ class Builder(object):
 
         buildArgumentList = []
         for buildArgument in configReport.Arguments:
-            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantSettingsDict)
+            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantConstraints)
             buildArgumentList.append(buildArgument)
 
-        configCommandStr = ReportVariableFormatter.Format(configReport.CommandFormatString, variableReport, buildConfig.VariantSettingsDict)
+        configCommandStr = ReportVariableFormatter.Format(configReport.CommandFormatString, variableReport, buildConfig.VariantConstraints)
 
         currentWorkingDirectory = ReportVariableFormatter.Format(configReport.CurrentWorkingDirectoryFormatString,
-                                                                 variableReport, buildConfig.VariantSettingsDict)
+                                                                 variableReport, buildConfig.VariantConstraints)
 
         configCommand = [configCommandStr] + buildArgumentList # + buildConfig.BuildConfigArgs
         #if len(buildContext.Platform.AdditionalBuildConfigArguments) > 0:
@@ -532,22 +565,22 @@ class Builder(object):
 
         if buildCommandReport.CurrentWorkingDirectoryFormatString is not None:
             currentWorkingDirectory = ReportVariableFormatter.Format(buildCommandReport.CurrentWorkingDirectoryFormatString,
-                                                                     variableReport, buildConfig.VariantSettingsDict)
+                                                                     variableReport, buildConfig.VariantConstraints)
         if currentWorkingDirectory is None:
             raise Exception("No current working directory supplied")
 
-        buildCommandStr = ReportVariableFormatter.Format(buildCommandReport.CommandFormatString, variableReport, buildConfig.VariantSettingsDict)
+        buildCommandStr = ReportVariableFormatter.Format(buildCommandReport.CommandFormatString, variableReport, buildConfig.VariantConstraints)
         if not buildCommandReport.UseAsRelative:
             buildCommandStr = IOUtil.Join(currentWorkingDirectory, buildCommandStr)
 
         buildArgumentList = []
         for buildArgument in buildCommandReport.Arguments:
-            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantSettingsDict)
+            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantConstraints)
             buildArgumentList.append(buildArgument)
 
         nativeBuildArgumentList = []
         for buildArgument in buildCommandReport.NativeArguments:
-            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantSettingsDict)
+            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantConstraints)
             nativeBuildArgumentList.append(buildArgument)
 
         self.__AppendToRightArgumentList(buildArgumentList, nativeBuildArgumentList, buildCommandReport.NativeArgumentSeparator, buildConfig.BuildArgs)
@@ -627,13 +660,13 @@ class Builder(object):
             raise Exception("ForAllExe not supported by generator for package {0} as it didnt contain a executable record".format(package.Name))
 
         foundVariantExePath = ReportVariableFormatter.Format(executableReport.ExeFormatString,
-                                                             variableReport, buildConfig.VariantSettingsDict,
+                                                             variableReport, buildConfig.VariantConstraints,
                                                              executableReport.EnvironmentVariableResolveMethod)
         runPath = package.AbsolutePath
 
         if buildConfig.Generator is None:
             raise Exception("Generator is missing")
-        buildExecutableInfo = buildConfig.Generator.TryGetBuildExecutableInfo(self.Log, generatorConfig, package, generatorReport, buildConfig.VariantSettingsDict)
+        buildExecutableInfo = buildConfig.Generator.TryGetBuildExecutableInfo(self.Log, generatorConfig, package, generatorReport, buildConfig.VariantConstraints)
         if buildExecutableInfo is not None:
             # Override the "install-type" path with the "development" exe path
             foundVariantExePath = buildExecutableInfo.BuildExePath
@@ -681,18 +714,18 @@ class Builder(object):
 # generator = the generator that was used to build the files
 def BuildPackages(log: Log, configBuildDir: str, configSDKPath: str, configSDKConfigTemplatePath: str, configDisableWrite: bool, configIsDryRun: bool,
                   toolConfig: ToolConfig, generatorContext: GeneratorContext, packages: List[Package], requestedPackages: Optional[List[Package]],
-                  variantSettingsDict: Dict[str, str], buildArgs: List[str], buildForAllExe: Optional[str], generator: GeneratorPluginBase2,
+                  externalVariantConstraints: ExternalVariantConstraints, buildArgs: List[str], buildForAllExe: Optional[str], generator: GeneratorPluginBase2,
                   enableContentBuilder: bool, forceClaimInstallArea: bool, buildThreads: int, buildCommand: CommandType,
                   printPathIfCMake: bool = False, forceConfigure: bool = False) -> None:
 
     PlatformUtil.CheckBuildPlatform(generatorContext.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
-    BuildVariantUtil.ValidateUserVariantSettings(log, topLevelPackage, variantSettingsDict)
-    BuildVariantUtil.LogVariantSettings(log, variantSettingsDict)
+    BuildFlavorUtil.ValidateUserFlavorSettings(log, topLevelPackage, externalVariantConstraints)
+    BuildFlavorUtil.LogFlavorSettings(log, externalVariantConstraints)
 
     requestedPackages = [] if requestedPackages is None else requestedPackages
-    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.PlatformName, variantSettingsDict,
+    buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.PlatformName, externalVariantConstraints,
                                     generatorContext.GeneratorInfo.VariableContext.UserSetVariables,
                                     buildCommand, buildArgs, buildForAllExe, generator, buildThreads)
 
@@ -724,7 +757,7 @@ def ShowVariantList(log: Log,
                     generator: GeneratorPluginBase2) -> None:
 
     variantDict = BuildVariantUtil.BuildCompleteVariantDict(topLevelPackage)
-
+    flavorDict = BuildFlavorUtil.BuildCompleteFlavorDict(topLevelPackage, True)
 
     # This is kind of a hack to list this here (its also not a real variant inside our model)
     generatorVariants = generator.GetVariants()
@@ -749,9 +782,20 @@ def ShowVariantList(log: Log,
         optionNames = list(variant.OptionDict.keys())
         optionNames.sort()
         if variant.Type == VariantType.Virtual:
-            log.DoPrint("  {0}={1} *Virtual* (Introduced by package: {2})".format(variant.PurifiedName, ', '.join(optionNames), variant.IntroducedByPackageName))
+            log.DoPrint("  {0}={1} *Virtual* (Introduced by package: {2}. *Deprecated replace with Flavor*)".format(variant.PurifiedName, ', '.join(optionNames), variant.IntroducedByPackageName))
         else:
-            log.DoPrint(("  {0}={1} (Introduced by package: {2})".format(variant.PurifiedName, ', '.join(optionNames), variant.IntroducedByPackageName)))
+            log.DoPrint(("  {0}={1} (Introduced by package: {2}. *Deprecated replace with Flavor*)".format(variant.PurifiedName, ', '.join(optionNames), variant.IntroducedByPackageName)))
+
+    flavorNames = list(flavorDict.keys())
+    flavorNames.sort()
+    for flavorName in flavorNames:
+        flavor = flavorDict[flavorName]
+        optionNames = [option.Name.Value for option in flavor.Options]
+        optionNames.sort()
+        if flavor.QuickName is not None:
+            log.DoPrint(("  {0}={1} (Introduced by package: {2}. Fully qualified flavor name: '{3}')".format(flavorName, ', '.join(optionNames), flavor.Name.OwnerPackageName, flavor.Name.Value)))
+        else:
+            log.DoPrint(("  {0}={1} (Introduced by package: {2})".format(flavorName, ', '.join(optionNames), flavor.Name.OwnerPackageName)))
 
 
 def ShowBuildVariantList(log: Log, generator: GeneratorPluginBase2) -> None:
@@ -770,6 +814,7 @@ def ShowBuildVariantList(log: Log, generator: GeneratorPluginBase2) -> None:
 
 
 def __PrintRequirementsNode(log: Log,
+                            packageNameLookupDict: Dict[str,str],
                             node: RequirementTreeNode,
                             currentIndent: str,
                             strAddIndent: str) -> None:
@@ -785,7 +830,8 @@ def __PrintRequirementsNode(log: Log,
     #if len(node.Content.Extends) > 0:
     #    strFormat += " extends '{4}'"
     strFormat += " (introduced by package: {5})"
-    log.DoPrint(strFormat.format(currentIndent, node.Content.Type, node.Content.Name, node.Content.Version, node.Content.Extends, ", ".join(node.Content.IntroducedByPackages)))
+    strIntroducedBy = PrettyPrintHelper.ToPrettyPackageNameString(packageNameLookupDict, node.Content.IntroducedByPackages)
+    log.DoPrint(strFormat.format(currentIndent, node.Content.Type, node.Content.Name, node.Content.Version, node.Content.Extends, strIntroducedBy))
 
     # Group by type
     dictGroup = {}  # type: Dict[str, List[RequirementTreeNode]]
@@ -806,14 +852,16 @@ def __PrintRequirementsNode(log: Log,
         groupedRequirements = dictGroup[groupId]
         groupedRequirements.sort(key=lambda s: "" if s.Content is None else s.Content.Id)
         for childNode in groupedRequirements:
-            __PrintRequirementsNode(log, childNode, currentIndent + strAddIndent, strAddIndent)
+            __PrintRequirementsNode(log, packageNameLookupDict, childNode, currentIndent + strAddIndent, strAddIndent)
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user
 def ShowRequirementList(log: Log,
                         topLevelPackage: Package,
                         requestedFiles: Optional[List[str]],
+                        packageNameDetails: PackageNameDetails,
                         showFeaturesOnly: bool = False) -> None:
+    packageNameLookupDict = PrettyPrintHelper.CreatePackageNameLookupDict(topLevelPackage, packageNameDetails)
     message = "Requirements" if not showFeaturesOnly else "Features"
     filterName = None if not showFeaturesOnly else PackageRequirementTypeString.Feature
     # As the packages in requestedFiles might have been filtered at this point (and any issues already caught), we just ignore not found
@@ -835,20 +883,23 @@ def ShowRequirementList(log: Log,
     sortedFeatures = list(rootNode.Children)
     sortedFeatures.sort(key=lambda s: "" if s.Content is None else s.Content.Id)
     for sortedFeature in sortedFeatures:
-        __PrintRequirementsNode(log, sortedFeature, baseIndent, strAddIndent)
+        __PrintRequirementsNode(log, packageNameLookupDict, sortedFeature, baseIndent, strAddIndent)
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user
 def ShowFeatureList(log: Log,
                     topLevelPackage: Package,
-                    requestedFiles: Optional[List[str]]) -> None:
-    ShowRequirementList(log, topLevelPackage, requestedFiles, True)
+                    requestedFiles: Optional[List[str]],
+                    packageNameDetails: PackageNameDetails) -> None:
+    ShowRequirementList(log, topLevelPackage, requestedFiles, packageNameDetails, True)
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user
 def ShowExtensionList(log: Log,
                       topLevelPackage: Package,
-                      requestedFiles: Optional[List[str]]) -> None:
+                      requestedFiles: Optional[List[str]],
+                      packageNameDetails: PackageNameDetails) -> None:
+    packageNameLookupDict = PrettyPrintHelper.CreatePackageNameLookupDict(topLevelPackage, packageNameDetails)
     # As the packages in requestedFiles might have been filtered at this point (and any issues already caught), we just ignore not found
     requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles, True)
     requirements = RequirementFilter.GetRequirementList(topLevelPackage, requestedPackages, PackageRequirementTypeString.Extension)
@@ -870,4 +921,6 @@ def ShowExtensionList(log: Log,
         if len(requirement.Extends) > 0:
             strFormat += " extends '{3}'"
         strFormat += " (introduced by package: {4})"
-        log.DoPrint(strFormat.format(currentIndent, requirement.Name, requirement.Version, requirement.Extends, ", ".join(requirement.IntroducedByPackages)))
+        strIntroducedBy = PrettyPrintHelper.ToPrettyPackageNameString(packageNameLookupDict, requirement.IntroducedByPackages)
+        log.DoPrint(strFormat.format(currentIndent, requirement.Name, requirement.Version, requirement.Extends, strIntroducedBy))
+

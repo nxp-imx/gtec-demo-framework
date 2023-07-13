@@ -42,13 +42,19 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlGenFileDependency(XmlBase):
+    __AttribName = 'Name'
+    __AttribFlavor = 'Flavor'
+    __AttribAccess = 'Access'
+    __AttribIf = 'If'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
-        flavor = self._TryReadAttrib(xmlElement, 'Flavor')  # type: Optional[str]
+        self._CheckAttributes({self.__AttribName, self.__AttribFlavor, self.__AttribAccess, self.__AttribIf})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type: str
+        flavor = self._TryReadAttrib(xmlElement, self.__AttribFlavor)  # type: Optional[str]
         self.Flavor = self.__TryParseFlavor(flavor)
-        access = self._ReadAttrib(xmlElement, 'Access', 'Public')  # type: str
-        self.IfCondition = self._TryReadAttrib(xmlElement, 'If')  # type: Optional[str]
+        access = self._ReadAttrib(xmlElement, self.__AttribAccess, 'Public')  # type: str
+        self.IfCondition = self._TryReadAttrib(xmlElement, self.__AttribIf)  # type: Optional[str]
 
         if access == "Public":
             self.Access = AccessType.Public  # type: AccessType
@@ -77,7 +83,7 @@ class XmlGenFileDependency(XmlBase):
             if keyId in uniqueIds:
                 raise XmlFormatException("Dependency flavor constraint key '{0}' already collides with '{1}'".format(key, uniqueIds[keyId]))
 
-            if not Util.IsValidFlavorName(key):
+            if not Util.IsValidConstraintFlavorName(key):
                 raise XmlFormatException("Dependency flavor name '{0}' is invalid".format(key))
 
             if not Util.IsValidFlavorOptionName(value):

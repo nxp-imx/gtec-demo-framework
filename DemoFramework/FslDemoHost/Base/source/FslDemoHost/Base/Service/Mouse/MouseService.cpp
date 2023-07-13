@@ -95,7 +95,8 @@ namespace Fsl
   {
     VirtualMouseButton::Enum button = VirtualMouseButton::Undefined;
     bool isPressed = false;
-    NativeWindowEventHelper::DecodeInputMouseButtonEvent(event, button, isPressed, m_position);
+    bool isTouch = false;
+    NativeWindowEventHelper::DecodeInputMouseButtonEvent(event, button, isPressed, m_position, isTouch);
 
     if (isPressed)
     {
@@ -104,7 +105,7 @@ namespace Fsl
       {
         m_buttonState.Flags |= button;
 
-        m_eventPoster->Post(MouseButtonEvent(button, isPressed, m_position));
+        m_eventPoster->Post(MouseButtonEvent(button, isPressed, m_position, isTouch));
       }
     }
     else
@@ -114,7 +115,7 @@ namespace Fsl
       {
         m_buttonState.Flags &= ~button;
 
-        m_eventPoster->Post(MouseButtonEvent(button, isPressed, m_position));
+        m_eventPoster->Post(MouseButtonEvent(button, isPressed, m_position, isTouch));
       }
     }
   }
@@ -123,14 +124,15 @@ namespace Fsl
   void MouseService::OnMouseMove(const NativeWindowEvent& event)
   {
     VirtualMouseButtonFlags mouseButtonFlags;
-    NativeWindowEventHelper::DecodeInputMouseMoveEvent(event, m_position, mouseButtonFlags);
+    bool isTouch = false;
+    NativeWindowEventHelper::DecodeInputMouseMoveEvent(event, m_position, mouseButtonFlags, isTouch);
 
     if (mouseButtonFlags.IsUndefined())
     {
       mouseButtonFlags = m_buttonState;
     }
 
-    m_eventPoster->Post(MouseMoveEvent(m_position, mouseButtonFlags));
+    m_eventPoster->Post(MouseMoveEvent(m_position, mouseButtonFlags, isTouch));
     // FSLLOG3_INFO("X: {} Y: {}", m_position.X, m_position.Y);
   }
 

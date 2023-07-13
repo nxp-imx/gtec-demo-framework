@@ -42,9 +42,10 @@ namespace
   using TestFont_BitmapFontKerningFastLookup = TestFixtureFslGraphics;
 
   const std::array<BitmapFontKerning, 11> g_kernings = {
-    BitmapFontKerning(0, 1, 0),     BitmapFontKerning(0, 2, 1),      BitmapFontKerning(0, 3, 2),         BitmapFontKerning(0x40, 0, 3),
-    BitmapFontKerning(0x41, 1, 4),  BitmapFontKerning(0x140, 0, 5),  BitmapFontKerning(0x140, 0xFF, 6),  BitmapFontKerning(0x141, 0, 7),
-    BitmapFontKerning(0x143, 0, 8), BitmapFontKerning(0x240, 10, 9), BitmapFontKerning(0x243, 0x40, 10),
+    BitmapFontKerning(0, 1, PxValue(0)),        BitmapFontKerning(0, 2, PxValue(1)),         BitmapFontKerning(0, 3, PxValue(2)),
+    BitmapFontKerning(0x40, 0, PxValue(3)),     BitmapFontKerning(0x41, 1, PxValue(4)),      BitmapFontKerning(0x140, 0, PxValue(5)),
+    BitmapFontKerning(0x140, 0xFF, PxValue(6)), BitmapFontKerning(0x141, 0, PxValue(7)),     BitmapFontKerning(0x143, 0, PxValue(8)),
+    BitmapFontKerning(0x240, 10, PxValue(9)),   BitmapFontKerning(0x243, 0x40, PxValue(10)),
   };
 
 }

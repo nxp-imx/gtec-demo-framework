@@ -63,7 +63,7 @@ namespace Fsl
       , m_inBegin(false)
     {
       Bitmap fontBitmap;
-      EmbeddedFont8x8::CreateFontBitmap(fontBitmap, PixelFormat::R8G8B8A8_UNORM, PxPoint2(2, 2), RectangleSizeRestrictionFlag::Power2);
+      EmbeddedFont8x8::CreateFontBitmap(fontBitmap, PixelFormat::R8G8B8A8_UNORM, PxSize2D::Create(2, 2), RectangleSizeRestrictionFlag::Power2);
 
       // Create child images for each glyph and assign them to the valid chars
       {
@@ -74,19 +74,19 @@ namespace Fsl
         assert(EmbeddedFont8x8::MinCharacter() <= firstChar);
         assert(EmbeddedFont8x8::MaxCharacter() >= lastChar);
 
-        const auto imageWidth = UncheckedNumericCast<int32_t>(fontBitmap.Width());
+        const auto imageWidth = PxSize1D::Create(UncheckedNumericCast<int32_t>(fontBitmap.Width()));
         PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
-        fontSize.AddWidth(2);
-        fontSize.AddHeight(2);
-        int32_t srcX = 0;
-        int32_t srcY = 0;
+        fontSize.AddWidth(PxSize1D::Create(2));
+        fontSize.AddHeight(PxSize1D::Create(2));
+        PxSize1D srcX;
+        PxSize1D srcY;
         for (std::size_t i = 0; i < numChars; ++i)
         {
           m_charRects[i] = PxRectangle(srcX, srcY, fontSize.Width(), fontSize.Height());
           srcX += fontSize.Width();
           if ((srcX + fontSize.Width()) > imageWidth)
           {
-            srcX = 0;
+            srcX = {};
             srcY += fontSize.Height();
           }
         }
@@ -102,7 +102,7 @@ namespace Fsl
         }
       }
       m_fillPixelRect =
-        PxRectangle(UncheckedNumericCast<int32_t>(fontBitmap.Width()) - 4, UncheckedNumericCast<int32_t>(fontBitmap.Height()) - 4, 1, 1);
+        PxRectangle::Create(UncheckedNumericCast<int32_t>(fontBitmap.Width()) - 4, UncheckedNumericCast<int32_t>(fontBitmap.Height()) - 4, 1, 1);
 
       // Because GLES requires upside down textures.
       BitmapUtil::FlipHorizontal(fontBitmap);
@@ -167,7 +167,7 @@ namespace Fsl
       const char* pSrc = strView.data();
       const char* const pSrcEnd = pSrc + strView.size();
 
-      const auto charWidth = static_cast<float>(m_fontSize.Width());
+      const auto charWidth = static_cast<float>(m_fontSize.RawWidth());
 
       // Handle leading 'non drawable chars' by skipping them
       while (pSrc < pSrcEnd && !IsValidChar(static_cast<int>(*pSrc)))

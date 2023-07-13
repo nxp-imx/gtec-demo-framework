@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,12 +83,12 @@ TEST(TestSprite_ImageSprite, Construct_Default_SetContent)
     EXPECT_EQ(PxSize2D(), info.RenderInfo.ScaledSizePx);
   }
 
-  constexpr PxExtent2D textureExtent(32, 64);
+  constexpr auto textureExtent = PxExtent2D::Create(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
   const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi;
@@ -102,7 +102,7 @@ TEST(TestSprite_ImageSprite, Construct_Default_SetContent)
     EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
     EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
     EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-    EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+    EXPECT_EQ(DpExtent2D::Create(imageExtent.Width.Value, imageExtent.Height.Value), info.ImageInfo.ExtentDp);
     EXPECT_EQ(imageDpi, info.ImageDpi);
     EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
     EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), info.RenderInfo.ScaledSizePx);
@@ -115,8 +115,8 @@ TEST(TestSprite_ImageSprite, Construct_InvalidMaterial)
   SpriteNativeAreaCalc area(false);
 
   SpriteMaterialInfo invalidMaterial;
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi * 2;
@@ -129,12 +129,12 @@ TEST(TestSprite_ImageSprite, Construct_1x_1x)
 {
   SpriteNativeAreaCalc area(false);
 
-  constexpr PxExtent2D textureExtent(32, 64);
+  constexpr auto textureExtent = PxExtent2D::Create(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
   const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi;
@@ -149,7 +149,7 @@ TEST(TestSprite_ImageSprite, Construct_1x_1x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width.Value, imageExtent.Height.Value), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), info.RenderInfo.ScaledSizePx);
@@ -159,12 +159,12 @@ TEST(TestSprite_ImageSprite, Construct_1x_1x)
 TEST(TestSprite_ImageSprite, Construct_1x_2x)
 {
   SpriteNativeAreaCalc area(false);
-  constexpr PxExtent2D textureExtent(32, 64);
+  constexpr auto textureExtent = PxExtent2D::Create(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
   const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi * 2;
@@ -172,28 +172,28 @@ TEST(TestSprite_ImageSprite, Construct_1x_2x)
 
   ImageSprite value(area, spriteMaterialInfo, imageTrimMarginPx, imageTrimmedRectanglePx, imageDpi, debugName, densityDpi);
 
-  constexpr const auto imageExtent = imageTrimMarginPx.Sum() + imageTrimmedRectanglePx.GetExtent();
+  constexpr PxExtent2D imageExtent = imageTrimMarginPx.Sum() + imageTrimmedRectanglePx.GetExtent();
   const auto& info = value.GetInfo();
 
   EXPECT_EQ(spriteMaterialInfo, info.MaterialInfo);
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width.Value, imageExtent.Height.Value), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
-  EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent * 2u), info.RenderInfo.ScaledSizePx);
+  EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent * PxValueU(2u)), info.RenderInfo.ScaledSizePx);
 }
 
 TEST(TestSprite_ImageSprite, Construct_2x_1x)
 {
   SpriteNativeAreaCalc area(false);
-  constexpr PxExtent2D textureExtent(32, 64);
+  constexpr auto textureExtent = PxExtent2D::Create(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
   const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi * 2;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi;
@@ -208,21 +208,21 @@ TEST(TestSprite_ImageSprite, Construct_2x_1x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width / 2u, imageExtent.Height / 2u), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width.Value / 2u, imageExtent.Height.Value / 2u), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
-  EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent / 2u), info.RenderInfo.ScaledSizePx);
+  EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent / PxValueU(2u)), info.RenderInfo.ScaledSizePx);
 }
 
 TEST(TestSprite_ImageSprite, Construct_2x_2x)
 {
   SpriteNativeAreaCalc area(false);
-  constexpr PxExtent2D textureExtent(32, 64);
+  constexpr auto textureExtent = PxExtent2D::Create(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
   const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi * 2;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi * 2;
@@ -237,7 +237,7 @@ TEST(TestSprite_ImageSprite, Construct_2x_2x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width / 2u, imageExtent.Height / 2u), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width.Value / 2u, imageExtent.Height.Value / 2u), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
   EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent), info.RenderInfo.ScaledSizePx);
@@ -253,12 +253,12 @@ TEST(TestSprite_ImageSprite, Resize_Default)
 TEST(TestSprite_ImageSprite, Resize_2x)
 {
   SpriteNativeAreaCalc area(false);
-  constexpr PxExtent2D textureExtent(32, 64);
+  constexpr auto textureExtent = PxExtent2D::Create(32, 64);
   constexpr SpriteMaterialId spriteMaterialId(1);
   auto material = std::make_shared<SpriteMaterialImpl>(spriteMaterialId, textureExtent);
   const SpriteMaterialInfo spriteMaterialInfo(spriteMaterialId, textureExtent, false, material);
-  constexpr PxThicknessU imageTrimMarginPx(1, 2, 3, 4);
-  constexpr PxRectangleU16 imageTrimmedRectanglePx(10, 20, 12, 26);
+  constexpr auto imageTrimMarginPx = PxThicknessU::Create(1, 2, 3, 4);
+  constexpr auto imageTrimmedRectanglePx = PxRectangleU16::Create(10, 20, 12, 26);
   const uint32_t imageDpi = SpriteDpConfig::BaseDpi;
   constexpr StringViewLite debugName("hello world");
   constexpr uint32_t densityDpi = SpriteDpConfig::BaseDpi;
@@ -275,8 +275,8 @@ TEST(TestSprite_ImageSprite, Resize_2x)
   EXPECT_EQ(imageTrimMarginPx, info.ImageInfo.TrimMarginPx);
   EXPECT_EQ(imageExtent, info.ImageInfo.ExtentPx);
   EXPECT_EQ(imageTrimmedRectanglePx, info.ImageInfo.TrimmedRectanglePx);
-  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width, imageExtent.Height), info.ImageInfo.ExtentDp);
+  EXPECT_EQ(DpExtent2D::Create(imageExtent.Width.Value, imageExtent.Height.Value), info.ImageInfo.ExtentDp);
   EXPECT_EQ(imageDpi, info.ImageDpi);
   EXPECT_EQ(nativeTextureArea, info.RenderInfo.TextureArea);
-  EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent * 2u), info.RenderInfo.ScaledSizePx);
+  EXPECT_EQ(TypeConverter::To<PxSize2D>(imageExtent * PxValueU(2u)), info.RenderInfo.ScaledSizePx);
 }

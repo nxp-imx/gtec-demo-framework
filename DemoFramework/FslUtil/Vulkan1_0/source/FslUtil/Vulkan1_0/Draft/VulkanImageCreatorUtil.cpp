@@ -141,7 +141,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
       const auto srcFormat = VulkanConvert::ToVkFormat(src.GetPixelFormat());
       const VkDeviceSize resourceSize = src.GetByteSize();
       const auto srcExtent = src.GetExtent();
-      const VkExtent3D srcExtentEx = {srcExtent.Width, srcExtent.Height, 1};
+      const VkExtent3D srcExtentEx = {srcExtent.Width.Value, srcExtent.Height.Value, 1};
 
       if (PhysicalDeviceUtil::IsImageTilingAvailable(physicalDevice.Device, VK_IMAGE_TILING_OPTIMAL, srcFormat, VK_IMAGE_TYPE_2D, 0, srcExtentEx, 1,
                                                      1, samples, resourceSize))
@@ -195,7 +195,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
       const auto srcByteSize = rawCubeBitmap.GetNegX().GetByteSize();
       uint32_t faceIndex = 0;
       VkDeviceSize bufferOffset = 0;
-      VkExtent3D imageExtent{srcExtent.Width, srcExtent.Height, 1};
+      VkExtent3D imageExtent{srcExtent.Width.Value, srcExtent.Height.Value, 1};
       for (auto& rCopyRegion : rCopyRegions)
       {
         rCopyRegion = {};
@@ -574,7 +574,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
     DoPrepareCopyRegions(fromImageSubresourceRanges, src);
 
     const auto srcExtent = src.GetExtent();
-    const VkExtent3D srcExtentEx = {srcExtent.Width, srcExtent.Height, 1};
+    const VkExtent3D srcExtentEx = {srcExtent.Width.Value, srcExtent.Height.Value, 1};
     TextureInfo textureInfo(1, 6, 1);
 
     // Now prepare a optimal tiled target image

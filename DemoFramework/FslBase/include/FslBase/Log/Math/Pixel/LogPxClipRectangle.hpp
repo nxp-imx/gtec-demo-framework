@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/LogPxValue.hpp>
 #include <FslBase/Math/Pixel/PxClipRectangle.hpp>
 #include <ostream>
 

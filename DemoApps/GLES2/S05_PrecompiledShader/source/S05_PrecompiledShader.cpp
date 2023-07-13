@@ -84,8 +84,8 @@ namespace Fsl
     , m_hProgram(0)
   {
     const PxSize2D currentSizePx = GetWindowSizePx();
-    m_width = currentSizePx.Width();
-    m_height = currentSizePx.Height();
+    m_width = currentSizePx.RawWidth();
+    m_height = currentSizePx.RawHeight();
     const std::shared_ptr<OptionParser> options = config.GetOptions<OptionParser>();
 
     m_hProgram = PrepareProgram(options->GetSeparateShader());

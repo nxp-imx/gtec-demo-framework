@@ -763,7 +763,7 @@ namespace Fsl
     if (config.TextureFileName.IsEmpty())
     {
       // Create a dummy texture
-      Bitmap bitmap(PxExtent2D(32, 32), PixelFormat::R8G8B8A8_UNORM);
+      Bitmap bitmap(PxExtent2D::Create(32, 32), PixelFormat::R8G8B8A8_UNORM);
       m_resources.Texture = CreateTexture(m_device, m_deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT, nullptr);
       return false;
     }

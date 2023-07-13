@@ -34,13 +34,15 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Pixel/PxPoint2U.hpp>
 #include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxValueU.hpp>
 #include <cassert>
 
 namespace Fsl
 {
   struct PxExtent2D
   {
-    using value_type = uint32_t;
+    using value_type = PxValueU;
+    using raw_value_type = value_type::raw_value_type;
 
     value_type Width{0};
     value_type Height{0};
@@ -56,7 +58,7 @@ namespace Fsl
     //! @brief Create a Extent
     //! @note  Value is expected to be positive and able to fit in a value_type, if not a exception is thrown
     constexpr explicit PxExtent2D(const PxSize2D& value) noexcept
-      : PxExtent2D(static_cast<value_type>(value.Width()), static_cast<value_type>(value.Height()))
+      : PxExtent2D(static_cast<value_type>(value.RawWidth()), static_cast<value_type>(value.RawHeight()))
     {
     }
 
@@ -100,7 +102,6 @@ namespace Fsl
 
     constexpr PxExtent2D& operator/=(const value_type arg)
     {
-      assert(arg > 0u);
       Width /= arg;
       Height /= arg;
       return *this;
@@ -120,6 +121,11 @@ namespace Fsl
     static constexpr PxExtent2D Zero() noexcept
     {
       return {};
+    }
+
+    static constexpr PxExtent2D Create(const raw_value_type width, const raw_value_type height) noexcept
+    {
+      return {value_type(width), value_type(height)};
     }
   };
 
@@ -152,9 +158,7 @@ namespace Fsl
 
   inline constexpr PxExtent2D operator/(const PxExtent2D lhs, const PxExtent2D::value_type rhs)
   {
-    assert(rhs > 0u);
     return {lhs.Width / rhs, lhs.Height / rhs};
   }
-
 }
 #endif

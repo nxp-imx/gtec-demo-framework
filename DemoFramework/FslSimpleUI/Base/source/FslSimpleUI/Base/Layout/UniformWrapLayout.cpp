@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,12 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper_MinMax.hpp>
 #include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslDataBinding/Base/Object/DependencyObjectHelper.hpp>
+#include <FslDataBinding/Base/Object/DependencyPropertyDefinitionVector.hpp>
+#include <FslDataBinding/Base/Property/DependencyPropertyDefinitionFactory.hpp>
 #include <FslSimpleUI/Base/Layout/UniformWrapLayout.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
@@ -41,27 +45,38 @@
 
 namespace Fsl::UI
 {
+  using TClass = UniformWrapLayout;
+  using TDef = DataBinding::DependencyPropertyDefinition;
+  using TFactory = DataBinding::DependencyPropertyDefinitionFactory;
+
+  TDef TClass::PropertyOrientation = TFactory::Create<LayoutOrientation, TClass, &TClass::GetOrientation, &TClass::SetOrientation>("Orientation");
+  TDef TClass::PropertySpacing = TFactory::Create<DpSize2DF, TClass, &TClass::GetSpacing, &TClass::SetSpacing>("Spacing");
+}
+
+
+namespace Fsl::UI
+{
   UniformWrapLayout::UniformWrapLayout(const std::shared_ptr<BaseWindowContext>& context)
     : SimpleLayout(context)
-    , m_orientation(LayoutOrientation::Vertical)
+    , m_propertyOrientation(LayoutOrientation::Vertical)
   {
   }
 
-  void UniformWrapLayout::SetOrientation(const LayoutOrientation& value)
+  bool UniformWrapLayout::SetOrientation(const LayoutOrientation value)
   {
-    if (value != m_orientation)
-    {
-      m_orientation = value;
-      PropertyUpdated(PropertyType::Layout);
-    }
-  }
-
-  bool UniformWrapLayout::SetSpacing(const DpPoint2F valueDp)
-  {
-    const bool changed = valueDp != m_spacingDp;
+    const bool changed = m_propertyOrientation.Set(ThisDependencyObject(), value);
     if (changed)
     {
-      m_spacingDp = valueDp;
+      PropertyUpdated(PropertyType::Layout);
+    }
+    return changed;
+  }
+
+  bool UniformWrapLayout::SetSpacing(const DpSize2DF value)
+  {
+    const bool changed = m_propertySpacingDp.Set(ThisDependencyObject(), value);
+    if (changed)
+    {
       PropertyUpdated(PropertyType::Layout);
     }
     return changed;
@@ -74,36 +89,36 @@ namespace Fsl::UI
       return Layout::ArrangeOverride(finalSizePx);
     }
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
-    auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
+    auto spacingPx = unitConverter.ToPxSize2D(m_propertySpacingDp.Get());
 
 
-    if (m_orientation == LayoutOrientation::Horizontal)
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
-      const PxPoint2 addPx(m_elementUniformSizePx + spacingPx);
+      const PxSize2D addPx(m_elementUniformSizePx + spacingPx);
       PxPoint2 positionPx;
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Arrange(PxRectangle(positionPx, m_elementUniformSizePx));
-        positionPx.X += addPx.X;
+        positionPx.X += addPx.Width();
         if ((positionPx.X + m_elementUniformSizePx.Width()) > finalSizePx.Width())
         {
-          positionPx.X = 0;
-          positionPx.Y += addPx.Y;
+          positionPx.X = PxValue(0);
+          positionPx.Y += addPx.Height();
         }
       }
     }
     else
     {
-      const PxPoint2 addPx(m_elementUniformSizePx + spacingPx);
+      const PxSize2D addPx(m_elementUniformSizePx + spacingPx);
       PxPoint2 positionPx;
       for (auto itr = begin(); itr != end(); ++itr)
       {
         itr->Window->Arrange(PxRectangle(positionPx, m_elementUniformSizePx));
-        positionPx.Y += addPx.Y;
+        positionPx.Y += addPx.Height();
         if ((positionPx.Y + m_elementUniformSizePx.Height()) > finalSizePx.Height())
         {
-          positionPx.X += addPx.X;
-          positionPx.Y = 0;
+          positionPx.X += addPx.Width();
+          positionPx.Y = PxValue(0);
         }
       }
     }
@@ -121,17 +136,18 @@ namespace Fsl::UI
     const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
     MeasureResult res;
-    if (m_orientation == LayoutOrientation::Horizontal)
+    auto spacingDp = m_propertySpacingDp.Get();
+    if (m_propertyOrientation.Get() == LayoutOrientation::Horizontal)
     {
       // If we are supplied with infinity we behave like a stack panel
       if (!availableSizePx.IsInfinityWidth())
       {
-        auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
+        auto spacingPx = unitConverter.ToPxSize2D(spacingDp);
         res = MeasureHorizontalWrapLayout(begin(), end(), spacingPx, availableSizePx);
       }
       else
       {
-        auto spacingPx = unitConverter.ToPxValue(m_spacingDp.X);
+        auto spacingPx = unitConverter.ToPxSize1D(spacingDp.Width());
         res = MeasureHorizontalStackLayout(begin(), end(), spacingPx, availableSizePx);
       }
     }
@@ -140,12 +156,12 @@ namespace Fsl::UI
       // If we are supplied with infinity we behave like a stack panel
       if (!availableSizePx.IsInfinityHeight())
       {
-        auto spacingPx = unitConverter.ToPxPoint2(m_spacingDp);
+        auto spacingPx = unitConverter.ToPxSize2D(spacingDp);
         res = MeasureVerticalWrapLayout(begin(), end(), spacingPx, availableSizePx);
       }
       else
       {
-        auto spacingPx = unitConverter.ToPxValue(m_spacingDp.Y);
+        auto spacingPx = unitConverter.ToPxSize1D(spacingDp.Height());
         res = MeasureVerticalStackLayout(begin(), end(), spacingPx, availableSizePx);
       }
     }
@@ -154,11 +170,37 @@ namespace Fsl::UI
     return res.MeasuredSizePx;
   }
 
+  DataBinding::DataBindingInstanceHandle UniformWrapLayout::TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TryGetPropertyHandle(this, ThisDependencyObject(), sourceDef,
+                                                                         DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                         DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res.IsValid() ? res : base_type::TryGetPropertyHandleNow(sourceDef);
+  }
+
+
+  DataBinding::PropertySetBindingResult UniformWrapLayout::TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
+                                                                            const DataBinding::Binding& binding)
+  {
+    auto res = DataBinding::DependencyObjectHelper::TrySetBinding(this, ThisDependencyObject(), targetDef, binding,
+                                                                  DataBinding::PropLinkRefs(PropertyOrientation, m_propertyOrientation),
+                                                                  DataBinding::PropLinkRefs(PropertySpacing, m_propertySpacingDp));
+    return res != DataBinding::PropertySetBindingResult::NotFound ? res : base_type::TrySetBindingNow(targetDef, binding);
+  }
+
+
+  void UniformWrapLayout::ExtractAllProperties(DataBinding::DependencyPropertyDefinitionVector& rProperties)
+  {
+    base_type::ExtractAllProperties(rProperties);
+    rProperties.push_back(PropertyOrientation);
+    rProperties.push_back(PropertySpacing);
+  }
 
   UniformWrapLayout::MeasureResult UniformWrapLayout::MeasureHorizontalStackLayout(const collection_type::queue_type::const_iterator& itrBegin,
                                                                                    const collection_type::queue_type::const_iterator& itrEnd,
-                                                                                   const PxValue spacingXPx, const PxAvailableSize& availableSizePx)
+                                                                                   const PxSize1D spacingXPx, const PxAvailableSize availableSizePx)
   {
+    assert(availableSizePx.IsInfinityWidth());
     assert(itrBegin != itrEnd);
 
     PxSize2D finalSizePx;
@@ -166,7 +208,7 @@ namespace Fsl::UI
     if (itrBegin != itrEnd)    // if not empty
     {
       // Fake that we have unlimited space in X and keep Y constrained.
-      const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
+      const PxAvailableSize fakeAvailableSizePx(PxAvailableSize1D::InfiniteSpacePx(), availableSizePx.Height());
 
       // During this pass we measure all elements to find the max size.
       for (auto itr = itrBegin; itr != itrEnd; ++itr)
@@ -177,7 +219,9 @@ namespace Fsl::UI
       }
 
       const auto childCount = NumericCast<int32_t>(std::distance(itrBegin, itrEnd));
-      finalSizePx = PxSize2D((maxElementSizePx.Width() * childCount) + (spacingXPx.Value * (childCount - 1)), maxElementSizePx.Height());
+      assert(childCount > 0);
+      finalSizePx = {(maxElementSizePx.Width() * PxSize1D::UncheckedCreate(childCount)) + (spacingXPx * PxSize1D::UncheckedCreate(childCount - 1)),
+                     maxElementSizePx.Height()};
     }
     return {finalSizePx, maxElementSizePx};
   }
@@ -185,8 +229,9 @@ namespace Fsl::UI
 
   UniformWrapLayout::MeasureResult UniformWrapLayout::MeasureVerticalStackLayout(const collection_type::queue_type::const_iterator& itrBegin,
                                                                                  const collection_type::queue_type::const_iterator& itrEnd,
-                                                                                 const PxValue spacingYPx, const PxAvailableSize& availableSizePx)
+                                                                                 const PxSize1D spacingYPx, const PxAvailableSize availableSizePx)
   {
+    assert(availableSizePx.IsInfinityHeight());
     assert(itrBegin != itrEnd);
 
     PxSize2D finalSizePx;
@@ -194,7 +239,7 @@ namespace Fsl::UI
     if (itrBegin != itrEnd)    // if not empty
     {
       // Fake that we have unlimited space in Y and keep X constrained.
-      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
+      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSize1D::InfiniteSpacePx());
 
       // During this pass we measure all elements to find the max size.
       for (auto itr = itrBegin; itr != itrEnd; ++itr)
@@ -205,7 +250,9 @@ namespace Fsl::UI
       }
 
       const auto childCount = NumericCast<int32_t>(std::distance(itrBegin, itrEnd));
-      finalSizePx = PxSize2D(maxElementSizePx.Width(), (maxElementSizePx.Height() * childCount) + (spacingYPx.Value * (childCount - 1)));
+      assert(childCount > 0);
+      finalSizePx = {maxElementSizePx.Width(),
+                     (maxElementSizePx.Height() * PxSize1D::UncheckedCreate(childCount)) + (spacingYPx * PxSize1D::UncheckedCreate(childCount - 1))};
     }
     return {finalSizePx, maxElementSizePx};
   }
@@ -213,16 +260,18 @@ namespace Fsl::UI
 
   UniformWrapLayout::MeasureResult UniformWrapLayout::MeasureHorizontalWrapLayout(const collection_type::queue_type::const_iterator& itrBegin,
                                                                                   const collection_type::queue_type::const_iterator& itrEnd,
-                                                                                  const PxPoint2 spacingPx, const PxAvailableSize& availableSizePx)
+                                                                                  const PxSize2D spacingPx, const PxAvailableSize availableSizePx)
   {
     assert(itrBegin != itrEnd);
+    assert(!availableSizePx.IsInfinityWidth());
+    assert(availableSizePx.IsNormalWidth());
 
     PxSize2D finalSizePx;
     PxSize2D maxElementSizePx;
     if (itrBegin != itrEnd)    // if not empty
     {
       // Fake that we have unlimited space in X and keep Y constrained.
-      const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
+      const PxAvailableSize fakeAvailableSizePx(PxAvailableSize1D::InfiniteSpacePx(), availableSizePx.Height());
 
       // During this pass we measure all elements to find the max size.
       for (auto itr = itrBegin; itr != itrEnd; ++itr)
@@ -233,11 +282,12 @@ namespace Fsl::UI
       }
       const auto childCount = NumericCast<int32_t>(std::distance(itrBegin, itrEnd));
 
-      const int32_t maxWidthForElementsPx = availableSizePx.Width() + spacingPx.X;
+      const PxSize1D maxWidthForElementsPx = availableSizePx.ToPxWidth() + spacingPx.Width();
 
       // Figure out how many elements that can fit per line with the given spacing
       const int32_t maxElementsPerLine =
-        maxElementSizePx.Width() > 0 ? std ::max(maxWidthForElementsPx / (maxElementSizePx.Width() + spacingPx.X), 1) : 1;
+        maxElementSizePx.RawWidth() > 0 ? MathHelper::Max(maxWidthForElementsPx.RawValue() / (maxElementSizePx.RawWidth() + spacingPx.RawWidth()), 1)
+                                        : 1;
       int32_t columns = 0;
       int32_t rows = 0;
       if (childCount <= maxElementsPerLine)
@@ -253,8 +303,10 @@ namespace Fsl::UI
 
       assert(columns >= 1);
       assert(rows >= 1);
-      const int32_t finalWidth = (maxElementSizePx.Width() * columns) + (spacingPx.X * (columns - 1));
-      const int32_t finalHeight = (maxElementSizePx.Height() * rows) + (spacingPx.Y * (rows - 1));
+      const PxSize1D finalWidth =
+        (maxElementSizePx.Width() * PxSize1D::UncheckedCreate(columns)) + (spacingPx.Width() * PxSize1D::UncheckedCreate(columns - 1));
+      const PxSize1D finalHeight =
+        (maxElementSizePx.Height() * PxSize1D::UncheckedCreate(rows)) + (spacingPx.Height() * PxSize1D::UncheckedCreate(rows - 1));
       assert(finalWidth >= maxElementSizePx.Width());
       assert(finalHeight >= maxElementSizePx.Height());
       finalSizePx = PxSize2D(finalWidth, finalHeight);
@@ -265,8 +317,10 @@ namespace Fsl::UI
 
   UniformWrapLayout::MeasureResult UniformWrapLayout::MeasureVerticalWrapLayout(const collection_type::queue_type::const_iterator& itrBegin,
                                                                                 const collection_type::queue_type::const_iterator& itrEnd,
-                                                                                const PxPoint2 spacingPx, const PxAvailableSize& availableSizePx)
+                                                                                const PxSize2D spacingPx, const PxAvailableSize availableSizePx)
   {
+    assert(!availableSizePx.IsInfinityHeight());
+    assert(availableSizePx.IsNormalHeight());
     assert(itrBegin != itrEnd);
 
     PxSize2D finalSizePx;
@@ -274,7 +328,7 @@ namespace Fsl::UI
     if (itrBegin != itrEnd)    // if not empty
     {
       // Fake that we have unlimited space in Y and keep X constrained.
-      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
+      const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSize1D::InfiniteSpacePx());
 
       // During this pass we measure all elements to find the max size.
       for (auto itr = itrBegin; itr != itrEnd; ++itr)
@@ -285,11 +339,13 @@ namespace Fsl::UI
       }
       const auto childCount = NumericCast<int32_t>(std::distance(itrBegin, itrEnd));
 
-      const int32_t maxHeightPxForElements = availableSizePx.Height() + spacingPx.Y;
+      const PxSize1D maxHeightPxForElements = availableSizePx.ToPxHeight() + spacingPx.Height();
 
       // Figure out how many elements that can fit per line with the given spacing
       const int32_t maxElementsPerLine =
-        maxElementSizePx.Height() > 0 ? std ::max(maxHeightPxForElements / (maxElementSizePx.Height() + spacingPx.Y), 1) : 1;
+        maxElementSizePx.RawHeight() > 0
+          ? MathHelper::Max(maxHeightPxForElements.RawValue() / (maxElementSizePx.RawHeight() + spacingPx.RawHeight()), 1)
+          : 1;
       int32_t columns = 0;
       int32_t rows = 0;
       if (childCount <= maxElementsPerLine)
@@ -305,8 +361,10 @@ namespace Fsl::UI
 
       assert(columns >= 1);
       assert(rows >= 1);
-      const int32_t finalWidth = (maxElementSizePx.Width() * columns) + (spacingPx.X * (columns - 1));
-      const int32_t finalHeight = (maxElementSizePx.Height() * rows) + (spacingPx.Y * (rows - 1));
+      const PxSize1D finalWidth =
+        (maxElementSizePx.Width() * PxSize1D::UncheckedCreate(columns)) + (spacingPx.Width() * PxSize1D::UncheckedCreate(columns - 1));
+      const PxSize1D finalHeight =
+        (maxElementSizePx.Height() * PxSize1D::UncheckedCreate(rows)) + (spacingPx.Height() * PxSize1D::UncheckedCreate(rows - 1));
       assert(finalWidth >= maxElementSizePx.Width());
       assert(finalHeight >= maxElementSizePx.Height());
       finalSizePx = PxSize2D(finalWidth, finalHeight);

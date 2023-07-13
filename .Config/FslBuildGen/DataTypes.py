@@ -36,14 +36,15 @@ from enum import Enum
 from FslBuildGen.Exceptions import UnknownTypeException
 
 class PackageType(Enum):
-    TopLevel = 0          # a top level package, this is a internal thing (used for total
-                          # verification)
-    Library = 1           # a static library
-    Executable = 2        # a executable
-    ExternalLibrary = 3   # a unmanaged static library
-    HeaderLibrary = 4     # a header only library
-    ToolRecipe = 5        # a external tool recipe
-    #ExeLibCombo =  5      # a executeable and static library combo (not supported yet)
+    ExternalFlavorConstraint  = 0   # For internal graph resolution only.
+    TopLevel = 1                    # a top level package, this is a internal thing (used for total
+                                    # verification)
+    Library = 2                     # a static library
+    Executable = 3                  # a executable
+    ExternalLibrary = 4             # a unmanaged static library
+    HeaderLibrary = 5               # a header only library
+    ToolRecipe = 6                  # a external tool recipe
+    #ExeLibCombo =  6               # a executeable and static library combo (not supported yet)
 
 
     @staticmethod

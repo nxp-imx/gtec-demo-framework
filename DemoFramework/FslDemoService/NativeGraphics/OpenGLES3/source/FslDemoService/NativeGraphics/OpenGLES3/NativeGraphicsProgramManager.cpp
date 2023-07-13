@@ -113,7 +113,7 @@ namespace Fsl::GLES3
 
     const auto handleValue =
       m_records.Add(Record(std::move(program), locMatModelViewProj, locTexture, locSmoothing, UncheckedNumericCast<GLint>(vertexPosition.Location),
-                           UncheckedNumericCast<GLint>(vertexColor.Location), UncheckedNumericCast<GLint>(vertexTextureCoord.Location)));
+                           UncheckedNumericCast<GLint>(vertexColor.Location), UncheckedNumericCast<GLint>(vertexTextureCoord.Location), comboKey));
     try
     {
       m_programDict.emplace(comboKey, handleValue);
@@ -134,10 +134,16 @@ namespace Fsl::GLES3
     if (released)
     {
       assert(pRecord->ReferenceCount > 0u);
-      if (pRecord->ReferenceCount <= 1)
+      if (pRecord->ReferenceCount > 1)
       {
+        --pRecord->ReferenceCount;
+      }
+      else
+      {
+        const NativeShaderComboKey comboKey = pRecord->ComboKey;
         pRecord->ReferenceCount = 0;
         m_records.Remove(handle.Value);
+        m_programDict.erase(comboKey);
       }
     }
     return released;

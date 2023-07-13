@@ -65,7 +65,7 @@ namespace
       : m_quadBatch(ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetVertexShader()),
                     ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetFragmentShader()),
                     ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetSdfFragmentShader()), 4096, true)
-      , m_sizePx(640, 480)
+      , m_sizePx(PxSize2D::Create(640, 480))
     {
     }
 

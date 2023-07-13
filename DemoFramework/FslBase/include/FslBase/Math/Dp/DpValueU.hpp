@@ -40,6 +40,7 @@ namespace Fsl
   struct DpValueU
   {
     using value_type = uint32_t;
+    using raw_value_type = uint32_t;
 
     value_type Value{0};
 

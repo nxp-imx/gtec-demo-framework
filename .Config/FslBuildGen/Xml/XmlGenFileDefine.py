@@ -40,12 +40,17 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlGenFileDefine(XmlBase):
+    __AttribName = 'Name'
+    __AttribValue = 'Value'
+    __AttribAccess = 'Access'
+
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
-        self.Value =  self._TryReadAttrib(xmlElement, 'Value')  # type: Optional[str]
+        self._CheckAttributes({self.__AttribName, self.__AttribValue, self.__AttribAccess})
+        self.Name = self._ReadAttrib(xmlElement, self.__AttribName)  # type: str
+        self.Value =  self._TryReadAttrib(xmlElement, self.__AttribValue)  # type: Optional[str]
         self.ConsumedBy = None
-        access = self._ReadAttrib(xmlElement, 'Access')  # type: str
+        access = self._ReadAttrib(xmlElement, self.__AttribAccess)  # type: str
         if access == "Public":
             self.Access = AccessType.Public  # type: AccessType
         elif access == "Private":

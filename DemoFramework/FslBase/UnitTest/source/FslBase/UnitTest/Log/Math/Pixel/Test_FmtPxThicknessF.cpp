@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxThicknessF, Log)
 {
-  PxThicknessF value(1.1f, 2.1f, 10.1f, 20.1f);
+  const auto value = PxThicknessF::Create(1.1f, 2.1f, 10.1f, 20.1f);
 
   EXPECT_EQ(std::string("{Left=1.1 Top=2.1 Right=10.1 Bottom=20.1}"), fmt::format("{}", value));
 }

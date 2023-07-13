@@ -47,19 +47,19 @@ namespace Fsl
   void to_json(nlohmann::json& j, const PxRectangle& src)
   {
     j = nlohmann::json{
-      {LocalNames::Left, src.Left()}, {LocalNames::Top, src.Top()}, {LocalNames::Width, src.Width()}, {LocalNames::Height, src.Height()}};
+      {LocalNames::Left, src.RawLeft()}, {LocalNames::Top, src.RawTop()}, {LocalNames::Width, src.RawWidth()}, {LocalNames::Height, src.RawHeight()}};
   }
 
   void from_json(const nlohmann::json& j, PxRectangle& rDst)
   {
-    PxRectangle::value_type left{};
-    PxRectangle::value_type top{};
-    PxRectangle::value_type width{};
-    PxRectangle::value_type height{};
+    PxRectangle::raw_value_type left{};
+    PxRectangle::raw_value_type top{};
+    PxRectangle::raw_value_type width{};
+    PxRectangle::raw_value_type height{};
     j.at(LocalNames::Left).get_to(left);
     j.at(LocalNames::Top).get_to(top);
     j.at(LocalNames::Width).get_to(width);
     j.at(LocalNames::Height).get_to(height);
-    rDst = PxRectangle(left, top, width, height);
+    rDst = PxRectangle::Create(left, top, width, height);
   }
 }

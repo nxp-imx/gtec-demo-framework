@@ -141,7 +141,7 @@ namespace Fsl
         // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 
         // With EXT_color_buffer_float the format GL_RGBA16F is supported as Texture and renderbuffer color formats.
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, texImageParams.InternalFormat, resolution.Width(), resolution.Height(), 0,
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, texImageParams.InternalFormat, resolution.RawWidth(), resolution.RawHeight(), 0,
                      texImageParams.Format, texImageParams.Type, nullptr);
         GL_CHECK_FOR_ERROR();
       }
@@ -152,7 +152,7 @@ namespace Fsl
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       GL_CHECK_FOR_ERROR();
 
-      glViewport(0, 0, resolution.Width(), resolution.Height());
+      glViewport(0, 0, resolution.RawWidth(), resolution.RawHeight());
       glEnable(GL_CULL_FACE);
       glEnable(GL_DEPTH_TEST);
       glDisable(GL_BLEND);
@@ -216,7 +216,7 @@ namespace Fsl
     IO::Path texturePath(hdrEnabled ? "Textures/Equirectangular/FloralTent/floral_tent_1k.hdr"
                                     : "Textures/Equirectangular/Stairs/equirectangular.jpg");
 
-    PxSize2D resolution(2048, 2048);
+    constexpr PxSize2D resolution(PxSize2D::Create(2048, 2048));
     m_cubemapTexture = GenerateCubemap(contentManager, texturePath, resolution, hdrEnabled);
 
     std::string texture = "Stairs";
@@ -285,7 +285,7 @@ namespace Fsl
     FSL_PARAM_NOT_USED(frameInfo);
 
     const auto resolution = GetWindowSizePx();
-    glViewport(0, 0, resolution.Width(), resolution.Height());
+    glViewport(0, 0, resolution.RawWidth(), resolution.RawHeight());
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -343,7 +343,7 @@ namespace Fsl
       {
         if (mouseState.IsRightButtonPressed())
         {
-          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          const auto rawPosition = Vector2(mouseState.RawPosition.X.Value, -mouseState.RawPosition.Y.Value);
           m_camera.Rotate(rawPosition);
         }
       }

@@ -121,7 +121,7 @@ namespace Fsl
     }
 
     const PxSize2D res = GetWindowSizePx();
-    m_matViewProj = Matrix::CreateOrthographic(static_cast<float>(res.Width()), static_cast<float>(res.Height()), 1.0f, 10.0f);
+    m_matViewProj = Matrix::CreateOrthographic(static_cast<float>(res.RawWidth()), static_cast<float>(res.RawHeight()), 1.0f, 10.0f);
 
     m_angle += 0.4f * demoTime.DeltaTime;
     if (m_angle > (MathHelper::TO_RADS * 360.0f))

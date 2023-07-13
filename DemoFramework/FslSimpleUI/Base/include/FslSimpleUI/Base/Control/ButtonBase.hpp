@@ -39,6 +39,8 @@ namespace Fsl::UI
   //! @note  This is intended as a base class for simple buttons.
   class ButtonBase : public BaseWindow
   {
+    using base_type = BaseWindow;
+
     bool m_isEnabled{true};
     bool m_isDown{false};
 

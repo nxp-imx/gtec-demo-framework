@@ -56,10 +56,10 @@ namespace Fsl
     void Clear();
     void NextFrameIndex();
 
-    void AddMouseButtonUp(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition);
-    void AddMouseButtonDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition);
-    void AddMouseMoveWhileDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition);
-    void AddMouseMove(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition);
+    void AddMouseButtonUp(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseButtonDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseMoveWhileDown(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
+    void AddMouseMove(const CustomWindowId windowId, const PxRectangle windowRectPx, const PxPoint2 mousePosition, const bool isTouch);
     void AddMouseMoveDone();
 
   private:

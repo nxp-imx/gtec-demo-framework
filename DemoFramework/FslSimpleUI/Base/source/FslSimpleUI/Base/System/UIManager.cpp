@@ -173,23 +173,23 @@ namespace Fsl::UI
   //}
 
 
-  bool UIManager::SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown)
+  bool UIManager::SendMouseButtonEvent(const PxPoint2& positionPx, const bool LeftButtonDown, const bool isTouch)
   {
     assert(m_inputModule);
 
     m_leftButtonDown = LeftButtonDown;
     const auto transactionState = m_leftButtonDown ? EventTransactionState::Begin : EventTransactionState::End;
-    return m_inputModule->SendClickEvent(0, 0, transactionState, false, positionPx);
+    return m_inputModule->SendClickEvent(0, 0, transactionState, false, positionPx, isTouch);
   }
 
 
-  bool UIManager::SendMouseMoveEvent(const PxPoint2& positionPx)
+  bool UIManager::SendMouseMoveEvent(const PxPoint2& positionPx, const bool isTouch)
   {
-    bool isHandled = m_inputModule->MouseMove(0, 0, positionPx);
+    bool isHandled = m_inputModule->MouseMove(0, 0, positionPx, isTouch);
 
     if (m_leftButtonDown)
     {
-      if (m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, positionPx))
+      if (m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, positionPx, isTouch))
       {
         isHandled = true;
       }
@@ -293,7 +293,7 @@ namespace Fsl::UI
   void UIManager::ForceInvalidateLayout()
   {
     BasicWindowMetrics cachedMetrics = m_windowMetrics;
-    BasicWindowMetrics changedWindowMetrics(cachedMetrics.ExtentPx + PxExtent2D(1, 1), cachedMetrics.ExactDpi, cachedMetrics.DensityDpi);
+    BasicWindowMetrics changedWindowMetrics(cachedMetrics.ExtentPx + PxExtent2D::Create(1, 1), cachedMetrics.ExactDpi, cachedMetrics.DensityDpi);
     Resized(changedWindowMetrics);
     Resized(cachedMetrics);
   }

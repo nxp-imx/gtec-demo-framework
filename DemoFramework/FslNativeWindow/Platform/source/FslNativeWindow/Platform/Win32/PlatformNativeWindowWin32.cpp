@@ -394,7 +394,7 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(hWnd);
       FSL_PARAM_NOT_USED(wParam);
-      const PxPoint2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+      const auto position = PxPoint2::Create(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseButtonEvent(button, isPressed, position);
       eventQueue->PostEvent(event);
 
@@ -419,7 +419,7 @@ namespace Fsl
     LRESULT OnMouseMove(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
       FSL_PARAM_NOT_USED(wParam);
-      const PxPoint2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+      const auto position = PxPoint2::Create(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
       auto window = TryGetWindow(hWnd);
       if (window)
@@ -441,7 +441,7 @@ namespace Fsl
       pt.y = GET_Y_LPARAM(lParam);
       if (ScreenToClient(hWnd, &pt) != 0)
       {
-        const PxPoint2 position(pt.x, pt.y);
+        const auto position = PxPoint2::Create(pt.x, pt.y);
 
         const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(zDelta, position);
         eventQueue->PostEvent(event);
@@ -1067,7 +1067,7 @@ namespace Fsl
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Right, false);
       }
 
-      const PxPoint2 position(deltaX, deltaY);
+      const auto position = PxPoint2::Create(deltaX, deltaY);
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(position, m_rawMouseButtonFlags);
       eventQueue->PostEvent(event);
     }
@@ -1230,7 +1230,7 @@ namespace Fsl
       rSize = {};
       return false;
     }
-    rSize = PxPoint2(rect.right - rect.left, rect.bottom - rect.top);
+    rSize = PxPoint2::Create(rect.right - rect.left, rect.bottom - rect.top);
     return true;
   }
 

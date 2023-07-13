@@ -344,11 +344,12 @@ namespace Fsl
     else
     {
       const auto screenExtent = GetScreenExtent();
-      if (screenExtent.Width > 0 && screenExtent.Height > 0)
+      if (screenExtent.Width.Value > 0 && screenExtent.Height.Value > 0)
       {
-        const float normalizedMx = (m_mousePos.x - (static_cast<float>(screenExtent.Width) / 2.0f)) / (static_cast<float>(screenExtent.Width) / 2.0f);
+        const float normalizedMx =
+          (m_mousePos.x - (static_cast<float>(screenExtent.Width.Value) / 2.0f)) / (static_cast<float>(screenExtent.Width.Value) / 2.0f);
         const float normalizedMy =
-          (m_mousePos.y - (static_cast<float>(screenExtent.Height) / 2.0f)) / (static_cast<float>(screenExtent.Height) / 2.0f);
+          (m_mousePos.y - (static_cast<float>(screenExtent.Height.Value) / 2.0f)) / (static_cast<float>(screenExtent.Height.Value) / 2.0f);
         m_compute.Ubo.DestX = normalizedMx;
         m_compute.Ubo.DestY = normalizedMy;
       }

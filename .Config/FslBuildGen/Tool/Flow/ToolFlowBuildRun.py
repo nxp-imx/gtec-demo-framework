@@ -47,6 +47,7 @@ from FslBuildGen.Build.Filter import PackageFilter
 #from FslBuildGen.Context.GeneratorContext import GeneratorContext
 #from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import ExitException
+from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 #from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
 from FslBuildGen.Info.AppInfo import AppInfoPackage
@@ -155,7 +156,7 @@ class ToolFlowBuildRun(AToolAppFlow):
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         #config = Config(self.Log, toolConfig, localToolConfig.PackageConfigurationType,
-        #                localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+        #                localToolConfig.BuildVariantConstraints, localToolConfig.AllowDevelopmentPlugins)
 
         # Take advantage of the --ForAllExe option in the builder
         toolAppContext = self.ToolAppContext
@@ -197,17 +198,17 @@ class ToolFlowBuildRun(AToolAppFlow):
                                                           localToolConfig.BuildPackageFilters)
 
         # Then its time to run the the packages that are left
-        self.__RunPackages(filteredPackageList, localToolConfig.RemainingArgs, localToolConfig.BuildVariantsDict)
+        self.__RunPackages(filteredPackageList, localToolConfig.RemainingArgs, localToolConfig.BuildVariantConstraints)
 
 
     def __RunPackages(self, packages: List[AppInfoPackage], userArgs: List[str],
-                      buildVariantsDict: Dict[str, str]) -> None:
+                      externalVariantConstraints: ExternalVariantConstraints) -> None:
         for package in packages:
-            self.__RunPackage(package, userArgs, buildVariantsDict)
+            self.__RunPackage(package, userArgs, externalVariantConstraints)
 
 
     def __RunPackage(self, package: AppInfoPackage, userArgs: List[str],
-                     buildVariantsDict: Dict[str, str]) -> None:
+                     externalVariantConstraints: ExternalVariantConstraints) -> None:
         if package.GeneratorReport is None or package.GeneratorReport.ExecutableReport is None or package.GeneratorReport.VariableReport is None:
             raise Exception("Could not run {0}, as we dont have the required information".format(package.Name))
 
@@ -219,7 +220,8 @@ class ToolFlowBuildRun(AToolAppFlow):
         runCommandList = []
 
         packagePath = package.AbsolutePath
-        exePath = ReportVariableFormatter.Format(executableReport.ExeFormatString, variableReport, buildVariantsDict, executableReport.EnvironmentVariableResolveMethod)
+        exePath = ReportVariableFormatter.Format(executableReport.ExeFormatString, variableReport, externalVariantConstraints,
+                                                 executableReport.EnvironmentVariableResolveMethod)
         if not executableReport.UseAsRelative:
             exePath = IOUtil.Join(packagePath, exePath)
 

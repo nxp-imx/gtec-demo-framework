@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" ShortName="DF" Version="6.1.1" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" ShortName="DF" Version="6.2.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -132,7 +132,7 @@
       <DefaultThirdPartyInstallReadonlyCacheDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR)"/>
       <!--Android NDKToolchain="clang" StlType="c++_shared"/-->
       <Platform Name="Yocto">
-        <Recipes.DefaultValue Value=""/>
+        <Recipes.DefaultValue Value="Recipe.Wayland_XDG"/>
       </Platform>
     </Experimental>
   </Project>

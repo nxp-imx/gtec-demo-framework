@@ -100,7 +100,7 @@ namespace Fsl
     {
       throw std::invalid_argument("native texture is invalid");
     }
-    if (extent.Width < 1 || extent.Height < 1)
+    if (extent.Width.Value < 1 || extent.Height.Value < 1)
     {
       throw std::invalid_argument("extent is invalid");
     }

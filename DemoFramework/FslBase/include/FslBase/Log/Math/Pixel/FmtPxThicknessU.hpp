@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/FmtPxValueU.hpp>
 #include <FslBase/Math/Pixel/PxThicknessU.hpp>
 #include <fmt/format.h>
 

@@ -154,7 +154,7 @@ namespace Fsl
                       const RapidVulkan::GraphicsPipeline& pipeline, const VkDescriptorSet descriptorSet, const FontDrawConfig& fontDrawConfig);
 
     ExampleRecord PrepareExample(const uint32_t maxFramesInFlight, const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
-                                 const IContentManager& contentManager, const int32_t lineYPx, const IO::Path& bitmapFontPath,
+                                 const IContentManager& contentManager, const PxSize1D lineYPx, const IO::Path& bitmapFontPath,
                                  const IO::Path& fontAtlasTexturePath, const StringViewLite& strView,
                                  const SpriteNativeAreaCalc& spriteNativeAreaCalc, const uint32_t densityDpi,
                                  std::vector<SpriteFontGlyphPosition>& rPositionsScratchpad);

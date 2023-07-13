@@ -34,9 +34,9 @@
 
 namespace Fsl
 {
-  MouseMoveEvent::MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags)
+  MouseMoveEvent::MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags, const bool isTouch)
     : BasicEvent(EventType::MouseMove, NativeWindowEventHelper::EncodePosition(position),
-                 NativeWindowEventHelper::EncodeVirtualMouseButtonFlags(mouseButtonFlags))
+                 NativeWindowEventHelper::EncodeVirtualMouseButtonFlags(mouseButtonFlags), isTouch ? 1 : 0)
   {
   }
 

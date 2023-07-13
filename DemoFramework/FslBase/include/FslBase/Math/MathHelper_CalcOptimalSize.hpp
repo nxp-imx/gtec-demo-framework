@@ -41,17 +41,17 @@ namespace Fsl::MathHelper
   //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
   //! @param unitSize the size of the unit (x > 0 && y > 0)
   //! @param unitCount the total number of units > 0
-  Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
+  Point2 CalcOptimalSize(const Point2 unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
 
   //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
   //! @param unitSize the size of the unit (x > 0 && y > 0)
   //! @param unitCount the total number of units > 0
-  PxSize2D CalcOptimalSize(const PxSize2D& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
+  PxSize2D CalcOptimalSize(const PxSize2D unitSize, const PxSize1D unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
 
   //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
   //! @param unitSize the size of the unit (x > 0 && y > 0)
   //! @param unitCount the total number of units > 0
-  PxExtent2D CalcOptimalSize(const PxExtent2D& unitSize, const uint32_t unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
+  PxExtent2D CalcOptimalSize(const PxExtent2D unitSize, const PxValueU unitCount, const RectangleSizeRestrictionFlag restrictionFlags);
 }
 
 

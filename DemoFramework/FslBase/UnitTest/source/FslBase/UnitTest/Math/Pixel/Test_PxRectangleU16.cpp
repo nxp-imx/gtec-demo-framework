@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2020 NXP
+ * Copyright 2020, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,12 +49,12 @@ TEST(TestMathPixel_PxRectangleU16, Empty)
   PxRectangleU16 value;
 
   EXPECT_EQ(PxRectangleU16(), PxRectangleU16::Empty());
-  EXPECT_EQ(0u, value.Left());
-  EXPECT_EQ(0u, value.Top());
-  EXPECT_EQ(0u, value.Right());
-  EXPECT_EQ(0u, value.Bottom());
-  EXPECT_EQ(0u, value.Width);
-  EXPECT_EQ(0u, value.Height);
+  EXPECT_EQ(0u, value.RawLeft());
+  EXPECT_EQ(0u, value.RawTop());
+  EXPECT_EQ(0u, value.RawRight());
+  EXPECT_EQ(0u, value.RawBottom());
+  EXPECT_EQ(0u, value.Width.Value);
+  EXPECT_EQ(0u, value.Height.Value);
   EXPECT_EQ(PxPoint2U(), value.TopLeft());
   EXPECT_EQ(PxPoint2U(), value.TopRight());
   EXPECT_EQ(PxPoint2U(), value.BottomLeft());
@@ -64,10 +64,10 @@ TEST(TestMathPixel_PxRectangleU16, Empty)
 
 TEST(TestMathPixel_PxRectangleU16, Construct1)
 {
-  uint32_t offsetX = 1;
-  uint32_t offsetY = 2;
-  uint32_t width = 10;
-  uint32_t height = 20;
+  PxValueU16 offsetX(1);
+  PxValueU16 offsetY(2);
+  PxValueU16 width(10);
+  PxValueU16 height(20);
   PxRectangleU16 value(offsetX, offsetY, width, height);
 
   EXPECT_EQ(offsetX, value.Left());
@@ -82,12 +82,32 @@ TEST(TestMathPixel_PxRectangleU16, Construct1)
   EXPECT_EQ(PxPoint2U(offsetX + width, offsetY + height), value.BottomRight());
 }
 
-TEST(TestMathPixel_PxRectangleU16, Construct2)
+TEST(TestMathPixel_PxRectangleU16, Create)
 {
-  uint32_t left = 1;
-  uint32_t top = 2;
-  uint32_t right = 10;
-  uint32_t bottom = 20;
+  PxValueU16 offsetX(1);
+  PxValueU16 offsetY(2);
+  PxValueU16 width(10);
+  PxValueU16 height(20);
+  const auto value = PxRectangleU16::Create(offsetX.Value, offsetY.Value, width.Value, height.Value);
+
+  EXPECT_EQ(offsetX, value.Left());
+  EXPECT_EQ(offsetY, value.Top());
+  EXPECT_EQ(offsetX + width, value.Right());
+  EXPECT_EQ(offsetY + height, value.Bottom());
+  EXPECT_EQ(width, value.Width);
+  EXPECT_EQ(height, value.Height);
+  EXPECT_EQ(PxPoint2U(offsetX, offsetY), value.TopLeft());
+  EXPECT_EQ(PxPoint2U(offsetX + width, offsetY), value.TopRight());
+  EXPECT_EQ(PxPoint2U(offsetX, offsetY + height), value.BottomLeft());
+  EXPECT_EQ(PxPoint2U(offsetX + width, offsetY + height), value.BottomRight());
+}
+
+TEST(TestMathPixel_PxRectangleU16, FromLeftTopRightBottom)
+{
+  PxValueU16 left(1);
+  PxValueU16 top(2);
+  PxValueU16 right(10);
+  PxValueU16 bottom(20);
   auto value = PxRectangleU16::FromLeftTopRightBottom(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left());
@@ -102,15 +122,34 @@ TEST(TestMathPixel_PxRectangleU16, Construct2)
   EXPECT_EQ(PxPoint2U(right, bottom), value.BottomRight());
 }
 
-
-TEST(TestMathPixel_PxRectangleU16, SetWidth)
+TEST(TestMathPixel_PxRectangleU16, CreateFromLeftTopRightBottom)
 {
-  const uint32_t offsetX = 1;
-  const uint32_t offsetY = 2;
-  const uint32_t height = 4;
-  PxRectangleU16 value(offsetX, offsetY, 3, height);
+  PxValueU16 left(1);
+  PxValueU16 top(2);
+  PxValueU16 right(10);
+  PxValueU16 bottom(20);
+  auto value = PxRectangleU16::CreateFromLeftTopRightBottom(left.Value, top.Value, right.Value, bottom.Value);
 
-  const uint32_t newWidth = 10;
+  EXPECT_EQ(left, value.Left());
+  EXPECT_EQ(top, value.Top());
+  EXPECT_EQ(right, value.Right());
+  EXPECT_EQ(bottom, value.Bottom());
+  EXPECT_EQ(right - left, value.Width);
+  EXPECT_EQ(bottom - top, value.Height);
+  EXPECT_EQ(PxPoint2U(left, top), value.TopLeft());
+  EXPECT_EQ(PxPoint2U(right, top), value.TopRight());
+  EXPECT_EQ(PxPoint2U(left, bottom), value.BottomLeft());
+  EXPECT_EQ(PxPoint2U(right, bottom), value.BottomRight());
+}
+
+TEST(TestMathPixel_PxRectangleU16, SetWidth_PxValueU16)
+{
+  const PxValueU16 offsetX(1);
+  const PxValueU16 offsetY(2);
+  const PxValueU16 height(4);
+  PxRectangleU16 value(offsetX, offsetY, PxValueU16(3), height);
+
+  const PxValueU16 newWidth(10);
   value.Width = newWidth;
   EXPECT_EQ(offsetX, value.Left());
   EXPECT_EQ(offsetY, value.Top());
@@ -121,14 +160,14 @@ TEST(TestMathPixel_PxRectangleU16, SetWidth)
 }
 
 
-TEST(TestMathPixel_PxRectangleU16, SetHeight)
+TEST(TestMathPixel_PxRectangleU16, SetHeight_PxValueU16)
 {
-  const uint32_t offsetX = 1;
-  const uint32_t offsetY = 2;
-  const uint32_t width = 3;
-  PxRectangleU16 value(offsetX, offsetY, width, 4);
+  const PxValueU16 offsetX(1);
+  const PxValueU16 offsetY(2);
+  const PxValueU16 width(3);
+  PxRectangleU16 value(offsetX, offsetY, width, PxValueU16(4));
 
-  const uint32_t newHeight = 10;
+  const PxValueU16 newHeight(10);
   value.Height = newHeight;
   EXPECT_EQ(offsetX, value.Left());
   EXPECT_EQ(offsetY, value.Top());

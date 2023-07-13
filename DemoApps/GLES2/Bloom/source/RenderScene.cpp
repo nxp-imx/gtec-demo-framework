@@ -202,7 +202,7 @@ namespace Fsl
     m_matrixWorld = Matrix::CreateRotationX(rotation.X) * Matrix::CreateRotationY(rotation.Y) * Matrix::CreateRotationZ(rotation.Z);
     m_matrixView = cameraViewMatrix;
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(
-      MathHelper::ToRadians(45.0f), static_cast<float>(windowSizePx.Width()) / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
+      MathHelper::ToRadians(45.0f), static_cast<float>(windowSizePx.RawWidth()) / static_cast<float>(windowSizePx.RawHeight()), 1, 1000.0f);
     m_matrixWorldView = m_matrixWorld * m_matrixView;
     m_matrixWorldViewProjection = m_matrixWorldView * m_matrixProjection;
 

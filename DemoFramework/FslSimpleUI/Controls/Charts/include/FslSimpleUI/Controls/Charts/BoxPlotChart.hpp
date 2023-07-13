@@ -63,6 +63,7 @@ namespace Fsl
       : public BaseWindow
       , public DataBinding::IObjectObserver
     {
+      using base_type = BaseWindow;
       using color_prop_type = Color;
       using spacing_prop_type = DpSize1DF;
       using size_prop_type = DpLayoutSize1D;

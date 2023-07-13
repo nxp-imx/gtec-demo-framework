@@ -46,7 +46,7 @@ namespace
 
 TEST(TestLog_MathPixel_FmtPxSize2DF, Log)
 {
-  PxSize2DF value(1.1f, 2.1f);
+  const auto value = PxSize2DF::Create(1.1f, 2.1f);
 
   EXPECT_EQ(std::string("{Width=1.1 Height=2.1}"), fmt::format("{}", value));
 }

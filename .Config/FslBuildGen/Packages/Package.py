@@ -44,6 +44,8 @@ from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import VariantType
+from FslBuildGen.Engine.PackageFlavorSelections import PackageFlavorSelections
+from FslBuildGen.Engine.Resolver.ResolvedPackageTemplate import ResolvedPackageTemplate
 from FslBuildGen.Engine.Resolver.ProcessedPackageDependency import ProcessedPackageDependency
 from FslBuildGen.Exceptions import InvalidDefineValueException
 from FslBuildGen.Exceptions import UsageErrorException
@@ -168,6 +170,9 @@ class Package(object):
         # All generate commands for the package
         self.ResolvedGenerateList = self.__ToResolvedGenerateList(self.Path, unresolvedPackage.GenerateList)
         self.ResolvedGenerateGrpcProtoFileList = self.__ToResolvedGenerateGrpcProtoFileList(self.Path, unresolvedPackage.GenerateGrpcProtoFileList)
+
+        self.ResolvedFlavorSelections = preResolvePackageResult.SourcePackage.ResolvedFlavorSelections
+        self.ResolvedFlavorTemplate = preResolvePackageResult.SourcePackage.ResolvedFlavorTemplate
 
         # Fill all the package attributes that will be resolved with a initial value
         self.ResolvedPlatform = unresolvedPackage.ResolvedPlatform # type: PackagePlatform

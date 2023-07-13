@@ -56,8 +56,10 @@ namespace Fsl::UI
   }
 
 
-  bool InputModule::MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx)
+  bool InputModule::MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx, const bool isTouch)
   {
+    FSL_PARAM_NOT_USED(isTouch);
+
     auto target = m_targetLocater->TryGetMouseOverWindow(screenPositionPx);
     auto previousTarget = m_mouseOver.Target.lock();
     if (previousTarget != target)
@@ -67,7 +69,8 @@ namespace Fsl::UI
       {
         FSLLOG3_VERBOSE5("SendMouseOver end");
         // End the event
-        handled = m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::End, false, screenPositionPx, target);
+        handled =
+          m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::End, false, screenPositionPx, previousTarget);
       }
       // set the new target and send the start event if the target is eligible
 
@@ -97,8 +100,20 @@ namespace Fsl::UI
 
 
   bool InputModule::SendClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                                   const PxPoint2& screenPositionPx)
+                                   const PxPoint2& screenPositionPx, const bool isTouch)
   {
+    if (isTouch && state == EventTransactionState::End)
+    {
+      auto previousTarget = m_mouseOver.Target.lock();
+      if (previousTarget)
+      {
+        FSLLOG3_VERBOSE5("SendMouseOver end");
+        // End the event
+        m_hitBasedInputSender->SendMouseOverEvent(sourceId, sourceSubId, EventTransactionState::End, false, screenPositionPx, previousTarget);
+        // Clear the current target
+        m_mouseOver.Target.reset();
+      }
+    }
     return m_hitBasedInputSender->SendInputClickEvent(sourceId, sourceSubId, state, isRepeat, screenPositionPx);
   }
 }
