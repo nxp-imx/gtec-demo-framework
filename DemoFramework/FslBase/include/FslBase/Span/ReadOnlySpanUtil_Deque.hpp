@@ -1,7 +1,7 @@
-#ifndef FSLUTIL_EGL_EGLUTIL_HPP
-#define FSLUTIL_EGL_EGLUTIL_HPP
+#ifndef FSLBASE_SPAN_READONLYSPANUTIL_DEQUE_HPP
+#define FSLBASE_SPAN_READONLYSPANUTIL_DEQUE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +31,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
-#include <FslUtil/EGL/CheckError.hpp>
-#include <FslUtil/EGL/ReadOnlyEGLAttributeSpan.hpp>
-#include <EGL/egl.h>
-#include <vector>
+#include <FslBase/Span/ReadOnlySpan.hpp>
+#include <deque>
 
-namespace Fsl::EGLUtil
+namespace Fsl::ReadOnlySpanUtil
 {
-  //! @brief Get a list of all extensions
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
 
-  //! @brief Check if the given EGL extension is available
-  //! @note Do not expect mind blowing performance from this!
-  //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
-
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
-
-  std::vector<EGLConfig> GetChooseConfigs(const EGLDisplay dpy, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes);
-
-  //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls
-  std::vector<EGLenum> GetConfigAttribs();
+  template <typename T>
+  inline std::deque<T> ToDeque(const ReadOnlySpan<T> span)
+  {
+    return std::deque<T>(span.data(), span.data() + span.size());
+  }
 }
 
 #endif

@@ -32,11 +32,17 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/EGL/CheckError.hpp>
+#include <FslUtil/EGL/ReadOnlyEGLAttributeSpan.hpp>
 #include <EGL/egl.h>
 #include <deque>
+#include <optional>
 
 namespace Fsl::EGLConfigUtil
 {
+  //! @brief Choose a config based on the attribute list
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  std::optional<EGLConfig> TryEGLGuidedChooseConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes, const bool allowHDR);
+
   //! @brief This is a very basic configuration chooser.
   // NOLINTNEXTLINE(misc-misplaced-const)
   bool TryChooseConfig(const EGLDisplay hDisplay, const std::deque<EGLint>& configAttribs, const bool allowHDR, EGLConfig& rEGLConfig);

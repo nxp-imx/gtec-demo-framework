@@ -54,6 +54,7 @@
 #include <FslSimpleUI/Theme/Base/IThemeControlFactory.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeResources.hpp>
 #include <Shared/ModelInstancing/ModelInstancingShared.hpp>
+#include <Shared/ModelInstancing/OptionParser.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -72,20 +73,32 @@ namespace Fsl
       constexpr float SpeedZ = -0.2f;
       constexpr float StartMod = -80;
 
-      constexpr ConstrainedValue<uint32_t> Instances(MeshInstancingConfig::ModelMaxInstances, 0, MeshInstancingConfig::ModelMaxInstances);
+      // constexpr ConstrainedValue<uint32_t> Instances(MeshInstancingConfig::ModelMaxInstances, 0, MeshInstancingConfig::ModelMaxInstances);
     }
+
+    MeshInstanceSetup ExtractSetup(const OptionParser& options)
+    {
+      return {options.GetMaxInstancesX(), options.GetMaxInstancesY(), options.GetMaxInstancesZ()};
+    }
+
   }
 
   ModelInstancingShared::ModelInstancingShared(const DemoAppConfig& config)
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), LocalConfig::MainUIAtlas))
+    , m_instanceSetup(ExtractSetup(*config.GetOptions<OptionParser>()))
     , m_rotationSpeed(LocalConfig::SpeedX, LocalConfig::SpeedY, LocalConfig::SpeedZ)
     , m_rotation(LocalConfig::SpeedX * LocalConfig::StartMod, LocalConfig::SpeedY * LocalConfig::StartMod,
                  LocalConfig::SpeedZ * LocalConfig::StartMod)
-    , m_instanceData(MeshInstancingConfig::ModelMaxInstances)
+    , m_instanceData(m_instanceSetup.MaxInstances)
   {
+    FSLLOG3_INFO("MaxInstancesX: {}", m_instanceSetup.MaxInstancesX);
+    FSLLOG3_INFO("MaxInstancesY: {}", m_instanceSetup.MaxInstancesY);
+    FSLLOG3_INFO("MaxInstancesZ: {}", m_instanceSetup.MaxInstancesZ);
+    FSLLOG3_INFO("MaxInstances: {}", m_instanceSetup.MaxInstances);
+
     auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
-    m_ui = CreateUI(*uiControlFactory);
+    m_ui = CreateUI(*uiControlFactory, m_instanceSetup);
     m_uiExtension->SetMainWindow(m_ui.MainWindow);
 
     // auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
@@ -94,15 +107,15 @@ namespace Fsl
       constexpr float spacingX = 1;
       constexpr float spacingY = 1;
       constexpr float spacingZ = 1;
-      constexpr float xStart = -spacingX * (static_cast<float>(MeshInstancingConfig::ModelMaxInstancesX) / 2.0f);
-      constexpr float yStart = spacingY * (static_cast<float>(MeshInstancingConfig::ModelMaxInstancesY) / 2.0f);
-      constexpr float zStart = spacingZ * (static_cast<float>(MeshInstancingConfig::ModelMaxInstancesZ) / 2.0f);
+      const float xStart = -spacingX * (static_cast<float>(m_instanceSetup.MaxInstancesX) / 2.0f);
+      const float yStart = spacingY * (static_cast<float>(m_instanceSetup.MaxInstancesY) / 2.0f);
+      const float zStart = spacingZ * (static_cast<float>(m_instanceSetup.MaxInstancesZ) / 2.0f);
       uint32_t dstIndex = 0;
-      for (uint32_t z = 0; z < MeshInstancingConfig::ModelMaxInstancesZ; ++z)
+      for (uint32_t z = 0; z < m_instanceSetup.MaxInstancesZ; ++z)
       {
-        for (uint32_t y = 0; y < MeshInstancingConfig::ModelMaxInstancesY; ++y)
+        for (uint32_t y = 0; y < m_instanceSetup.MaxInstancesY; ++y)
         {
-          for (uint32_t x = 0; x < MeshInstancingConfig::ModelMaxInstancesX; ++x)
+          for (uint32_t x = 0; x < m_instanceSetup.MaxInstancesX; ++x)
           {
             float xPos = xStart + static_cast<float>(x) * spacingX;
             float yPos = yStart - static_cast<float>(y) * spacingY;
@@ -131,22 +144,22 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::Q:
-      m_ui.Instances->SubValue(MeshInstancingConfig::ModelMaxInstancesX * MeshInstancingConfig::ModelMaxInstancesY);
+      m_ui.Instances->SubValue(m_instanceSetup.MaxInstancesX * m_instanceSetup.MaxInstancesY);
       break;
     case VirtualKey::E:
-      m_ui.Instances->AddValue(MeshInstancingConfig::ModelMaxInstancesX * MeshInstancingConfig::ModelMaxInstancesY);
+      m_ui.Instances->AddValue(m_instanceSetup.MaxInstancesX * m_instanceSetup.MaxInstancesY);
       break;
     case VirtualKey::DownArrow:
       m_ui.Instances->SubValue(1);
       break;
     case VirtualKey::LeftArrow:
-      m_ui.Instances->SubValue(MeshInstancingConfig::ModelMaxInstancesX);
+      m_ui.Instances->SubValue(m_instanceSetup.MaxInstancesX);
       break;
     case VirtualKey::UpArrow:
       m_ui.Instances->AddValue(1);
       break;
     case VirtualKey::RightArrow:
-      m_ui.Instances->AddValue(MeshInstancingConfig::ModelMaxInstancesX);
+      m_ui.Instances->AddValue(m_instanceSetup.MaxInstancesX);
       break;
     case VirtualKey::R:
       ToggleRotate();
@@ -232,7 +245,7 @@ namespace Fsl
   void ModelInstancingShared::SetDefaultValues()
   {
     m_ui.SwitchRotate->SetIsChecked(LocalConfig::RotateDefault);
-    m_ui.Instances->SetValue(MeshInstancingConfig::ModelMaxInstances);
+    m_ui.Instances->SetValue(m_instanceSetup.MaxInstances);
     m_rotation = {LocalConfig::SpeedX * LocalConfig::StartMod, LocalConfig::SpeedY * LocalConfig::StartMod,
                   LocalConfig::SpeedZ * LocalConfig::StartMod};
   }
@@ -244,7 +257,7 @@ namespace Fsl
   }
 
 
-  ModelInstancingShared::UIRecord ModelInstancingShared::CreateUI(UI::Theme::IThemeControlFactory& uiFactory)
+  ModelInstancingShared::UIRecord ModelInstancingShared::CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const MeshInstanceSetup instanceSetup)
   {
     auto context = uiFactory.GetContext();
 
@@ -253,7 +266,8 @@ namespace Fsl
     btnDefault->SetAlignmentY(UI::ItemAlignment::Far);
 
     auto lblInstances = uiFactory.CreateLabel("Instances:");
-    auto sliderInstances = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, LocalConfig::Instances);
+    ConstrainedValue<uint32_t> instances(instanceSetup.MaxInstances, 0, instanceSetup.MaxInstances);
+    auto sliderInstances = uiFactory.CreateSliderFmtValue(UI::LayoutOrientation::Horizontal, instances);
     sliderInstances->SetAlignmentX(UI::ItemAlignment::Stretch);
     sliderInstances->SetAlignmentY(UI::ItemAlignment::Stretch);
 

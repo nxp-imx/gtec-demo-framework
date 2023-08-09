@@ -1,7 +1,7 @@
-#ifndef FSLUTIL_EGL_EGLUTIL_HPP
-#define FSLUTIL_EGL_EGLUTIL_HPP
+#ifndef FSLUTIL_EGL_READONLYEGLATTRIBUTESPAN_HPP
+#define FSLUTIL_EGL_READONLYEGLATTRIBUTESPAN_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +31,60 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
-#include <FslUtil/EGL/CheckError.hpp>
-#include <FslUtil/EGL/ReadOnlyEGLAttributeSpan.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <EGL/egl.h>
-#include <vector>
+#include <exception>
 
-namespace Fsl::EGLUtil
+namespace Fsl::EGL
 {
-  //! @brief Get a list of all extensions
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
+  class ReadOnlyEGLAttributeSpan
+  {
+    static const EGLint g_emptySpan = EGL_NONE;
 
-  //! @brief Check if the given EGL extension is available
-  //! @note Do not expect mind blowing performance from this!
-  //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
+    const ReadOnlySpan<EGLint> m_content;
 
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
+    bool m_isHDRRequest{false};
+    bool m_hasAlphaChannelRequest{false};
 
-  std::vector<EGLConfig> GetChooseConfigs(const EGLDisplay dpy, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes);
+  public:
+    explicit ReadOnlyEGLAttributeSpan()
+      : m_content(&g_emptySpan, 1)
+    {
+    }
 
-  //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls
-  std::vector<EGLenum> GetConfigAttribs();
+    explicit ReadOnlyEGLAttributeSpan(const ReadOnlySpan<EGLint> span)
+      : m_content(span)
+    {
+      ValidateSpanContent(span);
+      CacheChecks();
+    }
+
+    bool HasAlphaChannelRequest() const noexcept
+    {
+      return m_hasAlphaChannelRequest;
+    }
+
+    bool IsHDRRequest() const noexcept
+    {
+      return m_isHDRRequest;
+    }
+
+    const EGLint* data() const noexcept
+    {
+      return m_content.data();
+    }
+
+  private:
+    void CacheChecks();
+
+    static void ValidateSpanContent(const ReadOnlySpan<EGLint> span)
+    {
+      if (span.empty() || (span.size() % 2) == 0 || span[span.size() - 1] != EGL_NONE)
+      {
+        throw std::invalid_argument("EGLAttribute span was not in the expected format");
+      }
+    }
+  };
 }
 
 #endif

@@ -35,7 +35,7 @@ namespace Fsl
     GL_CHECK(glUseProgram(hProgram));
 
     GL_CHECK(glEnable(GL_DEPTH_TEST));
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
 
     // vboIds[0] - used to store vertex attribute data

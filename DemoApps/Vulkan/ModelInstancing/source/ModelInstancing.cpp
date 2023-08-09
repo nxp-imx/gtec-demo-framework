@@ -452,7 +452,7 @@ namespace Fsl
     {
       rFrame.UboBuffer = CreateUBO(m_device, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, sizeof(UBOData));
       rFrame.InstanceBuffer =
-        CreateUBO(m_device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(MeshInstanceData), MeshInstancingConfig::ModelMaxInstances);
+        CreateUBO(m_device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, sizeof(MeshInstanceData), m_shared.GetInstanceSetup().MaxInstances);
       rFrame.DescriptorSet = CreateDescriptorSet(m_resources.MainDescriptorPool, m_resources.MainDescriptorSetLayout);
       UpdateDescriptorSet(m_device.Get(), rFrame.DescriptorSet, rFrame.UboBuffer, m_resources.Texture);
     }

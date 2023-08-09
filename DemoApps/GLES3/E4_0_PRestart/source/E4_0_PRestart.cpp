@@ -102,7 +102,7 @@ namespace Fsl
       GL_CHECK(glBindVertexArray(0));
 
       GL_CHECK(glEnable(GL_DEPTH_TEST));
-      GL_CHECK(glClearColor(1.0f, 1.0f, 1.0f, 0.0f));
+      GL_CHECK(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     }
     catch (const std::exception&)
     {

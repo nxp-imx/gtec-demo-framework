@@ -296,7 +296,7 @@ namespace Fsl
     pthread_mutex_lock(&gstThreadMutex);
     pthread_cond_wait(&gstCON, &gstThreadMutex);
     {
-      glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+      glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT);
 
       void* logical = (void*)vYaddr;

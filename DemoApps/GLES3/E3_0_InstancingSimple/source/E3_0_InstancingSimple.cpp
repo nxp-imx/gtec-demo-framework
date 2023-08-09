@@ -159,7 +159,7 @@ namespace Fsl
     GL_CHECK(glUseProgram(hProgram));
 
     GL_CHECK(glEnable(GL_DEPTH_TEST));
-    GL_CHECK(glClearColor(1.0f, 1.0f, 1.0f, 0.0f));
+    GL_CHECK(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
 
     std::vector<GLfloat> positions;
     std::vector<GLuint> indices;

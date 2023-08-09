@@ -134,7 +134,7 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(frameInfo);
 
-    glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Calling this last allows the UI to draw on top of everything.

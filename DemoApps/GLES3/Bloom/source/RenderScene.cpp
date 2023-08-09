@@ -219,8 +219,8 @@ namespace Fsl
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    // glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
-    glClearColor(0, 0, 0, 0);
+    // glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     {
       glUseProgram(m_program.Get());

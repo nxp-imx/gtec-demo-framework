@@ -118,7 +118,7 @@ namespace Fsl
         indexCount += mesh->GetIndexCount();
       }
       FSLLOG3_INFO("Total vertex count: {}, Total index count: {}", vertexCount, indexCount);
-      m_resources.InstanceBuffer.Reset(GL_ARRAY_BUFFER, MeshInstancingConfig::ModelMaxInstances, sizeof(MeshInstanceData), GL_DYNAMIC_DRAW);
+      m_resources.InstanceBuffer.Reset(GL_ARRAY_BUFFER, m_shared.GetInstanceSetup().MaxInstances, sizeof(MeshInstanceData), GL_DYNAMIC_DRAW);
     }
 
 
@@ -190,7 +190,7 @@ namespace Fsl
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     {
       glUseProgram(m_resources.Program.Get());

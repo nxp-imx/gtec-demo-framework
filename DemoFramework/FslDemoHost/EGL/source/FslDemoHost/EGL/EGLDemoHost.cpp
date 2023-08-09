@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/Image/IImageServiceControl.hpp>
@@ -53,6 +54,7 @@
 #include <FslUtil/EGL/EGLStringUtil.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
 #include <FslUtil/EGL/Exceptions.hpp>
+#include <FslUtil/EGL/ReadOnlyEGLAttributeSpan.hpp>
 #include <fmt/core.h>
 #include <algorithm>
 #include <array>
@@ -1066,12 +1068,11 @@ namespace Fsl
       std::vector<EGLint> finalConfigAttribsCopy = m_finalConfigAttribs;
 
       LOCAL_LOG("Asking EGL to chose via eglChooseConfig");
-      EGLint numConfigs = 0;
-      EGL_CHECK(eglChooseConfig(m_hDisplay, m_finalConfigAttribs.data(), &m_hConfig, 1, &numConfigs));
-
-      if (numConfigs != 1)
+      EGL::ReadOnlyEGLAttributeSpan finalAttribSpan(ReadOnlySpanUtil::AsSpan(m_finalConfigAttribs));
+      const auto chosenConfig = EGLConfigUtil::TryEGLGuidedChooseConfig(m_hDisplay, finalAttribSpan, true);
+      if (!chosenConfig.has_value())
       {
-        LOCAL_LOG("EGL provided multiple possible configurations");
+        LOCAL_LOG("EGLUtil::TryChooseConfig failed to find a compatible config, trying legacy fallbacks");
         // eglChooseConfig might fail to find HDR requests, so we fallback to our own search
         bool configSelected = false;
         bool isHDRRequest = IsHDRRequest(m_appEglConfigAttribs);
@@ -1090,7 +1091,8 @@ namespace Fsl
       }
       else
       {
-        LOCAL_LOG("EGL only found one configuration so we are using it.");
+        LOCAL_LOG("EGLUtil::TryChooseConfig found a configuration so we are using it.");
+        m_hConfig = chosenConfig.value();
       }
 
       if (m_logSelectedConfig)

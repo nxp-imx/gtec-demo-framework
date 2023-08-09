@@ -31,6 +31,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslUtil/EGL/EGLCheck.hpp>
 #include <FslUtil/EGL/EGLConfigUtil.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
 #include <algorithm>
@@ -110,7 +112,7 @@ namespace Fsl::EGLConfigUtil
 
       EGLint actualValue = 0;
 
-      if (eglGetConfigAttrib(hDisplay, config, EGL_CONFIG_CAVEAT, &actualValue) != 0u)
+      if (eglGetConfigAttrib(hDisplay, config, EGL_CONFIG_CAVEAT, &actualValue) == EGL_TRUE)
       {
         if (actualValue != EGL_NONE)
         {
@@ -141,7 +143,7 @@ namespace Fsl::EGLConfigUtil
         ++itr;
 
         EGLint configValue = 0;
-        if (eglGetConfigAttrib(hDisplay, config, key, &configValue) == 0u)
+        if (eglGetConfigAttrib(hDisplay, config, key, &configValue) == EGL_FALSE)
         {
           FSLLOG3_DEBUG_WARNING("Failed to retrieve attribute value for key: {}", key);
           return 0;
@@ -195,8 +197,220 @@ namespace Fsl::EGLConfigUtil
       // AddIfMissing(result, EGL_CONFIG_CAVEAT, EGL_DONT_CARE);
       return result;
     }
+
+    std::optional<EGLConfig> TryDoChooseFullHDRConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes,
+                                                      const ReadOnlySpan<EGLConfig> prioritizedConfigList, const bool allowAlphaChannel)
+    {
+      FSLLOG3_VERBOSE4("EGLDemoHost: - TryDoChooseFullHDRConfig(allowAlphaChannel:{}) from {} provided entries", allowAlphaChannel,
+                       prioritizedConfigList.size());
+      assert((attributes.HasAlphaChannelRequest() && allowAlphaChannel) || !attributes.HasAlphaChannelRequest());
+
+      for (const auto& config : prioritizedConfigList)
+      {
+        {    // Skip formats that has less than 8bit per channel
+          EGLint configRedValue = 0;
+          EGLint configGreenValue = 0;
+          EGLint configBlueValue = 0;
+          if (eglGetConfigAttrib(hDisplay, config, EGL_RED_SIZE, &configRedValue) != EGL_TRUE ||
+              eglGetConfigAttrib(hDisplay, config, EGL_GREEN_SIZE, &configBlueValue) != EGL_TRUE ||
+              eglGetConfigAttrib(hDisplay, config, EGL_BLUE_SIZE, &configGreenValue) != EGL_TRUE ||
+              (configRedValue <= 8 || configGreenValue <= 8 || configBlueValue <= 8))
+          {
+            FSLLOG3_VERBOSE4("EGLDemoHost: - Skipped config as it does not have full HDR RGB channels: R{}G{}B{}", configRedValue, configBlueValue,
+                             configGreenValue);
+            continue;
+          }
+        }
+        if (!allowAlphaChannel)
+        {
+          // Skip if the config has a Alpha Channel
+          EGLint configValue = 0;
+          if (eglGetConfigAttrib(hDisplay, config, EGL_ALPHA_SIZE, &configValue) != EGL_TRUE || configValue != 0)
+          {
+            FSLLOG3_VERBOSE4("EGLDemoHost: - Skipped config contains a unrequested Alpha channel: A{}", configValue);
+            continue;
+          }
+        }
+        FSLLOG3_VERBOSE4("EGLDemoHost: - Found HDR configuration");
+        return config;
+      }
+      return {};
+    }
+
+    std::optional<EGLConfig> TryDoChoosePartialHDRConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes,
+                                                         const ReadOnlySpan<EGLConfig> prioritizedConfigList, const bool allowAlphaChannel)
+    {
+      FSLLOG3_VERBOSE4("EGLDemoHost: - TryDoChoosePartialHDRConfig(allowAlphaChannel:{}) from {} provided entries", allowAlphaChannel,
+                       prioritizedConfigList.size());
+      assert((attributes.HasAlphaChannelRequest() && allowAlphaChannel) || !attributes.HasAlphaChannelRequest());
+      for (const auto& config : prioritizedConfigList)
+      {
+        {    // Skip formats that has less than 8bit per channel
+          EGLint configRedValue = 0;
+          EGLint configGreenValue = 0;
+          EGLint configBlueValue = 0;
+          if (eglGetConfigAttrib(hDisplay, config, EGL_RED_SIZE, &configRedValue) != EGL_TRUE ||
+              eglGetConfigAttrib(hDisplay, config, EGL_GREEN_SIZE, &configBlueValue) != EGL_TRUE ||
+              eglGetConfigAttrib(hDisplay, config, EGL_BLUE_SIZE, &configGreenValue) != EGL_TRUE ||
+              (configRedValue <= 8 && configGreenValue <= 8 && configBlueValue <= 8))
+          {
+            FSLLOG3_VERBOSE4("EGLDemoHost: - Skipped config as it does not have at least partial HDR RGB channels: R{}G{}B{}", configRedValue,
+                             configBlueValue, configGreenValue);
+            continue;
+          }
+        }
+        if (!allowAlphaChannel)
+        {
+          // Skip if the config has a Alpha Channel
+          EGLint configValue = 0;
+          if (eglGetConfigAttrib(hDisplay, config, EGL_ALPHA_SIZE, &configValue) != EGL_TRUE || configValue != 0)
+          {
+            FSLLOG3_VERBOSE4("EGLDemoHost: - Skipped config contains a unrequested Alpha channel: A{}", configValue);
+            continue;
+          }
+        }
+        FSLLOG3_VERBOSE4("EGLDemoHost: - Found partial HDR configuration");
+        return config;
+      }
+      return {};
+    }
+
+    std::optional<EGLConfig> TryDoChooseSDRConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes,
+                                                  const ReadOnlySpan<EGLConfig> prioritizedConfigList, const bool allowAlphaChannel)
+    {
+      FSLLOG3_VERBOSE4("EGLDemoHost: - TryDoChooseSDRConfig(allowAlphaChannel:{}) from {} provided entries", allowAlphaChannel,
+                       prioritizedConfigList.size());
+
+      assert((attributes.HasAlphaChannelRequest() && allowAlphaChannel) || !attributes.HasAlphaChannelRequest());
+
+      for (const auto& config : prioritizedConfigList)
+      {
+        {    // Skip formats that has more than 8bit per channel
+          EGLint configRedValue = 0;
+          EGLint configGreenValue = 0;
+          EGLint configBlueValue = 0;
+          if (eglGetConfigAttrib(hDisplay, config, EGL_RED_SIZE, &configRedValue) != EGL_TRUE ||
+              eglGetConfigAttrib(hDisplay, config, EGL_GREEN_SIZE, &configBlueValue) != EGL_TRUE ||
+              eglGetConfigAttrib(hDisplay, config, EGL_BLUE_SIZE, &configGreenValue) != EGL_TRUE ||
+              (configRedValue > 8 || configGreenValue > 8 || configBlueValue > 8))
+          {
+            FSLLOG3_VERBOSE4("EGLDemoHost: - Skipped config as it does have at least partial HDR RGB channels: R{}G{}B{}", configRedValue,
+                             configBlueValue, configGreenValue);
+            continue;
+          }
+        }
+        if (!allowAlphaChannel)
+        {
+          // Skip if the config has a Alpha Channel
+          EGLint configValue = 0;
+          if (eglGetConfigAttrib(hDisplay, config, EGL_ALPHA_SIZE, &configValue) != EGL_TRUE || configValue != 0)
+          {
+            FSLLOG3_VERBOSE4("EGLDemoHost: - Skipped config contains a unrequested Alpha channel: A{}", configValue);
+            continue;
+          }
+        }
+        FSLLOG3_VERBOSE4("EGLDemoHost: - Found SDR configuration");
+        return config;
+      }
+      return {};
+    }
+
+    std::optional<EGLConfig> TryDoChooseHDRConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes,
+                                                  const ReadOnlySpan<EGLConfig> prioritizedConfigList)
+    {
+      FSLLOG3_VERBOSE4("EGLDemoHost: - TryDoChooseHDRConfig");
+      if (!attributes.HasAlphaChannelRequest())
+      {
+        auto res = TryDoChooseFullHDRConfig(hDisplay, attributes, prioritizedConfigList, false);
+        if (res.has_value())
+        {
+          return res;
+        }
+      }
+      {    // No HDR format without a alpha channel found or alpha channel was requested by caller
+        auto res = TryDoChooseFullHDRConfig(hDisplay, attributes, prioritizedConfigList, true);
+        if (res.has_value())
+        {
+          return res;
+        }
+      }
+
+      if (!attributes.HasAlphaChannelRequest())
+      {
+        auto res = TryDoChoosePartialHDRConfig(hDisplay, attributes, prioritizedConfigList, false);
+        if (res.has_value())
+        {
+          return res;
+        }
+      }
+      // No HDR format without a alpha channel found or alpha channel was requested by caller
+      return TryDoChoosePartialHDRConfig(hDisplay, attributes, prioritizedConfigList, true);
+    }
+
+    std::optional<EGLConfig> TryDoChooseSDRConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes,
+                                                  const ReadOnlySpan<EGLConfig> prioritizedConfigList)
+    {
+      if (!attributes.HasAlphaChannelRequest())
+      {
+        // The user did not request a alpha channel so prefer a format without alpha channel (so we don't waste resources blending)
+        auto optionalConfig = TryDoChooseSDRConfig(hDisplay, attributes, prioritizedConfigList, false);
+        if (optionalConfig.has_value())
+        {
+          return optionalConfig;
+        }
+      }
+      {    // No SDR format without a alpha channel found or alpha channel was requested by caller
+        auto optionalConfig = TryDoChooseSDRConfig(hDisplay, attributes, prioritizedConfigList, true);
+        if (optionalConfig.has_value())
+        {
+          return optionalConfig;
+        }
+      }
+      return {};
+    }
+
   }
 
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  std::optional<EGLConfig> TryEGLGuidedChooseConfig(EGLDisplay hDisplay, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes, const bool allowHDR)
+  {
+    FSLLOG3_VERBOSE4("EGLDemoHost: TryEGLGuidedChooseConfig allowHDR: {}", allowHDR);
+    {    // Try some guided choices based on the EGL recommendations
+      std::vector<EGLConfig> configs = EGLUtil::GetChooseConfigs(hDisplay, attributes);
+      if (!configs.empty())
+      {
+        if (allowHDR && attributes.IsHDRRequest())
+        {
+          auto optionalConfig = TryDoChooseHDRConfig(hDisplay, attributes, ReadOnlySpanUtil::AsSpan(configs));
+          if (optionalConfig.has_value())
+          {
+            return optionalConfig;
+          }
+        }
+        {    // Not a HDR request, so try to chose a SDR format
+          auto optionalConfig = TryDoChooseSDRConfig(hDisplay, attributes, ReadOnlySpanUtil::AsSpan(configs));
+          if (optionalConfig.has_value())
+          {
+            return optionalConfig;
+          }
+        }
+      }
+      else
+      {
+        FSLLOG3_VERBOSE4("EGLDemoHost: - eglChooseConfig did not provide any suggestions");
+      }
+    }
+
+    // fallback to the old way of letting EGL handle it
+    {
+      FSLLOG3_VERBOSE4("EGLDemoHost: - Trying legacy solution of asking EGL to chose a config, selecting the first");
+      const EGLint* const pAttributes = attributes.data();
+      EGLint numConfigs = 0;
+      EGLConfig chosenConfig{};
+      EGL_CHECK(eglChooseConfig(hDisplay, pAttributes, &chosenConfig, 1, &numConfigs));
+      return (numConfigs == 1) ? std::optional<EGLConfig>(chosenConfig) : std::optional<EGLConfig>();
+    }
+  }
 
   // NOLINTNEXTLINE(misc-misplaced-const)
   bool TryChooseConfig(const EGLDisplay hDisplay, const std::deque<EGLint>& configAttribs, const bool allowHDR, EGLConfig& rEGLConfig)

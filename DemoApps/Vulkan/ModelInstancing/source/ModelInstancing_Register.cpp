@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <Shared/ModelInstancing/OptionParser.hpp>
 #include "ModelInstancing.hpp"
 
 namespace Fsl
@@ -42,6 +43,6 @@ namespace Fsl
 
     DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Vulkan::Register<ModelInstancing>(rSetup, "Vulkan.ModelInstancing", config, customDemoAppConfig);
+    DemoAppRegister::Vulkan::Register<ModelInstancing, OptionParser>(rSetup, "Vulkan.ModelInstancing", config, customDemoAppConfig);
   }
 }

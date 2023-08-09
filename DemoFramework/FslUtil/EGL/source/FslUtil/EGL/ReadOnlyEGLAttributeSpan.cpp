@@ -1,7 +1,5 @@
-#ifndef FSLUTIL_EGL_EGLUTIL_HPP
-#define FSLUTIL_EGL_EGLUTIL_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +29,44 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
-#include <FslUtil/EGL/CheckError.hpp>
 #include <FslUtil/EGL/ReadOnlyEGLAttributeSpan.hpp>
-#include <EGL/egl.h>
-#include <vector>
 
-namespace Fsl::EGLUtil
+namespace Fsl::EGL
 {
-  //! @brief Get a list of all extensions
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
+  void ReadOnlyEGLAttributeSpan::CacheChecks()
+  {
+    m_hasAlphaChannelRequest = false;
+    m_isHDRRequest = false;
 
-  //! @brief Check if the given EGL extension is available
-  //! @note Do not expect mind blowing performance from this!
-  //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
+    auto itr = m_content.begin();
+    const auto itrEnd = m_content.end();
+    while (itr != itrEnd)
+    {
+      const auto attrib = *itr;
+      ++itr;
+      if (itr != itrEnd)
+      {
+        switch (attrib)
+        {
+        case EGL_RED_SIZE:
+        case EGL_GREEN_SIZE:
+        case EGL_BLUE_SIZE:
+          if (*itr != EGL_DONT_CARE && *itr > 8)
+          {
+            m_isHDRRequest = true;
+          }
+          break;
+        case EGL_ALPHA_SIZE:
+          if (*itr != EGL_DONT_CARE && *itr != 0)
+          {
+            m_hasAlphaChannelRequest = true;
+          }
+        default:
+          break;
+        }
+        ++itr;
+      }
+    }
+  }
 
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
-
-  std::vector<EGLConfig> GetChooseConfigs(const EGLDisplay dpy, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes);
-
-  //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls
-  std::vector<EGLenum> GetConfigAttribs();
 }
-
-#endif

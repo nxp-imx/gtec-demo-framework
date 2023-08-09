@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -41,6 +42,7 @@
 #include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <Shared/ModelInstancing/MatrixInfo.hpp>
 #include <Shared/ModelInstancing/ModelRenderStats.hpp>
+#include <algorithm>
 #include <memory>
 #include <utility>
 
@@ -50,6 +52,30 @@ namespace Fsl
   {
     class IThemeControlFactory;
   }
+
+  struct MeshInstanceSetup
+  {
+    const uint32_t MaxInstancesX{1};
+    const uint32_t MaxInstancesY{1};
+    const uint32_t MaxInstancesZ{1};
+    const uint32_t MaxInstances{1};
+
+    MeshInstanceSetup(const uint32_t maxInstancesX, const uint32_t maxInstancesY, const uint32_t maxInstancesZ)
+      : MaxInstancesX(std::max(maxInstancesX, 1u))
+      , MaxInstancesY(std::max(maxInstancesY, 1u))
+      , MaxInstancesZ(std::max(maxInstancesZ, 1u))
+      , MaxInstances(SafeCalcMaxInstances(MaxInstancesX, MaxInstancesY, MaxInstancesZ))
+    {
+    }
+
+  private:
+    static uint32_t SafeCalcMaxInstances(const uint32_t maxInstancesX, const uint32_t maxInstancesY, const uint32_t maxInstancesZ)
+    {
+      const uint64_t res = static_cast<uint64_t>(maxInstancesX) * static_cast<uint64_t>(maxInstancesY) * static_cast<uint64_t>(maxInstancesZ);
+      return NumericCast<uint32_t>(res);
+    }
+  };
+
 
   struct MeshInstanceData
   {
@@ -61,14 +87,6 @@ namespace Fsl
     {
     }
   };
-
-  namespace MeshInstancingConfig
-  {
-    constexpr uint32_t ModelMaxInstancesX = 5;
-    constexpr uint32_t ModelMaxInstancesY = 5;
-    constexpr uint32_t ModelMaxInstancesZ = 5;
-    constexpr uint32_t ModelMaxInstances = ModelMaxInstancesX * ModelMaxInstancesY * ModelMaxInstancesZ;
-  }
 
   class ModelInstancingShared final : public UI::EventListener
   {
@@ -112,6 +130,8 @@ namespace Fsl
     // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
 
+    MeshInstanceSetup m_instanceSetup;
+
     UIRecord m_ui;
 
     Vector3 m_rotationSpeed;
@@ -126,6 +146,11 @@ namespace Fsl
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
     {
       return m_uiExtension;
+    }
+
+    MeshInstanceSetup GetInstanceSetup() const noexcept
+    {
+      return m_instanceSetup;
     }
 
     void OnKeyEvent(const KeyEvent& event);
@@ -154,7 +179,7 @@ namespace Fsl
     void SetDefaultValues();
     void ToggleRotate();
 
-    static UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory);
+    static UIRecord CreateUI(UI::Theme::IThemeControlFactory& uiFactory, const MeshInstanceSetup instanceSetup);
     static StatsOverlayUI CreateStatsOverlayUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context);
   };
 }

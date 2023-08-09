@@ -24,7 +24,7 @@ namespace Fsl
     GL_CHECK(glUseProgram(hProgram));
 
     GL_CHECK(glEnable(GL_DEPTH_TEST));
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     {    // Initialization
       // 3 vertices, with (x,y,z), (r, g, b, a) per-vertex

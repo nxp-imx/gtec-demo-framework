@@ -1,7 +1,7 @@
-#ifndef FSLUTIL_EGL_EGLUTIL_HPP
-#define FSLUTIL_EGL_EGLUTIL_HPP
+#ifndef SHARED_MODELINSTANCING_OPTIONPARSER_HPP
+#define SHARED_MODELINSTANCING_OPTIONPARSER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +31,40 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
-#include <FslUtil/EGL/CheckError.hpp>
-#include <FslUtil/EGL/ReadOnlyEGLAttributeSpan.hpp>
-#include <EGL/egl.h>
-#include <vector>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 
-namespace Fsl::EGLUtil
+namespace Fsl
 {
-  //! @brief Get a list of all extensions
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
+  class OptionParser : public ADemoOptionParser
+  {
+    uint32_t m_maxInstancesX{5};
+    uint32_t m_maxInstancesY{5};
+    uint32_t m_maxInstancesZ{5};
 
-  //! @brief Check if the given EGL extension is available
-  //! @note Do not expect mind blowing performance from this!
-  //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
+  public:
+    OptionParser() = default;
+    ~OptionParser() override;
 
-  // NOLINTNEXTLINE(misc-misplaced-const)
-  std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
+    uint32_t GetMaxInstancesX() const noexcept
+    {
+      return m_maxInstancesX;
+    }
 
-  std::vector<EGLConfig> GetChooseConfigs(const EGLDisplay dpy, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes);
+    uint32_t GetMaxInstancesY() const noexcept
+    {
+      return m_maxInstancesY;
+    }
 
-  //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls
-  std::vector<EGLenum> GetConfigAttribs();
+    uint32_t GetMaxInstancesZ() const noexcept
+    {
+      return m_maxInstancesZ;
+    }
+
+  protected:
+    void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
+    bool OnParsingComplete() override;
+  };
 }
 
 #endif

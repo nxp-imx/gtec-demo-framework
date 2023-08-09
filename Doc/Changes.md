@@ -1,5 +1,11 @@
 # Latest version
 
+## Release 6.2.1
+
+* GLES3.ModelInstancing and Vulkan.ModelInstancing: Added arguments to control the instance count. 
+* Improved EGLConfig selection and improved logging.
+* Ensured that OpenGL ES samples clear the alpha channel correctly.
+
 ## Release 6.2.0
 
 * GLES2, GLES3, Vulkan UI.DeclarativeUI sample added.

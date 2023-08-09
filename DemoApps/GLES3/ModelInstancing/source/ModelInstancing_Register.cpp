@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
+#include <Shared/ModelInstancing/OptionParser.hpp>
 #include <EGL/egl.h>
 #include <array>
 #include "ModelInstancing.hpp"
@@ -47,6 +48,6 @@ namespace Fsl
   {
     DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
-    DemoAppRegister::GLES3::Register<ModelInstancing>(rSetup, "GLES3.ModelInstancing", config);
+    DemoAppRegister::GLES3::Register<ModelInstancing, OptionParser>(rSetup, "GLES3.ModelInstancing", config);
   }
 }

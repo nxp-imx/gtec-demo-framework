@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslUtil/EGL/EGLCheck.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
@@ -80,6 +81,27 @@ namespace Fsl::EGLUtil
     }
     return result;
   }
+
+
+  std::vector<EGLConfig> GetChooseConfigs(const EGLDisplay dpy, const Fsl::EGL::ReadOnlyEGLAttributeSpan attributes)
+  {
+    const EGLint* const pAttributes = attributes.data();
+
+    EGLint numConfigs = 0;
+    if (eglChooseConfig(dpy, pAttributes, nullptr, 0, &numConfigs) != EGL_TRUE)
+    {
+      throw EGLGraphicsException("eglChooseConfig", eglGetError(), __FILE__, __LINE__);
+    }
+
+    std::vector<EGLConfig> result(numConfigs);
+    if (eglChooseConfig(dpy, pAttributes, result.data(), static_cast<EGLint>(result.size()), &numConfigs) != EGL_TRUE ||
+        numConfigs != NumericCast<EGLint>(result.size()))
+    {
+      throw EGLGraphicsException("eglChooseConfig", eglGetError(), __FILE__, __LINE__);
+    }
+    return result;
+  }
+
 
   std::vector<EGLenum> GetConfigAttribs()
   {
