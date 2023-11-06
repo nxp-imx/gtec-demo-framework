@@ -430,9 +430,9 @@ namespace Fsl
         pDst[5] = indexOffset + 2;    // C
 
         // CDEF
-        pDst[6] = indexOffset + 3;    // D
-        pDst[7] = indexOffset + 2;    // C
-        pDst[8] = indexOffset + 5;    // F
+        pDst[6] = indexOffset + 3;     // D
+        pDst[7] = indexOffset + 2;     // C
+        pDst[8] = indexOffset + 5;     // F
 
         pDst[9] = indexOffset + 5;     // F
         pDst[10] = indexOffset + 2;    // C
@@ -637,9 +637,9 @@ namespace Fsl
         pDst[5] = indexOffset + 2;    // C
 
         // CDEF
-        pDst[6] = indexOffset + 3;    // D
-        pDst[7] = indexOffset + 2;    // C
-        pDst[8] = indexOffset + 5;    // F
+        pDst[6] = indexOffset + 3;     // D
+        pDst[7] = indexOffset + 2;     // C
+        pDst[8] = indexOffset + 5;     // F
 
         pDst[9] = indexOffset + 5;     // F
         pDst[10] = indexOffset + 2;    // C
@@ -1069,9 +1069,9 @@ namespace Fsl
         pDst[5] = indexOffset + 2;    // C
 
         // CDEF
-        pDst[6] = indexOffset + 3;    // D
-        pDst[7] = indexOffset + 2;    // C
-        pDst[8] = indexOffset + 5;    // F
+        pDst[6] = indexOffset + 3;     // D
+        pDst[7] = indexOffset + 2;     // C
+        pDst[8] = indexOffset + 5;     // F
 
         pDst[9] = indexOffset + 5;     // F
         pDst[10] = indexOffset + 2;    // C

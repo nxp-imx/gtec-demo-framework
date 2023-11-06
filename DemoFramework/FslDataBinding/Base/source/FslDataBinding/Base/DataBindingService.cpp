@@ -852,7 +852,7 @@ namespace Fsl::DataBinding
         const auto pendingBinding = m_pendingBindings.front();
         m_pendingBindings.pop();
         DoSetBinding(pendingBinding.TargetHandle, Binding(pendingBinding.SourceHandle));
-        m_pendingObserverCallbacks.push(ObserverRecord(pendingBinding.TargetHandle, pendingBinding.SourceHandle));
+        m_pendingObserverCallbacks.emplace(pendingBinding.TargetHandle, pendingBinding.SourceHandle);
       }
       m_callContext = {};
     }
@@ -952,7 +952,7 @@ namespace Fsl::DataBinding
           switch (target.Instance.GetType())
           {
           case DataBindingInstanceType::DependencyObserverProperty:
-            m_pendingObserverCallbacks.push(ObserverRecord(hTarget, hSource));
+            m_pendingObserverCallbacks.emplace(hTarget, hSource);
             break;
           // case DataBindingInstanceType::DependencyObject:
           // case DataBindingInstanceType::Target:

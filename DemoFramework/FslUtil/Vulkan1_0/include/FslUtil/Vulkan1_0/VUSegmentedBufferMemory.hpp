@@ -275,7 +275,7 @@ namespace Fsl::Vulkan
     };
 
   private:
-    void SetMemberVarsOnNewReset(const uint32_t segmentCount, const VkDeviceSize segmentAlignment, const VkDeviceSize elementSize);
+    void SetMemberVarsOnNewReset(const uint32_t segmentCount, const VkDeviceSize segmentStride, const VkDeviceSize elementSize);
   };
 }
 

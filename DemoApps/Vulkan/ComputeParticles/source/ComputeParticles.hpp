@@ -73,7 +73,7 @@ namespace Fsl
     // Resources for the compute part of the example
     struct Compute
     {
-      struct ComputeUBO    //  Compute shader uniform block object
+      struct ComputeUBO     //  Compute shader uniform block object
       {
         float DeltaT{0};    //    Frame delta time
         float DestX{0};     //    x position of the attractor

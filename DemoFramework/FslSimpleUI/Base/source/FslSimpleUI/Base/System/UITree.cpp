@@ -1113,8 +1113,7 @@ namespace Fsl::UI
     }
     if (visibility == ItemVisibility::Visible && flags.IsFlagged(TreeNodeFlags::DrawEnabled))
     {
-      m_vectorDraw.push_back(
-        UITreeDrawRecord(TreeNodeDrawContext(TypeConverter::UncheckedTo<PxAreaRectangleF>(currentRectPx)), node->GetWindowPointer()));
+      m_vectorDraw.emplace_back(TreeNodeDrawContext(TypeConverter::UncheckedTo<PxAreaRectangleF>(currentRectPx)), node->GetWindowPointer());
     }
 
     // FIX: once we add clipping support we need to take that into account when storing the click input target rect

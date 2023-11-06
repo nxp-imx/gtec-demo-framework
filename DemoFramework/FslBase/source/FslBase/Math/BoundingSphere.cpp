@@ -321,7 +321,7 @@ namespace Fsl
   {
     Vector3 ocenterToaCenter = additional.Center - original.Center;
     const float distance = ocenterToaCenter.Length();
-    if (distance <= original.Radius + additional.Radius)    // intersect
+    if (distance <= original.Radius + additional.Radius)      // intersect
     {
       if (distance <= original.Radius - additional.Radius)    // original contain additional
       {

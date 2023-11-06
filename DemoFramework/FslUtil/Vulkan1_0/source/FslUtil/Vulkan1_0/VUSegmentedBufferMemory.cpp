@@ -166,11 +166,12 @@ namespace Fsl::Vulkan
     try
     {
       VkBufferCreateInfo bufferCreateInfoEx = bufferCreateInfo;
-      VkDeviceSize segmentAlignment = 0u;
+      VkDeviceSize segmentStride = 0u;
       if (segmentCount > 1)
       {
-        segmentAlignment = GetBufferMinimumAlignment(physicalDevice.Properties.limits, bufferCreateInfo.usage);
-        bufferCreateInfoEx.size = AlignmentUtil::GetByteSize(bufferCreateInfoEx.size, segmentAlignment) * segmentCount;
+        const VkDeviceSize segmentAlignment = GetBufferMinimumAlignment(physicalDevice.Properties.limits, bufferCreateInfo.usage);
+        segmentStride = AlignmentUtil::GetByteSize(bufferCreateInfoEx.size, segmentAlignment);
+        bufferCreateInfoEx.size = segmentStride * segmentCount;
       }
 
       m_buffer.Reset(device, bufferCreateInfoEx);
@@ -188,7 +189,7 @@ namespace Fsl::Vulkan
 
       RAPIDVULKAN_CHECK(vkBindBufferMemory(device, m_buffer.Get(), m_memory.Get(), 0));
 
-      SetMemberVarsOnNewReset(segmentCount, segmentAlignment, bufferCreateInfo.size);
+      SetMemberVarsOnNewReset(segmentCount, segmentStride, bufferCreateInfo.size);
     }
     catch (const std::exception&)
     {
@@ -213,12 +214,11 @@ namespace Fsl::Vulkan
   }
 
 
-  void VUSegmentedBufferMemory::SetMemberVarsOnNewReset(const uint32_t segmentCount, const VkDeviceSize segmentAlignment,
-                                                        const VkDeviceSize elementSize)
+  void VUSegmentedBufferMemory::SetMemberVarsOnNewReset(const uint32_t segmentCount, const VkDeviceSize segmentStride, const VkDeviceSize elementSize)
   {
-    if (segmentAlignment > std::numeric_limits<uint32_t>::max())
+    if (segmentStride > std::numeric_limits<uint32_t>::max())
     {
-      throw NotSupportedException("alignment is unsupported");
+      throw NotSupportedException("stride is unsupported");
     }
 
     // Default to the full size of this buffer
@@ -226,7 +226,7 @@ namespace Fsl::Vulkan
     m_descriptorBufferInfo.buffer = m_buffer.Get();
     m_descriptorBufferInfo.range = elementSize;
     m_segmentCount = segmentCount;
-    m_segmentStride = static_cast<uint32_t>(segmentAlignment);
+    m_segmentStride = static_cast<uint32_t>(segmentStride);
     m_elementSize = elementSize;
   }
 

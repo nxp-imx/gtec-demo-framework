@@ -118,7 +118,7 @@ namespace Fsl
 
       }    // GetFilesInDirectory()
 
-    }    // namespace
+    }      // namespace
 
 
     bool PlatformFileSystem::TryGetAttributes(const Path& path, FileAttributes& rAttributes)

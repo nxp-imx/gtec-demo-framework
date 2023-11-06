@@ -815,7 +815,7 @@ namespace Fsl
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;    //! FIX: Is this wrong? we are not supplying any pointers
     viewportState.pViewports = nullptr;
-    viewportState.scissorCount = 1;    //! FIX: Is this wrong? we are not supplying any pointers
+    viewportState.scissorCount = 1;     //! FIX: Is this wrong? we are not supplying any pointers
     viewportState.pScissors = nullptr;
 
     VkPipelineMultisampleStateCreateInfo multisampleState{};

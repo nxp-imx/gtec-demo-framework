@@ -668,7 +668,7 @@ namespace Fsl
       bufferBarrier.srcQueueFamilyIndex =
         m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
       bufferBarrier.dstQueueFamilyIndex =
-        m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
+        m_vulkanDevice.GetQueueFamilyIndices().Compute;     // Required as compute and graphics queue may have different families
 
       vkCmdPipelineBarrier(m_compute.CommandBuffer.Get(), VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
                            Willems::Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
@@ -689,7 +689,7 @@ namespace Fsl
       // Compute and graphics queue may have different queue families (see VulkanDevice::createLogicalDevice)
       // For the barrier to work across different queues, we need to set their family indices
       bufferBarrier.srcQueueFamilyIndex =
-        m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
+        m_vulkanDevice.GetQueueFamilyIndices().Compute;     // Required as compute and graphics queue may have different families
       bufferBarrier.dstQueueFamilyIndex =
         m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
 

@@ -187,7 +187,7 @@ namespace Fsl::MathHelper
     const auto totalArea = areaOfChar * unitCount;
 
     PxExtent2D result;
-    if ((restrictionFlags & RectangleSizeRestrictionFlag::Power2) != RectangleSizeRestrictionFlag::Power2)    // Not pow 2
+    if ((restrictionFlags & RectangleSizeRestrictionFlag::Power2) != RectangleSizeRestrictionFlag::Power2)      // Not pow 2
     {
       if ((restrictionFlags & RectangleSizeRestrictionFlag::Square) != RectangleSizeRestrictionFlag::Square)    // not square
       {

@@ -50,7 +50,7 @@ namespace Fsl
     , m_quadricSpiralRevolutionCount(18)    // 18
     , m_quadricSpiralRevolutionChange(40.0f)
     , m_quadricSpiralStrokeLineWidth(30.0f)
-    , m_segmentedSpiralRevolutionCount(36)    // 36
+    , m_segmentedSpiralRevolutionCount(36)         // 36
     , m_segmentedSpiralRevolutionChange(20.0f)
     , m_segmentedSpiralStrokeLineWidth(50.0f)      // 50
     , m_segmentedSpiralSegmentsPerRevolution(6)    // 6
