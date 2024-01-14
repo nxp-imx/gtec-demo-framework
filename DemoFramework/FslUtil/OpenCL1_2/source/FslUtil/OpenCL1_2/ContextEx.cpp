@@ -31,6 +31,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslUtil/OpenCL1_2/ContextEx.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
@@ -41,6 +43,32 @@
 
 namespace Fsl::OpenCL
 {
+  namespace
+  {
+    bool IsValidContextProperties(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan)
+    {
+      return contextPropertiesSpan.empty() || (contextPropertiesSpan.size() > 1u && (contextPropertiesSpan.size() & 1u) == 1u &&
+                                               contextPropertiesSpan[contextPropertiesSpan.size() - 1u] == 0);
+    }
+
+    int32_t IndexOfProperty(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_context_properties propertyToFind)
+    {
+      if (contextPropertiesSpan.empty())
+      {
+        return -1;
+      }
+
+      for (std::size_t i = 0; i < contextPropertiesSpan.size(); i += 2)
+      {
+        if (contextPropertiesSpan[i] == propertyToFind)
+        {
+          return NumericCast<int32_t>(i);
+        }
+      }
+      return -1;
+    }
+  }
+
   // move assignment operator
   ContextEx& ContextEx::operator=(ContextEx&& other) noexcept
   {
@@ -94,15 +122,33 @@ namespace Fsl::OpenCL
   }
 
 
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  ContextEx::ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
+                       const bool allowFallback)
+    : ContextEx()
+  {
+    Reset(contextPropertiesSpan, deviceType, pDeviceId, allowFallback);
+  }
+
+
   ContextEx::~ContextEx()
   {
     Reset();
   }
 
-
-  // NOLINTNEXTLINE(misc-misplaced-const)
   void ContextEx::Reset(const cl_device_type deviceType, cl_device_id* pDeviceId, const bool allowFallback)
   {
+    Reset({}, deviceType, pDeviceId, allowFallback);
+  }
+
+  // NOLINTNEXTLINE(misc-misplaced-const)
+  void ContextEx::Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
+                        const bool allowFallback)
+  {
+    if (!IsValidContextProperties(contextPropertiesSpan))
+    {
+      throw std::invalid_argument("invalid contextPropertiesSpan");
+    }
     if (IsValid())
     {
       Reset();
@@ -119,7 +165,7 @@ namespace Fsl::OpenCL
       const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, deviceType);
       if (!deviceIds.empty())
       {
-        SelectDevice(*itr, deviceIds, pDeviceId);
+        SelectDevice(contextPropertiesSpan, *itr, deviceIds, pDeviceId);
         return;
       }
     }
@@ -132,7 +178,7 @@ namespace Fsl::OpenCL
         const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, CL_DEVICE_TYPE_ALL);
         if (!deviceIds.empty())
         {
-          SelectDevice(*itr, deviceIds, pDeviceId);
+          SelectDevice(contextPropertiesSpan, *itr, deviceIds, pDeviceId);
           return;
         }
       }
@@ -142,19 +188,61 @@ namespace Fsl::OpenCL
   }
 
   // NOLINTNEXTLINE(misc-misplaced-const)
-  void ContextEx::SelectDevice(cl_platform_id platformId, const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId)
+  void ContextEx::SelectDevice(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, cl_platform_id platformId,
+                               const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId)
   {
     // FIX: for now just select the first device
     const cl_uint targetDevice = 0;
     // FIX: for now just use one device
     const cl_uint uiNumDevsUsed = 1;
 
+    const cl_device_id selectedDeviceId = deviceIds[targetDevice];
+
     // clCreateContext
-    m_context.Reset(nullptr, uiNumDevsUsed, &deviceIds[targetDevice], nullptr, nullptr);
+    if (contextPropertiesSpan.empty())
+    {
+      m_context.Reset(nullptr, uiNumDevsUsed, &selectedDeviceId, nullptr, nullptr);
+    }
+    else
+    {
+      std::vector<cl_context_properties> patchesProperties = PatchProperties(platformId, contextPropertiesSpan);
+      assert(!patchesProperties.empty() && IsValidContextProperties(ReadOnlySpanUtil::AsSpan(patchesProperties)));
+      m_context.Reset(patchesProperties.data(), uiNumDevsUsed, &selectedDeviceId, nullptr, nullptr);
+    }
+
     m_platformId = platformId;
     if (pDeviceId != nullptr)
     {
-      *pDeviceId = deviceIds[targetDevice];
+      *pDeviceId = selectedDeviceId;
     }
+  }
+
+  std::vector<cl_context_properties> ContextEx::PatchProperties(cl_platform_id platformId,
+                                                                const ReadOnlySpan<cl_context_properties> contextPropertiesSpan)
+  {
+    assert(!contextPropertiesSpan.empty());
+    assert(IsValidContextProperties(contextPropertiesSpan));
+
+    std::vector<cl_context_properties> result(ReadOnlySpanUtil::ToVector(contextPropertiesSpan));
+    int32_t indexOfProperty = IndexOfProperty(contextPropertiesSpan, CL_CONTEXT_PLATFORM);
+    if (indexOfProperty >= 0)
+    {
+      assert(UncheckedNumericCast<std::size_t>(indexOfProperty) < result.size());
+      assert(result[indexOfProperty] == CL_CONTEXT_PLATFORM);
+      assert(UncheckedNumericCast<std::size_t>(indexOfProperty + 1) < result.size());
+      if (result[indexOfProperty + 1] == 0)
+      {
+        FSLLOG3_VERBOSE3("The property CL_CONTEXT_PLATFORM was set to zero, patching it")
+        result[indexOfProperty + 1] = reinterpret_cast<cl_context_properties>(platformId);
+      }
+    }
+    else
+    {
+      FSLLOG3_VERBOSE3("The property CL_CONTEXT_PLATFORM was not found, inserting it");
+      result.push_back(CL_CONTEXT_PLATFORM);
+      result.push_back(reinterpret_cast<cl_context_properties>(platformId));
+    }
+    assert(IsValidContextProperties(ReadOnlySpanUtil::AsSpan(result)));
+    return result;
   }
 }

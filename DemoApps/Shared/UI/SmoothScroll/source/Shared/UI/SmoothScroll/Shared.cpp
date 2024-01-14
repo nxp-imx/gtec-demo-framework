@@ -239,27 +239,34 @@ namespace Fsl
     Vector2 position3(std::round(m_position1) + static_cast<float>(rectMiddleBottomPx.RawLeft()), static_cast<float>(rectMiddleBottomPx.RawTop()));
 
     const int32_t linesHeightPx = bitmapFont.LineSpacingPx().RawValue() * 4;
-    const int32_t linewidth = bitmapFont.MeasureString(LocalConfig::TextLine0).RawWidth();
+    const int32_t lineWidth = bitmapFont.MeasureString(LocalConfig::TextLine0).RawWidth();
 
-    if (m_position0 < static_cast<float>(rectTopLeftPx.RawTop()))
+    const auto partialLineHeight = static_cast<int32_t>(std::round(static_cast<float>(linesHeightPx) * 0.90f));
+    const auto scrollLimitTop = static_cast<float>(rectTopLeftPx.RawTop() - partialLineHeight);
+    const auto scrollLimitBottom = static_cast<float>(rectTopLeftPx.RawBottom() - (linesHeightPx - partialLineHeight));
+
+    if (m_position0 < scrollLimitTop)
     {
-      m_position0 = static_cast<float>(rectTopLeftPx.RawTop());
+      m_position0 = scrollLimitTop;
       m_direction0 = 1;
     }
-    if (m_position0 > static_cast<float>(rectTopLeftPx.RawBottom() - linesHeightPx))
+    if (m_position0 > scrollLimitBottom)
     {
-      m_position0 = static_cast<float>(rectTopLeftPx.RawBottom() - linesHeightPx);
+      m_position0 = scrollLimitBottom;
       m_direction0 = -1;
     }
 
-    if (m_position1 < static_cast<float>(rectMiddleBottomPx.RawLeft()))
+    const auto partialLineWidth = static_cast<int32_t>(std::round(static_cast<float>(lineWidth) * 0.90f));
+    const auto scrollLimitLeft = static_cast<float>(rectMiddleBottomPx.RawLeft() - partialLineWidth);
+    const auto scrollLimitRight = static_cast<float>(rectMiddleBottomPx.RawRight() - (lineWidth - partialLineWidth));
+    if (m_position1 < scrollLimitLeft)
     {
-      m_position1 = static_cast<float>(rectMiddleBottomPx.RawLeft());
+      m_position1 = scrollLimitLeft;
       m_direction1 = 1;
     }
-    if (m_position1 > static_cast<float>(rectMiddleBottomPx.RawRight() - linewidth))
+    if (m_position1 > scrollLimitRight)
     {
-      m_position1 = static_cast<float>(rectMiddleBottomPx.RawRight() - linewidth);
+      m_position1 = scrollLimitRight;
       m_direction1 = -1;
     }
 

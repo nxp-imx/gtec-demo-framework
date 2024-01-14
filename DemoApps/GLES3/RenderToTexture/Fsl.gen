@@ -8,6 +8,8 @@
     <Platform Name="Yocto" Supported="true">
       <Dependency Name="G2D"/>
       <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES"/>
+      <!-- While this demo technically only require the GL_VIV_direct_texture extension, its likely to only exist on Vivante GPU's -->
+      <Requirement Name="HW_GPU_VIVANTE" Type="feature"/>
     </Platform>    
   </Executable>
 </FslBuildGen>

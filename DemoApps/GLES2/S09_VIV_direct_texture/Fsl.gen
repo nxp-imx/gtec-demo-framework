@@ -3,6 +3,8 @@
   <Executable Name="GLES2.S09_VIV_direct_texture" NoInclude="true" CreationYear="2014">
     <Default.Platform.Supported Value="false"/>
     <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES"/>
+    <!-- While this demo technically only require the GL_VIV_direct_texture extension, its likely to only exist on Vivante GPU's -->
+    <Requirement Name="HW_GPU_VIVANTE" Type="feature"/>
     <ImportTemplate Name="DemoAppGLES2"/>
     <Platform Name="Yocto" Supported="true"/>
   </Executable>

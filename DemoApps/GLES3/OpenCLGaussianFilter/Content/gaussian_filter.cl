@@ -36,10 +36,24 @@ __kernel void gaussian_filter	( 	__global uchar *input,
 						{1.0/16.0, 2.0/16.0, 1.0/16.0} 
 					};
 
-	if ((x < 0) || (y < 0) || (x > (width -1)) || (y > (height -1)))
+	if ((id - width -1) < 0 || (id + width + 1) >= (width * height - 1))
 	{
 		output[id] = input[id];
 		return;
+	}
+
+	if (channels == 3)
+	{
+		if ((id1 - width -1) < 0 || (id1 + width + 1) >= (width * height - 1))
+		{
+			output[id] = input[id];
+			return;
+		}
+		if ((id2 - width -1) < 0 || (id2 + width + 1) >= (width * height - 1))
+		{
+			output[id] = input[id];
+			return;
+		}
 	}
 
 	if (channels == 1)

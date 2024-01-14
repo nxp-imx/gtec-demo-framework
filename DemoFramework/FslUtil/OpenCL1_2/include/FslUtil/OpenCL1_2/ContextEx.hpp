@@ -33,6 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslBase/Attributes.hpp>
+#include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslUtil/OpenCL1_2/Common.hpp>
 #include <RapidOpenCL1/Context.hpp>
 #include <CL/cl.h>
@@ -71,6 +72,16 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     explicit ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
+    //! @brief Create the requested resource
+    //! @param contextPropertiesSpan the context properties to use (supply a empty one to use the default).
+    //!        If this span is not empty and contains a CL_CONTEXT_PLATFORM entry that is 0, then the entry will be patched with the right platformId.
+    //!        If this span is not empty and does not contain a CL_CONTEXT_PLATFORM then a CL_CONTEXT_PLATFORM entry will be added.
+    //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    explicit ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType,
+                       cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+
     //! @brief returns the managed handle and releases the ownership.
     [[nodiscard]] cl_context Release()
     {
@@ -99,6 +110,16 @@ namespace Fsl::OpenCL
     // NOLINTNEXTLINE(misc-misplaced-const)
     void Reset(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
+    //! @brief Destroys any owned resources and then creates the requested one
+    //! @param contextPropertiesSpan the context properties to use (supply a empty one to use the default).
+    //!        If this span is not empty and contains a CL_CONTEXT_PLATFORM entry that is 0, then the entry will be patched with the right platformId.
+    //!        If this span is not empty and does not contain a CL_CONTEXT_PLATFORM then a CL_CONTEXT_PLATFORM entry will be added.
+    //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
+    //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    void Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr,
+               const bool allowFallback = true);
+
     //! @brief Get the associated resource handle
     cl_platform_id GetPlatformId() const
     {
@@ -118,7 +139,9 @@ namespace Fsl::OpenCL
     }
 
   private:
-    void SelectDevice(cl_platform_id platformId, const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId);
+    void SelectDevice(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, cl_platform_id platformId,
+                      const std::vector<cl_device_id>& deviceIds, cl_device_id* pDeviceId);
+    std::vector<cl_context_properties> PatchProperties(cl_platform_id platformId, const ReadOnlySpan<cl_context_properties> contextPropertiesSpan);
   };
 }
 
