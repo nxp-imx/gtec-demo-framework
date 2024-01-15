@@ -55,7 +55,7 @@ namespace Fsl
 
       virtual std::shared_ptr<IMeshManager> GetMeshManager() const = 0;
 
-      virtual DrawCommandBuffer& AcquireDrawCommandBuffer() = 0;
+      virtual DrawCommandBuffer& AcquireDrawCommandBuffer(const bool clear) = 0;
       virtual void ReleaseDrawCommandBuffer() = 0;
 
       virtual void PreDraw() = 0;

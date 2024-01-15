@@ -98,12 +98,14 @@ namespace Fsl::Vulkan
       DoUnmapMemory();
     }
 
-    m_deviceMemory.Reset();
-    m_memoryPropertyFlags = 0;
-    m_capacity = 0;
-    m_physicalDeviceLimitNonCoherentAtomSize = 0;
-    m_isMapped = false;
+    // Use destruction order
     m_mappedSpan = {};
+    m_isMapped = false;
+    m_pData = nullptr;
+    m_physicalDeviceLimitNonCoherentAtomSize = 0;
+    m_capacity = 0;
+    m_memoryPropertyFlags = 0;
+    m_deviceMemory.Reset();
   }
 
 
@@ -152,7 +154,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VkDeviceMemory VUDeviceMemory::Release()
+  VkDeviceMemory VUDeviceMemory::Release() noexcept
   {
     m_memoryPropertyFlags = 0;
     m_capacity = 0;

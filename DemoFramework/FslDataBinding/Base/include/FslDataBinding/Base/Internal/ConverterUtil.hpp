@@ -33,53 +33,39 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/Span.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyRefMethods.hpp>
 #include <FslDataBinding/Base/Internal/IPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/PropertyGetInfo.hpp>
 #include <FslDataBinding/Base/Internal/PropertyMethodsImplType.hpp>
+#include <FslDataBinding/Base/Internal/PropertySetInfo.hpp>
+#include <FslDataBinding/Base/Internal/TypedPropertyMethodsUtil.hpp>
 #include <functional>
 
 namespace Fsl::DataBinding::Internal::ConverterUtil
 {
   namespace InternalHelper
   {
-    template <typename TSource>
-    TSource DoGet(const PropertyGetInfo& getter)
-    {
-      switch (getter.ImplType)
-      {
-      case PropertyMethodsImplType::ATypedDependencyProperty:
-        {    // Try the normal get method
-          const auto* const pTypedGetOperation = dynamic_cast<const ATypedDependencyPropertyMethods<TSource>*>(getter.pGet);
-          if (pTypedGetOperation != nullptr)
-          {
-            return pTypedGetOperation->Get();
-          }
-          break;
-        }
-      case PropertyMethodsImplType::ATypedDependencyPropertyRef:
-        {    // Try the ref get method
-          const auto* const pTypedGetOperation = dynamic_cast<const ATypedDependencyPropertyRefMethods<TSource>*>(getter.pGet);
-          if (pTypedGetOperation != nullptr)
-          {
-            return pTypedGetOperation->Get();
-          }
-          break;
-        }
-      case PropertyMethodsImplType::NotAvailable:
-      case PropertyMethodsImplType::Undefined:
-      case PropertyMethodsImplType::ObserverDependency:
-        break;
-      }
-      throw NotSupportedException("Unsupported get type (this should not occur, usage error?)");
-    }
-
     template <typename TTarget, typename... TSource, std::size_t... TIndices>
     static TTarget DoConvert(const std::function<TTarget(TSource... value)>& fnConvert, const ReadOnlySpan<PropertyGetInfo> getters,
                              [[maybe_unused]] std::index_sequence<TIndices...> const& /*unused*/)
     {
-      return fnConvert(DoGet<TSource>(getters[TIndices])...);
+      return fnConvert(Fsl::DataBinding::Internal::TypedPropertyMethodsUtil::Get<TSource>(getters[TIndices])...);
+    }
+
+    template <size_t TFixedIndex, typename... TSetType>
+    void DoConvertBack(Span<PropertySetResult> result, const std::tuple<TSetType...>& valuesTuple, const ReadOnlySpan<PropertySetInfo> setters)
+    {
+      if constexpr (TFixedIndex < sizeof...(TSetType))
+      {
+        // Call DoCallSet for the I-th element of the tuple and corresponding setter
+        result[TFixedIndex] = DataBinding::Internal::TypedPropertyMethodsUtil::SetByRef(setters[TFixedIndex].ImplType, setters[TFixedIndex].pSet,
+                                                                                        std::get<TFixedIndex>(valuesTuple));
+
+        // Recursively call CallSetters for the next element
+        DoConvertBack<TFixedIndex + 1, TSetType...>(result, valuesTuple, setters);
+      }
     }
   }
 
@@ -91,6 +77,17 @@ namespace Fsl::DataBinding::Internal::ConverterUtil
     return Fsl::DataBinding::Internal::ConverterUtil::InternalHelper::DoConvert<TTarget, TSource...>(
       fnConvert, getters, std::make_integer_sequence<std::size_t, sizeof...(TSource)>());
   }
+
+  //! @brief Invoke the converter function 'fnConvert' with the right getter
+  template <typename TTarget, typename... TSource>
+  static void InvokeConvertBack(Span<PropertySetResult> resultSpan, const std::function<std::tuple<TSource...>(const TTarget&)>& fnConvertBack,
+                                const ReadOnlySpan<Internal::PropertySetInfo> setters, const Internal::PropertyGetInfo getter)
+  {
+    auto getValue = Fsl::DataBinding::Internal::TypedPropertyMethodsUtil::Get<TTarget>(getter);
+    auto convertedTupleValue = fnConvertBack(getValue);
+    Fsl::DataBinding::Internal::ConverterUtil::InternalHelper::DoConvertBack<0>(resultSpan, convertedTupleValue, setters);
+  }
+
 }
 
 #endif

@@ -73,6 +73,8 @@ namespace Fsl
     class UIManager
     {
       UIRenderSystem m_renderSystem;
+      bool m_useDrawCache{true};
+
       BasicWindowMetrics m_windowMetrics;
       std::shared_ptr<ModuleCallbackRegistry> m_moduleCallbackRegistry;
       std::shared_ptr<WindowEventPool> m_eventPool;
@@ -99,6 +101,8 @@ namespace Fsl
                          ReadOnlySpan<std::shared_ptr<IExternalModuleFactory>> externalModuleFactories);
       ~UIManager();
 
+      void SetUseDrawCache(const bool useDrawCache);
+
       std::shared_ptr<AExternalModule> GetExternalModule(const ExternalModuleId& moduleId) const;
 
       const std::shared_ptr<UIContext>& GetUIContext() const;
@@ -114,9 +118,11 @@ namespace Fsl
       // bool SendMouseWheelEvent(const MouseWheelEvent& event);
 
       //! Check if the UI system is considered idle
-      bool IsIdle() const;
+      bool IsIdle() const noexcept;
+      //! Check if the UI content has been modified.
+      bool IsRedrawRequired() const noexcept;
 
-      UIStats GetStats() const;
+      UIStats GetStats() const noexcept;
 
       void ProcessEvents();
 
@@ -136,7 +142,7 @@ namespace Fsl
       //! @brief Unregister a event listener
       void UnregisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
 
-      bool SYS_GetUseYFlipTextureCoordinates() const
+      bool SYS_GetUseYFlipTextureCoordinates() const noexcept
       {
         return m_renderSystem.SYS_GetUseYFlipTextureCoordinates();
       }

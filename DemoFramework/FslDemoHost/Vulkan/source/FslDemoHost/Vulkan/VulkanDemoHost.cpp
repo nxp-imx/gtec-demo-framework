@@ -63,6 +63,7 @@
 #include <fmt/ostream.h>
 #include <array>
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <limits>
@@ -166,6 +167,7 @@ namespace Fsl
     const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), demoHostConfig.GetVerbosityLevel(),
                                                           m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
 
+    FSLLOG3_VERBOSE2("WindowSystem allocate");
     m_windowSystem = VulkanNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
     try
     {
@@ -197,7 +199,24 @@ namespace Fsl
 
   VulkanDemoHost::~VulkanDemoHost()
   {
-    Shutdown();
+    try
+    {
+      LOCAL_LOG("Destroying");
+      Shutdown();
+      LOCAL_LOG("Destroyed");
+
+      // Clear the information stored in m_windowHostInfoControl
+      m_windowHostInfoControl->ClearWindowSystem();
+
+      // Ensure we shutdown the window system at a fixed time and from a fixed thread
+      FSLLOG3_VERBOSE2("WindowSystem shutdown");
+      m_windowSystem->Shutdown();
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG3_ERROR("VulkanDemoHost destructor can not throw so aborting. {}", ex.what())
+      std::abort();
+    }
   }
 
 
@@ -267,7 +286,7 @@ namespace Fsl
       InitVulkan();
 
       const NativeVulkanSetup nativeVulkanSetup(m_instance.Get(), m_physicalDevice.Device);
-      m_window = m_windowSystem->CreateNativeWindow(*m_nativeWindowSetup, nativeVulkanSetup);
+      m_window = m_windowSystem->CreateVulkanNativeWindow(*m_nativeWindowSetup, nativeVulkanSetup);
       m_windowHostInfoControl->AddWindow(m_window);
 
 

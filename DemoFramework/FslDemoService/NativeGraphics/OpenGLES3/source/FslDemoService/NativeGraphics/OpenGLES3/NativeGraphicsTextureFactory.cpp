@@ -49,7 +49,7 @@ namespace Fsl::GLES3
   }
 
 
-  Graphics3D::NativeTextureFactoryCaps NativeGraphicsTextureFactory::GetTextureCaps() const
+  Graphics3D::NativeTextureFactoryCaps NativeGraphicsTextureFactory::GetTextureCaps() const noexcept
   {
     return Graphics3D::NativeTextureFactoryCaps::Dynamic | Graphics3D::NativeTextureFactoryCaps::TextureCoordinatesFlipY;
   }
@@ -97,7 +97,7 @@ namespace Fsl::GLES3
     return BasicNativeTextureHandle(handle);
   }
 
-  bool NativeGraphicsTextureFactory::DestroyTexture(const BasicNativeTextureHandle hTexture)
+  bool NativeGraphicsTextureFactory::DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept
   {
     FSLLOG3_VERBOSE6("NativeGraphicsTextureFactory::DestroyTexture({})", hTexture.Value);
     if (m_isDisposed)
@@ -126,7 +126,7 @@ namespace Fsl::GLES3
   }
 
 
-  const IBasicNativeTexture* NativeGraphicsTextureFactory::TryGetTexture(const BasicNativeTextureHandle hTexture) const
+  const IBasicNativeTexture* NativeGraphicsTextureFactory::TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept
   {
     return !m_isDisposed ? m_textures.TryGet(hTexture.Value) : nullptr;
   }

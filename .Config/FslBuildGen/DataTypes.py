@@ -607,6 +607,10 @@ class ClangTidyProfile(Enum):
         return None if not returnValueStringIfUnknown else "{0}".format(value)
 
 
+class FilterMode(Enum):
+    Disabled = 0                        # Do not use a filter 
+    TrimUnrequestedPackages = 1         # Trim packages that where not imported because of a user request
+
 class GrpcServices(Enum):
     Both = 0
     Server = 1

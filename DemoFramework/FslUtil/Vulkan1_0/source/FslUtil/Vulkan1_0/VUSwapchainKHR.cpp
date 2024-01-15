@@ -120,7 +120,7 @@ namespace Fsl::Vulkan
   }
 
 
-  VUSwapchainKHR::~VUSwapchainKHR()
+  VUSwapchainKHR::~VUSwapchainKHR() noexcept
   {
     Reset();
   }
@@ -136,13 +136,14 @@ namespace Fsl::Vulkan
     // if you add things to Reset then remember to add it to all the move places
     // and also the place marked "manual reset"
 
-    m_swapchain.Reset();
-    // m_createInfo.Reset();
-    m_imageUsageFlags = 0u;
-    m_imageFormat = VK_FORMAT_UNDEFINED;
-    m_imageExtent = {};
-    m_images.clear();
+    // use destruction order
     m_info.clear();
+    m_images.clear();
+    m_imageExtent = {};
+    m_imageFormat = VK_FORMAT_UNDEFINED;
+    m_imageUsageFlags = 0u;
+    // m_createInfo.Reset();
+    m_swapchain.Reset();
   }
 
 
@@ -250,7 +251,7 @@ namespace Fsl::Vulkan
   }
 
 
-  uint32_t VUSwapchainKHR::GetImageCount() const
+  uint32_t VUSwapchainKHR::GetImageCount() const noexcept
   {
     FSLLOG3_DEBUG_WARNING_IF(!IsValid(), "GetImageCount() swapchain is VK_NULL_HANDLE returning 0");
     return static_cast<uint32_t>(m_images.size());
@@ -268,14 +269,14 @@ namespace Fsl::Vulkan
   }
 
 
-  VkFormat VUSwapchainKHR::GetImageFormat() const
+  VkFormat VUSwapchainKHR::GetImageFormat() const noexcept
   {
     // return m_createInfo.Get().imageFormat;
     return m_imageFormat;
   }
 
 
-  VkExtent2D VUSwapchainKHR::GetImageExtent() const
+  VkExtent2D VUSwapchainKHR::GetImageExtent() const noexcept
   {
     // return m_createInfo.Get().imageExtent;
     return m_imageExtent;

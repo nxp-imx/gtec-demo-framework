@@ -45,7 +45,13 @@
 * If you get the error "RapidVulkan/System/Log.hpp: fatal error: FslBase/Log/BasicLog.hpp: No such file or directory" the Yocto sdk you are using contains a old incompatible version of RapidVulkan.
   Adding ```--Recipes [Recipe.RapidVulkan_1_2_148]``` to the build command might enable it to compile and work, but it potentially has issues as the RapidVulkan headers will be located at two different locations in the build.
 
+### Wayland
+
+* Wayland apps are not allowed to control the window position so if you specify a window position and size the position will be ignored ([source](https://mir-server.io/docs/window-positions-under-wayland)).
+
 ### Wayland XDG shell
+
+* Wayland XDG shell windows are missing decorations if the window manager is missing the critical but unfortunately optional **XDG decoration** protocol. This is unfortunately currently the case for both Weston and Gnome.
 
 Since XDG shell unfortunately does not provide a versioned library of their code but instead require us to run their "wayland-scanner" tool on their xml file to generate their non app specific code, we unfortunately need to introduce a more complex build process which introduce new points of failure while compiling the apps.
 
@@ -118,7 +124,6 @@ FslBuild.py --CMakeConfigGlobalArgs="-DWAYLAND_SCANNER <your-path> -DWAYLAND_PRO
 ```
 
 Unfortunately you will have to specific this override to all build tools every time.
-
 
 ## Windows
 

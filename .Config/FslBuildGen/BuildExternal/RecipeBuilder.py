@@ -309,7 +309,7 @@ def BuildPackages(log: Log, configSDKPath: str, configIsDryRun: bool, toolConfig
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
     buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.Platform.PlatformName, ExternalVariantConstraints({}),
-                                    generatorContext.GeneratorInfo.VariableContext.UserSetVariables, CommandType.Build, [], None, None, 0)
+                                    generatorContext.GeneratorInfo.VariableContext.UserSetVariables, CommandType.Build, [], [], None, None, 0)
 
     try:
         log.LogPrint("- Building recipe packages")

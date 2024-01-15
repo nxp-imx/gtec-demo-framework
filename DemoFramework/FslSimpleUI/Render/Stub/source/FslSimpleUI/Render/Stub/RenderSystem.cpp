@@ -52,8 +52,9 @@ namespace Fsl::UI::RenderStub
     return m_meshManager;
   }
 
-  DrawCommandBuffer& RenderSystem::AcquireDrawCommandBuffer()
+  DrawCommandBuffer& RenderSystem::AcquireDrawCommandBuffer(const bool clear)
   {
+    FSL_PARAM_NOT_USED(clear);
     return m_commandBuffer;
   }
 

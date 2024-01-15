@@ -50,6 +50,11 @@ namespace Fsl::Graphics3D
 {
   struct BasicMaterialDetailsRecord
   {
+    // BasicMaterialDetailsRecord(const BasicMaterialDetailsRecord&) = delete;
+    // BasicMaterialDetailsRecord& operator=(const BasicMaterialDetailsRecord&) = delete;
+    // BasicMaterialDetailsRecord(BasicMaterialDetailsRecord&& other) noexcept = delete;
+    // BasicMaterialDetailsRecord& operator=(BasicMaterialDetailsRecord&& other) noexcept = delete;
+
     BasicMaterialInfo MaterialInfo;
     BasicMaterialVariableDeclaration MaterialDecl;
     BasicShaderHandle VertexShaderHandle;

@@ -169,6 +169,7 @@ namespace Fsl::Vulkan
         return;
       }
 
+      // Use destruction order
       m_usage = VMBufferUsage::STATIC;
       m_elementStride = 0;
       m_indexCount = 0;
@@ -275,40 +276,40 @@ namespace Fsl::Vulkan
     }
 
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_indexBuffer.IsValid();
     }
 
-    uint32_t GetIndexCount() const
+    uint32_t GetIndexCount() const noexcept
     {
       return m_indexCount;
     }
 
     //! @brief Get the element stride (size of one element in bytes)
-    uint32_t GetElementStride() const
+    uint32_t GetElementStride() const noexcept
     {
       return m_elementStride;
     }
 
     //! @brief Get the associated 'Device'
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_indexBuffer.GetDevice();
     }
 
     //! @brief Get the associated 'buffer'
-    VkBuffer GetBuffer() const
+    VkBuffer GetBuffer() const noexcept
     {
       return m_indexBuffer.GetBuffer();
     }
 
-    const VkBuffer* GetBufferPointer() const
+    const VkBuffer* GetBufferPointer() const noexcept
     {
       return m_indexBuffer.GetBufferPointer();
     }
 
-    VkIndexType GetIndexType() const
+    VkIndexType GetIndexType() const noexcept
     {
       assert(m_elementStride == 2 || m_elementStride == 4);
       return m_elementStride == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;

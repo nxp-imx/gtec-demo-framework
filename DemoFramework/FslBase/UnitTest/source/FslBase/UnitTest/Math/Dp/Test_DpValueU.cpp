@@ -46,7 +46,7 @@ TEST(TestMathDp_DpValueU, Construct_Default)
   DpValueU value;
 
   EXPECT_EQ(DpValueU(), value);
-  EXPECT_EQ(0, value.Value);
+  EXPECT_EQ(0u, value.Value);
 }
 
 TEST(TestMathDp_DpValueU, Construct)

@@ -104,7 +104,7 @@ namespace Fsl::Vulkan
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  VUTextureInfo NativeGraphicsDevice::TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
+  VUTextureInfo NativeGraphicsDevice::TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const noexcept
   {
     return m_textureFactory.TryGetTextureInfo(hTexture);
   }
@@ -114,7 +114,7 @@ namespace Fsl::Vulkan
   // Graphics3D::INativeBufferFactory
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  Graphics3D::NativeBufferFactoryCaps NativeGraphicsDevice::GetBufferCaps() const
+  Graphics3D::NativeBufferFactoryCaps NativeGraphicsDevice::GetBufferCaps() const noexcept
   {
     // The buffer factory handles the disposed case
     return m_bufferFactory.GetBufferCaps();
@@ -127,7 +127,7 @@ namespace Fsl::Vulkan
     return m_bufferFactory.CreateBuffer(bufferType, bufferData, bufferElementCapacity, isDynamic);
   }
 
-  bool NativeGraphicsDevice::DestroyBuffer(const BasicNativeBufferHandle hBuffer)
+  bool NativeGraphicsDevice::DestroyBuffer(const BasicNativeBufferHandle hBuffer) noexcept
   {
     // The buffer factory handles the disposed case
     return m_bufferFactory.DestroyBuffer(hBuffer);
@@ -167,7 +167,7 @@ namespace Fsl::Vulkan
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  bool NativeGraphicsDevice::DestroyMaterial(const BasicNativeMaterialHandle hMaterial)
+  bool NativeGraphicsDevice::DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept
   {
     // The factory handles the disposed case
     return m_materialFactory.DestroyMaterial(hMaterial);
@@ -177,7 +177,7 @@ namespace Fsl::Vulkan
   // Graphics3D::INativeTextureFactory
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  Graphics3D::NativeTextureFactoryCaps NativeGraphicsDevice::GetTextureCaps() const
+  Graphics3D::NativeTextureFactoryCaps NativeGraphicsDevice::GetTextureCaps() const noexcept
   {
     // The texture factory handles the disposed case
     return m_textureFactory.GetTextureCaps();
@@ -190,7 +190,7 @@ namespace Fsl::Vulkan
     return m_textureFactory.CreateTexture(texture, filterHint, textureFlags, isDynamic);
   }
 
-  bool NativeGraphicsDevice::DestroyTexture(const BasicNativeTextureHandle hTexture)
+  bool NativeGraphicsDevice::DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept
   {
     // The texture factory handles the disposed case
     return m_textureFactory.DestroyTexture(hTexture);
@@ -205,7 +205,7 @@ namespace Fsl::Vulkan
   }
 
 
-  const IBasicNativeTexture* NativeGraphicsDevice::TryGetTexture(const BasicNativeTextureHandle hTexture) const
+  const IBasicNativeTexture* NativeGraphicsDevice::TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept
   {
     // The texture factory handles the disposed case
     return m_textureFactory.TryGetTexture(hTexture);
@@ -252,7 +252,7 @@ namespace Fsl::Vulkan
   }
 
 
-  void NativeGraphicsDevice::EndFrame()
+  void NativeGraphicsDevice::EndFrame() noexcept
   {
     FSLLOG3_ERROR_IF(!m_frame.IsValid(), "Ending a frame that wasnt begun");
     m_frame = {};
@@ -273,7 +273,7 @@ namespace Fsl::Vulkan
   }
 
 
-  void NativeGraphicsDevice::EndCmds()
+  void NativeGraphicsDevice::EndCmds() noexcept
   {
     // If this fires BeginFrame was not called.
     assert(m_frame.IsValid());
@@ -384,7 +384,7 @@ namespace Fsl::Vulkan
   }
 
 
-  void NativeGraphicsDevice::CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex)
+  void NativeGraphicsDevice::CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) noexcept
   {
     // If this fires BeginFrame was not called.
     assert(m_frame.IsValid());
@@ -400,7 +400,7 @@ namespace Fsl::Vulkan
     vkCmdDraw(m_frame.CommandBuffer, vertexCount, 1, firstVertex, 0);
   }
 
-  void NativeGraphicsDevice::CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex)
+  void NativeGraphicsDevice::CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) noexcept
   {
     // If this fires BeginFrame was not called.
     assert(m_frame.IsValid());

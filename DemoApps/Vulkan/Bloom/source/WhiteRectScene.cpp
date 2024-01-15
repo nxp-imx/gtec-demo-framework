@@ -328,7 +328,7 @@ namespace Fsl
 
   void WhiteRectScene::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void WhiteRectScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,

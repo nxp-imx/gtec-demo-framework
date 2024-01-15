@@ -49,9 +49,11 @@ namespace Fsl
   }
 
 
-  MenuUI::MenuUI(const DemoAppConfig& config)
-    : m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
+  MenuUI::MenuUI(const DemoAppConfig& config, const ColorSpace uiColorSpace)
+    : m_uiColorSpace(uiColorSpace)
+    , m_uiEventListener(this)
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
+                                                         UIDemoAppExtension::CreateConfig(m_uiColorSpace)))
     , m_state(SceneState::Invalid)
     , m_scene1LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
     , m_scene2LabelAlpha(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
@@ -378,7 +380,7 @@ namespace Fsl
     }
 
     auto context = m_uiExtension->GetContext();
-    m_configWindow = CreateConfigDialog(context);
+    m_configWindow = CreateConfigDialog(context, m_uiColorSpace);
     m_rootCanvas->AddChild(m_configWindow);
     UpdateUIState();
   }
@@ -466,9 +468,9 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<UI::BaseWindow> MenuUI::CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context)
+  std::shared_ptr<UI::BaseWindow> MenuUI::CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context, const ColorSpace colorSpace)
   {
-    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension, colorSpace);
     auto& factory = *uiControlFactory;
 
     m_checkboxLDR = factory.CreateSwitch(m_menuTextLDR);

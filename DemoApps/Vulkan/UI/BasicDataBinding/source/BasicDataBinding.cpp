@@ -111,6 +111,6 @@ namespace Fsl
 
   void BasicDataBinding::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

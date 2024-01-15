@@ -60,9 +60,9 @@ namespace Fsl::UI
     return m_renderSystem->GetMeshManager();
   }
 
-  DrawCommandBuffer& UIRenderSystem::AcquireDrawCommandBuffer()
+  DrawCommandBuffer& UIRenderSystem::AcquireDrawCommandBuffer(const bool clear)
   {
-    return m_renderSystem->AcquireDrawCommandBuffer();
+    return m_renderSystem->AcquireDrawCommandBuffer(clear);
   }
 
   void UIRenderSystem::ReleaseDrawCommandBuffer()

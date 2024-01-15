@@ -134,6 +134,11 @@ namespace Fsl::UI
     }
   }
 
+  void UIManager::SetUseDrawCache(const bool useDrawCache)
+  {
+    m_useDrawCache = useDrawCache;
+  }
+
 
   std::shared_ptr<AExternalModule> UIManager::GetExternalModule(const ExternalModuleId& moduleId) const
   {
@@ -202,12 +207,17 @@ namespace Fsl::UI
   //{
   //}
 
-  bool UIManager::IsIdle() const
+  bool UIManager::IsIdle() const noexcept
   {
     return (!m_tree || m_tree->IsIdle()) && (!m_inputModule || m_inputModule->IsIdle());
   }
 
-  UIStats UIManager::GetStats() const
+  bool UIManager::IsRedrawRequired() const noexcept
+  {
+    return m_tree && m_tree->IsContentRenderingDirty();
+  }
+
+  UIStats UIManager::GetStats() const noexcept
   {
     return m_tree ? m_tree->GetStats() : UIStats();
   }
@@ -256,6 +266,7 @@ namespace Fsl::UI
 
   void UIManager::Draw(RenderPerformanceCapture* const pPerformanceCapture)
   {
+    if (!m_useDrawCache || IsRedrawRequired())
     {    // Record the draw command list
       UIRenderSystem::ScopedDrawCommandBufferAccess scopedAccess(m_renderSystem);
       m_tree->Draw(scopedAccess.GetDrawCommandBuffer());

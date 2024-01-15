@@ -81,20 +81,20 @@ namespace Fsl::Vulkan
       return m_textures.Get(hTexture.Value).GetDescriptorSet();
     }
 
-    VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
+    VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const noexcept
     {
       const NativeGraphicsTexture* pRecord = m_textures.TryGet(hTexture.Value);
       return pRecord != nullptr ? pRecord->ToTextureInfo() : VUTextureInfo();
     }
 
-    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const;
+    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const noexcept;
     BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
                                            const bool isDynamic);
-    bool DestroyTexture(const BasicNativeTextureHandle hTexture);
+    bool DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept;
 
     void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags);
-    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const;
+    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept;
   };
 }
 

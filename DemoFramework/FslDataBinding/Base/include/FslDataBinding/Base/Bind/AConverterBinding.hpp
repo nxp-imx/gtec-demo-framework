@@ -52,13 +52,18 @@ namespace Fsl::DataBinding
       return BindingType::AConverterBinding;
     }
 
-    virtual std::type_index GetSourceType() const = 0;
-    virtual std::type_index GetTargetType() const = 0;
+    virtual std::type_index GetSourceType() const noexcept = 0;
+    virtual std::type_index GetTargetType() const noexcept = 0;
 
     virtual Internal::PropertySetResult Convert(const Internal::PropertyMethodsImplType setPropertyMethodsImplType,
                                                 Internal::IPropertyMethods* const pSet,
                                                 const Internal::PropertyMethodsImplType getPropertyMethodsImplType,
                                                 Internal::IPropertyMethods* const pGet) = 0;
+    //! If this is not a two-way converter this method should return 'NotSupported'
+    virtual Internal::PropertySetResult ConvertBack(const Internal::PropertyMethodsImplType setPropertyMethodsImplType,
+                                                    Internal::IPropertyMethods* const pSet,
+                                                    const Internal::PropertyMethodsImplType getPropertyMethodsImplType,
+                                                    Internal::IPropertyMethods* const pGet) = 0;
   };
 }
 

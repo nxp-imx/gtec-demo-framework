@@ -77,7 +77,7 @@ TEST(Test_GetSet, OnDemandInstancesBind)
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -90,7 +90,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -110,7 +110,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty)
   EXPECT_EQ(newValue1, t1.GetProperty0Value());
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_NoBinding)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_ClearWithInvalidDepProperty_NoBinding)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -126,56 +126,56 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_NoBi
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
 
   const uint32_t newValue1 = 100;
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
 
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_ExistingBinding0)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_ClearWithInvalidDepProperty_ExistingBinding0)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  const uint32_t defaultValue = 0;
-  const uint32_t firstValue = 2;
+  const uint32_t firstValue0 = 1;
+  const uint32_t firstValue1 = 2;
 
-  t0.SetProperty0Value(defaultValue);
-  t1.SetProperty0Value(firstValue);
+  EXPECT_TRUE(t0.SetProperty0Value(firstValue0));
+  EXPECT_TRUE(t1.SetProperty0Value(firstValue1));
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   t0.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
   // Binding will change the target to match the source on the next execute (this basically clears the binding)
   t0.SetBinding(UTDependencyObject::Property0, DataBinding::DataBindingInstanceHandle());
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   const uint32_t newValue1 = 100;
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
 
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_ExistingBinding1)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_ClearWithInvalidDepProperty_ExistingBinding1)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  const uint32_t defaultValue = 0;
-  const uint32_t firstValue = 2;
+  const uint32_t firstValue0 = 1;
+  const uint32_t firstValue1 = 2;
 
-  t0.SetProperty0Value(defaultValue);
-  t1.SetProperty0Value(firstValue);
+  EXPECT_TRUE(t0.SetProperty0Value(firstValue0));
+  EXPECT_TRUE(t1.SetProperty0Value(firstValue1));
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   t0.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
   // Binding will change the target to match the source on the next execute (this basically clears the binding)
@@ -183,87 +183,87 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_Exis
 
   dataBindingService->ExecuteChanges();
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   const uint32_t newValue1 = 100;
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
 
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_ExistingBinding2)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_ClearWithInvalidDepProperty_ExistingBinding2)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  const uint32_t defaultValue = 0;
-  const uint32_t firstValue = 2;
+  const uint32_t firstValue0 = 1;
+  const uint32_t firstValue1 = 2;
 
-  t0.SetProperty0Value(defaultValue);
-  t1.SetProperty0Value(firstValue);
+  EXPECT_TRUE(t0.SetProperty0Value(firstValue0));
+  EXPECT_TRUE(t1.SetProperty0Value(firstValue1));
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   t0.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
   // Binding will change the target to match the source on the next execute (this basically clears the binding)
   t0.SetBinding(UTDependencyObject::Property0, DataBinding::DataBindingInstanceHandle());
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   const uint32_t newValue1 = 100;
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
 
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_ClearWithInvalidDepProperty_ExistingBinding3)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_ClearWithInvalidDepProperty_ExistingBinding3)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
-  const uint32_t defaultValue = 0;
-  const uint32_t firstValue = 2;
+  const uint32_t firstValue0 = 1;
+  const uint32_t firstValue1 = 2;
 
-  t0.SetProperty0Value(defaultValue);
-  t1.SetProperty0Value(firstValue);
+  EXPECT_TRUE(t0.SetProperty0Value(firstValue0));
+  EXPECT_TRUE(t1.SetProperty0Value(firstValue1));
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   t0.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
   // Binding will change the target to match the source on the next execute (this basically clears the binding)
   t0.SetBinding(UTDependencyObject::Property0, DataBinding::DataBindingInstanceHandle());
 
-  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue0, t0.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   const uint32_t newValue1 = 100;
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
 
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 
   dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
-  EXPECT_EQ(firstValue, t1.GetProperty0Value());
+  EXPECT_EQ(firstValue1, t1.GetProperty0Value());
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DifferentTypes)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DifferentTypes)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -276,7 +276,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DifferentTypes)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -297,7 +297,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DifferentTypes)
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DifferentTypes2)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DifferentTypes2)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -310,7 +310,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DifferentTypes2)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -331,7 +331,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DifferentTypes2)
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_IncompatibleTypes)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_IncompatibleTypes)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -344,7 +344,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_IncompatibleTypes)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -354,7 +354,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_IncompatibleTypes)
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_CircularSelf)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_CircularSelf)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -367,7 +367,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_CircularSelf)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -379,7 +379,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_CircularSelf)
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_Circular0)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_Circular0)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -392,7 +392,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_Circular0)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -409,7 +409,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_Circular0)
                DataBinding::CyclicBindingException);
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_Circular1)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_Circular1)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -422,7 +422,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_Circular1)
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -437,7 +437,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_Circular1)
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_Circular0)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DepProperty_Circular0)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -451,7 +451,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_Circular
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -470,7 +470,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_Circular
                DataBinding::CyclicBindingException);
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_Circular1)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DepProperty_Circular1)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -484,7 +484,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_Circular
   EXPECT_EQ(defaultValue, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
 
@@ -502,7 +502,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_Circular
 }
 
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_NoCircular0)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DepProperty_NoCircular0)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -527,7 +527,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_NoCircul
   EXPECT_NO_THROW(t0.SetBinding(UTDependencyObject::Property0, t2.GetPropertyHandle(UTDependencyObject::Property0)));
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_NoCircular1)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DepProperty_NoCircular1)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -551,7 +551,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DepProperty_NoCircul
 }
 
 
-TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty)
+TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -559,9 +559,9 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty)
   UTDependencyObject t1(dataBindingService);
 
   const uint32_t initialValue0 = 100;
-  const uint32_t initialValue1 = 0;
-  t0.SetProperty0Value(initialValue0);
-  t1.SetProperty0Value(initialValue1);
+  const uint32_t initialValue1 = 1;
+  EXPECT_TRUE(t0.SetProperty0Value(initialValue0));
+  EXPECT_TRUE(t1.SetProperty0Value(initialValue1));
 
   EXPECT_EQ(initialValue0, t0.GetProperty0Value());
   EXPECT_EQ(initialValue1, t1.GetProperty0Value());
@@ -575,7 +575,7 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty)
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
-  t0.SetProperty0Value(newValue);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue));
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
@@ -588,44 +588,49 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty)
   EXPECT_EQ(newValue, t1.GetProperty0Value());
 }
 
-TEST(Test_GetSet, ChangeTarget_Oneway_DepProperty_DepProperty)
+TEST(Test_GetSet, ChangeTarget_OneWay_DepProperty_DepProperty)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
   const uint32_t initialValue = 100;
-  t0.SetProperty0Value(initialValue);
-  t1.SetProperty0Value(initialValue);
+  EXPECT_TRUE(t0.SetProperty0Value(initialValue));
+  EXPECT_TRUE(t1.SetProperty0Value(initialValue));
 
   t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0));
   dataBindingService->ExecuteChanges();
 
-  // Changing the target value of a one-way binding should always fail to change it
+  // Changing the target value of a one-way binding will be allowed, but it will be changed upon the next execute
   const uint32_t newValue = 200;
-  t1.SetProperty0Value(newValue);
+  EXPECT_TRUE(t1.SetProperty0Value(newValue));
+
+  EXPECT_EQ(initialValue, t0.GetProperty0Value());
+  EXPECT_EQ(newValue, t1.GetProperty0Value());
+
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+
+  dataBindingService->ExecuteChanges();
 
   EXPECT_EQ(initialValue, t0.GetProperty0Value());
   EXPECT_EQ(initialValue, t1.GetProperty0Value());
-
-  EXPECT_EQ(0u, dataBindingService->PendingChanges());
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_DoubleBind)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_DoubleBind)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
   UTDependencyObject t0(dataBindingService);
   UTDependencyObject t1(dataBindingService);
 
   const uint32_t initialValue = 100;
-  t0.SetProperty0Value(initialValue);
-  t1.SetProperty0Value(initialValue);
+  EXPECT_TRUE(t0.SetProperty0Value(initialValue));
+  EXPECT_TRUE(t1.SetProperty0Value(initialValue));
 
   EXPECT_TRUE(t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0)));
   EXPECT_FALSE(t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0)));
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_SwitchBind)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperty_DepProperty_SwitchBind)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
   UTDependencyObject t0(dataBindingService);
@@ -634,9 +639,9 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_SwitchBind)
 
   const uint32_t initialValue = 100;
   const uint32_t t2Value = 200;
-  t0.SetProperty0Value(initialValue);
-  t1.SetProperty0Value(initialValue);
-  t2.SetProperty0Value(t2Value);
+  EXPECT_TRUE(t0.SetProperty0Value(initialValue));
+  EXPECT_TRUE(t1.SetProperty0Value(initialValue));
+  EXPECT_TRUE(t2.SetProperty0Value(t2Value));
 
   EXPECT_TRUE(t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0)));
   EXPECT_TRUE(t1.SetBinding(UTDependencyObject::Property0, t2.GetPropertyHandle(UTDependencyObject::Property0)));
@@ -648,7 +653,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperty_DepProperty_SwitchBind)
   EXPECT_EQ(t2Value, t2.GetProperty0Value());
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperties_Bind_T1T0_T2T1)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperties_Bind_T1T0_T2T1)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -659,10 +664,12 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperties_Bind_T1T0_T2T1)
   const uint32_t defaultValue = 0;
   const uint32_t newValue1 = 100;
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
   EXPECT_EQ(defaultValue, t2.GetProperty0Value());
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
 
   // Binding will change the target to match the source on the next execute
   // t1 <- t0
@@ -685,7 +692,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperties_Bind_T1T0_T2T1)
   EXPECT_EQ(newValue1, t2.GetProperty0Value());
 }
 
-TEST(Test_GetSet, SetBinding_Oneway_DepProperties_Bind_T2T1_T1T0)
+TEST(Test_GetSet, SetBinding_OneWay_DepProperties_Bind_T2T1_T1T0)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -696,7 +703,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperties_Bind_T2T1_T1T0)
   const uint32_t defaultValue = 0;
   const uint32_t newValue1 = 100;
 
-  t0.SetProperty0Value(newValue1);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue1));
   EXPECT_EQ(newValue1, t0.GetProperty0Value());
   EXPECT_EQ(defaultValue, t1.GetProperty0Value());
   EXPECT_EQ(defaultValue, t2.GetProperty0Value());
@@ -723,7 +730,7 @@ TEST(Test_GetSet, SetBinding_Oneway_DepProperties_Bind_T2T1_T1T0)
 }
 
 
-TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1)
+TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -745,7 +752,7 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1)
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
-  t0.SetProperty0Value(newValue);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue));
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
@@ -760,7 +767,7 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1)
 }
 
 
-TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T2T1_T1T0)
+TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T2T1_T1T0)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -782,7 +789,7 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T2T1_T1T0)
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
-  t0.SetProperty0Value(newValue);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue));
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
@@ -796,7 +803,7 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T2T1_T1T0)
   EXPECT_EQ(newValue, t2.GetProperty0Value());
 }
 
-TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1_Constaints)
+TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_Constraints)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -805,7 +812,7 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1_Constain
   UTDependencyObject t2(dataBindingService);
 
   constexpr ConstrainedValue<uint32_t> constraintsT1(32, 92);
-  t1.SetProperty0ValueConstaints(constraintsT1);
+  t1.SetProperty0ValueConstraints(constraintsT1);
 
   const uint32_t defaultValue = 0;
 
@@ -829,7 +836,54 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1_Constain
 
   // Changing the source value will update the target on the next execute
   const uint32_t newValue = 200;
-  t0.SetProperty0Value(newValue);
+  EXPECT_TRUE(t0.SetProperty0Value(newValue));
+
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+  EXPECT_EQ(newValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(newValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Max(), t1.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Max(), t2.GetProperty0Value());
+}
+
+TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_ConstraintsSetAfterBindButBeforeExecute)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTDependencyObject t0(dataBindingService);
+  UTDependencyObject t1(dataBindingService);
+  UTDependencyObject t2(dataBindingService);
+
+  const uint32_t defaultValue = 0;
+
+  // t1 <- t0
+  // t2 <- t1
+  t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0));
+  t2.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
+
+  constexpr ConstrainedValue<uint32_t> constraintsT1(32, 92);
+  t1.SetProperty0ValueConstraints(constraintsT1);
+
+  EXPECT_EQ(2u, dataBindingService->PendingChanges());
+  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(defaultValue, t2.GetProperty0Value());
+
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+
+  // Changing the source value will update the target on the next execute
+  const uint32_t newValue = 200;
+  EXPECT_TRUE(t0.SetProperty0Value(newValue));
 
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
   EXPECT_EQ(newValue, t0.GetProperty0Value());
@@ -845,7 +899,58 @@ TEST(Test_GetSet, ChangeSource_Oneway_DepProperty_DepProperty_T1T0_T2T1_Constain
 }
 
 
-TEST(Test_GetSet, DestroyBoundTarget_Oneway_DepProperty_DepProperty_PendingChanges)
+TEST(Test_GetSet, ChangeSource_OneWay_DepProperty_DepProperty_T1T0_T2T1_ConstraintsSetAfterBindAndExecute)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTDependencyObject t0(dataBindingService);
+  UTDependencyObject t1(dataBindingService);
+  UTDependencyObject t2(dataBindingService);
+
+  const uint32_t defaultValue = 0;
+
+  // t1 <- t0
+  // t2 <- t1
+  t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0));
+  t2.SetBinding(UTDependencyObject::Property0, t1.GetPropertyHandle(UTDependencyObject::Property0));
+
+  EXPECT_EQ(2u, dataBindingService->PendingChanges());
+
+  dataBindingService->ExecuteChanges();
+
+  constexpr ConstrainedValue<uint32_t> constraintsT1(32, 92);
+  t1.SetProperty0ValueConstraints(constraintsT1);
+
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(defaultValue, t2.GetProperty0Value());
+
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(defaultValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+
+  // Changing the source value will update the target on the next execute
+  const uint32_t newValue = 200;
+  EXPECT_TRUE(t0.SetProperty0Value(newValue));
+
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+  EXPECT_EQ(newValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t1.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Min(), t2.GetProperty0Value());
+
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(newValue, t0.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Max(), t1.GetProperty0Value());
+  EXPECT_EQ(constraintsT1.Max(), t2.GetProperty0Value());
+}
+
+TEST(Test_GetSet, DestroyBoundTarget_OneWay_DepProperty_DepProperty_PendingChanges)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
   UTDependencyObject t0(dataBindingService);
@@ -854,8 +959,8 @@ TEST(Test_GetSet, DestroyBoundTarget_Oneway_DepProperty_DepProperty_PendingChang
     UTDependencyObject t1(dataBindingService);
 
     const uint32_t initialValue = 100;
-    t0.SetProperty0Value(initialValue);
-    t1.SetProperty0Value(initialValue);
+    EXPECT_TRUE(t0.SetProperty0Value(initialValue));
+    EXPECT_TRUE(t1.SetProperty0Value(initialValue));
 
     t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0));
   }
@@ -873,7 +978,7 @@ TEST(Test_GetSet, DestroyBoundTarget_Oneway_DepProperty_DepProperty_PendingChang
 }
 
 
-TEST(Test_GetSet, DestroyBoundTarget_Oneway_DepProperty_DepProperty_NoPendingChanges)
+TEST(Test_GetSet, DestroyBoundTarget_OneWay_DepProperty_DepProperty_NoPendingChanges)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
   UTDependencyObject t0(dataBindingService);
@@ -882,8 +987,8 @@ TEST(Test_GetSet, DestroyBoundTarget_Oneway_DepProperty_DepProperty_NoPendingCha
     UTDependencyObject t1(dataBindingService);
 
     const uint32_t initialValue = 100;
-    t0.SetProperty0Value(initialValue);
-    t1.SetProperty0Value(initialValue);
+    EXPECT_TRUE(t0.SetProperty0Value(initialValue));
+    EXPECT_TRUE(t1.SetProperty0Value(initialValue));
 
     t1.SetBinding(UTDependencyObject::Property0, t0.GetPropertyHandle(UTDependencyObject::Property0));
     dataBindingService->ExecuteChanges();

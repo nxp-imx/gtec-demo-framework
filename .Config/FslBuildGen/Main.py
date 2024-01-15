@@ -54,6 +54,7 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.Context.VariableContext import VariableContext
 from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.DataTypes import FilterMode
 from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
@@ -150,6 +151,7 @@ class PackageLoadAndResolveProcess(object):
                 packageFilters: PackageFilters,
                 engineResolveConfig: EngineResolveConfig,
                 externalVariantConstraints: ExternalVariantConstraints,
+                filterMode: FilterMode,
                 autoAddRecipeExternals: bool = True,
                 fullResolve: bool = True) -> List[Package]:
         sourceGenFiles = self.LoadedGenFiles
@@ -170,7 +172,7 @@ class PackageLoadAndResolveProcess(object):
                                           configGroupException, toolConfig, platformContext, sourceGenFiles, autoAddRecipeExternals, fullResolve,
                                           self.MarkExternalLibFirstUse,
                                           packageFilters.RecipeFilterManager, packageManagerFilter, externalVariantConstraints,
-                                          engineResolveConfig, self.__writeGraph)
+                                          engineResolveConfig, self.__writeGraph, filterMode)
         self.IsFullResolve = fullResolve
         self.Packages = packageResolver.Packages
         return self.Packages
@@ -184,18 +186,20 @@ def DoGetPackages(generatorContext: GeneratorContext, config: Config, filePathLi
         engineResolveConfig = EngineResolveConfig.CreateDefault()
     process = PackageLoadAndResolveProcess(config)
     process.Load(filePathList, generatorContext.Platform, forceImportPackageNames)
-    process.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints, autoAddRecipeExternals)
+    process.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints, FilterMode.TrimUnrequestedPackages,
+                    autoAddRecipeExternals)
     return process.Packages
 
 
 def __ResolveAndGenerate(config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager,
                          platformGeneratorPlugin: GeneratorPlugin, packageLoader: PackageLoader,
-                         packageFilters: PackageFilters, engineResolveConfig: EngineResolveConfig, isSDKBuild: bool, writeGraph: bool) -> List[Package]:
+                         packageFilters: PackageFilters, engineResolveConfig: EngineResolveConfig, isSDKBuild: bool, writeGraph: bool,
+                         filterMode: FilterMode) -> List[Package]:
     generatorContext = GeneratorContext(config, errorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental,
                                         platformGeneratorPlugin, variableContext)
 
     process = PackageLoadAndResolveProcess(config, packageLoader, platformGeneratorPlugin, writeGraph=writeGraph)
-    process.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints)
+    process.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints, filterMode)
 
     if not isSDKBuild:
         for package in process.Packages:
@@ -217,7 +221,7 @@ def DoGenerateBuildFiles(pluginConfigContext: PluginConfigContext, config: Confi
     engineResolveConfig = EngineResolveConfig.CreateDefault()
     engineResolveConfig = EngineResolveConfig.CreateDefaultFlavor()
     return __ResolveAndGenerate(config, variableContext, errorHelpManager, platformGeneratorPlugin, packageLoader, packageFilters,
-                                engineResolveConfig, isSDKBuild, writeGraph)
+                                engineResolveConfig, isSDKBuild, writeGraph, FilterMode.TrimUnrequestedPackages)
 
 
 def DoGenerateBuildFilesNoAll(config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager,
@@ -229,12 +233,12 @@ def DoGenerateBuildFilesNoAll(config: Config, variableContext: VariableContext, 
     packageLoader = PackageLoader(config, files, platformGeneratorPlugin)
     engineResolveConfig = EngineResolveConfig.CreateDefault()
     return __ResolveAndGenerate(config, variableContext, errorHelpManager, platformGeneratorPlugin, packageLoader, packageFilters,
-                                engineResolveConfig, isSDKBuild, False)
+                                engineResolveConfig, isSDKBuild, False, FilterMode.TrimUnrequestedPackages)
 
 
 def DoGenerateBuildFilesNow(pluginConfigContext: PluginConfigContext, config: Config, variableContext: VariableContext, errorHelpManager: ErrorHelpManager, files: List[str],
                             platformGeneratorPlugin: GeneratorPlugin, packageFilters: PackageFilters,
-                            engineResolveConfig: EngineResolveConfig) -> Optional[Tuple[List[Package], GeneratorPlugin]]:
+                            engineResolveConfig: EngineResolveConfig, filterMode: FilterMode) -> Optional[Tuple[List[Package], GeneratorPlugin]]:
     config.LogPrint("- Generating build files")
 
     isSDKBuild = len(files) <= 0
@@ -243,7 +247,7 @@ def DoGenerateBuildFilesNow(pluginConfigContext: PluginConfigContext, config: Co
     for entry in pluginConfigContext.GetGeneratorPlugins():
         if entry.PlatformName.lower() == platformGeneratorPlugin.OriginalPlatformId and (not entry.InDevelopment):
             packages = __ResolveAndGenerate(config, variableContext, errorHelpManager, entry, copy.deepcopy(packageLoader), packageFilters,
-                                            engineResolveConfig, isSDKBuild, False)
+                                            engineResolveConfig, isSDKBuild, False, filterMode)
             res = (packages, entry)
     return res
 
@@ -333,7 +337,7 @@ def __TestGenerateBuildFilesAllPlatforms(config: Config, files: List[str], engin
                                                               config.ToolConfig.DefaultPackageLanguage, config.ToolConfig.CMakeConfiguration,
                                                               None, False)
         resultTuple = DoGenerateBuildFilesNow(pluginConfigContext, config, variableContext, errorHelpManager, files, platform, packageFilters,
-                                              engineResolveConfig)
+                                              engineResolveConfig, FilterMode.Disabled)
         if resultTuple is not None:
             res[platformId] = resultTuple[0]
     return res

@@ -141,34 +141,34 @@ namespace Fsl::Vulkan
                const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize);
 
     //! @brief returns the managed handle and releases the ownership.
-    VkDeviceMemory Release();
+    VkDeviceMemory Release() noexcept;
 
     //! @brief Get the device associated with this object
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_deviceMemory.GetDevice();
     }
 
     //! @brief Get the memory handle associated with this object
-    VkDeviceMemory Get() const
+    VkDeviceMemory Get() const noexcept
     {
       return m_deviceMemory.Get();
     }
 
     //! @brief Check if this memory object is valid
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_deviceMemory.IsValid();
     }
 
 
-    VkDeviceSize GetAllocationSize() const
+    VkDeviceSize GetAllocationSize() const noexcept
     {
       return m_capacity;
     }
 
 
-    VkMemoryPropertyFlags GetMemoryPropertyFlags() const
+    VkMemoryPropertyFlags GetMemoryPropertyFlags() const noexcept
     {
       return m_memoryPropertyFlags;
     }
@@ -187,7 +187,7 @@ namespace Fsl::Vulkan
       return m_pData;
     }
 
-    bool IsMapped() const
+    bool IsMapped() const noexcept
     {
       return m_isMapped;
     }

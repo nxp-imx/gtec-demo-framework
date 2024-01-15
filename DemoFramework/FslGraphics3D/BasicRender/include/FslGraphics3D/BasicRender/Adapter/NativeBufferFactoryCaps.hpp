@@ -44,12 +44,12 @@ namespace Fsl::Graphics3D
     Dynamic = 0x01,
   };
 
-  constexpr inline NativeBufferFactoryCaps operator|(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs)
+  constexpr inline NativeBufferFactoryCaps operator|(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs) noexcept
   {
     return static_cast<NativeBufferFactoryCaps>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline NativeBufferFactoryCaps operator&(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs)
+  constexpr inline NativeBufferFactoryCaps operator&(const NativeBufferFactoryCaps lhs, const NativeBufferFactoryCaps rhs) noexcept
   {
     return static_cast<NativeBufferFactoryCaps>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
@@ -57,23 +57,23 @@ namespace Fsl::Graphics3D
 
   namespace NativeBufferFactoryCapsUtil
   {
-    inline bool IsEnabled(const NativeBufferFactoryCaps srcFlag, NativeBufferFactoryCaps flag)
+    inline bool IsEnabled(const NativeBufferFactoryCaps srcFlag, NativeBufferFactoryCaps flag) noexcept
     {
       return (srcFlag & flag) == flag;
     }
 
-    inline void Enable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag)
+    inline void Enable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag) noexcept
     {
       rDstFlag = rDstFlag | flag;
     }
 
 
-    inline void Disable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag)
+    inline void Disable(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag) noexcept
     {
       rDstFlag = rDstFlag & (static_cast<NativeBufferFactoryCaps>(~static_cast<uint32_t>(flag)));
     }
 
-    inline void Set(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag, const bool enabled)
+    inline void Set(NativeBufferFactoryCaps& rDstFlag, NativeBufferFactoryCaps flag, const bool enabled) noexcept
     {
       rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<NativeBufferFactoryCaps>(~static_cast<uint32_t>(flag))));
     }

@@ -64,26 +64,31 @@ namespace Fsl
   }
 
 
-  ConstrainedValue<uint32_t> UTDependencyObject::GetProperty0ValueConstaints() const
+  ConstrainedValue<uint32_t> UTDependencyObject::GetProperty0ValueConstraints() const
   {
     return m_contraints0;
   }
 
 
-  void UTDependencyObject::SetProperty0ValueConstaints(ConstrainedValue<uint32_t> constaints)
+  void UTDependencyObject::SetProperty0ValueConstraints(ConstrainedValue<uint32_t> constaints)
   {
     if (constaints != m_contraints0)
     {
       m_contraints0 = constaints;
-      SetProperty0Value(GetProperty0Value());
+      DoSetProperty0Value(GetProperty0Value(), DataBinding::PropertyChangeReason::Refresh);
     }
   }
 
 
   bool UTDependencyObject::SetProperty0Value(const uint32_t value)
   {
+    return DoSetProperty0Value(value, DataBinding::PropertyChangeReason::Modified);
+  }
+
+  bool UTDependencyObject::DoSetProperty0Value(const uint32_t value, const DataBinding::PropertyChangeReason changeReason)
+  {
     const uint32_t constrainedValue = std::clamp(value, m_contraints0.Min(), m_contraints0.Max());
-    return m_property0.Set(ThisDependencyObject(), constrainedValue);
+    return m_property0.Set(ThisDependencyObject(), constrainedValue, changeReason);
   }
 
 

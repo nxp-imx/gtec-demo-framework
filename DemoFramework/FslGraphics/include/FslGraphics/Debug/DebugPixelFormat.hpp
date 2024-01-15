@@ -35,8 +35,8 @@
 
 namespace Fsl::Debug
 {
-  const char* TryToString(const PixelFormat& value);
-  const char* ToString(const PixelFormat& value);
+  const char* TryToString(const PixelFormat value);
+  const char* ToString(const PixelFormat value);
 }
 
 #endif

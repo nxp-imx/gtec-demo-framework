@@ -55,6 +55,11 @@ namespace Fsl
     {
       struct DeviceResources
       {
+        DeviceResources(const DeviceResources&) = delete;
+        DeviceResources& operator=(const DeviceResources&) = delete;
+        DeviceResources(DeviceResources&& other) noexcept = delete;
+        DeviceResources& operator=(DeviceResources&& other) noexcept = delete;
+
         bool IsValid{false};
         std::shared_ptr<INativeDevice> Device;
         BasicShaderManager Shaders;
@@ -112,6 +117,12 @@ namespace Fsl
 
       struct DependentResources
       {
+        // As long as we dont contain any RAII resources we can allow these
+        // DependentResources(const DependentResources&) = delete;
+        // DependentResources& operator=(const DependentResources&) = delete;
+        // DependentResources(DependentResources&& other) noexcept = delete;
+        // DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
         bool IsValid{false};
 
         DependentResources() = default;
@@ -119,6 +130,11 @@ namespace Fsl
         explicit DependentResources(bool isValid)
           : IsValid(isValid)
         {
+        }
+
+        void Reset()
+        {
+          IsValid = false;
         }
       };
 
@@ -131,6 +147,12 @@ namespace Fsl
 
       struct FrameRecord
       {
+        // As long as we dont contain any RAII resources we can allow these
+        // FrameRecord(const FrameRecord&) = delete;
+        // FrameRecord& operator=(const FrameRecord&) = delete;
+        // FrameRecord(FrameRecord&& other) noexcept = delete;
+        // FrameRecord& operator=(FrameRecord&& other) noexcept = delete;
+
         bool IsValid{false};
         CachingState CacheState{CachingState::Invalid};
         bool BeginCommands{false};
@@ -149,6 +171,11 @@ namespace Fsl
         BasicShaderManager* m_pShaders{nullptr};
 
       public:
+        HandleManager(const HandleManager&) = delete;
+        HandleManager& operator=(const HandleManager&) = delete;
+        HandleManager(HandleManager&& other) noexcept = delete;
+        HandleManager& operator=(HandleManager&& other) noexcept = delete;
+
         explicit HandleManager(BasicShaderManager* pShaders)
           : m_pShaders(pShaders)
         {
@@ -216,9 +243,9 @@ namespace Fsl
       std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
                                                                       const TextureFlags textureFlags) final;
 
-      PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const final;
+      PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept final;
 
-      const IBasicNativeTexture* TryGetNativeTexture(const BasicNativeTextureHandle& hTexture) const final;
+      const IBasicNativeTexture* TryGetNativeTexture(const BasicNativeTextureHandle& hTexture) const noexcept final;
 
       std::shared_ptr<IBasicStaticBuffer> CreateBuffer(const ReadOnlySpan<uint16_t> indexSpan, const BasicBufferUsage usage) final;
       std::shared_ptr<IBasicDynamicBuffer> CreateDynamicBuffer(const ReadOnlySpan<uint16_t> indexSpan) final;

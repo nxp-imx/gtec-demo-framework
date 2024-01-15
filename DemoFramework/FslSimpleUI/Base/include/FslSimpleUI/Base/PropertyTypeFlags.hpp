@@ -43,7 +43,13 @@ namespace Fsl::UI
                                                    static_cast<uint16_t>(PropertyType::Layout) | static_cast<uint16_t>(PropertyType::Alignment) |
                                                    static_cast<uint16_t>(PropertyType::ScalePolicy) | static_cast<uint16_t>(PropertyType::BaseColor) |
                                                    static_cast<uint16_t>(PropertyType::Other);
-    static const uint16_t MASK_LayoutRelatedMask = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout);
+
+    static const uint16_t MASK_LayoutRelated = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::Layout);
+
+    static const uint16_t MASK_DrawRelated = MASK_LayoutRelated | static_cast<uint16_t>(PropertyType::ContentDraw) |
+                                             static_cast<uint16_t>(PropertyType::Alignment) | static_cast<uint16_t>(PropertyType::ScalePolicy) |
+                                             static_cast<uint16_t>(PropertyType::BaseColor) | static_cast<uint16_t>(PropertyType::Other);
+
     static const uint16_t MASK_Content = static_cast<uint16_t>(PropertyType::Content) | static_cast<uint16_t>(PropertyType::ContentDraw);
 
     uint16_t Value{0};
@@ -70,7 +76,12 @@ namespace Fsl::UI
 
     constexpr bool IsLayoutRelated() const noexcept
     {
-      return (Value & MASK_LayoutRelatedMask) != 0;
+      return (Value & MASK_LayoutRelated) != 0;
+    }
+
+    constexpr bool IsDrawRelated() const noexcept
+    {
+      return (Value & MASK_DrawRelated) != 0;
     }
 
     //! @brief Gets the value ensuring all non PropertyTypeFlags are set to zero.

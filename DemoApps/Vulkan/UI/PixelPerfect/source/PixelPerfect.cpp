@@ -101,6 +101,6 @@ namespace Fsl
 
   void PixelPerfect::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

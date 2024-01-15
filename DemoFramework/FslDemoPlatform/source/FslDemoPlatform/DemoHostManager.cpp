@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Time/TimeSpanUtil.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Shared/Log/Host/FmtDemoWindowMetrics.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/IDemoHostFactory.hpp>
@@ -137,6 +138,7 @@ namespace Fsl
           if (m_windowMetricsDirty || m_demoAppManager->HasRestartRequest())
           {
             windowMetrics = m_demoHost->GetWindowMetrics();
+            FSLLOG3_VERBOSE("WindowMetrics updated: {}", windowMetrics);
             m_windowMetricsDirty = false;
           }
           AppProcess(windowMetrics, isConsoleBasedHost);

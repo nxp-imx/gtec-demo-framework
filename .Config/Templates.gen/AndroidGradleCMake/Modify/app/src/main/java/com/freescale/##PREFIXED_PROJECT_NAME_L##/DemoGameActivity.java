@@ -32,12 +32,14 @@
 package com.freescale.##PREFIXED_PROJECT_NAME_L##;
 
 import com.freescale.##PREFIXED_PROJECT_NAME_L##.R;
+import com.freescale.demoplatform.DemoHelper;
 import com.freescale.demoplatform.ShellSplitter;
 import com.google.androidgamesdk.GameActivity;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -66,6 +68,17 @@ public class DemoGameActivity extends GameActivity {
         if(commandLineArgs != null)
         {
             m_commandLineArgs = ShellSplitter.Split(commandLineArgs);
+        }
+
+        { // Check for HDR support
+            Display defaultDisplay = getWindowManager().getDefaultDisplay();
+            Display.HdrCapabilities hdrCapabilities = defaultDisplay.getHdrCapabilities();
+            int[] supportedHdrTypes = hdrCapabilities.getSupportedHdrTypes();
+            for (int i=0; i<supportedHdrTypes.length; ++i)
+            {
+                Log.d("GameActivity", "Found HDR types: " + supportedHdrTypes[i]);
+            }
+            DemoHelper.SetSupportsHDR(supportedHdrTypes.length > 0);
         }
     }
 

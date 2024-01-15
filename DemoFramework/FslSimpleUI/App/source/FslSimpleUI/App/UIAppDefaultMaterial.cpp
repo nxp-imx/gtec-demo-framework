@@ -45,13 +45,13 @@
 namespace Fsl::UIAppDefaultMaterial
 {
   SpriteMaterialInfo CreateDefaultMaterial(const ServiceProvider& serviceProvider, const VertexDeclarationSpan& vertexDeclaration,
-                                           const bool isDynamic, const bool allowDepthBuffer)
+                                           const PixelFormat pixelFormat, const bool isDynamic, const bool allowDepthBuffer)
   {
     auto graphicsService = serviceProvider.Get<IGraphicsService>();
     std::shared_ptr<IBasicRenderSystem> renderSystem = graphicsService->GetBasicRenderSystem();
     const bool yFlipped = graphicsService->GetNativeBatch2D()->SYS_IsTextureCoordinateYFlipped();
 
-    Bitmap defaultBitmap(16, 16, PixelFormat::R8G8B8A8_UNORM, yFlipped ? BitmapOrigin::LowerLeft : BitmapOrigin::UpperLeft);
+    Bitmap defaultBitmap(16, 16, pixelFormat, yFlipped ? BitmapOrigin::LowerLeft : BitmapOrigin::UpperLeft);
     auto basicTexture = renderSystem->CreateTexture2D(defaultBitmap, Texture2DFilterHint::Nearest, TextureFlags::NotDefined);
 
     BasicMaterialDepthInfo depthInfo(allowDepthBuffer, allowDepthBuffer, BasicCompareOp::Less);

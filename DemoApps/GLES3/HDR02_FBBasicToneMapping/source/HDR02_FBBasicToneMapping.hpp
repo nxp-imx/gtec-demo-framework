@@ -48,7 +48,7 @@
 
 namespace Fsl
 {
-  class HDR02_FBBasicToneMapping
+  class HDR02_FBBasicToneMapping final
     : public DemoAppGLES3
     , public UI::EventListener
   {
@@ -109,13 +109,14 @@ namespace Fsl
 
   public:
     explicit HDR02_FBBasicToneMapping(const DemoAppConfig& config);
-    ~HDR02_FBBasicToneMapping() override;
+    ~HDR02_FBBasicToneMapping() final;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     void UpdateInput(const DemoTime& demoTime);

@@ -130,6 +130,6 @@ namespace Fsl
 
   void DevBasicRenderCustomShader::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

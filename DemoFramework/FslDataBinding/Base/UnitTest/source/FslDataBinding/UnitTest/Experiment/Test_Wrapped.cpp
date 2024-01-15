@@ -42,21 +42,21 @@ namespace
   using Test_Wrapped = TestFixtureFslBase;
 }
 
-TEST(Test_Conversion, Construct)
+TEST(Test_Wrapped, Construct)
 {
   UTWrappedTypedDependencyPropertyMethods<int32_t> test;
   EXPECT_EQ(0, test.Get());
   EXPECT_EQ(0, test.Property.Get());
 }
 
-TEST(Test_Conversion, ConstructWithValue)
+TEST(Test_Wrapped, ConstructWithValue)
 {
   UTWrappedTypedDependencyPropertyMethods<int32_t> test(32);
   EXPECT_EQ(32, test.Get());
   EXPECT_EQ(32, test.Property.Get());
 }
 
-TEST(Test_Conversion, Set)
+TEST(Test_Wrapped, Set)
 {
   UTWrappedTypedDependencyPropertyMethods<int32_t> test(32);
   EXPECT_EQ(32, test.Get());
@@ -68,21 +68,21 @@ TEST(Test_Conversion, Set)
 }
 
 
-TEST(Test_Conversion, ConstructRef)
+TEST(Test_Wrapped, ConstructRef)
 {
   UTWrappedTypedDependencyPropertyRefMethods<int32_t> test;
   EXPECT_EQ(0, test.Get());
   EXPECT_EQ(0, test.Property.Get());
 }
 
-TEST(Test_Conversion, ConstructRefWithValue)
+TEST(Test_Wrapped, ConstructRefWithValue)
 {
   UTWrappedTypedDependencyPropertyRefMethods<int32_t> test(32);
   EXPECT_EQ(32, test.Get());
   EXPECT_EQ(32, test.Property.Get());
 }
 
-TEST(Test_Conversion, SetRef)
+TEST(Test_Wrapped, SetRef)
 {
   UTWrappedTypedDependencyPropertyRefMethods<int32_t> test(32);
   EXPECT_EQ(32, test.Get());

@@ -31,14 +31,46 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/ATypedDependencyPropertyRefMethods.hpp>
+#include <FslDataBinding/Base/Internal/PropertyGetInfo.hpp>
 #include <FslDataBinding/Base/Internal/PropertyMethodsImplType.hpp>
 #include <FslDataBinding/Base/Internal/PropertySetResult.hpp>
 
-
 namespace Fsl::DataBinding::Internal::TypedPropertyMethodsUtil
 {
+  template <typename TSource>
+  TSource Get(const PropertyGetInfo& getter)
+  {
+    switch (getter.ImplType)
+    {
+    case PropertyMethodsImplType::ATypedDependencyProperty:
+      {    // Try the normal get method
+        const auto* const pTypedGetOperation = dynamic_cast<const ATypedDependencyPropertyMethods<TSource>*>(getter.pGet);
+        if (pTypedGetOperation != nullptr)
+        {
+          return pTypedGetOperation->Get();
+        }
+        break;
+      }
+    case PropertyMethodsImplType::ATypedDependencyPropertyRef:
+      {    // Try the ref get method
+        const auto* const pTypedGetOperation = dynamic_cast<const ATypedDependencyPropertyRefMethods<TSource>*>(getter.pGet);
+        if (pTypedGetOperation != nullptr)
+        {
+          return pTypedGetOperation->Get();
+        }
+        break;
+      }
+    case PropertyMethodsImplType::NotAvailable:
+    case PropertyMethodsImplType::Undefined:
+    case PropertyMethodsImplType::ObserverDependency:
+      break;
+    }
+    throw NotSupportedException("Unsupported get type (this should not occur, usage error?)");
+  }
+
   // template <typename TTarget>
   // inline bool TryGetByValue(const IPropertyMethods* const pGet, TTarget& rValue)
   //{

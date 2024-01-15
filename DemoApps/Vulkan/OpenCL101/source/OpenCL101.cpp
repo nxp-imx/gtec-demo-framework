@@ -109,6 +109,6 @@ namespace Fsl
 
   void OpenCL101::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

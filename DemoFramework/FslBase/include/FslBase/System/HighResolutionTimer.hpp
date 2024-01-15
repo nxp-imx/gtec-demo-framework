@@ -48,10 +48,10 @@ namespace Fsl
 
     HighResolutionTimer();
 
-    //! @return Returns the current timestamp
+    //! @return Returns the current timestamp (beware this might offer a lower resolution value than using GetNativeTicks)
     TimeSpan GetTimestamp() const noexcept;
 
-
+    //! @return the number of ticks per second
     uint64_t GetNativeTickFrequency() const noexcept
     {
       return m_nativeTicksPerSecond;

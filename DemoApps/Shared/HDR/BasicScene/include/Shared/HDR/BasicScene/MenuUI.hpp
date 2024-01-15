@@ -35,6 +35,7 @@
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/KeyboardState.hpp>
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
@@ -56,6 +57,7 @@ namespace Fsl
       bool B3 = false;
     };
 
+    ColorSpace m_uiColorSpace;
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
     // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
@@ -84,7 +86,7 @@ namespace Fsl
   public:
     TransitionValue SplitX;
 
-    explicit MenuUI(const DemoAppConfig& config);
+    explicit MenuUI(const DemoAppConfig& config, const ColorSpace uiColorSpace);
     ~MenuUI() override;
 
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
@@ -130,7 +132,7 @@ namespace Fsl
     void DestroyMenuUI();
     void UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::Switch>& source);
     std::shared_ptr<UI::CanvasLayout> CreateUI(const std::shared_ptr<UI::WindowContext>& context);
-    std::shared_ptr<UI::BaseWindow> CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context);
+    std::shared_ptr<UI::BaseWindow> CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context, const ColorSpace colorSpace);
   };
 }
 

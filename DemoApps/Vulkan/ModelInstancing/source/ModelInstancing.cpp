@@ -555,7 +555,7 @@ namespace Fsl
 
   void ModelInstancing::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

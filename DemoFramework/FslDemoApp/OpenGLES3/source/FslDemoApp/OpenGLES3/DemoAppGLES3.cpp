@@ -79,4 +79,17 @@ namespace Fsl
     ADemoApp::_EndDraw(frameInfo);
     m_graphicsServiceHost->EndFrame();
   }
+
+  void DemoAppGLES3::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    ADemoApp::ConfigurationChanged(windowMetrics);
+
+    m_graphicsServiceHost->DestroyDependentResources();
+    {    // Adjust the default viewport to fix apps that forget to handle it
+      const PxSize2D sizePx = windowMetrics.GetSizePx();
+      glViewport(0, 0, sizePx.RawWidth(), sizePx.RawHeight());
+    }
+    GraphicsDependentCreateInfo createInfo(windowMetrics.ExtentPx, nullptr);
+    m_graphicsServiceHost->CreateDependentResources(createInfo);
+  }
 }

@@ -97,7 +97,7 @@ namespace Fsl::GLES3
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  GLTextureInfo NativeGraphicsDevice::TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
+  GLTextureInfo NativeGraphicsDevice::TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const noexcept
   {
     return m_textureFactory.TryGetTextureInfo(hTexture);
   }
@@ -106,7 +106,7 @@ namespace Fsl::GLES3
   // Graphics3D::INativeBufferFactory
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  Graphics3D::NativeBufferFactoryCaps NativeGraphicsDevice::GetBufferCaps() const
+  Graphics3D::NativeBufferFactoryCaps NativeGraphicsDevice::GetBufferCaps() const noexcept
   {
     // The buffer factory handles the disposed case
     return m_bufferFactory.GetBufferCaps();
@@ -119,7 +119,7 @@ namespace Fsl::GLES3
     return m_bufferFactory.CreateBuffer(bufferType, bufferData, bufferElementCapacity, isDynamic);
   }
 
-  bool NativeGraphicsDevice::DestroyBuffer(const BasicNativeBufferHandle hBuffer)
+  bool NativeGraphicsDevice::DestroyBuffer(const BasicNativeBufferHandle hBuffer) noexcept
   {
     // The buffer factory handles the disposed case
     return m_bufferFactory.DestroyBuffer(hBuffer);
@@ -164,7 +164,7 @@ namespace Fsl::GLES3
 
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  bool NativeGraphicsDevice::DestroyMaterial(const BasicNativeMaterialHandle hMaterial)
+  bool NativeGraphicsDevice::DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept
   {
     // The factory handles the disposed case
     return m_materialFactory.DestroyMaterial(hMaterial);
@@ -174,7 +174,7 @@ namespace Fsl::GLES3
   // Graphics3D::INativeTextureFactory
   // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-  Graphics3D::NativeTextureFactoryCaps NativeGraphicsDevice::GetTextureCaps() const
+  Graphics3D::NativeTextureFactoryCaps NativeGraphicsDevice::GetTextureCaps() const noexcept
   {
     // The texture factory handles the disposed case
     return m_textureFactory.GetTextureCaps();
@@ -187,7 +187,7 @@ namespace Fsl::GLES3
     return m_textureFactory.CreateTexture(texture, filterHint, textureFlags, isDynamic);
   }
 
-  bool NativeGraphicsDevice::DestroyTexture(const BasicNativeTextureHandle hTexture)
+  bool NativeGraphicsDevice::DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept
   {
     // The texture factory handles the disposed case
     return m_textureFactory.DestroyTexture(hTexture);
@@ -202,7 +202,7 @@ namespace Fsl::GLES3
   }
 
 
-  const IBasicNativeTexture* NativeGraphicsDevice::TryGetTexture(const BasicNativeTextureHandle hTexture) const
+  const IBasicNativeTexture* NativeGraphicsDevice::TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept
   {
     // The texture factory handles the disposed case
     return m_textureFactory.TryGetTexture(hTexture);
@@ -235,7 +235,7 @@ namespace Fsl::GLES3
   }
 
 
-  void NativeGraphicsDevice::EndFrame()
+  void NativeGraphicsDevice::EndFrame() noexcept
   {
     FSLLOG3_ERROR_IF(!m_frame.IsValid, "Ending a frame that wasnt begun");
     m_frame = {};
@@ -258,7 +258,7 @@ namespace Fsl::GLES3
     }
   }
 
-  void NativeGraphicsDevice::EndCache()
+  void NativeGraphicsDevice::EndCache() noexcept
   {
     assert(m_frame.IsValid);
     //! If this fires BeginCache was not called
@@ -285,7 +285,7 @@ namespace Fsl::GLES3
   }
 
 
-  void NativeGraphicsDevice::EndCmds()
+  void NativeGraphicsDevice::EndCmds() noexcept
   {
     // If this fires BeginFrame was not called.
     assert(m_frame.IsValid);
@@ -532,7 +532,7 @@ namespace Fsl::GLES3
   }
 
 
-  void NativeGraphicsDevice::CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex)
+  void NativeGraphicsDevice::CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) noexcept
   {
     // If this fires BeginFrame was not called.
     assert(m_frame.IsValid);
@@ -554,8 +554,13 @@ namespace Fsl::GLES3
       const NativeGraphicsMaterialFactory::MaterialRecord* pMaterialRecord = m_materialFactory.TryGetMaterial(m_frame.Commands.MaterialHandle);
       if (pMaterialRecord != nullptr)
       {
-        const VertexElementAttribLinks& vertexElementAttribLinks = m_materialFactory.GetVertexElementAttribLinks(*pMaterialRecord);
-        m_frame.Cache.SavedState.ChangeVertexAttribsLinks(vertexElementAttribLinks);
+        const VertexElementAttribLinks* const pVertexElementAttribLinks = m_materialFactory.TryGetVertexElementAttribLinks(*pMaterialRecord);
+        if (pVertexElementAttribLinks == nullptr)
+        {
+          FSLLOG3_DEBUG_WARNING("material record was not found, draw command ignored");
+          return;
+        }
+        m_frame.Cache.SavedState.ChangeVertexAttribsLinks(*pVertexElementAttribLinks);
       }
     }
 
@@ -563,7 +568,7 @@ namespace Fsl::GLES3
   }
 
 
-  void NativeGraphicsDevice::CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex)
+  void NativeGraphicsDevice::CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) noexcept
   {
     // If this fires BeginFrame was not called.
     assert(m_frame.IsValid);
@@ -587,8 +592,13 @@ namespace Fsl::GLES3
       const NativeGraphicsMaterialFactory::MaterialRecord* pMaterialRecord = m_materialFactory.TryGetMaterial(m_frame.Commands.MaterialHandle);
       if (pMaterialRecord != nullptr)
       {
-        const VertexElementAttribLinks& vertexElementAttribLinks = m_materialFactory.GetVertexElementAttribLinks(*pMaterialRecord);
-        m_frame.Cache.SavedState.ChangeVertexAttribsLinks(vertexElementAttribLinks);
+        const VertexElementAttribLinks* const pVertexElementAttribLinks = m_materialFactory.TryGetVertexElementAttribLinks(*pMaterialRecord);
+        if (pVertexElementAttribLinks == nullptr)
+        {
+          FSLLOG3_DEBUG_WARNING("material record was not found, draw command ignored");
+          return;
+        }
+        m_frame.Cache.SavedState.ChangeVertexAttribsLinks(*pVertexElementAttribLinks);
       }
     }
 

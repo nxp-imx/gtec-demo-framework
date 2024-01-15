@@ -37,7 +37,7 @@
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
+#include <FslNativeWindow/Platform/Adapter/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <Platform/Android/JNIUtil/JNIUtil.hpp>
 #include <android/log.h>
 #include <android/native_window_jni.h>

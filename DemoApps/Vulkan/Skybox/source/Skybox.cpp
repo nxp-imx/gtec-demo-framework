@@ -232,7 +232,7 @@ namespace Fsl
 
   void Skybox::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

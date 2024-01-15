@@ -1,4 +1,3 @@
-#define LOCAL_SANITY_CHECK
 /****************************************************************************************************************************************************
  * Copyright 2022 NXP
  * All rights reserved.
@@ -31,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslDataBinding/Base/Bind/AConverterBinding.hpp>
 #include <FslDataBinding/Base/Bind/AMultiConverterBinding.hpp>
 #include <FslDataBinding/Base/Binding.hpp>
@@ -38,20 +38,32 @@
 #include <FslDataBinding/Base/Exceptions.hpp>
 #include <FslDataBinding/Base/Internal/IDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/ObserverDependencyPropertyMethods.hpp>
+#include <FslDataBinding/Base/Internal/PropertyChangeState.hpp>
+#include <FslDataBinding/Base/Internal/PropertyChangeStateUtil.hpp>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <utility>
 
+#ifdef NDEBUG
+#define LOCAL_SANITY_CHECK
+#endif
+
 #ifndef LOCAL_SANITY_CHECK
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_DO_SANITY_CHECK() \
   {                             \
   }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define LOCAL_DO_SANITY_NO_PROPERTY_CHANGE_STATE() \
+  {                                                \
+  }
 #else
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_DO_SANITY_CHECK() assert(SanityCheck());
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define LOCAL_DO_SANITY_NO_PROPERTY_CHANGE_STATE() assert(SanityCheckNoPropertyChangeState());
 #endif
 
 namespace Fsl::DataBinding
@@ -113,6 +125,73 @@ namespace Fsl::DataBinding
       return false;
     }
 
+    //! Check if 'record' has a two-way bound target
+    bool HasTwoWayBoundTarget(const HandleVector<Internal::ServiceBindingRecord>& instances, const Internal::ServiceBindingRecord& record) noexcept
+    {
+      auto targets = record.TargetHandles();
+      for (const auto target : targets)
+      {
+        if (instances.FastGet(target.Value).SourceBindingMode() == BindingMode::TwoWay)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    //! Check if 'record' has a two way bound source or target
+    bool IsTwoWayBound(const HandleVector<Internal::ServiceBindingRecord>& instances, const Internal::ServiceBindingRecord& record) noexcept
+    {
+      return (record.HasValidSourceHandles() && record.SourceBindingMode() == BindingMode::TwoWay) || HasTwoWayBoundTarget(instances, record);
+    }
+
+    struct CreateTwoWayGroupContext
+    {
+      TwoWayDataBindingGroupManager& rGroupManager;
+      const HandleVector<Internal::ServiceBindingRecord>& Instances;
+      const DataBindingGroupInstanceHandle Group;
+
+      CreateTwoWayGroupContext(TwoWayDataBindingGroupManager& rTheGroupManager, const HandleVector<Internal::ServiceBindingRecord>& instances,
+                               const DataBindingGroupInstanceHandle group)
+        : rGroupManager(rTheGroupManager)
+        , Instances(instances)
+        , Group(group)
+      {
+      }
+    };
+
+
+    void AddToGroup(const CreateTwoWayGroupContext& context, const DataBindingInstanceHandle hInstance,
+                    const Internal::ServiceBindingRecord& instanceRecord)
+    {
+      // Add the initial entry
+      if (context.rGroupManager.TryAddToGroup(context.Group, hInstance))
+      {
+        {    // Add the targets
+          for (const auto hTarget : instanceRecord.TargetHandles())
+          {
+            const Internal::ServiceBindingRecord* pTargetInstance = context.Instances.TryGet(hTarget.Value);
+            if (pTargetInstance != nullptr)
+            {
+              AddToGroup(context, hTarget, *pTargetInstance);
+            }
+          }
+        }
+        if (instanceRecord.HasValidSourceHandles())
+        {    // Add sources
+          for (const auto hSource : instanceRecord.SourceHandles())
+          {
+            const Internal::ServiceBindingRecord* pTargetInstance = context.Instances.TryGet(hSource.Value);
+            if (pTargetInstance != nullptr)
+            {
+              AddToGroup(context, hSource, *pTargetInstance);
+            }
+          }
+        }
+      }
+    }
+
+
     // This will not add or remove elements from rInstances so any references or pointers into it will remain unchanged
     bool ClearSourceBindings(HandleVector<Internal::ServiceBindingRecord>& rInstances, const DataBindingInstanceHandle hTarget) noexcept
     {
@@ -128,7 +207,7 @@ namespace Fsl::DataBinding
         // Lookup the source
         auto& rOldSource = rInstances.FastGet(srcHandle.Value);
         // then find and remove the key from the source targets vector
-        EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rOldSource.Handles, hTarget);
+        EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rOldSource.m_handles, hTarget);
       }
       const bool changed = !sourceHandles.empty();
 
@@ -434,12 +513,84 @@ namespace Fsl::DataBinding
       }
       return Internal::PropertySetResult::UnsupportedBindingType;
     }
+
+
+    Internal::PropertySetResult
+      ExecuteDependencyPropertyReverseGetSetMultiConverterBinding(const HandleVector<Internal::ServiceBindingRecord>& instances,
+                                                                  const Internal::ServiceBindingRecord& from)
+    {
+      // Since this is a reverse operation the 'from' actually contains the converter
+      auto* const pMultiConverter = dynamic_cast<AMultiConverterBinding*>(from.SourceUserBinding().get());
+      if (pMultiConverter != nullptr)
+      {
+        std::array<Internal::PropertySetInfo, Internal::DbsConstants::MaxMultiBindSize> setters;
+        auto toHandles = from.SourceHandles();
+        assert(toHandles.size() <= setters.size());
+        for (std::size_t i = 0; i < toHandles.size(); ++i)
+        {
+          const Internal::ServiceBindingRecord* const pTargetRecord = instances.TryGet(toHandles[i].Value);
+          if (pTargetRecord == nullptr)
+          {
+            FSLLOG3_DEBUG_WARNING("Failed to acqurie binding record");
+            return Internal::PropertySetResult::UnsupportedGetType;
+          }
+          setters[i] = Internal::PropertySetInfo(pTargetRecord->Instance.GetPropertyMethodsImplType(), pTargetRecord->Methods.get());
+        }
+        std::array<Internal::PropertySetResult, Internal::DbsConstants::MaxMultiBindSize> setResults{};
+        if (!pMultiConverter->TryConvertBack(SpanUtil::AsSpan(setResults),
+                                             ReadOnlySpanUtil::AsSpan(setters, toHandles.size(), OptimizationCheckFlag::NoCheck),
+                                             Internal::PropertyGetInfo(from.Instance.GetPropertyMethodsImplType(), from.Methods.get())))
+        {
+          return Internal::PropertySetResult::NotSupported;
+        }
+        // Scan the result and determine if we encountered a error or if a value was changed/unchanged
+        bool valueChanged = false;
+        for (std::size_t i = 0; i < toHandles.size(); ++i)
+        {
+          switch (setResults[i])
+          {
+          case Internal::PropertySetResult::ValueChanged:
+            valueChanged = true;
+            break;
+          case Internal::PropertySetResult::ValueUnchanged:
+            break;
+          default:
+            return setResults[i];
+          }
+        }
+        return valueChanged ? Internal::PropertySetResult::ValueChanged : Internal::PropertySetResult::ValueUnchanged;
+      }
+      return Internal::PropertySetResult::UnsupportedBindingType;
+    }
+
+
+    bool HandleSetResult(const Internal::PropertySetResult setResult)
+    {
+      switch (setResult)
+      {
+      case Internal::PropertySetResult::ValueUnchanged:
+        return false;
+      case Internal::PropertySetResult::ValueChanged:
+        return true;
+      case Internal::PropertySetResult::UnsupportedGetType:
+        throw NotSupportedException("Unsupported get type (this should not occur)");
+      case Internal::PropertySetResult::UnsupportedSetType:
+        throw NotSupportedException("Unsupported set type (this should not occur)");
+      case Internal::PropertySetResult::UnsupportedBindingType:
+        throw NotSupportedException("Unsupported binding type (this should not occur)");
+      case Internal::PropertySetResult::NotSupported:
+        throw NotSupportedException("Set is unsupported (this should not occur)");
+      }
+      throw InternalErrorException(fmt::format("Unsupported setResult: {}", static_cast<int32_t>(setResult)));
+    }
   }
+
 
   DataBindingService::~DataBindingService()
   {
     MarkShutdownIntend();
   }
+
 
   void DataBindingService::MarkShutdownIntend() noexcept
   {
@@ -448,18 +599,6 @@ namespace Fsl::DataBinding
     {
       FSLLOG3_ERROR("there are {} data binding instances that where not properly destroyed", m_instances.Count());
     }
-  }
-
-  DataBindingInstanceHandle DataBindingService::CreateDependencyObject()
-  {
-    if (m_callContext.State != CallContextState::Idle && m_callContext.State != CallContextState::ExecutingObserverCallbacks)
-    {
-      throw UsageErrorException("CreateDependencyObject: Can not be called from this context");
-    }
-
-    EnsureDestroyCapacity();
-    auto handle = m_instances.Add(Internal::ServiceBindingRecord(DataBindingInstanceType::DependencyObject, Internal::InstanceState::Flags::NoFlags));
-    return DataBindingInstanceHandle(handle);
   }
 
 
@@ -474,6 +613,20 @@ namespace Fsl::DataBinding
     auto handle = m_instances.Add(Internal::ServiceBindingRecord(DataBindingInstanceType::DataSourceObject, ToFlags(flags)));
     return DataBindingInstanceHandle(handle);
   }
+
+
+  DataBindingInstanceHandle DataBindingService::CreateDependencyObject()
+  {
+    if (m_callContext.State != CallContextState::Idle && m_callContext.State != CallContextState::ExecutingObserverCallbacks)
+    {
+      throw UsageErrorException("CreateDependencyObject: Can not be called from this context");
+    }
+
+    EnsureDestroyCapacity();
+    auto handle = m_instances.Add(Internal::ServiceBindingRecord(DataBindingInstanceType::DependencyObject, Internal::InstanceState::Flags::NoFlags));
+    return DataBindingInstanceHandle(handle);
+  }
+
 
   DataBindingInstanceHandle DataBindingService::CreateDependencyObjectProperty(DataBindingInstanceHandle hDependencyObject,
                                                                                const DependencyPropertyDefinition& propertyDefinition,
@@ -529,7 +682,7 @@ namespace Fsl::DataBinding
       // Mark the record as destroyed and schedule it for destruction
       pRecord->Instance.SetDataBindingInstanceState(DataBindingInstanceState::DestroyScheduled);
       pRecord->Methods.reset();    // Clear the methods to ensure we don't call a invalid pointer
-      for (const auto hProperty : pRecord->Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties))
+      for (const auto hProperty : pRecord->PropertyHandles())
       {
         Internal::ServiceBindingRecord& rPropertyRecord = m_instances.FastGet(hProperty.Value);
         rPropertyRecord.Instance.SetDataBindingInstanceState(DataBindingInstanceState::DestroyScheduled);
@@ -565,6 +718,7 @@ namespace Fsl::DataBinding
     return ClearSourceBindings(m_instances, hTarget);
   }
 
+
   bool DataBindingService::SetBinding(const DataBindingInstanceHandle hTarget, const Binding& binding)
   {
     if (m_callContext.State != CallContextState::Idle && m_callContext.State != CallContextState::ExecutingObserverCallbacks)
@@ -578,7 +732,7 @@ namespace Fsl::DataBinding
         assert(!binding.ComplexBinding());
         const auto sourceHandlesSpan = binding.SourceHandlesAsSpan();
         assert(sourceHandlesSpan.size() == 1u);
-        m_pendingBindings.emplace(hTarget, sourceHandlesSpan.front());
+        m_pendingBindings.emplace(hTarget, sourceHandlesSpan.front(), binding.Mode());
         return true;
       }
       throw UsageErrorException("SetBinding: Can not be called from this context");
@@ -587,11 +741,11 @@ namespace Fsl::DataBinding
   }
 
 
-  bool DataBindingService::Changed(const DataBindingInstanceHandle hInstance)
+  bool DataBindingService::Changed(const DataBindingInstanceHandle hInstance, const PropertyChangeReason changeReason)
   {
     if (m_callContext.State != CallContextState::Idle && m_callContext.State != CallContextState::ExecutingObserverCallbacks)
     {
-      if (m_callContext.State == CallContextState::ExecutingChanges && m_callContext.Handle == hInstance)
+      if (m_callContext.State == CallContextState::ExecutingChanges && m_callContext.ContainsHandle(hInstance))
       {
         // We ignore 'changed' calls from the specific instance that we are executing a callback to
         return true;
@@ -599,7 +753,7 @@ namespace Fsl::DataBinding
       throw UsageErrorException("Changed: Can not be called from this context");
     }
     Internal::ServiceBindingRecord& rChangedInstance = m_instances.Get(hInstance.Value);
-    return ScheduleChanged(hInstance, rChangedInstance, false);
+    return ScheduleChanged(hInstance, rChangedInstance, changeReason);
   }
 
 
@@ -609,7 +763,7 @@ namespace Fsl::DataBinding
     if (m_callContext.State != CallContextState::ExecutingChanges)
     {
       const Internal::ServiceBindingRecord* const pRecord = m_instances.TryGet(hInstance.Value);
-      isReadOnly = pRecord == nullptr || pRecord->HasValidSourceHandles();
+      isReadOnly = pRecord == nullptr || (pRecord->HasValidSourceHandles() && !IsTwoWayBound(m_instances, *pRecord));
     }
     return isReadOnly;
   }
@@ -624,10 +778,14 @@ namespace Fsl::DataBinding
     uint32_t changeLoopCounter = 0;
     do
     {
+      assert(m_changesOneWay.empty());
+
       // Since we are single threaded and destroy the instance id's here
       // It means that the 'deferred' changes to destroyed instances will fail to acquire their instance and thereby be ignored.
       DestroyScheduledNow();
 
+      // Determine pending changes
+      DeterminePendingChanges();
       // Execute all pending changes
       ExecutePendingChangesNow();
       // Execute all pending observer bindings now
@@ -635,7 +793,7 @@ namespace Fsl::DataBinding
 
       ExecuteObserverCallbacksNow();
       ++changeLoopCounter;
-    } while (!m_changes.empty() && changeLoopCounter < LocalConfig::MaxExecuteLoopCount);
+    } while (!m_pendingChanges.empty() && changeLoopCounter < LocalConfig::MaxExecuteLoopCount);
     FSLLOG3_WARNING_IF(changeLoopCounter >= LocalConfig::MaxExecuteLoopCount, "ExecuteChanges max allowed loops reached");
   }
 
@@ -660,6 +818,7 @@ namespace Fsl::DataBinding
     catch (const std::exception&)
     {
       ClearSourceBindings(m_instances, hTarget);
+      LOCAL_DO_SANITY_CHECK();
       throw;
     }
 
@@ -685,18 +844,31 @@ namespace Fsl::DataBinding
           // Check if the source would create a cyclic dependency
           CheckForCyclicDependencies(hTarget, hSource);
 
+          if (binding.Mode() == BindingMode::TwoWay)
+          {
+            CheckTwoWayBindingSourceRules(hSource);
+          }
+
           // Link the source to the target
           // - We do the push first so that if it throws 'the new bind' will be fully reversed.
           //   But we do lose any previous binding that might have been removed already
-
-          m_instances.FastGet(hSource.Value).Handles.PushBack(Internal::ServicePropertyVectorIndex::Targets, hTarget);
+          m_instances.FastGet(hSource.Value).m_handles.PushBack(Internal::ServicePropertyVectorIndex::Targets, hTarget);
         }
 
         // All cyclic dependency checks passed and we updated all the sources with hTarget as a target
         // So its time to update the target record with the new source
         Internal::ServiceBindingRecord& rTargetInstance = m_instances.FastGet(hTarget.Value);
-        rTargetInstance.SetSource(binding);
+        if (binding.Mode() == BindingMode::OneWay)
+        {
+          CheckTwoWayBindingTargetRules(rTargetInstance);
+        }
 
+        rTargetInstance.SetSource(binding);
+        // If the target is marked as changed, mark all parent sources as changed as well
+        if (rTargetInstance.Instance.HasPendingChanges())
+        {
+          RecursiveMarkAsChanged(hTarget, rTargetInstance);
+        }
         LOCAL_DO_SANITY_CHECK();
 
         // We only allow skipping during
@@ -705,25 +877,29 @@ namespace Fsl::DataBinding
 
         if (m_callContext.State != CallContextState::ExecutePendingBindings)
         {
-          // Mark as source as changed as a simple but slightly expensive way to populate the target
+          // Mark source as changed as a simple but slightly expensive way to populate the target
           for (const auto hSource : binding.SourceHandlesAsSpan())
           {
-            ScheduleChanged(hSource, m_instances.FastGet(hSource.Value), true);
+            ScheduleChanged(hSource, m_instances.FastGet(hSource.Value), PropertyChangeReason::Refresh);
           }
         }
-
-        // LOCAL_DO_SANITY_CHECK();
 
         LOCAL_DO_SANITY_CHECK();
       }
       catch (const std::exception& ex)
       {
         FSLLOG3_VERBOSE("Exception occurred: '{}'", ex.what());
+        {    // Clear the source handles of the target
+          Internal::ServiceBindingRecord& rTargetInstance = m_instances.FastGet(hTarget.Value);
+          rTargetInstance.ClearSourceHandles();
+        }
+
         // Rolling back all in-progress changes
         for (const auto hSource : inProgressSourceBindings.SourceHandles())
         {
-          EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(m_instances.FastGet(hSource.Value).Handles, hTarget);
+          EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(m_instances.FastGet(hSource.Value).m_handles, hTarget);
         }
+        LOCAL_DO_SANITY_CHECK();
         throw;
       }
     }
@@ -732,23 +908,81 @@ namespace Fsl::DataBinding
 
 
   bool DataBindingService::ScheduleChanged(const DataBindingInstanceHandle hChangedInstance, Internal::ServiceBindingRecord& rChangedInstance,
-                                           const bool forced)
+                                           const PropertyChangeReason changeReason)
   {
     assert(rChangedInstance.Instance.IsObservable());
 
     bool allowChanges = true;
-    if (rChangedInstance.Instance.GetState() == DataBindingInstanceState::Alive)
+    if (rChangedInstance.Instance.GetState() == DataBindingInstanceState::Alive &&
+        (rChangedInstance.HasValidSourceHandles() || !rChangedInstance.m_handles.Empty(Internal::ServicePropertyVectorIndex::Targets)))
     {
-      // only allow changes if forced or there is no source attached
-      allowChanges = forced || !rChangedInstance.HasValidSourceHandles();
-      if (allowChanges && !rChangedInstance.Handles.Empty(Internal::ServicePropertyVectorIndex::Targets) &&
-          !rChangedInstance.Instance.HasPendingChanges())
-      {
-        rChangedInstance.Instance.MarkPendingChanges();
-        m_changes.push(hChangedInstance);
+      const auto instanceChangeState = rChangedInstance.Instance.GetPropertyChangeState();
+      assert(changeReason == PropertyChangeReason::Refresh || changeReason == PropertyChangeReason::Modified);
+      assert(instanceChangeState == Internal::PropertyChangeState::Unchanged || instanceChangeState == Internal::PropertyChangeState::Refresh ||
+             instanceChangeState == Internal::PropertyChangeState::Modified);
+
+      if (instanceChangeState == Internal::PropertyChangeState::Unchanged)
+      {    // Untouched instance, so just mark it with the reason and push a instance changed entry
+        rChangedInstance.Instance.SetPropertyChangeState(Internal::PropertyChangeStateUtil::UncheckedToPropertyChangeState(changeReason));
+        // The instance can not exist already as any 'pushed' entries are marked with a different PropertyChangeState
+        assert(std::find(m_pendingChanges.begin(), m_pendingChanges.end(), hChangedInstance) == m_pendingChanges.end());
+        m_pendingChanges.push_back(hChangedInstance);
+      }
+      else if (instanceChangeState == Internal::PropertyChangeState::Refresh && changeReason == PropertyChangeReason::Refresh)
+      {    // the instance is marked as a refresh change and the new change is also a refresh request, so just remove the initial queued entry and
+           // insert a new one
+        assert(instanceChangeState == Internal::PropertyChangeState::Refresh);
+        // Replace the 'refresh' request with a more serious modify request
+        auto itrFind = std::find(m_pendingChanges.begin(), m_pendingChanges.end(), hChangedInstance);
+        assert(itrFind != m_pendingChanges.end());
+        m_pendingChanges.erase(itrFind);
+        m_pendingChanges.push_back(hChangedInstance);
+      }
+      else if (changeReason == PropertyChangeReason::Modified)
+      {    // as its a modify we just replace any existing entry with the new state
+        assert(instanceChangeState == Internal::PropertyChangeState::Refresh || instanceChangeState == Internal::PropertyChangeState::Modified);
+        // Replace the 'refresh' request with a more serious modify request
+        auto itrFind = std::find(m_pendingChanges.begin(), m_pendingChanges.end(), hChangedInstance);
+        assert(itrFind != m_pendingChanges.end());
+        m_pendingChanges.erase(itrFind);
+        rChangedInstance.Instance.SetPropertyChangeState(Internal::PropertyChangeState::Modified);
+        m_pendingChanges.push_back(hChangedInstance);
       }
     }
+    // the new design always allow the local changes and rely on the 'ExecuteChanges' to correct it
     return allowChanges;
+  }
+
+
+  void DataBindingService::RecursiveMarkAsChanged(const DataBindingInstanceHandle hInstance, Internal::ServiceBindingRecord& rInstance)
+  {
+    assert(rInstance.Instance.GetState() == DataBindingInstanceState::Alive);
+
+    ReadOnlySpan<DataBindingInstanceHandle> sourceHandles = rInstance.SourceHandles();
+    bool wasMarked = rInstance.Instance.HasPendingChanges();
+    rInstance.Instance.MarkPendingChanges();
+
+    bool hasSource = !sourceHandles.empty();
+    if (hasSource)
+    {
+      hasSource = false;
+      for (const auto& hSource : sourceHandles)
+      {
+        Internal::ServiceBindingRecord& rSourceInstance = m_instances.FastGet(hSource.Value);
+        if (rSourceInstance.Instance.GetState() == DataBindingInstanceState::Alive)
+        {
+          hasSource = true;
+          RecursiveMarkAsChanged(hSource, rSourceInstance);
+        }
+      }
+    }
+    if (!hasSource)
+    {
+      if (!wasMarked)
+      {
+        m_changesOneWay.push(hInstance);
+      }
+    }
   }
 
 
@@ -760,14 +994,14 @@ namespace Fsl::DataBinding
       const auto hCurrent = DataBindingInstanceHandle(m_instances.FastIndexToHandle(i));
 
       // Validate that all handle properties are valid
-      for (const auto handle : record.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties))
+      for (const auto handle : record.PropertyHandles())
       {
         if (m_instances.TryGet(handle.Value) == nullptr)
         {
           return false;
         }
       }
-      for (const auto handle : record.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+      for (const auto handle : record.TargetHandles())
       {
         // Verify that the instance exist
         const auto* pRecord = m_instances.TryGet(handle.Value);
@@ -792,12 +1026,62 @@ namespace Fsl::DataBinding
             return false;
           }
           // Verify that the handle exist in the found To
-          const auto sourceRecordTargetSpan = pSourceRecord->Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets);
+          const auto sourceRecordTargetSpan = pSourceRecord->TargetHandles();
           if (std::find(sourceRecordTargetSpan.begin(), sourceRecordTargetSpan.end(), hCurrent) == sourceRecordTargetSpan.end())
           {    // The handle was not found (so the two way linking is corrupt)
             return false;
           }
+          // Verify that two way bindings are valid
+          if (record.SourceBindingMode() == BindingMode::TwoWay && pSourceRecord->HasValidSourceHandles() &&
+              pSourceRecord->SourceBindingMode() == BindingMode::OneWay)
+          {
+            // A source that is bound as 'two way' can not itself have a source that is one way
+            return false;
+          }
         }
+
+        // We do only need to run this check if the record is marked as changed and if it has sources attached
+        if (record.Instance.HasPendingChanges() && record.HasValidSourceHandles())
+        {    // Check that instances that are marked with pending changes either has no source or all parent sources are marked as well
+          if (!SanityCheckAllParentSourceMarkedAsChanged(record))
+          {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  bool DataBindingService::SanityCheckAllParentSourceMarkedAsChanged(const Internal::ServiceBindingRecord& record) const
+  {
+    auto sources = record.SourceHandles();
+    for (auto hSource : sources)
+    {
+      const Internal::ServiceBindingRecord& sourceRecord = m_instances.FastGet(hSource.Value);
+
+      if (sourceRecord.Instance.GetState() == DataBindingInstanceState::Alive &&
+          (!sourceRecord.Instance.HasPendingChanges() ||
+           (sourceRecord.HasValidSourceHandles() && !SanityCheckAllParentSourceMarkedAsChanged(sourceRecord))))
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+  bool DataBindingService::SanityCheckNoPropertyChangeState() const
+  {
+    if (!SanityCheck())
+    {
+      return false;
+    }
+    for (uint32_t i = 0; i < m_instances.Count(); ++i)
+    {
+      if (m_instances[i].Instance.GetPropertyChangeState() != Internal::PropertyChangeState::Unchanged)
+      {
+        return false;
       }
     }
     return true;
@@ -827,7 +1111,7 @@ namespace Fsl::DataBinding
     try
     {
       Internal::ServiceBindingRecord& rParentInstance = m_instances.FastGet(hOwner.Value);
-      rParentInstance.Handles.PushBack(Internal::ServicePropertyVectorIndex::Properties, hNew);
+      rParentInstance.m_handles.PushBack(Internal::ServicePropertyVectorIndex::Properties, hNew);
     }
     catch (const std::exception&)
     {
@@ -851,7 +1135,7 @@ namespace Fsl::DataBinding
       {
         const auto pendingBinding = m_pendingBindings.front();
         m_pendingBindings.pop();
-        DoSetBinding(pendingBinding.TargetHandle, Binding(pendingBinding.SourceHandle));
+        DoSetBinding(pendingBinding.TargetHandle, Binding(pendingBinding.SourceHandle, pendingBinding.Mode));
         m_pendingObserverCallbacks.emplace(pendingBinding.TargetHandle, pendingBinding.SourceHandle);
       }
       m_callContext = {};
@@ -869,7 +1153,7 @@ namespace Fsl::DataBinding
   void DataBindingService::ExecuteObserverCallbacksNow()
   {
     assert(m_callContext.State == CallContextState::Idle);
-    assert(!m_callContext.Handle.IsValid());
+    assert(m_callContext.HandlesEmpty());
 
     if (!m_pendingObserverCallbacks.empty())
     {
@@ -896,32 +1180,114 @@ namespace Fsl::DataBinding
     }
   }
 
+
+  void DataBindingService::DeterminePendingChanges()
+  {
+    assert(m_changesOneWay.empty());
+
+    m_groupManager.ClearGroups();
+    for (const DataBindingInstanceHandle hChangedInstance : m_pendingChanges)
+    {
+      Internal::ServiceBindingRecord* pChangedInstance = m_instances.TryGet(hChangedInstance.Value);
+      if (pChangedInstance != nullptr)
+      {
+        DeterminePendingChange(hChangedInstance, *pChangedInstance);
+        pChangedInstance->Instance.ClearPropertyChangeState();
+      }
+    }
+    m_pendingChanges.clear();
+
+    // m_groupManager now contains information about the last element that was changed inside a two-way binding group
+    ScheduleTwoWayChanges();
+
+    // Sanity check the current state. This verifies that no nodes are marked as changed after 'DeterminePendingChanges' was done
+    LOCAL_DO_SANITY_NO_PROPERTY_CHANGE_STATE();
+  }
+
+  void DataBindingService::DeterminePendingChange(const DataBindingInstanceHandle hChangedInstance, Internal::ServiceBindingRecord& rChangedInstance)
+  {
+    if (rChangedInstance.Instance.GetState() == DataBindingInstanceState::Alive)
+    {
+      if (IsTwoWayBound(m_instances, rChangedInstance))
+      {    // A two way binding, so we need to resolve
+        DataBindingGroupInstanceHandle hTwoWayGroup = m_groupManager.TryGetGroup(hChangedInstance);
+        const auto changeReason =
+          Internal::PropertyChangeStateUtil::UncheckedToPropertyChangeReason(rChangedInstance.Instance.GetPropertyChangeState());
+        if (!hTwoWayGroup.IsValid())
+        {
+          hTwoWayGroup = m_groupManager.CreateGroup(hChangedInstance, changeReason);
+          CreateTwoWayGroupContext context(m_groupManager, m_instances, hTwoWayGroup);
+          AddToGroup(context, hChangedInstance, rChangedInstance);
+          assert(hTwoWayGroup.IsValid());
+        }
+        else if (changeReason != PropertyChangeReason::Refresh)
+        {    // Only update the info if its something else than refresh
+          m_groupManager.UncheckedSetGroupInfo(hTwoWayGroup, hChangedInstance, changeReason);
+        }
+      }
+      else
+      {
+        if (!rChangedInstance.HasValidSourceHandles())
+        {    // there is no source attached to the instance
+          if (!rChangedInstance.m_handles.Empty(Internal::ServicePropertyVectorIndex::Targets) && !rChangedInstance.Instance.HasPendingChanges())
+          {
+            rChangedInstance.Instance.MarkPendingChanges();
+            m_changesOneWay.push(hChangedInstance);
+          }
+        }
+        else
+        {    // there is a source attached, but the constraints on the instance was changed, so allow the change and mark all 'parent' sources as
+          RecursiveMarkAsChanged(hChangedInstance, rChangedInstance);
+        }
+      }
+    }
+  }
+
+
+  void DataBindingService::ScheduleTwoWayChanges()
+  {
+    assert(m_changesTwoWay.empty());
+    const uint32_t groupCount = m_groupManager.GroupCount();
+    for (uint32_t i = 0; i < groupCount; ++i)
+    {
+      const DataBindingInstanceHandle hChangedInstanceHandle = m_groupManager[i];
+      m_changesTwoWay.push(hChangedInstanceHandle);
+    }
+    // Clear the group manager content as its no longer needed
+    m_groupManager.ClearGroups();
+  }
+
   // Beware this modifies the m_pendingObserverCallbacks with observer instances that need to be executed
   void DataBindingService::ExecutePendingChangesNow()
   {
-    assert(m_callContext.State == CallContextState::Idle);
-    assert(!m_callContext.Handle.IsValid());
+    assert(m_pendingObserverCallbacks.empty());
+    ExecutePendingTwoWayChangesNow();
+    ExecutePendingOneWayChangesNow();
+  }
 
-    if (!m_changes.empty())
+  void DataBindingService::ExecutePendingTwoWayChangesNow()
+  {
+    assert(m_callContext.State == CallContextState::Idle);
+    assert(m_callContext.HandlesEmpty());
+
+    if (!m_changesTwoWay.empty())
     {
       LOCAL_DO_SANITY_CHECK();
 
       try
       {
         m_callContext.State = CallContextState::ExecutingChanges;
-        assert(m_pendingObserverCallbacks.empty());
-        while (!m_changes.empty())
+        while (!m_changesTwoWay.empty())
         {
-          const auto hChangedInstance = m_changes.front();
-          m_changes.pop();
+          const auto hChangedInstance = m_changesTwoWay.front();
+          m_changesTwoWay.pop();
           auto* pChangedInstance = m_instances.TryGet(hChangedInstance.Value);
           if (pChangedInstance != nullptr)
           {
-            assert(pChangedInstance->Instance.HasPendingChanges());
             pChangedInstance->Instance.ClearPendingChanges();
 
             // this method does not modify m_instances so the reference "pChangedInstance" into it is safe
-            ExecuteChangesTo(hChangedInstance, *pChangedInstance);
+            ExecuteTwoWayChangesTo(hChangedInstance, *pChangedInstance, {});
           }
         }
         m_callContext = {};
@@ -936,20 +1302,132 @@ namespace Fsl::DataBinding
     }
   }
 
+  void DataBindingService::ExecutePendingOneWayChangesNow()
+  {
+    assert(m_callContext.State == CallContextState::Idle);
+    assert(m_callContext.HandlesEmpty());
+
+    if (!m_changesOneWay.empty())
+    {
+      LOCAL_DO_SANITY_CHECK();
+
+      try
+      {
+        m_callContext.State = CallContextState::ExecutingChanges;
+        while (!m_changesOneWay.empty())
+        {
+          const auto hChangedInstance = m_changesOneWay.front();
+          m_changesOneWay.pop();
+          auto* pChangedInstance = m_instances.TryGet(hChangedInstance.Value);
+          if (pChangedInstance != nullptr)
+          {
+            assert(pChangedInstance->Instance.HasPendingChanges());
+            pChangedInstance->Instance.ClearPendingChanges();
+
+            // this method does not modify m_instances so the reference "pChangedInstance" into it is safe
+            ExecuteOneWayChangesTo(hChangedInstance, *pChangedInstance);
+          }
+        }
+        m_callContext = {};
+      }
+      catch (const std::exception&)
+      {
+        m_callContext = {};
+        FSLLOG3_ERROR("Exeception during DataBinding ExecutePendingOneWayChangesNow");
+        throw;
+      }
+      LOCAL_DO_SANITY_CHECK();
+    }
+  }
+
+  void DataBindingService::ExecuteTwoWayChangesTo(const DataBindingInstanceHandle hSource, const Internal::ServiceBindingRecord& source,
+                                                  const DataBindingInstanceHandle hSkip)
+  {
+    assert(m_callContext.State == CallContextState::ExecutingChanges);
+    if (source.Instance.GetState() == DataBindingInstanceState::Alive)
+    {
+      // Execute the change to 'sources'
+      for (const auto hFrom : source.SourceHandles())
+      {
+        if (hFrom != hSkip)
+        {
+          auto& rFrom = m_instances.FastGet(hFrom.Value);
+          if (rFrom.Instance.GetState() == DataBindingInstanceState::Alive)
+          {
+            switch (rFrom.Instance.GetType())
+            {
+            // case DataBindingInstanceType::DependencyObserverProperty:
+            //   m_pendingObserverCallbacks.emplace(hFrom, hSource);
+            //   break;
+            case DataBindingInstanceType::DependencyProperty:
+              ExecuteDependencyPropertyReverseGetSet(hFrom, rFrom, source);
+              // Two-way changes are always propagated to all 'group members'
+              rFrom.Instance.ClearPendingChanges();
+              // Execute any pending changes to dependent resources
+              ExecuteTwoWayChangesTo(hFrom, rFrom, hSource);
+              break;
+            default:
+              throw InternalErrorException("Change to a object of a unsupported type");
+            }
+          }
+          else
+          {
+            FSLLOG3_ERROR("Encountered dead 'to' instance, that ought to have been filtered before");
+          }
+        }
+      }
+
+      // Execute the change to 'targets'
+      for (const auto hTarget : source.TargetHandles())
+      {
+        if (hTarget != hSkip)
+        {
+          auto& rTarget = m_instances.FastGet(hTarget.Value);
+          if (rTarget.Instance.GetState() == DataBindingInstanceState::Alive)
+          {
+            switch (rTarget.Instance.GetType())
+            {
+            // case DataBindingInstanceType::DependencyObserverProperty:
+            //   m_pendingObserverCallbacks.emplace(hTarget, hSource);
+            //   break;
+            case DataBindingInstanceType::DependencyProperty:
+              ExecuteDependencyPropertyGetSet(hTarget, rTarget, source);
+              // Two-way changes are always propagated to all 'group members'
+              rTarget.Instance.ClearPendingChanges();
+              // Execute any pending changes to dependent resources
+              ExecuteTwoWayChangesTo(hTarget, rTarget, hSource);
+              break;
+            default:
+              throw InternalErrorException("Change to a object of a unsupported type");
+            }
+          }
+          else
+          {
+            FSLLOG3_ERROR("Encountered dead 'to' instance, that ought to have been filtered before");
+          }
+        }
+      }
+    }
+    else
+    {
+      FSLLOG3_ERROR("Encountered dead 'changed' instance, that ought to have been filtered before");
+    }
+  }
+
   // Beware this modifies the m_pendingObserverCallbacks with observer instances that need to be executed
-  void DataBindingService::ExecuteChangesTo(const DataBindingInstanceHandle hSource, const Internal::ServiceBindingRecord& source)
+  void DataBindingService::ExecuteOneWayChangesTo(const DataBindingInstanceHandle hSource, const Internal::ServiceBindingRecord& source)
   {
     assert(m_callContext.State == CallContextState::ExecutingChanges);
     if (source.Instance.GetState() == DataBindingInstanceState::Alive)
     {
       // Execute the change
-      for (const auto hTarget : source.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+      for (const auto hTarget : source.TargetHandles())
       {
-        const auto& target = m_instances.FastGet(hTarget.Value);
-        if (target.Instance.GetState() == DataBindingInstanceState::Alive)
+        auto& rTarget = m_instances.FastGet(hTarget.Value);
+        if (rTarget.Instance.GetState() == DataBindingInstanceState::Alive)
         {
           bool changed = false;
-          switch (target.Instance.GetType())
+          switch (rTarget.Instance.GetType())
           {
           case DataBindingInstanceType::DependencyObserverProperty:
             m_pendingObserverCallbacks.emplace(hTarget, hSource);
@@ -960,26 +1438,28 @@ namespace Fsl::DataBinding
           //  target.pDataTarget->OnChanged(hChangedInstance);
           //  break;
           case DataBindingInstanceType::DependencyProperty:
-            changed = ExecuteDependencyPropertyGetSet(hTarget, target, source);
+            changed = ExecuteDependencyPropertyGetSet(hTarget, rTarget, source);
             break;
           default:
             throw InternalErrorException("Change to a object of a unsupported type");
           }
-          if (changed)
+          if (changed || rTarget.Instance.HasPendingChanges())
           {
+            rTarget.Instance.ClearPendingChanges();
+
             // Execute any pending changes to dependent resources
-            ExecuteChangesTo(hTarget, target);
+            ExecuteOneWayChangesTo(hTarget, rTarget);
           }
         }
         else
         {
-          FSLLOG3_ERROR("Encountered dead to instance, that ought to have been filtered before");
+          FSLLOG3_ERROR("Encountered dead 'to' instance, that ought to have been filtered before");
         }
       }
     }
     else
     {
-      FSLLOG3_ERROR("Encountered dead changed instance, that ought to have been filtered before");
+      FSLLOG3_ERROR("Encountered dead 'changed' instance, that ought to have been filtered before");
     }
   }
 
@@ -1034,7 +1514,7 @@ namespace Fsl::DataBinding
     try
     {
       {
-        m_callContext.Handle = hTarget;
+        m_callContext.SetHandle(hTarget);
         if (!target.SourceUserBinding())
         {
           // We assume we have a both a get and set
@@ -1053,36 +1533,68 @@ namespace Fsl::DataBinding
             setResult = ExecuteDependencyPropertyGetSetMultiConverterBinding(m_instances, target);
           }
         }
-        m_callContext.Handle = {};
+        m_callContext.ClearHandles();
       }
       assert(m_callContext.State == CallContextState::ExecutingChanges);
     }
     catch (const std::exception& ex)
     {
       assert(m_callContext.State == CallContextState::ExecutingChanges);
-      m_callContext.Handle = {};
+      m_callContext.ClearHandles();
       FSLLOG3_ERROR("Exeception occurred during ExecuteDependencyPropertyGetSet callback: {}", ex.what());
       throw;
     }
-
-    switch (setResult)
-    {
-    case Internal::PropertySetResult::ValueUnchanged:
-      return false;
-    case Internal::PropertySetResult::ValueChanged:
-      return true;
-    case Internal::PropertySetResult::UnsupportedGetType:
-      throw NotSupportedException("Unsupported get type (this should not occur)");
-    case Internal::PropertySetResult::UnsupportedSetType:
-      throw NotSupportedException("Unsupported set type (this should not occur)");
-    case Internal::PropertySetResult::UnsupportedBindingType:
-      throw NotSupportedException("Unsupported binding type (this should not occur)");
-    case Internal::PropertySetResult::NotSupported:
-      throw NotSupportedException("Set is unsupported (this should not occur)");
-    }
-    throw InternalErrorException(fmt::format("Unsupported setResult: {}", static_cast<int32_t>(setResult)));
+    return HandleSetResult(setResult);
   }
 
+
+  bool DataBindingService::ExecuteDependencyPropertyReverseGetSet(const DataBindingInstanceHandle hTo, const Internal::ServiceBindingRecord& to,
+                                                                  const Internal::ServiceBindingRecord& from)
+  {
+    assert(m_callContext.State == CallContextState::ExecutingChanges);
+    assert(hTo.IsValid());
+    assert(from.Methods);
+    assert(to.Methods);
+    Internal::PropertySetResult setResult{Internal::PropertySetResult::NotSupported};
+    try
+    {
+      {
+        // Since its a reverse get/set we need to check the source user binding to see if there is a converter inplace
+        if (!from.SourceUserBinding())
+        {
+          m_callContext.SetHandle(hTo);
+          // We assume we have a both a get and set
+          setResult = to.Methods->TrySet(from.Methods.get());
+        }
+        else
+        {
+          auto* const pConverter = dynamic_cast<AConverterBinding*>(from.SourceUserBinding().get());
+          if (pConverter != nullptr)
+          {
+            m_callContext.SetHandle(hTo);
+
+            setResult = pConverter->ConvertBack(to.Instance.GetPropertyMethodsImplType(), to.Methods.get(),
+                                                from.Instance.GetPropertyMethodsImplType(), from.Methods.get());
+          }
+          else
+          {
+            m_callContext.SetHandles(from.SourceHandles());
+            setResult = ExecuteDependencyPropertyReverseGetSetMultiConverterBinding(m_instances, from);
+          }
+        }
+        m_callContext.ClearHandles();
+      }
+      assert(m_callContext.State == CallContextState::ExecutingChanges);
+    }
+    catch (const std::exception& ex)
+    {
+      assert(m_callContext.State == CallContextState::ExecutingChanges);
+      m_callContext.ClearHandles();
+      FSLLOG3_ERROR("Exeception occurred during ExecuteDependencyPropertyGetSet callback: {}", ex.what());
+      throw;
+    }
+    return HandleSetResult(setResult);
+  }
 
   void DataBindingService::DestroyScheduledNow() noexcept
   {
@@ -1122,7 +1634,7 @@ namespace Fsl::DataBinding
       }
 
       // Remove all bindings that use this instance as a source
-      for (const auto hTarget : pRecord->Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+      for (const auto hTarget : pRecord->m_handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
       {
         Internal::ServiceBindingRecord& rToRecord = m_instances.FastGet(hTarget.Value);
         assert(rToRecord.ContainsSource(hInstance));
@@ -1134,7 +1646,7 @@ namespace Fsl::DataBinding
           {
             FSLLOG3_VERBOSE4("- Remove source {} from {}", srcHandle.Value, hTarget.Value);
             Internal::ServiceBindingRecord& rMultiBindSource = m_instances.FastGet(srcHandle.Value);
-            EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rMultiBindSource.Handles, hTarget);
+            EraseFirst<Internal::ServicePropertyVectorIndex::Targets>(rMultiBindSource.m_handles, hTarget);
           }
         }
         else
@@ -1143,14 +1655,14 @@ namespace Fsl::DataBinding
         }
         rToRecord.ClearSourceHandles();
       }
-      pRecord->Handles.Clear(Internal::ServicePropertyVectorIndex::Targets);
+      pRecord->ClearTargetHandles();
 
       // Destroy all properties of this instance
-      for (const auto hProperty : pRecord->Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties))
+      for (const auto hProperty : pRecord->PropertyHandles())
       {
         DoDestroyInstanceNow(hProperty);
       }
-      pRecord->Handles.Clear(Internal::ServicePropertyVectorIndex::Properties);
+      pRecord->ClearPropertyHandles();
 
       m_instances.FastRemoveAt(m_instances.FastHandleToIndex(hInstance.Value));
     }
@@ -1168,11 +1680,34 @@ namespace Fsl::DataBinding
     // The target is not expected to have any existing source
     assert(!targetRecord.HasValidSourceHandles());
 
-    for (const auto entry : targetRecord.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+    for (const auto entry : targetRecord.TargetHandles())
     {
       if (IsInstanceTarget(entry, hSource))
       {
         throw CyclicBindingException("Circular dependency found");
+      }
+    }
+  }
+
+
+  void DataBindingService::CheckTwoWayBindingSourceRules(const DataBindingInstanceHandle hSource) const
+  {
+    const Internal::ServiceBindingRecord& sourceRecord = m_instances.FastGet(hSource.Value);
+    if (sourceRecord.HasValidSourceHandles() && sourceRecord.SourceBindingMode() == BindingMode::OneWay)
+    {
+      throw TwoWayBindingSourceException("A two way binding source can not be the target of a one way binding");
+    }
+  }
+
+
+  void DataBindingService::CheckTwoWayBindingTargetRules(const Internal::ServiceBindingRecord& targetInstance) const
+  {
+    for (const auto entry : targetInstance.TargetHandles())
+    {
+      const Internal::ServiceBindingRecord& targetRecord = m_instances.FastGet(entry.Value);
+      if (targetRecord.SourceBindingMode() == BindingMode::TwoWay)
+      {
+        throw TwoWayBindingSourceException("A one way binding target can not be a two way binding source");
       }
     }
   }
@@ -1186,7 +1721,7 @@ namespace Fsl::DataBinding
       const auto& record = m_instances.FastGet(hInstance.Value);
       if (record.Instance.GetState() == DataBindingInstanceState::Alive)
       {
-        for (const auto entry : record.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+        for (const auto entry : record.TargetHandles())
         {
           if (IsInstanceTarget(entry, hEntry))
           {

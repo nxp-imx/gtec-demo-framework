@@ -58,7 +58,7 @@ namespace
 TEST(TestTextureAtlas_BasicTextureAtlas, Construct_Default)
 {
   BasicTextureAtlas atlas;
-  EXPECT_EQ(0, atlas.Count());
+  EXPECT_EQ(0u, atlas.Count());
   EXPECT_THROW(CallGetEntry(atlas, 0), std::invalid_argument);
   EXPECT_THROW(atlas.SetEntry(0, PxRectangleU32::Create(2, 2, 3, 3), PxThicknessU::Create(2, 2, 5, 5), 160, "hello"), std::invalid_argument);
 }
@@ -67,7 +67,7 @@ TEST(TestTexture_BasicTextureAtlas, Reset)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  EXPECT_EQ(1, atlas.Count());
+  EXPECT_EQ(1u, atlas.Count());
   {
     const auto& entry0 = atlas.GetEntry(0);
     EXPECT_EQ(UTF8String(), entry0.Name);

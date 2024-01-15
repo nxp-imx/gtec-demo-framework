@@ -61,7 +61,7 @@ namespace Fsl::Graphics3D
       return Value != HandleVectorConfig::InvalidHandle;
     }
 
-    static constexpr InternalMaterialHandle Invalid()
+    static constexpr InternalMaterialHandle Invalid() noexcept
     {
       return {};
     }

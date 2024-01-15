@@ -51,25 +51,97 @@ namespace Fsl::Vulkan
     //! Resources that are duplicated per command buffer to ensure that it wont be 'in-use' while we update it
     struct FrameResources
     {
+      FrameResources(const FrameResources&) = delete;
+      FrameResources& operator=(const FrameResources&) = delete;
+
+      FrameResources() = default;
+
       Vulkan::VUBufferMemory VertUboBuffer;
-      VkDescriptorSet DescriptorSet;
+      VkDescriptorSet DescriptorSet{};
       Vulkan::VMVertexBuffer LineVertBuffer;
+
+      void Reset() noexcept
+      {
+        // Use destruction order
+        LineVertBuffer.Reset();
+        DescriptorSet = {};
+        VertUboBuffer.Reset();
+      }
+
+      FrameResources(FrameResources&& other) noexcept
+        : VertUboBuffer(std::move(other.VertUboBuffer))
+        , DescriptorSet(other.DescriptorSet)
+        , LineVertBuffer(std::move(other.LineVertBuffer))
+      {
+        // Remove the data from other
+        other.DescriptorSet = {};
+      }
+
+      FrameResources& operator=(FrameResources&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
+
+          // Claim ownership here
+          VertUboBuffer = std::move(other.VertUboBuffer);
+          DescriptorSet = other.DescriptorSet;
+          LineVertBuffer = std::move(other.LineVertBuffer);
+
+          // Remove the data from other
+          other.DescriptorSet = {};
+        }
+        return *this;
+      }
     };
 
     struct Resources
     {
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
+
+      Resources() = default;
+
       bool IsValid{false};
       std::shared_ptr<VMBufferManager> BufferManager;
       RapidVulkan::DescriptorSetLayout MainDescriptorSetLayout;
       RapidVulkan::DescriptorPool MainDescriptorPool;
       RapidVulkan::PipelineLayout MainPipelineLayout;
       std::vector<FrameResources> MainFrameResources;
+
+      void Reset()
+      {
+        // Use destruction order
+        MainFrameResources.clear();
+        MainPipelineLayout.Reset();
+        MainDescriptorPool.Reset();
+        MainDescriptorSetLayout.Reset();
+        BufferManager.reset();
+        IsValid = false;
+      }
     };
 
     struct DependentResources
     {
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      DependentResources() = default;
+
       bool IsValid{false};
       RapidVulkan::GraphicsPipeline PipelineRender;
+
+      void Reset()
+      {
+        // Use destruction order
+        PipelineRender.Reset();
+        IsValid = false;
+      }
     };
 
     Resources m_resources;

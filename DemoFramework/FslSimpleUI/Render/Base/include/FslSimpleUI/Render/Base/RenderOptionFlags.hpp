@@ -44,6 +44,7 @@ namespace Fsl::UI
     DrawReorder = 0x08,
     MeshCaching = 0x10,
     PreferFastReorder = 0x20,
+    DrawOnChange = 0x40,
   };
 
   constexpr inline RenderOptionFlags operator|(const RenderOptionFlags lhs, const RenderOptionFlags rhs) noexcept

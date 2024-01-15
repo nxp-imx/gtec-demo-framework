@@ -176,6 +176,26 @@ namespace Fsl
                                                       texArea, proceduralConfig.Winding);
     }
 
+    void UpdateVertexBuffer(GLES3::GLVertexBuffer& rVB, PxSize2D windowSizePx, const GLES3::GLTexture& texDescriptionAtlas,
+                            const AtlasTextureInfo texDescription)
+    {
+      const Vector2 res(windowSizePx.RawWidth() / 2, windowSizePx.RawHeight() / 2);
+      const Vector2 atlasSize(TypeConverter::UncheckedTo<Vector2>(texDescriptionAtlas.GetSize()));
+
+      // texSize.X / tex
+      float x1 = -1.0f - (static_cast<float>(texDescription.OffsetPx.X.Value) / res.X);
+      float x2 = x1 + (static_cast<float>(texDescription.TrimmedRectPx.Width.Value) / res.X);
+      float y1 = -1.0f - (static_cast<float>(texDescription.OffsetPx.Y.Value) / res.Y);
+      float y2 = y1 + (static_cast<float>(texDescription.TrimmedRectPx.Height.Value) / res.Y);
+
+      float u1 = static_cast<float>(texDescription.TrimmedRectPx.RawLeft()) / atlasSize.X;
+      float v1 = 1.0f - (static_cast<float>(texDescription.TrimmedRectPx.RawTop()) / atlasSize.Y);
+      float u2 = static_cast<float>(texDescription.TrimmedRectPx.RawRight()) / atlasSize.X;
+      float v2 = 1.0f - (static_cast<float>(texDescription.TrimmedRectPx.RawBottom()) / atlasSize.Y);
+
+      BuildVB(rVB, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
+    }
+
   }
 
   FurShellRendering::FurShellRendering(const DemoAppConfig& config)
@@ -353,21 +373,7 @@ namespace Fsl
       m_resources.TexDescriptionAtlas = CreateMainAtlasTexture(contentManager);
       m_resources.TexDescription = CreateMainAtlasTextureInfo(contentManager);
 
-      const Vector2 res(config.ScreenResolution.X / 2, config.ScreenResolution.Y / 2);
-      const Vector2 atlasSize(TypeConverter::UncheckedTo<Vector2>(m_resources.TexDescriptionAtlas.GetSize()));
-
-      // texSize.X / tex
-      float x1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.X.Value) / res.X);
-      float x2 = x1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Width.Value) / res.X);
-      float y1 = -1.0f - (static_cast<float>(m_resources.TexDescription.OffsetPx.Y.Value) / res.Y);
-      float y2 = y1 + (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.Height.Value) / res.Y);
-
-      float u1 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawLeft()) / atlasSize.X;
-      float v1 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawTop()) / atlasSize.Y);
-      float u2 = static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawRight()) / atlasSize.X;
-      float v2 = 1.0f - (static_cast<float>(m_resources.TexDescription.TrimmedRectPx.RawBottom()) / atlasSize.Y);
-
-      BuildVB(m_resources.VBDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
+      UpdateVertexBuffer(m_resources.VBDescription, config.WindowMetrics.GetSizePx(), m_resources.TexDescriptionAtlas, m_resources.TexDescription);
 
       m_resources.BasicProgram.Reset(contentManager->ReadAllText("BasicShader.vert"), contentManager->ReadAllText("BasicShader.frag"));
     }
@@ -375,6 +381,13 @@ namespace Fsl
 
 
   FurShellRendering::~FurShellRendering() = default;
+
+
+  void FurShellRendering::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    DemoAppGLES3::ConfigurationChanged(windowMetrics);
+    UpdateVertexBuffer(m_resources.VBDescription, windowMetrics.GetSizePx(), m_resources.TexDescriptionAtlas, m_resources.TexDescription);
+  }
 
 
   void FurShellRendering::Update(const DemoTime& demoTime)

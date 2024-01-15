@@ -1,7 +1,7 @@
 #ifndef FSLSERVICE_IMPL_SERVICETYPE_ASYNC_ASYNCHRONOUSSERVICEIMPLFACTORYTEMPLATE_HPP
 #define FSLSERVICE_IMPL_SERVICETYPE_ASYNC_ASYNCHRONOUSSERVICEIMPLFACTORYTEMPLATE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2017, 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,27 @@ namespace Fsl
       return std::shared_ptr<IService>(new T(createInfo, provider));
     }
   };
+
+  template <typename T, typename TCustomArg0>
+  class AsynchronousServiceImplFactoryCustomArgTemplate : public AsynchronousServiceImplFactoryBase
+  {
+    using custom_arg0_type = TCustomArg0;
+
+    custom_arg0_type m_customArg0;
+
+  public:
+    explicit AsynchronousServiceImplFactoryCustomArgTemplate(const custom_arg0_type& customArg0)
+      : AsynchronousServiceImplFactoryBase(typeid(T))
+      , m_customArg0(customArg0)
+    {
+    }
+
+    std::shared_ptr<IService> Allocate(const AsynchronousServiceImplCreateInfo& createInfo, ServiceProvider& provider) override
+    {
+      return std::shared_ptr<IService>(new T(createInfo, provider, m_customArg0));
+    }
+  };
+
 }
 
 #endif

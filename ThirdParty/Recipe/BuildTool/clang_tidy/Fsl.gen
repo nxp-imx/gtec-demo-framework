@@ -4,8 +4,8 @@
     <Dependency Name="Recipe.BuildTool.clang"/>
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="clang-tidy" Alternatives="clang-tidy-15" MinVersion="15.0" VersionCommand="-version" VersionRegEx="LLVM version\s*([\d.]+)" Help="Please install clang-tidy 15.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
-        <FindExecutableFileInPath Name="clang-apply-replacements" Alternatives="clang-apply-replacements-15" MinVersion="15.0" VersionCommand="-version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang-tidy 15.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang-tidy" Alternatives="clang-tidy-16" MinVersion="16.0" VersionCommand="-version" VersionRegEx="LLVM version\s*([\d.]+)" Help="Please install clang-tidy 16.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang-apply-replacements" Alternatives="clang-apply-replacements-16" MinVersion="16.0" VersionCommand="-version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang-tidy 16.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
       </Installation>
     </ExperimentalRecipe>
   </ToolRecipe>

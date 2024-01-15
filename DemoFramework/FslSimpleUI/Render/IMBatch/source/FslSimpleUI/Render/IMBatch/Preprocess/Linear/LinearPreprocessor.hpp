@@ -100,6 +100,10 @@ namespace Fsl::UI::RenderIMBatch
                                                                                 transparentMaterialCache, commandSpan, meshManager, m_windowSizePx);
 
       const uint32_t totalCount = result.OpaqueCount + result.TransparentCount;
+
+      // FSLLOG3_INFO("commandSpan:{} Opaque:{} Transparent:{} totalCount:{}", commandSpan.size(), result.OpaqueCount, result.TransparentCount,
+      //              totalCount);
+
       if (totalCount > m_finalEntries.size())
       {
         m_finalEntries.resize(static_cast<std::size_t>(totalCount) + PreprocessConfig::ProcessedGrowBy);

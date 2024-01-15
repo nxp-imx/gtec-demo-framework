@@ -31,7 +31,10 @@
 
 #include "MaterialLookup.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Sprite/ISprite.hpp>
+
+// #define LOCAL_SANITY_CHECK
 
 namespace Fsl::UI::RenderIMBatch
 {
@@ -135,5 +138,32 @@ namespace Fsl::UI::RenderIMBatch
       return m_materials.Remove(batchMaterialHandle.Value);
     }
     return false;
+  }
+
+
+  void MaterialLookup::SanityCheck(const std::map<BatchMaterialHandle, uint32_t>& expectedRefCountMap) noexcept
+  {
+#ifndef LOCAL_SANITY_CHECK
+    FSL_PARAM_NOT_USED(expectedRefCountMap);
+#else
+    for (uint32_t i = 0; i < m_materials.Count(); ++i)
+    {
+      auto handle = BatchMaterialHandle(m_materials.FastIndexToHandle(i));
+      if (handle != m_defaultHandle)
+      {
+        const auto itrFind = expectedRefCountMap.find(handle);
+        if (itrFind == expectedRefCountMap.end())
+        {
+          // "MaterialLookup contains unknown handle"
+          assert(false);
+        }
+        else if (itrFind->second != m_materials[i].RefCount)
+        {
+          // "MaterialLookup contains refcount is not correct"
+          assert(false);
+        }
+      }
+    }
+#endif
   }
 }

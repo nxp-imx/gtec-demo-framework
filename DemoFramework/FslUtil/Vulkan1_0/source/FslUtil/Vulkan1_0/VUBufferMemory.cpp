@@ -104,9 +104,10 @@ namespace Fsl::Vulkan
     assert(m_buffer.IsValid());
     assert(m_memory.IsValid());
 
+    // Use destruction order
+    m_descriptorBufferInfo = {};
     m_memory.Reset();
     m_buffer.Reset();
-    m_descriptorBufferInfo = {};
   }
 
 

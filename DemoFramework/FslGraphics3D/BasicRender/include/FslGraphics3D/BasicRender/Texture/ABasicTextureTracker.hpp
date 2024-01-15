@@ -54,15 +54,15 @@ namespace Fsl::Graphics3D
     {
     }
 
-    virtual ~ABasicTextureTracker() = default;
+    virtual ~ABasicTextureTracker() noexcept = default;
 
 
-    constexpr PxExtent2D GetExtent2D() const
+    constexpr PxExtent2D GetExtent2D() const noexcept
     {
       return {m_extentPx.Width, m_extentPx.Height};
     }
 
-    constexpr PxExtent3D GetExtent3D() const
+    constexpr PxExtent3D GetExtent3D() const noexcept
     {
       return m_extentPx;
     }

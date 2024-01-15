@@ -127,6 +127,12 @@ namespace Fsl
       // SetupDescriptorSet
       // We use the native type here since this is managed by a pool
       VkDescriptorSet DescriptorSet{VK_NULL_HANDLE};
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
 
@@ -134,6 +140,19 @@ namespace Fsl
     {
       RapidVulkan::RenderPass MainRenderPass;
       RapidVulkan::GraphicsPipeline Pipeline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Pipeline.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
     CameraInfo m_cameraInfo;

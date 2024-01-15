@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDataBinding/Base/Bind/BindingType.hpp>
+#include <FslDataBinding/Base/BindingCapabilityFlags.hpp>
 
 namespace Fsl::DataBinding
 {
@@ -44,6 +45,8 @@ namespace Fsl::DataBinding
     virtual ~IComplexBinding() = default;
 
     virtual BindingType GetBindingType() const noexcept = 0;
+
+    virtual BindingCapabilityFlags GetCaps() const noexcept = 0;
   };
 }
 

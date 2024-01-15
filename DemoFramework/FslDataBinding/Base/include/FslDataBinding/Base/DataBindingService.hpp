@@ -33,11 +33,15 @@
 
 #include <FslBase/Collections/HandleVector.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
+#include <FslDataBinding/Base/BindingMode.hpp>
 #include <FslDataBinding/Base/DataBindingInstanceHandle.hpp>
 #include <FslDataBinding/Base/DataSourceFlags.hpp>
 #include <FslDataBinding/Base/Internal/IPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/ServiceBindingRecord.hpp>
+#include <FslDataBinding/Base/PropertyChangeReason.hpp>
+#include <FslDataBinding/Base/TwoWayDataBindingGroupManager.hpp>
 #include <array>
+#include <deque>
 #include <memory>
 #include <queue>
 #include <typeindex>
@@ -52,7 +56,6 @@ namespace Fsl::DataBinding
   {
     class IDependencyPropertyMethods;
     class ObserverDependencyPropertyMethods;
-
 
     namespace DbsConstants
     {
@@ -75,7 +78,56 @@ namespace Fsl::DataBinding
     struct CallContext
     {
       CallContextState State{CallContextState::Idle};
-      DataBindingInstanceHandle Handle;
+
+    private:
+      std::array<DataBindingInstanceHandle, Internal::DbsConstants::MaxMultiBindSize> m_handles;
+      std::uint32_t m_handleCount;
+
+    public:
+      void ClearHandles()
+      {
+        assert(m_handleCount <= m_handles.size());
+        for (std::size_t i = 0; i < m_handleCount; ++i)
+        {
+          m_handles[i] = {};
+        }
+        m_handleCount = 0;
+      }
+
+      void SetHandle(const DataBindingInstanceHandle handle)
+      {
+        assert(m_handleCount == 0);
+        m_handles[0] = handle;
+        m_handleCount = 1;
+      }
+
+      void SetHandles(const ReadOnlySpan<DataBindingInstanceHandle> handles)
+      {
+        assert(m_handleCount == 0);
+        assert(handles.size() <= m_handles.size());
+        for (std::size_t i = 0; i < handles.size(); ++i)
+        {
+          m_handles[i] = handles[i];
+        }
+        m_handleCount = UncheckedNumericCast<uint32_t>(handles.size());
+      }
+
+      bool HandlesEmpty() const
+      {
+        return m_handleCount <= 0;
+      }
+
+      bool ContainsHandle(const DataBindingInstanceHandle handle) const
+      {
+        for (std::size_t i = 0; i < m_handleCount; ++i)
+        {
+          if (m_handles[i] == handle)
+          {
+            return true;
+          }
+        }
+        return false;
+      }
     };
 
     struct ObserverRecord
@@ -95,19 +147,25 @@ namespace Fsl::DataBinding
     {
       DataBindingInstanceHandle TargetHandle;
       DataBindingInstanceHandle SourceHandle;
+      BindingMode Mode{BindingMode::OneWay};
 
       DeferredBindingRecord() = default;
-      DeferredBindingRecord(const DataBindingInstanceHandle hTarget, const DataBindingInstanceHandle hSource)
+      DeferredBindingRecord(const DataBindingInstanceHandle hTarget, const DataBindingInstanceHandle hSource, const BindingMode mode) noexcept
         : TargetHandle(hTarget)
         , SourceHandle(hSource)
+        , Mode(mode)
       {
       }
     };
 
+    TwoWayDataBindingGroupManager m_groupManager;
+
     HandleVector<Internal::ServiceBindingRecord> m_instances;
     // We ensure that this vector can always hold m_instances.Count entries (so the schedule of a destroy will never fail)
     std::vector<DataBindingInstanceHandle> m_scheduledForDestroy;
-    std::queue<DataBindingInstanceHandle> m_changes;
+    std::vector<DataBindingInstanceHandle> m_pendingChanges;
+    std::queue<DataBindingInstanceHandle> m_changesOneWay;
+    std::queue<DataBindingInstanceHandle> m_changesTwoWay;
     std::queue<ObserverRecord> m_pendingObserverCallbacks;
     std::queue<DeferredBindingRecord> m_pendingBindings;
     CallContext m_callContext;
@@ -127,7 +185,7 @@ namespace Fsl::DataBinding
 
     std::size_t PendingChanges() const noexcept
     {
-      return m_changes.size();
+      return m_pendingChanges.size();
     }
 
     std::size_t PendingDestroys() const noexcept
@@ -135,11 +193,19 @@ namespace Fsl::DataBinding
       return m_scheduledForDestroy.size();
     }
 
-    DataBindingInstanceHandle CreateDependencyObject();
     DataBindingInstanceHandle CreateDataSourceObject(const DataSourceFlags flags);
+
+    //! @brief Create a dependency object
+    //! @note  This is used for any dependency object currently being tracked and bind-able.
+    DataBindingInstanceHandle CreateDependencyObject();
+
+    //! @brief Create a dependency object property
+    //! @param hDependencyObject the DependencyObject to create the property on.
+    //! @note  This creates a actual 'bindable' property
     DataBindingInstanceHandle CreateDependencyObjectProperty(DataBindingInstanceHandle hDependencyObject,
                                                              const DependencyPropertyDefinition& propertyDefinition,
                                                              std::unique_ptr<Internal::IDependencyPropertyMethods> methods);
+    //! @brief Create a dependency object observer property
     DataBindingInstanceHandle CreateDependencyObjectObserverProperty(const DataBindingInstanceHandle hOwner,
                                                                      const DependencyPropertyDefinition& propertyDefinition,
                                                                      std::unique_ptr<Internal::ObserverDependencyPropertyMethods> methods);
@@ -151,7 +217,7 @@ namespace Fsl::DataBinding
 
     bool ClearBinding(const DataBindingInstanceHandle hTarget);
     bool SetBinding(const DataBindingInstanceHandle hTarget, const Binding& binding);
-    bool Changed(const DataBindingInstanceHandle hInstance);
+    bool Changed(const DataBindingInstanceHandle hInstance, const PropertyChangeReason changeReason);
     bool IsPropertyReadOnly(const DataBindingInstanceHandle hInstance) const noexcept;
 
     //! Execute all pending changes
@@ -161,31 +227,46 @@ namespace Fsl::DataBinding
     bool SanityCheck() const;
 
   private:
+    bool SanityCheckAllParentSourceMarkedAsChanged(const Internal::ServiceBindingRecord& record) const;
+    bool SanityCheckNoPropertyChangeState() const;
+
     DataBindingInstanceHandle DoCreateDependencyObjectProperty(const DataBindingInstanceHandle hOwner,
                                                                const DependencyPropertyDefinition& propertyDefinition,
                                                                std::unique_ptr<Internal::IPropertyMethods> methods,
                                                                const DataBindingInstanceType propertyType,
                                                                const Internal::InstanceState::Flags flags);
 
-
+    void DeterminePendingChanges();
+    void DeterminePendingChange(const DataBindingInstanceHandle hChangedInstance, Internal::ServiceBindingRecord& rChangedInstance);
+    void ScheduleTwoWayChanges();
     void ExecutePendingChangesNow();
+    void ExecutePendingTwoWayChangesNow();
+    void ExecutePendingOneWayChangesNow();
     void ExecutePendingBindingsNow();
     void ExecuteObserverCallbacksNow();
-    void ExecuteChangesTo(const DataBindingInstanceHandle hSource, const Internal::ServiceBindingRecord& source);
+    void ExecuteTwoWayChangesTo(const DataBindingInstanceHandle hSource, const Internal::ServiceBindingRecord& source,
+                                const DataBindingInstanceHandle hSkip);
+    void ExecuteOneWayChangesTo(const DataBindingInstanceHandle hSource, const Internal::ServiceBindingRecord& source);
     void ExecuteInstanceObserverCallback(const DataBindingInstanceHandle hTarget, const DataBindingInstanceHandle hSource);
     bool ExecuteDependencyPropertyGetSet(const DataBindingInstanceHandle hTarget, const Internal::ServiceBindingRecord& target,
                                          const Internal::ServiceBindingRecord& source);
+    bool ExecuteDependencyPropertyReverseGetSet(const DataBindingInstanceHandle hTo, const Internal::ServiceBindingRecord& to,
+                                                const Internal::ServiceBindingRecord& from);
 
     // If a exception occurs when provided with a valid binding the 'old' source will be cleared and nothing of the requested bind will have been
     // applied
     bool DoSetBinding(const DataBindingInstanceHandle hTarget, const Binding& binding);
 
-    bool ScheduleChanged(const DataBindingInstanceHandle hChangedInstance, Internal::ServiceBindingRecord& rChangedInstance, const bool force);
+    bool ScheduleChanged(const DataBindingInstanceHandle hChangedInstance, Internal::ServiceBindingRecord& rChangedInstance,
+                         const PropertyChangeReason changeReason);
+    void RecursiveMarkAsChanged(const DataBindingInstanceHandle hInstance, Internal::ServiceBindingRecord& rInstance);
     void DestroyScheduledNow() noexcept;
     void EnsureDestroyCapacity();
     void DoDestroyInstanceNow(DataBindingInstanceHandle hInstance) noexcept;
 
     void CheckForCyclicDependencies(const DataBindingInstanceHandle hTarget, const DataBindingInstanceHandle hSource) const;
+    void CheckTwoWayBindingSourceRules(const DataBindingInstanceHandle hSource) const;
+    void CheckTwoWayBindingTargetRules(const Internal::ServiceBindingRecord& targetInstance) const;
     bool IsInstanceTarget(const DataBindingInstanceHandle hInstance, const DataBindingInstanceHandle hEntry) const;
   };
 }

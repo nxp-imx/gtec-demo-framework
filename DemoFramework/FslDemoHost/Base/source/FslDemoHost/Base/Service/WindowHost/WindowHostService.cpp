@@ -45,6 +45,7 @@ namespace Fsl
   void WindowHostService::ClearWindowSystem()
   {
     m_windowSystem.reset();
+    m_windows.clear();
   }
 
 

@@ -119,7 +119,7 @@ namespace Fsl::DataBinding
           GetInstanceHandleOnDemand(pOwnerThis, pObserver, rDependencyObject, thisPropertyDef);
           assert(m_hInstance.IsValid());
         }
-        if (rDependencyObject.PropertyChanged(m_hInstance))
+        if (rDependencyObject.PropertyChanged(m_hInstance, PropertyChangeReason::Modified))
         {
           assert(m_hObserverInstance.IsValid());
           m_value = value;

@@ -139,12 +139,13 @@ namespace Fsl::Vulkan
     assert(m_buffer.IsValid());
     assert(m_memory.IsValid());
 
+    // Use destruction order
+    m_elementSize = 0u;
+    m_segmentStride = 0u;
+    m_segmentCount = 0u;
+    m_descriptorBufferInfo = {};
     m_memory.Reset();
     m_buffer.Reset();
-    m_descriptorBufferInfo = {};
-    m_segmentCount = 0u;
-    m_segmentStride = 0u;
-    m_elementSize = 0u;
   }
 
 

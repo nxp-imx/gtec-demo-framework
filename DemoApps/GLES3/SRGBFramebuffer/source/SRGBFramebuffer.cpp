@@ -57,16 +57,25 @@ namespace Fsl
 
   namespace
   {
-    const Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
+    constexpr Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+
+    bool IsSRGBFrameBuffer(const std::shared_ptr<ITag>& tag)
+    {
+      const auto userTagEx = std::dynamic_pointer_cast<SharedData>(tag);
+      return userTagEx && userTagEx->SRGBFramebufferEnabled;
+    }
+
   }
 
 
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
+    , m_hasSRGBFramebuffer(IsSRGBFrameBuffer(config.CustomConfig.AppRegistrationUserTag))
+    , m_colorSpace(!m_hasSRGBFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SRGBLinear)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(
-        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
+                                                         UIDemoAppExtension::CreateConfig(m_colorSpace)))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -83,18 +92,15 @@ namespace Fsl
     , m_splitSceneAlphaL(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
     , m_splitSceneAlphaR(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
-    const auto userTagEx = std::dynamic_pointer_cast<SharedData>(config.CustomConfig.AppRegistrationUserTag);
-    bool hasSRGBFramebuffer = userTagEx && userTagEx->SRGBFramebufferEnabled;
-
     m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
     PrepareTransition();
     PrepareLights();
-    CreateUI(hasSRGBFramebuffer);
+    CreateUI();
     CreateTextures(contentManager);
-    m_program = CreateShader(contentManager, hasSRGBFramebuffer);
+    m_program = CreateShader(contentManager, m_hasSRGBFramebuffer);
     CreateVertexArray(m_program);
 
     UpdateUIToState();
@@ -478,7 +484,7 @@ namespace Fsl
   }
 
 
-  void SRGBFramebuffer::CreateUI(const bool hasSRGBFramebuffer)
+  void SRGBFramebuffer::CreateUI()
   {
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
@@ -486,8 +492,8 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    auto uiThemeControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
-    auto& factory = *uiThemeControlFactory;
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension, m_colorSpace);
+    auto& factory = *uiControlFactory;
 
     // Create a label to write stuff into when a button is pressed
 
@@ -499,7 +505,7 @@ namespace Fsl
     m_labelRight->SetAlignmentX(UI::ItemAlignment::Far);
     m_labelRight->SetAlignmentY(UI::ItemAlignment::Near);
 
-    auto label1 = factory.CreateLabel(hasSRGBFramebuffer ? "SRGB framebuffer" : "SRGB framebuffer not available. Emulating output using shader");
+    auto label1 = factory.CreateLabel(m_hasSRGBFramebuffer ? "SRGB framebuffer" : "SRGB framebuffer not available. Emulating output using shader");
     label1->SetAlignmentX(UI::ItemAlignment::Center);
     label1->SetAlignmentY(UI::ItemAlignment::Center);
 

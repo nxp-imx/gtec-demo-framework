@@ -64,18 +64,18 @@ namespace Fsl
       virtual void DestroyDependentResources() = 0;
 
       virtual void BeginFrame(const BasicNativeBeginFrameInfo& frameInfo) = 0;
-      virtual void EndFrame() = 0;
+      virtual void EndFrame() noexcept = 0;
       virtual void BeginCache() = 0;
-      virtual void EndCache() = 0;
+      virtual void EndCache() noexcept = 0;
       virtual void BeginCmds() = 0;
-      virtual void EndCmds() = 0;
+      virtual void EndCmds() noexcept = 0;
       virtual void CmdSetCamera(const BasicCameraInfo& cameraInfo) = 0;
       virtual void CmdBindIndexBuffer(const BasicNativeBufferHandle indexBuffer) = 0;
       virtual void CmdBindMaterial(const BasicNativeMaterialHandle material, const BasicMaterialVariables& materialVariables,
                                    const ReadOnlySpan<BasicNativeTextureHandle> textures) = 0;
       virtual void CmdBindVertexBuffer(const BasicNativeBufferHandle vertexBuffer) = 0;
-      virtual void CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) = 0;
-      virtual void CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) = 0;
+      virtual void CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) noexcept = 0;
+      virtual void CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) noexcept = 0;
     };
   }
 }

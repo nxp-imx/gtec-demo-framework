@@ -95,7 +95,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_InOrder)
 
   const auto span = links.AsSpan();
   EXPECT_FALSE(span.empty());
-  EXPECT_EQ(span.size(), 3);
+  EXPECT_EQ(span.size(), 3u);
   EXPECT_EQ(links.VertexStride(), vertexStride);
   EXPECT_EQ(span[0], GLES2::GLVertexElementAttribConfig(31, 1, GL_FLOAT, GL_FALSE,
                                                         reinterpret_cast<const GLvoid*>(NumericCast<uintptr_t>(vertexElements[0].Offset))));
@@ -126,7 +126,7 @@ TEST(Test_VertexElementAttribLinks, Construct_FromVertexDeclaration_OutOfOrder)
 
   const auto span = links.AsSpan();
   EXPECT_FALSE(span.empty());
-  EXPECT_EQ(span.size(), 3);
+  EXPECT_EQ(span.size(), 3u);
   EXPECT_EQ(links.VertexStride(), vertexStride);
   EXPECT_EQ(span[0], GLES2::GLVertexElementAttribConfig(31, 1, GL_FLOAT, GL_FALSE,
                                                         reinterpret_cast<const GLvoid*>(NumericCast<uintptr_t>(vertexElements[0].Offset))));

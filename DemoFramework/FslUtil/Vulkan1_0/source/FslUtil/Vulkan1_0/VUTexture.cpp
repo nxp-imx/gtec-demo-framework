@@ -144,8 +144,9 @@ namespace Fsl::Vulkan
   }
 
 
-  void VUTexture::DoReset()
+  void VUTexture::DoReset() noexcept
   {
+    // Use destruction order
     m_sampler.Reset();
     m_image.Reset();
   }

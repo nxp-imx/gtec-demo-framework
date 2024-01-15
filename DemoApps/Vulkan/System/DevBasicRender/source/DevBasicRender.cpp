@@ -114,6 +114,6 @@ namespace Fsl
 
   void DevBasicRender::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

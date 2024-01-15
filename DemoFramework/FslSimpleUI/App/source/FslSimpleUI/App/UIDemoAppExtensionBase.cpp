@@ -45,7 +45,8 @@
 #include <FslSimpleUI/Base/System/UIManager.hpp>
 #include <FslSimpleUI/Render/Base/IRenderSystem.hpp>
 #include <FslSimpleUI/Render/Base/RenderSystemCreateInfo.hpp>
-#include <FslSimpleUI/Render/IMBatch/DefaultRenderSystemFactory.hpp>
+#include <FslSimpleUI/Render/IMBatch/RenderSystemFactory.hpp>
+// #include <FslSimpleUI/Render/IMBatch/DefaultRenderSystemFactory.hpp>
 #include <utility>
 
 namespace Fsl
@@ -77,16 +78,16 @@ namespace Fsl
     std::unique_ptr<UI::UIManager> CreateUIManager(const std::shared_ptr<DataBinding::DataBindingService>& dataBindingService,
                                                    const UIDemoAppExtensionCreateInfo& createInfo)
     {
-      UI::RenderIMBatch::DefaultRenderSystemFactory defaultFactory;
+      UI::RenderIMBatch::RenderSystemFactory defaultFactory(UI::RenderIMBatch::RenderSystemFactory::RenderSystemType::Flex);
 
       const UI::IRenderSystemFactory& factory = createInfo.pRenderSystemFactory != nullptr ? *createInfo.pRenderSystemFactory : defaultFactory;
       auto graphicsService = createInfo.DemoServiceProvider.Get<IGraphicsService>();
-
 
       return std::make_unique<UI::UIManager>(
         dataBindingService,
         CreateUIRenderSystem(factory, *graphicsService, createInfo,
                              UIAppDefaultMaterial::CreateDefaultMaterial(createInfo.DemoServiceProvider, factory.GetVertexDeclarationSpan(),
+                                                                         createInfo.RenderCreateInfo.MaterialCreateInfo.DefaultTexturePixelFormat,
                                                                          createInfo.RenderCreateInfo.MaterialCreateInfo.AllowDynamicCustomViewport,
                                                                          createInfo.RenderCreateInfo.MaterialConfig.AllowDepthBuffer)),
         graphicsService->GetNativeBatch2D()->SYS_IsTextureCoordinateYFlipped(), Convert(createInfo.WindowMetrics),
@@ -116,6 +117,15 @@ namespace Fsl
       auto windowManager = GetWindowManager();
       windowManager->ScheduleClose(m_mainWindow);
       m_mainWindow.reset();
+    }
+  }
+
+
+  void UIDemoAppExtensionBase::SetUseDrawCache(const bool useDrawCache)
+  {
+    if (m_uiManager)
+    {
+      m_uiManager->SetUseDrawCache(useDrawCache);
     }
   }
 
@@ -251,9 +261,15 @@ namespace Fsl
   }
 
 
-  bool UIDemoAppExtensionBase::IsIdle() const
+  bool UIDemoAppExtensionBase::IsIdle() const noexcept
   {
     return m_uiManager->IsIdle();
+  }
+
+
+  bool UIDemoAppExtensionBase::IsRedrawRequired() const noexcept
+  {
+    return m_uiManager->IsRedrawRequired();
   }
 
 
@@ -306,7 +322,7 @@ namespace Fsl
     m_profilerService->Set(m_hProfileCounterWin, UncheckedNumericCast<int32_t>(stats.WindowCount));
   }
 
-  bool UIDemoAppExtensionBase::SYS_GetUseYFlipTextureCoordinates() const
+  bool UIDemoAppExtensionBase::SYS_GetUseYFlipTextureCoordinates() const noexcept
   {
     return m_uiManager->SYS_GetUseYFlipTextureCoordinates();
   }

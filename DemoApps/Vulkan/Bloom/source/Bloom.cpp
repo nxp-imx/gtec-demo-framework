@@ -952,7 +952,7 @@ namespace Fsl
     {
       m_sceneRender->OnFreeResources();
     }
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void Bloom::DrawOffscreenRenderpasses(RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)

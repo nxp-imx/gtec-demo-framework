@@ -69,11 +69,17 @@ namespace Fsl
       NativeMaterialAttribHandle AcquireConfig(const GLint locVertexPosition, const GLint locVertexColor, const GLint locVertexTextureCoord,
                                                const VertexDeclarationSpan& vertexDeclaration);
 
-      bool ReleaseConfig(const NativeMaterialAttribHandle handle);
+      bool ReleaseConfig(const NativeMaterialAttribHandle handle) noexcept;
 
       const VertexElementAttribLinks& GetVertexElementAttribLinks(const NativeMaterialAttribHandle handle) const
       {
         return m_records.Get(handle.Value).AttribLinks;
+      }
+
+      const VertexElementAttribLinks* TryGetVertexElementAttribLinks(const NativeMaterialAttribHandle handle) const noexcept
+      {
+        const AttribConfigRecord* const pRecords = m_records.TryGet(handle.Value);
+        return pRecords != nullptr ? &pRecords->AttribLinks : nullptr;
       }
 
     private:

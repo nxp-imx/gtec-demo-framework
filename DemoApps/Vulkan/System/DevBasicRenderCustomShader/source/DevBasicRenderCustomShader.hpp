@@ -41,6 +41,18 @@ namespace Fsl
     struct DependentResources
     {
       RapidVulkan::RenderPass MainRenderPass;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        MainRenderPass.Reset();
+      }
     };
 
     DevBasicRenderCustomShaderShared m_shared;

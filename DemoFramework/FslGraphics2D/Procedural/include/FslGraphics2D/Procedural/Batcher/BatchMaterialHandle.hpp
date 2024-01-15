@@ -66,6 +66,35 @@ namespace Fsl
       return {};
     }
   };
+
+  // op<
+
+  inline constexpr bool operator<(const BatchMaterialHandle lhs, const BatchMaterialHandle rhs) noexcept
+  {
+    return lhs.Value < rhs.Value;
+  }
+
+  // op<=
+
+  inline constexpr bool operator<=(const BatchMaterialHandle lhs, const BatchMaterialHandle rhs) noexcept
+  {
+    return lhs.Value <= rhs.Value;
+  }
+
+  // op>
+
+  inline constexpr bool operator>(const BatchMaterialHandle lhs, const BatchMaterialHandle rhs) noexcept
+  {
+    return lhs.Value > rhs.Value;
+  }
+
+  // op>=
+
+  inline constexpr bool operator>=(const BatchMaterialHandle lhs, const BatchMaterialHandle rhs) noexcept
+  {
+    return lhs.Value >= rhs.Value;
+  }
+
 }
 
 

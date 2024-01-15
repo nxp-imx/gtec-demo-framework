@@ -149,7 +149,7 @@ namespace Fsl::Graphics3D
   }
 
 
-  BasicShaderManager::~BasicShaderManager()
+  BasicShaderManager::~BasicShaderManager() noexcept
   {
     // Force free everything
     ForceFreeAll();

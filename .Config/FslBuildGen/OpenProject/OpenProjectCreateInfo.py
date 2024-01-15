@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+from typing import List
 from FslBuildGen.OpenProject.OpenProjectCMakeInfo import OpenProjectCMakeInfo
 
 class OpenProjectExecutableInfo(object):
@@ -42,8 +43,9 @@ class OpenProjectExecutableInfo(object):
 
 
 class OpenProjectCreateInfo(object):
-    def __init__(self, sourcePath: str, exeInfo: Optional[OpenProjectExecutableInfo], cmakeInfo: OpenProjectCMakeInfo) -> None:
+    def __init__(self, sourcePath: str, exeInfo: Optional[OpenProjectExecutableInfo], cmakeInfo: OpenProjectCMakeInfo, openCommandArgs: List[str]) -> None:
         super().__init__()
         self.SourcePath = sourcePath
         self.ExeInfo = exeInfo
         self.CMakeInfo = cmakeInfo
+        self.OpenCommandArgs = openCommandArgs

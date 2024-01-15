@@ -289,7 +289,7 @@ namespace Fsl::Vulkan
   {
     // Force free resources just in case
     FreeResources();
-    m_resources = {};
+    m_resources.Reset();
   }
 
   void VMLineDraw::Reset(const VUDevice& device, const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t maxFrames,
@@ -382,7 +382,7 @@ namespace Fsl::Vulkan
     {
       return;
     }
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

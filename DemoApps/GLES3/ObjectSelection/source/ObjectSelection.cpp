@@ -611,10 +611,7 @@ namespace Fsl
     // Distribute the objects at random positions, scale and rotation
     rObjects.resize(objectCount);
 
-    std::mt19937 randomFixedSeed(42);
-    std::mt19937 randomSeed(std::random_device{}());
-
-    std::mt19937& rRandomSeed = useRandomSeed ? randomSeed : randomFixedSeed;
+    std::mt19937 random = useRandomSeed ? std::mt19937(std::random_device{}()) : std::mt19937(42);
 
     std::uniform_real_distribution<float> randomPositionX(-8, 8);
     std::uniform_real_distribution<float> randomPositionY(-5, 5);
@@ -627,11 +624,11 @@ namespace Fsl
 
     for (auto& rEntry : rObjects)
     {
-      rEntry.MeshIndex = randomMesh(rRandomSeed);
-      rEntry.Position = Vector3(randomPositionX(rRandomSeed), randomPositionY(rRandomSeed), randomPositionZ(rRandomSeed));
-      rEntry.RotationSpeed = Vector3(randomRotation(rRandomSeed), randomRotation(rRandomSeed), randomRotation(rRandomSeed));
-      rEntry.Rotation = Vector3(randomAngle(rRandomSeed), randomAngle(rRandomSeed), randomAngle(rRandomSeed));
-      rEntry.Scale = randomScale(rRandomSeed) * 2.0f;
+      rEntry.MeshIndex = randomMesh(random);
+      rEntry.Position = Vector3(randomPositionX(random), randomPositionY(random), randomPositionZ(random));
+      rEntry.RotationSpeed = Vector3(randomRotation(random), randomRotation(random), randomRotation(random));
+      rEntry.Rotation = Vector3(randomAngle(random), randomAngle(random), randomAngle(random));
+      rEntry.Scale = randomScale(random) * 2.0f;
     }
 
     // Sort the objects according to mesh index to make it simpler to render

@@ -186,7 +186,7 @@ TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt64_OverflowMax)
 TEST(TestTime_TimeSpanUtil, FromMicroseconds_UInt64_OverflowMaxSubOne)
 {
   constexpr uint64_t expectedValue(((std::numeric_limits<uint64_t>::max() / TimeInfo::TicksPerMicrosecond) - 1) * TimeInfo::TicksPerMicrosecond);
-  ASSERT_LT(std::numeric_limits<uint64_t>::max() - expectedValue, 2 * TimeInfo::TicksPerMicrosecond);
+  ASSERT_LT(std::numeric_limits<uint64_t>::max() - expectedValue, 2u * TimeInfo::TicksPerMicrosecond);
   EXPECT_THROW(TimeSpanUtil::FromMicroseconds((std::numeric_limits<uint64_t>::max() / TimeInfo::TicksPerMicrosecond) - 1), ConversionException);
 }
 

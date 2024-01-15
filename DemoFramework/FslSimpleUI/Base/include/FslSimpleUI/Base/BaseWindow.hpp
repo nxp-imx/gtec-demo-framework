@@ -159,6 +159,7 @@ namespace Fsl
       virtual void WinDraw(const UIDrawContext& context)
       {
         FSL_PARAM_NOT_USED(context);
+        SetContentRenderingDirty(false);
       }
 
       //! @brief Called by the UITree to request a resolve operation.
@@ -508,6 +509,9 @@ namespace Fsl
 
       //! @brief Control the layout dirty flag
       void SetLayoutDirty(const bool isDirty);
+
+      //! @brief Control the content dirty flag
+      void SetContentRenderingDirty(const bool isDirty);
 
       void CheckAnimationState()
       {

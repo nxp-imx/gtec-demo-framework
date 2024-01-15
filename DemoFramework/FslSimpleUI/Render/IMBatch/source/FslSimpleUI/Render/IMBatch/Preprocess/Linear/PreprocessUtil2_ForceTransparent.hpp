@@ -238,10 +238,8 @@ namespace Fsl::UI::RenderIMBatch::PreprocessUtil2
                                  command.DstPositionPxf.Y + scaledImageTrimMarginPxf.Left(),
                                  PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Width()) - scaledImageTrimMarginPxf.SumY()),
                                  PxSize1DF::UncheckedCreate(PxSize1DF(command.DstSizePx.Height()) - scaledImageTrimMarginPxf.SumX()));
-          if (pDst[dstTransparentIndex].DstAreaRectanglePxf.RawLeft() < clipSizeWidthPx &&
-              pDst[dstTransparentIndex].DstAreaRectanglePxf.RawRight() > 0.0f &&
-              pDst[dstTransparentIndex].DstAreaRectanglePxf.RawTop() < clipSizeHeightPx &&
-              pDst[dstTransparentIndex].DstAreaRectanglePxf.RawBottom() > 0.0f)
+          if (dstRectanglePxf.RawLeft() < clipSizeWidthPx && dstRectanglePxf.RawRight() > 0.0f && dstRectanglePxf.RawTop() < clipSizeHeightPx &&
+              dstRectanglePxf.RawBottom() > 0.0f)
           {
             if (command.DstColor.A() == 0xFF)
             {

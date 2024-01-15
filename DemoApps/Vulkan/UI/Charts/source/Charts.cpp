@@ -111,6 +111,6 @@ namespace Fsl
 
   void Charts::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

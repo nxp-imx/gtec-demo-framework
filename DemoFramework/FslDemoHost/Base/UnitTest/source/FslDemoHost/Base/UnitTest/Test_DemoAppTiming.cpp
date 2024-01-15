@@ -335,7 +335,7 @@ TEST(Test_DemoAppTiming, TimeNow_Normal)
     ASSERT_GT(fixedUpdateTime.Ticks(), 0);
     // NOLINTNEXTLINE(clang-analyzer-core.DivideZero)
     const auto numFixedUpdates = NumericCast<int32_t>(deltaTime.Ticks() / fixedUpdateTime.Ticks());
-    EXPECT_EQ(numFixedUpdates, 1u);
+    EXPECT_EQ(numFixedUpdates, 1);
 
     EXPECT_TRUE(timing.HasPendingFixedUpdate());
     auto fixedUpdate = timing.TryFixedUpdate();
@@ -386,7 +386,7 @@ TEST(Test_DemoAppTiming, TimeNow_Normal_ForcedUpdateTime2)
     ASSERT_GT(fixedUpdateTime.Ticks(), 0);
     // NOLINTNEXTLINE(clang-analyzer-core.DivideZero)
     const auto numFixedUpdates = NumericCast<int32_t>(forcedUpdateTime.Ticks() / fixedUpdateTime.Ticks());
-    EXPECT_EQ(numFixedUpdates, 1u);
+    EXPECT_EQ(numFixedUpdates, 1);
 
     EXPECT_TRUE(timing.HasPendingFixedUpdate());
     auto fixedUpdate = timing.TryFixedUpdate();
@@ -431,7 +431,7 @@ TEST(Test_DemoAppTiming, TimeNow_AdvanceTimestep_Normal)
     ASSERT_GT(fixedUpdateTime.Ticks(), 0);
     // NOLINTNEXTLINE(clang-analyzer-core.DivideZero)
     const auto numFixedUpdates = NumericCast<int32_t>(deltaTime.Ticks() / fixedUpdateTime.Ticks());
-    EXPECT_EQ(numFixedUpdates, 1u);
+    EXPECT_EQ(numFixedUpdates, 1);
 
     auto fixedUpdate = timing.TryFixedUpdate();
     ASSERT_TRUE(fixedUpdate.has_value());

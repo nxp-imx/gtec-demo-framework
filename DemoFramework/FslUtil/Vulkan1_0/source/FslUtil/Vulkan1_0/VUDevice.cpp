@@ -94,8 +94,9 @@ namespace Fsl::Vulkan
 
     assert(m_device.IsValid());
 
-    m_physicalDevice = VUPhysicalDeviceRecord();
+    // Use destruction order
     m_device.Reset();
+    m_physicalDevice = {};
   }
 
 

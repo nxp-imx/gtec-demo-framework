@@ -205,11 +205,19 @@ namespace Fsl::UI::Theme
       newControl->FinishAnimation();
       return newControl;
     }
+
+
+    BasicThemeColors CreateThemeColors(const bool usePrimaryPalette, const ColorSpace colorSpace)
+    {
+      BasicThemeColors defaultColors(usePrimaryPalette);
+      return BasicThemeColors::ApplyColorSpaceLossy(defaultColors, colorSpace);
+    }
   }
 
   BasicThemeControlFactory::BasicThemeControlFactory(const std::shared_ptr<WindowContext>& context,
-                                                     const std::shared_ptr<BasicThemeResources>& themeResources, const bool usePrimaryPalette)
-    : m_colors(usePrimaryPalette)
+                                                     const std::shared_ptr<BasicThemeResources>& themeResources, const bool usePrimaryPalette,
+                                                     const ColorSpace colorSpace)
+    : m_colors(CreateThemeColors(usePrimaryPalette, colorSpace))
     , m_context(context)
     , m_resources(themeResources)
   {

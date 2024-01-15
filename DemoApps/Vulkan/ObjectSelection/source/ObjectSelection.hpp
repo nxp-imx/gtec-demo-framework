@@ -176,6 +176,12 @@ namespace Fsl
         , VertexDeclLine(std::move(vertexDeclaration))
       {
       }
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
@@ -183,6 +189,20 @@ namespace Fsl
       RapidVulkan::RenderPass MainRenderPass;
       RapidVulkan::GraphicsPipeline PlanePipeline;
       RapidVulkan::GraphicsPipeline ObjectPipeline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        ObjectPipeline.Reset();
+        PlanePipeline.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
     std::shared_ptr<IDemoAppControl> m_demoAppControl;

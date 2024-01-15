@@ -41,6 +41,13 @@ import com.freescale.contentsync.OneWaySync;
 
 public class DemoHelper {
 
+  private static boolean g_supportsHDR;
+
+  public static void SetSupportsHDR(boolean supportsHDR)
+  {
+    g_supportsHDR = supportsHDR;
+  }
+
   private OneWaySync m_oneWaySync;
   private ImageService m_imageService;
 
@@ -91,21 +98,22 @@ public class DemoHelper {
   // From API 24 we can use Display.HdrCapabilities for more advanced capability checks
   // https://developer.android.com/reference/android/view/Display.HdrCapabilities.html
   public boolean IsDisplayHDRCompatible() throws IOException {
-    try {
-      java.lang.Process p = Runtime.getRuntime().exec("getprop sys.hwc.hdr.supported");
-      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      String valueStr = in.readLine();
-      if(valueStr.length() <= 0)
-        return false;
-      final int value = Integer.parseInt(valueStr);
-      // If the value is 1 the connected sink is HDR-compatible.
-      if (value == 1)
-        return true;
-    } 
-    catch (IOException e) 
-    {
-      e.printStackTrace();
-    }
-    return false;    
+    // try {
+    //   java.lang.Process p = Runtime.getRuntime().exec("getprop sys.hwc.hdr.supported");
+    //   BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+    //   String valueStr = in.readLine();
+    //   if(valueStr.length() <= 0)
+    //     return false;
+    //   final int value = Integer.parseInt(valueStr);
+    //   // If the value is 1 the connected sink is HDR-compatible.
+    //   if (value == 1)
+    //     return true;
+    // }
+    // catch (IOException e)
+    // {
+    //   e.printStackTrace();
+    // }
+    // return false;
+    return g_supportsHDR;
   }
 }

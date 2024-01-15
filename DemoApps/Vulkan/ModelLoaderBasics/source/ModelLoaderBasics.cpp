@@ -533,7 +533,7 @@ namespace Fsl
 
   void ModelLoaderBasics::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

@@ -67,7 +67,7 @@ namespace Fsl::Graphics3D
 
   public:
     explicit BasicShaderManager(std::shared_ptr<INativeShaderFactory> factory);
-    ~BasicShaderManager() override;
+    ~BasicShaderManager() noexcept override;
 
 
     BasicShaderHandle CreateShader(const BasicShaderCreateInfo& createInfo);

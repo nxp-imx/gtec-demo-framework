@@ -185,9 +185,22 @@ namespace Fsl::TypeConverter
       UncheckedChangeTo<PxRectangle::raw_value_type>(value.Right()), UncheckedChangeTo<PxRectangle::raw_value_type>(value.Bottom()));
   }
 
+  // -- PxRectangle
+
+  //! @brief Convert a rectangle to a PxRectangle
+  template <>
+  constexpr inline PxRectangle UncheckedTo<PxRectangle, Rectangle>(const Rectangle& value) noexcept
+  {
+    // This should always be the case for a Rectangle (so we only assert check it)
+    assert(value.Left() <= value.Right() && value.Top() <= value.Bottom());
+    return PxRectangle::UncheckedCreate(
+      UncheckedNumericCast<PxRectangle::raw_value_type>(value.X()), UncheckedNumericCast<PxRectangle::raw_value_type>(value.Y()),
+      UncheckedNumericCast<PxRectangle::raw_value_type>(value.Width()), UncheckedNumericCast<PxRectangle::raw_value_type>(value.Height()));
+  }
+
   // -- PxRectangleU16
 
-  //! @brief Convert a rectangle to a PxRectangle (if the value.Location is negative it will be clipped against zero)
+  //! @brief Convert a rectangle to a PxRectangle16 (if the value.Location is negative it will be clipped against zero)
   template <>
   constexpr inline PxRectangleU16 UncheckedTo<PxRectangleU16, Rectangle>(const Rectangle& value) noexcept
   {

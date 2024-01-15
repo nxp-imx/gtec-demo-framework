@@ -108,6 +108,7 @@ namespace Fsl
       UISwitchButtons UI;
       RenderOptionControls RenderOptions;
       // UI options
+      std::shared_ptr<UI::Switch> SwitchUseDrawCache;
       std::shared_ptr<UI::Switch> SwitchOnDemand;
       std::shared_ptr<UI::Switch> SwitchSdfFont;
       std::shared_ptr<UI::Switch> SwitchEmulateDpi;
@@ -258,6 +259,7 @@ namespace Fsl
     static StatsOverlayUI CreateStatsOverlayUI(UI::Theme::IThemeControlFactory& uiFactory, const std::shared_ptr<UI::WindowContext>& context);
 
     void SetDpi(const uint16_t densityDpi);
+    void SetUseDrawCache(const bool useDrawCache);
 
     void BeginClose(const SceneId nextSceneId, std::shared_ptr<ISceneConfig> sceneConfig = {});
   };

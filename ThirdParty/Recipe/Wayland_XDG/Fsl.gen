@@ -12,6 +12,7 @@
           <AddHeaders Name="include"/>
           <AddLib Name="lib/libdf-wayland-xdg-application-stable-latest.a"/>
           <Path Name="include/df-xdg-shell-client-protocol.h" Method="IsFile"/>
+          <Path Name="include/df-xdg-decoration-client-protocol.h" Method="IsFile"/>
         </Installation>
       </ExperimentalRecipe>
     </Platform>
@@ -25,6 +26,7 @@
           <AddHeaders Name="include"/>
           <AddLib Name="lib/libdf-wayland-xdg-application-stable-latest.a"/>
           <Path Name="include/df-xdg-shell-client-protocol.h" Method="IsFile"/>
+          <Path Name="include/df-xdg-decoration-client-protocol.h" Method="IsFile"/>
         </Installation>
       </ExperimentalRecipe>
     </Platform>

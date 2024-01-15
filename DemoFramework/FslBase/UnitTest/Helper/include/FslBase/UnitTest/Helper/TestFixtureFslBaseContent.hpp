@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/PathView.hpp>
 #include <FslBase/UnitTest/Helper/ContentPathUtil.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 
@@ -40,29 +41,17 @@ class TestFixtureFslBaseContent : public TestFixtureFslBase
   Fsl::IO::Path m_contentPath;
   // Fsl::IO::Path m_persistentPath;
   // Fsl::IO::Path m_tempPath;
+  Fsl::IO::Path m_testPath;
 
 public:
-  TestFixtureFslBaseContent()
-    : m_contentPath(Fsl::ContentPathUtil::GetContentPath())
-  //, m_persistentPath()
-  //, m_tempPath(Fsl::IO::Path::Combine(m_persistentPath, "random_generate_this"))
-  {
-  }
+  TestFixtureFslBaseContent();
 
-  Fsl::IO::Path GetContentPath() const
-  {
-    return m_contentPath;
-  }
-
-  Fsl::IO::Path GetContentPath(const Fsl::IO::Path& relativePath) const
-  {
-    return Fsl::IO::Path::Combine(m_contentPath, relativePath);
-  }
-
-  // Fsl::IO::Path GetTempPath(const Fsl::IO::Path& relativePath) const
-  //{
-  //  return Fsl::IO::Path::Combine(m_tempPath, relativePath);
-  //}
+  Fsl::IO::Path GetContentPath() const;
+  Fsl::IO::Path GetContentPath(const Fsl::IO::Path& relativePath) const;
+  // Fsl::IO::Path GetTempPath(const Fsl::IO::Path& relativePath) const;
+  Fsl::IO::Path GetTestPath() const;
+  Fsl::IO::Path GetTestPath(const Fsl::IO::PathView relativePath) const;
+  Fsl::IO::Path GetTestPath(const Fsl::IO::Path& relativePath) const;
 
 private:
 };

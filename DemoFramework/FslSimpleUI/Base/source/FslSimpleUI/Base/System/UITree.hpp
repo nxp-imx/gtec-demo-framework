@@ -149,7 +149,7 @@ namespace Fsl
       bool m_drawCacheDirty{true};
       bool m_clickInputCacheDirty{true};
       bool m_layoutIsDirty{true};
-
+      bool m_contentRenderingIsDirty{true};
 
       FastTreeNodeVector m_vectorUpdate;
       FastTreeNodeVector m_vectorResolve;
@@ -169,6 +169,11 @@ namespace Fsl
              std::shared_ptr<WindowEventQueueEx> eventQueue);
       ~UITree() final;
 
+      bool IsContentRenderingDirty() const noexcept
+      {
+        return m_contentRenderingIsDirty;
+      }
+
       void Init(const std::shared_ptr<RootWindow>& rootWindow);
       void PostInit();
       void PreShutdown();
@@ -177,9 +182,9 @@ namespace Fsl
 
       //! Check if the tree is considered idle
       //! NOTE: Basically checks that there are now pending work scheduled and that no child element expects updates
-      bool IsIdle() const;
+      bool IsIdle() const noexcept;
 
-      UIStats GetStats() const
+      UIStats GetStats() const noexcept
       {
         return m_stats;
       }
@@ -189,10 +194,9 @@ namespace Fsl
       void Update(const TimeSpan& timespan);
       void Draw(DrawCommandBuffer& drawCommandBuffer);
 
+      std::size_t GetNodeCount() const noexcept;
 
-      std::size_t GetNodeCount() const;
-
-      std::shared_ptr<TreeNode> GetRootNode() const
+      std::shared_ptr<TreeNode> GetRootNode() const noexcept
       {
         return m_root;
       }

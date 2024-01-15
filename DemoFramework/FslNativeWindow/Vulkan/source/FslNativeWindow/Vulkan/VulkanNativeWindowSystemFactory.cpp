@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -29,57 +29,24 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslNativeWindow/Vulkan/Adapter/IVulkanNativeWindowSystemAdapter.hpp>
+#include <FslNativeWindow/Vulkan/Adapter/VulkanNativeWindowSystemAdapterFactory.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
+#include <FslNativeWindow/Vulkan/VulkanNativeWindowSystem.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>
-
-#if defined(_WIN32)
-#include "Win32/VulkanNativeWindowSystemWin32.hpp"
-namespace Fsl
-{
-  using VULKANNATIVEWINDOWSYSTEM = VulkanNativeWindowSystemWin32;
-}
-#elif defined(__ANDROID__)
-#include "Android/VulkanNativeWindowSystemAndroid.hpp"
-namespace Fsl
-{
-  typedef VulkanNativeWindowSystemAndroid VULKANNATIVEWINDOWSYSTEM;
-}
-#elif defined(__linux__)
-#if defined(FSL_WINDOWSYSTEM_X11)
-#include "X11/VulkanNativeWindowSystemX11.hpp"
-namespace Fsl
-{
-  using VULKANNATIVEWINDOWSYSTEM = VulkanNativeWindowSystemX11;
-}
-#elif defined(FSL_WINDOWSYSTEM_WAYLAND)
-#include "Wayland/VulkanNativeWindowSystemWayland.hpp"
-namespace Fsl
-{
-  typedef VulkanNativeWindowSystemWayland VULKANNATIVEWINDOWSYSTEM;
-}
-#elif defined(FSL_WINDOWSYSTEM_FRAMEBUFFER)
-#include "FB/VulkanNativeWindowSystemFB.hpp"
-namespace Fsl
-{
-  typedef VulkanNativeWindowSystemFB VULKANNATIVEWINDOWSYSTEM;
-}
-#else
-#error No window system set
-#endif
-#else
-// Unsupported window platform!
-#error Unsupported window platform detected!
-#endif
+#include <memory>
+#include <utility>
 
 namespace Fsl
 {
   std::shared_ptr<IVulkanNativeWindowSystem> VulkanNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
   {
-    return std::make_shared<VULKANNATIVEWINDOWSYSTEM>(setup);
+    std::unique_ptr<IVulkanNativeWindowSystemAdapter> adapter = VulkanNativeWindowSystemAdapterFactory::Allocate(setup);
+    return std::make_shared<VulkanNativeWindowSystem>(setup, std::move(adapter));
   }
 
   std::shared_ptr<INativeWindowSystem> VulkanNativeWindowSystemFactory::AllocateNative(const NativeWindowSystemSetup& setup)
   {
-    return Allocate(setup);
+    return VulkanNativeWindowSystemFactory::Allocate(setup);
   }
-}    // namespace Fsl
+}

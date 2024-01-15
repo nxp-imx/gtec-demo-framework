@@ -62,9 +62,14 @@ namespace Fsl::Graphics3D
     BasicNativeMaterialManager m_nativeMaterialManager;
 
   public:
+    BasicMaterialManager(const BasicMaterialManager&) = delete;
+    BasicMaterialManager& operator=(const BasicMaterialManager&) = delete;
+    BasicMaterialManager(BasicMaterialManager&& other) noexcept = delete;
+    BasicMaterialManager& operator=(BasicMaterialManager&& other) noexcept = delete;
+
     explicit BasicMaterialManager(const uint32_t maxFramesInFlight, std::shared_ptr<INativeMaterialFactory> factory,
                                   IBasicShaderManager& basicShaderManager);
-    ~BasicMaterialManager();
+    ~BasicMaterialManager() noexcept;
 
     void CreateDependentResources();
     void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent);
@@ -77,7 +82,7 @@ namespace Fsl::Graphics3D
     BasicMaterialInfo GetMaterialInfo(const BasicMaterial& sourceMaterial) const;
     void SetMaterialInfo(const BasicMaterial& sourceMaterial, const BasicMaterialInfo& materialInfo);
 
-    const BasicMaterialRecord* TryGetMaterialRecord(const BasicMaterial& sourceMaterial)
+    const BasicMaterialRecord* TryGetMaterialRecord(const BasicMaterial& sourceMaterial) noexcept
     {
       return m_records.TryGet(sourceMaterial.GetHandle().Value);
     }

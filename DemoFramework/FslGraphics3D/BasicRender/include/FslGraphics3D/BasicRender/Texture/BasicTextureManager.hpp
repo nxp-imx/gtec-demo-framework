@@ -62,14 +62,18 @@ namespace Fsl::Graphics3D
       {
       }
     };
+
     struct StaticRecord
     {
+      StaticRecord(const StaticRecord&) = delete;
+      StaticRecord& operator=(const StaticRecord&) = delete;
+
       BasicTextureHandle Handle;
       std::weak_ptr<BasicStaticTextureTracker> Texture;
       BasicNativeTextureHandle NativeHandle;
       uint32_t DeferCount{0};
 
-      StaticRecord() = default;
+      StaticRecord() noexcept = default;
 
       explicit StaticRecord(const BasicTextureHandle handle, std::weak_ptr<BasicStaticTextureTracker> nativeTexture,
                             BasicNativeTextureHandle nativeHandle, const uint32_t deferCount)
@@ -79,15 +83,60 @@ namespace Fsl::Graphics3D
         , DeferCount(deferCount)
       {
       }
+
+      StaticRecord(StaticRecord&& other) noexcept
+        : Handle(other.Handle)
+        , Texture(std::move(other.Texture))
+        , NativeHandle(other.NativeHandle)
+        , DeferCount(other.DeferCount)
+      {
+        // remove from other
+        other.Handle = {};
+        other.NativeHandle = {};
+        other.DeferCount = 0;
+      }
+
+      StaticRecord& operator=(StaticRecord&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
+
+          Handle = other.Handle;
+          Texture = std::move(other.Texture);
+          NativeHandle = other.NativeHandle;
+          DeferCount = other.DeferCount;
+
+          // remove from other
+          other.Handle = {};
+          other.NativeHandle = {};
+          other.DeferCount = 0;
+        }
+        return *this;
+      }
+
+      void Reset() noexcept
+      {
+        // Use destruction order
+        DeferCount = 0;
+        NativeHandle = {};
+        Texture.reset();
+        Handle = {};
+      }
     };
+
     struct DynamicRecord
     {
+      DynamicRecord(const DynamicRecord&) = delete;
+      DynamicRecord& operator=(const DynamicRecord&) = delete;
+
       BasicTextureHandle Handle;
       std::weak_ptr<BasicDynamicTextureTracker> Texture;
       std::shared_ptr<BasicDynamicTextureLink> LinkTexture;
       uint32_t DeferCount{0};
 
-      DynamicRecord() = default;
+      DynamicRecord() noexcept = default;
 
       explicit DynamicRecord(const BasicTextureHandle handle, std::weak_ptr<BasicDynamicTextureTracker> nativeTexture,
                              std::shared_ptr<BasicDynamicTextureLink> linkTexture, const uint32_t deferCount)
@@ -97,10 +146,54 @@ namespace Fsl::Graphics3D
         , DeferCount(deferCount)
       {
       }
+
+      DynamicRecord(DynamicRecord&& other) noexcept
+        : Handle(other.Handle)
+        , Texture(std::move(other.Texture))
+        , LinkTexture(std::move(other.LinkTexture))
+        , DeferCount(other.DeferCount)
+      {
+        // remove from other
+        other.Handle = {};
+        other.DeferCount = 0;
+      }
+
+      DynamicRecord& operator=(DynamicRecord&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
+
+          Handle = other.Handle;
+          Texture = std::move(other.Texture);
+          LinkTexture = std::move(other.LinkTexture);
+          DeferCount = other.DeferCount;
+
+          // remove from other
+          other.Handle = {};
+          other.DeferCount = 0;
+        }
+        return *this;
+      }
+
+      void Reset() noexcept
+      {
+        // Use destruction order
+        DeferCount = 0;
+        LinkTexture.reset();
+        Texture.reset();
+        Handle = {};
+      }
     };
 
     struct DependentResources
     {
+      // DependentResources(const DependentResources&) = delete;
+      // DependentResources& operator=(const DependentResources&) = delete;
+      // DependentResources(DependentResources&& other) noexcept = delete;
+      // DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
       bool IsValid{false};
 
       constexpr DependentResources() noexcept = default;
@@ -108,6 +201,11 @@ namespace Fsl::Graphics3D
       constexpr explicit DependentResources(bool isValid) noexcept
         : IsValid(isValid)
       {
+      }
+
+      void Reset()
+      {
+        IsValid = false;
       }
     };
 
@@ -134,16 +232,16 @@ namespace Fsl::Graphics3D
                                                                     const TextureFlags textureFlags);
 
 
-    PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const;
+    PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept;
 
-    const IBasicNativeTexture* TryGetNativeTexture(const BasicNativeTextureHandle hTexture) const;
+    const IBasicNativeTexture* TryGetNativeTexture(const BasicNativeTextureHandle hTexture) const noexcept;
 
     //! We expect this to be called once, early in the frame
     void PreUpdate();
 
   private:
-    void DoCollectGarbage(const uint32_t deferCount, const bool force = false);
-    void ForceFreeAllTextures();
+    void DoCollectGarbage(const uint32_t deferCount, const bool force = false) noexcept;
+    void ForceFreeAllTextures() noexcept;
   };
 }
 #endif

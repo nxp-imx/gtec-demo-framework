@@ -31,15 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslNativeWindow/Platform/Adapter/IPlatformNativeWindowAdapter.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationParams.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <functional>
 
 namespace Fsl
 {
-  using PlatformNativeWindowAllocationFunction = std::function<std::shared_ptr<INativeWindow>(
+  using PlatformNativeWindowAllocationFunction = std::function<std::shared_ptr<IPlatformNativeWindowAdapter>(
     const NativeWindowSetup&, const PlatformNativeWindowParams&, const PlatformNativeWindowAllocationParams* const)>;
 }
 

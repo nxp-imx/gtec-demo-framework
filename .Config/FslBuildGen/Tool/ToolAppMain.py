@@ -73,7 +73,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersion = Version(3, 6, 2, 5)
+CurrentVersion = Version(3, 6, 3, 1)
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -204,6 +204,9 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
         toolAppConfig.BuildPackageFilters.ExtensionNameList = ParseUtil.ParseExtensionList(args.UseExtensions)
         toolAppConfig.BuildPackageFilters.RecipeFilterManager = ParseUtil.ParseRecipeList(args.Recipes)
 
+    if toolCommonArgConfig.AddBuildFilteringExePackageName:
+        toolAppConfig.BuildPackageFilters.ExePackageNameFilter = args.ExePackageNameFilter
+
     if toolCommonArgConfig.AddBuildVariants:
         toolAppConfig.BuildVariantConstraints = ParseUtil.ParseExternalVariantConstraints(args.Variants)
 
@@ -282,6 +285,9 @@ def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode
         #parser.add_argument('--RequireExtensions', default=DefaultValue.RequireExtensionsList, help='The list of extensions that are required for a executable to be saved. For example [OpenGLES3.1:EXT_geometry_shader] to build all executables that use OpenGLES3.1:EXT_geometry_shader beware this allows OpenGLES3.2 apps that use EXT_geometry_shader since OpenGLES3.2 extends OpenGLES3.1.')
         parser.add_argument('--Recipes', default=DefaultValue.Recipes,
                             help='The modifies the list of recipes. For example [Recipe.gli_0_8_2_0,-Recipe.Vulkan] will enable the glm and disable the vulkan recipe.')
+
+    if toolCommonArgConfig.AddBuildFilteringExePackageName:
+        parser.add_argument('--ExePackageNameFilter', default=DefaultValue.ExePackageNameFilter, help='set a executable name filter, when set only exe packages that match the name filter will be build, if there a no executable package matches a error occurs')
 
     if toolCommonArgConfig.AddBuildThreads:
         parser.add_argument('--BuildThreads', default=str(DefaultValue.BuildThreads),

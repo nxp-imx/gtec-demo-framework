@@ -326,7 +326,7 @@ namespace Fsl
 
   void MeshRenderNormals::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void MeshRenderNormals::SetWorldViewProjection(const Matrix& matrix)

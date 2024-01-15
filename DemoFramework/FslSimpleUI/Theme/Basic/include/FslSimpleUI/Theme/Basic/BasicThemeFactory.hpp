@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslSimpleUI/Theme/Base/IThemeFactory.hpp>
 
 namespace Fsl
@@ -46,6 +47,7 @@ namespace Fsl
     {
       std::shared_ptr<BasicThemeResources> m_resources;
       bool m_usePrimaryPalette;
+      ColorSpace m_colorSpace;
 
     public:
       BasicThemeFactory(ISpriteResourceManager& rResourceManager, const ThemeFactoryCreateInfo& createInfo);

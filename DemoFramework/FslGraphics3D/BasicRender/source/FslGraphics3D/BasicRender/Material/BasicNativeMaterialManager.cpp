@@ -138,7 +138,7 @@ namespace Fsl::Graphics3D
   }
 
 
-  BasicNativeMaterialManager::~BasicNativeMaterialManager()
+  BasicNativeMaterialManager::~BasicNativeMaterialManager() noexcept
   {
     Shutdown();
   }
@@ -155,7 +155,7 @@ namespace Fsl::Graphics3D
   }
 
 
-  void BasicNativeMaterialManager::Shutdown()
+  void BasicNativeMaterialManager::Shutdown() noexcept
   {
     if (!m_factory)
     {
@@ -274,7 +274,7 @@ namespace Fsl::Graphics3D
   }
 
 
-  void BasicNativeMaterialManager::CollectGarbage(const bool force)
+  void BasicNativeMaterialManager::CollectGarbage(const bool force) noexcept
   {
     assert(m_factory);
 

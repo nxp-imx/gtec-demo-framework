@@ -34,9 +34,11 @@
 #include <FslBase/Collections/TightHostedVector.hpp>
 #include <FslDataBinding/Base/Bind/IComplexBinding.hpp>
 #include <FslDataBinding/Base/Binding.hpp>
+#include <FslDataBinding/Base/BindingMode.hpp>
 #include <FslDataBinding/Base/DataBindingInstanceHandle.hpp>
 #include <FslDataBinding/Base/Internal/IPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/InstanceState.hpp>
+#include <cassert>
 #include <memory>
 
 namespace Fsl::DataBinding::Internal
@@ -55,11 +57,14 @@ namespace Fsl::DataBinding::Internal
     {
       DataBindingInstanceHandle Handle;
       std::shared_ptr<IComplexBinding> UserBinding;
+      BindingMode Mode{BindingMode::OneWay};
 
       constexpr ServiceBindingSourceRecord() noexcept = default;
-      explicit ServiceBindingSourceRecord(const DataBindingInstanceHandle handle, std::shared_ptr<IComplexBinding> userBinding) noexcept
+      explicit ServiceBindingSourceRecord(const DataBindingInstanceHandle handle, std::shared_ptr<IComplexBinding> userBinding,
+                                          const BindingMode mode) noexcept
         : Handle(handle)
         , UserBinding(std::move(userBinding))
+        , Mode(mode)
       {
       }
     };
@@ -68,7 +73,8 @@ namespace Fsl::DataBinding::Internal
 
   public:
     Internal::InstanceState Instance;
-    TightHostedVector<DataBindingInstanceHandle, 3> Handles;
+    // It's still public for erase atm
+    TightHostedVector<DataBindingInstanceHandle, 3> m_handles;
     std::unique_ptr<Internal::IPropertyMethods> Methods;
 
     ServiceBindingRecord() = default;
@@ -90,6 +96,12 @@ namespace Fsl::DataBinding::Internal
       return m_source.Handle.IsValid();
     }
 
+    BindingMode SourceBindingMode() const noexcept
+    {
+      assert(HasValidSourceHandles());
+      return m_source.Mode;
+    }
+
     const std::shared_ptr<IComplexBinding>& SourceUserBinding() const noexcept
     {
       return m_source.UserBinding;
@@ -99,18 +111,38 @@ namespace Fsl::DataBinding::Internal
     {
       if (m_source.Handle.IsValid())
       {
-        return Handles.Empty(ServicePropertyVectorIndex::Sources) ? 1u : Handles.Size(ServicePropertyVectorIndex::Sources);
+        return m_handles.Empty(ServicePropertyVectorIndex::Sources) ? 1u : m_handles.Size(ServicePropertyVectorIndex::Sources);
       }
       return 0u;
+    }
+
+    ReadOnlySpan<DataBindingInstanceHandle> TargetHandles() const noexcept
+    {
+      return m_handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets);
+    }
+
+    void ClearTargetHandles() noexcept
+    {
+      m_handles.Clear(Internal::ServicePropertyVectorIndex::Targets);
+    }
+
+    ReadOnlySpan<DataBindingInstanceHandle> PropertyHandles() const noexcept
+    {
+      return m_handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties);
+    }
+
+    void ClearPropertyHandles() noexcept
+    {
+      m_handles.Clear(Internal::ServicePropertyVectorIndex::Properties);
     }
 
     ReadOnlySpan<DataBindingInstanceHandle> SourceHandles() const noexcept
     {
       if (m_source.Handle.IsValid())
       {
-        return Handles.Empty(ServicePropertyVectorIndex::Sources)
+        return m_handles.Empty(ServicePropertyVectorIndex::Sources)
                  ? ReadOnlySpan<DataBindingInstanceHandle>(&m_source.Handle, 1u, OptimizationCheckFlag::NoCheck)
-                 : Handles.AsReadOnlySpan(ServicePropertyVectorIndex::Sources);
+                 : m_handles.AsReadOnlySpan(ServicePropertyVectorIndex::Sources);
       }
       return {};
     }
@@ -132,7 +164,7 @@ namespace Fsl::DataBinding::Internal
     void ClearSourceHandles() noexcept
     {
       m_source = {};
-      Handles.Clear(Internal::ServicePropertyVectorIndex::Sources);
+      m_handles.Clear(Internal::ServicePropertyVectorIndex::Sources);
     }
 
     //! Beware this only sets the source record. All linked information will have to be set elsewhere
@@ -146,10 +178,10 @@ namespace Fsl::DataBinding::Internal
       assert(!sourceHandles.empty());
       try
       {
-        m_source = ServiceBindingSourceRecord(sourceHandles.front(), binding.ComplexBinding());
+        m_source = ServiceBindingSourceRecord(sourceHandles.front(), binding.ComplexBinding(), binding.Mode());
         if (sourceHandles.size() > 1u)
         {
-          Handles.PushBack(Internal::ServicePropertyVectorIndex::Sources, sourceHandles);
+          m_handles.PushBack(Internal::ServicePropertyVectorIndex::Sources, sourceHandles);
         }
       }
       catch (const std::exception&)

@@ -262,8 +262,10 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig.ProcessRemainingArgs = False
         argConfig.SupportBuildTime = True
         argConfig.AddBuildFiltering = True
+        argConfig.AddBuildFilteringExePackageName = True
         argConfig.AddBuildThreads = True
         argConfig.AddBuildVariants = True
+        argConfig.AllowRecursive = True
         argConfig.ProcessRemainingArgs = True
         return argConfig
 

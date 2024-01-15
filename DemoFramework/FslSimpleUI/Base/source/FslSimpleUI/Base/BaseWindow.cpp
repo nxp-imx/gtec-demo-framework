@@ -113,6 +113,7 @@ namespace Fsl::UI
   void BaseWindow::WinResolutionChanged(const ResolutionChangedInfo& /*info*/)
   {
     m_flags.Enable(BaseWindowFlags::LayoutDirty);
+    SetContentRenderingDirty(true);
   }
 
   bool BaseWindow::WinMarkLayoutAsDirty()
@@ -175,13 +176,14 @@ namespace Fsl::UI
       FSLLOG3_WARNING("Unhandled eventTypeId: {}", int32_t(routedEvent.Content->GetEventTypeId()));
       break;
     }
-    SetAnimationUpdate(UpdateAnimationState(false));
+    CheckAnimationState();
+    SetContentRenderingDirty(true);
   }
 
   void BaseWindow::WinUpdate(const TimeSpan& timespan)
   {
     UpdateAnimation(timespan);
-    SetAnimationUpdate(UpdateAnimationState(false));
+    CheckAnimationState();
   }
 
   void BaseWindow::Arrange(const PxRectangle& finalRectPx)
@@ -578,12 +580,16 @@ namespace Fsl::UI
         // -> so lets flag this window and its parents
         SetLayoutDirty(true);
       }
+      if (flags.IsDrawRelated() && m_flags.IsEnabled(WindowFlags::DrawEnabled) && !m_flags.IsEnabled(WindowFlags::ContentRenderingDirty))
+      {
+        SetContentRenderingDirty(true);
+      }
 
       // Let a control know a flag was changed
       OnPropertiesUpdated(flags);
 
       // Update animation state
-      SetAnimationUpdate(UpdateAnimationState(false));
+      CheckAnimationState();
     }
     else
     {
@@ -608,6 +614,24 @@ namespace Fsl::UI
     }
   }
 
+
+  void BaseWindow::SetContentRenderingDirty(const bool isDirty)
+  {
+    if (isDirty != m_flags.IsEnabled(BaseWindowFlags::ContentRenderingDirty))
+    {
+      if (isDirty)
+      {
+        auto uiContext = GetContext()->TheUIContext.Get();
+        uiContext->WindowManager->TrySetWindowFlags(this, WindowFlags::ContentRenderingDirty, true);
+      }
+      else
+      {
+        m_flags.Disable(BaseWindowFlags::ContentRenderingDirty);
+      }
+    }
+  }
+
+
   void BaseWindow::SetAnimationUpdate(const bool isAnimating)
   {
     if (isAnimating)
@@ -617,6 +641,7 @@ namespace Fsl::UI
         Enable(WindowFlags::UpdateEnabled);
         // FSLLOG3_INFO("Enabling animation"); // LOG FOR NOW
       }
+      SetContentRenderingDirty(true);
     }
     else
     {
@@ -624,6 +649,7 @@ namespace Fsl::UI
       {
         Disable(WindowFlags::UpdateEnabled);
         // FSLLOG3_INFO("Disabling animation");  // LOG FOR NOW
+        SetContentRenderingDirty(true);
       }
     }
   }

@@ -83,7 +83,7 @@ namespace Fsl::UI::Declarative
     {
       FoundThemeProperty res = DoClaimRequired(propertyIndex);
       assert(res.pProperty != nullptr);
-      const TypedThemeProperty<typename T::value_type>& typedEntry = dynamic_cast<const TypedThemeProperty<typename T::value_type>&>(*res.pProperty);
+      const auto& typedEntry = dynamic_cast<const TypedThemeProperty<typename T::value_type>&>(*res.pProperty);
       return typedEntry.Parse(res.PropertyValue);
     }
 
@@ -96,7 +96,7 @@ namespace Fsl::UI::Declarative
       {
         return defaultValue;
       }
-      const TypedThemeProperty<typename T::value_type>& typedEntry = dynamic_cast<const TypedThemeProperty<typename T::value_type>&>(*res.pProperty);
+      const auto& typedEntry = dynamic_cast<const TypedThemeProperty<typename T::value_type>&>(*res.pProperty);
       return typedEntry.Parse(res.PropertyValue);
     }
 

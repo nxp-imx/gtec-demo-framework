@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2018 NXP
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,15 +29,78 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslNativeWindow/Platform/Adapter/IPlatformNativeWindowSystemAdapter.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 
 namespace Fsl
 {
+  // For now this is just a simple proxy
+  PlatformNativeWindowSystem::PlatformNativeWindowSystem(const NativeWindowSystemSetup& setup,
+                                                         std::unique_ptr<IPlatformNativeWindowSystemAdapter> adapter)
+    : m_adapter(std::move(adapter))
+  {
+    if (!m_adapter)
+    {
+      throw std::invalid_argument("can not be null");
+    }
+  }
+
+
+  PlatformNativeWindowSystem::~PlatformNativeWindowSystem()
+  {
+    FSLLOG3_WARNING_IF(!m_shutdownWasCalled, "PlatformNativeWindowSystem Shutdown was not called.");
+  }
+
+
+  std::shared_ptr<INativeWindow>
+    PlatformNativeWindowSystem::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                   const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
+  {
+    if (!m_adapter)
+    {
+      throw ObjectShutdownException("CreateNativeWindow: Object shutdown");
+    }
+    std::shared_ptr<IPlatformNativeWindowAdapter> nativeWindow =
+      m_adapter->CreateNativeWindow(nativeWindowSetup, pPlatformCustomWindowAllocationParams);
+    return std::make_shared<PlatformNativeWindow>(nativeWindow);
+  }
+
+
+  bool PlatformNativeWindowSystem::ProcessMessages(const NativeWindowProcessMessagesArgs& args)
+  {
+    if (!m_adapter)
+    {
+      FSLLOG3_WARNING("ProcessMessages: Object shutdown");
+      return false;
+    }
+
+    return m_adapter->ProcessMessages(args);
+  }
+
+
   bool PlatformNativeWindowSystem::IsDisplayHDRCompatible(const int32_t displayId) const
   {
-    FSL_PARAM_NOT_USED(displayId);
-    FSLLOG3_WARNING("IsDisplayHDRCompatible() query not supported, defaulting to false");
-    return false;
+    if (!m_adapter)
+    {
+      FSLLOG3_WARNING("ProcessMessages: Object shutdown");
+      return false;
+    }
+
+    return m_adapter->IsDisplayHDRCompatible(displayId);
   }
-}    // namespace Fsl
+
+
+  void PlatformNativeWindowSystem::Shutdown()
+  {
+    if (!m_adapter)
+    {
+      return;
+    }
+    FSLLOG3_VERBOSE2("PlatformNameWindowSystem: shutdown");
+    m_shutdownWasCalled = true;
+    m_adapter.reset();
+  }
+
+}

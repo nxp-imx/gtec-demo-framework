@@ -55,7 +55,7 @@ namespace Fsl
     {
     }
 
-    constexpr bool IsValid() const
+    constexpr bool IsValid() const noexcept
     {
       return Flag != BasicShaderStageFlag::Undefined && !Shader.empty();
     }

@@ -79,7 +79,7 @@ namespace Fsl
         // As we use the queue as a cancellation token this means that if a message is in it we should shutdown
         bool queueEntry = false;
         bool stopNow = false;
-        while (!stopNow && !m_toQueue->TryDequeWait(queueEntry, std::chrono::milliseconds(1000 / 5)))
+        while (!stopNow && !m_toQueue->TryDequeueWait(queueEntry, std::chrono::milliseconds(1000 / 5)))
         {
           // A even better solution will use the 'platform dependent' filesystem change notification interfaces.
           // But that will also require more development time.

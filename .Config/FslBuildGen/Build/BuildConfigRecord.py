@@ -54,6 +54,7 @@ class BuildConfigRecord(object):
                  externalVariantConstraints: ExternalVariantConstraints,
                  userSetVariables: UserSetVariables,
                  buildCommand: CommandType,
+                 buildCommandArgs: List[str],
                  buildArgs: List[str],
                  runCommand: Optional[str],
                  generator: Optional[GeneratorPluginBase2],
@@ -64,6 +65,7 @@ class BuildConfigRecord(object):
         self.VariantConstraints = externalVariantConstraints
         self.UserSetVariables = userSetVariables
         self.BuildCommand = buildCommand
+        self.BuildCommandArgs = buildCommandArgs
         self.BuildArgs = buildArgs
         self.RunCommand = runCommand
         self.Generator = generator

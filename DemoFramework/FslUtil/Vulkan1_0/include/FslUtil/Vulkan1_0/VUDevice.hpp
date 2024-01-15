@@ -59,7 +59,7 @@ namespace Fsl::Vulkan
     VUDevice(const VkPhysicalDevice physicalDevice, RapidVulkan::Device&& device);
     VUDevice(const VkPhysicalDevice physicalDevice, const VkDeviceCreateInfo& createInfo);
 
-    ~VUDevice()
+    ~VUDevice() noexcept
     {
       Reset();
     }
@@ -79,24 +79,24 @@ namespace Fsl::Vulkan
                const uint32_t enabledExtensionCount, const char* const* ppEnabledExtensionNames, VkPhysicalDeviceFeatures* const pEnabledFeatures);
 
     //! @brief Get the physical device
-    const VUPhysicalDeviceRecord& GetPhysicalDevice() const
+    const VUPhysicalDeviceRecord& GetPhysicalDevice() const noexcept
     {
       return m_physicalDevice;
     }
 
     //! @brief Get the associated 'Device'
-    VkDevice Get() const
+    VkDevice Get() const noexcept
     {
       return m_device.Get();
     }
 
     //! @brief Get a pointer to the associated resource handle
-    const VkDevice* GetPointer() const
+    const VkDevice* GetPointer() const noexcept
     {
       return m_device.GetPointer();
     }
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_device.IsValid();
     }

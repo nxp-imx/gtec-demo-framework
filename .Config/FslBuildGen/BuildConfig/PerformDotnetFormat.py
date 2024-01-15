@@ -270,7 +270,7 @@ class PerformFormatHelper(object):
 
         log.LogPrintVerbose(1, "Formatting package '{0}'".format(package.Name))
 
-        outputFolder = IOUtil.Join(outputFolder, PackagePathUtil.GetPackagePath(package, toolProjectContextsDict))
+        outputFolder = IOUtil.Join(outputFolder, PackagePathUtil.GetUniquePackagePath(package, toolProjectContextsDict))
 
         filteredFiles = GetFilteredFiles(log, customPackageFileFilter, dotnetFormatConfiguration, package)
         formatPackageConfig = FormatPackageConfig(log, package, dotnetFormatConfiguration, filteredFiles)

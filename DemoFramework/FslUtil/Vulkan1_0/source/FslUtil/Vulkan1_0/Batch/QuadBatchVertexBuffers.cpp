@@ -87,16 +87,18 @@ namespace Fsl::Vulkan
       return;
     }
 
+    // Unmap all mapped entries
     for (auto& rEntry : m_buckets)
     {
       rEntry.Unmap();
     }
 
-    m_physicalDevice = {};
-    m_device = VK_NULL_HANDLE;
-    m_segmentVertexCount = 0;
-    m_buckets.clear();
+    // Use destruction order
     m_activeCount = 0;
+    m_buckets.clear();
+    m_segmentVertexCount = 0;
+    m_device = VK_NULL_HANDLE;
+    m_physicalDevice = {};
   }
 
 

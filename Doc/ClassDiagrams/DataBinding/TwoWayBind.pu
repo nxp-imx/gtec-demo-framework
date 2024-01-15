@@ -1,0 +1,191 @@
+@startuml FslDemoService.DataBinding Bind 
+
+' Simple rule for nodes that take part in two way bindings
+' A two way binding source node:
+' - Can be the target of two way binding (not one way)
+'
+' This makes resolving two way bindings much simpler while still supporting most use cases
+' It basically means we can resolve all two way binding changes first then apply the normal 
+' change propagation afterwards.
+
+' allowed
+namespace Allowed1 {
+    ' not a target
+    ' source of two way binding A
+    class Property1  
+    ' target of two way binding A
+    ' not a source
+    class Property2
+
+    Property1 <--> Property2
+}
+
+' allowed
+namespace Allowed2 {
+    ' not a target
+    ' source of two way binding A
+    class Property1
+    ' target if two way binding A
+    ' source of one way binding B
+    class Property2
+    ' target of one way binding B
+    ' not a source
+    class Property3
+
+    Property1 <--> Property2
+    Property2 --> Property3
+}
+
+' allowed
+namespace Allowed3 {
+    ' not a target
+    ' source of two way binding A
+    class Property1
+    ' target if two way binding A
+    ' source of two way binding B
+    class Property2
+    ' target if two way binding B
+    ' source of two way binding C
+    class Property3
+    ' target if two way binding C
+    ' not a source
+    class Property4
+
+    Property1 <--> Property2
+    Property2 <--> Property3
+    Property3 <--> Property4
+}
+
+
+' allowed
+namespace Allowed4 {
+    ' not a target
+    ' source of two way binding A
+    ' source of one way binding B
+    class Property1
+    ' target if two way binding A
+    ' not a source
+    class Property2
+    ' target of one way binding B
+    ' not a source
+    class Property3
+
+    Property1 <--> Property2
+    Property1 --> Property3
+}
+
+
+' allowed
+namespace Allowed5 {
+    ' not a target
+    ' source of two way binding A
+    ' source of one way binding B
+    class Property1
+    ' target if two way binding A
+    ' source of one way binding C
+    class Property2
+    ' target if one way binding B
+    ' not a source
+    class Property3
+    ' target if one way binding C
+    ' not a source
+    class Property4
+
+    Property1 <--> Property2
+    Property1 --> Property3
+    Property2 --> Property4
+}
+
+' allowed
+namespace Allowed6 {
+    ' not a target
+    ' source of two way binding A
+    ' source of one way binding B
+    class Property1
+    ' target if two way binding A
+    ' source of one way binding C
+    class Property2
+    ' target if one way binding B
+    ' not a source
+    class Property3
+    ' target if one way binding C
+    ' not a source
+    class Property4
+
+    Property1 <--> Property2
+    Property1 <--> Property3
+    Property2 --> Property4
+}
+
+
+' allowed
+namespace Allowed7 {
+    ' not a target
+    ' source of two way binding A
+    class Property1  
+    ' target of two way binding A
+    ' not a source
+    class Property2
+    ' Method used to convert types betwen Property1 and Property2
+    class ConversionMethod
+
+    Property1 <--> ConversionMethod
+    ConversionMethod <--> Property2
+}
+
+' allowed
+namespace Allowed8 {
+    ' source of two way binding A
+    class Property1  
+    ' source of two way binding A
+    class Property2
+    ' target of two way binding A
+    class Property3
+    class MultiConversionMethod
+
+    Property1 <--> MultiConversionMethod
+    Property2 <--> MultiConversionMethod
+    MultiConversionMethod <--> Property3
+}
+
+' NOT ALLOWED BELOW
+
+namespace NotAllowed1 {
+    class Property1
+    class Property2
+    class Property3
+
+    Property1 --> Property2
+    Property2 <--> Property3
+}
+
+
+namespace NotAllowed2 {
+    class Property1
+    class Property2
+    class Property3
+    class Property4
+
+    Property1 <--> Property2
+    Property2 --> Property3
+    Property3 <--> Property4
+}
+
+namespace NotAllowed3 {
+    class Property1
+    class Property2
+    class Property3
+    class Property4
+    class MultiBind
+    class Magic
+
+    Property1 <--> Property2
+    Property1 --> Property3
+    Property2 --> Property4
+    Property3 --> MultiBind
+    Property4 --> MultiBind
+    MultiBind <--> Magic
+}
+
+
+@enduml

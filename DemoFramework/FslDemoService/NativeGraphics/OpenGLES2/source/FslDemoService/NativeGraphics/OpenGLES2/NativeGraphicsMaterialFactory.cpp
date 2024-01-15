@@ -193,7 +193,7 @@ namespace Fsl::GLES2
     }
   }
 
-  bool NativeGraphicsMaterialFactory::DestroyMaterial(const BasicNativeMaterialHandle hMaterial)
+  bool NativeGraphicsMaterialFactory::DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept
   {
     FSLLOG3_VERBOSE3("NativeGraphicsPipelineFactory::DestroyPipeline({})", hMaterial.Value);
     if (!m_dependentResources.IsValid)

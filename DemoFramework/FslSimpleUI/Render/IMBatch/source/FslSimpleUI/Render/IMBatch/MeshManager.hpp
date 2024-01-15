@@ -432,7 +432,9 @@ namespace Fsl::UI::RenderIMBatch
                                      const uint32_t spriteMaterialIndex, const bool isOpaque, const uint32_t vertexCapacity);
     AddMeshResult AddSpriteMesh(const std::shared_ptr<ISprite>& sprite, const BatchMaterialHandle batchMaterialHandle,
                                 const uint32_t spriteMaterialIndex, const bool isOpaque, const uint32_t vertexCapacity, const uint32_t indexCapacity);
+    void SanityCheckAll() noexcept;
     void SanityCheck() noexcept;
+    void SanityCheckMats() noexcept;
   };
 }
 

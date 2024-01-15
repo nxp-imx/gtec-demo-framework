@@ -103,6 +103,12 @@ namespace Fsl
       RapidVulkan::DescriptorSetLayout BloomDescriptorSetLayout;
       VkDescriptorSet BloomDescriptorSet{};
       RapidVulkan::PipelineLayout BloomPipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
@@ -137,6 +143,48 @@ namespace Fsl
       RapidVulkan::GraphicsPipeline PipelineBlur9V;
 
       RapidVulkan::GraphicsPipeline PipelineBloom;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+
+        PipelineBloom.Reset();
+
+        PipelineBlur9V.Reset();
+        PipelineBlur9H.Reset();
+        PipelineBlur5V.Reset();
+        PipelineBlur5H.Reset();
+        PipelineBlurFixed9V.Reset();
+        PipelineBlurFixed9H.Reset();
+        PipelineBlurFixed5V.Reset();
+        PipelineBlurFixed5H.Reset();
+        PipelineBlurCustomV.Reset();
+        PipelineBlurCustomH.Reset();
+        PipelineCopy.Reset();
+        PipelineBrightPass.Reset();
+
+        OffscreenFB16B.Reset();
+        OffscreenFB16A.Reset();
+        OffscreenFB32B.Reset();
+        OffscreenFB32A.Reset();
+        OffscreenFB64B.Reset();
+        OffscreenFB64A.Reset();
+        OffscreenFB128B.Reset();
+        OffscreenFB128A.Reset();
+        OffscreenFB256B.Reset();
+        OffscreenFB256A.Reset();
+        OffscreenFB256.Reset();
+
+        OffscreenRPNoDepth.Reset();
+        OffscreenRP.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
     Resources m_resources;

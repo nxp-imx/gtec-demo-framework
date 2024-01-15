@@ -191,7 +191,7 @@ TEST(TestMathPixel_TypeConverter_Math, UncheckedChangeToPxPoint2_Vector2)
 
 // --- ToPxRectangle
 
-TEST(TestMathPixel_TypeConverter_Math, UncheckedToPxRectangle_Rect)
+TEST(TestMathPixel_TypeConverter_Math, UncheckedChangeToPxRectangle_Rect)
 {
   const Rect value(1.0f, 2.0f, 3.0f, 4.0f);
   const auto res = TypeConverter::UncheckedChangeTo<PxRectangle>(value);
@@ -201,6 +201,18 @@ TEST(TestMathPixel_TypeConverter_Math, UncheckedToPxRectangle_Rect)
   EXPECT_EQ(1 + 3, res.RawRight());
   EXPECT_EQ(2 + 4, res.RawBottom());
 }
+
+TEST(TestMathPixel_TypeConverter_Math, UncheckedToPxRectangle_Rectangle)
+{
+  const Rectangle value(1, 2, 3, 4);
+  const auto res = TypeConverter::UncheckedTo<PxRectangle>(value);
+
+  EXPECT_EQ(1, res.RawLeft());
+  EXPECT_EQ(2, res.RawTop());
+  EXPECT_EQ(1 + 3, res.RawRight());
+  EXPECT_EQ(2 + 4, res.RawBottom());
+}
+
 
 // --- ToPxRectangleU
 

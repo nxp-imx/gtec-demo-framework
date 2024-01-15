@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -29,65 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslNativeWindow/EGL/Adapter/EGLNativeWindowSystemAdapterFactory.hpp>
+#include <FslNativeWindow/EGL/Adapter/IEGLNativeWindowSystemAdapter.hpp>
+#include <FslNativeWindow/EGL/EGLNativeWindowSystem.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowSystemFactory.hpp>
 #include <FslNativeWindow/EGL/IEGLNativeWindowSystem.hpp>
-
-#if defined(FSL_PLATFORM_EMSCRIPTEN)
-#include "SDL/EGLNativeWindowSystemSDL.hpp"
-namespace Fsl
-{
-  using EGLNATIVEWINDOWSYSTEM = EGLNativeWindowSystemSDL;
-}
-#elif defined(_WIN32)
-#include "Win32/EGLNativeWindowSystemWin32.hpp"
-namespace Fsl
-{
-  using EGLNATIVEWINDOWSYSTEM = EGLNativeWindowSystemWin32;
-}
-#elif defined(__ANDROID__)
-#include "Android/EGLNativeWindowSystemAndroid.hpp"
-namespace Fsl
-{
-  typedef EGLNativeWindowSystemAndroid EGLNATIVEWINDOWSYSTEM;
-}
-#elif defined(__QNXNTO__)
-#include "QNX/EGLNativeWindowSystemQNX.hpp"
-namespace Fsl
-{
-  typedef EGLNativeWindowSystemQNX EGLNATIVEWINDOWSYSTEM;
-}
-#elif defined(__linux__)
-#if defined(FSL_WINDOWSYSTEM_X11)
-#include "X11/EGLNativeWindowSystemX11.hpp"
-namespace Fsl
-{
-  using EGLNATIVEWINDOWSYSTEM = EGLNativeWindowSystemX11;
-}
-#elif defined(FSL_WINDOWSYSTEM_WAYLAND)
-#include "Wayland/EGLNativeWindowSystemWayland.hpp"
-namespace Fsl
-{
-  typedef EGLNativeWindowSystemWayland EGLNATIVEWINDOWSYSTEM;
-}
-#elif defined(FSL_WINDOWSYSTEM_FRAMEBUFFER)
-#include "FB/EGLNativeWindowSystemFB.hpp"
-namespace Fsl
-{
-  typedef EGLNativeWindowSystemFB EGLNATIVEWINDOWSYSTEM;
-}
-#else
-#error No window system set
-#endif
-#else
-#error Unsupported platform
-#endif
 
 namespace Fsl
 {
   std::shared_ptr<IEGLNativeWindowSystem> EGLNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
   {
-    return std::make_shared<EGLNATIVEWINDOWSYSTEM>(setup);
+    std::unique_ptr<IEGLNativeWindowSystemAdapter> adapter = EGLNativeWindowSystemAdapterFactory::Allocate(setup);
+    return std::make_shared<EGLNativeWindowSystem>(setup, std::move(adapter));
   }
+
 
   std::shared_ptr<INativeWindowSystem> EGLNativeWindowSystemFactory::AllocateNative(const NativeWindowSystemSetup& setup)
   {

@@ -111,6 +111,18 @@ namespace Fsl
   HDR03_SkyboxToneMapping::~HDR03_SkyboxToneMapping() = default;
 
 
+  void HDR03_SkyboxToneMapping::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    DemoAppGLES3::ConfigurationChanged(windowMetrics);
+
+    // Recreate the HDR frame-buffer
+    m_resources.HdrFrameBuffer.Reset();
+    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(windowMetrics.GetSizePx());
+
+    m_menuUI.SetWindowMetrics(windowMetrics);
+  }
+
+
   void HDR03_SkyboxToneMapping::OnKeyEvent(const KeyEvent& event)
   {
     m_menuUI.OnKeyEvent(event);

@@ -138,7 +138,7 @@ namespace Fsl::DataBinding
     }
   }
 
-  bool DataBindingServiceDebug::TryToDotFormatFile(IO::Path& path, const DataBindingService& dataBindingService)
+  bool DataBindingServiceDebug::TryToDotFormatFile(const IO::Path& path, const DataBindingService& dataBindingService)
   {
     auto res = TryToDotFormatString(dataBindingService);
     if (!res.has_value())
@@ -180,7 +180,7 @@ namespace Fsl::DataBinding
       {
         const DataBindingInstanceHandle hNode(instances.FastIndexToHandle(i));
         const auto& instanceRecord = instances[i];
-        for (const DataBindingInstanceHandle hTarget : instanceRecord.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Targets))
+        for (const DataBindingInstanceHandle hTarget : instanceRecord.TargetHandles())
         {
           const auto& targetInstance = instances.FastGet(hTarget.Value);
 
@@ -205,7 +205,7 @@ namespace Fsl::DataBinding
       {
         const DataBindingInstanceHandle hNode(instances.FastIndexToHandle(i));
         const auto& instanceRecord = instances[i];
-        for (const DataBindingInstanceHandle hProperty : instanceRecord.Handles.AsReadOnlySpan(Internal::ServicePropertyVectorIndex::Properties))
+        for (const DataBindingInstanceHandle hProperty : instanceRecord.PropertyHandles())
         {
           const auto& propertyInstance = instances.FastGet(hProperty.Value);
 
@@ -218,6 +218,4 @@ namespace Fsl::DataBinding
     entries.emplace_back("}");
     return fmt::format("{}", fmt::join(entries, "\n"));
   }
-
-
 }

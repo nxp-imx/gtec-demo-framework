@@ -112,14 +112,14 @@ namespace Fsl::Vulkan
     void Dispose() noexcept;
 
 
-    VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const;
+    VUTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const noexcept;
 
     // Graphics3D::INativeBufferFactory
-    Graphics3D::NativeBufferFactoryCaps GetBufferCaps() const final;
+    Graphics3D::NativeBufferFactoryCaps GetBufferCaps() const noexcept final;
 
     BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
                                          const bool isDynamic) final;
-    bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) final;
+    bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) noexcept final;
     void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData) final;
 
 
@@ -132,32 +132,32 @@ namespace Fsl::Vulkan
     // Graphics3D::INativeMaterialFactory
 
     void CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles, ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan) final;
-    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) final;
+    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept final;
 
     // Graphics3D::INativeTextureFactory
-    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const final;
+    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const noexcept final;
 
     BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
                                            const bool isDynamic) final;
 
-    bool DestroyTexture(const BasicNativeTextureHandle hTexture) final;
+    bool DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept final;
 
     void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags) final;
-    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const final;
+    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept final;
 
     // Graphics3D::INativeDevice
     void CreateDependentResources(const BasicNativeDependentCreateInfo& createInfo) final;
     void DestroyDependentResources() final;
 
     void BeginFrame(const BasicNativeBeginFrameInfo& frameInfo) final;
-    void EndFrame() final;
+    void EndFrame() noexcept final;
 
     void BeginCache() final{};
-    void EndCache() final{};
+    void EndCache() noexcept final{};
 
     void BeginCmds() final;
-    void EndCmds() final;
+    void EndCmds() noexcept final;
 
     void CmdSetCamera(const BasicCameraInfo& cameraInfo) final;
     void CmdBindIndexBuffer(const BasicNativeBufferHandle indexBuffer) final;
@@ -165,8 +165,8 @@ namespace Fsl::Vulkan
                          const ReadOnlySpan<BasicNativeTextureHandle> textures) final;
     void CmdBindVertexBuffer(const BasicNativeBufferHandle vertexBuffer) final;
 
-    void CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) final;
-    void CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) final;
+    void CmdDraw(const uint32_t vertexCount, const uint32_t firstVertex) noexcept final;
+    void CmdDrawIndexed(const uint32_t indexCount, const uint32_t firstIndex) noexcept final;
   };
 }
 

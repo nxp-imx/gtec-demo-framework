@@ -362,7 +362,7 @@ namespace Fsl
 
   void Screenshot::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

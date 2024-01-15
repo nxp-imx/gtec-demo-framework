@@ -53,11 +53,11 @@ namespace Fsl
 
     config.AddInstanceExtensionRequest("VK_EXT_swapchain_colorspace", FeatureRequirement::Optional);
 
-    config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT));
-    config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_BT2020_LINEAR_EXT));
     // Setup our preferred surface formats (in order of preference)
+    config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT));
     // Older Vulkan headers use VK_COLOR_SPACE_DCI_P3_LINEAR_EXT newer ones VK_COLOR_SPACE_DISPLAY_P3_LINEAR_EXT
     config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_DCI_P3_LINEAR_EXT));
+    config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_BT2020_LINEAR_EXT));
     // config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_R16G16B16A16_SFLOAT, VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT));
     config.AddPreferedSurfaceFormat(SurfaceFormatInfo(VK_FORMAT_B8G8R8A8_UNORM));
 

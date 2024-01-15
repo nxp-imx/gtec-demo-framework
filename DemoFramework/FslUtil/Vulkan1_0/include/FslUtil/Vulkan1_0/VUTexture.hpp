@@ -60,7 +60,7 @@ namespace Fsl::Vulkan
     VUTexture(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo);
     VUTexture(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler);
 
-    ~VUTexture()
+    ~VUTexture() noexcept
     {
       Reset();
     }
@@ -71,74 +71,74 @@ namespace Fsl::Vulkan
     void Reset(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler);
 
     //! @brief Check if this object contains a valid resource
-    inline bool IsValid() const
+    inline bool IsValid() const noexcept
     {
       return m_image.IsValid();
     }
 
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_sampler.GetDevice();
     }
 
-    VkImage GetImage() const
+    VkImage GetImage() const noexcept
     {
       return m_image.GetImage();
     }
 
-    VkImageView GetImageView() const
+    VkImageView GetImageView() const noexcept
     {
       return m_image.GetImageView();
     }
 
 
     //! @brief Get the Image associated with this object
-    const VUImage& Image() const
+    const VUImage& Image() const noexcept
     {
       return m_image.Image();
     }
 
 
     //! @brief Get the ImageView associated with this object
-    const RapidVulkan::ImageView& ImageView() const
+    const RapidVulkan::ImageView& ImageView() const noexcept
     {
       return m_image.ImageView();
     }
 
     //! @brief Get the Memory associated with this object
-    const RapidVulkan::Memory& Memory() const
+    const RapidVulkan::Memory& Memory() const noexcept
     {
       return m_image.Memory();
     }
 
     //! @brief Get the Memory associated with this object
-    const RapidVulkan::Sampler& Sampler() const
+    const RapidVulkan::Sampler& Sampler() const noexcept
     {
       return m_sampler;
     }
 
     //! @brief Extract information about this texture as a VUTextureInfo struct
-    operator VUTextureInfo() const    // NOLINT(google-explicit-constructor)
+    operator VUTextureInfo() const noexcept    // NOLINT(google-explicit-constructor)
     {
       return {m_sampler.Get(), m_image.ImageView().Get(), m_image.Image().GetImageLayout(), m_image.Image().GetExtent()};
     }
 
-    VkExtent3D GetExtent() const
+    VkExtent3D GetExtent() const noexcept
     {
       return m_image.Image().GetExtent();
     }
 
-    VkExtent2D GetExtent2D() const
+    VkExtent2D GetExtent2D() const noexcept
     {
       return m_image.Image().GetExtent2D();
     }
 
-    PxSize2D GetSize() const
+    PxSize2D GetSize() const noexcept
     {
       return m_image.Image().GetSize();
     }
 
-    VkDescriptorImageInfo GetDescriptorImageInfo() const
+    VkDescriptorImageInfo GetDescriptorImageInfo() const noexcept
     {
       VkDescriptorImageInfo descriptorImageInfo{};
       descriptorImageInfo.sampler = m_sampler.Get();
@@ -154,7 +154,7 @@ namespace Fsl::Vulkan
     }
 
   private:
-    inline void DoReset();
+    inline void DoReset() noexcept;
   };
 }
 

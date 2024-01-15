@@ -78,7 +78,7 @@ namespace Fsl
 
     bool SetProperty2Value(const uint32_t value)
     {
-      return m_property2.Set(ThisDependencyObject(), value);
+      return m_property2.Set(ThisDependencyObject(), value, DataBinding::PropertyChangeReason::Modified);
     }
 
     float GetProperty3Value() const noexcept
@@ -88,7 +88,7 @@ namespace Fsl
 
     bool SetProperty3Value(const float value)
     {
-      return m_property3.Set(ThisDependencyObject(), value);
+      return m_property3.Set(ThisDependencyObject(), value, DataBinding::PropertyChangeReason::Modified);
     }
 
     int32_t GetProperty4Value() const noexcept
@@ -98,7 +98,7 @@ namespace Fsl
 
     bool SetProperty4Value(const int32_t value)
     {
-      return m_property4.Set(ThisDependencyObject(), value);
+      return m_property4.Set(ThisDependencyObject(), value, DataBinding::PropertyChangeReason::Modified);
     }
 
     const prop5_type& GetProperty5Value() const noexcept
@@ -128,7 +128,7 @@ namespace Fsl
 
     bool SetProperty7Value(const uint32_t value)
     {
-      return m_property7.Set(ThisDependencyObject(), value);
+      return m_property7.Set(ThisDependencyObject(), value, DataBinding::PropertyChangeReason::Modified);
     }
 
 

@@ -36,6 +36,7 @@
 #include <FslBase/Math/ConstrainedValue.hpp>
 #include <FslBase/Math/Dp/DpSize2D.hpp>
 #include <FslBase/String/StringViewLiteUtil.hpp>
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics/Render/NineSliceAtlasTexture2D.hpp>
 #include <FslGraphics/Sprite/IContentSprite.hpp>
 #include <FslGraphics/Sprite/ImageSprite.hpp>
@@ -82,7 +83,7 @@ namespace Fsl
 
       public:
         BasicThemeControlFactory(const std::shared_ptr<WindowContext>& context, const std::shared_ptr<BasicThemeResources>& themeResources,
-                                 const bool usePrimaryPalette);
+                                 const bool usePrimaryPalette, const ColorSpace colorSpace);
         ~BasicThemeControlFactory() override;
 
         const std::shared_ptr<WindowContext>& GetContext() const final

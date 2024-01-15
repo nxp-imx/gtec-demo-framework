@@ -56,7 +56,7 @@ namespace Fsl::Vulkan
     {
     }
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return Queue != VK_NULL_HANDLE;
     }

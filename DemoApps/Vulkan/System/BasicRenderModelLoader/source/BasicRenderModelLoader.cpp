@@ -126,6 +126,6 @@ namespace Fsl
 
   void BasicRenderModelLoader::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

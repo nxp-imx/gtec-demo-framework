@@ -29,10 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslUnitTest/CurrentExePath.hpp>
 #include "gtest/gtest.h"
 
 GTEST_API_ int main(int argc, char** argv)
 {
+  // Store the exe path while running tests
+  Fsl::CurrentExePath::ScopedExePath exeScope(argc > 0 ? argv[0] : nullptr);
+
   testing::InitGoogleTest(&argc, argv);
+
   return RUN_ALL_TESTS();
 }

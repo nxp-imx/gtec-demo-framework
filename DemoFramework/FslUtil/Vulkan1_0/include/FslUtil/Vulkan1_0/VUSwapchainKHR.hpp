@@ -79,7 +79,7 @@ namespace Fsl::Vulkan
                    const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkPresentModeKHR presentMode, const VkBool32 clipped,
                    const VkSwapchainKHR oldSwapchain);
 
-    ~VUSwapchainKHR();
+    ~VUSwapchainKHR() noexcept;
 
     //! @brief Destroys any owned resources and resets the object to its default state.
     void Reset() noexcept;
@@ -101,38 +101,38 @@ namespace Fsl::Vulkan
 
 
     //! @brief Get the associated 'Device'
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_swapchain.GetDevice();
     }
 
     //! @brief Get the associated resource handle
-    VkSwapchainKHR Get() const
+    VkSwapchainKHR Get() const noexcept
     {
       return m_swapchain.Get();
     }
 
     //! @brief Check if this object contains a valid resource
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_swapchain.IsValid();
     }
 
     void RefreshImages();
 
-    uint32_t GetImageCount() const;
+    uint32_t GetImageCount() const noexcept;
 
     //! @brief Access the image at the given index
     VkImage operator[](const std::size_t arrayIndex) const;
 
-    VkImageUsageFlags GetImageUsageFlags() const
+    VkImageUsageFlags GetImageUsageFlags() const noexcept
     {
       return m_imageUsageFlags;
     }
 
-    VkFormat GetImageFormat() const;
+    VkFormat GetImageFormat() const noexcept;
 
-    VkExtent2D GetImageExtent() const;
+    VkExtent2D GetImageExtent() const noexcept;
 
     void CmdPipelineBarrier(const VkCommandBuffer cmdBuffer, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
                             const VkPipelineStageFlags srcStageMask, const VkPipelineStageFlags dstStageMask, const uint32_t imageIndex);

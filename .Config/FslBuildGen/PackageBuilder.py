@@ -37,6 +37,7 @@ from typing import Optional
 #from FslBuildGen import PackageListUtil
 #from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
+from FslBuildGen.DataTypes import FilterMode
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DependencyGraph import DependencyGraph
 from FslBuildGen.DependencyGraph import DependencyGraphNode
@@ -64,6 +65,7 @@ class PackageBuilder(object):
                  platformName: str, hostPlatformName: str, basicBuildConfig: BasicBuildConfig, generatorInfo: GeneratorInfo,
                  genFiles: List[XmlGenFile], packageManagerFilter: PackageManagerFilter,
                  externalVariantConstraints: ExternalVariantConstraints, engineResolveConfig: EngineResolveConfig,
+                 filterMode: FilterMode,
                  logVerbosity: int = 1, writeGraph: bool = False) -> None:
         super().__init__()
 
@@ -72,7 +74,7 @@ class PackageBuilder(object):
 
         packageManager = PackageManager(log, configBuildDir, configIgnoreNotSupported, toolConfig, platformName, hostPlatformName, basicBuildConfig,
                                         generatorInfo, genFiles, packageManagerFilter, externalVariantConstraints, engineResolveConfig,
-                                        writeGraph)
+                                        writeGraph, filterMode)
         packages = packageManager.Packages
 
         # Build a graph containing all packages

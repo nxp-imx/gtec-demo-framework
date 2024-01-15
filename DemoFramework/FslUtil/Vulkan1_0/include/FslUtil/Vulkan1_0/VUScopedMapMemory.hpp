@@ -41,7 +41,7 @@
 namespace Fsl::Vulkan
 {
   // Exception safe wrapper for vkMapMemory, vkUnmapMemory
-  class VUScopedMapMemory
+  class VUScopedMapMemory final
   {
     VkDevice m_device{VK_NULL_HANDLE};
     VkDeviceMemory m_deviceMemory{VK_NULL_HANDLE};
@@ -93,7 +93,7 @@ namespace Fsl::Vulkan
       Reset();
     }
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_device != VK_NULL_HANDLE && m_deviceMemory != VK_NULL_HANDLE;
     }
@@ -109,8 +109,8 @@ namespace Fsl::Vulkan
       if (m_device != VK_NULL_HANDLE && m_deviceMemory != VK_NULL_HANDLE)
       {
         vkUnmapMemory(m_device, m_deviceMemory);
-        m_device = VK_NULL_HANDLE;
         m_deviceMemory = VK_NULL_HANDLE;
+        m_device = VK_NULL_HANDLE;
       }
     }
 

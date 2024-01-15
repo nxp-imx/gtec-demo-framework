@@ -112,6 +112,6 @@ namespace Fsl
 
   void ThemeBasicUI::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

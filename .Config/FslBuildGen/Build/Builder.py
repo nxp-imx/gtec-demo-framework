@@ -287,7 +287,8 @@ class Builder(object):
                 errorMessage = "{0} {1}".format(errorMessage, generatorContext.Generator.SupportCommandOpenHintMessage)
             raise Exception(errorMessage)
         if buildConfig.BuildCommand == CommandType.Open2:
-            self.__PerformOpen2(buildConfig, buildContext, generatorContext, generatorConfig, resolvedBuildOrderBuildable, requestedPackages, generatorConfigReport)
+            self.__PerformOpen2(buildConfig, buildContext, generatorContext, generatorConfig, resolvedBuildOrderBuildable, requestedPackages,
+                                generatorConfigReport, buildConfig.BuildCommandArgs)
 
         self.UsedGeneratorConfig = generatorConfig
         self.UsedBuildContext = buildContext
@@ -295,7 +296,8 @@ class Builder(object):
 
     def __PerformOpen2(self, buildConfig: BuildConfigRecord, buildContext: LocalBuildContext, generatorContext: GeneratorContext,
                        generatorConfig: GeneratorConfig, resolvedBuildOrder: List[Package], requestedPackages: List[Package],
-                       generatorConfigReport: Optional[PackageGeneratorConfigReport]) -> None:
+                       generatorConfigReport: Optional[PackageGeneratorConfigReport],
+                       openCommandArgs : List[str]) -> None:
         if not generatorContext.Generator.IsCMake:
             raise Exception("*** Open2 only support the cmake generator ***")
         if generatorConfigReport is None:
@@ -345,7 +347,7 @@ class Builder(object):
 
         cmakeInfo = OpenProjectCMakeInfo(cmakeBuildDirectory, cmakeGeneratorName, buildSourceDirectory, cmakeConfigureArgs,
                                          cmakeConfigureSettingsDict, cmakeInstallPrefix, None)
-        createInfo = OpenProjectCreateInfo(sourcePath, exeInfo, cmakeInfo)
+        createInfo = OpenProjectCreateInfo(sourcePath, exeInfo, cmakeInfo, openCommandArgs)
         OpenProjectUtil.Run(self.Log, createInfo)
 
     @staticmethod
@@ -715,7 +717,7 @@ class Builder(object):
 def BuildPackages(log: Log, configBuildDir: str, configSDKPath: str, configSDKConfigTemplatePath: str, configDisableWrite: bool, configIsDryRun: bool,
                   toolConfig: ToolConfig, generatorContext: GeneratorContext, packages: List[Package], requestedPackages: Optional[List[Package]],
                   externalVariantConstraints: ExternalVariantConstraints, buildArgs: List[str], buildForAllExe: Optional[str], generator: GeneratorPluginBase2,
-                  enableContentBuilder: bool, forceClaimInstallArea: bool, buildThreads: int, buildCommand: CommandType,
+                  enableContentBuilder: bool, forceClaimInstallArea: bool, buildThreads: int, buildCommand: CommandType, buildCommandArgs: List[str],
                   printPathIfCMake: bool = False, forceConfigure: bool = False) -> None:
 
     PlatformUtil.CheckBuildPlatform(generatorContext.PlatformName)
@@ -727,7 +729,7 @@ def BuildPackages(log: Log, configBuildDir: str, configSDKPath: str, configSDKCo
     requestedPackages = [] if requestedPackages is None else requestedPackages
     buildConfig = BuildConfigRecord(toolConfig.ToolVersion, generatorContext.PlatformName, externalVariantConstraints,
                                     generatorContext.GeneratorInfo.VariableContext.UserSetVariables,
-                                    buildCommand, buildArgs, buildForAllExe, generator, buildThreads)
+                                    buildCommand, buildCommandArgs, buildArgs, buildForAllExe, generator, buildThreads)
 
     builder = Builder(log, configBuildDir, configSDKPath, configSDKConfigTemplatePath, configDisableWrite, configIsDryRun, toolConfig,
                       generatorContext, topLevelPackage, buildConfig, enableContentBuilder, forceClaimInstallArea, requestedPackages, forceConfigure)

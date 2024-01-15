@@ -117,6 +117,6 @@ namespace Fsl
 
   void SmoothScroll::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

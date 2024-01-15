@@ -50,6 +50,9 @@ namespace Fsl
     void _PreDestruct() override;
     void _BeginDraw(const FrameInfo& frameInfo) override;
     void _EndDraw(const FrameInfo& frameInfo) override;
+
+  protected:
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
   };
 }
 

@@ -58,8 +58,8 @@ namespace Fsl
   {
     const auto VERTEX_BUFFER_BIND_ID = 0;
 
-    const Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
-    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
+    constexpr Vector3 DEFAULT_CAMERA_POSITION(4.0f, 1.0f, 7.0f);
+    constexpr Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, 0.0f);
 
     IO::Path GetTextureFile(const VkPhysicalDeviceFeatures& features)
     {
@@ -387,11 +387,13 @@ namespace Fsl
 
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
+    , m_hasSRGBFramebuffer(GetSurfaceFormatInfo().Format == VK_FORMAT_B8G8R8A8_SRGB)
+    , m_colorSpace(!m_hasSRGBFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SRGBLinear)
     , m_bufferManager(
         std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(
-        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi",
+                                                         UIDemoAppExtension::CreateConfig(m_colorSpace)))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -403,22 +405,19 @@ namespace Fsl
     , m_splitSceneAlphaL(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
     , m_splitSceneAlphaR(m_transitionCache, TimeSpan::FromMilliseconds(200), TransitionType::Smooth)
   {
-    const auto chosenSurfaceFormat = GetSurfaceFormatInfo();
-    bool hasSRGBFramebuffer = (chosenSurfaceFormat.Format == VK_FORMAT_B8G8R8A8_SRGB);
-
     m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
     PrepareTransition();
     PrepareLights();
-    CreateUI(hasSRGBFramebuffer);
+    CreateUI();
 
     const auto textureFile = GetTextureFile(m_physicalDevice.Features);
     CreateTextures(contentManager, textureFile);
     CreateVertexArray();
 
-    const auto* shaderFilename = hasSRGBFramebuffer ? "GammaCorrection.frag.spv" : "GammaCorrectionGamma.frag.spv";
+    const auto* shaderFilename = m_hasSRGBFramebuffer ? "GammaCorrection.frag.spv" : "GammaCorrectionGamma.frag.spv";
 
     m_resources.VertShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("GammaCorrection.vert.spv"));
     m_resources.FragShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes(shaderFilename));
@@ -624,7 +623,7 @@ namespace Fsl
 
   void SRGBFramebuffer::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 
@@ -723,33 +722,6 @@ namespace Fsl
     const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue()));
     const int32_t remainderX = windowSizePx.RawWidth() - splitX;
     const auto height = static_cast<float>(windowSizePx.RawHeight());
-
-    //// bottom left (no gamma correction, rgb texture)
-    // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineNoGamma.Get());
-
-    // VkViewport viewport{0.0f, static_cast<float>(splitY), static_cast<float>(splitX), static_cast<float>(remainderY), 0.0f, 1.0f};
-    // if (viewport.width > 0 && viewport.height > 0)
-    //{
-    //  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_resources.MainPipelineLayout.Get(), 0, 1,
-    //  &frame.DescriptorSetLinear,
-    //                          0, nullptr);
-
-    //  vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-    //  vkCmdDraw(commandBuffer, m_resources.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
-    //}
-
-    //// top left (no gamma correction, srgb texture)
-    // bool descriptorBound = false;
-    // viewport = {0.0f, 0.0f, static_cast<float>(splitX), static_cast<float>(splitY), 0.0f, 1.0f};
-    // if (viewport.width > 0 && viewport.height > 0)
-    //{
-    //  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_resources.MainPipelineLayout.Get(), 0, 1, &frame.DescriptorSetSRGB,
-    //  0,
-    //                          nullptr);
-
-    //  vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-    //  vkCmdDraw(commandBuffer, m_resources.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
-    //}
 
     // Bottom right (gamma correction, srgb texture)
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
@@ -857,7 +829,7 @@ namespace Fsl
   }
 
 
-  void SRGBFramebuffer::CreateUI(const bool hasSRGBFramebuffer)
+  void SRGBFramebuffer::CreateUI()
   {
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
@@ -865,7 +837,7 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension);
+    auto uiControlFactory = UI::Theme::ThemeSelector::CreateControlFactory(*m_uiExtension, m_colorSpace);
     auto& factory = *uiControlFactory;
 
     // Create a label to write stuff into when a button is pressed
@@ -878,7 +850,7 @@ namespace Fsl
     m_labelRight->SetAlignmentX(UI::ItemAlignment::Far);
     m_labelRight->SetAlignmentY(UI::ItemAlignment::Near);
 
-    auto label1 = factory.CreateLabel(hasSRGBFramebuffer ? "SRGB framebuffer" : "SRGB framebuffer not available. Emulating output using shader");
+    auto label1 = factory.CreateLabel(m_hasSRGBFramebuffer ? "SRGB framebuffer" : "SRGB framebuffer not available. Emulating output using shader");
     label1->SetAlignmentX(UI::ItemAlignment::Center);
     label1->SetAlignmentY(UI::ItemAlignment::Center);
 

@@ -150,6 +150,6 @@ namespace Fsl
     m_scene2.OnFreeResources();
     m_scene1.OnFreeResources();
     m_scene0.OnFreeResources();
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

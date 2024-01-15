@@ -106,8 +106,7 @@ namespace Fsl::UI::RenderIMBatch
                                                     Color::Premultiply(processedCmd.FinalColor));
       {
         assert(meshRecord.Sprite);
-        const RenderBasicImageInfo& renderInfo = meshRecord.Sprite->GetRenderInfo();
-        builder.AddRect(processedCmd.DstAreaRectanglePxf, renderInfo.TextureArea);
+        builder.AddRect(processedCmd.DstAreaRectanglePxf, meshRecord.Sprite->GetRenderInfo().TextureArea);
       }
       rBatcher.EndMeshBuild(builder);
     }
@@ -549,15 +548,15 @@ namespace Fsl::UI::RenderIMBatch
     }
 
     template <typename TBatcher>
-    void UploadMeshChanges(std::vector<RenderSystemBufferRecord>& rBuffers, UploadStats& rStats, IBasicRenderSystem& renderSystem,
-                           const TBatcher& batcher)
+    UploadStats UploadMeshChanges(std::vector<RenderSystemBufferRecord>& rBuffers, IBasicRenderSystem& renderSystem, const TBatcher& batcher)
     {
+      UploadStats stats;
       // Upload all the changes to the buffers (create + resize as required)
       const uint32_t segmentCount = batcher.GetSegmentCount();
       for (uint32_t i = 0; i < segmentCount; ++i)
       {
         const typename TBatcher::SegmentSpans info = batcher.GetSegmentSpans(i);
-        // FSLLOG3_INFO("Batch #:{} vertices:{} indices:{}", i, info.Vertices.size(), info.Indices.size());
+        // FSLLOG3_INFO("Upload batch #{} vertices:{} indices:{}", i, info.Vertices.size(), info.Indices.size());
         if (info.Indices.empty())
         {
           assert(!info.Vertices.empty());
@@ -581,7 +580,7 @@ namespace Fsl::UI::RenderIMBatch
           {
             rBuffers[i].VertexBuffer->SetData(ReadOnlyFlexVertexSpanUtil::AsSpan(info.Vertices, OptimizationCheckFlag::NoCheck));
           }
-          ++rStats.VertexBufferCount;
+          ++stats.VertexBufferCount;
         }
         else
         {
@@ -609,10 +608,36 @@ namespace Fsl::UI::RenderIMBatch
             rBuffers[i].VertexBuffer->SetData(ReadOnlyFlexVertexSpanUtil::AsSpan(info.Vertices, OptimizationCheckFlag::NoCheck));
             rBuffers[i].IndexBuffer->SetData(info.Indices);
           }
-          ++rStats.VertexBufferCount;
-          ++rStats.IndexBufferCount;
+          ++stats.VertexBufferCount;
+          ++stats.IndexBufferCount;
         }
       }
+      return stats;
+    }
+
+
+    template <typename TBatcher>
+    UploadStats CalcUploadStats(const TBatcher& batcher)
+    {
+      UploadStats stats;
+      // Upload all the changes to the buffers (create + resize as required)
+      const uint32_t segmentCount = batcher.GetSegmentCount();
+      for (uint32_t i = 0; i < segmentCount; ++i)
+      {
+        const typename TBatcher::SegmentSpans info = batcher.GetSegmentSpans(i);
+        if (info.Indices.empty())
+        {
+          ++stats.VertexBufferCount;
+        }
+        else
+        {
+          assert(!info.Vertices.empty());
+          assert(!info.Indices.empty());
+          ++stats.VertexBufferCount;
+          ++stats.IndexBufferCount;
+        }
+      }
+      return stats;
     }
 
     template <typename TBatcher>
@@ -697,23 +722,33 @@ namespace Fsl::UI::RenderIMBatch
     template <typename TBatcher>
     void DrawNow(RenderSystemStats& rStats, IBasicRenderSystem& renderSystem, MeshManager& meshManager,
                  std::vector<RenderSystemBufferRecord>& rBuffers, const TBatcher& batcher, const BasicCameraInfo& cameraInfo,
-                 RenderPerformanceCapture* const pPerformanceCapture, const uint32_t maxDrawCalls)
+                 RenderPerformanceCapture* const pPerformanceCapture, const uint32_t maxDrawCalls, const bool isNewCommandBuffer)
     {
       UploadStats uploadStats;
-      DrawStats drawStats;
 
-      if (pPerformanceCapture != nullptr)
+      if (isNewCommandBuffer)
       {
-        pPerformanceCapture->Begin(RenderPerformanceCaptureId::UpdateBuffers);
+        if (pPerformanceCapture != nullptr)
+        {
+          pPerformanceCapture->Begin(RenderPerformanceCaptureId::UpdateBuffers);
+        }
+
+        uploadStats = UploadMeshChanges(rBuffers, renderSystem, batcher);
+
+        if (pPerformanceCapture != nullptr)
+        {
+          pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::UpdateBuffers, RenderPerformanceCaptureId::ScheduleDraw);
+        }
       }
-
-      UploadMeshChanges(rBuffers, uploadStats, renderSystem, batcher);
-
-      if (pPerformanceCapture != nullptr)
+      else if (pPerformanceCapture != nullptr)
       {
+        // Calculate the stats so they can be shown correctly
+        uploadStats = CalcUploadStats(batcher);
+        pPerformanceCapture->Begin(RenderPerformanceCaptureId::UpdateBuffers);
         pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::UpdateBuffers, RenderPerformanceCaptureId::ScheduleDraw);
       }
 
+      DrawStats drawStats;
       DrawMeshes(renderSystem, drawStats, batcher, meshManager,
                  ReadOnlySpanUtil::AsSpan(rBuffers, 0, batcher.GetSegmentCount(), OptimizationCheckFlag::NoCheck), cameraInfo, maxDrawCalls);
 
@@ -731,8 +766,9 @@ namespace Fsl::UI::RenderIMBatch
     void DoDraw(RenderSystemStats& rStats, IBasicRenderSystem& renderSystem, MeshManager& rMeshManager,
                 std::vector<RenderSystemBufferRecord>& rBuffers, std::vector<ProcessedCommandRecord>& rProcessedCommandRecords, TBatcher& rBatcher,
                 DrawCommandBufferEx& rCommandBuffer, const BasicCameraInfo& cameraInfo, TPreprocessor& rPreprocessor,
-                RenderPerformanceCapture* const pPerformanceCapture, const uint32_t maxDrawCalls)
+                RenderPerformanceCapture* const pPerformanceCapture, const uint32_t maxDrawCalls, const bool isNewCommandBuffer)
     {
+      if (isNewCommandBuffer)
       {
         auto capacity = rMeshManager.GetCapacity();
         rBatcher.EnsureCapacity(capacity.VertexCapacity, capacity.IndexCapacity);
@@ -742,45 +778,53 @@ namespace Fsl::UI::RenderIMBatch
       {
         UITextMeshBuilder& rTextMeshBuilder = rMeshManager.GetTextMeshBuilder();
 
-        // Process the draw commands which generate all the meshes using a given 'batch' strategy.
-        rBatcher.BeginBatch();
+        if (isNewCommandBuffer)
         {
-          auto commandSpan = rCommandBuffer.AsReadOnlySpan();
-          if (!commandSpan.empty())
+          // Process the draw commands which generate all the meshes using a given 'batch' strategy.
+          rBatcher.BeginBatch();
           {
-            if (pPerformanceCapture != nullptr)
+            auto commandSpan = rCommandBuffer.AsReadOnlySpan();
+            if (!commandSpan.empty())
             {
-              pPerformanceCapture->Begin(RenderPerformanceCaptureId::PreprocessDrawCommands);
-            }
+              if (pPerformanceCapture != nullptr)
+              {
+                pPerformanceCapture->Begin(RenderPerformanceCaptureId::PreprocessDrawCommands);
+              }
 
-            rPreprocessor.Process(rProcessedCommandRecords, commandSpan, rMeshManager);
+              rPreprocessor.Process(rProcessedCommandRecords, commandSpan, rMeshManager);
 
-            if (pPerformanceCapture != nullptr)
-            {
-              pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::PreprocessDrawCommands, RenderPerformanceCaptureId::GenerateMeshes);
-            }
+              if (pPerformanceCapture != nullptr)
+              {
+                pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::PreprocessDrawCommands, RenderPerformanceCaptureId::GenerateMeshes);
+              }
 
-            ReadOnlySpan<ProcessedCommandRecord> opaqueSpan = rPreprocessor.GetOpaqueSpan(rProcessedCommandRecords);
-            ProcessDrawCommands(rBatcher, rMeshManager, rTextMeshBuilder, opaqueSpan, commandSpan, rCommandBuffer);
-            ReadOnlySpan<ProcessedCommandRecord> transparentSpan = rPreprocessor.GetTransparentSpan(rProcessedCommandRecords);
-            ProcessDrawCommands(rBatcher, rMeshManager, rTextMeshBuilder, transparentSpan, commandSpan, rCommandBuffer);
+              ReadOnlySpan<ProcessedCommandRecord> opaqueSpan = rPreprocessor.GetOpaqueSpan(rProcessedCommandRecords);
+              ProcessDrawCommands(rBatcher, rMeshManager, rTextMeshBuilder, opaqueSpan, commandSpan, rCommandBuffer);
+              ReadOnlySpan<ProcessedCommandRecord> transparentSpan = rPreprocessor.GetTransparentSpan(rProcessedCommandRecords);
+              ProcessDrawCommands(rBatcher, rMeshManager, rTextMeshBuilder, transparentSpan, commandSpan, rCommandBuffer);
 
-            if (pPerformanceCapture != nullptr)
-            {
-              pPerformanceCapture->End(RenderPerformanceCaptureId::GenerateMeshes);
+              // FSLLOG3_INFO("commandSpan:{} Opaque:{} Transparent:{}", commandSpan.size(), opaqueSpan.size(), transparentSpan.size());
+
+              if (pPerformanceCapture != nullptr)
+              {
+                pPerformanceCapture->End(RenderPerformanceCaptureId::GenerateMeshes);
+              }
             }
           }
-          rCommandBuffer.Clear();
+          rBatcher.EndBatch();
         }
-        rBatcher.EndBatch();
-
+        else if (pPerformanceCapture != nullptr)
+        {
+          pPerformanceCapture->Begin(RenderPerformanceCaptureId::PreprocessDrawCommands);
+          pPerformanceCapture->EndThenBegin(RenderPerformanceCaptureId::PreprocessDrawCommands, RenderPerformanceCaptureId::GenerateMeshes);
+          pPerformanceCapture->End(RenderPerformanceCaptureId::GenerateMeshes);
+        }
 
         // Time to upload and draw the meshes
-        DrawNow(rStats, renderSystem, rMeshManager, rBuffers, rBatcher, cameraInfo, pPerformanceCapture, maxDrawCalls);
+        DrawNow(rStats, renderSystem, rMeshManager, rBuffers, rBatcher, cameraInfo, pPerformanceCapture, maxDrawCalls, isNewCommandBuffer);
       }
       catch (std::exception& ex)
       {
-        rCommandBuffer.Clear();
         rBatcher.ForceEndBatch();
         FSLLOG3_ERROR("Exception {}", ex.what());
         throw;
@@ -805,12 +849,14 @@ namespace Fsl::UI::RenderIMBatch
 
   void RenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
   {
+    const bool isNewCommandBuffer = IsNewCommandBuffer();
+
     const BasicCameraInfo cameraInfo(GetMatrixProjection());
 
     m_preprocessor.SetAllowDepthBuffer(GetAllowDepthBuffer());
 
     DoDraw(DoGetStats(), GetRenderSystem(), DoGetMeshManager(), GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
-           m_preprocessor, pPerformanceCapture, 0xFFFFFFFF);
+           m_preprocessor, pPerformanceCapture, 0xFFFFFFFF, isNewCommandBuffer);
   }
 
 
@@ -829,11 +875,12 @@ namespace Fsl::UI::RenderIMBatch
 
   void DefaultRenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
   {
+    const bool isNewCommandBuffer = IsNewCommandBuffer();
     const BasicCameraInfo cameraInfo(GetMatrixProjection());
 
-    MeshManager& rMeshmanager = DoGetMeshManager();
-    DoDraw(DoGetStats(), GetRenderSystem(), rMeshmanager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
-           m_preprocessor, pPerformanceCapture, m_maxDrawCalls);
+    MeshManager& rMeshManager = DoGetMeshManager();
+    DoDraw(DoGetStats(), GetRenderSystem(), rMeshManager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
+           m_preprocessor, pPerformanceCapture, m_maxDrawCalls, isNewCommandBuffer);
   }
 
 
@@ -855,11 +902,11 @@ namespace Fsl::UI::RenderIMBatch
     m_spatialGridPreprocessor.OnConfigurationChanged(windowMetrics.GetSizePx());
   }
 
-
   void FlexRenderSystem::Draw(RenderPerformanceCapture* const pPerformanceCapture)
   {
-    MeshManager& rMeshmanager = DoGetMeshManager();
+    const bool isNewCommandBuffer = IsNewCommandBuffer();
 
+    MeshManager& rMeshManager = DoGetMeshManager();
     const bool allowDepthBuffer = m_config.UseDepthBuffer;
     const uint32_t maxDrawCalls = m_maxDrawCalls;
 
@@ -868,22 +915,22 @@ namespace Fsl::UI::RenderIMBatch
     if (m_config.ReorderMethod == DrawReorderMethod::Disabled)
     {
       BasicPreprocessor preprocessor(allowDepthBuffer);
-      DoDraw(DoGetStats(), GetRenderSystem(), rMeshmanager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
-             preprocessor, pPerformanceCapture, maxDrawCalls);
+      DoDraw(DoGetStats(), GetRenderSystem(), rMeshManager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
+             preprocessor, pPerformanceCapture, maxDrawCalls, isNewCommandBuffer);
     }
     else if (m_config.ReorderMethod == DrawReorderMethod::LinearConstrained)
     {
       m_preprocessor.SetAllowDepthBuffer(allowDepthBuffer);
 
-      DoDraw(DoGetStats(), GetRenderSystem(), rMeshmanager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
-             m_preprocessor, pPerformanceCapture, maxDrawCalls);
+      DoDraw(DoGetStats(), GetRenderSystem(), rMeshManager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
+             m_preprocessor, pPerformanceCapture, maxDrawCalls, isNewCommandBuffer);
     }
     else if (m_config.ReorderMethod == DrawReorderMethod::SpatialGrid)
     {
       m_spatialGridPreprocessor.SetAllowDepthBuffer(allowDepthBuffer);
 
-      DoDraw(DoGetStats(), GetRenderSystem(), rMeshmanager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
-             m_spatialGridPreprocessor, pPerformanceCapture, maxDrawCalls);
+      DoDraw(DoGetStats(), GetRenderSystem(), rMeshManager, GetBuffers(), m_processedCommandRecords, m_batcher, GetCommandBuffer(), cameraInfo,
+             m_spatialGridPreprocessor, pPerformanceCapture, maxDrawCalls, isNewCommandBuffer);
     }
   }
 }

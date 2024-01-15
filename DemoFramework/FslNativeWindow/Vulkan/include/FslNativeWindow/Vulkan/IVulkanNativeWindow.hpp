@@ -48,6 +48,6 @@ namespace Fsl
     //! @brief a implementation of TryGetSize that does not call TryGetVulkanSurfaceSize (so this reports the actual native window size)
     virtual bool TryGetActualSize(PxPoint2& rSize) const = 0;
   };
-}    // namespace Fsl
+}
 
 #endif

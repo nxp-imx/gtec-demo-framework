@@ -59,7 +59,7 @@ namespace Fsl
       public:
         explicit ScopedDrawCommandBufferAccess(UIRenderSystem& rSystem)
           : m_rSystem(rSystem)
-          , m_rDrawCommandBuffer(m_rSystem.AcquireDrawCommandBuffer())
+          , m_rDrawCommandBuffer(m_rSystem.AcquireDrawCommandBuffer(true))
         {
         }
 
@@ -68,7 +68,7 @@ namespace Fsl
           m_rSystem.ReleaseDrawCommandBuffer();
         }
 
-        DrawCommandBuffer& GetDrawCommandBuffer() const
+        DrawCommandBuffer& GetDrawCommandBuffer() const noexcept
         {
           return m_rDrawCommandBuffer;
         }
@@ -89,13 +89,13 @@ namespace Fsl
       const UI::IRenderSystemBase& GetRenderSystem() const;
       UI::IRenderSystemBase* TryGetRenderSystem();
 
-      bool SYS_GetUseYFlipTextureCoordinates() const
+      bool SYS_GetUseYFlipTextureCoordinates() const noexcept
       {
         return m_useYFlipTextureCoordinates;
       }
 
     private:
-      DrawCommandBuffer& AcquireDrawCommandBuffer();
+      DrawCommandBuffer& AcquireDrawCommandBuffer(const bool clear);
       void ReleaseDrawCommandBuffer();
     };
   }

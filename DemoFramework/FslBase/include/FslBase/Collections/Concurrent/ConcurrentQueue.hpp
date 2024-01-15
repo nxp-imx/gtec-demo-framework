@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/Concurrent/ConcurrentQueue_fwd.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -97,7 +98,7 @@ namespace Fsl
 
 
   template <typename T>
-  bool ConcurrentQueue<T>::TryDequeWait(T& rValue, const std::chrono::milliseconds& duration)
+  bool ConcurrentQueue<T>::TryDequeueWait(T& rValue, const std::chrono::milliseconds& duration)
   {
     std::unique_lock<std::mutex> lock(m_mutex);
 
@@ -136,6 +137,42 @@ namespace Fsl
     }
     rValue = m_queue.front();
     return true;
+  }
+
+
+  template <typename T>
+  void ConcurrentQueue<T>::SwapQueue(std::queue<T>& rSwapQueue)
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    std::swap(m_queue, rSwapQueue);
+  }
+
+
+  template <typename T>
+  void ConcurrentQueue<T>::Extract(std::queue<T>& rDstQueue)
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    while (!m_queue.empty())
+    {
+      rDstQueue.push(m_queue.front());
+      m_queue.pop();
+    }
+  }
+
+
+  template <typename T>
+  std::size_t ConcurrentQueue<T>::Extract(Span<T> dstSpan)
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    const std::size_t count = std::min(m_queue.size(), dstSpan.size());
+    for (std::size_t i = 0; i < count; ++i)
+    {
+      dstSpan[i] = m_queue.front();
+      m_queue.pop();
+    }
+    return count;
   }
 
 

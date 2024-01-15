@@ -43,6 +43,7 @@ namespace Fsl::TextConfig
   constexpr StringViewLite GpuTimestamps("GPU timestamps");
   constexpr StringViewLite NoOpaqueMaterials("No opaque materials");
   constexpr StringViewLite UseSdfFonts("Use SDF fonts");
+  constexpr StringViewLite UseDrawCache("Use draw cache");
   constexpr StringViewLite OnDemandRendering("On demand");
 
   constexpr StringViewLite Batch("Batch");

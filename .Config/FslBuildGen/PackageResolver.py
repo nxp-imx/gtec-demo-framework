@@ -59,6 +59,7 @@ from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.DataTypes import FilterMode
 from FslBuildGen.DataTypes import PackageType
 #from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageLanguage
@@ -122,7 +123,7 @@ class PackageResolver(object):
                  fullResolve: bool, markExternalLibFirstUse: bool, recipeFilterManager: RecipeFilterManager,
                  packageManagerFilter: PackageManagerFilter, externalVariantConstraints: ExternalVariantConstraints,
                  engineResolveConfig: EngineResolveConfig,
-                 writeGraph: bool) -> None:
+                 writeGraph: bool, filterMode: FilterMode) -> None:
         """
         fullResolve
         - if this is false only the dependencies, platform, requirements and not supported will be resolved.
@@ -147,7 +148,7 @@ class PackageResolver(object):
             packageBuilder = PackageBuilder(log, configBuildDir, configIgnoreNotSupported, configGroupException, toolConfig,
                                             platformContext.PlatformName, platformContext.HostPlatformName, basicBuildConfig, self.__GeneratorInfo,
                                             genFiles, packageManagerFilter, externalVariantConstraints, engineResolveConfig,
-                                            logVerbosity, writeGraph)
+                                            filterMode, logVerbosity, writeGraph)
             packages = packageBuilder.AllPackages
 
             if fullResolve:

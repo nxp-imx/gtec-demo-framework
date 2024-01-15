@@ -33,7 +33,7 @@
 
 namespace Fsl::Debug
 {
-  const char* TryToString(const PixelFormat& value)
+  const char* TryToString(const PixelFormat value)
   {
     switch (value)
     {
@@ -412,7 +412,7 @@ namespace Fsl::Debug
     }
   }
 
-  const char* ToString(const PixelFormat& value)
+  const char* ToString(const PixelFormat value)
   {
     const auto* const psz = TryToString(value);
     return psz != nullptr ? psz : "Unknown";

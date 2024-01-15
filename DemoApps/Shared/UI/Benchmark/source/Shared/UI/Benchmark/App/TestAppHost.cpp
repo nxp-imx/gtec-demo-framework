@@ -225,6 +225,15 @@ namespace Fsl
   }
 
 
+  void TestAppHost::SetUseDrawCache(const bool useDrawCache)
+  {
+    if (m_appRecord.TestApp)
+    {
+      m_appRecord.TestApp->SetUseDrawCache(useDrawCache);
+    }
+  }
+
+
   std::shared_ptr<ICustomWindowInfoModule> TestAppHost::GetWindowInfoModule() const
   {
     return m_windowInfoProxy;

@@ -1,5 +1,24 @@
 # Latest version
 
+## Release 6.3.0
+
+* FslDataBinding now supports two way binding.
+* UI.Benchmark now supports a draw cache option.
+* FslSimpleUI 
+  * Draw caching support.
+  * Handles SRGB and HDR framebuffers better.
+* Added examples for Custom app services.
+* Android HDR check improved.
+* FslNativeWindowSystem modernized.
+* Yocto: Improved Wayland XDG implementations.
+  * Now supports XDG decorations where applicable.
+* FslBuild
+  * Visual Studio projects no longer references unused flavors.
+  * Clang format/tidy are now flavor aware.
+  * -open2 can now supply arguments to visual studio code (can be used as a workaround for wayland issues).
+* Upgraded fmt to 10.1.1
+* Upgraded clang tools to 16
+
 ## Release 6.2.1
 
 * GLES3.ModelInstancing and Vulkan.ModelInstancing: Added arguments to control the instance count. 

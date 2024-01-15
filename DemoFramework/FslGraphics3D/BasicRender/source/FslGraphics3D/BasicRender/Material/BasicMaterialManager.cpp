@@ -90,7 +90,7 @@ namespace Fsl::Graphics3D
   }
 
 
-  BasicMaterialManager::~BasicMaterialManager()
+  BasicMaterialManager::~BasicMaterialManager() noexcept
   {
     // Force free everything
     try

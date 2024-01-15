@@ -36,6 +36,7 @@
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -110,13 +111,35 @@ namespace Fsl
       RapidVulkan::DescriptorPool MainDescriptorPool;
       std::vector<FrameResources> MainFrameResources;
       RapidVulkan::PipelineLayout MainPipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
     {
       RapidVulkan::RenderPass MainRenderPass;
       RapidVulkan::GraphicsPipeline Pipeline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Pipeline.Reset();
+        MainRenderPass.Reset();
+      }
     };
+
+    bool m_hasSRGBFramebuffer;
+    ColorSpace m_colorSpace;
 
     std::shared_ptr<Vulkan::VMBufferManager> m_bufferManager;
 
@@ -172,7 +195,7 @@ namespace Fsl
     void PrepareLights();
     void CreateTextures(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& textureFile);
     void CreateVertexArray();
-    void CreateUI(const bool hasSRGBFramebuffer);
+    void CreateUI();
     void SetState(State state);
     void UpdateUIToState();
   };

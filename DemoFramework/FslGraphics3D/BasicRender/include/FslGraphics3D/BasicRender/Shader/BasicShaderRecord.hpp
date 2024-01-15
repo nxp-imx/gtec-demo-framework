@@ -42,7 +42,7 @@ namespace Fsl::Graphics3D
 
     BasicShaderRecord() = default;
 
-    explicit BasicShaderRecord(const BasicNativeShaderHandle nativeHandle)
+    explicit BasicShaderRecord(const BasicNativeShaderHandle nativeHandle) noexcept
       : NativeHandle(nativeHandle)
       , ReferenceCount(1)
     {

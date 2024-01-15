@@ -689,7 +689,7 @@ namespace Fsl
 
   void Triangle::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   // Prepare vertex and index buffers for an indexed triangle

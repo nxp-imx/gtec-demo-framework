@@ -621,7 +621,7 @@ namespace Fsl
 
   void OpenCLGaussianFilter::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

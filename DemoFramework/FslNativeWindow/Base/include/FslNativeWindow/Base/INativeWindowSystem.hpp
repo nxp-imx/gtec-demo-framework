@@ -55,6 +55,9 @@ namespace Fsl
 
     //! @brief Check if the display is considered HDR compatible
     virtual bool IsDisplayHDRCompatible(const int32_t displayId) const = 0;
+
+    //! @brief Called at shutdown time to indicate the window system should be disposed and all future calls should fail
+    virtual void Shutdown() = 0;
   };
 }
 

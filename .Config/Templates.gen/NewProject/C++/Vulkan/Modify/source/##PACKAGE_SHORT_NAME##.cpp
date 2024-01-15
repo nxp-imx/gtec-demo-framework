@@ -95,6 +95,6 @@ namespace Fsl
 
   void ##PACKAGE_SHORT_NAME##::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

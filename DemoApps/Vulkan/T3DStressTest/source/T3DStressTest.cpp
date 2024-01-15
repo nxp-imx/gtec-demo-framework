@@ -365,7 +365,7 @@ namespace Fsl
   {
     FSLLOG3_VERBOSE3("OnFreeResources Begin");
     m_resources.MeshStuff->OnFreeResources();
-    m_dependentResources = {};
+    m_dependentResources.Reset();
     FSLLOG3_VERBOSE3("OnFreeResources End");
   }
 

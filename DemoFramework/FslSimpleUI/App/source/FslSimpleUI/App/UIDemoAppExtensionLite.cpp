@@ -32,6 +32,7 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Shared/Log/Host/FmtDemoWindowMetrics.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
@@ -64,7 +65,6 @@ namespace Fsl
       // constexpr IO::PathView FontAtlasExtension(".bta");
       constexpr IO::PathView FontTextureExtension(".png");
 
-      constexpr PixelFormat UIPixelFormat = PixelFormat::R8G8B8A8_UNORM;
       constexpr Texture2DFilterHint UITextureFilterHint = Texture2DFilterHint::Smooth;
 
       constexpr SpriteFontConfig DefaultFontConfig(true);
@@ -110,6 +110,7 @@ namespace Fsl
 
   void UIDemoAppExtensionLite::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    FSLLOG3_VERBOSE("UIDemoAppExtensionLite::ConfigurationChanged: {}", windowMetrics)
     m_context->UnitConverter.SetDensityDpi(windowMetrics.DensityDpi);
     m_resourceManager->ConfigurationChanged(windowMetrics);
 
@@ -295,7 +296,7 @@ namespace Fsl
                                                                              const bool useSdfFont)
   {
     IO::Path defaultAtlasTexturePath(atlasName + LocalConfig::FontTextureExtension);
-    UIAppTextureResourceCreationInfo textureCreationInfo(LocalConfig::UIPixelFormat, LocalConfig::UITextureFilterHint);
+    UIAppTextureResourceCreationInfo textureCreationInfo(materialCreateInfo.DefaultTexturePixelFormat, LocalConfig::UITextureFilterHint);
 
     // Texture, material and a default font
     auto textureResult =

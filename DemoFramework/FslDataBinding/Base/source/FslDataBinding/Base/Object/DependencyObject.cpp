@@ -62,9 +62,9 @@ namespace Fsl::DataBinding
   }
 
 
-  bool DependencyObject::SetBinding(const DependencyPropertyDefinition& targetDef, const DataBindingInstanceHandle hSource)
+  bool DependencyObject::SetBinding(const DependencyPropertyDefinition& targetDef, const DataBindingInstanceHandle hSource, const BindingMode mode)
   {
-    return SetBinding(targetDef, Binding(hSource));
+    return SetBinding(targetDef, Binding(hSource, mode));
   }
 
   bool DependencyObject::SetBinding(const DependencyPropertyDefinition& targetDef, const Binding& binding)

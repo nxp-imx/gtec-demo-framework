@@ -60,6 +60,7 @@ namespace Fsl
 
     virtual std::shared_ptr<CustomUIDemoAppExtension> GetCustomUIDemoAppExtension() const = 0;
     virtual void SetCustomViewport(const PxViewport& viewportPx) = 0;
+    virtual void SetUseDrawCache(const bool useDrawCache) = 0;
 
     virtual bool IsUIIdle() const = 0;
 

@@ -31,6 +31,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Iterator/PointerIterator.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 
@@ -238,7 +239,7 @@ TEST(TestIterator_PointerIterator, OpSub_Itrs)
   std::array<int32_t, 3> testData = {1, 2, 3};
   auto itrBegin = CreateBegin(testData);
   auto itrEnd = CreateEnd(testData);
-  ASSERT_EQ(testData.size(), itrEnd - itrBegin);
+  ASSERT_EQ(UncheckedNumericCast<int64_t>(testData.size()), UncheckedNumericCast<int64_t>(itrEnd - itrBegin));
 }
 
 TEST(TestIterator_PointerIterator, OpSub_ItrCItr)
@@ -246,7 +247,7 @@ TEST(TestIterator_PointerIterator, OpSub_ItrCItr)
   std::array<int32_t, 3> testData = {1, 2, 3};
   auto itrBegin = CreateBegin(testData);
   auto itrEnd = CreateCEnd(testData);
-  ASSERT_EQ(testData.size(), itrEnd - itrBegin);
+  ASSERT_EQ(UncheckedNumericCast<int64_t>(testData.size()), UncheckedNumericCast<int64_t>(itrEnd - itrBegin));
 }
 
 TEST(TestIterator_PointerIterator, OpSub_CItrItr)
@@ -254,7 +255,7 @@ TEST(TestIterator_PointerIterator, OpSub_CItrItr)
   std::array<int32_t, 3> testData = {1, 2, 3};
   auto itrBegin = CreateCBegin(testData);
   auto itrEnd = CreateEnd(testData);
-  ASSERT_EQ(testData.size(), itrEnd - itrBegin);
+  ASSERT_EQ(UncheckedNumericCast<int64_t>(testData.size()), UncheckedNumericCast<int64_t>(itrEnd - itrBegin));
 }
 
 

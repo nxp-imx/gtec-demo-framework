@@ -49,7 +49,7 @@ This tend to be the fastest way to get started.
 
 ## Prerequisites
 
-* Ubuntu 20.04
+* Ubuntu 22.04
 * [CMake 3.16 or newer](https://cmake.org/download/)
 * Python 3.6 (this is standard from Ubuntu 16.04 and forward)
 * A prebuild sdk for your board typically called something like ```toolchain.sh```

@@ -780,7 +780,7 @@ namespace Fsl
   void FurShellRendering::OnFreeResources()
   {
     m_resources.MeshStuff->OnFreeResources();
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void FurShellRendering::DrawToCommandBuffer(const FrameResources& frame, const VkCommandBuffer hCmdBuffer, const uint32_t /*cmdBufferIndex*/,

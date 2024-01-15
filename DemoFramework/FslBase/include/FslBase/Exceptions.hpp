@@ -36,6 +36,24 @@
 
 namespace Fsl
 {
+  class ObjectShutdownException : public std::logic_error
+  {
+  public:
+    ObjectShutdownException()
+      : std::logic_error("ObjectShutdownException")
+    {
+    }
+    explicit ObjectShutdownException(const char* const pszWhatArg)
+      : std::logic_error(pszWhatArg)
+    {
+    }
+
+    explicit ObjectShutdownException(const std::string& whatArg)
+      : std::logic_error(whatArg)
+    {
+    }
+  };
+
   class UsageErrorException : public std::logic_error
   {
   public:

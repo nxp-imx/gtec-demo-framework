@@ -60,7 +60,7 @@ namespace Fsl
     }
 
 
-    BasicDynamicTextureLink::~BasicDynamicTextureLink()
+    BasicDynamicTextureLink::~BasicDynamicTextureLink() noexcept
     {
       uint32_t useCount = 0;
       for (const Record& record : m_textures)
@@ -74,7 +74,7 @@ namespace Fsl
     }
 
 
-    void BasicDynamicTextureLink::Destroy()
+    void BasicDynamicTextureLink::Destroy() noexcept
     {
       FSLLOG3_VERBOSE5("DynamicNativeTextureLink::Destroy");
 
@@ -110,7 +110,7 @@ namespace Fsl
     }
 
 
-    void BasicDynamicTextureLink::CollectGarbage()
+    void BasicDynamicTextureLink::CollectGarbage() noexcept
     {
       for (std::size_t i = 0; i < m_textures.size(); ++i)
       {

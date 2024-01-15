@@ -129,6 +129,7 @@ namespace Fsl
     void SetEmulatedDpi(const bool emulateDpiEnabled, const uint16_t emulatedDpi);
     uint16_t GetTexDpi() const;
 
+    void SetUseDrawCache(const bool useDrawCache);
 
     std::shared_ptr<ICustomWindowInfoModule> GetWindowInfoModule() const;
 

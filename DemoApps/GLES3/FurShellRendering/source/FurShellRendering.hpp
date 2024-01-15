@@ -52,7 +52,7 @@
 
 namespace Fsl
 {
-  class FurShellRendering : public DemoAppGLES3
+  class FurShellRendering final : public DemoAppGLES3
   {
     struct MeshStuffRecord
     {
@@ -131,8 +131,9 @@ namespace Fsl
     ~FurShellRendering() override;
 
   protected:
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     static void DrawMultipass(FurShaderMultiPass& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective,

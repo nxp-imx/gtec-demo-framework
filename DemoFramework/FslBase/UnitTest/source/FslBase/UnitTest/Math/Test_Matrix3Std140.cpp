@@ -86,7 +86,7 @@ TEST(TestMath_Matrix3Std140, Clear)
 
   const float* const pDirect = value.DirectAccess();
   ASSERT_NE(pDirect, nullptr);
-  ASSERT_EQ(4 * 3, value.size());
+  ASSERT_EQ(4u * 3u, value.size());
   for (uint32_t i = 0; i < value.size(); ++i)
   {
     EXPECT_EQ(0.0f, pDirect[i]) << " at index: " << i;

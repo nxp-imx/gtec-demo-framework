@@ -449,7 +449,7 @@ namespace Fsl
 
   void RenderScene::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

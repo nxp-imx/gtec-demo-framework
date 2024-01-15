@@ -46,7 +46,7 @@ namespace Fsl::UI
     uint32_t m_value{0};
 
   public:
-    static constexpr int FlagBitsReserved = 8;
+    static constexpr int FlagBitsReserved = 9;
     static constexpr int VisibilityBitsReserved = 2;
     static constexpr int VisibilityShift = FlagBitsReserved;
     static constexpr const uint32_t VisibilityMask = (0x1 | 0x2) << VisibilityShift;
@@ -59,16 +59,18 @@ namespace Fsl::UI
       //! enabled the WinInit callback (called when the window has been added to the window manager
       WinInit = 0x01,
       LayoutDirty = 0x02,
-      UpdateEnabled = 0x04,
-      DrawEnabled = 0x08,
-      ClickInput = 0x10,
-      MouseOver = 0x20,
+      //! Mark rendered content as dirty
+      ContentRenderingDirty = 0x04,
+      UpdateEnabled = 0x08,
+      DrawEnabled = 0x10,
+      ClickInput = 0x20,
+      MouseOver = 0x40,
       //! enable the WinResolve callback (called before the window layout cycle is started to help resolve complex state issues)
-      ResolveEnabled = 0x40,
+      ResolveEnabled = 0x80,
       //! enable the WinPostLayout callback (called after layout has been resolved)
-      PostLayoutEnabled = 0x80,
+      PostLayoutEnabled = 0x100,
 
-      All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled | PostLayoutEnabled,
+      All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled | PostLayoutEnabled | ContentRenderingDirty,
       InputAll = ClickInput | MouseOver
     };
 

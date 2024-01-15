@@ -63,7 +63,7 @@ namespace Fsl
       return Value != HandleVectorConfig::InvalidHandle;
     }
 
-    static constexpr BasicNativeShaderHandle Invalid()
+    static constexpr BasicNativeShaderHandle Invalid() noexcept
     {
       return {};
     }

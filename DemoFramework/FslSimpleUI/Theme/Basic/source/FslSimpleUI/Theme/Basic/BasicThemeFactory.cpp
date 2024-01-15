@@ -41,12 +41,13 @@ namespace Fsl::UI::Theme
   BasicThemeFactory::BasicThemeFactory(ISpriteResourceManager& rResourceManager, const ThemeFactoryCreateInfo& createInfo)
     : m_resources(std::make_shared<BasicThemeResources>(rResourceManager, createInfo))
     , m_usePrimaryPalette(createInfo.UsePrimaryPalette)
+    , m_colorSpace(createInfo.DefaultColorSpace)
   {
   }
 
 
   std::shared_ptr<IThemeControlFactory> BasicThemeFactory::Create(const std::shared_ptr<WindowContext>& context)
   {
-    return std::make_shared<BasicThemeControlFactory>(context, m_resources, m_usePrimaryPalette);
+    return std::make_shared<BasicThemeControlFactory>(context, m_resources, m_usePrimaryPalette, m_colorSpace);
   }
 }

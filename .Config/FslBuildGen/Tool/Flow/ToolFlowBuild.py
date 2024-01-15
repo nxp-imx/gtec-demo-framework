@@ -35,6 +35,7 @@ from typing import Any
 from typing import List
 from typing import Optional
 import argparse
+import shlex
 from FslBuildGen.Generator import GeneratorPlugin
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
@@ -72,6 +73,7 @@ class DefaultValue(object):
     Variants = None
     Type = PluginSharedValues.TYPE_DEFAULT
     Command = CommandType.ToString(CommandType.Build)
+    CommandArgs = None # type: Optional[str]
     Details = False
 
 
@@ -90,6 +92,7 @@ class LocalToolConfig(ToolAppConfig):
         self.ListVariants = DefaultValue.ListVariants
         self.PackageConfigurationType = DefaultValue.Type
         self.Command = CommandType.FromString(DefaultValue.Command)
+        self.CommandArgs = [] # type: List[str]
         self.Details = DefaultValue.Details
 
 
@@ -120,6 +123,7 @@ class ToolFlowBuild(AToolAppFlow):
         localToolConfig.ListVariants = args.ListVariants
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.Command = CommandType.FromString(args.Command)
+        localToolConfig.CommandArgs = [] if args.CommandArgs is None else shlex.split(args.CommandArgs)
         localToolConfig.Details = args.details
 
         self.Process(currentDirPath, toolConfig, localToolConfig)
@@ -175,13 +179,12 @@ class ToolFlowBuild(AToolAppFlow):
         else:
             if localToolConfig.BuildPackageFilters is None or localToolConfig.BuildPackageFilters.ExtensionNameList is None:
                 raise Exception("localToolConfig.BuildPackageFilters.ExtensionNameList not set")
-            requestedPackages = BuildHelper.FindRequestedPackages(config, packages, requestedFiles)
-
+            requestedPackages = BuildHelper.FindRequestedPackages(self.Log, packages, requestedFiles)
             Builder.BuildPackages(self.Log, config.GetBuildDir(), config.SDKPath, config.SDKConfigTemplatePath, config.DisableWrite, config.IsDryRun,
                                   toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantConstraints,
                                   localToolConfig.RemainingArgs, localToolConfig.ForAllExe, platformGeneratorPlugin,
                                   localToolConfig.EnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
-                                  localToolConfig.Command, True)
+                                  localToolConfig.Command, localToolConfig.CommandArgs, True)
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
     #def __init__(self) -> None:
@@ -223,6 +226,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--ContentBuilder', default=defaultContentBuilder, help='Enable/disable the content builder')
         parser.add_argument('--ForAllExe', default=DefaultValue.ForAllExe, help='For each executable run the given command. (EXE) = the full path to the executable. (EXE_NAME) = name of the executable. (EXE_PATH) = the executables dir. (PACKAGE_PATH) = full path to package (CONTENT_PATH) = full path to package content directory. *Experimental*')
         parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: {0}. Beware install is not supported by all build backends'.format(", ".join(allCommandTypes)))
+        parser.add_argument("--CommandArgs", default=DefaultValue.CommandArgs, help='Custom arguments for the command')
         parser.add_argument('--details', action='store_true', help='Provide extended details (affects the --List operations)')
 
 

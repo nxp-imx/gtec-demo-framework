@@ -303,7 +303,7 @@ namespace Fsl
 
   void TextureCompression::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

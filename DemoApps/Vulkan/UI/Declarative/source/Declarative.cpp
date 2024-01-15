@@ -110,6 +110,6 @@ namespace Fsl
 
   void Declarative::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

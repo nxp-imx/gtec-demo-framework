@@ -122,7 +122,6 @@ namespace Fsl::OpenCL
   }
 
 
-  // NOLINTNEXTLINE(misc-misplaced-const)
   ContextEx::ContextEx(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
                        const bool allowFallback)
     : ContextEx()
@@ -131,7 +130,7 @@ namespace Fsl::OpenCL
   }
 
 
-  ContextEx::~ContextEx()
+  ContextEx::~ContextEx() noexcept
   {
     Reset();
   }
@@ -141,7 +140,6 @@ namespace Fsl::OpenCL
     Reset({}, deviceType, pDeviceId, allowFallback);
   }
 
-  // NOLINTNEXTLINE(misc-misplaced-const)
   void ContextEx::Reset(const ReadOnlySpan<cl_context_properties> contextPropertiesSpan, const cl_device_type deviceType, cl_device_id* pDeviceId,
                         const bool allowFallback)
   {

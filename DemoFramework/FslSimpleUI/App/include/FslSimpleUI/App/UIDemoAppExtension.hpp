@@ -31,10 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionCreateInfoUtil.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtensionLite.hpp>
 #include <FslSimpleUI/App/UIDemoAppRenderCreateInfo.hpp>
-
 
 namespace Fsl
 {
@@ -51,6 +52,26 @@ namespace Fsl
                        const UIDemoAppRenderCreateInfo& renderCreateInfo, const UITestPatternMode testPatternMode = UITestPatternMode::Disabled)
       : UIDemoAppExtensionLite(UIDemoAppExtensionCreateInfoUtil::ChangeTo(demoAppConfig, renderCreateInfo), eventListener, atlasName, testPatternMode)
     {
+    }
+
+    //! @brief Create a UIDemoAppRenderCreateInfo configured for either normal RGB or SRGB
+    static UIDemoAppRenderCreateInfo CreateConfig(const ColorSpace colorSpace)
+    {
+      switch (colorSpace)
+      {
+      case ColorSpace::SRGBNonLinear:
+        return {};
+      case ColorSpace::SRGBLinear:
+      case ColorSpace::SCRGBLinear:
+        return CreateSRGBConfig();
+      }
+      throw NotSupportedException("Unsupported color-space");
+    }
+
+    //! @brief Create a UIDemoAppRenderCreateInfo configured for a SRGB framebuffer
+    static UIDemoAppRenderCreateInfo CreateSRGBConfig()
+    {
+      return UIDemoAppRenderCreateInfo(UIDemoAppMaterialCreateInfo(PixelFormat::R8G8B8A8_SRGB));
     }
   };
 }

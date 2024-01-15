@@ -700,7 +700,7 @@ namespace Fsl
 
   void ModelViewer::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

@@ -45,14 +45,14 @@ namespace Fsl::Graphics3D
   public:
     virtual ~INativeBufferFactory() noexcept = default;
 
-    virtual NativeBufferFactoryCaps GetBufferCaps() const = 0;
+    virtual NativeBufferFactoryCaps GetBufferCaps() const noexcept = 0;
 
     virtual BasicNativeBufferHandle CreateBuffer(const BasicBufferType bufferType, ReadOnlyFlexSpan bufferData, const uint32_t bufferElementCapacity,
                                                  const bool isDynamic) = 0;
 
     //! @brief destroy the given buffer
     //! @return true if the buffer was destroyed (this will always be true for a valid handle)
-    virtual bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) = 0;
+    virtual bool DestroyBuffer(const BasicNativeBufferHandle hBuffer) noexcept = 0;
 
     virtual void SetBufferData(const BasicNativeBufferHandle hBuffer, const uint32_t dstIndex, ReadOnlyFlexSpan bufferData) = 0;
   };

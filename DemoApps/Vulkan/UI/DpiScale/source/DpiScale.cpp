@@ -112,6 +112,6 @@ namespace Fsl
 
   void DpiScale::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/ColorSpace.hpp>
 #include <memory>
 
 namespace Fsl
@@ -46,8 +47,16 @@ namespace Fsl
     {
       std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette = true,
                                                                  const bool disableOpaqueMaterials = false);
+
+      std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const ColorSpace colorSpace,
+                                                                 const bool usePrimaryPalette = true, const bool disableOpaqueMaterials = false);
+
+
       std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette = true,
                                                    const bool disableOpaqueMaterials = false);
+
+      std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const ColorSpace colorSpace,
+                                                   const bool usePrimaryPalette = true, const bool disableOpaqueMaterials = false);
     }
   }
 }

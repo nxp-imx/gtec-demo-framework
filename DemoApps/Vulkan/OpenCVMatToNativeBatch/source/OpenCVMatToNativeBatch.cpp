@@ -159,7 +159,7 @@ namespace Fsl
 
   void OpenCVMatToNativeBatch::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

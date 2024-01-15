@@ -81,68 +81,68 @@ namespace Fsl::Vulkan
 
 
     //! @brief Check if this object contains a valid resource
-    inline bool IsValid() const
+    inline bool IsValid() const noexcept
     {
       return m_image.IsValid();
     }
 
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_image.GetDevice();
     }
 
     //! @return the format or VK_FORMAT_UNDEFINED if the object is invalid
-    VkFormat GetFormat() const
+    VkFormat GetFormat() const noexcept
     {
       return m_image.GetFormat();
     }
 
     //! @return the image (or VK_NULL_HANDLE if the object is invalid)
-    VkImage GetImage() const
+    VkImage GetImage() const noexcept
     {
       return m_image.Get();
     }
 
     //! @return the imageview (or VK_NULL_HANDLE if the object is invalid)
-    VkImageView GetImageView() const
+    VkImageView GetImageView() const noexcept
     {
       return m_imageView.Get();
     }
 
     //! @brief
     //! @return the extent (or VkExtent3D{} if the object is invalid)
-    VkExtent3D GetExtent() const
+    VkExtent3D GetExtent() const noexcept
     {
       return m_image.GetExtent();
     }
 
     //! @return the extent (or VkExtent2D{} if the object is invalid)
-    VkExtent2D GetExtent2D() const
+    VkExtent2D GetExtent2D() const noexcept
     {
       return IsValid() ? VkExtent2D{m_image.GetExtent().width, m_image.GetExtent().height} : VkExtent2D{};
     }
 
     //! @brief Get the Image associated with this object
-    const VUImage& Image() const
+    const VUImage& Image() const noexcept
     {
       return m_image;
     }
 
     //! @brief Get the Image associated with this object
-    VUImage& Image()
+    VUImage& Image() noexcept
     {
       return m_image;
     }
 
 
     //! @brief Get the ImageView associated with this object
-    const RapidVulkan::ImageView& ImageView() const
+    const RapidVulkan::ImageView& ImageView() const noexcept
     {
       return m_imageView;
     }
 
     //! @brief Get the Memory associated with this object
-    const RapidVulkan::Memory& Memory() const
+    const RapidVulkan::Memory& Memory() const noexcept
     {
       return m_memory;
     }

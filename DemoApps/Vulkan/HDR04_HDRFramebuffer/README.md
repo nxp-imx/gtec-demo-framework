@@ -13,6 +13,7 @@ This sample outputs to a HDR screen if supported.
 This is a work in progress sample as the currently used tonemapper isn't suited for HDR displays.
 
 Inspired by:
+- [UHD Color for Games](https://developer.nvidia.com/sites/default/files/akamai/gameworks/hdr/UHDColorForGames.pdf)
 - [Implementing HDR in ‘Rise of the Tomb Raider’](https://developer.nvidia.com/implementing-hdr-rise-tomb-raider)
 - [High Dynamic Range Display Development](https://developer.nvidia.com/high-dynamic-range-display-development)
 - [Advanced Techniques and Optimization of HDR Color Pipelines](https://gpuopen.com/gdc16-wrapup-presentations/)

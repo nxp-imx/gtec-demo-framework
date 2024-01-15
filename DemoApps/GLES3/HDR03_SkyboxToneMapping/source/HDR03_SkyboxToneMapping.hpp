@@ -52,7 +52,7 @@
 
 namespace Fsl
 {
-  class HDR03_SkyboxToneMapping : public DemoAppGLES3
+  class HDR03_SkyboxToneMapping final : public DemoAppGLES3
   {
     struct VertexUBOData
     {
@@ -126,13 +126,14 @@ namespace Fsl
 
   public:
     explicit HDR03_SkyboxToneMapping(const DemoAppConfig& config);
-    ~HDR03_SkyboxToneMapping() override;
+    ~HDR03_SkyboxToneMapping() final;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const FrameInfo& frameInfo) override;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const FrameInfo& frameInfo) final;
 
   private:
     void UpdateInput(const DemoTime& demoTime);

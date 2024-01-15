@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/VertexElementAttribLinks.hpp>
 #include <FslGraphics/Vertices/VertexDeclarationSpan.hpp>
 #include <FslUtil/OpenGLES2/GLVertexElements.hpp>
@@ -93,9 +94,10 @@ namespace Fsl::GLES2
       result.Entries[i] = vertexElementAttribConfigs[i];
     }
     // sort the entries based on attrib index (low to high)
-    // NOLINTNEXTLINE(readability-qualified-auto)
-    auto itrEnd = std::next(result.Entries.begin(), UncheckedNumericCast<std::ptrdiff_t>(convertedSize));
-    std::sort(result.Entries.begin(), itrEnd,
+
+    // Work around GCC warning by using a span for sorting instead
+    Span<GLVertexElementAttribConfig> sortSpan = SpanUtil::AsSubSpan(result.Entries, 0, convertedSize);
+    std::sort(sortSpan.begin(), sortSpan.end(),
               [](const GLVertexElementAttribConfig& lhs, const GLVertexElementAttribConfig& rhs) -> bool
               { return lhs.AttribIndex < rhs.AttribIndex; });
 

@@ -309,7 +309,7 @@ namespace Fsl
 
   void FractalShaderJulia::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void FractalShaderJulia::Update(const DemoTime& demoTime)

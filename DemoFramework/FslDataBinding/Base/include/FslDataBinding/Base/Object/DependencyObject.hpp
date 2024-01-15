@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslDataBinding/Base/BindingMode.hpp>
 #include <FslDataBinding/Base/Property/PropertySetBindingResult.hpp>
 #include <FslDataBinding/Base/ScopedDependencyObject.hpp>
 #include <memory>
@@ -68,7 +69,8 @@ namespace Fsl::DataBinding
     DataBindingInstanceHandle GetPropertyHandle(const DependencyPropertyDefinition& sourceDef);
     bool ClearBinding(const DependencyPropertyDefinition& targetDef);
 
-    bool SetBinding(const DependencyPropertyDefinition& targetDef, const DataBindingInstanceHandle hSource);
+    bool SetBinding(const DependencyPropertyDefinition& targetDef, const DataBindingInstanceHandle hSource,
+                    const BindingMode mode = BindingMode::OneWay);
     bool SetBinding(const DependencyPropertyDefinition& targetDef, const Binding& binding);
     PropertySetBindingResult TrySetBinding(const DependencyPropertyDefinition& targetDef, const Binding& binding);
 

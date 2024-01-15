@@ -38,6 +38,7 @@
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreatorUtil.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Log/FmtAll.hpp>
 #include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceMemoryUtil.hpp>
@@ -155,7 +156,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
       }
       else
       {
-        throw NotSupportedException("The image-resource format was not supported");
+        throw NotSupportedException(fmt::format("The image-resource format was not supported: {}", srcFormat));
       }
     }
 
@@ -185,7 +186,7 @@ namespace Fsl::Vulkan::VulkanImageCreatorUtil
       }
       else
       {
-        throw NotSupportedException("The image-resource format was not supported");
+        throw NotSupportedException(fmt::format("The image-resource format was not supported: {}", srcFormat));
       }
     }
 

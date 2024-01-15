@@ -576,7 +576,7 @@ namespace Fsl
 
   void GammaCorrection::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

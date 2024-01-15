@@ -48,7 +48,7 @@ namespace
 }
 
 
-TEST(Test_GetSetConvert, SetBinding_Oneway_DepProperty_DepProperty)
+TEST(Test_GetSetConvert, SetBinding_DepProperty_DepProperty_Init)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -65,7 +65,7 @@ TEST(Test_GetSetConvert, SetBinding_Oneway_DepProperty_DepProperty)
   EXPECT_EQ(dstDefaultValue, src.GetProperty1Value());
   EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
 
-  src.SetProperty1Value(srcNewValue);
+  EXPECT_TRUE(src.SetProperty1Value(srcNewValue));
   EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
   EXPECT_EQ(srcDefaultValue0, dst.GetProperty0Value());
   EXPECT_EQ(srcNewValue, src.GetProperty1Value());
@@ -98,7 +98,75 @@ TEST(Test_GetSetConvert, SetBinding_Oneway_DepProperty_DepProperty)
 }
 
 
-TEST(Test_GetSetConvert, SetBinding_Oneway_DepProperty_Multi_DepProperty_DepProperty)
+TEST(Test_GetSetConvert, SetBinding_DepProperty_DepProperty_Set)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTDependencyObject src(dataBindingService);
+  UTDependencyObject dst(dataBindingService);
+
+  const uint32_t srcDefaultValue0 = 0;
+  const float dstDefaultValue = 0;
+  const float srcNewValue = 1.5f;
+  const uint32_t dstConvertedValue = 2;
+
+  EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
+  EXPECT_EQ(srcDefaultValue0, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, src.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  EXPECT_TRUE(src.SetProperty1Value(srcNewValue));
+  EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
+  EXPECT_EQ(srcDefaultValue0, dst.GetProperty0Value());
+  EXPECT_EQ(srcNewValue, src.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Binding will change the target to match the source on the next execute
+
+  auto convertingBinding =
+    std::make_shared<Fsl::DataBinding::ConverterBinding<uint32_t, float>>([](const float value) { return static_cast<uint32_t>(std::round(value)); });
+
+  EXPECT_TRUE(
+    dst.SetBinding(UTDependencyObject::Property0, DataBinding::Binding(convertingBinding, src.GetPropertyHandle(UTDependencyObject::Property1))));
+
+  // Binding by itself does not set the value right away
+  EXPECT_EQ(1u, dataBindingService->PendingChanges());
+  EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
+  EXPECT_EQ(srcDefaultValue0, dst.GetProperty0Value());
+  EXPECT_EQ(srcNewValue, src.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
+  EXPECT_EQ(srcNewValue, src.GetProperty1Value());
+  // Examine the target
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  const float srcNewValue2 = 2.25f;
+  const uint32_t dstConvertedValue2 = 2;
+
+  EXPECT_TRUE(src.SetProperty1Value(srcNewValue2));
+  // Only the source was changed
+  EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
+  EXPECT_EQ(srcNewValue2, src.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  // Bound value update
+  EXPECT_EQ(srcDefaultValue0, src.GetProperty0Value());
+  EXPECT_EQ(srcNewValue2, src.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue2, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+}
+
+TEST(Test_GetSetConvert, SetBinding_DepProperty_Multi_DepProperty_DepProperty_Init)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -119,8 +187,8 @@ TEST(Test_GetSetConvert, SetBinding_Oneway_DepProperty_Multi_DepProperty_DepProp
   EXPECT_EQ(dstDefaultValue, src0.GetProperty1Value());
   EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
 
-  src0.SetProperty1Value(src0NewValue);
-  src1.SetProperty1Value(src1NewValue);
+  EXPECT_TRUE(src0.SetProperty1Value(src0NewValue));
+  EXPECT_TRUE(src1.SetProperty1Value(src1NewValue));
 
   EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
   EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
@@ -156,5 +224,253 @@ TEST(Test_GetSetConvert, SetBinding_Oneway_DepProperty_Multi_DepProperty_DepProp
   EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
   // Examine the target
   EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+}
+
+TEST(Test_GetSetConvert, SetBinding_DepProperty_Multi_DepProperty_DepProperty_Set_Src0)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTDependencyObject src0(dataBindingService);
+  UTDependencyObject src1(dataBindingService);
+  UTDependencyObject dst(dataBindingService);
+
+  const uint32_t src0DefaultValue = 0;
+  const uint32_t src1DefaultValue = 0;
+  const float dstDefaultValue = 0;
+
+  const float src0NewValue = 1.7f;
+  const float src1NewValue = 1.9f;
+  const uint32_t dstConvertedValue = 4;    // 1.7f + 1.9f = 3.6 rounded -> 4
+
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, src0.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  EXPECT_TRUE(src0.SetProperty1Value(src0NewValue));
+  EXPECT_TRUE(src1.SetProperty1Value(src1NewValue));
+
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Binding will change the target to match the source on the next execute
+
+  auto convertingBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<uint32_t, float, float>>(
+    [](const float value0, const float value1) { return static_cast<uint32_t>(std::round(value0 + value1)); });
+
+  EXPECT_TRUE(
+    dst.SetBinding(UTDependencyObject::Property0, DataBinding::Binding(convertingBinding, src0.GetPropertyHandle(UTDependencyObject::Property1),
+                                                                       src1.GetPropertyHandle(UTDependencyObject::Property1))));
+
+  // Binding by itself does not set the value right away
+  EXPECT_EQ(2u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  // Examine the target
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+
+  const float src0NewValue2 = 5.1f;
+  const uint32_t dstConvertedValue2 = 7;    // 5.2f + 1.9f = 7.1 rounded -> 7
+
+  EXPECT_TRUE(src0.SetProperty1Value(src0NewValue2));
+  // Only the src0 has changed
+  EXPECT_EQ(src0NewValue2, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0NewValue2, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue2, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+}
+
+TEST(Test_GetSetConvert, SetBinding_DepProperty_Multi_DepProperty_DepProperty_Set_Src1)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTDependencyObject src0(dataBindingService);
+  UTDependencyObject src1(dataBindingService);
+  UTDependencyObject dst(dataBindingService);
+
+  const uint32_t src0DefaultValue = 0;
+  const uint32_t src1DefaultValue = 0;
+  const float dstDefaultValue = 0;
+
+  const float src0NewValue = 1.7f;
+  const float src1NewValue = 1.9f;
+  const uint32_t dstConvertedValue = 4;    // 1.7f + 1.9f = 3.6 rounded -> 4
+
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, src0.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  EXPECT_TRUE(src0.SetProperty1Value(src0NewValue));
+  EXPECT_TRUE(src1.SetProperty1Value(src1NewValue));
+
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Binding will change the target to match the source on the next execute
+
+  auto convertingBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<uint32_t, float, float>>(
+    [](const float value0, const float value1) { return static_cast<uint32_t>(std::round(value0 + value1)); });
+
+  EXPECT_TRUE(
+    dst.SetBinding(UTDependencyObject::Property0, DataBinding::Binding(convertingBinding, src0.GetPropertyHandle(UTDependencyObject::Property1),
+                                                                       src1.GetPropertyHandle(UTDependencyObject::Property1))));
+
+  // Binding by itself does not set the value right away
+  EXPECT_EQ(2u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  // Examine the target
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+
+  const float src1NewValue2 = 4.1f;
+  const uint32_t dstConvertedValue2 = 6;    // 1.7f + 4.1f = 5.8 rounded -> 6
+
+  EXPECT_TRUE(src1.SetProperty1Value(src1NewValue2));
+  // Only the ssrc1 has changed
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue2, src1.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue2, src1.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue2, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+}
+
+TEST(Test_GetSetConvert, SetBinding_DepProperty_Multi_DepProperty_DepProperty_Set_Src0AndSrc1)
+{
+  auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
+
+  UTDependencyObject src0(dataBindingService);
+  UTDependencyObject src1(dataBindingService);
+  UTDependencyObject dst(dataBindingService);
+
+  const uint32_t src0DefaultValue = 0;
+  const uint32_t src1DefaultValue = 0;
+  const float dstDefaultValue = 0;
+
+  const float src0NewValue = 1.7f;
+  const float src1NewValue = 1.9f;
+  const uint32_t dstConvertedValue = 4;    // 1.7f + 1.9f = 3.6 rounded -> 4
+
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, src0.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  EXPECT_TRUE(src0.SetProperty1Value(src0NewValue));
+  EXPECT_TRUE(src1.SetProperty1Value(src1NewValue));
+
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Binding will change the target to match the source on the next execute
+
+  auto convertingBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<uint32_t, float, float>>(
+    [](const float value0, const float value1) { return static_cast<uint32_t>(std::round(value0 + value1)); });
+
+  EXPECT_TRUE(
+    dst.SetBinding(UTDependencyObject::Property0, DataBinding::Binding(convertingBinding, src0.GetPropertyHandle(UTDependencyObject::Property1),
+                                                                       src1.GetPropertyHandle(UTDependencyObject::Property1))));
+
+  // Binding by itself does not set the value right away
+  EXPECT_EQ(2u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src1DefaultValue, src1.GetProperty0Value());
+  EXPECT_EQ(src0DefaultValue, dst.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0NewValue, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue, src1.GetProperty1Value());
+  // Examine the target
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+
+  const float src0NewValue2 = 2.1f;
+  const float src1NewValue2 = 3.7f;
+  const uint32_t dstConvertedValue2 = 6;    // 2.1f + 3.7f = 5.8 rounded -> 6
+
+  EXPECT_TRUE(src0.SetProperty1Value(src0NewValue2));
+  EXPECT_TRUE(src1.SetProperty1Value(src1NewValue2));
+  // Only the src0+src1 has changed
+  EXPECT_EQ(src0NewValue2, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue2, src1.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue, dst.GetProperty0Value());
+  EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
+
+  // Execute all pending changes
+  dataBindingService->ExecuteChanges();
+
+  EXPECT_EQ(0u, dataBindingService->PendingChanges());
+  EXPECT_EQ(src0DefaultValue, src0.GetProperty0Value());
+  EXPECT_EQ(src0NewValue2, src0.GetProperty1Value());
+  EXPECT_EQ(src1NewValue2, src1.GetProperty1Value());
+  EXPECT_EQ(dstConvertedValue2, dst.GetProperty0Value());
   EXPECT_EQ(dstDefaultValue, dst.GetProperty1Value());
 }

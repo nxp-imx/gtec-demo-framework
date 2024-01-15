@@ -52,21 +52,21 @@ namespace Fsl::GLES3
 
     void Dispose() noexcept;
 
-    GLTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const
+    GLTextureInfo TryGetTextureInfo(const BasicNativeTextureHandle hTexture) const noexcept
     {
       const NativeGraphicsTexture* const pTexture = m_textures.TryGet(hTexture.Value);
       return pTexture != nullptr ? pTexture->ToTextureInfo() : GLTextureInfo();
     }
 
-    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const;
+    Graphics3D::NativeTextureFactoryCaps GetTextureCaps() const noexcept;
     BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
                                            const bool isDynamic);
-    bool DestroyTexture(const BasicNativeTextureHandle hTexture);
+    bool DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept;
 
     void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
                         const TextureFlags textureFlags);
 
-    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const;
+    const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept;
   };
 }
 

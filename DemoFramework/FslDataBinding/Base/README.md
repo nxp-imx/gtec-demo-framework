@@ -13,6 +13,8 @@ Some of the original design goals.
 
 ## Binding
 
+### One-way bind
+
 It's easy to bind properties of the same types to eachother. For example to use ```Property1``` on object ```t0``` as source for target ```Property0``` on object ```t1```.
 
 ```C++
@@ -33,8 +35,30 @@ ExampleB t1;    // Property0 is a int32_t
 t1.SetBinding(ExampleB::Property0, Binding(t0.GetPropertyHandle(ExampleA::Property1)));
 ```
 
+### Two-way bind
 
-### Conversion binding
+It's easy to bind properties of the same types to eachother. For example to use ```Property1``` on object ```t0``` as source for target ```Property0``` on object ```t1```.
+
+```C++
+ExampleA t0;    // Property1 is a int32_t
+ExampleB t1;    // Property0 is a int32_t
+
+// target t1.Property0 with a binding that has t0.Property1 as source (types match)
+t1.SetBinding(ExampleB::Property0, t0.GetPropertyHandle(ExampleA::Property1), DataBinding::BindingMode::TwoWay);
+```
+
+Alternative the 'long' binding form could be used as well
+
+```C++
+ExampleA t0;    // Property1 is a int32_t
+ExampleB t1;    // Property0 is a int32_t
+
+// target t1.Property0 with a binding that has t0.Property1 as source (types match)
+t1.SetBinding(ExampleB::Property0, Binding(t0.GetPropertyHandle(ExampleA::Property1), DataBinding::BindingMode::TwoWay));
+```
+
+
+### One-way conversion binding
 
 When the properties are type incompatible we will need to use a ```ConverterBinding```. So if ```t0.Property2``` is a ```float``` and ```t1.Property0``` is a ```int32``` we will need to add ConverterBinding to the binding request like this:
 
@@ -51,7 +75,24 @@ auto converterBinding = std::make_shared<Fsl::DataBinding::ConverterBinding<int3
 t1.SetBinding(ExampleB::Property0, Binding(converterBinding, t0.GetPropertyHandle(ExampleA::Property2));
 ```
 
-### Multi binding
+### Two-way conversion binding
+
+When the properties are type incompatible we will need to use a ```ConverterBinding```. So if ```t0.Property2``` is a ```float``` and ```t1.Property0``` is a ```int32``` we will need to add ConverterBinding to the binding request like this:
+
+```C++
+ExampleA t0;    // Property2 is a float
+ExampleB t1;    // Property0 is a int32_t
+
+// The actual conversion code
+auto convertingBinding = std::make_shared<Fsl::DataBinding::TwoWayConverterBinding<uint32_t, float>>(
+  [](const float value) { return static_cast<uint32_t>(std::round(value)); }, 
+  [](const uint32_t value) { return static_cast<float>(value); });
+
+// target t1.Property0 with the converter binding that has t0.Property2 as source
+t1.SetBinding(ExampleB::Property0, Binding(converterBinding, t0.GetPropertyHandle(ExampleA::Property2));
+```
+
+### One-way multi conversion binding
 
 Sometimes you want to bind multiple values to one target. For example if you have four color channels R,G,B,A and need to bind them to a property that takes a color.
 
@@ -69,7 +110,7 @@ const auto hSourceB = sliderB.GetPropertyHandle(Slider::PropertyValue);
 const auto hSourceA = sliderA.GetPropertyHandle(Slider::PropertyValue);
 
 // The actual conversion code
-auto converterBinding = std::make_shared<MultiConverterBinding<Color, uint8_t, uint8_t, uint8_t, uint8_t>>
+auto converterBinding = std::make_shared<Fsl::DataBinding::MultiConverterBinding<Color, uint8_t, uint8_t, uint8_t, uint8_t>>
 (
     [](const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) 
     { 
@@ -80,6 +121,37 @@ auto converterBinding = std::make_shared<MultiConverterBinding<Color, uint8_t, u
 // target the exampleImage.PropertyContentColor with the multi-converter binding and its sources.
 exampleImage.SetBinding(Image::PropertyContentColor, Binding(converterBinding, hSourceR, hSourceG, hSourceB, hSourceA));
 ```
+
+### Two-way multi conversion binding
+
+Sometimes you want to bind multiple values to one target. For example if you have four color channels R,G,B,A and need to bind them to a property that takes a color.
+
+```C++
+Slider colorChannelR;   // PropertyValue is a uint8_t
+Slider colorChannelG;   // PropertyValue is a uint8_t
+Slider colorChannelB;   // PropertyValue is a uint8_t
+Slider colorChannelA;   // PropertyValue is a uint8_t
+Image exampleImage;     // PropertyContentColor is a Color
+
+// Acquire all the source handles that need to be converted via the multi-converter
+const auto hSourceR = sliderR.GetPropertyHandle(Slider::PropertyValue);
+const auto hSourceG = sliderG.GetPropertyHandle(Slider::PropertyValue);
+const auto hSourceB = sliderB.GetPropertyHandle(Slider::PropertyValue);
+const auto hSourceA = sliderA.GetPropertyHandle(Slider::PropertyValue);
+
+// The actual conversion code
+ auto converterBinding = std::make_shared<Fsl::DataBinding::TwoWayMultiConverterBinding<Color, uint8_t, uint8_t, uint8_t, uint8_t>>(
+   [](const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { return Color(r, g, b, a); },
+   [](const Color src) { return std::make_tuple(src.R(), src.G(), src.B(), src.A()); });
+
+// target the exampleImage.PropertyContentColor with the multi-converter binding and its sources.
+exampleImage.SetBinding(Image::PropertyContentColor, Binding(converterBinding, hSourceR, hSourceG, hSourceB, hSourceA));
+```
+
+## Known issues
+
+* When setting a two-way binding programatically and the existing value is equal to the value being set then it will not update all bound values. This can cause problems if you have two sets to the same bind tree, the first sets the value of one property the second sets a value of another but the second set does not change the value of the property being set. Since the bind value propagation is done async it will mean that the first set in the bind tree will be the one being executed since the second one did not succeed in changing the current value.
+* When writing two-way multi bind conversion functions its important to accurately handle the conversion so it makes sense both back and forth.
 
 ## Appendix: implementation research details
 

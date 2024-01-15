@@ -48,6 +48,7 @@ namespace Fsl::DataBinding
     }
   };
 
+
   class InvalidParentInstanceException : public std::invalid_argument
   {
   public:
@@ -61,6 +62,7 @@ namespace Fsl::DataBinding
     {
     }
   };
+
 
   class DeadInstanceException : public std::invalid_argument
   {
@@ -119,6 +121,7 @@ namespace Fsl::DataBinding
     }
   };
 
+
   class BindingIncompatiblePropertiesException : public UsageErrorException
   {
   public:
@@ -132,6 +135,7 @@ namespace Fsl::DataBinding
     {
     }
   };
+
 
   class BindingIncompatibleTypesException : public UsageErrorException
   {
@@ -147,6 +151,7 @@ namespace Fsl::DataBinding
     }
   };
 
+
   class CyclicBindingException : public UsageErrorException
   {
   public:
@@ -160,6 +165,22 @@ namespace Fsl::DataBinding
     {
     }
   };
+
+
+  class TwoWayBindingSourceException : public UsageErrorException
+  {
+  public:
+    explicit TwoWayBindingSourceException(const char* const pszWhatArg)
+      : UsageErrorException(pszWhatArg)
+    {
+    }
+
+    explicit TwoWayBindingSourceException(const std::string& whatArg)
+      : UsageErrorException(whatArg)
+    {
+    }
+  };
+
 
   class DependencyPropertyDefinitionException : public UsageErrorException
   {
@@ -175,6 +196,7 @@ namespace Fsl::DataBinding
     }
   };
 
+
   class BindingErrorException : public UsageErrorException
   {
   public:
@@ -185,6 +207,21 @@ namespace Fsl::DataBinding
 
     explicit BindingErrorException(const std::string& whatArg)
       : UsageErrorException(whatArg)
+    {
+    }
+  };
+
+
+  class BindingNotSupportedException : public BindingErrorException
+  {
+  public:
+    explicit BindingNotSupportedException(const char* const pszWhatArg)
+      : BindingErrorException(pszWhatArg)
+    {
+    }
+
+    explicit BindingNotSupportedException(const std::string& whatArg)
+      : BindingErrorException(whatArg)
     {
     }
   };

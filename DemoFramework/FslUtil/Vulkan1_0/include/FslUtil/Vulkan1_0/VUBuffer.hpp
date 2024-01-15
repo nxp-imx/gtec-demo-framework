@@ -114,49 +114,49 @@ namespace Fsl::Vulkan
     void Reset(const VkDevice device, const VkBufferCreateInfo& createInfo);
 
     //! @brief Get the device associated with this object
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_buffer.GetDevice();
     }
 
     //! @brief Get the buffer handle associated with this object
-    VkBuffer Get() const
+    VkBuffer Get() const noexcept
     {
       return m_buffer.Get();
     }
 
     //! @brief Get a pointer to the associated resource handle
-    const VkBuffer* GetPointer() const
+    const VkBuffer* GetPointer() const noexcept
     {
       return m_buffer.GetPointer();
     }
 
     //! @brief Check if this buffer object is valid
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_buffer.IsValid();
     }
 
 
-    VkMemoryRequirements GetBufferMemoryRequirements() const
+    VkMemoryRequirements GetBufferMemoryRequirements() const noexcept
     {
       return m_buffer.GetBufferMemoryRequirements();
     }
 
 
-    VkAccessFlags GetAccessMask() const
+    VkAccessFlags GetAccessMask() const noexcept
     {
       return m_accessMask;
     }
 
 
-    VkDeviceSize GetSize() const
+    VkDeviceSize GetSize() const noexcept
     {
       return m_size;
     }
 
 
-    VkBufferUsageFlags GetUsage() const
+    VkBufferUsageFlags GetUsage() const noexcept
     {
       return m_usage;
     }

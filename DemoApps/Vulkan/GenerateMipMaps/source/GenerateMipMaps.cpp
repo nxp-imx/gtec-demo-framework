@@ -560,7 +560,7 @@ namespace Fsl
 
   void GenerateMipMaps::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void GenerateMipMaps::SetDefaultSettings()

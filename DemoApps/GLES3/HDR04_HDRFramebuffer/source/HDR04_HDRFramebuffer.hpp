@@ -94,6 +94,8 @@ namespace Fsl
       SimpleMesh MeshQuad;
     };
 
+    bool m_hasHDRFramebuffer;
+
     MenuUI m_menuUI;
 
     std::shared_ptr<IKeyboard> m_keyboard;

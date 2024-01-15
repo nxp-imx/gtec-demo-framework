@@ -81,7 +81,7 @@ namespace Fsl::DataBinding
     bool changed = m_hInstance.IsValid() && DataSourceFlagsUtil::IsEnabled(m_flags, DataSourceFlags::Observable);
     if (changed)
     {
-      changed = m_dataBinding->Changed(m_hInstance);
+      changed = m_dataBinding->Changed(m_hInstance, PropertyChangeReason::Modified);
     }
     return changed;
   }

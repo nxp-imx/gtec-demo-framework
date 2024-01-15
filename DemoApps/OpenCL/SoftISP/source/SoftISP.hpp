@@ -78,11 +78,11 @@ namespace Fsl
     std::vector<RapidOpenCL1::Buffer> m_deviceDist;
 
   public:
-    SoftISP(const DemoAppConfig& config);
-    ~SoftISP();
+    explicit SoftISP(const DemoAppConfig& config);
+    ~SoftISP() override;
 
   protected:
-    virtual void Run() override;
+    void Run() override;
     void AllocateMemory(const cl_context context, const std::size_t size);
     void CopyToBMP(Bitmap& bitmap, const IO::Path& fileName, const void* ptr);
   };

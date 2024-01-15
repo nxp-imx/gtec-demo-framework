@@ -51,8 +51,8 @@ namespace Fsl
   public:
     explicit UTDependencyObject(const std::shared_ptr<DataBinding::DataBindingService>& dataBinding);
 
-    ConstrainedValue<uint32_t> GetProperty0ValueConstaints() const;
-    void SetProperty0ValueConstaints(ConstrainedValue<uint32_t> constaints);
+    ConstrainedValue<uint32_t> GetProperty0ValueConstraints() const;
+    void SetProperty0ValueConstraints(ConstrainedValue<uint32_t> constaints);
 
     uint32_t GetProperty0Value() const noexcept
     {
@@ -68,13 +68,14 @@ namespace Fsl
 
     bool SetProperty1Value(const float value)
     {
-      return m_property1.Set(ThisDependencyObject(), value);
+      return m_property1.Set(ThisDependencyObject(), value, DataBinding::PropertyChangeReason::Modified);
     }
 
     static DataBinding::DependencyPropertyDefinition Property0;
     static DataBinding::DependencyPropertyDefinition Property1;
 
   protected:
+    bool DoSetProperty0Value(const uint32_t value, const DataBinding::PropertyChangeReason changeReason);
     DataBinding::DataBindingInstanceHandle TryGetPropertyHandleNow(const DataBinding::DependencyPropertyDefinition& sourceDef) override;
     DataBinding::PropertySetBindingResult TrySetBindingNow(const DataBinding::DependencyPropertyDefinition& targetDef,
                                                            const DataBinding::Binding& binding) override;

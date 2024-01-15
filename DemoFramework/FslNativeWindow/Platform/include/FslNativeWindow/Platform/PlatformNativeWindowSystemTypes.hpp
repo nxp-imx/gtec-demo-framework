@@ -38,26 +38,53 @@
 // - PlatformNativeWindowType
 
 
-#if defined(FSL_PLATFORM_EMSCRIPTEN)
+#if defined(FSL_WINDOWSYSTEM_SDL2)
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
+#ifdef SDL_VIDEO_DRIVER_WINDOWS
 namespace Fsl
 {
-#ifdef SDL_VIDEO_DRIVER_WINDOWS
   using PlatformNativeDisplayType = HINSTANCE;
   using PlatformNativeWindowType = HWND;
+}
 #elif defined(SDL_VIDEO_DRIVER_EMSCRIPTEN)
+namespace Fsl
+{
   // FIX: use the correct types here
   using PlatformNativeDisplayType = void*;
   using PlatformNativeWindowType = void*;
+}
+#elif defined(SDL_VIDEO_DRIVER_X11)
+namespace Fsl
+{
+  using PlatformNativeDisplayType = Display*;
+  using PlatformNativeWindowType = Window;
+}
+#elif defined(SDL_VIDEO_DRIVER_WAYLAND)
+#include <wayland-client.h>
+namespace Fsl
+{
+  // wl_display
+  using PlatformNativeDisplayType = wl_display*;
+  // This needs to be defined, without EGL we do not support windows but would require stand alone buffers to work with.
+  using PlatformNativeWindowType = void*;
+}
 #else
 #error Unsupported SDL platform
 #endif
-
+namespace Fsl
+{
   struct PlatformNativeWindowSystemParams
   {
+    bool UseExternalContext{false};
+
     // Its important that the default constructor exist as this is what we use for as a default parameter value
     PlatformNativeWindowSystemParams() = default;
+
+    explicit PlatformNativeWindowSystemParams(const bool useExternalContext) noexcept
+      : UseExternalContext(useExternalContext)
+    {
+    }
   };
 
   struct PlatformNativeWindowParams
@@ -67,13 +94,13 @@ namespace Fsl
 
     explicit PlatformNativeWindowParams(const PlatformNativeDisplayType platformDisplay, const int windowFlags)
       : PlatformDisplay(platformDisplay)
-      , WindowFlags()
+
     {
     }
   };
 }    // namespace Fsl
 
-#elif defined(FSL_PLATFORM_WINDOWS)
+#elif defined(FSL_WINDOWSYSTEM_WIN32)
 #include <windows.h>
 #include <memory>
 #include <utility>
@@ -102,13 +129,13 @@ namespace Fsl
   };
 }    // namespace Fsl
 #elif defined(__ANDROID__)
-#include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroidCallbacks.hpp>
+#include <FslNativeWindow/Platform/Adapter/Android/PlatformNativeWindowAndroidCallbacks.hpp>
 #include <game-activity/native_app_glue/android_native_app_glue.h>
 
 namespace Fsl
 {
-  typedef void* PlatformNativeDisplayType;
-  typedef ANativeWindow* PlatformNativeWindowType;
+  using PlatformNativeDisplayType = void*;
+  using PlatformNativeWindowType = ANativeWindow*;
 
   struct PlatformNativeWindowSystemParams
   {
@@ -138,8 +165,8 @@ namespace Fsl
 
 namespace Fsl
 {
-  typedef int PlatformNativeDisplayType;
-  typedef screen_window_t PlatformNativeWindowType;
+  using PlatformNativeDisplayType = int;
+  using PlatformNativeWindowType = screen_window_t;
 
   struct PlatformNativeWindowSystemParams
   {
@@ -189,44 +216,51 @@ namespace Fsl
   };
 }    // namespace Fsl
 #elif defined(FSL_WINDOWSYSTEM_WAYLAND)
-#include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWaylandCallbacks.hpp>
+#include <FslNativeWindow/Platform/Adapter/Wayland/PlatformNativeWindowWaylandCallbacks.hpp>
 #include <wayland-client.h>
+#include <memory>
+#include <utility>
 namespace Fsl
 {
   // wl_display
-  typedef wl_display* PlatformNativeDisplayType;
+  using PlatformNativeDisplayType = wl_display*;
   // This needs to be defined, without EGL we do not support windows but would require stand alone buffers to work with.
-  typedef void* PlatformNativeWindowType;
+  using PlatformNativeWindowType = void*;
 
   struct PlatformNativeWindowSystemParams
   {
     // Its important that the default constructor exist as this is what we use for as a default parameter value
-    PlatformNativeWindowSystemParams()
-    {
-    }
+    PlatformNativeWindowSystemParams() = default;
   };
+
+  class PlatformNativeWindowSystemContextWayland;
 
   struct PlatformNativeWindowParams
   {
+    std::weak_ptr<PlatformNativeWindowSystemContextWayland> WindowSystemWaylandContext;
     PlatformNativeDisplayType PlatformDisplay;
     PlatformCallbackNativeWindowWaylandCreate CreateWaylandWindow;
     PlatformCallbackNativeWindowWaylandDestroy DestroyWaylandWindow;
     PlatformCallbackNativeWindowWaylandResize ResizeWaylandWindow;
-    explicit PlatformNativeWindowParams(const PlatformNativeDisplayType& platformDisplay,
-                                        const PlatformCallbackNativeWindowWaylandCreate& createWaylandWindow,
-                                        const PlatformCallbackNativeWindowWaylandDestroy& destroyWaylandWindow,
-                                        const PlatformCallbackNativeWindowWaylandResize& resizeWaylandWindow)
-      : PlatformDisplay(platformDisplay)
-      , CreateWaylandWindow(createWaylandWindow)
-      , DestroyWaylandWindow(destroyWaylandWindow)
-      , ResizeWaylandWindow(resizeWaylandWindow)
+
+    explicit PlatformNativeWindowParams(std::weak_ptr<PlatformNativeWindowSystemContextWayland> windowSystemWaylandContext,
+                                        const PlatformNativeDisplayType& platformDisplay,
+                                        PlatformCallbackNativeWindowWaylandCreate createWaylandWindow,
+                                        PlatformCallbackNativeWindowWaylandDestroy destroyWaylandWindow,
+                                        PlatformCallbackNativeWindowWaylandResize resizeWaylandWindow)
+      : WindowSystemWaylandContext(std::move(windowSystemWaylandContext))
+      , PlatformDisplay(platformDisplay)
+      , CreateWaylandWindow(std::move(createWaylandWindow))
+      , DestroyWaylandWindow(std::move(destroyWaylandWindow))
+      , ResizeWaylandWindow(std::move(resizeWaylandWindow))
     {
     }
+    ~PlatformNativeWindowParams();
   };
 }    // namespace Fsl
 #elif defined(FSL_WINDOWSYSTEM_FRAMEBUFFER)
-#include <FslNativeWindow/Platform/FB/PlatformNativeWindowFBCallbacks.hpp>
-#include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFBCallbacks.hpp>
+#include <FslNativeWindow/Platform/Adapter/FB/PlatformNativeWindowFBCallbacks.hpp>
+#include <FslNativeWindow/Platform/Adapter/FB/PlatformNativeWindowSystemFBCallbacks.hpp>
 namespace Fsl
 {
   using PlatformNativeDisplayType = void*;

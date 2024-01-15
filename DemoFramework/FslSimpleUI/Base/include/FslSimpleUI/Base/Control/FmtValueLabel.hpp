@@ -66,6 +66,7 @@ namespace Fsl::UI
       : LabelBase(context)
       , m_format(std::is_floating_point<value_type>::value ? "{:.2f}" : "{}")
     {
+      RebuildCache();
     }
 
     const std::string& GetFormatString() const

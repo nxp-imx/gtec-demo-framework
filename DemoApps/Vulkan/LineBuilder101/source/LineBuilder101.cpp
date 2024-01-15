@@ -133,6 +133,6 @@ namespace Fsl
   void LineBuilder101::OnFreeResources()
   {
     m_resources.LineDraw.FreeResources();
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

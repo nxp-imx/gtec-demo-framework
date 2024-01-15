@@ -31,10 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Span/ReadOnlySpanUtil.hpp>
 #include <FslDataBinding/Base/Bind/IComplexBinding.hpp>
 #include <FslDataBinding/Base/Bind/IMultiBinding.hpp>
 #include <FslDataBinding/Base/Bind/ISingleBinding.hpp>
+#include <FslDataBinding/Base/BindingMode.hpp>
 #include <FslDataBinding/Base/DataBindingInstanceHandle.hpp>
 #include <cassert>
 #include <memory>
@@ -49,17 +51,39 @@ namespace Fsl::DataBinding
     DataBindingInstanceHandle m_hPrimarySource;
     std::shared_ptr<IComplexBinding> m_complexBinding;
     std::vector<DataBindingInstanceHandle> m_multiSource;
+    BindingMode m_bindingMode;
+
+    static BindingMode SafeGetDefaultBindingMode(const IComplexBinding* const pComplexBinding) noexcept
+    {
+      return (pComplexBinding == nullptr || !BindingCapabilityFlagsUtil::IsEnabled(pComplexBinding->GetCaps(), BindingCapabilityFlags::ConvertBack))
+               ? BindingMode::OneWay
+               : BindingMode::TwoWay;
+    }
 
   public:
-    explicit Binding(const DataBindingInstanceHandle hSource)
+    explicit Binding(const DataBindingInstanceHandle hSource, const BindingMode bindingMode = BindingMode::OneWay)
       : m_hPrimarySource(hSource)
+      , m_bindingMode(bindingMode)
     {
     }
 
     explicit Binding(std::shared_ptr<ISingleBinding> singleBinding, const DataBindingInstanceHandle hSource)
       : m_hPrimarySource(hSource)
       , m_complexBinding(std::move(singleBinding))
+      , m_bindingMode(SafeGetDefaultBindingMode(m_complexBinding.get()))
     {
+    }
+
+    explicit Binding(std::shared_ptr<ISingleBinding> singleBinding, const BindingMode bindingMode, const DataBindingInstanceHandle hSource)
+      : m_hPrimarySource(hSource)
+      , m_complexBinding(std::move(singleBinding))
+      , m_bindingMode(bindingMode)
+    {
+      if (m_bindingMode == BindingMode::TwoWay && m_complexBinding &&
+          !BindingCapabilityFlagsUtil::IsEnabled(m_complexBinding->GetCaps(), BindingCapabilityFlags::ConvertBack))
+      {
+        throw NotSupportedException("The supplied converter binding does not support two-way binding");
+      }
     }
 
     template <class... THandles, std::enable_if_t<((sizeof...(THandles)) > 0u)>* = nullptr>
@@ -67,11 +91,29 @@ namespace Fsl::DataBinding
       : m_hPrimarySource(hSource)
       , m_complexBinding(std::move(multiBinding))
       , m_multiSource{hSource, (sourceHandles)...}
+      , m_bindingMode(SafeGetDefaultBindingMode(m_complexBinding.get()))
     {
       // we expect the array to be of the right size
       assert(m_multiSource.size() == (1u + sizeof...(THandles)));
     }
 
+    template <class... THandles, std::enable_if_t<((sizeof...(THandles)) > 0u)>* = nullptr>
+    explicit Binding(std::shared_ptr<IMultiBinding> multiBinding, const BindingMode bindingMode, const DataBindingInstanceHandle hSource,
+                     THandles... sourceHandles)
+      : m_hPrimarySource(hSource)
+      , m_complexBinding(std::move(multiBinding))
+      , m_multiSource{hSource, (sourceHandles)...}
+      , m_bindingMode(bindingMode)
+    {
+      // we expect the array to be of the right size
+      assert(m_multiSource.size() == (1u + sizeof...(THandles)));
+
+      if (m_bindingMode == BindingMode::TwoWay && m_complexBinding &&
+          !BindingCapabilityFlagsUtil::IsEnabled(m_complexBinding->GetCaps(), BindingCapabilityFlags::ConvertBack))
+      {
+        throw NotSupportedException("The supplied converter binding does not support two-way binding");
+      }
+    }
 
     bool HasValidSourceHandles() const noexcept;
 
@@ -84,6 +126,11 @@ namespace Fsl::DataBinding
     {
       return m_multiSource.empty() ? ReadOnlySpan<DataBindingInstanceHandle>(&m_hPrimarySource, 1u, OptimizationCheckFlag::NoCheck)
                                    : ReadOnlySpanUtil::AsSpan(m_multiSource);
+    }
+
+    BindingMode Mode() const noexcept
+    {
+      return m_bindingMode;
     }
 
     bool ContainsSource(const DataBindingInstanceHandle handle) const noexcept;

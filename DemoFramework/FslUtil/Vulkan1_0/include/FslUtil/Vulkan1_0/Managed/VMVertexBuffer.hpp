@@ -133,6 +133,7 @@ namespace Fsl::Vulkan
         return;
       }
 
+      // Use destruction order
       m_usage = VMBufferUsage::STATIC;
       m_elementStride = 0;
       m_vertexCount = 0;
@@ -169,35 +170,35 @@ namespace Fsl::Vulkan
 
     void SetData(const uint32_t dstElementOffset, ReadOnlyFlexSpan vertexSpan);
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_vertexBuffer.IsValid();
     }
 
-    uint32_t GetVertexCount() const
+    uint32_t GetVertexCount() const noexcept
     {
       return m_vertexCount;
     }
 
     //! @brief Get the element stride (size of one element in bytes)
-    uint32_t GetElementStride() const
+    uint32_t GetElementStride() const noexcept
     {
       return m_elementStride;
     }
 
     //! @brief Get the associated 'Device'
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_vertexBuffer.GetDevice();
     }
 
     //! @brief Get the associated 'buffer'
-    VkBuffer GetBuffer() const
+    VkBuffer GetBuffer() const noexcept
     {
       return m_vertexBuffer.GetBuffer();
     }
 
-    const VkBuffer* GetBufferPointer() const
+    const VkBuffer* GetBufferPointer() const noexcept
     {
       return m_vertexBuffer.GetBufferPointer();
     }

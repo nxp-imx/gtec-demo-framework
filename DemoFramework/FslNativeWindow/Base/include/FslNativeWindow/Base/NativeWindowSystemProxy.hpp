@@ -52,6 +52,7 @@ namespace Fsl
                          const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams = nullptr) override;
     bool ProcessMessages(const NativeWindowProcessMessagesArgs& args) override;
     bool IsDisplayHDRCompatible(const int32_t displayId) const override;
+    void Shutdown() override;
   };
 }
 

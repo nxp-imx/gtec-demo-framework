@@ -201,7 +201,8 @@ namespace Fsl::Vulkan
 
   void VUFramebuffer::DoReset() noexcept
   {
-    m_texture.Reset();
+    // Use destruction order
     m_framebuffer.Reset();
+    m_texture.Reset();
   }
 }

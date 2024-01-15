@@ -36,26 +36,23 @@
 
 namespace Fsl::ContentPathUtil
 {
-  namespace
-  {
 #ifdef _WIN32
-    IO::Path GetBasePath()
-    {
-      return Fsl::IO::Directory::GetCurrentWorkingDirectory();
-    }
-#else
-    IO::Path GetBasePath()
-    {
-      const auto* pszExePath = CurrentExePath::TryGetCurrentExePath();
-      if (pszExePath != nullptr)
-      {
-        return Fsl::IO::Path::GetDirectoryName(pszExePath);
-      }
-      FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
-      return Fsl::IO::Directory::GetCurrentWorkingDirectory();
-    }
-#endif
+  IO::Path GetBasePath()
+  {
+    return Fsl::IO::Directory::GetCurrentWorkingDirectory();
   }
+#else
+  IO::Path GetBasePath()
+  {
+    const auto* pszExePath = CurrentExePath::TryGetCurrentExePath();
+    if (pszExePath != nullptr)
+    {
+      return Fsl::IO::Path::GetDirectoryName(pszExePath);
+    }
+    FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
+    return Fsl::IO::Directory::GetCurrentWorkingDirectory();
+  }
+#endif
 
   IO::Path GetContentPath()
   {

@@ -122,7 +122,7 @@ TEST(Test_UTObservableCollection, ChangedNotification)
 
   EXPECT_EQ(0u, t1.TestProperty5ChangedCallCount);
 
-  t1.SetProperty5Value(t0);
+  EXPECT_TRUE(t1.SetProperty5Value(t0));
 
   EXPECT_EQ(4u, dataBindingService->InstanceCount());
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
@@ -160,7 +160,7 @@ TEST(Test_UTObservableCollection, ChangedNotification_PropertiesModified)
   EXPECT_EQ(4u, dataBindingService->InstanceCount());
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
 
-  t1.SetProperty6Value(t0);
+  EXPECT_TRUE(t1.SetProperty6Value(t0));
 
   EXPECT_EQ(7u, dataBindingService->InstanceCount());
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
@@ -183,12 +183,10 @@ TEST(Test_UTObservableCollection, ChangedNotification_PropertiesModified)
 }
 
 
-TEST(Test_UTObservableCollection, SetBinding_Oneway_TypedObserverDependencyProperty_TypedObserverDependencyProperty)
+TEST(Test_UTObservableCollection, SetBinding_TypedObserverDependencyProperty_TypedObserverDependencyProperty)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
-  auto t0A = std::make_shared<UTObservableCollection>(dataBindingService);
-  auto t0B = std::make_shared<UTObservableCollection>(dataBindingService);
   UTDependencyObject2 t1(dataBindingService);
   UTDependencyObject2 t2(dataBindingService);
 
@@ -206,7 +204,7 @@ TEST(Test_UTObservableCollection, SetBinding_Oneway_TypedObserverDependencyPrope
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
 }
 
-TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyProperty_TypedObserverDependencyProperty_WithPrebindValue)
+TEST(Test_UTObservableCollection, ChangeSource_TypedObserverDependencyProperty_TypedObserverDependencyProperty_WithPrebindValue)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -214,7 +212,7 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   auto srcCol1 = std::make_shared<UTObservableCollection>(dataBindingService);
   UTDependencyObject2 t1(dataBindingService);
   UTDependencyObject2 t2(dataBindingService);
-  t1.SetProperty5Value(srcCol0);
+  EXPECT_TRUE(t1.SetProperty5Value(srcCol0));
 
   EXPECT_EQ(4u, dataBindingService->InstanceCount());
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
@@ -245,8 +243,10 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(1u, t1.TestProperty5ChangedCallCount);
   EXPECT_EQ(1u, t2.TestProperty5ChangedCallCount);
+  EXPECT_EQ(srcCol0, t1.GetProperty5Value());
+  EXPECT_EQ(srcCol0, t2.GetProperty5Value());
 
-  t1.SetProperty5Value(srcCol1);
+  EXPECT_TRUE(t1.SetProperty5Value(srcCol1));
 
   EXPECT_EQ(8u, dataBindingService->InstanceCount());
   EXPECT_EQ(2u, dataBindingService->PendingChanges());
@@ -270,7 +270,7 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(srcCol1, t2.GetProperty5Value());
 }
 
-TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyProperty_TypedObserverDependencyProperty)
+TEST(Test_UTObservableCollection, ChangeSource_TypedObserverDependencyProperty_TypedObserverDependencyProperty)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -300,7 +300,7 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(0u, t1.TestProperty5ChangedCallCount);
   EXPECT_EQ(0u, t2.TestProperty5ChangedCallCount);
 
-  t1.SetProperty5Value(srcCol0);
+  EXPECT_TRUE(t1.SetProperty5Value(srcCol0));
 
   EXPECT_EQ(7u, dataBindingService->InstanceCount());
   // t1.property5 was changed and t1.property5 observer caused a pending change from the source to be registered
@@ -324,14 +324,14 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
 }
 
 
-TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyProperty_TypedObserverDependencyProperty_WithPrebindValue_Clear)
+TEST(Test_UTObservableCollection, ChangeSource_TypedObserverDependencyProperty_TypedObserverDependencyProperty_WithPrebindValue_Clear)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
   auto srcCol0 = std::make_shared<UTObservableCollection>(dataBindingService);
   UTDependencyObject2 t1(dataBindingService);
   UTDependencyObject2 t2(dataBindingService);
-  t1.SetProperty5Value(srcCol0);
+  EXPECT_TRUE(t1.SetProperty5Value(srcCol0));
 
   EXPECT_EQ(4u, dataBindingService->InstanceCount());
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
@@ -362,8 +362,10 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(0u, dataBindingService->PendingChanges());
   EXPECT_EQ(1u, t1.TestProperty5ChangedCallCount);
   EXPECT_EQ(1u, t2.TestProperty5ChangedCallCount);
+  EXPECT_EQ(srcCol0, t1.GetProperty5Value());
+  EXPECT_EQ(srcCol0, t2.GetProperty5Value());
 
-  t1.SetProperty5Value(std::shared_ptr<DataBinding::IObservableObject>());
+  EXPECT_TRUE(t1.SetProperty5Value(std::shared_ptr<DataBinding::IObservableObject>()));
 
   EXPECT_EQ(7u, dataBindingService->InstanceCount());
   EXPECT_EQ(1u, dataBindingService->PendingChanges());
@@ -387,7 +389,7 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(std::shared_ptr<DataBinding::IObservableObject>(), t2.GetProperty5Value());
 }
 
-TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyProperty_TypedObserverDependencyProperty_Clear)
+TEST(Test_UTObservableCollection, ChangeSource_TypedObserverDependencyProperty_TypedObserverDependencyProperty_Clear)
 {
   auto dataBindingService = std::make_shared<DataBinding::DataBindingService>();
 
@@ -417,7 +419,7 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(0u, t1.TestProperty5ChangedCallCount);
   EXPECT_EQ(0u, t2.TestProperty5ChangedCallCount);
 
-  t1.SetProperty5Value(srcCol0);
+  EXPECT_TRUE(t1.SetProperty5Value(srcCol0));
 
   EXPECT_EQ(7u, dataBindingService->InstanceCount());
   // t1.property5 was changed and t1.property5 observer caused a pending change from the source to be registered
@@ -439,7 +441,7 @@ TEST(Test_UTObservableCollection, ChangeSource_Oneway_TypedObserverDependencyPro
   EXPECT_EQ(srcCol0, t1.GetProperty5Value());
   EXPECT_EQ(srcCol0, t2.GetProperty5Value());
 
-  t1.SetProperty5Value(std::shared_ptr<DataBinding::IObservableObject>());
+  EXPECT_TRUE(t1.SetProperty5Value(std::shared_ptr<DataBinding::IObservableObject>()));
 
   EXPECT_EQ(7u, dataBindingService->InstanceCount());
   EXPECT_EQ(1u, dataBindingService->PendingChanges());

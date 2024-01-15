@@ -35,6 +35,7 @@
 #include <FslBase/Span/ReadOnlySpan.hpp>
 #include <FslDataBinding/Base/Bind/PropertyTypeInfo.hpp>
 #include <FslDataBinding/Base/Internal/PropertyGetInfo.hpp>
+#include <FslDataBinding/Base/Internal/PropertySetInfo.hpp>
 #include <typeinfo>
 
 
@@ -62,9 +63,19 @@ namespace Fsl::DataBinding::Internal::ConverterChecks
       return getter.pGet != nullptr && getter.pGet->GetType() == typeInfo && IsSupported(getter.ImplType);
     }
 
+    inline bool CheckIsSetValid(const Internal::PropertySetInfo& setter, const std::type_info& typeInfo)
+    {
+      return setter.pSet != nullptr && setter.pSet->GetType() == typeInfo && IsSupported(setter.ImplType);
+    }
+
     inline bool CheckIsGettersValid(const ReadOnlySpan<Internal::PropertyGetInfo> getters, const std::size_t index, const std::type_info& typeInfo)
     {
       return index < getters.size() && CheckIsGetValid(getters[index], typeInfo);
+    }
+
+    inline bool CheckIsSettersValid(const ReadOnlySpan<Internal::PropertySetInfo> setters, const std::size_t index, const std::type_info& typeInfo)
+    {
+      return index < setters.size() && CheckIsSetValid(setters[index], typeInfo);
     }
 
     template <typename... TTypeIndices>
@@ -72,6 +83,13 @@ namespace Fsl::DataBinding::Internal::ConverterChecks
                              TTypeIndices const&... args)
     {
       return index < getters.size() && CheckIsGetValid(getters[index], typeInfo) ? CheckIsGettersValid(getters, index + 1, args...) : false;
+    }
+
+    template <typename... TTypeIndices>
+    bool CheckIsSettersValid(const ReadOnlySpan<Internal::PropertySetInfo> setters, const std::size_t index, const std::type_info& typeInfo,
+                             TTypeIndices const&... args)
+    {
+      return index < setters.size() && CheckIsSetValid(setters[index], typeInfo) ? CheckIsSettersValid(setters, index + 1, args...) : false;
     }
   }
 
@@ -85,6 +103,18 @@ namespace Fsl::DataBinding::Internal::ConverterChecks
   bool IsGettersValid(const ReadOnlySpan<Internal::PropertyGetInfo> getters, const std::type_info& typeInfo, TTypeIndices const&... args)
   {
     return InternalHelper::CheckIsGettersValid(getters, 0, typeInfo, args...);
+  }
+
+
+  inline bool IsSettersValid(const ReadOnlySpan<Internal::PropertySetInfo> setters, const std::type_info& typeInfo)
+  {
+    return InternalHelper::CheckIsSettersValid(setters, 0, typeInfo);
+  }
+
+  template <typename... TTypeIndices>
+  bool IsSettersValid(const ReadOnlySpan<Internal::PropertySetInfo> setters, const std::type_info& typeInfo, TTypeIndices const&... args)
+  {
+    return InternalHelper::CheckIsSettersValid(setters, 0, typeInfo, args...);
   }
 }
 

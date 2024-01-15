@@ -59,4 +59,9 @@ namespace Fsl
   {
     return m_windowSystem->IsDisplayHDRCompatible(displayId);
   }
+
+  void NativeWindowSystemProxy::Shutdown()
+  {
+    return m_windowSystem->Shutdown();
+  }
 }

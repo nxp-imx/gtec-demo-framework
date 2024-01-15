@@ -70,6 +70,10 @@ namespace Fsl
     {
       std::shared_ptr<UI::Layout> Main;
     };
+    struct UIExampleRecord4
+    {
+      std::shared_ptr<UI::Layout> Main;
+    };
 
 
     struct UIRecord
@@ -112,6 +116,7 @@ namespace Fsl
     static UIExampleRecord1 CreateExample1UI(UI::Theme::IThemeControlFactory& uiFactory);
     static UIExampleRecord2 CreateExample2UI(UI::Theme::IThemeControlFactory& uiFactory);
     static UIExampleRecord3 CreateExample3UI(UI::Theme::IThemeControlFactory& uiFactory);
+    static UIExampleRecord4 CreateExample4UI(UI::Theme::IThemeControlFactory& uiFactory);
   };
 }
 #endif

@@ -493,7 +493,7 @@ namespace Fsl
 
   void SdfFonts::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

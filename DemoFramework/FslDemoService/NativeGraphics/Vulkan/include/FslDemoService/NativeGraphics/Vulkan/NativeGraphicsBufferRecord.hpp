@@ -49,12 +49,12 @@ namespace Fsl::Vulkan
     }
 
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_buffer.IsValid();
     }
 
-    const VMBuffer& GetBuffer() const
+    const VMBuffer& GetBuffer() const noexcept
     {
       return m_buffer;
     }

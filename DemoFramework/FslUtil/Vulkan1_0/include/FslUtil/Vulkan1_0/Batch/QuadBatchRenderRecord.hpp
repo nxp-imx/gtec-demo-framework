@@ -37,7 +37,7 @@
 namespace Fsl::Vulkan
 {
   //! Contains things associated with a command buffer
-  class QuadBatchRenderRecord
+  class QuadBatchRenderRecord final
   {
   public:
     QuadBatchRenderRecord(const QuadBatchRenderRecord&) = delete;
@@ -77,15 +77,16 @@ namespace Fsl::Vulkan
 
     QuadBatchRenderRecord() = default;
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return TextureDescriptorSets.IsValid() && VertexBuffers.IsValid();
     }
 
-    void Reset()
+    void Reset() noexcept
     {
-      TextureDescriptorSets.Reset();
+      // Use destruction order
       VertexBuffers.Reset();
+      TextureDescriptorSets.Reset();
     }
 
     void Reset(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout,
@@ -96,10 +97,11 @@ namespace Fsl::Vulkan
       VertexBuffers.Reset(physicalDevice, device, minimumVertexCountRequest);
     }
 
-    void Clear()
+    void Clear() noexcept
     {
-      TextureDescriptorSets.Clear();
+      // Use destruction order
       VertexBuffers.Clear();
+      TextureDescriptorSets.Clear();
     }
   };
 }

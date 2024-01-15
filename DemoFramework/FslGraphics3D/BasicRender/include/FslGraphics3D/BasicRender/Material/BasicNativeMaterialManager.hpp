@@ -71,16 +71,21 @@ namespace Fsl::Graphics3D
     HandleVector<BasicNativeMaterialHandle> m_nativeTextures;
 
   public:
-    explicit BasicNativeMaterialManager(const IBasicShaderLookup& m_shaderLookup);
-    ~BasicNativeMaterialManager();
+    BasicNativeMaterialManager(const BasicNativeMaterialManager&) = delete;
+    BasicNativeMaterialManager& operator=(const BasicNativeMaterialManager&) = delete;
+    BasicNativeMaterialManager(BasicNativeMaterialManager&& other) noexcept = delete;
+    BasicNativeMaterialManager& operator=(BasicNativeMaterialManager&& other) noexcept = delete;
 
-    bool IsValid() const
+    explicit BasicNativeMaterialManager(const IBasicShaderLookup& m_shaderLookup);
+    ~BasicNativeMaterialManager() noexcept;
+
+    bool IsValid() const noexcept
     {
       return m_factory != nullptr;
     }
 
     void Init(const std::shared_ptr<INativeMaterialFactory>& factory, const uint32_t capacity, const uint32_t maxFramesInFlight);
-    void Shutdown();
+    void Shutdown() noexcept;
     void PreUpdate();
 
     void CreateMaterials(TypedFlexSpan<BasicNativeMaterialRecord> dst, ReadOnlyTypedFlexSpan<BasicMaterialDetailsRecord> src);
@@ -90,7 +95,7 @@ namespace Fsl::Graphics3D
 
 
   private:
-    void CollectGarbage(const bool force);
+    void CollectGarbage(const bool force) noexcept;
 
     // void ProcessDeferredRemove();
     // bool Remove(const BasicNativeMaterialHandle& handle);

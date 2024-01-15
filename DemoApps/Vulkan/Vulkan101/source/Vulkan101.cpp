@@ -289,7 +289,7 @@ namespace Fsl
 
   void Vulkan101::OnFreeResources() noexcept
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

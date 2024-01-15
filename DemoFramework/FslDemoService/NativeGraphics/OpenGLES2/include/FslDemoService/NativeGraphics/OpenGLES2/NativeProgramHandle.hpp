@@ -61,7 +61,7 @@ namespace Fsl
       return Value != HandleVectorConfig::InvalidHandle;
     }
 
-    static constexpr NativeProgramHandle Invalid()
+    static constexpr NativeProgramHandle Invalid() noexcept
     {
       return {};
     }

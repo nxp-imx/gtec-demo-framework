@@ -87,6 +87,8 @@ class JsonPackageKey(object):
     Type = "Type"
     Supported = "Supported"
     GeneratorReport = "GeneratorReport"
+    SourcePackageName = "SourcePackageName"
+    CreationYear = "CreationYear"
 
 
 class JsonRootKey(object):
@@ -293,6 +295,8 @@ def __ParsePackage(log: Log, packageName: str, jsonPackageDict: Dict[str, object
         raise Exception("Invalid file format")
     allRequirements = __ParseRequirementsInfo(log, jsonAllRequirements)
 
+    strSourcePackageName = __ReadDictStrAttrib(jsonPackageDict, JsonPackageKey.SourcePackageName)
+    strCreationYear = __ReadDictStrAttrib(jsonPackageDict, JsonPackageKey.CreationYear)
     strPackageType = __ReadDictStrAttrib(jsonPackageDict, JsonPackageKey.Type)
     packageType = PackageType.FromString(strPackageType)
     supported = __ReadDictBoolAttrib(jsonPackageDict, JsonPackageKey.Supported, True)
@@ -304,7 +308,7 @@ def __ParsePackage(log: Log, packageName: str, jsonPackageDict: Dict[str, object
             raise Exception("Invalid file format")
         generatorReport = __ParsePackageGeneratorReport(log, packageName, jsonPackageGeneratorReport)
 
-    return PackageInfo(packageName, allRequirements, packageType, supported, generatorReport)
+    return PackageInfo(packageName, strSourcePackageName, allRequirements, packageType, supported, generatorReport)
 
 
 def __ParseResolvedPackageList(log: Log, jsonResolvedPackageListDict: Dict[str, object]) -> List[PackageInfo]:
@@ -328,7 +332,8 @@ def TryLoad(log: Log, path: str) -> Optional[AppInfo]:
 
         platformName = jsonDict[JsonRootKey.PlatformName]  # type: str
         resolvedPackageList = __ParseResolvedPackageList(log, jsonDict[JsonRootKey.ResolvedPackageList])
-        return AppInfo(platformName, resolvedPackageList)
+
+        return AppInfo.CreateAppInfo(platformName, resolvedPackageList)
     except Exception:
         log.LogPrintWarning("Failed to parse json content in file: '{0}'".format(path))
         raise

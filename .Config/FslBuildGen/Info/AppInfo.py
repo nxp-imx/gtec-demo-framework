@@ -52,6 +52,9 @@ class AppInfo(object):
         self.PlatformName = platformName
         self.ResolvedPackageList = resolvedPackageList
 
+    @staticmethod
+    def CreateAppInfo(platformName: str, resolvedPackageList: List[PackageInfo]) -> 'AppInfo':
+        return AppInfo(platformName, resolvedPackageList)
 
 class AppInfoPackage(object):
     def __init__(self, log: Log, appInfo: AppInfo, sourceFilename: str) -> None:
@@ -63,6 +66,7 @@ class AppInfoPackage(object):
 
         self.__ResolvedPackageDict = self.__BuildPackageDict(appInfo)
         self.Name = self.__GuessDiscoverFilename(self.__ResolvedPackageDict, sourceFilename)
+        self.SourceName = self.DiscoverSourcePackageName(self.__ResolvedPackageDict, self.Name)
         self.ResolvedPackage = self.__ResolvedPackageDict[self.Name]
         self.ResolvedAllRequirements = self.__ResolvedAllRequirements(self.ResolvedPackage)         # type: List[RequirementInfo]
         self.ResolvedAllUsedFeatures = self.__ResolvedAllUsedFeatures(self.ResolvedPackage)         # type: List[RequirementInfo]
@@ -128,6 +132,11 @@ class AppInfoPackage(object):
             allSubPackageNames.pop(0)
 
         raise Exception("Could not determine the package name for the file at '{0}'".format(sourceFilename))
+
+    def DiscoverSourcePackageName(self, packageDict: Dict[str, PackageInfo], packageName: str) -> str:
+        if packageName in packageDict:
+            return packageDict[packageName].SourceName
+        raise Exception("Could not determine the source package name for the file at '{0}'".format(packageName))
 
 
     def __GeneratePackageName(self, subNameList: List[str]) -> str:

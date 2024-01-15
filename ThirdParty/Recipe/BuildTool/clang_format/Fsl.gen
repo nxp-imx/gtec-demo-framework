@@ -3,7 +3,7 @@
   <ToolRecipe Name="Recipe.BuildTool.clang_format" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="clang-format" Alternatives="clang-format-15" MinVersion="15.0" VersionCommand="-version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang-format 15.0+ as its needed for formatting (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang-format" Alternatives="clang-format-16" MinVersion="16.0" VersionCommand="-version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang-format 16.0+ as its needed for formatting (http://releases.llvm.org/download.html)"/>
       </Installation>
     </ExperimentalRecipe>
   </ToolRecipe>

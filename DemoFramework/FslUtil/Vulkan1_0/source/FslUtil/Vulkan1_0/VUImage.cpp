@@ -63,12 +63,13 @@ namespace Fsl::Vulkan
       return;
     }
 
-    m_image.Reset();
-    m_flags = 0;
-    m_format = VK_FORMAT_UNDEFINED;
-    m_extent = {};
-    m_mipLevels = 0;
+    // Use destruction order
     m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    m_mipLevels = 0;
+    m_extent = {};
+    m_format = VK_FORMAT_UNDEFINED;
+    m_flags = 0;
+    m_image.Reset();
   }
 
 

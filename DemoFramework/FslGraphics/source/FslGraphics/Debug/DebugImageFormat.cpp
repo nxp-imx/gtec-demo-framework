@@ -33,7 +33,7 @@
 
 namespace Fsl::Debug
 {
-  const char* TryToString(const ImageFormat& value)
+  const char* TryToString(const ImageFormat value)
   {
     switch (value)
     {
@@ -60,7 +60,7 @@ namespace Fsl::Debug
     }
   }
 
-  const char* ToString(const ImageFormat& value)
+  const char* ToString(const ImageFormat value)
   {
     const auto* const psz = TryToString(value);
     return psz != nullptr ? psz : "Unknown";

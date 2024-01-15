@@ -61,7 +61,7 @@ namespace Fsl::GLES2
   }
 
 
-  bool NativeGraphicsMaterialAttribManager::ReleaseConfig(const NativeMaterialAttribHandle handle)
+  bool NativeGraphicsMaterialAttribManager::ReleaseConfig(const NativeMaterialAttribHandle handle) noexcept
   {
     AttribConfigRecord* pRecord = m_records.TryGet(handle.Value);
     const bool released = pRecord != nullptr;

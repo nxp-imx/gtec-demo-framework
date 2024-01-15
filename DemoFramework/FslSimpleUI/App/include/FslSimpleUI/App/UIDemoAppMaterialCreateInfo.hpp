@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/PixelFormat.hpp>
+
 namespace Fsl
 {
   struct UIDemoAppMaterialCreateInfo
@@ -39,6 +41,8 @@ namespace Fsl
     bool DisableOpaqueMaterials{false};
     //! If true the materials will be created in a way that allows the viewport to be dynamically modified.
     bool AllowDynamicCustomViewport{false};
+    //! The default UI textures pixel format
+    PixelFormat DefaultTexturePixelFormat{PixelFormat::R8G8B8A8_UNORM};
 
     constexpr UIDemoAppMaterialCreateInfo() noexcept = default;
 
@@ -54,9 +58,24 @@ namespace Fsl
     {
     }
 
+
+    constexpr UIDemoAppMaterialCreateInfo(const bool disableOpaqueMaterials, const bool allowDynamicCustomViewport,
+                                          const PixelFormat defaultTexturePixelFormat) noexcept
+      : DisableOpaqueMaterials(disableOpaqueMaterials)
+      , AllowDynamicCustomViewport(allowDynamicCustomViewport)
+      , DefaultTexturePixelFormat(defaultTexturePixelFormat)
+    {
+    }
+
+    constexpr explicit UIDemoAppMaterialCreateInfo(const PixelFormat defaultTexturePixelFormat) noexcept
+      : DefaultTexturePixelFormat(defaultTexturePixelFormat)
+    {
+    }
+
     constexpr bool operator==(const UIDemoAppMaterialCreateInfo& rhs) const noexcept
     {
-      return DisableOpaqueMaterials == rhs.DisableOpaqueMaterials && AllowDynamicCustomViewport == rhs.AllowDynamicCustomViewport;
+      return DisableOpaqueMaterials == rhs.DisableOpaqueMaterials && AllowDynamicCustomViewport == rhs.AllowDynamicCustomViewport &&
+             DefaultTexturePixelFormat == rhs.DefaultTexturePixelFormat;
     }
 
     constexpr bool operator!=(const UIDemoAppMaterialCreateInfo& rhs) const noexcept

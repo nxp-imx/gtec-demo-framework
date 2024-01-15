@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Console.BasicThreadAsyncService" NoInclude="true" CreationYear="2023">
+    <ImportTemplate Name="DemoAppConsoleMinimal"/>
+    <Dependency Name="FslService.Impl"/>
+    <Platform Name="Android" Supported="false"/>  
+  </Executable>
+</FslBuildGen>

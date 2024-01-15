@@ -99,6 +99,6 @@ namespace Fsl
 
   void Stats::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

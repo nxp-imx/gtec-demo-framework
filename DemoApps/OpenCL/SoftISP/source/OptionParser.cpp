@@ -61,14 +61,12 @@ namespace Fsl
   }
 
 
-  OptionParser::~OptionParser()
-  {
-  }
+  OptionParser::~OptionParser() = default;
 
 
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.push_back(Option("Enable", OptionArgument::OptionNone, CommandId::DenoiseStatus, "Enable denoise function."));
+    rOptions.emplace_back("Enable", OptionArgument::OptionNone, CommandId::DenoiseStatus, "Enable denoise function.");
     rOptions.emplace_back("c", "m_cycleNum", OptionArgument::OptionRequired, CommandId::CycleNum, "Control the number of cycle");
   }
 
@@ -81,7 +79,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     case CommandId::CycleNum:
       StringParseUtil::Parse(m_cycleNum, strOptArg);
-      m_cycleNum = std::max(m_cycleNum, uint32_t(1));
+      m_cycleNum = std::max(m_cycleNum, static_cast<uint32_t>(1));
       return OptionParseResult::Parsed;
     default:
       return OptionParseResult::NotHandled;

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
 #include <memory>
@@ -46,16 +47,18 @@ namespace Fsl::UI::Theme
     const std::shared_ptr<SpriteFont> DefaultHeaderFont;
     const bool UsePrimaryPalette;
     const bool DisableOpaqueMaterials;
+    const ColorSpace DefaultColorSpace;
 
     ThemeFactoryCreateInfo(const SpriteMaterialId defaultOpaqueMaterialId, const SpriteMaterialId defaultTransparentMaterialId,
                            std::shared_ptr<SpriteFont> defaultFont, std::shared_ptr<SpriteFont> defaultHeaderFont, const bool usePrimaryPalette,
-                           const bool disableOpaqueMaterials)
+                           const bool disableOpaqueMaterials, const ColorSpace defaultColorSpace)
       : DefaultOpaqueMaterialId(!disableOpaqueMaterials ? defaultOpaqueMaterialId : defaultTransparentMaterialId)
       , DefaultTransparentMaterialId(defaultTransparentMaterialId)
       , DefaultFont(std::move(defaultFont))
       , DefaultHeaderFont(std::move(defaultHeaderFont))
       , UsePrimaryPalette(usePrimaryPalette)
       , DisableOpaqueMaterials(disableOpaqueMaterials)
+      , DefaultColorSpace(defaultColorSpace)
     {
     }
   };

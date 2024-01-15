@@ -37,7 +37,8 @@
 
 namespace Fsl
 {
-  TEMP_NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppRenderBasicOptions, GpuTimestamps, NoOpaqueMaterials, UseOnDemandRendering, UseSdfFonts)
+  TEMP_NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppRenderBasicOptions, GpuTimestamps, NoOpaqueMaterials, UseDrawCache, UseOnDemandRendering,
+                                                       UseSdfFonts)
 }
 
 #endif

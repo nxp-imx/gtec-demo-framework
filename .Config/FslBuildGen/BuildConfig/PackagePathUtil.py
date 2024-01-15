@@ -44,8 +44,24 @@ class PackagePathUtil(object):
         # Create a quick lookup table
         return {projectContext.ProjectId : projectContext for projectContext in projectInfo.Contexts}
 
+    # @staticmethod
+    # def GetPackagePath(package: Package, toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext]) -> str:
+    #     if package.ProjectContext.ProjectId not in toolProjectContextsDict:
+    #         raise Exception("invalid project context")
+    #     if package.Path is None:
+    #         raise Exception("invalid package")
+
+    #     toolProjectContext = toolProjectContextsDict[package.ProjectContext.ProjectId]
+    #     projectPath = toolProjectContext.Location.ResolvedPathEx
+    #     path = package.Path.AbsoluteDirPath
+    #     if not path.startswith(projectPath):
+    #         raise Exception("invalid project context")
+    #     packageRelativePath = path[len(projectPath):]
+    #     return IOUtil.Join(package.ProjectContext.ProjectId.ShortProjectId, packageRelativePath)
+
     @staticmethod
-    def GetPackagePath(package: Package, toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext]) -> str:
+    def GetUniquePackagePath(package: Package, toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext]) -> str:
+        """ This method takes the flavor into account """
         if package.ProjectContext.ProjectId not in toolProjectContextsDict:
             raise Exception("invalid project context")
         if package.Path is None:
@@ -56,4 +72,9 @@ class PackagePathUtil(object):
         path = package.Path.AbsoluteDirPath
         if not path.startswith(projectPath):
             raise Exception("invalid project context")
-        return IOUtil.Join(package.ProjectContext.ProjectId.ShortProjectId, path[len(projectPath):])
+        # remove the package name
+        path = IOUtil.GetDirectoryName(path)
+        # add the package flavor name
+        path = IOUtil.Join(path, package.NameInfo.ShortName.Value)
+        packageRelativePath = path[len(projectPath):]
+        return IOUtil.Join(package.ProjectContext.ProjectId.ShortProjectId, packageRelativePath)

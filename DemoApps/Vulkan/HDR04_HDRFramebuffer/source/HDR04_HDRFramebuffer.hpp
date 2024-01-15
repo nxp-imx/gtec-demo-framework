@@ -99,6 +99,12 @@ namespace Fsl
       std::vector<FrameResources> MainFrameResources;
       RapidVulkan::PipelineLayout MainPipelineLayout;
       RapidVulkan::PipelineLayout TonemapPipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
@@ -112,7 +118,26 @@ namespace Fsl
       RapidVulkan::GraphicsPipeline PipelineTonemapperDebug;
       RapidVulkan::GraphicsPipeline PipelineTonemapperLinear;
       RapidVulkan::GraphicsPipeline PipelineTonemapperLinearDebug;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        PipelineTonemapperLinearDebug.Reset();
+        PipelineTonemapperLinear.Reset();
+        PipelineTonemapperDebug.Reset();
+        PipelineTonemapper.Reset();
+        RenderAttachment.Reset();
+        MainRenderPass.Reset();
+      }
     };
+
+    bool m_hasHDRFramebuffer;
 
     std::shared_ptr<Vulkan::VMBufferManager> m_bufferManager;
     MenuUI m_menuUI;

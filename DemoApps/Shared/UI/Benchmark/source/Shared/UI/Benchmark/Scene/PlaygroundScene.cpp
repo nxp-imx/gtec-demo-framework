@@ -212,6 +212,11 @@ namespace Fsl
       theEvent->Handled();
       m_settings->UI.ShowChart = m_uiProfile.OptionsBar.UI.SwitchChart->IsChecked();
     }
+    else if (theEvent->GetSource() == m_uiProfile.OptionsBar.SwitchUseDrawCache)
+    {
+      theEvent->Handled();
+      SetUseDrawCache(m_uiProfile.OptionsBar.SwitchUseDrawCache->IsChecked());
+    }
     else if (theEvent->GetSource() == m_uiProfile.OptionsBar.SliderEmulatedDpi)
     {
       theEvent->Handled();
@@ -588,6 +593,7 @@ namespace Fsl
       if (!m_configDialogPromise.valid() || !m_configDialogPromise.get())
       {
         m_inputState = InputState::Playground;
+        m_settings->Bench = *m_benchResult;
       }
       else
       {
@@ -795,6 +801,7 @@ namespace Fsl
   {
     RenderOptionControls renderOptions = RenderOptionControlsFactory::CreateRenderMethodControls(uiFactory);
 
+    auto switchUseDrawCache = uiFactory.CreateSwitch(TextConfig::UseDrawCache, true);
     auto switchOnDemand = uiFactory.CreateSwitch(TextConfig::OnDemandRendering, false);
     auto switchSdfFont = uiFactory.CreateSwitch(LocalStrings::SdfFont, false);
 
@@ -870,7 +877,6 @@ namespace Fsl
     lastRow->AddChild(buttonFrameAnalysis);
     lastRow->AddChild(buttonStack);
 
-    layout->AddChild(uiFactory.CreateDivider(UI::LayoutOrientation::Horizontal), UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateLabel(TextConfig::HeaderRenderOptions, UI::Theme::FontType::Header), UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(renderOptions.SwitchFillBuffers, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(renderOptions.SwitchBatch, UI::LayoutLength(UI::LayoutUnitType::Auto));
@@ -880,14 +886,15 @@ namespace Fsl
     layout->AddChild(renderOptions.SwitchMeshCaching, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateDivider(UI::LayoutOrientation::Horizontal), UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(uiFactory.CreateLabel(TextConfig::HeaderOptions, UI::Theme::FontType::Header), UI::LayoutLength(UI::LayoutUnitType::Auto));
+    layout->AddChild(switchUseDrawCache, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(switchOnDemand, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(switchSdfFont, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(switchDpi, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(sliderDpi, UI::LayoutLength(UI::LayoutUnitType::Auto));
     layout->AddChild(lastRow, UI::LayoutLength(UI::LayoutUnitType::Star));
 
-    return {layout,    switchButtons, renderOptions,       switchOnDemand, switchSdfFont, switchDpi,
-            sliderDpi, buttonConfig,  buttonFrameAnalysis, buttonRecord,   buttonBench,   imageIdle};
+    return {layout,    switchButtons, renderOptions,       switchUseDrawCache, switchOnDemand, switchSdfFont, switchDpi,
+            sliderDpi, buttonConfig,  buttonFrameAnalysis, buttonRecord,       buttonBench,    imageIdle};
   }
 
   PlaygroundScene::UISwitchButtons PlaygroundScene::CreateUISwitchButtons(UI::Theme::IThemeControlFactory& uiFactory,
@@ -1031,6 +1038,13 @@ namespace Fsl
     const auto emulatedDpiValue = NumericCast<uint16_t>(m_uiProfile.OptionsBar.SliderEmulatedDpi->GetValue());
     m_testAppHost->SetEmulatedDpi(emulateDpiEnabled, emulatedDpiValue);
   }
+
+
+  void PlaygroundScene::SetUseDrawCache(const bool useDrawCache)
+  {
+    m_testAppHost->SetUseDrawCache(useDrawCache);
+  }
+
 
   void PlaygroundScene::BeginClose(const SceneId nextSceneId, std::shared_ptr<ISceneConfig> sceneConfig)
   {

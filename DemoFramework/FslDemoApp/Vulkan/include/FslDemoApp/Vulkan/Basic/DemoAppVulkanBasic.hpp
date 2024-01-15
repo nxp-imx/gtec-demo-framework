@@ -50,6 +50,7 @@
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <memory>
+#include <utility>
 #include <vector>
 
 namespace Fsl
@@ -84,6 +85,7 @@ namespace Fsl
         Completed    // Named Complete because we can't use Success as the X11 header might define it :(
       };
 
+      //! We overload the move operator and constructor to ensure we destroy resources in destruction order.
       struct FrameDrawRecord
       {
         RapidVulkan::Semaphore ImageAcquiredSemaphore;
@@ -91,8 +93,53 @@ namespace Fsl
         RapidVulkan::Fence QueueSubmitFence;
         uint32_t AssignedSwapImageIndex{0};
         bool HasSwapBufferImage{false};
+
+        FrameDrawRecord() noexcept = default;
+
+        FrameDrawRecord(const FrameDrawRecord&) = delete;
+        FrameDrawRecord& operator=(const FrameDrawRecord&) = delete;
+
+        FrameDrawRecord(FrameDrawRecord&& other) noexcept
+          : ImageAcquiredSemaphore(std::move(other.ImageAcquiredSemaphore))
+          , ImageReleasedSemaphore(std::move(other.ImageReleasedSemaphore))
+          , QueueSubmitFence(std::move(other.QueueSubmitFence))
+          , AssignedSwapImageIndex(other.AssignedSwapImageIndex)
+          , HasSwapBufferImage(other.HasSwapBufferImage)
+        {
+          other.AssignedSwapImageIndex = 0;
+          other.HasSwapBufferImage = false;
+        }
+
+        FrameDrawRecord& operator=(FrameDrawRecord&& other) noexcept
+        {
+          if (this != &other)
+          {
+            Reset();
+
+            ImageAcquiredSemaphore = std::move(other.ImageAcquiredSemaphore);
+            ImageReleasedSemaphore = std::move(other.ImageReleasedSemaphore);
+            QueueSubmitFence = std::move(other.QueueSubmitFence);
+            AssignedSwapImageIndex = other.AssignedSwapImageIndex;
+            HasSwapBufferImage = other.HasSwapBufferImage;
+
+            other.AssignedSwapImageIndex = 0;
+            other.HasSwapBufferImage = false;
+          }
+          return *this;
+        }
+
+        void Reset() noexcept
+        {
+          // Reset in destruction order
+          HasSwapBufferImage = false;
+          AssignedSwapImageIndex = 0;
+          QueueSubmitFence.Reset();
+          ImageReleasedSemaphore.Reset();
+          ImageAcquiredSemaphore.Reset();
+        }
       };
 
+      //! We overload the move operator and constructor to ensure we destroy resources in destruction order.
       struct SwapchainRecord
       {
         RapidVulkan::ImageView SwapchainImageView;
@@ -101,6 +148,47 @@ namespace Fsl
         uint32_t AssignedFrameIndex{0};
         //! This is true if this swapchain record has been assigned to a frame index
         bool HasAssignedFrame{false};
+
+        SwapchainRecord() noexcept = default;
+
+        SwapchainRecord(const SwapchainRecord&) = delete;
+        SwapchainRecord& operator=(const SwapchainRecord&) = delete;
+
+        SwapchainRecord(SwapchainRecord&& other) noexcept
+          : SwapchainImageView(std::move(other.SwapchainImageView))
+          , Framebuffer(std::move(other.Framebuffer))
+          , AssignedFrameIndex(other.AssignedFrameIndex)
+          , HasAssignedFrame(other.HasAssignedFrame)
+        {
+          other.AssignedFrameIndex = 0;
+          other.HasAssignedFrame = false;
+        }
+
+        SwapchainRecord& operator=(SwapchainRecord&& other) noexcept
+        {
+          if (this != &other)
+          {
+            Reset();
+
+            SwapchainImageView = std::move(other.SwapchainImageView);
+            Framebuffer = std::move(other.Framebuffer);
+            AssignedFrameIndex = other.AssignedFrameIndex;
+            HasAssignedFrame = other.HasAssignedFrame;
+
+            other.AssignedFrameIndex = 0;
+            other.HasAssignedFrame = false;
+          }
+          return *this;
+        }
+
+        void Reset() noexcept
+        {
+          // Reset in destruction order
+          HasAssignedFrame = false;
+          AssignedFrameIndex = 0;
+          Framebuffer.Reset();
+          SwapchainImageView.Reset();
+        }
       };
 
       struct Resources
@@ -108,6 +196,20 @@ namespace Fsl
         RapidVulkan::CommandPool MainCommandPool;
         std::vector<RapidVulkan::Semaphore> m_recycledSemaphores;
         std::vector<FrameDrawRecord> Frames;
+
+        Resources() noexcept = default;
+        Resources(const Resources&) = delete;
+        Resources& operator=(const Resources&) = delete;
+        Resources(Resources&& other) noexcept = delete;
+        Resources& operator=(Resources&& other) noexcept = delete;
+
+        void Reset() noexcept
+        {
+          // Reset in destruction order
+          Frames.clear();
+          m_recycledSemaphores.clear();
+          MainCommandPool.Reset();
+        }
 
         RapidVulkan::Semaphore AcquireSemaphore(VkDevice device)
         {
@@ -133,8 +235,9 @@ namespace Fsl
         bool IsValid{false};
         uint32_t FrameIndex{0};
 
-        FrameRecord() = default;
-        explicit FrameRecord(const uint32_t frameIndex)
+        FrameRecord() noexcept = default;
+
+        explicit FrameRecord(const uint32_t frameIndex) noexcept
           : IsValid(true)
           , FrameIndex(frameIndex)
         {
@@ -151,6 +254,24 @@ namespace Fsl
         RapidVulkan::CommandBuffers CmdBuffers;
         std::vector<SwapchainRecord> SwapchainRecords;
         std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> NGScreenshotLink;
+
+        DependentResources() = default;
+        DependentResources(const DependentResources&) = delete;
+        DependentResources& operator=(const DependentResources&) = delete;
+        DependentResources(DependentResources&& other) noexcept = delete;
+        DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+        void Reset() noexcept
+        {
+          // Reset in destruction order
+
+          NGScreenshotLink.reset();
+          SwapchainRecords.clear();
+          CmdBuffers.Reset();
+          DepthImage.Reset();
+          FramesInFlightCount = 0;
+          Valid = false;
+        }
       };
 
       std::shared_ptr<DemoAppHostConfigVulkan> m_demoHostConfig;

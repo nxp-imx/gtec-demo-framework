@@ -132,6 +132,6 @@ namespace Fsl
 
   void InputEvents::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

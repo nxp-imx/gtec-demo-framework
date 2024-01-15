@@ -54,6 +54,10 @@ class EngineResolveConfig(object):
         return EngineResolveConfig(FlavorResolveConstraints.OnlyAllowOneFlavorPerRoot, ExternalFlavorConstraintHelp.Disabled)
 
     @staticmethod
+    def Create(flavorResolveConstraints: FlavorResolveConstraints = FlavorResolveConstraints.OnlyAllowOneFlavorPerRoot, externalFlavorConstraintHelp: ExternalFlavorConstraintHelp = ExternalFlavorConstraintHelp.Disabled) -> 'EngineResolveConfig':
+        return EngineResolveConfig(flavorResolveConstraints, externalFlavorConstraintHelp)
+
+    @staticmethod
     def CreateNoLimit() -> 'EngineResolveConfig':
         """
         No limits to the amount of root flavors and no external constraints will be added.

@@ -168,7 +168,7 @@ def DetermineVSToolsetVersion(log: Log, cmakeGeneratorName: str, platformName: s
 
     if not CMakeGeneratorName.IsVisualStudio(cmakeGeneratorName):
         if platformName == PlatformNameString.WINDOWS:
-            log.LogPrintVerbose(2, "Not a visual studio build so we could do not known VSToolsetVersion, a best guess will be made but if necessary set it manually with '--set {0}=version'".format(buildVariableName))
+            log.LogPrintVerbose(2, "Not a visual studio build so do not know the VSToolsetVersion, a best guess will be made but if necessary set it manually with '--set {0}=version'".format(buildVariableName))
             envVersion = IOUtil.TryGetEnvironmentVariable('VCToolsVersion')
             if envVersion is not None:
                 envVersion = envVersion.strip()

@@ -98,6 +98,12 @@ namespace Fsl
       std::vector<FrameResources> MainFrameResources;
       RapidVulkan::PipelineLayout MainPipelineLayout;
       RapidVulkan::PipelineLayout EffectBottomPipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct OffscreenResources
@@ -106,6 +112,21 @@ namespace Fsl
       RapidVulkan::RenderPass RP;
       RapidVulkan::Framebuffer FB;
       Vulkan::VUTexture Color;
+
+      OffscreenResources() = default;
+      OffscreenResources(const OffscreenResources&) = delete;
+      OffscreenResources& operator=(const OffscreenResources&) = delete;
+      OffscreenResources(OffscreenResources&& other) noexcept = delete;
+      OffscreenResources& operator=(OffscreenResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Color.Reset();
+        FB.Reset();
+        RP.Reset();
+        Extent = {};
+      }
     };
 
     struct DependentResources
@@ -114,6 +135,21 @@ namespace Fsl
       RapidVulkan::GraphicsPipeline ScenePipeline;
       RapidVulkan::GraphicsPipeline PipelineEffectBottom;
       OffscreenResources Offscreen;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Offscreen.Reset();
+        PipelineEffectBottom.Reset();
+        ScenePipeline.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
 

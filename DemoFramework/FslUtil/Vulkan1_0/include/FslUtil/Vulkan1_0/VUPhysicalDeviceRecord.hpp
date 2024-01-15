@@ -55,10 +55,10 @@ namespace Fsl::Vulkan
 
     explicit VUPhysicalDeviceRecord(const VkPhysicalDevice physicalDevice);
 
-    void Reset();
+    void Reset() noexcept;
     void Reset(const VkPhysicalDevice physicalDevice);
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return Device != VK_NULL_HANDLE;
     }

@@ -62,6 +62,7 @@ class DefaultValue(object):
     CMakeConfigArgs = None # type: Optional[str]               # applied to app cmake config only
     CMakeConfigGlobalArgs = None # type: Optional[str]         # applied to both recipe and app config.
     CMakeAllowFindPackage = None # type: Optional[bool]        #
+    ExePackageNameFilter = None # type: Optional[str]
 
 
 class ToolAppConfig(object):
@@ -87,6 +88,7 @@ class ToolAppConfig(object):
         self.CMakeConfigGlobalArgs = DefaultValue.CMakeConfigGlobalArgs
         self.CMakeAllowFindPackage = DefaultValue.CMakeAllowFindPackage
         self.UserSetVariables = UserSetVariables(dict())
+        self.ExePackageNameFilter = DefaultValue.ExePackageNameFilter
 
 
     def SetToolAppConfigValues(self, toolAppConfig: 'ToolAppConfig') -> None:
@@ -114,6 +116,7 @@ class ToolAppConfig(object):
         self.CMakeConfigGlobalArgs = toolAppConfig.CMakeConfigGlobalArgs
         self.CMakeAllowFindPackage = toolAppConfig.CMakeAllowFindPackage
         self.UserSetVariables = toolAppConfig.UserSetVariables
+        self.ExePackageNameFilter = toolAppConfig.ExePackageNameFilter
 
     def GetUserCMakeConfig(self) -> UserCMakeConfig:
         return UserCMakeConfig(self.CMakeBuildDir, self.CMakeBuildDirId, self.CMakeGeneratorName, self.CMakeInstallPrefix, self.CMakeConfigArgs,

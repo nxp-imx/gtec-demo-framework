@@ -76,15 +76,32 @@ namespace Fsl
         : FrameResources(maxFramesInFlight)
       {
       }
+
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
-    struct DepedentResources
+    struct DependentResources
     {
       RapidVulkan::GraphicsPipeline Pipeline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Pipeline.Reset();
+      }
     };
 
     Resources m_resources;
-    DepedentResources m_dependentResources;
+    DependentResources m_dependentResources;
 
     VertexUBOData m_uboData;
     bool m_enableDepthTest;

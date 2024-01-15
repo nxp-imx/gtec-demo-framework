@@ -76,12 +76,19 @@ namespace Fsl
       GLTextureImageParameters texImageParams(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
       return {resolution, params, texImageParams, GL_DEPTH_COMPONENT16};
     }
+
+    bool IsHDRFramebuffer(const std::shared_ptr<ITag>& tag)
+    {
+      const auto userTagEx = std::dynamic_pointer_cast<SharedData>(tag);
+      return userTagEx && userTagEx->HDRFramebufferEnabled;
+    }
   }
 
 
   HDR04_HDRFramebuffer::HDR04_HDRFramebuffer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_menuUI(config)
+    , m_hasHDRFramebuffer(IsHDRFramebuffer(config.CustomConfig.AppRegistrationUserTag))
+    , m_menuUI(config, !m_hasHDRFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SCRGBLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -93,10 +100,7 @@ namespace Fsl
     const auto options = config.GetOptions<OptionParserEx>();
     m_useDebugPattern = !options->IsPatternDisabled();
 
-    const auto userTagEx = std::dynamic_pointer_cast<SharedData>(config.CustomConfig.AppRegistrationUserTag);
-    bool hasHDRFramebuffer = userTagEx && userTagEx->HDRFramebufferEnabled;
-
-    if (!hasHDRFramebuffer)
+    if (!m_hasHDRFramebuffer)
     {
       m_menuUI.SetNoteLabel("HDRFramebuffer: Not available");
     }
@@ -105,7 +109,7 @@ namespace Fsl
       m_menuUI.SetNoteLabel("HDRFramebuffer: Enabled");
     }
     m_menuUI.SetCaptionLeft("Linear");
-    m_menuUI.SetCaptionRight(hasHDRFramebuffer ? "Bad tonemapper" : "Tonemapped");
+    m_menuUI.SetCaptionRight(m_hasHDRFramebuffer ? "Bad tonemapper" : "Tonemapped");
     m_menuUI.SetMenuTextLeft("Linear");
     m_menuUI.SetMenuTextRight("Tonemapped");
 
@@ -117,12 +121,12 @@ namespace Fsl
     m_resources.TexSRGB = CreateTexture(contentManager);
     m_resources.Program = CreateShader(contentManager);
 
-    const auto* const filenameTonemapLinear = (hasHDRFramebuffer ? "TonemapperLinear.frag" : "TonemapperLinearLDR.frag");
-    const auto* const filenameTonemapLinearDebug = (hasHDRFramebuffer ? "TonemapperLinearDebug.frag" : "TonemapperLinearLDRDebug.frag");
+    const auto* const filenameTonemapLinear = (m_hasHDRFramebuffer ? "TonemapperLinear.frag" : "TonemapperLinearLDR.frag");
+    const auto* const filenameTonemapLinearDebug = (m_hasHDRFramebuffer ? "TonemapperLinearDebug.frag" : "TonemapperLinearLDRDebug.frag");
     // NOTE: The Uncharted2Lum shader is really intended for LDR displays so it does not look nice on a real HDR framebuffer
     //       This will be changed in a upcoming update.
-    const auto* const filenameTonemap = (hasHDRFramebuffer ? "TonemapperUncharted2Lum.frag" : "TonemapperUncharted2LumLDR.frag");
-    const auto* const filenameTonemapDebug = (hasHDRFramebuffer ? "TonemapperUncharted2LumDebug.frag" : "TonemapperUncharted2LumLDRDebug.frag");
+    const auto* const filenameTonemap = (m_hasHDRFramebuffer ? "TonemapperUncharted2Lum.frag" : "TonemapperUncharted2LumLDR.frag");
+    const auto* const filenameTonemapDebug = (m_hasHDRFramebuffer ? "TonemapperUncharted2LumDebug.frag" : "TonemapperUncharted2LumLDRDebug.frag");
 
     m_resources.ProgramTonemapLinear = CreateTonemapShader(contentManager, filenameTonemapLinear);
     m_resources.ProgramTonemapLinearDebug = CreateTonemapShader(contentManager, filenameTonemapLinearDebug);

@@ -94,6 +94,6 @@ namespace Fsl
 
   void SimpleUI101::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

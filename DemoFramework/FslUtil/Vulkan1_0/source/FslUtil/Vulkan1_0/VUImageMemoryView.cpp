@@ -177,6 +177,7 @@ namespace Fsl::Vulkan
 
   void VUImageMemoryView::DoReset() noexcept
   {
+    // Use destruction order
     m_imageView.Reset();
     m_memory.Reset();
     m_image.Reset();

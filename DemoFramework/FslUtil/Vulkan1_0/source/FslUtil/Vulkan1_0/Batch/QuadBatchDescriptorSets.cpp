@@ -67,7 +67,7 @@ namespace Fsl::Vulkan
   }
 
 
-  void QuadBatchDescriptorSets::Bucket::Clear()
+  void QuadBatchDescriptorSets::Bucket::Clear() noexcept
   {
     m_index = 0;
   }
@@ -127,11 +127,12 @@ namespace Fsl::Vulkan
       return;
     }
 
-    m_device = VK_NULL_HANDLE;
-    m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
-    m_buckets.clear();
-    m_activeSets.clear();
+    // Use destruction order
     m_activeCount = 0;
+    m_activeSets.clear();
+    m_buckets.clear();
+    m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
+    m_device = VK_NULL_HANDLE;
   }
 
   void QuadBatchDescriptorSets::Reset(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout)

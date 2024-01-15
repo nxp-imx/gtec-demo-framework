@@ -439,6 +439,7 @@ namespace Fsl::UI
     {
       throw UsageErrorException("Internal state must be ready");
     }
+
     ScopedContextChange scopedContextChange(this, Context::Internal);
 
     for (const auto& record : m_vectorDraw)
@@ -449,9 +450,10 @@ namespace Fsl::UI
 
     m_stats.DrawCalls = UncheckedNumericCast<uint32_t>(m_vectorDraw.size());
     m_stats.WindowCount = UncheckedNumericCast<uint32_t>(GetNodeCount());
+    m_contentRenderingIsDirty = false;
   }
 
-  std::size_t UITree::GetNodeCount() const
+  std::size_t UITree::GetNodeCount() const noexcept
   {
     if (m_state != State::Ready)
     {
@@ -674,7 +676,7 @@ namespace Fsl::UI
     m_eventQueue->Push(WindowEventQueueRecord(WindowEventQueueRecordType::ScheduleClose, itrNode->second));
   }
 
-  bool UITree::IsIdle() const
+  bool UITree::IsIdle() const noexcept
   {
     return (m_state == State::Ready && m_eventQueue->IsEmpty() && !m_updateCacheDirty && !m_resolveCacheDirty && !m_postLayoutCacheIsDirty &&
             !m_drawCacheDirty && !m_clickInputCacheDirty && !m_layoutIsDirty && m_vectorUpdate.empty()) ||
@@ -737,6 +739,10 @@ namespace Fsl::UI
       {
         MarkWindowAndParentsAsDirty(itrNode->second);
         m_layoutIsDirty = true;
+      }
+      if (flags.IsEnabled(WindowFlags::ContentRenderingDirty))
+      {
+        m_contentRenderingIsDirty = true;
       }
       if (flags.IsEnabled(WindowFlags::UpdateEnabled))
       {

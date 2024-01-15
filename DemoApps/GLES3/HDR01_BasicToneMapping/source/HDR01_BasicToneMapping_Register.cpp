@@ -46,8 +46,11 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a OpenGLES3 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
+
     DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
-    DemoAppRegister::GLES3::Register<HDR01_BasicToneMapping, OptionParser>(rSetup, "GLES3.HDR01_BasicToneMapping", config);
+    DemoAppRegister::GLES3::Register<HDR01_BasicToneMapping, OptionParser>(rSetup, "GLES3.HDR01_BasicToneMapping", config, customDemoAppConfig);
   }
 }

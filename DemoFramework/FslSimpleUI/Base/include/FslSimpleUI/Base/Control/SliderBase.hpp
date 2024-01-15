@@ -300,7 +300,7 @@ namespace Fsl::UI
     {
       if (!IsReadOnly() && m_logic.GetValue() != m_propertyValue.Get())
       {
-        m_propertyValue.Set(ThisDependencyObject(), m_logic.GetValue());
+        m_propertyValue.Set(ThisDependencyObject(), m_logic.GetValue(), DataBinding::PropertyChangeReason::Refresh);
       }
     }
 

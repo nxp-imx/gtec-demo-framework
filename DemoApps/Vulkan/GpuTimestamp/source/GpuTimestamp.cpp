@@ -226,7 +226,7 @@ namespace Fsl
   void GpuTimestamp::OnFreeResources()
   {
     m_scene.OnFreeResources();
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   GpuTimestamp::Resources GpuTimestamp::CreateResources(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,

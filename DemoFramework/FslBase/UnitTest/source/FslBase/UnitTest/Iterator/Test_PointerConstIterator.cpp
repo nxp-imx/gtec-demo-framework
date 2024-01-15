@@ -31,6 +31,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Iterator/PointerConstIterator.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 
@@ -219,7 +220,7 @@ TEST(TestIterator_PointerConstIterator, OpSub_Itrs)
   const std::array<int32_t, 3> testData = {1, 2, 3};
   auto itrBegin = CreateBegin(testData);
   auto itrEnd = CreateEnd(testData);
-  ASSERT_EQ(testData.size(), itrEnd - itrBegin);
+  ASSERT_EQ(UncheckedNumericCast<int64_t>(testData.size()), UncheckedNumericCast<int64_t>(itrEnd - itrBegin));
 }
 
 

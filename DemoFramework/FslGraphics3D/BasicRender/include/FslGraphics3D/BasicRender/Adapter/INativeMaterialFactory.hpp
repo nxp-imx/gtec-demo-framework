@@ -47,7 +47,7 @@ namespace Fsl::Graphics3D
 
     //! @brief destroy the given material
     //! @return true if the material was destroyed (this will always be true for a valid handle)
-    virtual bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) = 0;
+    virtual bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept = 0;
   };
 }
 

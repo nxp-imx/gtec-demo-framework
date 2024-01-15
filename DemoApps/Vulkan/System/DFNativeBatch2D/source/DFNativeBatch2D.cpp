@@ -188,6 +188,6 @@ namespace Fsl
 
   void DFNativeBatch2D::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

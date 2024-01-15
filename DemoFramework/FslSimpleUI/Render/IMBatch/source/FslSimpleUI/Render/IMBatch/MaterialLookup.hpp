@@ -42,7 +42,6 @@
 #include <utility>
 #include "MaterialStats.hpp"
 
-
 namespace Fsl
 {
   class ISprite;
@@ -113,6 +112,8 @@ namespace Fsl::UI::RenderIMBatch
       assert(m_materials.IsValidHandle(batchMaterialHandle.Value));
       return batchMaterialHandle != m_defaultHandle ? BatchMaterialId(m_materials.FastHandleToIndex(batchMaterialHandle.Value)) : BatchMaterialId();
     }
+
+    void SanityCheck(const std::map<BatchMaterialHandle, uint32_t>& expectedRefCountMap) noexcept;
   };
 }
 

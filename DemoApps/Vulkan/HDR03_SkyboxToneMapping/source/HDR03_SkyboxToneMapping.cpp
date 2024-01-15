@@ -579,7 +579,7 @@ namespace Fsl
 
   void HDR03_SkyboxToneMapping::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   RapidVulkan::Framebuffer HDR03_SkyboxToneMapping::CreateFramebuffer(const VulkanBasic::FrameBufferCreateContext& frameBufferCreateContext)

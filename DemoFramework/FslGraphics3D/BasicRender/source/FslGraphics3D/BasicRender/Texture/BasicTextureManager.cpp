@@ -153,11 +153,12 @@ namespace Fsl::Graphics3D
   }
 
 
-  PxExtent2D BasicTextureManager::GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const
+  PxExtent2D BasicTextureManager::GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept
   {
     if (!texture)
     {
-      throw std::invalid_argument("texture can not be null");
+      FSLLOG3_DEBUG_WARNING("texture can not be null");
+      return {};
     }
     // Check if its a static texture
     const auto* pStatic = dynamic_cast<const BasicStaticTextureTracker*>(texture.get());
@@ -171,10 +172,11 @@ namespace Fsl::Graphics3D
     {
       return pDynamic->GetExtent2D();
     }
-    throw std::invalid_argument("Unknown texture type");
+    FSLLOG3_DEBUG_WARNING("Unknown texture type");
+    return {};
   }
 
-  const IBasicNativeTexture* BasicTextureManager::TryGetNativeTexture(const BasicNativeTextureHandle hTexture) const
+  const IBasicNativeTexture* BasicTextureManager::TryGetNativeTexture(const BasicNativeTextureHandle hTexture) const noexcept
   {
     return m_factory->TryGetTexture(hTexture);
   }
@@ -187,7 +189,7 @@ namespace Fsl::Graphics3D
     DoCollectGarbage(deferCount);
   }
 
-  void BasicTextureManager::DoCollectGarbage(const uint32_t deferCount, const bool force)
+  void BasicTextureManager::DoCollectGarbage(const uint32_t deferCount, const bool force) noexcept
   {
     bool freedTexture = false;
     {
@@ -260,7 +262,7 @@ namespace Fsl::Graphics3D
     FSLLOG3_VERBOSE4_IF(freedTexture, "BasicTextureManager: After GC {} normal, {} dynamic", m_staticRecords.size(), m_dynamicRecords.size());
   }
 
-  void BasicTextureManager::ForceFreeAllTextures()
+  void BasicTextureManager::ForceFreeAllTextures() noexcept
   {
     if (m_dependentResources.IsValid)
     {

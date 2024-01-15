@@ -37,32 +37,50 @@ message("-- WAYLAND_PROTOCOLS_DIR: '" ${WAYLAND_PROTOCOLS_DIR} "'")
 message("-- WAYLAND_SCANNER:       '" ${WAYLAND_SCANNER} "'")
 message("-- DF_WAYLAND_SCANNER:    '" ${DF_WAYLAND_SCANNER} "'")
 
+set(XDG_GEN_OUTPUTS_DIR ${PROJECT_BINARY_DIR})
+
 set(XDG_SHELL_PROTOCOL ${WAYLAND_PROTOCOLS_DIR}/stable/xdg-shell/xdg-shell.xml)
-set(XDG_SHELL_GEN_OUTPUTS_DIR ${PROJECT_BINARY_DIR})
 set(XDG_SHELL_OUTPUTS
-    ${XDG_SHELL_GEN_OUTPUTS_DIR}/df-xdg-shell-client-protocol.h
-    ${XDG_SHELL_GEN_OUTPUTS_DIR}/df-xdg-shell-protocol.c
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-shell-client-protocol.h
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-shell-protocol.c
     )
 
-
+set(XDG_DECORATION_PROTOCOL ${WAYLAND_PROTOCOLS_DIR}/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml)
+set(XDG_DECORATION_OUTPUTS
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-decoration-client-protocol.h
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-decoration-protocol.c
+    )
+   
 add_custom_command(
     COMMAND ${DF_WAYLAND_SCANNER} ARGS client-header ${XDG_SHELL_PROTOCOL} df-xdg-shell-client-protocol.h
     COMMAND ${DF_WAYLAND_SCANNER} ARGS public-code ${XDG_SHELL_PROTOCOL} df-xdg-shell-protocol.c
     DEPENDS ${XDG_SHELL_PROTOCOL}
     OUTPUT ${XDG_SHELL_OUTPUTS})
 
+add_custom_command(
+    COMMAND ${DF_WAYLAND_SCANNER} ARGS client-header ${XDG_DECORATION_PROTOCOL} df-xdg-decoration-client-protocol.h
+    COMMAND ${DF_WAYLAND_SCANNER} ARGS public-code ${XDG_DECORATION_PROTOCOL} df-xdg-decoration-protocol.c
+    DEPENDS ${XDG_DECORATION_PROTOCOL}
+    OUTPUT ${XDG_DECORATION_OUTPUTS})
+    
 add_custom_target(
     xdg-shell ALL
-    DEPENDS ${XDG_SHELL_OUTPUTS})
+    DEPENDS ${XDG_SHELL_OUTPUTS} ${XDG_DECORATION_OUTPUTS})
 
 set(XDG_SHELL_SRCS
-    ${XDG_SHELL_GEN_OUTPUTS_DIR}/df-xdg-shell-client-protocol.h
-    ${XDG_SHELL_GEN_OUTPUTS_DIR}/df-xdg-shell-protocol.c
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-shell-client-protocol.h
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-shell-protocol.c
     )
-include_directories(${XDG_SHELL_GEN_OUTPUTS_DIR})
 
-add_library(df-wayland-xdg-application-stable-latest STATIC ${XDG_SHELL_SRCS})
-target_include_directories(df-wayland-xdg-application-stable-latest PUBLIC ${XDG_SHELL_GEN_OUTPUTS_DIR})
-target_sources(df-wayland-xdg-application-stable-latest PUBLIC FILE_SET HEADERS BASE_DIRS ${XDG_SHELL_GEN_OUTPUTS_DIR} FILES ${XDG_SHELL_GEN_OUTPUTS_DIR}/df-xdg-shell-client-protocol.h)
+set(XDG_DECORATION_SRCS
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-decoration-client-protocol.h
+    ${XDG_GEN_OUTPUTS_DIR}/df-xdg-decoration-protocol.c
+    )
+
+include_directories(${XDG_GEN_OUTPUTS_DIR})
+
+add_library(df-wayland-xdg-application-stable-latest STATIC ${XDG_SHELL_SRCS} ${XDG_DECORATION_OUTPUTS})
+target_include_directories(df-wayland-xdg-application-stable-latest PUBLIC ${XDG_GEN_OUTPUTS_DIR})
+target_sources(df-wayland-xdg-application-stable-latest PUBLIC FILE_SET HEADERS BASE_DIRS ${XDG_GEN_OUTPUTS_DIR} FILES ${XDG_GEN_OUTPUTS_DIR}/df-xdg-shell-client-protocol.h ${XDG_GEN_OUTPUTS_DIR}/df-xdg-decoration-client-protocol.h)
 
 install(TARGETS df-wayland-xdg-application-stable-latest FILE_SET HEADERS)

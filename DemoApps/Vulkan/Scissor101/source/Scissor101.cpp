@@ -491,7 +491,7 @@ namespace Fsl
 
   void Scissor101::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   void Scissor101::DrawToCommandBuffer(const FrameResources& frame, const VkCommandBuffer commandBuffer)

@@ -90,12 +90,31 @@ namespace Fsl
       RapidVulkan::DescriptorPool MainDescriptorPool;
       std::vector<FrameResources> MainFrameResources;
       RapidVulkan::PipelineLayout MainPipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
     {
       RapidVulkan::RenderPass MainRenderPass;
       RapidVulkan::GraphicsPipeline Pipeline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        Pipeline.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
     struct UBOData

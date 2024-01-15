@@ -64,11 +64,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_3_0_0)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   vector.RemoveRange(0, 0);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -93,11 +93,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_3_0_1)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   vector.RemoveRange(0, 1);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(2, vector.Count());
+  EXPECT_EQ(2u, vector.Count());
 
   EXPECT_EQ(val2, vector.Get(item2));
   EXPECT_EQ(val3, vector.Get(item3));
@@ -120,11 +120,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_3_1_1)
   vector.Add(val2);
   auto item3 = vector.Add(val3);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   vector.RemoveRange(1, 1);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(2, vector.Count());
+  EXPECT_EQ(2u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val3, vector.Get(item3));
@@ -147,11 +147,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_3_2_1)
   auto item2 = vector.Add(val2);
   vector.Add(val3);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   vector.RemoveRange(2, 1);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(2, vector.Count());
+  EXPECT_EQ(2u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -176,11 +176,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_4_OutOfBoundsStartIndex)
   auto item3 = vector.Add(val3);
   auto item4 = vector.Add(val4);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   EXPECT_THROW(vector.RemoveRange(4, 2), std::invalid_argument);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -209,11 +209,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_4_OutOfBoundsLength)
   auto item3 = vector.Add(val3);
   auto item4 = vector.Add(val4);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   EXPECT_THROW(vector.RemoveRange(0, 5), std::invalid_argument);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -242,11 +242,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_4_0_2)
   auto item3 = vector.Add(val3);
   auto item4 = vector.Add(val4);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   vector.RemoveRange(0, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(2, vector.Count());
+  EXPECT_EQ(2u, vector.Count());
 
   EXPECT_EQ(val3, vector.Get(item3));
   EXPECT_EQ(val4, vector.Get(item4));
@@ -271,11 +271,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_4_1_2)
   vector.Add(val3);
   auto item4 = vector.Add(val4);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   vector.RemoveRange(1, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(2, vector.Count());
+  EXPECT_EQ(2u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val4, vector.Get(item4));
@@ -300,11 +300,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_4_2_2)
   vector.Add(val3);
   vector.Add(val4);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(4, vector.Count());
+  EXPECT_EQ(4u, vector.Count());
 
   vector.RemoveRange(2, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(2, vector.Count());
+  EXPECT_EQ(2u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -331,11 +331,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_5_0_2)
   auto item4 = vector.Add(val4);
   auto item5 = vector.Add(val5);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(5, vector.Count());
+  EXPECT_EQ(5u, vector.Count());
 
   vector.RemoveRange(0, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   EXPECT_EQ(val3, vector.Get(item3));
   EXPECT_EQ(val4, vector.Get(item4));
@@ -364,11 +364,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_5_1_2)
   auto item4 = vector.Add(val4);
   auto item5 = vector.Add(val5);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(5, vector.Count());
+  EXPECT_EQ(5u, vector.Count());
 
   vector.RemoveRange(1, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val4, vector.Get(item4));
@@ -397,11 +397,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_5_2_2)
   vector.Add(val4);
   auto item5 = vector.Add(val5);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(5, vector.Count());
+  EXPECT_EQ(5u, vector.Count());
 
   vector.RemoveRange(2, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -430,11 +430,11 @@ TEST(TestCollections_HandleVector1, RemoveRange_5_3_2)
   vector.Add(val4);
   vector.Add(val5);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(5, vector.Count());
+  EXPECT_EQ(5u, vector.Count());
 
   vector.RemoveRange(3, 2);
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
 
   EXPECT_EQ(val1, vector.Get(item1));
   EXPECT_EQ(val2, vector.Get(item2));
@@ -451,7 +451,7 @@ TEST(TestCollections_HandleVector1, Reserve_Empty)
 {
   HandleVector<std::string> vector(10);
 
-  EXPECT_EQ(10, vector.Capacity());
+  EXPECT_EQ(10u, vector.Capacity());
 
   // This should do nothing
   vector.Reserve(9);
@@ -477,8 +477,8 @@ TEST(TestCollections_HandleVector1, Reserve)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
 
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(10u, vector.Capacity());
+  EXPECT_EQ(3u, vector.Count());
 
   // This should do nothing
   vector.Reserve(9);
@@ -512,8 +512,8 @@ TEST(TestCollections_HandleVector1, Swap)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
 
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(10u, vector.Capacity());
+  EXPECT_EQ(3u, vector.Count());
 
   // Check that everything is at the correct location
   EXPECT_EQ(val1, vector.Get(item1));
@@ -668,8 +668,8 @@ TEST(TestCollections_HandleVector1, SwapAt)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
 
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(10u, vector.Capacity());
+  EXPECT_EQ(3u, vector.Count());
 
   // Check that everything is at the correct location
   EXPECT_EQ(val1, vector.Get(item1));
@@ -822,8 +822,8 @@ TEST(TestCollections_HandleVector1, MoveFromTo)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
 
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(10u, vector.Capacity());
+  EXPECT_EQ(3u, vector.Count());
 
   // Check that everything is at the correct location
   EXPECT_EQ(val1, vector.Get(item1));
@@ -982,8 +982,8 @@ TEST(TestCollections_HandleVector1, MoveAtFromTo)
   auto item2 = vector.Add(val2);
   auto item3 = vector.Add(val3);
 
-  EXPECT_EQ(10, vector.Capacity());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(10u, vector.Capacity());
+  EXPECT_EQ(3u, vector.Count());
 
   // Check that everything is at the correct location
   EXPECT_EQ(val1, vector.Get(item1));
@@ -1208,7 +1208,7 @@ TEST(TestCollections_HandleVector1, RemoveThenAdd)
   const auto h6 = vector.Add(val3);
 
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
   EXPECT_EQ(val1, vector[0]);
   EXPECT_EQ(val2, vector[1]);
   EXPECT_EQ(val3, vector[2]);
@@ -1239,7 +1239,7 @@ TEST(TestCollections_HandleVector1, RemoveThenAdd2)
   vector.Remove(h3);
 
   EXPECT_TRUE(vector.DEBUG_IsValid());
-  EXPECT_EQ(3, vector.Count());
+  EXPECT_EQ(3u, vector.Count());
   EXPECT_EQ(val1, vector[0]);
   EXPECT_EQ(val2, vector[1]);
   EXPECT_EQ(val3, vector[2]);

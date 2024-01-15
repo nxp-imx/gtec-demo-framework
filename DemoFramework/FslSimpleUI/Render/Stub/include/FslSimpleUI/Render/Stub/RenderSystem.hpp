@@ -59,7 +59,7 @@ namespace Fsl::UI::RenderStub
     }
 
     std::shared_ptr<IMeshManager> GetMeshManager() const final;
-    DrawCommandBuffer& AcquireDrawCommandBuffer() final;
+    DrawCommandBuffer& AcquireDrawCommandBuffer(const bool clear) final;
     void ReleaseDrawCommandBuffer() final;
 
     void PreDraw() final{};

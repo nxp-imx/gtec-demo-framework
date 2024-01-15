@@ -84,9 +84,9 @@ namespace Fsl
     virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
                                                                             const TextureFlags textureFlags = TextureFlags::NotDefined) = 0;
 
-    virtual PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const = 0;
+    virtual PxExtent2D GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept = 0;
 
-    virtual const IBasicNativeTexture* TryGetNativeTexture(const BasicNativeTextureHandle& hTexture) const = 0;
+    virtual const IBasicNativeTexture* TryGetNativeTexture(const BasicNativeTextureHandle& hTexture) const noexcept = 0;
 
     // Generic buffer creation (index buffer)
     virtual std::shared_ptr<IBasicStaticBuffer> CreateBuffer(const ReadOnlySpan<uint16_t> indexSpan, const BasicBufferUsage usage) = 0;

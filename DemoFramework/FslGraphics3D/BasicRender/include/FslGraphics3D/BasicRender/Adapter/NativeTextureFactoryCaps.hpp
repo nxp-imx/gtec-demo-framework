@@ -47,12 +47,12 @@ namespace Fsl::Graphics3D
     TextureCoordinatesFlipY = 0x02,
   };
 
-  constexpr inline NativeTextureFactoryCaps operator|(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs)
+  constexpr inline NativeTextureFactoryCaps operator|(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs) noexcept
   {
     return static_cast<NativeTextureFactoryCaps>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
   }
 
-  constexpr inline NativeTextureFactoryCaps operator&(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs)
+  constexpr inline NativeTextureFactoryCaps operator&(const NativeTextureFactoryCaps lhs, const NativeTextureFactoryCaps rhs) noexcept
   {
     return static_cast<NativeTextureFactoryCaps>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
   }
@@ -60,23 +60,23 @@ namespace Fsl::Graphics3D
 
   namespace NativeTextureFactoryCapsUtil
   {
-    inline bool IsEnabled(const NativeTextureFactoryCaps srcFlag, NativeTextureFactoryCaps flag)
+    inline bool IsEnabled(const NativeTextureFactoryCaps srcFlag, NativeTextureFactoryCaps flag) noexcept
     {
       return (srcFlag & flag) == flag;
     }
 
-    inline void Enable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag)
+    inline void Enable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag) noexcept
     {
       rDstFlag = rDstFlag | flag;
     }
 
 
-    inline void Disable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag)
+    inline void Disable(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag) noexcept
     {
       rDstFlag = rDstFlag & (static_cast<NativeTextureFactoryCaps>(~static_cast<uint32_t>(flag)));
     }
 
-    inline void Set(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag, const bool enabled)
+    inline void Set(NativeTextureFactoryCaps& rDstFlag, NativeTextureFactoryCaps flag, const bool enabled) noexcept
     {
       rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (static_cast<NativeTextureFactoryCaps>(~static_cast<uint32_t>(flag))));
     }

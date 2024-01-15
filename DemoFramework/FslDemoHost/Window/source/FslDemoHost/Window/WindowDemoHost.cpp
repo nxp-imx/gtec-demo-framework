@@ -217,5 +217,12 @@ namespace Fsl
     LOCAL_LOG("Shutdown");
     m_windowHostInfoControl->RemoveWindow(m_window);
     m_window.reset();
+    m_windowHostInfoControl->ClearWindowSystem();
+    if (m_windowSystem)
+    {
+      // Ensure we shutdown the window system at a fixed time and from a fixed thread
+      FSLLOG3_VERBOSE2("WindowSystem shutdown");
+      m_windowSystem->Shutdown();
+    }
   }
 }

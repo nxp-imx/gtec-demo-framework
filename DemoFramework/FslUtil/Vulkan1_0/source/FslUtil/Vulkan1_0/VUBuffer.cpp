@@ -60,10 +60,11 @@ namespace Fsl::Vulkan
       return;
     }
 
-    m_buffer.Reset();
-    m_size = 0;
-    m_usage = 0;
+    // Use destruction order
     m_accessMask = 0;
+    m_usage = 0;
+    m_size = 0;
+    m_buffer.Reset();
   }
 
 

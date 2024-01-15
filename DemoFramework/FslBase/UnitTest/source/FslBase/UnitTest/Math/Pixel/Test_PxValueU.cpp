@@ -46,7 +46,7 @@ TEST(TestMathPx_PxValueU, Construct_Default)
   PxValueU value;
 
   EXPECT_EQ(PxValueU(), value);
-  EXPECT_EQ(0, value.Value);
+  EXPECT_EQ(0u, value.Value);
 }
 
 TEST(TestMathPx_PxValueU, Construct)

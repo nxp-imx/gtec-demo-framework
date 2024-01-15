@@ -78,7 +78,7 @@ namespace Fsl
 
   HDR02_FBBasicToneMapping::HDR02_FBBasicToneMapping(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_menuUI(config)
+    , m_menuUI(config, ColorSpace::SRGBNonLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -104,6 +104,15 @@ namespace Fsl
 
 
   HDR02_FBBasicToneMapping::~HDR02_FBBasicToneMapping() = default;
+
+
+  void HDR02_FBBasicToneMapping::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
+  {
+    DemoAppGLES3::ConfigurationChanged(windowMetrics);
+    // Recreate the HDR frame-buffer
+    m_resources.HdrFrameBuffer.Reset();
+    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(windowMetrics.GetSizePx());
+  }
 
 
   void HDR02_FBBasicToneMapping::OnKeyEvent(const KeyEvent& event)

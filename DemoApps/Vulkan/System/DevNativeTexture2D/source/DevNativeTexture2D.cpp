@@ -102,6 +102,6 @@ namespace Fsl
 
   void DevNativeTexture2D::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

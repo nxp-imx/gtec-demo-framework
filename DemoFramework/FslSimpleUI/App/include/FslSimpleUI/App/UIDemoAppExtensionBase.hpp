@@ -86,6 +86,8 @@ namespace Fsl
       return typedModule ? typedModule : throw UsageErrorException("external module was not of the expected type");
     }
 
+    void SetUseDrawCache(const bool useDrawCache);
+
     virtual void SYS_SetRenderSystemViewport(const PxViewport& viewportPx);
 
     void RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
@@ -106,9 +108,12 @@ namespace Fsl
     const std::shared_ptr<UI::UIContext>& GetUIContext() const;
 
     //! @brief Check if the UI system is considered idle
-    bool IsIdle() const;
+    bool IsIdle() const noexcept;
 
-    TransitionCache& GetTransitionCache() const
+    //! @brief Check if the UI requires a redraw due to changes
+    bool IsRedrawRequired() const noexcept;
+
+    TransitionCache& GetTransitionCache() const noexcept
     {
       return *m_transitionCache;
     }
@@ -121,7 +126,7 @@ namespace Fsl
 
     DemoPerformanceCapture* TryGetDemoPerformanceCapture() const;
     void DoDraw();
-    bool SYS_GetUseYFlipTextureCoordinates() const;
+    bool SYS_GetUseYFlipTextureCoordinates() const noexcept;
     std::shared_ptr<UI::AExternalModule> DoGetExternalModule(const UI::ExternalModuleId& moduleId) const;
   };
 }

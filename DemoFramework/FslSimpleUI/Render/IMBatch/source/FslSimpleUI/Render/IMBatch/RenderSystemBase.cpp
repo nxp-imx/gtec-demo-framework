@@ -88,9 +88,14 @@ namespace Fsl::UI::RenderIMBatch
   }
 
 
-  DrawCommandBuffer& RenderSystemBase::AcquireDrawCommandBuffer()
+  DrawCommandBuffer& RenderSystemBase::AcquireDrawCommandBuffer(const bool clear)
   {
-    m_meshManager->PreDraw();
+    if (clear)
+    {
+      m_commandBuffer.Clear();
+      m_commandBufferCleared = true;
+      m_commandBufferSizeLastFrame = 0;
+    }
     return m_commandBuffer;
   }
 
@@ -102,6 +107,7 @@ namespace Fsl::UI::RenderIMBatch
   {
     assert(m_renderSystem);
     m_stats = {};
+    m_meshManager->PreDraw();
     m_renderSystem->BeginCache();
   }
 
@@ -110,5 +116,7 @@ namespace Fsl::UI::RenderIMBatch
   {
     assert(m_renderSystem);
     m_renderSystem->EndCache();
+    m_commandBufferCleared = false;
+    m_commandBufferSizeLastFrame = m_commandBuffer.Count();
   }
 }

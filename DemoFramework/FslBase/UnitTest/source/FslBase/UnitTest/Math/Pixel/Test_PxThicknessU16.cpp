@@ -71,8 +71,8 @@ TEST(TestMathPixel_PxThicknessU16, Values)
   EXPECT_EQ(top, value.Top);
   EXPECT_EQ(right, value.Right);
   EXPECT_EQ(bottom, value.Bottom);
-  EXPECT_EQ((left.Value + right.Value), value.SumX().Value);
-  EXPECT_EQ((top.Value + bottom.Value), value.SumY().Value);
+  EXPECT_EQ(static_cast<uint64_t>(left.Value + right.Value), value.SumX().Value);
+  EXPECT_EQ(static_cast<uint64_t>(top.Value + bottom.Value), value.SumY().Value);
 }
 
 TEST(TestMathPixel_PxThicknessU16, OperatorEqual)

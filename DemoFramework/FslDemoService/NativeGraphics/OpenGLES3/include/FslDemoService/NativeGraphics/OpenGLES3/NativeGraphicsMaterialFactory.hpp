@@ -147,7 +147,7 @@ namespace Fsl::GLES3
     bool DestroyShader(const BasicNativeShaderHandle hShader) noexcept;
 
     void CreateMaterials(Span<BasicNativeMaterialHandle> dstMaterialHandles, ReadOnlySpan<BasicNativeMaterialCreateInfo> createInfoSpan);
-    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial);
+    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept;
 
 
     void ClearCachedCameraChangeIds() noexcept
@@ -174,13 +174,20 @@ namespace Fsl::GLES3
       return m_attribManager.GetVertexElementAttribLinks(materialRecord.AttribLinkHandle);
     }
 
+    inline const VertexElementAttribLinks*
+      TryGetVertexElementAttribLinks(const NativeGraphicsMaterialFactory::MaterialRecord& materialRecord) const noexcept
+    {
+      assert(materialRecord.IsValid());
+      return m_attribManager.TryGetVertexElementAttribLinks(materialRecord.AttribLinkHandle);
+    }
+
 
     const MaterialRecord& GetMaterial(const BasicNativeMaterialHandle hMaterial) const
     {
       return m_dependentResources.Materials.Get(hMaterial.Value);
     }
 
-    const MaterialRecord* TryGetMaterial(const BasicNativeMaterialHandle hMaterial) const
+    const MaterialRecord* TryGetMaterial(const BasicNativeMaterialHandle hMaterial) const noexcept
     {
       return m_dependentResources.Materials.TryGet(hMaterial.Value);
     }

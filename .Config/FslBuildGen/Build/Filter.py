@@ -38,6 +38,7 @@ from typing import Optional
 from typing import overload
 from typing import TypeVar
 from typing import Union
+import fnmatch
 from FslBuildGen import PackageListUtil
 from FslBuildGen import Util
 from FslBuildGen.Build.RequirementTree import RequirementTree
@@ -512,6 +513,9 @@ class PackageFilter:
         # Remove packages that are not supported on this platform
         resolvedBuildOrder = PackageFilter.__FiltersPackagesBySupported(log, resolvedBuildOrder)
 
+        if packageFilters.ExePackageNameFilter is not None:
+            resolvedBuildOrder = PackageFilter.ApplyExePackageNameFilterAppInfo(log, resolvedBuildOrder, packageFilters.ExePackageNameFilter)
+
         # NOTE: this is probably not necessary for app info
         # Now that we have a filtered list of desired packages, extend it to include all required packages
         #return PackageListUtil.GetRequiredPackagesInSourcePackageListOrder(requestedPackagesInOrder, resolvedBuildOrder)
@@ -557,3 +561,37 @@ class PackageFilter:
 
         allowedList = list(uniqueExtensionDict.values())
         return ExtensionListManager(False, allowedList)
+
+
+    @staticmethod
+    def ApplyExePackageNameFilter(log: Log, candidatePackageList: List[CommonPackage], exePackageNameFilter: str) -> List[CommonPackage]:
+        result = [] # type: List[CommonPackage]
+        for candidatePackage in candidatePackageList:
+            if candidatePackage.Type == PackageType.Executable:
+                candidateSourcePackageName = ""
+                if isinstance(candidatePackage, Package):
+                    candidateSourcePackageName = candidatePackage.NameInfo.SourceName
+                else:
+                    candidateSourcePackageName = candidatePackage.SourcePackage.NameInfo.SourceName
+                if PackageFilter.IsMatchForExePackageNameFilter(candidateSourcePackageName, exePackageNameFilter):
+                    result.append(candidatePackage)
+        if len(result) <= 0:
+            raise Exception("No executable match the exePackageNameFilter '{0}'".format(exePackageNameFilter))
+        return result
+
+    @staticmethod
+    def ApplyExePackageNameFilterAppInfo(log: Log, candidatePackageList: List[AppInfoPackage], exePackageNameFilter: str) -> List[AppInfoPackage]:
+        result = [] # type: List[AppInfoPackage]
+        for candidatePackage in candidatePackageList:
+            if candidatePackage.Type == PackageType.Executable:
+                if PackageFilter.IsMatchForExePackageNameFilter(candidatePackage.SourceName, exePackageNameFilter):
+                    result.append(candidatePackage)
+        if len(result) <= 0:
+            raise Exception("No executable match the exePackageNameFilter '{0}'".format(exePackageNameFilter))
+        return result
+
+
+    @staticmethod
+    def IsMatchForExePackageNameFilter(packageName: str, exePackageNameFilter: str) -> bool:
+        res = fnmatch.fnmatch(packageName, exePackageNameFilter)
+        return res

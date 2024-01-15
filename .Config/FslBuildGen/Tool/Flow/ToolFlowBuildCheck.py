@@ -65,9 +65,11 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import ClangTidyProfile
 from FslBuildGen.DataTypes import ClangTidyProfileString
+from FslBuildGen.DataTypes import FilterMode
 from FslBuildGen.DataTypes import PackageLanguage
 #from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Engine.EngineResolveConfig import EngineResolveConfig
+from FslBuildGen.Engine.EngineResolveConfig import FlavorResolveConstraints
 from FslBuildGen.ExternalVariantConstraints import ExternalVariantConstraints
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Generator.GeneratorPlugin import GenerateContext
@@ -336,7 +338,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         if self.Log.Verbosity >= 4:
             self.Log.LogPrint("Closest '{0}' file path: '{1}'".format(toolConfig.GenFileName, closestGenFilePath))
 
-        engineResolveConfig = EngineResolveConfig.CreateDefault()
+        engineResolveConfig = EngineResolveConfig.Create(flavorResolveConstraints= FlavorResolveConstraints.NoLimit)
         packageProcess = None   # type: Optional[MainFlow.PackageLoadAndResolveProcess]
         packages = None
         discoverFeatureList = '*' in packageFilters.FeatureNameList
@@ -348,7 +350,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
                                                              generatorContext.Platform, toolPackageNames)
                 doFullResolve = formatTool == FormatTool.DotnetFormat
                 packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints,
-                                       applyClangTidy, doFullResolve)
+                                       FilterMode.TrimUnrequestedPackages, applyClangTidy, doFullResolve)
                 packages = packageProcess.Packages
                 topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
                 if discoverFeatureList:
@@ -365,7 +367,8 @@ class ToolFlowBuildCheck(AToolAppFlow):
                                                              generatorContext.Platform, toolPackageNames)
             if not packageProcess.IsFullResolve or packages is None:
                 # For now this requires a full resolve (but basically it only requires basic + files)
-                packages = packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints, applyClangTidy, True)
+                packages = packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig, config.VariantConstraints,
+                                                  FilterMode.TrimUnrequestedPackages, applyClangTidy, True)
 
             topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
             RecipeBuilder.ValidateInstallationForPackages(config, config.SDKPath, generatorContext, topLevelPackage.ResolvedBuildOrder)
@@ -425,7 +428,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         if not packageProcess.IsFullResolve:
             # For now this requires a full resolve (but basically it only requires basic + files)
             packages = packageProcess.Resolve(generatorContext, packageFilters, engineResolveConfig,
-                                              unresolvedExternalFlavorConstraintsDict, addExternals, True)
+                                              unresolvedExternalFlavorConstraintsDict, FilterMode.TrimUnrequestedPackages, addExternals, True)
 
         if applyClangTidy:
             if packages is None:
@@ -441,13 +444,14 @@ class ToolFlowBuildCheck(AToolAppFlow):
             for package in packages:
                 sourcePackageName = package.NameInfo.SourceName
                 if sourcePackageName not in packageDict:
-                    packageDict[sourcePackageName] = package
+                    packageDict[sourcePackageName] = [package]
                 else:
-                    log.LogPrintVerbose(4, "Skipping '{0}' as it shared source name '{1}' was added as '{2}'".format(package.Name, sourcePackageName, packageDict[sourcePackageName]))
+                    packageDict[sourcePackageName].append(package)
             for entry in packageProcess.FoundInputFiles:
                 packageName = entry.PackageName
                 if packageName in packageDict:
-                    specifiedPackages.append(packageDict[packageName])
+                    for matchedPackage in packageDict[packageName]:
+                        specifiedPackages.append(matchedPackage)
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
         return (ToolPackageFiltering.FilterPackages(self.Log, topLevelPackage, specifiedPackages, localToolConfig.ScanDependencies), topLevelPackage)
 

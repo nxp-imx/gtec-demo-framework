@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.SDL_2_28" CreationYear="2021">
+    <Default.Platform.Supported Value="false"/>
+    <Platform Name="Ubuntu" Supported="false">
+      <ExperimentalRecipe Name="SDL" Version="2.28.4">
+        <Pipeline>
+          <Download URL="https://www.libsdl.org/release/SDL2-2.28.4.tar.gz" Hash="888b8c39f36ae2035d023d1b14ab0191eb1d26403c3cf4d4d5ede30e66a4942c"/> 
+          <Unpack File="SDL2-2.28.4.tar.gz" OutputPath="SDL2-2.28.4"/>
+          <CMakeBuild Project="SDL2" Target="install" Configuration="release" Options="" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libSDL2.a"/>
+          <Path Name="include/SDL2/SDL.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    <Platform Name="Windows" Supported="false">
+      <ExperimentalRecipe Name="SDL" Version="2.28.4">
+        <Pipeline>
+          <Download URL="https://www.libsdl.org/release/SDL2-2.28.4.tar.gz" Hash="888b8c39f36ae2035d023d1b14ab0191eb1d26403c3cf4d4d5ede30e66a4942c"/> 
+          <Unpack File="SDL2-2.28.4.tar.gz" OutputPath="SDL2-2.28.4"/>
+          <CMakeBuild Project="SDL2" Target="install" Configuration="release" Options="-DSDL_STATIC=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddDLL Name="bin/SDL2.dll"/>
+          <AddLib Name="lib/SDL2.lib"/>
+          <Path Name="include/SDL2/SDL.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

@@ -105,9 +105,9 @@ namespace Fsl::DataBinding
     return m_dataBinding->SetBinding(hTarget, Binding(hSource));
   }
 
-  bool ScopedDependencyObject::PropertyChanged(const DataBindingInstanceHandle hInstance)
+  bool ScopedDependencyObject::PropertyChanged(const DataBindingInstanceHandle hInstance, const PropertyChangeReason changeReason)
   {
-    return m_dataBinding->Changed(hInstance);
+    return m_dataBinding->Changed(hInstance, changeReason);
   }
 
 

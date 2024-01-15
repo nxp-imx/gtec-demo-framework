@@ -53,8 +53,8 @@ namespace Fsl
 
     virtual PlatformNativeDisplayType GetDisplayType() const = 0;
 
-    virtual std::shared_ptr<IVulkanNativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
-                                                                    const NativeVulkanSetup& nativeVulkanSetup) = 0;
+    virtual std::shared_ptr<IVulkanNativeWindow> CreateVulkanNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                                          const NativeVulkanSetup& nativeVulkanSetup) = 0;
   };
 }    // namespace Fsl
 

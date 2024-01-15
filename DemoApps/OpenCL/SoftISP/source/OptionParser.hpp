@@ -42,7 +42,7 @@ namespace Fsl
 
   public:
     OptionParser();
-    ~OptionParser();
+    ~OptionParser() override;
 
     bool GetDenoiseStatus() const
     {
@@ -55,9 +55,9 @@ namespace Fsl
     }
 
   protected:
-    virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    virtual OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
-    virtual bool OnParsingComplete() override;
+    void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
+    bool OnParsingComplete() override;
   };
 }
 

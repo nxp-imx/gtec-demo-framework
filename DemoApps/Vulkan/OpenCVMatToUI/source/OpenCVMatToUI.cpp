@@ -213,7 +213,7 @@ namespace Fsl
 
   void OpenCVMatToUI::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

@@ -93,6 +93,8 @@ namespace Fsl
       return m_uiExtension;
     }
     void SetCustomViewport(const PxViewport& viewportPx) final;
+    void SetUseDrawCache(const bool useDrawCache) final;
+
     bool IsUIIdle() const final;
 
     void OnConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;

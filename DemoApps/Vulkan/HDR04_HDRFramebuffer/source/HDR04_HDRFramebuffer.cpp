@@ -369,9 +369,10 @@ namespace Fsl
 
   HDR04_HDRFramebuffer::HDR04_HDRFramebuffer(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
+    , m_hasHDRFramebuffer(GetSurfaceFormatInfo().ColorSpace != VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
     , m_bufferManager(
         std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
-    , m_menuUI(config)
+    , m_menuUI(config, !m_hasHDRFramebuffer ? ColorSpace::SRGBNonLinear : ColorSpace::SCRGBLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -383,11 +384,9 @@ namespace Fsl
     const auto options = config.GetOptions<OptionParserEx>();
     m_useDebugPattern = !options->IsPatternDisabled();
 
-    const auto fbSurfaceFormat = GetSurfaceFormatInfo();
-    bool hasHDRFramebuffer = fbSurfaceFormat.ColorSpace != VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-    if (hasHDRFramebuffer)
+    if (m_hasHDRFramebuffer)
     {
-      switch (fbSurfaceFormat.ColorSpace)
+      switch (GetSurfaceFormatInfo().ColorSpace)
       {
       case VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT:
         FSLLOG3_INFO("Using HDR framebuffer with colorspace: VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT");
@@ -405,7 +404,7 @@ namespace Fsl
       FSLLOG3_INFO_IF(m_useDebugPattern, "Debug pattern: on");
     }
 
-    if (!hasHDRFramebuffer)
+    if (!m_hasHDRFramebuffer)
     {
       m_menuUI.SetNoteLabel("HDRFramebuffer: Not available");
     }
@@ -414,7 +413,7 @@ namespace Fsl
       m_menuUI.SetNoteLabel("HDRFramebuffer: Enabled");
     }
     m_menuUI.SetCaptionLeft("Linear");
-    m_menuUI.SetCaptionRight(hasHDRFramebuffer ? "Bad tonemapper" : "Tonemapped");
+    m_menuUI.SetCaptionRight(m_hasHDRFramebuffer ? "Bad tonemapper" : "Tonemapped");
     m_menuUI.SetMenuTextLeft("Linear");
     m_menuUI.SetMenuTextRight("Tonemapped");
 
@@ -431,13 +430,13 @@ namespace Fsl
     m_resources.VertShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("Shader.vert.spv"));
     m_resources.FragShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("Shader.frag.spv"));
 
-    const auto* const filenameTonemapLinear = (hasHDRFramebuffer ? "TonemapperLinear.frag.spv" : "TonemapperLinearLDR.frag.spv");
-    const auto* const filenameTonemapLinearDebug = (hasHDRFramebuffer ? "TonemapperLinearDebug.frag.spv" : "TonemapperLinearLDRDebug.frag.spv");
+    const auto* const filenameTonemapLinear = (m_hasHDRFramebuffer ? "TonemapperLinear.frag.spv" : "TonemapperLinearLDR.frag.spv");
+    const auto* const filenameTonemapLinearDebug = (m_hasHDRFramebuffer ? "TonemapperLinearDebug.frag.spv" : "TonemapperLinearLDRDebug.frag.spv");
     // NOTE: The Uncharted2Lum shader is really intended for LDR displays so it does not look nice on a real HDR framebuffer
     //       This will be changed in a upcoming update.
-    const auto* const filenameTonemap = (hasHDRFramebuffer ? "TonemapperUncharted2Lum.frag.spv" : "TonemapperUncharted2LumLDR.frag.spv");
+    const auto* const filenameTonemap = (m_hasHDRFramebuffer ? "TonemapperUncharted2Lum.frag.spv" : "TonemapperUncharted2LumLDR.frag.spv");
     const auto* const filenameTonemapDebug =
-      (hasHDRFramebuffer ? "TonemapperUncharted2LumDebug.frag.spv" : "TonemapperUncharted2LumLDRDebug.frag.spv");
+      (m_hasHDRFramebuffer ? "TonemapperUncharted2LumDebug.frag.spv" : "TonemapperUncharted2LumLDRDebug.frag.spv");
 
     FSLLOG3_VERBOSE("Shader TonemapLinear: {}", filenameTonemapLinear);
     FSLLOG3_VERBOSE("Shader TonemapLinearDebug: {}", filenameTonemapLinearDebug);
@@ -642,7 +641,7 @@ namespace Fsl
 
   void HDR04_HDRFramebuffer::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   RapidVulkan::Framebuffer HDR04_HDRFramebuffer::CreateFramebuffer(const VulkanBasic::FrameBufferCreateContext& frameBufferCreateContext)

@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 6.2.3
+# DemoFramework 6.3.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -32,7 +32,7 @@ since the exact same demo/benchmark code run on all of them.
 
 * Android NDK
 * Linux with various windowing systems (Yocto).
-* Ubuntu 20.04
+* Ubuntu 22.04
 * Windows 10+
 
 ## Table of contents
@@ -57,6 +57,7 @@ since the exact same demo/benchmark code run on all of them.
   * [Demo single stepping / pause](#demo-single-stepping-/-pause)
 * [Demo applications](#demo-applications)
   * [Console](#console)
+  * [Console.System](#consolesystem)
   * [FslResearch](#fslresearch)
   * [G2D](#g2d)
   * [GLES2](#gles2)
@@ -112,7 +113,7 @@ uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
 See the setup guides for your platform:
 
 * [Android](Doc/Setup_guide_android_sdk+ndk_on_windows.md)
-* [Ubuntu 20.04](Doc/Setup_guide_ubuntu20.04.md)
+* [Ubuntu 22.04](Doc/Setup_guide_ubuntu22.04.md)
 * [Windows](Doc/Setup_guide_windows.md)
 * [Yocto](Doc/Setup_guide_yocto.md)
 
@@ -539,6 +540,21 @@ Home    | Toggle between normal and fast 4x playback.
 <!-- #AG_DEMOAPPS_BEGIN# -->
 ## Console
 
+### [BasicThread](DemoApps/Console/BasicThread)
+Shows how to create a work thread that returns a result and posts to a concurrent queue while working.
+The custom work thread is created using std::thread.
+
+
+### [BasicThreadAsync](DemoApps/Console/BasicThreadAsync)
+Shows how to create a work thread that returns a result and posts to a concurrent queue while working.
+The custom work thread is created using std::async.
+
+
+### [BasicThreadAsyncService](DemoApps/Console/BasicThreadAsyncService)
+Shows how to create a work thread that returns a result and posts to a concurrent queue while working.
+The custom work thread is created using a service framework Async service. This allows the work thread to access other framework services.
+
+
 ### [Console101](DemoApps/Console/Console101)
 Shows how to create a freestyle  console based application using the demoframework.
 This console app has access to the normal graphics libraries.
@@ -547,6 +563,13 @@ This console app has access to the normal graphics libraries.
 ### [ConsoleMinimal101](DemoApps/Console/ConsoleMinimal101)
 Shows how to create a freestyle minimal console based application using the demoframework.
 This minimal app does not pull in any of the graphics libraries.
+
+
+
+## Console.System
+
+### [CustomAppServices](DemoApps/Console/System/CustomAppServices)
+A example of how to register custom app specific services.
 
 
 
@@ -2274,6 +2297,13 @@ This is a easy way to quickly query the hardware capabilities as reported by vul
 <a href="DemoApps/Vulkan/System/BasicRenderModelLoader/Example.jpg"><img src="DemoApps/Vulkan/System/BasicRenderModelLoader/Example.jpg" height="108px" title="Vulkan.System.BasicRenderModelLoader"></a>
 
 Quick example that showcase how to mix rendering using the basic rendering API and the FslSimpleUI.
+
+
+### [CustomAppServices](DemoApps/Vulkan/System/CustomAppServices)
+
+<a href="DemoApps/Vulkan/System/CustomAppServices/Example.jpg"><img src="DemoApps/Vulkan/System/CustomAppServices/Example.jpg" height="108px" title="Vulkan.System.CustomAppServices"></a>
+
+A example of how to register custom app specific services.
 
 
 ### [DevBasicRender](DemoApps/Vulkan/System/DevBasicRender)

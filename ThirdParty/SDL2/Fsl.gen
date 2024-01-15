@@ -5,7 +5,14 @@
     <Define Name="FSL_ENABLE_SDL2" Access="Public"/>
     <Define Name="SDL_MAIN_HANDLED " Access="Public"/>
     <Platform Name="Emscripten" Supported="true">
-      <!--Dependency Name="Recipe.SDL_2_0"/-->
+      <!--Dependency Name="Recipe.SDL_2_28"/-->
+    </Platform>    
+    <Platform Name="Ubuntu" Supported="false">
+      <FindPackage Name="SDL2" Version="2.0"/>
+      <!--Dependency Name="Recipe.SDL_2_28"/-->
+    </Platform>    
+    <Platform Name="Windows" Supported="true">
+      <Dependency Name="Recipe.SDL_2_28"/>
     </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

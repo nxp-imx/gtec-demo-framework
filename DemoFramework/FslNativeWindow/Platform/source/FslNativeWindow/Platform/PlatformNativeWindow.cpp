@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -29,73 +29,22 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/FmtPoint2.hpp>
-#include <FslBase/Log/Math/FmtVector2.hpp>
-#include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
-#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
-#include <FslBase/Math/EqualHelper.hpp>
-#include <FslBase/Math/Pixel/PxExtent2D.hpp>
-#include <FslBase/Math/Pixel/PxPoint2.hpp>
-#include <FslBase/Math/Pixel/TypeConverter.hpp>
-#include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslNativeWindow/Platform/Adapter/IPlatformNativeWindowAdapter.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  namespace
+  // For now this is just a proxy
+  PlatformNativeWindow::PlatformNativeWindow(std::shared_ptr<IPlatformNativeWindowAdapter> adapter)
+    : m_adapter(std::move(adapter))
   {
-    //! A simple selector that allows slightly too low DPI devices to enter density bucket its technically too small for
-    uint32_t SelectDensityBucket(const Vector2& exactDpi)
+    if (!m_adapter)
     {
-      const auto dpi =
-        static_cast<uint32_t>(std::max(EqualHelper::IsAlmostEqual(exactDpi.X, exactDpi.Y) ? exactDpi.X : ((exactDpi.X + exactDpi.Y) / 2.0f), 1.0f));
-
-      // if (dpi >= 140u)
-      //{
-      //  return std::max((dpi + 20u) / 80u, 1u) * 80u;
-      //}
-      const uint32_t initialBucket = (dpi / 16u) * 16;
-      if (initialBucket <= 80u)
-      {
-        return 80u;
-      }
-      if ((initialBucket % 160u) == 0)
-      {
-        return initialBucket;
-      }
-      if (((initialBucket + 16u) % 160u) == 0)
-      {
-        return initialBucket + 16u;
-      }
-      if (((initialBucket - 16u) % 160u) == 0)
-      {
-        return initialBucket - 16u;
-      }
-      return initialBucket;
+      throw std::invalid_argument("can not be null");
     }
-
-    NativeWindowCapabilityFlags PatchFlags(const NativeWindowCapabilityFlags flags, const std::optional<Point2U>& forcedActualDpi,
-                                           const std::optional<uint32_t>& forcedDensityDpi)
-    {
-      NativeWindowCapabilityFlags finalFlags = flags;
-      finalFlags = finalFlags | (forcedActualDpi.has_value() ? NativeWindowCapabilityFlags::GetDpi : NativeWindowCapabilityFlags::NoFlags);
-      finalFlags = finalFlags | (forcedDensityDpi.has_value() ? NativeWindowCapabilityFlags::GetDensityDpi : NativeWindowCapabilityFlags::NoFlags);
-      return finalFlags;
-    }
-  }
-
-  PlatformNativeWindow::PlatformNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
-                                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams,
-                                             const NativeWindowCapabilityFlags capabilityFlags)
-    : m_eventQueue(nativeWindowSetup.GetEventQueue())
-    , m_forcedActualDpi(nativeWindowSetup.GetConfig().GetForcedActualDpi())
-    , m_forcedDensityDpi(nativeWindowSetup.GetConfig().GetForcedDensityDpi())
-    , m_capabilityFlags(PatchFlags(capabilityFlags, m_forcedActualDpi, m_forcedDensityDpi))
-    , m_platformDisplay(platformWindowParams.PlatformDisplay)
-    , m_platformWindow{}
-  {
-    FSL_PARAM_NOT_USED(pPlatformCustomWindowAllocationParams);
   }
 
 
@@ -104,96 +53,64 @@ namespace Fsl
 
   NativeWindowMetrics PlatformNativeWindow::GetWindowMetrics() const
   {
-    PxExtent2D windowExtent;
-    if (!TryGetExtent(windowExtent))
+    if (!m_adapter)
     {
-      windowExtent = {};
-      FSLLOG3_WARNING("NativeWindow TryGetExtent failed, so using default extent of {}", windowExtent);
+      throw ObjectShutdownException("GetWindowMetrics");
     }
-
-    Vector2 exactDpi;
-    bool gotExactDPI = NativeWindowCapabilityFlagsUtil::IsFlagged(m_capabilityFlags, NativeWindowCapabilityFlags::GetDpi);
-    if (!gotExactDPI || !TryGetDpi(exactDpi))
-    {
-      FSLLOG3_WARNING_IF(gotExactDPI, "NativeWindow.TryGetDpi failed");
-      gotExactDPI = false;
-      exactDpi = Vector2(160, 160);
-    }
-
-    uint32_t densityDpi{};
-    bool gotDensityDPI = NativeWindowCapabilityFlagsUtil::IsFlagged(m_capabilityFlags, NativeWindowCapabilityFlags::GetDensityDpi);
-    if (!gotDensityDPI || !TryGetDensityDpi(densityDpi))
-    {
-      // densityDpi = uint32_t(exactDpi.X);
-      densityDpi = SelectDensityBucket(exactDpi);
-
-      // Conditional logging depending on severity
-      if (gotDensityDPI)
-      {
-        FSLLOG3_WARNING("NativeWindow.TryGetDensityDpi failed so using custom density dpi of {} based on physical dpi {} instead", densityDpi,
-                        exactDpi);
-      }
-      else
-      {
-        FSLLOG3_VERBOSE3_IF(!m_loggedOnceGetWindowMetrics && gotExactDPI,
-                            "NativeWindow did not support TryGetDensityDpi so using custom density dpi of {} based on physical dpi {} instead",
-                            densityDpi, exactDpi);
-        FSLLOG3_VERBOSE3_IF(
-          !m_loggedOnceGetWindowMetrics && !gotExactDPI,
-          "NativeWindow did not support TryGetDpi and TryGetDensityDpi so using custom density dpi of {} based on physical dpi {} instead",
-          densityDpi, exactDpi);
-      }
-      gotDensityDPI = false;
-    }
-    else if (!gotExactDPI)
-    {
-      // got the density DPI, but the actual dpi failed
-      exactDpi = Vector2(densityDpi, densityDpi);
-      FSLLOG3_VERBOSE3("Using density DPI as dpi");
-    }
-
-    m_loggedOnceGetWindowMetrics = true;
-    return {windowExtent, exactDpi, densityDpi};
+    return m_adapter->GetWindowMetrics();
   }
 
 
-  bool PlatformNativeWindow::TryGetExtent(PxExtent2D& rExtent) const
+  NativeWindowCapabilityFlags PlatformNativeWindow::GetCapabilityFlags() const
   {
-    PxPoint2 size;
-    if (!TryGetNativeSize(size))
+    if (!m_adapter)
     {
-      rExtent = {};
-      return false;
+      throw ObjectShutdownException("GetCapabilityFlags");
     }
-    rExtent = TypeConverter::UncheckedTo<PxExtent2D>(size);
-    return true;
+    return m_adapter->GetCapabilityFlags();
   }
 
 
   bool PlatformNativeWindow::TryGetDpi(Vector2& rDPI) const
   {
-    if (m_forcedActualDpi.has_value())
+    if (!m_adapter)
     {
-      rDPI = Vector2(m_forcedActualDpi->X, m_forcedActualDpi->Y);
-      return true;
+      FSLLOG3_WARNING("TryGetDpi: Object shutdown");
+      return false;
     }
-    return TryGetNativeDpi(rDPI);
+    return m_adapter->TryGetDpi(rDPI);
   }
 
 
   bool PlatformNativeWindow::TryGetDensityDpi(uint32_t& rDensityDpi) const
   {
-    if (m_forcedDensityDpi.has_value())
+    if (!m_adapter)
     {
-      rDensityDpi = *m_forcedDensityDpi;
-      return true;
+      FSLLOG3_WARNING("TryGetDensityDpi: Object shutdown");
+      return false;
     }
-    return TryGetNativeDensityDpi(rDensityDpi);
+    return m_adapter->TryGetDensityDpi(rDensityDpi);
   }
 
 
-  std::shared_ptr<INativeWindowEventQueue> PlatformNativeWindow::TryGetEventQueue()
+  bool PlatformNativeWindow::TryGetExtent(PxExtent2D& rExtent) const
   {
-    return m_eventQueue.lock();
+    if (!m_adapter)
+    {
+      FSLLOG3_WARNING("TryGetExtent: Object shutdown");
+      return false;
+    }
+    return m_adapter->TryGetExtent(rExtent);
   }
-}    // namespace Fsl
+
+
+  bool PlatformNativeWindow::TryCaptureMouse(const bool enableCapture)
+  {
+    if (!m_adapter)
+    {
+      FSLLOG3_WARNING("TryCaptureMouse: Object shutdown");
+      return false;
+    }
+    return m_adapter->TryCaptureMouse(enableCapture);
+  }
+}

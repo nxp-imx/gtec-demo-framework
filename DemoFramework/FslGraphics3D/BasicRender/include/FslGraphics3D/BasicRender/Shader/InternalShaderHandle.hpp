@@ -61,7 +61,7 @@ namespace Fsl::Graphics3D
       return Value != HandleVectorConfig::InvalidHandle;
     }
 
-    static constexpr InternalShaderHandle Invalid()
+    static constexpr InternalShaderHandle Invalid() noexcept
     {
       return {};
     }

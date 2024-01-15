@@ -45,8 +45,11 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a OpenGLES2 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
+
     DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
-    DemoAppRegister::GLES2::Register<ModelLoaderBasics>(rSetup, "GLES2.ModelLoaderBasics", config);
+    DemoAppRegister::GLES2::Register<ModelLoaderBasics>(rSetup, "GLES2.ModelLoaderBasics", config, customDemoAppConfig);
   }
 }

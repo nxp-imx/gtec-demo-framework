@@ -69,7 +69,7 @@ namespace Fsl
 
   HDR01_BasicToneMapping::HDR01_BasicToneMapping(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_menuUI(config)
+    , m_menuUI(config, ColorSpace::SRGBNonLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())

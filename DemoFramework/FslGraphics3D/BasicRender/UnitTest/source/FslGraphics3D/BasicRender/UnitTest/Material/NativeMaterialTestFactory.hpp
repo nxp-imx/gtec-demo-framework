@@ -47,7 +47,7 @@ namespace Fsl
     HandleVector<Record> m_materials;
 
   public:
-    uint32_t MaterialCount()
+    uint32_t MaterialCount() noexcept
     {
       return m_materials.Count();
     }
@@ -66,7 +66,7 @@ namespace Fsl
       }
     }
 
-    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) final
+    bool DestroyMaterial(const BasicNativeMaterialHandle hMaterial) noexcept final
     {
       return m_materials.Remove(hMaterial.Value);
     }

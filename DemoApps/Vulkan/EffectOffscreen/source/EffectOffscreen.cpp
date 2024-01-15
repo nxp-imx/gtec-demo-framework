@@ -666,7 +666,7 @@ namespace Fsl
 
   void EffectOffscreen::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

@@ -38,9 +38,10 @@ from FslBuildGen.Info.RequirementInfo import RequirementInfo
 from FslBuildGen.Info.PackageGeneratorReportInfo import PackageGeneratorReportInfo
 
 class PackageInfo(object):
-    def __init__(self, name: str, allRequirements: List[RequirementInfo], packageType: PackageType,
+    def __init__(self, name: str, sourceName: str, allRequirements: List[RequirementInfo], packageType: PackageType,
                  supported: bool, generatorReport: Optional[PackageGeneratorReportInfo]) -> None:
         self.Name = name
+        self.SourceName = sourceName
         self.AllRequirements = allRequirements
         self.Type = packageType
         self.Supported = supported

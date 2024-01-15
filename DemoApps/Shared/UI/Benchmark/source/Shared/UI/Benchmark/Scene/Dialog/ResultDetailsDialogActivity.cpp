@@ -69,8 +69,9 @@ namespace Fsl::UI
         auto settings0 = uiFactory.CreateLabel(TextConfig::HeaderSettings, Theme::FontType::Header);
         auto settings1 = CreateSwitch(uiFactory, TextConfig::GpuTimestamps, resultValue.BasicOptions.GpuTimestamps);
         auto settings2 = CreateSwitch(uiFactory, TextConfig::NoOpaqueMaterials, resultValue.BasicOptions.NoOpaqueMaterials);
-        auto settings3 = CreateSwitch(uiFactory, TextConfig::OnDemandRendering, resultValue.BasicOptions.UseOnDemandRendering);
-        auto settings4 = CreateSwitch(uiFactory, TextConfig::UseSdfFonts, resultValue.BasicOptions.UseSdfFonts);
+        auto settings3 = CreateSwitch(uiFactory, TextConfig::UseDrawCache, resultValue.BasicOptions.UseDrawCache);
+        auto settings4 = CreateSwitch(uiFactory, TextConfig::OnDemandRendering, resultValue.BasicOptions.UseOnDemandRendering);
+        auto settings5 = CreateSwitch(uiFactory, TextConfig::UseSdfFonts, resultValue.BasicOptions.UseSdfFonts);
 
         auto renderMethod0 = uiFactory.CreateLabel(TextConfig::HeaderRenderMethod, Theme::FontType::Header);
         auto renderMethod1 = uiFactory.CreateLabel(Debug::ToString(resultValue.RenderOptions.RenderMethod), Theme::FontType::Default);
@@ -95,11 +96,12 @@ namespace Fsl::UI
         rGrid.AddChild(settings2, columnIndex, rowIndex + 2);
         rGrid.AddChild(settings3, columnIndex, rowIndex + 3);
         rGrid.AddChild(settings4, columnIndex, rowIndex + 4);
-        // skip 5
-        rGrid.AddChild(renderMethod0, columnIndex, rowIndex + 6);
-        rGrid.AddChild(renderMethod1, columnIndex, rowIndex + 7);
-        // skip 8
-        rGrid.AddChild(renderOptions0, columnIndex, rowIndex + 9);
+        rGrid.AddChild(settings5, columnIndex, rowIndex + 5);
+        // skip 6
+        rGrid.AddChild(renderMethod0, columnIndex, rowIndex + 7);
+        rGrid.AddChild(renderMethod1, columnIndex, rowIndex + 8);
+        // skip 9
+        rGrid.AddChild(renderOptions0, columnIndex, rowIndex + 10);
         rGrid.AddChild(renderOptions.SwitchFillBuffers, columnIndex, rowIndex + 11);
         rGrid.AddChild(renderOptions.SwitchBatch, columnIndex, rowIndex + 12);
         rGrid.AddChild(renderOptions.SwitchDrawReorder, columnIndex, rowIndex + 13);
@@ -133,11 +135,11 @@ namespace Fsl::UI
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 2
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 3
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 4
-    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Fixed, 16));    // 5
-    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 6
+    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 5
+    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Fixed, 16));    // 6
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 7
-    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Fixed, 16));    // 8
-    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 9
+    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 8
+    contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Fixed, 16));    // 9
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 10
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 11
     contentLayout->AddRowDefinition(GridRowDefinition(GridUnitType::Auto));         // 12

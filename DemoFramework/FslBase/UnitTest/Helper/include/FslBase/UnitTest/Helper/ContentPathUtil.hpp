@@ -35,6 +35,7 @@
 
 namespace Fsl::ContentPathUtil
 {
+  IO::Path GetBasePath();
   // For this to work remember to insert the ScopedExePath line before calling Google test init
   // - Fsl::CurrentExePath::ScopedExePath exeScope(argc > 0 ? argv[0] : nullptr);
   IO::Path GetContentPath();

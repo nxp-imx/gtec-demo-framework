@@ -293,7 +293,7 @@ namespace Fsl
 
   void FractalShaderMandelbrot::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

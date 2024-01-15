@@ -196,6 +196,12 @@ namespace Fsl
   }
 
 
+  void TestApp::SetUseDrawCache(const bool useDrawCache)
+  {
+    m_uiExtension->SetUseDrawCache(useDrawCache);
+  }
+
+
   bool TestApp::IsUIIdle() const
   {
     return m_uiExtension->IsIdle();

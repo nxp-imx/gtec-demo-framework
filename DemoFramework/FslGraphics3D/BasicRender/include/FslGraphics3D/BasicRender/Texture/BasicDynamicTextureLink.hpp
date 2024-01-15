@@ -56,6 +56,13 @@ namespace Fsl
     {
       struct Record
       {
+        // No RAII resources so this is not needed
+        // Record(const Record&) = delete;
+        // Record& operator=(const Record&) = delete;
+        // Record(Record&& other) noexcept = delete;
+        // Record& operator=(Record&& other) noexcept = delete;
+        // Record() noexcept = default;
+
         BasicNativeTextureHandle NativeHandle;
         uint32_t DeferCount{0};
         bool IsInUse{false};
@@ -72,12 +79,13 @@ namespace Fsl
     public:
       BasicDynamicTextureLink(const uint32_t maxFramesInFlight, std::shared_ptr<INativeTextureFactory> factory, const RawTexture& texture,
                               const Texture2DFilterHint filterHint, const TextureFlags textureFlags, const bool setDataSupported);
-      ~BasicDynamicTextureLink();
-      void Destroy();
+      ~BasicDynamicTextureLink() noexcept;
+
+      void Destroy() noexcept;
 
       void OnRenderSystemEvent(const BasicRenderSystemEvent theEvent);
 
-      void CollectGarbage();
+      void CollectGarbage() noexcept;
 
 
       void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags);

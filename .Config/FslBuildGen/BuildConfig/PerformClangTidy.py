@@ -658,7 +658,7 @@ class CMakeHelper(object):
 
             Builder.BuildPackages(log, cmakeBuildDir, tidyBuildGeneratorConfig.ConfigSDKPath, sdkConfigTemplatePath, False, False,
                                   toolConfig, generatorContext, allPackageList, allPackageList, resolvedExternalVariantConstraints,
-                                  [], None, generatorPlugin, False, False, numBuildThreads, CommandType.ConfigIfChanged, False, forceConfigure=forceConfigure)
+                                  [], None, generatorPlugin, False, False, numBuildThreads, CommandType.ConfigIfChanged, [], False, forceConfigure=forceConfigure)
 
             cmakeCompileCommandsFile = IOUtil.Join(cmakeBuildDir, 'compile_commands.json')
             log.LogPrintVerbose(2, "- Parsing cmake '{0}' file to extract build configuration".format(cmakeCompileCommandsFile))
@@ -1052,15 +1052,18 @@ class PerformClangTidyHelper(object):
         addDirectDependencies.append(phonyCompileTargetPackageName)
         writer.build(outputs=phonyTargetPackageName, rule="phony", order_only=addDirectDependencies)
 
-        clangTidyFixOutputFolder = IOUtil.Join(clangTidyFixOutputFolder, PackagePathUtil.GetPackagePath(package, toolProjectContextsDict))
+        uniquePackageOutputFolder = PackagePathUtil.GetUniquePackagePath(package, toolProjectContextsDict)
+        clangTidyFixOutputFolder = IOUtil.Join(clangTidyFixOutputFolder, uniquePackageOutputFolder)
         for fileEntry in tidyPackageConfig.AllFiles:
-            compiledOutputFile = "{0}.obj".format(IOUtil.Join(clangTidyFixOutputFolder, fileEntry.SourcePath))
+            dstUniqueFileOutputPath = PerformClangTidyHelper._GenerateOutpotPath(clangTidyFixOutputFolder, fileEntry)
+
+            compiledOutputFile = "{0}.obj".format(dstUniqueFileOutputPath)
             writer.build(outputs=compiledOutputFile, rule=PerformClangTidyHelper.RULE_COMPILE, inputs=fileEntry.ResolvedPath,
                          implicit=toolVersionOutputFile, variables=variables, order_only=phonyCompileTargetPackageName)
 
-            variables[PerformClangTidyHelper.VAR_YAML_FILE] = ["{0}.yaml".format(IOUtil.Join(clangTidyFixOutputFolder, fileEntry.SourcePath))]
+            variables[PerformClangTidyHelper.VAR_YAML_FILE] = ["{0}.yaml".format(dstUniqueFileOutputPath)]
 
-            outputFile = "{0}.dmy".format(IOUtil.Join(clangTidyFixOutputFolder, fileEntry.SourcePath))
+            outputFile = "{0}.dmy".format(dstUniqueFileOutputPath)
             # Locate the closest clang tidy configuration file so we can add it as a implicit package dependency
             packageClosestTidyPath = FileFinder.FindClosestFileInRoot(log, toolConfig, fileEntry.ResolvedPath, performClangTidyConfig.ClangTidyConfiguration.CustomTidyFile)
             packageClosestTidyFile = IOUtil.Join(packageClosestTidyPath, performClangTidyConfig.ClangTidyConfiguration.CustomTidyFile)
@@ -1075,6 +1078,10 @@ class PerformClangTidyHelper(object):
                     IOUtil.SafeMakeDirs(parentDir)
                 IOUtil.WriteFileIfChanged(outputFile, "")
         return PackageOutputFolder(package, clangTidyFixOutputFolder)
+
+    @staticmethod
+    def _GenerateOutpotPath(dstPath: str, fileEntry: ResolvedPath) -> str:
+        return IOUtil.Join(dstPath, fileEntry.SourcePath)
 
     @staticmethod
     def _GeneratePhonyCompileTargetName(name: str) -> str:

@@ -317,7 +317,7 @@ namespace Fsl
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
     , m_bufferManager(
         std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
-    , m_menuUI(config)
+    , m_menuUI(config, ColorSpace::SRGBNonLinear)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -506,7 +506,7 @@ namespace Fsl
 
   void HDR02_FBBasicToneMapping::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   RapidVulkan::Framebuffer HDR02_FBBasicToneMapping::CreateFramebuffer(const VulkanBasic::FrameBufferCreateContext& frameBufferCreateContext)

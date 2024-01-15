@@ -115,97 +115,97 @@ namespace Fsl::Vulkan
     //           const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize physicalDeviceLimitNonCoherentAtomSize);
 
     //! @brief Get the associated 'Device'
-    VkDevice GetDevice() const
+    VkDevice GetDevice() const noexcept
     {
       return m_buffer.GetDevice();
     }
 
     //! @brief Get the associated 'buffer'
-    VkBuffer GetBuffer() const
+    VkBuffer GetBuffer() const noexcept
     {
       return m_buffer.Get();
     }
 
     //! @brief Get the associated 'buffer'
-    const VkBuffer* GetBufferPointer() const
+    const VkBuffer* GetBufferPointer() const noexcept
     {
       return m_buffer.GetPointer();
     }
 
     //! @brief Get the associated 'memory'
-    VkDeviceMemory GetMemory() const
+    VkDeviceMemory GetMemory() const noexcept
     {
       return m_memory.Get();
     }
 
-    VkDescriptorBufferInfo GetDescriptorBufferInfo() const
+    VkDescriptorBufferInfo GetDescriptorBufferInfo() const noexcept
     {
       return m_descriptorBufferInfo;
     }
 
-    const VkDescriptorBufferInfo* GetDescriptorBufferInfoPointer() const
+    const VkDescriptorBufferInfo* GetDescriptorBufferInfoPointer() const noexcept
     {
       return &m_descriptorBufferInfo;
     }
 
 
     //! @brief Get the original element size
-    VkDeviceSize GetElementSize() const
+    VkDeviceSize GetElementSize() const noexcept
     {
       return m_elementSize;
     }
 
     //! @brief Beware this might be larger than the initial requested buffer size due to alignment and other requirements.
-    VkDeviceSize GetAllocationSize() const
+    VkDeviceSize GetAllocationSize() const noexcept
     {
       return m_memory.GetAllocationSize();
     }
 
-    uint32_t GetSegmentStride() const
+    uint32_t GetSegmentStride() const noexcept
     {
       return m_segmentStride;
     }
 
-    VkDeviceSize GetSegmentCount() const
+    VkDeviceSize GetSegmentCount() const noexcept
     {
       return m_segmentCount;
     }
 
-    VkDeviceSize GetSegmentSize() const
+    VkDeviceSize GetSegmentSize() const noexcept
     {
       return GetAllocationSize() / m_segmentCount;
     }
 
-    VkBufferUsageFlags GetUsageFlags() const
+    VkBufferUsageFlags GetUsageFlags() const noexcept
     {
       return m_buffer.GetUsage();
     }
 
-    VkMemoryPropertyFlags GetMemoryPropertyFlags() const
+    VkMemoryPropertyFlags GetMemoryPropertyFlags() const noexcept
     {
       return m_memory.GetMemoryPropertyFlags();
     }
 
 
-    const void* GetMappedPointer() const
+    const void* GetMappedPointer() const noexcept
     {
       return m_memory.GetMappedMemoryPointer();
     }
 
 
-    void* GetMappedPointer()
+    void* GetMappedPointer() noexcept
     {
       return m_memory.GetMappedMemoryPointer();
     }
 
 
     //! @brief Check if this object contains a valid resource
-    inline bool IsValid() const
+    inline bool IsValid() const noexcept
     {
       return m_buffer.IsValid();
     }
 
-    bool IsMapped() const
+    bool IsMapped() const noexcept
     {
       return m_memory.IsMapped();
     }
@@ -221,7 +221,7 @@ namespace Fsl::Vulkan
 
     //! @brief Unmap a mapped memory range
     //! @note Does not return a result as vkUnmapMemory can't fail
-    void Unmap()
+    void Unmap() noexcept
     {
       m_memory.UnmapMemory();
     }
@@ -254,7 +254,7 @@ namespace Fsl::Vulkan
 
 
     //! @brief A 'exception safe' way of mapping a object
-    class ScopedMap
+    class ScopedMap final
     {
       VUSegmentedBufferMemory& m_rBuffer;
 
@@ -267,7 +267,7 @@ namespace Fsl::Vulkan
         pMappedMemory = m_rBuffer.Map(offset, size);
       }
 
-      ~ScopedMap()
+      ~ScopedMap() noexcept
       {
         pMappedMemory = nullptr;
         m_rBuffer.Unmap();

@@ -201,7 +201,7 @@ class ToolFlowBuildGen(AToolAppFlow):
                                       toolConfig, generatorContext, packages, requestedPackages, localToolConfig.BuildVariantConstraints,
                                       localToolConfig.RemainingArgs, localToolConfigForAllExe, platformGeneratorPlugin,
                                       localToolConfigEnableContentBuilder, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads,
-                                      localToolConfigCommand, True)
+                                      localToolConfigCommand, [], True)
 
     def __DoShowList(self, packages: List[Package], requestedFiles: Optional[List[str]], listVariants: bool, listBuildVariants: bool,
                      platformGeneratorPlugin: GeneratorPlugin.GeneratorPlugin) -> None:

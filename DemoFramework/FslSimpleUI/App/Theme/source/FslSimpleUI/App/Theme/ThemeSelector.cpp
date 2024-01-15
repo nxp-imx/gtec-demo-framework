@@ -37,19 +37,34 @@
 
 namespace Fsl::UI::Theme::ThemeSelector
 {
-  std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette,
-                                                             const bool disableOpaqueMaterials)
+  std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const ColorSpace colorSpace,
+                                                             const bool usePrimaryPalette, const bool disableOpaqueMaterials)
   {
-    auto factory = CreateFactory(uiAppExtension, usePrimaryPalette, disableOpaqueMaterials);
+    auto factory = CreateFactory(uiAppExtension, colorSpace, usePrimaryPalette, disableOpaqueMaterials);
     return factory->Create(uiAppExtension.GetContext());
   }
 
-  std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette,
+
+  std::shared_ptr<IThemeControlFactory> CreateControlFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette,
+                                                             const bool disableOpaqueMaterials)
+  {
+    return CreateControlFactory(uiAppExtension, ColorSpace::SRGBNonLinear, usePrimaryPalette, disableOpaqueMaterials);
+  }
+
+
+  std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const ColorSpace colorSpace, const bool usePrimaryPalette,
                                                const bool disableOpaqueMaterials)
   {
     UI::Theme::ThemeFactoryCreateInfo createInfo(uiAppExtension.GetDefaultMaterialId(true), uiAppExtension.GetDefaultMaterialId(false),
                                                  uiAppExtension.GetDefaultFont(), uiAppExtension.GetDefaultHeaderFont(), usePrimaryPalette,
-                                                 disableOpaqueMaterials);
+                                                 disableOpaqueMaterials, colorSpace);
     return std::make_shared<BasicThemeFactory>(uiAppExtension.GetSpriteResourceManager(), createInfo);
+  }
+
+
+  std::shared_ptr<IThemeFactory> CreateFactory(UIDemoAppExtensionLite& uiAppExtension, const bool usePrimaryPalette,
+                                               const bool disableOpaqueMaterials)
+  {
+    return CreateFactory(uiAppExtension, ColorSpace::SRGBNonLinear, usePrimaryPalette, disableOpaqueMaterials);
   }
 }

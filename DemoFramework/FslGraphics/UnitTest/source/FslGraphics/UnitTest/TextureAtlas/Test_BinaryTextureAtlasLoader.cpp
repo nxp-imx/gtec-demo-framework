@@ -67,7 +67,7 @@ TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load)
   BasicTextureAtlas atlas;
   BinaryTextureAtlasLoader::Load(atlas, m_smallAtlasFilename);
 
-  EXPECT_EQ(1, atlas.Count());
+  EXPECT_EQ(1u, atlas.Count());
 
   const auto& entry0 = atlas.GetEntry(0);
   EXPECT_EQ(UTF8String("Banners"), entry0.Name);
@@ -84,5 +84,5 @@ TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load_NotFound)
   BasicTextureAtlas atlas;
 
   EXPECT_THROW(BinaryTextureAtlasLoader::Load(atlas, m_notExistingFilename), FormatException);
-  EXPECT_EQ(0, atlas.Count());
+  EXPECT_EQ(0u, atlas.Count());
 }

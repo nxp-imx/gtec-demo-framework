@@ -54,26 +54,26 @@ namespace Fsl::Vulkan
 
     void Destroy();
 
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_texture.IsValid();
     }
 
-    inline VkDescriptorSet GetDescriptorSet() const
+    inline VkDescriptorSet GetDescriptorSet() const noexcept
     {
       assert(IsValid());
       return m_descriptorSet.Get();
     }
 
 
-    inline VUTextureInfo ToTextureInfo() const
+    inline VUTextureInfo ToTextureInfo() const noexcept
     {
       assert(IsValid());
       return {Get(), VkExtent2D{m_extentPx.Width.Value, m_extentPx.Height.Value}};
     }
 
     //! @brief Get the native texture handle
-    VkDescriptorImageInfo Get() const
+    VkDescriptorImageInfo Get() const noexcept
     {
       assert(IsValid());
       return m_texture.GetDescriptorImageInfo();

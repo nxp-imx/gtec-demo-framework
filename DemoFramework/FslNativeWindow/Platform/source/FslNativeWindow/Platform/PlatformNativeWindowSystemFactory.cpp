@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -30,14 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Base/INativeWindowSystem.hpp>
+#include <FslNativeWindow/Platform/Adapter/IPlatformNativeWindowSystemAdapter.hpp>
+#include <FslNativeWindow/Platform/Adapter/PlatformNativeWindowSystemAdapterFactory.hpp>
+#include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemFactory.hpp>
-#include <FslNativeWindow/Platform/PlatformNativeWindowSystemImpl.hpp>
+#include <memory>
 
 namespace Fsl
 {
   // If PlatformNativeWindowSystemImpl isn't defined then check PlatformNativeWindowSystemImpl.hpp
   std::shared_ptr<INativeWindowSystem> PlatformNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
   {
-    return std::make_shared<PlatformNativeWindowSystemImpl>(setup);
+    std::unique_ptr<IPlatformNativeWindowSystemAdapter> adapter = PlatformNativeWindowSystemAdapterFactory::Allocate(setup);
+    return std::make_shared<PlatformNativeWindowSystem>(setup, std::move(adapter));
   }
-}    // namespace Fsl
+}

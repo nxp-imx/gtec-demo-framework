@@ -175,6 +175,6 @@ namespace Fsl
 
   void SimpleUI100::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

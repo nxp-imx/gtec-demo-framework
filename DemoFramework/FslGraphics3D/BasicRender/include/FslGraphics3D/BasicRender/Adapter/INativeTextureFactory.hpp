@@ -48,16 +48,16 @@ namespace Fsl
     public:
       virtual ~INativeTextureFactory() noexcept = default;
 
-      virtual NativeTextureFactoryCaps GetTextureCaps() const = 0;
+      virtual NativeTextureFactoryCaps GetTextureCaps() const noexcept = 0;
 
       virtual BasicNativeTextureHandle CreateTexture(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags,
                                                      const bool isDynamic) = 0;
-      virtual bool DestroyTexture(const BasicNativeTextureHandle hTexture) = 0;
+      virtual bool DestroyTexture(const BasicNativeTextureHandle hTexture) noexcept = 0;
 
       virtual void SetTextureData(const BasicNativeTextureHandle hTexture, const RawTexture& texture, const Texture2DFilterHint filterHint,
                                   const TextureFlags textureFlags) = 0;
 
-      virtual const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const = 0;
+      virtual const IBasicNativeTexture* TryGetTexture(const BasicNativeTextureHandle hTexture) const noexcept = 0;
     };
   }
 }

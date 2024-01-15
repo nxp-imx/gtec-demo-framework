@@ -64,7 +64,7 @@ namespace Fsl::Graphics3D
 
     ~BasicStaticTextureTracker() final = default;
 
-    void Dispose()
+    void Dispose() noexcept
     {
       m_hTexture = {};
       m_handle = {};

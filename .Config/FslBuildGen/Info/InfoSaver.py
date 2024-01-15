@@ -49,6 +49,7 @@ from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariab
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Generator.Report.VariableReport import VariableReport
 from FslBuildGen.Log import Log
+from FslBuildGen.Info.AppInfoJson import JsonRootKey
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 
@@ -106,6 +107,7 @@ class JsonPackageGeneratorReport(object):
 class JsonPackage(object):
     def __init__(self, package: Package, packageGeneratorReport: Optional[PackageGeneratorReport]) -> None:
         super().__init__()
+        self.SourcePackageName = package.NameInfo.SourceName
         self.Type = PackageType.ToString(package.Type)
         #self.IsVirtual = package.IsVirtual
 
@@ -163,8 +165,8 @@ def SavePackageMetaDataToJson(generatorContext: GeneratorContext,
     generatorReportDict = None if not includeGeneratorReport else generatorContext.Generator.GenerateReport(log, generatorConfig, resolvedBuildOrder).PackageReportDict
 
     jsonRootDict = {} # type: Dict[str, Any]
-    jsonRootDict["PlatformName"] = topLevelPackage.ResolvedPlatformName
-    jsonRootDict["ResolvedPackageList"] = {package.Name:ToJsonPackage(package, generatorReportDict) for package in resolvedBuildOrder}
+    jsonRootDict[JsonRootKey.PlatformName] = topLevelPackage.ResolvedPlatformName
+    jsonRootDict[JsonRootKey.ResolvedPackageList] = {package.Name:ToJsonPackage(package, generatorReportDict) for package in resolvedBuildOrder}
 
     jsonText = str(json.dumps(jsonRootDict, ensure_ascii=False, sort_keys=True, indent=2, cls=ComplexEncoder))
     IOUtil.WriteFileIfChanged(dstFilePath, jsonText)

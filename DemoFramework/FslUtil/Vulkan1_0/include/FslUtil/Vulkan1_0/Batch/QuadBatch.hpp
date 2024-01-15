@@ -60,7 +60,7 @@ namespace Fsl::Vulkan
   //! @brief Render quads on demand.
   //! @note If BeginFrame is called while the Vulkan resources are not ready we enter 'Void' Draw mode. This means that all draw commands
   //!       will do no drawing, but the calls will appear to work. This can prevent that nasty crashes occur.
-  class QuadBatch
+  class QuadBatch final
   {
     enum class FrameState
     {

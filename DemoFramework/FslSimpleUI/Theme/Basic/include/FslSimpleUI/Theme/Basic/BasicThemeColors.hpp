@@ -31,9 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslSimpleUI/Theme/Base/BarType.hpp>
 #include <FslSimpleUI/Theme/Base/WindowType.hpp>
+#include <cassert>
+#include <utility>
 
 namespace Fsl::UI::Theme
 {
@@ -90,6 +94,24 @@ namespace Fsl::UI::Theme
       {
         FSL_PARAM_NOT_USED(opacity);
       }
+
+      constexpr PaletteRecord(const Color primary, const Color fontOnPrimary, const Color buttonOutlineFont, const Color radioButtonBackground,
+                              const Color dividerOnPrimary, const Color switchCursorChecked, const Color switchCursorUnchecked,
+                              const Color switchBackground, const Color barColor, const Color windowColor, const Color primaryDark,
+                              const Color imageOnPrimary)
+        : Primary(primary)
+        , FontOnPrimary(fontOnPrimary)
+        , ButtonOutlineFont(buttonOutlineFont)
+        , RadioButtonBackground(radioButtonBackground)
+        , SwitchCursorChecked(switchCursorChecked)
+        , SwitchCursorUnchecked(switchCursorUnchecked)
+        , SwitchBackground(switchBackground)
+        , BarColor(barColor)
+        , WindowColor(windowColor)
+        , PrimaryDark(primaryDark)
+        , ImageOnPrimary(imageOnPrimary)
+      {
+      }
     };
 
     struct BarRecord
@@ -103,6 +125,12 @@ namespace Fsl::UI::Theme
       {
         FSL_PARAM_NOT_USED(opacity);
       }
+
+      constexpr BarRecord(const Color normal, const Color transparent)
+        : Normal(normal)
+        , Transparent(transparent)
+      {
+      }
     };
 
     struct DefaultFontRecord
@@ -113,6 +141,12 @@ namespace Fsl::UI::Theme
       constexpr DefaultFontRecord(const OpacityRecord& opacity, const PaletteRecord& palette)
         : Primary(palette.FontOnPrimary)
         , PrimaryDisabled(Color::MultiplyRGB(palette.FontOnPrimary, opacity.DisabledDarken))
+      {
+      }
+
+      constexpr DefaultFontRecord(const Color primary, const Color primaryDisabled)
+        : Primary(primary)
+        , PrimaryDisabled(primaryDisabled)
       {
       }
     };
@@ -149,6 +183,25 @@ namespace Fsl::UI::Theme
         , OutlineFontDisabled(Color::MultiplyRGB(palette.ButtonOutlineFont, opacity.DisabledDarken))
       {
       }
+
+
+      constexpr ButtonRecord(const Color backgroundHoverUp, const Color backgroundUp, const Color backgroundDown, const Color backgroundDisabled,
+                             const Color backgroundHoverOverlayUp, const Color backgroundHoverOverlayDown, const Color fontUp, const Color fontDown,
+                             const Color fontDisabled, const Color outlineFontUp, const Color outlineFontDown, const Color outlineFontDisabled)
+        : BackgroundHoverUp(backgroundHoverUp)
+        , BackgroundUp(backgroundUp)
+        , BackgroundDown(backgroundDown)
+        , BackgroundDisabled(backgroundDisabled)
+        , BackgroundHoverOverlayUp(backgroundHoverOverlayUp)
+        , BackgroundHoverOverlayDown(backgroundHoverOverlayDown)
+        , FontUp(fontUp)
+        , FontDown(fontDown)
+        , FontDisabled(fontDisabled)
+        , OutlineFontUp(outlineFontUp)
+        , OutlineFontDown(outlineFontDown)
+        , OutlineFontDisabled(outlineFontDisabled)
+      {
+      }
     };
 
     struct CheckBoxRecord
@@ -181,6 +234,25 @@ namespace Fsl::UI::Theme
         , UncheckedFont(palette.FontOnPrimary)
       {
       }
+
+      constexpr CheckBoxRecord(const Color hoverChecked, const Color hoverUnchecked, const Color cursorChecked, const Color cursorCheckedDisabled,
+                               const Color cursorUnchecked, const Color cursorUncheckedDisabled, const Color backgroundChecked,
+                               const Color backgroundCheckedDisabled, const Color backgroundUnchecked, const Color backgroundUncheckedDisabled,
+                               const Color checkedFont, const Color uncheckedFont)
+        : HoverChecked(hoverChecked)
+        , HoverUnchecked(hoverUnchecked)
+        , CursorChecked(cursorChecked)
+        , CursorCheckedDisabled(cursorCheckedDisabled)
+        , CursorUnchecked(cursorUnchecked)
+        , CursorUncheckedDisabled(cursorUncheckedDisabled)
+        , BackgroundChecked(backgroundChecked)
+        , BackgroundCheckedDisabled(backgroundCheckedDisabled)
+        , BackgroundUnchecked(backgroundUnchecked)
+        , BackgroundUncheckedDisabled(backgroundUncheckedDisabled)
+        , CheckedFont(checkedFont)
+        , UncheckedFont(uncheckedFont)
+      {
+      }
     };
 
     struct DividerRecord
@@ -193,6 +265,11 @@ namespace Fsl::UI::Theme
       //, PrimaryDisabled(Color::MultiplyRGB(Primary, opacity.DisabledDarken))
       {
         FSL_PARAM_NOT_USED(opacity);
+      }
+
+      constexpr explicit DividerRecord(const Color primary)
+        : Primary(primary)
+      {
       }
     };
 
@@ -215,6 +292,18 @@ namespace Fsl::UI::Theme
         , ImageUp(palette.ImageOnPrimary)
         , ImageDown(Color::MultiplyRGB(palette.ImageOnPrimary, opacity.ButtonDownDarken))
         , ImageDisabled(Color::MultiplyRGB(palette.ImageOnPrimary, opacity.DisabledDarken))
+      {
+      }
+
+      constexpr ImageButtonRecord(const Color backgroundHoverUp, const Color backgroundUp, const Color backgroundDown, const Color backgroundDisabled,
+                                  const Color imageUp, const Color imageDown, const Color imageDisabled)
+        : BackgroundHoverUp(backgroundHoverUp)
+        , BackgroundUp(backgroundUp)
+        , BackgroundDown(backgroundDown)
+        , BackgroundDisabled(backgroundDisabled)
+        , ImageUp(imageUp)
+        , ImageDown(imageDown)
+        , ImageDisabled(imageDisabled)
       {
       }
     };
@@ -247,6 +336,25 @@ namespace Fsl::UI::Theme
         , BackgroundUncheckedDisabled(Color::MultiplyRGB(palette.RadioButtonBackground, opacity.DisabledDarken))
         , CheckedFont(palette.FontOnPrimary)
         , UncheckedFont(palette.FontOnPrimary)
+      {
+      }
+
+      constexpr RadioButtonRecord(const Color hoverChecked, const Color hoverUnchecked, const Color cursorChecked, const Color cursorCheckedDisabled,
+                                  const Color cursorUnchecked, const Color cursorUncheckedDisabled, const Color backgroundChecked,
+                                  const Color backgroundCheckedDisabled, const Color backgroundUnchecked, const Color backgroundUncheckedDisabled,
+                                  const Color checkedFont, const Color uncheckedFont)
+        : HoverChecked(hoverChecked)
+        , HoverUnchecked(hoverUnchecked)
+        , CursorChecked(cursorChecked)
+        , CursorCheckedDisabled(cursorCheckedDisabled)
+        , CursorUnchecked(cursorUnchecked)
+        , CursorUncheckedDisabled(cursorUncheckedDisabled)
+        , BackgroundChecked(backgroundChecked)
+        , BackgroundCheckedDisabled(backgroundCheckedDisabled)
+        , BackgroundUnchecked(backgroundUnchecked)
+        , BackgroundUncheckedDisabled(backgroundUncheckedDisabled)
+        , CheckedFont(checkedFont)
+        , UncheckedFont(uncheckedFont)
       {
       }
     };
@@ -282,6 +390,25 @@ namespace Fsl::UI::Theme
         , UncheckedFont(palette.FontOnPrimary)
       {
       }
+
+      constexpr SwitchRecord(const Color hoverChecked, const Color hoverUnchecked, const Color cursorChecked, const Color cursorCheckedDisabled,
+                             const Color cursorUnchecked, const Color cursorUncheckedDisabled, const Color backgroundChecked,
+                             const Color backgroundCheckedDisabled, const Color backgroundUnchecked, const Color backgroundUncheckedDisabled,
+                             const Color checkedFont, const Color uncheckedFont)
+        : HoverChecked(hoverChecked)
+        , HoverUnchecked(hoverUnchecked)
+        , CursorChecked(cursorChecked)
+        , CursorCheckedDisabled(cursorCheckedDisabled)
+        , CursorUnchecked(cursorUnchecked)
+        , CursorUncheckedDisabled(cursorUncheckedDisabled)
+        , BackgroundChecked(backgroundChecked)
+        , BackgroundCheckedDisabled(backgroundCheckedDisabled)
+        , BackgroundUnchecked(backgroundUnchecked)
+        , BackgroundUncheckedDisabled(backgroundUncheckedDisabled)
+        , CheckedFont(checkedFont)
+        , UncheckedFont(uncheckedFont)
+      {
+      }
     };
 
     struct SliderRecord
@@ -300,6 +427,16 @@ namespace Fsl::UI::Theme
         , CursorOverlay(Color::ApplyAlpha(palette.Primary, opacity.SliderHoverAlpha))
       {
       }
+
+      constexpr SliderRecord(const Color background, const Color backgroundDisabled, const Color cursor, const Color cursorDisabled,
+                             const Color cursorOverlay)
+        : Background(background)
+        , BackgroundDisabled(backgroundDisabled)
+        , Cursor(cursor)
+        , CursorDisabled(cursorDisabled)
+        , CursorOverlay(cursorOverlay)
+      {
+      }
     };
 
     struct WindowRecord
@@ -313,8 +450,15 @@ namespace Fsl::UI::Theme
       {
         FSL_PARAM_NOT_USED(opacity);
       }
+
+      constexpr WindowRecord(const Color background, const Color backgroundTransparent)
+        : Background(background)
+        , BackgroundTransparent(backgroundTransparent)
+      {
+      }
     };
 
+    const ColorSpace ActiveColorSpace;
     const OpacityRecord Opacity;
     const PaletteRecord Palette;
     const BarRecord Bar;
@@ -329,7 +473,8 @@ namespace Fsl::UI::Theme
     const WindowRecord Window;
 
     constexpr explicit BasicThemeColors(const bool usePrimary)
-      : Palette(Opacity, usePrimary)
+      : ActiveColorSpace(ColorSpace::SRGBNonLinear)
+      , Palette(Opacity, usePrimary)
       , Bar(Opacity, Palette)
       , DefaultFont(Opacity, Palette)
       , Button(Opacity, Palette)
@@ -340,6 +485,26 @@ namespace Fsl::UI::Theme
       , Switch(Opacity, Palette)
       , Slider(Opacity, Palette)
       , Window(Opacity, Palette)
+    {
+    }
+
+    constexpr explicit BasicThemeColors(const ColorSpace activeColorSpace, const OpacityRecord& opacity, PaletteRecord palette, BarRecord bar,
+                                        DefaultFontRecord defaultFont, ButtonRecord button, CheckBoxRecord checkBox, DividerRecord divider,
+                                        ImageButtonRecord imageButton, RadioButtonRecord radioButton, SwitchRecord switchRecord, SliderRecord slider,
+                                        WindowRecord window)
+      : ActiveColorSpace(activeColorSpace)
+      , Opacity(opacity)
+      , Palette(std::move(palette))
+      , Bar(std::move(bar))
+      , DefaultFont(std::move(defaultFont))
+      , Button(std::move(button))
+      , CheckBox(std::move(checkBox))
+      , Divider(std::move(divider))
+      , ImageButton(std::move(imageButton))
+      , RadioButton(std::move(radioButton))
+      , Switch(std::move(switchRecord))
+      , Slider(std::move(slider))
+      , Window(std::move(window))
     {
     }
 
@@ -366,6 +531,8 @@ namespace Fsl::UI::Theme
         return Window.Background;
       }
     }
+
+    static BasicThemeColors ApplyColorSpaceLossy(const BasicThemeColors& colors, const ColorSpace colorSpace);
   };
 
   //  Color BasicThemeResources::GetThemePrimaryColor() const    // NOLINT(readability-convert-member-functions-to-static)

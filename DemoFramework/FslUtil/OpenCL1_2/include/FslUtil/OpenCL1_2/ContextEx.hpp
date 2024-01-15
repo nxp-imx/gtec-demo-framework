@@ -60,7 +60,7 @@ namespace Fsl::OpenCL
     //! @brief Create a 'invalid' instance (use Reset to populate it)
     ContextEx();
 
-    ~ContextEx();
+    ~ContextEx() noexcept;
 
     //! @brief Assume control of the Context (this object becomes responsible for releasing it)
     // NOLINTNEXTLINE(misc-misplaced-const)
@@ -83,7 +83,7 @@ namespace Fsl::OpenCL
                        cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
     //! @brief returns the managed handle and releases the ownership.
-    [[nodiscard]] cl_context Release()
+    [[nodiscard]] cl_context Release() noexcept
     {
       m_platformId = nullptr;
       return m_context.Release();
@@ -92,14 +92,16 @@ namespace Fsl::OpenCL
     //! @brief Destroys any owned resources and resets the object to its default state.
     void Reset() noexcept
     {
-      m_platformId = nullptr;
+      // Use destruction order
       m_context.Reset();
+      m_platformId = nullptr;
     }
 
     //! @brief Destroys any owned resources and assume control of the ContextEx (this object becomes responsible for releasing it)
     // NOLINTNEXTLINE(misc-misplaced-const)
     void Reset(const cl_platform_id platformId, const cl_context context)
     {
+      Reset();
       m_context.Reset(context);
       m_platformId = platformId;
     }
@@ -121,19 +123,19 @@ namespace Fsl::OpenCL
                const bool allowFallback = true);
 
     //! @brief Get the associated resource handle
-    cl_platform_id GetPlatformId() const
+    cl_platform_id GetPlatformId() const noexcept
     {
       return m_platformId;
     }
 
     //! @brief Get the associated resource handle
-    cl_context Get() const
+    cl_context Get() const noexcept
     {
       return m_context.Get();
     }
 
     //! @brief Check if this object contains a valid resource
-    bool IsValid() const
+    bool IsValid() const noexcept
     {
       return m_context.IsValid();
     }

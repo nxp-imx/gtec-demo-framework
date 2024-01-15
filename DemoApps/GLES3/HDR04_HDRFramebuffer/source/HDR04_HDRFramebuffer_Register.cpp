@@ -89,8 +89,8 @@ namespace Fsl
         return nullptr;
       }
 
-      const bool hasExtensionBT2020 = EGLUtil::HasExtension(display, "EGL_EXT_gl_colorspace_bt2020_linear");
       const bool hasExtensionSCRGB = EGLUtil::HasExtension(display, "EGL_EXT_gl_colorspace_scrgb_linear");
+      const bool hasExtensionBT2020 = EGLUtil::HasExtension(display, "EGL_EXT_gl_colorspace_bt2020_linear");
 
       FSLLOG3_INFO("Config HDR compatible:               {}", createInfo.IsConfigAttribsHDRCompatible);
       if (createInfo.IsConfigAttribsHDRCompatible)
@@ -101,8 +101,8 @@ namespace Fsl
       {
         FSLLOG3_INFO("Display HDR compatible:              not checked");
       }
-      FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear: {}", hasExtensionBT2020);
       FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear: {}", hasExtensionSCRGB);
+      FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear: {}", hasExtensionBT2020);
 
       Options optionsService(createInfo.TheServiceProvider.Get<IOptions>());
       const auto options = optionsService.GetOptionParser<OptionParserEx>();
@@ -115,20 +115,20 @@ namespace Fsl
         return nullptr;
       }
 
+      // Since the extension 'EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT' is optional we check for it
+      if (hasExtensionSCRGB)
+      {
+        userTagEx->HDRFramebufferEnabled = true;
+        FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT");
+        return g_eglCreateWindowAttribs_scrgb.data();
+      }
+
       // Since the extension 'EGL_EXT_gl_colorspace_bt2020_linear' is optional we check for it
       if (hasExtensionBT2020)
       {
         userTagEx->HDRFramebufferEnabled = true;
         FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_BT2020_LINEAR_EXT");
         return g_eglCreateWindowAttribs_bt2020.data();
-      }
-
-      // Since the extension 'EGL_EXT_gl_colorspace_bt2020_linear' is optional we check for it
-      if (hasExtensionSCRGB)
-      {
-        userTagEx->HDRFramebufferEnabled = true;
-        FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT");
-        return g_eglCreateWindowAttribs_scrgb.data();
       }
       return nullptr;
     }
@@ -146,12 +146,10 @@ namespace Fsl
     // depending on the availability of extensions
     config.SetCallbackGetCreateWindowSurfaceAttribs(GetCreateWindowSurfaceAttribs);
 
-    // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
-    config.AddExtensionRequest(ExtensionType::EGL, "EGL_EXT_gl_colorspace_bt2020_linear", ExtensionPrecense::Optional);
     // // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_scrgb_linear.txt
     config.AddExtensionRequest(ExtensionType::EGL, "EGL_EXT_gl_colorspace_scrgb_linear", ExtensionPrecense::Optional);
-
-
+    // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
+    config.AddExtensionRequest(ExtensionType::EGL, "EGL_EXT_gl_colorspace_bt2020_linear", ExtensionPrecense::Optional);
     // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_color_buffer_float.txt
     config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_color_buffer_float", ExtensionPrecense::Mandatory);
 

@@ -98,7 +98,6 @@ namespace Fsl
     {
       throw NotSupportedException("pPlatformCustomWindowAllocationParams must be null");
     }
-
     NativeVulkanSetup vulkanSetup(m_instance.Get(), m_physicalDevice.Device);
     return m_windowSystem->CreateNativeWindow(nativeWindowSetup, &vulkanSetup);
   }

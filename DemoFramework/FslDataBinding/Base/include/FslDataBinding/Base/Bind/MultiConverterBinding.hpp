@@ -53,23 +53,28 @@ namespace Fsl::DataBinding
   {
   public:
     using target_value_type = TTarget;
-    using converter_function_type = std::function<target_value_type(TSource... value)>;
+    using convert_function_type = std::function<target_value_type(TSource... value)>;
 
   private:
     static_assert(sizeof...(TSource) > 1, "MultiConverterBinding should only be used when there are multiple bindings");
     // NOLINTNEXTLINE(google-readability-casting)
     static inline const std::array<PropertyTypeInfo, sizeof...(TSource)> g_types{PropertyTypeInfo(typeid(TSource))...};
 
-    converter_function_type m_fnConvert;
+    convert_function_type m_fnConvert;
 
   public:
-    explicit MultiConverterBinding(converter_function_type fnConvert)
+    explicit MultiConverterBinding(convert_function_type fnConvert)
       : m_fnConvert(std::move(fnConvert))
     {
       if (!m_fnConvert)
       {
         throw std::invalid_argument("fnConvert can not be empty");
       }
+    }
+
+    BindingCapabilityFlags GetCaps() const noexcept final
+    {
+      return BindingCapabilityFlags::NoFlags;
     }
 
     ReadOnlySpan<PropertyTypeInfo> GetSourceTypes() const final
@@ -103,7 +108,14 @@ namespace Fsl::DataBinding
       return Internal::PropertySetResult::UnsupportedGetType;
     }
 
-  private:
+    bool TryConvertBack(Span<Internal::PropertySetResult> resultSpan, const ReadOnlySpan<Internal::PropertySetInfo> setters,
+                        const Internal::PropertyGetInfo getter) final
+    {
+      FSL_PARAM_NOT_USED(resultSpan);
+      FSL_PARAM_NOT_USED(setters);
+      FSL_PARAM_NOT_USED(getter);
+      return false;
+    }
   };
 }
 

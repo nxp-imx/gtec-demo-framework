@@ -110,6 +110,12 @@ namespace Fsl
       RapidVulkan::ShaderModule FragShaderSdfShadowAndOutline;
 
       AtlasTexture2D FillTexture;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
@@ -120,6 +126,23 @@ namespace Fsl
       RapidVulkan::GraphicsPipeline PipelineSdfOutline;
       RapidVulkan::GraphicsPipeline PipelineSdfShadow;
       RapidVulkan::GraphicsPipeline PipelineSdfShadowAndOutline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        PipelineSdfShadowAndOutline.Reset();
+        PipelineSdfShadow.Reset();
+        PipelineSdfOutline.Reset();
+        PipelineSdf.Reset();
+        PipelineNormal.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
     Shared m_shared;

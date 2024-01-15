@@ -49,7 +49,7 @@ namespace Fsl::DataBinding
   public:
     DataBindingServiceDebug() = delete;
 
-    static bool TryToDotFormatFile(IO::Path& path, const DataBindingService& dataBindingService);
+    static bool TryToDotFormatFile(const IO::Path& path, const DataBindingService& dataBindingService);
     static std::optional<std::string> TryToDotFormatString(const DataBindingService& dataBindingService);
   };
 }

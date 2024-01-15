@@ -35,6 +35,7 @@
 #include <FslService/Consumer/ServiceId.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <utility>
@@ -82,7 +83,7 @@ namespace Fsl
     switch (res.LaunchType)
     {
     case ServiceLaunchType::MultipleProviderTag:
-      throw ServiceInterfaceHasMultipleProvidersException(serviceId.Get().name());
+      throw ServiceInterfaceHasMultipleProvidersException(fmt::format("Multiple providers available for interface: {}", serviceId.Get().name()));
     case ServiceLaunchType::Invalid:
       throw UnknownServiceException(serviceId.Get().name());
     case ServiceLaunchType::InstanceAllocator:

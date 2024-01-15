@@ -31,6 +31,7 @@
 
 #include <FslBase/Collections/Concurrent/ConcurrentQueue.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
@@ -67,7 +68,7 @@ TEST(TestCollections_Concurrent_ConcurrentQueue, TryDequeWait_Empty)
   ConcurrentQueue<uint32_t> queue;
 
   uint32_t value = 1u;
-  EXPECT_FALSE(queue.TryDequeWait(value, std::chrono::milliseconds(1)));
+  EXPECT_FALSE(queue.TryDequeueWait(value, std::chrono::milliseconds(1)));
   EXPECT_EQ(0u, value);
 }
 
@@ -115,9 +116,9 @@ TEST(TestCollections_Concurrent_ConcurrentQueue, Enqueue_TryDequeWait)
   queue.Enqueue(0x42);
 
   uint32_t value = 0;
-  EXPECT_TRUE(queue.TryDequeWait(value, std::chrono::milliseconds(1)));
+  EXPECT_TRUE(queue.TryDequeueWait(value, std::chrono::milliseconds(1)));
   EXPECT_EQ(0x42u, value);
-  EXPECT_FALSE(queue.TryDequeWait(value, std::chrono::milliseconds(1)));
+  EXPECT_FALSE(queue.TryDequeueWait(value, std::chrono::milliseconds(1)));
   EXPECT_EQ(0u, value);
 }
 
@@ -155,7 +156,7 @@ TEST(TestCollections_Concurrent_ConcurrentQueue, EnqueueClear_TryDequeWait)
   queue.Clear();
 
   uint32_t value = 1;
-  EXPECT_FALSE(queue.TryDequeWait(value, std::chrono::milliseconds(1)));
+  EXPECT_FALSE(queue.TryDequeueWait(value, std::chrono::milliseconds(1)));
   EXPECT_EQ(0u, value);
 }
 
@@ -169,4 +170,152 @@ TEST(TestCollections_Concurrent_ConcurrentQueue, EnqueueClear_TryPeek)
   uint32_t value = 1;
   EXPECT_FALSE(queue.TryPeek(value));
   EXPECT_EQ(0u, value);
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, SwapQueue)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  const uint32_t val0 = 42;
+  const uint32_t val1 = 43;
+  const uint32_t val2 = 44;
+
+  queue.Enqueue(val0);
+  queue.Enqueue(val1);
+  queue.Enqueue(val2);
+
+  std::queue<uint32_t> swapQueue;
+  queue.SwapQueue(swapQueue);
+
+  EXPECT_EQ(3u, swapQueue.size());
+  EXPECT_EQ(val0, swapQueue.front());
+  swapQueue.pop();
+  EXPECT_EQ(val1, swapQueue.front());
+  swapQueue.pop();
+  EXPECT_EQ(val2, swapQueue.front());
+  swapQueue.pop();
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, SwapEmpty)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  std::queue<uint32_t> swapQueue;
+  queue.SwapQueue(swapQueue);
+
+  EXPECT_TRUE(swapQueue.empty());
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, Extract_Queue)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  const uint32_t val0 = 42;
+  const uint32_t val1 = 43;
+  const uint32_t val2 = 44;
+
+  queue.Enqueue(val0);
+  queue.Enqueue(val1);
+  queue.Enqueue(val2);
+
+  std::queue<uint32_t> swapQueue;
+  queue.Extract(swapQueue);
+
+  EXPECT_EQ(3u, swapQueue.size());
+  EXPECT_EQ(val0, swapQueue.front());
+  swapQueue.pop();
+  EXPECT_EQ(val1, swapQueue.front());
+  swapQueue.pop();
+  EXPECT_EQ(val2, swapQueue.front());
+  swapQueue.pop();
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, ExtractEmpty_Queue)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  std::queue<uint32_t> swapQueue;
+  queue.SwapQueue(swapQueue);
+
+  EXPECT_TRUE(swapQueue.empty());
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, Extract_SpanEqual)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  const uint32_t val0 = 42;
+  const uint32_t val1 = 43;
+  const uint32_t val2 = 44;
+
+  queue.Enqueue(val0);
+  queue.Enqueue(val1);
+  queue.Enqueue(val2);
+
+  std::vector<uint32_t> dst(3);
+  const auto written = queue.Extract(SpanUtil::AsSpan(dst));
+
+  EXPECT_EQ(3u, written);
+  EXPECT_EQ(val0, dst[0]);
+  EXPECT_EQ(val1, dst[1]);
+  EXPECT_EQ(val2, dst[2]);
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, Extract_SpanLarger)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  const uint32_t val0 = 42;
+  const uint32_t val1 = 43;
+  const uint32_t val2 = 44;
+
+  queue.Enqueue(val0);
+  queue.Enqueue(val1);
+  queue.Enqueue(val2);
+
+  std::vector<uint32_t> dst(4);
+  const auto written = queue.Extract(SpanUtil::AsSpan(dst));
+
+  EXPECT_EQ(3u, written);
+  EXPECT_EQ(val0, dst[0]);
+  EXPECT_EQ(val1, dst[1]);
+  EXPECT_EQ(val2, dst[2]);
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, Extract_SpanSmaller)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  const uint32_t val0 = 42;
+  const uint32_t val1 = 43;
+  const uint32_t val2 = 44;
+
+  queue.Enqueue(val0);
+  queue.Enqueue(val1);
+  queue.Enqueue(val2);
+
+  std::vector<uint32_t> dst(2);
+  const auto written = queue.Extract(SpanUtil::AsSpan(dst));
+
+  EXPECT_EQ(2u, written);
+  EXPECT_EQ(val0, dst[0]);
+  EXPECT_EQ(val1, dst[1]);
+}
+
+
+TEST(TestCollections_Concurrent_ConcurrentQueue, ExtractEmpty_Span)
+{
+  ConcurrentQueue<uint32_t> queue;
+
+  std::vector<uint32_t> dst(3);
+  const auto written = queue.Extract(SpanUtil::AsSpan(dst));
+
+  EXPECT_EQ(0u, written);
 }

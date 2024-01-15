@@ -51,12 +51,31 @@ namespace Fsl
       RapidVulkan::ShaderModule m_vertexShaderModule;
       RapidVulkan::ShaderModule m_fragmentShaderModule;
       RapidVulkan::PipelineLayout m_pipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
     {
       RapidVulkan::RenderPass m_renderPass;
       RapidVulkan::GraphicsPipeline m_pipeline;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        m_pipeline.Reset();
+        m_renderPass.Reset();
+      }
     };
 
     Resources m_resources;

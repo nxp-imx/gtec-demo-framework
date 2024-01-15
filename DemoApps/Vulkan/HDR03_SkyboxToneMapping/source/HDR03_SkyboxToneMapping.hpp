@@ -111,6 +111,12 @@ namespace Fsl
       std::vector<FrameResources> MainFrameResources;
 
       RapidVulkan::PipelineLayout TonemapPipelineLayout;
+
+      Resources() = default;
+      Resources(const Resources&) = delete;
+      Resources& operator=(const Resources&) = delete;
+      Resources(Resources&& other) noexcept = delete;
+      Resources& operator=(Resources&& other) noexcept = delete;
     };
 
     struct DependentResources
@@ -121,6 +127,21 @@ namespace Fsl
 
       RapidVulkan::GraphicsPipeline ScenePipeline;
       std::array<RapidVulkan::GraphicsPipeline, Tonemapper::COUNT> PipelineTonemapper;
+
+      DependentResources() = default;
+      DependentResources(const DependentResources&) = delete;
+      DependentResources& operator=(const DependentResources&) = delete;
+      DependentResources(DependentResources&& other) noexcept = delete;
+      DependentResources& operator=(DependentResources&& other) noexcept = delete;
+
+      void Reset() noexcept
+      {
+        // Reset in destruction order
+        PipelineTonemapper = {};
+        ScenePipeline.Reset();
+        RenderAttachment.Reset();
+        MainRenderPass.Reset();
+      }
     };
 
     MenuUI m_menuUI;

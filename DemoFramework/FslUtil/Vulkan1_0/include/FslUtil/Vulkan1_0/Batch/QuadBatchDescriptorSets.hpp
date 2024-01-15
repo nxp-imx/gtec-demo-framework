@@ -54,7 +54,7 @@ namespace Fsl::Vulkan
 
     public:
       Bucket(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout, const uint32_t size);
-      void Clear();
+      void Clear() noexcept;
       VkDescriptorSet NextFree();
     };
 

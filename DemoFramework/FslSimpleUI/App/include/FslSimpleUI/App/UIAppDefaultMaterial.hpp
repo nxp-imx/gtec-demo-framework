@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Sprite/Material/SpriteMaterialInfo.hpp>
 #include <memory>
 
@@ -44,8 +45,9 @@ namespace Fsl
 
   namespace UIAppDefaultMaterial
   {
+    //! @param pixelFormat the default pixel format which is normally PixelFormat::R8G8B8A8_UNORM
     SpriteMaterialInfo CreateDefaultMaterial(const ServiceProvider& serviceProvider, const VertexDeclarationSpan& vertexDeclaration,
-                                             const bool isDynamic, const bool allowDepthBuffer);
+                                             const PixelFormat pixelFormat, const bool isDynamic, const bool allowDepthBuffer);
   };
 }
 

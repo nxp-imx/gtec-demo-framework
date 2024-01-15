@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslDataBinding/Base/DataBindingInstanceState.hpp>
 #include <FslDataBinding/Base/DataBindingInstanceType.hpp>
+#include <FslDataBinding/Base/Internal/PropertyChangeState.hpp>
 #include <FslDataBinding/Base/Internal/PropertyMethodsImplType.hpp>
 #include <cassert>
 
@@ -43,6 +44,7 @@ namespace Fsl::DataBinding::Internal
   {
     constexpr uint32_t DataBindingInstanceState = 8;
     constexpr uint32_t PropertyMethodsImplType = 12;
+    constexpr uint32_t PropertyChangeState = 16;
   }
 
   struct InstanceState
@@ -62,7 +64,8 @@ namespace Fsl::DataBinding::Internal
 
       MASK_DataBindingInstanceType = 0x000000FF,
       MASK_DataBindingInstanceState = 0x00000F00,
-      MASK_PropertyMethodsImplType = 0x0000F000
+      MASK_PropertyMethodsImplType = 0x0000F000,
+      MASK_PropertyChangeState = 0x00030000
     };
 
   private:
@@ -165,6 +168,28 @@ namespace Fsl::DataBinding::Internal
       const uint32_t stateFlags = (static_cast<base_type>(state) << InstanceStateShifts::DataBindingInstanceState) &
                                   static_cast<base_type>(Flags::MASK_DataBindingInstanceState);
       m_flags = static_cast<Flags>((static_cast<base_type>(m_flags) & (~static_cast<base_type>(Flags::MASK_DataBindingInstanceState))) | stateFlags);
+    }
+
+
+    constexpr inline PropertyChangeState GetPropertyChangeState() const noexcept
+    {
+      return static_cast<PropertyChangeState>((static_cast<base_type>(m_flags) & static_cast<base_type>(Flags::MASK_PropertyChangeState)) >>
+                                              InstanceStateShifts::PropertyChangeState);
+    }
+
+    constexpr void SetPropertyChangeState(const PropertyChangeState changeReason) noexcept
+    {
+      assert(static_cast<base_type>(changeReason) <=
+             (static_cast<base_type>(Flags::MASK_PropertyChangeState) >> InstanceStateShifts::PropertyChangeState));
+
+      const uint32_t stateFlags =
+        (static_cast<base_type>(changeReason) << InstanceStateShifts::PropertyChangeState) & static_cast<base_type>(Flags::MASK_PropertyChangeState);
+      m_flags = static_cast<Flags>((static_cast<base_type>(m_flags) & (~static_cast<base_type>(Flags::MASK_PropertyChangeState))) | stateFlags);
+    }
+
+    constexpr void ClearPropertyChangeState() noexcept
+    {
+      m_flags = static_cast<Flags>(static_cast<base_type>(m_flags) & (~static_cast<base_type>(Flags::MASK_PropertyChangeState)));
     }
 
   private:

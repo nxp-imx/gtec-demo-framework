@@ -1,7 +1,7 @@
 #ifndef FSLNATIVEWINDOW_EGL_EGLNATIVEWINDOWSYSTEMFACTORY_HPP
 #define FSLNATIVEWINDOW_EGL_EGLNATIVEWINDOWSYSTEMFACTORY_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * Copyright 2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *

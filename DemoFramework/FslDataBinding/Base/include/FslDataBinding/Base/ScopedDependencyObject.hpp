@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDataBinding/Base/DataBindingInstanceHandle.hpp>
+#include <FslDataBinding/Base/PropertyChangeReason.hpp>
 #include <memory>
 
 namespace Fsl::DataBinding
@@ -72,7 +73,7 @@ namespace Fsl::DataBinding
     bool ClearBinding(const DataBindingInstanceHandle hTarget);
     bool SetBinding(const DataBindingInstanceHandle hTarget, const Binding& binding);
     bool SetObserverBinding(const DataBindingInstanceHandle hTarget, const DataBindingInstanceHandle hSource);
-    bool PropertyChanged(const DataBindingInstanceHandle hInstance);
+    bool PropertyChanged(const DataBindingInstanceHandle hInstance, const PropertyChangeReason changeReason);
 
     bool IsPropertyReadOnly(const DataBindingInstanceHandle hInstance) const noexcept;
     bool DestroyProperty(const DataBindingInstanceHandle hInstance) noexcept;

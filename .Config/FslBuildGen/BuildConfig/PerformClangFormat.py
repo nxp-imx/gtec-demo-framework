@@ -366,7 +366,7 @@ class PerformClangFormatHelper2(object):
                    toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext], customPackageFileFilter: Optional[CustomPackageFileFilter],
                    clangFormatConfiguration: ClangFormatConfiguration) -> None:
 
-        outputFolder = IOUtil.Join(outputFolder, PackagePathUtil.GetPackagePath(package, toolProjectContextsDict))
+        outputFolder = IOUtil.Join(outputFolder, PackagePathUtil.GetUniquePackagePath(package, toolProjectContextsDict))
 
         filteredFiles = GetFilteredFiles(log, customPackageFileFilter, clangFormatConfiguration, package)
         formatPackageConfig = FormatPackageConfig(log, package, clangFormatConfiguration, filteredFiles)

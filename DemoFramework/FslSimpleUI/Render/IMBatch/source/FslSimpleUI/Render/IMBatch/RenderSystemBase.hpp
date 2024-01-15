@@ -74,6 +74,8 @@ namespace Fsl::UI::RenderIMBatch
     std::vector<RenderSystemBufferRecord> m_buffers;
 
     DrawCommandBufferEx m_commandBuffer;
+    bool m_commandBufferCleared{false};
+    std::size_t m_commandBufferSizeLastFrame{0};
 
     Matrix m_matrixProjection;
     RenderSystemStats m_stats;
@@ -93,14 +95,14 @@ namespace Fsl::UI::RenderIMBatch
     void OnConfigurationChanged(const BasicWindowMetrics& windowMetrics) override;
     std::shared_ptr<IMeshManager> GetMeshManager() const final;
 
-    DrawCommandBuffer& AcquireDrawCommandBuffer() final;
+    DrawCommandBuffer& AcquireDrawCommandBuffer(const bool clear) final;
     void ReleaseDrawCommandBuffer() final;
 
     // Normal operation
     void PreDraw() final;
     void PostDraw() final;
 
-    RenderSystemStats GetStats() const final
+    RenderSystemStats GetStats() const noexcept final
     {
       return m_stats;
     }
@@ -116,39 +118,48 @@ namespace Fsl::UI::RenderIMBatch
     }
 
   protected:
-    const BasicWindowMetrics& GetWindowMetrics() const
+    const BasicWindowMetrics& GetWindowMetrics() const noexcept
     {
       return m_windowMetrics;
     }
 
-    const Matrix& GetMatrixProjection() const
+    const Matrix& GetMatrixProjection() const noexcept
     {
       return m_matrixProjection;
     }
 
-    IBasicRenderSystem& GetRenderSystem()
+    IBasicRenderSystem& GetRenderSystem() noexcept
     {
       assert(m_renderSystem);
       return *m_renderSystem;
     }
 
-    MeshManager& DoGetMeshManager()
+    MeshManager& DoGetMeshManager() noexcept
     {
       assert(m_meshManager);
       return *m_meshManager;
     }
 
-    std::vector<RenderSystemBufferRecord>& GetBuffers()
+    std::vector<RenderSystemBufferRecord>& GetBuffers() noexcept
     {
       return m_buffers;
     }
 
-    DrawCommandBufferEx& GetCommandBuffer()
+    /// <summary>
+    /// Check if the command buffer was modified since the last frame
+    /// </summary>
+    /// <returns></returns>
+    bool IsNewCommandBuffer() const noexcept
+    {
+      return m_commandBufferCleared || m_commandBuffer.Count() != m_commandBufferSizeLastFrame;
+    }
+
+    DrawCommandBufferEx& GetCommandBuffer() noexcept
     {
       return m_commandBuffer;
     }
 
-    RenderSystemStats& DoGetStats()
+    RenderSystemStats& DoGetStats() noexcept
     {
       return m_stats;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2021-2022 NXP
+ * Copyright 2021-2023 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,10 +52,16 @@
 #ifdef LOCAL_SANITY_CHECK
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define SANITY_CHECK() SanityCheck();
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SANITY_CHECK_ALL() SanityCheckAll();
 #else
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define SANITY_CHECK() \
   {                    \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define SANITY_CHECK_ALL() \
+  {                        \
   }
 #endif
 
@@ -113,8 +119,9 @@ namespace Fsl::UI::RenderIMBatch
       }
     }
 
+#ifdef LOCAL_SANITY_CHECK
     template <typename TMeshRecord>
-    void AddVertexAndIndexCount(uint32_t& rVertexCount, uint32_t& rIndexCount, const HandleVector<TMeshRecord>& meshes)
+    void SanityCheckAddVertexAndIndexCount(uint32_t& rVertexCount, uint32_t& rIndexCount, const HandleVector<TMeshRecord>& meshes)
     {
       uint32_t vertexCount = 0;
       uint32_t indexCount = 0;
@@ -129,7 +136,60 @@ namespace Fsl::UI::RenderIMBatch
     }
 
     template <typename TMeshRecord>
-    bool DoDestroyMesh(MeshManager::Capacity& rCapacity, HandleVector<TMeshRecord>& rMeshes, const MeshHandle hMesh)
+    void SanityCheckMaterialRefCountMat1(std::map<BatchMaterialHandle, uint32_t>& rExpectedRefCountMap, const HandleVector<TMeshRecord>& meshes)
+    {
+      for (uint32_t i = 0; i < meshes.Count(); ++i)
+      {
+        const BatchMaterialHandle handle = meshes[i].MaterialHandle;
+        const auto itrFind = rExpectedRefCountMap.find(handle);
+        if (itrFind == rExpectedRefCountMap.end())
+        {
+          rExpectedRefCountMap.emplace(handle, 1u);
+        }
+        else
+        {
+          rExpectedRefCountMap[handle] = itrFind->second + 1;
+        }
+      }
+    }
+
+    template <typename TMeshRecord>
+    void SanityCheckMaterialRefCountMat2(std::map<BatchMaterialHandle, uint32_t>& rExpectedRefCountMap, const HandleVector<TMeshRecord>& meshes)
+    {
+      for (uint32_t i = 0; i < meshes.Count(); ++i)
+      {
+        {
+          const BatchMaterialHandle handle = meshes[i].OpaqueMaterialHandle;
+          const auto itrFind = rExpectedRefCountMap.find(handle);
+          if (itrFind == rExpectedRefCountMap.end())
+          {
+            rExpectedRefCountMap.emplace(handle, 1u);
+          }
+          else
+          {
+            rExpectedRefCountMap[handle] = itrFind->second + 1;
+          }
+        }
+        {
+          const BatchMaterialHandle handle = meshes[i].TransparentMaterialHandle;
+          const auto itrFind = rExpectedRefCountMap.find(handle);
+          if (itrFind == rExpectedRefCountMap.end())
+          {
+            rExpectedRefCountMap.emplace(handle, 1u);
+          }
+          else
+          {
+            rExpectedRefCountMap[handle] = itrFind->second + 1;
+          }
+        }
+      }
+    }
+#endif
+
+
+    template <typename TMeshRecord>
+    bool DoDestroyMeshMat1(MaterialLookup& rMaterialLookup, MeshManager::Capacity& rCapacity, HandleVector<TMeshRecord>& rMeshes,
+                           const MeshHandle hMesh)
     {
       const int32_t hMeshValue = HandleCoding::GetOriginalHandle(hMesh);
       const bool found = rMeshes.IsValidHandle(hMeshValue);
@@ -141,10 +201,33 @@ namespace Fsl::UI::RenderIMBatch
         assert(rCapacity.IndexCapacity >= record.IndexCapacity);
         rCapacity.VertexCapacity -= record.VertexCapacity;
         rCapacity.IndexCapacity -= record.IndexCapacity;
+        rMaterialLookup.Release(record.MaterialHandle);
         rMeshes.FastRemoveAt(index);
       }
       return found;
     }
+
+    template <typename TMeshRecord>
+    bool DoDestroyMeshMat2(MaterialLookup& rMaterialLookup, MeshManager::Capacity& rCapacity, HandleVector<TMeshRecord>& rMeshes,
+                           const MeshHandle hMesh)
+    {
+      const int32_t hMeshValue = HandleCoding::GetOriginalHandle(hMesh);
+      const bool found = rMeshes.IsValidHandle(hMeshValue);
+      if (found)
+      {
+        auto index = rMeshes.FastHandleToIndex(hMeshValue);
+        const auto& record = rMeshes[index];
+        assert(rCapacity.VertexCapacity >= record.VertexCapacity);
+        assert(rCapacity.IndexCapacity >= record.IndexCapacity);
+        rCapacity.VertexCapacity -= record.VertexCapacity;
+        rCapacity.IndexCapacity -= record.IndexCapacity;
+        rMaterialLookup.Release(record.OpaqueMaterialHandle);
+        rMaterialLookup.Release(record.TransparentMaterialHandle);
+        rMeshes.FastRemoveAt(index);
+      }
+      return found;
+    }
+
 
     void UpdateConfiguration(MaterialLookup& rMaterialLookup, HandleVector<MeshManager::OptimizedNineSliceSpriteMeshRecord>& rMeshes)
     {
@@ -273,21 +356,21 @@ namespace Fsl::UI::RenderIMBatch
 
   MeshManager::~MeshManager()
   {
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesDummy);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesBasicImageSprite);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesBasicNineSliceSprite);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesImageSprite);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesNineSliceSprite);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesOptimizedNineSliceSprite);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     RemoveAllMeshes(m_capacity, m_meshesSpriteFont);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     assert(m_capacity.VertexCapacity == 0);
     assert(m_capacity.IndexCapacity == 0);
   }
@@ -329,13 +412,14 @@ namespace Fsl::UI::RenderIMBatch
       FSLLOG3(LocalConfig::Verbosity, "MeshManager::CreateBasicMesh() MeshHandle:{} DrawSpriteType:{}", result.MeshValue, result.DrawSpriteType);
       m_capacity.VertexCapacity += result.VertexCapacity;
 
-      SANITY_CHECK();
+      SANITY_CHECK_ALL();
       return HandleCoding::EncodeHandle(result.DrawSpriteType, result.MeshValue);
     }
     catch (const std::exception& ex)
     {
       m_materialLookup.Release(batchMaterialHandle);
       FSLLOG3_ERROR("Failed to create basic mesh record: {}", ex.what());
+      SANITY_CHECK_ALL();
       throw;
     }
   }
@@ -377,13 +461,14 @@ namespace Fsl::UI::RenderIMBatch
       FSLLOG3(LocalConfig::Verbosity, "MeshManager::CreateMesh() MeshHandle:{} DrawSpriteType:{}", result.MeshValue, result.DrawSpriteType);
       m_capacity.VertexCapacity += result.VertexCapacity;
       m_capacity.IndexCapacity += result.IndexCapacity;
-      SANITY_CHECK();
+      SANITY_CHECK_ALL();
       return HandleCoding::EncodeHandle(result.DrawSpriteType, result.MeshValue);
     }
     catch (const std::exception& ex)
     {
       m_materialLookup.Release(batchMaterialHandle);
       FSLLOG3_ERROR("Failed to create mesh record: {}", ex.what());
+      SANITY_CHECK_ALL();
       throw;
     }
   }
@@ -418,13 +503,14 @@ namespace Fsl::UI::RenderIMBatch
       FSLLOG3(LocalConfig::Verbosity, "MeshManager::CreateMesh() MeshHandle:{} SpriteFont", hMeshValue);
       m_capacity.VertexCapacity += finalVertexCapacity;
       m_capacity.IndexCapacity += finalIndexCapacity;
-      SANITY_CHECK();
+      SANITY_CHECK_ALL();
       return HandleCoding::EncodeHandle(RenderDrawSpriteType::SpriteFont, hMeshValue);
     }
     catch (const std::exception& ex)
     {
       m_materialLookup.Release(batchMaterialHandle);
       FSLLOG3_ERROR("Failed to create mesh record: {}", ex.what());
+      SANITY_CHECK_ALL();
       throw;
     }
   }
@@ -433,36 +519,36 @@ namespace Fsl::UI::RenderIMBatch
   bool MeshManager::DestroyMesh(const MeshHandle hMesh) noexcept
   {
     FSLLOG3(LocalConfig::Verbosity, "MeshManager::DestroyMesh({})", hMesh.Value);
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     bool found = false;
     switch (HandleCoding::GetType(hMesh))
     {
     case RenderDrawSpriteType::Dummy:
-      found = DoDestroyMesh(m_capacity, m_meshesDummy, hMesh);
+      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesDummy, hMesh);
       break;
     case RenderDrawSpriteType::BasicImageSprite:
-      found = DoDestroyMesh(m_capacity, m_meshesBasicImageSprite, hMesh);
+      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesBasicImageSprite, hMesh);
       break;
     case RenderDrawSpriteType::BasicNineSliceSprite:
-      found = DoDestroyMesh(m_capacity, m_meshesBasicNineSliceSprite, hMesh);
+      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesBasicNineSliceSprite, hMesh);
       break;
     case RenderDrawSpriteType::ImageSprite:
-      found = DoDestroyMesh(m_capacity, m_meshesImageSprite, hMesh);
+      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesImageSprite, hMesh);
       break;
     case RenderDrawSpriteType::NineSliceSprite:
-      found = DoDestroyMesh(m_capacity, m_meshesNineSliceSprite, hMesh);
+      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesNineSliceSprite, hMesh);
       break;
     case RenderDrawSpriteType::OptimizedNineSliceSprite:
-      found = DoDestroyMesh(m_capacity, m_meshesOptimizedNineSliceSprite, hMesh);
+      found = DoDestroyMeshMat2(m_materialLookup, m_capacity, m_meshesOptimizedNineSliceSprite, hMesh);
       break;
     case RenderDrawSpriteType::SpriteFont:
-      found = DoDestroyMesh(m_capacity, m_meshesSpriteFont, hMesh);
+      found = DoDestroyMeshMat1(m_materialLookup, m_capacity, m_meshesSpriteFont, hMesh);
       break;
     default:
       FSLLOG3_ERROR("Handle has unknown/unsupported mesh type");
       break;
     }
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     return found;
   }
 
@@ -473,7 +559,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       throw std::invalid_argument("sprite can not be null");
     }
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
 
     // The simple implementation is to just destroy the old mesh and create a new one
     DestroyMesh(hMesh);
@@ -488,7 +574,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       throw std::invalid_argument("sprite can not be null");
     }
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     // The simple implementation is to just destroy the old mesh and create a new one
     DestroyMesh(hMesh);
     return CreateMesh(sprite);
@@ -506,7 +592,7 @@ namespace Fsl::UI::RenderIMBatch
     {
       throw std::invalid_argument("Mesh does not represent a sprite font");
     }
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
 
     // Patch the mesh record
     SpriteFontMeshRecord& rMeshRecord = m_meshesSpriteFont.Get(HandleCoding::GetOriginalHandle(hMesh));
@@ -519,14 +605,14 @@ namespace Fsl::UI::RenderIMBatch
     assert(m_capacity.IndexCapacity >= rMeshRecord.IndexCapacity);
 
     // Since we just change between two font materials the required vertex and index capacity should not change!
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     return hMesh;
   }
 
 
   MeshHandle MeshManager::SetMeshText(const MeshHandle hMesh, const StringViewLite& text)
   {
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
 
     const RenderDrawSpriteType drawSpriteType = HandleCoding::GetType(hMesh);
     if (drawSpriteType != RenderDrawSpriteType::SpriteFont)
@@ -537,14 +623,14 @@ namespace Fsl::UI::RenderIMBatch
 
     rMeshRecord.SetText(text);
 
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     return hMesh;
   }
 
 
   void MeshManager::EnsureCapacity(const MeshHandle hMesh, const uint32_t vertexCapacity, const uint32_t indexCapacity)
   {
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
     switch (HandleCoding::GetType(hMesh))
     {
     case RenderDrawSpriteType::Dummy:
@@ -572,13 +658,13 @@ namespace Fsl::UI::RenderIMBatch
       FSLLOG3_ERROR("Handle has unknown/unsupported mesh type");
       break;
     }
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
   }
 
 
   void MeshManager::PreDraw()
   {
-    SANITY_CHECK();
+    SANITY_CHECK_ALL();
   }
 
   MeshManager::AddMeshResult MeshManager::AddSpriteBasicMesh(const std::shared_ptr<ISprite>& sprite, const BatchMaterialHandle batchMaterialHandle,
@@ -712,18 +798,45 @@ namespace Fsl::UI::RenderIMBatch
     }
   }
 
+  void MeshManager::SanityCheckAll() noexcept
+  {
+#ifdef LOCAL_SANITY_CHECK
+    SanityCheck();
+    SanityCheckMats();
+#endif
+  }
+
+
   void MeshManager::SanityCheck() noexcept
   {
+#ifdef LOCAL_SANITY_CHECK
     uint32_t vertexCount = 0;
     uint32_t indexCount = 0;
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesDummy);
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesBasicImageSprite);
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesBasicNineSliceSprite);
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesImageSprite);
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesNineSliceSprite);
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesOptimizedNineSliceSprite);
-    AddVertexAndIndexCount(vertexCount, indexCount, m_meshesSpriteFont);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesDummy);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesBasicImageSprite);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesBasicNineSliceSprite);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesImageSprite);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesNineSliceSprite);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesOptimizedNineSliceSprite);
+    SanityCheckAddVertexAndIndexCount(vertexCount, indexCount, m_meshesSpriteFont);
     assert(vertexCount == m_capacity.VertexCapacity);
     assert(indexCount == m_capacity.IndexCapacity);
+#endif
+  }
+
+  void MeshManager::SanityCheckMats() noexcept
+  {
+#ifdef LOCAL_SANITY_CHECK
+    std::map<BatchMaterialHandle, uint32_t> expectedRefCountMap;
+    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesDummy);
+    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesBasicImageSprite);
+    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesBasicNineSliceSprite);
+    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesImageSprite);
+    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesNineSliceSprite);
+    SanityCheckMaterialRefCountMat2(expectedRefCountMap, m_meshesOptimizedNineSliceSprite);
+    SanityCheckMaterialRefCountMat1(expectedRefCountMap, m_meshesSpriteFont);
+
+    m_materialLookup.SanityCheck(expectedRefCountMap);
+#endif
   }
 }

@@ -32,9 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Span/ReadOnlySpan.hpp>
+#include <FslBase/Span/Span.hpp>
 #include <FslDataBinding/Base/Bind/IMultiBinding.hpp>
 #include <FslDataBinding/Base/Bind/PropertyTypeInfo.hpp>
 #include <FslDataBinding/Base/Internal/PropertyGetInfo.hpp>
+#include <FslDataBinding/Base/Internal/PropertySetInfo.hpp>
 #include <typeindex>
 
 namespace Fsl::DataBinding
@@ -58,6 +60,9 @@ namespace Fsl::DataBinding
 
     virtual Internal::PropertySetResult Convert(const Internal::PropertyMethodsImplType setPropertyMethodsImplType,
                                                 Internal::IPropertyMethods* const pSet, const ReadOnlySpan<Internal::PropertyGetInfo> getters) = 0;
+    //! If this is not a two-way converter this method should return false
+    virtual bool TryConvertBack(Span<Internal::PropertySetResult> resultSpan, const ReadOnlySpan<Internal::PropertySetInfo> setters,
+                                const Internal::PropertyGetInfo getter) = 0;
   };
 }
 

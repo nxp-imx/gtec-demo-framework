@@ -95,6 +95,6 @@ namespace Fsl
 
   void DFGraphicsBasic2D::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

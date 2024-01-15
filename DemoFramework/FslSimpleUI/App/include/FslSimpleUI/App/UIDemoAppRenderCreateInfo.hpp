@@ -59,7 +59,7 @@ namespace Fsl
 
 
     explicit constexpr UIDemoAppRenderCreateInfo(const UIDemoAppMaterialCreateInfo materialCreateInfo,
-                                                 const UIDemoAppMaterialConfig materialConfig) noexcept
+                                                 const UIDemoAppMaterialConfig materialConfig = {}) noexcept
       : UIDemoAppRenderCreateInfo(UIDemoAppRenderCapacityInfo(), materialCreateInfo, materialConfig)
     {
     }
@@ -68,6 +68,7 @@ namespace Fsl
     {
       return Capacity == rhs.Capacity && MaterialCreateInfo == rhs.MaterialCreateInfo && MaterialConfig == rhs.MaterialConfig;
     }
+
 
     constexpr bool operator!=(const UIDemoAppRenderCreateInfo& rhs) const noexcept
     {

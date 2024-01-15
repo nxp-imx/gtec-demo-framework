@@ -45,6 +45,8 @@ namespace Fsl::UI
     enum Enum
     {
       LayoutDirty = WindowFlags::LayoutDirty,
+      //! Mark rendered content as dirty
+      ContentRenderingDirty = WindowFlags::ContentRenderingDirty,
       UpdateEnabled = WindowFlags::UpdateEnabled,
       DrawEnabled = WindowFlags::DrawEnabled,
       VisibilityMask = WindowFlags::VisibilityMask,

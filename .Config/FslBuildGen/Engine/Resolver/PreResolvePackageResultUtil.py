@@ -47,17 +47,22 @@ def TryGetPackageListFromFilenames(allPackages: List[PreResolvePackageResult], r
     if requestedFiles is None:
         return None
 
-    filenameToPackageDict = {}  # type: Dict [str,PreResolvePackageResult]
+    filenameToPackagesDict = {}  # type: Dict [str,List[PreResolvePackageResult]]
     for entry in allPackages:
         if entry.SourcePackage.TraceContext.PackageFile is not None:
-            filenameToPackageDict[entry.SourcePackage.TraceContext.PackageFile.AbsoluteFilePath] = entry
+            sourcePackageFile = entry.SourcePackage.TraceContext.PackageFile.AbsoluteFilePath
+            if sourcePackageFile not in filenameToPackagesDict:
+                filenameToPackagesDict[sourcePackageFile] = [entry]
+            else:
+                filenameToPackagesDict[sourcePackageFile].append(entry)
 
     uniqueDict = {} # type: Dict[PackageInstanceName, PreResolvePackageResult]
     for file in requestedFiles:
-        if file in filenameToPackageDict:
-            filePackage = filenameToPackageDict[file]
-            if not filePackage.SourcePackage.NameInfo.FullName in uniqueDict:
-                uniqueDict[filePackage.SourcePackage.NameInfo.FullName] = filePackage
+        if file in filenameToPackagesDict:
+            filePackageList = filenameToPackagesDict[file]
+            for filePackage in filePackageList:
+                if not filePackage.SourcePackage.NameInfo.FullName in uniqueDict:
+                    uniqueDict[filePackage.SourcePackage.NameInfo.FullName] = filePackage
         elif not ignoreNotFound:
             raise Exception("Could not find package for '{0}'".format(file))
     return list(uniqueDict.values())

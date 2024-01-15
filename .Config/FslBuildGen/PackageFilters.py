@@ -46,8 +46,9 @@ class PackageFilters(object):
         self.ExtensionNameList = ExtensionListManager2(FilterMethod.AllowAll, []) if extensionNameList is None else extensionNameList   # type: ExtensionListManager2
         self.RequiredFeatureNameList = ['*'] if requiredFeatureNameList is None else requiredFeatureNameList                            # type: List[str]
         self.RecipeFilterManager = RecipeFilterManager(True, []) if recipeList is None else recipeList                                  # type: RecipeFilterManager
+        self.ExePackageNameFilter = None # type: Optional[str]
 
-    def ContainsFilters(self) -> bool:
+    def ContainsRequirementTypeFilters(self) -> bool:
         return (not self.ExtensionNameList.FilterMethod == FilterMethod.AllowAll or
                 not '*' in self.FeatureNameList or
                 not '*' in self.RequiredFeatureNameList or

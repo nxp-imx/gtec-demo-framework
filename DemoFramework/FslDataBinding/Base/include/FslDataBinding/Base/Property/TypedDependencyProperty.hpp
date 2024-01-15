@@ -39,6 +39,7 @@
 #include <FslDataBinding/Base/Internal/TypedDependencyPropertyMethods.hpp>
 #include <FslDataBinding/Base/Internal/TypedDependencyPropertyMethodsDefinition.hpp>
 #include <FslDataBinding/Base/Property/DependencyPropertyDefinition.hpp>
+#include <FslDataBinding/Base/PropertyChangeReason.hpp>
 #include <FslDataBinding/Base/ScopedDependencyObject.hpp>
 #include <cassert>
 #include <memory>
@@ -87,7 +88,8 @@ namespace Fsl::DataBinding
       return m_value;
     }
 
-    bool Set(ScopedDependencyObject& rDependencyObject, const value_type value)
+    bool Set(ScopedDependencyObject& rDependencyObject, const value_type value,
+             const PropertyChangeReason changeReason = PropertyChangeReason::Modified)
     {
       bool changed = false;
       if (value != m_value)
@@ -95,7 +97,7 @@ namespace Fsl::DataBinding
         bool allowChanges = true;
         if (m_hInstance.IsValid())
         {
-          allowChanges = rDependencyObject.PropertyChanged(m_hInstance);
+          allowChanges = rDependencyObject.PropertyChanged(m_hInstance, changeReason);
         }
         if (allowChanges)
         {
@@ -192,7 +194,8 @@ namespace Fsl::DataBinding
     }
 
 
-    bool Set(ScopedDependencyObject& rDependencyObject, const StringViewLite value)
+    bool Set(ScopedDependencyObject& rDependencyObject, const StringViewLite value,
+             const PropertyChangeReason changeReason = PropertyChangeReason::Modified)
     {
       bool changed = false;
       if (value != m_value)
@@ -200,7 +203,7 @@ namespace Fsl::DataBinding
         bool allowChanges = true;
         if (m_hInstance.IsValid())
         {
-          allowChanges = rDependencyObject.PropertyChanged(m_hInstance);
+          allowChanges = rDependencyObject.PropertyChanged(m_hInstance, changeReason);
         }
         if (allowChanges)
         {
@@ -211,12 +214,13 @@ namespace Fsl::DataBinding
       return changed;
     }
 
-    bool Set(ScopedDependencyObject& rDependencyObject, const std::string& value)
+    bool Set(ScopedDependencyObject& rDependencyObject, const std::string& value,
+             const PropertyChangeReason changeReason = PropertyChangeReason::Modified)
     {
-      return Set(rDependencyObject, StringViewLiteUtil::AsStringViewLite(value));
+      return Set(rDependencyObject, StringViewLiteUtil::AsStringViewLite(value), changeReason);
     }
 
-    bool Set(ScopedDependencyObject& rDependencyObject, std::string&& value)
+    bool Set(ScopedDependencyObject& rDependencyObject, std::string&& value, const PropertyChangeReason changeReason = PropertyChangeReason::Modified)
     {
       bool changed = false;
       if (value != m_value)
@@ -224,7 +228,7 @@ namespace Fsl::DataBinding
         bool allowChanges = true;
         if (m_hInstance.IsValid())
         {
-          allowChanges = rDependencyObject.PropertyChanged(m_hInstance);
+          allowChanges = rDependencyObject.PropertyChanged(m_hInstance, changeReason);
         }
         if (allowChanges)
         {

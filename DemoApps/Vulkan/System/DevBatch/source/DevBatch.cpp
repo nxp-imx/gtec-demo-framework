@@ -507,7 +507,7 @@ namespace Fsl
       m_test->DestroyDependentResources();
     }
 
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

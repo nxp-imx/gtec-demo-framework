@@ -224,6 +224,9 @@ namespace Fsl
       UIDemoAppMaterialCreateInfo materialCreateInfo(benchSettings.BasicOptions.NoOpaqueMaterials, true);
       UIDemoAppMaterialConfig materialConfig(benchSettings.BasicOptions.UseSdfFonts, renderOptions.value().DepthBuffer);
       m_testAppHost->StartTestApp(appFactory, materialCreateInfo, materialConfig);
+
+      // Enable/disable the draw cache
+      m_testAppHost->SetUseDrawCache(benchSettings.BasicOptions.UseDrawCache);
     }
 
     // Finally apply the runtime options by applying them to the system

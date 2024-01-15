@@ -46,13 +46,13 @@ namespace Fsl::DataBinding
   public:
     using target_value_type = TTarget;
     using source_value_type = TSource;
-    using converter_function_type = std::function<target_value_type(const source_value_type value)>;
+    using convert_function_type = std::function<target_value_type(const source_value_type value)>;
 
   private:
-    converter_function_type m_fnConvert;
+    convert_function_type m_fnConvert;
 
   public:
-    explicit ConverterBinding(converter_function_type fnConvert)
+    explicit ConverterBinding(convert_function_type fnConvert)
       : m_fnConvert(std::move(fnConvert))
     {
       if (!m_fnConvert)
@@ -61,12 +61,17 @@ namespace Fsl::DataBinding
       }
     }
 
-    std::type_index GetSourceType() const final
+    BindingCapabilityFlags GetCaps() const noexcept final
+    {
+      return BindingCapabilityFlags::NoFlags;
+    }
+
+    std::type_index GetSourceType() const noexcept final
     {
       return typeid(source_value_type);
     }
 
-    std::type_index GetTargetType() const final
+    std::type_index GetTargetType() const noexcept final
     {
       return typeid(target_value_type);
     }
@@ -100,6 +105,19 @@ namespace Fsl::DataBinding
         break;
       }
       return Internal::PropertySetResult::UnsupportedGetType;
+    }
+
+
+    Internal::PropertySetResult ConvertBack(const Internal::PropertyMethodsImplType setPropertyMethodsImplType,
+                                            Internal::IPropertyMethods* const pSet,
+                                            const Internal::PropertyMethodsImplType getPropertyMethodsImplType,
+                                            Internal::IPropertyMethods* const pGet) final
+    {
+      FSL_PARAM_NOT_USED(setPropertyMethodsImplType);
+      FSL_PARAM_NOT_USED(pSet);
+      FSL_PARAM_NOT_USED(getPropertyMethodsImplType);
+      FSL_PARAM_NOT_USED(pGet);
+      return Internal::PropertySetResult::NotSupported;
     }
   };
 }

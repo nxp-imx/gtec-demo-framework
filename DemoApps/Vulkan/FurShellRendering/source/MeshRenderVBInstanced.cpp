@@ -401,7 +401,7 @@ namespace Fsl
 
   void MeshRenderVBInstanced::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
 

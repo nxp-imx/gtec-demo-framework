@@ -248,7 +248,7 @@ namespace Fsl
   void ShaderClock::OnFreeResources()
   {
     m_scene.OnFreeResources();
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 
   ShaderClock::Resources ShaderClock::CreateResources(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,

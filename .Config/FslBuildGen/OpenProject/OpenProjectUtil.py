@@ -75,18 +75,22 @@ class OpenProjectUtil(object):
 
         log.PushIndent()
         try:
-            OpenProjectUtil.__RunVSCode(log, buildPlatformType, createInfo.SourcePath)
+            OpenProjectUtil.__RunVSCode(log, buildPlatformType, createInfo.SourcePath, createInfo.OpenCommandArgs)
         finally:
             log.PopIndent()
 
     @staticmethod
-    def __RunVSCode(log: Log, buildPlatformType: BuildPlatformType, sourcePath: str) -> None:
+    def __RunVSCode(log: Log, buildPlatformType: BuildPlatformType, sourcePath: str, openCommandArgs : List[str]) -> None:
         try:
             if log.Verbosity >= 1:
                 log.LogPrint("Opening visual studio code in '{0}'".format(sourcePath))
 
             codeCmd = OpenProjectUtil.__GetCodeCmd(buildPlatformType)
             vsCodeCommand = [codeCmd, '.']
+            if len(openCommandArgs) > 0:
+                vsCodeCommand += openCommandArgs
+            if log.Verbosity >= 4:
+                log.LogPrint("Running vs code with the arguments {0}".format(vsCodeCommand))
             result = subprocess.call(vsCodeCommand, cwd=sourcePath)
             if result != 0:
                 log.LogPrintWarning("The open vscode command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(OpenProjectUtil.__SafeJoinCommandArguments(vsCodeCommand), result, sourcePath))

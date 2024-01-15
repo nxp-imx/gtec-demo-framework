@@ -788,9 +788,9 @@ namespace Fsl
     , m_activeApi(DemoHostFeatureName::OpenGLES, 0)
     , m_maxFramesInFlight(demoHostConfig.GetDemoHostAppSetup().AppSetup.CustomAppConfig.MaxFramesInFlight)
   {
+    FSLLOG3_VERBOSE2("WindowSystem allocate");
     const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), m_demoHostConfig.GetVerbosityLevel(),
                                                           m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
-
     m_windowSystem = EGLNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
     // Set the window system in the host service so that any services or app that is interested will be able to access it
     m_windowHostInfoControl->SetWindowSystem(m_windowSystem);
@@ -861,10 +861,16 @@ namespace Fsl
   {
     try
     {
-      m_windowHostInfoControl->ClearWindowSystem();
       LOCAL_LOG("Destroying");
       Shutdown();
       LOCAL_LOG("Destroyed");
+
+      // Clear the information stored in m_windowHostInfoControl
+      m_windowHostInfoControl->ClearWindowSystem();
+
+      // Ensure we shutdown the window system at a fixed time and from a fixed thread
+      FSLLOG3_VERBOSE2("WindowSystem shutdown");
+      m_windowSystem->Shutdown();
     }
     catch (const std::exception& ex)
     {
@@ -1111,7 +1117,7 @@ namespace Fsl
 
       // Prepare the native window
       const NativeEGLSetup nativeEglSetup(hDisplay, m_hDisplay, m_hConfig);
-      m_window = m_windowSystem->CreateNativeWindow(*m_nativeWindowSetup, nativeEglSetup);
+      m_window = m_windowSystem->CreateEGLNativeWindow(*m_nativeWindowSetup, nativeEglSetup);
       m_windowHostInfoControl->AddWindow(m_window);
     }
     catch (const std::exception&)

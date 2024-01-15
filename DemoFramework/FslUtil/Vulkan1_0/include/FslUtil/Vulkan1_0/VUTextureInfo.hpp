@@ -48,7 +48,7 @@ namespace Fsl::Vulkan
     PxExtent3D Extent;
 
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
-    VUTextureInfo() = default;
+    VUTextureInfo() noexcept = default;
 
     //! @brief Supply the object with information about a texture
     //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
@@ -102,13 +102,14 @@ namespace Fsl::Vulkan
     }
 
 
-    void Reset()
+    void Reset() noexcept
     {
-      ImageInfo = {};
+      // Use destruction order
       Extent = {};
+      ImageInfo = {};
     }
 
-    inline bool IsValid() const
+    inline bool IsValid() const noexcept
     {
       return ImageInfo.sampler != VK_NULL_HANDLE;
     }

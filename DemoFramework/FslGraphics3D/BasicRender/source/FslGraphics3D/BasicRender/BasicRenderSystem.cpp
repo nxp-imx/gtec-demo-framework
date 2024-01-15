@@ -115,7 +115,7 @@ namespace Fsl::Graphics3D
 
     try
     {
-      m_dependentResources = {};
+      m_dependentResources.Reset();
       m_deviceResources->DestroyDependentResources();
       m_deviceResources->Device->DestroyDependentResources();
     }
@@ -251,17 +251,18 @@ namespace Fsl::Graphics3D
   }
 
 
-  PxExtent2D BasicRenderSystem::GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const
+  PxExtent2D BasicRenderSystem::GetTextureExtentPx(const std::shared_ptr<INativeTexture2D>& texture) const noexcept
   {
     if (!m_deviceResources)
     {
-      throw UsageErrorException("CreateDynamicTexture2D called on disposed object");
+      FSLLOG3_DEBUG_WARNING("CreateDynamicTexture2D called on disposed object");
+      return {};
     }
     return m_deviceResources->Textures.GetTextureExtentPx(texture);
   }
 
 
-  const IBasicNativeTexture* BasicRenderSystem::TryGetNativeTexture(const BasicNativeTextureHandle& hTexture) const
+  const IBasicNativeTexture* BasicRenderSystem::TryGetNativeTexture(const BasicNativeTextureHandle& hTexture) const noexcept
   {
     return m_deviceResources ? m_deviceResources->Textures.TryGetNativeTexture(hTexture) : nullptr;
   }

@@ -48,7 +48,7 @@ namespace Fsl::GLES3
   }
 
 
-  Graphics3D::NativeBufferFactoryCaps NativeGraphicsBufferFactory::GetBufferCaps() const
+  Graphics3D::NativeBufferFactoryCaps NativeGraphicsBufferFactory::GetBufferCaps() const noexcept
   {
     return Graphics3D::NativeBufferFactoryCaps::Dynamic;
   }
@@ -95,7 +95,7 @@ namespace Fsl::GLES3
     return BasicNativeBufferHandle(handle);
   }
 
-  bool NativeGraphicsBufferFactory::DestroyBuffer(const BasicNativeBufferHandle hBuffer)
+  bool NativeGraphicsBufferFactory::DestroyBuffer(const BasicNativeBufferHandle hBuffer) noexcept
   {
     FSLLOG3_VERBOSE6("NativeGraphicsBufferFactory::DestroyBuffer({})", hBuffer.Value);
     if (m_isDisposed)

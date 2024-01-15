@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/VertexAttribStateCache.hpp>
 #include "UnitTestVertexAttribStateFunctor.hpp"
@@ -62,7 +63,7 @@ namespace
       const auto& stateAttribEntry = currentState[spanEntry.AttribIndex];
       EXPECT_TRUE(stateAttribEntry.Enabled);
       EXPECT_EQ(stateAttribEntry.Basic.Size, spanEntry.Size);
-      EXPECT_EQ(stateAttribEntry.Basic.Type, spanEntry.Type);
+      EXPECT_EQ(UncheckedNumericCast<GLenum>(stateAttribEntry.Basic.Type), spanEntry.Type);
       EXPECT_EQ(stateAttribEntry.Basic.Normalized, spanEntry.Normalized != GL_FALSE);
       EXPECT_EQ(stateAttribEntry.Basic.Stride, vertexStride);
       EXPECT_EQ(stateAttribEntry.Basic.Pointer, spanEntry.Pointer);

@@ -53,3 +53,9 @@ class PreResolvePackageResult(object):
 
     def ContainsRecipe(self) -> bool:
         return self.SourcePackage.DirectExperimentalRecipe is not None
+
+    def __str__(self) -> str:
+        return 'SourcePackage.NameInfo:"{0}"'.format(self.SourcePackage.NameInfo)
+
+    def __repr__(self) -> str:
+        return self.__str__()

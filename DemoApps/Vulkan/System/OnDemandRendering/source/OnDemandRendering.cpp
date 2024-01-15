@@ -130,6 +130,6 @@ namespace Fsl
 
   void OnDemandRendering::OnFreeResources()
   {
-    m_dependentResources = {};
+    m_dependentResources.Reset();
   }
 }

@@ -46,12 +46,15 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a OpenGLES3 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
+
     DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_color_buffer_float.txt
     // Possible older alternative: https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_color_buffer_half_float.txt
     config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_color_buffer_float", ExtensionPrecense::Mandatory);
 
-    DemoAppRegister::GLES3::Register<HDR03_SkyboxToneMapping, OptionParser>(rSetup, "GLES3.HDR03_SkyboxToneMapping", config);
+    DemoAppRegister::GLES3::Register<HDR03_SkyboxToneMapping, OptionParser>(rSetup, "GLES3.HDR03_SkyboxToneMapping", config, customDemoAppConfig);
   }
 }

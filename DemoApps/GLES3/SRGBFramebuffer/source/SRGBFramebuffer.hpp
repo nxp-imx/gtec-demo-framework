@@ -36,6 +36,7 @@
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslGraphics/ColorSpace.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
@@ -58,6 +59,9 @@ namespace Fsl
       Scene1,
       Scene2
     };
+
+    bool m_hasSRGBFramebuffer;
+    ColorSpace m_colorSpace;
 
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
@@ -124,7 +128,7 @@ namespace Fsl
     void CreateTextures(const std::shared_ptr<IContentManager>& contentManager);
     GLES3::GLProgram CreateShader(const std::shared_ptr<IContentManager>& contentManager, const bool hasSRGBFramebuffer);
     void CreateVertexArray(const GLES3::GLProgram& program);
-    void CreateUI(const bool hasSRGBFramebuffer);
+    void CreateUI();
     void SetState(State state);
     void UpdateUIToState();
   };

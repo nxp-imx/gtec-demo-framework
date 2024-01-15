@@ -46,12 +46,13 @@ namespace Fsl::Vulkan
   }
 
 
-  void VUPhysicalDeviceRecord::Reset()
+  void VUPhysicalDeviceRecord::Reset() noexcept
   {
-    Device = VK_NULL_HANDLE;
-    Properties = {};
-    Features = {};
+    // Use destruction order
     MemoryProperties = {};
+    Features = {};
+    Properties = {};
+    Device = VK_NULL_HANDLE;
   }
 
 
