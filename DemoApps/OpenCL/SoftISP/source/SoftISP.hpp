@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Span/Span.hpp>
 #include <FslDemoApp/OpenCL/DemoAppOpenCL.hpp>
 #include <FslUtil/OpenCL1_2/ContextEx.hpp>
 #include <RapidOpenCL1/Buffer.hpp>
@@ -43,15 +44,8 @@ namespace Fsl
 {
   class SoftISP : public DemoAppOpenCL
   {
-    OpenCL::ContextEx m_context;
-    cl_device_id m_deviceId;
-    RapidOpenCL1::CommandQueue m_commandQueue;
     bool m_denoiseEn;
     int32_t m_cycleNum = 1000;
-    const std::size_t m_BINS = 256;
-    const std::size_t m_imgWid = 1920;
-    const std::size_t m_imgHei = 1080;
-    const std::size_t m_imgSize = 1920 * 1080;
 
     std::vector<uint8_t> m_dst0;
     std::vector<uint8_t> m_dst1;
@@ -59,9 +53,9 @@ namespace Fsl
     std::vector<uint8_t> m_dst3;
     std::vector<uint8_t> m_dst4;
     std::vector<uint8_t> m_dst5;
-    std::vector<uint8_t> m_YBuf;
-    std::vector<uint8_t> m_YBufOut;
-    std::vector<uint8_t> m_UVBuf;
+    std::vector<uint8_t> m_yBuf;
+    std::vector<uint8_t> m_yBufOut;
+    std::vector<uint8_t> m_uvBuf;
     int m_pixelValueR;
     int m_pixelValueG;
     int m_pixelValueB;
@@ -78,13 +72,13 @@ namespace Fsl
     std::vector<RapidOpenCL1::Buffer> m_deviceDist;
 
   public:
-    SoftISP(const DemoAppConfig& config);
-    ~SoftISP();
+    explicit SoftISP(const DemoAppConfig& config);
+    ~SoftISP() override;
 
   protected:
-    virtual void Run() override;
+    void Run() override;
     void AllocateMemory(const cl_context context, const std::size_t size);
-    void CopyToBMP(Bitmap& bitmap, const IO::Path& fileName, const void* ptr);
+    void CopyToBMP(Bitmap& rBitmap, const IO::Path& fileName, const Span<uint8_t> span);
   };
 }
 

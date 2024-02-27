@@ -34,13 +34,16 @@
 #include "SoftISP.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/Span/SpanUtil.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslUtil/OpenCL1_2/ProgramEx.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Values.hpp>
 #include <CL/cl.h>
-#include <string.h>
+#include <array>
+#include <cstring>
 #include <fstream>
 #include "OptionParser.hpp"
 
@@ -52,11 +55,19 @@ namespace Fsl
 
   namespace
   {
+    namespace LocalConfig
+    {
+      constexpr std::size_t Bins = 256;
+      constexpr std::size_t ImgWidth = 1920;
+      constexpr std::size_t ImgHeight = 1080;
+      constexpr std::size_t ImgSize = ImgWidth * ImgHeight;
+    }
+
     cl_uint GetDeviceCount(const cl_context context)
     {
-      std::size_t nDeviceBytes;
+      std::size_t nDeviceBytes = 0;
       RAPIDOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &nDeviceBytes));
-      return static_cast<cl_uint>(nDeviceBytes / sizeof(cl_device_id));
+      return UncheckedNumericCast<cl_uint>(nDeviceBytes / sizeof(cl_device_id));
     }
 
 
@@ -69,7 +80,7 @@ namespace Fsl
       // Set target device and Query number of compute units on targetDevice
       FSLLOG3_INFO("# of Devices Available = {}", devices.size());
 
-      cl_uint numComputeUnits;
+      cl_uint numComputeUnits = 0;
       RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
 
       FSLLOG3_INFO("# of Compute Units = {}", numComputeUnits);
@@ -79,42 +90,41 @@ namespace Fsl
 
     double GetExecutionTime(const cl_event event)
     {
-      cl_ulong start;
-      cl_ulong end;
-      cl_int err;
+      cl_ulong start = 0;
+      cl_ulong end = 0;
+      cl_int err = 0;
       err = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &end, nullptr);
       err |= clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start, nullptr);
-      if (err)
+      if (err != CL_SUCCESS)
       {
         return 0;
       }
-      return static_cast<double>(1.0e-6 * (end - start));    // convert nanoseconds to ms
+      return static_cast<double>(1.0e-6 * static_cast<double>(end - start));    // convert nanoseconds to ms
     }
 
 
-    void ConvertToRGBA(const Kernel& kernel, const Buffer& inBuffer, Buffer& outBuffer, const CommandQueue& commandQueue, void* ptr)
+    void ConvertToRGBA(const Kernel& kernel, const Buffer& inBuffer, Buffer& outBuffer, const CommandQueue& commandQueue, Span<uint8_t> dstSpan)
     {
-      const std::size_t imgWid = 1920;
-      const std::size_t imgHei = 1080;
-      const std::size_t imgSize = imgWid * imgHei;
-      const std::size_t globalWorkSize[2] = {imgWid / 4, imgHei / 2};
-      const std::size_t localWorkSize[2] = {8, 4};
-      cl_event event;
+      const std::array<std::size_t, 2> globalWorkSize = {LocalConfig::ImgWidth / 4, LocalConfig::ImgHeight / 2};
+      const std::array<std::size_t, 2> localWorkSize = {8, 4};
+      cl_event event = nullptr;
       clSetKernelArg(kernel.Get(), 0, sizeof(cl_mem), inBuffer.GetPointer());
       clSetKernelArg(kernel.Get(), 1, sizeof(cl_mem), outBuffer.GetPointer());
-      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &event));
-      RAPIDOPENCL_CHECK(clWaitForEvents(1, &event));
       RAPIDOPENCL_CHECK(
-        clEnqueueReadBuffer(commandQueue.Get(), outBuffer.Get(), CL_FALSE, 0, sizeof(cl_char) * imgSize * 4, ptr, 0, nullptr, nullptr));
+        clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), 2, nullptr, globalWorkSize.data(), localWorkSize.data(), 0, nullptr, &event));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &event));
+
+      // Validate our assumptions about the buffer size
+      static_assert(sizeof(cl_char) == 1);    // The rest of the code assumes this is true, so lets get a compile time error if its not
+      assert(dstSpan.size() == sizeof(cl_char) * LocalConfig::ImgSize * 4);
+
+      RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), outBuffer.Get(), CL_FALSE, 0, dstSpan.size(), dstSpan.data(), 0, nullptr, nullptr));
     }
   }
 
 
   SoftISP::SoftISP(const DemoAppConfig& config)
     : DemoAppOpenCL(config)
-    , m_context()
-    , m_deviceId(0)
-    , m_commandQueue()
     , m_pixelValueR(0)
     , m_pixelValueG(0)
     , m_pixelValueB(0)
@@ -122,43 +132,45 @@ namespace Fsl
   {
     auto optionParser = config.GetOptions<OptionParser>();
     m_denoiseEn = optionParser->GetDenoiseStatus();
-    m_cycleNum = optionParser->GetCycleNumStatus();
+    m_cycleNum = NumericCast<int32_t>(optionParser->GetCycleNumStatus());
+
     FSLLOG3_INFO("Denoise status: {}", m_denoiseEn);
     FSLLOG3_INFO("CycleNum status: {}", m_cycleNum);
-    FSLLOG3_INFO("Initializing device(s)...");
-    const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
-    // create the OpenCL context on available GPU devices
-    m_context.Reset(deviceType);
-
-    if (GetDeviceCount(m_context.Get()) <= 0)
-      throw InitFailedException("No OpenCL specific devices!");
-    const cl_uint ciComputeUnitsCount = GetNumComputeUnits(m_context.GetPlatformId(), deviceType);
-    FSLLOG3_INFO("# compute units = {}", ciComputeUnitsCount);
-
-    FSLLOG3_INFO("Getting device id...");
-    RAPIDOPENCL_CHECK(clGetContextInfo(m_context.Get(), CL_CONTEXT_DEVICES, sizeof(cl_device_id), &m_deviceId, nullptr));
-
-    FSLLOG3_INFO("Creating Command Queue...");
-    m_commandQueue.Reset(m_context.Get(), m_deviceId, CL_QUEUE_PROFILING_ENABLE);
   }
 
 
-  SoftISP::~SoftISP()
-  {
-  }
+  SoftISP::~SoftISP() = default;
 
 
   void SoftISP::Run()
   {
-    AllocateMemory(m_context.Get(), m_imgSize);
+    FSLLOG3_INFO("Initializing device(s)...");
+
+    cl_device_id deviceId = nullptr;
+    const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
+    // create the OpenCL context on available GPU devices
+    OpenCL::ContextEx context;
+    context.Reset(deviceType, &deviceId);
+
+    if (GetDeviceCount(context.Get()) <= 0)
+    {
+      throw InitFailedException("No OpenCL specific devices!");
+    }
+    const cl_uint ciComputeUnitsCount = GetNumComputeUnits(context.GetPlatformId(), deviceType);
+    FSLLOG3_INFO("# compute units = {}", ciComputeUnitsCount);
+
+    FSLLOG3_INFO("Creating Command Queue...");
+    RapidOpenCL1::CommandQueue commandQueue;
+    commandQueue.Reset(context.Get(), deviceId, CL_QUEUE_PROFILING_ENABLE);
+
+    AllocateMemory(context.Get(), LocalConfig::ImgSize);
 
     const std::string strProgram = GetContentManager()->ReadAllText("isp_kernel.cl");
-    ProgramEx program(m_context.Get(), m_deviceId, strProgram);
+    ProgramEx program(context.Get(), deviceId, strProgram);
 
-    const int KERNEL_NUM = 10;
     FSLLOG3_INFO("Creating kernels...");
     FSLLOG3_INFO("Please wait for compiling and building kernels, about one minute...");
-    Kernel kernels[KERNEL_NUM];
+    std::array<Kernel, 10> kernels{};
     kernels[0].Reset(program.Get(), "badpixel");
     kernels[1].Reset(program.Get(), "sigma");
     kernels[2].Reset(program.Get(), "awb");
@@ -219,38 +231,42 @@ namespace Fsl
       clSetKernelArg(kernels[9].Get(), 1, sizeof(cl_mem), m_deviceImg[6].GetPointer());
       clSetKernelArg(kernels[9].Get(), 2, sizeof(cl_mem), m_deviceImg[8].GetPointer());
     }
-    const std::size_t globalWorkSizeDiv8[2] = {m_imgWid / 4, m_imgHei / 2};
-    const std::size_t localWorkSize32[2] = {8, 4};
-    const std::size_t globalWorkSizeDiv16[2] = {m_imgWid / 8, m_imgHei / 2};
-    const std::size_t localWorkSize16[2] = {8, 2};
+    const std::array<std::size_t, 2> globalWorkSizeDiv8 = {LocalConfig::ImgWidth / 4, LocalConfig::ImgHeight / 2};
+    const std::array<std::size_t, 2> localWorkSize32 = {8, 4};
+    const std::array<std::size_t, 2> globalWorkSizeDiv16 = {LocalConfig::ImgWidth / 8, LocalConfig::ImgHeight / 2};
+    const std::array<std::size_t, 2> localWorkSize16 = {8, 2};
 
-    const std::size_t globalWorkSizeStd[2] = {m_imgWid, m_imgHei};
-    const std::size_t globalWorkSizeDenoise[2] = {m_imgWid / 8, m_imgHei};
-    const std::size_t globalWorkSizeOne[2] = {32, 2};
-    GetContentManager()->ReadAllBytes(m_dst0.data(), m_imgSize, "bayer.data");
+    const std::array<std::size_t, 2> globalWorkSizeStd = {LocalConfig::ImgWidth, LocalConfig::ImgHeight};
+    const std::array<std::size_t, 2> globalWorkSizeDenoise = {LocalConfig::ImgWidth / 8, LocalConfig::ImgHeight};
+    const std::array<std::size_t, 2> globalWorkSizeOne = {32, 2};
+    GetContentManager()->ReadAllBytes(m_dst0.data(), LocalConfig::ImgSize, "bayer.data");
 
-    RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_deviceImg[0].Get(), CL_FALSE, 0, sizeof(cl_char) * m_imgSize, m_dst0.data(), 0, nullptr, nullptr));
+    RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), m_deviceImg[0].Get(), CL_TRUE, 0, sizeof(cl_char) * LocalConfig::ImgSize,
+                                           m_dst0.data(), 0, nullptr, nullptr));
 
-    cl_event hEvent;
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[0].Get(), 2, nullptr, globalWorkSizeDiv8, localWorkSize32, 0, nullptr, &hEvent));
+    cl_event hEvent = nullptr;
+    RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[0].Get(), 2, nullptr, globalWorkSizeDiv8.data(), localWorkSize32.data(), 0,
+                                             nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     double time = GetExecutionTime(hEvent);
     FSLLOG3_INFO("Kernel execution time on GPU (kernel: badpixel): {} ms", time);
 
-    m_pixelValueR = 0, m_pixelValueG = 0, m_pixelValueB = 0;
+    m_pixelValueR = 0;
+    m_pixelValueG = 0;
+    m_pixelValueB = 0;
+
     RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_pixelValue[0].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueR, 0, nullptr, nullptr));
+      clEnqueueWriteBuffer(commandQueue.Get(), m_pixelValue[0].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueR, 0, nullptr, nullptr));
     RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_pixelValue[1].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueG, 0, nullptr, nullptr));
+      clEnqueueWriteBuffer(commandQueue.Get(), m_pixelValue[1].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueG, 0, nullptr, nullptr));
     RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_pixelValue[2].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueB, 0, nullptr, nullptr));
+      clEnqueueWriteBuffer(commandQueue.Get(), m_pixelValue[2].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueB, 0, nullptr, nullptr));
+
     double timeTotal = 0;
     for (int i = 0; i < m_cycleNum; i++)
     {
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[1].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[1].Get(), 2, nullptr, globalWorkSizeDiv16.data(), localWorkSize32.data(),
+                                               0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       timeTotal += time;
@@ -260,8 +276,8 @@ namespace Fsl
     timeTotal = 0;
     for (int i = 0; i < m_cycleNum; i++)
     {
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[2].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[2].Get(), 2, nullptr, globalWorkSizeDiv16.data(), localWorkSize16.data(),
+                                               0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       timeTotal += time;
@@ -274,18 +290,18 @@ namespace Fsl
       m_inDistG.clear();
       m_inDistB.clear();
     }
-    RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_deviceDist[0].Get(), CL_FALSE, 0, sizeof(cl_int) * m_BINS, m_inDistR.data(), 0, nullptr, nullptr));
-    RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_deviceDist[1].Get(), CL_FALSE, 0, sizeof(cl_int) * m_BINS, m_inDistG.data(), 0, nullptr, nullptr));
-    RAPIDOPENCL_CHECK(
-      clEnqueueWriteBuffer(m_commandQueue.Get(), m_deviceDist[2].Get(), CL_FALSE, 0, sizeof(cl_int) * m_BINS, m_inDistB.data(), 0, nullptr, nullptr));
+    RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), m_deviceDist[0].Get(), CL_FALSE, 0, sizeof(cl_int) * LocalConfig::Bins,
+                                           m_inDistR.data(), 0, nullptr, nullptr));
+    RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), m_deviceDist[1].Get(), CL_FALSE, 0, sizeof(cl_int) * LocalConfig::Bins,
+                                           m_inDistG.data(), 0, nullptr, nullptr));
+    RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), m_deviceDist[2].Get(), CL_FALSE, 0, sizeof(cl_int) * LocalConfig::Bins,
+                                           m_inDistB.data(), 0, nullptr, nullptr));
 
     timeTotal = 0;
     for (int i = 0; i < m_cycleNum; i++)
     {
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[3].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[3].Get(), 2, nullptr, globalWorkSizeDiv16.data(), localWorkSize16.data(),
+                                               0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       timeTotal += time;
@@ -295,8 +311,8 @@ namespace Fsl
     timeTotal = 0;
     for (int i = 0; i < m_cycleNum; i++)
     {
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[4].Get(), 2, nullptr, globalWorkSizeOne, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[4].Get(), 2, nullptr, globalWorkSizeOne.data(), localWorkSize16.data(), 0,
+                                               nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       timeTotal += time;
@@ -306,36 +322,36 @@ namespace Fsl
     timeTotal = 0;
     for (int i = 0; i < m_cycleNum; i++)
     {
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[5].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[5].Get(), 2, nullptr, globalWorkSizeDiv16.data(), localWorkSize16.data(),
+                                               0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       timeTotal += time;
     }
     FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize3): {} ms", timeTotal / m_cycleNum);
 
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[6].Get(), 2, nullptr, globalWorkSizeDiv8, localWorkSize32, 0, nullptr, &hEvent));
+    RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[6].Get(), 2, nullptr, globalWorkSizeDiv8.data(), localWorkSize32.data(), 0,
+                                             nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
     FSLLOG3_INFO("Kernel execution time on GPU (kernel: debayer): {} ms", time);
 
     if (m_denoiseEn)
     {
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[7].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[7].Get(), 2, nullptr, globalWorkSizeStd.data(), localWorkSize32.data(), 0,
+                                               nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       FSLLOG3_INFO("Kernel execution time on GPU (kernel: rgba2yuyv): {} ms", time);
 
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[8].Get(), 2, nullptr, globalWorkSizeDenoise, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[8].Get(), 2, nullptr, globalWorkSizeDenoise.data(), localWorkSize32.data(),
+                                               0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       FSLLOG3_INFO("Kernel execution time on GPU (kernel: bilateral): {} ms", time);
 
-      RAPIDOPENCL_CHECK(
-        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[9].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernels[9].Get(), 2, nullptr, globalWorkSizeStd.data(), localWorkSize32.data(), 0,
+                                               nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
       FSLLOG3_INFO("Kernel execution time on GPU (kernel: yuyv2rgba): {} ms", time);
@@ -345,27 +361,27 @@ namespace Fsl
     {
       Bitmap bitmap;
       FSLLOG3_INFO("Saving images...");
-      ConvertToRGBA(kernels[6], m_deviceImg[0], m_deviceImg[4], m_commandQueue, m_dst4.data());
+      ConvertToRGBA(kernels[6], m_deviceImg[0], m_deviceImg[4], commandQueue, SpanUtil::AsSpan(m_dst4));
       const char* fileName = "0-SourceImage.bmp";
-      CopyToBMP(bitmap, fileName, m_dst4.data());
+      CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst4));
 
-      ConvertToRGBA(kernels[6], m_deviceImg[1], m_deviceImg[4], m_commandQueue, m_dst4.data());
+      ConvertToRGBA(kernels[6], m_deviceImg[1], m_deviceImg[4], commandQueue, SpanUtil::AsSpan(m_dst4));
       fileName = "1-RemoveBadPixel.bmp";
-      CopyToBMP(bitmap, fileName, m_dst4.data());
+      CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst4));
 
-      ConvertToRGBA(kernels[6], m_deviceImg[2], m_deviceImg[4], m_commandQueue, m_dst4.data());
+      ConvertToRGBA(kernels[6], m_deviceImg[2], m_deviceImg[4], commandQueue, SpanUtil::AsSpan(m_dst4));
       fileName = "2-WhiteBalance.bmp";
-      CopyToBMP(bitmap, fileName, m_dst4.data());
+      CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst4));
 
-      ConvertToRGBA(kernels[6], m_deviceImg[3], m_deviceImg[4], m_commandQueue, m_dst4.data());
+      ConvertToRGBA(kernels[6], m_deviceImg[3], m_deviceImg[4], commandQueue, SpanUtil::AsSpan(m_dst4));
       fileName = "3-Equalization.bmp";
-      CopyToBMP(bitmap, fileName, m_dst4.data());
+      CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst4));
       if (m_denoiseEn)
       {
-        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(m_commandQueue.Get(), m_deviceImg[8].Get(), CL_FALSE, 0, sizeof(cl_char) * m_imgSize * 4, m_dst5.data(),
-                                              0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), m_deviceImg[8].Get(), CL_FALSE, 0, sizeof(cl_char) * LocalConfig::ImgSize * 4,
+                                              m_dst5.data(), 0, nullptr, nullptr));
         fileName = "4-RemoveNoise.bmp";
-        CopyToBMP(bitmap, fileName, m_dst5.data());
+        CopyToBMP(bitmap, fileName, SpanUtil::AsSpan(m_dst5));
       }
     }
   }
@@ -379,30 +395,30 @@ namespace Fsl
     m_dst3.resize(size);
     m_dst4.resize(size * 4);
     m_dst5.resize(size * 4);
-    m_YBuf.resize(size);
-    m_UVBuf.resize(size * 2);
-    m_YBufOut.resize(size);
-    m_inDistR.resize(m_BINS);
-    m_inDistG.resize(m_BINS);
-    m_inDistB.resize(m_BINS);
-    m_outDistR.resize(m_BINS);
-    m_outDistG.resize(m_BINS);
-    m_outDistB.resize(m_BINS);
+    m_yBuf.resize(size);
+    m_uvBuf.resize(size * 2);
+    m_yBufOut.resize(size);
+    m_inDistR.resize(LocalConfig::Bins);
+    m_inDistG.resize(LocalConfig::Bins);
+    m_inDistB.resize(LocalConfig::Bins);
+    m_outDistR.resize(LocalConfig::Bins);
+    m_outDistG.resize(LocalConfig::Bins);
+    m_outDistB.resize(LocalConfig::Bins);
     m_pixelValue.resize(3);
     m_deviceDist.resize(6);
 
     m_deviceImg.resize(9);
-    const auto defaultFlags = CL_MEM_USE_HOST_PTR;
-    m_deviceImg[0].Reset(context, CL_MEM_COPY_HOST_PTR | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_dst0.data());
+    const auto defaultFlags = CL_MEM_COPY_HOST_PTR;
+    m_deviceImg[0].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_dst0.data());
     m_deviceImg[1].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_dst1.data());
     m_deviceImg[2].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_dst2.data());
     m_deviceImg[3].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_dst3.data());
     m_deviceImg[4].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 4, m_dst4.data());
     if (m_denoiseEn)
     {
-      m_deviceImg[5].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_YBuf.data());
-      m_deviceImg[6].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 2, m_UVBuf.data());
-      m_deviceImg[7].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_YBufOut.data());
+      m_deviceImg[5].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_yBuf.data());
+      m_deviceImg[6].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 2, m_uvBuf.data());
+      m_deviceImg[7].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_yBufOut.data());
       m_deviceImg[8].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 4, m_dst5.data());
     }
 
@@ -410,19 +426,20 @@ namespace Fsl
     m_pixelValue[1].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int), &m_pixelValueG);
     m_pixelValue[2].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int), &m_pixelValueB);
 
-    m_deviceDist[0].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * m_BINS, m_inDistR.data());
-    m_deviceDist[1].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * m_BINS, m_inDistG.data());
-    m_deviceDist[2].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * m_BINS, m_inDistB.data());
-    m_deviceDist[3].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * m_BINS, m_outDistR.data());
-    m_deviceDist[4].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * m_BINS, m_outDistG.data());
-    m_deviceDist[5].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * m_BINS, m_outDistB.data());
+    m_deviceDist[0].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * LocalConfig::Bins, m_inDistR.data());
+    m_deviceDist[1].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * LocalConfig::Bins, m_inDistG.data());
+    m_deviceDist[2].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * LocalConfig::Bins, m_inDistB.data());
+    m_deviceDist[3].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * LocalConfig::Bins, m_outDistR.data());
+    m_deviceDist[4].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * LocalConfig::Bins, m_outDistG.data());
+    m_deviceDist[5].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int) * LocalConfig::Bins, m_outDistB.data());
   }
 
 
-  void SoftISP::CopyToBMP(Bitmap& bitmap, const IO::Path& fileName, const void* ptr)
+  void SoftISP::CopyToBMP(Bitmap& rBitmap, const IO::Path& fileName, const Span<uint8_t> span)
   {
-    bitmap.Reset(ptr, m_imgSize * 4, PxExtent2D::Create(static_cast<int32_t>(m_imgWid), static_cast<int32_t>(m_imgHei)), PixelFormat::B8G8R8A8_UNORM,
-                 BitmapOrigin::UpperLeft);
-    GetPersistentDataManager()->Write(fileName, bitmap);
+    rBitmap.Reset(span.data(), span.size(),
+                  PxExtent2D::Create(UncheckedNumericCast<uint32_t>(LocalConfig::ImgWidth), UncheckedNumericCast<uint32_t>(LocalConfig::ImgHeight)),
+                  PixelFormat::B8G8R8A8_UNORM, BitmapOrigin::UpperLeft);
+    GetPersistentDataManager()->Write(fileName, rBitmap);
   }
 }

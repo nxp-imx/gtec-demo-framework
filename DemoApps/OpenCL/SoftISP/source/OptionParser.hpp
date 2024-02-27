@@ -42,22 +42,22 @@ namespace Fsl
 
   public:
     OptionParser();
-    ~OptionParser();
+    ~OptionParser() override;
 
     bool GetDenoiseStatus() const
     {
       return m_denoiseStatus;
     }
 
-    int32_t GetCycleNumStatus() const
+    uint32_t GetCycleNumStatus() const
     {
       return m_cycleNum;
     }
 
   protected:
-    virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    virtual OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
-    virtual bool OnParsingComplete() override;
+    void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
+    bool OnParsingComplete() override;
   };
 }
 
