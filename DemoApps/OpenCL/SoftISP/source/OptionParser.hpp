@@ -49,7 +49,7 @@ namespace Fsl
       return m_denoiseStatus;
     }
 
-    int32_t GetCycleNumStatus() const
+    uint32_t GetCycleNumStatus() const
     {
       return m_cycleNum;
     }
