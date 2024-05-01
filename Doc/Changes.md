@@ -1,5 +1,12 @@
 # Latest version
 
+## Release 6.3.1
+
+* Fixed Vulkan.Screenshot, so it captures it at the correct time.
+* OpenCL.SoftISP example updated.
+* When UI.Benchmark is using DrawCaching any configuration change will force invalidate the cache so the effect of the options is immediately visible.
+* Windows did not get marked as dirty by layout changes.
+
 ## Release 6.3.0
 
 * FslDataBinding now supports two way binding.
@@ -18,6 +25,18 @@
   * -open2 can now supply arguments to visual studio code (can be used as a workaround for wayland issues).
 * Upgraded fmt to 10.1.1
 * Upgraded clang tools to 16
+
+## Release 6.2.3
+
+* Marked samples that use the GL_VIV_direct_texture extension but was not marked as such.
+* SmoothScroll should now scroll on displays that are too small to show the entire text being shown
+* Fix out-of-bound R/W in gaussian_filter.cl
+* FslUtil.OpenCL.ContextEx added new constructor and reset method.
+
+## Release 6.2.2
+
+* Fixed a stride error in VUSegmentedBufferMemory.
+* Upgraded to zlib 1.3
 
 ## Release 6.2.1
 
@@ -43,6 +62,13 @@
   * Now utilize flavors instead of variants.
   * FslBuildDoc now keeps the SCR file up to date.
 * Improved [Wayland XDG](https://wayland-book.com/xdg-shell-basics.html) shell support.
+
+## Release 6.1.1
+
+* GCC13 support.
+* Small wayland bug fix.
+* Vulkan.NativeWindowTest update.
+* New 'feature' to make it easier to filter apps during testing.
 
 ## Release 6.1.0
 

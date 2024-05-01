@@ -107,6 +107,8 @@ namespace Fsl
     if (m_context)
     {
       DoDraw();
+
+      m_context->ClearContentRenderingDirty();
     }
   }
 

@@ -33,6 +33,7 @@
 #include <FslDataBinding/Base/DataBindingService.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowFlags.hpp>
 
 namespace Fsl::UI
 {
@@ -46,4 +47,11 @@ namespace Fsl::UI
 
 
   BaseWindowContext::~BaseWindowContext() = default;
+
+
+  void BaseWindowContext::DoMarkContentRenderingDirty(const BaseWindow* const pWindow)
+  {
+    auto uiContext = TheUIContext.Get();
+    uiContext->WindowManager->TrySetWindowFlags(pWindow, WindowFlags::ContentRenderingDirty, true);
+  }
 }

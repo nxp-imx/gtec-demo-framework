@@ -718,6 +718,14 @@ namespace Fsl::UI
     {
       throw UsageErrorException("Internal state must be ready");
     }
+
+    // Quick hack to resolve this quickly and to allow it to be set during (m_context == Context::InternalLayout)
+    if (flags.GetValue() == WindowFlags::ContentRenderingDirty)
+    {
+      m_contentRenderingIsDirty = true;
+      return true;
+    }
+
     FSLLOG3_WARNING_IF(m_context == Context::InternalLayout, "Windows flags should not be touched during layout");
 
     ScopedContextChange scopedContextChange(this, Context::Internal);

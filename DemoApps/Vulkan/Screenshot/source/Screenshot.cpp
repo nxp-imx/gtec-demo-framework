@@ -279,6 +279,31 @@ namespace Fsl
   }
 
 
+  void Screenshot::_EndDraw(const FrameInfo& frameInfo)
+  {
+    if (m_screenshotRequested)
+    {
+      m_screenshotRequested = false;
+      // Bitmap bitmap;
+      // m_graphicsService->Capture(bitmap, PixelFormat::R8G8B8A8_UINT);
+      auto bitmap = TryCaptureScreenshot();
+      if (bitmap.IsValid())
+      {
+        auto manager = GetPersistentDataManager();
+        manager->Write("screenshot.png", bitmap);
+
+        m_label->SetContent("Screenshot saved");
+      }
+      else
+      {
+        m_label->SetContent("Screenshot failed");
+      }
+    }
+
+    VulkanBasic::DemoAppVulkanBasic::_EndDraw(frameInfo);
+  }
+
+
   void Screenshot::Update(const DemoTime& /*demoTime*/)
   {
   }
@@ -328,25 +353,6 @@ namespace Fsl
     if (result != AppDrawResult::Completed)
     {
       return result;
-    }
-
-    if (m_screenshotRequested)
-    {
-      m_screenshotRequested = false;
-      // Bitmap bitmap;
-      // m_graphicsService->Capture(bitmap, PixelFormat::R8G8B8A8_UINT);
-      auto bitmap = TryCaptureScreenshot();
-      if (bitmap.IsValid())
-      {
-        auto manager = GetPersistentDataManager();
-        manager->Write("screenshot.png", bitmap);
-
-        m_label->SetContent("Screenshot saved");
-      }
-      else
-      {
-        m_label->SetContent("Screenshot failed");
-      }
     }
     return AppDrawResult::Completed;
   }

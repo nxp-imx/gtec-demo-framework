@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" ShortName="DF" Version="6.3.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" ShortName="DF" Version="6.3.1" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -36,7 +36,7 @@
       -->
       <Platform Name="Yocto" DefaultGeneratorName="Ninja" AllowFindPackage="false"/>
     </CMakeConfiguration>
-    <ClangFormatConfiguration FileExtensions=".cpp;.hpp;.frag;.geom;.tesc;.tese;.vert" Recipe="Recipe.BuildTool.clang_format"/>
+    <ClangFormatConfiguration FileExtensions=".cpp;.hpp;.frag;.geom;.tesc;.tese;.vert;.cl;.vx" Recipe="Recipe.BuildTool.clang_format"/>
     <ClangTidyConfiguration FileExtensions=".cpp;.hpp" ClangRecipe="Recipe.BuildTool.clang" ClangTidyRecipe="Recipe.BuildTool.clang_tidy">
       <Platform Name="All">
         <Compiler Flags="-Wall;-Wno-invalid-token-paste;-Wno-unknown-pragmas;-Wno-unused-variable;-Wno-unused-value"/>

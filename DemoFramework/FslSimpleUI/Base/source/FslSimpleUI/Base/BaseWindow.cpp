@@ -236,6 +236,8 @@ namespace Fsl::UI
           m_layoutCache.RenderSizePx = {};
         }
         MarkLayoutArrangeEnd();
+        // Layout was modified, so mark the content as dirty
+        SetContentRenderingDirty(true);
       }
       catch (...)
       {
@@ -621,8 +623,7 @@ namespace Fsl::UI
     {
       if (isDirty)
       {
-        auto uiContext = GetContext()->TheUIContext.Get();
-        uiContext->WindowManager->TrySetWindowFlags(this, WindowFlags::ContentRenderingDirty, true);
+        GetContext()->MarkContentRenderingDirty(this);
       }
       else
       {

@@ -79,6 +79,7 @@ namespace Fsl::UI::RenderIMBatch
                            Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10000.0f);
     }
     m_meshManager->OnConfigurationChanged();
+    InvalidateDrawCache();
   }
 
 

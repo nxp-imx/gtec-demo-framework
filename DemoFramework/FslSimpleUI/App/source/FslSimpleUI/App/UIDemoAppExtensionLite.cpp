@@ -129,6 +129,8 @@ namespace Fsl
 
       DoDraw();
 
+      m_context->ClearContentRenderingDirty();
+
 #ifdef LOCAL_TIME_DRAW
       {
         auto endTime = timer.GetTime();

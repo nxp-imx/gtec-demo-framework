@@ -158,6 +158,7 @@ namespace Fsl
     {
       event.Handled();
     }
+    DataBindingDemoAppExtension::OnMouseButtonEvent(event);
   }
 
 
@@ -168,16 +169,19 @@ namespace Fsl
     {
       event.Handled();
     }
+    DataBindingDemoAppExtension::OnMouseMoveEvent(event);
   }
 
   void UIDemoAppExtensionBase::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
+    DataBindingDemoAppExtension::ConfigurationChanged(windowMetrics);
     m_uiManager->Resized(Convert(windowMetrics));
   }
 
   void UIDemoAppExtensionBase::PreUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    DataBindingDemoAppExtension::PreUpdate(callOrder, demoTime);
+
     if (callOrder == DemoAppExtensionCallOrder::PreApp)
     {
       DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
@@ -195,7 +199,7 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::Update(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
-    FSL_PARAM_NOT_USED(demoTime);
+    DataBindingDemoAppExtension::Update(callOrder, demoTime);
     if (callOrder == DemoAppExtensionCallOrder::PreApp)
     {
       DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();
@@ -214,6 +218,7 @@ namespace Fsl
 
   void UIDemoAppExtensionBase::PostUpdate(const DemoAppExtensionCallOrder callOrder, const DemoTime& demoTime)
   {
+    DataBindingDemoAppExtension::PostUpdate(callOrder, demoTime);
     if (callOrder == DemoAppExtensionCallOrder::PostApp)
     {
       DemoPerformanceCapture* pDemoPerformanceCapture = TryGetDemoPerformanceCapture();

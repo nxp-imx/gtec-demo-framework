@@ -162,6 +162,7 @@ namespace Fsl::UI
   void LabelBase::DoSetContent(const StringViewLite value)
   {
     m_fontMesh.SetText(value);
+    PropertyUpdated(PropertyType::Content);
   }
 
 

@@ -45,8 +45,12 @@ namespace Fsl
 
   namespace UI
   {
+    class BaseWindow;
+
     class BaseWindowContext
     {
+      bool m_isContentRenderingDirty{false};
+
     public:
       std::shared_ptr<DataBinding::DataBindingService> UIDataBindingService;
 
@@ -60,6 +64,25 @@ namespace Fsl
 
       explicit BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi);
       ~BaseWindowContext();
+
+
+      void MarkContentRenderingDirty(const BaseWindow* const pWindow)
+      {
+        if (!m_isContentRenderingDirty)
+        {
+          m_isContentRenderingDirty = true;
+          DoMarkContentRenderingDirty(pWindow);
+        }
+      }
+
+
+      void ClearContentRenderingDirty()
+      {
+        m_isContentRenderingDirty = false;
+      }
+
+    private:
+      void DoMarkContentRenderingDirty(const BaseWindow* const pWindow);
     };
   }
 }

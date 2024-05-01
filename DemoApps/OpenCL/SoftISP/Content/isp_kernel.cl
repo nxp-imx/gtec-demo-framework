@@ -633,7 +633,7 @@ __kernel void bilateral(__global uchar* input_image, __global uchar* output_imag
   int y = get_global_id(1);
   if ((x < 3) || (x >= WIDTH / 8 - 3))
   {
-     return;
+    return;
   }
   if ((y < 3) || (y >= HEIGHT - 3))
   {

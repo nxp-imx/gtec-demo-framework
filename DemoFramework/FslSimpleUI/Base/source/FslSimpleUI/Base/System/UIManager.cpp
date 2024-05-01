@@ -277,6 +277,10 @@ namespace Fsl::UI
   void UIManager::PostDraw()
   {
     m_renderSystem.PostDraw();
+    if (m_baseWindowContext)
+    {
+      m_baseWindowContext->ClearContentRenderingDirty();
+    }
   }
 
   const UI::IRenderSystemBase& UIManager::GetRenderSystem() const

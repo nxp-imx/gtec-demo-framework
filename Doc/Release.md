@@ -1,10 +1,110 @@
 # Releases
 
-## Release 6.0.1
+## Release 6.3.1 (May 1, 2024)
+
+* Fixed Vulkan.Screenshot, so it captures it at the correct time.
+* OpenCL.SoftISP example updated.
+* When UI.Benchmark is using DrawCaching any configuration change will force invalidate the cache so the effect of the options is immediately visible.
+* Windows did not get marked as dirty by layout changes.
+* Updated zlib version
+* OpenCL SoftISP Fix denoise kernel issue
+
+## Release 6.2.4 (Feb 27, 2024)
+
+* Updated zlib version
+* OpenCL SoftISP Fix denoise kernel issue
+
+## Release 6.3.0 (Jan 15, 2024)
+
+* FslDataBinding now supports two way binding.
+* UI.Benchmark now supports a draw cache option.
+* FslSimpleUI
+  * Draw caching support.
+  * Handles SRGB and HDR framebuffers better.
+* Added examples for Custom app services.
+* Android HDR check improved.
+* FslNativeWindowSystem modernized.
+* Yocto: Improved Wayland XDG implementations.
+  * Now supports XDG decorations where applicable.
+* FslBuild
+  * Visual Studio projects no longer references unused flavors.
+  * Clang format/tidy are now flavor aware.
+  * -open2 can now supply arguments to visual studio code (can be used as a workaround for wayland issues).
+* Upgraded fmt to 10.1.1
+* Upgraded clang tools to 16
+
+## Release 6.2.3 (Jan 15, 2024)
+
+* Marked samples that use the GL_VIV_direct_texture extension but was not marked as such.
+* SmoothScroll should now scroll on displays that are too small to show the entire text being shown
+* Fix out-of-bound R/W in gaussian_filter.cl
+* FslUtil.OpenCL.ContextEx added new constructor and reset method.
+
+## Release 6.2.2 (Nov 6, 2023)
+
+* Fixed a stride error in VUSegmentedBufferMemory.
+* Upgraded to zlib 1.3
+
+## Release 6.2.1 (Aug 9, 2023)
+
+* GLES3.ModelInstancing and Vulkan.ModelInstancing: Added arguments to control the instance count.
+* Improved EGLConfig selection and improved logging.
+* Ensured that OpenGL ES samples clear the alpha channel correctly.
+
+## Release 6.2.0 (Jul 13, 2023)
+
+* GLES2, GLES3, Vulkan UI.DeclarativeUI sample added.
+* Android changes
+  * Upgraded to match latest Android Studio.
+  * Fixed a issue with Android screen rotation support in some apps.
+  * Switched from NativeActivity to the new Android Game Development kit.
+* FslSimpleUI
+  * Improved DataBinding support.
+  * Controls now support min and max width.
+  * Hover events are now handled properly for touch input.
+* Third party dependencies
+  * Upgraded RapidVulkan to 1.3.250
+  * Upgraded to fmt 10.
+* Build system
+  * Now utilize flavors instead of variants.
+  * FslBuildDoc now keeps the SCR file up to date.
+* Improved Wayland XDG shell support.
+
+## Release 6.1.1 (Jun 7, 2023)
+
+* GCC13 support.
+* Small wayland bug fix.
+* Vulkan.NativeWindowTest update.
+* New 'feature' to make it easier to filter apps during testing.
+
+## Release 6.1.0 (Mar 16, 2023)
+
+* Added Vulkan.Stats and GLES3.Stats.
+* Yocto wayland XDG shell support.
+* Upgraded to fmt9
+* Bumped Android ndk to r25b
+* Updated android studio support to latest version.
+
+## Release 6.0.3 (Dec 9, 2022)
+
+* Samples that depend on "GL_VIV_direct_texture" now list it in their meta data.
+* Fixed a unit test.
+* Updated Yocto documentation.
+* Updated Visual Studio detection.
+* Updated zlib
+
+## Release 6.0.2 (Oct 18, 2022)
+
+* Forward compatibility with fmt 9.x
+* Upgraded assimp to 5.2.5 for gcc compatibility fix.
+* Fixed openvx recipe as its repository was changed.
+* Fixed openexr recipe as its repository was changed.
+
+## Release 6.0.1 (Jul 28, 2022)
 
 * Minor bugfix to OpenVG/NativeGraphicsBasic2D
 
-## Release 6.0.0
+## Release 6.0.0 (Jun 29, 2022)
 
 * Samples
   * Added [ModelInstancing](../DemoApps/Vulkan/ModelInstancing/README.md) for GLES3 and Vulkan.
@@ -42,19 +142,15 @@
   * Upgraded to [RapidVulkan 1.3.211](https://github.com/Unarmed1000/RapidVulkan/releases/tag/1.3.211.0).
   * OpenVX was upgraded to 1.2
 
-## Release 5.9.2
+## Release 5.9.2 (Jan 24, 2022)
 
 * Fixed OpenVX.Stereo compilation issue with new versions of OpenCV.
 
-## Release 5.9.1
-
-* Bug fix: GLES2+GLES3 BasicRender state cache was too aggressive.
-
-## Release 5.9.0
+## Release 5.9.1 (Jan 19, 2022)
 
 * Samples
-  * Added System.OnDemandRendering which showcase the new on demand rendering support. It can also be used to detect frame timing issues. (GLES2+3, Vulkan)
-  * Added System.BasicRenderModelLoader which showcase how to load a mesh and render it using the BasicRender  (GLES2+3, Vulkan).
+  * Added System.OnDemandRendering which showcase the new on demand rendering support. It can also be used to detect frame * timing issues. (GLES2+3, Vulkan)
+  * Added System.BasicRenderModelLoader which showcase how to load a mesh and render it using the BasicRender (GLES2+3, Vulkan).
   * Updated UI.Benchmark app with on demand rendering (GLES2+3, Vulkan).
   * Much more precise frame-timing.
   * Added new command line parameter '--Version' which lists the release version and git commit (if available).
@@ -69,13 +165,13 @@
   * FMT 8.1.1
   * RapidVulkan 1.2.189
 
-## Release 5.8.1
+## Release 5.8.1 (Nov 10, 2021)
 
 * Various minor fixes.
 * Angle compatibility fix.
 * Upgraded FslBuild.
 
-## Release 5.8.0
+## Release 5.8.0 (Sep 6, 2021)
 
 * New samples
   * GLES2.System.DevBasicRender
@@ -95,7 +191,7 @@
 * Dependencies:
   * Upgraded to OpenCV 4.5.2
 
-## Release 5.7.1
+## Release 5.7.1 (May 6, 2021)
 
 * Compatible with GCC11
 * Fixed G2D dependency issue.
@@ -103,7 +199,7 @@
 * Updated to OpenCV 4.5.2
 * Added some notes to help people that hit a "access denied" error when trying to run the visual studio cmake project.
 
-## Release 5.7.0
+## Release 5.7.0 (Jan 27, 2021)
 
 * Python 3.6 or better is now required
 * Updated all setup guides.
@@ -125,7 +221,20 @@
   * Upgraded GLI to master branch snapshot (0c171ee87fcfe35a7e0e0445adef06f92e0b6a91)
   * Upgraded RapidVulkan to 1.2.162
 
-## Release 5.6
+## Release 5.6.2 (Nov 3, 2020)
+
+* Fixed a issue in OpenVX.SoftISP
+* Improved the FslSimpleUI document.
+
+## Release 5.6.1 (Aug 21, 2020)
+
+* Fixed a issue in the basic UI theme for 80dpi.
+* Updated Doc/FslSimpleUI.md
+* Updated KnownIssues.md
+* Upgraded the fmt library to 7.x to improve compile time and reduce exe size.
+* Latest build tools
+
+## Release 5.6.0 (Jul 3, 2020)
 
 * This release contains breaking changes.
 * Recommendations and examples for designing custom UI systems.
@@ -156,7 +265,26 @@
 * Now require a compiler with proper C++14 constexpr support.
   * This means GCC 5.x and below is not supported.
 
-## Release 5.5
+## Release 5.5.3 (Jun 3, 2020)
+
+* Fixed a issue with packages marked as not supported
+* Now using libwayland-egl on some platforms.
+
+## Release 5.5.2 (May 5, 2020)
+
+* Fixed a matrix alignment bug in Vulkan.ObjectSelection.
+* Added a Matrix3Std140 helper class that matches the Vulkan shader layout for mat3 in std140 layout.
+
+## Release 5.5.1 (Feb 5, 2020)
+
+* Added a known issue for Visual Studio 2019 16.5.x and provided a workaround until its fixed.
+* Fixed a crash bug in Vulkan.Bloom and Vulkan.ModelViewer.
+* Fixed vulkan DFGraphicsBasic2D so it works without a --Stats overlay.
+* T3DStressTest. Fixed shader precision issue (that also exist in 5.4.0 and previous releases).
+* Vulkan depth selection no longer picks unwanted depth+stencil formats.
+* Workaround for OpenVG reference implementation EGL bug.
+
+## Release 5.5.0 (Feb 5, 2020)
 
 * New samples
   * GLES2.Stats
@@ -184,7 +312,7 @@
 * Introduced FSLLOG3 which use the fmt library instead of streams. The fmt library is a implementation of the C++20 std::format.
 * Experimental Angle support and compatibility test.
 
-## Release 5.4
+## Release 5.4 (Sep 10, 2019)
 
 * Now requires C++14.
 * New Samples
@@ -200,7 +328,13 @@
   * Android Studio 3.5.0
   * Android NDK r20
 
-## Release 5.3
+## Release 5.3.1 (May 21, 2019)
+
+* Added new sample Vulkan.NativeWindowTest.
+* Improved Vulkan Wayland support.
+* Yocto wayland fix: Not create shell surface for ivi applications which only requires ivi surface.
+
+## Release 5.3 (Feb 11, 2019)
 
 * Disable third party downloads per default for Yocto builds. To build using an old Yocto release that doesn't come with all third party software you need to add "--Recipes [*]" to your command line which will re-enable the download.
 * Updated all OpenCV 3 apps to OpenCV 4.
@@ -251,7 +385,7 @@
 * Various packages were improved to allow for better compiler optimizations.
 * Better support for various verbose output levels (-v, -vv, etc).
 
-## Release 5.2
+## Release 5.2 (Oct 15, 2018)
 
 * CONTRIBUTING.md describes how to contribute.
 * Early access to the Helios cross platform camera API.
@@ -275,7 +409,17 @@
   * Vulkan.TexturingArrays
   * Vulkan.TexturingCubeMap
 
-## Release 5.1
+## Release 5.1.1 (Jul 20, 2018)
+
+* FslBuild 2.8.4
+* Texture2D SetData
+* Fixed pixel formats in OpenCV3 demos
+* GLRawBitmapUtil::Result can now be constructed as 'empty'.
+* TClap recipe updated to use internal mirror of tclap.
+* Updated DemoFramework.docx yocto section as it was out of date.
+* Updated the TPConvert script
+
+## Release 5.1 (May 8, 2018)
 
 * All ThirdParty code is now downloaded as needed instead of being included in the repo.
 * Windows builds now default to Visual Studio 2017 instead of 2015.
@@ -299,12 +443,20 @@
 * Vulkan.VulkanInfo demo.
 * Android build now requires Android Studio 3.1 and the Android NDK16b or newer.
 
-## Release 5.0.1
+## DemoFramework 5.0.2 (Feb 26, 2018)
+
+* GLM 0.9.8.5 patch to fix a failure to identify new compilers like GCC 7.3 which caused compilation errors on GCC 7.3.
+* SoftISP samples: bug fix and added OptionParser.
+* Android: ContentSync now recognizes the new content format.
+* Android: Bumps the minimum android API level to fix some android header file incompatibilities.
+* FslBuild tools upgraded, this includes a fix to the automatic vulkan shader compilation.
+
+## Release 5.0.1 (Jan 23, 2018)
 
 * OpenVX.SoftISP demo.
 * OpenCL.SoftISP demo.
 
-## Release 5.0
+## Release 5.0 (Dec 9, 2017)
 
 * Tools now require Python 3.4+ instead of python 2.7
 * FslBuildNew script that can help you create a new project fast.
@@ -319,7 +471,15 @@
 * New libraries
   * Stb, xinput, perfcounters.
 
-## Release 4.0
+## Release 4.0.2 (Sep 14, 2017)
+
+* Minor corrections mainly targeting the yocto build.
+
+## Release 4.0.1 (Jun 6, 2017)
+
+* Contains a few minor bug fixes for Windows and Yocto.
+
+## Release 4.0 (May 1, 2017)
 
 * First public release on github.
 * Early access support for Vulkan, OpenCL, OpenCV and OpenVX.

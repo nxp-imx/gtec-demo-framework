@@ -64,7 +64,6 @@ namespace Fsl::UI
     if (changed)
     {
       DoSetContent(m_propertyContent.Get());
-      PropertyUpdated(PropertyType::Content);
     }
     return changed;
   }
@@ -76,7 +75,6 @@ namespace Fsl::UI
     if (changed)
     {
       DoSetContent(m_propertyContent.Get());
-      PropertyUpdated(PropertyType::Content);
     }
     return changed;
   }
@@ -88,7 +86,6 @@ namespace Fsl::UI
     if (changed)
     {
       DoSetContent(m_propertyContent.Get());
-      PropertyUpdated(PropertyType::Content);
     }
     return changed;
   }

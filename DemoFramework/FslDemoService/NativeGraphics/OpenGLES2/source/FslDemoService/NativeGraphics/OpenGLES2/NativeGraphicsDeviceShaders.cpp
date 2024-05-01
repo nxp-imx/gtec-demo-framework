@@ -35,10 +35,16 @@
 
 namespace Fsl::GLES2
 {
+
+
   namespace
   {
     constexpr const char* const g_vertexShader =
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
       "precision mediump float;\n"
+      "#endif\n"
       "uniform mat4 MatModelViewProj;\n"
       "\n"
       "attribute vec4 inVertexPosition;\n"
@@ -57,7 +63,11 @@ namespace Fsl::GLES2
 
 
     constexpr const char* const g_fragmentShader =
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
       "precision mediump float;\n"
+      "#endif\n"
       "\n"
       "uniform sampler2D Texture;\n"
       "\n"
@@ -71,7 +81,11 @@ namespace Fsl::GLES2
 
 
     constexpr const char* const g_fragmentSdfShader =
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
       "precision mediump float;\n"
+      "#endif\n"
       "\n"
       "uniform sampler2D Texture;\n"
       "uniform float Smoothing;\n"

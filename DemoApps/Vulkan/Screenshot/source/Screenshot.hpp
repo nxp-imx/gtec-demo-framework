@@ -42,7 +42,7 @@
 
 namespace Fsl
 {
-  class Screenshot
+  class Screenshot final
     : public VulkanBasic::DemoAppVulkanBasic
     , public UI::EventListener
   {
@@ -82,15 +82,16 @@ namespace Fsl
 
   public:
     explicit Screenshot(const DemoAppConfig& config);
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
+    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) final;
+    void _EndDraw(const FrameInfo& frameInfo) final;
 
   protected:
-    void Update(const DemoTime& demoTime) override;
-    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
-    AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) override;
+    void Update(const DemoTime& demoTime) final;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
+    AppDrawResult TrySwapBuffers(const FrameInfo& frameInfo) final;
 
-    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
-    void OnFreeResources() override;
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) final;
+    void OnFreeResources() final;
 
   private:
     Bitmap TryCaptureScreenshot();

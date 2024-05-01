@@ -39,7 +39,11 @@ namespace Fsl::GLES3
   {
     constexpr const char* const g_vertexShader =
       "#version 300 es\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
       "precision mediump float;\n"
+      "#endif\n"
       "uniform mat4 MatModelViewProj;\n"
       "\n"
       "layout(location = 0) in vec4 inVertexPosition;\n"
@@ -59,7 +63,11 @@ namespace Fsl::GLES3
 
     constexpr const char* const g_fragmentShader =
       "#version 300 es\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
       "precision mediump float;\n"
+      "#endif\n"
       "\n"
       "uniform sampler2D Texture;\n"
       "\n"
@@ -76,7 +84,11 @@ namespace Fsl::GLES3
 
     constexpr const char* const g_fragmentSdfShader =
       "#version 300 es\n"
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "precision highp float;\n"
+      "#else\n"
       "precision mediump float;\n"
+      "#endif\n"
       "\n"
       "uniform sampler2D Texture;\n"
       "uniform float Smoothing;\n"

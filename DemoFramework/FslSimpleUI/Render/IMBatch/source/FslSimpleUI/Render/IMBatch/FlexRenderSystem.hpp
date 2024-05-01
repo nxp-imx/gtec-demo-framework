@@ -70,6 +70,7 @@ namespace Fsl::UI::RenderIMBatch
       m_batcher.SetLimitOnlyOneEntryPerBatch(!config.Batch);
       m_batcher.SetLimitOnlyOneBatchPerSegment(!config.FillBuffers);
       m_config = config;
+      InvalidateDrawCache();
     }
 
     uint32_t GetMaxDrawCalls() const final

@@ -90,7 +90,6 @@ namespace Fsl::UI
 
       m_format.assign(value.data(), value.size());
       RebuildCache();
-      PropertyUpdated(PropertyType::Content);
       return true;
     }
 
@@ -104,7 +103,6 @@ namespace Fsl::UI
 
       m_format = strFormat;
       RebuildCache();
-      PropertyUpdated(PropertyType::Content);
       return true;
     }
 
@@ -119,7 +117,6 @@ namespace Fsl::UI
 
       m_format = std::move(strFormat);
       RebuildCache();
-      PropertyUpdated(PropertyType::Content);
       return true;
     }
 
@@ -134,7 +131,6 @@ namespace Fsl::UI
       if (changed)
       {
         RebuildCache();
-        PropertyUpdated(PropertyType::Content);
       }
       return changed;
     }

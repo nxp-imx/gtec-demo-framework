@@ -221,6 +221,6 @@ These are just recommended third party tools and plugins, but use them at your o
   * [PlantUML](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml)
   * [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
   * [Visual Studio Keymap](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vs-keybindings)
-  * [Visual Studio 2022](https://visualstudio.microsoft.com/)
+* [Visual Studio 2022](https://visualstudio.microsoft.com/)
   * [Markdown Editor](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.MarkdownEditor)
   * [Trailing Whitespace Visualizer](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.TrailingWhitespaceVisualizer)

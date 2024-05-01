@@ -163,6 +163,12 @@ namespace Fsl::UI::RenderIMBatch
     {
       return m_stats;
     }
+
+    //! Ensure that the draw cache is invalid so the render operation is done from scratch
+    void InvalidateDrawCache() noexcept
+    {
+      m_commandBufferSizeLastFrame = 0;
+    }
   };
 }
 
